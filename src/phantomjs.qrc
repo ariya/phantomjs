@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>phantomjs-icon.png</file>
+    </qresource>
+</RCC>

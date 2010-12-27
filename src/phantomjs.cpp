@@ -281,6 +281,7 @@ int main(int argc, char** argv)
 
     QApplication app(argc, argv);
 
+    app.setWindowIcon(QIcon(":/phantomjs-icon.png"));
     app.setApplicationName("PhantomJS");
     app.setOrganizationName("Ofi Labs");
     app.setOrganizationDomain("www.ofilabs.com");
