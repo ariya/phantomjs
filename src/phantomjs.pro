@@ -4,3 +4,4 @@ DESTDIR = ../bin
 SOURCES = phantomjs.cpp
 RESOURCES = phantomjs.qrc
 QT += network webkit
+CONFIG += console
