@@ -172,7 +172,7 @@ void Phantom::execute(const QString &fileName)
     file.setFileName(fileName);
     if (!file.open(QFile::ReadOnly)) {
         std::cerr << "Can't open " << qPrintable(fileName) << std::endl << std::endl;
-        QApplication::instance()->exit(1);
+        exit(1);
         return;
     }
     m_script = file.readAll();
