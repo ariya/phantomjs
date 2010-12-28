@@ -149,6 +149,9 @@ Phantom::Phantom(QObject *parent)
     m_page.settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
     m_page.settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
     m_page.settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+
+    // Ensure we have document.body.
+    m_page.mainFrame()->setHtml("<html><body></body></html>");
 }
 
 QStringList Phantom::arguments() const
