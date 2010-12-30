@@ -75,8 +75,6 @@ class Phantom: public QObject
     Q_OBJECT
     Q_PROPERTY(QStringList arguments READ arguments)
     Q_PROPERTY(QString content READ content WRITE setContent)
-    Q_PROPERTY(bool inspectorEnabled READ isInspectorEnabled WRITE setInspectorEnabled)
-    Q_PROPERTY(bool inspectorVisible READ isInspectorVisible WRITE setInspectorVisible)
     Q_PROPERTY(QString loadStatus READ loadStatus)
     Q_PROPERTY(QString storage READ storage WRITE setStorage)
     Q_PROPERTY(QString userAgent READ userAgent WRITE setUserAgent)
@@ -118,7 +116,6 @@ private slots:
 
 private:
     QStringList m_arguments;
-    QWebInspector m_inspector;
     QString m_loadStatus;
     WebPage m_page;
     int m_returnValue;
@@ -139,8 +136,6 @@ Phantom::Phantom(QObject *parent)
     m_arguments = QApplication::arguments();
     m_arguments.removeFirst();
     m_arguments.removeFirst();
-
-    m_inspector.setPage(&m_page);
 
     connect(m_page.mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), SLOT(inject()));
     connect(&m_page, SIGNAL(loadFinished(bool)), this, SLOT(finish(bool)));
@@ -201,16 +196,6 @@ void Phantom::inject()
     m_page.mainFrame()->addToJavaScriptWindowObject("phantom", this);
 }
 
-bool Phantom::isInspectorEnabled() const
-{
-    return m_page.settings()->testAttribute(QWebSettings::DeveloperExtrasEnabled);
-}
-
-bool Phantom::isInspectorVisible() const
-{
-    return m_inspector.isVisible();
-}
-
 QString Phantom::loadStatus() const
 {
     return m_loadStatus;
@@ -226,16 +211,6 @@ void Phantom::open(const QString &address)
     m_page.triggerAction(QWebPage::Stop);
     m_loadStatus = "loading";
     m_page.mainFrame()->setUrl(address);
-}
-
-void Phantom::setInspectorEnabled(bool enable)
-{
-    m_page.settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, enable);
-}
-
-void Phantom::setInspectorVisible(bool visible)
-{
-    m_inspector.setVisible(visible);
 }
 
 int Phantom::returnValue() const
