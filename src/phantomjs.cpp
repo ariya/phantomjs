@@ -138,6 +138,7 @@ Phantom::Phantom(QObject *parent)
     connect(m_page.mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), SLOT(inject()));
     connect(&m_page, SIGNAL(loadFinished(bool)), this, SLOT(finish(bool)));
 
+    m_page.settings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
     m_page.settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
     m_page.settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
     m_page.settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
@@ -145,6 +146,9 @@ Phantom::Phantom(QObject *parent)
 
     // Ensure we have document.body.
     m_page.mainFrame()->setHtml("<html><body></body></html>");
+
+    m_page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
+    m_page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 }
 
 QStringList Phantom::arguments() const
