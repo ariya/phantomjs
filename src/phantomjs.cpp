@@ -78,6 +78,7 @@ class Phantom: public QObject
     Q_PROPERTY(QString loadStatus READ loadStatus)
     Q_PROPERTY(QString storage READ storage WRITE setStorage)
     Q_PROPERTY(QString userAgent READ userAgent WRITE setUserAgent)
+    Q_PROPERTY(QVariantMap viewportSize READ viewportSize WRITE setViewportSize)
 
 public:
     Phantom(QObject *parent = 0);
@@ -97,6 +98,9 @@ public:
 
     void setUserAgent(const QString &ua);
     QString userAgent() const;
+
+    void setViewportSize(const QVariantMap &size);
+    QVariantMap viewportSize() const;
 
 public slots:
     void exit(int code = 0);
@@ -240,6 +244,23 @@ void Phantom::setUserAgent(const QString &ua)
 QString Phantom::userAgent() const
 {
     return m_page.m_userAgent;
+}
+
+void Phantom::setViewportSize(const QVariantMap &size)
+{
+    int w = size.value("width").toInt();
+    int h = size.value("height").toInt();
+    if (w > 0 && h > 0)
+        m_page.setViewportSize(QSize(w, h));
+}
+
+QVariantMap Phantom::viewportSize() const
+{
+    QVariantMap result;
+    QSize size = m_page.viewportSize();
+    result["width"] = size.width();
+    result["height"] = size.height();
+    return result;
 }
 
 #include "phantomjs.moc"
