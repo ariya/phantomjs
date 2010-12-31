@@ -92,12 +92,6 @@ public:
 
     QString loadStatus() const;
 
-    bool isInspectorEnabled() const;
-    void setInspectorEnabled(bool enable);
-
-    bool isInspectorVisible() const;
-    void setInspectorVisible(bool visible);
-
     void setStorage(const QString &value);
     QString storage() const;
 
