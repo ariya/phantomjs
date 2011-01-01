@@ -106,6 +106,7 @@ public slots:
     void exit(int code = 0);
     void log(const QString &msg);
     void open(const QString &address);
+    bool render(const QString &fileName);
     void sleep(int ms);
 
 private slots:
@@ -213,6 +214,31 @@ void Phantom::open(const QString &address)
     m_page.triggerAction(QWebPage::Stop);
     m_loadStatus = "loading";
     m_page.mainFrame()->setUrl(address);
+}
+
+bool Phantom::render(const QString &fileName)
+{
+    QSize viewportSize = m_page.viewportSize();
+    QSize pageSize = m_page.mainFrame()->contentsSize();
+    if (pageSize.isEmpty())
+        return false;
+
+    QImage buffer(pageSize, QImage::Format_ARGB32_Premultiplied);
+    buffer.fill(Qt::transparent);
+    QPainter p(&buffer);
+    p.setRenderHint(QPainter::Antialiasing, true);
+    p.setRenderHint(QPainter::TextAntialiasing, true);
+    p.setRenderHint(QPainter::SmoothPixmapTransform, true);
+    m_page.setViewportSize(pageSize);
+    m_page.mainFrame()->render(&p);
+    p.end();
+    m_page.setViewportSize(viewportSize);
+
+    QFileInfo fileInfo(fileName);
+    QDir dir;
+    dir.mkpath(fileInfo.absolutePath());
+
+    return buffer.save(fileName);
 }
 
 int Phantom::returnValue() const
