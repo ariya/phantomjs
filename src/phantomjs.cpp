@@ -45,7 +45,8 @@ public slots:
     bool shouldInterruptJavaScript();
 
 protected:
-    void javaScriptConsoleMessage(const QString & message, int lineNumber, const QString & sourceID);
+    void javaScriptAlert(QWebFrame *originatingFrame, const QString &msg);
+    void javaScriptConsoleMessage(const QString &message, int lineNumber, const QString &sourceID);
     QString userAgentForUrl(const QUrl &url) const;
 
 private:
@@ -57,6 +58,12 @@ WebPage::WebPage(QObject *parent)
     : QWebPage(parent)
 {
     m_userAgent = QWebPage::userAgentForUrl(QUrl());
+}
+
+void WebPage::javaScriptAlert(QWebFrame *originatingFrame, const QString &msg)
+{
+    Q_UNUSED(originatingFrame);
+    std::cout << "JavaScript alert: " << qPrintable(msg) << std::endl;
 }
 
 void WebPage::javaScriptConsoleMessage(const QString &message, int lineNumber, const QString &sourceID)
