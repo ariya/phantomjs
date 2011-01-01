@@ -35,6 +35,11 @@
 #error Use Qt 4.7 or later version
 #endif
 
+#define PHANTOMJS_VERSION_MAJOR  1
+#define PHANTOMJS_VERSION_MINOR  0
+#define PHANTOMJS_VERSION_PATCH  0
+#define PHANTOMJS_VERSION_STRING "1.0.0"
+
 class WebPage: public QWebPage
 {
     Q_OBJECT
@@ -93,6 +98,7 @@ class Phantom: public QObject
     Q_PROPERTY(QString loadStatus READ loadStatus)
     Q_PROPERTY(QString state READ state WRITE setState)
     Q_PROPERTY(QString userAgent READ userAgent WRITE setUserAgent)
+    Q_PROPERTY(QVariantMap version READ version)
     Q_PROPERTY(QVariantMap viewportSize READ viewportSize WRITE setViewportSize)
 
 public:
@@ -113,6 +119,8 @@ public:
 
     void setUserAgent(const QString &ua);
     QString userAgent() const;
+
+    QVariantMap version() const;
 
     void setViewportSize(const QVariantMap &size);
     QVariantMap viewportSize() const;
@@ -285,6 +293,15 @@ QString Phantom::userAgent() const
     return m_page.m_userAgent;
 }
 
+QVariantMap Phantom::version() const
+{
+    QVariantMap result;
+    result["major"] = PHANTOMJS_VERSION_MAJOR;
+    result["minor"] = PHANTOMJS_VERSION_MINOR;
+    result["patch"] = PHANTOMJS_VERSION_PATCH;
+    return result;
+}
+
 void Phantom::setViewportSize(const QVariantMap &size)
 {
     int w = size.value("width").toInt();
@@ -317,7 +334,7 @@ int main(int argc, char** argv)
     app.setApplicationName("PhantomJS");
     app.setOrganizationName("Ofi Labs");
     app.setOrganizationDomain("www.ofilabs.com");
-    app.setApplicationVersion("1.0");
+    app.setApplicationVersion(PHANTOMJS_VERSION_STRING);
 
     Phantom phantom;
     phantom.execute(QString::fromLocal8Bit(argv[1]));
