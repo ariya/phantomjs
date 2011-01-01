@@ -1,0 +1,14 @@
+if (phantom.storage.length === 0) {
+    var address = phantom.arguments[0];
+    phantom.storage = 'news';
+    phantom.viewportSize = { width: 320, height: 480 };
+    phantom.open('http://news.google.com/news/i/section?&topic=t');
+} else {
+    var body = document.body;
+    body.style.backgroundColor = '#fff';
+    body.querySelector('div#title-block').style.display = 'none';
+    body.querySelector('form#edition-picker-form').parentElement.parentElement.style.display = 'none';
+    phantom.sleep(500);
+    phantom.render('technews.png');
+    phantom.exit();
+}
