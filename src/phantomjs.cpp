@@ -91,7 +91,7 @@ class Phantom: public QObject
     Q_PROPERTY(QStringList arguments READ arguments)
     Q_PROPERTY(QString content READ content WRITE setContent)
     Q_PROPERTY(QString loadStatus READ loadStatus)
-    Q_PROPERTY(QString storage READ storage WRITE setStorage)
+    Q_PROPERTY(QString state READ state WRITE setState)
     Q_PROPERTY(QString userAgent READ userAgent WRITE setUserAgent)
     Q_PROPERTY(QVariantMap viewportSize READ viewportSize WRITE setViewportSize)
 
@@ -108,8 +108,8 @@ public:
 
     QString loadStatus() const;
 
-    void setStorage(const QString &value);
-    QString storage() const;
+    void setState(const QString &value);
+    QString state() const;
 
     void setUserAgent(const QString &ua);
     QString userAgent() const;
@@ -133,7 +133,7 @@ private:
     WebPage m_page;
     int m_returnValue;
     QString m_script;
-    QString m_storage;
+    QString m_state;
 };
 
 Phantom::Phantom(QObject *parent)
@@ -265,14 +265,14 @@ void Phantom::sleep(int ms)
     }
 }
 
-void Phantom::setStorage(const QString &value)
+void Phantom::setState(const QString &value)
 {
-    m_storage = value;
+    m_state = value;
 }
 
-QString Phantom::storage() const
+QString Phantom::state() const
 {
-    return m_storage;
+    return m_state;
 }
 
 void Phantom::setUserAgent(const QString &ua)

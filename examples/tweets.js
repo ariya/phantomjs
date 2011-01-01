@@ -1,7 +1,7 @@
 // Get twitter status from someone
 
-if (phantom.storage.length === 0) {
-    phantom.storage = 'tweets';
+if (phantom.state.length === 0) {
+    phantom.state = 'tweets';
     phantom.open('http://mobile.twitter.com/mr3bc');
 } else {
     var list = document.querySelectorAll('span.status');

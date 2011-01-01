@@ -1,10 +1,10 @@
-if (phantom.storage.length === 0) {
+if (phantom.state.length === 0) {
     if (phantom.arguments.length !== 2) {
         console.log('Usage: rasterize.js URL filename');
         phantom.exit();
     } else {
         var address = phantom.arguments[0];
-        phantom.storage = 'rasterize';
+        phantom.state = 'rasterize';
         phantom.viewportSize = { width: 600, height: 600 };
         phantom.open(address);
     }

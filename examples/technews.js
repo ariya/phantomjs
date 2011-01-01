@@ -1,6 +1,6 @@
-if (phantom.storage.length === 0) {
+if (phantom.state.length === 0) {
     var address = phantom.arguments[0];
-    phantom.storage = 'news';
+    phantom.state = 'news';
     phantom.viewportSize = { width: 320, height: 480 };
     phantom.open('http://news.google.com/news/i/section?&topic=t');
 } else {

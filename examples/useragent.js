@@ -1,5 +1,5 @@
-if (phantom.storage.length === 0) {
-    phantom.storage = 'checking';
+if (phantom.state.length === 0) {
+    phantom.state = 'checking';
     phantom.userAgent = 'SpecialAgent';
     phantom.open('http://www.httpuseragent.org');
 } else {

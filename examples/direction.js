@@ -1,6 +1,6 @@
 // Get driving direction using Google Directions API.
 
-if (phantom.storage.length === 0) {
+if (phantom.state.length === 0) {
     var origin, dest;
     if (phantom.arguments.length < 2) {
         console.log('Usage: direction.js origin destination');
@@ -9,7 +9,7 @@ if (phantom.storage.length === 0) {
     }
     origin = phantom.arguments[0];
     dest = phantom.arguments[1];
-    phantom.storage = origin + ' to ' + dest;
+    phantom.state = origin + ' to ' + dest;
     phantom.open(encodeURI('http://maps.googleapis.com/maps/api/directions/xml?origin=' + origin +
                 '&destination=' + dest + '&units=imperial&mode=driving&sensor=false'));
 } else {
@@ -20,7 +20,7 @@ if (phantom.storage.length === 0) {
 
     direction = x2j(phantom.content);
     if (typeof direction == 'undefined') {
-        console.log('No data available for ' + phantom.storage);
+        console.log('No data available for ' + phantom.state);
         phantom.exit(1);
     }
 

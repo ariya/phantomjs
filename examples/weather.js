@@ -1,9 +1,9 @@
-if (phantom.storage.length === 0) {
+if (phantom.state.length === 0) {
     var city = 'Mountain View';
     if (phantom.arguments.length > 0) {
         city = phantom.arguments.join(' ');
     }
-    phantom.storage = city;
+    phantom.state = city;
     console.log('Loading ' + city);
     phantom.open(encodeURI('http://www.google.com/ig/api?weather=' + city));
 } else {
@@ -14,7 +14,7 @@ if (phantom.storage.length === 0) {
     }
 
     if (document.querySelectorAll('problem_cause').length > 0) {
-        console.log('No data available for ' + phantom.storage);
+        console.log('No data available for ' + phantom.state);
         phantom.exit(1);
     }
 

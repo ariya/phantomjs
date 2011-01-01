@@ -1,9 +1,9 @@
-if (phantom.storage.length === 0) {
+if (phantom.state.length === 0) {
     if (phantom.arguments.length !== 1) {
         console.log('Usage: run-jasmine.js URL');
         phantom.exit();
     } else {
-        phantom.storage = 'run-jasmine';
+        phantom.state = 'run-jasmine';
         phantom.open(phantom.arguments[0]);
     }
 } else {
