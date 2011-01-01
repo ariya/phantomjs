@@ -45,6 +45,7 @@ public slots:
     bool shouldInterruptJavaScript();
 
 protected:
+    void javaScriptConsoleMessage(const QString & message, int lineNumber, const QString & sourceID);
     QString userAgentForUrl(const QUrl &url) const;
 
 private:
@@ -56,6 +57,13 @@ WebPage::WebPage(QObject *parent)
     : QWebPage(parent)
 {
     m_userAgent = QWebPage::userAgentForUrl(QUrl());
+}
+
+void WebPage::javaScriptConsoleMessage(const QString &message, int lineNumber, const QString &sourceID)
+{
+    if (!sourceID.isEmpty())
+        std::cout << qPrintable(sourceID) << ":" << lineNumber << " ";
+    std::cout << qPrintable(message) << std::endl;
 }
 
 bool WebPage::shouldInterruptJavaScript()
@@ -104,7 +112,6 @@ public:
 
 public slots:
     void exit(int code = 0);
-    void log(const QString &msg);
     void open(const QString &address);
     bool render(const QString &fileName);
     void sleep(int ms);
@@ -202,11 +209,6 @@ void Phantom::inject()
 QString Phantom::loadStatus() const
 {
     return m_loadStatus;
-}
-
-void Phantom::log(const QString &msg)
-{
-    std::cout << qPrintable(msg) << std::endl;
 }
 
 void Phantom::open(const QString &address)

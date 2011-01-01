@@ -6,7 +6,7 @@ if (phantom.storage.length === 0) {
 } else {
     var list = document.querySelectorAll('span.status');
     for (var i = 0; i < list.length; ++i) {
-        phantom.log((i + 1) + ': ' + list[i].innerHTML.replace(/<.*?>/g, ''));
+        console.log((i + 1) + ': ' + list[i].innerHTML.replace(/<.*?>/g, ''));
     }
     phantom.exit();
 }

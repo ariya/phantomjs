@@ -4,7 +4,7 @@ var cbfunc = function (data) {
     globaldata= data;
     var list = data.query.results.movie;
     list.forEach(function (item) {
-        phantom.log(item.title + ' [' + item.rating.MPAA.content + ']');
+        console.log(item.title + ' [' + item.rating.MPAA.content + ']');
     });
     phantom.exit();
 };

@@ -4,8 +4,8 @@ cb = function (data) {
     var loc = data.city;
     if (data.region_name.length > 0)
         loc = loc + ', ' + data.region_name;
-    phantom.log('IP address: ' + data.ip);
-    phantom.log('Estimated location: ' + loc);
+    console.log('IP address: ' + data.ip);
+    console.log('Estimated location: ' + loc);
     phantom.exit();
 };
 

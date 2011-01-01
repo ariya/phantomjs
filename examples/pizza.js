@@ -6,7 +6,7 @@ if (phantom.storage.length === 0) {
 } else {
     var list = document.querySelectorAll('div.bf');
     for (var i in list) {
-        phantom.log(list[i].innerText);
+        console.log(list[i].innerText);
     }
     phantom.exit();
 }

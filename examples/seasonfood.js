@@ -7,7 +7,7 @@ var cbfunc = function (data) {
                  'July', 'August', 'September',
                  'October', 'November', 'December'];
     list.forEach(function (item) {
-        phantom.log([item.name.replace(/\s/ig, ' '), ':',
+        console.log([item.name.replace(/\s/ig, ' '), ':',
                   names[item.atItsBestUntil], 'to',
                   names[item.atItsBestFrom]].join(' '));
     });

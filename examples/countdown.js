@@ -1,8 +1,8 @@
 var t = 10;
 while (t > 0) {
-    phantom.log(t);
+    console.log(t);
     phantom.sleep(1000);
     t = t - 1;
 }
-phantom.log('BLAST OFF');
+console.log('BLAST OFF');
 phantom.exit();

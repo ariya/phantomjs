@@ -3,8 +3,8 @@
 if (phantom.storage.length === 0) {
     var origin, dest;
     if (phantom.arguments.length < 2) {
-        phantom.log('Usage: direction.js origin destination');
-        phantom.log('Example: direction.js "San Diego" "Palo Alto"');
+        console.log('Usage: direction.js origin destination');
+        console.log('Example: direction.js "San Diego" "Palo Alto"');
         phantom.exit(1);
     }
     origin = phantom.arguments[0];
@@ -14,13 +14,13 @@ if (phantom.storage.length === 0) {
                 '&destination=' + dest + '&units=imperial&mode=driving&sensor=false'));
 } else {
     if (phantom.loadStatus === 'fail') {
-        phantom.log('Unable to access network');
+        console.log('Unable to access network');
         phantom.exit(1);
     }
 
     direction = x2j(phantom.content);
     if (typeof direction == 'undefined') {
-        phantom.log('No data available for ' + phantom.storage);
+        console.log('No data available for ' + phantom.storage);
         phantom.exit(1);
     }
 
@@ -30,11 +30,11 @@ if (phantom.storage.length === 0) {
         ins = ins.replace(/\&lt;/ig, '<').replace(/\&gt;/ig, '>');
         ins = ins.replace(/\<div/ig, '\n<div');
         ins = ins.replace(/<.*?>/g, '');
-        phantom.log(ins + ' (' + step.distance.text + ')');
+        console.log(ins + ' (' + step.distance.text + ')');
     });
 
-    phantom.log('');
-    phantom.log(route.copyrights);
+    console.log('');
+    console.log(route.copyrights);
     phantom.exit();
 }
 

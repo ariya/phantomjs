@@ -1,6 +1,6 @@
 if (phantom.storage.length === 0) {
     if (phantom.arguments.length !== 2) {
-        phantom.log('Usage: rasterize.js URL filename');
+        console.log('Usage: rasterize.js URL filename');
         phantom.exit();
     } else {
         var address = phantom.arguments[0];
