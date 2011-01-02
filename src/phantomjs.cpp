@@ -235,6 +235,18 @@ void Phantom::open(const QString &address)
 
 bool Phantom::render(const QString &fileName)
 {
+    QFileInfo fileInfo(fileName);
+    QDir dir;
+    dir.mkpath(fileInfo.absolutePath());
+
+    if (fileName.toLower().endsWith(".pdf")) {
+        QPrinter printer;
+        printer.setOutputFormat(QPrinter::PdfFormat);
+        printer.setOutputFileName(fileName);
+        m_page.mainFrame()->print(&printer);
+        return true;
+    }
+
     QSize viewportSize = m_page.viewportSize();
     QSize pageSize = m_page.mainFrame()->contentsSize();
     if (pageSize.isEmpty())
@@ -250,11 +262,6 @@ bool Phantom::render(const QString &fileName)
     m_page.mainFrame()->render(&p);
     p.end();
     m_page.setViewportSize(viewportSize);
-
-    QFileInfo fileInfo(fileName);
-    QDir dir;
-    dir.mkpath(fileInfo.absolutePath());
-
     return buffer.save(fileName);
 }
 
