@@ -207,6 +207,7 @@ void Phantom::execute(const QString &fileName)
 void Phantom::exit(int code)
 {
     m_returnValue = code;
+    disconnect(&m_page, SIGNAL(loadFinished(bool)), this, SLOT(finish(bool)));
     QTimer::singleShot(0, qApp, SLOT(quit()));
 }
 
