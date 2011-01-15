@@ -2,13 +2,13 @@
 
 if (phantom.state.length === 0) {
     var origin, dest;
-    if (phantom.arguments.length < 2) {
+    if (phantom.args.length < 2) {
         console.log('Usage: direction.js origin destination');
         console.log('Example: direction.js "San Diego" "Palo Alto"');
         phantom.exit(1);
     }
-    origin = phantom.arguments[0];
-    dest = phantom.arguments[1];
+    origin = phantom.args[0];
+    dest = phantom.args[1];
     phantom.state = origin + ' to ' + dest;
     phantom.open(encodeURI('http://maps.googleapis.com/maps/api/directions/xml?origin=' + origin +
                 '&destination=' + dest + '&units=imperial&mode=driving&sensor=false'));

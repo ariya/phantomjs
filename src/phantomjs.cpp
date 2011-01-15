@@ -93,7 +93,7 @@ QString WebPage::userAgentForUrl(const QUrl &url) const
 class Phantom: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList arguments READ arguments)
+    Q_PROPERTY(QStringList args READ args)
     Q_PROPERTY(QString content READ content WRITE setContent)
     Q_PROPERTY(QString loadStatus READ loadStatus)
     Q_PROPERTY(QString state READ state WRITE setState)
@@ -104,7 +104,7 @@ class Phantom: public QObject
 public:
     Phantom(QObject *parent = 0);
 
-    QStringList arguments() const;
+    QStringList args() const;
 
     QString content() const;
     void setContent(const QString &content);
@@ -136,7 +136,7 @@ private slots:
     void finish(bool);
 
 private:
-    QStringList m_arguments;
+    QStringList m_args;
     QString m_loadStatus;
     WebPage m_page;
     int m_returnValue;
@@ -154,9 +154,9 @@ Phantom::Phantom(QObject *parent)
 
     // first argument: program name (phantomjs)
     // second argument: script name
-    m_arguments = QApplication::arguments();
-    m_arguments.removeFirst();
-    m_arguments.removeFirst();
+    m_args = QApplication::arguments();
+    m_args.removeFirst();
+    m_args.removeFirst();
 
     connect(m_page.mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), SLOT(inject()));
     connect(&m_page, SIGNAL(loadFinished(bool)), this, SLOT(finish(bool)));
@@ -174,9 +174,9 @@ Phantom::Phantom(QObject *parent)
     m_page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 }
 
-QStringList Phantom::arguments() const
+QStringList Phantom::args() const
 {
-     return m_arguments;
+     return m_args;
 }
 
 QString Phantom::content() const

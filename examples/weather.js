@@ -1,7 +1,7 @@
 if (phantom.state.length === 0) {
     var city = 'Mountain View';
-    if (phantom.arguments.length > 0) {
-        city = phantom.arguments.join(' ');
+    if (phantom.args.length > 0) {
+        city = phantom.args.join(' ');
     }
     phantom.state = city;
     console.log('Loading ' + city);

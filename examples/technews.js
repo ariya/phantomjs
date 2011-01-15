@@ -1,5 +1,5 @@
 if (phantom.state.length === 0) {
-    var address = phantom.arguments[0];
+    var address = phantom.args[0];
     phantom.state = 'news';
     phantom.viewportSize = { width: 320, height: 480 };
     phantom.open('http://news.google.com/news/i/section?&topic=t');

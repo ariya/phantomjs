@@ -1,10 +1,10 @@
 if (phantom.state.length === 0) {
-    if (phantom.arguments.length !== 1) {
+    if (phantom.args.length !== 1) {
         console.log('Usage: run-jasmine.js URL');
         phantom.exit();
     } else {
         phantom.state = 'run-jasmine';
-        phantom.open(phantom.arguments[0]);
+        phantom.open(phantom.args[0]);
     }
 } else {
     window.setInterval(function () {
