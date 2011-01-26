@@ -3,6 +3,8 @@ PhantomJS is a minimalistic, headless, WebKit-based JavaScript-driven tool.
 It has native (and high performant) support for DOM handling, CSS selector,
 JSON, Canvas, and SVG.
 
+Read the (announcement blog post)[http://goo.gl/sZfM7].
+
 PhantomJS runs on Linux, Windows, and Mac OS X. Refer to the
 [build instructions](http://code.google.com/p/phantomjs/wiki/BuildInstructions)
 for details.
