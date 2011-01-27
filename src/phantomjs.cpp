@@ -253,8 +253,8 @@ bool Phantom::render(const QString &fileName)
     if (pageSize.isEmpty())
         return false;
 
-    QImage buffer(pageSize, QImage::Format_ARGB32_Premultiplied);
-    buffer.fill(Qt::transparent);
+    QImage buffer(pageSize, QImage::Format_ARGB32);
+    buffer.fill(qRgba(255, 255, 255, 0));
     QPainter p(&buffer);
     p.setRenderHint(QPainter::Antialiasing, true);
     p.setRenderHint(QPainter::TextAntialiasing, true);
