@@ -336,6 +336,16 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    QString var(getenv("HTTP_PROXY"));
+    QRegExp regex("(http://)?(.*):(\\d*)/?");
+    int pos = regex.indexIn(var);
+    if(pos > -1){
+        QString host = regex.cap(2);
+        int port = regex.cap(3).toInt();
+        QNetworkProxy proxy(QNetworkProxy::HttpProxy, host, port);
+        QNetworkProxy::setApplicationProxy(proxy);
+    }
+
     QApplication app(argc, argv);
 
     app.setWindowIcon(QIcon(":/phantomjs-icon.png"));
