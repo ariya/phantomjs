@@ -31,8 +31,8 @@
 #include <QtWebKit>
 #include <iostream>
 
-#if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
-#error Use Qt 4.7 or later version
+#if QT_VERSION < QT_VERSION_CHECK(4, 5, 0)
+#error Use Qt 4.5 or later version
 #endif
 
 #define PHANTOMJS_VERSION_MAJOR  1
@@ -161,11 +161,16 @@ Phantom::Phantom(QObject *parent)
     connect(m_page.mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), SLOT(inject()));
     connect(&m_page, SIGNAL(loadFinished(bool)), this, SLOT(finish(bool)));
 
-    m_page.settings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
     m_page.settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
-    m_page.settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
-    m_page.settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
     m_page.settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+
+    #if QT_VERSION < QT_VERSION_CHECK(4, 6, 0)
+      m_page.settings()->setAttribute(QWebSettings::LocalStorageDatabaseEnabled, true);
+    #else
+      m_page.settings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
+      m_page.settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
+      m_page.settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+    #endif
 
     // Ensure we have document.body.
     m_page.mainFrame()->setHtml("<html><body></body></html>");
