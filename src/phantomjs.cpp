@@ -203,7 +203,7 @@ void Phantom::execute(const QString &fileName)
         exit(1);
         return;
     }
-    m_script = file.readAll();
+    m_script =  file.readAll();
     file.close();
 
     m_page.mainFrame()->evaluateJavaScript(m_script);
@@ -340,6 +340,8 @@ int main(int argc, char** argv)
         std::cerr << "phantomjs script.js" << std::endl << std::endl;
         return 1;
     }
+
+    QNetworkProxyFactory::setUseSystemConfiguration(true);
 
     QApplication app(argc, argv);
 
