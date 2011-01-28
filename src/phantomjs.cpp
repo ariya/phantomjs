@@ -203,7 +203,7 @@ void Phantom::execute(const QString &fileName)
         exit(1);
         return;
     }
-    m_script =  file.readAll();
+    m_script =  QString::fromUtf8(file.readAll());
     file.close();
 
     m_page.mainFrame()->evaluateJavaScript(m_script);
