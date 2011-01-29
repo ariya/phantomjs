@@ -100,6 +100,7 @@ class Phantom: public QObject
     Q_PROPERTY(QString userAgent READ userAgent WRITE setUserAgent)
     Q_PROPERTY(QVariantMap version READ version)
     Q_PROPERTY(QVariantMap viewportSize READ viewportSize WRITE setViewportSize)
+    Q_PROPERTY(QString context READ context WRITE setContext)
 
 public:
     Phantom(QObject *parent = 0);
@@ -125,6 +126,10 @@ public:
     void setViewportSize(const QVariantMap &size);
     QVariantMap viewportSize() const;
 
+    void setContext(const QString &value);
+    QString context() const;
+
+
 public slots:
     void exit(int code = 0);
     void open(const QString &address);
@@ -142,6 +147,7 @@ private:
     int m_returnValue;
     QString m_script;
     QString m_state;
+    QString m_context;
 };
 
 Phantom::Phantom(QObject *parent)
@@ -294,6 +300,16 @@ void Phantom::setState(const QString &value)
 QString Phantom::state() const
 {
     return m_state;
+}
+
+void Phantom::setContext(const QString &value)
+{
+    m_context = value;
+}
+
+QString Phantom::context() const
+{
+    return m_context;
 }
 
 void Phantom::setUserAgent(const QString &ua)
