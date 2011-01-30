@@ -164,9 +164,9 @@ Phantom::Phantom(QObject *parent)
     m_page.settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
     m_page.settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
 
-#if QT_VERSION < QT_VERSION_CHECK(4, 6, 0)
     m_page.settings()->setAttribute(QWebSettings::LocalStorageDatabaseEnabled, true);
-#else
+
+#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
     m_page.settings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
     m_page.settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
     m_page.settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
