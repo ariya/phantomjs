@@ -53,9 +53,12 @@ protected:
     void javaScriptAlert(QWebFrame *originatingFrame, const QString &msg);
     void javaScriptConsoleMessage(const QString &message, int lineNumber, const QString &sourceID);
     QString userAgentForUrl(const QUrl &url) const;
+    QString chooseFile (QWebFrame * parentFrame, const QString & suggestedFile );
 
 private:
     QString m_userAgent;
+    QMap<QString, QString> m_allowedFiles;
+    QString m_nextFileTag;
     friend class Phantom;
 };
 
@@ -88,6 +91,15 @@ QString WebPage::userAgentForUrl(const QUrl &url) const
 {
     Q_UNUSED(url);
     return m_userAgent;
+}
+
+QString WebPage::chooseFile (QWebFrame * parentFrame, const QString & suggestedFile )
+{
+    Q_UNUSED(parentFrame);
+    Q_UNUSED(suggestedFile);
+    if (m_allowedFiles.contains(m_nextFileTag))
+        return m_allowedFiles.value(m_nextFileTag);
+    return NULL;
 }
 
 class Phantom: public QObject
@@ -128,6 +140,7 @@ public:
 public slots:
     void exit(int code = 0);
     void open(const QString &address);
+    void setFormInputFile(QWebElement el, const QString &fileTag);
     bool render(const QString &fileName);
     void sleep(int ms);
 
@@ -157,6 +170,18 @@ Phantom::Phantom(QObject *parent)
     m_args = QApplication::arguments();
     m_args.removeFirst();
     m_args.removeFirst();
+    
+    QStringListIterator argIterator(m_args);
+    while (argIterator.hasNext()) {
+        const QString &arg = argIterator.next();
+        if (arg.startsWith("--upload-file") && argIterator.hasNext()) {
+            const QString &fileInfoString = argIterator.next();
+            QStringList fileInfo = fileInfoString.split("=");
+            const QString &tag = fileInfo.at(0);
+            const QString &fileName = fileInfo.at(1);
+            m_page.m_allowedFiles[tag] = fileName;
+        }
+    }
 
     connect(m_page.mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), SLOT(inject()));
     connect(&m_page, SIGNAL(loadFinished(bool)), this, SLOT(finish(bool)));
@@ -292,6 +317,17 @@ void Phantom::sleep(int ms)
             break;
     }
 }
+
+
+void Phantom::setFormInputFile(QWebElement el, const QString &fileTag) {
+    m_page.m_nextFileTag = fileTag;
+    el.evaluateJavaScript("(function(target){  \
+                          var evt = document.createEvent('MouseEvents'); \
+                          evt.initMouseEvent(\"click\", true, true, window, \
+                          0, 0, 0, 0, 0, false, false, false, false, 0, null); \
+                          target.dispatchEvent(evt);})(this);");
+}
+
 
 void Phantom::setState(const QString &value)
 {
