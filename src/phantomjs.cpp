@@ -208,6 +208,10 @@ void Phantom::execute(const QString &fileName)
     }
     m_script =  QString::fromUtf8(file.readAll());
     file.close();
+    
+    if (m_script.startsWith("#!")) {
+        m_script.prepend("//");
+    }
 
     m_page.mainFrame()->evaluateJavaScript(m_script);
 }
