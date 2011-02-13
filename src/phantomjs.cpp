@@ -53,7 +53,7 @@ protected:
     void javaScriptAlert(QWebFrame *originatingFrame, const QString &msg);
     void javaScriptConsoleMessage(const QString &message, int lineNumber, const QString &sourceID);
     QString userAgentForUrl(const QUrl &url) const;
-    QString chooseFile (QWebFrame * parentFrame, const QString & suggestedFile );
+    QString chooseFile(QWebFrame * parentFrame, const QString & suggestedFile);
 
 private:
     QString m_userAgent;
@@ -93,13 +93,13 @@ QString WebPage::userAgentForUrl(const QUrl &url) const
     return m_userAgent;
 }
 
-QString WebPage::chooseFile (QWebFrame * parentFrame, const QString & suggestedFile )
+QString WebPage::chooseFile(QWebFrame * parentFrame, const QString & suggestedFile)
 {
     Q_UNUSED(parentFrame);
     Q_UNUSED(suggestedFile);
     if (m_allowedFiles.contains(m_nextFileTag))
         return m_allowedFiles.value(m_nextFileTag);
-    return NULL;
+    return QString();
 }
 
 class Phantom: public QObject
@@ -170,7 +170,7 @@ Phantom::Phantom(QObject *parent)
     m_args = QApplication::arguments();
     m_args.removeFirst();
     m_args.removeFirst();
-    
+
     QStringListIterator argIterator(m_args);
     while (argIterator.hasNext()) {
         const QString &arg = argIterator.next();
@@ -209,7 +209,7 @@ Phantom::Phantom(QObject *parent)
 
 QStringList Phantom::args() const
 {
-     return m_args;
+    return m_args;
 }
 
 QString Phantom::content() const
@@ -233,7 +233,7 @@ void Phantom::execute(const QString &fileName)
     }
     m_script =  QString::fromUtf8(file.readAll());
     file.close();
-    
+
     if (m_script.startsWith("#!")) {
         m_script.prepend("//");
     }
@@ -319,7 +319,8 @@ void Phantom::sleep(int ms)
 }
 
 
-void Phantom::setFormInputFile(QWebElement el, const QString &fileTag) {
+void Phantom::setFormInputFile(QWebElement el, const QString &fileTag)
+{
     m_page.m_nextFileTag = fileTag;
     el.evaluateJavaScript("(function(target){  \
                           var evt = document.createEvent('MouseEvents'); \
