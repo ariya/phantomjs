@@ -10,6 +10,14 @@ Version 1.1.0
 
     Fixed issue #20: problem with JPG transparent color (Alessandro Portale).
 
+    Fixed issue #9: ignore first line starting with #! (Matthias, aka fourplusone).
+
+    Fixed issue #7: support for file upload for form submission (Matthias, aka fourplusone).
+
+    Fixed issue #35: support for disabling images loading (Ariya Hidayat).
+
+    Fixed issue #14: enable or disable plugins (Ariya Hidayat).
+
 2011-01-17: Version 1.0.0
 
     Initial launch.
