@@ -140,8 +140,10 @@ public:
 public slots:
     void exit(int code = 0);
     void open(const QString &address);
+    void openFile(const QString &file);
     void setFormInputFile(QWebElement el, const QString &fileTag);
     bool render(const QString &fileName);
+    bool writeToFile(const QString &fileName, const QString &contents);
     void sleep(int ms);
 
 private slots:
@@ -271,6 +273,14 @@ void Phantom::open(const QString &address)
     m_page.mainFrame()->setUrl(address);
 }
 
+void Phantom::openFile(const QString &file)
+{
+    QFileInfo fileInfo(file);
+    QUrl url = QUrl::fromLocalFile(fileInfo.absoluteFilePath());
+
+    Phantom::open(url.toString());
+}
+
 bool Phantom::render(const QString &fileName)
 {
     QFileInfo fileInfo(fileName);
@@ -301,6 +311,23 @@ bool Phantom::render(const QString &fileName)
     p.end();
     m_page.setViewportSize(viewportSize);
     return buffer.save(fileName);
+}
+
+bool Phantom::writeToFile(const QString &fileName, const QString &contents)
+{
+    QFileInfo fileInfo(fileName);
+    QDir dir;
+    dir.mkpath(fileInfo.absolutePath());
+
+    QFile file(fileName);
+    file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
+
+    QTextStream output(&file);
+    output << contents;
+
+    file.close();
+
+    return true;
 }
 
 int Phantom::returnValue() const
