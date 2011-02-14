@@ -172,6 +172,7 @@ Phantom::Phantom(QObject *parent)
     m_page.setPalette(palette);
 
     bool autoLoadImages = true;
+    bool pluginsEnabled = true;
 
     // second argument: script name
     QStringList args = QApplication::arguments();
@@ -199,6 +200,14 @@ Phantom::Phantom(QObject *parent)
             autoLoadImages = false;
             continue;
         }
+        if (arg == "--load-plugins=yes") {
+            pluginsEnabled = true;
+            continue;
+        }
+        if (arg == "--load-plugins=no") {
+            pluginsEnabled = false;
+            continue;
+        }
         if (arg.startsWith("--")) {
             std::cerr << "Unknown option '" << qPrintable(arg) << "'" << std::endl;
             exit(-1);
@@ -224,6 +233,8 @@ Phantom::Phantom(QObject *parent)
     connect(&m_page, SIGNAL(loadFinished(bool)), this, SLOT(finish(bool)));
 
     m_page.settings()->setAttribute(QWebSettings::AutoLoadImages, autoLoadImages);
+    m_page.settings()->setAttribute(QWebSettings::PluginsEnabled, pluginsEnabled);
+
     m_page.settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
     m_page.settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
 
