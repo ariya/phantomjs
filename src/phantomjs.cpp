@@ -40,6 +40,11 @@
 #define PHANTOMJS_VERSION_PATCH  0
 #define PHANTOMJS_VERSION_STRING "1.1.0"
 
+void showUsage()
+{
+    std::cerr << "phantomjs script.js" << std::endl << std::endl;
+}
+
 class WebPage: public QWebPage
 {
     Q_OBJECT
@@ -93,7 +98,7 @@ QString WebPage::userAgentForUrl(const QUrl &url) const
     return m_userAgent;
 }
 
-QString WebPage::chooseFile(QWebFrame * parentFrame, const QString & suggestedFile)
+QString WebPage::chooseFile(QWebFrame *parentFrame, const QString &suggestedFile)
 {
     Q_UNUSED(parentFrame);
     Q_UNUSED(suggestedFile);
@@ -121,7 +126,7 @@ public:
     QString content() const;
     void setContent(const QString &content);
 
-    void execute(const QString &fileName);
+    bool execute();
     int returnValue() const;
 
     QString loadStatus() const;
@@ -149,6 +154,7 @@ private slots:
     void finish(bool);
 
 private:
+    QString m_scriptFile;
     QStringList m_args;
     QString m_loadStatus;
     WebPage m_page;
@@ -165,13 +171,14 @@ Phantom::Phantom(QObject *parent)
     palette.setBrush(QPalette::Base, Qt::transparent);
     m_page.setPalette(palette);
 
-    // first argument: program name (phantomjs)
     // second argument: script name
-    m_args = QApplication::arguments();
-    m_args.removeFirst();
-    m_args.removeFirst();
+    QStringList args = QApplication::arguments();
 
-    QStringListIterator argIterator(m_args);
+    // Skip the first argument, i.e. the application executable (phantomjs).
+    args.removeFirst();
+
+    // Handle all command-line options.
+    QStringListIterator argIterator(args);
     while (argIterator.hasNext()) {
         const QString &arg = argIterator.next();
         if (arg.startsWith("--upload-file") && argIterator.hasNext()) {
@@ -180,7 +187,27 @@ Phantom::Phantom(QObject *parent)
             const QString &tag = fileInfo.at(0);
             const QString &fileName = fileInfo.at(1);
             m_page.m_allowedFiles[tag] = fileName;
+            continue;
         }
+        if (arg.startsWith("--")) {
+            std::cerr << "Unknown option '" << qPrintable(arg) << "'" << std::endl;
+            exit(-1);
+            return;
+        } else {
+            m_scriptFile = arg;
+            break;
+        }
+    }
+
+    if (m_scriptFile.isEmpty()) {
+        showUsage();
+        return;
+    }
+
+    // The remaining arguments are available for the script
+    while (argIterator.hasNext()) {
+        const QString &arg = argIterator.next();
+        m_args += arg;
     }
 
     connect(m_page.mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), SLOT(inject()));
@@ -222,14 +249,17 @@ void Phantom::setContent(const QString &content)
     m_page.mainFrame()->setHtml(content);
 }
 
-void Phantom::execute(const QString &fileName)
+bool Phantom::execute()
 {
+    if (m_scriptFile.isEmpty())
+        return false;
+
     QFile file;
-    file.setFileName(fileName);
+    file.setFileName(m_scriptFile);
     if (!file.open(QFile::ReadOnly)) {
-        std::cerr << "Can't open " << qPrintable(fileName) << std::endl << std::endl;
+        std::cerr << "Can't open " << qPrintable(m_scriptFile) << std::endl << std::endl;
         exit(1);
-        return;
+        return false;
     }
     m_script =  QString::fromUtf8(file.readAll());
     file.close();
@@ -239,6 +269,7 @@ void Phantom::execute(const QString &fileName)
     }
 
     m_page.mainFrame()->evaluateJavaScript(m_script);
+    return true;
 }
 
 void Phantom::exit(int code)
@@ -381,7 +412,7 @@ QVariantMap Phantom::viewportSize() const
 int main(int argc, char** argv)
 {
     if (argc < 2) {
-        std::cerr << "phantomjs script.js" << std::endl << std::endl;
+        showUsage();
         return 1;
     }
 
@@ -396,7 +427,8 @@ int main(int argc, char** argv)
     app.setApplicationVersion(PHANTOMJS_VERSION_STRING);
 
     Phantom phantom;
-    phantom.execute(QString::fromLocal8Bit(argv[1]));
-    app.exec();
+    if (phantom.execute()) {
+        app.exec();
+    }
     return phantom.returnValue();
 }
