@@ -171,6 +171,8 @@ Phantom::Phantom(QObject *parent)
     palette.setBrush(QPalette::Base, Qt::transparent);
     m_page.setPalette(palette);
 
+    bool autoLoadImages = true;
+
     // second argument: script name
     QStringList args = QApplication::arguments();
 
@@ -189,6 +191,14 @@ Phantom::Phantom(QObject *parent)
             m_page.m_allowedFiles[tag] = fileName;
             continue;
         }
+        if (arg == "--load-images=yes") {
+            autoLoadImages = true;
+            continue;
+        }
+        if (arg == "--load-images=no") {
+            autoLoadImages = false;
+            continue;
+        }
         if (arg.startsWith("--")) {
             std::cerr << "Unknown option '" << qPrintable(arg) << "'" << std::endl;
             exit(-1);
@@ -204,7 +214,7 @@ Phantom::Phantom(QObject *parent)
         return;
     }
 
-    // The remaining arguments are available for the script
+    // The remaining arguments are available for the script.
     while (argIterator.hasNext()) {
         const QString &arg = argIterator.next();
         m_args += arg;
@@ -213,6 +223,7 @@ Phantom::Phantom(QObject *parent)
     connect(m_page.mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), SLOT(inject()));
     connect(&m_page, SIGNAL(loadFinished(bool)), this, SLOT(finish(bool)));
 
+    m_page.settings()->setAttribute(QWebSettings::AutoLoadImages, autoLoadImages);
     m_page.settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
     m_page.settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
 
