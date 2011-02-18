@@ -40,6 +40,9 @@
 #define PHANTOMJS_VERSION_PATCH  0
 #define PHANTOMJS_VERSION_STRING "1.1.0"
 
+#define PHANTOMJS_WRAPMAIN(script) ("(function() {" + (script) + "})();")
+#define PHANTOMJS_WRAPCALLBACK(script, success) ("(" + (script) + ")(" + ((success) ? "false" : "true") + ");")
+
 void showUsage()
 {
     std::cerr << "phantomjs script.js" << std::endl << std::endl;
@@ -114,6 +117,7 @@ class Phantom: public QObject
     Q_PROPERTY(QString content READ content WRITE setContent)
     Q_PROPERTY(QString loadStatus READ loadStatus)
     Q_PROPERTY(QString state READ state WRITE setState)
+    Q_PROPERTY(QVariantMap ctx READ ctx WRITE setCtx)
     Q_PROPERTY(QString userAgent READ userAgent WRITE setUserAgent)
     Q_PROPERTY(QVariantMap version READ version)
     Q_PROPERTY(QVariantMap viewportSize READ viewportSize WRITE setViewportSize)
@@ -134,6 +138,9 @@ public:
     void setState(const QString &value);
     QString state() const;
 
+    void setCtx(const QVariantMap &value);
+    QVariantMap ctx() const;
+
     void setUserAgent(const QString &ua);
     QString userAgent() const;
 
@@ -144,10 +151,11 @@ public:
 
 public slots:
     void exit(int code = 0);
-    void open(const QString &address);
+    void open(const QString &address, const QString &callback = "");
     void setFormInputFile(QWebElement el, const QString &fileTag);
     bool render(const QString &fileName);
     void sleep(int ms);
+    void addCtxVar(const QString &key, const QVariant &value);
 
 private slots:
     void inject();
@@ -160,7 +168,11 @@ private:
     WebPage m_page;
     int m_returnValue;
     QString m_script;
+    QString m_cbscript;
     QString m_state;
+    QVariantMap m_ctx;
+    bool m_exit;
+    void runScript(const QString &script);
 };
 
 Phantom::Phantom(QObject *parent)
@@ -271,6 +283,14 @@ void Phantom::setContent(const QString &content)
     m_page.mainFrame()->setHtml(content);
 }
 
+void Phantom::runScript(const QString &script)
+{
+	int exitCode = m_page.mainFrame()->evaluateJavaScript(script).toInt();
+	if (m_exit && exitCode >= 0) // if no callback and non-negative exit code then quit
+		exit(exitCode);
+	m_exit = true;
+}
+
 bool Phantom::execute()
 {
     if (m_scriptFile.isEmpty())
@@ -290,7 +310,8 @@ bool Phantom::execute()
         m_script.prepend("//");
     }
 
-    m_page.mainFrame()->evaluateJavaScript(m_script);
+	m_exit = true;
+    runScript(PHANTOMJS_WRAPMAIN(m_script));
     return true;
 }
 
@@ -303,8 +324,11 @@ void Phantom::exit(int code)
 
 void Phantom::finish(bool success)
 {
-    m_loadStatus = success ? "success" : "fail";
-    m_page.mainFrame()->evaluateJavaScript(m_script);
+	m_loadStatus = success ? "success" : "fail";
+	if (!m_script.isEmpty()) { // don't run before loading the script
+		QString script = m_cbscript.isEmpty() ? PHANTOMJS_WRAPMAIN(m_script) : PHANTOMJS_WRAPCALLBACK(m_cbscript, success);
+		runScript(script);
+	}
 }
 
 void Phantom::inject()
@@ -317,10 +341,12 @@ QString Phantom::loadStatus() const
     return m_loadStatus;
 }
 
-void Phantom::open(const QString &address)
+void Phantom::open(const QString &address, const QString &callback)
 {
     m_page.triggerAction(QWebPage::Stop);
     m_loadStatus = "loading";
+    m_cbscript = callback;
+	m_exit = false;
     m_page.mainFrame()->setUrl(address);
 }
 
@@ -391,6 +417,21 @@ void Phantom::setState(const QString &value)
 QString Phantom::state() const
 {
     return m_state;
+}
+
+void Phantom::setCtx(const QVariantMap &value)
+{
+    m_ctx = value;
+}
+
+void Phantom::addCtxVar(const QString &key, const QVariant &value)
+{
+    m_ctx.insert(key, value);
+}
+
+QVariantMap Phantom::ctx() const
+{
+    return m_ctx;
 }
 
 void Phantom::setUserAgent(const QString &ua)

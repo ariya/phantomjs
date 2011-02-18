@@ -23,4 +23,5 @@ if (phantom.state.length === 0) {
             phantom.exit();
         }
     }, 100);
+    return -1;
 }

@@ -7,3 +7,4 @@ var ticker = window.setInterval(function () {
         phantom.exit();
     }
 }, 300);
+return -1;

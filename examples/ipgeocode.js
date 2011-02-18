@@ -12,3 +12,4 @@ cb = function (data) {
 var el = document.createElement('script');
 el.src = 'http://freegeoip.net/json/?callback=cb';
 document.body.appendChild(el);
+return -1;

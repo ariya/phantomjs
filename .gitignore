@@ -1,0 +1,6 @@
+Makefile*
+bin/**/*
+*.xcodeproj
+*.moc
+*.o
+qrc_*.cpp

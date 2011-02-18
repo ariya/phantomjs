@@ -21,4 +21,5 @@ if (phantom.state.length === 0) {
             }
         }
     }, 100);
+    return -1;
 }
