@@ -1,6 +1,7 @@
 /*
   This file is part of the PhantomJS project from Ofi Labs.
 
+  Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
   Copyright (C) 2010 Ariya Hidayat <ariya.hidayat@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
@@ -30,6 +31,8 @@
 #include <QtGui>
 #include <QtWebKit>
 #include <iostream>
+
+#include <gifwriter.h>
 
 #if QT_VERSION < QT_VERSION_CHECK(4, 5, 0)
 #error Use Qt 4.5 or later version
@@ -353,6 +356,11 @@ bool Phantom::render(const QString &fileName)
     m_page.mainFrame()->render(&p);
     p.end();
     m_page.setViewportSize(viewportSize);
+
+    if (fileName.toLower().endsWith(".gif")) {
+        return exportGif(buffer, fileName);
+    }
+
     return buffer.save(fileName);
 }
 
