@@ -45,7 +45,12 @@
 
 void showUsage()
 {
-    std::cerr << "phantomjs script.js" << std::endl << std::endl;
+    std::cerr << "Usage: phantomjs [options] script.js [argument [argument ...]]" << std::endl << std::endl;
+    std::cerr << "Options:" << std::endl;
+    std::cerr << "\t--load-images=[yes|no]\t\tLoad all inlined images (default is 'yes')." << std::endl;
+    std::cerr << "\t--load-plugins=[yes|no]\tLoad all plugins (i.e. 'Flash', 'Silverlight', ...) (default is 'no')." << std::endl;
+    std::cerr << "\t--upload-file fileId=/file/path\tUpload a file by creating a '<input type=\"file\" id=\"foo\" />'\n"
+            "\t\t\t\tand calling phantom.setFormInputFile(document.getElementById('foo', 'fileId')." << std::endl;
 }
 
 class WebPage: public QWebPage
@@ -175,7 +180,7 @@ Phantom::Phantom(QObject *parent)
     m_page.setPalette(palette);
 
     bool autoLoadImages = true;
-    bool pluginsEnabled = true;
+    bool pluginsEnabled = false;
 
     // second argument: script name
     QStringList args = QApplication::arguments();
