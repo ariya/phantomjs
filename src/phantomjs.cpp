@@ -49,6 +49,10 @@
                                             "evt.initMouseEvent(\"click\", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);" \
                                             "target.dispatchEvent(evt);" \
                                         "})(this);"
+#define JS_INCLUDE_SCRIPT_TAG           "var el = document.createElement('script');" \
+                                        "el.onload = %2 || null;" \
+                                        "el.src = '%1';" \
+                                        "document.body.appendChild(el);"
 
 void showUsage()
 {
@@ -71,6 +75,7 @@ public slots:
 
 private slots:
     void handleFrameUrlChanged(const QUrl &url);
+    void handleLinkClicked(const QUrl &url);
 
 protected:
     void javaScriptAlert(QWebFrame *originatingFrame, const QString &msg);
@@ -90,10 +95,15 @@ WebPage::WebPage(QObject *parent)
 {
     m_userAgent = QWebPage::userAgentForUrl(QUrl());
     connect(this->currentFrame(), SIGNAL(urlChanged(QUrl)), this, SLOT(handleFrameUrlChanged(QUrl)));
+    connect(this, SIGNAL(linkClicked(QUrl)), this, SLOT(handleLinkClicked(QUrl)));
 }
 
 void WebPage::handleFrameUrlChanged(const QUrl &url) {
     qDebug() << "URL Changed: " << qPrintable(url.toString());
+}
+
+void WebPage::handleLinkClicked(const QUrl &url) {
+    qDebug() << "URL Clicked: " << qPrintable(url.toString());
 }
 
 void WebPage::javaScriptAlert(QWebFrame *originatingFrame, const QString &msg)
@@ -170,6 +180,8 @@ public slots:
     void open(const QString &address);
     void setFormInputFile(QWebElement el, const QString &fileTag);
     void simulateMouseClick(const QString &selector);
+    bool loadJs(const QString &jsFilePath);
+    void includeJs(const QString &jsFilePath, const QString &callback = "undefined");
     bool render(const QString &fileName);
     void sleep(int ms);
 
@@ -343,7 +355,7 @@ QString Phantom::loadStatus() const
 
 void Phantom::open(const QString &address)
 {
-    qDebug() << "Phantom::open: " << qPrintable(address);
+    qDebug() << "Opening address: " << qPrintable(address);
     m_page.triggerAction(QWebPage::Stop);
     m_loadStatus = "loading";
     m_page.mainFrame()->load(address);
@@ -413,8 +425,34 @@ void Phantom::simulateMouseClick(const QString &selector) {
     QWebElementCollection webElements = m_page.currentFrame()->findAllElements(selector);
     // Click on every one of the elements
     foreach ( QWebElement el, webElements ) {
+        qDebug() << "Element Clicked Center Position: " << el.geometry().center().x() << "," << el.geometry().center().y();
         el.evaluateJavaScript(JS_MOUSEEVENT_CLICK_WEBELEMENT);
     }
+}
+
+bool Phantom::loadJs(const QString &jsFilePath) {
+    qDebug() << "Loading JS File: " << jsFilePath;
+    if ( !jsFilePath.isEmpty()) {
+        QFile jsFile;
+
+        jsFile.setFileName(jsFilePath);
+        if ( !jsFile.open(QFile::ReadOnly) ) {
+            qWarning() << "Can't load Javascript File: " << qPrintable(jsFilePath);
+        } else {
+            QString script = QString::fromUtf8(jsFile.readAll());
+            jsFile.close();
+            // Execute JS code in the context of the document
+            m_page.mainFrame()->evaluateJavaScript(script);
+
+            return true;
+        }
+    }
+    return false;
+}
+
+void Phantom::includeJs(const QString &jsFilePath, const QString &callback) {
+    qDebug() << "Including JS File: " << jsFilePath << " - Callback: " << callback;
+    m_page.mainFrame()->evaluateJavaScript(QString(JS_INCLUDE_SCRIPT_TAG).arg(jsFilePath, callback));
 }
 
 void Phantom::setState(const QString &value)

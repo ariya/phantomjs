@@ -5,6 +5,6 @@ SOURCES = phantomjs.cpp
 RESOURCES = phantomjs.qrc
 QT += network webkit
 CONFIG += console
-DEFINES += QT_NO_DEBUG_OUTPUT
+#DEFINES += QT_NO_DEBUG_OUTPUT
 
 include(gif/gif.pri)
