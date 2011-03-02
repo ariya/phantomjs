@@ -33,6 +33,7 @@
 #include <iostream>
 
 #include <gifwriter.h>
+#include "csconverter.h"
 
 #if QT_VERSION < QT_VERSION_CHECK(4, 5, 0)
 #error Use Qt 4.5 or later version
@@ -169,11 +170,13 @@ private:
     int m_returnValue;
     QString m_script;
     QString m_state;
+    CSConverter *m_converter;
 };
 
 Phantom::Phantom(QObject *parent)
     : QObject(parent)
     , m_returnValue(0)
+    , m_converter(0)
 {
     QPalette palette = m_page.palette();
     palette.setBrush(QPalette::Base, Qt::transparent);
@@ -296,6 +299,12 @@ bool Phantom::execute()
 
     if (m_script.startsWith("#!")) {
         m_script.prepend("//");
+    }
+
+    if (m_scriptFile.endsWith(".coffee")) {
+        if (!m_converter)
+            m_converter = new CSConverter(this);
+        m_script = m_converter->convert(m_script);
     }
 
     m_page.mainFrame()->evaluateJavaScript(m_script);
