@@ -451,7 +451,7 @@ bool Phantom::loadJs(const QString &jsFilePath) {
 }
 
 void Phantom::includeJs(const QString &jsFilePath, const QString &callback) {
-    qDebug() << "Including JS File: " << jsFilePath << " - Callback: " << callback;
+    qDebug() << "Including JS File:" << jsFilePath << "- Callback:" << callback;
     m_page.mainFrame()->evaluateJavaScript(QString(JS_INCLUDE_SCRIPT_TAG).arg(jsFilePath, callback));
 }
 
