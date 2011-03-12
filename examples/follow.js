@@ -14,6 +14,7 @@ if (phantom.state.length === 0) {
         'jamieavins',
         'jarrednicholls',
         'jayrobinson',
+        'lojjic',
         'mmullany',
         'philogb',
         'rdougan',
