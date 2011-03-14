@@ -50,8 +50,9 @@ void showUsage()
     std::cerr << "Options:" << std::endl;
     std::cerr << "\t--load-images=[yes|no]\t\tLoad all inlined images (default is 'yes')." << std::endl;
     std::cerr << "\t--load-plugins=[yes|no]\tLoad all plugins (i.e. 'Flash', 'Silverlight', ...) (default is 'no')." << std::endl;
+    std::cerr << "\t--proxy=address:port\tSet the network proxy." << std::endl;
     std::cerr << "\t--upload-file fileId=/file/path\tUpload a file by creating a '<input type=\"file\" id=\"foo\" />'\n"
-            "\t\t\t\tand calling phantom.setFormInputFile(document.getElementById('foo', 'fileId')." << std::endl;
+              "\t\t\t\tand calling phantom.setFormInputFile(document.getElementById('foo', 'fileId')." << std::endl;
 }
 
 class WebPage: public QWebPage
@@ -165,6 +166,8 @@ private slots:
 private:
     QString m_scriptFile;
     QStringList m_args;
+    QString m_proxyHost;
+    int m_proxyPort;
     QString m_loadStatus;
     WebPage m_page;
     int m_returnValue;
@@ -175,6 +178,7 @@ private:
 
 Phantom::Phantom(QObject *parent)
     : QObject(parent)
+    , m_proxyPort(1080)
     , m_returnValue(0)
     , m_converter(0)
 {
@@ -219,6 +223,18 @@ Phantom::Phantom(QObject *parent)
             pluginsEnabled = false;
             continue;
         }
+        if (arg.startsWith("--proxy=")) {
+            m_proxyHost = arg.mid(8).trimmed();
+            if (m_proxyHost.lastIndexOf(':') > 0) {
+                bool ok = true;
+                int port = m_proxyHost.mid(m_proxyHost.lastIndexOf(':') + 1).toInt(&ok);
+                if (ok) {
+                    m_proxyHost = m_proxyHost.left(m_proxyHost.lastIndexOf(':')).trimmed();
+                    m_proxyPort = port;
+                }
+            }
+            continue;
+        }
         if (arg.startsWith("--")) {
             std::cerr << "Unknown option '" << qPrintable(arg) << "'" << std::endl;
             exit(-1);
@@ -232,6 +248,13 @@ Phantom::Phantom(QObject *parent)
     if (m_scriptFile.isEmpty()) {
         showUsage();
         return;
+    }
+
+    if (m_proxyHost.isEmpty()) {
+        QNetworkProxyFactory::setUseSystemConfiguration(true);
+    } else {
+        QNetworkProxy proxy(QNetworkProxy::HttpProxy, m_proxyHost, m_proxyPort);
+        QNetworkProxy::setApplicationProxy(proxy);
     }
 
     // The remaining arguments are available for the script.
@@ -459,8 +482,6 @@ int main(int argc, char** argv)
         showUsage();
         return 1;
     }
-
-    QNetworkProxyFactory::setUseSystemConfiguration(true);
 
     QApplication app(argc, argv);
 
