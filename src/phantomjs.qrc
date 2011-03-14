@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>phantomjs-icon.png</file>
+        <file>coffee-script.js</file>
     </qresource>
 </RCC>

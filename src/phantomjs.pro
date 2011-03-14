@@ -1,7 +1,8 @@
 TEMPLATE = app
 TARGET = phantomjs
 DESTDIR = ../bin
-SOURCES = phantomjs.cpp
+HEADERS += csconverter.h
+SOURCES = phantomjs.cpp csconverter.cpp
 RESOURCES = phantomjs.qrc
 QT += network webkit
 CONFIG += console
