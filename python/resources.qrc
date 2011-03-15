@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/pyphantomjs-icon.png</file>
+        <file>resources/coffee-script.js</file>
+    </qresource>
+</RCC>
