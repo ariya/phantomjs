@@ -55,8 +55,8 @@ def argParser():
     parser.add_argument('--proxy', metavar='address:port',
         help='Set the network proxy'
     )
-    parser.add_argument('-u', '--upload-file', nargs='*',
-        metavar='file', help='Upload 1 or more files'
+    parser.add_argument('--upload-file', nargs='*',
+        metavar='tag:file', help='Upload 1 or more files'
     )
     parser.add_argument('script', metavar='script.js', nargs='*',
         help='The script to execute, and any args to pass to it'
