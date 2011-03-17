@@ -123,8 +123,8 @@ class Phantom(QObject):
         self.m_page = WebPage(self)
         self.m_var = self.m_loadScript_cache = {}
         # setup the values from args
-        self.m_script = QString.fromUtf8(args.script[0].readAll())
-        self.m_scriptFile = args.script[0].fileName()
+        self.m_script = QString.fromUtf8(args.script[0].read())
+        self.m_scriptFile = args.script[0].name
         self.m_args = args.script[1:]
         self.m_upload_file = args.upload_file
         autoLoadImages = False if args.load_images == 'no' else True
@@ -158,8 +158,8 @@ class Phantom(QObject):
 
         # if our script was called in a different directory, change to it
         # to make any dealings with files be relative to the scripts directory
-        if os.path.dirname(str(self.m_scriptFile)):
-            os.chdir(os.path.dirname(str(self.m_scriptFile)))
+        if os.path.dirname(self.m_scriptFile):
+            os.chdir(os.path.dirname(self.m_scriptFile))
 
         # inject our properties and slots into javascript
         self.setObjectName('phantom')
@@ -170,7 +170,7 @@ class Phantom(QObject):
         if self.m_script.startsWith('#!'):
             self.m_script.prepend('//')
 
-        if self.m_scriptFile.endsWith('.coffee'):
+        if self.m_scriptFile.endswith('.coffee'):
             coffee = CSConverter(self)
             self.m_script = coffee.convert(self.m_script)
 
@@ -219,11 +219,12 @@ class Phantom(QObject):
             self.m_page.mainFrame().evaluateJavaScript(self.m_loadScript_cache[script])
             return True
 
-        scriptFile = QFile(script).fileName()
-        script = QFile(script)
-        if not script.open(QFile.ReadOnly):
+        scriptFile = QString(script)
+        try:
+            script = open(script)
+            script = QString.fromUtf8(script.read())
+        except IOError:
             return False
-        script = QString.fromUtf8(script.readAll())
 
         if script.startsWith('#!'):
             script.prepend('//')
@@ -357,7 +358,7 @@ if __name__ == '__main__':
             item_buffer[QString(item[0])] = QString(item[1])
         for tag in item_buffer:
             if not os.path.exists(item_buffer[tag]):
-                print >> sys.stderr, 'No such file: \'%s\'' % item_buffer[tag]
+                print >> sys.stderr, '[Errno 2] No such file or directory: \'%s\'' % item_buffer[tag]
                 sys.exit(1)
         args.upload_file = item_buffer
 
@@ -372,9 +373,10 @@ if __name__ == '__main__':
         p.print_help()
         sys.exit(1)
 
-    args.script[0] = QFile(args.script[0])
-    if not args.script[0].open(QFile.ReadOnly):
-        print >> sys.stderr, 'No such file: \'%s\'' % args.script[0].fileName()
+    try:
+        args.script[0] = open(args.script[0])
+    except IOError as stderr:
+        print >> sys.stderr, stderr
         sys.exit(1)
 
     app = QApplication(sys.argv)
