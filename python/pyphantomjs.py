@@ -119,7 +119,7 @@ class Phantom(QObject):
         QObject.__init__(self, parent)
 
         # variable declarations
-        self.m_scriptFile = self.m_script = self.m_loadStatus = self.m_state = self.m_userAgent = QString()
+        self.m_loadStatus = self.m_state = self.m_userAgent = QString()
         self.m_page = WebPage(self)
         self.m_var = self.m_loadScript_cache = {}
         # setup the values from args
