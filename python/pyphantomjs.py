@@ -110,7 +110,7 @@ class WebPage(QWebPage):
         return QWebPage.userAgentForUrl(self, url)
 
     def chooseFile(self, webframe, suggestedFile):
-        if self.parent.m_upload_file.get(self.m_nextFileTag):
+        if self.m_nextFileTag in self.parent.m_upload_file:
             return self.parent.m_upload_file[self.m_nextFileTag]
         return QString()
 
@@ -121,7 +121,7 @@ class Phantom(QObject):
         # variable declarations
         self.m_scriptFile = self.m_script = self.m_loadStatus = self.m_state = self.m_userAgent = QString()
         self.m_page = WebPage(self)
-        self.m_var = {}
+        self.m_var = self.m_loadScript_cache = {}
         # setup the values from args
         self.m_script = QString.fromUtf8(args.script[0].readAll())
         self.m_scriptFile = args.script[0].fileName()
@@ -215,6 +215,10 @@ class Phantom(QObject):
 
     @pyqtSlot(str, result=bool)
     def loadScript(self, script):
+        if script in self.m_loadScript_cache:
+            self.m_page.mainFrame().evaluateJavaScript(self.m_loadScript_cache[script])
+            return True
+
         scriptFile = QFile(script).fileName()
         script = QFile(script)
         if not script.open(QFile.ReadOnly):
@@ -228,6 +232,7 @@ class Phantom(QObject):
             coffee = CSConverter(self)
             script = QString.fromUtf8(coffee.convert(script))
 
+        self.m_loadScript_cache[scriptFile] = script
         self.m_page.mainFrame().evaluateJavaScript(script)
         return True
 
@@ -265,7 +270,7 @@ class Phantom(QObject):
         self.m_page.mainFrame().render(p)
         p.end()
         self.m_page.setViewportSize(viewportSize)
-        buffer.save(fileName)
+        return buffer.save(fileName)
 
     @pyqtSlot('QWebElement', str)
     def setFormInputFile(self, el, fileTag):
