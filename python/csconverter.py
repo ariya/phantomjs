@@ -2,7 +2,7 @@
   This file is part of the PyPhantomJS project.
 
   Copyright (C) 2011 James Roe <roejames12@hotmail.com>
-  Copyright (C) 2010-2011 Ariya Hidayat <ariya.hidayat@gmail.com>
+  Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
