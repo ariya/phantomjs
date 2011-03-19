@@ -26,6 +26,8 @@ Version 1.1.0
 
     Fixed issue #19: option for setting the proxy (Clint Berry, Ariya Hidayat).
 
+    Fixed issue #60: Win32 and OS/2 icon files (Salvador Parra Camacho).
+
 2011-01-17: Version 1.0.0
 
     Initial launch.
