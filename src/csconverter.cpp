@@ -40,7 +40,7 @@ CSConverter::CSConverter(QObject *parent)
 {
     QFile file(":/coffee-script.js");
     if (!file.open(QFile::ReadOnly)) {
-        std::cerr << "CoffeeScript compiler is not available!" << std::endl << std::endl;
+        qFatal("CoffeeScript compiler is not available!");
         exit(1);
     }
     QString script = QString::fromUtf8(file.readAll());

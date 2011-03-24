@@ -60,13 +60,14 @@
 
 void showUsage()
 {
-    std::cerr << "Usage: phantomjs [options] script.js [argument [argument ...]]" << std::endl << std::endl;
-    std::cerr << "Options:" << std::endl;
-    std::cerr << "\t--load-images=[yes|no]\t\tLoad all inlined images (default is 'yes')." << std::endl;
-    std::cerr << "\t--load-plugins=[yes|no]\tLoad all plugins (i.e. 'Flash', 'Silverlight', ...) (default is 'no')." << std::endl;
-    std::cerr << "\t--proxy=address:port\tSet the network proxy." << std::endl;
-    std::cerr << "\t--upload-file fileId=/file/path\tUpload a file by creating a '<input type=\"file\" id=\"foo\" />'\n"
-              "\t\t\t\tand calling phantom.setFormInputFile(document.getElementById('foo', 'fileId')." << std::endl;
+    QFile file;
+    file.setFileName(":/usage.txt");
+    if ( !file.open(QFile::ReadOnly) ) {
+        qFatal("Unable to print the usage message");
+        exit(1);
+    }
+    std::cerr << qPrintable(QString::fromUtf8(file.readAll()));
+    file.close();
 }
 
 class WebPage: public QWebPage
@@ -354,7 +355,7 @@ bool Phantom::execute()
         exit(1);
         return false;
     }
-    m_script =  QString::fromUtf8(file.readAll());
+    m_script = QString::fromUtf8(file.readAll());
     file.close();
 
     if (m_script.startsWith("#!")) {
