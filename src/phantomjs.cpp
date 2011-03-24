@@ -45,6 +45,7 @@
 #define PHANTOMJS_VERSION_PATCH  0
 #define PHANTOMJS_VERSION_STRING "1.1.0"
 
+
 #define JS_MOUSEEVENT_CLICK_WEBELEMENT  "(function (target) { " \
                                             "var evt = document.createEvent('MouseEvents');" \
                                             "evt.initMouseEvent(\"click\", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);" \
@@ -54,6 +55,8 @@
                                         "el.onload = %2 || null;" \
                                         "el.src = '%1';" \
                                         "document.body.appendChild(el);"
+
+#define PHANTOMJS_PDF_DPI 72 // Different defaults. OSX: 72, X11: 75(?), Windows: 96
 
 void showUsage()
 {
@@ -152,6 +155,7 @@ class Phantom: public QObject
     Q_PROPERTY(QString userAgent READ userAgent WRITE setUserAgent)
     Q_PROPERTY(QVariantMap version READ version)
     Q_PROPERTY(QVariantMap viewportSize READ viewportSize WRITE setViewportSize)
+    Q_PROPERTY(QVariantMap paperSize READ paperSize WRITE setPaperSize)
 
 public:
     Phantom(QObject *parent = 0);
@@ -177,6 +181,9 @@ public:
     void setViewportSize(const QVariantMap &size);
     QVariantMap viewportSize() const;
 
+    void setPaperSize(const QVariantMap &size);
+    QVariantMap paperSize() const;
+
 public slots:
     void exit(int code = 0);
     void open(const QString &address);
@@ -190,6 +197,7 @@ public slots:
 private slots:
     void inject();
     void finish(bool);
+    bool renderPdf(const QString &fileName);
 
 private:
     QString m_scriptFile;
@@ -202,6 +210,7 @@ private:
     QString m_script;
     QString m_state;
     CSConverter *m_converter;
+    QVariantMap m_paperSize; // For PDF output via render()
 };
 
 Phantom::Phantom(QObject *parent)
@@ -399,13 +408,8 @@ bool Phantom::render(const QString &fileName)
     QDir dir;
     dir.mkpath(fileInfo.absolutePath());
 
-    if (fileName.toLower().endsWith(".pdf")) {
-        QPrinter printer;
-        printer.setOutputFormat(QPrinter::PdfFormat);
-        printer.setOutputFileName(fileName);
-        m_page.mainFrame()->print(&printer);
-        return true;
-    }
+    if (fileName.endsWith(".pdf", Qt::CaseInsensitive))
+        return renderPdf(fileName);
 
     QSize viewportSize = m_page.viewportSize();
     QSize pageSize = m_page.mainFrame()->contentsSize();
@@ -531,6 +535,92 @@ QVariantMap Phantom::viewportSize() const
     result["width"] = size.width();
     result["height"] = size.height();
     return result;
+}
+
+void Phantom::setPaperSize(const QVariantMap &size)
+{
+    m_paperSize = size;
+}
+
+QVariantMap Phantom::paperSize() const
+{
+    return m_paperSize;
+}
+
+static qreal stringToPointSize(const QString &string)
+{
+    static const struct {
+        QString unit;
+        qreal factor;
+    } units[] = {
+        { "mm", 72 / 25.4 },
+        { "cm", 72 / 2.54 },
+        { "in", 72 },
+        { "px", 72.0 / PHANTOMJS_PDF_DPI / 2.54 },
+        { "", 72.0 / PHANTOMJS_PDF_DPI / 2.54 }
+    };
+    for (uint i = 0; i < sizeof(units) / sizeof(units[0]); ++i) {
+        if (string.endsWith(units[i].unit)) {
+            QString value = string;
+            value.chop(units[i].unit.length());
+            return value.toDouble() * units[i].factor;
+        }
+    }
+    return 0;
+}
+
+bool Phantom::renderPdf(const QString &fileName)
+{
+    QPrinter printer;
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    printer.setOutputFileName(fileName);
+    printer.setResolution(PHANTOMJS_PDF_DPI);
+    QVariantMap paperSize = m_paperSize;
+
+    if (paperSize.isEmpty()) {
+        const QSize pageSize = m_page.mainFrame()->contentsSize();
+        paperSize.insert("width", QString::number(pageSize.width()) + "px");
+        paperSize.insert("height", QString::number(pageSize.height()) + "px");
+        paperSize.insert("border", "0px");
+    }
+
+    if (paperSize.contains("width") && paperSize.contains("height")) {
+        const QSizeF sizePt(ceil(stringToPointSize(paperSize.value("width").toString())),
+                            ceil(stringToPointSize(paperSize.value("height").toString())));
+        printer.setPaperSize(sizePt, QPrinter::Point);
+    } else if (paperSize.contains("format")) {
+        const QPrinter::Orientation orientation = paperSize.contains("orientation")
+                && paperSize.value("orientation").toString().compare("landscape", Qt::CaseInsensitive) == 0 ?
+                    QPrinter::Landscape : QPrinter::Portrait;
+        printer.setOrientation(orientation);
+        static const struct {
+            QString format;
+            QPrinter::PaperSize paperSize;
+        } formats[] = {
+            { "A3", QPrinter::A3 },
+            { "A4", QPrinter::A4 },
+            { "A5", QPrinter::A5 },
+            { "Legal", QPrinter::Legal },
+            { "Letter", QPrinter::Letter },
+            { "Tabloid", QPrinter::Tabloid }
+        };
+        printer.setPaperSize(QPrinter::A4); // Fallback
+        for (uint i = 0; i < sizeof(formats) / sizeof(formats[0]); ++i) {
+            if (paperSize.value("format").toString().compare(formats[i].format, Qt::CaseInsensitive) == 0) {
+                printer.setPaperSize(formats[i].paperSize);
+                break;
+            }
+        }
+    } else {
+        return false;
+    }
+
+    const qreal border = paperSize.contains("border") ?
+                floor(stringToPointSize(paperSize.value("border").toString())) : 0;
+    printer.setPageMargins(border, border, border, border, QPrinter::Point);
+
+    m_page.mainFrame()->print(&printer);
+    return true;
 }
 
 #include "phantomjs.moc"
