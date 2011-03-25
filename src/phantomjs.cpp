@@ -120,6 +120,8 @@ QString WebPage::chooseFile(QWebFrame *parentFrame, const QString &suggestedFile
     return QString();
 }
 
+
+//the main class of the application
 class Phantom: public QObject
 {
     Q_OBJECT
@@ -196,7 +198,7 @@ Phantom::Phantom(QObject *parent)
     m_page.setPalette(palette);
 
     bool autoLoadImages = true;
-    bool pluginsEnabled = false;
+    bool pluginsEnabled = false; //see command line options
 
     // second argument: script name
     QStringList args = QApplication::arguments();
@@ -510,6 +512,7 @@ static qreal stringToPointSize(const QString &string)
     return 0;
 }
 
+//private slot; see class declaration
 bool Phantom::renderPdf(const QString &fileName)
 {
     QPrinter printer;
@@ -578,12 +581,12 @@ int main(int argc, char** argv)
     app.setWindowIcon(QIcon(":/phantomjs-icon.png"));
     app.setApplicationName("PhantomJS");
     app.setOrganizationName("Ofi Labs");
-    app.setOrganizationDomain("www.ofilabs.com");
+    app.setOrganizationDomain("www.ofilabs.com"); //website coming soon
     app.setApplicationVersion(PHANTOMJS_VERSION_STRING);
 
     Phantom phantom;
     if (phantom.execute()) {
         app.exec();
     }
-    return phantom.returnValue();
+    return phantom.returnValue(); //if something bad happened
 }
