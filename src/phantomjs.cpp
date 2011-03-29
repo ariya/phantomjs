@@ -389,29 +389,37 @@ bool Phantom::render(const QString &fileName)
 
     QSize viewportSize = m_page.viewportSize();
     
-    QSize pageSize; 
+    QSize pageSize = m_page.mainFrame()->contentsSize(); 
     
-    pageSize = m_page.mainFrame()->contentsSize();
+    QSize bufferSize;
+    if(!m_clipRect.isEmpty()){
+      bufferSize = m_clipRect.size();
+    } else {
+      bufferSize = m_page.mainFrame()->contentsSize();
+    }
     
     if (pageSize.isEmpty())
         return false;
 
-    QImage buffer(pageSize, QImage::Format_ARGB32);
+    QImage buffer(bufferSize, QImage::Format_ARGB32);
     buffer.fill(qRgba(255, 255, 255, 0));
     QPainter p(&buffer);
+    
     p.setRenderHint(QPainter::Antialiasing, true);
     p.setRenderHint(QPainter::TextAntialiasing, true);
     p.setRenderHint(QPainter::SmoothPixmapTransform, true);
-    
+
     m_page.setViewportSize(pageSize);
-    m_page.mainFrame()->render(&p);
+        
+    if(!m_clipRect.isEmpty()){
+      p.translate(-m_clipRect.left(), -m_clipRect.top());
+      m_page.mainFrame()->render(&p, QRegion(m_clipRect));
+    } else {
+      m_page.mainFrame()->render(&p);
+    }
     
     p.end();
     m_page.setViewportSize(viewportSize);
-
-    if(!m_clipRect.isEmpty()){
-      buffer = buffer.copy(m_clipRect);
-    }
 
     if (fileName.toLower().endsWith(".gif")) {
         return exportGif(buffer, fileName);
