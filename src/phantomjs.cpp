@@ -131,6 +131,7 @@ class Phantom: public QObject
     Q_PROPERTY(QVariantMap version READ version)
     Q_PROPERTY(QVariantMap viewportSize READ viewportSize WRITE setViewportSize)
     Q_PROPERTY(QVariantMap paperSize READ paperSize WRITE setPaperSize)
+    Q_PROPERTY(QVariantMap renderSize READ renderSize WRITE setRenderSize)
 
 public:
     Phantom(QObject *parent = 0);
@@ -155,6 +156,9 @@ public:
 
     void setViewportSize(const QVariantMap &size);
     QVariantMap viewportSize() const;
+
+    void setRenderSize(const QVariantMap &size);
+    QVariantMap renderSize() const;
 
     void setPaperSize(const QVariantMap &size);
     QVariantMap paperSize() const;
@@ -183,6 +187,7 @@ private:
     QString m_state;
     CSConverter *m_converter;
     QVariantMap m_paperSize; // For PDF output via render()
+    QSize m_renderSize;
 };
 
 Phantom::Phantom(QObject *parent)
@@ -383,7 +388,12 @@ bool Phantom::render(const QString &fileName)
         return renderPdf(fileName);
 
     QSize viewportSize = m_page.viewportSize();
-    QSize pageSize = m_page.mainFrame()->contentsSize();
+    QSize pageSize;
+    if(!m_renderSize.isEmpty()) {
+      pageSize = m_renderSize;
+    } else {
+      pageSize = m_page.mainFrame()->contentsSize();
+    }
     if (pageSize.isEmpty())
         return false;
 
@@ -475,6 +485,22 @@ QVariantMap Phantom::viewportSize() const
     QSize size = m_page.viewportSize();
     result["width"] = size.width();
     result["height"] = size.height();
+    return result;
+}
+
+void Phantom::setRenderSize(const QVariantMap &size)
+{
+    int w = size.value("width").toInt();
+    int h = size.value("height").toInt();
+    if (w > 0 && h > 0)
+      m_renderSize = QSize(w,h);
+}
+
+QVariantMap Phantom::renderSize() const
+{
+    QVariantMap result;
+    result["width"] = m_renderSize.width();
+    result["height"] = m_renderSize.height();
     return result;
 }
 
