@@ -131,7 +131,7 @@ class Phantom: public QObject
     Q_PROPERTY(QVariantMap version READ version)
     Q_PROPERTY(QVariantMap viewportSize READ viewportSize WRITE setViewportSize)
     Q_PROPERTY(QVariantMap paperSize READ paperSize WRITE setPaperSize)
-    Q_PROPERTY(QVariantMap clipSize READ clipSize WRITE setClipSize)
+    Q_PROPERTY(QVariantMap clipRect READ clipRect WRITE setClipRect)
 
 public:
     Phantom(QObject *parent = 0);
@@ -157,8 +157,8 @@ public:
     void setViewportSize(const QVariantMap &size);
     QVariantMap viewportSize() const;
 
-    void setClipSize(const QVariantMap &size);
-    QVariantMap clipSize() const;
+    void setClipRect(const QVariantMap &size);
+    QVariantMap clipRect() const;
 
     void setPaperSize(const QVariantMap &size);
     QVariantMap paperSize() const;
@@ -493,7 +493,7 @@ QVariantMap Phantom::viewportSize() const
     return result;
 }
 
-void Phantom::setClipSize(const QVariantMap &size)
+void Phantom::setClipRect(const QVariantMap &size)
 {
     int w = size.value("width").toInt();
     int h = size.value("height").toInt();
@@ -510,7 +510,7 @@ void Phantom::setClipSize(const QVariantMap &size)
       m_clipRect = QRect(left, top, w, h);
 }
 
-QVariantMap Phantom::clipSize() const
+QVariantMap Phantom::clipRect() const
 {
     QVariantMap result;
     result["width"] = m_clipRect.width();
