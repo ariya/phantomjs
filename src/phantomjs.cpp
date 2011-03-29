@@ -131,7 +131,7 @@ class Phantom: public QObject
     Q_PROPERTY(QVariantMap version READ version)
     Q_PROPERTY(QVariantMap viewportSize READ viewportSize WRITE setViewportSize)
     Q_PROPERTY(QVariantMap paperSize READ paperSize WRITE setPaperSize)
-    Q_PROPERTY(QVariantMap renderSize READ renderSize WRITE setRenderSize)
+    Q_PROPERTY(QVariantMap clipSize READ clipSize WRITE setClipSize)
 
 public:
     Phantom(QObject *parent = 0);
@@ -157,8 +157,8 @@ public:
     void setViewportSize(const QVariantMap &size);
     QVariantMap viewportSize() const;
 
-    void setRenderSize(const QVariantMap &size);
-    QVariantMap renderSize() const;
+    void setClipSize(const QVariantMap &size);
+    QVariantMap clipSize() const;
 
     void setPaperSize(const QVariantMap &size);
     QVariantMap paperSize() const;
@@ -187,7 +187,7 @@ private:
     QString m_state;
     CSConverter *m_converter;
     QVariantMap m_paperSize; // For PDF output via render()
-    QRect m_renderSize;
+    QRect m_clipRect;
 };
 
 Phantom::Phantom(QObject *parent)
@@ -390,7 +390,6 @@ bool Phantom::render(const QString &fileName)
     QSize viewportSize = m_page.viewportSize();
     
     QSize pageSize; 
-    QRegion clipRegion;
     
     pageSize = m_page.mainFrame()->contentsSize();
     
@@ -410,8 +409,8 @@ bool Phantom::render(const QString &fileName)
     p.end();
     m_page.setViewportSize(viewportSize);
 
-    if(!m_renderSize.isEmpty()){
-      buffer = buffer.copy(m_renderSize);
+    if(!m_clipRect.isEmpty()){
+      buffer = buffer.copy(m_clipRect);
     }
 
     if (fileName.toLower().endsWith(".gif")) {
@@ -494,7 +493,7 @@ QVariantMap Phantom::viewportSize() const
     return result;
 }
 
-void Phantom::setRenderSize(const QVariantMap &size)
+void Phantom::setClipSize(const QVariantMap &size)
 {
     int w = size.value("width").toInt();
     int h = size.value("height").toInt();
@@ -508,16 +507,16 @@ void Phantom::setRenderSize(const QVariantMap &size)
       left = 0;
     
     if (w > 0 && h > 0)
-      m_renderSize = QRect(top, left, w, h);
+      m_clipRect = QRect(left, top, w, h);
 }
 
-QVariantMap Phantom::renderSize() const
+QVariantMap Phantom::clipSize() const
 {
     QVariantMap result;
-    result["width"] = m_renderSize.width();
-    result["height"] = m_renderSize.height();
-    result["top"] = m_renderSize.top();
-    result["left"] = m_renderSize.left();
+    result["width"] = m_clipRect.width();
+    result["height"] = m_clipRect.height();
+    result["top"] = m_clipRect.top();
+    result["left"] = m_clipRect.left();
     return result;
 }
 
