@@ -187,7 +187,7 @@ private:
     QString m_state;
     CSConverter *m_converter;
     QVariantMap m_paperSize; // For PDF output via render()
-    QSize m_renderSize;
+    QRect m_renderSize;
 };
 
 Phantom::Phantom(QObject *parent)
@@ -388,12 +388,12 @@ bool Phantom::render(const QString &fileName)
         return renderPdf(fileName);
 
     QSize viewportSize = m_page.viewportSize();
-    QSize pageSize;
-    if(!m_renderSize.isEmpty()) {
-      pageSize = m_renderSize;
-    } else {
-      pageSize = m_page.mainFrame()->contentsSize();
-    }
+    
+    QSize pageSize; 
+    QRegion clipRegion;
+    
+    pageSize = m_page.mainFrame()->contentsSize();
+    
     if (pageSize.isEmpty())
         return false;
 
@@ -403,10 +403,16 @@ bool Phantom::render(const QString &fileName)
     p.setRenderHint(QPainter::Antialiasing, true);
     p.setRenderHint(QPainter::TextAntialiasing, true);
     p.setRenderHint(QPainter::SmoothPixmapTransform, true);
+    
     m_page.setViewportSize(pageSize);
     m_page.mainFrame()->render(&p);
+    
     p.end();
     m_page.setViewportSize(viewportSize);
+
+    if(!m_renderSize.isEmpty()){
+      buffer = buffer.copy(m_renderSize);
+    }
 
     if (fileName.toLower().endsWith(".gif")) {
         return exportGif(buffer, fileName);
@@ -492,8 +498,17 @@ void Phantom::setRenderSize(const QVariantMap &size)
 {
     int w = size.value("width").toInt();
     int h = size.value("height").toInt();
+    int top = size.value("top").toInt();
+    int left = size.value("left").toInt();
+    
+    if (top < 0)
+      top = 0;
+      
+    if (left < 0)
+      left = 0;
+    
     if (w > 0 && h > 0)
-      m_renderSize = QSize(w,h);
+      m_renderSize = QRect(top, left, w, h);
 }
 
 QVariantMap Phantom::renderSize() const
@@ -501,6 +516,8 @@ QVariantMap Phantom::renderSize() const
     QVariantMap result;
     result["width"] = m_renderSize.width();
     result["height"] = m_renderSize.height();
+    result["top"] = m_renderSize.top();
+    result["left"] = m_renderSize.left();
     return result;
 }
 
