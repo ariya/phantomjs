@@ -317,17 +317,17 @@ class Phantom(QObject):
     @paperSize.setter
     def paperSize(self, size):
         # convert QString to str
-        buffer = {}
+        size_buffer = {}
         for key, value in size.items():
-            buffer[str(key)] = str(value)
+            size_buffer[str(key)] = str(value)
 
-        self.m_paperSize = buffer
+        self.m_paperSize = size_buffer
 
     @pyqtSlot(str, result=bool)
     def render(self, fileName):
         fileInfo = QFileInfo(fileName)
-        dir = QDir()
-        dir.mkpath(fileInfo.absolutePath())
+        path = QDir()
+        path.mkpath(fileInfo.absolutePath())
 
         if fileName.endsWith('.pdf', Qt.CaseInsensitive):
             return self.renderPdf(fileName)
@@ -337,9 +337,9 @@ class Phantom(QObject):
         if pageSize == '':
             return False
 
-        buffer = QImage(pageSize, QImage.Format_ARGB32_Premultiplied)
-        buffer.fill(Qt.transparent)
-        p = QPainter(buffer)
+        image = QImage(pageSize, QImage.Format_ARGB32_Premultiplied)
+        image.fill(Qt.transparent)
+        p = QPainter(image)
         p.setRenderHint(QPainter.Antialiasing, True)
         p.setRenderHint(QPainter.TextAntialiasing, True)
         p.setRenderHint(QPainter.SmoothPixmapTransform, True)
@@ -347,7 +347,7 @@ class Phantom(QObject):
         self.m_page.mainFrame().render(p)
         p.end()
         self.m_page.setViewportSize(viewportSize)
-        return buffer.save(fileName)
+        return image.save(fileName)
 
     @pyqtSlot('QWebElement', str)
     def setFormInputFile(self, el, fileTag):
