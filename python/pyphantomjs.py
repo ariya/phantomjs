@@ -40,7 +40,7 @@ version = '%d.%d.%d' % (version_major, version_minor, version_patch)
 def argParser():
     parser = argparse.ArgumentParser(
         description='Minimalistic headless WebKit-based JavaScript-driven tool',
-        usage='%(prog)s [options] script.js [argument [argument ...]]',
+        usage='%(prog)s [options] script.js|coffee [argument [argument ...]]',
         formatter_class=argparse.RawTextHelpFormatter
     )
 
@@ -58,7 +58,7 @@ def argParser():
     parser.add_argument('--upload-file', nargs='*',
         metavar='tag:file', help='Upload 1 or more files'
     )
-    parser.add_argument('script', metavar='script.js', nargs='*',
+    parser.add_argument('script', metavar='script.js|coffee', nargs='*',
         help='The script to execute, and any args to pass to it'
     )
     parser.add_argument('--version',
