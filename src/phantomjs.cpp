@@ -392,10 +392,10 @@ bool Phantom::render(const QString &fileName)
     QSize pageSize = m_page.mainFrame()->contentsSize(); 
     
     QSize bufferSize;
-    if(!m_clipRect.isEmpty()){
-      bufferSize = m_clipRect.size();
+    if (!m_clipRect.isEmpty()) {
+        bufferSize = m_clipRect.size();
     } else {
-      bufferSize = m_page.mainFrame()->contentsSize();
+        bufferSize = m_page.mainFrame()->contentsSize();
     }
     
     if (pageSize.isEmpty())
@@ -411,11 +411,11 @@ bool Phantom::render(const QString &fileName)
 
     m_page.setViewportSize(pageSize);
         
-    if(!m_clipRect.isEmpty()){
-      p.translate(-m_clipRect.left(), -m_clipRect.top());
-      m_page.mainFrame()->render(&p, QRegion(m_clipRect));
+    if (!m_clipRect.isEmpty()) {
+        p.translate(-m_clipRect.left(), -m_clipRect.top());
+        m_page.mainFrame()->render(&p, QRegion(m_clipRect));
     } else {
-      m_page.mainFrame()->render(&p);
+        m_page.mainFrame()->render(&p);
     }
     
     p.end();
@@ -509,13 +509,13 @@ void Phantom::setClipRect(const QVariantMap &size)
     int left = size.value("left").toInt();
     
     if (top < 0)
-      top = 0;
+        top = 0;
       
     if (left < 0)
-      left = 0;
+        left = 0;
     
     if (w > 0 && h > 0)
-      m_clipRect = QRect(left, top, w, h);
+        m_clipRect = QRect(left, top, w, h);
 }
 
 QVariantMap Phantom::clipRect() const
