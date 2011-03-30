@@ -42,6 +42,25 @@ version = '%d.%d.%d' % (version_major, version_minor, version_patch)
 # OSX: 72, X11: 75(?), Windows: 96
 pdf_dpi = 72
 
+license = '''
+  PyPhantomJS Version %s
+
+  Copyright (C) 2011 James Roe <roejames12@hotmail.com>
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+''' % version
+
 def argParser():
     parser = argparse.ArgumentParser(
         description='Minimalistic headless WebKit-based JavaScript-driven tool',
@@ -67,26 +86,9 @@ def argParser():
         help='The script to execute, and any args to pass to it'
     )
     parser.add_argument('--version',
-        action='version',
-        help='show this program\'s version and license',
-version='''
-  PyPhantomJS Version %s
-
-  Copyright (C) 2011 James Roe <roejames12@hotmail.com>
-
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-''' % version)
+        action='version', version=license,
+        help='show this program\'s version and license'
+    )
     return parser
 
 class WebPage(QWebPage):
@@ -125,9 +127,8 @@ class Phantom(QObject):
 
         # variable declarations
         self.m_loadStatus = self.m_state = self.m_userAgent = QString()
-        self.m_paperSize = {}
         self.m_page = WebPage(self)
-        self.m_var = self.m_loadScript_cache = {}
+        self.m_var = self.m_paperSize = self.m_loadScript_cache = {}
         # setup the values from args
         self.m_script = QString.fromUtf8(args.script[0].read())
         self.m_scriptFile = args.script[0].name
@@ -207,7 +208,7 @@ class Phantom(QObject):
                             ceil(self.stringToPointSize(paperSize['height'])))
             p.setPaperSize(sizePt, QPrinter.Point)
         elif 'format' in paperSize:
-            orientation = QPrinter.Landscape if paperSize.get('orientation') and paperSize.get('orientation').lower() == 'landscape' else QPrinter.Portrait
+            orientation = QPrinter.Landscape if paperSize.get('orientation') and paperSize['orientation'].lower() == 'landscape' else QPrinter.Portrait
             orientation = QPrinter.Orientation(orientation)
             p.setOrientation(orientation)
 
@@ -222,7 +223,7 @@ class Phantom(QObject):
 
             p.setPaperSize(QPrinter.A4) # fallback
             for format, size in formats.items():
-                if format.lower() == paperSize.get('format').lower():
+                if format.lower() == paperSize['format'].lower():
                     p.setPaperSize(size)
                     break
         else:
