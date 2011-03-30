@@ -20,6 +20,7 @@
 '''
 
 import argparse, os, sys, resources
+from math import ceil, floor
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -36,6 +37,10 @@ version_major = 1
 version_minor = 1
 version_patch = 0
 version = '%d.%d.%d' % (version_major, version_minor, version_patch)
+
+# Different defaults.
+# OSX: 72, X11: 75(?), Windows: 96
+pdf_dpi = 72
 
 def argParser():
     parser = argparse.ArgumentParser(
@@ -120,6 +125,7 @@ class Phantom(QObject):
 
         # variable declarations
         self.m_loadStatus = self.m_state = self.m_userAgent = QString()
+        self.m_paperSize = {}
         self.m_page = WebPage(self)
         self.m_var = self.m_loadScript_cache = {}
         # setup the values from args
@@ -183,8 +189,68 @@ class Phantom(QObject):
     def inject(self):
         self.m_page.mainFrame().addToJavaScriptWindowObject('phantom', self)
 
+    def renderPdf(self, fileName):
+        p = QPrinter()
+        p.setOutputFormat(QPrinter.PdfFormat)
+        p.setOutputFileName(fileName)
+        p.setResolution(pdf_dpi)
+        paperSize = self.m_paperSize
+
+        if not len(paperSize):
+            pageSize = QSize(self.m_page.mainFrame().contentsSize())
+            paperSize['width'] = str(pageSize.width()) + 'px'
+            paperSize['height'] = str(pageSize.height()) + 'px'
+            paperSize['border'] = '0px'
+
+        if paperSize.get('width') and paperSize.get('height'):
+            sizePt = QSizeF(ceil(self.stringToPointSize(paperSize['width'])),
+                            ceil(self.stringToPointSize(paperSize['height'])))
+            p.setPaperSize(sizePt, QPrinter.Point)
+        elif 'format' in paperSize:
+            orientation = QPrinter.Landscape if paperSize.get('orientation') and paperSize.get('orientation').lower() == 'landscape' else QPrinter.Portrait
+            orientation = QPrinter.Orientation(orientation)
+            p.setOrientation(orientation)
+
+            formats = {
+                'A3': QPrinter.A3,
+                'A4': QPrinter.A4,
+                'A5': QPrinter.A5,
+                'Legal': QPrinter.Legal,
+                'Letter': QPrinter.Letter,
+                'Tabloid': QPrinter.Tabloid
+            }
+
+            p.setPaperSize(QPrinter.A4) # fallback
+            for format, size in formats.items():
+                if format.lower() == paperSize.get('format').lower():
+                    p.setPaperSize(size)
+                    break
+        else:
+            return False
+
+        border = floor(self.stringToPointSize(paperSize['border'])) if paperSize.get('border') else 0
+        p.setPageMargins(border, border, border, border, QPrinter.Point)
+
+        self.m_page.mainFrame().print_(p)
+        return True
+
     def returnValue(self):
         return self.m_returnValue
+
+    def stringToPointSize(self, string):
+        units = (
+            ('mm', 72 / 25.4),
+            ('cm', 72 / 2.54),
+            ('in', 72.0),
+            ('px', 72.0 / pdf_dpi / 2.54),
+            ('', 72.0 / pdf_dpi / 2.54)
+        )
+
+        for unit, format in units:
+            if string.endswith(unit):
+                value = string.rstrip(unit)
+                return float(value) * format
+        return 0
 
     ##
     # Properties and methods exposed to JavaScript
@@ -243,18 +309,27 @@ class Phantom(QObject):
         self.m_loadStatus = 'loading'
         self.m_page.mainFrame().setUrl(QUrl(address))
 
-    @pyqtSlot(str)
+    @pyqtProperty('QVariantMap')
+    def paperSize(self):
+        return self.m_paperSize
+
+    @paperSize.setter
+    def paperSize(self, size):
+        # convert QString to str
+        buffer = {}
+        for key, value in size.items():
+            buffer[str(key)] = str(value)
+
+        self.m_paperSize = buffer
+
+    @pyqtSlot(str, result=bool)
     def render(self, fileName):
         fileInfo = QFileInfo(fileName)
         dir = QDir()
         dir.mkpath(fileInfo.absolutePath())
 
-        if fileName.toLower().endsWith('.pdf'):
-            p = QPrinter()
-            p.setOutputFormat(QPrinter.PdfFormat)
-            p.setOutputFileName(fileName)
-            self.m_page.mainFrame().print_(p)
-            return True
+        if fileName.endsWith('.pdf', Qt.CaseInsensitive):
+            return self.renderPdf(fileName)
 
         viewportSize = QSize(self.m_page.viewportSize())
         pageSize = QSize(self.m_page.mainFrame().contentsSize())
