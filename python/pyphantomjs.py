@@ -128,8 +128,9 @@ class Phantom(QObject):
 
         # variable declarations
         self.m_loadStatus = self.m_state = self.m_userAgent = QString()
-        self.m_page = WebPage(self)
         self.m_var = self.m_paperSize = self.m_loadScript_cache = {}
+        self.m_page = WebPage(self)
+        self.m_clipRect = QRect()
         # setup the values from args
         self.m_script = QString.fromUtf8(args.script[0].read())
         self.m_scriptFile = args.script[0].name
@@ -262,6 +263,26 @@ class Phantom(QObject):
     def args(self):
         return self.m_args
 
+    @pyqtProperty('QVariantMap')
+    def clipRect(self):
+        result = {
+            'width': self.m_clipRect.width(),
+            'height': self.m_clipRect.height(),
+            'top': self.m_clipRect.top(),
+            'left': self.m_clipRect.left()
+        }
+        return result
+
+    @clipRect.setter
+    def clipRect(self, size):
+        w = int(size[QString('width')])
+        h = int(size[QString('height')])
+        top = int(size[QString('top')])
+        left = int(size[QString('left')])
+
+        if w > 0 and h > 0:
+            self.m_clipRect = QRect(left, top, w, h)
+
     @pyqtProperty('QString')
     def content(self):
         return self.m_page.mainFrame().toHtml()
@@ -335,17 +356,32 @@ class Phantom(QObject):
 
         viewportSize = QSize(self.m_page.viewportSize())
         pageSize = QSize(self.m_page.mainFrame().contentsSize())
+
+        bufferSize = QSize()
+        if not self.m_clipRect.isEmpty():
+            bufferSize = self.m_clipRect.size()
+        else:
+            bufferSize = self.m_page.mainFrame().contentsSize()
+
         if pageSize == '':
             return False
 
-        image = QImage(pageSize, QImage.Format_ARGB32_Premultiplied)
+        image = QImage(bufferSize, QImage.Format_ARGB32_Premultiplied)
         image.fill(Qt.transparent)
         p = QPainter(image)
+
         p.setRenderHint(QPainter.Antialiasing, True)
         p.setRenderHint(QPainter.TextAntialiasing, True)
         p.setRenderHint(QPainter.SmoothPixmapTransform, True)
+
         self.m_page.setViewportSize(pageSize)
-        self.m_page.mainFrame().render(p)
+
+        if not self.m_clipRect.isEmpty():
+            p.translate(-self.m_clipRect.left(), -self.m_clipRect.top())
+            self.m_page.mainFrame().render(p, QRegion(self.m_clipRect))
+        else:
+            self.m_page.mainFrame().render(p)
+
         p.end()
         self.m_page.setViewportSize(viewportSize)
         return image.save(fileName)
