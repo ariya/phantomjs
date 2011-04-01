@@ -10,5 +10,5 @@
 
 # convert each filename.qrc to respective filename.py
 for f in *.qrc; do
-    pyrcc4 -o ${f%.*}.py $f
+    pyrcc4 -compress 2 -o ${f%.*}.py $f
 done
