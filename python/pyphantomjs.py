@@ -21,6 +21,7 @@
 
 import argparse, os, sys, resources
 from math import ceil, floor
+from time import sleep as usleep
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -365,6 +366,7 @@ class Phantom(QObject):
             QApplication.processEvents(QEventLoop.AllEvents, 25)
             if startTime.msecsTo(QTime.currentTime()) > ms:
                 break
+            usleep(0.005)
 
     @pyqtProperty(str)
     def state(self):
