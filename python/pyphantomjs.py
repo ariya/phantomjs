@@ -171,7 +171,6 @@ class Phantom(QObject):
             os.chdir(os.path.dirname(self.m_scriptFile))
 
         # inject our properties and slots into javascript
-        self.setObjectName('phantom')
         self.connect(self.m_page.mainFrame(), SIGNAL('javaScriptWindowObjectCleared()'), self.inject)
         self.connect(self.m_page, SIGNAL('loadFinished(bool)'), self.finish)
 
