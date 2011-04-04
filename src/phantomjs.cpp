@@ -169,7 +169,6 @@ public slots:
     void setFormInputFile(QWebElement el, const QString &fileTag);
     bool render(const QString &fileName);
     void sleep(int ms);
-    bool waitFor(const QString &jstest, int ms);
 
 private slots:
     void inject();
@@ -444,20 +443,6 @@ void Phantom::sleep(int ms)
     }
 }
 
-bool Phantom::waitFor(const QString &jstest, int ms)
-{
-  QTime startTime = QTime::currentTime();
-  while (true) {
-    QApplication::processEvents(QEventLoop::AllEvents, 250);
-    if (startTime.msecsTo(QTime::currentTime()) > ms)
-      return false;
-    QVariant v = m_page.mainFrame()->evaluateJavaScript(jstest);
-    if(v.toBool()) {
-      return true;
-    }
-  }
-  return true;
-}
 
 void Phantom::setFormInputFile(QWebElement el, const QString &fileTag)
 {
