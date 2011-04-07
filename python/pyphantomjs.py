@@ -20,6 +20,8 @@
 '''
 
 import argparse, os, sys, resources
+from math import ceil, floor
+from time import sleep as usleep
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -37,10 +39,33 @@ version_minor = 1
 version_patch = 0
 version = '%d.%d.%d' % (version_major, version_minor, version_patch)
 
+# Different defaults.
+# OSX: 72, X11: 75(?), Windows: 96
+pdf_dpi = 72
+
+license = '''
+  PyPhantomJS Version %s
+
+  Copyright (C) 2011 James Roe <roejames12@hotmail.com>
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+''' % version
+
 def argParser():
     parser = argparse.ArgumentParser(
         description='Minimalistic headless WebKit-based JavaScript-driven tool',
-        usage='%(prog)s [options] script.js [argument [argument ...]]',
+        usage='%(prog)s [options] script.[js|coffee] [script argument [script argument ...]]',
         formatter_class=argparse.RawTextHelpFormatter
     )
 
@@ -58,30 +83,13 @@ def argParser():
     parser.add_argument('--upload-file', nargs='*',
         metavar='tag:file', help='Upload 1 or more files'
     )
-    parser.add_argument('script', metavar='script.js', nargs='*',
+    parser.add_argument('script', metavar='script.[js|coffee]', nargs='*',
         help='The script to execute, and any args to pass to it'
     )
     parser.add_argument('--version',
-        action='version',
-        help='show this program\'s version and license',
-version='''
-  PyPhantomJS Version %s
-
-  Copyright (C) 2011 James Roe <roejames12@hotmail.com>
-
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-''' % version)
+        action='version', version=license,
+        help='show this program\'s version and license'
+    )
     return parser
 
 class WebPage(QWebPage):
@@ -120,8 +128,9 @@ class Phantom(QObject):
 
         # variable declarations
         self.m_loadStatus = self.m_state = self.m_userAgent = QString()
+        self.m_var = self.m_paperSize = self.m_loadScript_cache = {}
         self.m_page = WebPage(self)
-        self.m_var = self.m_loadScript_cache = {}
+        self.m_clipRect = QRect()
         # setup the values from args
         self.m_script = QString.fromUtf8(args.script[0].read())
         self.m_scriptFile = args.script[0].name
@@ -162,7 +171,6 @@ class Phantom(QObject):
             os.chdir(os.path.dirname(self.m_scriptFile))
 
         # inject our properties and slots into javascript
-        self.setObjectName('phantom')
         self.connect(self.m_page.mainFrame(), SIGNAL('javaScriptWindowObjectCleared()'), self.inject)
         self.connect(self.m_page, SIGNAL('loadFinished(bool)'), self.finish)
 
@@ -183,8 +191,68 @@ class Phantom(QObject):
     def inject(self):
         self.m_page.mainFrame().addToJavaScriptWindowObject('phantom', self)
 
+    def renderPdf(self, fileName):
+        p = QPrinter()
+        p.setOutputFormat(QPrinter.PdfFormat)
+        p.setOutputFileName(fileName)
+        p.setResolution(pdf_dpi)
+        paperSize = self.m_paperSize
+
+        if not len(paperSize):
+            pageSize = QSize(self.m_page.mainFrame().contentsSize())
+            paperSize['width'] = str(pageSize.width()) + 'px'
+            paperSize['height'] = str(pageSize.height()) + 'px'
+            paperSize['border'] = '0px'
+
+        if paperSize.get('width') and paperSize.get('height'):
+            sizePt = QSizeF(ceil(self.stringToPointSize(paperSize['width'])),
+                            ceil(self.stringToPointSize(paperSize['height'])))
+            p.setPaperSize(sizePt, QPrinter.Point)
+        elif 'format' in paperSize:
+            orientation = QPrinter.Landscape if paperSize.get('orientation') and paperSize['orientation'].lower() == 'landscape' else QPrinter.Portrait
+            orientation = QPrinter.Orientation(orientation)
+            p.setOrientation(orientation)
+
+            formats = {
+                'A3': QPrinter.A3,
+                'A4': QPrinter.A4,
+                'A5': QPrinter.A5,
+                'Legal': QPrinter.Legal,
+                'Letter': QPrinter.Letter,
+                'Tabloid': QPrinter.Tabloid
+            }
+
+            p.setPaperSize(QPrinter.A4) # fallback
+            for format, size in formats.items():
+                if format.lower() == paperSize['format'].lower():
+                    p.setPaperSize(size)
+                    break
+        else:
+            return False
+
+        border = floor(self.stringToPointSize(paperSize['border'])) if paperSize.get('border') else 0
+        p.setPageMargins(border, border, border, border, QPrinter.Point)
+
+        self.m_page.mainFrame().print_(p)
+        return True
+
     def returnValue(self):
         return self.m_returnValue
+
+    def stringToPointSize(self, string):
+        units = (
+            ('mm', 72 / 25.4),
+            ('cm', 72 / 2.54),
+            ('in', 72.0),
+            ('px', 72.0 / pdf_dpi / 2.54),
+            ('', 72.0 / pdf_dpi / 2.54)
+        )
+
+        for unit, format in units:
+            if string.endswith(unit):
+                value = string.rstrip(unit)
+                return float(value) * format
+        return 0
 
     ##
     # Properties and methods exposed to JavaScript
@@ -193,6 +261,26 @@ class Phantom(QObject):
     @pyqtProperty('QStringList')
     def args(self):
         return self.m_args
+
+    @pyqtProperty('QVariantMap')
+    def clipRect(self):
+        result = {
+            'width': self.m_clipRect.width(),
+            'height': self.m_clipRect.height(),
+            'top': self.m_clipRect.top(),
+            'left': self.m_clipRect.left()
+        }
+        return result
+
+    @clipRect.setter
+    def clipRect(self, size):
+        w = int(size[QString('width')])
+        h = int(size[QString('height')])
+        top = int(size[QString('top')])
+        left = int(size[QString('left')])
+
+        if w > 0 and h > 0:
+            self.m_clipRect = QRect(left, top, w, h)
 
     @pyqtProperty('QString')
     def content(self):
@@ -243,35 +331,59 @@ class Phantom(QObject):
         self.m_loadStatus = 'loading'
         self.m_page.mainFrame().setUrl(QUrl(address))
 
-    @pyqtSlot(str)
+    @pyqtProperty('QVariantMap')
+    def paperSize(self):
+        return self.m_paperSize
+
+    @paperSize.setter
+    def paperSize(self, size):
+        # convert QString to str
+        size_buffer = {}
+        for key, value in size.items():
+            size_buffer[str(key)] = str(value)
+
+        self.m_paperSize = size_buffer
+
+    @pyqtSlot(str, result=bool)
     def render(self, fileName):
         fileInfo = QFileInfo(fileName)
-        dir = QDir()
-        dir.mkpath(fileInfo.absolutePath())
+        path = QDir()
+        path.mkpath(fileInfo.absolutePath())
 
-        if fileName.toLower().endsWith('.pdf'):
-            p = QPrinter()
-            p.setOutputFormat(QPrinter.PdfFormat)
-            p.setOutputFileName(fileName)
-            self.m_page.mainFrame().print_(p)
-            return True
+        if fileName.endsWith('.pdf', Qt.CaseInsensitive):
+            return self.renderPdf(fileName)
 
         viewportSize = QSize(self.m_page.viewportSize())
         pageSize = QSize(self.m_page.mainFrame().contentsSize())
+
+        bufferSize = QSize()
+        if not self.m_clipRect.isEmpty():
+            bufferSize = self.m_clipRect.size()
+        else:
+            bufferSize = self.m_page.mainFrame().contentsSize()
+
         if pageSize == '':
             return False
 
-        buffer = QImage(pageSize, QImage.Format_ARGB32_Premultiplied)
-        buffer.fill(Qt.transparent)
-        p = QPainter(buffer)
+        image = QImage(bufferSize, QImage.Format_ARGB32_Premultiplied)
+        image.fill(Qt.transparent)
+        p = QPainter(image)
+
         p.setRenderHint(QPainter.Antialiasing, True)
         p.setRenderHint(QPainter.TextAntialiasing, True)
         p.setRenderHint(QPainter.SmoothPixmapTransform, True)
+
         self.m_page.setViewportSize(pageSize)
-        self.m_page.mainFrame().render(p)
+
+        if not self.m_clipRect.isEmpty():
+            p.translate(-self.m_clipRect.left(), -self.m_clipRect.top())
+            self.m_page.mainFrame().render(p, QRegion(self.m_clipRect))
+        else:
+            self.m_page.mainFrame().render(p)
+
         p.end()
         self.m_page.setViewportSize(viewportSize)
-        return buffer.save(fileName)
+        return image.save(fileName)
 
     @pyqtSlot('QWebElement', str)
     def setFormInputFile(self, el, fileTag):
@@ -289,6 +401,7 @@ class Phantom(QObject):
             QApplication.processEvents(QEventLoop.AllEvents, 25)
             if startTime.msecsTo(QTime.currentTime()) > ms:
                 break
+            usleep(0.005)
 
     @pyqtProperty(str)
     def state(self):

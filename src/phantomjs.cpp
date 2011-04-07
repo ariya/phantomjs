@@ -157,6 +157,7 @@ class Phantom: public QObject
     Q_PROPERTY(QVariantMap version READ version)
     Q_PROPERTY(QVariantMap viewportSize READ viewportSize WRITE setViewportSize)
     Q_PROPERTY(QVariantMap paperSize READ paperSize WRITE setPaperSize)
+    Q_PROPERTY(QVariantMap clipRect READ clipRect WRITE setClipRect)
 
 public:
     Phantom(QObject *parent = 0);
@@ -181,6 +182,9 @@ public:
 
     void setViewportSize(const QVariantMap &size);
     QVariantMap viewportSize() const;
+
+    void setClipRect(const QVariantMap &size);
+    QVariantMap clipRect() const;
 
     void setPaperSize(const QVariantMap &size);
     QVariantMap paperSize() const;
@@ -212,6 +216,7 @@ private:
     QString m_state;
     CSConverter *m_converter;
     QVariantMap m_paperSize; // For PDF output via render()
+    QRect m_clipRect;
 };
 
 Phantom::Phantom(QObject *parent)
@@ -413,18 +418,36 @@ bool Phantom::render(const QString &fileName)
         return renderPdf(fileName);
 
     QSize viewportSize = m_page.viewportSize();
-    QSize pageSize = m_page.mainFrame()->contentsSize();
+    
+    QSize pageSize = m_page.mainFrame()->contentsSize(); 
+    
+    QSize bufferSize;
+    if (!m_clipRect.isEmpty()) {
+        bufferSize = m_clipRect.size();
+    } else {
+        bufferSize = m_page.mainFrame()->contentsSize();
+    }
+    
     if (pageSize.isEmpty())
         return false;
 
-    QImage buffer(pageSize, QImage::Format_ARGB32);
+    QImage buffer(bufferSize, QImage::Format_ARGB32);
     buffer.fill(qRgba(255, 255, 255, 0));
     QPainter p(&buffer);
+    
     p.setRenderHint(QPainter::Antialiasing, true);
     p.setRenderHint(QPainter::TextAntialiasing, true);
     p.setRenderHint(QPainter::SmoothPixmapTransform, true);
+
     m_page.setViewportSize(pageSize);
-    m_page.mainFrame()->render(&p);
+        
+    if (!m_clipRect.isEmpty()) {
+        p.translate(-m_clipRect.left(), -m_clipRect.top());
+        m_page.mainFrame()->render(&p, QRegion(m_clipRect));
+    } else {
+        m_page.mainFrame()->render(&p);
+    }
+    
     p.end();
     m_page.setViewportSize(viewportSize);
 
@@ -535,6 +558,27 @@ QVariantMap Phantom::viewportSize() const
     QSize size = m_page.viewportSize();
     result["width"] = size.width();
     result["height"] = size.height();
+    return result;
+}
+
+void Phantom::setClipRect(const QVariantMap &size)
+{
+    int w = size.value("width").toInt();
+    int h = size.value("height").toInt();
+    int top = size.value("top").toInt();
+    int left = size.value("left").toInt();
+    
+    if (w > 0 && h > 0)
+        m_clipRect = QRect(left, top, w, h);
+}
+
+QVariantMap Phantom::clipRect() const
+{
+    QVariantMap result;
+    result["width"] = m_clipRect.width();
+    result["height"] = m_clipRect.height();
+    result["top"] = m_clipRect.top();
+    result["left"] = m_clipRect.left();
     return result;
 }
 
