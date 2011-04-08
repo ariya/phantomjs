@@ -11,6 +11,9 @@ public:
 
 protected:
     QNetworkReply *createRequest(Operation op, const QNetworkRequest & req, QIODevice * outgoingData = 0);
+
+private slots:
+    void handleFinished(QNetworkReply *reply);
 };
 
 #endif // NETWORKACCESSMANAGER_H
