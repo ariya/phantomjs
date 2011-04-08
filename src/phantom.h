@@ -2,6 +2,7 @@
 
 #include "webpage.h"
 #include "csconverter.h"
+#include "networkaccessmanager.h"
 
 class Phantom: public QObject
 {
@@ -76,4 +77,5 @@ private:
     CSConverter *m_converter;
     QVariantMap m_paperSize; // For PDF output via render()
     QRect m_clipRect;
+    NetworkAccessManager *m_netAccessMan;
 };

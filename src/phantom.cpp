@@ -1,3 +1,4 @@
+#include <iostream>
 #include <QDebug>
 
 #include <gifwriter.h>
@@ -24,6 +25,7 @@ Phantom::Phantom(QObject *parent)
     , m_proxyPort(1080)
     , m_returnValue(0)
     , m_converter(0)
+    , m_netAccessMan(0)
 {
     QPalette palette = m_page.palette();
     palette.setBrush(QPalette::Base, Qt::transparent);
@@ -106,6 +108,10 @@ Phantom::Phantom(QObject *parent)
         m_args += arg;
     }
 
+    // Provide WebPage with a non-standard Network Access Manager
+    m_netAccessMan = new NetworkAccessManager(this);
+    m_page.setNetworkAccessManager(m_netAccessMan);
+
     connect(m_page.mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), SLOT(inject()));
     connect(&m_page, SIGNAL(loadFinished(bool)), this, SLOT(finish(bool)));
 
@@ -156,7 +162,7 @@ bool Phantom::execute()
     QFile file;
     file.setFileName(m_scriptFile);
     if (!file.open(QFile::ReadOnly)) {
-        qFatal("Can't open %s\n", qPrintable(m_scriptFile));
+        std::cerr << "Can't open '" << qPrintable(m_scriptFile) << "'" << std::endl << std::endl;
         exit(1);
         return false;
     }

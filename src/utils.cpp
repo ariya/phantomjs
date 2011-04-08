@@ -1,6 +1,7 @@
 #include <iostream>
 #include <QFile>
 #include <QDebug>
+#include <QDateTime>
 
 #include "utils.h"
 
@@ -19,18 +20,20 @@ void Utils::showUsage()
 
 void Utils::messageHandler(QtMsgType type, const char *msg)
 {
+    QDateTime now = QDateTime::currentDateTime();
+
     switch (type) {
     case QtDebugMsg:
-        fprintf(stdout, "[DEBUG]: %s\n", msg);
+        fprintf(stdout, "%s [DEBUG] %s\n", qPrintable(now.toString(Qt::ISODate)), msg);
         break;
     case QtWarningMsg:
-        fprintf(stderr, "[WARNING]: %s\n", msg);
+        fprintf(stderr, "%s [WARNING] %s\n", qPrintable(now.toString(Qt::ISODate)), msg);
         break;
     case QtCriticalMsg:
-        fprintf(stderr, "[CRITICAL]: %s\n", msg);
+        fprintf(stderr, "%s [CRITICAL] %s\n", qPrintable(now.toString(Qt::ISODate)), msg);
         break;
     case QtFatalMsg:
-        fprintf(stderr, "[FATAL]: %s\n", msg);
+        fprintf(stderr, "%s [FATAL] %s\n", qPrintable(now.toString(Qt::ISODate)), msg);
         abort();
     }
 }

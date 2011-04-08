@@ -12,12 +12,14 @@ HEADERS += csconverter.h \
     phantom.h \
     webpage.h \
     consts.h \
-    utils.h
+    utils.h \
+    networkaccessmanager.h
 SOURCES += phantom.cpp \
     webpage.cpp \
     main.cpp \
     csconverter.cpp \
-    utils.cpp
+    utils.cpp \
+    networkaccessmanager.cpp
 
 include(gif/gif.pri)
 
