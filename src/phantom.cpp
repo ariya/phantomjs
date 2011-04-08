@@ -1,50 +1,11 @@
-/*
-  This file is part of the PhantomJS project from Ofi Labs.
-
-  Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
-  Copyright (C) 2010 Ariya Hidayat <ariya.hidayat@gmail.com>
-
-  Redistribution and use in source and binary forms, with or without
-  modification, are permitted provided that the following conditions are met:
-
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in the
-      documentation and/or other materials provided with the distribution.
-    * Neither the name of the <organization> nor the
-      names of its contributors may be used to endorse or promote products
-      derived from this software without specific prior written permission.
-
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-  ARE DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
-  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
-
-#include <QDebug>
-#include <QtGui>
-#include <QtWebKit>
 #include <iostream>
+#include <QDebug>
 
 #include <gifwriter.h>
-#include "csconverter.h"
+#include "consts.h"
+#include "utils.h"
 
-#if QT_VERSION < QT_VERSION_CHECK(4, 5, 0)
-#error Use Qt 4.5 or later version
-#endif
-
-#define PHANTOMJS_VERSION_MAJOR  1
-#define PHANTOMJS_VERSION_MINOR  1
-#define PHANTOMJS_VERSION_PATCH  0
-#define PHANTOMJS_VERSION_STRING "1.1.0"
-
+#include "phantom.h"
 
 #define JS_MOUSEEVENT_CLICK_WEBELEMENT  "(function (target) { " \
                                             "var evt = document.createEvent('MouseEvents');" \
@@ -56,169 +17,9 @@
                                         "el.src = '%1';" \
                                         "document.body.appendChild(el);"
 
-#define PHANTOMJS_PDF_DPI 72 // Different defaults. OSX: 72, X11: 75(?), Windows: 96
+#define PHANTOMJS_PDF_DPI 72            // Different defaults. OSX: 72, X11: 75(?), Windows: 96
 
-void showUsage()
-{
-    QFile file;
-    file.setFileName(":/usage.txt");
-    if ( !file.open(QFile::ReadOnly) ) {
-        qFatal("Unable to print the usage message");
-        exit(1);
-    }
-    std::cerr << qPrintable(QString::fromUtf8(file.readAll()));
-    file.close();
-}
-
-class WebPage: public QWebPage
-{
-    Q_OBJECT
-public:
-    WebPage(QObject *parent = 0);
-
-public slots:
-    bool shouldInterruptJavaScript();
-
-private slots:
-    void handleFrameUrlChanged(const QUrl &url);
-    void handleLinkClicked(const QUrl &url);
-
-protected:
-    void javaScriptAlert(QWebFrame *originatingFrame, const QString &msg);
-    void javaScriptConsoleMessage(const QString &message, int lineNumber, const QString &sourceID);
-    QString userAgentForUrl(const QUrl &url) const;
-    QString chooseFile(QWebFrame * parentFrame, const QString & suggestedFile);
-
-private:
-    QString m_userAgent;
-    QMap<QString, QString> m_allowedFiles;
-    QString m_nextFileTag;
-    friend class Phantom;
-};
-
-WebPage::WebPage(QObject *parent)
-    : QWebPage(parent)
-{
-    m_userAgent = QWebPage::userAgentForUrl(QUrl());
-    connect(this->currentFrame(), SIGNAL(urlChanged(QUrl)), this, SLOT(handleFrameUrlChanged(QUrl)));
-    connect(this, SIGNAL(linkClicked(QUrl)), this, SLOT(handleLinkClicked(QUrl)));
-}
-
-void WebPage::handleFrameUrlChanged(const QUrl &url) {
-    qDebug() << "URL Changed: " << qPrintable(url.toString());
-}
-
-void WebPage::handleLinkClicked(const QUrl &url) {
-    qDebug() << "URL Clicked: " << qPrintable(url.toString());
-}
-
-void WebPage::javaScriptAlert(QWebFrame *originatingFrame, const QString &msg)
-{
-    Q_UNUSED(originatingFrame);
-    std::cout << "JavaScript alert: " << qPrintable(msg) << std::endl;
-}
-
-void WebPage::javaScriptConsoleMessage(const QString &message, int lineNumber, const QString &sourceID)
-{
-    if (!sourceID.isEmpty())
-        std::cout << qPrintable(sourceID) << ":" << lineNumber << " ";
-    std::cout << qPrintable(message) << std::endl;
-}
-
-bool WebPage::shouldInterruptJavaScript()
-{
-    QApplication::processEvents(QEventLoop::AllEvents, 42);
-    return false;
-}
-
-QString WebPage::userAgentForUrl(const QUrl &url) const
-{
-    Q_UNUSED(url);
-    return m_userAgent;
-}
-
-QString WebPage::chooseFile(QWebFrame *parentFrame, const QString &suggestedFile)
-{
-    Q_UNUSED(parentFrame);
-    Q_UNUSED(suggestedFile);
-    if (m_allowedFiles.contains(m_nextFileTag))
-        return m_allowedFiles.value(m_nextFileTag);
-    return QString();
-}
-
-class Phantom: public QObject
-{
-    Q_OBJECT
-    Q_PROPERTY(QStringList args READ args)
-    Q_PROPERTY(QString content READ content WRITE setContent)
-    Q_PROPERTY(QString loadStatus READ loadStatus)
-    Q_PROPERTY(QString state READ state WRITE setState)
-    Q_PROPERTY(QString userAgent READ userAgent WRITE setUserAgent)
-    Q_PROPERTY(QVariantMap version READ version)
-    Q_PROPERTY(QVariantMap viewportSize READ viewportSize WRITE setViewportSize)
-    Q_PROPERTY(QVariantMap paperSize READ paperSize WRITE setPaperSize)
-    Q_PROPERTY(QVariantMap clipRect READ clipRect WRITE setClipRect)
-
-public:
-    Phantom(QObject *parent = 0);
-
-    QStringList args() const;
-
-    QString content() const;
-    void setContent(const QString &content);
-
-    bool execute();
-    int returnValue() const;
-
-    QString loadStatus() const;
-
-    void setState(const QString &value);
-    QString state() const;
-
-    void setUserAgent(const QString &ua);
-    QString userAgent() const;
-
-    QVariantMap version() const;
-
-    void setViewportSize(const QVariantMap &size);
-    QVariantMap viewportSize() const;
-
-    void setClipRect(const QVariantMap &size);
-    QVariantMap clipRect() const;
-
-    void setPaperSize(const QVariantMap &size);
-    QVariantMap paperSize() const;
-
-public slots:
-    void exit(int code = 0);
-    void open(const QString &address);
-    void setFormInputFile(QWebElement el, const QString &fileTag);
-    void simulateMouseClick(const QString &selector);
-    bool loadJs(const QString &jsFilePath);
-    void includeJs(const QString &jsFilePath, const QString &callback = "undefined");
-    bool render(const QString &fileName);
-    void sleep(int ms);
-
-private slots:
-    void inject();
-    void finish(bool);
-    bool renderPdf(const QString &fileName);
-
-private:
-    QString m_scriptFile;
-    QStringList m_args;
-    QString m_proxyHost;
-    int m_proxyPort;
-    QString m_loadStatus;
-    WebPage m_page;
-    int m_returnValue;
-    QString m_script;
-    QString m_state;
-    CSConverter *m_converter;
-    QVariantMap m_paperSize; // For PDF output via render()
-    QRect m_clipRect;
-};
-
+// public:
 Phantom::Phantom(QObject *parent)
     : QObject(parent)
     , m_proxyPort(1080)
@@ -289,7 +90,7 @@ Phantom::Phantom(QObject *parent)
     }
 
     if (m_scriptFile.isEmpty()) {
-        showUsage();
+        Utils::showUsage();
         return;
     }
 
@@ -377,142 +178,14 @@ bool Phantom::execute()
     return true;
 }
 
-void Phantom::exit(int code)
-{
-    m_returnValue = code;
-    disconnect(&m_page, SIGNAL(loadFinished(bool)), this, SLOT(finish(bool)));
-    QTimer::singleShot(0, qApp, SLOT(quit()));
-}
-
-void Phantom::finish(bool success)
-{
-    m_loadStatus = success ? "success" : "fail";
-    m_page.mainFrame()->evaluateJavaScript(m_script);
-}
-
-void Phantom::inject()
-{
-    m_page.mainFrame()->addToJavaScriptWindowObject("phantom", this);
-}
-
-QString Phantom::loadStatus() const
-{
-    return m_loadStatus;
-}
-
-void Phantom::open(const QString &address)
-{
-    qDebug() << "Opening address: " << qPrintable(address);
-    m_page.triggerAction(QWebPage::Stop);
-    m_loadStatus = "loading";
-    m_page.mainFrame()->load(address);
-}
-
-bool Phantom::render(const QString &fileName)
-{
-    QFileInfo fileInfo(fileName);
-    QDir dir;
-    dir.mkpath(fileInfo.absolutePath());
-
-    if (fileName.endsWith(".pdf", Qt::CaseInsensitive))
-        return renderPdf(fileName);
-
-    QSize viewportSize = m_page.viewportSize();
-    
-    QSize pageSize = m_page.mainFrame()->contentsSize(); 
-    
-    QSize bufferSize;
-    if (!m_clipRect.isEmpty()) {
-        bufferSize = m_clipRect.size();
-    } else {
-        bufferSize = m_page.mainFrame()->contentsSize();
-    }
-    
-    if (pageSize.isEmpty())
-        return false;
-
-    QImage buffer(bufferSize, QImage::Format_ARGB32);
-    buffer.fill(qRgba(255, 255, 255, 0));
-    QPainter p(&buffer);
-    
-    p.setRenderHint(QPainter::Antialiasing, true);
-    p.setRenderHint(QPainter::TextAntialiasing, true);
-    p.setRenderHint(QPainter::SmoothPixmapTransform, true);
-
-    m_page.setViewportSize(pageSize);
-        
-    if (!m_clipRect.isEmpty()) {
-        p.translate(-m_clipRect.left(), -m_clipRect.top());
-        m_page.mainFrame()->render(&p, QRegion(m_clipRect));
-    } else {
-        m_page.mainFrame()->render(&p);
-    }
-    
-    p.end();
-    m_page.setViewportSize(viewportSize);
-
-    if (fileName.toLower().endsWith(".gif")) {
-        return exportGif(buffer, fileName);
-    }
-
-    return buffer.save(fileName);
-}
-
 int Phantom::returnValue() const
 {
     return m_returnValue;
 }
 
-void Phantom::sleep(int ms)
+QString Phantom::loadStatus() const
 {
-    QTime startTime = QTime::currentTime();
-    while (true) {
-        QApplication::processEvents(QEventLoop::AllEvents, 25);
-        if (startTime.msecsTo(QTime::currentTime()) > ms)
-            break;
-    }
-}
-
-
-void Phantom::setFormInputFile(QWebElement el, const QString &fileTag)
-{
-    m_page.m_nextFileTag = fileTag;
-    el.evaluateJavaScript(JS_MOUSEEVENT_CLICK_WEBELEMENT);
-}
-
-void Phantom::simulateMouseClick(const QString &selector) {
-    // Execute the equivalent of "querySelectorAll"
-    QWebElementCollection webElements = m_page.currentFrame()->findAllElements(selector);
-    // Click on every one of the elements
-    foreach ( QWebElement el, webElements ) {
-        qDebug() << "Element Clicked Center Position: " << el.geometry().center().x() << "," << el.geometry().center().y();
-        el.evaluateJavaScript(JS_MOUSEEVENT_CLICK_WEBELEMENT);
-    }
-}
-
-bool Phantom::loadJs(const QString &jsFilePath) {
-    qDebug() << "Loading JS File: " << jsFilePath;
-    if ( !jsFilePath.isEmpty()) {
-        QFile jsFile;
-
-        jsFile.setFileName(jsFilePath);
-        if ( !jsFile.open(QFile::ReadOnly) ) {
-            qWarning() << "Can't load Javascript File: " << qPrintable(jsFilePath);
-        } else {
-            QString script = QString::fromUtf8(jsFile.readAll());
-            jsFile.close();
-            // Execute JS code in the context of the document
-            m_page.mainFrame()->evaluateJavaScript(script);
-
-            return true;
-        }
-    }
-    return false;
-}
-
-void Phantom::includeJs(const QString &jsFilePath, const QString &callback) {
-    qDebug() << "Including JS File:" << jsFilePath << "- Callback:" << callback;
-    m_page.mainFrame()->evaluateJavaScript(QString(JS_INCLUDE_SCRIPT_TAG).arg(jsFilePath, callback));
+    return m_loadStatus;
 }
 
 void Phantom::setState(const QString &value)
@@ -567,7 +240,7 @@ void Phantom::setClipRect(const QVariantMap &size)
     int h = size.value("height").toInt();
     int top = size.value("top").toInt();
     int left = size.value("left").toInt();
-    
+
     if (w > 0 && h > 0)
         m_clipRect = QRect(left, top, w, h);
 }
@@ -592,26 +265,133 @@ QVariantMap Phantom::paperSize() const
     return m_paperSize;
 }
 
-static qreal stringToPointSize(const QString &string)
+// public slots:
+void Phantom::exit(int code)
 {
-    static const struct {
-        QString unit;
-        qreal factor;
-    } units[] = {
-        { "mm", 72 / 25.4 },
-        { "cm", 72 / 2.54 },
-        { "in", 72 },
-        { "px", 72.0 / PHANTOMJS_PDF_DPI / 2.54 },
-        { "", 72.0 / PHANTOMJS_PDF_DPI / 2.54 }
-    };
-    for (uint i = 0; i < sizeof(units) / sizeof(units[0]); ++i) {
-        if (string.endsWith(units[i].unit)) {
-            QString value = string;
-            value.chop(units[i].unit.length());
-            return value.toDouble() * units[i].factor;
+    m_returnValue = code;
+    disconnect(&m_page, SIGNAL(loadFinished(bool)), this, SLOT(finish(bool)));
+    QTimer::singleShot(0, qApp, SLOT(quit()));
+}
+
+void Phantom::open(const QString &address)
+{
+    qDebug() << "Opening address: " << qPrintable(address);
+    m_page.triggerAction(QWebPage::Stop);
+    m_loadStatus = "loading";
+    m_page.mainFrame()->load(address);
+}
+
+bool Phantom::render(const QString &fileName)
+{
+    QFileInfo fileInfo(fileName);
+    QDir dir;
+    dir.mkpath(fileInfo.absolutePath());
+
+    if (fileName.endsWith(".pdf", Qt::CaseInsensitive))
+        return renderPdf(fileName);
+
+    QSize viewportSize = m_page.viewportSize();
+
+    QSize pageSize = m_page.mainFrame()->contentsSize();
+
+    QSize bufferSize;
+    if (!m_clipRect.isEmpty()) {
+        bufferSize = m_clipRect.size();
+    } else {
+        bufferSize = m_page.mainFrame()->contentsSize();
+    }
+
+    if (pageSize.isEmpty())
+        return false;
+
+    QImage buffer(bufferSize, QImage::Format_ARGB32);
+    buffer.fill(qRgba(255, 255, 255, 0));
+    QPainter p(&buffer);
+
+    p.setRenderHint(QPainter::Antialiasing, true);
+    p.setRenderHint(QPainter::TextAntialiasing, true);
+    p.setRenderHint(QPainter::SmoothPixmapTransform, true);
+
+    m_page.setViewportSize(pageSize);
+
+    if (!m_clipRect.isEmpty()) {
+        p.translate(-m_clipRect.left(), -m_clipRect.top());
+        m_page.mainFrame()->render(&p, QRegion(m_clipRect));
+    } else {
+        m_page.mainFrame()->render(&p);
+    }
+
+    p.end();
+    m_page.setViewportSize(viewportSize);
+
+    if (fileName.toLower().endsWith(".gif")) {
+        return exportGif(buffer, fileName);
+    }
+
+    return buffer.save(fileName);
+}
+
+void Phantom::sleep(int ms)
+{
+    QTime startTime = QTime::currentTime();
+    while (true) {
+        QApplication::processEvents(QEventLoop::AllEvents, 25);
+        if (startTime.msecsTo(QTime::currentTime()) > ms)
+            break;
+    }
+}
+
+void Phantom::setFormInputFile(QWebElement el, const QString &fileTag)
+{
+    m_page.m_nextFileTag = fileTag;
+    el.evaluateJavaScript(JS_MOUSEEVENT_CLICK_WEBELEMENT);
+}
+
+void Phantom::simulateMouseClick(const QString &selector) {
+    // Execute the equivalent of "querySelectorAll"
+    QWebElementCollection webElements = m_page.currentFrame()->findAllElements(selector);
+    // Click on every one of the elements
+    foreach ( QWebElement el, webElements ) {
+        qDebug() << "Element Clicked Center Position: " << el.geometry().center().x() << "," << el.geometry().center().y();
+        el.evaluateJavaScript(JS_MOUSEEVENT_CLICK_WEBELEMENT);
+    }
+}
+
+bool Phantom::loadJs(const QString &jsFilePath) {
+    qDebug() << "Loading JS File: " << jsFilePath;
+    if ( !jsFilePath.isEmpty()) {
+        QFile jsFile;
+
+        jsFile.setFileName(jsFilePath);
+        if ( !jsFile.open(QFile::ReadOnly) ) {
+            qWarning() << "Can't load Javascript File: " << qPrintable(jsFilePath);
+        } else {
+            QString script = QString::fromUtf8(jsFile.readAll());
+            jsFile.close();
+            // Execute JS code in the context of the document
+            m_page.mainFrame()->evaluateJavaScript(script);
+
+            return true;
         }
     }
-    return 0;
+    return false;
+}
+
+void Phantom::includeJs(const QString &jsFilePath, const QString &callback) {
+    qDebug() << "Including JS File:" << jsFilePath << "- Callback:" << callback;
+    m_page.mainFrame()->evaluateJavaScript(QString(JS_INCLUDE_SCRIPT_TAG).arg(jsFilePath, callback));
+}
+
+// private slots:
+void Phantom::finish(bool success)
+{
+    m_loadStatus = success ? "success" : "fail";
+    m_page.mainFrame()->evaluateJavaScript(m_script);
+}
+
+void Phantom::inject()
+{
+    m_page.mainFrame()->addToJavaScriptWindowObject("phantom", this);
 }
 
 bool Phantom::renderPdf(const QString &fileName)
@@ -668,26 +448,25 @@ bool Phantom::renderPdf(const QString &fileName)
     return true;
 }
 
-#include "phantomjs.moc"
-
-int main(int argc, char** argv)
+// private:
+qreal Phantom::stringToPointSize(const QString &string)
 {
-    if (argc < 2) {
-        showUsage();
-        return 1;
+    static const struct {
+        QString unit;
+        qreal factor;
+    } units[] = {
+        { "mm", 72 / 25.4 },
+        { "cm", 72 / 2.54 },
+        { "in", 72 },
+        { "px", 72.0 / PHANTOMJS_PDF_DPI / 2.54 },
+        { "", 72.0 / PHANTOMJS_PDF_DPI / 2.54 }
+    };
+    for (uint i = 0; i < sizeof(units) / sizeof(units[0]); ++i) {
+        if (string.endsWith(units[i].unit)) {
+            QString value = string;
+            value.chop(units[i].unit.length());
+            return value.toDouble() * units[i].factor;
+        }
     }
-
-    QApplication app(argc, argv);
-
-    app.setWindowIcon(QIcon(":/phantomjs-icon.png"));
-    app.setApplicationName("PhantomJS");
-    app.setOrganizationName("Ofi Labs");
-    app.setOrganizationDomain("www.ofilabs.com");
-    app.setApplicationVersion(PHANTOMJS_VERSION_STRING);
-
-    Phantom phantom;
-    if (phantom.execute()) {
-        app.exec();
-    }
-    return phantom.returnValue();
+    return 0;
 }

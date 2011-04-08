@@ -1,1 +1,2 @@
-*.pro.user
+*.pro.user*
+*.xcodeproj

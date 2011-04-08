@@ -2,6 +2,7 @@
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
+  Copyright (C) 2010 Ariya Hidayat <ariya.hidayat@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -27,35 +28,32 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "csconverter.h"
+#include "consts.h"
+#include "utils.h"
+#include "phantom.h"
 
-#include <iostream>
+#if QT_VERSION < QT_VERSION_CHECK(4, 5, 0)
+#error Use Qt 4.5 or later version
+#endif
 
-#include <QFile>
-#include <QWebFrame>
-#include <QDebug>
-
-// public:
-CSConverter::CSConverter(QObject *parent)
-    : QObject(parent)
+int main(int argc, char** argv)
 {
-    QFile file(":/coffee-script.js");
-    if (!file.open(QFile::ReadOnly)) {
-        qFatal("CoffeeScript compiler is not available!");
-        exit(1);
+    if (argc < 2) {
+        Utils::showUsage();
+        return 1;
     }
-    QString script = QString::fromUtf8(file.readAll());
-    file.close();
-    m_webPage.mainFrame()->evaluateJavaScript(script);
-    m_webPage.mainFrame()->addToJavaScriptWindowObject("converter", this);
-}
 
-QString CSConverter::convert(const QString &script)
-{
-    setProperty("source", script);
-    QWebFrame *frame = m_webPage.mainFrame();
-    QVariant result = frame->evaluateJavaScript("this.CoffeeScript.compile(converter.source)");
-    if (result.type() == QVariant::String)
-        return result.toString();
-    return QString();
+    QApplication app(argc, argv);
+
+    app.setWindowIcon(QIcon(":/phantomjs-icon.png"));
+    app.setApplicationName("PhantomJS");
+    app.setOrganizationName("Ofi Labs");
+    app.setOrganizationDomain("www.ofilabs.com");
+    app.setApplicationVersion(PHANTOMJS_VERSION_STRING);
+
+    Phantom phantom;
+    if (phantom.execute()) {
+        app.exec();
+    }
+    return phantom.returnValue();
 }
