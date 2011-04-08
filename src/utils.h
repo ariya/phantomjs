@@ -1,6 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <QtGlobal>
+
 /**
  * Aggregate common utility functions.
  * Functions are static methods.
@@ -10,6 +12,7 @@ class Utils
 {
 public:
     static void showUsage();
+    static void messageHandler(QtMsgType type, const char *msg);
 
 private:
     Utils(); //< This class shouldn't be instantiated

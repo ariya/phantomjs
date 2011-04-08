@@ -38,6 +38,10 @@
 
 int main(int argc, char** argv)
 {
+    // Registering an alternative Message Handler
+    qInstallMsgHandler(Utils::messageHandler);
+
+    // Check number of parameters passed
     if (argc < 2) {
         Utils::showUsage();
         return 1;
@@ -51,6 +55,7 @@ int main(int argc, char** argv)
     app.setOrganizationDomain("www.ofilabs.com");
     app.setApplicationVersion(PHANTOMJS_VERSION_STRING);
 
+    // Start Phantom
     Phantom phantom;
     if (phantom.execute()) {
         app.exec();

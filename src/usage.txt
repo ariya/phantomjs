@@ -1,3 +1,4 @@
+
 Usage: phantomjs [options] script.[js|coffee] [script argument [script argument ...]]
 
 Options:

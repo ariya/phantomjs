@@ -1,4 +1,3 @@
-#include <iostream>
 #include <QDebug>
 
 #include <gifwriter.h>
@@ -80,7 +79,7 @@ Phantom::Phantom(QObject *parent)
             continue;
         }
         if (arg.startsWith("--")) {
-            std::cerr << "Unknown option '" << qPrintable(arg) << "'" << std::endl;
+            qFatal("Unknown option '%s'", qPrintable(arg));
             exit(-1);
             return;
         } else {
@@ -157,7 +156,7 @@ bool Phantom::execute()
     QFile file;
     file.setFileName(m_scriptFile);
     if (!file.open(QFile::ReadOnly)) {
-        std::cerr << "Can't open " << qPrintable(m_scriptFile) << std::endl << std::endl;
+        qFatal("Can't open %s\n", qPrintable(m_scriptFile));
         exit(1);
         return false;
     }
