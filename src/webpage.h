@@ -27,6 +27,9 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef WEBPAGE_H
+#define WEBPAGE_H
+
 #include <QtWebKit>
 
 class WebPage: public QWebPage
@@ -54,3 +57,5 @@ private:
     QString m_nextFileTag;
     friend class Phantom;
 };
+
+#endif // WEBPAGE_H

@@ -27,6 +27,9 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef PHANTOM_H
+#define PHANTOM_H
+
 #include <QtGui>
 
 #include "webpage.h"
@@ -108,3 +111,5 @@ private:
     QRect m_clipRect;
     NetworkAccessManager *m_netAccessMan;
 };
+
+#endif // PHANTOM_H
