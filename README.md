@@ -23,3 +23,6 @@ which show various PhantomJS scripts, covering:
 * rasterizing SVG to image
 
 Do not forget to consult the concise [API Reference](http://code.google.com/p/phantomjs/wiki/Interface).
+
+If you want to contribute, please read the [Contribution
+Guide](http://code.google.com/p/phantomjs/wiki/ContributionGuide).
