@@ -2,7 +2,7 @@ TEMPLATE = app
 TARGET = phantomjs
 QT += network webkit
 CONFIG += console
-#DEFINES += QT_NO_DEBUG_OUTPUT
+DEFINES += QT_NO_DEBUG_OUTPUT
 
 DESTDIR = ../bin
 
