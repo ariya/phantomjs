@@ -382,41 +382,6 @@ void Phantom::setFormInputFile(QWebElement el, const QString &fileTag)
     el.evaluateJavaScript(JS_MOUSEEVENT_CLICK_WEBELEMENT);
 }
 
-void Phantom::simulateMouseClick(const QString &selector) {
-    // Execute the equivalent of "querySelectorAll"
-    QWebElementCollection webElements = m_page.currentFrame()->findAllElements(selector);
-    // Click on every one of the elements
-    foreach ( QWebElement el, webElements ) {
-        qDebug() << "Element Clicked Center Position: " << el.geometry().center().x() << "," << el.geometry().center().y();
-        el.evaluateJavaScript(JS_MOUSEEVENT_CLICK_WEBELEMENT);
-    }
-}
-
-bool Phantom::loadJs(const QString &jsFilePath) {
-    qDebug() << "Loading JS File: " << jsFilePath;
-    if ( !jsFilePath.isEmpty()) {
-        QFile jsFile;
-
-        jsFile.setFileName(jsFilePath);
-        if ( !jsFile.open(QFile::ReadOnly) ) {
-            qWarning() << "Can't load Javascript File: " << qPrintable(jsFilePath);
-        } else {
-            QString script = QString::fromUtf8(jsFile.readAll());
-            jsFile.close();
-            // Execute JS code in the context of the document
-            m_page.mainFrame()->evaluateJavaScript(script);
-
-            return true;
-        }
-    }
-    return false;
-}
-
-void Phantom::includeJs(const QString &jsFilePath, const QString &callback) {
-    qDebug() << "Including JS File:" << jsFilePath << "- Callback:" << callback;
-    m_page.mainFrame()->evaluateJavaScript(QString(JS_INCLUDE_SCRIPT_TAG).arg(jsFilePath, callback));
-}
-
 // private slots:
 void Phantom::finish(bool success)
 {

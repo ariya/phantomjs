@@ -84,9 +84,6 @@ public slots:
     void exit(int code = 0);
     void open(const QString &address);
     void setFormInputFile(QWebElement el, const QString &fileTag);
-    void simulateMouseClick(const QString &selector);
-    bool loadJs(const QString &jsFilePath);
-    void includeJs(const QString &jsFilePath, const QString &callback = "undefined");
     bool render(const QString &fileName);
     void sleep(int ms);
 
