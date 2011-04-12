@@ -63,7 +63,7 @@ def argParser():
         help='Set the network proxy'
     )
     parser.add_argument('--upload-file', nargs='*',
-        metavar='tag:file', help='Upload 1 or more files'
+        metavar='tag=file', help='Upload 1 or more files'
     )
     parser.add_argument('script', metavar='script.[js|coffee]', nargs='*',
         help='The script to execute, and any args to pass to it'
