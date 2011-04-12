@@ -31,14 +31,27 @@
 #include <QNetworkRequest>
 #include <QList>
 #include <QNetworkReply>
+#include <QDesktopServices>
+#include <QNetworkDiskCache>
 
 #include "networkaccessmanager.h"
 
 // public:
-NetworkAccessManager::NetworkAccessManager(QObject *parent)
-    : QNetworkAccessManager(parent)
+NetworkAccessManager::NetworkAccessManager(QObject *parent, bool diskCacheEnabled)
+    : QNetworkAccessManager(parent), m_networkDiskCache(0)
 {
+    if (diskCacheEnabled) {
+        m_networkDiskCache = new QNetworkDiskCache();
+        m_networkDiskCache->setCacheDirectory(QDesktopServices::storageLocation(QDesktopServices::CacheLocation));
+        setCache(m_networkDiskCache);
+    }
     connect(this, SIGNAL(finished(QNetworkReply*)), SLOT(handleFinished(QNetworkReply*)));
+}
+
+NetworkAccessManager::~NetworkAccessManager()
+{
+    if (m_networkDiskCache)
+        delete m_networkDiskCache;
 }
 
 // protected:

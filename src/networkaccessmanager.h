@@ -32,11 +32,16 @@
 
 #include <QNetworkAccessManager>
 
+class QNetworkDiskCache;
+
 class NetworkAccessManager : public QNetworkAccessManager
 {
     Q_OBJECT
+    QNetworkDiskCache* m_networkDiskCache;
 public:
-    NetworkAccessManager(QObject *parent = 0);
+    NetworkAccessManager(QObject *parent = 0, bool diskCacheEnabled = false);
+    void enableDiskCache();
+    virtual ~NetworkAccessManager();
 
 protected:
     QNetworkReply *createRequest(Operation op, const QNetworkRequest & req, QIODevice * outgoingData = 0);
