@@ -18,7 +18,9 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ''' 
 
-import argparse
+import argparse, sys
+
+from PyQt4.QtCore import QDateTime, Qt, QtDebugMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg
 
 version_major = 1
 version_minor = 1
@@ -68,8 +70,28 @@ def argParser():
     parser.add_argument('script', metavar='script.[js|coffee]', nargs='*',
         help='The script to execute, and any args to pass to it'
     )
+    parser.add_argument('-v', '--verbose', action='store_true',
+        help='Show verbose debug messages'
+    )
     parser.add_argument('--version',
         action='version', version=license,
         help='show this program\'s version and license'
     )
     return parser
+
+class MessageHandler:
+    def __init__(self, verbose):
+        self.verbose = verbose
+
+    def process(self, msgType, msg):
+        now = QDateTime.currentDateTime().toString(Qt.ISODate)
+
+        if msgType == QtDebugMsg:
+            if self.verbose:
+                print '%s [DEBUG] %s' % (now, msg)
+        elif msgType == QtWarningMsg:
+            print >> sys.stderr, '%s [WARNING] %s' % (now, msg)
+        elif msgType == QtCriticalMsg:
+            print >> sys.stderr, '%s [CRITICAL] %s' % (now, msg)
+        elif msgType == QtFatalMsg:
+            print >> sys.stderr, '%s [FATAL] %s' % (now, msg)

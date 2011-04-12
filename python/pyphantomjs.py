@@ -22,8 +22,9 @@
 import os, sys, resources
 
 from phantom import Phantom
-from utils import argParser, version
+from utils import argParser, MessageHandler, version
 
+from PyQt4.QtCore import QString, qInstallMsgHandler, qFatal
 from PyQt4.QtGui import *
 
 # make keyboard interrupt quit program
@@ -34,6 +35,10 @@ if __name__ == '__main__':
     # Handle all command-line options
     p = argParser()
     args = p.parse_args()
+
+    # register an alternative Message Handler
+    messageHandler = MessageHandler(args.verbose)
+    qInstallMsgHandler(messageHandler.process)
 
     if args.upload_file:
         item_buffer = {}
@@ -48,8 +53,7 @@ if __name__ == '__main__':
             item_buffer[QString(item[0])] = QString(item[1])
         for tag in item_buffer:
             if not os.path.exists(item_buffer[tag]):
-                print >> sys.stderr, '[Errno 2] No such file or directory: \'%s\'' % item_buffer[tag]
-                sys.exit(1)
+                qFatal('No such file or directory: \'%s\'' % item_buffer[tag])
         args.upload_file = item_buffer
 
     if args.proxy:
@@ -65,9 +69,8 @@ if __name__ == '__main__':
 
     try:
         args.script[0] = open(args.script[0])
-    except IOError as stderr:
-        print >> sys.stderr, stderr
-        sys.exit(1)
+    except IOError as (errno, stderr):
+        qFatal(str(stderr) + ': \'%s\'' % args.script[0])
 
     app = QApplication(sys.argv)
 

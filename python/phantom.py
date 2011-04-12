@@ -39,8 +39,9 @@ class Phantom(QObject):
         QObject.__init__(self, parent)
 
         # variable declarations
-        self.m_loadStatus = self.m_state = self.m_userAgent = QString()
+        self.m_loadStatus = self.m_state = QString()
         self.m_var = self.m_paperSize = self.m_loadScript_cache = {}
+        self.m_verbose = args.verbose
         self.m_page = WebPage(self)
         self.m_clipRect = QRect()
         # setup the values from args
@@ -239,6 +240,7 @@ class Phantom(QObject):
 
     @pyqtSlot(str, name='open')
     def open_(self, address):
+        qDebug('Opening address %s' % address)
         self.m_page.triggerAction(QWebPage.Stop)
         self.m_loadStatus = 'loading'
         self.m_page.mainFrame().setUrl(QUrl(address))
@@ -325,11 +327,11 @@ class Phantom(QObject):
 
     @pyqtProperty(str)
     def userAgent(self):
-        return self.m_page.userAgentForUrl(self.m_page.mainFrame().url())
+        return self.m_page.m_userAgent
 
     @userAgent.setter
     def userAgent(self, ua):
-        self.m_userAgent = ua
+        self.m_page.m_userAgent = ua
 
     @pyqtSlot(str, result='QVariant')
     @pyqtSlot(int, result='QVariant')

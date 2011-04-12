@@ -27,6 +27,17 @@ class WebPage(QWebPage):
 
         self.parent = parent
         self.m_nextFileTag = QString()
+        self.m_userAgent = QWebPage.userAgentForUrl(self, QUrl())
+
+        if self.parent.m_verbose:
+            self.connect(self.currentFrame(), SIGNAL('urlChanged(const QUrl&)'), self.handleFrameUrlChanged)
+            self.connect(self, SIGNAL('linkClicked(const QUrl&)'), self.handleLinkClicked)
+
+    def handleFrameUrlChanged(self, url):
+        qDebug('URL Changed: %s' % url.toString())
+
+    def handleLinkClicked(self, url):
+        qDebug('URL Clicked: %s' % url.toString())
 
     def javaScriptAlert(self, webframe, msg):
         print 'JavaScript alert: %s' % msg
@@ -42,9 +53,7 @@ class WebPage(QWebPage):
         return False
 
     def userAgentForUrl(self, url):
-        if self.parent.m_userAgent:
-            return self.parent.m_userAgent
-        return QWebPage.userAgentForUrl(self, url)
+        return self.m_userAgent
 
     def chooseFile(self, webframe, suggestedFile):
         if self.m_nextFileTag in self.parent.m_upload_file:
