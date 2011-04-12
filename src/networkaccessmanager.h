@@ -40,7 +40,6 @@ class NetworkAccessManager : public QNetworkAccessManager
     QNetworkDiskCache* m_networkDiskCache;
 public:
     NetworkAccessManager(QObject *parent = 0, bool diskCacheEnabled = false);
-    void enableDiskCache();
     virtual ~NetworkAccessManager();
 
 protected:
