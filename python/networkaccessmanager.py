@@ -18,7 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ''' 
 
-from PyQt4.QtCore import SIGNAL, qDebug, qWarning
+from PyQt4.QtCore import SIGNAL, QString, qDebug, qWarning
 from PyQt4.QtNetwork import QNetworkRequest, QNetworkAccessManager
 
 class NetworkAccessManager(QNetworkAccessManager):
@@ -42,7 +42,7 @@ class NetworkAccessManager(QNetworkAccessManager):
         else:
             qWarning('Unexpected HTTP Operation Type')
 
-        qDebug('URL %s' % req.url().toString())
+        qDebug(QString('URL %s' % req.url().toString()))
 
         return QNetworkAccessManager.createRequest(self, op, req, outgoingData)
 
