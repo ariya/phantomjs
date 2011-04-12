@@ -63,6 +63,7 @@ Phantom::Phantom(QObject *parent)
 
     bool autoLoadImages = true;
     bool pluginsEnabled = false;
+    bool diskCacheEnabled = false;
 
     // second argument: script name
     QStringList args = QApplication::arguments();
@@ -96,6 +97,14 @@ Phantom::Phantom(QObject *parent)
         }
         if (arg == "--load-plugins=no") {
             pluginsEnabled = false;
+            continue;
+        }
+        if (arg == "--disk-cache=yes") {
+            diskCacheEnabled = true;
+            continue;
+        }
+        if (arg == "--disk-cache=no") {
+            diskCacheEnabled = false;
             continue;
         }
         if (arg.startsWith("--proxy=")) {
@@ -139,7 +148,7 @@ Phantom::Phantom(QObject *parent)
     }
 
     // Provide WebPage with a non-standard Network Access Manager
-    m_netAccessMan = new NetworkAccessManager(this);
+    m_netAccessMan = new NetworkAccessManager(this, diskCacheEnabled);
     m_page.setNetworkAccessManager(m_netAccessMan);
 
     connect(m_page.mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), SLOT(inject()));

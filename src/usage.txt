@@ -7,4 +7,4 @@ Options:
     --proxy=address:port               Set the network proxy.
     --upload-file fileId=/file/path    Upload a file by creating a '<input type="file" id="foo" />'
                                        and calling phantom.setFormInputFile(document.getElementById('foo'), 'fileId').
-
+    --disk-cache=[yes|no]              Enable disk cache (at desktop services cache storage location, default is 'no').
