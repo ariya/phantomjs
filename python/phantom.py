@@ -24,6 +24,7 @@ from csconverter import CSConverter
 from math import ceil, floor
 from time import sleep as usleep
 from webpage import WebPage
+from networkaccessmanager import NetworkAccessManager
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -82,6 +83,10 @@ class Phantom(QObject):
         # to make any dealings with files be relative to the scripts directory
         if os.path.dirname(self.m_scriptFile):
             os.chdir(os.path.dirname(self.m_scriptFile))
+
+        if self.m_verbose:
+            m_netAccessMan = NetworkAccessManager(self)
+            self.m_page.setNetworkAccessManager(m_netAccessMan)
 
         # inject our properties and slots into javascript
         self.connect(self.m_page.mainFrame(), SIGNAL('javaScriptWindowObjectCleared()'), self.inject)
