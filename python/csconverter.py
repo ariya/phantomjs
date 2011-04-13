@@ -18,9 +18,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import sys, resources
 from PyQt4.QtCore import QObject, QFile, QVariant, QString
-from PyQt4.QtWebKit import QWebPage, QWebFrame
+from PyQt4.QtWebKit import QWebPage
 
 class CSConverter(QObject):
     def __init__(self, parent = None):

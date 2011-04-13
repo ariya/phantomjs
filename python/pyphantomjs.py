@@ -25,7 +25,7 @@ from phantom import Phantom
 from utils import argParser, MessageHandler, version
 
 from PyQt4.QtCore import QString, qInstallMsgHandler, qFatal
-from PyQt4.QtGui import *
+from PyQt4.QtGui import QIcon, QApplication
 
 # make keyboard interrupt quit program
 import signal

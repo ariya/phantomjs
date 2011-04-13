@@ -18,8 +18,9 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from PyQt4.QtCore import *
-from PyQt4.QtWebKit import *
+from PyQt4.QtCore import SIGNAL, QString, QUrl, QEventLoop, qDebug
+from PyQt4.QtGui import QApplication
+from PyQt4.QtWebKit import QWebPage
 
 class WebPage(QWebPage):
     def __init__(self, parent = None):

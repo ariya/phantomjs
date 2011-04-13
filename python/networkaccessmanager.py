@@ -19,7 +19,7 @@
 ''' 
 
 from PyQt4.QtCore import SIGNAL, QString, qDebug, qWarning
-from PyQt4.QtNetwork import QNetworkRequest, QNetworkAccessManager
+from PyQt4.QtNetwork import QNetworkAccessManager
 
 class NetworkAccessManager(QNetworkAccessManager):
     def __init__(self, parent = None):

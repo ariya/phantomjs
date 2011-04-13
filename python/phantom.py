@@ -26,9 +26,12 @@ from time import sleep as usleep
 from webpage import WebPage
 from networkaccessmanager import NetworkAccessManager
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from PyQt4.QtWebKit import *
+from PyQt4.QtCore import pyqtProperty, pyqtSlot, Qt, QObject, QString, \
+                         QRect, SIGNAL, SLOT, QTimer, QUrl, QFileInfo, \
+                         QDir, QSize, QSizeF, QTime, QEventLoop, qDebug
+from PyQt4.QtGui import QPalette, QDesktopServices, qApp, QPrinter, \
+                        QImage, QPainter, QRegion, QApplication
+from PyQt4.QtWebKit import QWebSettings, QWebPage
 from PyQt4.QtNetwork import QNetworkProxy, QNetworkProxyFactory
 
 # Different defaults.
