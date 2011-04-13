@@ -285,7 +285,7 @@ void Phantom::setClipRect(const QVariantMap &size)
     int top = size.value("top").toInt();
     int left = size.value("left").toInt();
 
-    if (w > 0 && h > 0)
+    if (w >= 0 && h >= 0)
         m_clipRect = QRect(left, top, w, h);
 }
 

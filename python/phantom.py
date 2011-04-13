@@ -200,7 +200,7 @@ class Phantom(QObject):
         top = int(size[QString('top')])
         left = int(size[QString('left')])
 
-        if w > 0 and h > 0:
+        if w >= 0 and h >= 0:
             self.m_clipRect = QRect(left, top, w, h)
 
     @pyqtProperty('QString')
