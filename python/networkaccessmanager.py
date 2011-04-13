@@ -48,6 +48,7 @@ class NetworkAccessManager(QNetworkAccessManager):
 
     def handleFinished(self, reply):
         qDebug('HTTP/1.1 Response')
+        qDebug(QString('URL %s' % reply.url().toString()))
 
         headerPairs = reply.rawHeaderPairs()
         for pair in headerPairs:

@@ -97,6 +97,7 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
 void NetworkAccessManager::handleFinished(QNetworkReply *reply)
 {
     qDebug() << "HTTP/1.1 Response";
+    qDebug() << "URL" << qPrintable(reply->url().toString());
     QList<QNetworkReply::RawHeaderPair> headerPairs = reply->rawHeaderPairs();
     foreach ( QNetworkReply::RawHeaderPair pair, headerPairs ) {
         qDebug() << pair.first << "=" << pair.second;
