@@ -88,7 +88,7 @@ class Phantom(QObject):
             os.chdir(os.path.dirname(self.m_scriptFile))
 
         if self.m_verbose:
-            m_netAccessMan = NetworkAccessManager(self)
+            m_netAccessMan = NetworkAccessManager(args.disk_cache, self)
             self.m_page.setNetworkAccessManager(m_netAccessMan)
 
         # inject our properties and slots into javascript

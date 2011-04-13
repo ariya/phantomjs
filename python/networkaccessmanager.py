@@ -16,15 +16,21 @@
 
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-''' 
+'''
 
+from PyQt4.QtGui import QDesktopServices
 from PyQt4.QtCore import SIGNAL, QString, qDebug, qWarning
-from PyQt4.QtNetwork import QNetworkAccessManager
+from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkDiskCache
 
 class NetworkAccessManager(QNetworkAccessManager):
-    def __init__(self, parent = None):
+    def __init__(self, diskCacheEnabled, parent = None):
         QNetworkAccessManager.__init__(self, parent)
         self.connect(self, SIGNAL('finished(QNetworkReply *)'), self.handleFinished)
+
+        if diskCacheEnabled == 'yes':
+            m_networkDiskCache = QNetworkDiskCache()
+            m_networkDiskCache.setCacheDirectory(QDesktopServices.storageLocation(QDesktopServices.CacheLocation))
+            self.setCache(m_networkDiskCache)
 
     def createRequest(self, op, req, outgoingData):
         if op == QNetworkAccessManager.GetOperation:
