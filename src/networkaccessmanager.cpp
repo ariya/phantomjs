@@ -87,7 +87,7 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
         break;
     }
     }
-    qDebug() << "URL" << req.url();
+    qDebug() << "URL" << qPrintable(req.url().toString());
 
     // Pass duty to the superclass - Nothing special to do here (yet?)
     return QNetworkAccessManager::createRequest(op, req, outgoingData);
