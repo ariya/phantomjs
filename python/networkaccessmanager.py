@@ -20,7 +20,8 @@
 
 from PyQt4.QtGui import QDesktopServices
 from PyQt4.QtCore import SIGNAL, QString, qDebug, qWarning
-from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkDiskCache
+from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkDiskCache, \
+                            QNetworkRequest
 
 class NetworkAccessManager(QNetworkAccessManager):
     def __init__(self, diskCacheEnabled, parent = None):
@@ -55,6 +56,7 @@ class NetworkAccessManager(QNetworkAccessManager):
     def handleFinished(self, reply):
         qDebug('HTTP/1.1 Response')
         qDebug(QString('URL %s' % reply.url().toString()))
+        qDebug('Status code: %d' % reply.attribute(QNetworkRequest.HttpStatusCodeAttribute).toInt()[0])
 
         headerPairs = reply.rawHeaderPairs()
         for pair in headerPairs:
