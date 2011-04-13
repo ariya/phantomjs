@@ -56,7 +56,9 @@ class NetworkAccessManager(QNetworkAccessManager):
     def handleFinished(self, reply):
         qDebug('HTTP/1.1 Response')
         qDebug(QString('URL %s' % reply.url().toString()))
-        qDebug('Status code: %s' % reply.attribute(QNetworkRequest.HttpStatusCodeAttribute).toString())
+        code = reply.attribute(QNetworkRequest.HttpStatusCodeAttribute).toString()
+        if code:
+            qDebug('Status code: %s' % code)
 
         headerPairs = reply.rawHeaderPairs()
         for pair in headerPairs:

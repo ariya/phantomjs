@@ -98,7 +98,10 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply)
 {
     qDebug() << "HTTP/1.1 Response";
     qDebug() << "URL" << qPrintable(reply->url().toString());
-    qDebug() << "Status code:" << qPrintable(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString());
+    QString code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString();
+    if (!code.isEmpty()) {
+        qDebug() << "Status code:" << qPrintable(code);
+    }
     QList<QNetworkReply::RawHeaderPair> headerPairs = reply->rawHeaderPairs();
     foreach ( QNetworkReply::RawHeaderPair pair, headerPairs ) {
         qDebug() << pair.first << "=" << pair.second;
