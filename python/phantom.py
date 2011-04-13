@@ -30,7 +30,7 @@ from PyQt4.QtCore import pyqtProperty, pyqtSlot, Qt, QObject, QString, \
                          QRect, SIGNAL, SLOT, QTimer, QUrl, QFileInfo, \
                          QDir, QSize, QSizeF, QTime, QEventLoop, qDebug
 from PyQt4.QtGui import QPalette, QDesktopServices, qApp, QPrinter, \
-                        QImage, QPainter, QRegion, QApplication
+                        QImage, QPainter, QRegion, QApplication, qRgba
 from PyQt4.QtWebKit import QWebSettings, QWebPage
 from PyQt4.QtNetwork import QNetworkProxy, QNetworkProxyFactory
 
@@ -287,8 +287,8 @@ class Phantom(QObject):
         if pageSize == '':
             return False
 
-        image = QImage(bufferSize, QImage.Format_ARGB32_Premultiplied)
-        image.fill(Qt.transparent)
+        image = QImage(bufferSize, QImage.Format_ARGB32)
+        image.fill(qRgba(255, 255, 255, 0))
         p = QPainter(image)
 
         p.setRenderHint(QPainter.Antialiasing, True)
