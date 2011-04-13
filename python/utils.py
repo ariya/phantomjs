@@ -53,7 +53,7 @@ def argParser():
         formatter_class=argparse.RawTextHelpFormatter
     )
 
-    parser.add_argument('script', metavar='script.[js|coffee]', nargs='*',
+    parser.add_argument('script', metavar='script.[js|coffee]', nargs='?',
         help='The script to execute, and any args to pass to it'
     )
     parser.add_argument('--load-images', default='yes',

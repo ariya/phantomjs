@@ -49,14 +49,14 @@ class Phantom(QObject):
         self.m_page = WebPage(self)
         self.m_clipRect = QRect()
         # setup the values from args
-        self.m_script = QString.fromUtf8(args.script[0].read())
-        self.m_scriptFile = args.script[0].name
-        self.m_args = args.script[1:]
+        self.m_script = QString.fromUtf8(args.script.read())
+        self.m_scriptFile = args.script.name
+        self.m_args = args.script_args
         self.m_upload_file = args.upload_file
         autoLoadImages = False if args.load_images == 'no' else True
         pluginsEnabled = True if args.load_plugins == 'yes' else False
 
-        args.script[0].close()
+        args.script.close()
 
         palette = self.m_page.palette()
         palette.setBrush(QPalette.Base, Qt.transparent)

@@ -34,7 +34,9 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 if __name__ == '__main__':
     # Handle all command-line options
     p = argParser()
-    args = p.parse_args()
+    arg_data = p.parse_known_args(sys.argv[1:])
+    args = arg_data[0]
+    args.script_args = arg_data[1]
 
     # register an alternative Message Handler
     messageHandler = MessageHandler(args.verbose)
@@ -48,7 +50,31 @@ if __name__ == '__main__':
                 if len(item_buffer) == 0:
                     p.print_help()
                     sys.exit(1)
-                args.script = args.upload_file[i:]
+
+                # this is a bug workaround for argparse.
+                # if you call parse_known_args, and you
+                # have an --option script arg, the args
+                # get jumbled up, and it's inconsistent
+                #
+                # we're just going to check for -- and
+                # swap it all back to the right order
+                if args.script_args:
+                    for i in range(len(args.upload_file)):
+                        if not args.upload_file[i].count('='):
+                            # insert the arg after --option
+                            args.script_args.insert(1, args.script)
+                            # insert value args before --option
+                            if args.upload_file[i+1:]:
+                                arg_buffer = args.upload_file[i+1:]
+                                arg_buffer.reverse()
+                                for val in arg_buffer:
+                                    args.script_args.insert(0, val)
+                            args.script = args.upload_file[i]
+                            break
+                else:
+                    args.script = args.upload_file[i]
+                    args.script_args = args.upload_file[i+1:]
+
                 break
             item_buffer[QString(item[0])] = QString(item[1])
         for tag in item_buffer:
@@ -63,14 +89,14 @@ if __name__ == '__main__':
             sys.exit(1)
         args.proxy = item
 
-    if len(args.script) == 0:
+    if not args.script:
         p.print_help()
         sys.exit(1)
 
     try:
-        args.script[0] = open(args.script[0])
+        args.script = open(args.script)
     except IOError as (errno, stderr):
-        qFatal(str(stderr) + ': \'%s\'' % args.script[0])
+        qFatal(str(stderr) + ': \'%s\'' % args.script)
 
     app = QApplication(sys.argv)
 
