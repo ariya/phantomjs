@@ -61,8 +61,9 @@ if __name__ == '__main__':
                 if args.script_args:
                     for i in range(len(args.upload_file)):
                         if not args.upload_file[i].count('='):
-                            # insert the arg after --option
-                            args.script_args.insert(1, args.script)
+                            # insert the arg after --option (make sure it's not None)
+                            if args.script:
+                                args.script_args.insert(1, args.script)
                             # insert value args before --option
                             if args.upload_file[i+1:]:
                                 arg_buffer = args.upload_file[i+1:]
