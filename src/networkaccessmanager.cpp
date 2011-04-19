@@ -74,10 +74,12 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
         qDebug() << "HTTP/1.1 POST Request";
         break;
     }
+#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
     case QNetworkAccessManager::DeleteOperation: {
         qDebug() << "HTTP/1.1 DELETE Request";
         break;
     }
+#endif
 #if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
     case QNetworkAccessManager::CustomOperation: {
         qDebug() << "HTTP/1.1 CUSTOM Request";

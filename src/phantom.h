@@ -83,7 +83,11 @@ public:
 public slots:
     void exit(int code = 0);
     void open(const QString &address);
+
+    // moc does not understand QT_VERSION_CHECK and hence the encoded hex
+#if QT_VERSION >= 0x040600
     void setFormInputFile(QWebElement el, const QString &fileTag);
+#endif
     bool render(const QString &fileName);
     void sleep(int ms);
 
