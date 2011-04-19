@@ -135,7 +135,9 @@ Phantom::Phantom(QObject *parent)
     }
 
     if (m_proxyHost.isEmpty()) {
+#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
         QNetworkProxyFactory::setUseSystemConfiguration(true);
+#endif
     } else {
         QNetworkProxy proxy(QNetworkProxy::HttpProxy, m_proxyHost, m_proxyPort);
         QNetworkProxy::setApplicationProxy(proxy);
@@ -385,11 +387,13 @@ void Phantom::sleep(int ms)
     }
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
 void Phantom::setFormInputFile(QWebElement el, const QString &fileTag)
 {
     m_page.m_nextFileTag = fileTag;
     el.evaluateJavaScript(JS_MOUSEEVENT_CLICK_WEBELEMENT);
 }
+#endif
 
 // private slots:
 void Phantom::finish(bool success)
