@@ -78,10 +78,12 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
         qDebug() << "HTTP/1.1 DELETE Request";
         break;
     }
+#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
     case QNetworkAccessManager::CustomOperation: {
         qDebug() << "HTTP/1.1 CUSTOM Request";
         break;
     }
+#endif
     default: {
         qWarning() << "Unexpected HTTP Operation Type";
         break;
@@ -102,8 +104,10 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply)
     if (!code.isEmpty()) {
         qDebug() << "Status code:" << qPrintable(code);
     }
+#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
     QList<QNetworkReply::RawHeaderPair> headerPairs = reply->rawHeaderPairs();
     foreach ( QNetworkReply::RawHeaderPair pair, headerPairs ) {
         qDebug() << pair.first << "=" << pair.second;
     }
+#endif
 }
