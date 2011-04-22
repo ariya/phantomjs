@@ -40,6 +40,10 @@ Version 1.1.0
 
     Added text extracting example (Weston Ruter).
 
+    Fixed issue #93: Build with Qt < 4.7 (Ariya Hidayat).
+
+    Ported all examples to CoffeeScript (Robert Gieseke).
+
 2011-01-17: Version 1.0.0
 
     Initial launch.
