@@ -6,10 +6,10 @@
  * it can be passed in as a string (e.g.: "1 == 1" or "$('#bar').is(':visible')" or
  * as a callback function.
  * @param message a message to show on failure
- * @param timeOutMillis the max amount of time to wait. If not specified, 30sec-s is used.
+ * @param timeOutMillis the max amount of time to wait. If not specified, 3 sec is used.
  */
 function waitFor(testFx, message, timeOutMillis) {
-    var maxtimeOutMillis = timeOutMillis ? timeOutMillis : 30000;
+    var maxtimeOutMillis = timeOutMillis ? timeOutMillis : 3000;
     var start = new Date().getTime();
     var condition = false;
     while(new Date().getTime() - start < maxtimeOutMillis) {
