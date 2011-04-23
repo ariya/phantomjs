@@ -27,14 +27,14 @@ function waitFor(testFx, message, timeOutMillis) {
 if(!phantom.state) {
     // load a twitter page
     phantom.state = "loaded";
-    phantom.open("http://twitter.com/WiIlFerreII");
+    phantom.open("http://twitter.com/#!/senchainc");
 } else {
     // click the "sign in" link
-    $(".signin").click();
+    $(".signin-link").click();
 
     // wait for the sign in dialog to pop up
     waitFor(function() {
-        return $("#signin_menu").is(":visible");
+        return $("#signin-dropdown").is(":visible");
     }, "The sign-in dialog should be visible");
     phantom.exit();
 }
