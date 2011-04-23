@@ -14,15 +14,15 @@ else
     if phantom.loadStatus is 'fail'
         console.log 'Unable to access network'
     else
-        steps = phantom.content.match(/<html_instructions>(.*)<\/html_instructions>/ig);
+        steps = phantom.content.match(/<html_instructions>(.*)<\/html_instructions>/ig)
         if not steps
             console.log 'No data available for ' + phantom.state
         else
             for ins in steps
-                ins = ins.replace(/\&lt;/ig, '<').replace(/\&gt;/ig, '>');
-                ins = ins.replace(/\<div/ig, '\n<div');
-                ins = ins.replace(/<.*?>/g, '');
-                console.log(ins);
+                ins = ins.replace(/\&lt;/ig, '<').replace(/\&gt;/ig, '>')
+                ins = ins.replace(/\<div/ig, '\n<div')
+                ins = ins.replace(/<.*?>/g, '')
+                console.log(ins)
             console.log ''
             console.log phantom.content.match(/<copyrights>.*<\/copyrights>/ig).join('').replace(/<.*?>/g, '')
     phantom.exit()

@@ -3,7 +3,7 @@
 document.cb = (data) ->
     loc = data.city
     if data.region_name.length > 0
-        loc = loc + ', ' + data.region_name;
+        loc = loc + ', ' + data.region_name
     console.log 'IP address: ' + data.ip
     console.log 'Estimated location: ' + loc
     phantom.exit()
