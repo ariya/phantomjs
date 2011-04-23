@@ -13,12 +13,12 @@ function waitFor(testFx, message, timeOutMillis) {
     var start = new Date().getTime();
     var condition = false;
     while(new Date().getTime() - start < maxtimeOutMillis) {
-	phantom.sleep(250);
-	condition = (typeof(testFx) == "string" ? eval(testFx) : testFx());
-	if(condition) break;
+        phantom.sleep(250);
+        condition = (typeof(testFx) == "string" ? eval(testFx) : testFx());
+        if(condition) break;
     }
     if(!condition) {
-	throw Error("Timeout: " + message);
+        throw Error("Timeout: " + message);
     }
     console.log("+++ waitUntil finished in " + (new Date().getTime() - start) + " millis.");
 }
@@ -34,7 +34,7 @@ if(!phantom.state) {
 
     // wait for the sign in dialog to pop up
     waitFor(function() {
-	return $("#signin_menu").is(":visible");
+        return $("#signin_menu").is(":visible");
     }, "The sign-in dialog should be visible");
     phantom.exit();
 }
