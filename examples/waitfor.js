@@ -5,7 +5,7 @@
  * @param testFx javascript condition that evaluates to a boolean,
  * it can be passed in as a string (e.g.: "1 == 1" or "$('#bar').is(':visible')" or
  * as a callback function.
- * @param message a message to show on failure
+ * @param message a message describing e.g. the ui change
  * @param timeOutMillis the max amount of time to wait. If not specified, 3 sec is used.
  */
 function waitFor(testFx, message, timeOutMillis) {
@@ -21,6 +21,7 @@ function waitFor(testFx, message, timeOutMillis) {
         console.log("Timeout: " + message);
         phantom.exit(1)
     } else {
+        console.log(message);
         console.log("+++ waitUntil finished in " + (new Date().getTime() - start) + " millis.");
     }
 }
