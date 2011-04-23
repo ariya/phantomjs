@@ -31,5 +31,4 @@ else
     if next
         phantom.open 'http://mobile.twitter.com/' + next
     else
-        phantom.exit 1;
-
+        phantom.exit 1

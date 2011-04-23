@@ -33,7 +33,7 @@ if not phantom.state
 
         # Parse the command-line arguments
         for arg in phantom.args
-            matches = arg.match(/^--(\w+)(?:=(.+))?/);
+            matches = arg.match(/^--(\w+)(?:=(.+))?/)
             if matches
                 name = matches[1]
                 if matches[2]
@@ -69,7 +69,7 @@ else
     if state.excludeSelectors
         excludedElements = document.querySelectorAll(state.excludeSelectors)
         for el in excludedElements
-            el.parentNode.removeChild(el);
+            el.parentNode.removeChild(el)
 
     # Select only the remaining that we want included, and then print them out
     includedElements = document.querySelectorAll(state.includeSelectors)
