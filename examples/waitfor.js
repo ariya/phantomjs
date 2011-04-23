@@ -18,9 +18,11 @@ function waitFor(testFx, message, timeOutMillis) {
         if(condition) break;
     }
     if(!condition) {
-        throw Error("Timeout: " + message);
+        console.log("Timeout: " + message);
+        phantom.exit(1)
+    } else {
+        console.log("+++ waitUntil finished in " + (new Date().getTime() - start) + " millis.");
     }
-    console.log("+++ waitUntil finished in " + (new Date().getTime() - start) + " millis.");
 }
 
 // example use:
