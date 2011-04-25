@@ -20,7 +20,7 @@ else
             console.log ''
             console.log 'City: ' + data 'weather > forecast_information > city'
             console.log 'Current condition ' + data 'weather > current_conditions > condition'
-            console.log 'Temperature: ' + data 'weather > current_conditions > temp_f' + ' F'
+            console.log 'Temperature: ' + data('weather > current_conditions > temp_f') + ' F'
             console.log data 'weather > current_conditions > humidity'
             console.log data 'weather > current_conditions > wind_condition'
             console.log ''
