@@ -1,4 +1,4 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python
 '''
   This file is part of the PyPhantomJS project.
 
@@ -24,30 +24,30 @@ import os, sys, resources
 from phantom import Phantom
 from utils import argParser, MessageHandler, version
 
-from PyQt4.QtCore import QString, qInstallMsgHandler, qFatal
+from PyQt4.QtCore import QString, qInstallMsgHandler
 from PyQt4.QtGui import QIcon, QApplication
 
 # make keyboard interrupt quit program
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-if __name__ == '__main__':
+def parseArgs(args):
     # Handle all command-line options
     p = argParser()
-    arg_data = p.parse_known_args(sys.argv[1:])
+    arg_data = p.parse_known_args(args)
     args = arg_data[0]
     args.script_args = arg_data[1]
 
-    # register an alternative Message Handler
-    messageHandler = MessageHandler(args.verbose)
-    qInstallMsgHandler(messageHandler.process)
-
     if args.upload_file:
+        # process the tags
         item_buffer = {}
         for i in range(len(args.upload_file)):
             item = args.upload_file[i].split('=')
             if len(item) < 2 or not len(item[1]):
-                if len(item_buffer) == 0:
+                # if buffer is empty, or tag has no
+                # value 'tag=', print help and exit
+                if not len(item_buffer) or \
+                item[1:] and not item[1:][0]:
                     p.print_help()
                     sys.exit(1)
 
@@ -75,12 +75,18 @@ if __name__ == '__main__':
                 else:
                     args.script = args.upload_file[i]
                     args.script_args = args.upload_file[i+1:]
-
                 break
+
+            # duplicate tag checking
+            if QString(item[0]) in item_buffer:
+                sys.exit('Multiple tags named \'%s\' were found' % item[0])
+
             item_buffer[QString(item[0])] = QString(item[1])
+
+        # make sure files exist
         for tag in item_buffer:
             if not os.path.exists(item_buffer[tag]):
-                qFatal('No such file or directory: \'%s\'' % item_buffer[tag])
+                sys.exit('No such file or directory: \'%s\'' % item_buffer[tag])
         args.upload_file = item_buffer
 
     if args.proxy:
@@ -97,7 +103,16 @@ if __name__ == '__main__':
     try:
         args.script = open(args.script)
     except IOError as (errno, stderr):
-        qFatal(str(stderr) + ': \'%s\'' % args.script)
+        sys.exit('%s: \'%s\'' % (stderr, args.script))
+
+    return args
+
+def main():
+    args = parseArgs(sys.argv[1:])
+
+    # register an alternative Message Handler
+    messageHandler = MessageHandler(args.verbose)
+    qInstallMsgHandler(messageHandler.process)
 
     app = QApplication(sys.argv)
 
@@ -111,3 +126,6 @@ if __name__ == '__main__':
     phantom.execute()
     app.exec_()
     sys.exit(phantom.returnValue())
+
+if __name__ == '__main__':
+    main()
