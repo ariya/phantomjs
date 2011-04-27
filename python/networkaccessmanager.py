@@ -19,14 +19,14 @@
 '''
 
 from PyQt4.QtGui import QDesktopServices
-from PyQt4.QtCore import SIGNAL, QString, qDebug, qWarning
+from PyQt4.QtCore import QString, qDebug, qWarning
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkDiskCache, \
                             QNetworkRequest
 
 class NetworkAccessManager(QNetworkAccessManager):
     def __init__(self, diskCacheEnabled, parent = None):
         QNetworkAccessManager.__init__(self, parent)
-        self.connect(self, SIGNAL('finished(QNetworkReply *)'), self.handleFinished)
+        self.finished.connect(self.handleFinished)
 
         if diskCacheEnabled == 'yes':
             m_networkDiskCache = QNetworkDiskCache()
