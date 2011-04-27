@@ -18,7 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from PyQt4.QtCore import SIGNAL, QString, QUrl, QEventLoop, qDebug
+from PyQt4.QtCore import QString, QUrl, QEventLoop, qDebug
 from PyQt4.QtGui import QApplication
 from PyQt4.QtWebKit import QWebPage
 
@@ -31,8 +31,8 @@ class WebPage(QWebPage):
         self.m_userAgent = QWebPage.userAgentForUrl(self, QUrl())
 
         if self.parent.m_verbose:
-            self.connect(self.currentFrame(), SIGNAL('urlChanged(const QUrl&)'), self.handleFrameUrlChanged)
-            self.connect(self, SIGNAL('linkClicked(const QUrl&)'), self.handleLinkClicked)
+            self.currentFrame().urlChanged.connect(self.handleFrameUrlChanged)
+            self.linkClicked.connect(self.handleLinkClicked)
 
     def handleFrameUrlChanged(self, url):
         qDebug('URL Changed: %s' % url.toString())

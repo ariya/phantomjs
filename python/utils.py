@@ -62,7 +62,7 @@ def argParser():
     )
     parser.add_argument('--load-plugins', default='no',
         choices=['yes', 'no'],
-        help='Load all plugins (i.e. Flash, Silverlight, ...)\n(default: %(default)s)'
+        help='Load all plugins (i.e. Flash, Silverlight, ...) (default: %(default)s)'
     )
     parser.add_argument('--proxy', metavar='address:port',
         help='Set the network proxy'
