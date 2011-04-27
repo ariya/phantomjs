@@ -18,7 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from PyQt4.QtCore import QObject, QFile, QVariant, QString
+from PyQt4.QtCore import QObject, QFile
 from PyQt4.QtWebKit import QWebPage
 
 class CSConverter(QObject):
@@ -29,7 +29,7 @@ class CSConverter(QObject):
         converter = QFile(':/resources/coffee-script.js')
         converter.open(QFile.ReadOnly)
 
-        script = QString.fromUtf8(converter.readAll())
+        script = str(converter.readAll())
         converter.close()
         self.m_webPage.mainFrame().evaluateJavaScript(script)
         self.m_webPage.mainFrame().addToJavaScriptWindowObject('converter', self)
@@ -37,6 +37,6 @@ class CSConverter(QObject):
     def convert(self, script):
         self.setProperty('source', script)
         result = self.m_webPage.mainFrame().evaluateJavaScript('this.CoffeeScript.compile(converter.source)')
-        if result.type() == QVariant.String:
-            return result.toString()
-        return QString()
+        if len(result):
+            return result
+        return ''

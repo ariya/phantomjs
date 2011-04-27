@@ -18,7 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from PyQt4.QtCore import QString, QUrl, QEventLoop, qDebug
+from PyQt4.QtCore import QUrl, QEventLoop, qDebug
 from PyQt4.QtGui import QApplication
 from PyQt4.QtWebKit import QWebPage
 
@@ -27,7 +27,7 @@ class WebPage(QWebPage):
         QWebPage.__init__(self, parent)
 
         self.parent = parent
-        self.m_nextFileTag = QString()
+        self.m_nextFileTag = ''
         self.m_userAgent = QWebPage.userAgentForUrl(self, QUrl())
 
         if self.parent.m_verbose:
@@ -45,9 +45,9 @@ class WebPage(QWebPage):
 
     def javaScriptConsoleMessage(self, message, lineNumber, sourceID):
         if sourceID:
-            print sourceID + ':%s' % lineNumber + ' %s' % message.toUtf8()
+            print '%s:%s %s' % (sourceID, lineNumber, message)
         else:
-            print message.toUtf8()
+            print message
 
     def shouldInterruptJavaScript(self):
         QApplication.processEvents(QEventLoop.AllEvents, 42)
@@ -59,4 +59,4 @@ class WebPage(QWebPage):
     def chooseFile(self, webframe, suggestedFile):
         if self.m_nextFileTag in self.parent.m_upload_file:
             return self.parent.m_upload_file[self.m_nextFileTag]
-        return QString()
+        return ''
