@@ -19,12 +19,17 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
+# automatically convert Qt types by using api 2
+import sip
+sip.setapi('QString', 2)
+sip.setapi('QVariant', 2)
+
 import os, sys, resources
 
 from phantom import Phantom
 from utils import argParser, MessageHandler, version
 
-from PyQt4.QtCore import QString, qInstallMsgHandler
+from PyQt4.QtCore import qInstallMsgHandler
 from PyQt4.QtGui import QIcon, QApplication
 
 # make keyboard interrupt quit program
@@ -78,10 +83,10 @@ def parseArgs(args):
                 break
 
             # duplicate tag checking
-            if QString(item[0]) in item_buffer:
+            if item[0] in item_buffer:
                 sys.exit('Multiple tags named \'%s\' were found' % item[0])
 
-            item_buffer[QString(item[0])] = QString(item[1])
+            item_buffer[item[0]] = item[1]
 
         # make sure files exist
         for tag in item_buffer:
