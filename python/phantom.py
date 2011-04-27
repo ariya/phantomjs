@@ -27,8 +27,8 @@ from webpage import WebPage
 from networkaccessmanager import NetworkAccessManager
 
 from PyQt4.QtCore import pyqtProperty, pyqtSlot, Qt, QObject, QString, \
-                         QRect, SIGNAL, SLOT, QTimer, QUrl, QFileInfo, \
-                         QDir, QSize, QSizeF, QTime, QEventLoop, qDebug
+                         QRect, SLOT, QTimer, QUrl, QFileInfo, QDir, \
+                         QSize, QSizeF, QTime, QEventLoop, qDebug
 from PyQt4.QtGui import QPalette, QDesktopServices, qApp, QPrinter, \
                         QImage, QPainter, QRegion, QApplication, qRgba
 from PyQt4.QtWebKit import QWebSettings, QWebPage
@@ -92,8 +92,8 @@ class Phantom(QObject):
             self.m_page.setNetworkAccessManager(m_netAccessMan)
 
         # inject our properties and slots into javascript
-        self.connect(self.m_page.mainFrame(), SIGNAL('javaScriptWindowObjectCleared()'), self.inject)
-        self.connect(self.m_page, SIGNAL('loadFinished(bool)'), self.finish)
+        self.m_page.mainFrame().javaScriptWindowObjectCleared.connect(self.inject)
+        self.m_page.loadFinished.connect(self.finish)
 
     def execute(self):
         if self.m_script.startsWith('#!'):
@@ -215,7 +215,7 @@ class Phantom(QObject):
     @pyqtSlot(int)
     def exit(self, code = 0):
         self.m_returnValue = code
-        self.disconnect(self.m_page, SIGNAL('loadFinished(bool)'), self.finish)
+        self.m_page.loadFinished.disconnect(self.finish)
         QTimer.singleShot(0, qApp, SLOT('quit()'))
 
     @pyqtProperty(str)
