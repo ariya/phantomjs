@@ -18,17 +18,18 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import os
+import sys, os
 
+from utils import version_major, version_minor, version_patch
 from csconverter import CSConverter
 from math import ceil, floor
 from time import sleep as usleep
 from webpage import WebPage
 from networkaccessmanager import NetworkAccessManager
 
-from PyQt4.QtCore import pyqtProperty, pyqtSlot, Qt, QObject, QString, \
-                         QRect, SLOT, QTimer, QUrl, QFileInfo, QDir, \
-                         QSize, QSizeF, QTime, QEventLoop, qDebug
+from PyQt4.QtCore import pyqtProperty, pyqtSlot, Qt, QObject, QRect, \
+                         SLOT, QTimer, QUrl, QFileInfo, QDir, QSize, \
+                         QSizeF, QTime, QEventLoop, qDebug
 from PyQt4.QtGui import QPalette, QDesktopServices, qApp, QPrinter, \
                         QImage, QPainter, QRegion, QApplication, qRgba
 from PyQt4.QtWebKit import QWebSettings, QWebPage
@@ -43,14 +44,19 @@ class Phantom(QObject):
         QObject.__init__(self, parent)
 
         # variable declarations
-        self.m_loadStatus = self.m_state = QString()
+        self.m_loadStatus = self.m_state = ''
         self.m_var = self.m_paperSize = self.m_loadScript_cache = {}
         self.m_verbose = args.verbose
         self.m_page = WebPage(self)
         self.m_clipRect = QRect()
         # setup the values from args
-        self.m_script = QString.fromUtf8(args.script.read())
+        self.m_script = args.script.read()
         self.m_scriptFile = args.script.name
+        self.m_scriptDir = os.path.dirname(args.script.name)
+        if sys.platform.startswith('win'):
+            self.m_scriptDir += '\\'
+        else:
+            self.m_scriptDir += '/'
         self.m_args = args.script_args
         self.m_upload_file = args.upload_file
         autoLoadImages = False if args.load_images == 'no' else True
@@ -82,11 +88,6 @@ class Phantom(QObject):
         self.m_page.mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
         self.m_page.mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
 
-        # if our script was called in a different directory, change to it
-        # to make any dealings with files be relative to the scripts directory
-        if os.path.dirname(self.m_scriptFile):
-            os.chdir(os.path.dirname(self.m_scriptFile))
-
         if self.m_verbose:
             m_netAccessMan = NetworkAccessManager(args.disk_cache, self)
             self.m_page.setNetworkAccessManager(m_netAccessMan)
@@ -96,10 +97,10 @@ class Phantom(QObject):
         self.m_page.loadFinished.connect(self.finish)
 
     def execute(self):
-        if self.m_script.startsWith('#!'):
-            self.m_script.prepend('//')
+        if self.m_script.startswith('#!'):
+            self.m_script = '//' + self.m_script
 
-        if self.m_scriptFile.endswith('.coffee'):
+        if self.m_scriptFile.lower().endswith('.coffee'):
             coffee = CSConverter(self)
             self.m_script = coffee.convert(self.m_script)
 
@@ -195,15 +196,19 @@ class Phantom(QObject):
 
     @clipRect.setter
     def clipRect(self, size):
-        w = int(size[QString('width')])
-        h = int(size[QString('height')])
-        top = int(size[QString('top')])
-        left = int(size[QString('left')])
+        names = ('width', 'height', 'top', 'left')
+        for item in names:
+            try:
+                globals()[item] = int(size[item])
+                if globals()[item] < 0:
+                    if item not in ('top', 'left'):
+                        globals()[item] = 0
+            except KeyError:
+                globals()[item] = getattr(self.m_clipRect, item)()
 
-        if w >= 0 and h >= 0:
-            self.m_clipRect = QRect(left, top, w, h)
+        self.m_clipRect = QRect(left, top, width, height)
 
-    @pyqtProperty('QString')
+    @pyqtProperty(str)
     def content(self):
         return self.m_page.mainFrame().toHtml()
 
@@ -228,19 +233,19 @@ class Phantom(QObject):
             self.m_page.mainFrame().evaluateJavaScript(self.m_loadScript_cache[script])
             return True
 
-        scriptFile = QString(script)
+        scriptFile = script
         try:
-            script = open(script)
-            script = QString.fromUtf8(script.read())
+            script = open(self.m_scriptDir + script)
+            script = script.read()
         except IOError:
             return False
 
-        if script.startsWith('#!'):
-            script.prepend('//')
+        if script.startswith('#!'):
+            script = '//' + script
 
-        if scriptFile.endsWith('.coffee'):
+        if scriptFile.lower().endswith('.coffee'):
             coffee = CSConverter(self)
-            script = QString.fromUtf8(coffee.convert(script))
+            script = coffee.convert(script)
 
         self.m_loadScript_cache[scriptFile] = script
         self.m_page.mainFrame().evaluateJavaScript(script)
@@ -259,12 +264,7 @@ class Phantom(QObject):
 
     @paperSize.setter
     def paperSize(self, size):
-        # convert QString to str
-        size_buffer = {}
-        for key, value in size.items():
-            size_buffer[str(key)] = str(value)
-
-        self.m_paperSize = size_buffer
+        self.m_paperSize = size
 
     @pyqtSlot(str, result=bool)
     def render(self, fileName):
@@ -272,7 +272,7 @@ class Phantom(QObject):
         path = QDir()
         path.mkpath(fileInfo.absolutePath())
 
-        if fileName.endsWith('.pdf', Qt.CaseInsensitive):
+        if fileName.lower().endswith('.pdf'):
             return self.renderPdf(fileName)
 
         viewportSize = QSize(self.m_page.viewportSize())
@@ -361,7 +361,7 @@ class Phantom(QObject):
 
     @pyqtProperty('QVariantMap')
     def viewportSize(self):
-        size = QSize(self.m_page.viewportSize())
+        size = self.m_page.viewportSize()
         result = {
             'width': size.width(),
             'height': size.height()
@@ -370,7 +370,13 @@ class Phantom(QObject):
 
     @viewportSize.setter
     def viewportSize(self, size):
-        w = int(size[QString('width')])
-        h = int(size[QString('height')])
-        if w > 0 and h > 0:
-            self.m_page.setViewportSize(QSize(w, h))
+        names = ('width', 'height')
+        for item in names:
+            try:
+                globals()[item] = int(size[item])
+                if globals()[item] < 0:
+                    globals()[item] = 0
+            except KeyError:
+                globals()[item] = getattr(self.m_page.viewportSize(), item)()
+
+        self.m_page.setViewportSize(QSize(width, height))
