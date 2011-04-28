@@ -19,14 +19,14 @@
 '''
 
 from PyQt4.QtGui import QDesktopServices
-from PyQt4.QtCore import SIGNAL, QString, qDebug, qWarning
+from PyQt4.QtCore import qDebug, qWarning
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkDiskCache, \
                             QNetworkRequest
 
 class NetworkAccessManager(QNetworkAccessManager):
     def __init__(self, diskCacheEnabled, parent = None):
         QNetworkAccessManager.__init__(self, parent)
-        self.connect(self, SIGNAL('finished(QNetworkReply *)'), self.handleFinished)
+        self.finished.connect(self.handleFinished)
 
         if diskCacheEnabled == 'yes':
             m_networkDiskCache = QNetworkDiskCache()
@@ -49,16 +49,16 @@ class NetworkAccessManager(QNetworkAccessManager):
         else:
             qWarning('Unexpected HTTP Operation Type')
 
-        qDebug(QString('URL %s' % req.url().toString()))
+        qDebug('URL %s' % req.url().toString())
 
         return QNetworkAccessManager.createRequest(self, op, req, outgoingData)
 
     def handleFinished(self, reply):
         qDebug('HTTP/1.1 Response')
-        qDebug(QString('URL %s' % reply.url().toString()))
-        code = reply.attribute(QNetworkRequest.HttpStatusCodeAttribute).toString()
+        qDebug('URL %s' % reply.url().toString())
+        code = reply.attribute(QNetworkRequest.HttpStatusCodeAttribute)
         if code:
-            qDebug('Status code: %s' % code)
+            qDebug('Status code: %d' % code)
 
         headerPairs = reply.rawHeaderPairs()
         for pair in headerPairs:
