@@ -39,10 +39,11 @@ class NetworkAccessManager : public QNetworkAccessManager
     Q_OBJECT
     QNetworkDiskCache* m_networkDiskCache;
 public:
-    NetworkAccessManager(QObject *parent = 0, bool diskCacheEnabled = false);
+    NetworkAccessManager(QObject *parent = 0, bool diskCacheEnabled = false, bool ignoreSslErrors = false);
     virtual ~NetworkAccessManager();
 
 protected:
+    bool m_ignoreSslErrors;
     QNetworkReply *createRequest(Operation op, const QNetworkRequest & req, QIODevice * outgoingData = 0);
 
 private slots:

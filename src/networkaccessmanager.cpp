@@ -37,8 +37,8 @@
 #include "networkaccessmanager.h"
 
 // public:
-NetworkAccessManager::NetworkAccessManager(QObject *parent, bool diskCacheEnabled)
-    : QNetworkAccessManager(parent), m_networkDiskCache(0)
+NetworkAccessManager::NetworkAccessManager(QObject *parent, bool diskCacheEnabled, bool ignoreSslErrors)
+    : QNetworkAccessManager(parent), m_networkDiskCache(0), m_ignoreSslErrors(ignoreSslErrors)
 {
     if (diskCacheEnabled) {
         m_networkDiskCache = new QNetworkDiskCache();
@@ -94,7 +94,11 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     qDebug() << "URL" << qPrintable(req.url().toString());
 
     // Pass duty to the superclass - Nothing special to do here (yet?)
-    return QNetworkAccessManager::createRequest(op, req, outgoingData);
+    QNetworkReply *reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
+    if(m_ignoreSslErrors) {
+        reply->ignoreSslErrors();
+    }
+    return reply;
 }
 
 // private slots:
