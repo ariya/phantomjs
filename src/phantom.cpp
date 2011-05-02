@@ -64,6 +64,7 @@ Phantom::Phantom(QObject *parent)
     bool autoLoadImages = true;
     bool pluginsEnabled = false;
     bool diskCacheEnabled = false;
+    bool ignoreSslErrors = false;
 
     // second argument: script name
     QStringList args = QApplication::arguments();
@@ -105,6 +106,14 @@ Phantom::Phantom(QObject *parent)
         }
         if (arg == "--disk-cache=no") {
             diskCacheEnabled = false;
+            continue;
+        }
+        if (arg == "--ignore-ssl-errors=yes") {
+            ignoreSslErrors = true;
+            continue;
+        }
+        if (arg == "--ignore-ssl-errors=no") {
+            ignoreSslErrors = false;
             continue;
         }
         if (arg.startsWith("--proxy=")) {
@@ -150,7 +159,7 @@ Phantom::Phantom(QObject *parent)
     }
 
     // Provide WebPage with a non-standard Network Access Manager
-    m_netAccessMan = new NetworkAccessManager(this, diskCacheEnabled);
+    m_netAccessMan = new NetworkAccessManager(this, diskCacheEnabled, ignoreSslErrors);
     m_page.setNetworkAccessManager(m_netAccessMan);
 
     connect(m_page.mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), SLOT(inject()));
