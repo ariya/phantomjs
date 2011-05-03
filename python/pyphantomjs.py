@@ -24,6 +24,7 @@ sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
 
 import os, sys, resources
+import codecs
 
 from phantom import Phantom
 from utils import argParser, MessageHandler, version
@@ -105,7 +106,7 @@ def parseArgs(args):
         sys.exit(1)
 
     try:
-        args.script = open(args.script)
+        args.script = codecs.open(args.script, encoding='utf-8')
     except IOError as (errno, stderr):
         sys.exit('%s: \'%s\'' % (stderr, args.script))
 

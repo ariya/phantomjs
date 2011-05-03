@@ -18,6 +18,7 @@
 '''
 
 import sys, os
+import codecs
 
 from utils import version_major, version_minor, version_patch
 from csconverter import CSConverter
@@ -234,7 +235,7 @@ class Phantom(QObject):
 
         scriptFile = script
         try:
-            script = open(self.m_scriptDir + script)
+            script = codecs.open(self.m_scriptDir + script, encoding='utf-8')
             script = script.read()
         except IOError:
             return False
