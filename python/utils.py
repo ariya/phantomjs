@@ -96,3 +96,18 @@ class MessageHandler:
             print >> sys.stderr, '%s [CRITICAL] %s' % (now, msg)
         elif msgType == QtFatalMsg:
             print >> sys.stderr, '%s [FATAL] %s' % (now, msg)
+
+class SafeStreamFilter(object):
+    '''Convert string to something safe.'''
+    def __init__(self, target):
+        self.target = target
+        self.encoding = 'utf-8'
+        self.errors = 'replace'
+        self.encode_to = self.target.encoding
+
+    def write(self, s):
+        s = self.encode(s)
+        self.target.write(s)
+
+    def encode(self, s):
+        return s.encode(self.encode_to, self.errors).decode(self.encode_to)

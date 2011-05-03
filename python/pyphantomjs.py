@@ -36,6 +36,11 @@ from PyQt4.QtGui import QIcon, QApplication
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
+# output unicode safe text
+from utils import SafeStreamFilter
+sys.stdout = SafeStreamFilter(sys.stdout)
+sys.stderr = SafeStreamFilter(sys.stderr)
+
 def parseArgs(args):
     # Handle all command-line options
     p = argParser()
