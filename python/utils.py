@@ -21,9 +21,7 @@ import argparse, sys
 
 from PyQt4.QtCore import QDateTime, Qt, QtDebugMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg
 
-version_major = 1
-version_minor = 1
-version_patch = 0
+version_major, version_minor, version_patch = (1, 1, 0)
 version = '%d.%d.%d' % (version_major, version_minor, version_patch)
 
 license = '''
