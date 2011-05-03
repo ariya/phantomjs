@@ -39,7 +39,7 @@ from PyQt4.QtNetwork import QNetworkProxy, QNetworkProxyFactory
 pdf_dpi = 72
 
 class Phantom(QObject):
-    def __init__(self, args, parent = None):
+    def __init__(self, args, parent=None):
         QObject.__init__(self, parent)
 
         # variable declarations
@@ -217,7 +217,7 @@ class Phantom(QObject):
 
     @pyqtSlot()
     @pyqtSlot(int)
-    def exit(self, code = 0):
+    def exit(self, code=0):
         self.m_returnValue = code
         self.m_page.loadFinished.disconnect(self.finish)
         QTimer.singleShot(0, qApp, SLOT('quit()'))
@@ -344,7 +344,7 @@ class Phantom(QObject):
     @pyqtSlot(int, result='QVariant')
     @pyqtSlot(str, 'QVariant')
     @pyqtSlot(int, 'QVariant')
-    def ctx(self, name, value = None):
+    def ctx(self, name, value=None):
         if not value:
             return self.m_var.get(name)
         self.m_var[name] = value

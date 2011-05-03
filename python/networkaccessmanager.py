@@ -23,7 +23,7 @@ from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkDiskCache, \
                             QNetworkRequest
 
 class NetworkAccessManager(QNetworkAccessManager):
-    def __init__(self, diskCacheEnabled, parent = None):
+    def __init__(self, diskCacheEnabled, parent=None):
         QNetworkAccessManager.__init__(self, parent)
         self.finished.connect(self.handleFinished)
 

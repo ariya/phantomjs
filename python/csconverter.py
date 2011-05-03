@@ -21,7 +21,7 @@ from PyQt4.QtCore import QObject, QFile
 from PyQt4.QtWebKit import QWebPage
 
 class CSConverter(QObject):
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         QObject.__init__(self, parent)
         self.m_webPage = QWebPage(self)
 

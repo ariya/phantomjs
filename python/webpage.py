@@ -22,7 +22,7 @@ from PyQt4.QtGui import QApplication
 from PyQt4.QtWebKit import QWebPage
 
 class WebPage(QWebPage):
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         QWebPage.__init__(self, parent)
 
         self.parent = parent
