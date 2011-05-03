@@ -17,7 +17,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import sys, os
+import os
 import codecs
 
 from utils import version_major, version_minor, version_patch
@@ -52,11 +52,7 @@ class Phantom(QObject):
         # setup the values from args
         self.m_script = args.script.read()
         self.m_scriptFile = args.script.name
-        self.m_scriptDir = os.path.dirname(args.script.name)
-        if sys.platform.startswith('win'):
-            self.m_scriptDir += '\\'
-        else:
-            self.m_scriptDir += '/'
+        self.m_scriptDir = os.path.dirname(args.script.name) + '/'
         self.m_args = args.script_args
         self.m_upload_file = args.upload_file
         autoLoadImages = False if args.load_images == 'no' else True
