@@ -58,6 +58,10 @@ def argParser():
         choices=['yes', 'no'],
         help='Enable disk cache (default: %(default)s)'
     )
+    parser.add_argument('--ignore-ssl-errors', default='no',
+        choices=['yes', 'no'],
+        help='Ignore SSL errors (default: %(default)s)'
+    )
     parser.add_argument('--load-images', default='yes',
         choices=['yes', 'no'],
         help='Load all inlined images (default: %(default)s)'

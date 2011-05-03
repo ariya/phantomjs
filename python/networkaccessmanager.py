@@ -23,9 +23,12 @@ from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkDiskCache, \
                             QNetworkRequest
 
 class NetworkAccessManager(QNetworkAccessManager):
-    def __init__(self, diskCacheEnabled, parent=None):
+    def __init__(self, diskCacheEnabled, ignoreSslErrors, parent=None):
         QNetworkAccessManager.__init__(self, parent)
-        self.finished.connect(self.handleFinished)
+        self.m_ignoreSslErrors = ignoreSslErrors
+
+        if parent.m_verbose:
+            self.finished.connect(self.handleFinished)
 
         if diskCacheEnabled == 'yes':
             m_networkDiskCache = QNetworkDiskCache()
@@ -50,7 +53,12 @@ class NetworkAccessManager(QNetworkAccessManager):
 
         qDebug('URL %s' % req.url().toString())
 
-        return QNetworkAccessManager.createRequest(self, op, req, outgoingData)
+        reply = QNetworkAccessManager.createRequest(self, op, req, outgoingData)
+
+        if self.m_ignoreSslErrors == 'yes':
+            reply.ignoreSslErrors()
+
+        return reply
 
     def handleFinished(self, reply):
         qDebug('HTTP/1.1 Response')

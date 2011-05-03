@@ -84,9 +84,8 @@ class Phantom(QObject):
         self.m_page.mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
         self.m_page.mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
 
-        if self.m_verbose:
-            m_netAccessMan = NetworkAccessManager(args.disk_cache, self)
-            self.m_page.setNetworkAccessManager(m_netAccessMan)
+        m_netAccessMan = NetworkAccessManager(args.disk_cache, args.ignore_ssl_errors, self)
+        self.m_page.setNetworkAccessManager(m_netAccessMan)
 
         # inject our properties and slots into javascript
         self.m_page.mainFrame().javaScriptWindowObjectCleared.connect(self.inject)
