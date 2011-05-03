@@ -45,7 +45,7 @@ class WebPage(QWebPage):
 
     def javaScriptConsoleMessage(self, message, lineNumber, sourceID):
         if sourceID:
-            print '%s:%s %s' % (sourceID, lineNumber, message)
+            print '%s:%d %s' % (sourceID, lineNumber, message)
         else:
             print message
 
