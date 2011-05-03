@@ -53,6 +53,11 @@ def argParser():
     parser.add_argument('script', metavar='script.[js|coffee]', nargs='?',
         help='The script to execute, and any args to pass to it'
     )
+
+    parser.add_argument('--disk-cache', default='no',
+        choices=['yes', 'no'],
+        help='Enable disk cache (default: %(default)s)'
+    )
     parser.add_argument('--load-images', default='yes',
         choices=['yes', 'no'],
         help='Load all inlined images (default: %(default)s)'
@@ -66,10 +71,6 @@ def argParser():
     )
     parser.add_argument('--upload-file', nargs='*',
         metavar='tag=file', help='Upload 1 or more files'
-    )
-    parser.add_argument('--disk-cache', default='no',
-        choices=['yes', 'no'],
-        help='Enable disk cache (default: %(default)s)'
     )
     parser.add_argument('-v', '--verbose', action='store_true',
         help='Show verbose debug messages'
