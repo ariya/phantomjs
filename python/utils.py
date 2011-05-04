@@ -57,9 +57,8 @@ def argParser():
         help='The script to execute, and any args to pass to it'
     )
 
-    # call the plugins
-    for plugin in HookArgParser.plugins:
-        plugin(globals(), locals()).run()
+    # load plugins
+    loadPlugins(HookArgParser, globals(), locals())
 
     parser.add_argument('--disk-cache', default='no',
         choices=['yes', 'no'],
@@ -125,6 +124,13 @@ class SafeStreamFilter(object):
         return s.encode(self.encode_to, self.errors).decode(self.encode_to)
 
 def setupPlugins():
+    def loadPlugins(cls, _globals, _locals):
+        for plugin in cls.plugins:
+            plugin(_globals, _locals).run()
+
+    # add loadPlugins to __builtin__
+    __builtin__.__dict__['loadPlugins'] = loadPlugins
+
     # load plugin classes into __builtin__
     module = __import__('plugincontroller', globals(), locals(), ['*'])
     for k in dir(module):

@@ -60,9 +60,8 @@ class Phantom(QObject):
 
         args.script.close()
 
-        # call the plugins
-        for plugin in HookPhantomInit.plugins:
-            plugin(globals(), locals()).run()
+        # load plugins
+        loadPlugins(HookPhantomInit, globals(), locals())
 
         palette = self.m_page.palette()
         palette.setBrush(QPalette.Base, Qt.transparent)
@@ -380,6 +379,5 @@ class Phantom(QObject):
 
         self.m_page.setViewportSize(QSize(width, height))
 
-    # call the plugins
-    for plugin in HookPhantom.plugins:
-        plugin(globals(), locals()).run()
+    # load plugins
+    loadPlugins(HookPhantom, globals(), locals())

@@ -111,9 +111,8 @@ def parseArgs(args):
             sys.exit(1)
         args.proxy = item
 
-    # call the plugins
-    for plugin in HookParseArgs.plugins:
-        plugin(globals(), locals()).run()
+    # load plugins
+    loadPlugins(HookParseArgs, globals(), locals())
 
     if not args.script:
         p.print_help()
@@ -143,17 +142,15 @@ def main():
 
     phantom = Phantom(args, app)
 
-    # call the plugins
-    for plugin in HookMain.plugins:
-        plugin(globals(), locals()).run()
+    # load plugins
+    loadPlugins(HookMain, globals(), locals())
 
     phantom.execute()
     app.exec_()
     sys.exit(phantom.returnValue())
 
-# call the plugins
-for plugin in HookPyPhantomJS.plugins:
-    plugin(globals(), locals()).run()
+# load plugins
+loadPlugins(HookPyPhantomJS, globals(), locals())
 
 if __name__ == '__main__':
     main()

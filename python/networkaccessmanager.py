@@ -35,9 +35,8 @@ class NetworkAccessManager(QNetworkAccessManager):
             m_networkDiskCache.setCacheDirectory(QDesktopServices.storageLocation(QDesktopServices.CacheLocation))
             self.setCache(m_networkDiskCache)
 
-        # call the plugins
-        for plugin in HookNetworkAccessManagerInit.plugins:
-            plugin(globals(), locals()).run()
+        # load plugins
+        loadPlugins(HookNetworkAccessManagerInit, globals(), locals())
 
     def createRequest(self, op, req, outgoingData):
         if op == QNetworkAccessManager.GetOperation:
@@ -62,9 +61,8 @@ class NetworkAccessManager(QNetworkAccessManager):
         if self.m_ignoreSslErrors == 'yes':
             reply.ignoreSslErrors()
 
-        # call the plugins
-        for plugin in HookNetworkAccessManagerCreateRequest.plugins:
-            plugin(globals(), locals()).run()
+        # load plugins
+        loadPlugins(HookNetworkAccessManagerCreateRequest, globals(), locals())
 
         return reply
 
@@ -75,14 +73,12 @@ class NetworkAccessManager(QNetworkAccessManager):
         if code:
             qDebug('Status code: %d' % code)
 
-        # call the plugins
-        for plugin in HookNetworkAccessManagerHandleFinished.plugins:
-            plugin(globals(), locals()).run()
+        # load plugins
+        loadPlugins(HookNetworkAccessManagerHandleFinished, globals(), locals())
 
         headerPairs = reply.rawHeaderPairs()
         for pair in headerPairs:
             qDebug('"%s" = "%s"' % (pair[0], pair[1]))
 
-    # call the plugins
-    for plugin in HookNetworkAccessManager.plugins:
-        plugin(globals(), locals()).run()
+    # load plugins
+    loadPlugins(HookNetworkAccessManager, globals(), locals())
