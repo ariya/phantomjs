@@ -17,7 +17,10 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import argparse, sys
+import __builtin__
+import argparse, os, sys
+
+from glob import glob
 
 from PyQt4.QtCore import QDateTime, Qt, QtDebugMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg
 
@@ -53,6 +56,10 @@ def argParser():
     parser.add_argument('script', metavar='script.[js|coffee]', nargs='?',
         help='The script to execute, and any args to pass to it'
     )
+
+    # call the plugins
+    for plugin in HookArgParser.plugins:
+        plugin(globals(), locals()).run()
 
     parser.add_argument('--disk-cache', default='no',
         choices=['yes', 'no'],
@@ -116,3 +123,18 @@ class SafeStreamFilter(object):
 
     def encode(self, s):
         return s.encode(self.encode_to, self.errors).decode(self.encode_to)
+
+def setupPlugins():
+    # load plugin classes into __builtin__
+    module = __import__('plugincontroller', globals(), locals(), ['*'])
+    for k in dir(module):
+        if not k.startswith('_'):
+            __builtin__.__dict__[k] = getattr(module, k)
+
+    # initialize plugins into __builtin__
+    plugin_list = glob('plugins/plugin_*.py')
+    for plugin in plugin_list:
+        module = __import__('plugins.' + os.path.splitext(os.path.basename(plugin))[0], globals(), locals(), ['*'])
+        for k in dir(module):
+            if not k.startswith('_'):
+                __builtin__.__dict__[k] = getattr(module, k)

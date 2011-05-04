@@ -26,6 +26,11 @@ sip.setapi('QVariant', 2)
 import os, sys, resources
 import codecs
 
+# setup plugins if running script directly
+if __name__ == '__main__':
+    from utils import setupPlugins
+    setupPlugins()
+
 from phantom import Phantom
 from utils import argParser, MessageHandler, version
 
@@ -106,6 +111,10 @@ def parseArgs(args):
             sys.exit(1)
         args.proxy = item
 
+    # call the plugins
+    for plugin in HookParseArgs.plugins:
+        plugin(globals(), locals()).run()
+
     if not args.script:
         p.print_help()
         sys.exit(1)
@@ -133,9 +142,18 @@ def main():
     app.setApplicationVersion(version)
 
     phantom = Phantom(args, app)
+
+    # call the plugins
+    for plugin in HookMain.plugins:
+        plugin(globals(), locals()).run()
+
     phantom.execute()
     app.exec_()
     sys.exit(phantom.returnValue())
+
+# call the plugins
+for plugin in HookPyPhantomJS.plugins:
+    plugin(globals(), locals()).run()
 
 if __name__ == '__main__':
     main()

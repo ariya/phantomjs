@@ -33,6 +33,10 @@ class WebPage(QWebPage):
             self.currentFrame().urlChanged.connect(self.handleFrameUrlChanged)
             self.linkClicked.connect(self.handleLinkClicked)
 
+        # call the plugins
+        for plugin in HookWebPageInit.plugins:
+            plugin(globals(), locals()).run()
+
     def handleFrameUrlChanged(self, url):
         qDebug('URL Changed: %s' % url.toString())
 
@@ -59,3 +63,7 @@ class WebPage(QWebPage):
         if self.m_nextFileTag in self.parent.m_upload_file:
             return self.parent.m_upload_file[self.m_nextFileTag]
         return ''
+
+    # call the plugins
+    for plugin in HookWebPage.plugins:
+        plugin(globals(), locals()).run()
