@@ -100,7 +100,7 @@ class HookPhantom(object):
 
 class HookPhantomInit(object):
     '''
-       This will be called after variable declarations in Phantom's __init__()
+       This will be called at the end of Phantom's __init__()
        function
     '''
     __metaclass__ = HookPluginMount
@@ -123,7 +123,8 @@ class HookParseArgs(object):
 
 class HookMain(object):
     '''
-       This will be called after the variable declarations in the main() function
+       This will be called after the variable declarations in the main() function,
+       but before the application is actually created/started
     '''
     __metaclass__ = HookPluginMount
 
@@ -132,7 +133,7 @@ class HookMain(object):
 
 class HookArgParser(object):
     '''
-       This will be called at the (almost) beginning of the argParser() function
+       This will be called at the end of the argParser() function
        in utils.py
     '''
     __metaclass__ = HookPluginMount
