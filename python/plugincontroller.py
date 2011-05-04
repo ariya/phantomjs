@@ -98,10 +98,18 @@ class HookPhantom(object):
     '''
     __metaclass__ = HookPluginMount
 
-class HookPhantomInit(object):
+class HookPhantomInitPre(object):
+    '''
+       This will be called right after Phantom's __init__()
+       function's variable declations; before any attributes/stuff
+       is changed/set
+    '''
+    __metaclass__ = HookPluginMount
+
+class HookPhantomInitPost(object):
     '''
        This will be called at the end of Phantom's __init__()
-       function
+       function; after everything has been changed/set
     '''
     __metaclass__ = HookPluginMount
 

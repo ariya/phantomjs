@@ -60,6 +60,9 @@ class Phantom(QObject):
 
         args.script.close()
 
+        # load plugins
+        loadPlugins(HookPhantomInitPre, globals(), locals())
+
         palette = self.m_page.palette()
         palette.setBrush(QPalette.Base, Qt.transparent)
         self.m_page.setPalette(palette)
@@ -92,7 +95,7 @@ class Phantom(QObject):
         self.m_page.loadFinished.connect(self.finish)
 
         # load plugins
-        loadPlugins(HookPhantomInit, globals(), locals())
+        loadPlugins(HookPhantomInitPost, globals(), locals())
 
     def execute(self):
         if self.m_script.startswith('#!'):
