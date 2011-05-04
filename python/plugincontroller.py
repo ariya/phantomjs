@@ -28,11 +28,6 @@
 
    * For each plugin, "plugin_" is required in the filename before the plugin name.
 
-   * For each class/method in your plugin that's in the module scope,
-     while not required, we strongly recommend you use naming conventions
-     such as "PluginFoo_Action" and "pluginFoo_action", as it will greatly
-     lessen name conflicts between your plugin and other plugins.
-
    Here's an example:
 
    file: plugins/plugin_foo.py
@@ -40,7 +35,7 @@
 
    from plugincontroller import HookParseArgs
 
-   class PluginFoo_ModifyParseData(HookParseArgs):
+   class ModifyParseData(HookParseArgs):
        def __init__(self, _globals, _locals):
            self._globals = _globals
            self._locals = _locals
