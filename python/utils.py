@@ -133,11 +133,8 @@ def setupPlugins():
             self.__dict__ = adict
 
     def loadPlugins(cls, _globals, _locals):
-        _globals = Bunched(_globals)
-        _locals = Bunched(_locals)
-
         for plugin in cls.plugins:
-            plugin(_globals, _locals).run()
+            plugin(Bunched(_globals), Bunched(_locals)).run()
 
     # add loadPlugins to __builtin__
     __builtin__.loadPlugins = loadPlugins
