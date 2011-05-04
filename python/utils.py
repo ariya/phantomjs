@@ -110,7 +110,7 @@ class MessageHandler:
             print >> sys.stderr, '%s [FATAL] %s' % (now, msg)
 
 class SafeStreamFilter(object):
-    '''Convert string to something safe.'''
+    '''Convert string to something safe'''
     def __init__(self, target):
         self.target = target
         self.encoding = 'utf-8'
@@ -128,12 +128,19 @@ class SafeStreamFilter(object):
         return s.encode(self.encode_to, self.errors).decode(self.encode_to)
 
 def setupPlugins():
+    class Bunched(object):
+        def __init__(self, adict):
+            self.__dict__ = adict
+
     def loadPlugins(cls, _globals, _locals):
+        _globals = Bunched(_globals)
+        _locals = Bunched(_locals)
+
         for plugin in cls.plugins:
             plugin(_globals, _locals).run()
 
     # add loadPlugins to __builtin__
-    __builtin__.__dict__['loadPlugins'] = loadPlugins
+    __builtin__.loadPlugins = loadPlugins
 
     # load plugin classes into __builtin__
     module = __import__('plugincontroller', globals(), locals(), ['*'])

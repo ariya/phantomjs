@@ -41,7 +41,7 @@
            self._locals = _locals
 
        def run(self):
-           args = self._locals['args']
+           args = self._locals.args
            args.script_args.extend(['--my-injected-script-arg', '42'])
 '''
 
