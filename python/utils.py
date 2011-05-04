@@ -121,6 +121,9 @@ class SafeStreamFilter(object):
         s = self.encode(s)
         self.target.write(s)
 
+    def flush(self):
+        self.target.flush()
+
     def encode(self, s):
         return s.encode(self.encode_to, self.errors).decode(self.encode_to)
 
