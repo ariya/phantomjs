@@ -57,9 +57,6 @@ def argParser():
         help='The script to execute, and any args to pass to it'
     )
 
-    # load plugins
-    loadPlugins(HookArgParser, globals(), locals())
-
     parser.add_argument('--disk-cache', default='no',
         choices=['yes', 'no'],
         help='Enable disk cache (default: %(default)s)'
@@ -89,6 +86,10 @@ def argParser():
         action='version', version=license,
         help='show this program\'s version and license'
     )
+
+    # load plugins
+    loadPlugins(HookArgParser, globals(), locals())
+
     return parser
 
 class MessageHandler:

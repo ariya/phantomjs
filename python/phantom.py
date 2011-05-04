@@ -60,9 +60,6 @@ class Phantom(QObject):
 
         args.script.close()
 
-        # load plugins
-        loadPlugins(HookPhantomInit, globals(), locals())
-
         palette = self.m_page.palette()
         palette.setBrush(QPalette.Base, Qt.transparent)
         self.m_page.setPalette(palette)
@@ -93,6 +90,9 @@ class Phantom(QObject):
         # inject our properties and slots into javascript
         self.m_page.mainFrame().javaScriptWindowObjectCleared.connect(self.inject)
         self.m_page.loadFinished.connect(self.finish)
+
+        # load plugins
+        loadPlugins(HookPhantomInit, globals(), locals())
 
     def execute(self):
         if self.m_script.startswith('#!'):

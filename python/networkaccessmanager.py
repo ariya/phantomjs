@@ -56,13 +56,16 @@ class NetworkAccessManager(QNetworkAccessManager):
 
         qDebug('URL %s' % req.url().toString())
 
+        # load plugins
+        loadPlugins(HookNetworkAccessManagerCreateRequestPre, globals(), locals())
+
         reply = QNetworkAccessManager.createRequest(self, op, req, outgoingData)
 
         if self.m_ignoreSslErrors == 'yes':
             reply.ignoreSslErrors()
 
         # load plugins
-        loadPlugins(HookNetworkAccessManagerCreateRequest, globals(), locals())
+        loadPlugins(HookNetworkAccessManagerCreateRequestPost, globals(), locals())
 
         return reply
 

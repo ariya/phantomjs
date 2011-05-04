@@ -73,10 +73,17 @@ class HookNetworkAccessManagerInit(object):
     '''
     __metaclass__ = HookPluginMount
 
-class HookNetworkAccessManagerCreateRequest(object):
+class HookNetworkAccessManagerCreateRequestPre(object):
     '''
        This will be called at the end of NetworkAccessManager's createRequest()
-       function
+       function, before the request is created
+    '''
+    __metaclass__ = HookPluginMount
+
+class HookNetworkAccessManagerCreateRequestPost(object):
+    '''
+       This will be called at the end of NetworkAccessManager's createRequest()
+       function, after the request is created
     '''
     __metaclass__ = HookPluginMount
 
