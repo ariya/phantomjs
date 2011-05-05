@@ -152,8 +152,21 @@ def setupPlugins():
         if not k.startswith('_'):
             __builtin__.__dict__[k] = getattr(module, k)
 
-    # initialize plugins into __builtin__
+    # get list of .py and .pyc plugins
     plugin_list = glob('plugins/plugin_*.py')
+    plugin_list.extend(glob('plugins/plugin_*.pyc'))
+    # remove plugin.py duplicates of plugin.pyc
+    plugin_temp = []
+    for plugin in plugin_list:
+        plugin = os.path.splitext(plugin)
+        if plugin[1] == '.py':
+            if not plugin_list.count(plugin[0] + '.pyc'):
+                plugin_temp.append(''.join(plugin))
+        else:
+            plugin_temp.append(''.join(plugin))
+    plugin_list = plugin_temp
+
+    # initialize plugins into __builtin__
     for plugin in plugin_list:
         module = __import__('plugins.' + os.path.splitext(os.path.basename(plugin))[0], globals(), locals(), ['*'])
         for k in dir(module):
