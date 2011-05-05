@@ -141,7 +141,7 @@ def setupPlugins():
             try:
                 plugin.__dict__[run](plugin(*args))
             except KeyError:
-                pass
+                raise RuntimeError('Run method \'%s\' not found in plugin \'%s\'' % (run, plugin.__module__))
 
     # add loadPlugins to __builtin__
     __builtin__.loadPlugins = loadPlugins
