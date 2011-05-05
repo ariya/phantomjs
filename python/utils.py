@@ -88,7 +88,7 @@ def argParser():
     )
 
     # load plugins
-    loadPlugins(HookArgParser, globals(), locals())
+    loadPlugins(HookArgParser, 'run', globals(), locals())
 
     return parser
 
@@ -132,9 +132,16 @@ def setupPlugins():
         def __init__(self, adict):
             self.__dict__ = adict
 
-    def loadPlugins(cls, _globals, _locals):
+    def loadPlugins(cls, run, *args):
+        args = list(args)
         for plugin in cls.plugins:
-            plugin(Bunched(_globals), Bunched(_locals)).run()
+            for i, arg in enumerate(args):
+                if type(arg) == dict:
+                    args[i] = Bunched(arg)
+            try:
+                plugin.__dict__[run](plugin(*args))
+            except KeyError:
+                pass
 
     # add loadPlugins to __builtin__
     __builtin__.loadPlugins = loadPlugins

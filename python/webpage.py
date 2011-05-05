@@ -34,7 +34,7 @@ class WebPage(QWebPage):
             self.linkClicked.connect(self.handleLinkClicked)
 
         # load plugins
-        loadPlugins(HookWebPageInit, globals(), locals())
+        loadPlugins(HookWebPageInit, 'run', globals(), locals())
 
     def handleFrameUrlChanged(self, url):
         qDebug('URL Changed: %s' % url.toString())
@@ -64,4 +64,4 @@ class WebPage(QWebPage):
         return ''
 
     # load plugins
-    loadPlugins(HookWebPage, globals(), locals())
+    loadPlugins(HookWebPage, 'run', globals(), locals())

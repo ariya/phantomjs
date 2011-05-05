@@ -61,7 +61,7 @@ class Phantom(QObject):
         args.script.close()
 
         # load plugins
-        loadPlugins(HookPhantomInitPre, globals(), locals())
+        loadPlugins(HookPhantomInit, 'run_pre', globals(), locals())
 
         palette = self.m_page.palette()
         palette.setBrush(QPalette.Base, Qt.transparent)
@@ -95,7 +95,7 @@ class Phantom(QObject):
         self.m_page.loadFinished.connect(self.finish)
 
         # load plugins
-        loadPlugins(HookPhantomInitPost, globals(), locals())
+        loadPlugins(HookPhantomInit, 'run_post', globals(), locals())
 
     def execute(self):
         if self.m_script.startswith('#!'):
@@ -383,4 +383,4 @@ class Phantom(QObject):
         self.m_page.setViewportSize(QSize(width, height))
 
     # load plugins
-    loadPlugins(HookPhantom, globals(), locals())
+    loadPlugins(HookPhantom, 'run', globals(), locals())

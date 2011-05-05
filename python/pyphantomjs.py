@@ -112,7 +112,7 @@ def parseArgs(args):
         args.proxy = item
 
     # load plugins
-    loadPlugins(HookParseArgs, globals(), locals())
+    loadPlugins(HookParseArgs, 'run', globals(), locals())
 
     if not args.script:
         p.print_help()
@@ -143,14 +143,14 @@ def main():
     phantom = Phantom(args, app)
 
     # load plugins
-    loadPlugins(HookMain, globals(), locals())
+    loadPlugins(HookMain, 'run', globals(), locals())
 
     phantom.execute()
     app.exec_()
     sys.exit(phantom.returnValue())
 
 # load plugins
-loadPlugins(HookPyPhantomJS, globals(), locals())
+loadPlugins(HookPyPhantomJS, 'run', globals(), locals())
 
 if __name__ == '__main__':
     main()

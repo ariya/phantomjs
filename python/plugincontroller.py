@@ -58,6 +58,9 @@ class HookPluginMount(type):
 class HookNetworkAccessManager(object):
     '''
        This will be called in the NetworkAccessManager class
+
+       Passes: globals(), locals()
+       Runs  : run()
     '''
     __metaclass__ = HookPluginMount
 
@@ -65,20 +68,24 @@ class HookNetworkAccessManagerInit(object):
     '''
        This will be called at the end of NetworkAccessManager's __init__()
        function
+
+       Passes: globals(), locals()
+       Runs  : run()
     '''
     __metaclass__ = HookPluginMount
 
-class HookNetworkAccessManagerCreateRequestPre(object):
+class HookNetworkAccessManagerCreateRequest(object):
     '''
-       This will be called at the end of NetworkAccessManager's createRequest()
-       function, before the request is created
-    '''
-    __metaclass__ = HookPluginMount
+       This will be called in the NetworkAccessManager's createRequest()
+       function.
 
-class HookNetworkAccessManagerCreateRequestPost(object):
-    '''
-       This will be called at the end of NetworkAccessManager's createRequest()
-       function, after the request is created
+       Before the request is created, this gets called:
+       Passes: globals(), locals()
+       Runs  : run_pre()
+
+       After the request is created, this gets called:
+       Passes: globals(), locals()
+       Runs  : run_post()
     '''
     __metaclass__ = HookPluginMount
 
@@ -86,6 +93,9 @@ class HookNetworkAccessManagerHandleFinished(object):
     '''
        This will be called in the middle of NetworkAccessManager's handleFinished()
        function
+
+       Passes: globals(), locals()
+       Runs  : run()
     '''
     __metaclass__ = HookPluginMount
 
@@ -95,21 +105,26 @@ class HookNetworkAccessManagerHandleFinished(object):
 class HookPhantom(object):
     '''
        This will be called in the Phantom class
+
+       Passes: globals(), locals()
+       Runs  : run()
     '''
     __metaclass__ = HookPluginMount
 
-class HookPhantomInitPre(object):
+class HookPhantomInit(object):
     '''
-       This will be called right after Phantom's __init__()
-       function's variable declations; before any attributes/stuff
-       is changed/set
-    '''
-    __metaclass__ = HookPluginMount
+       This will be called in Phantom's __init__()
+       function.
+       
+       Called right after variable declations; before any
+       attributes/stuff is changed/set
+       Passes: globals(), locals()
+       Runs  : run_pre()
 
-class HookPhantomInitPost(object):
-    '''
-       This will be called at the end of Phantom's __init__()
-       function; after everything has been changed/set
+       Called at the end, after everything has been
+       changed/set
+       Passes: globals(), locals()
+       Runs  : run_post()
     '''
     __metaclass__ = HookPluginMount
 
@@ -119,6 +134,9 @@ class HookPhantomInitPost(object):
 class HookPyPhantomJS(object):
     '''
        This will be called in PyPhantomJS module scope
+
+       Passes: globals(), locals()
+       Runs  : run()
     '''
     __metaclass__ = HookPluginMount
 
@@ -126,6 +144,9 @@ class HookParseArgs(object):
     '''
        This will be called at the (almost) bottom of the parseArgs() function
        in pyphantomjs.py
+
+       Passes: globals(), locals()
+       Runs  : run()
     '''
     __metaclass__ = HookPluginMount
 
@@ -133,6 +154,9 @@ class HookMain(object):
     '''
        This will be called after the variable declarations in the main() function,
        but before the application is actually created/started
+
+       Passes: globals(), locals()
+       Runs  : run()
     '''
     __metaclass__ = HookPluginMount
 
@@ -143,6 +167,9 @@ class HookArgParser(object):
     '''
        This will be called at the end of the argParser() function
        in utils.py
+
+       Passes: globals(), locals()
+       Runs  : run()
     '''
     __metaclass__ = HookPluginMount
 
@@ -152,11 +179,17 @@ class HookArgParser(object):
 class HookWebPage(object):
     '''
        This will be called in the WebPage class
+
+       Passes: globals(), locals()
+       Runs  : run()
     '''
     __metaclass__ = HookPluginMount
 
 class HookWebPageInit(object):
     '''
        This will be called at the end of WebPage's __init__() function
+
+       Passes: globals(), locals()
+       Runs  : run()
     '''
     __metaclass__ = HookPluginMount

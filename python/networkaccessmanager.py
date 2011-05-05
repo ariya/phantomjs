@@ -36,7 +36,7 @@ class NetworkAccessManager(QNetworkAccessManager):
             self.setCache(m_networkDiskCache)
 
         # load plugins
-        loadPlugins(HookNetworkAccessManagerInit, globals(), locals())
+        loadPlugins(HookNetworkAccessManagerInit, 'run', globals(), locals())
 
     def createRequest(self, op, req, outgoingData):
         if op == QNetworkAccessManager.GetOperation:
@@ -57,7 +57,7 @@ class NetworkAccessManager(QNetworkAccessManager):
         qDebug('URL %s' % req.url().toString())
 
         # load plugins
-        loadPlugins(HookNetworkAccessManagerCreateRequestPre, globals(), locals())
+        loadPlugins(HookNetworkAccessManagerCreateRequest, 'run_pre', globals(), locals())
 
         reply = QNetworkAccessManager.createRequest(self, op, req, outgoingData)
 
@@ -65,7 +65,7 @@ class NetworkAccessManager(QNetworkAccessManager):
             reply.ignoreSslErrors()
 
         # load plugins
-        loadPlugins(HookNetworkAccessManagerCreateRequestPost, globals(), locals())
+        loadPlugins(HookNetworkAccessManagerCreateRequest, 'run_post', globals(), locals())
 
         return reply
 
@@ -77,11 +77,11 @@ class NetworkAccessManager(QNetworkAccessManager):
             qDebug('Status code: %d' % code)
 
         # load plugins
-        loadPlugins(HookNetworkAccessManagerHandleFinished, globals(), locals())
+        loadPlugins(HookNetworkAccessManagerHandleFinished, 'run', globals(), locals())
 
         headerPairs = reply.rawHeaderPairs()
         for pair in headerPairs:
             qDebug('"%s" = "%s"' % (pair[0], pair[1]))
 
     # load plugins
-    loadPlugins(HookNetworkAccessManager, globals(), locals())
+    loadPlugins(HookNetworkAccessManager, 'run', globals(), locals())
