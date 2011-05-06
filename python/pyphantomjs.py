@@ -3,7 +3,6 @@
   This file is part of the PyPhantomJS project.
 
   Copyright (C) 2011 James Roe <roejames12@hotmail.com>
-  Copyright (C) 2010-2011 Ariya Hidayat <ariya.hidayat@gmail.com>
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,6 +24,12 @@ sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
 
 import os, sys, resources
+import codecs
+
+# setup plugins if running script directly
+if __name__ == '__main__':
+    from utils import setupPlugins
+    setupPlugins()
 
 from phantom import Phantom
 from utils import argParser, MessageHandler, version
@@ -35,6 +40,11 @@ from PyQt4.QtGui import QIcon, QApplication
 # make keyboard interrupt quit program
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+# output unicode safe text
+from utils import SafeStreamFilter
+sys.stdout = SafeStreamFilter(sys.stdout)
+sys.stderr = SafeStreamFilter(sys.stderr)
 
 def parseArgs(args):
     # Handle all command-line options
@@ -101,12 +111,15 @@ def parseArgs(args):
             sys.exit(1)
         args.proxy = item
 
+    # load plugins
+    loadPlugins(HookParseArgs, 'run', globals(), locals())
+
     if not args.script:
         p.print_help()
         sys.exit(1)
 
     try:
-        args.script = open(args.script)
+        args.script = codecs.open(args.script, encoding='utf-8')
     except IOError as (errno, stderr):
         sys.exit('%s: \'%s\'' % (stderr, args.script))
 
@@ -128,9 +141,16 @@ def main():
     app.setApplicationVersion(version)
 
     phantom = Phantom(args, app)
+
+    # load plugins
+    loadPlugins(HookMain, 'run', globals(), locals())
+
     phantom.execute()
     app.exec_()
     sys.exit(phantom.returnValue())
+
+# load plugins
+loadPlugins(HookPyPhantomJS, 'run', globals(), locals())
 
 if __name__ == '__main__':
     main()

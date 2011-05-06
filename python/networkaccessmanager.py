@@ -2,7 +2,6 @@
   This file is part of the PyPhantomJS project.
 
   Copyright (C) 2011 James Roe <roejames12@hotmail.com>
-  Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,14 +23,20 @@ from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkDiskCache, \
                             QNetworkRequest
 
 class NetworkAccessManager(QNetworkAccessManager):
-    def __init__(self, diskCacheEnabled, parent = None):
+    def __init__(self, diskCacheEnabled, ignoreSslErrors, parent=None):
         QNetworkAccessManager.__init__(self, parent)
-        self.finished.connect(self.handleFinished)
+        self.m_ignoreSslErrors = ignoreSslErrors
+
+        if parent.m_verbose:
+            self.finished.connect(self.handleFinished)
 
         if diskCacheEnabled == 'yes':
             m_networkDiskCache = QNetworkDiskCache()
             m_networkDiskCache.setCacheDirectory(QDesktopServices.storageLocation(QDesktopServices.CacheLocation))
             self.setCache(m_networkDiskCache)
+
+        # load plugins
+        loadPlugins(HookNetworkAccessManagerInit, 'run', globals(), locals())
 
     def createRequest(self, op, req, outgoingData):
         if op == QNetworkAccessManager.GetOperation:
@@ -51,7 +56,18 @@ class NetworkAccessManager(QNetworkAccessManager):
 
         qDebug('URL %s' % req.url().toString())
 
-        return QNetworkAccessManager.createRequest(self, op, req, outgoingData)
+        # load plugins
+        loadPlugins(HookNetworkAccessManagerCreateRequest, 'run_pre', globals(), locals())
+
+        reply = QNetworkAccessManager.createRequest(self, op, req, outgoingData)
+
+        if self.m_ignoreSslErrors == 'yes':
+            reply.ignoreSslErrors()
+
+        # load plugins
+        loadPlugins(HookNetworkAccessManagerCreateRequest, 'run_post', globals(), locals())
+
+        return reply
 
     def handleFinished(self, reply):
         qDebug('HTTP/1.1 Response')
@@ -60,6 +76,12 @@ class NetworkAccessManager(QNetworkAccessManager):
         if code:
             qDebug('Status code: %d' % code)
 
+        # load plugins
+        loadPlugins(HookNetworkAccessManagerHandleFinished, 'run', globals(), locals())
+
         headerPairs = reply.rawHeaderPairs()
         for pair in headerPairs:
             qDebug('"%s" = "%s"' % (pair[0], pair[1]))
+
+    # load plugins
+    loadPlugins(HookNetworkAccessManager, 'run', globals(), locals())

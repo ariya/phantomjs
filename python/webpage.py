@@ -2,7 +2,6 @@
   This file is part of the PyPhantomJS project.
 
   Copyright (C) 2011 James Roe <roejames12@hotmail.com>
-  Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,7 +22,7 @@ from PyQt4.QtGui import QApplication
 from PyQt4.QtWebKit import QWebPage
 
 class WebPage(QWebPage):
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         QWebPage.__init__(self, parent)
 
         self.parent = parent
@@ -33,6 +32,9 @@ class WebPage(QWebPage):
         if self.parent.m_verbose:
             self.currentFrame().urlChanged.connect(self.handleFrameUrlChanged)
             self.linkClicked.connect(self.handleLinkClicked)
+
+        # load plugins
+        loadPlugins(HookWebPageInit, 'run', globals(), locals())
 
     def handleFrameUrlChanged(self, url):
         qDebug('URL Changed: %s' % url.toString())
@@ -45,7 +47,7 @@ class WebPage(QWebPage):
 
     def javaScriptConsoleMessage(self, message, lineNumber, sourceID):
         if sourceID:
-            print '%s:%s %s' % (sourceID, lineNumber, message)
+            print '%s:%d %s' % (sourceID, lineNumber, message)
         else:
             print message
 
@@ -60,3 +62,6 @@ class WebPage(QWebPage):
         if self.m_nextFileTag in self.parent.m_upload_file:
             return self.parent.m_upload_file[self.m_nextFileTag]
         return ''
+
+    # load plugins
+    loadPlugins(HookWebPage, 'run', globals(), locals())

@@ -2,7 +2,6 @@
   This file is part of the PyPhantomJS project.
 
   Copyright (C) 2011 James Roe <roejames12@hotmail.com>
-  Copyright (C) 2010-2011 Ariya Hidayat <ariya.hidayat@gmail.com>
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,7 +17,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import sys, os
+import os
+import codecs
 
 from utils import version_major, version_minor, version_patch
 from csconverter import CSConverter
@@ -40,7 +40,7 @@ from PyQt4.QtNetwork import QNetworkProxy, QNetworkProxyFactory
 pdf_dpi = 72
 
 class Phantom(QObject):
-    def __init__(self, args, parent = None):
+    def __init__(self, args, parent=None):
         QObject.__init__(self, parent)
 
         # variable declarations
@@ -52,17 +52,16 @@ class Phantom(QObject):
         # setup the values from args
         self.m_script = args.script.read()
         self.m_scriptFile = args.script.name
-        self.m_scriptDir = os.path.dirname(args.script.name)
-        if sys.platform.startswith('win'):
-            self.m_scriptDir += '\\'
-        else:
-            self.m_scriptDir += '/'
+        self.m_scriptDir = os.path.dirname(args.script.name) + '/'
         self.m_args = args.script_args
         self.m_upload_file = args.upload_file
         autoLoadImages = False if args.load_images == 'no' else True
         pluginsEnabled = True if args.load_plugins == 'yes' else False
 
         args.script.close()
+
+        # load plugins
+        loadPlugins(HookPhantomInit, 'run_pre', globals(), locals())
 
         palette = self.m_page.palette()
         palette.setBrush(QPalette.Base, Qt.transparent)
@@ -88,13 +87,15 @@ class Phantom(QObject):
         self.m_page.mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
         self.m_page.mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
 
-        if self.m_verbose:
-            m_netAccessMan = NetworkAccessManager(args.disk_cache, self)
-            self.m_page.setNetworkAccessManager(m_netAccessMan)
+        m_netAccessMan = NetworkAccessManager(args.disk_cache, args.ignore_ssl_errors, self)
+        self.m_page.setNetworkAccessManager(m_netAccessMan)
 
         # inject our properties and slots into javascript
         self.m_page.mainFrame().javaScriptWindowObjectCleared.connect(self.inject)
         self.m_page.loadFinished.connect(self.finish)
+
+        # load plugins
+        loadPlugins(HookPhantomInit, 'run_post', globals(), locals())
 
     def execute(self):
         if self.m_script.startswith('#!'):
@@ -218,7 +219,7 @@ class Phantom(QObject):
 
     @pyqtSlot()
     @pyqtSlot(int)
-    def exit(self, code = 0):
+    def exit(self, code=0):
         self.m_returnValue = code
         self.m_page.loadFinished.disconnect(self.finish)
         QTimer.singleShot(0, qApp, SLOT('quit()'))
@@ -235,7 +236,7 @@ class Phantom(QObject):
 
         scriptFile = script
         try:
-            script = open(self.m_scriptDir + script)
+            script = codecs.open(self.m_scriptDir + script, encoding='utf-8')
             script = script.read()
         except IOError:
             return False
@@ -345,7 +346,7 @@ class Phantom(QObject):
     @pyqtSlot(int, result='QVariant')
     @pyqtSlot(str, 'QVariant')
     @pyqtSlot(int, 'QVariant')
-    def ctx(self, name, value = None):
+    def ctx(self, name, value=None):
         if not value:
             return self.m_var.get(name)
         self.m_var[name] = value
@@ -380,3 +381,6 @@ class Phantom(QObject):
                 globals()[item] = getattr(self.m_page.viewportSize(), item)()
 
         self.m_page.setViewportSize(QSize(width, height))
+
+    # load plugins
+    loadPlugins(HookPhantom, 'run', globals(), locals())

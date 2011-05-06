@@ -2,7 +2,6 @@
   This file is part of the PyPhantomJS project.
 
   Copyright (C) 2011 James Roe <roejames12@hotmail.com>
-  Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +21,7 @@ from PyQt4.QtCore import QObject, QFile
 from PyQt4.QtWebKit import QWebPage
 
 class CSConverter(QObject):
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         QObject.__init__(self, parent)
         self.m_webPage = QWebPage(self)
 

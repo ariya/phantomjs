@@ -2,7 +2,6 @@
   This file is part of the PyPhantomJS project.
 
   Copyright (C) 2011 James Roe <roejames12@hotmail.com>
-  Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,13 +17,14 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import argparse, sys
+import __builtin__
+import argparse, os, sys
+
+from glob import glob
 
 from PyQt4.QtCore import QDateTime, Qt, QtDebugMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg
 
-version_major = 1
-version_minor = 1
-version_patch = 0
+version_major, version_minor, version_patch = (1, 1, 0)
 version = '%d.%d.%d' % (version_major, version_minor, version_patch)
 
 license = '''
@@ -56,6 +56,15 @@ def argParser():
     parser.add_argument('script', metavar='script.[js|coffee]', nargs='?',
         help='The script to execute, and any args to pass to it'
     )
+
+    parser.add_argument('--disk-cache', default='no',
+        choices=['yes', 'no'],
+        help='Enable disk cache (default: %(default)s)'
+    )
+    parser.add_argument('--ignore-ssl-errors', default='no',
+        choices=['yes', 'no'],
+        help='Ignore SSL errors (default: %(default)s)'
+    )
     parser.add_argument('--load-images', default='yes',
         choices=['yes', 'no'],
         help='Load all inlined images (default: %(default)s)'
@@ -70,10 +79,6 @@ def argParser():
     parser.add_argument('--upload-file', nargs='*',
         metavar='tag=file', help='Upload 1 or more files'
     )
-    parser.add_argument('--disk-cache', default='no',
-        choices=['yes', 'no'],
-        help='Enable disk cache (default: %(default)s)'
-    )
     parser.add_argument('-v', '--verbose', action='store_true',
         help='Show verbose debug messages'
     )
@@ -81,6 +86,10 @@ def argParser():
         action='version', version=license,
         help='show this program\'s version and license'
     )
+
+    # load plugins
+    loadPlugins(HookArgParser, 'run', globals(), locals())
+
     return parser
 
 class MessageHandler:
@@ -99,3 +108,67 @@ class MessageHandler:
             print >> sys.stderr, '%s [CRITICAL] %s' % (now, msg)
         elif msgType == QtFatalMsg:
             print >> sys.stderr, '%s [FATAL] %s' % (now, msg)
+
+class SafeStreamFilter(object):
+    '''Convert string to something safe'''
+    def __init__(self, target):
+        self.target = target
+        self.encoding = 'utf-8'
+        self.errors = 'replace'
+        self.encode_to = self.target.encoding
+
+    def write(self, s):
+        s = self.encode(s)
+        self.target.write(s)
+
+    def flush(self):
+        self.target.flush()
+
+    def encode(self, s):
+        return s.encode(self.encode_to, self.errors).decode(self.encode_to)
+
+def setupPlugins():
+    class Bunched(object):
+        def __init__(self, adict):
+            self.__dict__ = adict
+
+    def loadPlugins(cls, run, *args):
+        args = list(args)
+        for plugin in cls.plugins:
+            for i, arg in enumerate(args):
+                if type(arg) == dict:
+                    args[i] = Bunched(arg)
+            try:
+                plugin.__dict__[run](plugin(*args))
+            except KeyError:
+                raise RuntimeError('Run method \'%s\' not found in plugin \'%s\'' % (run, plugin.__module__))
+
+    # add loadPlugins to __builtin__
+    __builtin__.loadPlugins = loadPlugins
+
+    # load plugin classes into __builtin__
+    module = __import__('plugincontroller', globals(), locals(), ['*'])
+    for k in dir(module):
+        if not k.startswith('_'):
+            __builtin__.__dict__[k] = getattr(module, k)
+
+    # get list of .py and .pyc plugins
+    plugin_list = glob('plugins/plugin_*.py')
+    plugin_list.extend(glob('plugins/plugin_*.pyc'))
+    # remove plugin.py duplicates of plugin.pyc
+    plugin_temp = []
+    for plugin in plugin_list:
+        plugin = os.path.splitext(plugin)
+        if plugin[1] == '.py':
+            if not plugin_list.count(plugin[0] + '.pyc'):
+                plugin_temp.append(''.join(plugin))
+        else:
+            plugin_temp.append(''.join(plugin))
+    plugin_list = plugin_temp
+
+    # initialize plugins into __builtin__
+    for plugin in plugin_list:
+        module = __import__('plugins.' + os.path.splitext(os.path.basename(plugin))[0], globals(), locals(), ['*'])
+        for k in dir(module):
+            if not k.startswith('_'):
+                __builtin__.__dict__[k] = getattr(module, k)
