@@ -14,16 +14,7 @@ DEPENDENCIES
 
 -> Ubuntu
    ------
-   Follow these instructions.
-
-   Packages to install:
-
-       * python
-       * python-qt4
-
-   Instructions
-   ------------
    Open a terminal window, and enter the following command:
-   "sudo apt-get -y install python python-qt4"
+   "sudo apt-get -y install python-qt4"
 
    All the required packages should be automatically pulled in and installed.
