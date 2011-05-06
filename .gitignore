@@ -4,3 +4,7 @@
 Makefile*
 bin/
 *~
+*.moc
+moc_*
+qrc_*
+*.o
