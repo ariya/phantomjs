@@ -22,6 +22,7 @@ from collections import defaultdict
 from os.path import dirname, split, splitext
 
 plugins = defaultdict(list)
+hook_count = {}
 
 class Bunch(object):
     ''' Simple class to bunch a dict into
@@ -40,12 +41,18 @@ def add_action(*hooks):
         return func
     return register
 
+def did_action(hook):
+    '''Find out how many times a hook was fired'''
+    return hook_count[hook]
+
 def do_action(hook, *args, **kwargs):
     ''' Trigger a hook. It will run any functions that have registered
         themselves to the hook. Any additional arguments or keyword
         arguments you pass in will be passed to the functions.
     '''
+    hook_count[hook] = 0
     for plugin in plugins[hook]:
+        hook_count[hook] += 1
         plugin(*args, **kwargs)
 
 def has_action(hook):
