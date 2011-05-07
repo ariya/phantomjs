@@ -26,9 +26,10 @@ sip.setapi('QVariant', 2)
 import os, sys, resources
 import codecs
 
+from plugincontroller import Bunch, do_action
 # load plugins if running script directly
 if __name__ == '__main__':
-    from plugincontroller import load_plugins, Bunch, do_action
+    from plugincontroller import load_plugins
     load_plugins()
 
 from phantom import Phantom
