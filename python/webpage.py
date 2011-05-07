@@ -21,6 +21,8 @@ from PyQt4.QtCore import QUrl, QEventLoop, qDebug
 from PyQt4.QtGui import QApplication
 from PyQt4.QtWebKit import QWebPage
 
+from plugincontroller import Bunch, do_action
+
 class WebPage(QWebPage):
     def __init__(self, parent=None):
         QWebPage.__init__(self, parent)
@@ -33,8 +35,7 @@ class WebPage(QWebPage):
             self.currentFrame().urlChanged.connect(self.handleFrameUrlChanged)
             self.linkClicked.connect(self.handleLinkClicked)
 
-        # load plugins
-        loadPlugins(HookWebPageInit, 'run', globals(), locals())
+        do_action('WebPageInit', Bunch(locals()))
 
     def handleFrameUrlChanged(self, url):
         qDebug('URL Changed: %s' % url.toString())
@@ -63,5 +64,4 @@ class WebPage(QWebPage):
             return self.parent.m_upload_file[self.m_nextFileTag]
         return ''
 
-    # load plugins
-    loadPlugins(HookWebPage, 'run', globals(), locals())
+    do_action('WebPage', Bunch(locals()))
