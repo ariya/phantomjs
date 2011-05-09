@@ -21,6 +21,7 @@ import os
 import codecs
 
 from utils import version_major, version_minor, version_patch
+from plugincontroller import Bunch, do_action
 from csconverter import CSConverter
 from math import ceil, floor
 from time import sleep as usleep
@@ -60,8 +61,7 @@ class Phantom(QObject):
 
         args.script.close()
 
-        # load plugins
-        loadPlugins(HookPhantomInit, 'run_pre', globals(), locals())
+        do_action('PhantomInitPre', Bunch(locals()))
 
         palette = self.m_page.palette()
         palette.setBrush(QPalette.Base, Qt.transparent)
@@ -94,8 +94,7 @@ class Phantom(QObject):
         self.m_page.mainFrame().javaScriptWindowObjectCleared.connect(self.inject)
         self.m_page.loadFinished.connect(self.finish)
 
-        # load plugins
-        loadPlugins(HookPhantomInit, 'run_post', globals(), locals())
+        do_action('PhantomInitPost', Bunch(locals()))
 
     def execute(self):
         if self.m_script.startswith('#!'):
@@ -382,5 +381,4 @@ class Phantom(QObject):
 
         self.m_page.setViewportSize(QSize(width, height))
 
-    # load plugins
-    loadPlugins(HookPhantom, 'run', globals(), locals())
+    do_action('Phantom', Bunch(locals()))

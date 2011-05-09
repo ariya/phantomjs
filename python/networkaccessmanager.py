@@ -22,6 +22,8 @@ from PyQt4.QtCore import qDebug, qWarning
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkDiskCache, \
                             QNetworkRequest
 
+from plugincontroller import Bunch, do_action
+
 class NetworkAccessManager(QNetworkAccessManager):
     def __init__(self, diskCacheEnabled, ignoreSslErrors, parent=None):
         QNetworkAccessManager.__init__(self, parent)
@@ -35,8 +37,7 @@ class NetworkAccessManager(QNetworkAccessManager):
             m_networkDiskCache.setCacheDirectory(QDesktopServices.storageLocation(QDesktopServices.CacheLocation))
             self.setCache(m_networkDiskCache)
 
-        # load plugins
-        loadPlugins(HookNetworkAccessManagerInit, 'run', globals(), locals())
+        do_action('NetworkAccessManagerInit', Bunch(locals()))
 
     def createRequest(self, op, req, outgoingData):
         if op == QNetworkAccessManager.GetOperation:
@@ -56,16 +57,14 @@ class NetworkAccessManager(QNetworkAccessManager):
 
         qDebug('URL %s' % req.url().toString())
 
-        # load plugins
-        loadPlugins(HookNetworkAccessManagerCreateRequest, 'run_pre', globals(), locals())
+        do_action('NetworkAccessManagerCreateRequestPre', Bunch(locals()))
 
         reply = QNetworkAccessManager.createRequest(self, op, req, outgoingData)
 
         if self.m_ignoreSslErrors == 'yes':
             reply.ignoreSslErrors()
 
-        # load plugins
-        loadPlugins(HookNetworkAccessManagerCreateRequest, 'run_post', globals(), locals())
+        do_action('NetworkAccessManagerCreateRequestPost', Bunch(locals()))
 
         return reply
 
@@ -76,12 +75,10 @@ class NetworkAccessManager(QNetworkAccessManager):
         if code:
             qDebug('Status code: %d' % code)
 
-        # load plugins
-        loadPlugins(HookNetworkAccessManagerHandleFinished, 'run', globals(), locals())
+        do_action('NetworkAccessManagerHandleFinished', Bunch(locals()))
 
         headerPairs = reply.rawHeaderPairs()
         for pair in headerPairs:
             qDebug('"%s" = "%s"' % (pair[0], pair[1]))
 
-    # load plugins
-    loadPlugins(HookNetworkAccessManager, 'run', globals(), locals())
+    do_action('NetworkAccessManager', Bunch(locals()))
