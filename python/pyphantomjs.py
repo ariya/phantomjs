@@ -26,10 +26,11 @@ sip.setapi('QVariant', 2)
 import os, sys, resources
 import codecs
 
-# setup plugins if running script directly
+from plugincontroller import Bunch, do_action
+# load plugins if running script directly
 if __name__ == '__main__':
-    from utils import setupPlugins
-    setupPlugins()
+    from plugincontroller import load_plugins
+    load_plugins()
 
 from phantom import Phantom
 from utils import argParser, MessageHandler, version
@@ -111,8 +112,7 @@ def parseArgs(args):
             sys.exit(1)
         args.proxy = item
 
-    # load plugins
-    loadPlugins(HookParseArgs, 'run', globals(), locals())
+    do_action('ParseArgs', Bunch(locals()))
 
     if not args.script:
         p.print_help()
@@ -142,15 +142,13 @@ def main():
 
     phantom = Phantom(args, app)
 
-    # load plugins
-    loadPlugins(HookMain, 'run', globals(), locals())
+    do_action('Main', Bunch(locals()))
 
     phantom.execute()
     app.exec_()
     sys.exit(phantom.returnValue())
 
-# load plugins
-loadPlugins(HookPyPhantomJS, 'run', globals(), locals())
+do_action('PyPhantomJS', Bunch(locals()))
 
 if __name__ == '__main__':
     main()

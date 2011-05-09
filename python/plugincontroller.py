@@ -17,179 +17,82 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-'''
-   How to make plugins.
+from glob import glob
+from collections import defaultdict
+from os.path import dirname, split, splitext
 
-   * Each class (except HookPluginMount) will be called at specific points
-     in the programs code. Any plugins can register themselves automatically
-     by subclassing a special class. globals() and locals() will be passed
-     to each class instance so you can modify the contents of the local/global
-     namespace.
+plugins = defaultdict(list)
+hook_count = {}
 
-   * For each plugin, "plugin_" is required in the filename before the plugin name.
-
-   Here's an example:
-
-   file: plugins/plugin_foo.py
-   ---
-
-   from plugincontroller import HookParseArgs
-
-   class ModifyParseData(HookParseArgs):
-       def __init__(self, _globals, _locals):
-           self._globals = _globals
-           self._locals = _locals
-
-       def run(self):
-           args = self._locals.args
-           args.script_args.extend(['--my-injected-script-arg', '42'])
-'''
-
-class HookPluginMount(type):
-    def __init__(cls, name, bases, attrs):
-        if not hasattr(cls, 'plugins'):
-            cls.plugins = []
-        else:
-            cls.plugins.append(cls)
-
-##
-# networkaccessmanager
-
-class HookNetworkAccessManager(object):
+class Bunch(object):
+    ''' Simple class to bunch a dict into
+        an object that with attributes
     '''
-       This will be called in the NetworkAccessManager class
+    def __init__(self, adict):
+        self.__dict__ = adict
 
-       Passes: globals(), locals()
-       Runs  : run()
+def add_action(*hooks):
+    ''' Decorator to be used for registering a function to
+        a specific hook or list of hooks. 
     '''
-    __metaclass__ = HookPluginMount
+    def register(func):
+        for hook in hooks:
+            plugins[hook].append(func)
+        return func
+    return register
 
-class HookNetworkAccessManagerInit(object):
+def did_action(hook):
+    '''Find out how many times a hook was fired'''
+    return hook_count[hook]
+
+def do_action(hook, *args, **kwargs):
+    ''' Trigger a hook. It will run any functions that have registered
+        themselves to the hook. Any additional arguments or keyword
+        arguments you pass in will be passed to the functions.
     '''
-       This will be called at the end of NetworkAccessManager's __init__()
-       function
+    hook_count[hook] = 0
+    for plugin in plugins[hook]:
+        hook_count[hook] += 1
+        plugin(*args, **kwargs)
 
-       Passes: globals(), locals()
-       Runs  : run()
+def has_action(hook):
+    '''Check if any functions have been registered for a hook'''
+    if hook in plugins:
+        return True
+    return False
+
+def remove_action(hook, func):
+    '''Remove function that has been registered to hook'''
+    if hook in plugins:
+        for f in plugins[hook]:
+            if f == func:
+                del plugins[hook][plugins[hook].index(func)]
+                return True
+    return False
+
+def remove_all_actions(hook):
+    '''Remove all functions that have been registered to hook'''
+    if hook in plugins:
+        del plugins[hook][:]
+        return True
+    return False
+
+def load_plugins():
+    ''' Loads the plugins.
+
+        Plugins must be in folders under plugins/ ,
+        and must also be the same name as the plugin folder.
+
+        E.g. a plugin folder named plugins/my_plugin will
+        have my_plugin.py inside the folder called.
     '''
-    __metaclass__ = HookPluginMount
 
-class HookNetworkAccessManagerCreateRequest(object):
-    '''
-       This will be called in the NetworkAccessManager's createRequest()
-       function.
+    # get plugin list
+    plugin_list = glob('plugins/*/*.py')
+    # now convert list to [('plugin_folder', 'file'), ...]
+    plugin_list = [(split(dirname(f))[1], splitext(split(f)[1])[0]) for f in plugin_list]
 
-       Before the request is created, this gets called:
-       Passes: globals(), locals()
-       Runs  : run_pre()
-
-       After the request is created, this gets called:
-       Passes: globals(), locals()
-       Runs  : run_post()
-    '''
-    __metaclass__ = HookPluginMount
-
-class HookNetworkAccessManagerHandleFinished(object):
-    '''
-       This will be called in the middle of NetworkAccessManager's handleFinished()
-       function
-
-       Passes: globals(), locals()
-       Runs  : run()
-    '''
-    __metaclass__ = HookPluginMount
-
-##
-# phantom
-
-class HookPhantom(object):
-    '''
-       This will be called in the Phantom class
-
-       Passes: globals(), locals()
-       Runs  : run()
-    '''
-    __metaclass__ = HookPluginMount
-
-class HookPhantomInit(object):
-    '''
-       This will be called in Phantom's __init__()
-       function.
-       
-       Called right after variable declations; before any
-       attributes/stuff is changed/set
-       Passes: globals(), locals()
-       Runs  : run_pre()
-
-       Called at the end, after everything has been
-       changed/set
-       Passes: globals(), locals()
-       Runs  : run_post()
-    '''
-    __metaclass__ = HookPluginMount
-
-##
-# pyphantomjs
-
-class HookPyPhantomJS(object):
-    '''
-       This will be called in PyPhantomJS module scope
-
-       Passes: globals(), locals()
-       Runs  : run()
-    '''
-    __metaclass__ = HookPluginMount
-
-class HookParseArgs(object):
-    '''
-       This will be called at the (almost) bottom of the parseArgs() function
-       in pyphantomjs.py
-
-       Passes: globals(), locals()
-       Runs  : run()
-    '''
-    __metaclass__ = HookPluginMount
-
-class HookMain(object):
-    '''
-       This will be called after the variable declarations in the main() function,
-       but before the application is actually created/started
-
-       Passes: globals(), locals()
-       Runs  : run()
-    '''
-    __metaclass__ = HookPluginMount
-
-##
-# utils
-
-class HookArgParser(object):
-    '''
-       This will be called at the end of the argParser() function
-       in utils.py
-
-       Passes: globals(), locals()
-       Runs  : run()
-    '''
-    __metaclass__ = HookPluginMount
-
-##
-# webpage
-
-class HookWebPage(object):
-    '''
-       This will be called in the WebPage class
-
-       Passes: globals(), locals()
-       Runs  : run()
-    '''
-    __metaclass__ = HookPluginMount
-
-class HookWebPageInit(object):
-    '''
-       This will be called at the end of WebPage's __init__() function
-
-       Passes: globals(), locals()
-       Runs  : run()
-    '''
-    __metaclass__ = HookPluginMount
+    # initialize plugins
+    for plugin in plugin_list:
+        if plugin[0] == plugin[1]:
+            __import__('plugins.%s.%s' % (plugin[0], plugin[1]), globals(), locals(), [], -1)

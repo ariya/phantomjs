@@ -17,10 +17,9 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import __builtin__
-import argparse, os, sys
+import argparse, sys
 
-from glob import glob
+from plugincontroller import Bunch, do_action
 
 from PyQt4.QtCore import QDateTime, Qt, QtDebugMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg
 
@@ -87,8 +86,7 @@ def argParser():
         help='show this program\'s version and license'
     )
 
-    # load plugins
-    loadPlugins(HookArgParser, 'run', globals(), locals())
+    do_action('ArgParser', Bunch(locals()))
 
     return parser
 
@@ -126,49 +124,3 @@ class SafeStreamFilter(object):
 
     def encode(self, s):
         return s.encode(self.encode_to, self.errors).decode(self.encode_to)
-
-def setupPlugins():
-    class Bunched(object):
-        def __init__(self, adict):
-            self.__dict__ = adict
-
-    def loadPlugins(cls, run, *args):
-        args = list(args)
-        for plugin in cls.plugins:
-            for i, arg in enumerate(args):
-                if type(arg) == dict:
-                    args[i] = Bunched(arg)
-            try:
-                plugin.__dict__[run](plugin(*args))
-            except KeyError:
-                raise RuntimeError('Run method \'%s\' not found in plugin \'%s\'' % (run, plugin.__module__))
-
-    # add loadPlugins to __builtin__
-    __builtin__.loadPlugins = loadPlugins
-
-    # load plugin classes into __builtin__
-    module = __import__('plugincontroller', globals(), locals(), ['*'])
-    for k in dir(module):
-        if not k.startswith('_'):
-            __builtin__.__dict__[k] = getattr(module, k)
-
-    # get list of .py and .pyc plugins
-    plugin_list = glob('plugins/plugin_*.py')
-    plugin_list.extend(glob('plugins/plugin_*.pyc'))
-    # remove plugin.py duplicates of plugin.pyc
-    plugin_temp = []
-    for plugin in plugin_list:
-        plugin = os.path.splitext(plugin)
-        if plugin[1] == '.py':
-            if not plugin_list.count(plugin[0] + '.pyc'):
-                plugin_temp.append(''.join(plugin))
-        else:
-            plugin_temp.append(''.join(plugin))
-    plugin_list = plugin_temp
-
-    # initialize plugins into __builtin__
-    for plugin in plugin_list:
-        module = __import__('plugins.' + os.path.splitext(os.path.basename(plugin))[0], globals(), locals(), ['*'])
-        for k in dir(module):
-            if not k.startswith('_'):
-                __builtin__.__dict__[k] = getattr(module, k)
