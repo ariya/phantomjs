@@ -2,7 +2,7 @@
 
 if phantom.state.length == 0
     phantom.state = [
-        'SenchaInc'
+        'sencha'
         'aconran'
         'ariyahidayat'
         'darrellmeyer'
@@ -22,7 +22,7 @@ if phantom.state.length == 0
         'tmaintz'
         'whereisthysting'
     ].join ':'
-    phantom.open 'http://mobile.twitter.com/SenchaInc'
+    phantom.open 'http://mobile.twitter.com/sencha'
 else
     users = phantom.state.split ':'
     id = users[0]
