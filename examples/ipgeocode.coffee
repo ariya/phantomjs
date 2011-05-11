@@ -1,6 +1,6 @@
 # Give the estimated location based on the IP address.
 
-document.cb = (data) ->
+window.cb = (data) ->
     loc = data.city
     if data.region_name.length > 0
         loc = loc + ', ' + data.region_name
@@ -9,5 +9,5 @@ document.cb = (data) ->
     phantom.exit()
 
 el = document.createElement 'script'
-el.src = 'http://freegeoip.net/json/?callback=document.cb'
+el.src = 'http://freegeoip.net/json/?callback=window.cb'
 document.body.appendChild el
