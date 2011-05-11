@@ -1,7 +1,7 @@
 // List following and followers from several accounts
 
 if (phantom.state.length === 0) {
-    phantom.state = ['SenchaInc',
+    phantom.state = ['sencha',
         'aconran',
         'ariyahidayat',
         'darrellmeyer',
@@ -20,7 +20,7 @@ if (phantom.state.length === 0) {
         'rdougan',
         'tmaintz',
         'whereisthysting'].join(':');
-    phantom.open('http://mobile.twitter.com/SenchaInc');
+    phantom.open('http://mobile.twitter.com/sencha');
 } else {
     var users = phantom.state.split(':'),
         id = users[0],
