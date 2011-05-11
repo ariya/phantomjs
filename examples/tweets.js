@@ -2,7 +2,7 @@
 
 if (phantom.state.length === 0) {
     phantom.state = 'tweets';
-    phantom.open('http://mobile.twitter.com/SenchaInc');
+    phantom.open('http://mobile.twitter.com/sencha');
 } else {
     var list = document.querySelectorAll('span.status');
     for (var i = 0; i < list.length; ++i) {
