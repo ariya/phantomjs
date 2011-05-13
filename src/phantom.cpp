@@ -396,6 +396,18 @@ void Phantom::sleep(int ms)
     }
 }
 
+QString Phantom::getStdinLine()
+{
+    std::string instr;
+    while(true) {
+        int ch = std::cin.get();
+        if (ch == '\n' || ch == EOF)
+            break;
+        instr.push_back(static_cast<char>(ch));
+    }
+    return QString(instr.c_str());
+}
+
 #if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
 void Phantom::setFormInputFile(QWebElement el, const QString &fileTag)
 {
