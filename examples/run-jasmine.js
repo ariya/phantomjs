@@ -9,7 +9,7 @@ if (phantom.state.length === 0) {
 } else {
     window.setInterval(function () {
         var list, el, desc, i, j;
-        if (document.body.querySelector('.finished_at')) {
+        if (document.body.querySelector('.finished-at')) {
             console.log(document.body.querySelector('.description').innerText);
             list = document.body.querySelectorAll('div.jasmine_reporter > div.suite.failed');
             for (i = 0; i < list.length; ++i) {
