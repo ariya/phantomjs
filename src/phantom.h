@@ -90,6 +90,7 @@ public slots:
 #endif
     bool render(const QString &fileName);
     void sleep(int ms);
+    QString getStdinLine();
 
 private slots:
     void inject();
