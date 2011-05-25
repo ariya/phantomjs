@@ -104,6 +104,11 @@ WebPage::WebPage(QObject *parent)
     m_webPage->setViewportSize(QSize(400, 300));
 }
 
+QWebFrame *WebPage::mainFrame()
+{
+    return m_mainFrame;
+}
+
 QString WebPage::content() const
 {
     return m_mainFrame->toHtml();

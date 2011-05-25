@@ -59,9 +59,7 @@ Phantom::Phantom(QObject *parent)
     , m_converter(0)
     , m_netAccessMan(0)
 {
-    QPalette palette = m_page.palette();
-    palette.setBrush(QPalette::Base, Qt::transparent);
-    m_page.setPalette(palette);
+    m_page = new WebPage(this);
 
     QString proxyHost;
     int proxyPort = 1080;
@@ -154,36 +152,31 @@ Phantom::Phantom(QObject *parent)
         m_args += arg;
     }
 
+#if 0
     // Provide WebPage with a non-standard Network Access Manager
     m_netAccessMan = new NetworkAccessManager(this, diskCacheEnabled, ignoreSslErrors);
-    m_page.setNetworkAccessManager(m_netAccessMan);
+    m_page->setNetworkAccessManager(m_netAccessMan);
 
-    m_page.settings()->setAttribute(QWebSettings::AutoLoadImages, autoLoadImages);
-    m_page.settings()->setAttribute(QWebSettings::PluginsEnabled, pluginsEnabled);
+    m_page->settings()->setAttribute(QWebSettings::AutoLoadImages, autoLoadImages);
+    m_page->settings()->setAttribute(QWebSettings::PluginsEnabled, pluginsEnabled);
 
-    m_page.settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
-    m_page.settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+    m_page->settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
+    m_page->settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
 
-    m_page.settings()->setAttribute(QWebSettings::LocalStorageDatabaseEnabled, true);
+    m_page->settings()->setAttribute(QWebSettings::LocalStorageDatabaseEnabled, true);
 
 #if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
-    m_page.settings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
+    m_page->settings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
 #endif
 
 #if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
-    m_page.settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
-    m_page.settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+    m_page->settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
+    m_page->settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+#endif
 #endif
 
-    // Ensure we have document.body.
-    m_page.mainFrame()->setHtml("<html><body></body></html>");
-
-    m_page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
-    m_page.mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
-
-
-    m_page.mainFrame()->addToJavaScriptWindowObject("phantom", this);
-    m_page.mainFrame()->evaluateJavaScript(CONSTRUCT_WEBPAGE);
+    m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
+    m_page->mainFrame()->evaluateJavaScript(CONSTRUCT_WEBPAGE);
 }
 
 QStringList Phantom::args() const
@@ -216,7 +209,7 @@ bool Phantom::execute()
         m_script = m_converter->convert(m_script);
     }
 
-    m_page.mainFrame()->evaluateJavaScript(m_script);
+    m_page->mainFrame()->evaluateJavaScript(m_script);
     return true;
 }
 

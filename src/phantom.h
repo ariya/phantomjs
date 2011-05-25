@@ -33,6 +33,7 @@
 
 #include <QtGui>
 
+class WebPage;
 #include "csconverter.h"
 #include "networkaccessmanager.h"
 
@@ -59,7 +60,7 @@ public slots:
 private:
     QString m_scriptFile;
     QStringList m_args;
-    QWebPage m_page;
+    WebPage *m_page;
     int m_returnValue;
     QString m_script;
     CSConverter *m_converter;

@@ -49,6 +49,8 @@ class WebPage: public QObject
 public:
     WebPage(QObject *parent = 0);
 
+    QWebFrame *mainFrame();
+
     QString content() const;
     void setContent(const QString &content);
 
@@ -63,6 +65,7 @@ public:
 
     void setPaperSize(const QVariantMap &size);
     QVariantMap paperSize() const;
+
 
 public slots:
     void openUrl(const QString &address);
