@@ -55,7 +55,6 @@ int main(int argc, char** argv)
     app.setOrganizationDomain("www.ofilabs.com");
     app.setApplicationVersion(PHANTOMJS_VERSION_STRING);
 
-    // Start Phantom
     Phantom phantom;
     if (phantom.execute()) {
         app.exec();

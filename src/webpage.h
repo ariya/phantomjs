@@ -2,6 +2,7 @@
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
+  Copyright (C) 2010 Ariya Hidayat <ariya.hidayat@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -30,32 +31,57 @@
 #ifndef WEBPAGE_H
 #define WEBPAGE_H
 
-#include <QtWebKit>
+#include <QMap>
+#include <QWebPage>
+#include <QVariantMap>
 
-class WebPage: public QWebPage
+class CustomPage;
+
+class WebPage: public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString content READ content WRITE setContent)
+    Q_PROPERTY(QString userAgent READ userAgent WRITE setUserAgent)
+    Q_PROPERTY(QVariantMap viewportSize READ viewportSize WRITE setViewportSize)
+    Q_PROPERTY(QVariantMap paperSize READ paperSize WRITE setPaperSize)
+    Q_PROPERTY(QVariantMap clipRect READ clipRect WRITE setClipRect)
+
 public:
     WebPage(QObject *parent = 0);
 
+    QString content() const;
+    void setContent(const QString &content);
+
+    void setUserAgent(const QString &ua);
+    QString userAgent() const;
+
+    void setViewportSize(const QVariantMap &size);
+    QVariantMap viewportSize() const;
+
+    void setClipRect(const QVariantMap &size);
+    QVariantMap clipRect() const;
+
+    void setPaperSize(const QVariantMap &size);
+    QVariantMap paperSize() const;
+
 public slots:
-    bool shouldInterruptJavaScript();
+    void openUrl(const QString &address);
+    QVariant evaluate(const QString &code);
+    bool render(const QString &fileName);
+
+signals:
+    void loadStatusChanged(const QString &status);
 
 private slots:
-    void handleFrameUrlChanged(const QUrl &url);
-    void handleLinkClicked(const QUrl &url);
-
-protected:
-    void javaScriptAlert(QWebFrame *originatingFrame, const QString &msg);
-    void javaScriptConsoleMessage(const QString &message, int lineNumber, const QString &sourceID);
-    QString userAgentForUrl(const QUrl &url) const;
-    QString chooseFile(QWebFrame * parentFrame, const QString & suggestedFile);
+    void finish(bool ok);
 
 private:
-    QString m_userAgent;
-    QMap<QString, QString> m_allowedFiles;
-    QString m_nextFileTag;
-    friend class Phantom;
+    CustomPage *m_webPage;
+    QWebFrame *m_mainFrame;
+    QRect m_clipRect;
+    QVariantMap m_paperSize; // For PDF output via render()
+
+    bool renderPdf(const QString &fileName);
 };
 
 #endif // WEBPAGE_H

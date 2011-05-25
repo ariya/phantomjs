@@ -33,7 +33,6 @@
 
 #include <QFile>
 #include <QWebFrame>
-#include <QDebug>
 
 // public:
 CSConverter::CSConverter(QObject *parent)
