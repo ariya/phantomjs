@@ -1,9 +1,7 @@
-if (phantom.state.length === 0) {
-    phantom.state = 1;
-    phantom.viewportSize = { width: 400, height : 400 };
-    phantom.content = '<html><body><canvas id="surface">' +
-        '</canvas></body></html>';
-} else {
+var page = new WebPage;
+page.viewportSize = { width: 400, height : 400 };
+page.content = '<html><body><canvas id="surface"></canvas></body></html>';
+page.evaluate(function() {
     var el = document.getElementById('surface'),
         context = el.getContext('2d'),
         width = window.innerWidth,
@@ -46,7 +44,8 @@ if (phantom.state.length === 0) {
     context.putImageData(imageData, 0, 0);
     document.body.style.backgroundColor = 'white';
     document.body.style.margin = '0px';
+});
 
-    phantom.render('colorwheel.png');
-    phantom.exit();
-}
+page.render('colorwheel.png');
+
+phantom.exit();
