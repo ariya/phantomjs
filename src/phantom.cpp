@@ -40,19 +40,6 @@
 #include "utils.h"
 #include "webpage.h"
 
-
-// This allows creating a new web page using the construct "new WebPage",
-// which feels more natural than "phantom.createWebPage()".
-#define CONSTRUCT_WEBPAGE "window.WebPage = function(){\n" \
-    "var page = phantom.createWebPage();\n" \
-    "page.open = function (url, callback) {\n" \
-    "    this.loadStatusChanged.connect(callback);\n" \
-    "    this.openUrl(url);\n" \
-    "};" \
-    "return page;" \
-    "}"
-
-
 Phantom::Phantom(QObject *parent)
     : QObject(parent)
     , m_returnValue(0)
@@ -163,7 +150,19 @@ Phantom::Phantom(QObject *parent)
 #endif
 
     m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
-    m_page->mainFrame()->evaluateJavaScript(CONSTRUCT_WEBPAGE);
+
+    QFile file(":/bootstrap.js");
+    if (!file.open(QFile::ReadOnly)) {
+        qCritical() << "Can not bootstrap!";
+        exit(1);
+    }
+    QString bootstrapper = QString::fromUtf8(file.readAll());
+    file.close();
+    if (bootstrapper.isEmpty()) {
+        qCritical() << "Can not bootstrap!";
+        exit(1);
+    }
+    m_page->mainFrame()->evaluateJavaScript(bootstrapper);
 }
 
 QStringList Phantom::args() const
