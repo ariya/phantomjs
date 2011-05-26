@@ -1,7 +1,7 @@
 // List following and followers from several accounts
 
-if (phantom.state.length === 0) {
-    phantom.state = ['sencha',
+var page = new WebPage(),
+    users = ['sencha',
         'aconran',
         'ariyahidayat',
         'darrellmeyer',
@@ -19,19 +19,31 @@ if (phantom.state.length === 0) {
         'philogb',
         'rdougan',
         'tmaintz',
-        'whereisthysting'].join(':');
-    phantom.open('http://mobile.twitter.com/sencha');
-} else {
-    var users = phantom.state.split(':'),
-        id = users[0],
-        next = users[1],
-        data = document.querySelector('div.timeline-following');
-    phantom.state = users.slice(1).join(':');
-    console.log(id + ': ' + data.innerText);
-    if (next) {
-        phantom.open('http://mobile.twitter.com/' + next);
+        'whereisthysting'];
+
+function follow(user, callback) {
+    var page = new WebPage();
+    page.open('http://mobile.twitter.com/' + user, function (status) {
+        if (status === 'fail') {
+            console.log(user + ': ?');
+        } else {
+            var data = page.evaluate(function () {
+                return document.querySelector('div.timeline-following').innerText;
+            });
+            console.log(user + ': ' + data);
+        }
+        callback.apply();
+    });
+}
+
+function process() {
+    if (users.length > 0) {
+        var user = users[0];
+        users.splice(0, 1);
+        follow(user, process);
     } else {
         phantom.exit();
     }
 }
 
+process();
