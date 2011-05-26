@@ -152,11 +152,11 @@ Phantom::Phantom(QObject *parent)
         m_args += arg;
     }
 
-#if 0
     // Provide WebPage with a non-standard Network Access Manager
     m_netAccessMan = new NetworkAccessManager(this, diskCacheEnabled, ignoreSslErrors);
     m_page->setNetworkAccessManager(m_netAccessMan);
 
+#if 0
     m_page->settings()->setAttribute(QWebSettings::AutoLoadImages, autoLoadImages);
     m_page->settings()->setAttribute(QWebSettings::PluginsEnabled, pluginsEnabled);
 
@@ -216,7 +216,9 @@ QVariantMap Phantom::version() const
 
 QObject *Phantom::createWebPage()
 {
-    return new WebPage(this);
+    WebPage *page = new WebPage(this);
+    page->setNetworkAccessManager(m_netAccessMan);
+    return page;
 }
 
 void Phantom::exit(int code)

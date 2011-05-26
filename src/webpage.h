@@ -50,6 +50,7 @@ public:
     WebPage(QObject *parent = 0);
 
     QWebFrame *mainFrame();
+    void setNetworkAccessManager(QNetworkAccessManager *networkAccessManager);
 
     QString content() const;
     void setContent(const QString &content);

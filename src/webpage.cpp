@@ -124,6 +124,11 @@ QWebFrame *WebPage::mainFrame()
     return m_mainFrame;
 }
 
+void WebPage::setNetworkAccessManager(QNetworkAccessManager *networkAccessManager)
+{
+    m_webPage->setNetworkAccessManager(networkAccessManager);
+}
+
 QString WebPage::content() const
 {
     return m_mainFrame->toHtml();
