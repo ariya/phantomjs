@@ -40,19 +40,6 @@
 #include "utils.h"
 #include "webpage.h"
 
-
-// This allows creating a new web page using the construct "new WebPage",
-// which feels more natural than "phantom.createWebPage()".
-#define CONSTRUCT_WEBPAGE "window.WebPage = function(){\n" \
-    "var page = phantom.createWebPage();\n" \
-    "page.open = function (url, callback) {\n" \
-    "    this.loadStatusChanged.connect(callback);\n" \
-    "    this.openUrl(url);\n" \
-    "};" \
-    "return page;" \
-    "}"
-
-
 Phantom::Phantom(QObject *parent)
     : QObject(parent)
     , m_returnValue(0)
@@ -152,31 +139,30 @@ Phantom::Phantom(QObject *parent)
         m_args += arg;
     }
 
-#if 0
     // Provide WebPage with a non-standard Network Access Manager
     m_netAccessMan = new NetworkAccessManager(this, diskCacheEnabled, ignoreSslErrors);
     m_page->setNetworkAccessManager(m_netAccessMan);
 
+#if 0
     m_page->settings()->setAttribute(QWebSettings::AutoLoadImages, autoLoadImages);
     m_page->settings()->setAttribute(QWebSettings::PluginsEnabled, pluginsEnabled);
 
-    m_page->settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
-    m_page->settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-
-    m_page->settings()->setAttribute(QWebSettings::LocalStorageDatabaseEnabled, true);
-
-#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
-    m_page->settings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
-#endif
-
-#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
-    m_page->settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
-    m_page->settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-#endif
 #endif
 
     m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
-    m_page->mainFrame()->evaluateJavaScript(CONSTRUCT_WEBPAGE);
+
+    QFile file(":/bootstrap.js");
+    if (!file.open(QFile::ReadOnly)) {
+        qCritical() << "Can not bootstrap!";
+        exit(1);
+    }
+    QString bootstrapper = QString::fromUtf8(file.readAll());
+    file.close();
+    if (bootstrapper.isEmpty()) {
+        qCritical() << "Can not bootstrap!";
+        exit(1);
+    }
+    m_page->mainFrame()->evaluateJavaScript(bootstrapper);
 }
 
 QStringList Phantom::args() const
@@ -229,7 +215,9 @@ QVariantMap Phantom::version() const
 
 QObject *Phantom::createWebPage()
 {
-    return new WebPage(this);
+    WebPage *page = new WebPage(this);
+    page->setNetworkAccessManager(m_netAccessMan);
+    return page;
 }
 
 void Phantom::exit(int code)

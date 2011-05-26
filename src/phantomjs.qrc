@@ -3,5 +3,6 @@
         <file>phantomjs-icon.png</file>
         <file>coffee-script.js</file>
         <file>usage.txt</file>
+        <file>bootstrap.js</file>
     </qresource>
 </RCC>
