@@ -160,19 +160,6 @@ Phantom::Phantom(QObject *parent)
     m_page->settings()->setAttribute(QWebSettings::AutoLoadImages, autoLoadImages);
     m_page->settings()->setAttribute(QWebSettings::PluginsEnabled, pluginsEnabled);
 
-    m_page->settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
-    m_page->settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-
-    m_page->settings()->setAttribute(QWebSettings::LocalStorageDatabaseEnabled, true);
-
-#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
-    m_page->settings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
-#endif
-
-#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
-    m_page->settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
-    m_page->settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-#endif
 #endif
 
     m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);

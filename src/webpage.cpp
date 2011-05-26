@@ -34,6 +34,7 @@
 #include <math.h>
 
 #include <QApplication>
+#include <QDesktopServices>
 #include <QDir>
 #include <QFileInfo>
 #include <QPainter>
@@ -97,6 +98,20 @@ WebPage::WebPage(QObject *parent)
     // Page size does not need to take scrollbars into account.
     m_mainFrame->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     m_mainFrame->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
+
+    m_webPage->settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
+    m_webPage->settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+
+    m_webPage->settings()->setAttribute(QWebSettings::LocalStorageDatabaseEnabled, true);
+
+#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
+    m_webPage->settings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
+#endif
+
+#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
+    m_webPage->settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
+    m_webPage->settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+#endif
 
     // Ensure we have at least document.body.
     m_mainFrame->setHtml("<html><body></body></html>");
