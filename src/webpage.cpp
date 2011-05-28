@@ -266,21 +266,16 @@ bool WebPage::render(const QString &fileName)
     if (fileName.endsWith(".pdf", Qt::CaseInsensitive))
         return renderPdf(fileName);
 
-    QSize viewportSize = m_webPage->viewportSize();
-
     QSize pageSize = m_mainFrame->contentsSize();
-
-    QSize bufferSize;
-    if (!m_clipRect.isNull()) {
-        bufferSize = m_clipRect.size();
-    } else {
-        bufferSize = m_mainFrame->contentsSize();
-    }
-
     if (pageSize.isEmpty())
         return false;
 
-    QImage buffer(bufferSize, QImage::Format_ARGB32);
+
+    QRect frameRect = QRect(QPoint(0, 0), m_mainFrame->contentsSize());
+    if (!m_clipRect.isNull())
+        frameRect = m_clipRect;
+
+    QImage buffer(frameRect.size(), QImage::Format_ARGB32);
     buffer.fill(qRgba(255, 255, 255, 0));
     QPainter p(&buffer);
 
@@ -288,16 +283,13 @@ bool WebPage::render(const QString &fileName)
     p.setRenderHint(QPainter::TextAntialiasing, true);
     p.setRenderHint(QPainter::SmoothPixmapTransform, true);
 
+    QSize viewportSize = m_webPage->viewportSize();
     m_webPage->setViewportSize(pageSize);
 
-    if (!m_clipRect.isEmpty()) {
-        p.translate(-m_clipRect.left(), -m_clipRect.top());
-        m_mainFrame->render(&p, QRegion(m_clipRect));
-    } else {
-        m_mainFrame->render(&p);
-    }
-
+    p.translate(-frameRect.left(), -frameRect.top());
+    m_mainFrame->render(&p, QRegion(frameRect));
     p.end();
+
     m_webPage->setViewportSize(viewportSize);
 
     if (fileName.toLower().endsWith(".gif")) {
