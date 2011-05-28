@@ -42,7 +42,6 @@ class WebPage: public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString content READ content WRITE setContent)
-    Q_PROPERTY(QString userAgent READ userAgent WRITE setUserAgent)
     Q_PROPERTY(QVariantMap viewportSize READ viewportSize WRITE setViewportSize)
     Q_PROPERTY(QVariantMap paperSize READ paperSize WRITE setPaperSize)
     Q_PROPERTY(QVariantMap clipRect READ clipRect WRITE setClipRect)
@@ -55,9 +54,6 @@ public:
 
     QString content() const;
     void setContent(const QString &content);
-
-    void setUserAgent(const QString &ua);
-    QString userAgent() const;
 
     void setViewportSize(const QVariantMap &size);
     QVariantMap viewportSize() const;
@@ -88,6 +84,7 @@ private:
 
     bool renderPdf(const QString &fileName);
     void applySettings(const QVariantMap &defaultSettings);
+    QString userAgent() const;
 
     friend class Phantom;
 };

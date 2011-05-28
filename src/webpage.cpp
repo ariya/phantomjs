@@ -145,11 +145,9 @@ void WebPage::applySettings(const QVariantMap &def)
 
     opt->setAttribute(QWebSettings::AutoLoadImages, def["loadImages"].toBool());
     opt->setAttribute(QWebSettings::PluginsEnabled, def["loadPlugins"].toBool());
-}
 
-void WebPage::setUserAgent(const QString &ua)
-{
-    m_webPage->m_userAgent = ua;
+    if (def.contains("userAgent"))
+        m_webPage->m_userAgent = def["userAgent"].toString();
 }
 
 QString WebPage::userAgent() const

@@ -145,6 +145,7 @@ Phantom::Phantom(QObject *parent)
 
     m_defaultPageSettings["loadImages"] = QVariant::fromValue(autoLoadImages);
     m_defaultPageSettings["loadPlugins"] = QVariant::fromValue(pluginsEnabled);
+    m_defaultPageSettings["userAgent"] = QVariant::fromValue(m_page->userAgent());
     m_page->applySettings(m_defaultPageSettings);
 
     m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
