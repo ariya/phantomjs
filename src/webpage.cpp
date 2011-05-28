@@ -283,20 +283,43 @@ QImage WebPage::renderImage()
     if (!m_clipRect.isNull())
         frameRect = m_clipRect;
 
-    QImage buffer(frameRect.size(), QImage::Format_ARGB32);
-    buffer.fill(qRgba(255, 255, 255, 0));
-    QPainter p(&buffer);
-
-    p.setRenderHint(QPainter::Antialiasing, true);
-    p.setRenderHint(QPainter::TextAntialiasing, true);
-    p.setRenderHint(QPainter::SmoothPixmapTransform, true);
-
     QSize viewportSize = m_webPage->viewportSize();
     m_webPage->setViewportSize(m_mainFrame->contentsSize());
 
-    p.translate(-frameRect.left(), -frameRect.top());
-    m_mainFrame->render(&p, QRegion(frameRect));
-    p.end();
+    QImage buffer(frameRect.size(), QImage::Format_ARGB32);
+    buffer.fill(qRgba(255, 255, 255, 0));
+
+    QPainter painter;
+
+    // We use tiling approach to work-around Qt software rasterizer bug
+    // when dealing with very large paint device.
+    // See http://code.google.com/p/phantomjs/issues/detail?id=54.
+    const int tileSize = 4096;
+    int htiles = (buffer.width() + tileSize - 1) / tileSize;
+    int vtiles = (buffer.height() + tileSize - 1) / tileSize;
+    for (int x = 0; x < htiles; ++x) {
+        for (int y = 0; y < vtiles; ++y) {
+
+            QImage tileBuffer(tileSize, tileSize, QImage::Format_ARGB32);
+            tileBuffer.fill(qRgba(255, 255, 255, 0));
+
+            // Render the web page onto the small tile first
+            painter.begin(&tileBuffer);
+            painter.setRenderHint(QPainter::Antialiasing, true);
+            painter.setRenderHint(QPainter::TextAntialiasing, true);
+            painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+            painter.translate(-frameRect.left(), -frameRect.top());
+            painter.translate(-x * tileSize, -y * tileSize);
+            m_mainFrame->render(&painter, QRegion(frameRect));
+            painter.end();
+
+            // Copy the tile to the main buffer
+            painter.begin(&buffer);
+            painter.setCompositionMode(QPainter::CompositionMode_Source);
+            painter.drawImage(x * tileSize, y * tileSize, tileBuffer);
+            painter.end();
+        }
+    }
 
     m_webPage->setViewportSize(viewportSize);
 
