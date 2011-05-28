@@ -3,9 +3,12 @@
 window.WebPage = function() {
     var page = phantom.createWebPage();
 
+    // deep copy
+    page.settings = JSON.parse(JSON.stringify(phantom.defaultPageSettings));
+
     page.open = function (url, callback) {
         this.loadStatusChanged.connect(callback);
-        this.openUrl(url);
+        this.openUrl(url, this.settings);
     };
 
     return page;

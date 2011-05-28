@@ -41,12 +41,15 @@ class Phantom: public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QStringList args READ args)
+    Q_PROPERTY(QVariantMap defaultPageSettings READ defaultPageSettings)
     Q_PROPERTY(QVariantMap version READ version)
 
 public:
     Phantom(QObject *parent = 0);
 
     QStringList args() const;
+
+    QVariantMap defaultPageSettings() const;
 
     bool execute();
     int returnValue() const;

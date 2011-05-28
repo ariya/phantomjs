@@ -139,18 +139,7 @@ void WebPage::setContent(const QString &content)
     m_mainFrame->setHtml(content);
 }
 
-QVariantMap WebPage::defaultSettings() const
-{
-    QVariantMap def;
-    QWebSettings *opt = m_webPage->settings();
-
-    def["loadImages"] = opt->testAttribute(QWebSettings::AutoLoadImages);
-    def["loadPlugins"] = opt->testAttribute(QWebSettings::PluginsEnabled);
-
-    return def;
-}
-
-void WebPage::setDefaultSettings(const QVariantMap &def)
+void WebPage::applySettings(const QVariantMap &def)
 {
     QWebSettings *opt = m_webPage->settings();
 
@@ -228,8 +217,9 @@ void WebPage::finish(bool ok)
     emit loadStatusChanged(status);
 }
 
-void WebPage::openUrl(const QString &address)
+void WebPage::openUrl(const QString &address, const QVariantMap &settings)
 {
+    applySettings(settings);
     m_webPage->triggerAction(QWebPage::Stop);
     m_mainFrame->load(address);
 }

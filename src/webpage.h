@@ -42,7 +42,6 @@ class WebPage: public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString content READ content WRITE setContent)
-    Q_PROPERTY(QVariantMap defaultSettings READ defaultSettings)
     Q_PROPERTY(QString userAgent READ userAgent WRITE setUserAgent)
     Q_PROPERTY(QVariantMap viewportSize READ viewportSize WRITE setViewportSize)
     Q_PROPERTY(QVariantMap paperSize READ paperSize WRITE setPaperSize)
@@ -56,8 +55,6 @@ public:
 
     QString content() const;
     void setContent(const QString &content);
-
-    QVariantMap defaultSettings() const;
 
     void setUserAgent(const QString &ua);
     QString userAgent() const;
@@ -73,7 +70,7 @@ public:
 
 
 public slots:
-    void openUrl(const QString &address);
+    void openUrl(const QString &address, const QVariantMap &settings = QVariantMap());
     QVariant evaluate(const QString &code);
     bool render(const QString &fileName);
 
@@ -90,7 +87,7 @@ private:
     QVariantMap m_paperSize; // For PDF output via render()
 
     bool renderPdf(const QString &fileName);
-    void setDefaultSettings(const QVariantMap &defaultSettings);
+    void applySettings(const QVariantMap &defaultSettings);
 
     friend class Phantom;
 };
