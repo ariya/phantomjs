@@ -65,6 +65,7 @@ private:
     QString m_script;
     CSConverter *m_converter;
     NetworkAccessManager *m_netAccessMan;
+    QVariantMap m_defaultPageSettings;
 };
 
 #endif // PHANTOM_H

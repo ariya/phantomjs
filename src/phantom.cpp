@@ -143,11 +143,10 @@ Phantom::Phantom(QObject *parent)
     m_netAccessMan = new NetworkAccessManager(this, diskCacheEnabled, ignoreSslErrors);
     m_page->setNetworkAccessManager(m_netAccessMan);
 
-#if 0
-    m_page->settings()->setAttribute(QWebSettings::AutoLoadImages, autoLoadImages);
-    m_page->settings()->setAttribute(QWebSettings::PluginsEnabled, pluginsEnabled);
-
-#endif
+    m_defaultPageSettings = m_page->defaultSettings();
+    m_defaultPageSettings["loadImages"] = QVariant::fromValue(autoLoadImages);
+    m_defaultPageSettings["loadPlugins"] = QVariant::fromValue(pluginsEnabled);
+    m_page->setDefaultSettings(m_defaultPageSettings);
 
     m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
 
@@ -216,6 +215,7 @@ QVariantMap Phantom::version() const
 QObject *Phantom::createWebPage()
 {
     WebPage *page = new WebPage(this);
+    page->setDefaultSettings(m_defaultPageSettings);
     page->setNetworkAccessManager(m_netAccessMan);
     return page;
 }

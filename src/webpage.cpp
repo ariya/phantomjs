@@ -139,6 +139,25 @@ void WebPage::setContent(const QString &content)
     m_mainFrame->setHtml(content);
 }
 
+QVariantMap WebPage::defaultSettings() const
+{
+    QVariantMap def;
+    QWebSettings *opt = m_webPage->settings();
+
+    def["loadImages"] = opt->testAttribute(QWebSettings::AutoLoadImages);
+    def["loadPlugins"] = opt->testAttribute(QWebSettings::PluginsEnabled);
+
+    return def;
+}
+
+void WebPage::setDefaultSettings(const QVariantMap &def)
+{
+    QWebSettings *opt = m_webPage->settings();
+
+    opt->setAttribute(QWebSettings::AutoLoadImages, def["loadImages"].toBool());
+    opt->setAttribute(QWebSettings::PluginsEnabled, def["loadPlugins"].toBool());
+}
+
 void WebPage::setUserAgent(const QString &ua)
 {
     m_webPage->m_userAgent = ua;
