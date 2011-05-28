@@ -259,6 +259,9 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
 
 bool WebPage::render(const QString &fileName)
 {
+    if (m_mainFrame->contentsSize().isEmpty())
+        return false;
+
     QFileInfo fileInfo(fileName);
     QDir dir;
     dir.mkpath(fileInfo.absolutePath());
@@ -266,11 +269,16 @@ bool WebPage::render(const QString &fileName)
     if (fileName.endsWith(".pdf", Qt::CaseInsensitive))
         return renderPdf(fileName);
 
-    QSize pageSize = m_mainFrame->contentsSize();
-    if (pageSize.isEmpty())
-        return false;
+    QImage buffer = renderImage();
+    if (fileName.toLower().endsWith(".gif")) {
+        return exportGif(buffer, fileName);
+    }
 
+    return buffer.save(fileName);
+}
 
+QImage WebPage::renderImage()
+{
     QRect frameRect = QRect(QPoint(0, 0), m_mainFrame->contentsSize());
     if (!m_clipRect.isNull())
         frameRect = m_clipRect;
@@ -284,7 +292,7 @@ bool WebPage::render(const QString &fileName)
     p.setRenderHint(QPainter::SmoothPixmapTransform, true);
 
     QSize viewportSize = m_webPage->viewportSize();
-    m_webPage->setViewportSize(pageSize);
+    m_webPage->setViewportSize(m_mainFrame->contentsSize());
 
     p.translate(-frameRect.left(), -frameRect.top());
     m_mainFrame->render(&p, QRegion(frameRect));
@@ -292,11 +300,7 @@ bool WebPage::render(const QString &fileName)
 
     m_webPage->setViewportSize(viewportSize);
 
-    if (fileName.toLower().endsWith(".gif")) {
-        return exportGif(buffer, fileName);
-    }
-
-    return buffer.save(fileName);
+    return buffer;
 }
 
 #define PHANTOMJS_PDF_DPI 72            // Different defaults. OSX: 72, X11: 75(?), Windows: 96

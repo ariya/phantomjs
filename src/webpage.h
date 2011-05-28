@@ -82,6 +82,7 @@ private:
     QRect m_clipRect;
     QVariantMap m_paperSize; // For PDF output via render()
 
+    QImage renderImage();
     bool renderPdf(const QString &fileName);
     void applySettings(const QVariantMap &defaultSettings);
     QString userAgent() const;
