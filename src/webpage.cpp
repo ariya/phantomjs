@@ -37,6 +37,8 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QFileInfo>
+#include <QNetworkRequest>
+#include <QNetworkAccessManager>
 #include <QPainter>
 #include <QPrinter>
 #include <QWebFrame>
@@ -215,11 +217,44 @@ void WebPage::finish(bool ok)
     emit loadStatusChanged(status);
 }
 
-void WebPage::openUrl(const QString &address, const QVariantMap &settings)
+void WebPage::openUrl(const QString &address, const QVariant &op, const QVariantMap &settings)
 {
+    QString operation;
+    QByteArray body;
+
     applySettings(settings);
     m_webPage->triggerAction(QWebPage::Stop);
-    m_mainFrame->load(address);
+
+    if (op.type() == QVariant::String)
+        operation = op.toString();
+
+    if (op.type() == QVariant::Map) {
+        operation = op.toMap().value("operation").toString();
+        body = op.toMap().value("data").toByteArray();
+    }
+
+    if (operation.isEmpty())
+        operation = "get";
+
+    QNetworkAccessManager::Operation networkOp = QNetworkAccessManager::UnknownOperation;
+    operation = operation.toLower();
+    if (operation == "get")
+        networkOp = QNetworkAccessManager::GetOperation;
+    else if (operation == "head")
+        networkOp = QNetworkAccessManager::HeadOperation;
+    else if (operation == "put")
+        networkOp = QNetworkAccessManager::PutOperation;
+    else if (operation == "post")
+        networkOp = QNetworkAccessManager::PostOperation;
+    else if (operation == "delete")
+        networkOp = QNetworkAccessManager::DeleteOperation;
+
+    if (networkOp == QNetworkAccessManager::UnknownOperation) {
+        m_mainFrame->evaluateJavaScript("console.error('Unknown network operation: " + operation + "');");
+        return;
+    }
+
+    m_mainFrame->load(QNetworkRequest(QUrl(address)), networkOp, body);
 }
 
 bool WebPage::render(const QString &fileName)

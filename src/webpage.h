@@ -66,7 +66,7 @@ public:
 
 
 public slots:
-    void openUrl(const QString &address, const QVariantMap &settings = QVariantMap());
+    void openUrl(const QString &address, const QVariant &op, const QVariantMap &settings);
     QVariant evaluate(const QString &code);
     bool render(const QString &fileName);
 
