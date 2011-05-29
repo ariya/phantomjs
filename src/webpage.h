@@ -72,6 +72,7 @@ public slots:
 
 signals:
     void loadStatusChanged(const QString &status);
+    void javaScriptConsoleMessageSent(const QString &msg);
 
 private slots:
     void finish(bool ok);
@@ -87,7 +88,10 @@ private:
     void applySettings(const QVariantMap &defaultSettings);
     QString userAgent() const;
 
+    void emitConsoleMessage(const QString &msg);
+
     friend class Phantom;
+    friend class CustomPage;
 };
 
 #endif // WEBPAGE_H

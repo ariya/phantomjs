@@ -2,6 +2,10 @@
 
 var page = new WebPage();
 
+page.onConsoleMessage = function (msg) {
+    console.log(msg);
+};
+
 page.open('http://www.google.com/m/local?site=local&q=pizza+in+new+york', function (status) {
     if (status !== 'success') {
         console.log('Unable to access network');

@@ -60,6 +60,9 @@ public slots:
     QObject *createWebPage();
     void exit(int code = 0);
 
+private slots:
+    void printConsoleMessage(const QString &msg);
+
 private:
     QString m_scriptFile;
     QStringList m_args;

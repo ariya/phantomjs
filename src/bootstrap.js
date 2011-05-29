@@ -6,7 +6,12 @@ window.WebPage = function() {
     // deep copy
     page.settings = JSON.parse(JSON.stringify(phantom.defaultPageSettings));
 
+    page.onConsoleMessage = function (msg) {};
+
     page.open = function () {
+        if (typeof this.onConsoleMessage === 'function') {
+            this.javaScriptConsoleMessageSent.connect(this.onConsoleMessage);
+        }
         if (arguments.length === 2) {
             this.loadStatusChanged.connect(arguments[1]);
             this.openUrl(arguments[0], 'get', this.settings);

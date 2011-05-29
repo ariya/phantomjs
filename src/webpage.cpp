@@ -49,8 +49,9 @@
 class CustomPage: public QWebPage
 {
 public:
-    CustomPage(QObject *parent = 0)
+    CustomPage(WebPage *parent = 0)
         : QWebPage(parent)
+        , m_webPage(parent)
     {
         m_userAgent = QWebPage::userAgentForUrl(QUrl());
     }
@@ -68,9 +69,10 @@ protected:
     }
 
     void javaScriptConsoleMessage(const QString &message, int lineNumber, const QString &sourceID) {
+        QString msg = message;
         if (!sourceID.isEmpty())
-            std::cout << qPrintable(sourceID) << ":" << lineNumber << " ";
-        std::cout << qPrintable(message) << std::endl;
+            msg = sourceID + ":" + QString::number(lineNumber) + " " + msg;
+        m_webPage->emitConsoleMessage(msg);
     }
 
     QString userAgentForUrl(const QUrl &url) const {
@@ -79,6 +81,7 @@ protected:
     }
 
 private:
+    WebPage *m_webPage;
     QString m_userAgent;
     friend class WebPage;
 };
@@ -209,6 +212,11 @@ QVariant WebPage::evaluate(const QString &code)
 {
     QString function = "(" + code + ")()";
     return m_mainFrame->evaluateJavaScript(function);
+}
+
+void WebPage::emitConsoleMessage(const QString &msg)
+{
+    emit javaScriptConsoleMessageSent(msg);
 }
 
 void WebPage::finish(bool ok)

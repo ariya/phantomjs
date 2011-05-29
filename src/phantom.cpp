@@ -143,6 +143,8 @@ Phantom::Phantom(QObject *parent)
     m_netAccessMan = new NetworkAccessManager(this, diskCacheEnabled, ignoreSslErrors);
     m_page->setNetworkAccessManager(m_netAccessMan);
 
+    connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString)), SLOT(printConsoleMessage(QString)));
+
     m_defaultPageSettings["loadImages"] = QVariant::fromValue(autoLoadImages);
     m_defaultPageSettings["loadPlugins"] = QVariant::fromValue(pluginsEnabled);
     m_defaultPageSettings["userAgent"] = QVariant::fromValue(m_page->userAgent());
@@ -229,4 +231,9 @@ void Phantom::exit(int code)
 {
     m_returnValue = code;
     QTimer::singleShot(0, qApp, SLOT(quit()));
+}
+
+void Phantom::printConsoleMessage(const QString &msg)
+{
+    std::cout << qPrintable(msg) << std::endl;
 }
