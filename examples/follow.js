@@ -1,7 +1,6 @@
 // List following and followers from several accounts
 
-var page = new WebPage(),
-    users = ['sencha',
+var users = ['sencha',
         'aconran',
         'ariyahidayat',
         'darrellmeyer',
