@@ -67,6 +67,7 @@ private:
     QString m_scriptFile;
     QStringList m_args;
     WebPage *m_page;
+    bool m_terminated;
     int m_returnValue;
     QString m_script;
     CSConverter *m_converter;

@@ -42,6 +42,7 @@
 
 Phantom::Phantom(QObject *parent)
     : QObject(parent)
+    , m_terminated(false)
     , m_returnValue(0)
     , m_converter(0)
     , m_netAccessMan(0)
@@ -202,7 +203,7 @@ bool Phantom::execute()
     }
 
     m_page->mainFrame()->evaluateJavaScript(m_script);
-    return true;
+    return !m_terminated;
 }
 
 int Phantom::returnValue() const
@@ -229,8 +230,9 @@ QObject *Phantom::createWebPage()
 
 void Phantom::exit(int code)
 {
+    m_terminated = true;
     m_returnValue = code;
-    QTimer::singleShot(0, qApp, SLOT(quit()));
+    QApplication::instance()->exit(code);
 }
 
 void Phantom::printConsoleMessage(const QString &msg)
