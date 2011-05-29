@@ -6,9 +6,14 @@ window.WebPage = function() {
     // deep copy
     page.settings = JSON.parse(JSON.stringify(phantom.defaultPageSettings));
 
+    page.onAlert = function (msg) {};
+
     page.onConsoleMessage = function (msg) {};
 
     page.open = function () {
+        if (typeof this.onAlert === 'function') {
+            this.javaScriptAlertSent.connect(this.onAlert);
+        }
         if (typeof this.onConsoleMessage === 'function') {
             this.javaScriptConsoleMessageSent.connect(this.onConsoleMessage);
         }

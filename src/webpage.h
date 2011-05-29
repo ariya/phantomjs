@@ -72,6 +72,7 @@ public slots:
 
 signals:
     void loadStatusChanged(const QString &status);
+    void javaScriptAlertSent(const QString &msg);
     void javaScriptConsoleMessageSent(const QString &msg);
 
 private slots:
@@ -88,6 +89,7 @@ private:
     void applySettings(const QVariantMap &defaultSettings);
     QString userAgent() const;
 
+    void emitAlert(const QString &msg);
     void emitConsoleMessage(const QString &msg);
 
     friend class Phantom;

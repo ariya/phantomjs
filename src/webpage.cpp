@@ -30,7 +30,6 @@
 
 #include "webpage.h"
 
-#include <iostream>
 #include <math.h>
 
 #include <QApplication>
@@ -65,7 +64,7 @@ public slots:
 protected:
     void javaScriptAlert(QWebFrame *originatingFrame, const QString &msg) {
         Q_UNUSED(originatingFrame);
-        std::cout << "JavaScript alert: " << qPrintable(msg) << std::endl;
+        m_webPage->emitAlert(msg);
     }
 
     void javaScriptConsoleMessage(const QString &message, int lineNumber, const QString &sourceID) {
@@ -212,6 +211,11 @@ QVariant WebPage::evaluate(const QString &code)
 {
     QString function = "(" + code + ")()";
     return m_mainFrame->evaluateJavaScript(function);
+}
+
+void WebPage::emitAlert(const QString &msg)
+{
+    emit javaScriptAlertSent(msg);
 }
 
 void WebPage::emitConsoleMessage(const QString &msg)
