@@ -1,36 +1,43 @@
 # List following and followers from several accounts
 
-if phantom.state.length == 0
-    phantom.state = [
-        'sencha'
-        'aconran'
-        'ariyahidayat'
-        'darrellmeyer'
-        'DavidKaneda'
-        'DmitryBaranovsk'
-        'donovanerba'
-        'edspencer'
-        'helder_correia'
-        'jamespearce'
-        'jamieavins'
-        'jarrednicholls'
-        'jayrobinson'
-        'lojjic'
-        'mmullany'
-        'philogb'
-        'rdougan'
-        'tmaintz'
-        'whereisthysting'
-    ].join ':'
-    phantom.open 'http://mobile.twitter.com/sencha'
-else
-    users = phantom.state.split ':'
-    id = users[0]
-    next = users[1]
-    data = document.querySelector 'div.timeline-following'
-    phantom.state = users.slice(1).join ':'
-    console.log id + ': ' + data.innerText
-    if next
-        phantom.open 'http://mobile.twitter.com/' + next
+users= [
+  'sencha'
+  'aconran'
+  'ariyahidayat'
+  'darrellmeyer'
+  'DavidKaneda'
+  'DmitryBaranovsk'
+  'donovanerba'
+  'edspencer'
+  'helder_correia'
+  'jamespearce'
+  'jamieavins'
+  'jarrednicholls'
+  'jayrobinson'
+  'lojjic'
+  'mmullany'
+  'philogb'
+  'rdougan'
+  'tmaintz'
+  'whereisthysting'
+  ]
+
+follow = (user, callback) ->
+  page = new WebPage()
+  page.open 'http://mobile.twitter.com/' + user, (status) ->
+    if status is 'fail'
+      console.log user + ': ?'
     else
-        phantom.exit 1
+      data = page.evaluate -> document.querySelector('div.timeline-following').innerText
+      console.log user + ': ' + data
+    callback.apply()
+
+process = () ->
+  if (users.length > 0)
+    user = users[0]
+    users.splice(0, 1)
+    follow(user, process)
+  else
+    phantom.exit()
+
+process()

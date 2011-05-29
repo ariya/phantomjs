@@ -17,7 +17,7 @@ if (phantom.args.length < 2) {
         } else {
             steps = page.content.match(/<html_instructions>(.*)<\/html_instructions>/ig);
             if (steps == null) {
-                console.log('No data available for ' + phantom.state);
+                console.log('No data available for ' + origin + ' to ' + dest);
             } else {
                 steps.forEach(function (ins) {
                     ins = ins.replace(/\&lt;/ig, '<').replace(/\&gt;/ig, '>');
