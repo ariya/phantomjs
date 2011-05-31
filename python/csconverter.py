@@ -17,8 +17,11 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from PyQt4.QtCore import QObject, QFile
+import sys
+
+from PyQt4.QtCore import QObject, QFile, qCritical
 from PyQt4.QtWebKit import QWebPage
+
 
 class CSConverter(QObject):
     def __init__(self, parent=None):
@@ -26,7 +29,9 @@ class CSConverter(QObject):
         self.m_webPage = QWebPage(self)
 
         converter = QFile(':/resources/coffee-script.js')
-        converter.open(QFile.ReadOnly)
+        if not converter.open(QFile.ReadOnly):
+            qCritical('CoffeeScript compiler is not available!')
+            sys.exit(1)
 
         script = str(converter.readAll())
         converter.close()
@@ -36,6 +41,6 @@ class CSConverter(QObject):
     def convert(self, script):
         self.setProperty('source', script)
         result = self.m_webPage.mainFrame().evaluateJavaScript('this.CoffeeScript.compile(converter.source)')
-        if len(result):
+        if result:
             return result
         return ''

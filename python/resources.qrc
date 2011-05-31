@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
+        <file>bootstrap.js</file>
         <file>resources/pyphantomjs-icon.png</file>
         <file>resources/coffee-script.js</file>
     </qresource>

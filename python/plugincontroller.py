@@ -24,6 +24,7 @@ from os.path import dirname, split, splitext
 plugins = defaultdict(list)
 hook_count = {}
 
+
 class Bunch(object):
     ''' Simple class to bunch a dict into
         an object that with attributes
@@ -31,9 +32,10 @@ class Bunch(object):
     def __init__(self, adict):
         self.__dict__ = adict
 
+
 def add_action(*hooks):
     ''' Decorator to be used for registering a function to
-        a specific hook or list of hooks. 
+        a specific hook or list of hooks.
     '''
     def register(func):
         for hook in hooks:
@@ -41,9 +43,11 @@ def add_action(*hooks):
         return func
     return register
 
+
 def did_action(hook):
     '''Find out how many times a hook was fired'''
     return hook_count[hook]
+
 
 def do_action(hook, *args, **kwargs):
     ''' Trigger a hook. It will run any functions that have registered
@@ -55,20 +59,36 @@ def do_action(hook, *args, **kwargs):
         hook_count[hook] += 1
         plugin(*args, **kwargs)
 
-def has_action(hook):
-    '''Check if any functions have been registered for a hook'''
+
+def has_action(hook, func=None):
+    '''Check if hook exists. If function is specified,
+       check if function has been registered for hook.
+    '''
     if hook in plugins:
-        return True
+        if not func:
+            return True
+        else:
+            for f in plugins[hook]:
+                if f == func:
+                    return True
     return False
 
-def remove_action(hook, func):
-    '''Remove function that has been registered to hook'''
+
+def remove_action(hook, func=None):
+    '''Remove hook if hook exists. If function is specified,
+       remove function from hook.
+    '''
     if hook in plugins:
-        for f in plugins[hook]:
-            if f == func:
-                del plugins[hook][plugins[hook].index(func)]
-                return True
+        if not func:
+            del plugins[hook]
+            return True
+        else:
+            for f in plugins[hook]:
+                if f == func:
+                    del plugins[hook][plugins[hook].index(func)]
+                    return True
     return False
+
 
 def remove_all_actions(hook):
     '''Remove all functions that have been registered to hook'''
@@ -76,6 +96,7 @@ def remove_all_actions(hook):
         del plugins[hook][:]
         return True
     return False
+
 
 def load_plugins():
     ''' Loads the plugins.

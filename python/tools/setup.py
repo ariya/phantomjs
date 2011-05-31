@@ -39,10 +39,12 @@ if sys.platform.startswith('win'):
         print 'install pywin32 extensions if you want the file stamped'
         sleep(2)
 
+
 exe = Executable(
       script = '../pyphantomjs.py',
       icon = '../resources/pyphantomjs-icon.ico'
 )
+
 
 setup(
     name = 'PyPhantomJS',
