@@ -39,12 +39,12 @@ class Phantom(QObject):
         self.m_defaultPageSettings = {}
         self.m_verbose = args.verbose
         self.m_page = WebPage(self)
+        self.m_returnValue = 0
+        self.m_terminated = False
         # setup the values from args
         self.m_script = args.script
         self.m_scriptFile = args.script_name
         self.m_args = args.script_args
-        autoLoadImages = False if args.load_images == 'no' else True
-        pluginsEnabled = True if args.load_plugins == 'yes' else False
 
         do_action('PhantomInitPre', Bunch(locals()))
 
@@ -60,8 +60,8 @@ class Phantom(QObject):
 
         self.m_page.javaScriptConsoleMessageSent.connect(self.printConsoleMessage)
 
-        self.m_defaultPageSettings['loadImages'] = autoLoadImages
-        self.m_defaultPageSettings['loadPlugins'] = pluginsEnabled
+        self.m_defaultPageSettings['loadImages'] = False if args.load_images == 'no' else True
+        self.m_defaultPageSettings['loadPlugins'] = True if args.load_plugins == 'yes' else False
         self.m_defaultPageSettings['userAgent'] = self.m_page.userAgent()
         self.m_page.applySettings(self.m_defaultPageSettings)
 
@@ -90,6 +90,7 @@ class Phantom(QObject):
             self.m_script = coffee.convert(self.m_script)
 
         self.m_page.mainFrame().evaluateJavaScript(self.m_script)
+        return not self.m_terminated
 
     def printConsoleMessage(self, msg):
         print msg
@@ -119,6 +120,7 @@ class Phantom(QObject):
     @pyqtSlot()
     @pyqtSlot(int)
     def exit(self, code=0):
+        self.m_terminated = True
         self.m_returnValue = code
         QApplication.instance().exit(code)
 
