@@ -39,6 +39,7 @@ class Phantom(QObject):
         self.m_defaultPageSettings = {}
         self.m_verbose = args.verbose
         self.m_page = WebPage(self)
+        self.m_returnValue = 0
         # setup the values from args
         self.m_script = args.script
         self.m_scriptFile = args.script_name
