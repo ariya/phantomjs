@@ -209,7 +209,7 @@ QVariantMap WebPage::paperSize() const
 
 QVariant WebPage::evaluate(const QString &code)
 {
-    QString function = "(" + code + ")()";
+    QString function = "(function(){" + code + "}).call(this);";
     return m_mainFrame->evaluateJavaScript(function);
 }
 
