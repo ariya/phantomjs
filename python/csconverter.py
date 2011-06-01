@@ -41,6 +41,4 @@ class CSConverter(QObject):
     def convert(self, script):
         self.setProperty('source', script)
         result = self.m_webPage.mainFrame().evaluateJavaScript('this.CoffeeScript.compile(converter.source)')
-        if result:
-            return result
-        return ''
+        return result if result else ''

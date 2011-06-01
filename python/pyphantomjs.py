@@ -148,8 +148,8 @@ def main():
 
     do_action('Main', Bunch(locals()))
 
-    phantom.execute()
-    app.exec_()
+    if phantom.execute():
+        app.exec_()
     return phantom.returnValue()
 
 
