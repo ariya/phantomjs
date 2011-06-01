@@ -269,7 +269,7 @@ class WebPage(QObject):
 
     @pyqtSlot(str, result='QVariant')
     def evaluate(self, code):
-        function = '(%s)()' % code
+        function = '(function(){%s}).call(this);' % code
         return self.m_mainFrame.evaluateJavaScript(function)
 
     @pyqtSlot(str, str, 'QVariantMap')
@@ -283,7 +283,7 @@ class WebPage(QObject):
 
         if type(op) is dict:
             operation = op.get('operation')
-            body = QByteArray(op.get('body'))
+            body = QByteArray(op.get('data', ''))
 
         if operation == '':
             operation = 'get'

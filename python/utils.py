@@ -17,7 +17,10 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import argparse, sys
+import sys
+import argparse
+
+from unicodedata import normalize
 
 from plugincontroller import Bunch, do_action
 
@@ -90,6 +93,10 @@ def argParser():
     do_action('ArgParser', Bunch(locals()))
 
     return parser
+
+
+def encode(text, encoding='UTF-8', method='ignore'):
+    return normalize('NFKD', text).encode(encoding, method)
 
 
 class MessageHandler:

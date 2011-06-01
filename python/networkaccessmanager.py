@@ -22,6 +22,7 @@ from PyQt4.QtCore import qDebug, qWarning
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkDiskCache, \
                             QNetworkRequest
 
+from utils import encode
 from plugincontroller import Bunch, do_action
 
 
@@ -56,7 +57,7 @@ class NetworkAccessManager(QNetworkAccessManager):
         else:
             qWarning('Unexpected HTTP Operation Type')
 
-        qDebug('URL %s' % req.url().toString())
+        qDebug('URL %s' % encode(req.url().toString()))
 
         do_action('NetworkAccessManagerCreateRequestPre', Bunch(locals()))
 
@@ -71,7 +72,7 @@ class NetworkAccessManager(QNetworkAccessManager):
 
     def handleFinished(self, reply):
         qDebug('HTTP/1.1 Response')
-        qDebug('URL %s' % reply.url().toString())
+        qDebug('URL %s' % encode(reply.url().toString()))
         code = reply.attribute(QNetworkRequest.HttpStatusCodeAttribute)
         if code:
             qDebug('Status code: %d' % code)
