@@ -24,6 +24,7 @@ from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkDiskCache, \
 
 from plugincontroller import Bunch, do_action
 
+
 class NetworkAccessManager(QNetworkAccessManager):
     def __init__(self, diskCacheEnabled, ignoreSslErrors, parent=None):
         QNetworkAccessManager.__init__(self, parent)
