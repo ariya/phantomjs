@@ -43,8 +43,6 @@ class Phantom(QObject):
         self.m_script = args.script
         self.m_scriptFile = args.script_name
         self.m_args = args.script_args
-        autoLoadImages = False if args.load_images == 'no' else True
-        pluginsEnabled = True if args.load_plugins == 'yes' else False
 
         do_action('PhantomInitPre', Bunch(locals()))
 
@@ -60,8 +58,8 @@ class Phantom(QObject):
 
         self.m_page.javaScriptConsoleMessageSent.connect(self.printConsoleMessage)
 
-        self.m_defaultPageSettings['loadImages'] = autoLoadImages
-        self.m_defaultPageSettings['loadPlugins'] = pluginsEnabled
+        self.m_defaultPageSettings['loadImages'] = False if args.load_images == 'no' else True
+        self.m_defaultPageSettings['loadPlugins'] = True if args.load_plugins == 'yes' else False
         self.m_defaultPageSettings['userAgent'] = self.m_page.userAgent()
         self.m_page.applySettings(self.m_defaultPageSettings)
 
