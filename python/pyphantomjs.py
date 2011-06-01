@@ -47,6 +47,7 @@ from utils import SafeStreamFilter
 sys.stdout = SafeStreamFilter(sys.stdout)
 sys.stderr = SafeStreamFilter(sys.stderr)
 
+
 def parseArgs(args):
     # Handle all command-line options
     p = argParser()
@@ -119,11 +120,14 @@ def parseArgs(args):
         sys.exit(1)
 
     try:
-        args.script = codecs.open(args.script, encoding='utf-8')
+        with codecs.open(args.script, encoding='utf-8') as script:
+            args.script_name = script.name
+            args.script = script.read()
     except IOError as (errno, stderr):
         sys.exit('%s: \'%s\'' % (stderr, args.script))
 
     return args
+
 
 def main():
     args = parseArgs(sys.argv[1:])
@@ -146,9 +150,11 @@ def main():
 
     phantom.execute()
     app.exec_()
-    sys.exit(phantom.returnValue())
+    return phantom.returnValue()
+
 
 do_action('PyPhantomJS', Bunch(locals()))
 
+
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

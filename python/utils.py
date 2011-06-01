@@ -23,7 +23,7 @@ from plugincontroller import Bunch, do_action
 
 from PyQt4.QtCore import QDateTime, Qt, QtDebugMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg
 
-version_major, version_minor, version_patch = (1, 1, 0)
+version_major, version_minor, version_patch = (1, 2, 0)
 version = '%d.%d.%d' % (version_major, version_minor, version_patch)
 
 license = '''
@@ -44,6 +44,7 @@ license = '''
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ''' % version
+
 
 def argParser():
     parser = argparse.ArgumentParser(
@@ -90,6 +91,7 @@ def argParser():
 
     return parser
 
+
 class MessageHandler:
     def __init__(self, verbose):
         self.verbose = verbose
@@ -106,6 +108,7 @@ class MessageHandler:
             print >> sys.stderr, '%s [CRITICAL] %s' % (now, msg)
         elif msgType == QtFatalMsg:
             print >> sys.stderr, '%s [FATAL] %s' % (now, msg)
+
 
 class SafeStreamFilter(object):
     '''Convert string to something safe'''
