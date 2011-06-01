@@ -15,7 +15,7 @@ function waitFor(testFx, onReady, timeOutMillis) {
         start = new Date().getTime(),
         condition = false,
         interval = setInterval(function() {
-            if ( (new Date().getTime() - start < maxtimeOutMillis) || !condition ) {
+            if ( (new Date().getTime() - start < maxtimeOutMillis) && !condition ) {
                 // If not time-out yet and condition not yet fulfilled
                 condition = (typeof(testFx) === "string" ? eval(testFx) : testFx()); //< defensive code
             } else {
