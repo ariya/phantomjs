@@ -269,7 +269,7 @@ class WebPage(QObject):
 
     @pyqtSlot(str, result='QVariant')
     def evaluate(self, code):
-        function = '(function(){%s}).call(this);' % code
+        function = '(%s)()' % code
         return self.m_mainFrame.evaluateJavaScript(function)
 
     @pyqtSlot(str, str, 'QVariantMap')
