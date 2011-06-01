@@ -283,7 +283,7 @@ class WebPage(QObject):
 
         if type(op) is dict:
             operation = op.get('operation')
-            body = QByteArray(op.get('body'))
+            body = QByteArray(op.get('data', ''))
 
         if operation == '':
             operation = 'get'
