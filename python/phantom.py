@@ -40,6 +40,7 @@ class Phantom(QObject):
         self.m_verbose = args.verbose
         self.m_page = WebPage(self)
         self.m_returnValue = 0
+        self.m_terminated = False
         # setup the values from args
         self.m_script = args.script
         self.m_scriptFile = args.script_name
@@ -89,6 +90,7 @@ class Phantom(QObject):
             self.m_script = coffee.convert(self.m_script)
 
         self.m_page.mainFrame().evaluateJavaScript(self.m_script)
+        return not self.m_terminated
 
     def printConsoleMessage(self, msg):
         print msg
@@ -118,6 +120,7 @@ class Phantom(QObject):
     @pyqtSlot()
     @pyqtSlot(int)
     def exit(self, code=0):
+        self.m_terminated = True
         self.m_returnValue = code
         QApplication.instance().exit(code)
 
