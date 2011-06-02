@@ -13,7 +13,7 @@
 waitFor = (testFx, onReady, timeOutMillis=3000) ->
     start = new Date().getTime()
     condition = false
-    interval = setInterval ->
+    f = ->
         if (new Date().getTime() - start < timeOutMillis) and not condition
             # If not time-out yet and condition not yet fulfilled
             condition = (if typeof testFx is 'string' then eval testFx else testFx()) #< defensive code
@@ -27,7 +27,7 @@ waitFor = (testFx, onReady, timeOutMillis=3000) ->
                 console.log "'waitFor()' finished in #{new Date().getTime() - start}ms."
                 if typeof onReady is 'string' then eval onReady else onReady() #< Do what it's supposed to do once the condition is fulfilled
                 clearInterval interval #< Stop this interval
-    , 250 #< repeat check every 250ms
+    interval = setInterval f, 250 #< repeat check every 250ms
 
 
 page = new WebPage()
