@@ -32,12 +32,12 @@ page.open encodeURI("http://www.google.com/ig/api?weather=#{address}"), (status)
                     el = e.querySelector s
                     if el then el.attributes.data.value else undefined
 
-                console.log "City: #{data 'weather > forecast_information > city'}"
-                console.log "Current condition: #{data 'weather > current_conditions > condition'}"
-                console.log "Temperature: #{data 'weather > current_conditions > temp_f'} F"
-                console.log data 'weather > current_conditions > humidity'
-                console.log data 'weather > current_conditions > wind_condition'
-                console.log ''
+                console.log """City: #{data 'weather > forecast_information > city'}
+                               Current condition: #{data 'weather > current_conditions > condition'}
+                               Temperature: #{data 'weather > current_conditions > temp_f'} F
+                               #{data 'weather > current_conditions > humidity'}
+                               #{data 'weather > current_conditions > wind_condition'}\n
+                            """
 
                 forecasts = document.querySelectorAll 'weather > forecast_conditions'
                 for i in forecasts
