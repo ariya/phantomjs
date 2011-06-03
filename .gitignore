@@ -8,3 +8,4 @@ bin/
 moc_*
 qrc_*
 *.o
+*.swp
