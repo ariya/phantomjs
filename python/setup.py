@@ -11,4 +11,5 @@ setup(name='phantom.py',
       author_email='author-email',
       packages=find_packages(),
       include_package_data=True,
+      install_requires=['argparse',]
       )
