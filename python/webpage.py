@@ -48,12 +48,12 @@ class CustomPage(QWebPage):
         return False
 
     def javaScriptAlert(self, originatingFrame, msg):
-        self.parent.emitAlert(msg)
+        self.parent.javaScriptAlertSent.emit(msg)
 
     def javaScriptConsoleMessage(self, message, lineNumber, sourceID):
         if sourceID:
             message = '%s:%d %s' % (sourceID, lineNumber, message)
-        self.parent.emitConsoleMessage(message)
+        self.parent.javaScriptConsoleMessageSent.emit(message)
 
     def userAgentForUrl(self, url):
         return self.m_userAgent
@@ -62,6 +62,9 @@ class CustomPage(QWebPage):
 
 
 class WebPage(QObject):
+    javaScriptAlertSent = pyqtSignal(str)
+    javaScriptConsoleMessageSent = pyqtSignal(str)
+
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
 
@@ -105,14 +108,6 @@ class WebPage(QObject):
         opt.setAttribute(QWebSettings.PluginsEnabled, defaults['loadPlugins'])
         if 'userAgent' in defaults:
             self.m_webPage.m_userAgent = defaults['userAgent']
-
-    javaScriptAlertSent = pyqtSignal(str)
-    def emitAlert(self, msg):
-        self.javaScriptAlertSent.emit(msg)
-
-    javaScriptConsoleMessageSent = pyqtSignal(str)
-    def emitConsoleMessage(self, msg):
-        self.javaScriptConsoleMessageSent.emit(msg)
 
     loadStatusChanged = pyqtSignal(str)
     def finish(self, ok):
