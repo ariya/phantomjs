@@ -64,6 +64,7 @@ class CustomPage(QWebPage):
 class WebPage(QObject):
     javaScriptAlertSent = pyqtSignal(str)
     javaScriptConsoleMessageSent = pyqtSignal(str)
+    loadStatusChanged = pyqtSignal(str)
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
@@ -109,7 +110,6 @@ class WebPage(QObject):
         if 'userAgent' in defaults:
             self.m_webPage.m_userAgent = defaults['userAgent']
 
-    loadStatusChanged = pyqtSignal(str)
     def finish(self, ok):
         status = 'success' if ok else 'fail'
         self.loadStatusChanged.emit(status)
