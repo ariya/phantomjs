@@ -1,8 +1,30 @@
-if phantom.state.length == 0
-    phantom.state = 'tweets'
-    phantom.open 'http://mobile.twitter.com/sencha'
+# Get twitter status for given account (or for the default one, "sencha")
+
+page = new WebPage()
+twitterId = 'sencha' #< default value
+
+# Route "console.log()" calls from within the Page context to the main Phantom context (i.e. current "this")
+page.onConsoleMessage = (msg) ->
+    console.log msg
+
+# Print usage message, if no twitter ID is passed
+if phantom.args.length < 1
+    console.log 'Usage: tweets.coffee [twitter ID]'
 else
-    list = document.querySelectorAll 'span.status'
-    for elem, index in list
-      console.log((index + 1) + ': ' + elem.innerHTML.replace(/<.*?>/g, ''))
+    twitterId = phantom.args[0]
+
+# Heading
+console.log "*** Latest tweets from @#{twitterId} ***\n"
+
+# Open Twitter Mobile and, onPageLoad, do...
+page.open encodeURI("http://mobile.twitter.com/#{twitterId}"), (status) ->
+    # Check for page load success
+    if status isnt 'success'
+        console.log 'Unable to access network'
+    else
+        # Execute some DOM inspection within the page context
+        page.evaluate ->
+            list = document.querySelectorAll 'span.status'
+            for i, j in list
+                console.log "#{j + 1}: #{i.innerHTML.replace /<.*?>/g, ''}"
     phantom.exit()
