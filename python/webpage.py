@@ -29,6 +29,7 @@ from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
 from plugincontroller import Bunch, do_action
 
+
 # Different defaults.
 # OSX: 72, X11: 75(?), Windows: 96
 pdf_dpi = 72

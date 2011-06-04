@@ -19,12 +19,12 @@
 
 import sys
 import argparse
-
 from unicodedata import normalize
+
+from PyQt4.QtCore import QDateTime, Qt, QtDebugMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg
 
 from plugincontroller import Bunch, do_action
 
-from PyQt4.QtCore import QDateTime, Qt, QtDebugMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg
 
 version_major, version_minor, version_patch = (1, 2, 0)
 version = '%d.%d.%d' % (version_major, version_minor, version_patch)

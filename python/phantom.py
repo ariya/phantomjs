@@ -19,16 +19,16 @@
 
 import sys
 
+from PyQt4.QtCore import pyqtProperty, pyqtSlot, QObject, \
+                         QFile, qCritical
+from PyQt4.QtGui import QApplication
+from PyQt4.QtNetwork import QNetworkProxy, QNetworkProxyFactory
+
 from utils import version_major, version_minor, version_patch
 from plugincontroller import Bunch, do_action
 from csconverter import CSConverter
 from webpage import WebPage
 from networkaccessmanager import NetworkAccessManager
-
-from PyQt4.QtCore import pyqtProperty, pyqtSlot, QObject, \
-                         QFile, qCritical
-from PyQt4.QtGui import QApplication
-from PyQt4.QtNetwork import QNetworkProxy, QNetworkProxyFactory
 
 
 class Phantom(QObject):
