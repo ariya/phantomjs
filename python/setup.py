@@ -1,15 +1,23 @@
 import os
-from phantom import __version__
+from pyphantomjs import __version__
 from setuptools import setup, find_packages
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 README = read('README')
-README += '''
+INSTALL = '''
 INSTALLING
 -------------------
 %s''' % read('INSTALL')
+
+index = README.find('LICENSING')
+if index > -1:
+    README = README[:index] + INSTALL + '\n\n' + README[index:]
+else:
+    README += INSTALL
+
+print README
 
 setup(name='pyphantomjs',
       version=__version__,
