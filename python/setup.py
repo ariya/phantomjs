@@ -1,11 +1,19 @@
-from setuptools import setup, find_packages
+import os
 from phantom import __version__
+from setuptools import setup, find_packages
 
-README = open('README').read()
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-setup(name='phantom.py',
+README = read('README')
+README += '''
+INSTALLING
+-------------------
+%s''' % read('INSTALL')
+
+setup(name='pyphantomjs',
       version=__version__,
-      description='Headless WebKit with Python API',
+      description='Minimalistic, headless, WebKit-based, JavaScript-driven tool',
       long_description=README,
       author='Author name',
       author_email='author-email',
