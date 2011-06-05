@@ -1,13 +1,12 @@
-PhantomJS is a minimalistic, headless, WebKit-based JavaScript-driven tool.
+PhantomJS ([www.phantomjs.org](http://phantomjs.org)) is a headless WebKit with JavaScript API.
 
-It has native (and high performant) support for DOM handling, CSS selector,
-JSON, Canvas, and SVG.
+It has **fast** and **native** support for DOM handling, CSS selector, JSON, Canvas, and SVG.
 
-Read the [announcement blog post](http://goo.gl/sZfM7).
-
-PhantomJS runs on Linux, Windows, and Mac OS X. Refer to the
-[build instructions](http://code.google.com/p/phantomjs/wiki/BuildInstructions)
+PhantomJS is cross-platform, it can be compiled for Linux, Windows, FreeBSD, and Mac OS X.
+Refer to the [build instructions](http://code.google.com/p/phantomjs/wiki/BuildInstructions)
 for details.
+
+PhantomJS scripts can be written in JavaScript or [CoffeeScript](http://jashkenas.github.com/coffee-script/).
 
 See also [quick start guide](http://code.google.com/p/phantomjs/wiki/QuickStart)
 and more [advanced examples](http://code.google.com/p/phantomjs/wiki/ServiceIntegration)
@@ -24,5 +23,4 @@ which show various PhantomJS scripts, covering:
 
 Do not forget to consult the concise [API Reference](http://code.google.com/p/phantomjs/wiki/Interface).
 
-If you want to contribute, please read the [Contribution
-Guide](http://code.google.com/p/phantomjs/wiki/ContributionGuide).
+If you want to contribute, please read the [Contribution Guide](http://code.google.com/p/phantomjs/wiki/ContributionGuide).
