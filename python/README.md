@@ -17,19 +17,19 @@ See the [quick start guide](http://code.google.com/p/phantomjs/wiki/QuickStart) 
 
 PyPhantomJS is written in PyQt4 and Python. It runs on Linux, Windows, and Mac OS X.
 Refer to the INSTALL file or Wiki links below for more information.
-    * http://code.google.com/p/phantomjs/w/list
-    * http://dev.umaclan.com/projects/pyphantomjs/wiki
+http://code.google.com/p/phantomjs/w/list
+http://dev.umaclan.com/projects/pyphantomjs/wiki
 
 Do not forget to consult the concise API Reference.
-    * http://dev.umaclan.com/projects/pyphantomjs/wiki/Api_reference
-    * http://code.google.com/p/phantomjs/wiki/Interface
+http://dev.umaclan.com/projects/pyphantomjs/wiki/Api_reference
+http://code.google.com/p/phantomjs/wiki/Interface
 
 If you want to contribute, please read the Contribution Guide.
-    * http://code.google.com/p/phantomjs/wiki/ContributionGuide
-    * http://dev.umaclan.com/projects/pyphantomjs/wiki/Giving_back
+http://code.google.com/p/phantomjs/wiki/ContributionGuide
+http://dev.umaclan.com/projects/pyphantomjs/wiki/Giving_back
 
 You can find a list of downloadable plugins at:
-    * http://dev.umaclan.com/projects/pyphantomjs/wiki/Plugins
+http://dev.umaclan.com/projects/pyphantomjs/wiki/Plugins
 
 LICENSING
 ------------------
