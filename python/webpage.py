@@ -29,6 +29,7 @@ from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
 from plugincontroller import Bunch, do_action
 
+
 # Different defaults.
 # OSX: 72, X11: 75(?), Windows: 96
 pdf_dpi = 72
@@ -48,12 +49,12 @@ class CustomPage(QWebPage):
         return False
 
     def javaScriptAlert(self, originatingFrame, msg):
-        self.parent.emitAlert(msg)
+        self.parent.javaScriptAlertSent.emit(msg)
 
     def javaScriptConsoleMessage(self, message, lineNumber, sourceID):
         if sourceID:
             message = '%s:%d %s' % (sourceID, lineNumber, message)
-        self.parent.emitConsoleMessage(message)
+        self.parent.javaScriptConsoleMessageSent.emit(message)
 
     def userAgentForUrl(self, url):
         return self.m_userAgent
@@ -62,6 +63,10 @@ class CustomPage(QWebPage):
 
 
 class WebPage(QObject):
+    javaScriptAlertSent = pyqtSignal(str)
+    javaScriptConsoleMessageSent = pyqtSignal(str)
+    loadStatusChanged = pyqtSignal(str)
+
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
 
@@ -106,15 +111,6 @@ class WebPage(QObject):
         if 'userAgent' in defaults:
             self.m_webPage.m_userAgent = defaults['userAgent']
 
-    javaScriptAlertSent = pyqtSignal(str)
-    def emitAlert(self, msg):
-        self.javaScriptAlertSent.emit(msg)
-
-    javaScriptConsoleMessageSent = pyqtSignal(str)
-    def emitConsoleMessage(self, msg):
-        self.javaScriptConsoleMessageSent.emit(msg)
-
-    loadStatusChanged = pyqtSignal(str)
     def finish(self, ok):
         status = 'success' if ok else 'fail'
         self.loadStatusChanged.emit(status)
