@@ -1,1 +1,3 @@
-__version__ = '1.1.0'
+from utils import version
+
+__version__ = version
