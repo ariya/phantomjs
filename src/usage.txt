@@ -5,7 +5,5 @@ Options:
     --load-images=[yes|no]             Load all inlined images (default is 'yes').
     --load-plugins=[yes|no]            Load all plugins (i.e. 'Flash', 'Silverlight', ...) (default is 'no').
     --proxy=address:port               Set the network proxy.
-    --upload-file fileId=/file/path    Upload a file by creating a '<input type="file" id="foo" />'
-                                       and calling phantom.setFormInputFile(document.getElementById('foo'), 'fileId').
     --disk-cache=[yes|no]              Enable disk cache (at desktop services cache storage location, default is 'no').
     --ignore-ssl-errors=[yes|no]       Ignore SSL errors (i.e. expired or self-signed certificate errors).

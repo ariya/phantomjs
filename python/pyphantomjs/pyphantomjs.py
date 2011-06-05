@@ -23,8 +23,12 @@ import sip
 sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
 
-import os, sys, resources
+import os
+import sys
 import codecs
+
+from PyQt4.QtCore import qInstallMsgHandler
+from PyQt4.QtGui import QIcon, QApplication
 
 from plugincontroller import Bunch, do_action
 # load plugins if running script directly
@@ -32,11 +36,9 @@ if __name__ == '__main__':
     from plugincontroller import load_plugins
     load_plugins()
 
+import resources
 from phantom import Phantom
 from utils import argParser, MessageHandler, version
-
-from PyQt4.QtCore import qInstallMsgHandler
-from PyQt4.QtGui import QIcon, QApplication
 
 # make keyboard interrupt quit program
 import signal

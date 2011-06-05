@@ -43,6 +43,10 @@
 #include <QWebFrame>
 #include <QWebPage>
 
+#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
+#include <QWebElement>
+#endif
+
 #include <gifwriter.h>
 
 class CustomPage: public QWebPage
@@ -62,6 +66,13 @@ public slots:
     }
 
 protected:
+
+    QString chooseFile(QWebFrame *originatingFrame, const QString &oldFile) {
+        Q_UNUSED(originatingFrame);
+        Q_UNUSED(oldFile);
+        return m_uploadFile;
+    }
+
     void javaScriptAlert(QWebFrame *originatingFrame, const QString &msg) {
         Q_UNUSED(originatingFrame);
         m_webPage->emitAlert(msg);
@@ -82,6 +93,7 @@ protected:
 private:
     WebPage *m_webPage;
     QString m_userAgent;
+    QString m_uploadFile;
     friend class WebPage;
 };
 
@@ -415,3 +427,22 @@ bool WebPage::renderPdf(const QString &fileName)
     m_mainFrame->print(&printer);
     return true;
 }
+
+#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
+
+#define ELEMENT_CLICK  "(function (el) { " \
+    "var ev = document.createEvent('MouseEvents');" \
+    "ev.initEvent('click', true, true);" \
+    "el.dispatchEvent(ev);" \
+    "})(this)"
+
+void WebPage::uploadFile(const QString &selector, const QString &fileName)
+{
+    QWebElement el = m_mainFrame->findFirstElement(selector);
+    if (el.isNull())
+        return;
+
+    m_webPage->m_uploadFile = fileName;
+    el.evaluateJavaScript(ELEMENT_CLICK);
+}
+#endif
