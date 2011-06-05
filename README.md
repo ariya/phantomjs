@@ -6,6 +6,9 @@ PhantomJS is cross-platform, it can be compiled for Linux, Windows, FreeBSD, and
 Refer to the [build instructions](http://code.google.com/p/phantomjs/wiki/BuildInstructions)
 for details.
 
+**Note**: If you are on Mac OS X, [read the notice](http://code.google.com/p/phantomjs/wiki/BuildInstructions#Mac_OS_X)
+before you start using `brew` or `port` to install Qt and/or PhantomJS.
+
 PhantomJS scripts can be written in JavaScript or [CoffeeScript](http://jashkenas.github.com/coffee-script/).
 
 See also [quick start guide](http://code.google.com/p/phantomjs/wiki/QuickStart)
@@ -22,5 +25,7 @@ which show various PhantomJS scripts, covering:
 * rasterizing SVG to image
 
 Do not forget to consult the concise [API Reference](http://code.google.com/p/phantomjs/wiki/Interface).
+
+PhantomJS is based on [Qt](http://qt.nokia.com). There are two implementations, using C++ and Python.
 
 If you want to contribute, please read the [Contribution Guide](http://code.google.com/p/phantomjs/wiki/ContributionGuide).
