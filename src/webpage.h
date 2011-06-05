@@ -70,6 +70,11 @@ public slots:
     QVariant evaluate(const QString &code);
     bool render(const QString &fileName);
 
+    // moc does not understand QT_VERSION_CHECK and hence the encoded hex
+#if QT_VERSION >= 0x040600
+    void uploadFile(const QString &selector, const QString &fileName);
+#endif
+
 signals:
     void loadStatusChanged(const QString &status);
     void javaScriptAlertSent(const QString &msg);
