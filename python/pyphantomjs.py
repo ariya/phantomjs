@@ -23,7 +23,6 @@ import sip
 sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
 
-import os
 import sys
 import codecs
 
@@ -56,57 +55,6 @@ def parseArgs(args):
     arg_data = p.parse_known_args(args)
     args = arg_data[0]
     args.script_args = arg_data[1]
-
-    if args.upload_file:
-        # process the tags
-        item_buffer = {}
-        for i in range(len(args.upload_file)):
-            item = args.upload_file[i].split('=')
-            if len(item) < 2 or not len(item[1]):
-                # if buffer is empty, or tag has no
-                # value 'tag=', print help and exit
-                if not len(item_buffer) or \
-                item[1:] and not item[1:][0]:
-                    p.print_help()
-                    sys.exit(1)
-
-                # this is a bug workaround for argparse.
-                # if you call parse_known_args, and you
-                # have an --option script arg, the args
-                # get jumbled up, and it's inconsistent
-                #
-                # we're just going to check for -- and
-                # swap it all back to the right order
-                if args.script_args:
-                    for i in range(len(args.upload_file)):
-                        if not args.upload_file[i].count('='):
-                            # insert the arg after --option (make sure it's not None)
-                            if args.script:
-                                args.script_args.insert(1, args.script)
-                            # insert value args before --option
-                            if args.upload_file[i+1:]:
-                                arg_buffer = args.upload_file[i+1:]
-                                arg_buffer.reverse()
-                                for val in arg_buffer:
-                                    args.script_args.insert(0, val)
-                            args.script = args.upload_file[i]
-                            break
-                else:
-                    args.script = args.upload_file[i]
-                    args.script_args = args.upload_file[i+1:]
-                break
-
-            # duplicate tag checking
-            if item[0] in item_buffer:
-                sys.exit('Multiple tags named \'%s\' were found' % item[0])
-
-            item_buffer[item[0]] = item[1]
-
-        # make sure files exist
-        for tag in item_buffer:
-            if not os.path.exists(item_buffer[tag]):
-                sys.exit('No such file or directory: \'%s\'' % item_buffer[tag])
-        args.upload_file = item_buffer
 
     if args.proxy:
         item = args.proxy.split(':')
