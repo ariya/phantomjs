@@ -70,7 +70,8 @@ class CustomPage(QWebPage):
 class WebPage(QObject):
     javaScriptAlertSent = pyqtSignal(str)
     javaScriptConsoleMessageSent = pyqtSignal(str)
-    loadStatusChanged = pyqtSignal(str)
+    loadStarted = pyqtSignal()
+    loadFinished = pyqtSignal(str)
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
@@ -83,6 +84,7 @@ class WebPage(QObject):
         self.m_webPage = CustomPage(self)
         self.m_mainFrame = self.m_webPage.mainFrame()
 
+        self.m_webPage.loadStarted.connect(self.loadStarted)
         self.m_webPage.loadFinished.connect(self.finish)
 
         # Start with transparent background
@@ -118,7 +120,7 @@ class WebPage(QObject):
 
     def finish(self, ok):
         status = 'success' if ok else 'fail'
-        self.loadStatusChanged.emit(status)
+        self.loadFinished.emit(status)
 
     def mainFrame(self):
         return self.m_mainFrame
