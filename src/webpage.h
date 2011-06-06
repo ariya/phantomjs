@@ -77,7 +77,7 @@ public slots:
 
 signals:
     void loadStarted();
-    void loadStatusChanged(const QString &status);
+    void loadFinished(const QString &status);
     void javaScriptAlertSent(const QString &msg);
     void javaScriptConsoleMessageSent(const QString &msg);
 

@@ -239,7 +239,7 @@ void WebPage::emitConsoleMessage(const QString &msg)
 void WebPage::finish(bool ok)
 {
     QString status = ok ? "success" : "fail";
-    emit loadStatusChanged(status);
+    emit loadFinished(status);
 }
 
 void WebPage::openUrl(const QString &address, const QVariant &op, const QVariantMap &settings)
