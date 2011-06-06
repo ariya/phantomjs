@@ -42,7 +42,12 @@ class CustomPage(QWebPage):
         self.parent = parent
         self.m_userAgent = QWebPage.userAgentForUrl(self, QUrl())
 
+        self.m_uploadFile = ''
+
         do_action('CustomPageInit', Bunch(locals()))
+
+    def chooseFile(self, originatingFrame, oldFile):
+        return self.m_uploadFile
 
     def shouldInterruptJavaScript(self):
         QApplication.processEvents(QEventLoop.AllEvents, 42)
@@ -326,6 +331,21 @@ class WebPage(QObject):
         image = self.renderImage()
 
         return image.save(fileName)
+
+    @pyqtSlot(str, str)
+    def uploadFile(self, selector, fileName):
+        el = self.m_mainFrame.findFirstElement(selector)
+        if el.isNull():
+            return
+
+        self.m_webPage.m_uploadFile = fileName
+        el.evaluateJavaScript('''
+            (function (el) {
+                var ev = document.createEvent('MouseEvents');
+                ev.initEvent('click', true, true);
+                el.dispatchEvent(ev);
+            })(this)
+        ''')
 
     @pyqtProperty('QVariantMap')
     def viewportSize(self):
