@@ -71,7 +71,7 @@ class WebPage(QObject):
     javaScriptAlertSent = pyqtSignal(str)
     javaScriptConsoleMessageSent = pyqtSignal(str)
     loadStarted = pyqtSignal()
-    loadStatusChanged = pyqtSignal(str)
+    loadFinished = pyqtSignal(str)
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
@@ -120,7 +120,7 @@ class WebPage(QObject):
 
     def finish(self, ok):
         status = 'success' if ok else 'fail'
-        self.loadStatusChanged.emit(status)
+        self.loadFinished.emit(status)
 
     def mainFrame(self):
         return self.m_mainFrame
