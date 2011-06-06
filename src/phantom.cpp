@@ -66,6 +66,11 @@ Phantom::Phantom(QObject *parent)
     QStringListIterator argIterator(args);
     while (argIterator.hasNext()) {
         const QString &arg = argIterator.next();
+        if (arg == "--version") {
+            m_terminated = true;
+            std::cout << PHANTOMJS_VERSION_STRING << " (development)" << std::endl;
+            return;
+        }
         if (arg == "--load-images=yes") {
             autoLoadImages = true;
             continue;
