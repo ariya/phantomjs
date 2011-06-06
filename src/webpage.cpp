@@ -104,6 +104,7 @@ WebPage::WebPage(QObject *parent)
     m_webPage = new CustomPage(this);
     m_mainFrame = m_webPage->mainFrame();
 
+    connect(m_webPage, SIGNAL(loadStarted()), SIGNAL(loadStarted()));
     connect(m_webPage, SIGNAL(loadFinished(bool)), SLOT(finish(bool)));
 
     // Start with transparent background.

@@ -6,6 +6,19 @@ window.WebPage = function() {
     // deep copy
     page.settings = JSON.parse(JSON.stringify(phantom.defaultPageSettings));
 
+    // private, don't touch this
+    page.handlers = {};
+
+    page.__defineSetter__("onLoadStarted", function(f) {
+        if (this.handlers && typeof this.handlers.loadStarted === 'function') {
+            try {
+                this.loadStarted.disconnect(this.handlers.loadStarted);
+            } catch (e) {}
+        }
+        this.handlers.loadStarted = f;
+        this.loadStarted.connect(this.handlers.loadStarted);
+    });
+
     page.onAlert = function (msg) {};
 
     page.onConsoleMessage = function (msg) {};
