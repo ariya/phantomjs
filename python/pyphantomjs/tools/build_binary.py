@@ -18,9 +18,10 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
+import os
 import sys
 # hack to import parent module(s)
-sys.path = sys.path + ['..']
+sys.path = sys.path + [os.path.dirname(os.path.dirname(os.path.abspath(__file__)))]
 
 from utils import version
 
