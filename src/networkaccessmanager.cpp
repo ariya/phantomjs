@@ -85,42 +85,6 @@ NetworkAccessManager::~NetworkAccessManager()
 // protected:
 QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkRequest & req, QIODevice * outgoingData)
 {
-    switch(op) {
-    case QNetworkAccessManager::HeadOperation: {
-        qDebug() << "HTTP/1.1 HEAD Request";
-        break;
-    }
-    case QNetworkAccessManager::GetOperation: {
-        qDebug() << "HTTP/1.1 GET Request";
-        break;
-    }
-    case QNetworkAccessManager::PutOperation: {
-        qDebug() << "HTTP/1.1 PUT Request";
-        break;
-    }
-    case QNetworkAccessManager::PostOperation: {
-        qDebug() << "HTTP/1.1 POST Request";
-        break;
-    }
-#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
-    case QNetworkAccessManager::DeleteOperation: {
-        qDebug() << "HTTP/1.1 DELETE Request";
-        break;
-    }
-#endif
-#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
-    case QNetworkAccessManager::CustomOperation: {
-        qDebug() << "HTTP/1.1 CUSTOM Request";
-        break;
-    }
-#endif
-    default: {
-        qWarning() << "Unexpected HTTP Operation Type";
-        break;
-    }
-    }
-    qDebug() << "URL" << qPrintable(req.url().toString());
-
     // Pass duty to the superclass - Nothing special to do here (yet?)
     QNetworkReply *reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
     if(m_ignoreSslErrors) {
