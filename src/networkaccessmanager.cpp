@@ -36,6 +36,34 @@
 
 #include "networkaccessmanager.h"
 
+static const char *toString(QNetworkAccessManager::Operation op)
+{
+    const char *str = 0;
+    switch (op) {
+    case QNetworkAccessManager::HeadOperation:
+        str = "HEAD";
+        break;
+    case QNetworkAccessManager::GetOperation:
+        str = "GET";
+        break;
+    case QNetworkAccessManager::PutOperation:
+        str = "PUT";
+        break;
+    case QNetworkAccessManager::PostOperation:
+        str = "POST";
+        break;
+#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
+    case QNetworkAccessManager::DeleteOperation:
+        str = "DELETE";
+        break;
+#endif
+    default:
+        str = "?";
+        break;
+    }
+    return str;
+}
+
 // public:
 NetworkAccessManager::NetworkAccessManager(QObject *parent, bool diskCacheEnabled, bool ignoreSslErrors)
     : QNetworkAccessManager(parent), m_networkDiskCache(0), m_ignoreSslErrors(ignoreSslErrors)
@@ -57,47 +85,26 @@ NetworkAccessManager::~NetworkAccessManager()
 // protected:
 QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkRequest & req, QIODevice * outgoingData)
 {
-    switch(op) {
-    case QNetworkAccessManager::HeadOperation: {
-        qDebug() << "HTTP/1.1 HEAD Request";
-        break;
-    }
-    case QNetworkAccessManager::GetOperation: {
-        qDebug() << "HTTP/1.1 GET Request";
-        break;
-    }
-    case QNetworkAccessManager::PutOperation: {
-        qDebug() << "HTTP/1.1 PUT Request";
-        break;
-    }
-    case QNetworkAccessManager::PostOperation: {
-        qDebug() << "HTTP/1.1 POST Request";
-        break;
-    }
-#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
-    case QNetworkAccessManager::DeleteOperation: {
-        qDebug() << "HTTP/1.1 DELETE Request";
-        break;
-    }
-#endif
-#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
-    case QNetworkAccessManager::CustomOperation: {
-        qDebug() << "HTTP/1.1 CUSTOM Request";
-        break;
-    }
-#endif
-    default: {
-        qWarning() << "Unexpected HTTP Operation Type";
-        break;
-    }
-    }
-    qDebug() << "URL" << qPrintable(req.url().toString());
-
     // Pass duty to the superclass - Nothing special to do here (yet?)
     QNetworkReply *reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
     if(m_ignoreSslErrors) {
         reply->ignoreSslErrors();
     }
+
+    QVariantList headers;
+    foreach (QByteArray headerName, req.rawHeaderList()) {
+        QVariantMap header;
+        header["name"] = QString::fromUtf8(headerName);
+        header["value"] = QString::fromUtf8(req.rawHeader(headerName));
+        headers += header;
+    }
+
+    QVariantMap data;
+    data["url"] = req.url().toString();
+    data["method"] = toString(op);
+    data["headers"] = headers;
+
+    emit resourceRequested(data);
     return reply;
 }
 

@@ -46,6 +46,9 @@ protected:
     bool m_ignoreSslErrors;
     QNetworkReply *createRequest(Operation op, const QNetworkRequest & req, QIODevice * outgoingData = 0);
 
+signals:
+    void resourceRequested(const QVariant& data);
+
 private slots:
     void handleFinished(QNetworkReply *reply);
 };
