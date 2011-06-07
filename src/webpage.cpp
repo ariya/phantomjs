@@ -162,6 +162,17 @@ void WebPage::setContent(const QString &content)
     m_mainFrame->setHtml(content);
 }
 
+
+QString WebPage::scriptLookupDir() const
+{
+   return m_scriptLookupDir;
+}
+
+void WebPage::setScriptLookupDir(const QString &dirPath)
+{
+   m_scriptLookupDir = dirPath;
+}
+
 void WebPage::applySettings(const QVariantMap &def)
 {
     QWebSettings *opt = m_webPage->settings();
@@ -482,10 +493,18 @@ void WebPage::click(const QString &selector) {
 
 #endif
 
-bool WebPage::loadJsFile(const QString &jsFilePath) {
-    if ( !jsFilePath.isEmpty()) {
+bool WebPage::injectJs(const QString &jsFilePath) {
+    // Don't do anything if an empty string is passed
+    if (!jsFilePath.isEmpty()) {
         QFile jsFile;
+
+        // Is file in the PWD?
         jsFile.setFileName(jsFilePath);
+        if (!jsFile.exists()) {
+            // File is not in the PWD. Is it in the lookup directory?
+            jsFile.setFileName( m_scriptLookupDir + '/' + jsFilePath );
+        }
+
         if ( jsFile.open(QFile::ReadOnly) ) {
             // Execute JS code in the context of the document
             m_mainFrame->evaluateJavaScript( QString::fromUtf8(jsFile.readAll()) );

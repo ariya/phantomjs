@@ -16,7 +16,7 @@ if ( typeof(phantom) !== "undefined" ) {
     console.log("* Script will 'inject' itself in a page...");
     page.open("about:blank", function(status) {
         if ( status === "success" ) {
-            console.log(page.loadJsFile("injectme.js") ? "... done injecting itself!" : "... fail! Check the $PWD?!");
+            console.log(page.injectJs("injectme.js") ? "... done injecting itself!" : "... fail! Check the $PWD?!");
         }
         phantom.exit();
     });
