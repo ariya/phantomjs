@@ -7,36 +7,36 @@ window.WebPage = function() {
     page.settings = JSON.parse(JSON.stringify(phantom.defaultPageSettings));
 
     // private, don't touch this
-    page.handlers = {};
+    page._handlers = {};
 
     page.__defineSetter__("onLoadStarted", function(f) {
-        if (this.handlers && typeof this.handlers.loadStarted === 'function') {
+        if (this._handlers && typeof this._handlers.loadStarted === 'function') {
             try {
-                this.loadStarted.disconnect(this.handlers.loadStarted);
+                this.loadStarted.disconnect(this._handlers.loadStarted);
             } catch (e) {}
         }
-        this.handlers.loadStarted = f;
-        this.loadStarted.connect(this.handlers.loadStarted);
+        this._handlers.loadStarted = f;
+        this.loadStarted.connect(this._handlers.loadStarted);
     });
 
     page.__defineSetter__("onLoadFinished", function(f) {
-        if (this.handlers && typeof this.handlers.loadFinished === 'function') {
+        if (this._handlers && typeof this._handlers.loadFinished === 'function') {
             try {
-                this.loadFinished.disconnect(this.handlers.loadFinished);
+                this.loadFinished.disconnect(this._handlers.loadFinished);
             } catch (e) {}
         }
-        this.handlers.loadFinished = f;
-        this.loadFinished.connect(this.handlers.loadFinished);
+        this._handlers.loadFinished = f;
+        this.loadFinished.connect(this._handlers.loadFinished);
     });
 
     page.__defineSetter__("onResourceRequested", function(f) {
-        if (this.handlers && typeof this.handlers.resourceRequested === 'function') {
+        if (this._handlers && typeof this._handlers.resourceRequested === 'function') {
             try {
-                this.resourceRequested.disconnect(this.handlers.resourceRequested);
+                this.resourceRequested.disconnect(this._handlers.resourceRequested);
             } catch (e) {}
         }
-        this.handlers.resourceRequested = f;
-        this.resourceRequested.connect(this.handlers.resourceRequested);
+        this._handlers.resourceRequested = f;
+        this.resourceRequested.connect(this._handlers.resourceRequested);
     });
 
     page.onAlert = function (msg) {};
