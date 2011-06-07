@@ -144,6 +144,8 @@ QWebFrame *WebPage::mainFrame()
 void WebPage::setNetworkAccessManager(QNetworkAccessManager *networkAccessManager)
 {
     m_webPage->setNetworkAccessManager(networkAccessManager);
+    connect(networkAccessManager, SIGNAL(resourceRequested(QVariant)),
+            SIGNAL(resourceRequested(QVariant)));
 }
 
 QString WebPage::content() const

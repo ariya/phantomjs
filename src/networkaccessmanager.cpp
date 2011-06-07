@@ -36,6 +36,34 @@
 
 #include "networkaccessmanager.h"
 
+static const char *toString(QNetworkAccessManager::Operation op)
+{
+    const char *str = 0;
+    switch (op) {
+    case QNetworkAccessManager::HeadOperation:
+        str = "HEAD";
+        break;
+    case QNetworkAccessManager::GetOperation:
+        str = "GET";
+        break;
+    case QNetworkAccessManager::PutOperation:
+        str = "PUT";
+        break;
+    case QNetworkAccessManager::PostOperation:
+        str = "POST";
+        break;
+#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
+    case QNetworkAccessManager::DeleteOperation:
+        str = "DELETE";
+        break;
+#endif
+    default:
+        str = "?";
+        break;
+    }
+    return str;
+}
+
 // public:
 NetworkAccessManager::NetworkAccessManager(QObject *parent, bool diskCacheEnabled, bool ignoreSslErrors)
     : QNetworkAccessManager(parent), m_networkDiskCache(0), m_ignoreSslErrors(ignoreSslErrors)
@@ -98,6 +126,12 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     if(m_ignoreSslErrors) {
         reply->ignoreSslErrors();
     }
+
+    QVariantMap data;
+    data["url"] = req.url().toString();
+    data["method"] = toString(op);
+
+    emit resourceRequested(data);
     return reply;
 }
 

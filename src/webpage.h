@@ -80,6 +80,7 @@ signals:
     void loadFinished(const QString &status);
     void javaScriptAlertSent(const QString &msg);
     void javaScriptConsoleMessageSent(const QString &msg);
+    void resourceRequested(const QVariant &req);
 
 private slots:
     void finish(bool ok);
