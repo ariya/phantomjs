@@ -426,7 +426,7 @@ bool WebPage::renderPdf(const QString &fileName)
             { "B8", QPrinter::B8 },
             { "B9", QPrinter::B9 },
             { "B10", QPrinter::B10 },
-            { "CSE", QPrinter::CSE },
+            { "C5E", QPrinter::C5E },
             { "Comm10E", QPrinter::Comm10E },
             { "DLE", QPrinter::DLE },
             { "Executive", QPrinter::Executive },
