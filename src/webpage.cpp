@@ -49,6 +49,8 @@
 
 #include <gifwriter.h>
 
+#include "consts.h"
+
 class CustomPage: public QWebPage
 {
 public:
@@ -433,12 +435,6 @@ bool WebPage::renderPdf(const QString &fileName)
 
 #if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
 
-#define ELEMENT_CLICK  "(function (el) { " \
-    "var ev = document.createEvent('MouseEvents');" \
-    "ev.initEvent('click', true, true);" \
-    "el.dispatchEvent(ev);" \
-    "})(this)"
-
 void WebPage::uploadFile(const QString &selector, const QString &fileName)
 {
     QWebElement el = m_mainFrame->findFirstElement(selector);
@@ -446,6 +442,30 @@ void WebPage::uploadFile(const QString &selector, const QString &fileName)
         return;
 
     m_webPage->m_uploadFile = fileName;
-    el.evaluateJavaScript(ELEMENT_CLICK);
+    el.evaluateJavaScript(JS_ELEMENT_CLICK);
 }
+
+void WebPage::click(const QString &selector) {
+    // Execute the equivalent of "querySelectorAll"
+    QWebElementCollection webElements = m_mainFrame->findAllElements(selector);
+    // Click on every element found by the previous selector (if any)
+    foreach ( QWebElement el, webElements ) {
+        el.evaluateJavaScript(JS_ELEMENT_CLICK);
+    }
+}
+
 #endif
+
+bool WebPage::loadJsFile(const QString &jsFilePath) {
+    if ( !jsFilePath.isEmpty()) {
+        QFile jsFile;
+        jsFile.setFileName(jsFilePath);
+        if ( jsFile.open(QFile::ReadOnly) ) {
+            // Execute JS code in the context of the document
+            m_mainFrame->evaluateJavaScript( QString::fromUtf8(jsFile.readAll()) );
+            jsFile.close();
+            return true;
+        }
+    }
+    return false;
+}

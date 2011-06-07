@@ -69,10 +69,12 @@ public slots:
     void openUrl(const QString &address, const QVariant &op, const QVariantMap &settings);
     QVariant evaluate(const QString &code);
     bool render(const QString &fileName);
+    bool loadJsFile(const QString &jsFilePath);
 
     // moc does not understand QT_VERSION_CHECK and hence the encoded hex
 #if QT_VERSION >= 0x040600
     void uploadFile(const QString &selector, const QString &fileName);
+    void click(const QString &selector);
 #endif
 
 signals:
