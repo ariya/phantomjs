@@ -18,7 +18,7 @@
 '''
 
 from PyQt4.QtGui import QDesktopServices
-from PyQt4.QtCore import qDebug, qWarning
+from PyQt4.QtCore import pyqtSignal, qDebug, qWarning
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkDiskCache, \
                             QNetworkRequest
 
@@ -27,6 +27,8 @@ from plugincontroller import Bunch, do_action
 
 
 class NetworkAccessManager(QNetworkAccessManager):
+    resourceRequested = pyqtSignal('QVariantMap')
+
     def __init__(self, diskCacheEnabled, ignoreSslErrors, parent=None):
         QNetworkAccessManager.__init__(self, parent)
         self.m_ignoreSslErrors = ignoreSslErrors
@@ -66,8 +68,14 @@ class NetworkAccessManager(QNetworkAccessManager):
         if self.m_ignoreSslErrors == 'yes':
             reply.ignoreSslErrors()
 
+        data = {
+            'url': req.url().toString(),
+            'method': toString(op)
+        }
+
         do_action('NetworkAccessManagerCreateRequestPost', Bunch(locals()))
 
+        self.resourceRequested.emit(data)
         return reply
 
     def handleFinished(self, reply):
@@ -84,3 +92,20 @@ class NetworkAccessManager(QNetworkAccessManager):
             qDebug('"%s" = "%s"' % (pair[0], pair[1]))
 
     do_action('NetworkAccessManager', Bunch(locals()))
+
+
+def toString(op):
+    verb = '?'
+
+    if op == QNetworkAccessManager.HeadOperation:
+        verb = 'HEAD'
+    elif op == QNetworkAccessManager.GetOperation:
+        verb = 'GET'
+    elif op == QNetworkAccessManager.PutOperation:
+        verb = 'PUT'
+    elif op == QNetworkAccessManager.PostOperation:
+        verb = 'POST'
+    elif op == QNetworkAccessManager.DeleteOperation:
+        verb = 'DELETE'
+
+    return verb
