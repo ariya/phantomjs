@@ -104,6 +104,7 @@ WebPage::WebPage(QObject *parent)
     m_webPage = new CustomPage(this);
     m_mainFrame = m_webPage->mainFrame();
 
+    connect(m_webPage, SIGNAL(loadStarted()), SIGNAL(loadStarted()));
     connect(m_webPage, SIGNAL(loadFinished(bool)), SLOT(finish(bool)));
 
     // Start with transparent background.
@@ -238,7 +239,7 @@ void WebPage::emitConsoleMessage(const QString &msg)
 void WebPage::finish(bool ok)
 {
     QString status = ok ? "success" : "fail";
-    emit loadStatusChanged(status);
+    emit loadFinished(status);
 }
 
 void WebPage::openUrl(const QString &address, const QVariant &op, const QVariantMap &settings)

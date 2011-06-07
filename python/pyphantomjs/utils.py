@@ -79,9 +79,6 @@ def argParser():
     parser.add_argument('--proxy', metavar='address:port',
         help='Set the network proxy'
     )
-    parser.add_argument('--upload-file', nargs='*',
-        metavar='tag=file', help='Upload 1 or more files'
-    )
     parser.add_argument('-v', '--verbose', action='store_true',
         help='Show verbose debug messages'
     )

@@ -76,7 +76,8 @@ public slots:
 #endif
 
 signals:
-    void loadStatusChanged(const QString &status);
+    void loadStarted();
+    void loadFinished(const QString &status);
     void javaScriptAlertSent(const QString &msg);
     void javaScriptConsoleMessageSent(const QString &msg);
 
