@@ -5,11 +5,11 @@ from setuptools import setup, find_packages
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-README = read('README')
+README = read('README.md')
 INSTALL = '''
 INSTALLING
 -------------------
-%s''' % read('INSTALL')
+%s''' % read('INSTALL.md')
 
 index = README.find('LICENSING')
 if index > -1:
