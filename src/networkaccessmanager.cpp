@@ -91,9 +91,18 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
         reply->ignoreSslErrors();
     }
 
+    QVariantList headers;
+    foreach (QByteArray headerName, req.rawHeaderList()) {
+        QVariantMap header;
+        header["name"] = QString::fromUtf8(headerName);
+        header["value"] = QString::fromUtf8(req.rawHeader(headerName));
+        headers += header;
+    }
+
     QVariantMap data;
     data["url"] = req.url().toString();
     data["method"] = toString(op);
+    data["headers"] = headers;
 
     emit resourceRequested(data);
     return reply;
