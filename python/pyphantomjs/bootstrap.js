@@ -29,6 +29,16 @@ window.WebPage = function() {
         this.loadFinished.connect(this.handlers.loadFinished);
     });
 
+    page.__defineSetter__("onResourceRequested", function(f) {
+        if (this.handlers && typeof this.handlers.resourceRequested === 'function') {
+            try {
+                this.resourceRequested.disconnect(this.handlers.resourceRequested);
+            } catch (e) {}
+        }
+        this.handlers.resourceRequested = f;
+        this.resourceRequested.connect(this.handlers.resourceRequested);
+    });
+
     page.onAlert = function (msg) {};
 
     page.onConsoleMessage = function (msg) {};
