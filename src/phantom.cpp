@@ -34,6 +34,8 @@
 
 #include <QtGui>
 #include <QtWebKit>
+#include <QDir>
+#include <QFileInfo>
 
 #include <gifwriter.h>
 #include "consts.h"
@@ -230,6 +232,7 @@ QObject *Phantom::createWebPage()
     WebPage *page = new WebPage(this);
     page->applySettings(m_defaultPageSettings);
     page->setNetworkAccessManager(m_netAccessMan);
+    page->setScriptLookupDir(QFileInfo(m_scriptFile).dir().absolutePath());
     return page;
 }
 
