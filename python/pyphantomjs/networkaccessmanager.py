@@ -51,9 +51,18 @@ class NetworkAccessManager(QNetworkAccessManager):
         if self.m_ignoreSslErrors == 'yes':
             reply.ignoreSslErrors()
 
+        headers = []
+        for header in req.rawHeaderList():
+            header = {
+                'name': str(header),
+                'value': str(req.rawHeader(header))
+            }
+            headers.append(header)
+
         data = {
             'url': req.url().toString(),
-            'method': toString(op)
+            'method': toString(op),
+            'headers': headers
         }
 
         do_action('NetworkAccessManagerCreateRequestPost', Bunch(locals()))
