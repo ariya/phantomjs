@@ -18,7 +18,7 @@
 '''
 
 from PyQt4.QtGui import QDesktopServices
-from PyQt4.QtCore import pyqtSignal, qDebug, qWarning
+from PyQt4.QtCore import pyqtSignal, qDebug
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkDiskCache, \
                             QNetworkRequest
 
@@ -44,23 +44,6 @@ class NetworkAccessManager(QNetworkAccessManager):
         do_action('NetworkAccessManagerInit', Bunch(locals()))
 
     def createRequest(self, op, req, outgoingData):
-        if op == QNetworkAccessManager.GetOperation:
-            qDebug('HTTP/1.1 GET Request')
-        elif op == QNetworkAccessManager.PostOperation:
-            qDebug('HTTP/1.1 POST Request')
-        elif op == QNetworkAccessManager.HeadOperation:
-            qDebug('HTTP/1.1 HEAD Request')
-        elif op == QNetworkAccessManager.PutOperation:
-            qDebug('HTTP/1.1 PUT Request')
-        elif op == QNetworkAccessManager.DeleteOperation:
-            qDebug('HTTP/1.1 DELETE Request')
-        elif op == QNetworkAccessManager.CustomOperation:
-            qDebug('HTTP/1.1 CUSTOM Request')
-        else:
-            qWarning('Unexpected HTTP Operation Type')
-
-        qDebug('URL %s' % encode(req.url().toString()))
-
         do_action('NetworkAccessManagerCreateRequestPre', Bunch(locals()))
 
         reply = QNetworkAccessManager.createRequest(self, op, req, outgoingData)
