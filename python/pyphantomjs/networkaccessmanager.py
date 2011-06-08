@@ -111,6 +111,8 @@ class NetworkAccessManager(QNetworkAccessManager):
             'headers': headers
         }
 
+        do_action('NetworkAccessManagerHandleStarted', Bunch(locals()))
+
         self.resourceReceived.emit(data)
 
     do_action('NetworkAccessManager', Bunch(locals()))
