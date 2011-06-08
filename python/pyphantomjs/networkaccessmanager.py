@@ -18,23 +18,22 @@
 '''
 
 from PyQt4.QtGui import QDesktopServices
-from PyQt4.QtCore import pyqtSignal, qDebug
+from PyQt4.QtCore import pyqtSignal
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkDiskCache, \
                             QNetworkRequest
 
-from utils import encode
 from plugincontroller import Bunch, do_action
 
 
 class NetworkAccessManager(QNetworkAccessManager):
+    resourceReceived = pyqtSignal('QVariantMap')
     resourceRequested = pyqtSignal('QVariantMap')
 
     def __init__(self, diskCacheEnabled, ignoreSslErrors, parent=None):
         QNetworkAccessManager.__init__(self, parent)
         self.m_ignoreSslErrors = ignoreSslErrors
 
-        if parent.m_verbose:
-            self.finished.connect(self.handleFinished)
+        self.finished.connect(self.handleFinished)
 
         if diskCacheEnabled == 'yes':
             m_networkDiskCache = QNetworkDiskCache()
@@ -65,23 +64,54 @@ class NetworkAccessManager(QNetworkAccessManager):
             'headers': headers
         }
 
+        reply.readyRead.connect(self.handleStarted)
+
         do_action('NetworkAccessManagerCreateRequestPost', Bunch(locals()))
 
         self.resourceRequested.emit(data)
         return reply
 
     def handleFinished(self, reply):
-        qDebug('HTTP/1.1 Response')
-        qDebug('URL %s' % encode(reply.url().toString()))
-        code = reply.attribute(QNetworkRequest.HttpStatusCodeAttribute)
-        if code:
-            qDebug('Status code: %d' % code)
+        headers = []
+        for header in reply.rawHeaderList():
+            header = {
+                'name': str(header),
+                'value': str(reply.rawHeader(header))
+            }
+            headers.append(header)
+
+        data = {
+            'stage': 'end',
+            'url': reply.url().toString(),
+            'status': reply.attribute(QNetworkRequest.HttpStatusCodeAttribute),
+            'headers': headers
+        }
 
         do_action('NetworkAccessManagerHandleFinished', Bunch(locals()))
 
-        headerPairs = reply.rawHeaderPairs()
-        for pair in headerPairs:
-            qDebug('"%s" = "%s"' % (pair[0], pair[1]))
+        self.resourceReceived.emit(data)
+
+    def handleStarted(self):
+        reply = self.sender()
+        if not reply:
+            return
+
+        headers = []
+        for header in reply.rawHeaderList():
+            header = {
+                'name': str(header),
+                'value': str(reply.rawHeader(header))
+            }
+            headers.append(header)
+
+        data = {
+            'stage': 'start',
+            'url': reply.url().toString(),
+            'status': reply.attribute(QNetworkRequest.HttpStatusCodeAttribute),
+            'headers': headers
+        }
+
+        self.resourceReceived.emit(data)
 
     do_action('NetworkAccessManager', Bunch(locals()))
 

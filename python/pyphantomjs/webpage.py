@@ -72,6 +72,7 @@ class WebPage(QObject):
     javaScriptConsoleMessageSent = pyqtSignal(str)
     loadStarted = pyqtSignal()
     loadFinished = pyqtSignal(str)
+    resourceReceived = pyqtSignal('QVariantMap')
     resourceRequested = pyqtSignal('QVariantMap')
 
     def __init__(self, parent=None):
@@ -241,6 +242,7 @@ class WebPage(QObject):
     def setNetworkAccessManager(self, networkAccessManager):
         self.m_webPage.setNetworkAccessManager(networkAccessManager)
         networkAccessManager.resourceRequested.connect(self.resourceRequested)
+        networkAccessManager.resourceReceived.connect(self.resourceReceived)
 
     def stringToPointSize(self, string):
         units = (
