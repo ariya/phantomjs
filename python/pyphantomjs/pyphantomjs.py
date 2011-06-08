@@ -56,6 +56,11 @@ def parseArgs(args):
     args = arg_data[0]
     args.script_args = arg_data[1]
 
+    args.disk_cache = False if args.disk_cache == 'no' else True
+    args.ignore_ssl_errors = False if args.ignore_ssl_errors == 'no' else True
+    args.load_images = True if args.load_images == 'yes' else False
+    args.load_plugins = False if args.load_plugins == 'no' else True
+
     if args.proxy:
         item = args.proxy.split(':')
         if len(item) < 2 or not len(item[1]):

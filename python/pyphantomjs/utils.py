@@ -19,7 +19,6 @@
 
 import sys
 import argparse
-from unicodedata import normalize
 
 from PyQt4.QtCore import QDateTime, Qt, QtDebugMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg
 
@@ -90,10 +89,6 @@ def argParser():
     do_action('ArgParser', Bunch(locals()))
 
     return parser
-
-
-def encode(text, encoding='UTF-8', method='ignore'):
-    return normalize('NFKD', text).encode(encoding, method)
 
 
 class MessageHandler:
