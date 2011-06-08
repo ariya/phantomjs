@@ -35,7 +35,7 @@ class NetworkAccessManager(QNetworkAccessManager):
 
         self.finished.connect(self.handleFinished)
 
-        if diskCacheEnabled == 'yes':
+        if diskCacheEnabled:
             m_networkDiskCache = QNetworkDiskCache()
             m_networkDiskCache.setCacheDirectory(QDesktopServices.storageLocation(QDesktopServices.CacheLocation))
             self.setCache(m_networkDiskCache)
@@ -47,7 +47,7 @@ class NetworkAccessManager(QNetworkAccessManager):
 
         reply = QNetworkAccessManager.createRequest(self, op, req, outgoingData)
 
-        if self.m_ignoreSslErrors == 'yes':
+        if self.m_ignoreSslErrors:
             reply.ignoreSslErrors()
 
         headers = []
