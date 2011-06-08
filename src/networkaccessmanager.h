@@ -30,6 +30,7 @@
 #ifndef NETWORKACCESSMANAGER_H
 #define NETWORKACCESSMANAGER_H
 
+#include <QHash>
 #include <QNetworkAccessManager>
 
 class QNetworkDiskCache;
@@ -53,6 +54,10 @@ signals:
 private slots:
     void handleStarted();
     void handleFinished(QNetworkReply *reply);
+
+private:
+    QHash<QNetworkReply*, int> m_ids;
+    int m_idCounter;
 };
 
 #endif // NETWORKACCESSMANAGER_H

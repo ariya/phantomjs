@@ -66,7 +66,10 @@ static const char *toString(QNetworkAccessManager::Operation op)
 
 // public:
 NetworkAccessManager::NetworkAccessManager(QObject *parent, bool diskCacheEnabled, bool ignoreSslErrors)
-    : QNetworkAccessManager(parent), m_networkDiskCache(0), m_ignoreSslErrors(ignoreSslErrors)
+    : QNetworkAccessManager(parent)
+    , m_networkDiskCache(0)
+    , m_ignoreSslErrors(ignoreSslErrors)
+    , m_idCounter(0)
 {
     if (diskCacheEnabled) {
         m_networkDiskCache = new QNetworkDiskCache();
@@ -99,7 +102,11 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
         headers += header;
     }
 
+    m_idCounter++;
+    m_ids[reply] = m_idCounter;
+
     QVariantMap data;
+    data["id"] = m_idCounter;
     data["url"] = req.url().toString();
     data["method"] = toString(op);
     data["headers"] = headers;
@@ -126,6 +133,7 @@ void NetworkAccessManager::handleStarted()
 
     QVariantMap data;
     data["stage"] = "start";
+    data["id"] = m_ids.value(reply);
     data["url"] = reply->url().toString();
     data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
     data["headers"] = headers;
@@ -145,9 +153,12 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply)
 
     QVariantMap data;
     data["stage"] = "end";
+    data["id"] = m_ids.value(reply);
     data["url"] = reply->url().toString();
     data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
     data["headers"] = headers;
+
+    m_ids.remove(reply);
 
     emit resourceReceived(data);
 }
