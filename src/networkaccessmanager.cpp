@@ -122,6 +122,10 @@ void NetworkAccessManager::handleStarted()
     QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
     if (!reply)
         return;
+    if (m_started.contains(reply))
+        return;
+
+    m_started += reply;
 
     QVariantList headers;
     foreach (QByteArray headerName, reply->rawHeaderList()) {
@@ -159,6 +163,7 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply)
     data["headers"] = headers;
 
     m_ids.remove(reply);
+    m_started.remove(reply);
 
     emit resourceReceived(data);
 }

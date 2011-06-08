@@ -32,6 +32,7 @@
 
 #include <QHash>
 #include <QNetworkAccessManager>
+#include <QSet>
 
 class QNetworkDiskCache;
 
@@ -57,6 +58,7 @@ private slots:
 
 private:
     QHash<QNetworkReply*, int> m_ids;
+    QSet<QNetworkReply*> m_started;
     int m_idCounter;
 };
 
