@@ -1,4 +1,4 @@
-var page = new WebPage(), address, resources = [];
+var page = new WebPage(), address, requests = [], responses = [];
 
 if (phantom.args.length === 0) {
     console.log('Usage: netsniff.js <some URL>');
@@ -12,15 +12,23 @@ if (phantom.args.length === 0) {
 
     page.onResourceRequested = function (req) {
         req.time = Date.now() - page.startTime;
-        resources.push(req);
+        requests.push(req);
+    };
+
+    page.onResourceReceived = function (res) {
+        res.time = Date.now() - page.startTime;
+        responses.push(res);
     };
 
     page.open(address, function (status) {
         if (status !== 'success') {
             console.log('FAIL to load the address');
         } else {
-            console.log('All resources:');
-            console.log(JSON.stringify(resources, undefined, 4));
+            console.log('All requests:');
+            console.log(JSON.stringify(requests, undefined, 4));
+            console.log();
+            console.log('All responses:');
+            console.log(JSON.stringify(responses, undefined, 4));
         }
         phantom.exit();
     });

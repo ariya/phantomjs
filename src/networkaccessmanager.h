@@ -48,8 +48,10 @@ protected:
 
 signals:
     void resourceRequested(const QVariant& data);
+    void resourceReceived(const QVariant& data);
 
 private slots:
+    void handleStarted();
     void handleFinished(QNetworkReply *reply);
 };
 

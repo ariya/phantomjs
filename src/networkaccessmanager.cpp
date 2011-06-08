@@ -104,23 +104,50 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     data["method"] = toString(op);
     data["headers"] = headers;
 
+    connect(reply, SIGNAL(readyRead()), this, SLOT(handleStarted()));
+
     emit resourceRequested(data);
     return reply;
 }
 
-// private slots:
+void NetworkAccessManager::handleStarted()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+    if (!reply)
+        return;
+
+    QVariantList headers;
+    foreach (QByteArray headerName, reply->rawHeaderList()) {
+        QVariantMap header;
+        header["name"] = QString::fromUtf8(headerName);
+        header["value"] = QString::fromUtf8(reply->rawHeader(headerName));
+        headers += header;
+    }
+
+    QVariantMap data;
+    data["stage"] = "start";
+    data["url"] = reply->url().toString();
+    data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+    data["headers"] = headers;
+
+    emit resourceReceived(data);
+}
+
 void NetworkAccessManager::handleFinished(QNetworkReply *reply)
 {
-    qDebug() << "HTTP/1.1 Response";
-    qDebug() << "URL" << qPrintable(reply->url().toString());
-    QString code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString();
-    if (!code.isEmpty()) {
-        qDebug() << "Status code:" << qPrintable(code);
+    QVariantList headers;
+    foreach (QByteArray headerName, reply->rawHeaderList()) {
+        QVariantMap header;
+        header["name"] = QString::fromUtf8(headerName);
+        header["value"] = QString::fromUtf8(reply->rawHeader(headerName));
+        headers += header;
     }
-#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
-    QList<QNetworkReply::RawHeaderPair> headerPairs = reply->rawHeaderPairs();
-    foreach ( QNetworkReply::RawHeaderPair pair, headerPairs ) {
-        qDebug() << pair.first << "=" << pair.second;
-    }
-#endif
+
+    QVariantMap data;
+    data["stage"] = "end";
+    data["url"] = reply->url().toString();
+    data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+    data["headers"] = headers;
+
+    emit resourceReceived(data);
 }

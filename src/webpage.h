@@ -81,6 +81,7 @@ signals:
     void javaScriptAlertSent(const QString &msg);
     void javaScriptConsoleMessageSent(const QString &msg);
     void resourceRequested(const QVariant &req);
+    void resourceReceived(const QVariant &resource);
 
 private slots:
     void finish(bool ok);
