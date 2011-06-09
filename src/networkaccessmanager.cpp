@@ -27,7 +27,7 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <QDebug>
+#include <QDateTime>
 #include <QNetworkRequest>
 #include <QList>
 #include <QNetworkReply>
@@ -110,6 +110,7 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     data["url"] = req.url().toString();
     data["method"] = toString(op);
     data["headers"] = headers;
+    data["time"] = QDateTime::currentDateTime();
 
     connect(reply, SIGNAL(readyRead()), this, SLOT(handleStarted()));
 
@@ -145,6 +146,7 @@ void NetworkAccessManager::handleStarted()
     data["bodySize"] = reply->size();
     data["redirectURL"] = reply->header(QNetworkRequest::LocationHeader);
     data["headers"] = headers;
+    data["time"] = QDateTime::currentDateTime();
 
     emit resourceReceived(data);
 }
@@ -168,6 +170,7 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply)
     data["contentType"] = reply->header(QNetworkRequest::ContentTypeHeader);
     data["redirectURL"] = reply->header(QNetworkRequest::LocationHeader);
     data["headers"] = headers;
+    data["time"] = QDateTime::currentDateTime();
 
     m_ids.remove(reply);
     m_started.remove(reply);

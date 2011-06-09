@@ -11,12 +11,10 @@ if (phantom.args.length === 0) {
     };
 
     page.onResourceRequested = function (req) {
-        req.time = Date.now() - page.startTime;
         requests.push(req);
     };
 
     page.onResourceReceived = function (res) {
-        res.time = Date.now() - page.startTime;
         responses.push(res);
     };
 
