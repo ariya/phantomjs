@@ -93,6 +93,9 @@ class NetworkAccessManager(QNetworkAccessManager):
             'id': self.m_ids[reply],
             'url': reply.url().toString(),
             'status': reply.attribute(QNetworkRequest.HttpStatusCodeAttribute),
+            'statusText': reply.attribute(QNetworkRequest.HttpReasonPhraseAttribute),
+            'contentType': reply.header(QNetworkRequest.ContentTypeHeader),
+            'redirectURL': reply.header(QNetworkRequest.LocationHeader),
             'headers': headers
         }
 
@@ -126,6 +129,10 @@ class NetworkAccessManager(QNetworkAccessManager):
             'id': self.m_ids[reply],
             'url': reply.url().toString(),
             'status': reply.attribute(QNetworkRequest.HttpStatusCodeAttribute),
+            'statusText': reply.attribute(QNetworkRequest.HttpReasonPhraseAttribute),
+            'contentType': reply.header(QNetworkRequest.ContentTypeHeader),
+            'bodySize': reply.size(),
+            'redirectURL': reply.header(QNetworkRequest.LocationHeader),
             'headers': headers
         }
 
