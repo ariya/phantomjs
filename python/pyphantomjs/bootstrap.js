@@ -29,6 +29,26 @@ window.WebPage = function() {
         this.loadFinished.connect(this.handlers.loadFinished);
     });
 
+    page.__defineSetter__("onResourceRequested", function(f) {
+        if (this.handlers && typeof this.handlers.resourceRequested === 'function') {
+            try {
+                this.resourceRequested.disconnect(this.handlers.resourceRequested);
+            } catch (e) {}
+        }
+        this.handlers.resourceRequested = f;
+        this.resourceRequested.connect(this.handlers.resourceRequested);
+    });
+
+    page.__defineSetter__("onResourceReceived", function(f) {
+        if (this.handlers && typeof this.handlers.resourceReceived === 'function') {
+            try {
+                this.resourceReceived.disconnect(this.handlers.resourceReceived);
+            } catch (e) {}
+        }
+        this.handlers.resourceReceived = f;
+        this.resourceReceived.connect(this.handlers.resourceReceived);
+    });
+
     page.onAlert = function (msg) {};
 
     page.onConsoleMessage = function (msg) {};

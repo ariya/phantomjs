@@ -60,8 +60,8 @@ class Phantom(QObject):
 
         self.m_page.javaScriptConsoleMessageSent.connect(self.printConsoleMessage)
 
-        self.m_defaultPageSettings['loadImages'] = False if args.load_images == 'no' else True
-        self.m_defaultPageSettings['loadPlugins'] = True if args.load_plugins == 'yes' else False
+        self.m_defaultPageSettings['loadImages'] = args.load_images
+        self.m_defaultPageSettings['loadPlugins'] = args.load_plugins
         self.m_defaultPageSettings['userAgent'] = self.m_page.userAgent()
         self.m_page.applySettings(self.m_defaultPageSettings)
 
@@ -82,12 +82,12 @@ class Phantom(QObject):
         do_action('PhantomInitPost', Bunch(locals()))
 
     def execute(self):
-        if self.m_script.startswith('#!'):
-            self.m_script = '//' + self.m_script
-
         if self.m_scriptFile.lower().endswith('.coffee'):
             coffee = CSConverter(self)
             self.m_script = coffee.convert(self.m_script)
+
+        if self.m_script.startswith('#!'):
+            self.m_script = '//' + self.m_script
 
         self.m_page.mainFrame().evaluateJavaScript(self.m_script)
         return not self.m_terminated

@@ -197,14 +197,14 @@ bool Phantom::execute()
     m_script = QString::fromUtf8(file.readAll());
     file.close();
 
-    if (m_script.startsWith("#!")) {
-        m_script.prepend("//");
-    }
-
     if (m_scriptFile.endsWith(".coffee")) {
         if (!m_converter)
             m_converter = new CSConverter(this);
         m_script = m_converter->convert(m_script);
+    }
+
+    if (m_script.startsWith("#!")) {
+        m_script.prepend("//");
     }
 
     m_page->mainFrame()->evaluateJavaScript(m_script);

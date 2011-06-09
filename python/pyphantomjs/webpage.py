@@ -72,6 +72,8 @@ class WebPage(QObject):
     javaScriptConsoleMessageSent = pyqtSignal(str)
     loadStarted = pyqtSignal()
     loadFinished = pyqtSignal(str)
+    resourceReceived = pyqtSignal('QVariantMap')
+    resourceRequested = pyqtSignal('QVariantMap')
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
@@ -191,9 +193,33 @@ class WebPage(QObject):
             p.setOrientation(orientation)
 
             formats = {
+                'A0': QPrinter.A0,
+                'A1': QPrinter.A1,
+                'A2': QPrinter.A2,
                 'A3': QPrinter.A3,
                 'A4': QPrinter.A4,
                 'A5': QPrinter.A5,
+                'A6': QPrinter.A6,
+                'A7': QPrinter.A7,
+                'A8': QPrinter.A8,
+                'A9': QPrinter.A9,
+                'B0': QPrinter.B0,
+                'B1': QPrinter.B1,
+                'B2': QPrinter.B2,
+                'B3': QPrinter.B3,
+                'B4': QPrinter.B4,
+                'B5': QPrinter.B5,
+                'B6': QPrinter.B6,
+                'B7': QPrinter.B7,
+                'B8': QPrinter.B8,
+                'B9': QPrinter.B9,
+                'B10': QPrinter.B10,
+                'C5E': QPrinter.C5E,
+                'Comm10E': QPrinter.Comm10E,
+                'DLE': QPrinter.DLE,
+                'Executive': QPrinter.Executive,
+                'Folio': QPrinter.Folio,
+                'Ledger': QPrinter.Ledger,
                 'Legal': QPrinter.Legal,
                 'Letter': QPrinter.Letter,
                 'Tabloid': QPrinter.Tabloid
@@ -215,6 +241,8 @@ class WebPage(QObject):
 
     def setNetworkAccessManager(self, networkAccessManager):
         self.m_webPage.setNetworkAccessManager(networkAccessManager)
+        networkAccessManager.resourceRequested.connect(self.resourceRequested)
+        networkAccessManager.resourceReceived.connect(self.resourceReceived)
 
     def stringToPointSize(self, string):
         units = (

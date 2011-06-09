@@ -15,7 +15,7 @@ See the [quick start guide](http://code.google.com/p/phantomjs/wiki/QuickStart) 
 * producing PDF version of a Wikipedia article
 * rasterizing SVG to image
 
-PyPhantomJS is written in PyQt4 and Python. It runs on Linux, Windows, and Mac OS X.
+PyPhantomJS is written in PyQt4 and Python. It runs on Linux, Windows, and Mac OS X.  
 Refer to the INSTALL file or Wiki links<sup>1</sup> for more information.
 
 Do not forget to consult the concise API Reference<sup>2</sup>
@@ -29,13 +29,14 @@ You can find a list of downloadable plugins [here](http://dev.umaclan.com/projec
 2: http://dev.umaclan.com/projects/pyphantomjs/wiki/Api_reference  
 2: http://code.google.com/p/phantomjs/wiki/Interface  
 3: http://code.google.com/p/phantomjs/wiki/ContributionGuide  
-3: http://dev.umaclan.com/projects/pyphantomjs/wiki/Giving_back  
+3: http://dev.umaclan.com/projects/pyphantomjs/wiki/Giving_back
 
 LICENSING
 ------------------
-Copyright (C) 2011 James Roe <<roejames12@hotmail.com>>
+Copyright (C) 2011 James Roe <<roejames12@hotmail.com>>  
+Copyright (C) 2011 PyPhantomJS authors (see AUTHORS file)
 
-PyPhantomJS is licensed with the GNU GPL v3.
+PyPhantomJS is licensed with the GNU GPL v3.  
 See the included file LICENSE for the licensing terms.
 
 ADDITIONAL INFO

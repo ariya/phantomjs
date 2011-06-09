@@ -27,7 +27,7 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <QDebug>
+#include <QDateTime>
 #include <QNetworkRequest>
 #include <QList>
 #include <QNetworkReply>
@@ -66,7 +66,10 @@ static const char *toString(QNetworkAccessManager::Operation op)
 
 // public:
 NetworkAccessManager::NetworkAccessManager(QObject *parent, bool diskCacheEnabled, bool ignoreSslErrors)
-    : QNetworkAccessManager(parent), m_networkDiskCache(0), m_ignoreSslErrors(ignoreSslErrors)
+    : QNetworkAccessManager(parent)
+    , m_networkDiskCache(0)
+    , m_ignoreSslErrors(ignoreSslErrors)
+    , m_idCounter(0)
 {
     if (diskCacheEnabled) {
         m_networkDiskCache = new QNetworkDiskCache();
@@ -99,28 +102,78 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
         headers += header;
     }
 
+    m_idCounter++;
+    m_ids[reply] = m_idCounter;
+
     QVariantMap data;
+    data["id"] = m_idCounter;
     data["url"] = req.url().toString();
     data["method"] = toString(op);
     data["headers"] = headers;
+    data["time"] = QDateTime::currentDateTime();
+
+    connect(reply, SIGNAL(readyRead()), this, SLOT(handleStarted()));
 
     emit resourceRequested(data);
     return reply;
 }
 
-// private slots:
+void NetworkAccessManager::handleStarted()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+    if (!reply)
+        return;
+    if (m_started.contains(reply))
+        return;
+
+    m_started += reply;
+
+    QVariantList headers;
+    foreach (QByteArray headerName, reply->rawHeaderList()) {
+        QVariantMap header;
+        header["name"] = QString::fromUtf8(headerName);
+        header["value"] = QString::fromUtf8(reply->rawHeader(headerName));
+        headers += header;
+    }
+
+    QVariantMap data;
+    data["stage"] = "start";
+    data["id"] = m_ids.value(reply);
+    data["url"] = reply->url().toString();
+    data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+    data["statusText"] = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
+    data["contentType"] = reply->header(QNetworkRequest::ContentTypeHeader);
+    data["bodySize"] = reply->size();
+    data["redirectURL"] = reply->header(QNetworkRequest::LocationHeader);
+    data["headers"] = headers;
+    data["time"] = QDateTime::currentDateTime();
+
+    emit resourceReceived(data);
+}
+
 void NetworkAccessManager::handleFinished(QNetworkReply *reply)
 {
-    qDebug() << "HTTP/1.1 Response";
-    qDebug() << "URL" << qPrintable(reply->url().toString());
-    QString code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString();
-    if (!code.isEmpty()) {
-        qDebug() << "Status code:" << qPrintable(code);
+    QVariantList headers;
+    foreach (QByteArray headerName, reply->rawHeaderList()) {
+        QVariantMap header;
+        header["name"] = QString::fromUtf8(headerName);
+        header["value"] = QString::fromUtf8(reply->rawHeader(headerName));
+        headers += header;
     }
-#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
-    QList<QNetworkReply::RawHeaderPair> headerPairs = reply->rawHeaderPairs();
-    foreach ( QNetworkReply::RawHeaderPair pair, headerPairs ) {
-        qDebug() << pair.first << "=" << pair.second;
-    }
-#endif
+
+    QVariantMap data;
+    data["stage"] = "end";
+    data["id"] = m_ids.value(reply);
+    data["url"] = reply->url().toString();
+    data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+    data["statusText"] = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
+    data["contentType"] = reply->header(QNetworkRequest::ContentTypeHeader);
+    data["redirectURL"] = reply->header(QNetworkRequest::LocationHeader);
+    data["headers"] = headers;
+    data["time"] = QDateTime::currentDateTime();
+
+    m_ids.remove(reply);
+    m_started.remove(reply);
+
+    emit resourceReceived(data);
 }
