@@ -498,6 +498,8 @@ bool WebPage::injectJs(const QString &jsFilePath) {
     if (!jsFilePath.isEmpty()) {
         QFile jsFile;
 
+        // Normalise User-provided path
+        jsFilePath = QDir::fromNativeSeparators(jsFilePath);
         // Is file in the PWD?
         jsFile.setFileName(jsFilePath);
         if (!jsFile.exists()) {
