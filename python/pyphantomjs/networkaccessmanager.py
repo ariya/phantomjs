@@ -18,7 +18,7 @@
 '''
 
 from PyQt4.QtGui import QDesktopServices
-from PyQt4.QtCore import pyqtSignal
+from PyQt4.QtCore import pyqtSignal, QDateTime
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkDiskCache, \
                             QNetworkRequest
 
@@ -69,7 +69,8 @@ class NetworkAccessManager(QNetworkAccessManager):
             'id': self.m_idCounter,
             'url': req.url().toString(),
             'method': toString(op),
-            'headers': headers
+            'headers': headers,
+            'time': QDateTime.currentDateTime()
         }
 
         reply.readyRead.connect(self.handleStarted)
@@ -93,7 +94,11 @@ class NetworkAccessManager(QNetworkAccessManager):
             'id': self.m_ids[reply],
             'url': reply.url().toString(),
             'status': reply.attribute(QNetworkRequest.HttpStatusCodeAttribute),
-            'headers': headers
+            'statusText': reply.attribute(QNetworkRequest.HttpReasonPhraseAttribute),
+            'contentType': reply.header(QNetworkRequest.ContentTypeHeader),
+            'redirectURL': reply.header(QNetworkRequest.LocationHeader),
+            'headers': headers,
+            'time': QDateTime.currentDateTime()
         }
 
         del self.m_ids[reply]
@@ -126,7 +131,12 @@ class NetworkAccessManager(QNetworkAccessManager):
             'id': self.m_ids[reply],
             'url': reply.url().toString(),
             'status': reply.attribute(QNetworkRequest.HttpStatusCodeAttribute),
-            'headers': headers
+            'statusText': reply.attribute(QNetworkRequest.HttpReasonPhraseAttribute),
+            'contentType': reply.header(QNetworkRequest.ContentTypeHeader),
+            'bodySize': reply.size(),
+            'redirectURL': reply.header(QNetworkRequest.LocationHeader),
+            'headers': headers,
+            'time': QDateTime.currentDateTime()
         }
 
         do_action('NetworkAccessManagerHandleStarted', Bunch(locals()))
