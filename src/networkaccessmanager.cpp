@@ -140,6 +140,10 @@ void NetworkAccessManager::handleStarted()
     data["id"] = m_ids.value(reply);
     data["url"] = reply->url().toString();
     data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+    data["statusText"] = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
+    data["contentType"] = reply->header(QNetworkRequest::ContentTypeHeader);
+    data["bodySize"] = reply->size();
+    data["redirectURL"] = reply->header(QNetworkRequest::LocationHeader);
     data["headers"] = headers;
 
     emit resourceReceived(data);
@@ -160,6 +164,9 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply)
     data["id"] = m_ids.value(reply);
     data["url"] = reply->url().toString();
     data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+    data["statusText"] = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
+    data["contentType"] = reply->header(QNetworkRequest::ContentTypeHeader);
+    data["redirectURL"] = reply->header(QNetworkRequest::LocationHeader);
     data["headers"] = headers;
 
     m_ids.remove(reply);
