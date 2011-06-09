@@ -83,5 +83,22 @@ window.WebPage = function() {
         throw "Wrong use of WebPage#open";
     };
 
+    page.includeJs = function(scriptUrl, onScriptLoaded) {
+        // Register temporary signal handler for 'alert()'
+        this.javaScriptAlertSent.connect(function(msgFromAlert) {
+            if ( msgFromAlert === scriptUrl ) {
+                // Resource loaded, time to fire the callback
+                onScriptLoaded(scriptUrl);
+                // And disconnect the signal handler
+                try {
+                    this.javaScriptAlertSent.disconnect(this);
+                } catch (e) {}
+            }
+        });
+
+        // Append the script tag to the body
+        this._appendScriptElement(scriptUrl);
+    };
+
     return page;
 }

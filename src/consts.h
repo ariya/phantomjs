@@ -42,4 +42,9 @@
         "el.dispatchEvent(ev);" \
     "})(this);"
 
+#define JS_APPEND_SCRIPT_ELEMENT "var el = document.createElement('script');" \
+    "el.onload = function() { alert('%1'); };" \
+    "el.src = '%1';" \
+    "document.body.appendChild(el);"
+
 #endif // CONSTS_H
