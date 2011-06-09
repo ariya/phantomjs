@@ -31,7 +31,11 @@ class NetworkAccessManager(QNetworkAccessManager):
 
     def __init__(self, diskCacheEnabled, ignoreSslErrors, parent=None):
         QNetworkAccessManager.__init__(self, parent)
+
         self.m_ignoreSslErrors = ignoreSslErrors
+        self.m_idCounter = 0
+        self.m_ids = {}
+        self.m_started = []
 
         self.finished.connect(self.handleFinished)
 
@@ -58,7 +62,11 @@ class NetworkAccessManager(QNetworkAccessManager):
             }
             headers.append(header)
 
+        self.m_idCounter += 1
+        self.m_ids[reply] = self.m_idCounter
+
         data = {
+            'id': self.m_idCounter,
             'url': req.url().toString(),
             'method': toString(op),
             'headers': headers
@@ -82,10 +90,15 @@ class NetworkAccessManager(QNetworkAccessManager):
 
         data = {
             'stage': 'end',
+            'id': self.m_ids[reply],
             'url': reply.url().toString(),
             'status': reply.attribute(QNetworkRequest.HttpStatusCodeAttribute),
             'headers': headers
         }
+
+        del self.m_ids[reply]
+        if reply in self.m_started:
+            del self.m_started[self.m_started.index(reply)]
 
         do_action('NetworkAccessManagerHandleFinished', Bunch(locals()))
 
@@ -95,6 +108,10 @@ class NetworkAccessManager(QNetworkAccessManager):
         reply = self.sender()
         if not reply:
             return
+        if reply in self.m_started:
+            return
+
+        self.m_started.append(reply)
 
         headers = []
         for header in reply.rawHeaderList():
@@ -106,6 +123,7 @@ class NetworkAccessManager(QNetworkAccessManager):
 
         data = {
             'stage': 'start',
+            'id': self.m_ids[reply],
             'url': reply.url().toString(),
             'status': reply.attribute(QNetworkRequest.HttpStatusCodeAttribute),
             'headers': headers
