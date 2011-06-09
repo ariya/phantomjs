@@ -82,12 +82,12 @@ class Phantom(QObject):
         do_action('PhantomInitPost', Bunch(locals()))
 
     def execute(self):
-        if self.m_script.startswith('#!'):
-            self.m_script = '//' + self.m_script
-
         if self.m_scriptFile.lower().endswith('.coffee'):
             coffee = CSConverter(self)
             self.m_script = coffee.convert(self.m_script)
+
+        if self.m_script.startswith('#!'):
+            self.m_script = '//' + self.m_script
 
         self.m_page.mainFrame().evaluateJavaScript(self.m_script)
         return not self.m_terminated
