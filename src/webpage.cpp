@@ -514,3 +514,7 @@ bool WebPage::injectJs(const QString &jsFilePath) {
     }
     return false;
 }
+
+void WebPage::_appendScriptElement(const QString &scriptUrl) {
+    m_mainFrame->evaluateJavaScript( QString(JS_APPEND_SCRIPT_ELEMENT).arg(scriptUrl) );
+}

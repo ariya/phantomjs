@@ -73,6 +73,7 @@ public slots:
     QVariant evaluate(const QString &code);
     bool render(const QString &fileName);
     bool injectJs(const QString &jsFilePath);
+    void _appendScriptElement(const QString &scriptUrl);
 
     // moc does not understand QT_VERSION_CHECK and hence the encoded hex
 #if QT_VERSION >= 0x040600
