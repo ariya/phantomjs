@@ -43,6 +43,8 @@
 #include <QWebFrame>
 #include <QWebPage>
 
+#include "utils.h"
+
 #if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
 #include <QWebElement>
 #endif
@@ -494,27 +496,7 @@ void WebPage::click(const QString &selector) {
 #endif
 
 bool WebPage::injectJs(const QString &jsFilePath) {
-    // Don't do anything if an empty string is passed
-    if (!jsFilePath.isEmpty()) {
-        QFile jsFile;
-
-        // Normalise User-provided path
-        jsFilePath = QDir::fromNativeSeparators(jsFilePath);
-        // Is file in the PWD?
-        jsFile.setFileName(jsFilePath);
-        if (!jsFile.exists()) {
-            // File is not in the PWD. Is it in the lookup directory?
-            jsFile.setFileName( m_scriptLookupDir + '/' + jsFilePath );
-        }
-
-        if ( jsFile.open(QFile::ReadOnly) ) {
-            // Execute JS code in the context of the document
-            m_mainFrame->evaluateJavaScript( QString::fromUtf8(jsFile.readAll()) );
-            jsFile.close();
-            return true;
-        }
-    }
-    return false;
+    return Utils::injectJsInFrame(jsFilePath, m_scriptLookupDir, m_mainFrame);
 }
 
 void WebPage::_appendScriptElement(const QString &scriptUrl) {

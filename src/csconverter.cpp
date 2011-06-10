@@ -52,8 +52,7 @@ CSConverter::CSConverter(QObject *parent)
 QString CSConverter::convert(const QString &script)
 {
     setProperty("source", script);
-    QWebFrame *frame = m_webPage.mainFrame();
-    QVariant result = frame->evaluateJavaScript("this.CoffeeScript.compile(converter.source)");
+    QVariant result = m_webPage.mainFrame()->evaluateJavaScript("this.CoffeeScript.compile(converter.source)");
     if (result.type() == QVariant::String)
         return result.toString();
     return QString();

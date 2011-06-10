@@ -31,6 +31,9 @@
 #define UTILS_H
 
 #include <QtGlobal>
+#include <QWebFrame>
+
+#include "csconverter.h"
 
 /**
  * Aggregate common utility functions.
@@ -42,6 +45,8 @@ class Utils
 public:
     static void showUsage();
     static void messageHandler(QtMsgType type, const char *msg);
+    static QString coffee2js(const QString &script);
+    static bool injectJsInFrame(const QString &jsFilePath, const QString &scriptLookupDir, QWebFrame *targetFrame);
 
 private:
     Utils(); //< This class shouldn't be instantiated

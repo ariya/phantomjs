@@ -58,6 +58,8 @@ int main(int argc, char** argv)
     Phantom phantom;
     if (phantom.execute()) {
         app.exec();
+    } else {
+        exit(EXIT_FAILURE);
     }
     return phantom.returnValue();
 }

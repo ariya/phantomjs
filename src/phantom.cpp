@@ -186,31 +186,9 @@ QVariantMap Phantom::defaultPageSettings() const
 
 bool Phantom::execute()
 {
-    if (m_scriptFile.isEmpty())
-        return false;
-
-    QFile file;
-    file.setFileName(m_scriptFile);
-    if (!file.open(QFile::ReadOnly)) {
-        std::cerr << "Can't open '" << qPrintable(m_scriptFile) << "'" << std::endl << std::endl;
-        exit(1);
-        return false;
-    }
-    m_script = QString::fromUtf8(file.readAll());
-    file.close();
-
-    if (m_scriptFile.endsWith(".coffee")) {
-        if (!m_converter)
-            m_converter = new CSConverter(this);
-        m_script = m_converter->convert(m_script);
-    }
-
-    if (m_script.startsWith("#!")) {
-        m_script.prepend("//");
-    }
-
-    m_page->mainFrame()->evaluateJavaScript(m_script);
-    return !m_terminated;
+    return !m_scriptFile.isEmpty() &&                                                           //< script filename provided
+            Utils::injectJsInFrame(m_scriptFile, QDir::currentPath(), m_page->mainFrame()) &&   //< script injected
+            !m_terminated;                                                                      //< not terminated
 }
 
 int Phantom::returnValue() const
@@ -241,6 +219,10 @@ void Phantom::exit(int code)
     m_terminated = true;
     m_returnValue = code;
     QApplication::instance()->exit(code);
+}
+
+bool Phantom::injectJs(const QString &jsFilePath) {
+    return Utils::injectJsInFrame(jsFilePath, QDir::currentPath(), m_page->mainFrame());
 }
 
 void Phantom::printConsoleMessage(const QString &msg)
