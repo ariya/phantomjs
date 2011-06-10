@@ -484,15 +484,6 @@ void WebPage::uploadFile(const QString &selector, const QString &fileName)
     el.evaluateJavaScript(JS_ELEMENT_CLICK);
 }
 
-void WebPage::click(const QString &selector) {
-    // Execute the equivalent of "querySelectorAll"
-    QWebElementCollection webElements = m_mainFrame->findAllElements(selector);
-    // Click on every element found by the previous selector (if any)
-    foreach ( QWebElement el, webElements ) {
-        el.evaluateJavaScript(JS_ELEMENT_CLICK);
-    }
-}
-
 #endif
 
 bool WebPage::injectJs(const QString &jsFilePath) {
