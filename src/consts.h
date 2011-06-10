@@ -35,6 +35,7 @@
 #define PHANTOMJS_VERSION_MINOR  2
 #define PHANTOMJS_VERSION_PATCH  0
 #define PHANTOMJS_VERSION_STRING "1.2.0"
+#define COFFEE_SCRIPT_EXTENSION ".coffee"
 
 #define JS_ELEMENT_CLICK "(function (el) { " \
         "var ev = document.createEvent('MouseEvents');" \
