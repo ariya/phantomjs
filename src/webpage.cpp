@@ -43,11 +43,15 @@
 #include <QWebFrame>
 #include <QWebPage>
 
+#include "utils.h"
+
 #if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
 #include <QWebElement>
 #endif
 
 #include <gifwriter.h>
+
+#include "consts.h"
 
 class CustomPage: public QWebPage
 {
@@ -158,6 +162,17 @@ QString WebPage::content() const
 void WebPage::setContent(const QString &content)
 {
     m_mainFrame->setHtml(content);
+}
+
+
+QString WebPage::scriptLookupDir() const
+{
+   return m_scriptLookupDir;
+}
+
+void WebPage::setScriptLookupDir(const QString &dirPath)
+{
+   m_scriptLookupDir = dirPath;
 }
 
 void WebPage::applySettings(const QVariantMap &def)
@@ -459,12 +474,6 @@ bool WebPage::renderPdf(const QString &fileName)
 
 #if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
 
-#define ELEMENT_CLICK  "(function (el) { " \
-    "var ev = document.createEvent('MouseEvents');" \
-    "ev.initEvent('click', true, true);" \
-    "el.dispatchEvent(ev);" \
-    "})(this)"
-
 void WebPage::uploadFile(const QString &selector, const QString &fileName)
 {
     QWebElement el = m_mainFrame->findFirstElement(selector);
@@ -472,6 +481,15 @@ void WebPage::uploadFile(const QString &selector, const QString &fileName)
         return;
 
     m_webPage->m_uploadFile = fileName;
-    el.evaluateJavaScript(ELEMENT_CLICK);
+    el.evaluateJavaScript(JS_ELEMENT_CLICK);
 }
+
 #endif
+
+bool WebPage::injectJs(const QString &jsFilePath) {
+    return Utils::injectJsInFrame(jsFilePath, m_scriptLookupDir, m_mainFrame);
+}
+
+void WebPage::_appendScriptElement(const QString &scriptUrl) {
+    m_mainFrame->evaluateJavaScript( QString(JS_APPEND_SCRIPT_ELEMENT).arg(scriptUrl) );
+}
