@@ -24,8 +24,6 @@ import sys
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path = sys.path + [parent_dir]
 
-from distutils.sysconfig import get_python_lib
-
 from utils import version
 
 try:
@@ -44,6 +42,23 @@ if sys.platform.startswith('win'):
         sleep(2)
 
 
+def qt4_plugins_dir():
+    from PyQt4.QtCore import QCoreApplication
+    app = QCoreApplication([])
+
+    qt4_plugin_dirs = map(unicode, app.libraryPaths())
+    if not qt4_plugin_dirs:
+        return
+    for d in qt4_plugin_dirs:
+        if os.path.isdir(d):
+            return str(d)  # must be 8-bit chars for one-file builds
+    return
+
+qt4_plugin_dir = qt4_plugins_dir()
+if not qt4_plugin_dir:
+    sys.exit('Cannot find PyQt4 plugins directory')
+
+
 # modules to include
 includes = [
     # to make sure images are supported; jpeg, gif, svg, etc.
@@ -54,7 +69,7 @@ includes = [
 # files/directories to include
 include_files = [
     # to make sure images are supported; jpeg, gif, svg, etc.
-    (os.path.join(get_python_lib(), 'PyQt4/plugins/imageformats'), 'imageformats'),
+    (os.path.join(qt4_plugin_dir, 'imageformats'), 'imageformats'),
     (os.path.join(parent_dir, 'plugins'), 'plugins'),
     (os.path.join(parent_dir, '../examples' if os.path.exists('../examples') else '../../examples'), 'examples'),
     (os.path.join(parent_dir, '../LICENSE'), 'LICENSE.txt'),
