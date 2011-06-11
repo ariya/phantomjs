@@ -47,14 +47,19 @@ window.WebPage = function() {
         this.resourceReceived.connect(handlers.resourceReceived);
     });
 
-    page.onAlert = function (msg) {};
+    page.__defineSetter__("onAlert", function(f) {
+        if (handlers && typeof handlers.javaScriptAlertSent === 'function') {
+            try {
+                this.javaScriptAlertSent.disconnect(handlers.javaScriptAlertSent);
+            } catch (e) {}
+        }
+        handlers.javaScriptAlertSent = f;
+        this.javaScriptAlertSent.connect(handlers.javaScriptAlertSent);
+    });
 
     page.onConsoleMessage = function (msg) {};
 
     page.open = function () {
-        if (typeof this.onAlert === 'function') {
-            this.javaScriptAlertSent.connect(this.onAlert);
-        }
         if (typeof this.onConsoleMessage === 'function') {
             this.javaScriptConsoleMessageSent.connect(this.onConsoleMessage);
         }
