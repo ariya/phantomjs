@@ -40,13 +40,13 @@ window.WebPage = function() {
     });
 
     page.__defineSetter__("onResourceReceived", function(f) {
-        if (this.handlers && typeof this.handlers.resourceReceived === 'function') {
+        if (this._handlers && typeof this._handlers.resourceReceived === 'function') {
             try {
-                this.resourceReceived.disconnect(this.handlers.resourceReceived);
+                this.resourceReceived.disconnect(this._handlers.resourceReceived);
             } catch (e) {}
         }
-        this.handlers.resourceReceived = f;
-        this.resourceReceived.connect(this.handlers.resourceReceived);
+        this._handlers.resourceReceived = f;
+        this.resourceReceived.connect(this._handlers.resourceReceived);
     });
 
     page.onAlert = function (msg) {};
