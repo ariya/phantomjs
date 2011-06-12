@@ -1,65 +1,73 @@
 // This allows creating a new web page using the construct "new WebPage",
 // which feels more natural than "phantom.createWebPage()".
 window.WebPage = function() {
-    var page = phantom.createWebPage();
+    var page = phantom.createWebPage(),
+        handlers = {};
 
     // deep copy
     page.settings = JSON.parse(JSON.stringify(phantom.defaultPageSettings));
 
-    // private, don't touch this
-    page.handlers = {};
-
     page.__defineSetter__("onLoadStarted", function(f) {
-        if (this.handlers && typeof this.handlers.loadStarted === 'function') {
+        if (handlers && typeof handlers.loadStarted === 'function') {
             try {
-                this.loadStarted.disconnect(this.handlers.loadStarted);
+                this.loadStarted.disconnect(handlers.loadStarted);
             } catch (e) {}
         }
-        this.handlers.loadStarted = f;
-        this.loadStarted.connect(this.handlers.loadStarted);
+        handlers.loadStarted = f;
+        this.loadStarted.connect(handlers.loadStarted);
     });
 
     page.__defineSetter__("onLoadFinished", function(f) {
-        if (this.handlers && typeof this.handlers.loadFinished === 'function') {
+        if (handlers && typeof handlers.loadFinished === 'function') {
             try {
-                this.loadFinished.disconnect(this.handlers.loadFinished);
+                this.loadFinished.disconnect(handlers.loadFinished);
             } catch (e) {}
         }
-        this.handlers.loadFinished = f;
-        this.loadFinished.connect(this.handlers.loadFinished);
+        handlers.loadFinished = f;
+        this.loadFinished.connect(handlers.loadFinished);
     });
 
     page.__defineSetter__("onResourceRequested", function(f) {
-        if (this.handlers && typeof this.handlers.resourceRequested === 'function') {
+        if (handlers && typeof handlers.resourceRequested === 'function') {
             try {
-                this.resourceRequested.disconnect(this.handlers.resourceRequested);
+                this.resourceRequested.disconnect(handlers.resourceRequested);
             } catch (e) {}
         }
-        this.handlers.resourceRequested = f;
-        this.resourceRequested.connect(this.handlers.resourceRequested);
+        handlers.resourceRequested = f;
+        this.resourceRequested.connect(handlers.resourceRequested);
     });
 
     page.__defineSetter__("onResourceReceived", function(f) {
-        if (this.handlers && typeof this.handlers.resourceReceived === 'function') {
+        if (handlers && typeof handlers.resourceReceived === 'function') {
             try {
-                this.resourceReceived.disconnect(this.handlers.resourceReceived);
+                this.resourceReceived.disconnect(handlers.resourceReceived);
             } catch (e) {}
         }
-        this.handlers.resourceReceived = f;
-        this.resourceReceived.connect(this.handlers.resourceReceived);
+        handlers.resourceReceived = f;
+        this.resourceReceived.connect(handlers.resourceReceived);
     });
 
-    page.onAlert = function (msg) {};
+    page.__defineSetter__("onAlert", function(f) {
+        if (handlers && typeof handlers.javaScriptAlertSent === 'function') {
+            try {
+                this.javaScriptAlertSent.disconnect(handlers.javaScriptAlertSent);
+            } catch (e) {}
+        }
+        handlers.javaScriptAlertSent = f;
+        this.javaScriptAlertSent.connect(handlers.javaScriptAlertSent);
+    });
 
-    page.onConsoleMessage = function (msg) {};
+    page.__defineSetter__("onConsoleMessage", function(f) {
+        if (handlers && typeof handlers.javaScriptConsoleMessageSent === 'function') {
+            try {
+                this.javaScriptConsoleMessageSent.disconnect(handlers.javaScriptConsoleMessageSent);
+            } catch (e) {}
+        }
+        handlers.javaScriptConsoleMessageSent = f;
+        this.javaScriptConsoleMessageSent.connect(handlers.javaScriptConsoleMessageSent);
+    });
 
     page.open = function () {
-        if (typeof this.onAlert === 'function') {
-            this.javaScriptAlertSent.connect(this.onAlert);
-        }
-        if (typeof this.onConsoleMessage === 'function') {
-            this.javaScriptConsoleMessageSent.connect(this.onConsoleMessage);
-        }
         if (arguments.length === 1) {
             this.openUrl(arguments[0], 'get', this.settings);
             return;
@@ -81,6 +89,23 @@ window.WebPage = function() {
             return;
         }
         throw "Wrong use of WebPage#open";
+    };
+
+    page.includeJs = function(scriptUrl, onScriptLoaded) {
+        // Register temporary signal handler for 'alert()'
+        this.javaScriptAlertSent.connect(function(msgFromAlert) {
+            if ( msgFromAlert === scriptUrl ) {
+                // Resource loaded, time to fire the callback
+                onScriptLoaded(scriptUrl);
+                // And disconnect the signal handler
+                try {
+                    this.javaScriptAlertSent.disconnect(this);
+                } catch (e) {}
+            }
+        });
+
+        // Append the script tag to the body
+        this._appendScriptElement(scriptUrl);
     };
 
     return page;
