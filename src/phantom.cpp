@@ -158,6 +158,8 @@ Phantom::Phantom(QObject *parent)
     m_defaultPageSettings["userAgent"] = QVariant::fromValue(m_page->userAgent());
     m_page->applySettings(m_defaultPageSettings);
 
+    setScriptLookupDir(QFileInfo(m_scriptFile).dir().absolutePath());
+
     m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
 
     QFile file(":/bootstrap.js");
@@ -222,10 +224,20 @@ void Phantom::exit(int code)
 }
 
 bool Phantom::injectJs(const QString &jsFilePath) {
-    return Utils::injectJsInFrame(jsFilePath, QFileInfo(m_scriptFile).dir().absolutePath(), m_page->mainFrame());
+    return Utils::injectJsInFrame(jsFilePath, scriptLookupDir(), m_page->mainFrame());
 }
 
 void Phantom::printConsoleMessage(const QString &msg)
 {
     std::cout << qPrintable(msg) << std::endl;
+}
+
+QString Phantom::scriptLookupDir() const
+{
+   return m_page->scriptLookupDir();
+}
+
+void Phantom::setScriptLookupDir(const QString &dirPath)
+{
+   m_page->setScriptLookupDir(dirPath);
 }
