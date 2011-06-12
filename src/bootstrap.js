@@ -57,12 +57,17 @@ window.WebPage = function() {
         this.javaScriptAlertSent.connect(handlers.javaScriptAlertSent);
     });
 
-    page.onConsoleMessage = function (msg) {};
+    page.__defineSetter__("onConsoleMessage", function(f) {
+        if (handlers && typeof handlers.javaScriptConsoleMessageSent === 'function') {
+            try {
+                this.javaScriptConsoleMessageSent.disconnect(handlers.javaScriptConsoleMessageSent);
+            } catch (e) {}
+        }
+        handlers.javaScriptConsoleMessageSent = f;
+        this.javaScriptConsoleMessageSent.connect(handlers.javaScriptConsoleMessageSent);
+    });
 
     page.open = function () {
-        if (typeof this.onConsoleMessage === 'function') {
-            this.javaScriptConsoleMessageSent.connect(this.onConsoleMessage);
-        }
         if (arguments.length === 1) {
             this.openUrl(arguments[0], 'get', this.settings);
             return;
