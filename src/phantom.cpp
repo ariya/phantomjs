@@ -222,7 +222,7 @@ void Phantom::exit(int code)
 }
 
 bool Phantom::injectJs(const QString &jsFilePath) {
-    return Utils::injectJsInFrame(jsFilePath, QDir::currentPath(), m_page->mainFrame());
+    return Utils::injectJsInFrame(jsFilePath, QFileInfo(m_scriptFile).dir().absolutePath(), m_page->mainFrame());
 }
 
 void Phantom::printConsoleMessage(const QString &msg)

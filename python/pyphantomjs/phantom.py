@@ -118,7 +118,7 @@ class Phantom(QObject):
 
     @pyqtSlot(str, result=bool)
     def injectJs(self, filePath):
-        return injectJsInFrame(filePath, os.path.dirname(os.path.abspath(__file__)), self.m_page.mainFrame())
+        return injectJsInFrame(filePath, os.path.dirname(os.path.abspath(self.m_scriptFile)), self.m_page.mainFrame())
 
     @pyqtProperty('QVariantMap')
     def version(self):
