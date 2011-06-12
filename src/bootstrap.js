@@ -1,65 +1,73 @@
 // This allows creating a new web page using the construct "new WebPage",
 // which feels more natural than "phantom.createWebPage()".
 window.WebPage = function() {
-    var page = phantom.createWebPage();
+    var page = phantom.createWebPage(),
+        handlers = {};
 
     // deep copy
     page.settings = JSON.parse(JSON.stringify(phantom.defaultPageSettings));
 
-    // private, don't touch this
-    page._handlers = {};
-
     page.__defineSetter__("onLoadStarted", function(f) {
-        if (this._handlers && typeof this._handlers.loadStarted === 'function') {
+        if (handlers && typeof handlers.loadStarted === 'function') {
             try {
-                this.loadStarted.disconnect(this._handlers.loadStarted);
+                this.loadStarted.disconnect(handlers.loadStarted);
             } catch (e) {}
         }
-        this._handlers.loadStarted = f;
-        this.loadStarted.connect(this._handlers.loadStarted);
+        handlers.loadStarted = f;
+        this.loadStarted.connect(handlers.loadStarted);
     });
 
     page.__defineSetter__("onLoadFinished", function(f) {
-        if (this._handlers && typeof this._handlers.loadFinished === 'function') {
+        if (handlers && typeof handlers.loadFinished === 'function') {
             try {
-                this.loadFinished.disconnect(this._handlers.loadFinished);
+                this.loadFinished.disconnect(handlers.loadFinished);
             } catch (e) {}
         }
-        this._handlers.loadFinished = f;
-        this.loadFinished.connect(this._handlers.loadFinished);
+        handlers.loadFinished = f;
+        this.loadFinished.connect(handlers.loadFinished);
     });
 
     page.__defineSetter__("onResourceRequested", function(f) {
-        if (this._handlers && typeof this._handlers.resourceRequested === 'function') {
+        if (handlers && typeof handlers.resourceRequested === 'function') {
             try {
-                this.resourceRequested.disconnect(this._handlers.resourceRequested);
+                this.resourceRequested.disconnect(handlers.resourceRequested);
             } catch (e) {}
         }
-        this._handlers.resourceRequested = f;
-        this.resourceRequested.connect(this._handlers.resourceRequested);
+        handlers.resourceRequested = f;
+        this.resourceRequested.connect(handlers.resourceRequested);
     });
 
     page.__defineSetter__("onResourceReceived", function(f) {
-        if (this._handlers && typeof this._handlers.resourceReceived === 'function') {
+        if (handlers && typeof handlers.resourceReceived === 'function') {
             try {
-                this.resourceReceived.disconnect(this._handlers.resourceReceived);
+                this.resourceReceived.disconnect(handlers.resourceReceived);
             } catch (e) {}
         }
-        this._handlers.resourceReceived = f;
-        this.resourceReceived.connect(this._handlers.resourceReceived);
+        handlers.resourceReceived = f;
+        this.resourceReceived.connect(handlers.resourceReceived);
     });
 
-    page.onAlert = function (msg) {};
+    page.__defineSetter__("onAlert", function(f) {
+        if (handlers && typeof handlers.javaScriptAlertSent === 'function') {
+            try {
+                this.javaScriptAlertSent.disconnect(handlers.javaScriptAlertSent);
+            } catch (e) {}
+        }
+        handlers.javaScriptAlertSent = f;
+        this.javaScriptAlertSent.connect(handlers.javaScriptAlertSent);
+    });
 
-    page.onConsoleMessage = function (msg) {};
+    page.__defineSetter__("onConsoleMessage", function(f) {
+        if (handlers && typeof handlers.javaScriptConsoleMessageSent === 'function') {
+            try {
+                this.javaScriptConsoleMessageSent.disconnect(handlers.javaScriptConsoleMessageSent);
+            } catch (e) {}
+        }
+        handlers.javaScriptConsoleMessageSent = f;
+        this.javaScriptConsoleMessageSent.connect(handlers.javaScriptConsoleMessageSent);
+    });
 
     page.open = function () {
-        if (typeof this.onAlert === 'function') {
-            this.javaScriptAlertSent.connect(this.onAlert);
-        }
-        if (typeof this.onConsoleMessage === 'function') {
-            this.javaScriptConsoleMessageSent.connect(this.onConsoleMessage);
-        }
         if (arguments.length === 1) {
             this.openUrl(arguments[0], 'get', this.settings);
             return;
