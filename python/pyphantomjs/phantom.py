@@ -20,7 +20,7 @@
 import sys
 
 from PyQt4.QtCore import pyqtProperty, pyqtSlot, QObject, \
-                         QFile, qCritical
+                         QFile
 from PyQt4.QtGui import QApplication
 from PyQt4.QtNetwork import QNetworkProxy, QNetworkProxyFactory
 
@@ -70,13 +70,11 @@ class Phantom(QObject):
 
         bootstrap = QFile(':/bootstrap.js')
         if not bootstrap.open(QFile.ReadOnly):
-            qCritical('Can not bootstrap!')
-            sys.exit(1)
+            sys.exit('Can not bootstrap!')
         bootstrapper = str(bootstrap.readAll())
         bootstrap.close()
         if not bootstrapper:
-            qCritical('Can not bootstrap!')
-            sys.exit(1)
+            sys.exit('Can not bootstrap!')
         self.m_page.mainFrame().evaluateJavaScript(bootstrapper)
 
         do_action('PhantomInitPost', Bunch(locals()))
