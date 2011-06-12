@@ -19,7 +19,7 @@
 
 import sys
 
-from PyQt4.QtCore import QObject, QFile, qCritical
+from PyQt4.QtCore import QObject, QFile
 from PyQt4.QtWebKit import QWebPage
 
 
@@ -30,8 +30,7 @@ class CSConverter(QObject):
 
         converter = QFile(':/resources/coffee-script.js')
         if not converter.open(QFile.ReadOnly):
-            qCritical('CoffeeScript compiler is not available!')
-            sys.exit(1)
+            sys.exit('CoffeeScript compiler is not available!')
 
         script = str(converter.readAll())
         converter.close()

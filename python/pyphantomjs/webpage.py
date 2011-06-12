@@ -28,6 +28,7 @@ from PyQt4.QtWebKit import QWebSettings, QWebPage
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
 from plugincontroller import Bunch, do_action
+from utils import injectJsInFrame
 
 
 # Different defaults.
@@ -81,6 +82,7 @@ class WebPage(QObject):
         # variable declarations
         self.m_paperSize = {}
         self.m_clipRect = QRect()
+        self.m_scriptLookupDir = ''
 
         self.setObjectName('WebPage')
         self.m_webPage = CustomPage(self)
@@ -266,6 +268,15 @@ class WebPage(QObject):
     # Properties and methods exposed to JavaScript
     ##
 
+    @pyqtSlot(str)
+    def _appendScriptElement(self, scriptUrl):
+        self.m_mainFrame.evaluateJavaScript('''
+            var el = document.createElement('script');
+            el.onload = function() { alert('%(scriptUrl)s'); };
+            el.src = '%(scriptUrl)s';
+            document.body.appendChild(el);
+        ''' % {'scriptUrl': scriptUrl})
+
     @pyqtProperty('QVariantMap')
     def clipRect(self):
         result = {
@@ -302,6 +313,10 @@ class WebPage(QObject):
     def evaluate(self, code):
         function = '(%s)()' % code
         return self.m_mainFrame.evaluateJavaScript(function)
+
+    @pyqtSlot(str, result=bool)
+    def injectJs(self, filePath):
+        return injectJsInFrame(filePath, self.m_scriptLookupDir, self.m_mainFrame)
 
     @pyqtSlot(str, str, 'QVariantMap')
     @pyqtSlot(str, 'QVariantMap', 'QVariantMap')
@@ -361,6 +376,14 @@ class WebPage(QObject):
         image = self.renderImage()
 
         return image.save(fileName)
+
+    @pyqtProperty(str)
+    def scriptLookupDir(self):
+        return self.m_scriptLookupDir
+
+    @scriptLookupDir.setter
+    def scriptLookupDir(self, dirPath):
+        self.m_scriptLookupDir = dirPath
 
     @pyqtSlot(str, str)
     def uploadFile(self, selector, fileName):

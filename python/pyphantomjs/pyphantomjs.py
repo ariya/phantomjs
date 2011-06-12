@@ -23,8 +23,8 @@ import sip
 sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
 
+import os
 import sys
-import codecs
 
 from PyQt4.QtCore import qInstallMsgHandler
 from PyQt4.QtGui import QIcon, QApplication
@@ -74,12 +74,8 @@ def parseArgs(args):
         p.print_help()
         sys.exit(1)
 
-    try:
-        with codecs.open(args.script, encoding='utf-8') as script:
-            args.script_name = script.name
-            args.script = script.read()
-    except IOError as (errno, stderr):
-        sys.exit('%s: \'%s\'' % (stderr, args.script))
+    if not os.path.exists(args.script):
+        sys.exit('No such file or directory: \'%s\'' % args.script)
 
     return args
 
