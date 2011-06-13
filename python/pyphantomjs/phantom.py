@@ -17,16 +17,17 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
+import os
 import sys
 
 from PyQt4.QtCore import pyqtProperty, pyqtSlot, QObject, \
-                         QFile, qCritical
+                         QFile
 from PyQt4.QtGui import QApplication
 from PyQt4.QtNetwork import QNetworkProxy, QNetworkProxyFactory
 
-from utils import version_major, version_minor, version_patch
+from utils import version_major, version_minor, version_patch, \
+                  injectJsInFrame
 from plugincontroller import Bunch, do_action
-from csconverter import CSConverter
 from webpage import WebPage
 from networkaccessmanager import NetworkAccessManager
 
@@ -42,8 +43,7 @@ class Phantom(QObject):
         self.m_returnValue = 0
         self.m_terminated = False
         # setup the values from args
-        self.m_script = args.script
-        self.m_scriptFile = args.script_name
+        self.m_scriptFile = args.script
         self.m_args = args.script_args
 
         do_action('PhantomInitPre', Bunch(locals()))
@@ -65,31 +65,24 @@ class Phantom(QObject):
         self.m_defaultPageSettings['userAgent'] = self.m_page.userAgent()
         self.m_page.applySettings(self.m_defaultPageSettings)
 
+        self.scriptLookupDir = os.path.dirname(os.path.abspath(self.m_scriptFile))
+
         # inject our properties and slots into javascript
         self.m_page.mainFrame().addToJavaScriptWindowObject('phantom', self)
 
         bootstrap = QFile(':/bootstrap.js')
         if not bootstrap.open(QFile.ReadOnly):
-            qCritical('Can not bootstrap!')
-            sys.exit(1)
+            sys.exit('Can not bootstrap!')
         bootstrapper = str(bootstrap.readAll())
         bootstrap.close()
         if not bootstrapper:
-            qCritical('Can not bootstrap!')
-            sys.exit(1)
+            sys.exit('Can not bootstrap!')
         self.m_page.mainFrame().evaluateJavaScript(bootstrapper)
 
         do_action('PhantomInitPost', Bunch(locals()))
 
     def execute(self):
-        if self.m_scriptFile.lower().endswith('.coffee'):
-            coffee = CSConverter(self)
-            self.m_script = coffee.convert(self.m_script)
-
-        if self.m_script.startswith('#!'):
-            self.m_script = '//' + self.m_script
-
-        self.m_page.mainFrame().evaluateJavaScript(self.m_script)
+        injectJsInFrame(self.m_scriptFile, os.path.dirname(os.path.abspath(__file__)), self.m_page.mainFrame())
         return not self.m_terminated
 
     def printConsoleMessage(self, msg):
@@ -111,6 +104,7 @@ class Phantom(QObject):
         page = WebPage(self)
         page.applySettings(self.m_defaultPageSettings)
         page.setNetworkAccessManager(self.m_netAccessMan)
+        page.scriptLookupDir = os.path.dirname(os.path.abspath(self.m_scriptFile))
         return page
 
     @pyqtProperty('QVariantMap')
@@ -123,6 +117,18 @@ class Phantom(QObject):
         self.m_terminated = True
         self.m_returnValue = code
         QApplication.instance().exit(code)
+
+    @pyqtSlot(str, result=bool)
+    def injectJs(self, filePath):
+        return injectJsInFrame(filePath, self.scriptLookupDir, self.m_page.mainFrame())
+
+    @pyqtProperty(str)
+    def scriptLookupDir(self):
+        return self.m_page.scriptLookupDir
+
+    @scriptLookupDir.setter
+    def scriptLookupDir(self, dirPath):
+        self.m_page.scriptLookupDir = dirPath
 
     @pyqtProperty('QVariantMap')
     def version(self):

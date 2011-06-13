@@ -96,7 +96,7 @@ bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &scriptLook
         if ( jsFile.open(QFile::ReadOnly) ) {
             QString scriptBody = QString::fromUtf8(jsFile.readAll());
             // Remove CLI script heading
-            if (scriptBody.startsWith("#!")) {
+            if (scriptBody.startsWith("#!") && !jsFile.fileName().endsWith(COFFEE_SCRIPT_EXTENSION)) {
                 scriptBody.prepend("//");
             }
 

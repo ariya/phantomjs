@@ -17,11 +17,15 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
+import os
 import sys
+import codecs
 import argparse
 
-from PyQt4.QtCore import QDateTime, Qt, QtDebugMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg
+from PyQt4.QtCore import QDateTime, Qt, QtDebugMsg, QtWarningMsg, \
+                         QtCriticalMsg, QtFatalMsg, qWarning
 
+from csconverter import CSConverter
 from plugincontroller import Bunch, do_action
 
 
@@ -89,6 +93,36 @@ def argParser():
     do_action('ArgParser', Bunch(locals()))
 
     return parser
+
+
+coffeeScriptConverter = None
+def coffee2js(script):
+    global coffeeScriptConverter
+
+    # We need only one instance of the CSConverter to survive for the whole life of PyPhantomJS
+    if not coffeeScriptConverter:
+        coffeeScriptConverter = CSConverter()
+
+    return coffeeScriptConverter.convert(script)
+
+
+def injectJsInFrame(filePath, scriptLookupDir, targetFrame):
+    try:
+        # if file doesn't exist in the CWD, use the lookup
+        if not os.path.exists(filePath):
+            filePath = os.path.join(scriptLookupDir, filePath)
+
+        with codecs.open(filePath, encoding='utf-8') as f:
+            script = f.read()
+
+        if script.startswith('#!') and not filePath.lower().endswith('.coffee'):
+            script = '//' + script
+
+        targetFrame.evaluateJavaScript(script if not filePath.lower().endswith('.coffee') else coffee2js(script))
+        return True
+    except IOError:
+        qWarning('No such file or directory: \'%s\'' % filePath)
+        return False
 
 
 class MessageHandler:
