@@ -66,7 +66,7 @@ createHAR = (address, title, startTime, resources) ->
             version: phantom.version.major + '.' + phantom.version.minor + '.' + phantom.version.patch
 
         pages: [
-            startedDateTime: page.startTime.toISOString()
+            startedDateTime: startTime.toISOString()
             id: address
             title: title
             pageTimings: {}
