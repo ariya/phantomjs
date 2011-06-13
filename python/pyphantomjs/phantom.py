@@ -65,6 +65,8 @@ class Phantom(QObject):
         self.m_defaultPageSettings['userAgent'] = self.m_page.userAgent()
         self.m_page.applySettings(self.m_defaultPageSettings)
 
+        self.scriptLookupDir = os.path.dirname(os.path.abspath(self.m_scriptFile))
+
         # inject our properties and slots into javascript
         self.m_page.mainFrame().addToJavaScriptWindowObject('phantom', self)
 
@@ -118,7 +120,15 @@ class Phantom(QObject):
 
     @pyqtSlot(str, result=bool)
     def injectJs(self, filePath):
-        return injectJsInFrame(filePath, os.path.dirname(os.path.abspath(__file__)), self.m_page.mainFrame())
+        return injectJsInFrame(filePath, self.scriptLookupDir, self.m_page.mainFrame())
+
+    @pyqtProperty(str)
+    def scriptLookupDir(self):
+        return self.m_page.scriptLookupDir
+
+    @scriptLookupDir.setter
+    def scriptLookupDir(self, dirPath):
+        self.m_page.scriptLookupDir = dirPath
 
     @pyqtProperty('QVariantMap')
     def version(self):

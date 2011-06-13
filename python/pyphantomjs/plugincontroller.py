@@ -17,9 +17,9 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
+import os
 from glob import glob
 from collections import defaultdict
-from os.path import dirname, split, splitext
 
 
 plugins = defaultdict(list)
@@ -110,9 +110,9 @@ def load_plugins():
     '''
 
     # get plugin list
-    plugin_list = glob('plugins/*/*.py')
+    plugin_list = glob(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'plugins/*/*.py'))
     # now convert list to [('plugin_folder', 'file'), ...]
-    plugin_list = [(split(dirname(f))[1], splitext(split(f)[1])[0]) for f in plugin_list]
+    plugin_list = [(os.path.split(os.path.dirname(f))[1], os.path.splitext(os.path.split(f)[1])[0]) for f in plugin_list]
 
     # initialize plugins
     for plugin in plugin_list:

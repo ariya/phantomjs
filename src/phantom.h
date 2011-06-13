@@ -42,6 +42,7 @@ class Phantom: public QObject
     Q_OBJECT
     Q_PROPERTY(QStringList args READ args)
     Q_PROPERTY(QVariantMap defaultPageSettings READ defaultPageSettings)
+    Q_PROPERTY(QString scriptLookupDir READ scriptLookupDir WRITE setScriptLookupDir)
     Q_PROPERTY(QVariantMap version READ version)
 
 public:
@@ -53,6 +54,9 @@ public:
 
     bool execute();
     int returnValue() const;
+
+    QString scriptLookupDir() const;
+    void setScriptLookupDir(const QString &dirPath);
 
     QVariantMap version() const;
 
