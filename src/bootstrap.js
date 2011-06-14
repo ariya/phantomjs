@@ -109,4 +109,29 @@ window.WebPage = function() {
     };
 
     return page;
-}
+};
+
+window.waitFor = function(check, onTestPass, onTimeout, timeoutMs, freqMs) {
+    var timeoutMs = timeoutMs || 3000,      //< Default Timeout is 3s
+        freqMs = freqMs || 250,             //< Default Freq is 250ms
+        start = new Date().getTime(),
+        condition = false,
+        timer = setTimeout(function() {
+            var elapsedMs = new Date().getTime() - start;
+            if ( (new Date().getTime() - start < timeoutMs) && !condition ) {
+                // If not time-out yet and condition not yet fulfilled
+                condition = check(elapsedMs);
+                timer = setTimeout(arguments.callee, freqMs);
+            } else {
+                if(!condition) {
+                    // If condition still not fulfilled (timeout but condition is 'false')
+                    onTimeout(elapsedMs);
+                    phantom.exit(1);
+                } else {
+                    // Condition fulfilled (timeout and/or condition is 'true')
+                    onTestPass(elapsedMs);
+                    clearTimeout(timer);
+                }
+            }
+        }, freqMs);
+};
