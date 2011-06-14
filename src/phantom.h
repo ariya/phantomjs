@@ -63,6 +63,7 @@ public:
 public slots:
     QObject *createWebPage();
     bool injectJs(const QString &jsFilePath);
+    bool saveToFile(const QString &filename, const QString &filecontent);
     void exit(int code = 0);
 
 private slots:
