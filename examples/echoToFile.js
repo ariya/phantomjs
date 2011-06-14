@@ -6,9 +6,10 @@ if (phantom.args.length < 2) {
 } else {
     var content = '';
     for ( i= 1; i < phantom.args.length; ++i ) {
-        content += ' '+phantom.args[i];
+        content += phantom.args[i] + (i === phantom.args.length-1 ? '' : ' ');
     }
     
     phantom.saveToFile(phantom.args[0], content);
+    phantom.appendToFile(phantom.args[0], '\n');
     phantom.exit();
 }

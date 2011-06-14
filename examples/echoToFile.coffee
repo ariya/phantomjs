@@ -7,7 +7,8 @@ else
   content = ""
   i = 1
   while i < phantom.args.length
-    content += " " + phantom.args[i]
+    content += phantom.args[i] + (if i == phantom.args.length - 1 then "" else " ")
     ++i
   phantom.saveToFile phantom.args[0], content
+  phantom.appendToFile phantom.args[0], "\n"
   phantom.exit()
