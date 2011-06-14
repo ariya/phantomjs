@@ -17,13 +17,15 @@ HEADERS += csconverter.h \
     webpage.h \
     consts.h \
     utils.h \
-    networkaccessmanager.h
+    networkaccessmanager.h \
+    filesystem.h
 SOURCES += phantom.cpp \
     webpage.cpp \
     main.cpp \
     csconverter.cpp \
     utils.cpp \
-    networkaccessmanager.cpp
+    networkaccessmanager.cpp \
+    filesystem.cpp
 
 include(gif/gif.pri)
 
