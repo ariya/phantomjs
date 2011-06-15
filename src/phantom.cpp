@@ -142,6 +142,7 @@ Phantom::Phantom(QObject *parent)
     }
 
     // The remaining arguments are available for the script.
+    m_args += QFileInfo(m_scriptFile).fileName();
     while (argIterator.hasNext()) {
         const QString &arg = argIterator.next();
         m_args += arg;

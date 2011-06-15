@@ -77,6 +77,8 @@ def parseArgs(args):
     if not os.path.exists(args.script):
         sys.exit('No such file or directory: \'%s\'' % args.script)
 
+    args.script_args.insert(0, os.path.basename(args.script))
+
     return args
 
 
