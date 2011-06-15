@@ -237,6 +237,16 @@ bool Phantom::injectJs(const QString &jsFilePath) {
 bool Phantom::writeToFile(const QString &filename, const QString &filecontent, const bool append)
 {
     QFile file(filename);
+
+    // Crate the full path to the file if it doesn't exist already
+    if ( !file.exists() ) {
+        QDir rootDir("/");
+        if ( !rootDir.mkpath(QFileInfo(filename).dir().absolutePath()) ) { //< does nothing if directory already exists
+            return false; //< unable to make the directory/path
+        }
+    }
+
+    // Let's write now
     if ( file.open(QFile::WriteOnly | (append ? QFile::Append | QFile::Text : QFile::Text)) ) {
         QTextStream out(&file);
         out << filecontent;
