@@ -31,6 +31,7 @@
 #include "webpage.h"
 
 #include <math.h>
+#include <iostream>
 
 #include <QApplication>
 #include <QDesktopServices>
@@ -84,9 +85,11 @@ protected:
 
     void javaScriptConsoleMessage(const QString &message, int lineNumber, const QString &sourceID) {
         QString msg = message;
-        if (!sourceID.isEmpty())
-            msg = sourceID + ":" + QString::number(lineNumber) + " " + msg;
-        m_webPage->emitConsoleMessage(msg);
+        if (!sourceID.isEmpty()) {
+            m_webPage->emitConsoleMessage(msg, sourceID, lineNumber);
+        } else {
+            m_webPage->emitConsoleMessage(msg);
+        }
     }
 
     QString userAgentForUrl(const QUrl &url) const {
@@ -250,9 +253,9 @@ void WebPage::emitAlert(const QString &msg)
     emit javaScriptAlertSent(msg);
 }
 
-void WebPage::emitConsoleMessage(const QString &msg)
+void WebPage::emitConsoleMessage(const QString &msg, const QString &source, const int lineNumber)
 {
-    emit javaScriptConsoleMessageSent(msg);
+    emit javaScriptConsoleMessageSent(msg, source, lineNumber);
 }
 
 void WebPage::finish(bool ok)

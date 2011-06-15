@@ -154,7 +154,7 @@ Phantom::Phantom(QObject *parent)
     m_netAccessMan = new NetworkAccessManager(this, diskCacheEnabled, ignoreSslErrors);
     m_page->setNetworkAccessManager(m_netAccessMan);
 
-    connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString)), SLOT(printConsoleMessage(QString)));
+    connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString,QString,int)), SLOT(printConsoleMessage(QString,QString,int)));
 
     m_defaultPageSettings["loadImages"] = QVariant::fromValue(autoLoadImages);
     m_defaultPageSettings["loadPlugins"] = QVariant::fromValue(pluginsEnabled);
@@ -284,9 +284,13 @@ void Phantom::exit(int code)
 }
 
 // private slots:
-void Phantom::printConsoleMessage(const QString &msg)
+void Phantom::printConsoleMessage(const QString &msg, const QString &source, const int lineNumber)
 {
-    std::cout << qPrintable(msg) << std::endl;
+    if ( !source.isNull() ) {
+        std::cout << qPrintable(source + ':' + QString::number(lineNumber) + ' ' + msg) << std::endl;
+    } else {
+        std::cout << qPrintable(msg) << std::endl;
+    }
 }
 
 
