@@ -9,6 +9,6 @@ else
   while i < phantom.args.length
     content += phantom.args[i] + (if i == phantom.args.length - 1 then "" else " ")
     ++i
-  phantom.saveToFile phantom.args[0], content
+  phantom.writeToFile phantom.args[0], content
   phantom.appendToFile phantom.args[0], "\n"
   phantom.exit()

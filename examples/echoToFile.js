@@ -9,7 +9,7 @@ if (phantom.args.length < 2) {
         content += phantom.args[i] + (i === phantom.args.length-1 ? '' : ' ');
     }
     
-    phantom.saveToFile(phantom.args[0], content);
+    phantom.writeToFile(phantom.args[0], content);
     phantom.appendToFile(phantom.args[0], '\n');
     phantom.exit();
 }

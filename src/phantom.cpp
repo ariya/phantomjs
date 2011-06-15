@@ -234,7 +234,7 @@ bool Phantom::injectJs(const QString &jsFilePath) {
     return Utils::injectJsInFrame(jsFilePath, scriptLookupDir(), m_page->mainFrame());
 }
 
-bool Phantom::saveToFile(const QString &filename, const QString &filecontent, const bool append)
+bool Phantom::writeToFile(const QString &filename, const QString &filecontent, const bool append)
 {
     QFile file(filename);
     if ( file.open(QFile::WriteOnly | (append ? QFile::Append | QFile::Text : QFile::Text)) ) {
@@ -248,7 +248,22 @@ bool Phantom::saveToFile(const QString &filename, const QString &filecontent, co
 
 bool Phantom::appendToFile(const QString &filename, const QString &filecontent)
 {
-    return saveToFile(filename, filecontent, true);
+    return writeToFile(filename, filecontent, true);
+}
+
+QString Phantom::readFromFile(const QString &filename)
+{
+    QFile file(filename);
+    if ( file.open(QFile::ReadOnly) ) {
+        return QString::fromUtf8(file.readAll());
+    }
+
+    return ""; //< Return an empty string when file couldn't be opened
+}
+
+bool Phantom::deleteFile(const QString &filename)
+{
+    return QFile::remove(filename);
 }
 
 void Phantom::exit(int code)
