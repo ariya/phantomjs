@@ -142,7 +142,6 @@ Phantom::Phantom(QObject *parent)
     }
 
     // The remaining arguments are available for the script.
-    m_args += QFileInfo(m_scriptFile).fileName();
     while (argIterator.hasNext()) {
         const QString &arg = argIterator.next();
         m_args += arg;
@@ -241,4 +240,9 @@ QString Phantom::scriptLookupDir() const
 void Phantom::setScriptLookupDir(const QString &dirPath)
 {
    m_page->setScriptLookupDir(dirPath);
+}
+
+QString Phantom::scriptName() const
+{
+    return QFileInfo(m_scriptFile).fileName();
 }

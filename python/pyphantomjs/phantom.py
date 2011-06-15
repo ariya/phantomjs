@@ -130,6 +130,10 @@ class Phantom(QObject):
     def scriptLookupDir(self, dirPath):
         self.m_page.scriptLookupDir = dirPath
 
+    @pyqtProperty(str)
+    def scriptName(self):
+        return os.path.basename(self.m_scriptFile)
+
     @pyqtProperty('QVariantMap')
     def version(self):
         version = {
