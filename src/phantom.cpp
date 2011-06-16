@@ -241,3 +241,8 @@ void Phantom::setScriptLookupDir(const QString &dirPath)
 {
    m_page->setScriptLookupDir(dirPath);
 }
+
+QString Phantom::scriptName() const
+{
+    return QFileInfo(m_scriptFile).fileName();
+}
