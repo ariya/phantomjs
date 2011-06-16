@@ -4,11 +4,13 @@ function sleepSort(array, callback) {
     var sortedCount = 0,
         i, len;
     for ( i = 0, len = array.length; i < len; ++i ) {
-        setTimeout((function(num, j){
+        setTimeout((function(j){
             return function() {
-                console.log(' ' + num + ' '), ++sortedCount, ( len === sortedCount) && callback();
+                console.log(array[j]);
+                ++sortedCount;
+                (len === sortedCount) && callback();
             };
-        }(array[i], i)), array[i]);
+        }(i)), array[i]);
     }
 }
 
