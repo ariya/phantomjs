@@ -52,8 +52,14 @@ CSConverter::CSConverter(QObject *parent)
 QString CSConverter::convert(const QString &script)
 {
     setProperty("source", script);
-    QVariant result = m_webPage.mainFrame()->evaluateJavaScript("this.CoffeeScript.compile(converter.source)");
-    if (result.type() == QVariant::String)
-        return result.toString();
-    return QString();
+    QVariant result = m_webPage.mainFrame()->evaluateJavaScript("try {" \
+                                                                "    [true, this.CoffeeScript.compile(converter.source)];" \
+                                                                "} catch (error) {" \
+                                                                "    [false, error.message];" \
+                                                                "}");
+    if (result.toStringList().at(0) == "false") {
+        qCritical(qPrintable(result.toStringList().at(1)));
+        exit(1);
+    }
+    return result.toStringList().at(1);
 }
