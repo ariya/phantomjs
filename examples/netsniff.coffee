@@ -1,5 +1,5 @@
-if not Date::.toISOString
-    Date::.toISOString = ->
+if not Date::toISOString
+    Date::toISOString = ->
         pad = (n) ->
             if n < 10 then '0' + n else n
         ms = (n) ->
