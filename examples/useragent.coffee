@@ -1,5 +1,8 @@
 page = new WebPage()
 
+console.log 'The default user agent is ' + page.settings.userAgent
+
+page.settings.userAgent = 'SpecialAgent'
 page.open 'http://www.httpuseragent.org', (status) ->
   if status isnt 'success'
     console.log 'Unable to access network'
