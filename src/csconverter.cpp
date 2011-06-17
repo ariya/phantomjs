@@ -58,8 +58,8 @@ QString CSConverter::convert(const QString &script)
                                                                 "    [false, error.message];" \
                                                                 "}");
     if (result.toStringList().at(0) == "false") {
-        qCritical(qPrintable(result.toStringList().at(1)));
-        exit(1);
+        qWarning(qPrintable(result.toStringList().at(1)));
+        return QString();
     }
     return result.toStringList().at(1);
 }

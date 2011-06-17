@@ -19,7 +19,7 @@
 
 import sys
 
-from PyQt4.QtCore import QObject, QFile
+from PyQt4.QtCore import QObject, QFile, qWarning
 from PyQt4.QtWebKit import QWebPage
 
 
@@ -45,5 +45,6 @@ class CSConverter(QObject):
                                                                       [false, error.message];
                                                                   }''')
         if result[0] is False:
-            sys.exit(result[1])
+            qWarning(result[1])
+            return ''
         return result[1]
