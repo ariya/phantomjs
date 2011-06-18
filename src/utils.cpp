@@ -42,7 +42,7 @@ void Utils::showUsage()
     QFile file;
     file.setFileName(":/usage.txt");
     if ( !file.open(QFile::ReadOnly) ) {
-        qFatal("Unable to print the usage message");
+        std::cerr << "Unable to print the usage message" << std::endl;
         exit(1);
     }
     std::cout << qPrintable(QString::fromUtf8(file.readAll()));
@@ -107,7 +107,7 @@ bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &libraryPat
             jsFile.close();
             return true;
         } else {
-            std::cerr << "Can't open '" << qPrintable(jsFilePath) << "'" << std::endl << std::endl;
+            qWarning() << "Can't open '" << qPrintable(jsFilePath) << "'";
         }
     }
     return false;
