@@ -165,14 +165,14 @@ void WebPage::setContent(const QString &content)
 }
 
 
-QString WebPage::scriptLookupDir() const
+QString WebPage::libraryPath() const
 {
-   return m_scriptLookupDir;
+   return m_libraryPath;
 }
 
-void WebPage::setScriptLookupDir(const QString &dirPath)
+void WebPage::setLibraryPath(const QString &libraryPath)
 {
-   m_scriptLookupDir = dirPath;
+   m_libraryPath = libraryPath;
 }
 
 void WebPage::applySettings(const QVariantMap &def)
@@ -487,7 +487,7 @@ void WebPage::uploadFile(const QString &selector, const QString &fileName)
 #endif
 
 bool WebPage::injectJs(const QString &jsFilePath) {
-    return Utils::injectJsInFrame(jsFilePath, m_scriptLookupDir, m_mainFrame);
+    return Utils::injectJsInFrame(jsFilePath, m_libraryPath, m_mainFrame);
 }
 
 void WebPage::_appendScriptElement(const QString &scriptUrl) {

@@ -106,11 +106,11 @@ def coffee2js(script):
     return coffeeScriptConverter.convert(script)
 
 
-def injectJsInFrame(filePath, scriptLookupDir, targetFrame):
+def injectJsInFrame(filePath, libraryPath, targetFrame):
     try:
         # if file doesn't exist in the CWD, use the lookup
         if not os.path.exists(filePath):
-            filePath = os.path.join(scriptLookupDir, filePath)
+            filePath = os.path.join(libraryPath, filePath)
 
         with codecs.open(filePath, encoding='utf-8') as f:
             script = f.read()

@@ -158,7 +158,7 @@ Phantom::Phantom(QObject *parent)
     m_defaultPageSettings["userAgent"] = QVariant::fromValue(m_page->userAgent());
     m_page->applySettings(m_defaultPageSettings);
 
-    setScriptLookupDir(QFileInfo(m_scriptFile).dir().absolutePath());
+    setLibraryPath(QFileInfo(m_scriptFile).dir().absolutePath());
 
     m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
 
@@ -221,7 +221,7 @@ QObject *Phantom::createWebPage()
     WebPage *page = new WebPage(this);
     page->applySettings(m_defaultPageSettings);
     page->setNetworkAccessManager(m_netAccessMan);
-    page->setScriptLookupDir(QFileInfo(m_scriptFile).dir().absolutePath());
+    page->setLibraryPath(QFileInfo(m_scriptFile).dir().absolutePath());
     return page;
 }
 
@@ -233,7 +233,7 @@ void Phantom::exit(int code)
 }
 
 bool Phantom::injectJs(const QString &jsFilePath) {
-    return Utils::injectJsInFrame(jsFilePath, scriptLookupDir(), m_page->mainFrame());
+    return Utils::injectJsInFrame(jsFilePath, libraryPath(), m_page->mainFrame());
 }
 
 void Phantom::printConsoleMessage(const QString &msg)
@@ -241,14 +241,14 @@ void Phantom::printConsoleMessage(const QString &msg)
     std::cout << qPrintable(msg) << std::endl;
 }
 
-QString Phantom::scriptLookupDir() const
+QString Phantom::libraryPath() const
 {
-   return m_page->scriptLookupDir();
+   return m_page->libraryPath();
 }
 
-void Phantom::setScriptLookupDir(const QString &dirPath)
+void Phantom::setLibraryPath(const QString &libraryPath)
 {
-   m_page->setScriptLookupDir(dirPath);
+   m_page->setLibraryPath(libraryPath);
 }
 
 QString Phantom::scriptName() const
