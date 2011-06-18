@@ -164,13 +164,13 @@ Phantom::Phantom(QObject *parent)
 
     QFile file(":/bootstrap.js");
     if (!file.open(QFile::ReadOnly)) {
-        qCritical() << "Can not bootstrap!";
+        std::cerr << "Can not bootstrap!" << std::endl;
         exit(1);
     }
     QString bootstrapper = QString::fromUtf8(file.readAll());
     file.close();
     if (bootstrapper.isEmpty()) {
-        qCritical() << "Can not bootstrap!";
+        std::cerr << "Can not bootstrap!" << std::endl;
         exit(1);
     }
     m_page->mainFrame()->evaluateJavaScript(bootstrapper);
