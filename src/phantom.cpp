@@ -199,7 +199,7 @@ bool Phantom::execute()
         return false;
     }
 
-    return true;
+    return !m_terminated;
 }
 
 int Phantom::returnValue() const
