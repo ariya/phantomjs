@@ -188,9 +188,18 @@ QVariantMap Phantom::defaultPageSettings() const
 
 bool Phantom::execute()
 {
-    return !m_scriptFile.isEmpty() &&                                                           //< script filename provided
-            Utils::injectJsInFrame(m_scriptFile, QDir::currentPath(), m_page->mainFrame()) &&   //< script injected
-            !m_terminated;                                                                      //< not terminated
+    if (m_terminated)
+        return false;
+
+    if (m_scriptFile.isEmpty())
+        return false;
+
+    if (!Utils::injectJsInFrame(m_scriptFile, QDir::currentPath(), m_page->mainFrame())) {
+        m_returnValue = -1;
+        return false;
+    }
+
+    return true;
 }
 
 int Phantom::returnValue() const
