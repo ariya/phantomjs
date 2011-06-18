@@ -118,8 +118,8 @@ Phantom::Phantom(QObject *parent)
             continue;
         }
         if (arg.startsWith("--")) {
-            qFatal("Unknown option '%s'", qPrintable(arg));
-            exit(-1);
+            std::cerr << "Unknown option '" << qPrintable(arg) << "'" << std::endl;
+            m_terminated = true;
             return;
         } else {
             m_scriptFile = arg;
