@@ -80,7 +80,7 @@ QString Utils::coffee2js(const QString &script)
     return coffeeScriptConverter->convert(script);
 }
 
-bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame)
+bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript)
 {
     // Don't do anything if an empty string is passed
     if (!jsFilePath.isEmpty()) {
@@ -100,10 +100,23 @@ bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &libraryPat
                 scriptBody.prepend("//");
             }
 
-            // Execute JS code in the context of the document
-            targetFrame->evaluateJavaScript(jsFile.fileName().endsWith(COFFEE_SCRIPT_EXTENSION) ?
+            scriptBody = jsFile.fileName().endsWith(COFFEE_SCRIPT_EXTENSION) ?
                                         Utils::coffee2js(scriptBody) : //< convert from Coffee Script
-                                        scriptBody);
+                                        scriptBody;
+
+            // prepare start script for exiting
+            if (startingScript) {
+                scriptBody = QString("try {" \
+                                     "    %1" \
+                                     "} catch (err) {" \
+                                     "    if (err !== 'phantom.exit') {" \
+                                     "        throw err;" \
+                                     "    }" \
+                                     "}").arg(scriptBody);
+            }
+
+            // Execute JS code in the context of the document
+            targetFrame->evaluateJavaScript(scriptBody);
             jsFile.close();
             return true;
         } else {

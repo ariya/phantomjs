@@ -106,7 +106,7 @@ def coffee2js(script):
     return coffeeScriptConverter.convert(script)
 
 
-def injectJsInFrame(filePath, libraryPath, targetFrame):
+def injectJsInFrame(filePath, libraryPath, targetFrame, startingScript=False):
     try:
         # if file doesn't exist in the CWD, use the lookup
         if not os.path.exists(filePath):
@@ -118,7 +118,20 @@ def injectJsInFrame(filePath, libraryPath, targetFrame):
         if script.startswith('#!') and not filePath.lower().endswith('.coffee'):
             script = '//' + script
 
-        targetFrame.evaluateJavaScript(script if not filePath.lower().endswith('.coffee') else coffee2js(script))
+        script = script if not filePath.lower().endswith('.coffee') else coffee2js(script)
+
+        # prepare start script for exiting
+        if startingScript:
+            script = '''try {
+                            %s
+                        } catch (err) {
+                            if (err !== 'phantom.exit') {
+                                throw err;
+                            }
+                        }
+                     ''' % script
+
+        targetFrame.evaluateJavaScript(script)
         return True
     except IOError:
         qWarning('No such file or directory: \'%s\'' % filePath)

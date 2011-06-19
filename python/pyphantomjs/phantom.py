@@ -82,7 +82,7 @@ class Phantom(QObject):
         do_action('PhantomInitPost', Bunch(locals()))
 
     def execute(self):
-        injectJsInFrame(self.m_scriptFile, os.path.dirname(os.path.abspath(__file__)), self.m_page.mainFrame())
+        injectJsInFrame(self.m_scriptFile, os.path.dirname(os.path.abspath(__file__)), self.m_page.mainFrame(), True)
         return not self.m_terminated
 
     def printConsoleMessage(self, msg):
@@ -94,6 +94,11 @@ class Phantom(QObject):
     ##
     # Properties and methods exposed to JavaScript
     ##
+
+    @pyqtSlot(int)
+    def _exit(self, code):
+        self.m_terminated = True
+        self.m_returnValue = code
 
     @pyqtProperty('QStringList')
     def args(self):
@@ -110,13 +115,6 @@ class Phantom(QObject):
     @pyqtProperty('QVariantMap')
     def defaultPageSettings(self):
         return self.m_defaultPageSettings
-
-    @pyqtSlot()
-    @pyqtSlot(int)
-    def exit(self, code=0):
-        self.m_terminated = True
-        self.m_returnValue = code
-        QApplication.instance().exit(code)
 
     @pyqtSlot(str, result=bool)
     def injectJs(self, filePath):

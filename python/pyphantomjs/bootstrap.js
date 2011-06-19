@@ -74,3 +74,14 @@ window.WebPage = function() {
 
     return page;
 }
+
+phantom.exit = function(code) {
+    if (code == null) {
+        code = 0;
+    }
+
+    phantom._exit(code);
+
+    // halt javascript execution
+    throw "phantom.exit";
+}
