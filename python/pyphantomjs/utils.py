@@ -118,12 +118,22 @@ def injectJsInFrame(filePath, libraryPath, targetFrame, startingScript=False):
         if script.startswith('#!') and not filePath.lower().endswith('.coffee'):
             script = '//' + script
 
-        script = script if not filePath.lower().endswith('.coffee') else coffee2js(script)
+        if filePath.lower().endswith('.coffee'):
+            result = coffee2js(script)
+            if result[0] is False:
+                if startingScript:
+                    sys.exit(result[1])
+                else:
+                    qWarning(result[1])
+                    script = ''
+            else:
+                script = result[1]
 
         # prepare start script for exiting
         if startingScript:
             script = '''try { %s } catch (err) {
                             if (err !== 'phantom.exit') {
+                                phantom._exit(1);
                                 throw err;
                             }
                         }

@@ -37,7 +37,7 @@ class CSConverter: public QObject
 {
 public:
     CSConverter(QObject *parent = 0);
-    QString convert(const QString &script);
+    QVariant convert(const QString &script);
 
 private:
     QWebPage m_webPage;
