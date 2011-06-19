@@ -122,9 +122,7 @@ def injectJsInFrame(filePath, libraryPath, targetFrame, startingScript=False):
 
         # prepare start script for exiting
         if startingScript:
-            script = '''try {
-                            %s
-                        } catch (err) {
+            script = '''try { %s } catch (err) {
                             if (err !== 'phantom.exit') {
                                 throw err;
                             }
