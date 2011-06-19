@@ -121,8 +121,8 @@ Phantom::Phantom(QObject *parent)
             continue;
         }
         if (arg.startsWith("--")) {
-            qFatal("Unknown option '%s'", qPrintable(arg));
-            exit(-1);
+            std::cerr << "Unknown option '" << qPrintable(arg) << "'" << std::endl;
+            m_terminated = true;
             return;
         } else {
             m_scriptFile = arg;
@@ -161,19 +161,19 @@ Phantom::Phantom(QObject *parent)
     m_defaultPageSettings["userAgent"] = QVariant::fromValue(m_page->userAgent());
     m_page->applySettings(m_defaultPageSettings);
 
-    setScriptLookupDir(QFileInfo(m_scriptFile).dir().absolutePath());
+    setLibraryPath(QFileInfo(m_scriptFile).dir().absolutePath());
 
     m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
 
     QFile file(":/bootstrap.js");
     if (!file.open(QFile::ReadOnly)) {
-        qCritical() << "Can not bootstrap!";
+        std::cerr << "Can not bootstrap!" << std::endl;
         exit(1);
     }
     QString bootstrapper = QString::fromUtf8(file.readAll());
     file.close();
     if (bootstrapper.isEmpty()) {
-        qCritical() << "Can not bootstrap!";
+        std::cerr << "Can not bootstrap!" << std::endl;
         exit(1);
     }
     m_page->mainFrame()->evaluateJavaScript(bootstrapper);
@@ -191,9 +191,18 @@ QVariantMap Phantom::defaultPageSettings() const
 
 bool Phantom::execute()
 {
-    return !m_scriptFile.isEmpty() &&                                                           //< script filename provided
-            Utils::injectJsInFrame(m_scriptFile, QDir::currentPath(), m_page->mainFrame()) &&   //< script injected
-            !m_terminated;                                                                      //< not terminated
+    if (m_terminated)
+        return false;
+
+    if (m_scriptFile.isEmpty())
+        return false;
+
+    if (!Utils::injectJsInFrame(m_scriptFile, QDir::currentPath(), m_page->mainFrame())) {
+        m_returnValue = -1;
+        return false;
+    }
+
+    return !m_terminated;
 }
 
 int Phantom::returnValue() const
@@ -201,14 +210,19 @@ int Phantom::returnValue() const
     return m_returnValue;
 }
 
-QString Phantom::scriptLookupDir() const
+QString Phantom::libraryPath() const
 {
-   return m_page->scriptLookupDir();
+   return m_page->libraryPath();
 }
 
-void Phantom::setScriptLookupDir(const QString &dirPath)
+void Phantom::setLibraryPath(const QString &libraryPath)
 {
-   m_page->setScriptLookupDir(dirPath);
+   m_page->setLibraryPath(libraryPath);
+}
+
+QString Phantom::scriptName() const
+{
+    return QFileInfo(m_scriptFile).fileName();
 }
 
 QVariantMap Phantom::version() const
@@ -226,12 +240,12 @@ QObject *Phantom::createWebPage()
     WebPage *page = new WebPage(this);
     page->applySettings(m_defaultPageSettings);
     page->setNetworkAccessManager(m_netAccessMan);
-    page->setScriptLookupDir(QFileInfo(m_scriptFile).dir().absolutePath());
+    page->setLibraryPath(QFileInfo(m_scriptFile).dir().absolutePath());
     return page;
 }
 
 bool Phantom::injectJs(const QString &jsFilePath) {
-    return Utils::injectJsInFrame(jsFilePath, scriptLookupDir(), m_page->mainFrame());
+    return Utils::injectJsInFrame(jsFilePath, libraryPath(), m_page->mainFrame());
 }
 
 bool Phantom::writeToFile(const QString &filename, const QString &filecontent, const bool append)
@@ -292,5 +306,3 @@ void Phantom::printConsoleMessage(const QString &msg, const QString &source, con
         std::cout << qPrintable(msg) << std::endl;
     }
 }
-
-

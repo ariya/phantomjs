@@ -40,7 +40,7 @@ CSConverter::CSConverter(QObject *parent)
 {
     QFile file(":/coffee-script.js");
     if (!file.open(QFile::ReadOnly)) {
-        qFatal("CoffeeScript compiler is not available!");
+        std::cerr << "CoffeeScript compiler is not available!" << std::endl;
         exit(1);
     }
     QString script = QString::fromUtf8(file.readAll());
@@ -52,8 +52,14 @@ CSConverter::CSConverter(QObject *parent)
 QString CSConverter::convert(const QString &script)
 {
     setProperty("source", script);
-    QVariant result = m_webPage.mainFrame()->evaluateJavaScript("this.CoffeeScript.compile(converter.source)");
-    if (result.type() == QVariant::String)
-        return result.toString();
-    return QString();
+    QVariant result = m_webPage.mainFrame()->evaluateJavaScript("try {" \
+                                                                "    [true, this.CoffeeScript.compile(converter.source)];" \
+                                                                "} catch (error) {" \
+                                                                "    [false, error.message];" \
+                                                                "}");
+    if (result.toStringList().at(0) == "false") {
+        qWarning(qPrintable(result.toStringList().at(1)));
+        return QString();
+    }
+    return result.toStringList().at(1);
 }

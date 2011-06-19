@@ -82,7 +82,7 @@ class WebPage(QObject):
         # variable declarations
         self.m_paperSize = {}
         self.m_clipRect = QRect()
-        self.m_scriptLookupDir = ''
+        self.m_libraryPath = ''
 
         self.setObjectName('WebPage')
         self.m_webPage = CustomPage(self)
@@ -316,7 +316,7 @@ class WebPage(QObject):
 
     @pyqtSlot(str, result=bool)
     def injectJs(self, filePath):
-        return injectJsInFrame(filePath, self.m_scriptLookupDir, self.m_mainFrame)
+        return injectJsInFrame(filePath, self.m_libraryPath, self.m_mainFrame)
 
     @pyqtSlot(str, str, 'QVariantMap')
     @pyqtSlot(str, 'QVariantMap', 'QVariantMap')
@@ -378,12 +378,12 @@ class WebPage(QObject):
         return image.save(fileName)
 
     @pyqtProperty(str)
-    def scriptLookupDir(self):
-        return self.m_scriptLookupDir
+    def libraryPath(self):
+        return self.m_libraryPath
 
-    @scriptLookupDir.setter
-    def scriptLookupDir(self, dirPath):
-        self.m_scriptLookupDir = dirPath
+    @libraryPath.setter
+    def libraryPath(self, dirPath):
+        self.m_libraryPath = dirPath
 
     @pyqtSlot(str, str)
     def uploadFile(self, selector, fileName):

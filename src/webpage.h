@@ -42,7 +42,7 @@ class WebPage: public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString content READ content WRITE setContent)
-    Q_PROPERTY(QString scriptLookupDir READ scriptLookupDir WRITE setScriptLookupDir)
+    Q_PROPERTY(QString libraryPath READ libraryPath WRITE setLibraryPath)
     Q_PROPERTY(QVariantMap viewportSize READ viewportSize WRITE setViewportSize)
     Q_PROPERTY(QVariantMap paperSize READ paperSize WRITE setPaperSize)
     Q_PROPERTY(QVariantMap clipRect READ clipRect WRITE setClipRect)
@@ -56,8 +56,8 @@ public:
     QString content() const;
     void setContent(const QString &content);
 
-    QString scriptLookupDir() const;
-    void setScriptLookupDir(const QString &dirPath);
+    QString libraryPath() const;
+    void setLibraryPath(const QString &dirPath);
 
     void setViewportSize(const QVariantMap &size);
     QVariantMap viewportSize() const;
@@ -96,7 +96,7 @@ private:
     QWebFrame *m_mainFrame;
     QRect m_clipRect;
     QVariantMap m_paperSize; // For PDF output via render()
-    QString m_scriptLookupDir;
+    QString m_libraryPath;
 
     QImage renderImage();
     bool renderPdf(const QString &fileName);

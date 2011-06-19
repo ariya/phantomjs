@@ -42,7 +42,7 @@ void Utils::showUsage()
     QFile file;
     file.setFileName(":/usage.txt");
     if ( !file.open(QFile::ReadOnly) ) {
-        qFatal("Unable to print the usage message");
+        std::cerr << "Unable to print the usage message" << std::endl;
         exit(1);
     }
     std::cout << qPrintable(QString::fromUtf8(file.readAll()));
@@ -80,7 +80,7 @@ QString Utils::coffee2js(const QString &script)
     return coffeeScriptConverter->convert(script);
 }
 
-bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &scriptLookupDir, QWebFrame *targetFrame)
+bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame)
 {
     // Don't do anything if an empty string is passed
     if (!jsFilePath.isEmpty()) {
@@ -90,7 +90,7 @@ bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &scriptLook
         jsFile.setFileName(QDir::fromNativeSeparators(jsFilePath)); //< Normalise User-provided path
         if (!jsFile.exists()) {
             // File is not in the PWD. Is it in the lookup directory?
-            jsFile.setFileName( scriptLookupDir + '/' + QDir::fromNativeSeparators(jsFilePath) );
+            jsFile.setFileName( libraryPath + '/' + QDir::fromNativeSeparators(jsFilePath) );
         }
 
         if ( jsFile.open(QFile::ReadOnly) ) {
@@ -107,7 +107,7 @@ bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &scriptLook
             jsFile.close();
             return true;
         } else {
-            std::cerr << "Can't open '" << qPrintable(jsFilePath) << "'" << std::endl << std::endl;
+            qWarning() << "Can't open '" << qPrintable(jsFilePath) << "'";
         }
     }
     return false;
