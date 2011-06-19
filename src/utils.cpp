@@ -132,7 +132,11 @@ bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &libraryPat
             jsFile.close();
             return true;
         } else {
-            qWarning() << "Can't open '" << qPrintable(jsFilePath) << "'";
+            if (startingScript) {
+                std::cerr << "Can't open '" << qPrintable(jsFilePath) << "'" << std::endl;
+            } else {
+                qWarning("Can't open '%s'", qPrintable(jsFilePath));
+            }
         }
     }
     return false;
