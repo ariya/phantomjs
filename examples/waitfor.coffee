@@ -32,10 +32,6 @@ waitFor = (testFx, onReady, timeOutMillis=3000) ->
 
 page = new WebPage()
 
-# Route "console.log()" calls from within the Page context to the main Phantom context (i.e. current "this")
-page.onConsoleMessage = (msg) ->
-    console.log msg
-
 # Open Twitter on 'sencha' profile and, onPageLoad, do...
 page.open 'http://twitter.com/#!/sencha', (status) ->
     # Check for page load success
