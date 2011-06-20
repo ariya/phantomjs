@@ -99,6 +99,7 @@ class Phantom(QObject):
     def _exit(self, code):
         self.m_terminated = True
         self.m_returnValue = code
+        QApplication.instance().exit(code)
 
     @pyqtProperty('QStringList')
     def args(self):

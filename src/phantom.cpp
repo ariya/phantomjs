@@ -229,6 +229,7 @@ void Phantom::_exit(int code)
 {
     m_terminated = true;
     m_returnValue = code;
+    QApplication::instance()->exit(code);
 }
 
 bool Phantom::injectJs(const QString &jsFilePath) {
