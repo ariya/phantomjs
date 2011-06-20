@@ -106,7 +106,7 @@ def coffee2js(script):
     return coffeeScriptConverter.convert(script)
 
 
-def injectJsInFrame(filePath, libraryPath, targetFrame):
+def injectJsInFrame(filePath, libraryPath, targetFrame, startingScript=False):
     try:
         # if file doesn't exist in the CWD, use the lookup
         if not os.path.exists(filePath):
@@ -118,7 +118,28 @@ def injectJsInFrame(filePath, libraryPath, targetFrame):
         if script.startswith('#!') and not filePath.lower().endswith('.coffee'):
             script = '//' + script
 
-        targetFrame.evaluateJavaScript(script if not filePath.lower().endswith('.coffee') else coffee2js(script))
+        if filePath.lower().endswith('.coffee'):
+            result = coffee2js(script)
+            if result[0] is False:
+                if startingScript:
+                    sys.exit(result[1])
+                else:
+                    qWarning(result[1])
+                    script = ''
+            else:
+                script = result[1]
+
+        # prepare start script for exiting
+        if startingScript:
+            script = '''try { %s } catch (err) {
+                            if (err !== 'phantom.exit') {
+                                phantom._exit(1);
+                                throw err;
+                            }
+                        }
+                     ''' % script
+
+        targetFrame.evaluateJavaScript(script)
         return True
     except IOError:
         qWarning('No such file or directory: \'%s\'' % filePath)
@@ -149,7 +170,7 @@ class SafeStreamFilter(object):
         self.target = target
         self.encoding = 'utf-8'
         self.errors = 'replace'
-        self.encode_to = self.target.encoding
+        self.encode_to = self.target.encoding or 'utf-8'
 
     def write(self, s):
         s = self.encode(s)
