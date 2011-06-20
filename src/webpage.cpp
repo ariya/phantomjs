@@ -287,8 +287,10 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
         networkOp = QNetworkAccessManager::PutOperation;
     else if (operation == "post")
         networkOp = QNetworkAccessManager::PostOperation;
+#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
     else if (operation == "delete")
         networkOp = QNetworkAccessManager::DeleteOperation;
+#endif
 
     if (networkOp == QNetworkAccessManager::UnknownOperation) {
         m_mainFrame->evaluateJavaScript("console.error('Unknown network operation: " + operation + "');");
