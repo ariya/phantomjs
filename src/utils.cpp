@@ -115,18 +115,6 @@ bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &libraryPat
                 }
             }
 
-            // prepare start script for exiting
-            if (startingScript) {
-                scriptBody = QString("try {" \
-                                     "    %1" \
-                                     "} catch (err) {" \
-                                     "    if (err !== 'phantom.exit') {" \
-                                     "        phantom._exit(1);" \
-                                     "        throw err;" \
-                                     "    }" \
-                                     "}").arg(scriptBody);
-            }
-
             // Execute JS code in the context of the document
             targetFrame->evaluateJavaScript(scriptBody);
             jsFile.close();

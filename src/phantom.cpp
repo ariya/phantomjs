@@ -226,7 +226,7 @@ QObject *Phantom::createWebPage()
     return page;
 }
 
-void Phantom::_exit(int code)
+void Phantom::exit(int code)
 {
     m_terminated = true;
     m_returnValue = code;
