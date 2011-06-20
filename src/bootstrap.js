@@ -32,27 +32,52 @@ window.WebPage = function() {
     defineSetter("onConsoleMessage", "javaScriptConsoleMessageSent");
 
     page.open = function () {
-        if (arguments.length === 1) {
-            this.openUrl(arguments[0], 'get', this.settings);
-            return;
+        function wireUpLoadFinished() {
+            var loadFinishedHandler, loadFinishedWrapper, thePage;
+
+            loadFinishedHandler = null;
+            if (arguments.length == 2) {
+                loadFinishedHandler = arguments[1];
+            } else if (arguments.length == 3) {
+                loadFinishedHandler = arguments[2];
+            } else if (arguments.length == 4) {
+                loadFinishedHandler = arguments[3];
+            }
+
+            if (loadFinishedHandler && typeof loadFinishedHandler === 'function') {
+                thePage = this;
+                loadFinishedWrapper = function(status) {          
+                    loadFinishedHandler(status);
+                    thePage.loadFinished.disconnect(arguments.callee);
+                }
+
+                this.onLoadFinished = loadFinishedWrapper;
+            }          
         }
-        if (arguments.length === 2) {
-            this.onLoadFinished = arguments[1];
-            this.openUrl(arguments[0], 'get', this.settings);
-            return;
-        } else if (arguments.length === 3) {
-            this.onLoadFinished = arguments[2];
-            this.openUrl(arguments[0], arguments[1], this.settings);
-            return;
-        } else if (arguments.length === 4) {
-            this.onLoadFinished = arguments[3];
-            this.openUrl(arguments[0], {
-                operation: arguments[1],
-                data: arguments[2]
-                }, this.settings);
-            return;
+        
+        function callOpenUrl() {
+            if (arguments.length === 1) {
+                this.openUrl(arguments[0], 'get', this.settings);
+                return;
+            }
+            if (arguments.length === 2) {            
+                this.openUrl(arguments[0], 'get', this.settings);
+                return;
+            } else if (arguments.length === 3) {
+                this.openUrl(arguments[0], arguments[1], this.settings);
+                return;
+            } else if (arguments.length === 4) {
+                this.openUrl(arguments[0], {
+                    operation: arguments[1],
+                    data: arguments[2]
+                    }, this.settings);
+                return;
+            }
+            throw "Wrong use of WebPage#open";          
         }
-        throw "Wrong use of WebPage#open";
+        
+        wireUpLoadFinished.apply(this, arguments);
+        callOpenUrl.apply(this, arguments);
     };
 
     page.includeJs = function(scriptUrl, onScriptLoaded) {
