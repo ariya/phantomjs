@@ -170,7 +170,7 @@ class SafeStreamFilter(object):
         self.target = target
         self.encoding = 'utf-8'
         self.errors = 'replace'
-        self.encode_to = self.target.encoding
+        self.encode_to = self.target.encoding or 'utf-8'
 
     def write(self, s):
         s = self.encode(s)
