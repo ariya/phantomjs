@@ -49,7 +49,7 @@ CSConverter::CSConverter(QObject *parent)
     m_webPage.mainFrame()->addToJavaScriptWindowObject("converter", this);
 }
 
-QString CSConverter::convert(const QString &script)
+QVariant CSConverter::convert(const QString &script)
 {
     setProperty("source", script);
     QVariant result = m_webPage.mainFrame()->evaluateJavaScript("try {" \
@@ -57,9 +57,5 @@ QString CSConverter::convert(const QString &script)
                                                                 "} catch (error) {" \
                                                                 "    [false, error.message];" \
                                                                 "}");
-    if (result.toStringList().at(0) == "false") {
-        qWarning(qPrintable(result.toStringList().at(1)));
-        return QString();
-    }
-    return result.toStringList().at(1);
+    return result;
 }

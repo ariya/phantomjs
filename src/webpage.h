@@ -84,7 +84,7 @@ signals:
     void loadStarted();
     void loadFinished(const QString &status);
     void javaScriptAlertSent(const QString &msg);
-    void javaScriptConsoleMessageSent(const QString &msg, const QString &source, const int lineNumber);
+    void javaScriptConsoleMessageSent(const QString &message, int lineNumber, const QString &source);
     void resourceRequested(const QVariant &req);
     void resourceReceived(const QVariant &resource);
 
@@ -104,7 +104,7 @@ private:
     QString userAgent() const;
 
     void emitAlert(const QString &msg);
-    void emitConsoleMessage(const QString &msg, const QString &source = QString(), const int lineNumber = -1);
+    void emitConsoleMessage(const QString &msg, int lineNumber, const QString &source);
 
     friend class Phantom;
     friend class CustomPage;

@@ -2,9 +2,6 @@
 
 page = new WebPage()
 
-page.onConsoleMessage = (msg) ->
-  console.log(msg);
-
 page.open 'http://www.google.com/m/local?site=local&q=pizza+in+new+york',
   (status) ->
     if status isnt 'success'

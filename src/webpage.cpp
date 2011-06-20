@@ -84,12 +84,7 @@ protected:
     }
 
     void javaScriptConsoleMessage(const QString &message, int lineNumber, const QString &sourceID) {
-        QString msg = message;
-        if (!sourceID.isEmpty()) {
-            m_webPage->emitConsoleMessage(msg, sourceID, lineNumber);
-        } else {
-            m_webPage->emitConsoleMessage(msg);
-        }
+        m_webPage->emitConsoleMessage(message, lineNumber, sourceID);
     }
 
     QString userAgentForUrl(const QUrl &url) const {
@@ -253,9 +248,9 @@ void WebPage::emitAlert(const QString &msg)
     emit javaScriptAlertSent(msg);
 }
 
-void WebPage::emitConsoleMessage(const QString &msg, const QString &source, const int lineNumber)
+void WebPage::emitConsoleMessage(const QString &message, int lineNumber, const QString &source)
 {
-    emit javaScriptConsoleMessageSent(msg, source, lineNumber);
+    emit javaScriptConsoleMessageSent(message, lineNumber, source);
 }
 
 void WebPage::finish(bool ok)

@@ -154,7 +154,7 @@ Phantom::Phantom(QObject *parent)
     m_netAccessMan = new NetworkAccessManager(this, diskCacheEnabled, ignoreSslErrors);
     m_page->setNetworkAccessManager(m_netAccessMan);
 
-    connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString,QString,int)), SLOT(printConsoleMessage(QString,QString,int)));
+    connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString, int, QString)), SLOT(printConsoleMessage(QString, int, QString)));
 
     m_defaultPageSettings["loadImages"] = QVariant::fromValue(autoLoadImages);
     m_defaultPageSettings["loadPlugins"] = QVariant::fromValue(pluginsEnabled);
@@ -197,7 +197,7 @@ bool Phantom::execute()
     if (m_scriptFile.isEmpty())
         return false;
 
-    if (!Utils::injectJsInFrame(m_scriptFile, QDir::currentPath(), m_page->mainFrame())) {
+    if (!Utils::injectJsInFrame(m_scriptFile, QDir::currentPath(), m_page->mainFrame(), true)) {
         m_returnValue = -1;
         return false;
     }
@@ -242,6 +242,13 @@ QObject *Phantom::createWebPage()
     page->setNetworkAccessManager(m_netAccessMan);
     page->setLibraryPath(QFileInfo(m_scriptFile).dir().absolutePath());
     return page;
+}
+
+void Phantom::_exit(int code)
+{
+    m_terminated = true;
+    m_returnValue = code;
+    QApplication::instance()->exit(code);
 }
 
 bool Phantom::injectJs(const QString &jsFilePath) {
@@ -290,19 +297,11 @@ bool Phantom::deleteFile(const QString &filename)
     return QFile::remove(filename);
 }
 
-void Phantom::exit(int code)
-{
-    m_terminated = true;
-    m_returnValue = code;
-    QApplication::instance()->exit(code);
-}
-
 // private slots:
-void Phantom::printConsoleMessage(const QString &msg, const QString &source, const int lineNumber)
+void Phantom::printConsoleMessage(const QString &message, int lineNumber, const QString &source)
 {
-    if ( !source.isNull() ) {
-        std::cout << qPrintable(source + ':' + QString::number(lineNumber) + ' ' + msg) << std::endl;
-    } else {
-        std::cout << qPrintable(msg) << std::endl;
-    }
+    QString msg = message;
+    if (!source.isEmpty())
+        msg = source + ":" + QString::number(lineNumber) + " " + msg;
+    std::cout << qPrintable(msg) << std::endl;
 }

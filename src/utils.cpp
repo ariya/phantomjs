@@ -69,7 +69,7 @@ void Utils::messageHandler(QtMsgType type, const char *msg)
     }
 }
 
-QString Utils::coffee2js(const QString &script)
+QVariant Utils::coffee2js(const QString &script)
 {
     // We need only one instance of the CSConverter to survive for the whole life of PhantomJS
     static CSConverter *coffeeScriptConverter = NULL;
@@ -80,7 +80,7 @@ QString Utils::coffee2js(const QString &script)
     return coffeeScriptConverter->convert(script);
 }
 
-bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame)
+bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript)
 {
     // Don't do anything if an empty string is passed
     if (!jsFilePath.isEmpty()) {
@@ -100,14 +100,43 @@ bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &libraryPat
                 scriptBody.prepend("//");
             }
 
+            if (jsFile.fileName().endsWith(COFFEE_SCRIPT_EXTENSION)) {
+                QVariant result = Utils::coffee2js(scriptBody);
+                if (result.toStringList().at(0) == "false") {
+                    if (startingScript) {
+                        std::cerr << qPrintable(result.toStringList().at(1)) << std::endl;
+                        exit(1);
+                    } else {
+                        qWarning() << qPrintable(result.toStringList().at(1));
+                        scriptBody = QString();
+                    }
+                } else {
+                    scriptBody = result.toStringList().at(1);
+                }
+            }
+
+            // prepare start script for exiting
+            if (startingScript) {
+                scriptBody = QString("try {" \
+                                     "    %1" \
+                                     "} catch (err) {" \
+                                     "    if (err !== 'phantom.exit') {" \
+                                     "        phantom._exit(1);" \
+                                     "        throw err;" \
+                                     "    }" \
+                                     "}").arg(scriptBody);
+            }
+
             // Execute JS code in the context of the document
-            targetFrame->evaluateJavaScript(jsFile.fileName().endsWith(COFFEE_SCRIPT_EXTENSION) ?
-                                        Utils::coffee2js(scriptBody) : //< convert from Coffee Script
-                                        scriptBody);
+            targetFrame->evaluateJavaScript(scriptBody);
             jsFile.close();
             return true;
         } else {
-            qWarning() << "Can't open '" << qPrintable(jsFilePath) << "'";
+            if (startingScript) {
+                std::cerr << "Can't open '" << qPrintable(jsFilePath) << "'" << std::endl;
+            } else {
+                qWarning("Can't open '%s'", qPrintable(jsFilePath));
+            }
         }
     }
     return false;
