@@ -151,7 +151,8 @@ Phantom::Phantom(QObject *parent)
     m_netAccessMan = new NetworkAccessManager(this, diskCacheEnabled, ignoreSslErrors);
     m_page->setNetworkAccessManager(m_netAccessMan);
 
-    connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString)), SLOT(printConsoleMessage(QString)));
+    connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString, int, QString)),
+            SLOT(printConsoleMessage(QString, int, QString)));
 
     m_defaultPageSettings["loadImages"] = QVariant::fromValue(autoLoadImages);
     m_defaultPageSettings["loadPlugins"] = QVariant::fromValue(pluginsEnabled);
@@ -236,8 +237,11 @@ bool Phantom::injectJs(const QString &jsFilePath) {
     return Utils::injectJsInFrame(jsFilePath, libraryPath(), m_page->mainFrame());
 }
 
-void Phantom::printConsoleMessage(const QString &msg)
+void Phantom::printConsoleMessage(const QString &message, int lineNumber, const QString &source)
 {
+    QString msg = message;
+    if (!source.isEmpty())
+        msg = source + ":" + QString::number(lineNumber) + " " + msg;
     std::cout << qPrintable(msg) << std::endl;
 }
 

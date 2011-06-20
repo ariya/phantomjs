@@ -69,7 +69,7 @@ public slots:
     void exit(int code = 0);
 
 private slots:
-    void printConsoleMessage(const QString &msg);
+    void printConsoleMessage(const QString &msg, int lineNumber, const QString &source);
 
 private:
     QString m_scriptFile;
