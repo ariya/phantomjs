@@ -85,8 +85,10 @@ class Phantom(QObject):
         injectJsInFrame(self.m_scriptFile, os.path.dirname(os.path.abspath(__file__)), self.m_page.mainFrame(), True)
         return not self.m_terminated
 
-    def printConsoleMessage(self, msg):
-        print msg
+    def printConsoleMessage(self, message, lineNumber, source):
+        if source:
+            message = '%s:%d %s' % (source, lineNumber, message)
+        print message
 
     def returnValue(self):
         return self.m_returnValue
