@@ -97,12 +97,6 @@ class Phantom(QObject):
     # Properties and methods exposed to JavaScript
     ##
 
-    @pyqtSlot(int)
-    def _exit(self, code):
-        self.m_terminated = True
-        self.m_returnValue = code
-        QApplication.instance().exit(code)
-
     @pyqtProperty('QStringList')
     def args(self):
         return self.m_args
@@ -118,6 +112,13 @@ class Phantom(QObject):
     @pyqtProperty('QVariantMap')
     def defaultPageSettings(self):
         return self.m_defaultPageSettings
+
+    @pyqtSlot()
+    @pyqtSlot(int)
+    def exit(self, code=0):
+        self.m_terminated = True
+        self.m_returnValue = code
+        QApplication.instance().exit(code)
 
     @pyqtSlot(str, result=bool)
     def injectJs(self, filePath):
