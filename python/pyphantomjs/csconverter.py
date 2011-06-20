@@ -19,7 +19,7 @@
 
 import sys
 
-from PyQt4.QtCore import QObject, QFile, qWarning
+from PyQt4.QtCore import QObject, QFile
 from PyQt4.QtWebKit import QWebPage
 
 
@@ -43,8 +43,6 @@ class CSConverter(QObject):
                                                                       [true, this.CoffeeScript.compile(converter.source)];
                                                                   } catch (error) {
                                                                       [false, error.message];
-                                                                  }''')
-        if result[0] is False:
-            qWarning(result[1])
-            return ''
-        return result[1]
+                                                                  }
+                                                               ''')
+        return result

@@ -45,8 +45,8 @@ class Utils
 public:
     static void showUsage();
     static void messageHandler(QtMsgType type, const char *msg);
-    static QString coffee2js(const QString &script);
-    static bool injectJsInFrame(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame);
+    static QVariant coffee2js(const QString &script);
+    static bool injectJsInFrame(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
 
 private:
     Utils(); //< This class shouldn't be instantiated

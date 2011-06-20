@@ -195,7 +195,7 @@ bool Phantom::execute()
     if (m_scriptFile.isEmpty())
         return false;
 
-    if (!Utils::injectJsInFrame(m_scriptFile, QDir::currentPath(), m_page->mainFrame())) {
+    if (!Utils::injectJsInFrame(m_scriptFile, QDir::currentPath(), m_page->mainFrame(), true)) {
         m_returnValue = -1;
         return false;
     }
@@ -226,7 +226,7 @@ QObject *Phantom::createWebPage()
     return page;
 }
 
-void Phantom::exit(int code)
+void Phantom::_exit(int code)
 {
     m_terminated = true;
     m_returnValue = code;

@@ -58,9 +58,7 @@ class CustomPage(QWebPage):
         self.parent.javaScriptAlertSent.emit(msg)
 
     def javaScriptConsoleMessage(self, message, lineNumber, sourceID):
-        if sourceID:
-            message = '%s:%d %s' % (sourceID, lineNumber, message)
-        self.parent.javaScriptConsoleMessageSent.emit(message)
+        self.parent.javaScriptConsoleMessageSent.emit(message, lineNumber, sourceID)
 
     def userAgentForUrl(self, url):
         return self.m_userAgent
@@ -70,7 +68,7 @@ class CustomPage(QWebPage):
 
 class WebPage(QObject):
     javaScriptAlertSent = pyqtSignal(str)
-    javaScriptConsoleMessageSent = pyqtSignal(str)
+    javaScriptConsoleMessageSent = pyqtSignal(str, int, str)
     loadStarted = pyqtSignal()
     loadFinished = pyqtSignal(str)
     resourceReceived = pyqtSignal('QVariantMap')
