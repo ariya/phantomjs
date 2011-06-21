@@ -63,7 +63,7 @@ window.WebPage = function() {
                 onScriptLoaded(scriptUrl);
                 // And disconnect the signal handler
                 try {
-                    this.javaScriptAlertSent.disconnect(this);
+                    this.javaScriptAlertSent.disconnect(arguments.callee);
                 } catch (e) {}
             }
         });
@@ -73,48 +73,4 @@ window.WebPage = function() {
     };
 
     return page;
-}
-
-
-// override settimeout/setinterval with a try..catch
-window._setTimeout = window.setTimeout;
-window._setInterval = window.setInterval;
-window.setTimeout = function(func, delay) {
-    var f = function() {
-        try {
-            typeof func === 'function' ? func() : eval(func);
-        } catch (err) {
-            if (err !== 'phantom.exit') {
-                throw err;
-            }
-        }
-    }
-
-    return window._setTimeout(f, delay);
-}
-
-window.setInterval = function(func, delay, lang) {
-    var f = function() {
-        try {
-            typeof func === 'function' ? func() : eval(func);
-        } catch (err) {
-            if (err !== 'phantom.exit') {
-                throw err;
-            }
-        }
-    }
-
-    return window._setInterval(f, delay, lang);
-}
-
-
-phantom.exit = function(code) {
-    if (code == null) {
-        code = 0;
-    }
-
-    phantom._exit(code);
-
-    // halt javascript execution
-    throw "phantom.exit";
 }

@@ -66,7 +66,7 @@ public:
 public slots:
     QObject *createWebPage();
     bool injectJs(const QString &jsFilePath);
-    void _exit(int code);
+    void exit(int code = 0);
     
     bool writeToFile(const QString &filename, const QString &filecontent, const bool append = false);
     bool appendToFile(const QString &filename, const QString &filecontent);
