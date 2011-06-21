@@ -63,7 +63,7 @@ window.WebPage = function() {
                 onScriptLoaded(scriptUrl);
                 // And disconnect the signal handler
                 try {
-                    this.javaScriptAlertSent.disconnect(this);
+                    this.javaScriptAlertSent.disconnect(arguments.callee);
                 } catch (e) {}
             }
         });
