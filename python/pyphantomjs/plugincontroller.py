@@ -18,6 +18,7 @@
 '''
 
 import os
+import sys
 from glob import glob
 from collections import defaultdict
 
@@ -109,8 +110,13 @@ def load_plugins():
         have my_plugin.py inside the folder called.
     '''
 
+    # path is different when frozen
+    if hasattr(sys, 'frozen'):
+        path = os.path.dirname(os.path.abspath(sys.executable))
+    else:
+        path = os.path.dirname(os.path.abspath(__file__))
     # get plugin list
-    plugin_list = glob(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'plugins/*/*.py'))
+    plugin_list = glob(os.path.join(path, 'plugins/*/*.py'))
     # now convert list to [('plugin_folder', 'file'), ...]
     plugin_list = [(os.path.split(os.path.dirname(f))[1], os.path.splitext(os.path.split(f)[1])[0]) for f in plugin_list]
 
