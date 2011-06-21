@@ -230,6 +230,8 @@ void Phantom::exit(int code)
 {
     m_terminated = true;
     m_returnValue = code;
+    delete m_page;
+    m_page = 0;
     QApplication::instance()->exit(code);
 }
 
