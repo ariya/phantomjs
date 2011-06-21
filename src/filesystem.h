@@ -78,6 +78,7 @@ public slots:
     QString workDir() const;
     QString separator() const;
     QObject *open(const QString &path, const QString &mode) const;
+    bool remove(const QString &path) const;
 };
 
 #endif // FILESYSTEM_H

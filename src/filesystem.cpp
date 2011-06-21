@@ -169,3 +169,8 @@ QObject *FileSystem::open(const QString &path, const QString &mode) const
     // Return 'false/undefined' if the file couldn't be opened as requested
     return (f) ? f : false;
 }
+
+bool FileSystem::remove(const QString &path) const
+{
+    return QFile::remove(path);
+}
