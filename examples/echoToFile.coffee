@@ -5,10 +5,13 @@ if phantom.args.length < 2
   phantom.exit()
 else
   content = ""
+  f = null
   i = 1
   while i < phantom.args.length
     content += phantom.args[i] + (if i == phantom.args.length - 1 then "" else " ")
     ++i
-  phantom.writeToFile phantom.args[0], content
-  phantom.appendToFile phantom.args[0], "\n"
+  f = phantom.fs.open(phantom.args[0], "w")
+  if f
+    f.writeLine content
+    f.close()
   phantom.exit()
