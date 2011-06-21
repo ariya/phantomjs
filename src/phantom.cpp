@@ -37,7 +37,6 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFile>
-#include <QTextStream>
 
 #include <gifwriter.h>
 #include "consts.h"
@@ -164,6 +163,8 @@ Phantom::Phantom(QObject *parent)
     setLibraryPath(QFileInfo(m_scriptFile).dir().absolutePath());
 
     m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
+    m_page->mainFrame()->addToJavaScriptWindowObject("__fs__", &(this->m_filesystem));
+    m_page->mainFrame()->evaluateJavaScript("phantom.fs = __fs__;");
 
     QFile file(":/bootstrap.js");
     if (!file.open(QFile::ReadOnly)) {

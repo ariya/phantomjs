@@ -36,6 +36,7 @@
 class WebPage;
 #include "csconverter.h"
 #include "networkaccessmanager.h"
+#include "filesystem.h"
 
 class Phantom: public QObject
 {
@@ -81,6 +82,7 @@ private:
     CSConverter *m_converter;
     NetworkAccessManager *m_netAccessMan;
     QVariantMap m_defaultPageSettings;
+    FileSystem m_filesystem;
 };
 
 #endif // PHANTOM_H
