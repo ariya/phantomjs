@@ -163,8 +163,6 @@ Phantom::Phantom(QObject *parent)
     setLibraryPath(QFileInfo(m_scriptFile).dir().absolutePath());
 
     m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
-    m_page->mainFrame()->addToJavaScriptWindowObject("__fs__", &(this->m_filesystem));
-    m_page->mainFrame()->evaluateJavaScript("phantom.fs = __fs__;");
 
     QFile file(":/bootstrap.js");
     if (!file.open(QFile::ReadOnly)) {
@@ -233,6 +231,11 @@ QVariantMap Phantom::version() const
     result["minor"] = PHANTOMJS_VERSION_MINOR;
     result["patch"] = PHANTOMJS_VERSION_PATCH;
     return result;
+}
+
+QObject *Phantom::filesystem()
+{
+    return &m_filesystem;
 }
 
 // public slots:

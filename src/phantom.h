@@ -46,6 +46,7 @@ class Phantom: public QObject
     Q_PROPERTY(QString libraryPath READ libraryPath WRITE setLibraryPath)
     Q_PROPERTY(QString scriptName READ scriptName)
     Q_PROPERTY(QVariantMap version READ version)
+    Q_PROPERTY(QObject* fs READ filesystem)
 
 public:
     Phantom(QObject *parent = 0);
@@ -63,6 +64,8 @@ public:
     QString scriptName() const;
 
     QVariantMap version() const;
+
+    QObject *filesystem();
 
 public slots:
     QObject *createWebPage();
