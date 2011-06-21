@@ -257,48 +257,6 @@ bool Phantom::injectJs(const QString &jsFilePath) {
     return Utils::injectJsInFrame(jsFilePath, libraryPath(), m_page->mainFrame());
 }
 
-bool Phantom::writeToFile(const QString &filename, const QString &filecontent, const bool append)
-{
-    QFile file(filename);
-
-    // Crate the full path to the file if it doesn't exist already
-    if ( !file.exists() ) {
-        QDir rootDir("/");
-        if ( !rootDir.mkpath(QFileInfo(filename).dir().absolutePath()) ) { //< does nothing if directory already exists
-            return false; //< unable to make the directory/path
-        }
-    }
-
-    // Let's write now
-    if ( file.open(QFile::WriteOnly | (append ? QFile::Append | QFile::Text : QFile::Text)) ) {
-        QTextStream out(&file);
-        out << filecontent;
-        file.close();
-        return true;
-    }
-    return false;
-}
-
-bool Phantom::appendToFile(const QString &filename, const QString &filecontent)
-{
-    return writeToFile(filename, filecontent, true);
-}
-
-QString Phantom::readFromFile(const QString &filename)
-{
-    QFile file(filename);
-    if ( file.open(QFile::ReadOnly) ) {
-        return QString::fromUtf8(file.readAll());
-    }
-
-    return ""; //< Return an empty string when file couldn't be opened
-}
-
-bool Phantom::deleteFile(const QString &filename)
-{
-    return QFile::remove(filename);
-}
-
 // private slots:
 void Phantom::printConsoleMessage(const QString &message, int lineNumber, const QString &source)
 {
