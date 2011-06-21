@@ -20,6 +20,7 @@
 import os
 import sys
 
+import sip
 from PyQt4.QtCore import pyqtProperty, pyqtSlot, QObject, \
                          QFile
 from PyQt4.QtGui import QApplication
@@ -118,6 +119,12 @@ class Phantom(QObject):
     def exit(self, code=0):
         self.m_terminated = True
         self.m_returnValue = code
+
+        # stop javascript execution; delete C++ object first,
+        # then delete the Python reference
+        sip.delete(self.m_page)
+        del self.m_page
+
         QApplication.instance().exit(code)
 
     @pyqtSlot(str, result=bool)
