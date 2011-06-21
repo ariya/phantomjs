@@ -33,11 +33,86 @@
 #include <QFileInfo>
 #include <QDir>
 
+// File
+// public:
+File::File(QFile *openfile, QObject *parent) :
+    QObject(parent),
+    m_file(openfile)
+{
+    m_fileStream.setDevice(m_file);
+}
+
+File::~File()
+{
+    this->close();
+}
+
+// public slots:
+QString File::read()
+{
+    if ( m_file->isReadable() ) {
+        return m_fileStream.readAll();
+    }
+    return NULL;
+}
+
+bool File::write(const QString &data)
+{
+    if ( m_file->isWritable() ) {
+        m_fileStream << data;
+        return true;
+    }
+    return false;
+}
+
+QString File::readLine()
+{
+    if ( m_file->isReadable() ) {
+        return m_fileStream.readLine();
+    }
+    return NULL;
+}
+
+bool File::writeLine(const QString &data)
+{
+    if ( write(data) && write("\n") ) {
+        return true;
+    }
+    return false;
+}
+
+bool File::atEnd() const
+{
+    if ( m_file->isReadable() ) {
+        return m_fileStream.atEnd();
+    }
+    return false;
+}
+
+void File::flush()
+{
+    if ( m_file->isWritable() ) {
+        m_fileStream.flush();
+    }
+}
+
+void File::close()
+{
+    if ( m_file->isOpen() ) {
+        flush();
+        m_file->close();
+        delete m_file;
+        m_file = NULL;
+    }
+    deleteLater();
+}
+
+
+// FileSystem
 // public:
 FileSystem::FileSystem(QObject *parent) :
     QObject(parent)
-{
-}
+{ }
 
 // public slots:
 bool FileSystem::exists(const QString &path) const
@@ -73,4 +148,24 @@ QString FileSystem::workDir() const
 QString FileSystem::separator() const
 {
     return QDir::separator();
+}
+
+QObject *FileSystem::open(const QString &path, const QString &mode) const
+{
+    File *f = NULL;
+    QFile *_f = new QFile(path);
+    QFile::OpenMode modeCode = QFile::NotOpen;
+
+    // Determine the OpenMode
+    if ( mode.contains('r', Qt::CaseInsensitive) ) { modeCode |= QFile::ReadOnly; }
+    if ( mode.contains('w', Qt::CaseInsensitive) ) { modeCode |= QFile::WriteOnly; }
+    if ( mode.contains('a', Qt::CaseInsensitive) ) { modeCode |= QFile::WriteOnly | QFile::Append; }
+
+    // Try to Open
+    if ( _f->open(modeCode) ) {
+        f = new File(_f);
+    }
+
+    // Return 'false/undefined' if the file couldn't be opened as requested
+    return (f) ? f : false;
 }

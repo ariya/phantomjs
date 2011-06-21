@@ -32,6 +32,33 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QFile>
+#include <QTextStream>
+
+class File : public QObject
+{
+    Q_OBJECT
+
+public:
+    File(QFile *openfile, QObject *parent = 0);
+    virtual ~File();
+
+public slots:
+    QString read();
+    bool write(const QString &data);
+
+    QString readLine();
+    bool writeLine(const QString &data);
+
+    bool atEnd() const;
+    void flush();
+    void close();
+
+private:
+    QFile *m_file;
+    QTextStream m_fileStream;
+};
+
 
 class FileSystem : public QObject
 {
@@ -50,6 +77,7 @@ public slots:
     QStringList list(const QString &path) const;
     QString workDir() const;
     QString separator() const;
+    QObject *open(const QString &path, const QString &mode) const;
 };
 
 #endif // FILESYSTEM_H
