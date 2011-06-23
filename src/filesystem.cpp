@@ -132,7 +132,7 @@ bool FileSystem::isFile(const QString &path) const
 
 bool FileSystem::mkDir(const QString &path) const
 {
-    return QDir().mkdir(path);
+    return QDir().mkpath(path);
 }
 
 QStringList FileSystem::list(const QString &path) const
