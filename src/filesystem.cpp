@@ -32,6 +32,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
+#include <QDebug>
 
 // File
 // public:
@@ -53,6 +54,7 @@ QString File::read()
     if ( m_file->isReadable() ) {
         return m_fileStream.readAll();
     }
+    qDebug() << "File::read - " << "Couldn't read:" << m_file->fileName();
     return NULL;
 }
 
@@ -62,6 +64,7 @@ bool File::write(const QString &data)
         m_fileStream << data;
         return true;
     }
+    qDebug() << "File::write - " << "Couldn't write:" << m_file->fileName();
     return false;
 }
 
@@ -70,6 +73,7 @@ QString File::readLine()
     if ( m_file->isReadable() ) {
         return m_fileStream.readLine();
     }
+    qDebug() << "File::readLine - " << "Couldn't read:" << m_file->fileName();
     return NULL;
 }
 
@@ -78,6 +82,7 @@ bool File::writeLine(const QString &data)
     if ( write(data) && write("\n") ) {
         return true;
     }
+    qDebug() << "File::writeLine - " << "Couldn't write:" << m_file->fileName();
     return false;
 }
 
@@ -86,20 +91,21 @@ bool File::atEnd() const
     if ( m_file->isReadable() ) {
         return m_fileStream.atEnd();
     }
+    qDebug() << "File::atEnd - " << "Couldn't read:" << m_file->fileName();
     return false;
 }
 
 void File::flush()
 {
-    if ( m_file->isWritable() ) {
+    if ( m_file ) {
         m_fileStream.flush();
     }
 }
 
 void File::close()
 {
-    if ( m_file->isOpen() ) {
-        flush();
+    flush();
+    if ( m_file ) {
         m_file->close();
         delete m_file;
         m_file = NULL;
@@ -155,19 +161,55 @@ QObject *FileSystem::open(const QString &path, const QString &mode) const
     File *f = NULL;
     QFile *_f = new QFile(path);
     QFile::OpenMode modeCode = QFile::NotOpen;
+    QChar modeAsChar = 0;
+
+    // Ensure only one "mode character" has been selected
+    if ( mode.length() != 1) {
+        qDebug() << "FileSystem::open - " << "Wrong Mode string length:" << mode;
+        return false;
+    }
+    // Read out the mode
+    modeAsChar = mode[0];
 
     // Determine the OpenMode
-    if ( mode.contains('r', Qt::CaseInsensitive) ) { modeCode |= QFile::ReadOnly; }
-    if ( mode.contains('w', Qt::CaseInsensitive) ) { modeCode |= QFile::WriteOnly; }
-    if ( mode.contains('a', Qt::CaseInsensitive) ) { modeCode |= QFile::WriteOnly | QFile::Append; }
+    switch(modeAsChar.toAscii()) {
+        case 'r': case 'R': {
+            modeCode |= QFile::ReadOnly;
+            // Make sure there is something to read, otherwise return "false"
+            if ( !_f->exists() ) {
+                qDebug() << "FileSystem::open - " << "Trying to read a file that doesn't exist:" << path;
+                return false;
+            }
+            break;
+        }
+        case 'a': case 'A': {
+            modeCode |= QFile::Append;
+            // NOTE: no "break" here! This case will also execute the code for case 'w'.
+        }
+        case 'w': case 'W': {
+            modeCode |= QFile::WriteOnly;
+            // If the file doesn't exist and the desired path can't be created, return "false"
+            if ( !_f->exists() && !mkDir(QFileInfo(path).dir().absolutePath()) ) {
+                qDebug() << "FileSystem::open - " << "Full path coulnd't be created:" << path;
+                return false;
+            }
+            break;
+        }
+        default: {
+            qDebug() << "FileSystem::open - " << "Wrong Mode:" << mode;
+            return false;
+        }
+    }
 
     // Try to Open
     if ( _f->open(modeCode) ) {
         f = new File(_f);
+        if ( f ) { return f; }
     }
 
-    // Return 'false/undefined' if the file couldn't be opened as requested
-    return (f) ? f : false;
+    // Return "false" if the file couldn't be opened as requested
+    qDebug() << "FileSystem::open - " << "Couldn't be opened:" << path;
+    return false;
 }
 
 bool FileSystem::remove(const QString &path) const
