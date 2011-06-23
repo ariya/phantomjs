@@ -1,3 +1,31 @@
+Please see also http://code.google.com/p/phantomjs/wiki/ReleaseNotes.
+
+2011-06-21: Version 1.2.0
+
+    Version 1.2.0 is a major update. It introduces a whole set of new API.
+
+    Bug fixes
+
+      * Fixed rendering a very large web page (issue 54)
+      * Fixed reporting of CoffeeScript compile error (issue 125)
+
+    New features
+
+      * Added callback for console message (issue 12)
+      * Improved security model via WebPage object (issue 41)
+      * Added support for POST, HEAD, PUT, and DELETE (issue 88)
+      * Scripts filename is now passed as phantom.scriptName
+      * Added callback to capture resource requests and responses (issue 2)
+      * Added the ability to load external JavaScript (issue 32)
+
+    Examples
+
+      * Ported examples to use WebPage object
+      * Added a new example to upload an image to imagebin.org
+      * Added a new example to show HTTP POST feature
+      * Added a new example to sniff network traffic and save it in HAR format
+
+
 2011-04-27: Version 1.1.0
 
     Fixed the script loading to use UTF-8 encoding (Yasuhiro Matsumoto).
