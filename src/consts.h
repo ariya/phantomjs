@@ -31,11 +31,11 @@
 #define CONSTS_H
 
 // Current Version: 1.2.0 (unstable)
-#define PHANTOMJS_VERSION_MAJOR  1
-#define PHANTOMJS_VERSION_MINOR  2
-#define PHANTOMJS_VERSION_PATCH  0
-#define PHANTOMJS_VERSION_STRING "1.2.0"
-#define COFFEE_SCRIPT_EXTENSION ".coffee"
+#define PHANTOMJS_VERSION_MAJOR     1
+#define PHANTOMJS_VERSION_MINOR     2
+#define PHANTOMJS_VERSION_PATCH     0
+#define PHANTOMJS_VERSION_STRING    "1.2.0"
+#define COFFEE_SCRIPT_EXTENSION     ".coffee"
 
 #define JS_ELEMENT_CLICK "(function (el) { " \
         "var ev = document.createEvent('MouseEvents');" \
@@ -47,5 +47,10 @@
     "el.onload = function() { alert('%1'); };" \
     "el.src = '%1';" \
     "document.body.appendChild(el);"
+
+#define PAGE_SETTINGS_LOAD_IMAGES           "loadImages"
+#define PAGE_SETTINGS_LOAD_PLUGINS          "loadPlugins"
+#define PAGE_SETTINGS_USER_AGENT            "userAgent"
+#define PAGE_SETTINGS_LOCAL_ACCESS_REMOTE   "localAccessRemote"
 
 #endif // CONSTS_H

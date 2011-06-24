@@ -2,8 +2,10 @@
 Usage: phantomjs [options] script.[js|coffee] [script argument [script argument ...]]
 
 Options:
-    --load-images=[yes|no]             Load all inlined images (default is 'yes').
-    --load-plugins=[yes|no]            Load all plugins (i.e. 'Flash', 'Silverlight', ...) (default is 'no').
-    --proxy=address:port               Set the network proxy.
-    --disk-cache=[yes|no]              Enable disk cache (at desktop services cache storage location, default is 'no').
-    --ignore-ssl-errors=[yes|no]       Ignore SSL errors (i.e. expired or self-signed certificate errors).
+    --version                          Prints out PhantomJS version
+    --load-images=[yes|no]             Loads all inlined images (default is 'yes').
+    --load-plugins=[yes|no]            Loads all plugins (i.e. 'Flash', 'Silverlight', ...) (default is 'no').
+    --proxy=address:port               Sets the network proxy (e.g. "--proxy=http://192.168.1.42:8080").
+    --disk-cache=[yes|no]              Enables disk cache (at desktop services cache storage location, default is 'no').
+    --ignore-ssl-errors=[yes|no]       Ignores SSL errors (i.e. expired or self-signed certificate errors).
+    --local-access-remote=[yes|no]     Local content can access remote URL (default is 'no').

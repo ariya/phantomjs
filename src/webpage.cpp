@@ -117,18 +117,28 @@ WebPage::WebPage(QObject *parent)
     m_mainFrame->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     m_mainFrame->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
+    // Offline Storage Database
     m_webPage->settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
     m_webPage->settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
 
-    m_webPage->settings()->setAttribute(QWebSettings::LocalStorageDatabaseEnabled, true);
+#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
+    // OfflineWebApplicationCacheEnabled
+    m_webPage->settings()->setAttribute(QWebSettings::OfflineWebApplicationCacheEnabled, true);
+    m_webPage->settings()->setOfflineWebApplicationCachePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+#endif
 
 #if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
+    // Frame Flattening
     m_webPage->settings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
 #endif
 
 #if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
+    // Local Storage
     m_webPage->settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
     m_webPage->settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+#else
+    // Local Storage Database (deprecated /superseded in Qt >= 4.6.0)
+    m_webPage->settings()->setAttribute(QWebSettings::LocalStorageDatabaseEnabled, true);
 #endif
 
     // Ensure we have at least document.body.
@@ -176,11 +186,12 @@ void WebPage::applySettings(const QVariantMap &def)
 {
     QWebSettings *opt = m_webPage->settings();
 
-    opt->setAttribute(QWebSettings::AutoLoadImages, def["loadImages"].toBool());
-    opt->setAttribute(QWebSettings::PluginsEnabled, def["loadPlugins"].toBool());
+    opt->setAttribute(QWebSettings::AutoLoadImages, def[PAGE_SETTINGS_LOAD_IMAGES].toBool());
+    opt->setAttribute(QWebSettings::PluginsEnabled, def[PAGE_SETTINGS_LOAD_PLUGINS].toBool());
+    opt->setAttribute(QWebSettings::LocalContentCanAccessRemoteUrls, def[PAGE_SETTINGS_LOCAL_ACCESS_REMOTE].toBool());
 
-    if (def.contains("userAgent"))
-        m_webPage->m_userAgent = def["userAgent"].toString();
+    if (def.contains(PAGE_SETTINGS_USER_AGENT))
+        m_webPage->m_userAgent = def[PAGE_SETTINGS_USER_AGENT].toString();
 }
 
 QString WebPage::userAgent() const
