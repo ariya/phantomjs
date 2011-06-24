@@ -117,18 +117,22 @@ WebPage::WebPage(QObject *parent)
     m_mainFrame->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     m_mainFrame->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
+    // Offline Storage Database
     m_webPage->settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
     m_webPage->settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
 
-    m_webPage->settings()->setAttribute(QWebSettings::LocalStorageDatabaseEnabled, true);
-
 #if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
+    // Frame Flattening
     m_webPage->settings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
 #endif
 
 #if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
+    // Local Storage
     m_webPage->settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
     m_webPage->settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+#else
+    // Local Storage Database (deprecated /superseded in Qt >= 4.6.0)
+    m_webPage->settings()->setAttribute(QWebSettings::LocalStorageDatabaseEnabled, true);
 #endif
 
     // Ensure we have at least document.body.
