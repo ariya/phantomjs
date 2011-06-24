@@ -57,6 +57,7 @@ Phantom::Phantom(QObject *parent)
     bool pluginsEnabled = false;
     bool diskCacheEnabled = false;
     bool ignoreSslErrors = false;
+    bool localAccessRemote = false;
 
     // second argument: script name
     QStringList args = QApplication::arguments();
@@ -103,6 +104,14 @@ Phantom::Phantom(QObject *parent)
         }
         if (arg == "--ignore-ssl-errors=no") {
             ignoreSslErrors = false;
+            continue;
+        }
+        if (arg == "--local-access-remote=no") {
+            localAccessRemote = false;
+            continue;
+        }
+        if (arg == "--local-access-remote=yes") {
+            localAccessRemote = true;
             continue;
         }
         if (arg.startsWith("--proxy=")) {
@@ -154,9 +163,10 @@ Phantom::Phantom(QObject *parent)
     connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString, int, QString)),
             SLOT(printConsoleMessage(QString, int, QString)));
 
-    m_defaultPageSettings["loadImages"] = QVariant::fromValue(autoLoadImages);
-    m_defaultPageSettings["loadPlugins"] = QVariant::fromValue(pluginsEnabled);
-    m_defaultPageSettings["userAgent"] = QVariant::fromValue(m_page->userAgent());
+    m_defaultPageSettings[PAGE_SETTINGS_LOAD_IMAGES] = QVariant::fromValue(autoLoadImages);
+    m_defaultPageSettings[PAGE_SETTINGS_LOAD_PLUGINS] = QVariant::fromValue(pluginsEnabled);
+    m_defaultPageSettings[PAGE_SETTINGS_USER_AGENT] = QVariant::fromValue(m_page->userAgent());
+    m_defaultPageSettings[PAGE_SETTINGS_LOCAL_ACCESS_REMOTE] = QVariant::fromValue(localAccessRemote);
     m_page->applySettings(m_defaultPageSettings);
 
     setLibraryPath(QFileInfo(m_scriptFile).dir().absolutePath());

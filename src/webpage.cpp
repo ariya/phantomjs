@@ -186,11 +186,12 @@ void WebPage::applySettings(const QVariantMap &def)
 {
     QWebSettings *opt = m_webPage->settings();
 
-    opt->setAttribute(QWebSettings::AutoLoadImages, def["loadImages"].toBool());
-    opt->setAttribute(QWebSettings::PluginsEnabled, def["loadPlugins"].toBool());
+    opt->setAttribute(QWebSettings::AutoLoadImages, def[PAGE_SETTINGS_LOAD_IMAGES].toBool());
+    opt->setAttribute(QWebSettings::PluginsEnabled, def[PAGE_SETTINGS_LOAD_PLUGINS].toBool());
+    opt->setAttribute(QWebSettings::LocalContentCanAccessRemoteUrls, def[PAGE_SETTINGS_LOCAL_ACCESS_REMOTE].toBool());
 
-    if (def.contains("userAgent"))
-        m_webPage->m_userAgent = def["userAgent"].toString();
+    if (def.contains(PAGE_SETTINGS_USER_AGENT))
+        m_webPage->m_userAgent = def[PAGE_SETTINGS_USER_AGENT].toString();
 }
 
 QString WebPage::userAgent() const

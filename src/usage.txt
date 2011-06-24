@@ -8,3 +8,4 @@ Options:
     --proxy=address:port               Sets the network proxy (e.g. "--proxy=http://192.168.1.42:8080").
     --disk-cache=[yes|no]              Enables disk cache (at desktop services cache storage location, default is 'no').
     --ignore-ssl-errors=[yes|no]       Ignores SSL errors (i.e. expired or self-signed certificate errors).
+    --local-access-remote=[yes|no]     Local content can access remote URL (default is 'no').
