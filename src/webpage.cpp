@@ -121,6 +121,12 @@ WebPage::WebPage(QObject *parent)
     m_webPage->settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
     m_webPage->settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
 
+#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
+    // OfflineWebApplicationCacheEnabled
+    m_webPage->settings()->setAttribute(QWebSettings::OfflineWebApplicationCacheEnabled, true);
+    m_webPage->settings()->setOfflineWebApplicationCachePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+#endif
+
 #if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
     // Frame Flattening
     m_webPage->settings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
