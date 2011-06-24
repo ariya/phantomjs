@@ -36,12 +36,14 @@
 #include <QtWebKit>
 #include <QDir>
 #include <QFileInfo>
+#include <QFile>
 
 #include <gifwriter.h>
 #include "consts.h"
 #include "utils.h"
 #include "webpage.h"
 
+// public:
 Phantom::Phantom(QObject *parent)
     : QObject(parent)
     , m_terminated(false)
@@ -151,8 +153,7 @@ Phantom::Phantom(QObject *parent)
     m_netAccessMan = new NetworkAccessManager(this, diskCacheEnabled, ignoreSslErrors);
     m_page->setNetworkAccessManager(m_netAccessMan);
 
-    connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString, int, QString)),
-            SLOT(printConsoleMessage(QString, int, QString)));
+    connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString, int, QString)), SLOT(printConsoleMessage(QString, int, QString)));
 
     m_defaultPageSettings["loadImages"] = QVariant::fromValue(autoLoadImages);
     m_defaultPageSettings["loadPlugins"] = QVariant::fromValue(pluginsEnabled);
@@ -208,6 +209,21 @@ int Phantom::returnValue() const
     return m_returnValue;
 }
 
+QString Phantom::libraryPath() const
+{
+   return m_page->libraryPath();
+}
+
+void Phantom::setLibraryPath(const QString &libraryPath)
+{
+   m_page->setLibraryPath(libraryPath);
+}
+
+QString Phantom::scriptName() const
+{
+    return QFileInfo(m_scriptFile).fileName();
+}
+
 QVariantMap Phantom::version() const
 {
     QVariantMap result;
@@ -217,6 +233,12 @@ QVariantMap Phantom::version() const
     return result;
 }
 
+QObject *Phantom::filesystem()
+{
+    return &m_filesystem;
+}
+
+// public slots:
 QObject *Phantom::createWebPage()
 {
     WebPage *page = new WebPage(this);
@@ -239,25 +261,11 @@ bool Phantom::injectJs(const QString &jsFilePath) {
     return Utils::injectJsInFrame(jsFilePath, libraryPath(), m_page->mainFrame());
 }
 
+// private slots:
 void Phantom::printConsoleMessage(const QString &message, int lineNumber, const QString &source)
 {
     QString msg = message;
     if (!source.isEmpty())
         msg = source + ":" + QString::number(lineNumber) + " " + msg;
     std::cout << qPrintable(msg) << std::endl;
-}
-
-QString Phantom::libraryPath() const
-{
-   return m_page->libraryPath();
-}
-
-void Phantom::setLibraryPath(const QString &libraryPath)
-{
-   m_page->setLibraryPath(libraryPath);
-}
-
-QString Phantom::scriptName() const
-{
-    return QFileInfo(m_scriptFile).fileName();
 }

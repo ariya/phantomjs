@@ -31,6 +31,7 @@
 #include "webpage.h"
 
 #include <math.h>
+#include <iostream>
 
 #include <QApplication>
 #include <QDesktopServices>

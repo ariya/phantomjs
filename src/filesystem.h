@@ -2,7 +2,6 @@
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
-  Copyright (C) 2010 Ariya Hidayat <ariya.hidayat@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -28,64 +27,58 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PHANTOM_H
-#define PHANTOM_H
+#ifndef FILESYSTEM_H
+#define FILESYSTEM_H
 
-#include <QtGui>
+#include <QObject>
+#include <QStringList>
+#include <QFile>
+#include <QTextStream>
 
-class WebPage;
-#include "csconverter.h"
-#include "networkaccessmanager.h"
-#include "filesystem.h"
-
-class Phantom: public QObject
+class File : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList args READ args)
-    Q_PROPERTY(QVariantMap defaultPageSettings READ defaultPageSettings)
-    Q_PROPERTY(QString libraryPath READ libraryPath WRITE setLibraryPath)
-    Q_PROPERTY(QString scriptName READ scriptName)
-    Q_PROPERTY(QVariantMap version READ version)
-    Q_PROPERTY(QObject* fs READ filesystem)
 
 public:
-    Phantom(QObject *parent = 0);
-
-    QStringList args() const;
-
-    QVariantMap defaultPageSettings() const;
-
-    bool execute();
-    int returnValue() const;
-
-    QString libraryPath() const;
-    void setLibraryPath(const QString &libraryPath);
-
-    QString scriptName() const;
-
-    QVariantMap version() const;
-
-    QObject *filesystem();
+    File(QFile *openfile, QObject *parent = 0);
+    virtual ~File();
 
 public slots:
-    QObject *createWebPage();
-    bool injectJs(const QString &jsFilePath);
-    void exit(int code = 0);
+    QString read();
+    bool write(const QString &data);
 
-private slots:
-    void printConsoleMessage(const QString &msg, int lineNumber, const QString &source);
+    QString readLine();
+    bool writeLine(const QString &data);
+
+    bool atEnd() const;
+    void flush();
+    void close();
 
 private:
-    QString m_scriptFile;
-    QStringList m_args;
-    WebPage *m_page;
-    bool m_terminated;
-    int m_returnValue;
-    QString m_script;
-    CSConverter *m_converter;
-    NetworkAccessManager *m_netAccessMan;
-    QVariantMap m_defaultPageSettings;
-    FileSystem m_filesystem;
+    QFile *m_file;
+    QTextStream m_fileStream;
 };
 
-#endif // PHANTOM_H
+
+class FileSystem : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QString workDir READ workDir)
+    Q_PROPERTY(QString separator READ separator)
+
+public:
+    FileSystem(QObject *parent = 0);
+
+public slots:
+    bool exists(const QString &path) const;
+    bool isDir(const QString &path) const;
+    bool isFile(const QString &path) const;
+    bool mkDir(const QString &path) const;
+    QStringList list(const QString &path) const;
+    QString workDir() const;
+    QString separator() const;
+    QObject *open(const QString &path, const QString &mode) const;
+    bool remove(const QString &path) const;
+};
+
+#endif // FILESYSTEM_H
