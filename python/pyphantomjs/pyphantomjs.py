@@ -60,6 +60,7 @@ def parseArgs(args):
     args.ignore_ssl_errors = False if args.ignore_ssl_errors == 'no' else True
     args.load_images = True if args.load_images == 'yes' else False
     args.load_plugins = False if args.load_plugins == 'no' else True
+    args.local_access_remote = False if args.local_access_remote == 'no' else True
 
     if args.proxy:
         item = args.proxy.split(':')

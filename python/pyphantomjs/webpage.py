@@ -101,6 +101,8 @@ class WebPage(QObject):
         self.m_webPage.settings().setAttribute(QWebSettings.OfflineStorageDatabaseEnabled, True)
         self.m_webPage.settings().setOfflineStoragePath(QDesktopServices.storageLocation(QDesktopServices.DataLocation))
         self.m_webPage.settings().setAttribute(QWebSettings.LocalStorageDatabaseEnabled, True)
+        self.m_webPage.settings().setAttribute(QWebSettings.OfflineWebApplicationCacheEnabled, True)
+        self.m_webPage.settings().setOfflineWebApplicationCachePath(QDesktopServices.storageLocation(QDesktopServices.DataLocation))
         self.m_webPage.settings().setAttribute(QWebSettings.FrameFlatteningEnabled, True)
         self.m_webPage.settings().setAttribute(QWebSettings.LocalStorageEnabled, True)
         self.m_webPage.settings().setLocalStoragePath(QDesktopServices.storageLocation(QDesktopServices.DataLocation))
@@ -117,6 +119,7 @@ class WebPage(QObject):
 
         opt.setAttribute(QWebSettings.AutoLoadImages, defaults['loadImages'])
         opt.setAttribute(QWebSettings.PluginsEnabled, defaults['loadPlugins'])
+        opt.setAttribute(QWebSettings.LocalContentCanAccessRemoteUrls, defaults['localAccessRemote'])
         if 'userAgent' in defaults:
             self.m_webPage.m_userAgent = defaults['userAgent']
 

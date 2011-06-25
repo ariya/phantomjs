@@ -79,6 +79,10 @@ def argParser():
         choices=['yes', 'no'],
         help='Load all plugins (i.e. Flash, Silverlight, ...) (default: %(default)s)'
     )
+    parser.add_argument('--local-access-remote', default='no',
+        choices=['yes', 'no'],
+        help='Local content can access remote URL (default: %(default)s)'
+    )
     parser.add_argument('--proxy', metavar='address:port',
         help='Set the network proxy'
     )
