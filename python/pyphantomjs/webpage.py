@@ -117,6 +117,7 @@ class WebPage(QObject):
 
         opt.setAttribute(QWebSettings.AutoLoadImages, defaults['loadImages'])
         opt.setAttribute(QWebSettings.PluginsEnabled, defaults['loadPlugins'])
+        opt.setAttribute(QWebSettings.LocalContentCanAccessRemoteUrls, defaults['localAccessRemote'])
         if 'userAgent' in defaults:
             self.m_webPage.m_userAgent = defaults['userAgent']
 
