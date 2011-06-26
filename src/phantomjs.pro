@@ -3,6 +3,8 @@ TARGET = phantomjs
 QT += network webkit
 CONFIG += console
 
+mac: CONFIG -= app_bundle
+
 # Comment to enable Debug Messages
 DEFINES += QT_NO_DEBUG_OUTPUT
 
