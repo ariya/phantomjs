@@ -40,10 +40,16 @@ window.WebPage = function() {
             this.onLoadFinished = arguments[1];
             this.openUrl(arguments[0], 'get', this.settings);
             return;
-        } else if (arguments.length === 3) {
+        } else if (arguments.length === 3 && typeof arguments[2] === 'function') {
             this.onLoadFinished = arguments[2];
             this.openUrl(arguments[0], arguments[1], this.settings);
             return;
+        } else if (arguments.length ===3) {
+            this.openUrl(arguments[0], {
+                operation: arguments[1],
+                data: arguments[2]
+                }, this.settings);
+            return;            
         } else if (arguments.length === 4) {
             this.onLoadFinished = arguments[3];
             this.openUrl(arguments[0], {
