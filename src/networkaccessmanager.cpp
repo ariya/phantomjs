@@ -52,11 +52,9 @@ static const char *toString(QNetworkAccessManager::Operation op)
     case QNetworkAccessManager::PostOperation:
         str = "POST";
         break;
-#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
     case QNetworkAccessManager::DeleteOperation:
         str = "DELETE";
         break;
-#endif
     default:
         str = "?";
         break;

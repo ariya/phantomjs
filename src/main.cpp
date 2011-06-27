@@ -32,8 +32,8 @@
 #include "utils.h"
 #include "phantom.h"
 
-#if QT_VERSION < QT_VERSION_CHECK(4, 5, 0)
-#error Use Qt 4.5 or later version
+#if QT_VERSION < QT_VERSION_CHECK(4, 6, 0)
+#error Use Qt 4.6 or later version
 #endif
 
 int main(int argc, char** argv)

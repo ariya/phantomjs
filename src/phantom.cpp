@@ -142,9 +142,7 @@ Phantom::Phantom(QObject *parent)
     }
 
     if (proxyHost.isEmpty()) {
-#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
         QNetworkProxyFactory::setUseSystemConfiguration(true);
-#endif
     } else {
         QNetworkProxy proxy(QNetworkProxy::HttpProxy, proxyHost, proxyPort);
         QNetworkProxy::setApplicationProxy(proxy);

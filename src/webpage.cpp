@@ -40,14 +40,11 @@
 #include <QNetworkAccessManager>
 #include <QPainter>
 #include <QPrinter>
+#include <QWebElement>
 #include <QWebFrame>
 #include <QWebPage>
 
 #include "utils.h"
-
-#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
-#include <QWebElement>
-#endif
 
 #include <gifwriter.h>
 
@@ -120,22 +117,15 @@ WebPage::WebPage(QObject *parent)
     m_webPage->settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
     m_webPage->settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
 
-#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
     m_webPage->settings()->setAttribute(QWebSettings::OfflineWebApplicationCacheEnabled, true);
     m_webPage->settings()->setOfflineWebApplicationCachePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-#endif
 
 #if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
     m_webPage->settings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
 #endif
 
-#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
     m_webPage->settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
     m_webPage->settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-#else
-    // Local Storage Database has been deprecated/superseded in Qt >= 4.6.0
-    m_webPage->settings()->setAttribute(QWebSettings::LocalStorageDatabaseEnabled, true);
-#endif
 
     // Ensure we have at least document.body.
     m_mainFrame->setHtml("<html><body></body></html>");
@@ -294,10 +284,8 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
         networkOp = QNetworkAccessManager::PutOperation;
     else if (operation == "post")
         networkOp = QNetworkAccessManager::PostOperation;
-#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
     else if (operation == "delete")
         networkOp = QNetworkAccessManager::DeleteOperation;
-#endif
 
     if (networkOp == QNetworkAccessManager::UnknownOperation) {
         m_mainFrame->evaluateJavaScript("console.error('Unknown network operation: " + operation + "');");
@@ -478,8 +466,6 @@ bool WebPage::renderPdf(const QString &fileName)
     return true;
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(4, 6, 0)
-
 void WebPage::uploadFile(const QString &selector, const QString &fileName)
 {
     QWebElement el = m_mainFrame->findFirstElement(selector);
@@ -489,8 +475,6 @@ void WebPage::uploadFile(const QString &selector, const QString &fileName)
     m_webPage->m_uploadFile = fileName;
     el.evaluateJavaScript(JS_ELEMENT_CLICK);
 }
-
-#endif
 
 bool WebPage::injectJs(const QString &jsFilePath) {
     return Utils::injectJsInFrame(jsFilePath, m_libraryPath, m_mainFrame);
