@@ -63,7 +63,7 @@ private:
 class FileSystem : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString workDir READ workDir)
+    Q_PROPERTY(QString workingDirectory READ workingDirectory)
     Q_PROPERTY(QString separator READ separator)
 
 public:
@@ -71,14 +71,24 @@ public:
 
 public slots:
     bool exists(const QString &path) const;
-    bool isDir(const QString &path) const;
+    bool isDirectory(const QString &path) const;
     bool isFile(const QString &path) const;
-    bool mkDir(const QString &path) const;
-    QStringList list(const QString &path) const;
-    QString workDir() const;
-    QString separator() const;
-    QObject *open(const QString &path, const QString &mode) const;
+
+    bool makeDirectory(const QString &path) const;
+    bool makeTree(const QString &path) const;
+
     bool remove(const QString &path) const;
+    bool removeDirectory(const QString &path) const;
+    bool removeTree(const QString &path) const;
+
+    QStringList list(const QString &path) const;
+
+    QString workingDirectory() const;
+    bool changeWorkingDirectory(const QString &path) const;
+
+    QString separator() const;
+
+    QObject *open(const QString &path, const QString &mode) const;
 };
 
 #endif // FILESYSTEM_H

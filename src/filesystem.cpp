@@ -126,7 +126,7 @@ bool FileSystem::exists(const QString &path) const
     return QFile::exists(path);
 }
 
-bool FileSystem::isDir(const QString &path) const
+bool FileSystem::isDirectory(const QString &path) const
 {
     return QFileInfo(path).isDir();
 }
@@ -136,9 +136,47 @@ bool FileSystem::isFile(const QString &path) const
     return QFileInfo(path).isFile();
 }
 
-bool FileSystem::mkDir(const QString &path) const
+bool FileSystem::makeDirectory(const QString &path) const
+{
+    return QDir().mkdir(path);
+}
+
+bool FileSystem::makeTree(const QString &path) const
 {
     return QDir().mkpath(path);
+}
+
+bool FileSystem::remove(const QString &path) const
+{
+    return QFile::remove(path);
+}
+
+bool FileSystem::removeDirectory(const QString &path) const
+{
+    return QDir().rmdir(path);
+}
+
+bool FileSystem::removeTree(const QString &path) const
+{
+    QDir dir(path);
+    bool res = false;
+
+    if (dir.exists()) {
+        foreach(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
+            if (info.isDir()) {
+                res = removeTree(info.absoluteFilePath());
+            } else {
+                res = remove(info.absoluteFilePath());
+            }
+
+            if (!res) {
+                return res;
+            }
+        }
+        res = removeDirectory(path);
+    }
+
+    return res;
 }
 
 QStringList FileSystem::list(const QString &path) const
@@ -146,9 +184,14 @@ QStringList FileSystem::list(const QString &path) const
     return QDir(path).entryList();
 }
 
-QString FileSystem::workDir() const
+QString FileSystem::workingDirectory() const
 {
     return QDir::currentPath();
+}
+
+bool FileSystem::changeWorkingDirectory(const QString &path) const
+{
+    return QDir::setCurrent(path);
 }
 
 QString FileSystem::separator() const
@@ -161,44 +204,41 @@ QObject *FileSystem::open(const QString &path, const QString &mode) const
     File *f = NULL;
     QFile *_f = new QFile(path);
     QFile::OpenMode modeCode = QFile::NotOpen;
-    QChar modeAsChar = 0;
 
     // Ensure only one "mode character" has been selected
     if ( mode.length() != 1) {
         qDebug() << "FileSystem::open - " << "Wrong Mode string length:" << mode;
         return false;
     }
-    // Read out the mode
-    modeAsChar = mode[0];
 
     // Determine the OpenMode
-    switch(modeAsChar.toAscii()) {
-        case 'r': case 'R': {
-            modeCode |= QFile::ReadOnly;
-            // Make sure there is something to read, otherwise return "false"
-            if ( !_f->exists() ) {
-                qDebug() << "FileSystem::open - " << "Trying to read a file that doesn't exist:" << path;
-                return false;
-            }
-            break;
-        }
-        case 'a': case 'A': {
-            modeCode |= QFile::Append;
-            // NOTE: no "break" here! This case will also execute the code for case 'w'.
-        }
-        case 'w': case 'W': {
-            modeCode |= QFile::WriteOnly;
-            // If the file doesn't exist and the desired path can't be created, return "false"
-            if ( !_f->exists() && !mkDir(QFileInfo(path).dir().absolutePath()) ) {
-                qDebug() << "FileSystem::open - " << "Full path coulnd't be created:" << path;
-                return false;
-            }
-            break;
-        }
-        default: {
-            qDebug() << "FileSystem::open - " << "Wrong Mode:" << mode;
+    switch(mode[0].toAscii()) {
+    case 'r': case 'R': {
+        modeCode |= QFile::ReadOnly;
+        // Make sure there is something to read, otherwise return "false"
+        if ( !_f->exists() ) {
+            qDebug() << "FileSystem::open - " << "Trying to read a file that doesn't exist:" << path;
             return false;
         }
+        break;
+    }
+    case 'a': case 'A': case '+': {
+        modeCode |= QFile::Append;
+        // NOTE: no "break" here! This case will also execute the code for case 'w'.
+    }
+    case 'w': case 'W': {
+        modeCode |= QFile::WriteOnly;
+        // If the file doesn't exist and the desired path can't be created, return "false"
+        if ( !_f->exists() && !makeTree(QFileInfo(path).dir().absolutePath()) ) {
+            qDebug() << "FileSystem::open - " << "Full path coulnd't be created:" << path;
+            return false;
+        }
+        break;
+    }
+    default: {
+        qDebug() << "FileSystem::open - " << "Wrong Mode:" << mode;
+        return false;
+    }
     }
 
     // Try to Open
@@ -210,9 +250,4 @@ QObject *FileSystem::open(const QString &path, const QString &mode) const
     // Return "false" if the file couldn't be opened as requested
     qDebug() << "FileSystem::open - " << "Couldn't be opened:" << path;
     return false;
-}
-
-bool FileSystem::remove(const QString &path) const
-{
-    return QFile::remove(path);
 }
