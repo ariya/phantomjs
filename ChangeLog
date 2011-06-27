@@ -4,6 +4,10 @@ Version 1.3.0
 
     Version 1.3.0 is the next minor update. It is still in the development.
 
+    Bug fixes
+
+      * Fixed open() and POST method, without specifying the finished handler.
+
     Examples
 
       * Added a new example on using Modernizr to detect features.
