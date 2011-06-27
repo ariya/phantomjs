@@ -29,8 +29,9 @@ from csconverter import CSConverter
 from plugincontroller import Bunch, do_action
 
 
-version_major, version_minor, version_patch = (1, 2, 0)
+version_major, version_minor, version_patch = (1, 3, 0)
 version = '%d.%d.%d' % (version_major, version_minor, version_patch)
+is_stable = False
 
 license = '''
   PyPhantomJS Version %s
@@ -49,7 +50,7 @@ license = '''
 
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-''' % version
+''' % (version if is_stable else version + ' (development)')
 
 
 def argParser():

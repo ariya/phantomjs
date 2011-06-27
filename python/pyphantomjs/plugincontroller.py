@@ -23,79 +23,102 @@ from glob import glob
 from collections import defaultdict
 
 
-plugins = defaultdict(list)
-hook_count = {}
+hooks = defaultdict(dict)
 
 
 class Bunch(object):
-    ''' Simple class to bunch a dict into
-        an object that with attributes
+    '''Simple class to bunch a dict into
+       an object that with attributes
     '''
     def __init__(self, adict):
         self.__dict__ = adict
 
 
-def add_action(*hooks):
-    ''' Decorator to be used for registering a function to
-        a specific hook or list of hooks.
+def add_action(hook, priority=10):
+    '''Decorator to be used for registering a function to
+       a specific hook. Functions with lower priority are
+       executed first (priority of 1 for example).
     '''
     def register(func):
-        for hook in hooks:
-            plugins[hook].append(func)
+        if hooks[hook].get('plugins'):
+            hooks[hook]['plugins'].append((priority, func))
+        else:
+            hooks[hook]['plugins'] = [(priority, func)]
         return func
     return register
 
 
 def did_action(hook):
     '''Find out how many times a hook was fired'''
-    return hook_count[hook]
+    if not hooks[hook].get('count'):
+        hooks[hook]['count'] = 0
+    return hooks[hook]['count']
 
 
 def do_action(hook, *args, **kwargs):
-    ''' Trigger a hook. It will run any functions that have registered
-        themselves to the hook. Any additional arguments or keyword
-        arguments you pass in will be passed to the functions.
+    '''Trigger a hook. It will run any functions that have registered
+       themselves to the hook. Any additional arguments or keyword
+       arguments you pass in will be passed to the functions.
     '''
-    hook_count[hook] = 0
-    for plugin in plugins[hook]:
-        hook_count[hook] += 1
-        plugin(*args, **kwargs)
+    if not hooks[hook].get('count'):
+        hooks[hook]['count'] = 0
+    if hooks[hook].get('plugins'):
+        # sort plugins by priority
+        hooks[hook]['plugins'].sort()
+        for plugin in hooks[hook]['plugins']:
+            hooks[hook]['count'] += 1
+            plugin[1](*args, **kwargs)
 
 
 def has_action(hook, func=None):
     '''Check if hook exists. If function is specified,
        check if function has been registered for hook.
     '''
-    if hook in plugins:
+    if hook in hooks:
         if not func:
             return True
         else:
-            for f in plugins[hook]:
-                if f == func:
-                    return True
+            if hooks[hook].get('plugins'):
+                for plugin in hooks[hook]['plugins']:
+                    if plugin[1] == func:
+                        return True
     return False
 
 
-def remove_action(hook, func=None):
+def remove_action(hook, func=None, priority=10):
     '''Remove hook if hook exists. If function is specified,
-       remove function from hook.
+       remove function from hook. If priority is not same as
+       functions priority, it will not remove the function.
     '''
-    if hook in plugins:
+    if hook in hooks:
         if not func:
-            del plugins[hook]
+            del hooks[hook]
             return True
         else:
-            for f in plugins[hook]:
-                if f == func:
-                    del plugins[hook][plugins[hook].index(func)]
-                    return True
+            if hooks[hook].get('plugins'):
+                for i, plugin in enumerate(hooks[hook]['plugins']):
+                    if plugin[1] == func and plugin[0] == priority:
+                        del hooks[hook]['plugins'][i]
+                        return True
     return False
 
 
-def remove_all_actions(hook):
-    '''Remove all functions that have been registered to hook'''
-    if hook in plugins:
-        del plugins[hook][:]
+def remove_all_actions(hook, priority=None):
+    '''Remove all functions that have been registered to hook.
+       If priority is used, remove all actions from that priority
+       instead.
+    '''
+    if hook in hooks:
+        if not priority:
+            del hooks[hook][:]
+        else:
+            if hooks[hook].get('plugins'):
+                indexes = []
+                for i, plugin in enumerate(hooks[hook]['plugins']):
+                    if plugin[0] == priority:
+                        indexes.append(i)
+                for index in indexes:
+                    del hooks[hook]['plugins'][index]
         return True
     return False
 
