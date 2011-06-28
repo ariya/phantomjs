@@ -36,12 +36,14 @@
 #include <QtWebKit>
 #include <QDir>
 #include <QFileInfo>
+#include <QFile>
 
 #include <gifwriter.h>
 #include "consts.h"
 #include "utils.h"
 #include "webpage.h"
 
+// public:
 Phantom::Phantom(QObject *parent)
     : QObject(parent)
     , m_terminated(false)
@@ -216,45 +218,6 @@ int Phantom::returnValue() const
     return m_returnValue;
 }
 
-QVariantMap Phantom::version() const
-{
-    QVariantMap result;
-    result["major"] = PHANTOMJS_VERSION_MAJOR;
-    result["minor"] = PHANTOMJS_VERSION_MINOR;
-    result["patch"] = PHANTOMJS_VERSION_PATCH;
-    return result;
-}
-
-QObject *Phantom::createWebPage()
-{
-    WebPage *page = new WebPage(this);
-    page->applySettings(m_defaultPageSettings);
-    page->setNetworkAccessManager(m_netAccessMan);
-    page->setLibraryPath(QFileInfo(m_scriptFile).dir().absolutePath());
-    return page;
-}
-
-void Phantom::exit(int code)
-{
-    m_terminated = true;
-    m_returnValue = code;
-    delete m_page;
-    m_page = 0;
-    QApplication::instance()->exit(code);
-}
-
-bool Phantom::injectJs(const QString &jsFilePath) {
-    return Utils::injectJsInFrame(jsFilePath, libraryPath(), m_page->mainFrame());
-}
-
-void Phantom::printConsoleMessage(const QString &message, int lineNumber, const QString &source)
-{
-    QString msg = message;
-    if (!source.isEmpty())
-        msg = source + ":" + QString::number(lineNumber) + " " + msg;
-    std::cout << qPrintable(msg) << std::endl;
-}
-
 QString Phantom::libraryPath() const
 {
    return m_page->libraryPath();
@@ -268,4 +231,50 @@ void Phantom::setLibraryPath(const QString &libraryPath)
 QString Phantom::scriptName() const
 {
     return QFileInfo(m_scriptFile).fileName();
+}
+
+QVariantMap Phantom::version() const
+{
+    QVariantMap result;
+    result["major"] = PHANTOMJS_VERSION_MAJOR;
+    result["minor"] = PHANTOMJS_VERSION_MINOR;
+    result["patch"] = PHANTOMJS_VERSION_PATCH;
+    return result;
+}
+
+QObject *Phantom::filesystem()
+{
+    return &m_filesystem;
+}
+
+// public slots:
+QObject *Phantom::createWebPage()
+{
+    WebPage *page = new WebPage(this);
+    page->applySettings(m_defaultPageSettings);
+    page->setNetworkAccessManager(m_netAccessMan);
+    page->setLibraryPath(QFileInfo(m_scriptFile).dir().absolutePath());
+    return page;
+}
+
+bool Phantom::injectJs(const QString &jsFilePath) {
+    return Utils::injectJsInFrame(jsFilePath, libraryPath(), m_page->mainFrame());
+}
+
+void Phantom::exit(int code)
+{
+    m_terminated = true;
+    m_returnValue = code;
+    delete m_page;
+    m_page = 0;
+    QApplication::instance()->exit(code);
+}
+
+// private slots:
+void Phantom::printConsoleMessage(const QString &message, int lineNumber, const QString &source)
+{
+    QString msg = message;
+    if (!source.isEmpty())
+        msg = source + ":" + QString::number(lineNumber) + " " + msg;
+    std::cout << qPrintable(msg) << std::endl;
 }
