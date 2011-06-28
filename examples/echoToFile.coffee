@@ -10,7 +10,7 @@ else
   while i < phantom.args.length
     content += phantom.args[i] + (if i == phantom.args.length - 1 then "" else " ")
     ++i
-  f = phantom.fs.open(phantom.args[0], "w")
+  f = fs.open(phantom.args[0], "w")
   if f
     f.writeLine content
     f.close()
