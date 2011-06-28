@@ -10,8 +10,9 @@ else
   while i < phantom.args.length
     content += phantom.args[i] + (if i == phantom.args.length - 1 then "" else " ")
     ++i
-  f = fs.open(phantom.args[0], "w")
-  if f
+  try
+    f = fs.open(phantom.args[0], "w")
     f.writeLine content
-    f.close()
+  catch e
+    console.log e
   phantom.exit()

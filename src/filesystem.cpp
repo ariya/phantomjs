@@ -199,7 +199,7 @@ QString FileSystem::separator() const
     return QDir::separator();
 }
 
-QObject *FileSystem::open(const QString &path, const QString &mode) const
+QObject *FileSystem::_open(const QString &path, const QString &mode) const
 {
     File *f = NULL;
     QFile *_f = new QFile(path);
