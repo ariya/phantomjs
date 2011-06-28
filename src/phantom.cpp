@@ -52,6 +52,7 @@ Phantom::Phantom(QObject *parent)
     , m_netAccessMan(0)
 {
     m_page = new WebPage(this);
+    m_pages.append(m_page);
 
     QString proxyHost;
     int proxyPort = 1080;
@@ -251,6 +252,7 @@ QObject *Phantom::filesystem()
 QObject *Phantom::createWebPage()
 {
     WebPage *page = new WebPage(this);
+    m_pages.append(page);
     page->applySettings(m_defaultPageSettings);
     page->setNetworkAccessManager(m_netAccessMan);
     page->setLibraryPath(QFileInfo(m_scriptFile).dir().absolutePath());
@@ -265,7 +267,8 @@ void Phantom::exit(int code)
 {
     m_terminated = true;
     m_returnValue = code;
-    delete m_page;
+    qDeleteAll(m_pages);
+    m_pages.clear();
     m_page = 0;
     QApplication::instance()->exit(code);
 }
