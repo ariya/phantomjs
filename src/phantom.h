@@ -86,6 +86,7 @@ private:
     NetworkAccessManager *m_netAccessMan;
     QVariantMap m_defaultPageSettings;
     FileSystem m_filesystem;
+    QList<WebPage*> m_pages;
 };
 
 #endif // PHANTOM_H
