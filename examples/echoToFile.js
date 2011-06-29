@@ -10,10 +10,11 @@ if (phantom.args.length < 2) {
         content += phantom.args[i] + (i === phantom.args.length-1 ? '' : ' ');
     }
     
-    f = phantom.fs.open(phantom.args[0], "w");
-    if ( f ) {
+    try {
+        f = fs.open(phantom.args[0], "w");
         f.writeLine(content);
-        f.close();
+    } catch (e) {
+        console.log(e);
     }
 
     phantom.exit();
