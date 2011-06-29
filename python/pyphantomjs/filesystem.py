@@ -23,12 +23,16 @@ import shutil
 
 from PyQt4.QtCore import pyqtSlot, pyqtProperty, QObject, qDebug
 
+from plugincontroller import Bunch, do_action
+
 
 class File(QObject):
     def __init__(self, openfile, parent=None):
         QObject.__init__(self, parent)
 
         self.m_file = openfile
+
+        do_action('FileInit', Bunch(locals()))
 
     def __del__(self):
         self.m_file.close()
@@ -97,10 +101,14 @@ class File(QObject):
             qDebug('File.writeLine - %s: \'%s\'' % (e, self.m_file.name))
             return False
 
+    do_action('File', Bunch(locals()))
+
 
 class FileSystem(QObject):
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
+
+        do_action('FileSystemInit', Bunch(locals()))
 
     ##
     # Attributes
@@ -423,3 +431,5 @@ class FileSystem(QObject):
     @pyqtSlot(str, result=bool)
     def same(self, pathA, pathB):
         return os.path.samefile(pathA, pathB)
+
+    do_action('FileSystem', Bunch(locals()))
