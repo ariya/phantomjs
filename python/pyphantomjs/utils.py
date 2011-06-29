@@ -23,7 +23,7 @@ import codecs
 import argparse
 
 from PyQt4.QtCore import QDateTime, Qt, QtDebugMsg, QtWarningMsg, \
-                         QtCriticalMsg, QtFatalMsg, qWarning
+                         QtCriticalMsg, QtFatalMsg, qDebug
 
 from csconverter import CSConverter
 from plugincontroller import Bunch, do_action
@@ -127,17 +127,17 @@ def injectJsInFrame(filePath, libraryPath, targetFrame, startingScript=False):
             result = coffee2js(script)
             if result[0] is False:
                 if startingScript:
-                    sys.exit(result[1])
+                    sys.exit('%s: \'%s\'' % (result[1], filePath))
                 else:
-                    qWarning(result[1])
+                    qDebug('%s: \'%s\'' % (result[1], filePath))
                     script = ''
             else:
                 script = result[1]
 
         targetFrame.evaluateJavaScript(script)
         return True
-    except IOError:
-        qWarning('No such file or directory: \'%s\'' % filePath)
+    except IOError as (t, e):
+        qDebug('%s: \'%s\'' % (e, filePath))
         return False
 
 

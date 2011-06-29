@@ -14,7 +14,7 @@ window.WebPage = function() {
             handlers[signalName] = f;
             this[signalName].connect(handlers[signalName]);
         });
-    }
+    };
 
     // deep copy
     page.settings = JSON.parse(JSON.stringify(phantom.defaultPageSettings));
@@ -79,4 +79,13 @@ window.WebPage = function() {
     };
 
     return page;
-}
+};
+
+// Make "fs.open" throw an exception in case it fails
+window.fs.open = function(path, mode) {
+    var file = window.fs._open(path, mode);
+    if (file) {
+        return file;
+    }
+    throw "Unable to open file '"+ path +"'";
+};
