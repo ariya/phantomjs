@@ -55,7 +55,7 @@ QString File::read()
         return m_fileStream.readAll();
     }
     qDebug() << "File::read - " << "Couldn't read:" << m_file->fileName();
-    return NULL;
+    return QString();
 }
 
 bool File::write(const QString &data)
@@ -74,7 +74,7 @@ QString File::readLine()
         return m_fileStream.readLine();
     }
     qDebug() << "File::readLine - " << "Couldn't read:" << m_file->fileName();
-    return NULL;
+    return QString();
 }
 
 bool File::writeLine(const QString &data)
@@ -199,7 +199,7 @@ QString FileSystem::separator() const
     return QDir::separator();
 }
 
-QObject *FileSystem::open(const QString &path, const QString &mode) const
+QObject *FileSystem::_open(const QString &path, const QString &mode) const
 {
     File *f = NULL;
     QFile *_f = new QFile(path);
@@ -208,17 +208,17 @@ QObject *FileSystem::open(const QString &path, const QString &mode) const
     // Ensure only one "mode character" has been selected
     if ( mode.length() != 1) {
         qDebug() << "FileSystem::open - " << "Wrong Mode string length:" << mode;
-        return false;
+        return NULL;
     }
 
     // Determine the OpenMode
     switch(mode[0].toAscii()) {
     case 'r': case 'R': {
         modeCode |= QFile::ReadOnly;
-        // Make sure there is something to read, otherwise return "false"
+        // Make sure there is something to read
         if ( !_f->exists() ) {
             qDebug() << "FileSystem::open - " << "Trying to read a file that doesn't exist:" << path;
-            return false;
+            return NULL;
         }
         break;
     }
@@ -228,26 +228,28 @@ QObject *FileSystem::open(const QString &path, const QString &mode) const
     }
     case 'w': case 'W': {
         modeCode |= QFile::WriteOnly;
-        // If the file doesn't exist and the desired path can't be created, return "false"
+        // Make sure the file exists OR it can be created at the required path
         if ( !_f->exists() && !makeTree(QFileInfo(path).dir().absolutePath()) ) {
             qDebug() << "FileSystem::open - " << "Full path coulnd't be created:" << path;
-            return false;
+            return NULL;
         }
         break;
     }
     default: {
         qDebug() << "FileSystem::open - " << "Wrong Mode:" << mode;
-        return false;
+        return NULL;
     }
     }
 
     // Try to Open
     if ( _f->open(modeCode) ) {
         f = new File(_f);
-        if ( f ) { return f; }
+        if ( f ) {
+            return f;
+        }
     }
 
-    // Return "false" if the file couldn't be opened as requested
+    // Return "NULL" if the file couldn't be opened as requested
     qDebug() << "FileSystem::open - " << "Couldn't be opened:" << path;
-    return false;
+    return NULL;
 }

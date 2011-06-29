@@ -88,7 +88,7 @@ public slots:
 
     QString separator() const;
 
-    QObject *open(const QString &path, const QString &mode) const;
+    QObject *_open(const QString &path, const QString &mode) const;
 };
 
 #endif // FILESYSTEM_H
