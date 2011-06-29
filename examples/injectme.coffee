@@ -1,4 +1,4 @@
-# Use 'page.loadJsFile()' to load the script itself in the Page context
+# Use 'page.injectJs()' to load the script itself in the Page context
 
 if phantom?
   page = new WebPage()
