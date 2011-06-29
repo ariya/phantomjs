@@ -31,6 +31,7 @@ from utils import version_major, version_minor, version_patch, \
 from plugincontroller import Bunch, do_action
 from webpage import WebPage
 from networkaccessmanager import NetworkAccessManager
+from filesystem import FileSystem
 
 
 class Phantom(QObject):
@@ -39,6 +40,7 @@ class Phantom(QObject):
 
         # variable declarations
         self.m_defaultPageSettings = {}
+        self.m_pages = []
         self.m_verbose = args.verbose
         self.m_page = WebPage(self)
         self.m_returnValue = 0
@@ -46,6 +48,9 @@ class Phantom(QObject):
         # setup the values from args
         self.m_scriptFile = args.script
         self.m_args = args.script_args
+
+        self.m_filesystem = FileSystem(self)
+        self.m_pages.append(self.m_page)
 
         do_action('PhantomInitPre', Bunch(locals()))
 
@@ -71,6 +76,7 @@ class Phantom(QObject):
 
         # inject our properties and slots into javascript
         self.m_page.mainFrame().addToJavaScriptWindowObject('phantom', self)
+        self.m_page.mainFrame().addToJavaScriptWindowObject('fs', self.m_filesystem)
 
         bootstrap = QFile(':/bootstrap.js')
         if not bootstrap.open(QFile.ReadOnly):
@@ -106,6 +112,7 @@ class Phantom(QObject):
     @pyqtSlot(result=WebPage)
     def createWebPage(self):
         page = WebPage(self)
+        self.m_pages.append(page)
         page.applySettings(self.m_defaultPageSettings)
         page.setNetworkAccessManager(self.m_netAccessMan)
         page.libraryPath = os.path.dirname(os.path.abspath(self.m_scriptFile))
@@ -121,10 +128,12 @@ class Phantom(QObject):
         self.m_terminated = True
         self.m_returnValue = code
 
-        # stop javascript execution; delete C++ object first,
-        # then delete the Python reference
-        sip.delete(self.m_page)
-        del self.m_page
+        # stop javascript execution in start script
+        # and delete all the pages C++ objects,
+        # then delete the Python references
+        for page in self.m_pages:
+            sip.delete(page)
+        del self.m_page, self.m_pages
 
         QApplication.instance().exit(code)
 
