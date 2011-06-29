@@ -31,6 +31,7 @@ from utils import version_major, version_minor, version_patch, \
 from plugincontroller import Bunch, do_action
 from webpage import WebPage
 from networkaccessmanager import NetworkAccessManager
+from filesystem import FileSystem
 
 
 class Phantom(QObject):
@@ -48,6 +49,7 @@ class Phantom(QObject):
         self.m_scriptFile = args.script
         self.m_args = args.script_args
 
+        self.m_filesystem = FileSystem(self)
         self.m_pages.append(self.m_page)
 
         do_action('PhantomInitPre', Bunch(locals()))
@@ -74,6 +76,7 @@ class Phantom(QObject):
 
         # inject our properties and slots into javascript
         self.m_page.mainFrame().addToJavaScriptWindowObject('phantom', self)
+        self.m_page.mainFrame().addToJavaScriptWindowObject('fs', self.m_filesystem)
 
         bootstrap = QFile(':/bootstrap.js')
         if not bootstrap.open(QFile.ReadOnly):
