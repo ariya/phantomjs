@@ -38,7 +38,6 @@
 #include <QFileInfo>
 #include <QFile>
 
-#include <gifwriter.h>
 #include "consts.h"
 #include "utils.h"
 #include "webpage.h"
