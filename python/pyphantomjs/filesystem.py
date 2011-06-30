@@ -468,17 +468,16 @@ class FileSystem(QObject):
             if isinstance(permissions, int):
                 os.chmod(path, permissions)
             else:
-                bitnum = 0
+                bitnum = os.stat(path).st_mode
                 for section in permissions:
                     for key in permissions[section]:
-                        if permissions[section][key] is True:
-                            try:
-                                if bitnum != 0:
-                                    bitnum = bitnum | stat.__dict__[keys[section][key]]
-                                else:
-                                    bitnum = stat.__dict__[keys[section][key]]
-                            except KeyError:
-                                pass
+                        try:
+                            if permissions[section][key] is True:
+                                bitnum = bitnum | stat.__dict__[keys[section][key]]
+                            elif permissions[section][key] is False:
+                                bitnum = bitnum & ~stat.__dict__[keys[section][key]]
+                        except KeyError:
+                            pass
                 os.chmod(path, bitnum)
             return True
         except OSError as (t, e):
