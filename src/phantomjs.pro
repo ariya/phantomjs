@@ -25,6 +25,8 @@ SOURCES += phantom.cpp \
     networkaccessmanager.cpp \
     filesystem.cpp
 
+OTHER_FILES = bootstrap.js
+
 include(gif/gif.pri)
 
 win32: RC_FILE = phantomjs_win.rc
