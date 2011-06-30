@@ -381,9 +381,9 @@ class FileSystem(QObject):
     def extension(self, path):
         return os.path.splitext(os.path.basename(path))[1][1:]
 
-    @pyqtSlot(str, str, result=str)
-    def join(self, pathA, pathB):
-        return os.path.join(pathA, pathB)
+    @pyqtSlot('QStringList', result=str)
+    def join(self, paths):
+        return os.path.join(*paths)
 
     @pyqtSlot(str, result=str)
     def normal(self, path):
