@@ -20,6 +20,12 @@
 import os
 import codecs
 import shutil
+import stat
+try:
+    from pwd import getpwuid, getpwnam
+    from grp import getgrgid, getgrnam
+except ImportError:
+    pass
 
 from PyQt4.QtCore import pyqtSlot, pyqtProperty, QObject, qDebug
 
@@ -170,6 +176,16 @@ class FileSystem(QObject):
             qDebug('FileSystem.rename - %s: \'%s\' -> \'%s\'' % (e, source, target))
             return False
 
+    @pyqtProperty(int)
+    def umask(self):
+        currentMask = os.umask(0)
+        os.umask(currentMask)
+        return currentMask
+
+    @umask.setter
+    def umask(self, mask):
+        os.umask(mask)
+
     ##
     # Directories
     ##
@@ -181,6 +197,15 @@ class FileSystem(QObject):
             return True
         except IOError as (t, e):
             qDebug('FileSystem.copyTree - %s: \'%s\' -> \'%s\'' % (e, source, target))
+            return False
+
+    @pyqtSlot(str, str, result=bool)
+    def copyLinkTree(self, source, target):
+        try:
+            shutil.copytree(source, target, True)
+            return True
+        except IOError as (t, e):
+            qDebug('FileSystem.copyLinkTree - %s: \'%s\' -> \'%s\'' % (e, source, target))
             return False
 
     @pyqtSlot(str, result=bool)
@@ -240,7 +265,7 @@ class FileSystem(QObject):
             return content
         except IOError as (t, e):
             qDebug('FileSystem.read - %s: \'%s\'' % (e, path))
-            return
+            return ''
 
     @pyqtSlot(str, str, result=bool)
     @pyqtSlot(str, str, str, result=bool)
@@ -252,6 +277,10 @@ class FileSystem(QObject):
         except IOError as (t, e):
             qDebug('FileSystem.write - %s: \'%s\'' % (e, path))
             return False
+
+    @pyqtProperty(str)
+    def newline(self):
+        return os.linesep
 
     ##
     # Listing
@@ -319,7 +348,7 @@ class FileSystem(QObject):
             return os.readlink(path)
         except OSError as (t, e):
             qDebug('FileSystem.readLink - %s: \'%s\'' % (e, path))
-            return
+            return ''
 
     ##
     # Paths
@@ -361,13 +390,17 @@ class FileSystem(QObject):
     def extension(self, path):
         return os.path.splitext(os.path.basename(path))[1][1:]
 
-    @pyqtSlot(str, str, result=str)
-    def join(self, pathA, pathB):
-        return os.path.join(pathA, pathB)
+    @pyqtSlot('QStringList', result=str)
+    def join(self, paths):
+        return os.path.join(*paths)
 
     @pyqtSlot(str, result=str)
     def normal(self, path):
         return os.path.normpath(path)
+
+    @pyqtSlot(str, result=str)
+    def normalCase(self, path):
+        return os.path.normcase(path)
 
     @pyqtProperty(str)
     def workingDirectory(self):
@@ -393,6 +426,270 @@ class FileSystem(QObject):
         return spli
 
     ##
+    # Permissions
+    ##
+
+    @pyqtSlot(str, str, result=bool)
+    @pyqtSlot(str, int, result=bool)
+    def changeGroup(self, path, group):
+        try:
+            if isinstance(group, int):
+                os.chown(path, -1, group)
+            else:
+                os.chown(path, -1, getgrnam(group).gr_gid)
+            return True
+        except OSError as (t, e):
+            qDebug('FileSystem.changeGroup - %s: \'%s\':\'%s\'' % (e, owner, path))
+        except KeyError as e:
+            qDebug('FileSystem.changeGroup - %s: \'%s\'' % (e.args[0], path))
+        return False
+
+    @pyqtSlot(str, str, result=bool)
+    @pyqtSlot(str, int, result=bool)
+    def changeLinkGroup(self, path, group):
+        try:
+            if isinstance(group, int):
+                os.lchown(path, -1, group)
+            else:
+                os.lchown(path, -1, getgrnam(group).gr_gid)
+            return True
+        except OSError as (t, e):
+            qDebug('FileSystem.changeLinkGroup - %s: \'%s\':\'%s\'' % (e, owner, path))
+        except KeyError as e:
+            qDebug('FileSystem.changeLinkGroup - %s: \'%s\'' % (e.args[0], path))
+        return False
+
+    @pyqtSlot(str, str, result=bool)
+    @pyqtSlot(str, int, result=bool)
+    def changeLinkOwner(self, path, owner):
+        try:
+            if isinstance(owner, int):
+                os.lchown(path, owner, -1)
+            else:
+                os.lchown(path, getpwnam(owner).pw_uid, -1)
+            return True
+        except OSError as (t, e):
+            qDebug('FileSystem.changeLinkOwner - %s: \'%s\':\'%s\'' % (e, owner, path))
+        except KeyError as e:
+            qDebug('FileSystem.changeLinkOwner - %s: \'%s\'' % (e.args[0], path))
+        return False
+
+    @pyqtSlot(str, int, result=bool)
+    @pyqtSlot(str, 'QVariantMap', result=bool)
+    def changeLinkPermissions(self, path, permissions):
+        # permissions uses an object in 4 types: owner, group, others, special
+        # owner,group,others each has 3 types, read,write,executable, contained in an array
+        # special uses setuid,setgid,sticky
+        #
+        # In order to turn values on or off, just use true or false values.
+        #
+        # Permissions can alternatively be a numeric mode to chmod too.
+
+        keys = {
+            'owner': {'read': 'S_IRUSR', 'write': 'S_IWUSR', 'executable': 'S_IXUSR'},
+            'group': {'read': 'S_IRGRP', 'write': 'S_IWGRP', 'executable': 'S_IXGRP'},
+            'others': {'read': 'S_IROTH', 'write': 'S_IWOTH', 'executable': 'S_IXOTH'},
+            'special': {'setuid': 'S_ISUID', 'setgid': 'S_ISGID', 'sticky': 'S_ISVTX'}
+        }
+
+        try:
+            if isinstance(permissions, int):
+                os.lchmod(path, permissions)
+            else:
+                bitnum = os.lstat(path).st_mode
+                for section in permissions:
+                    for key in permissions[section]:
+                        try:
+                            if permissions[section][key] is True:
+                                bitnum = bitnum | stat.__dict__[keys[section][key]]
+                            elif permissions[section][key] is False:
+                                bitnum = bitnum & ~stat.__dict__[keys[section][key]]
+                        except KeyError:
+                            pass
+                os.lchmod(path, bitnum)
+            return True
+        except OSError as (t, e):
+            qDebug('FileSystem.changeLinkPermissions - %s: \'%s\'' % (e, path))
+            return False
+
+    @pyqtSlot(str, str, result=bool)
+    @pyqtSlot(str, int, result=bool)
+    def changeOwner(self, path, owner):
+        try:
+            if isinstance(owner, int):
+                os.chown(path, owner, -1)
+            else:
+                os.chown(path, getpwnam(owner).pw_uid, -1)
+            return True
+        except OSError as (t, e):
+            qDebug('FileSystem.changeOwner - %s: \'%s\':\'%s\'' % (e, owner, path))
+        except KeyError as e:
+            qDebug('FileSystem.changeOwner - %s: \'%s\'' % (e.args[0], path))
+        return False
+
+    @pyqtSlot(str, int, result=bool)
+    @pyqtSlot(str, 'QVariantMap', result=bool)
+    def changePermissions(self, path, permissions):
+        # permissions uses an object in 4 types: owner, group, others, special
+        # owner,group,others each has 3 types, read,write,executable, contained in an array
+        # special uses setuid,setgid,sticky
+        #
+        # In order to turn values on or off, just use true or false values.
+        #
+        # Permissions can alternatively be a numeric mode to chmod too.
+
+        keys = {
+            'owner': {'read': 'S_IRUSR', 'write': 'S_IWUSR', 'executable': 'S_IXUSR'},
+            'group': {'read': 'S_IRGRP', 'write': 'S_IWGRP', 'executable': 'S_IXGRP'},
+            'others': {'read': 'S_IROTH', 'write': 'S_IWOTH', 'executable': 'S_IXOTH'},
+            'special': {'setuid': 'S_ISUID', 'setgid': 'S_ISGID', 'sticky': 'S_ISVTX'}
+        }
+
+        try:
+            if isinstance(permissions, int):
+                os.chmod(path, permissions)
+            else:
+                bitnum = os.stat(path).st_mode
+                for section in permissions:
+                    for key in permissions[section]:
+                        try:
+                            if permissions[section][key] is True:
+                                bitnum = bitnum | stat.__dict__[keys[section][key]]
+                            elif permissions[section][key] is False:
+                                bitnum = bitnum & ~stat.__dict__[keys[section][key]]
+                        except KeyError:
+                            pass
+                os.chmod(path, bitnum)
+            return True
+        except OSError as (t, e):
+            qDebug('FileSystem.changePermissions - %s: \'%s\'' % (e, path))
+            return False
+
+    @pyqtSlot(str, result='QVariant')
+    def group(self, path):
+        try:
+            finfo = os.stat(path)
+            return {
+                'name': getgrgid(finfo.st_gid).gr_name,
+                'uid': finfo.st_gid
+            }
+        except OSError as (t, e):
+            qDebug('FileSystem.group - %s: \'%s\'' % (e, path))
+            return
+
+    @pyqtSlot(str, result='QVariant')
+    def owner(self, path):
+        try:
+            finfo = os.stat(path)
+            return {
+                'name': getpwuid(finfo.st_uid).pw_name,
+                'uid': finfo.st_uid
+            }
+        except OSError as (t, e):
+            qDebug('FileSystem.owner - %s: \'%s\'' % (e, path))
+            return
+
+    @pyqtSlot(str, result='QVariant')
+    def linkGroup(self, path):
+        try:
+            finfo = os.lstat(path)
+            return {
+                'name': getgrgid(finfo.st_gid).gr_name,
+                'uid': finfo.st_gid
+            }
+        except OSError as (t, e):
+            qDebug('FileSystem.linkGroup - %s: \'%s\'' % (e, path))
+            return
+
+    @pyqtSlot(str, result='QVariant')
+    def linkOwner(self, path):
+        try:
+            finfo = os.lstat(path)
+            return {
+                'name': getpwuid(finfo.st_uid).pw_name,
+                'uid': finfo.st_uid
+            }
+        except OSError as (t, e):
+            qDebug('FileSystem.linkOwner - %s: \'%s\'' % (e, path))
+            return
+
+    @pyqtSlot(str, result='QVariant')
+    def linkPermissions(self, path):
+        # returns an object in 4 types: owner, group, others, special
+        # owner,group,others each has 3 types, read,write,executable
+        # special will return setuid,setgid,sticky
+
+        try:
+            finfo = os.lstat(path).st_mode
+
+            # owner
+            isOwnRd = bool(finfo & stat.S_IRUSR)
+            isOwnWr = bool(finfo & stat.S_IWUSR)
+            isOwnEx = bool(finfo & stat.S_IXUSR)
+            # group
+            isGrpRd = bool(finfo & stat.S_IRGRP)
+            isGrpWr = bool(finfo & stat.S_IWGRP)
+            isGrpEx = bool(finfo & stat.S_IXGRP)
+            # others
+            isOthRd = bool(finfo & stat.S_IROTH)
+            isOthWr = bool(finfo & stat.S_IWOTH)
+            isOthEx = bool(finfo & stat.S_IXOTH)
+            # s*id
+            isSUid = bool(finfo & stat.S_ISUID)
+            isSGid = bool(finfo & stat.S_ISGID)
+            # sticky
+            isStick = bool(finfo & stat.S_ISVTX)
+
+            return {
+                'mode': oct(finfo)[-4:],
+                'owner': {'read': isOwnRd, 'write': isOwnWr, 'executable': isOwnEx},
+                'group': {'read': isGrpRd, 'write': isGrpWr, 'executable': isGrpEx},
+                'others': {'read': isOthRd, 'write': isOthWr, 'executable': isOthEx},
+                'special': {'setuid': isSUid, 'setgid': isSGid, 'sticky': isStick}
+            }
+        except OSError as (t, e):
+            qDebug('FileSystem.linkPermissions - %s: \'%s\'' % (e, path))
+            return
+
+    @pyqtSlot(str, result='QVariant')
+    def permissions(self, path):
+        # returns an object in 4 types: owner, group, others, special
+        # owner,group,others each has 3 types, read,write,executable
+        # special will return setuid,setgid,sticky
+
+        try:
+            finfo = os.stat(path).st_mode
+
+            # owner
+            isOwnRd = bool(finfo & stat.S_IRUSR)
+            isOwnWr = bool(finfo & stat.S_IWUSR)
+            isOwnEx = bool(finfo & stat.S_IXUSR)
+            # group
+            isGrpRd = bool(finfo & stat.S_IRGRP)
+            isGrpWr = bool(finfo & stat.S_IWGRP)
+            isGrpEx = bool(finfo & stat.S_IXGRP)
+            # others
+            isOthRd = bool(finfo & stat.S_IROTH)
+            isOthWr = bool(finfo & stat.S_IWOTH)
+            isOthEx = bool(finfo & stat.S_IXOTH)
+            # s*id
+            isSUid = bool(finfo & stat.S_ISUID)
+            isSGid = bool(finfo & stat.S_ISGID)
+            # sticky
+            isStick = bool(finfo & stat.S_ISVTX)
+
+            return {
+                'mode': oct(finfo)[-4:],
+                'owner': {'read': isOwnRd, 'write': isOwnWr, 'executable': isOwnEx},
+                'group': {'read': isGrpRd, 'write': isGrpWr, 'executable': isGrpEx},
+                'others': {'read': isOthRd, 'write': isOthWr, 'executable': isOthEx},
+                'special': {'setuid': isSUid, 'setgid': isSGid, 'sticky': isStick}
+            }
+        except OSError as (t, e):
+            qDebug('FileSystem.permissions - %s: \'%s\'' % (e, path))
+            return
+
+    ##
     # Tests
     ##
 
@@ -401,8 +698,42 @@ class FileSystem(QObject):
         return os.path.exists(path)
 
     @pyqtSlot(str, result=bool)
+    def isAbsolute(self, path):
+        # :FIXME: windows might need to chop off
+        # drive letter first
+        return os.path.isabs(path)
+
+    @pyqtSlot(str, result=bool)
+    def isBlock(self, path):
+        try:
+            return stat.S_ISBLK(os.stat(path).st_mode)
+        except OSError as (t, e):
+            qDebug('FileSystem.isBlock - %s: \'%s\'' % (e, path))
+            return False
+
+    @pyqtSlot(str, result=bool)
+    def isCharacter(self, path):
+        try:
+            return stat.S_ISCHR(os.stat(path).st_mode)
+        except OSError as (t, e):
+            qDebug('FileSystem.isCharacter - %s: \'%s\'' % (e, path))
+            return False
+
+    @pyqtSlot(str, result=bool)
     def isDirectory(self, path):
         return os.path.isdir(path)
+
+    @pyqtSlot(str, result=bool)
+    def isExecutable(self, path):
+        return os.access(path, os.X_OK)
+
+    @pyqtSlot(str, result=bool)
+    def isFifo(self, path):
+        try:
+            return stat.S_ISFIFO(os.stat(path).st_mode)
+        except OSError as (t, e):
+            qDebug('FileSystem.isFifo - %s: \'%s\'' % (e, path))
+            return False
 
     @pyqtSlot(str, result=bool)
     def isFile(self, path):
@@ -421,12 +752,28 @@ class FileSystem(QObject):
         return os.access(path, os.R_OK)
 
     @pyqtSlot(str, result=bool)
+    def isRegular(self, path):
+        try:
+            return stat.S_ISREG(os.stat(path).st_mode)
+        except OSError as (t, e):
+            qDebug('FileSystem.isRegular - %s: \'%s\'' % (e, path))
+            return False
+
+    @pyqtSlot(str, result=bool)
     def isWritable(self, path):
         return os.access(path, os.W_OK)
 
     @pyqtSlot(str, result=bool)
-    def isExecutable(self, path):
-        return os.access(path, os.X_OK)
+    def isSocket(self, path):
+        try:
+            return stat.S_ISSOCK(os.stat(path).st_mode)
+        except OSError as (t, e):
+            qDebug('FileSystem.isSocket - %s: \'%s\'' % (e, path))
+            return False
+
+    @pyqtSlot(str, result=bool)
+    def linkExists(self, path):
+        return os.path.lexists(path)
 
     @pyqtSlot(str, result=bool)
     def same(self, pathA, pathB):
