@@ -139,6 +139,7 @@ class Phantom(QObject):
         # then delete the Python references
         for page in self.m_pages:
             sip.delete(page)
+            del page
         del self.m_page, self.m_pages
 
         QApplication.instance().exit(code)
