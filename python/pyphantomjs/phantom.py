@@ -109,7 +109,6 @@ class Phantom(QObject):
     def _destroy(self, page):
         self.m_pages.remove(page)
         sip.delete(page)
-        del page
 
     @pyqtProperty('QStringList')
     def args(self):
