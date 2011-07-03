@@ -16,7 +16,7 @@ Description: phantomjs - minimalistic headless WebKit-based JavaScript-driven to
  CSS selector, JSON, Canvas, SVG, and of course JavaScript.
 
 Package: python-pyphantomjs
-Architecture: any
+Architecture: all
 Depends: ${python:Depends}, ${shlibs:Depends}, ${misc:Depends}, python-qt4, python-argparse
 Description: phantomjs - minimalistic headless WebKit-based JavaScript-driven tool
  PhantomJS is a minimalistic, headless, WebKit-based, JavaScript-driven tool.
