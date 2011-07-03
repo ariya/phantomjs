@@ -10,3 +10,10 @@ qrc_*
 *.o
 *.swp
 *.pyc
+debian/*.debhelper
+debian/files
+debian/*.log
+debian/*.substvars
+debian/*/
+python/build/
+python/*.egg-info/
