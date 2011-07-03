@@ -49,7 +49,7 @@ window.WebPage = function() {
                 operation: arguments[1],
                 data: arguments[2]
                 }, this.settings);
-            return;            
+            return;
         } else if (arguments.length === 4) {
             this.onLoadFinished = arguments[3];
             this.openUrl(arguments[0], {
@@ -76,6 +76,10 @@ window.WebPage = function() {
 
         // Append the script tag to the body
         this._appendScriptElement(scriptUrl);
+    };
+
+    page.destroy = function() {
+        phantom._destroy(page);
     };
 
     return page;

@@ -105,6 +105,11 @@ class Phantom(QObject):
     # Properties and methods exposed to JavaScript
     ##
 
+    @pyqtSlot(WebPage)
+    def _destroy(self, page):
+        self.m_pages.remove(page)
+        sip.delete(page)
+
     @pyqtProperty('QStringList')
     def args(self):
         return self.m_args
@@ -128,12 +133,13 @@ class Phantom(QObject):
         self.m_terminated = True
         self.m_returnValue = code
 
-        # stop javascript execution in start script
-        # and delete all the pages C++ objects,
-        # then delete the Python references
+        # stop javascript execution in start script;
+        # delete all the pages C++ objects, then clear
+        # the page list, and empty the Phantom page
         for page in self.m_pages:
             sip.delete(page)
-        del self.m_page, self.m_pages
+        del self.m_pages[:]
+        self.m_page = None
 
         QApplication.instance().exit(code)
 
