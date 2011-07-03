@@ -46,6 +46,8 @@ setup(
     version=__version__,
     description='Minimalistic, headless, WebKit-based, JavaScript-driven tool',
     long_description=README,
+    url = 'https://github.com/Roejames12/phantomjs',
+    license = 'GNU General Public License (GPL)',
     author='James Roe',
     author_email='roejames12@hotmail.com',
     packages=find_packages(),
