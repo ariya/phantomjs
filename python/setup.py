@@ -53,11 +53,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=['argparse'],
-    entry_points = {
-        'console_scripts' : [
-            'pyphantomjs = pyphantomjs.pyphantomjs:main',
-        ],
-    },
+    scripts = ['pyphantomjs/tools/pyphantomjs'],
     classifiers = [
         'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
@@ -67,5 +63,5 @@ setup(
         'Programming Language :: Python',
         'Topic :: Internet :: WWW/HTTP :: Browsers'
     ],
-    zip_safe=False,
+    zip_safe=False
 )
