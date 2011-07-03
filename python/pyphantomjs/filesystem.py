@@ -704,36 +704,12 @@ class FileSystem(QObject):
         return os.path.isabs(path)
 
     @pyqtSlot(str, result=bool)
-    def isBlock(self, path):
-        try:
-            return stat.S_ISBLK(os.stat(path).st_mode)
-        except OSError as (t, e):
-            qDebug('FileSystem.isBlock - %s: \'%s\'' % (e, path))
-            return False
-
-    @pyqtSlot(str, result=bool)
-    def isCharacter(self, path):
-        try:
-            return stat.S_ISCHR(os.stat(path).st_mode)
-        except OSError as (t, e):
-            qDebug('FileSystem.isCharacter - %s: \'%s\'' % (e, path))
-            return False
-
-    @pyqtSlot(str, result=bool)
     def isDirectory(self, path):
         return os.path.isdir(path)
 
     @pyqtSlot(str, result=bool)
     def isExecutable(self, path):
         return os.access(path, os.X_OK)
-
-    @pyqtSlot(str, result=bool)
-    def isFifo(self, path):
-        try:
-            return stat.S_ISFIFO(os.stat(path).st_mode)
-        except OSError as (t, e):
-            qDebug('FileSystem.isFifo - %s: \'%s\'' % (e, path))
-            return False
 
     @pyqtSlot(str, result=bool)
     def isFile(self, path):
@@ -752,24 +728,8 @@ class FileSystem(QObject):
         return os.access(path, os.R_OK)
 
     @pyqtSlot(str, result=bool)
-    def isRegular(self, path):
-        try:
-            return stat.S_ISREG(os.stat(path).st_mode)
-        except OSError as (t, e):
-            qDebug('FileSystem.isRegular - %s: \'%s\'' % (e, path))
-            return False
-
-    @pyqtSlot(str, result=bool)
     def isWritable(self, path):
         return os.access(path, os.W_OK)
-
-    @pyqtSlot(str, result=bool)
-    def isSocket(self, path):
-        try:
-            return stat.S_ISSOCK(os.stat(path).st_mode)
-        except OSError as (t, e):
-            qDebug('FileSystem.isSocket - %s: \'%s\'' % (e, path))
-            return False
 
     @pyqtSlot(str, result=bool)
     def linkExists(self, path):

@@ -68,6 +68,7 @@ public slots:
     QObject *createWebPage();
     bool injectJs(const QString &jsFilePath);
     void exit(int code = 0);
+    void _destroy(QObject *page);
 
 private slots:
     void printConsoleMessage(const QString &msg, int lineNumber, const QString &source);

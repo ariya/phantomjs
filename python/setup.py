@@ -46,16 +46,14 @@ setup(
     version=__version__,
     description='Minimalistic, headless, WebKit-based, JavaScript-driven tool',
     long_description=README,
+    url = 'https://github.com/Roejames12/phantomjs',
+    license = 'GNU General Public License (GPL)',
     author='James Roe',
     author_email='roejames12@hotmail.com',
     packages=find_packages(),
     include_package_data=True,
     install_requires=['argparse'],
-    entry_points = {
-        'console_scripts' : [
-            'pyphantomjs = pyphantomjs.pyphantomjs:main',
-        ],
-    },
+    scripts = ['pyphantomjs/tools/pyphantomjs'],
     classifiers = [
         'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
@@ -65,5 +63,5 @@ setup(
         'Programming Language :: Python',
         'Topic :: Internet :: WWW/HTTP :: Browsers'
     ],
-    zip_safe=False,
+    zip_safe=False
 )
