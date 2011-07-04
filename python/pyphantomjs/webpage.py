@@ -290,17 +290,17 @@ class WebPage(QObject):
 
     @clipRect.setter
     def clipRect(self, size):
-        names = ('width', 'height', 'top', 'left')
-        for item in names:
+        sizes = {'width': 0, 'height': 0, 'top': 0, 'left': 0}
+        for item in sizes.keys():
             try:
-                globals()[item] = int(size[item])
-                if globals()[item] < 0:
+                sizes[item] = int(size[item])
+                if sizes[item] < 0:
                     if item not in ('top', 'left'):
-                        globals()[item] = 0
-            except KeyError:
-                globals()[item] = getattr(self.m_clipRect, item)()
+                        sizes[item] = 0
+            except (KeyError, ValueError):
+                sizes[item] = self.clipRect[item]
 
-        self.m_clipRect = QRect(left, top, width, height)
+        self.m_clipRect = QRect(sizes['left'], sizes['top'], sizes['width'], sizes['height'])
 
     @pyqtProperty(str)
     def content(self):
@@ -412,15 +412,15 @@ class WebPage(QObject):
 
     @viewportSize.setter
     def viewportSize(self, size):
-        names = ('width', 'height')
-        for item in names:
+        sizes = {'width': 0, 'height': 0}
+        for item in sizes.keys():
             try:
-                globals()[item] = int(size[item])
-                if globals()[item] < 0:
-                    globals()[item] = 0
-            except KeyError:
-                globals()[item] = getattr(self.m_webPage.viewportSize(), item)()
+                sizes[item] = int(size[item])
+                if sizes[item] < 0:
+                    sizes[item] = 0
+            except (KeyError, ValueError):
+                sizes[item] = self.viewportSize[item]
 
-        self.m_webPage.setViewportSize(QSize(width, height))
+        self.m_webPage.setViewportSize(QSize(sizes['width'], sizes['height']))
 
     do_action('WebPage', Bunch(locals()))
