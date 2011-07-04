@@ -28,7 +28,7 @@ from PyQt4.QtNetwork import QNetworkProxy, QNetworkProxyFactory
 
 from utils import version_major, version_minor, version_patch, \
                   injectJsInFrame
-from plugincontroller import Bunch, do_action
+from plugincontroller import do_action
 from webpage import WebPage
 from networkaccessmanager import NetworkAccessManager
 from filesystem import FileSystem
@@ -52,7 +52,7 @@ class Phantom(QObject):
         self.m_filesystem = FileSystem(self)
         self.m_pages.append(self.m_page)
 
-        do_action('PhantomInitPre', Bunch(locals()))
+        do_action('PhantomInitPre')
 
         if not args.proxy:
             QNetworkProxyFactory.setUseSystemConfiguration(True)
@@ -87,7 +87,7 @@ class Phantom(QObject):
             sys.exit('Can not bootstrap!')
         self.m_page.mainFrame().evaluateJavaScript(bootstrapper)
 
-        do_action('PhantomInitPost', Bunch(locals()))
+        do_action('PhantomInitPost')
 
     def execute(self):
         injectJsInFrame(self.m_scriptFile, os.path.dirname(os.path.abspath(__file__)), self.m_page.mainFrame(), True)
@@ -168,4 +168,4 @@ class Phantom(QObject):
         }
         return version
 
-    do_action('Phantom', Bunch(locals()))
+    do_action('Phantom')

@@ -26,14 +26,6 @@ from collections import defaultdict
 hooks = defaultdict(dict)
 
 
-class Bunch(object):
-    '''Simple class to bunch a dict into
-       an object that with attributes
-    '''
-    def __init__(self, adict):
-        self.__dict__ = adict
-
-
 def add_action(hook, priority=10):
     '''Decorator to be used for registering a function to
        a specific hook. Functions with lower priority are
@@ -68,6 +60,23 @@ def do_action(hook, *args, **kwargs):
         for plugin in hooks[hook]['plugins']:
             hooks[hook]['count'] += 1
             plugin[1](*args, **kwargs)
+
+
+def get(name, depth=3, scope='local'):
+    '''Gets the value of a variable in the parents namespace
+
+    Args:
+       depth controls how deep to go into the stack
+       scope controls the namespace used; valid values are: local,global,builtin
+    '''
+    if scope == 'local':
+        scope = 'f_locals'
+    elif scope == 'global':
+        scope = 'f_globals'
+    elif scope == 'builtin':
+        scope = 'f_builtins'
+
+    return getattr(sys._getframe(depth), scope).get(name)
 
 
 def has_action(hook, func=None):
@@ -121,6 +130,23 @@ def remove_all_actions(hook, priority=None):
                     del hooks[hook]['plugins'][index]
         return True
     return False
+
+
+def set(name, value, depth=3, scope='local'):
+    '''Sets the value of a variable in the parents namespace
+
+    Args:
+       depth controls how deep to go into the stack
+       scope controls the namespace used; valid values are: local,global,builtin
+    '''
+    if scope == 'local':
+        scope = 'f_locals'
+    elif scope == 'global':
+        scope = 'f_globals'
+    elif scope == 'builtin':
+        scope = 'f_builtins'
+
+    getattr(sys._getframe(depth), scope)[name] = value
 
 
 def load_plugins():

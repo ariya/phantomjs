@@ -27,7 +27,7 @@ from PyQt4.QtGui import QPalette, QDesktopServices, QPrinter, QImage, \
 from PyQt4.QtWebKit import QWebSettings, QWebPage
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
-from plugincontroller import Bunch, do_action
+from plugincontroller import do_action
 from utils import injectJsInFrame
 
 
@@ -45,7 +45,7 @@ class CustomPage(QWebPage):
 
         self.m_uploadFile = ''
 
-        do_action('CustomPageInit', Bunch(locals()))
+        do_action('CustomPageInit')
 
     def chooseFile(self, originatingFrame, oldFile):
         return self.m_uploadFile
@@ -63,7 +63,7 @@ class CustomPage(QWebPage):
     def userAgentForUrl(self, url):
         return self.m_userAgent
 
-    do_action('CustomPage', Bunch(locals()))
+    do_action('CustomPage')
 
 
 class WebPage(QObject):
@@ -112,7 +112,7 @@ class WebPage(QObject):
 
         self.m_webPage.setViewportSize(QSize(400, 300))
 
-        do_action('WebPageInit', Bunch(locals()))
+        do_action('WebPageInit')
 
     def applySettings(self, defaults):
         opt = self.m_webPage.settings()
@@ -423,4 +423,4 @@ class WebPage(QObject):
 
         self.m_webPage.setViewportSize(QSize(sizes['width'], sizes['height']))
 
-    do_action('WebPage', Bunch(locals()))
+    do_action('WebPage')
