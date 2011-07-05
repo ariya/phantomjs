@@ -26,7 +26,7 @@ from PyQt4.QtCore import QDateTime, Qt, QtDebugMsg, QtWarningMsg, \
                          QtCriticalMsg, QtFatalMsg, qDebug
 
 from csconverter import CSConverter
-from plugincontroller import Bunch, do_action
+from plugincontroller import do_action
 
 
 version_major, version_minor, version_patch = (1, 3, 0)
@@ -95,7 +95,7 @@ def argParser():
         help='show this program\'s version and license'
     )
 
-    do_action('ArgParser', Bunch(locals()))
+    do_action('ArgParser')
 
     return parser
 

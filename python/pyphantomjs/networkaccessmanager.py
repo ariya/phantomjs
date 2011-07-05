@@ -22,7 +22,7 @@ from PyQt4.QtCore import pyqtSignal, QDateTime
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkDiskCache, \
                             QNetworkRequest
 
-from plugincontroller import Bunch, do_action
+from plugincontroller import do_action
 
 
 class NetworkAccessManager(QNetworkAccessManager):
@@ -44,10 +44,10 @@ class NetworkAccessManager(QNetworkAccessManager):
             m_networkDiskCache.setCacheDirectory(QDesktopServices.storageLocation(QDesktopServices.CacheLocation))
             self.setCache(m_networkDiskCache)
 
-        do_action('NetworkAccessManagerInit', Bunch(locals()))
+        do_action('NetworkAccessManagerInit')
 
     def createRequest(self, op, req, outgoingData):
-        do_action('NetworkAccessManagerCreateRequestPre', Bunch(locals()))
+        do_action('NetworkAccessManagerCreateRequestPre')
 
         reply = QNetworkAccessManager.createRequest(self, op, req, outgoingData)
 
@@ -75,7 +75,7 @@ class NetworkAccessManager(QNetworkAccessManager):
 
         reply.readyRead.connect(self.handleStarted)
 
-        do_action('NetworkAccessManagerCreateRequestPost', Bunch(locals()))
+        do_action('NetworkAccessManagerCreateRequestPost')
 
         self.resourceRequested.emit(data)
         return reply
@@ -105,7 +105,7 @@ class NetworkAccessManager(QNetworkAccessManager):
         if reply in self.m_started:
             del self.m_started[self.m_started.index(reply)]
 
-        do_action('NetworkAccessManagerHandleFinished', Bunch(locals()))
+        do_action('NetworkAccessManagerHandleFinished')
 
         self.resourceReceived.emit(data)
 
@@ -139,11 +139,11 @@ class NetworkAccessManager(QNetworkAccessManager):
             'time': QDateTime.currentDateTime()
         }
 
-        do_action('NetworkAccessManagerHandleStarted', Bunch(locals()))
+        do_action('NetworkAccessManagerHandleStarted')
 
         self.resourceReceived.emit(data)
 
-    do_action('NetworkAccessManager', Bunch(locals()))
+    do_action('NetworkAccessManager')
 
 
 def toString(op):

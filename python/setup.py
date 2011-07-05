@@ -27,10 +27,7 @@ def read(fname):
 
 
 README = read('README.md')
-INSTALL = '''
-INSTALLING
--------------------
-%s''' % read('INSTALL.md')
+INSTALL = read('INSTALL.md')
 
 index = README.find('LICENSING')
 if index > -1:
