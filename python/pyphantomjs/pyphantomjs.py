@@ -29,7 +29,7 @@ import sys
 from PyQt4.QtCore import qInstallMsgHandler
 from PyQt4.QtGui import QIcon, QApplication
 
-from plugincontroller import Bunch, do_action
+from plugincontroller import do_action
 # load plugins if running script directly
 if __name__ == '__main__':
     from plugincontroller import load_plugins
@@ -69,7 +69,7 @@ def parseArgs(args):
             sys.exit(1)
         args.proxy = item
 
-    do_action('ParseArgs', Bunch(locals()))
+    do_action('ParseArgs')
 
     if not args.script:
         p.print_help()
@@ -98,14 +98,14 @@ def main():
 
     phantom = Phantom(args)
 
-    do_action('Main', Bunch(locals()))
+    do_action('Main')
 
     if phantom.execute():
         app.exec_()
     return phantom.returnValue()
 
 
-do_action('PyPhantomJS', Bunch(locals()))
+do_action('PyPhantomJS')
 
 
 if __name__ == '__main__':

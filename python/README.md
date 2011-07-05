@@ -24,6 +24,8 @@ If you want to contribute, please read the Contribution Guides<sup>3</sup>
 
 You can find a list of downloadable plugins [here](http://dev.umaclan.com/projects/pyphantomjs/wiki/Plugins).
 
+If you would like to know how to make plugins, check out this [article](http://dev.umaclan.com/projects/pyphantomjs/wiki/Writing_plugins).
+
 1: http://code.google.com/p/phantomjs/w/list  
 1: http://dev.umaclan.com/projects/pyphantomjs/wiki  
 2: http://dev.umaclan.com/projects/pyphantomjs/wiki/Api_reference  
@@ -44,13 +46,13 @@ ADDITIONAL INFO
 This program is a port of PhantomJS to Python/PyQt4 (thus, PyPhantomJS).
 
   1. We try to make PyPhantomJS to be as compatible with PhantomJS as possible,
-      this means having the exact same features as they do. It happens to be fully
-      compatible, with the exception of some very small things.
+     this means having the exact same features as they do. It happens to be fully
+     compatible, with the exception of some very small things.
   2. PyPhantomJS however, has a few differences as well:
-    * Some of the features work a little differently than PhantomJS.
-      In most of these cases, the features were only changed to improve their
-      reliability and performance, so they work more often/better, and break less.
-    * There may also be additional features present that aren't in PhantomJS.
+       * Some of the features work a little differently than PhantomJS.
+         In most of these cases, the features were only changed to improve their
+         reliability and performance, so they work more often/better, and break less.
+       * There may also be additional features present that aren't in PhantomJS.
 
 PhantomJS was written by Ariya Hidayat, and I'd like to give him a BIG thanks
 for all his work on PhantomJS! :)

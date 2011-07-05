@@ -29,7 +29,7 @@ except ImportError:
 
 from PyQt4.QtCore import pyqtSlot, pyqtProperty, QObject, qDebug
 
-from plugincontroller import Bunch, do_action
+from plugincontroller import do_action
 
 
 class File(QObject):
@@ -38,7 +38,7 @@ class File(QObject):
 
         self.m_file = openfile
 
-        do_action('FileInit', Bunch(locals()))
+        do_action('FileInit')
 
     def __del__(self):
         self.m_file.close()
@@ -107,14 +107,14 @@ class File(QObject):
             qDebug('File.writeLine - %s: \'%s\'' % (e, self.m_file.name))
             return False
 
-    do_action('File', Bunch(locals()))
+    do_action('File')
 
 
 class FileSystem(QObject):
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
 
-        do_action('FileSystemInit', Bunch(locals()))
+        do_action('FileSystemInit')
 
     ##
     # Attributes
@@ -739,4 +739,4 @@ class FileSystem(QObject):
     def same(self, pathA, pathB):
         return os.path.samefile(pathA, pathB)
 
-    do_action('FileSystem', Bunch(locals()))
+    do_action('FileSystem')
