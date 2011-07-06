@@ -36,7 +36,7 @@ function waitFor(testFx, onReady, timeOutMillis) {
 
 if (phantom.args.length === 0 || phantom.args.length > 2) {
     console.log('Usage: run-qunit.js URL');
-    phantom.exit();
+    phantom.exit(1);
 }
 
 var page = new WebPage();
@@ -49,7 +49,7 @@ page.onConsoleMessage = function(msg) {
 page.open(phantom.args[0], function(status){
     if (status !== "success") {
         console.log("Unable to access network");
-        phantom.exit();
+        phantom.exit(1);
     } else {
         waitFor(function(){
             return page.evaluate(function(){
