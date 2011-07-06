@@ -31,7 +31,7 @@ waitFor = (testFx, onReady, timeOutMillis=3000) ->
 
 if phantom.args.length isnt 1
     console.log 'Usage: run-qunit.coffee URL'
-    phantom.exit()
+    phantom.exit(1)
 
 page = new WebPage()
 
@@ -42,7 +42,7 @@ page.onConsoleMessage = (msg) ->
 page.open phantom.args[0], (status) ->
     if status isnt 'success'
         console.log 'Unable to access network'
-        phantom.exit()
+        phantom.exit(1)
     else
         waitFor ->
             page.evaluate ->
