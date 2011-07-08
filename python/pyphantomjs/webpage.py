@@ -131,12 +131,15 @@ class WebPage(QObject):
         return self.m_mainFrame
 
     def renderImage(self):
-        frameRect = QRect(QPoint(0, 0), self.m_mainFrame.contentsSize())
+        viewportSize = self.m_webPage.viewportSize()
+        frameRect = QRect(QPoint(0, 0), viewportSize)
         if not self.m_clipRect.isEmpty():
             frameRect = self.m_clipRect
 
-        viewportSize = self.m_webPage.viewportSize()
-        self.m_webPage.setViewportSize(self.m_mainFrame.contentsSize())
+        if self.m_webPage.pageScroll:
+            self.m_webPage.mainFrame().\
+                setScrollPosition(QPoint(self.m_webPage.pageScroll.x(),
+                                         self.m_webPage.pageScroll.y() ))
 
         image = QImage(frameRect.size(), QImage.Format_ARGB32)
         image.fill(qRgba(255, 255, 255, 0))
@@ -423,4 +426,27 @@ class WebPage(QObject):
 
         self.m_webPage.setViewportSize(QSize(sizes['width'], sizes['height']))
 
+    @pyqtProperty('QVariantMap')
+    def pageScroll(self):
+        scroll = self.m_webPage.pageScroll
+        result = {
+            'left': scroll.x(),
+            'top': scroll.y()
+        }
+        return result
+
+    @pageScroll.setter
+    def pageScroll(self, size):
+        names = ('left', 'top')
+        for item in names:
+            try:
+                globals()[item] = int(size[item])
+                if globals()[item] < 0:
+                    globals()[item] = 0
+            except KeyError:
+                globals()[item] = getattr(self.m_webPage.pageScroll(), item)()
+        self.m_webPage.pageScroll = QPoint(left, top)
+
     do_action('WebPage')
+
+
