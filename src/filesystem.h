@@ -95,9 +95,10 @@ public slots:
                                 // relative to the target, copying but not traversing into symbolic links to directories.
 
     // Files
+    // 'open(path, mode)' implemented in "bootstrap.js" JavaScript shim, using '_open(path, mode)'
     QObject *_open(const QString &path, const QString &mode) const;
-    // - read()
-    // - write()
+    // 'read(path)' implemented in "bootstrap.js" JavaScript shim
+    // 'write(path, mode)' implemented in the "bootstrap.js" JavaScript shim
 
     bool remove(const QString &path) const;
 
