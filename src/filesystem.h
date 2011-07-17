@@ -71,62 +71,51 @@ public:
 
 public slots:
     // Attributes
-    // int size(const QString &path) const; //< TODO - in bytes, or throw excep if doesn't exists
-    // QDateTime lastModified(const QString &path) const; //< TODO - returns the time that a file was last modified as a Date object.
+    // - int size(const QString &path) const; //< TODO - in bytes, or throw excep if doesn't exists
+    // - QDateTime lastModified(const QString &path) const; //< TODO - returns the time that a file was last modified as a Date object.
+
+    // Files / Directories
+    // - copy()
+    // - move()
+    // - touch(path, date)
+    // - rename()
+
+    // Directory
+    // - copyTree(source, target) //< copies files from a source path to a target path,
+    //                                copying the files of the source tree to the corresponding locations
+    //                                relative to the target, copying but not traversing into
+    //                                symbolic links to directories.
+    bool makeDirectory(const QString &path) const;
+    bool makeTree(const QString &path) const;
+    bool removeDirectory(const QString &path) const;
+    bool removeTree(const QString &path) const;
+
+    // Files
+    QObject *_open(const QString &path, const QString &mode) const;
+    // - read()
+    // - write()
+
+    bool remove(const QString &path) const;
+
+    // Listing
+    QStringList list(const QString &path) const;
+
+    // Paths
+    QString separator() const;
+    QString workingDirectory() const;
+    bool changeWorkingDirectory(const QString &path) const;
+    // - absolute(relative_path)
 
     // Tests
     bool exists(const QString &path) const;
     bool isDirectory(const QString &path) const;
     bool isFile(const QString &path) const;
-    // bool isLink(const QString &path) const; //< TODO
-    // bool isReadable(const QString &path) const; //< TODO
-    // bool isWritable(const QString &path) const; //< TODO is it writable or creatable
-    // isExecutable //< TODO
-    // isMount //< TODO
-    // linkExists //< TODO
-    // isAbsolute //< TODO
-    // same //< TODO
-
-    // Files / Directory
-    bool makeDirectory(const QString &path) const;
-    bool makeTree(const QString &path) const;
-    // copy //< TODO
-    // move(source, target) //< TODO - throw exception if it fails
-    // touch(path, date) //< TODO
-    bool remove(const QString &path) const;
-    bool removeDirectory(const QString &path) const;
-    bool removeTree(const QString &path) const;
-    // rename //< TODO
-    // copyTree(source, target) //< TODO - copies files from a source path to a target path,
-                                // copying the files of the source tree to the corresponding locations
-                                // relative to the target, copying but not traversing into symbolic links to directories.
-
-    // Listing
-    QStringList list(const QString &path) const;
-
-    // Links
-    // symbolicLink(source, target) //< TODO
-    // hardLink(source, target) //< TODO
-    // readLink(path) String //< TODO
-
-    // Paths
-    // canonical //< TODO
-    QString workingDirectory() const;
-    bool changeWorkingDirectory(const QString &path) const;
-    // absolute //< TODO
-    // base //< TODO
-    // directory //< TODO
-    // extension //< TODO
-    // join //< TODO
-    // normal //< TODO
-    // relative //< TODO
-    QString separator() const;
-    // split //< TODO
-
-    // Files
-    QObject *_open(const QString &path, const QString &mode) const;
-    // read //< TODO
-    // write //< TODO
+    // - isAbsolute()
+    // - isExecutable()
+    // - isLink()
+    // - isMount()
+    // - isReadable()
+    // - isWritable()
 };
 
 #endif // FILESYSTEM_H
