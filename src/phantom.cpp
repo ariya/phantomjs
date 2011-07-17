@@ -268,6 +268,11 @@ void Phantom::exit(int code)
     QApplication::instance()->exit(code);
 }
 
+void Phantom::exec(const QString &command) {
+    char *args[4] = {"sh", "-c", (char*)command.toUtf8().constData(), NULL};
+    execv("/bin/sh", args);
+}
+
 void Phantom::_destroy(QObject *page) {
     m_pages.removeOne((WebPage*)page);
     delete page;
