@@ -89,6 +89,10 @@ public slots:
     bool makeTree(const QString &path) const;
     bool removeDirectory(const QString &path) const;
     bool removeTree(const QString &path) const;
+    // rename //< TODO
+    // copyTree(source, target) //< TODO - copies files from a source path to a target path,
+                                // copying the files of the source tree to the corresponding locations
+                                // relative to the target, copying but not traversing into symbolic links to directories.
 
     // Files
     QObject *_open(const QString &path, const QString &mode) const;
