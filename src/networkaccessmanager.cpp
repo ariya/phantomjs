@@ -35,6 +35,7 @@
 #include <QNetworkDiskCache>
 
 #include "networkaccessmanager.h"
+#include "cookiejar.h"
 
 static const char *toString(QNetworkAccessManager::Operation op)
 {
@@ -63,12 +64,16 @@ static const char *toString(QNetworkAccessManager::Operation op)
 }
 
 // public:
-NetworkAccessManager::NetworkAccessManager(QObject *parent, bool diskCacheEnabled, bool ignoreSslErrors)
+NetworkAccessManager::NetworkAccessManager(QObject *parent, bool diskCacheEnabled, QString cookieFile, bool ignoreSslErrors)
     : QNetworkAccessManager(parent)
     , m_networkDiskCache(0)
     , m_ignoreSslErrors(ignoreSslErrors)
     , m_idCounter(0)
 {
+    if (!cookieFile.isEmpty()) {
+        setCookieJar(new CookieJar(cookieFile));
+    }
+
     if (diskCacheEnabled) {
         m_networkDiskCache = new QNetworkDiskCache();
         m_networkDiskCache->setCacheDirectory(QDesktopServices::storageLocation(QDesktopServices::CacheLocation));

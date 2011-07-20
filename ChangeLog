@@ -12,6 +12,10 @@ Version 1.3.0
       
       * Added Filesystem API, based on CommonJS Filesystem draft specs (issue 129)
 
+    New features
+
+      * Presistent cookie support using --cookies=cookies.ini
+
     Examples
 
       * Added a new example on using Modernizr to detect features.

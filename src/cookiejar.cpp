@@ -2,6 +2,7 @@
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
+  Copyright (C) 2010 Ariya Hidayat <ariya.hidayat@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -27,39 +28,43 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef NETWORKACCESSMANAGER_H
-#define NETWORKACCESSMANAGER_H
+#include "cookiejar.h"
 
-#include <QHash>
-#include <QNetworkAccessManager>
-#include <QSet>
+#include <QSettings>
+#include <QStringList>
 
-class QNetworkDiskCache;
+CookieJar::CookieJar(QString cookieFile)
+        : QNetworkCookieJar()
+    {
+        m_cookieFile = cookieFile;
+    }
 
-class NetworkAccessManager : public QNetworkAccessManager
-{
-    Q_OBJECT
-    QNetworkDiskCache* m_networkDiskCache;
-public:
-    NetworkAccessManager(QObject *parent = 0, bool diskCacheEnabled = false, QString cookieFile = "", bool ignoreSslErrors = false);
-    virtual ~NetworkAccessManager();
+bool CookieJar::setCookiesFromUrl(const QList<QNetworkCookie> & cookieList, const QUrl & url) {
+    QSettings settings(m_cookieFile, QSettings::IniFormat);
 
-protected:
-    bool m_ignoreSslErrors;
-    QNetworkReply *createRequest(Operation op, const QNetworkRequest & req, QIODevice * outgoingData = 0);
+    settings.beginGroup(url.host());
+    
+    for (QList<QNetworkCookie>::const_iterator i = cookieList.begin(); i != cookieList.end(); i++) {
+        settings.setValue((*i).name(), QString((*i).value()));
+    }
+    
+    settings.sync();
+    
+    return true;
+}
 
-signals:
-    void resourceRequested(const QVariant& data);
-    void resourceReceived(const QVariant& data);
+QList<QNetworkCookie> CookieJar::cookiesForUrl(const QUrl & url) const {
+    QSettings settings(m_cookieFile, QSettings::IniFormat);
+    QList<QNetworkCookie> cookieList;
 
-private slots:
-    void handleStarted();
-    void handleFinished(QNetworkReply *reply);
+    settings.beginGroup(url.host());
 
-private:
-    QHash<QNetworkReply*, int> m_ids;
-    QSet<QNetworkReply*> m_started;
-    int m_idCounter;
-};
+    QStringList keys = settings.childKeys();
+    
+    for (QStringList::iterator i = keys.begin(); i != keys.end(); i++) {
+        cookieList.push_back(QNetworkCookie((*i).toLocal8Bit(), settings.value(*i).toByteArray()));
+    }
+    
+    return cookieList;
+}
 
-#endif // NETWORKACCESSMANAGER_H

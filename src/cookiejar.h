@@ -2,6 +2,7 @@
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
+  Copyright (C) 2010 Ariya Hidayat <ariya.hidayat@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -27,39 +28,21 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef NETWORKACCESSMANAGER_H
-#define NETWORKACCESSMANAGER_H
+#ifndef COOKIEJAR_H
+#define COOKIEJAR_H
 
-#include <QHash>
-#include <QNetworkAccessManager>
-#include <QSet>
+#include <QNetworkCookieJar>
 
-class QNetworkDiskCache;
-
-class NetworkAccessManager : public QNetworkAccessManager
+class CookieJar: public QNetworkCookieJar
 {
-    Q_OBJECT
-    QNetworkDiskCache* m_networkDiskCache;
-public:
-    NetworkAccessManager(QObject *parent = 0, bool diskCacheEnabled = false, QString cookieFile = "", bool ignoreSslErrors = false);
-    virtual ~NetworkAccessManager();
-
-protected:
-    bool m_ignoreSslErrors;
-    QNetworkReply *createRequest(Operation op, const QNetworkRequest & req, QIODevice * outgoingData = 0);
-
-signals:
-    void resourceRequested(const QVariant& data);
-    void resourceReceived(const QVariant& data);
-
-private slots:
-    void handleStarted();
-    void handleFinished(QNetworkReply *reply);
-
 private:
-    QHash<QNetworkReply*, int> m_ids;
-    QSet<QNetworkReply*> m_started;
-    int m_idCounter;
+    QString m_cookieFile;
+
+public:
+    CookieJar(QString cookieFile);
+
+    bool setCookiesFromUrl(const QList<QNetworkCookie> & cookieList, const QUrl & url);
+    QList<QNetworkCookie> cookiesForUrl (const QUrl & url) const;
 };
 
-#endif // NETWORKACCESSMANAGER_H
+#endif // COOKIEJAR_H
