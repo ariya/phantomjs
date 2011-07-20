@@ -54,6 +54,7 @@ Phantom::Phantom(QObject *parent)
     m_pages.append(m_page);
 
     QString proxyHost;
+    QString cookieFile;
     int proxyPort = 1080;
     bool autoLoadImages = true;
     bool pluginsEnabled = false;
@@ -128,6 +129,10 @@ Phantom::Phantom(QObject *parent)
             }
             continue;
         }
+        if (arg.startsWith("--cookies=")) {
+            cookieFile = arg.mid(10).trimmed();
+            continue;
+        }
         if (arg.startsWith("--")) {
             std::cerr << "Unknown option '" << qPrintable(arg) << "'" << std::endl;
             m_terminated = true;
@@ -157,7 +162,7 @@ Phantom::Phantom(QObject *parent)
     }
 
     // Provide WebPage with a non-standard Network Access Manager
-    m_netAccessMan = new NetworkAccessManager(this, diskCacheEnabled, ignoreSslErrors);
+    m_netAccessMan = new NetworkAccessManager(this, diskCacheEnabled, cookieFile, ignoreSslErrors);
     m_page->setNetworkAccessManager(m_netAccessMan);
 
     connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString, int, QString)),
