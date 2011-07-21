@@ -70,25 +70,53 @@ public:
     FileSystem(QObject *parent = 0);
 
 public slots:
-    bool exists(const QString &path) const;
-    bool isDirectory(const QString &path) const;
-    bool isFile(const QString &path) const;
+    // Attributes
+    // - int size(const QString &path) const; //< TODO - in bytes, or throw excep if doesn't exists
+    // - QDateTime lastModified(const QString &path) const; //< TODO - returns the time that a file was last modified as a Date object.
 
+    // Files / Directories
+    // - copy()
+    // - move()
+    // - touch(path, date)
+    // - rename()
+
+    // Directory
+    // - copyTree(source, target) //< copies files from a source path to a target path,
+    //                                copying the files of the source tree to the corresponding locations
+    //                                relative to the target, copying but not traversing into
+    //                                symbolic links to directories.
     bool makeDirectory(const QString &path) const;
     bool makeTree(const QString &path) const;
-
-    bool remove(const QString &path) const;
     bool removeDirectory(const QString &path) const;
     bool removeTree(const QString &path) const;
 
+    // Files
+    // 'open(path, mode)' implemented in "bootstrap.js" JavaScript shim, using '_open(path, mode)'
+    QObject *_open(const QString &path, const QString &mode) const;
+    // 'read(path)' implemented in "bootstrap.js" JavaScript shim
+    // 'write(path, mode)' implemented in the "bootstrap.js" JavaScript shim
+
+    bool remove(const QString &path) const;
+
+    // Listing
     QStringList list(const QString &path) const;
 
+    // Paths
+    QString separator() const;
     QString workingDirectory() const;
     bool changeWorkingDirectory(const QString &path) const;
+    // - absolute(relative_path)
 
-    QString separator() const;
-
-    QObject *_open(const QString &path, const QString &mode) const;
+    // Tests
+    bool exists(const QString &path) const;
+    bool isDirectory(const QString &path) const;
+    bool isFile(const QString &path) const;
+    // - isAbsolute()
+    // - isExecutable()
+    // - isLink()
+    // - isMount()
+    // - isReadable()
+    // - isWritable()
 };
 
 #endif // FILESYSTEM_H
