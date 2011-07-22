@@ -46,6 +46,7 @@ class WebPage: public QObject
     Q_PROPERTY(QVariantMap viewportSize READ viewportSize WRITE setViewportSize)
     Q_PROPERTY(QVariantMap paperSize READ paperSize WRITE setPaperSize)
     Q_PROPERTY(QVariantMap clipRect READ clipRect WRITE setClipRect)
+    Q_PROPERTY(QVariantMap scrollPosition READ scrollPosition WRITE setScrollPosition)
 
 public:
     WebPage(QObject *parent = 0);
@@ -64,6 +65,10 @@ public:
 
     void setClipRect(const QVariantMap &size);
     QVariantMap clipRect() const;
+
+    void setScrollPosition(const QVariantMap &size);
+    QVariantMap scrollPosition() const;
+
 
     void setPaperSize(const QVariantMap &size);
     QVariantMap paperSize() const;
@@ -91,6 +96,7 @@ private:
     CustomPage *m_webPage;
     QWebFrame *m_mainFrame;
     QRect m_clipRect;
+    QPoint m_scrollPosition;
     QVariantMap m_paperSize; // For PDF output via render()
     QString m_libraryPath;
 

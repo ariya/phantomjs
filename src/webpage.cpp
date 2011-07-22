@@ -223,6 +223,22 @@ QVariantMap WebPage::clipRect() const
     return result;
 }
 
+
+void WebPage::setScrollPosition(const QVariantMap &size)
+{
+    int top = size.value("top").toInt();
+    int left = size.value("left").toInt();
+    m_scrollPosition = QPoint(left,top);
+}
+
+QVariantMap WebPage::scrollPosition() const
+{
+    QVariantMap result;
+    result["top"] = m_scrollPosition.y();
+    result["left"] = m_scrollPosition.x();
+    return result;
+}
+
 void WebPage::setPaperSize(const QVariantMap &size)
 {
     m_paperSize = size;
@@ -316,13 +332,18 @@ bool WebPage::render(const QString &fileName)
 }
 
 QImage WebPage::renderImage()
+
 {
-    QRect frameRect = QRect(QPoint(0, 0), m_mainFrame->contentsSize());
+    QSize viewportSize = m_webPage->viewportSize();
+    QRect frameRect = QRect(QPoint(0, 0), viewportSize);
     if (!m_clipRect.isNull())
         frameRect = m_clipRect;
 
-    QSize viewportSize = m_webPage->viewportSize();
-    m_webPage->setViewportSize(m_mainFrame->contentsSize());
+    if(!m_scrollPosition.isNull())
+      {
+	m_mainFrame->setScrollPosition(m_scrollPosition);
+      }
+    // m_webPage->setViewportSize(m_mainFrame->contentsSize());
 
     QImage buffer(frameRect.size(), QImage::Format_ARGB32);
     buffer.fill(qRgba(255, 255, 255, 0));
@@ -331,7 +352,7 @@ QImage WebPage::renderImage()
 
     // We use tiling approach to work-around Qt software rasterizer bug
     // when dealing with very large paint device.
-    // See http://code.google.com/p/phantomjs/issues/detail?id=54.
+    // See http://code.google.com/p/phantomjs/issues/detail?id=54.*
     const int tileSize = 4096;
     int htiles = (buffer.width() + tileSize - 1) / tileSize;
     int vtiles = (buffer.height() + tileSize - 1) / tileSize;
