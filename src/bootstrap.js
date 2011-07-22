@@ -133,3 +133,17 @@ window.fs.write = function(path, content, mode) {
     f.write(content);
     f.close();
 };
+
+/** Return the size of a file, in bytes.
+ * It will throw an exception if it fails.
+ *
+ * @param path Path fo the file to read the size of
+ * @return File size in bytes
+ */
+window.fs.size = function(path) {
+    var size = fs._size(path);
+    if (size !== -1) {
+        return size;
+    }
+    throw "Unable to read file '"+ path +"' size";
+};
