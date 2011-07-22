@@ -33,6 +33,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QDebug>
+#include <QDateTime>
 
 // File
 // public:
@@ -121,6 +122,26 @@ FileSystem::FileSystem(QObject *parent) :
 { }
 
 // public slots:
+
+// Attributes
+int FileSystem::_size(const QString &path) const
+{
+    QFileInfo fi(path);
+    if (fi.exists()) {
+        return fi.size();
+    }
+    return -1;
+}
+
+QVariant FileSystem::lastModified(const QString &path) const
+{
+    QFileInfo fi(path);
+    if (fi.exists()) {
+        return QVariant(fi.lastModified());
+    }
+    return QVariant(QDateTime());
+}
+
 bool FileSystem::exists(const QString &path) const
 {
     return QFile::exists(path);

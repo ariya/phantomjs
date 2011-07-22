@@ -3,7 +3,8 @@ phantom.injectJs("./lib/jasmine.js");
 phantom.injectJs("./lib/jasmine-console.js");
 
 // Load specs
-phantom.injectJs("./fs-spec-01.js"); //< Filesystem Specs 01
+phantom.injectJs("./fs-spec-01.js"); //< Filesystem Specs 01 (Basic)
+phantom.injectJs("./fs-spec-02.js"); //< Filesystem Specs 02 (Attributes)
 
 // Launch tests
 var jasmineEnv = jasmine.getEnv();
@@ -11,7 +12,7 @@ var jasmineEnv = jasmine.getEnv();
 // Add a ConsoleReporter to 1) print with colors on the console 2) exit when finished
 jasmineEnv.addReporter(new jasmine.ConsoleReporter(function(msg){
     // Print messages straight to the console
-    console.log(msg);
+    console.log(msg.replace('\n', ''));
 }, function(reporter){
     // On complete
     phantom.exit();

@@ -34,6 +34,7 @@
 #include <QStringList>
 #include <QFile>
 #include <QTextStream>
+#include <QVariant>
 
 class File : public QObject
 {
@@ -71,8 +72,9 @@ public:
 
 public slots:
     // Attributes
-    // - int size(const QString &path) const; //< TODO - in bytes, or throw excep if doesn't exists
-    // - QDateTime lastModified(const QString &path) const; //< TODO - returns the time that a file was last modified as a Date object.
+    // 'size(path)' implemented in "bootstrap.js" JavaScript shim, using '_size(path)'
+    int _size(const QString &path) const;
+    QVariant lastModified(const QString &path) const;
 
     // Files / Directories
     // - copy()
