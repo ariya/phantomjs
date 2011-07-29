@@ -284,11 +284,12 @@ class WebPage(QObject):
 
     @pyqtProperty('QVariantMap')
     def clipRect(self):
+        clipRect = self.m_clipRect
         result = {
-            'width': self.m_clipRect.width(),
-            'height': self.m_clipRect.height(),
-            'top': self.m_clipRect.top(),
-            'left': self.m_clipRect.left()
+            'width': clipRect.width(),
+            'height': clipRect.height(),
+            'top': clipRect.top(),
+            'left': clipRect.left()
         }
         return result
 
