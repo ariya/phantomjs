@@ -408,8 +408,8 @@ class WebPage(QObject):
                 positions[item] = int(size[item])
                 if positions[item] < 0:
                     positions[item] = 0
-            except KeyError:
-                positions[item] = self.m_webPage.m_scrollPosition[item]
+            except (KeyError, ValueError):
+                positions[item] = self.scrollPosition[item]
         self.m_webPage.m_scrollPosition = QPoint(positions['left'], positions['top'])
 
     @pyqtSlot(str, str)
