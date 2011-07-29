@@ -68,6 +68,9 @@ def argParser():
         choices=['yes', 'no'],
         help='Enable disk cache (default: %(default)s)'
     )
+    parser.add_argument('--cookies', metavar='CookieJar',
+        help='Use persistent cookies from a CookieJar INI file'
+    )
     parser.add_argument('--ignore-ssl-errors', default='no',
         choices=['yes', 'no'],
         help='Ignore SSL errors (default: %(default)s)'
