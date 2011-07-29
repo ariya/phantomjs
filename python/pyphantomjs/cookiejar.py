@@ -45,9 +45,7 @@ class CookieJar(QNetworkCookieJar):
 
         settings.beginGroup(url.host())
 
-        keys = settings.childKeys()
-
-        for cname in keys:
+        for cname in settings.childKeys():
             cookieList.append(QNetworkCookie(cname, settings.value(cname)))
 
         return cookieList
