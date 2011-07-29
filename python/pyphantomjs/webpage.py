@@ -295,7 +295,7 @@ class WebPage(QObject):
     @clipRect.setter
     def clipRect(self, size):
         sizes = {'width': 0, 'height': 0, 'top': 0, 'left': 0}
-        for item in sizes.keys():
+        for item in sizes:
             try:
                 sizes[item] = int(size[item])
                 if sizes[item] < 0:
@@ -438,7 +438,7 @@ class WebPage(QObject):
     @viewportSize.setter
     def viewportSize(self, size):
         sizes = {'width': 0, 'height': 0}
-        for item in sizes.keys():
+        for item in sizes:
             try:
                 sizes[item] = int(size[item])
                 if sizes[item] < 0:
