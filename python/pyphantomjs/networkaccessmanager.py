@@ -22,6 +22,7 @@ from PyQt4.QtCore import pyqtSignal, QDateTime
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkDiskCache, \
                             QNetworkRequest
 
+from cookiejar import CookieJar
 from plugincontroller import do_action
 
 
@@ -29,7 +30,7 @@ class NetworkAccessManager(QNetworkAccessManager):
     resourceReceived = pyqtSignal('QVariantMap')
     resourceRequested = pyqtSignal('QVariantMap')
 
-    def __init__(self, diskCacheEnabled, ignoreSslErrors, parent=None):
+    def __init__(self, diskCacheEnabled, cookieFile, ignoreSslErrors, parent=None):
         QNetworkAccessManager.__init__(self, parent)
 
         self.m_ignoreSslErrors = ignoreSslErrors
@@ -43,6 +44,9 @@ class NetworkAccessManager(QNetworkAccessManager):
             m_networkDiskCache = QNetworkDiskCache()
             m_networkDiskCache.setCacheDirectory(QDesktopServices.storageLocation(QDesktopServices.CacheLocation))
             self.setCache(m_networkDiskCache)
+
+        if cookieFile:
+            self.setCookieJar(CookieJar(cookieFile, self))
 
         do_action('NetworkAccessManagerInit')
 

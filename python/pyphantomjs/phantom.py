@@ -61,7 +61,7 @@ class Phantom(QObject):
             QNetworkProxy.setApplicationProxy(proxy)
 
         # Provide WebPage with a non-standard Network Access Manager
-        self.m_netAccessMan = NetworkAccessManager(args.disk_cache, args.ignore_ssl_errors, self)
+        self.m_netAccessMan = NetworkAccessManager(args.disk_cache, args.cookies, args.ignore_ssl_errors, self)
         self.m_page.setNetworkAccessManager(self.m_netAccessMan)
 
         self.m_page.javaScriptConsoleMessageSent.connect(self.printConsoleMessage)
