@@ -42,6 +42,7 @@ class CustomPage(QWebPage):
 
         self.parent = parent
         self.m_userAgent = QWebPage.userAgentForUrl(self, QUrl())
+        self.m_scrollPosition = QPoint()
 
         self.m_uploadFile = ''
 
@@ -136,10 +137,10 @@ class WebPage(QObject):
         if not self.m_clipRect.isEmpty():
             frameRect = self.m_clipRect
 
-        if self.m_webPage.scrollPosition:
+        if self.m_webPage.m_scrollPosition:
             self.m_webPage.mainFrame().\
-                setScrollPosition(QPoint(self.m_webPage.scrollPosition.x(),
-                                         self.m_webPage.scrollPosition.y() ))
+                setScrollPosition(QPoint(self.m_webPage.m_scrollPosition.x(),
+                                         self.m_webPage.m_scrollPosition.y() ))
 
         image = QImage(frameRect.size(), QImage.Format_ARGB32)
         image.fill(qRgba(255, 255, 255, 0))
@@ -391,7 +392,7 @@ class WebPage(QObject):
 
     @pyqtProperty('QVariantMap')
     def scrollPosition(self):
-        scroll = self.m_webPage.scrollPosition
+        scroll = self.m_webPage.m_scrollPosition
         result = {
             'left': scroll.x(),
             'top': scroll.y()
@@ -407,8 +408,8 @@ class WebPage(QObject):
                 if positions[item] < 0:
                     positions[item] = 0
             except KeyError:
-                positions[item] = self.m_webPage.scrollPosition[item]
-        self.m_webPage.scrollPosition = QPoint(positions['left'], positions['top'])
+                positions[item] = self.m_webPage.m_scrollPosition[item]
+        self.m_webPage.m_scrollPosition = QPoint(positions['left'], positions['top'])
 
     @pyqtSlot(str, str)
     def uploadFile(self, selector, fileName):
