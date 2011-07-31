@@ -69,9 +69,8 @@ def parseArgs(args):
             sys.exit(1)
         args.proxy = item
 
-    if args.cookies:
-        if not os.path.exists(args.cookies):
-            sys.exit('No such file or directory: \'%s\'' % args.cookies)
+    if args.cookies and not os.path.exists(args.cookies):
+        sys.exit('No such file or directory: \'%s\'' % args.cookies)
 
     do_action('ParseArgs')
 
