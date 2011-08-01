@@ -34,5 +34,8 @@ include(gif/gif.pri)
 win32: RC_FILE = phantomjs_win.rc
 os2:   RC_FILE = phantomjs_os2.rc
 
+mac {
+    CONFIG -= app_bundle
 # Uncomment to build a Mac OS X Universal Binary (i.e. x86 + ppc)
-#mac: CONFIG += x86 ppc
+#    CONFIG += x86 ppc
+}
