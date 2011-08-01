@@ -107,7 +107,7 @@ public slots:
     QString separator() const;
     QString workingDirectory() const;
     bool changeWorkingDirectory(const QString &path) const;
-    // - absolute(relative_path)
+    QString absolute(const QString &relativePath) const;
 
     // Tests
     bool exists(const QString &path) const;
