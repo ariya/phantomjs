@@ -205,6 +205,12 @@ QStringList FileSystem::list(const QString &path) const
     return QDir(path).entryList();
 }
 
+// Paths
+QString FileSystem::separator() const
+{
+    return QDir::separator();
+}
+
 QString FileSystem::workingDirectory() const
 {
     return QDir::currentPath();
@@ -215,11 +221,12 @@ bool FileSystem::changeWorkingDirectory(const QString &path) const
     return QDir::setCurrent(path);
 }
 
-QString FileSystem::separator() const
+QString FileSystem::absolute(const QString &relativePath) const
 {
-    return QDir::separator();
+   return QFileInfo(relativePath).absoluteFilePath();
 }
 
+// Files
 QObject *FileSystem::_open(const QString &path, const QString &mode) const
 {
     File *f = NULL;
