@@ -22,8 +22,8 @@ import sys
 import codecs
 import argparse
 
-from PyQt4.QtCore import QDateTime, Qt, QtDebugMsg, QtWarningMsg, \
-                         QtCriticalMsg, QtFatalMsg, qDebug
+from PyQt4.QtCore import (QDateTime, Qt, QtDebugMsg, QtWarningMsg,
+                          QtCriticalMsg, QtFatalMsg, qDebug)
 
 from csconverter import CSConverter
 from plugincontroller import do_action

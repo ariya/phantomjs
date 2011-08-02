@@ -19,8 +19,8 @@
 
 from PyQt4.QtGui import QDesktopServices
 from PyQt4.QtCore import pyqtSignal, QDateTime
-from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkDiskCache, \
-                            QNetworkRequest
+from PyQt4.QtNetwork import (QNetworkAccessManager, QNetworkDiskCache,
+                             QNetworkRequest)
 
 from cookiejar import CookieJar
 from plugincontroller import do_action
