@@ -6,6 +6,7 @@ phantom.injectJs("./lib/jasmine-console.js");
 phantom.injectJs("./phantom-spec.js");
 phantom.injectJs("./fs-spec-01.js"); //< Filesystem Specs 01 (Basic)
 phantom.injectJs("./fs-spec-02.js"); //< Filesystem Specs 02 (Attributes)
+phantom.injectJs("./fs-spec-03.js"); //< Filesystem Specs 02 (Paths)
 
 // Launch tests
 var jasmineEnv = jasmine.getEnv();
