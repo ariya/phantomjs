@@ -6,10 +6,10 @@ if (phantom.args.length !== 1) {
 }
 
 var scanDirectory = function (path) {
-    if (phantom.fs.exists(path) && phantom.fs.isFile(path)) {
+    if (fs.exists(path) && fs.isFile(path)) {
         console.log(path);
-    } else if (phantom.fs.isDir(path)) {
-        phantom.fs.list(path).forEach(function (e) {
+    } else if (fs.isDirectory(path)) {
+        fs.list(path).forEach(function (e) {
             if ( e !== "." && e !== ".." ) {    //< Avoid loops
                 scanDirectory(path + '/' + e);
             }
