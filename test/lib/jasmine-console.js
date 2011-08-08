@@ -40,12 +40,12 @@ jasmine.ConsoleReporter = function(print, doneCallback, showColors) {
     newline();
   }
 
-  function greenDot() {
-    print(greenStr("."));
+  function greenPass() {
+    print(greenStr("PASS"));
   }
 
-  function redF() {
-    print(redStr("F"));
+  function redFail() {
+    print(redStr("FAIL"));
   }
 
   function yellowStar() {
@@ -76,10 +76,8 @@ jasmine.ConsoleReporter = function(print, doneCallback, showColors) {
   function specFailureDetails(suiteDescription, specDescription, stackTraces) {
     newline();
     print(suiteDescription + " " + specDescription);
-    newline();
     for (var i = 0; i < stackTraces.length; i++) {
       print(indent(stackTraces[i], 2));
-      newline();
     }
   }
 
@@ -92,8 +90,6 @@ jasmine.ConsoleReporter = function(print, doneCallback, showColors) {
     newline();
     print(colorF(specs + " " + plural(language.spec, specs) + ", " +
       failed + " " + plural(language.failure, failed)));
-    newline();
-    newline();
   }
 
   function greenSummary(specs, failed) {
@@ -126,10 +122,14 @@ jasmine.ConsoleReporter = function(print, doneCallback, showColors) {
     var results = spec.results();
     if (results.skipped) {
       yellowStar();
-    } else if (results.passed()) {
-      greenDot();
     } else {
-      redF();
+	  if (results.passed()) {
+		print('#' + spec.id + ' ' + spec.suite.description + ': ' + spec.description);
+        greenPass();
+      } else {
+		print(redStr('#' + spec.id + ' ' + spec.suite.description + ': ' + spec.description));
+        redFail();
+      }
     }
   };
 
@@ -161,8 +161,6 @@ jasmine.ConsoleReporter = function(print, doneCallback, showColors) {
   }
 
   this.reportRunnerResults = function(runner) {
-    newline();
-
     eachSpecFailure(this.suiteResults, function(suiteDescription, specDescription, stackTraces) {
       specFailureDetails(suiteDescription, specDescription, stackTraces);
     });
