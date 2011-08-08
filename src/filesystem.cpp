@@ -142,6 +142,7 @@ QVariant FileSystem::lastModified(const QString &path) const
     return QVariant(QDateTime());
 }
 
+// Tests
 bool FileSystem::exists(const QString &path) const
 {
     return QFile::exists(path);
@@ -157,6 +158,27 @@ bool FileSystem::isFile(const QString &path) const
     return QFileInfo(path).isFile();
 }
 
+bool FileSystem::isAbsolute(const QString &path) const {
+   return QFileInfo(path).isAbsolute();
+}
+
+bool FileSystem::isExecutable(const QString &path) const {
+   return QFileInfo(path).isExecutable();
+}
+
+bool FileSystem::isLink(const QString &path) const {
+   return QFileInfo(path).isSymLink();
+}
+
+bool FileSystem::isReadable(const QString &path) const {
+   return QFileInfo(path).isReadable();
+}
+
+bool FileSystem::isWritable(const QString &path) const {
+   return QFileInfo(path).isWritable();
+}
+
+// Directory
 bool FileSystem::makeDirectory(const QString &path) const
 {
     return QDir().mkdir(path);

@@ -113,12 +113,11 @@ public slots:
     bool exists(const QString &path) const;
     bool isDirectory(const QString &path) const;
     bool isFile(const QString &path) const;
-    // - isAbsolute()
-    // - isExecutable()
-    // - isLink()
-    // - isMount()
-    // - isReadable()
-    // - isWritable()
+    bool isAbsolute(const QString &path) const;
+    bool isExecutable(const QString &path) const;
+    bool isReadable(const QString &path) const;
+    bool isWritable(const QString &path) const;
+    bool isLink(const QString &path) const;
 };
 
 #endif // FILESYSTEM_H
