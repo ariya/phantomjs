@@ -21,13 +21,13 @@ import os
 import sys
 
 import sip
-from PyQt4.QtCore import pyqtProperty, pyqtSlot, QObject, \
-                         QFile
+from PyQt4.QtCore import (pyqtProperty, pyqtSlot, QObject,
+                          QFile)
 from PyQt4.QtGui import QApplication
 from PyQt4.QtNetwork import QNetworkProxy, QNetworkProxyFactory
 
-from utils import version_major, version_minor, version_patch, \
-                  injectJsInFrame
+from utils import (version_major, version_minor, version_patch,
+                   injectJsInFrame)
 from plugincontroller import do_action
 from webpage import WebPage
 from networkaccessmanager import NetworkAccessManager
