@@ -54,7 +54,7 @@ class File(QObject):
             line = self.m_file.readline()
             self.m_file.seek(currentPos)
         except IOError as e:
-            qDebug('File.atEnd - %s: \'%s\'' % (e, self.m_file.name))
+            qDebug("File.atEnd - %s: '%s'" % (e, self.m_file.name))
             return False
 
         # test for EOF
@@ -78,7 +78,7 @@ class File(QObject):
         try:
             return self.m_file.read()
         except IOError as e:
-            qDebug('File.read - %s: \'%s\'' % (e, self.m_file.name))
+            qDebug("File.read - %s: '%s'" % (e, self.m_file.name))
             return ''
 
     @pyqtSlot(result=str)
@@ -86,7 +86,7 @@ class File(QObject):
         try:
             return self.m_file.readline()
         except IOError as e:
-            qDebug('File.readLine - %s: \'%s\'' % (e, self.m_file.name))
+            qDebug("File.readLine - %s: '%s'" % (e, self.m_file.name))
             return ''
 
     @pyqtSlot(str, result=bool)
@@ -95,7 +95,7 @@ class File(QObject):
             self.m_file.write(data)
             return True
         except IOError as e:
-            qDebug('File.write - %s: \'%s\'' % (e, self.m_file.name))
+            qDebug("File.write - %s: '%s'" % (e, self.m_file.name))
             return False
 
     @pyqtSlot(str, result=bool)
@@ -104,7 +104,7 @@ class File(QObject):
             self.m_file.write(data + '\n')
             return True
         except IOError as e:
-            qDebug('File.writeLine - %s: \'%s\'' % (e, self.m_file.name))
+            qDebug("File.writeLine - %s: '%s'" % (e, self.m_file.name))
             return False
 
     do_action('File')
@@ -125,7 +125,7 @@ class FileSystem(QObject):
         try:
             return os.path.getsize(path)
         except OSError as (t, e):
-            qDebug('FileSystem.size - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.size - %s: '%s'" % (e, path))
             return 0
 
     @pyqtSlot(str, result=int)
@@ -133,7 +133,7 @@ class FileSystem(QObject):
         try:
             return os.path.getmtime(path)
         except OSError as (t, e):
-            qDebug('FileSystem.lastModified - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.lastModified - %s: '%s'" % (e, path))
             return 0
 
     ##
@@ -146,7 +146,7 @@ class FileSystem(QObject):
             shutil.copy2(source, target)
             return True
         except IOError as (t, e):
-            qDebug('FileSystem.copy - %s: \'%s\' -> \'%s\'' % (e, source, target))
+            qDebug("FileSystem.copy - %s: '%s' -> '%s'" % (e, source, target))
             return False
 
     @pyqtSlot(str, str, result=bool)
@@ -155,7 +155,7 @@ class FileSystem(QObject):
             shutil.move(source, target)
             return True
         except IOError as (t, e):
-            qDebug('FileSystem.move - %s: \'%s\' -> \'%s\'' % (e, source, target))
+            qDebug("FileSystem.move - %s: '%s' -> '%s'" % (e, source, target))
             return False
 
     @pyqtSlot(str, result=bool)
@@ -164,7 +164,7 @@ class FileSystem(QObject):
             os.remove(path)
             return True
         except OSError as e:
-            qDebug('FileSystem.remove - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.remove - %s: '%s'" % (e, path))
             return False
 
     @pyqtSlot(str, str, result=bool)
@@ -173,7 +173,7 @@ class FileSystem(QObject):
             os.rename(source, target)
             return True
         except OSError as (t, e):
-            qDebug('FileSystem.rename - %s: \'%s\' -> \'%s\'' % (e, source, target))
+            qDebug("FileSystem.rename - %s: '%s' -> '%s'" % (e, source, target))
             return False
 
     @pyqtProperty(int)
@@ -196,7 +196,7 @@ class FileSystem(QObject):
             shutil.copytree(source, target)
             return True
         except IOError as (t, e):
-            qDebug('FileSystem.copyTree - %s: \'%s\' -> \'%s\'' % (e, source, target))
+            qDebug("FileSystem.copyTree - %s: '%s' -> '%s'" % (e, source, target))
             return False
 
     @pyqtSlot(str, str, result=bool)
@@ -205,7 +205,7 @@ class FileSystem(QObject):
             shutil.copytree(source, target, True)
             return True
         except IOError as (t, e):
-            qDebug('FileSystem.copyLinkTree - %s: \'%s\' -> \'%s\'' % (e, source, target))
+            qDebug("FileSystem.copyLinkTree - %s: '%s' -> '%s'" % (e, source, target))
             return False
 
     @pyqtSlot(str, result=bool)
@@ -214,7 +214,7 @@ class FileSystem(QObject):
             os.mkdir(path)
             return True
         except OSError as e:
-            qDebug('FileSystem.makeDirectory - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.makeDirectory - %s: '%s'" % (e, path))
             return False
 
     @pyqtSlot(str, result=bool)
@@ -223,7 +223,7 @@ class FileSystem(QObject):
             os.makedirs(path)
             return True
         except OSError as e:
-            qDebug('FileSystem.makeTree - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.makeTree - %s: '%s'" % (e, path))
             return False
 
     @pyqtSlot(str, result=bool)
@@ -232,7 +232,7 @@ class FileSystem(QObject):
             os.rmdir(path)
             return True
         except OSError as e:
-            qDebug('FileSystem.removeDirectory - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.removeDirectory - %s: '%s'" % (e, path))
             return False
 
     @pyqtSlot(str, result=bool)
@@ -241,7 +241,7 @@ class FileSystem(QObject):
             os.removedirs(path)
             return True
         except OSError as e:
-            qDebug('FileSystem.removeTree - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.removeTree - %s: '%s'" % (e, path))
             return False
 
     ##
@@ -254,7 +254,7 @@ class FileSystem(QObject):
             f = codecs.open(path, mode, encoding='utf-8')
             return File(f, self)
         except (IOError, ValueError) as (t, e):
-            qDebug('FileSystem.open - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.open - %s: '%s'" % (e, path))
             return
 
     @pyqtSlot(str, result=str)
@@ -264,7 +264,7 @@ class FileSystem(QObject):
                 content = f.read()
             return content
         except IOError as (t, e):
-            qDebug('FileSystem.read - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.read - %s: '%s'" % (e, path))
             return ''
 
     @pyqtSlot(str, str, result=bool)
@@ -275,7 +275,7 @@ class FileSystem(QObject):
                 f.write(data)
             return True
         except IOError as (t, e):
-            qDebug('FileSystem.write - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.write - %s: '%s'" % (e, path))
             return False
 
     @pyqtProperty(str)
@@ -293,7 +293,7 @@ class FileSystem(QObject):
             p[0:2] = ('.', '..')
             return p
         except OSError as e:
-            qDebug('FileSystem.list - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.list - %s: '%s'" % (e, path))
             return
 
     @pyqtSlot(str, result='QStringList')
@@ -305,7 +305,7 @@ class FileSystem(QObject):
                     listing.append(os.path.join(root, _file))
             return listing
         except OSError as (t, e):
-            qDebug('FileSystem.listTree - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.listTree - %s: '%s'" % (e, path))
             return
 
     @pyqtSlot(str, result='QStringList')
@@ -317,7 +317,7 @@ class FileSystem(QObject):
                     listing.append(os.path.join(root, _dir))
             return listing
         except OSError as (t, e):
-            qDebug('FileSystem.listDirectoryTree - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.listDirectoryTree - %s: '%s'" % (e, path))
             return
 
     ##
@@ -330,7 +330,7 @@ class FileSystem(QObject):
             os.symlink(source, target)
             return True
         except OSError as (t, e):
-            qDebug('FileSystem.symbolicLink - %s: \'%s\' -> \'%s\'' % (e, source, target))
+            qDebug("FileSystem.symbolicLink - %s: '%s' -> '%s'" % (e, source, target))
             return False
 
     @pyqtSlot(str, str, result=bool)
@@ -339,7 +339,7 @@ class FileSystem(QObject):
             os.link(source, target)
             return True
         except OSError as (t, e):
-            qDebug('FileSystem.hardLink - %s: \'%s\' -> \'%s\'' % (e, source, target))
+            qDebug("FileSystem.hardLink - %s: '%s' -> '%s'" % (e, source, target))
             return False
 
     @pyqtSlot(str, result=str)
@@ -347,7 +347,7 @@ class FileSystem(QObject):
         try:
             return os.readlink(path)
         except OSError as (t, e):
-            qDebug('FileSystem.readLink - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.readLink - %s: '%s'" % (e, path))
             return ''
 
     ##
@@ -379,7 +379,7 @@ class FileSystem(QObject):
             os.chdir(path)
             return True
         except OSError as e:
-            qDebug('FileSystem.changeWorkingDirectory - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.changeWorkingDirectory - %s: '%s'" % (e, path))
             return False
 
     @pyqtSlot(str, result=str)
@@ -439,9 +439,9 @@ class FileSystem(QObject):
                 os.chown(path, -1, getgrnam(group).gr_gid)
             return True
         except OSError as (t, e):
-            qDebug('FileSystem.changeGroup - %s: \'%s\':\'%s\'' % (e, owner, path))
+            qDebug("FileSystem.changeGroup - %s: '%s':'%s'" % (e, owner, path))
         except KeyError as e:
-            qDebug('FileSystem.changeGroup - %s: \'%s\'' % (e.args[0], path))
+            qDebug("FileSystem.changeGroup - %s: '%s'" % (e.args[0], path))
         return False
 
     @pyqtSlot(str, str, result=bool)
@@ -454,9 +454,9 @@ class FileSystem(QObject):
                 os.lchown(path, -1, getgrnam(group).gr_gid)
             return True
         except OSError as (t, e):
-            qDebug('FileSystem.changeLinkGroup - %s: \'%s\':\'%s\'' % (e, owner, path))
+            qDebug("FileSystem.changeLinkGroup - %s: '%s':'%s'" % (e, owner, path))
         except KeyError as e:
-            qDebug('FileSystem.changeLinkGroup - %s: \'%s\'' % (e.args[0], path))
+            qDebug("FileSystem.changeLinkGroup - %s: '%s'" % (e.args[0], path))
         return False
 
     @pyqtSlot(str, str, result=bool)
@@ -469,9 +469,9 @@ class FileSystem(QObject):
                 os.lchown(path, getpwnam(owner).pw_uid, -1)
             return True
         except OSError as (t, e):
-            qDebug('FileSystem.changeLinkOwner - %s: \'%s\':\'%s\'' % (e, owner, path))
+            qDebug("FileSystem.changeLinkOwner - %s: '%s':'%s'" % (e, owner, path))
         except KeyError as e:
-            qDebug('FileSystem.changeLinkOwner - %s: \'%s\'' % (e.args[0], path))
+            qDebug("FileSystem.changeLinkOwner - %s: '%s'" % (e.args[0], path))
         return False
 
     @pyqtSlot(str, int, result=bool)
@@ -509,7 +509,7 @@ class FileSystem(QObject):
                 os.lchmod(path, bitnum)
             return True
         except OSError as (t, e):
-            qDebug('FileSystem.changeLinkPermissions - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.changeLinkPermissions - %s: '%s'" % (e, path))
             return False
 
     @pyqtSlot(str, str, result=bool)
@@ -522,9 +522,9 @@ class FileSystem(QObject):
                 os.chown(path, getpwnam(owner).pw_uid, -1)
             return True
         except OSError as (t, e):
-            qDebug('FileSystem.changeOwner - %s: \'%s\':\'%s\'' % (e, owner, path))
+            qDebug("FileSystem.changeOwner - %s: '%s':'%s'" % (e, owner, path))
         except KeyError as e:
-            qDebug('FileSystem.changeOwner - %s: \'%s\'' % (e.args[0], path))
+            qDebug("FileSystem.changeOwner - %s: '%s'" % (e.args[0], path))
         return False
 
     @pyqtSlot(str, int, result=bool)
@@ -562,7 +562,7 @@ class FileSystem(QObject):
                 os.chmod(path, bitnum)
             return True
         except OSError as (t, e):
-            qDebug('FileSystem.changePermissions - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.changePermissions - %s: '%s'" % (e, path))
             return False
 
     @pyqtSlot(str, result='QVariant')
@@ -574,7 +574,7 @@ class FileSystem(QObject):
                 'uid': finfo.st_gid
             }
         except OSError as (t, e):
-            qDebug('FileSystem.group - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.group - %s: '%s'" % (e, path))
             return
 
     @pyqtSlot(str, result='QVariant')
@@ -586,7 +586,7 @@ class FileSystem(QObject):
                 'uid': finfo.st_uid
             }
         except OSError as (t, e):
-            qDebug('FileSystem.owner - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.owner - %s: '%s'" % (e, path))
             return
 
     @pyqtSlot(str, result='QVariant')
@@ -598,7 +598,7 @@ class FileSystem(QObject):
                 'uid': finfo.st_gid
             }
         except OSError as (t, e):
-            qDebug('FileSystem.linkGroup - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.linkGroup - %s: '%s'" % (e, path))
             return
 
     @pyqtSlot(str, result='QVariant')
@@ -610,7 +610,7 @@ class FileSystem(QObject):
                 'uid': finfo.st_uid
             }
         except OSError as (t, e):
-            qDebug('FileSystem.linkOwner - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.linkOwner - %s: '%s'" % (e, path))
             return
 
     @pyqtSlot(str, result='QVariant')
@@ -648,7 +648,7 @@ class FileSystem(QObject):
                 'special': {'setuid': isSUid, 'setgid': isSGid, 'sticky': isStick}
             }
         except OSError as (t, e):
-            qDebug('FileSystem.linkPermissions - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.linkPermissions - %s: '%s'" % (e, path))
             return
 
     @pyqtSlot(str, result='QVariant')
@@ -686,7 +686,7 @@ class FileSystem(QObject):
                 'special': {'setuid': isSUid, 'setgid': isSGid, 'sticky': isStick}
             }
         except OSError as (t, e):
-            qDebug('FileSystem.permissions - %s: \'%s\'' % (e, path))
+            qDebug("FileSystem.permissions - %s: '%s'" % (e, path))
             return
 
     ##

@@ -19,11 +19,11 @@
 
 from math import ceil, floor
 
-from PyQt4.QtCore import pyqtProperty, pyqtSlot, pyqtSignal, Qt, QObject, \
-                         QRect, QPoint, QUrl, QFileInfo, QDir, QSize, \
-                         QSizeF, QByteArray, QEventLoop, QFile
-from PyQt4.QtGui import QPalette, QDesktopServices, QPrinter, QImage, \
-                        QPainter, QRegion, QApplication, qRgba
+from PyQt4.QtCore import (pyqtProperty, pyqtSlot, pyqtSignal, Qt, QObject,
+                          QRect, QPoint, QUrl, QFileInfo, QDir, QSize,
+                          QSizeF, QByteArray, QEventLoop, QFile)
+from PyQt4.QtGui import (QPalette, QDesktopServices, QPrinter, QImage,
+                         QPainter, QRegion, QApplication, qRgba)
 from PyQt4.QtWebKit import QWebSettings, QWebPage
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
