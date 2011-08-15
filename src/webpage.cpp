@@ -43,6 +43,7 @@
 #include <QWebElement>
 #include <QWebFrame>
 #include <QWebPage>
+#include <QMouseEvent>
 
 #include "utils.h"
 
@@ -504,6 +505,38 @@ bool WebPage::injectJs(const QString &jsFilePath) {
 
 void WebPage::_appendScriptElement(const QString &scriptUrl) {
     m_mainFrame->evaluateJavaScript( QString(JS_APPEND_SCRIPT_ELEMENT).arg(scriptUrl) );
+}
+
+void WebPage::click( int x, int y )
+{
+	mouseMoveTo(x,y);
+	mouseDown();
+	mouseUp();
+}
+
+void WebPage::mouseDown()
+{
+//    qDebug()  << "EventSender::mouseDown " << m_mousePos.x() << " " << m_mousePos.y();
+    QMouseEvent* event = new QMouseEvent(QEvent::MouseButtonPress, m_mousePos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    QApplication::postEvent( m_webPage, event);
+    QApplication::processEvents();
+}
+
+void WebPage::mouseUp()
+{
+//    qDebug()  << "EventSender::mouseUp " << m_mousePos.x() << " " << m_mousePos.y();
+    QMouseEvent* event = new QMouseEvent(QEvent::MouseButtonRelease, m_mousePos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    QApplication::postEvent(m_webPage, event);
+    QApplication::processEvents();
+}
+
+void WebPage::mouseMoveTo(int x, int y)
+{
+//    qDebug()  << "EventSender::mouseMoveTo " << x << " " << y;
+    m_mousePos = QPoint(x, y);
+    QMouseEvent* event = new QMouseEvent(QEvent::MouseMove, m_mousePos, Qt::NoButton, Qt::NoButton, Qt::NoModifier);
+    QApplication::postEvent(m_webPage, event);
+    QApplication::processEvents();
 }
 
 #include "webpage.moc"
