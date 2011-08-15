@@ -144,7 +144,7 @@ def injectJsInFrame(filePath, libraryPath, targetFrame, startingScript=False):
         return False
 
 
-class MessageHandler:
+class MessageHandler(object):
     def __init__(self, verbose):
         self.verbose = verbose
 
