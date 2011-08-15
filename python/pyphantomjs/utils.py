@@ -95,7 +95,7 @@ def argParser():
     )
     parser.add_argument('--version',
         action='version', version=license,
-        help='show this program\'s version and license'
+        help="show this program's version and license"
     )
 
     do_action('ArgParser')
@@ -130,9 +130,9 @@ def injectJsInFrame(filePath, libraryPath, targetFrame, startingScript=False):
             result = coffee2js(script)
             if result[0] is False:
                 if startingScript:
-                    sys.exit('%s: \'%s\'' % (result[1], filePath))
+                    sys.exit("%s: '%s'" % (result[1], filePath))
                 else:
-                    qDebug('%s: \'%s\'' % (result[1], filePath))
+                    qDebug("%s: '%s'" % (result[1], filePath))
                     script = ''
             else:
                 script = result[1]
@@ -140,7 +140,7 @@ def injectJsInFrame(filePath, libraryPath, targetFrame, startingScript=False):
         targetFrame.evaluateJavaScript(script)
         return True
     except IOError as (t, e):
-        qDebug('%s: \'%s\'' % (e, filePath))
+        qDebug("%s: '%s'" % (e, filePath))
         return False
 
 
