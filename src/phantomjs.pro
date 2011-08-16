@@ -17,7 +17,8 @@ HEADERS += csconverter.h \
     utils.h \
     networkaccessmanager.h \
     cookiejar.h \
-    filesystem.h
+    filesystem.h \
+    encoding.h
 SOURCES += phantom.cpp \
     webpage.cpp \
     main.cpp \
@@ -25,7 +26,8 @@ SOURCES += phantom.cpp \
     utils.cpp \
     networkaccessmanager.cpp \
     cookiejar.cpp \
-    filesystem.cpp
+    filesystem.cpp \
+    encoding.cpp
 
 OTHER_FILES = bootstrap.js
 
