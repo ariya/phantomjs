@@ -137,6 +137,10 @@ Phantom::Phantom(QObject *parent)
             Registry::terminal().setEncoding(arg.mid(18).trimmed());
             continue;
         }
+        if (arg.startsWith("--script-encoding=")) {
+            m_scriptFileEnc.setEncoding(arg.mid(18).trimmed());
+            continue;
+        }
         if (arg.startsWith("--")) {
             Registry::terminal().cerr(QString("Unknown option '%1'").arg(arg));
             m_terminated = true;
@@ -225,7 +229,7 @@ bool Phantom::execute()
     if (m_scriptFile.isEmpty())
         return false;
 
-    if (!Utils::injectJsInFrame(m_scriptFile, QDir::currentPath(), m_page->mainFrame(), true)) {
+    if (!Utils::injectJsInFrame(m_scriptFile, m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
         m_returnValue = -1;
         return false;
     }

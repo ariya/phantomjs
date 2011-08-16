@@ -37,6 +37,7 @@ class WebPage;
 #include "csconverter.h"
 #include "networkaccessmanager.h"
 #include "filesystem.h"
+#include "encoding.h"
 
 class Phantom: public QObject
 {
@@ -79,6 +80,7 @@ private slots:
 
 private:
     QString m_scriptFile;
+    Encoding m_scriptFileEnc;
     QStringList m_args;
     WebPage *m_page;
     bool m_terminated;

@@ -10,3 +10,4 @@ Options:
     --ignore-ssl-errors=[yes|no]       Ignores SSL errors (i.e. expired or self-signed certificate errors).
     --local-access-remote=[yes|no]     Local content can access remote URL (default is 'no').
     --output-encoding                  Sets (if available) the encoding used for terminal output (default is 'utf8').
+    --script-encoding                  Sets (if available) the encoding used for the starting script (default is 'utf8').

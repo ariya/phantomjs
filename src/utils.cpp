@@ -83,6 +83,11 @@ QVariant Utils::coffee2js(const QString &script)
 
 bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript)
 {
+    return injectJsInFrame(jsFilePath, Encoding::UTF8, libraryPath, targetFrame, startingScript);
+}
+
+bool Utils::injectJsInFrame(const QString &jsFilePath, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript)
+{
     // Don't do anything if an empty string is passed
     if (!jsFilePath.isEmpty()) {
         QFile jsFile;
@@ -95,7 +100,7 @@ bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &libraryPat
         }
 
         if ( jsFile.open(QFile::ReadOnly) ) {
-            QString scriptBody = QString::fromUtf8(jsFile.readAll());
+            QString scriptBody = jsFileEnc.decode(jsFile.readAll());
             // Remove CLI script heading
             if (scriptBody.startsWith("#!") && !jsFile.fileName().endsWith(COFFEE_SCRIPT_EXTENSION)) {
                 scriptBody.prepend("//");
