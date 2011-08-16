@@ -37,6 +37,7 @@ class WebPage;
 #include "csconverter.h"
 #include "networkaccessmanager.h"
 #include "filesystem.h"
+#include "encoding.h"
 
 class Phantom: public QObject
 {
@@ -44,6 +45,7 @@ class Phantom: public QObject
     Q_PROPERTY(QStringList args READ args)
     Q_PROPERTY(QVariantMap defaultPageSettings READ defaultPageSettings)
     Q_PROPERTY(QString libraryPath READ libraryPath WRITE setLibraryPath)
+    Q_PROPERTY(QString outputEncoding READ outputEncoding WRITE setOutputEncoding)
     Q_PROPERTY(QString scriptName READ scriptName)
     Q_PROPERTY(QVariantMap version READ version)
 
@@ -53,6 +55,9 @@ public:
     QStringList args() const;
 
     QVariantMap defaultPageSettings() const;
+
+    QString outputEncoding() const;
+    void setOutputEncoding(const QString &encoding);
 
     bool execute();
     int returnValue() const;
@@ -75,6 +80,7 @@ private slots:
 
 private:
     QString m_scriptFile;
+    Encoding m_scriptFileEnc;
     QStringList m_args;
     WebPage *m_page;
     bool m_terminated;
