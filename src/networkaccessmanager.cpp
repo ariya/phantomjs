@@ -28,13 +28,14 @@
 */
 
 #include <QDateTime>
-#include <QNetworkRequest>
 #include <QList>
-#include <QNetworkReply>
 #include <QDesktopServices>
+#include <QNetworkRequest>
+#include <QNetworkReply>
 #include <QNetworkDiskCache>
 
 #include "networkaccessmanager.h"
+#include "networkreplyproxy.h"
 #include "cookiejar.h"
 
 static const char *toString(QNetworkAccessManager::Operation op)
@@ -118,7 +119,7 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     connect(reply, SIGNAL(readyRead()), this, SLOT(handleStarted()));
 
     emit resourceRequested(data);
-    return reply;
+    return new NetworkReplyProxy(this, reply);
 }
 
 void NetworkAccessManager::handleStarted()
@@ -174,6 +175,9 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply)
     data["redirectURL"] = reply->header(QNetworkRequest::LocationHeader);
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
+
+    NetworkReplyProxy *nrp = qobject_cast<NetworkReplyProxy*>(reply);
+    data["text"] = nrp->body();
 
     m_ids.remove(reply);
     m_started.remove(reply);
