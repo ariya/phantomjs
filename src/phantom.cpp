@@ -30,8 +30,6 @@
 
 #include "phantom.h"
 
-#include <iostream>
-
 #include <QtGui>
 #include <QtWebKit>
 #include <QDir>
@@ -41,6 +39,8 @@
 #include "consts.h"
 #include "utils.h"
 #include "webpage.h"
+
+#include "registry.h"
 
 // public:
 Phantom::Phantom(QObject *parent)
@@ -74,7 +74,7 @@ Phantom::Phantom(QObject *parent)
         const QString &arg = argIterator.next();
         if (arg == "--version") {
             m_terminated = true;
-            std::cout << PHANTOMJS_VERSION_STRING << " (development)" << std::endl;
+            Registry::terminal().cout(QString("%1 (development)").arg(PHANTOMJS_VERSION_STRING));
             return;
         }
         if (arg == "--load-images=yes") {
@@ -133,8 +133,16 @@ Phantom::Phantom(QObject *parent)
             cookieFile = arg.mid(10).trimmed();
             continue;
         }
+        if (arg.startsWith("--output-encoding=")) {
+            Registry::terminal().setEncoding(arg.mid(18).trimmed());
+            continue;
+        }
+        if (arg.startsWith("--script-encoding=")) {
+            m_scriptFileEnc.setEncoding(arg.mid(18).trimmed());
+            continue;
+        }
         if (arg.startsWith("--")) {
-            std::cerr << "Unknown option '" << qPrintable(arg) << "'" << std::endl;
+            Registry::terminal().cerr(QString("Unknown option '%1'").arg(arg));
             m_terminated = true;
             return;
         } else {
@@ -181,13 +189,13 @@ Phantom::Phantom(QObject *parent)
 
     QFile file(":/bootstrap.js");
     if (!file.open(QFile::ReadOnly)) {
-        std::cerr << "Can not bootstrap!" << std::endl;
+        Registry::terminal().cerr("Can not bootstrap!");
         exit(1);
     }
     QString bootstrapper = QString::fromUtf8(file.readAll());
     file.close();
     if (bootstrapper.isEmpty()) {
-        std::cerr << "Can not bootstrap!" << std::endl;
+        Registry::terminal().cerr("Can not bootstrap!");
         exit(1);
     }
     m_page->mainFrame()->evaluateJavaScript(bootstrapper);
@@ -203,6 +211,16 @@ QVariantMap Phantom::defaultPageSettings() const
     return m_defaultPageSettings;
 }
 
+QString Phantom::outputEncoding() const
+{
+    return Registry::terminal().getEncoding();
+}
+
+void Phantom::setOutputEncoding(const QString &encoding)
+{
+    Registry::terminal().setEncoding(encoding);
+}
+
 bool Phantom::execute()
 {
     if (m_terminated)
@@ -211,7 +229,7 @@ bool Phantom::execute()
     if (m_scriptFile.isEmpty())
         return false;
 
-    if (!Utils::injectJsInFrame(m_scriptFile, QDir::currentPath(), m_page->mainFrame(), true)) {
+    if (!Utils::injectJsInFrame(m_scriptFile, m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
         m_returnValue = -1;
         return false;
     }
@@ -284,5 +302,5 @@ void Phantom::printConsoleMessage(const QString &message, int lineNumber, const 
     QString msg = message;
     if (!source.isEmpty())
         msg = source + ":" + QString::number(lineNumber) + " " + msg;
-    std::cout << qPrintable(msg) << std::endl;
+    Registry::terminal().cout(msg);
 }

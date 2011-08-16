@@ -2,6 +2,7 @@
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
+  Copyright (C) 2011 execjosh, http://execjosh.blogspot.com
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -27,31 +28,31 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef CONSOLE_H
+#define CONSOLE_H
 
-#include <QtGlobal>
-#include <QWebFrame>
+#include <QString>
+#include <ostream>
 
-#include "csconverter.h"
 #include "encoding.h"
 
-/**
- * Aggregate common utility functions.
- * Functions are static methods.
- * It's important to notice that, at the moment, this class can't be instantiated by design.
- */
-class Utils
+class Terminal
 {
 public:
-    static void showUsage();
-    static void messageHandler(QtMsgType type, const char *msg);
-    static QVariant coffee2js(const QString &script);
-    static bool injectJsInFrame(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
-    static bool injectJsInFrame(const QString &jsFilePath, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
+    Terminal();
+    ~Terminal();
+
+    QString getEncoding() const;
+    void setEncoding(const QString &encoding);
+
+    void cout(const QString &string, const bool newline = true) const;
+    void cerr(const QString &string, const bool newline = true) const;
 
 private:
-    Utils(); //< This class shouldn't be instantiated
+    void output(std::ostream &out, const QString &string, const bool newline) const;
+
+private:
+    Encoding m_encoding;
 };
 
-#endif // UTILS_H
+#endif // CONSOLE_H
