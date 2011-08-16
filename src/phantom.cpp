@@ -133,6 +133,10 @@ Phantom::Phantom(QObject *parent)
             cookieFile = arg.mid(10).trimmed();
             continue;
         }
+        if (arg.startsWith("--output-encoding=")) {
+            Registry::terminal().setEncoding(arg.mid(18).trimmed());
+            continue;
+        }
         if (arg.startsWith("--")) {
             Registry::terminal().cerr(QString("Unknown option '%1'").arg(arg));
             m_terminated = true;
