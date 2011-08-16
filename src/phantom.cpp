@@ -30,8 +30,6 @@
 
 #include "phantom.h"
 
-#include <iostream>
-
 #include <QtGui>
 #include <QtWebKit>
 #include <QDir>
@@ -41,6 +39,8 @@
 #include "consts.h"
 #include "utils.h"
 #include "webpage.h"
+
+#include "registry.h"
 
 // public:
 Phantom::Phantom(QObject *parent)
@@ -74,7 +74,7 @@ Phantom::Phantom(QObject *parent)
         const QString &arg = argIterator.next();
         if (arg == "--version") {
             m_terminated = true;
-            std::cout << PHANTOMJS_VERSION_STRING << " (development)" << std::endl;
+            Registry::terminal().cout(QString("%1 (development)").arg(PHANTOMJS_VERSION_STRING));
             return;
         }
         if (arg == "--load-images=yes") {
@@ -134,7 +134,7 @@ Phantom::Phantom(QObject *parent)
             continue;
         }
         if (arg.startsWith("--")) {
-            std::cerr << "Unknown option '" << qPrintable(arg) << "'" << std::endl;
+            Registry::terminal().cerr(QString("Unknown option '%1'").arg(arg));
             m_terminated = true;
             return;
         } else {
@@ -181,13 +181,13 @@ Phantom::Phantom(QObject *parent)
 
     QFile file(":/bootstrap.js");
     if (!file.open(QFile::ReadOnly)) {
-        std::cerr << "Can not bootstrap!" << std::endl;
+        Registry::terminal().cerr("Can not bootstrap!");
         exit(1);
     }
     QString bootstrapper = QString::fromUtf8(file.readAll());
     file.close();
     if (bootstrapper.isEmpty()) {
-        std::cerr << "Can not bootstrap!" << std::endl;
+        Registry::terminal().cerr("Can not bootstrap!");
         exit(1);
     }
     m_page->mainFrame()->evaluateJavaScript(bootstrapper);
@@ -284,5 +284,5 @@ void Phantom::printConsoleMessage(const QString &message, int lineNumber, const 
     QString msg = message;
     if (!source.isEmpty())
         msg = source + ":" + QString::number(lineNumber) + " " + msg;
-    std::cout << qPrintable(msg) << std::endl;
+    Registry::terminal().cout(msg);
 }

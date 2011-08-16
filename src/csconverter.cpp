@@ -29,10 +29,10 @@
 
 #include "csconverter.h"
 
-#include <iostream>
-
 #include <QFile>
 #include <QWebFrame>
+
+#include "registry.h"
 
 // public:
 CSConverter::CSConverter(QObject *parent)
@@ -40,7 +40,7 @@ CSConverter::CSConverter(QObject *parent)
 {
     QFile file(":/coffee-script.js");
     if (!file.open(QFile::ReadOnly)) {
-        std::cerr << "CoffeeScript compiler is not available!" << std::endl;
+        Registry::terminal().cerr("CoffeeScript compiler is not available!");
         exit(1);
     }
     QString script = QString::fromUtf8(file.readAll());

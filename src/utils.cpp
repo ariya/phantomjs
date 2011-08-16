@@ -27,7 +27,6 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <iostream>
 #include <QFile>
 #include <QDebug>
 #include <QDateTime>
@@ -36,16 +35,18 @@
 #include "consts.h"
 #include "utils.h"
 
+#include "registry.h"
+
 // public:
 void Utils::showUsage()
 {
     QFile file;
     file.setFileName(":/usage.txt");
     if ( !file.open(QFile::ReadOnly) ) {
-        std::cerr << "Unable to print the usage message" << std::endl;
+        Registry::terminal().cerr("Unable to print the usage message");
         exit(1);
     }
-    std::cout << qPrintable(QString::fromUtf8(file.readAll()));
+    Registry::terminal().cout(QString::fromUtf8(file.readAll()));
     file.close();
 }
 
@@ -104,7 +105,7 @@ bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &libraryPat
                 QVariant result = Utils::coffee2js(scriptBody);
                 if (result.toStringList().at(0) == "false") {
                     if (startingScript) {
-                        std::cerr << qPrintable(result.toStringList().at(1)) << std::endl;
+                        Registry::terminal().cerr(result.toStringList().at(1));
                         exit(1);
                     } else {
                         qWarning() << qPrintable(result.toStringList().at(1));
@@ -121,7 +122,7 @@ bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &libraryPat
             return true;
         } else {
             if (startingScript) {
-                std::cerr << "Can't open '" << qPrintable(jsFilePath) << "'" << std::endl;
+                Registry::terminal().cerr(QString("Can't open '%1'").arg(jsFilePath));
             } else {
                 qWarning("Can't open '%s'", qPrintable(jsFilePath));
             }
