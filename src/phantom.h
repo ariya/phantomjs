@@ -44,8 +44,8 @@ class Phantom: public QObject
     Q_OBJECT
     Q_PROPERTY(QStringList args READ args)
     Q_PROPERTY(QVariantMap defaultPageSettings READ defaultPageSettings)
-    Q_PROPERTY(QString encoding READ encoding WRITE setEncoding)
     Q_PROPERTY(QString libraryPath READ libraryPath WRITE setLibraryPath)
+    Q_PROPERTY(QString outputEncoding READ outputEncoding WRITE setOutputEncoding)
     Q_PROPERTY(QString scriptName READ scriptName)
     Q_PROPERTY(QVariantMap version READ version)
 
@@ -56,8 +56,8 @@ public:
 
     QVariantMap defaultPageSettings() const;
 
-    QString encoding() const;
-    void setEncoding(const QString &encoding);
+    QString outputEncoding() const;
+    void setOutputEncoding(const QString &encoding);
 
     bool execute();
     int returnValue() const;

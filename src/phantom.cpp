@@ -211,12 +211,12 @@ QVariantMap Phantom::defaultPageSettings() const
     return m_defaultPageSettings;
 }
 
-QString Phantom::encoding() const
+QString Phantom::outputEncoding() const
 {
     return Registry::terminal().getEncoding();
 }
 
-void Phantom::setEncoding(const QString &encoding)
+void Phantom::setOutputEncoding(const QString &encoding)
 {
     Registry::terminal().setEncoding(encoding);
 }
