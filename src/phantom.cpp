@@ -203,6 +203,16 @@ QVariantMap Phantom::defaultPageSettings() const
     return m_defaultPageSettings;
 }
 
+QString Phantom::encoding() const
+{
+    return Registry::terminal().getEncoding();
+}
+
+void Phantom::setEncoding(const QString &encoding)
+{
+    Registry::terminal().setEncoding(encoding);
+}
+
 bool Phantom::execute()
 {
     if (m_terminated)
