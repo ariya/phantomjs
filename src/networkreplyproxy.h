@@ -27,40 +27,42 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef NETWORKACCESSMANAGER_H
-#define NETWORKACCESSMANAGER_H
+#ifndef NETWORKREPLYPROXY_H
+#define NETWORKREPLYPROXY_H
 
-#include <QHash>
-#include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QSet>
 
-class QNetworkDiskCache;
-
-class NetworkAccessManager : public QNetworkAccessManager
-{
+class NetworkReplyProxy : public QNetworkReply {
     Q_OBJECT
-    QNetworkDiskCache* m_networkDiskCache;
 public:
-    NetworkAccessManager(QObject *parent = 0, bool diskCacheEnabled = false, QString cookieFile = "", bool ignoreSslErrors = false);
-    virtual ~NetworkAccessManager();
+    NetworkReplyProxy(QObject* parent, QNetworkReply* reply);
+    ~NetworkReplyProxy();
 
-protected:
-    bool m_ignoreSslErrors;
-    QNetworkReply *createRequest(Operation op, const QNetworkRequest & req, QIODevice * outgoingData = 0);
+    void abort();
+    void close();
+    bool isSequential() const;
 
-signals:
-    void resourceRequested(const QVariant& data);
-    void resourceReceived(const QVariant& data);
+    QString body();
 
-private slots:
-    void handleStarted();
-    void handleFinished(QNetworkReply *reply);
+    // not possible...
+    void setReadBufferSize(qint64 size);
+
+    // QIODevice proxy...
+    virtual qint64 bytesAvailable() const;
+    virtual qint64 bytesToWrite() const;
+    virtual qint64 readData(char* data, qint64 maxlen);
+
+public Q_SLOTS:
+    void ignoreSslErrors();
+    void applyMetaData();
+
+    void errorInternal(QNetworkReply::NetworkError _error);
+    void readInternal();
 
 private:
-    QHash<QNetworkReply*, int> m_ids;
-    QSet<QNetworkReply*> m_started;
-    int m_idCounter;
+    QNetworkReply* m_reply;
+    QByteArray m_data;
+    QByteArray m_buffer;
 };
 
-#endif // NETWORKACCESSMANAGER_H
+#endif // NETWORKREPLYPROXY_H
