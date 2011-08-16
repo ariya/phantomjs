@@ -35,6 +35,11 @@ Encoding::Encoding()
     m_codec = QTextCodec::codecForLocale();
 }
 
+Encoding::Encoding(const QString &encoding)
+{
+    setEncoding(encoding);
+}
+
 Encoding::~Encoding()
 {
     m_codec = (QTextCodec *)NULL;
@@ -66,6 +71,8 @@ void Encoding::setEncoding(const QString &encoding)
         }
     }
 }
+
+const Encoding Encoding::UTF8 = Encoding("UTF-8");
 
 // private:
 QTextCodec *Encoding::getCodec() const

@@ -37,6 +37,7 @@ class Encoding
 {
 public:
     Encoding();
+    Encoding(const QString &encoding);
     ~Encoding();
 
     QString decode(const QByteArray &bytes) const;
@@ -44,6 +45,8 @@ public:
 
     QString getName() const;
     void setEncoding(const QString &encoding);
+
+    static const Encoding UTF8;
 
 private:
     QTextCodec *getCodec() const;
