@@ -22,7 +22,7 @@ from PyQt4.QtNetwork import QNetworkCookie, QNetworkCookieJar
 
 
 class CookieJar(QNetworkCookieJar):
-    def __init__(self, cookieFile, parent=None):
+    def __init__(self, parent, cookieFile):
         QNetworkCookieJar.__init__(self, parent)
 
         self.m_cookieFile = cookieFile
@@ -49,4 +49,3 @@ class CookieJar(QNetworkCookieJar):
             cookieList.append(QNetworkCookie(cname, settings.value(cname)))
 
         return cookieList
-

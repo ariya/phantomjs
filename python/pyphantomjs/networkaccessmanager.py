@@ -23,6 +23,7 @@ from PyQt4.QtNetwork import (QNetworkAccessManager, QNetworkDiskCache,
                              QNetworkRequest)
 
 from cookiejar import CookieJar
+from networkreplyproxy import NetworkReplyProxy
 from plugincontroller import do_action
 
 
@@ -30,7 +31,7 @@ class NetworkAccessManager(QNetworkAccessManager):
     resourceReceived = pyqtSignal('QVariantMap')
     resourceRequested = pyqtSignal('QVariantMap')
 
-    def __init__(self, diskCacheEnabled, cookieFile, ignoreSslErrors, parent=None):
+    def __init__(self, parent, diskCacheEnabled, cookieFile, ignoreSslErrors):
         QNetworkAccessManager.__init__(self, parent)
 
         self.m_ignoreSslErrors = ignoreSslErrors
@@ -46,14 +47,14 @@ class NetworkAccessManager(QNetworkAccessManager):
             self.setCache(m_networkDiskCache)
 
         if cookieFile:
-            self.setCookieJar(CookieJar(cookieFile, self))
+            self.setCookieJar(CookieJar(self, cookieFile))
 
         do_action('NetworkAccessManagerInit')
 
     def createRequest(self, op, req, outgoingData):
         do_action('NetworkAccessManagerCreateRequestPre')
 
-        reply = QNetworkAccessManager.createRequest(self, op, req, outgoingData)
+        reply = NetworkReplyProxy(self, QNetworkAccessManager.createRequest(self, op, req, outgoingData))
 
         if self.m_ignoreSslErrors:
             reply.ignoreSslErrors()
@@ -102,7 +103,8 @@ class NetworkAccessManager(QNetworkAccessManager):
             'contentType': reply.header(QNetworkRequest.ContentTypeHeader),
             'redirectURL': reply.header(QNetworkRequest.LocationHeader),
             'headers': headers,
-            'time': QDateTime.currentDateTime()
+            'time': QDateTime.currentDateTime(),
+            'text': reply.body()
         }
 
         del self.m_ids[reply]
