@@ -37,7 +37,7 @@ pdf_dpi = 72
 
 
 class CustomPage(QWebPage):
-    def __init__(self, parent=None):
+    def __init__(self, parent):
         QWebPage.__init__(self, parent)
 
         self.parent = parent
@@ -75,7 +75,7 @@ class WebPage(QObject):
     resourceReceived = pyqtSignal('QVariantMap')
     resourceRequested = pyqtSignal('QVariantMap')
 
-    def __init__(self, parent=None):
+    def __init__(self, parent):
         QObject.__init__(self, parent)
 
         # variable declarations

@@ -35,7 +35,7 @@ from filesystem import FileSystem
 
 
 class Phantom(QObject):
-    def __init__(self, args, parent=None):
+    def __init__(self, parent, args):
         QObject.__init__(self, parent)
 
         # variable declarations
@@ -61,7 +61,7 @@ class Phantom(QObject):
             QNetworkProxy.setApplicationProxy(proxy)
 
         # Provide WebPage with a non-standard Network Access Manager
-        self.m_netAccessMan = NetworkAccessManager(args.disk_cache, args.cookies, args.ignore_ssl_errors, self)
+        self.m_netAccessMan = NetworkAccessManager(self, args.disk_cache, args.cookies, args.ignore_ssl_errors)
         self.m_page.setNetworkAccessManager(self.m_netAccessMan)
 
         self.m_page.javaScriptConsoleMessageSent.connect(self.printConsoleMessage)
