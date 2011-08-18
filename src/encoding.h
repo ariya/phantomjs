@@ -2,6 +2,7 @@
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
+  Copyright (C) 2011 execjosh, http://execjosh.blogspot.com
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -27,31 +28,30 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef ENCODING_H
+#define ENCODING_H
 
-#include <QtGlobal>
-#include <QWebFrame>
+#include <QTextCodec>
 
-#include "csconverter.h"
-#include "encoding.h"
-
-/**
- * Aggregate common utility functions.
- * Functions are static methods.
- * It's important to notice that, at the moment, this class can't be instantiated by design.
- */
-class Utils
+class Encoding
 {
 public:
-    static void showUsage();
-    static void messageHandler(QtMsgType type, const char *msg);
-    static QVariant coffee2js(const QString &script);
-    static bool injectJsInFrame(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
-    static bool injectJsInFrame(const QString &jsFilePath, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
+    Encoding();
+    Encoding(const QString &encoding);
+    ~Encoding();
+
+    QString decode(const QByteArray &bytes) const;
+    QByteArray encode(const QString &string) const;
+
+    QString getName() const;
+    void setEncoding(const QString &encoding);
+
+    static const Encoding UTF8;
 
 private:
-    Utils(); //< This class shouldn't be instantiated
+    QTextCodec *getCodec() const;
+
+    QTextCodec *m_codec;
 };
 
-#endif // UTILS_H
+#endif // ENCODING_H

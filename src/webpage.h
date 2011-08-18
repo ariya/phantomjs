@@ -80,6 +80,10 @@ public slots:
     bool injectJs(const QString &jsFilePath);
     void _appendScriptElement(const QString &scriptUrl);
     void uploadFile(const QString &selector, const QString &fileName);
+	void click( int x, int y );
+	void mouseDown();
+	void mouseUp();
+	void mouseMoveTo(int x, int y);
 
 signals:
     void loadStarted();
@@ -110,6 +114,8 @@ private:
 
     friend class Phantom;
     friend class CustomPage;
+    
+    QPoint m_mousePos;
 };
 
 #endif // WEBPAGE_H

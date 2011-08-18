@@ -2,6 +2,7 @@
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
+  Copyright (C) 2011 execjosh, http://execjosh.blogspot.com
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -27,31 +28,44 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef UTILS_H
-#define UTILS_H
+#include "terminal.h"
 
-#include <QtGlobal>
-#include <QWebFrame>
+#include <iostream>
 
-#include "csconverter.h"
-#include "encoding.h"
-
-/**
- * Aggregate common utility functions.
- * Functions are static methods.
- * It's important to notice that, at the moment, this class can't be instantiated by design.
- */
-class Utils
+Terminal::Terminal()
 {
-public:
-    static void showUsage();
-    static void messageHandler(QtMsgType type, const char *msg);
-    static QVariant coffee2js(const QString &script);
-    static bool injectJsInFrame(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
-    static bool injectJsInFrame(const QString &jsFilePath, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
+}
 
-private:
-    Utils(); //< This class shouldn't be instantiated
-};
+Terminal::~Terminal()
+{
+}
 
-#endif // UTILS_H
+QString Terminal::getEncoding() const
+{
+    return m_encoding.getName();
+}
+
+void Terminal::setEncoding(const QString &encoding)
+{
+    m_encoding.setEncoding(encoding);
+}
+
+void Terminal::cout(const QString &string, const bool newline) const
+{
+    output(std::cout, string, newline);
+}
+
+void Terminal::cerr(const QString &string, const bool newline) const
+{
+    output(std::cerr, string, newline);
+}
+
+// private
+void Terminal::output(std::ostream &out, const QString &string, const bool newline) const
+{
+    out << m_encoding.encode(string).constData();
+    if (newline) {
+        out << std::endl;
+    }
+    out << std::flush;
+}

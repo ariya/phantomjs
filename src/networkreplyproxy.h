@@ -27,31 +27,42 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef NETWORKREPLYPROXY_H
+#define NETWORKREPLYPROXY_H
 
-#include <QtGlobal>
-#include <QWebFrame>
+#include <QNetworkReply>
 
-#include "csconverter.h"
-#include "encoding.h"
-
-/**
- * Aggregate common utility functions.
- * Functions are static methods.
- * It's important to notice that, at the moment, this class can't be instantiated by design.
- */
-class Utils
-{
+class NetworkReplyProxy : public QNetworkReply {
+    Q_OBJECT
 public:
-    static void showUsage();
-    static void messageHandler(QtMsgType type, const char *msg);
-    static QVariant coffee2js(const QString &script);
-    static bool injectJsInFrame(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
-    static bool injectJsInFrame(const QString &jsFilePath, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
+    NetworkReplyProxy(QObject* parent, QNetworkReply* reply);
+    ~NetworkReplyProxy();
+
+    void abort();
+    void close();
+    bool isSequential() const;
+
+    QString body();
+
+    // not possible...
+    void setReadBufferSize(qint64 size);
+
+    // QIODevice proxy...
+    virtual qint64 bytesAvailable() const;
+    virtual qint64 bytesToWrite() const;
+    virtual qint64 readData(char* data, qint64 maxlen);
+
+public Q_SLOTS:
+    void ignoreSslErrors();
+    void applyMetaData();
+
+    void errorInternal(QNetworkReply::NetworkError _error);
+    void readInternal();
 
 private:
-    Utils(); //< This class shouldn't be instantiated
+    QNetworkReply* m_reply;
+    QByteArray m_data;
+    QByteArray m_buffer;
 };
 
-#endif // UTILS_H
+#endif // NETWORKREPLYPROXY_H

@@ -15,17 +15,25 @@ HEADERS += csconverter.h \
     webpage.h \
     consts.h \
     utils.h \
+    networkreplyproxy.h \
     networkaccessmanager.h \
     cookiejar.h \
-    filesystem.h
+    filesystem.h \
+    terminal.h \
+    registry.h \
+    encoding.h
 SOURCES += phantom.cpp \
     webpage.cpp \
     main.cpp \
     csconverter.cpp \
     utils.cpp \
+    networkreplyproxy.cpp \
     networkaccessmanager.cpp \
     cookiejar.cpp \
-    filesystem.cpp
+    filesystem.cpp \
+    terminal.cpp \
+    registry.cpp \
+    encoding.cpp
 
 OTHER_FILES = bootstrap.js
 

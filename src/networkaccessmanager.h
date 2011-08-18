@@ -32,6 +32,7 @@
 
 #include <QHash>
 #include <QNetworkAccessManager>
+#include <QNetworkReply>
 #include <QSet>
 
 class QNetworkDiskCache;

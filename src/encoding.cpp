@@ -2,6 +2,7 @@
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
+  Copyright (C) 2011 execjosh, http://execjosh.blogspot.com
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -27,31 +28,60 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef UTILS_H
-#define UTILS_H
-
-#include <QtGlobal>
-#include <QWebFrame>
-
-#include "csconverter.h"
 #include "encoding.h"
 
-/**
- * Aggregate common utility functions.
- * Functions are static methods.
- * It's important to notice that, at the moment, this class can't be instantiated by design.
- */
-class Utils
+Encoding::Encoding()
 {
-public:
-    static void showUsage();
-    static void messageHandler(QtMsgType type, const char *msg);
-    static QVariant coffee2js(const QString &script);
-    static bool injectJsInFrame(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
-    static bool injectJsInFrame(const QString &jsFilePath, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
+    m_codec = QTextCodec::codecForLocale();
+}
 
-private:
-    Utils(); //< This class shouldn't be instantiated
-};
+Encoding::Encoding(const QString &encoding)
+{
+    setEncoding(encoding);
+}
 
-#endif // UTILS_H
+Encoding::~Encoding()
+{
+    m_codec = (QTextCodec *)NULL;
+}
+
+QString Encoding::decode(const QByteArray &bytes) const
+{
+    return getCodec()->toUnicode(bytes);
+}
+
+QByteArray Encoding::encode(const QString &string) const
+{
+    return getCodec()->fromUnicode(string);
+}
+
+QString Encoding::getName() const
+{
+    // TODO Is it safe to assume UTF-8 here?
+    return QString::fromUtf8(getCodec()->name());
+}
+
+void Encoding::setEncoding(const QString &encoding)
+{
+    if (!encoding.isEmpty()) {
+        QTextCodec *codec = QTextCodec::codecForName(qPrintable(encoding));
+
+        if ((QTextCodec *)NULL != codec) {
+            m_codec = codec;
+        }
+    }
+}
+
+const Encoding Encoding::UTF8 = Encoding("UTF-8");
+
+// private:
+QTextCodec *Encoding::getCodec() const
+{
+    QTextCodec *codec = m_codec;
+
+    if ((QTextCodec *)NULL == codec) {
+        codec = QTextCodec::codecForLocale();
+    }
+
+    return codec;
+}
