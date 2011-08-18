@@ -31,7 +31,7 @@ class NetworkAccessManager(QNetworkAccessManager):
     resourceReceived = pyqtSignal('QVariantMap')
     resourceRequested = pyqtSignal('QVariantMap')
 
-    def __init__(self, diskCacheEnabled, cookieFile, ignoreSslErrors, parent=None):
+    def __init__(self, parent, diskCacheEnabled, cookieFile, ignoreSslErrors):
         QNetworkAccessManager.__init__(self, parent)
 
         self.m_ignoreSslErrors = ignoreSslErrors
@@ -47,7 +47,7 @@ class NetworkAccessManager(QNetworkAccessManager):
             self.setCache(m_networkDiskCache)
 
         if cookieFile:
-            self.setCookieJar(CookieJar(cookieFile, self))
+            self.setCookieJar(CookieJar(self, cookieFile))
 
         do_action('NetworkAccessManagerInit')
 

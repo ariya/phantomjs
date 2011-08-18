@@ -99,7 +99,7 @@ def main():
     app.setOrganizationDomain('www.umaclan.com')
     app.setApplicationVersion(version)
 
-    phantom = Phantom(args, app)
+    phantom = Phantom(app, args)
 
     do_action('Main')
 

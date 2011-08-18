@@ -33,7 +33,7 @@ from plugincontroller import do_action
 
 
 class File(QObject):
-    def __init__(self, openfile, parent=None):
+    def __init__(self, parent, openfile):
         QObject.__init__(self, parent)
 
         self.m_file = openfile
@@ -111,7 +111,7 @@ class File(QObject):
 
 
 class FileSystem(QObject):
-    def __init__(self, parent=None):
+    def __init__(self, parent):
         QObject.__init__(self, parent)
 
         do_action('FileSystemInit')
@@ -252,7 +252,7 @@ class FileSystem(QObject):
     def _open(self, path, mode):
         try:
             f = codecs.open(path, mode, encoding='utf-8')
-            return File(f, self)
+            return File(self, f)
         except (IOError, ValueError) as (t, e):
             qDebug("FileSystem.open - %s: '%s'" % (e, path))
             return
