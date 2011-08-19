@@ -76,7 +76,7 @@ def get(name, depth=3, scope='local'):
     elif scope == 'builtin':
         scope = 'f_builtins'
 
-    return getattr(sys._getframe(depth), scope).get(name)
+    return getattr(sys._getframe(depth), scope)[name]
 
 
 def has_action(hook, func=None):
