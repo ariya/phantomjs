@@ -50,6 +50,11 @@
 
 #define PAGE_SETTINGS_LOAD_IMAGES           "loadImages"
 #define PAGE_SETTINGS_LOAD_PLUGINS          "loadPlugins"
+#define PAGE_SETTINGS_JS_ENABLED            "jsEnabled"
+#define PAGE_SETTINGS_JS_OPEN_WINDOWS       "jsOpenWindows"
+#define PAGE_SETTINGS_JS_ACCESS_CLIPBOARD   "jsAccessClipboard"
+#define PAGE_SETTINGS_XSS_AUDITING          "XSSAuditing"
+#define PAGE_SETTINGS_QUIRKS_MODE           "quirksMode"
 #define PAGE_SETTINGS_USER_AGENT            "userAgent"
 #define PAGE_SETTINGS_LOCAL_ACCESS_REMOTE   "localAccessRemote"
 
