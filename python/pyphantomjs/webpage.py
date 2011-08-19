@@ -31,11 +31,6 @@ from plugincontroller import do_action
 from utils import injectJsInFrame
 
 
-# Different defaults.
-# OSX: 72, X11: 75(?), Windows: 96
-pdf_dpi = 72
-
-
 class CustomPage(QWebPage):
     def __init__(self, parent):
         QWebPage.__init__(self, parent)
@@ -177,11 +172,14 @@ class WebPage(QObject):
         self.m_webPage.setViewportSize(viewportSize)
         return image
 
+    # Different defaults.
+    # OSX: 72, X11: 75(?), Windows: 96
+    pdf_dpi = 72
     def renderPdf(self, fileName):
         p = QPrinter()
         p.setOutputFormat(QPrinter.PdfFormat)
         p.setOutputFileName(fileName)
-        p.setResolution(pdf_dpi)
+        p.setResolution(self.pdf_dpi)
         paperSize = self.m_paperSize
 
         if not len(paperSize):
@@ -256,8 +254,8 @@ class WebPage(QObject):
             ('mm', 72 / 25.4),
             ('cm', 72 / 2.54),
             ('in', 72.0),
-            ('px', 72.0 / pdf_dpi / 2.54),
-            ('', 72.0 / pdf_dpi / 2.54)
+            ('px', 72.0 / self.pdf_dpi / 2.54),
+            ('', 72.0 / self.pdf_dpi / 2.54)
         )
 
         for unit, format in units:
