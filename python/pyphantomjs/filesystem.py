@@ -27,7 +27,8 @@ try:
 except ImportError:
     pass
 
-from PyQt4.QtCore import pyqtSlot, pyqtProperty, QObject, qDebug
+from PyQt4.QtCore import (pyqtSlot, pyqtProperty, QObject, QDateTime,
+                          QFileInfo, qDebug)
 
 from plugincontroller import do_action
 
@@ -45,7 +46,7 @@ class File(QObject):
 
     @pyqtSlot(result=bool)
     def atEnd(self):
-        # Note: On Windows, tell() can return illegal values (after an fgets())
+        # :WARNING: On Windows, tell() can return illegal values (after an fgets())
         # when reading files with Unix-style line-endings. Use binary mode ('rb')
         # to circumvent this problem.
         currentPos = self.m_file.tell()
@@ -66,7 +67,6 @@ class File(QObject):
     def close(self):
         self.m_file.flush()
         self.m_file.close()
-        del self.m_file
         self.deleteLater()
 
     @pyqtSlot()
@@ -121,20 +121,23 @@ class FileSystem(QObject):
     ##
 
     @pyqtSlot(str, result=int)
-    def size(self, path):
+    def _size(self, path):
         try:
             return os.path.getsize(path)
         except OSError as (t, e):
             qDebug("FileSystem.size - %s: '%s'" % (e, path))
-            return 0
+            return -1
 
-    @pyqtSlot(str, result=int)
+    @pyqtSlot(str, result=QDateTime)
     def lastModified(self, path):
-        try:
-            return os.path.getmtime(path)
-        except OSError as (t, e):
-            qDebug("FileSystem.lastModified - %s: '%s'" % (e, path))
-            return 0
+        fi = QFileInfo(path)
+        if fi.exists():
+            return fi.lastModified()
+        else:
+            err = 'No such file or directory'
+
+        qDebug("FileSystem.lastModified - %s: '%s'" % (err, path))
+        return QDateTime()
 
     ##
     # Files / Directories
@@ -238,7 +241,7 @@ class FileSystem(QObject):
     @pyqtSlot(str, result=bool)
     def removeTree(self, path):
         try:
-            os.removedirs(path)
+            shutil.rmtree(path)
             return True
         except OSError as e:
             qDebug("FileSystem.removeTree - %s: '%s'" % (e, path))
@@ -256,27 +259,6 @@ class FileSystem(QObject):
         except (IOError, ValueError) as (t, e):
             qDebug("FileSystem.open - %s: '%s'" % (e, path))
             return
-
-    @pyqtSlot(str, result=str)
-    def read(self, path):
-        try:
-            with codecs.open(path, 'r', encoding='utf-8') as f:
-                content = f.read()
-            return content
-        except IOError as (t, e):
-            qDebug("FileSystem.read - %s: '%s'" % (e, path))
-            return ''
-
-    @pyqtSlot(str, str, result=bool)
-    @pyqtSlot(str, str, str, result=bool)
-    def write(self, path, data, mode='w'):
-        try:
-            with codecs.open(path, mode, encoding='utf-8') as f:
-                f.write(data)
-            return True
-        except IOError as (t, e):
-            qDebug("FileSystem.write - %s: '%s'" % (e, path))
-            return False
 
     @pyqtProperty(str)
     def newline(self):

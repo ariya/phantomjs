@@ -88,11 +88,62 @@ window.WebPage = function() {
     return page;
 };
 
-// Make "fs.open" throw an exception in case it fails
+// window.fs
+// JavaScript "shim" to throw exceptions in case a critical operation fails.
+
+/** Open and return a "file" object.
+ * It will throw exception if it fails.
+ *
+ * @param path Path of the file to open
+ * @param mode Open Mode. A string made of 'r', 'w', 'a/+' characters.
+ * @return "file" object
+ */
 window.fs.open = function(path, mode) {
     var file = window.fs._open(path, mode);
     if (file) {
         return file;
     }
     throw "Unable to open file '"+ path +"'";
+};
+
+/** Open, read and return content of a file.
+ * It will throw an exception if it fails.
+ *
+ * @param path Path of the file to read from
+ * @return file content 
+ */
+window.fs.read = function(path) {
+    var f = fs.open(path, 'r'),
+        content = f.read();
+
+    f.close();
+    return content;
+};
+
+/** Open and write content to a file
+ * It will throw an exception if it fails.
+ *
+ * @param path Path of the file to read from
+ * @param content Content to write to the file
+ * @param mode Open Mode. A string made of 'w' or 'a / +' characters.
+ */
+window.fs.write = function(path, content, mode) {
+    var f = fs.open(path, mode);
+
+    f.write(content);
+    f.close();
+};
+
+/** Return the size of a file, in bytes.
+ * It will throw an exception if it fails.
+ *
+ * @param path Path fo the file to read the size of
+ * @return File size in bytes
+ */
+window.fs.size = function(path) {
+    var size = fs._size(path);
+    if (size !== -1) {
+        return size;
+    }
+    throw "Unable to read file '"+ path +"' size";
 };
