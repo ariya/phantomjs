@@ -116,11 +116,8 @@ MINGWDBG= -DNDEBUG -Os
 #MINGWOPT= -W -Wall -mthreads -Wl,--subsystem,console $(MINGWDBG) -DHAVE_STDINT
 MINGWOPT= -W -Wall -mthreads -Wl,--subsystem,windows $(MINGWDBG)
 mingw:
-	windres win32\res.rc win32\res.o
 	gcc $(MINGWOPT) mongoose.c -lws2_32 \
-		-shared -Wl,--out-implib=$(PROG).lib -o _$(PROG).dll
-	#gcc $(MINGWOPT) mongoose.c main.c win32\res.o -lws2_32 -ladvapi32 \
-	#	-o $(PROG).exe
+		-shared -Wl,--out-implib=$(PROG).lib -o $(PROG).dll
 
 
 ##########################################################################
