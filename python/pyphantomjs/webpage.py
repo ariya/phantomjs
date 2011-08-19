@@ -21,9 +21,10 @@ from math import ceil, floor
 
 from PyQt4.QtCore import (pyqtProperty, pyqtSlot, pyqtSignal, Qt, QObject,
                           QRect, QPoint, QUrl, QFileInfo, QDir, QSize,
-                          QSizeF, QByteArray, QEventLoop, QFile)
+                          QSizeF, QByteArray, QEventLoop, QEvent, QFile)
 from PyQt4.QtGui import (QPalette, QDesktopServices, QPrinter, QImage,
-                         QPainter, QRegion, QApplication, qRgba)
+                         QPainter, QRegion, QApplication, QMouseEvent,
+                         qRgba)
 from PyQt4.QtWebKit import QWebSettings, QWebPage
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
@@ -77,6 +78,7 @@ class WebPage(QObject):
         self.m_paperSize = {}
         self.m_clipRect = QRect()
         self.m_libraryPath = ''
+        self.m_mousePos = QPoint()
 
         self.setObjectName('WebPage')
         self.m_webPage = CustomPage(self)
@@ -280,6 +282,12 @@ class WebPage(QObject):
             document.body.appendChild(el);
         ''' % {'scriptUrl': scriptUrl})
 
+    @pyqtSlot(int, int)
+    def click(self, x, y):
+        self.mouseMoveTo(x, y)
+        self.mouseDown()
+        self.mouseUp()
+
     @pyqtProperty('QVariantMap')
     def clipRect(self):
         clipRect = self.m_clipRect
@@ -321,6 +329,25 @@ class WebPage(QObject):
     @pyqtSlot(str, result=bool)
     def injectJs(self, filePath):
         return injectJsInFrame(filePath, self.m_libraryPath, self.m_mainFrame)
+
+    @pyqtSlot()
+    def mouseDown(self):
+        event = QMouseEvent(QEvent.MouseButtonPress, self.m_mousePos, Qt.LeftButton, Qt.LeftButton, Qt.NoModifier)
+        QApplication.postEvent(self.m_webPage, event)
+        QApplication.processEvents()
+
+    @pyqtSlot()
+    def mouseUp(self):
+        event = QMouseEvent(QEvent.MouseButtonRelease, self.m_mousePos, Qt.LeftButton, Qt.LeftButton, Qt.NoModifier)
+        QApplication.postEvent(self.m_webPage, event)
+        QApplication.processEvents()
+
+    @pyqtSlot(int, int)
+    def mouseMoveTo(self, x, y):
+        self.m_mousePos = QPoint(x, y)
+        event = QMouseEvent(QEvent.MouseMove, self.m_mousePos, Qt.NoButton, Qt.NoButton, Qt.NoModifier)
+        QApplication.postEvent(self.m_webPage, event)
+        QApplication.processEvents()
 
     @pyqtSlot(str, str, 'QVariantMap')
     @pyqtSlot(str, 'QVariantMap', 'QVariantMap')
