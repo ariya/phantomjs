@@ -27,7 +27,9 @@ mv qt-everywhere-opensource-src-$QT_VERSION Qt-$QT_VERSION
 cd $QT_FOLDER
 echo "Building Qt $QT_VERSION. Please wait..."
 echo
-./configure -confirm-license -opensource -prefix . -release -opensource -shared -fast -no-qt3support -no-xmlpatterns -no-declarative -no-script -no-scripttools -graphicssystem raster -qt-zlib -qt-gif -qt-libpng -qt-libmng -qt-libjpeg -nomake examples -nomake demos -nomake docs -nomake translations -no-nis -no-cups -no-iconv -no-dbus -no-dwarf2 -platform macx-llvm
+
+./configure -opensource -confirm-license -release -static -no-exceptions -no-stl -no-xmlpatterns -no-phonon -no-qt3support -no-opengl -no-declarative -qt-libpng -qt-libjpeg -no-libmng -no-libtiff -D QT_NO_STYLE_CDE -D QT_NO_STYLE_CLEANLOOKS -D QT_NO_STYLE_MOTIF -D QT_NO_STYLE_PLASTIQUE -cocoa -prefix $PWD -arch x86 -nomake demos -nomake examples -nomake tools
+
 make -j$COMPILE_JOBS
 cd ..
 
