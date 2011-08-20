@@ -10,6 +10,7 @@ QT_URL=http://get.qt.nokia.com/qt/source/$QT_TARBALL
 COMPILE_JOBS=4
 
 # Step 1: Download Qt source tarball
+# Note: only if it does not exist yet in the current directory
 
 [ -f $QT_TARBALL ] || echo "Downloading Qt $QT_VERSION from Nokia. Please wait..."
 [ -f $QT_TARBALL ] || curl -C - -O -S $QT_URL
