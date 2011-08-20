@@ -60,6 +60,7 @@ public:
         , m_webPage(parent)
     {
         m_userAgent = QWebPage::userAgentForUrl(QUrl());
+        setForwardUnsupportedContent(true);
     }
 
 public slots:
