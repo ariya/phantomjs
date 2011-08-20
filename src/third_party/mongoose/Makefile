@@ -25,7 +25,7 @@ all:
 CFLAGS=		-W -Wall -std=c99 -pedantic -O2 $(COPT)
 MAC_SHARED=	-flat_namespace -bundle -undefined suppress
 LINFLAGS=	-ldl -pthread $(CFLAGS)
-LIB=		_$(PROG).so
+LIB=		lib$(PROG).so
 
 # Make sure that the compiler flags come last in the compilation string.
 # If not so, this can break some on some Linux distros which use
