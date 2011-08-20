@@ -32,6 +32,7 @@ echo
 ./configure -opensource -confirm-license -release -static -no-exceptions -no-stl -no-xmlpatterns -no-phonon -no-script -no-scripttools -graphicssystem raster -no-nis -no-dwarf2 -no-dbus -no-iconv -no-qt3support -no-opengl -no-declarative -qt-libpng -qt-libjpeg -no-libmng -no-libtiff -D QT_NO_STYLE_CDE -D QT_NO_STYLE_CLEANLOOKS -D QT_NO_STYLE_MOTIF -D QT_NO_STYLE_PLASTIQUE -cocoa -prefix $PWD -arch x86 -nomake demos -nomake examples -nomake tools
 
 make -j$COMPILE_JOBS
+make -j$COMPILE_JOBS
 cd ..
 
 PATH=`pwd`/$QT_FOLDER/bin:$PATH
