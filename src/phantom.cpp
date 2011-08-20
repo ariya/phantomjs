@@ -179,10 +179,7 @@ Phantom::Phantom(QObject *parent)
     m_defaultPageSettings[PAGE_SETTINGS_LOAD_IMAGES] = QVariant::fromValue(autoLoadImages);
     m_defaultPageSettings[PAGE_SETTINGS_LOAD_PLUGINS] = QVariant::fromValue(pluginsEnabled);
     m_defaultPageSettings[PAGE_SETTINGS_JS_ENABLED] = QVariant::fromValue(true);
-    m_defaultPageSettings[PAGE_SETTINGS_JS_OPEN_WINDOWS] = QVariant::fromValue(false);
-    m_defaultPageSettings[PAGE_SETTINGS_JS_ACCESS_CLIPBOARD] = QVariant::fromValue(false);
     m_defaultPageSettings[PAGE_SETTINGS_XSS_AUDITING] = QVariant::fromValue(false);
-    m_defaultPageSettings[PAGE_SETTINGS_QUIRKS_MODE] = QVariant::fromValue(true);
     m_defaultPageSettings[PAGE_SETTINGS_USER_AGENT] = QVariant::fromValue(m_page->userAgent());
     m_defaultPageSettings[PAGE_SETTINGS_LOCAL_ACCESS_REMOTE] = QVariant::fromValue(localAccessRemote);
     m_page->applySettings(m_defaultPageSettings);

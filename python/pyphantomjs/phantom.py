@@ -68,11 +68,8 @@ class Phantom(QObject):
 
         self.m_defaultPageSettings['loadImages'] = args.load_images
         self.m_defaultPageSettings['loadPlugins'] = args.load_plugins
-        self.m_defaultPageSettings['jsEnabled'] = True
-        self.m_defaultPageSettings['jsOpenWindows'] = False
-        self.m_defaultPageSettings['jsAccessClipboard'] = False
+        self.m_defaultPageSettings['javascriptEnabled'] = True
         self.m_defaultPageSettings['XSSAuditing'] = False
-        self.m_defaultPageSettings['quirksMode'] = True
         self.m_defaultPageSettings['userAgent'] = self.m_page.userAgent()
         self.m_defaultPageSettings['localAccessRemote'] = args.local_access_remote
         self.m_page.applySettings(self.m_defaultPageSettings)
