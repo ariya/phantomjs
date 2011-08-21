@@ -36,10 +36,11 @@
 class CSConverter: public QObject
 {
 public:
-    CSConverter(QObject *parent = 0);
+    static CSConverter *instance();
     QVariant convert(const QString &script);
 
 private:
+    CSConverter();
     QWebPage m_webPage;
 };
 

@@ -29,14 +29,24 @@
 
 #include "csconverter.h"
 
+#include <QCoreApplication>
 #include <QFile>
 #include <QWebFrame>
 
 #include "registry.h"
 
-// public:
-CSConverter::CSConverter(QObject *parent)
-    : QObject(parent)
+static CSConverter *csconverter_instance = 0;
+
+CSConverter *CSConverter::instance()
+{
+    if (!csconverter_instance)
+        csconverter_instance = new CSConverter();
+
+    return csconverter_instance;
+}
+
+CSConverter::CSConverter()
+    : QObject(QCoreApplication::instance())
 {
     QFile file(":/coffee-script.js");
     if (!file.open(QFile::ReadOnly)) {

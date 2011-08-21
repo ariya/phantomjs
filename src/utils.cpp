@@ -72,13 +72,7 @@ void Utils::messageHandler(QtMsgType type, const char *msg)
 
 QVariant Utils::coffee2js(const QString &script)
 {
-    // We need only one instance of the CSConverter to survive for the whole life of PhantomJS
-    static CSConverter *coffeeScriptConverter = NULL;
-    if ( !coffeeScriptConverter ) {
-        coffeeScriptConverter = new CSConverter();
-    }
-
-    return coffeeScriptConverter->convert(script);
+    return CSConverter::instance()->convert(script);
 }
 
 bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript)
