@@ -7,13 +7,10 @@ Version 1.3.0
     Bug fixes
 
       * Fixed open() and POST method, without specifying the finished handler.
-    
+
     New features
-      
+
       * Added Filesystem API, based on CommonJS Filesystem draft specs (issue 129)
-
-    New features
-
       * Presistent cookie support using --cookies=cookies.ini
       * Added callback for page initialization (issue 143)
 
