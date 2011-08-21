@@ -19,9 +19,11 @@
 
 import sys
 
-from PyQt4.QtCore import QObject, QFile
+from PyQt4.QtCore import QObject, QFile, QCoreApplication
 from PyQt4.QtWebKit import QWebPage
 
+
+CSConverterInstance = None
 
 class CSConverter(QObject):
     def __init__(self, parent):
@@ -46,3 +48,13 @@ class CSConverter(QObject):
                                                                   }
                                                                ''')
         return result
+
+    @staticmethod
+    def instance():
+        global CSConverterInstance
+
+        # We need only one instance of the CSConverter for our whole life
+        if CSConverterInstance is None:
+            CSConverterInstance = CSConverter(QCoreApplication.instance())
+
+        return CSConverterInstance
