@@ -103,15 +103,8 @@ def argParser():
     return parser
 
 
-coffeeScriptConverter = None
 def coffee2js(script):
-    global coffeeScriptConverter
-
-    # We need only one instance of the CSConverter to survive for the whole life of PyPhantomJS
-    if not coffeeScriptConverter:
-        coffeeScriptConverter = CSConverter()
-
-    return coffeeScriptConverter.convert(script)
+    return CSConverter.instance().convert(script)
 
 
 def injectJsInFrame(filePath, libraryPath, targetFrame, startingScript=False):

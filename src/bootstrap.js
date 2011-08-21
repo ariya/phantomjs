@@ -86,8 +86,8 @@ window.WebPage = function () {
         this._appendScriptElement(scriptUrl);
     };
 
-    page.destroy = function () {
-        phantom._destroy(page);
+    page.release = function () {
+        phantom._release(page);
     };
 
     return page;
@@ -115,7 +115,7 @@ window.fs.open = function (path, mode) {
  * It will throw an exception if it fails.
  *
  * @param path Path of the file to read from
- * @return file content 
+ * @return file content
  */
 window.fs.read = function (path) {
     var f = fs.open(path, 'r'),
