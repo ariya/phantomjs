@@ -37,17 +37,16 @@
 #include <QFile>
 
 #include "consts.h"
+#include "terminal.h"
 #include "utils.h"
 #include "webpage.h"
 
-#include "registry.h"
 
 // public:
 Phantom::Phantom(QObject *parent)
     : QObject(parent)
     , m_terminated(false)
     , m_returnValue(0)
-    , m_converter(0)
     , m_netAccessMan(0)
 {
     m_page = new WebPage(this);
@@ -74,7 +73,7 @@ Phantom::Phantom(QObject *parent)
         const QString &arg = argIterator.next();
         if (arg == "--version") {
             m_terminated = true;
-            Registry::terminal().cout(QString("%1 (development)").arg(PHANTOMJS_VERSION_STRING));
+            Terminal::instance()->cout(QString("%1 (development)").arg(PHANTOMJS_VERSION_STRING));
             return;
         }
         if (arg == "--load-images=yes") {
@@ -134,7 +133,7 @@ Phantom::Phantom(QObject *parent)
             continue;
         }
         if (arg.startsWith("--output-encoding=")) {
-            Registry::terminal().setEncoding(arg.mid(18).trimmed());
+            Terminal::instance()->setEncoding(arg.mid(18).trimmed());
             continue;
         }
         if (arg.startsWith("--script-encoding=")) {
@@ -142,7 +141,7 @@ Phantom::Phantom(QObject *parent)
             continue;
         }
         if (arg.startsWith("--")) {
-            Registry::terminal().cerr(QString("Unknown option '%1'").arg(arg));
+            Terminal::instance()->cerr(QString("Unknown option '%1'").arg(arg));
             m_terminated = true;
             return;
         } else {
@@ -191,13 +190,13 @@ Phantom::Phantom(QObject *parent)
 
     QFile file(":/bootstrap.js");
     if (!file.open(QFile::ReadOnly)) {
-        Registry::terminal().cerr("Can not bootstrap!");
+        Terminal::instance()->cerr("Can not bootstrap!");
         exit(1);
     }
     QString bootstrapper = QString::fromUtf8(file.readAll());
     file.close();
     if (bootstrapper.isEmpty()) {
-        Registry::terminal().cerr("Can not bootstrap!");
+        Terminal::instance()->cerr("Can not bootstrap!");
         exit(1);
     }
     m_page->mainFrame()->evaluateJavaScript(bootstrapper);
@@ -215,12 +214,12 @@ QVariantMap Phantom::defaultPageSettings() const
 
 QString Phantom::outputEncoding() const
 {
-    return Registry::terminal().getEncoding();
+    return Terminal::instance()->getEncoding();
 }
 
 void Phantom::setOutputEncoding(const QString &encoding)
 {
-    Registry::terminal().setEncoding(encoding);
+    Terminal::instance()->setEncoding(encoding);
 }
 
 bool Phantom::execute()
@@ -304,5 +303,5 @@ void Phantom::printConsoleMessage(const QString &message, int lineNumber, const 
     QString msg = message;
     if (!source.isEmpty())
         msg = source + ":" + QString::number(lineNumber) + " " + msg;
-    Registry::terminal().cout(msg);
+    Terminal::instance()->cout(msg);
 }

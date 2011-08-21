@@ -69,7 +69,6 @@ public:
     void setScrollPosition(const QVariantMap &size);
     QVariantMap scrollPosition() const;
 
-
     void setPaperSize(const QVariantMap &size);
     QVariantMap paperSize() const;
 
@@ -80,10 +79,10 @@ public slots:
     bool injectJs(const QString &jsFilePath);
     void _appendScriptElement(const QString &scriptUrl);
     void uploadFile(const QString &selector, const QString &fileName);
-	void click( int x, int y );
-	void mouseDown();
-	void mouseUp();
-	void mouseMoveTo(int x, int y);
+    void click( int x, int y );
+    void mouseDown();
+    void mouseUp();
+    void mouseMoveTo(int x, int y);
 
 signals:
     void initialized();
@@ -115,7 +114,7 @@ private:
 
     friend class Phantom;
     friend class CustomPage;
-    
+
     QPoint m_mousePos;
 };
 

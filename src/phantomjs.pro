@@ -20,7 +20,6 @@ HEADERS += csconverter.h \
     cookiejar.h \
     filesystem.h \
     terminal.h \
-    registry.h \
     encoding.h
 SOURCES += phantom.cpp \
     webpage.cpp \
@@ -32,10 +31,9 @@ SOURCES += phantom.cpp \
     cookiejar.cpp \
     filesystem.cpp \
     terminal.cpp \
-    registry.cpp \
     encoding.cpp
 
-OTHER_FILES = bootstrap.js
+OTHER_FILES = bootstrap.js usage.txt
 
 include(gif/gif.pri)
 

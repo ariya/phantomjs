@@ -358,7 +358,7 @@ QImage WebPage::renderImage()
 
     // We use tiling approach to work-around Qt software rasterizer bug
     // when dealing with very large paint device.
-    // See http://code.google.com/p/phantomjs/issues/detail?id=54.*
+    // See http://code.google.com/p/phantomjs/issues/detail?id=54.
     const int tileSize = 4096;
     int htiles = (buffer.width() + tileSize - 1) / tileSize;
     int vtiles = (buffer.height() + tileSize - 1) / tileSize;
@@ -513,9 +513,9 @@ void WebPage::_appendScriptElement(const QString &scriptUrl) {
 
 void WebPage::click( int x, int y )
 {
-	mouseMoveTo(x,y);
-	mouseDown();
-	mouseUp();
+    mouseMoveTo(x,y);
+    mouseDown();
+    mouseUp();
 }
 
 void WebPage::mouseDown()

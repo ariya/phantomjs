@@ -28,19 +28,19 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef CONSOLE_H
-#define CONSOLE_H
+#ifndef TERMINAL_H
+#define TERMINAL_H
 
+#include <QObject>
 #include <QString>
 #include <ostream>
 
 #include "encoding.h"
 
-class Terminal
+class Terminal: public QObject
 {
 public:
-    Terminal();
-    ~Terminal();
+    static Terminal *instance();
 
     QString getEncoding() const;
     void setEncoding(const QString &encoding);
@@ -52,7 +52,8 @@ private:
     void output(std::ostream &out, const QString &string, const bool newline) const;
 
 private:
+    Terminal();
     Encoding m_encoding;
 };
 
-#endif // CONSOLE_H
+#endif // TERMINAL_H

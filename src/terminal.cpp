@@ -30,13 +30,22 @@
 
 #include "terminal.h"
 
+#include <QCoreApplication>
+
 #include <iostream>
 
-Terminal::Terminal()
+static Terminal *terminal_instance = 0;
+
+Terminal *Terminal::instance()
 {
+    if (!terminal_instance)
+        terminal_instance = new Terminal();
+
+    return terminal_instance;
 }
 
-Terminal::~Terminal()
+Terminal::Terminal()
+    : QObject(QCoreApplication::instance())
 {
 }
 

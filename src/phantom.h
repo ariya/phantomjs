@@ -86,7 +86,6 @@ private:
     bool m_terminated;
     int m_returnValue;
     QString m_script;
-    CSConverter *m_converter;
     NetworkAccessManager *m_netAccessMan;
     QVariantMap m_defaultPageSettings;
     FileSystem m_filesystem;
