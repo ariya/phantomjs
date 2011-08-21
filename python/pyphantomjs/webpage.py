@@ -120,7 +120,7 @@ class WebPage(QObject):
         opt.setAttribute(QWebSettings.AutoLoadImages, defaults['loadImages'])
         opt.setAttribute(QWebSettings.PluginsEnabled, defaults['loadPlugins'])
         opt.setAttribute(QWebSettings.JavascriptEnabled, defaults['javascriptEnabled'])
-        opt.setAttribute(QWebSettings.XSSAuditingEnabled, defaults['XSSAuditing'])
+        opt.setAttribute(QWebSettings.XSSAuditingEnabled, defaults['XSSAuditingEnabled'])
         opt.setAttribute(QWebSettings.LocalContentCanAccessRemoteUrls, defaults['localAccessRemote'])
         if 'userAgent' in defaults:
             self.m_webPage.m_userAgent = defaults['userAgent']
