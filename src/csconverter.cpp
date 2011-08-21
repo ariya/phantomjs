@@ -33,7 +33,7 @@
 #include <QFile>
 #include <QWebFrame>
 
-#include "registry.h"
+#include "terminal.h"
 
 static CSConverter *csconverter_instance = 0;
 
@@ -50,7 +50,7 @@ CSConverter::CSConverter()
 {
     QFile file(":/coffee-script.js");
     if (!file.open(QFile::ReadOnly)) {
-        Registry::terminal().cerr("CoffeeScript compiler is not available!");
+        Terminal::instance()->cerr("CoffeeScript compiler is not available!");
         exit(1);
     }
     QString script = QString::fromUtf8(file.readAll());

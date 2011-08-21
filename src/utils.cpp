@@ -33,9 +33,8 @@
 #include <QDir>
 
 #include "consts.h"
+#include "terminal.h"
 #include "utils.h"
-
-#include "registry.h"
 
 // public:
 void Utils::showUsage()
@@ -43,10 +42,10 @@ void Utils::showUsage()
     QFile file;
     file.setFileName(":/usage.txt");
     if ( !file.open(QFile::ReadOnly) ) {
-        Registry::terminal().cerr("Unable to print the usage message");
+        Terminal::instance()->cerr("Unable to print the usage message");
         exit(1);
     }
-    Registry::terminal().cout(QString::fromUtf8(file.readAll()));
+    Terminal::instance()->cout(QString::fromUtf8(file.readAll()));
     file.close();
 }
 
@@ -104,7 +103,7 @@ bool Utils::injectJsInFrame(const QString &jsFilePath, const Encoding &jsFileEnc
                 QVariant result = Utils::coffee2js(scriptBody);
                 if (result.toStringList().at(0) == "false") {
                     if (startingScript) {
-                        Registry::terminal().cerr(result.toStringList().at(1));
+                        Terminal::instance()->cerr(result.toStringList().at(1));
                         exit(1);
                     } else {
                         qWarning() << qPrintable(result.toStringList().at(1));
@@ -121,7 +120,7 @@ bool Utils::injectJsInFrame(const QString &jsFilePath, const Encoding &jsFileEnc
             return true;
         } else {
             if (startingScript) {
-                Registry::terminal().cerr(QString("Can't open '%1'").arg(jsFilePath));
+                Terminal::instance()->cerr(QString("Can't open '%1'").arg(jsFilePath));
             } else {
                 qWarning("Can't open '%s'", qPrintable(jsFilePath));
             }
