@@ -86,6 +86,7 @@ public slots:
 	void mouseMoveTo(int x, int y);
 
 signals:
+    void initialized();
     void loadStarted();
     void loadFinished(const QString &status);
     void javaScriptAlertSent(const QString &msg);
