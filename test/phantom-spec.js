@@ -35,4 +35,20 @@ describe("phantom global object", function() {
     it("should not have an empty scriptName", function() {
         expect(phantom.scriptName.length).toNotEqual(0);
     });
+
+    it("should have version property", function() {
+        expect(phantom.hasOwnProperty('version')).toBeTruthy();
+    });
+
+    it("should return 1 as the major version", function() {
+        expect(phantom.version.major).toEqual(1);
+    });
+
+    it("should return 3 as the minor version", function() {
+        expect(phantom.version.minor).toEqual(3);
+    });
+
+    it("should return 0 as the patch version", function() {
+        expect(phantom.version.patch).toEqual(0);
+    });
 });
