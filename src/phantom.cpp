@@ -47,7 +47,6 @@ Phantom::Phantom(QObject *parent)
     : QObject(parent)
     , m_terminated(false)
     , m_returnValue(0)
-    , m_converter(0)
     , m_netAccessMan(0)
 {
     m_page = new WebPage(this);
