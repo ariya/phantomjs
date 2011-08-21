@@ -35,7 +35,7 @@ SOURCES += phantom.cpp \
     registry.cpp \
     encoding.cpp
 
-OTHER_FILES = bootstrap.js
+OTHER_FILES = bootstrap.js usage.txt
 
 include(gif/gif.pri)
 
