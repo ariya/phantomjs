@@ -32,7 +32,14 @@
 
 Encoding::Encoding()
 {
-    m_codec = QTextCodec::codecForLocale();
+    QTextCodec *codec = QTextCodec::codecForName(DEFAULT_CODEC_NAME);
+
+    // Fall back to locale codec
+    if ((QTextCodec *)NULL == codec) {
+        codec = QTextCodec::codecForLocale();
+    }
+
+    m_codec = codec;
 }
 
 Encoding::Encoding(const QString &encoding)
@@ -85,3 +92,5 @@ QTextCodec *Encoding::getCodec() const
 
     return codec;
 }
+
+const QByteArray Encoding::DEFAULT_CODEC_NAME = "UTF-8";
