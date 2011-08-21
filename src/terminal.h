@@ -28,8 +28,8 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef CONSOLE_H
-#define CONSOLE_H
+#ifndef TERMINAL_H
+#define TERMINAL_H
 
 #include <QString>
 #include <ostream>
@@ -55,4 +55,4 @@ private:
     Encoding m_encoding;
 };
 
-#endif // CONSOLE_H
+#endif // TERMINAL_H
