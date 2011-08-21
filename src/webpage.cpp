@@ -513,9 +513,9 @@ void WebPage::_appendScriptElement(const QString &scriptUrl) {
 
 void WebPage::click( int x, int y )
 {
-	mouseMoveTo(x,y);
-	mouseDown();
-	mouseUp();
+    mouseMoveTo(x,y);
+    mouseDown();
+    mouseUp();
 }
 
 void WebPage::mouseDown()
