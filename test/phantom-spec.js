@@ -36,6 +36,14 @@ describe("phantom global object", function() {
         expect(phantom.scriptName.length).toNotEqual(0);
     });
 
+    it("should have outputEncoding property", function() {
+        expect(phantom.hasOwnProperty('outputEncoding')).toBeTruthy();
+    });
+
+    it("should have the default outputEncoding to System", function() {
+        expect(phantom.outputEncoding).toEqual('System');
+    });
+
     it("should have version property", function() {
         expect(phantom.hasOwnProperty('version')).toBeTruthy();
     });
