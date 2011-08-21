@@ -59,4 +59,12 @@ describe("phantom global object", function() {
     it("should return 0 as the patch version", function() {
         expect(phantom.version.patch).toEqual(0);
     });
+
+    it("should have 'injectJs' function", function() {
+        expect(typeof phantom.injectJs).toEqual("function");
+    });
+
+    it("should have 'exit' function", function() {
+        expect(typeof phantom.exit).toEqual("function");
+    });
 });
