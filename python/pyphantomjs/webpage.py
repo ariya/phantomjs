@@ -64,6 +64,7 @@ class CustomPage(QWebPage):
 
 
 class WebPage(QObject):
+    initialized = pyqtSignal()
     javaScriptAlertSent = pyqtSignal(str)
     javaScriptConsoleMessageSent = pyqtSignal(str, int, str)
     loadStarted = pyqtSignal()
@@ -84,6 +85,7 @@ class WebPage(QObject):
         self.m_webPage = CustomPage(self)
         self.m_mainFrame = self.m_webPage.mainFrame()
 
+        self.m_mainFrame.javaScriptWindowObjectCleared.connect(self.initialized)
         self.m_webPage.loadStarted.connect(self.loadStarted)
         self.m_webPage.loadFinished.connect(self.finish)
 

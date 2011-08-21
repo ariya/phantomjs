@@ -19,6 +19,8 @@ window.WebPage = function() {
     // deep copy
     page.settings = JSON.parse(JSON.stringify(phantom.defaultPageSettings));
 
+    defineSetter("onInitialized", "initialized");
+
     defineSetter("onLoadStarted", "loadStarted");
 
     defineSetter("onLoadFinished", "loadFinished");
