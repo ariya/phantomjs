@@ -69,7 +69,6 @@ public:
     void setScrollPosition(const QVariantMap &size);
     QVariantMap scrollPosition() const;
 
-
     void setPaperSize(const QVariantMap &size);
     QVariantMap paperSize() const;
 
