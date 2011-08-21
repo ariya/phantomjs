@@ -108,7 +108,7 @@ class Phantom(QObject):
     ##
 
     @pyqtSlot(WebPage)
-    def _destroy(self, page):
+    def _release(self, page):
         self.m_pages.remove(page)
         sip.delete(page)
 
