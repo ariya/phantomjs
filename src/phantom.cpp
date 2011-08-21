@@ -292,7 +292,7 @@ void Phantom::exit(int code)
     QApplication::instance()->exit(code);
 }
 
-void Phantom::_destroy(QObject *page) {
+void Phantom::_release(QObject *page) {
     m_pages.removeOne((WebPage*)page);
     delete page;
 }
