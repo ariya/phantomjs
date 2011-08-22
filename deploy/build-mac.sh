@@ -23,7 +23,14 @@ echo
 tar xzf $QT_TARBALL
 mv qt-everywhere-opensource-src-$QT_VERSION Qt-$QT_VERSION
 
-# Step 3: Build Qt
+# Step 3: Apply patches.
+
+cd $QT_FOLDER
+echo "Patching Qt..."
+patch < ../allow-static-qtwebkit.patch
+cd ..
+
+# Step 4: Build Qt
 
 cd $QT_FOLDER
 echo "Building Qt $QT_VERSION. Please wait..."
@@ -33,6 +40,7 @@ echo
 
 make -j$COMPILE_JOBS
 make -j$COMPILE_JOBS
+make install -j$COMPILE_JOBS
 cd ..
 
 PATH=`pwd`/$QT_FOLDER/bin:$PATH
