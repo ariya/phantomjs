@@ -52,6 +52,7 @@ private:
     QTextCodec *getCodec() const;
 
     QTextCodec *m_codec;
+    static const QByteArray DEFAULT_CODEC_NAME;
 };
 
 #endif // ENCODING_H
