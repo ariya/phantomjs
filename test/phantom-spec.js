@@ -40,8 +40,8 @@ describe("phantom global object", function() {
         expect(phantom.hasOwnProperty('outputEncoding')).toBeTruthy();
     });
 
-    it("should have the default outputEncoding to System", function() {
-        expect(phantom.outputEncoding).toEqual('System');
+    it("should have the default outputEncoding of UTF-8", function() {
+        expect(phantom.outputEncoding).toEqual('UTF-8');
     });
 
     it("should have version property", function() {
