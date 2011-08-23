@@ -108,6 +108,7 @@ WebPage::WebPage(QObject *parent)
     connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()), SIGNAL(initialized()));
     connect(m_webPage, SIGNAL(loadStarted()), SIGNAL(loadStarted()));
     connect(m_webPage, SIGNAL(loadFinished(bool)), SLOT(finish(bool)));
+    connect(m_webPage, SIGNAL(unsupportedContent(QNetworkReply *)), SLOT(handleUnsupportedContent(QNetworkReply *)));
 
     // Start with transparent background.
     QPalette palette = m_webPage->palette();
@@ -149,6 +150,26 @@ void WebPage::setNetworkAccessManager(QNetworkAccessManager *networkAccessManage
             SIGNAL(resourceRequested(QVariant)));
     connect(networkAccessManager, SIGNAL(resourceReceived(QVariant)),
             SIGNAL(resourceReceived(QVariant)));
+}
+
+void WebPage::unsupportedFinish()
+{
+  // Reconnect signal
+  connect(m_webPage, SIGNAL(loadFinished(bool)), this, SLOT(finish(bool)));
+  QByteArray data = _reply->readAll();
+  m_mainFrame->setHtml(QLatin1String(data), _reply->url());
+}
+
+void WebPage::handleUnsupportedContent(QNetworkReply *reply)
+{
+  // Make sure it's not a file we should download instead
+  if(!reply->hasRawHeader("Content-Disposition"))
+  {
+    _reply = reply;
+    // Don't emit loadFinished until the reply is done
+    disconnect(m_webPage, SIGNAL(loadFinished(bool)), this, SLOT(finish(bool)));
+    connect(reply, SIGNAL(finished()), SLOT(unsupportedFinish()));
+  }
 }
 
 QString WebPage::content() const
