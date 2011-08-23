@@ -36,33 +36,33 @@ window.WebPage = function () {
 
     defineSetter("onConsoleMessage", "javaScriptConsoleMessageSent");
 
-    page.open = function (url) {
+    page.open = function (url, arg1, arg2, arg3, arg4) {
         if (arguments.length === 1) {
             this.openUrl(url, 'get', this.settings);
             return;
         }
-        if (arguments.length === 2 && typeof arguments[1] === 'function') {
-            this.onLoadFinished = arguments[1];
+        if (arguments.length === 2 && typeof arg1 === 'function') {
+            this.onLoadFinished = arg1;
             this.openUrl(url, 'get', this.settings);
             return;
         } else if (arguments.length === 2) {
-            this.openUrl(url, arguments[1], this.settings);
+            this.openUrl(url, arg1, this.settings);
             return;
-        } else if (arguments.length === 3 && typeof arguments[2] === 'function') {
-            this.onLoadFinished = arguments[2];
-            this.openUrl(url, arguments[1], this.settings);
+        } else if (arguments.length === 3 && typeof arg2 === 'function') {
+            this.onLoadFinished = arg2;
+            this.openUrl(url, arg1, this.settings);
             return;
         } else if (arguments.length === 3) {
             this.openUrl(url, {
-                operation: arguments[1],
-                data: arguments[2]
+                operation: arg1,
+                data: arg2
             }, this.settings);
             return;
         } else if (arguments.length === 4) {
-            this.onLoadFinished = arguments[3];
+            this.onLoadFinished = arg3;
             this.openUrl(url, {
-                operation: arguments[1],
-                data: arguments[2]
+                operation: arg1,
+                data: arg2
             }, this.settings);
             return;
         }
