@@ -19,6 +19,7 @@
 
 from math import ceil, floor
 
+import sip
 from PyQt4.QtCore import (pyqtProperty, pyqtSlot, pyqtSignal, Qt, QObject,
                           QRect, QPoint, QUrl, QFileInfo, QDir, QSize,
                           QSizeF, QByteArray, QEventLoop, QEvent, QFile)
@@ -74,6 +75,8 @@ class WebPage(QObject):
 
     def __init__(self, parent):
         QObject.__init__(self, parent)
+
+        self.m_parent = parent
 
         # variable declarations
         self.m_paperSize = {}
@@ -395,6 +398,11 @@ class WebPage(QObject):
     @paperSize.setter
     def paperSize(self, size):
         self.m_paperSize = size
+
+    @pyqtSlot()
+    def release(self):
+        self.m_parent.m_pages.remove(self)
+        sip.delete(self)
 
     @pyqtSlot(str, result=bool)
     def render(self, fileName):

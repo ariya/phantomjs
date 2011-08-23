@@ -107,11 +107,6 @@ class Phantom(QObject):
     # Properties and methods exposed to JavaScript
     ##
 
-    @pyqtSlot(WebPage)
-    def _release(self, page):
-        self.m_pages.remove(page)
-        sip.delete(page)
-
     @pyqtProperty('QStringList')
     def args(self):
         return self.m_args
