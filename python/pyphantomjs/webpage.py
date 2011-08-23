@@ -39,8 +39,9 @@ class CustomPage(QWebPage):
         self.parent = parent
         self.m_userAgent = QWebPage.userAgentForUrl(self, QUrl())
         self.m_scrollPosition = QPoint()
-
         self.m_uploadFile = ''
+
+        self.setForwardUnsupportedContent(True)
 
         do_action('CustomPageInit')
 
@@ -88,6 +89,7 @@ class WebPage(QObject):
         self.m_mainFrame.javaScriptWindowObjectCleared.connect(self.initialized)
         self.m_webPage.loadStarted.connect(self.loadStarted)
         self.m_webPage.loadFinished.connect(self.finish)
+        self.m_webPage.unsupportedContent.connect(self.handleUnsupportedContent)
 
         # Start with transparent background
         palette = self.m_webPage.palette()
@@ -128,6 +130,19 @@ class WebPage(QObject):
     def finish(self, ok):
         status = 'success' if ok else 'fail'
         self.loadFinished.emit(status)
+
+    def handleUnsupportedContent(self, reply):
+        def _onFinish():
+            # reconnect signal
+            self.m_webPage.loadFinished.connect(self.finish)
+            data = unicode(reply.readAll())
+            self.m_mainFrame.setHtml(data, reply.url())
+
+        # make sure it's not a file we should download instead
+        if not reply.hasRawHeader('Content-Disposition'):
+            # don't emit loadFinished until the reply is done
+            self.m_webPage.loadFinished.disconnect(self.finish)
+            reply.finished.connect(_onFinish)
 
     def mainFrame(self):
         return self.m_mainFrame
