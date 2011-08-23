@@ -104,7 +104,7 @@ def argParser():
 
 
 def coffee2js(script):
-    return CSConverter.instance().convert(script)
+    return CSConverter().convert(script)
 
 
 def injectJsInFrame(filePath, libraryPath, targetFrame, startingScript=False):

@@ -19,15 +19,20 @@
 
 import sys
 
-from PyQt4.QtCore import QObject, QFile, QCoreApplication
+from PyQt4.QtCore import QObject, QFile
+from PyQt4.QtGui import QApplication
 from PyQt4.QtWebKit import QWebPage
 
 
-CSConverterInstance = None
-
 class CSConverter(QObject):
-    def __init__(self, parent):
-        QObject.__init__(self, parent)
+    _instance = None
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(CSConverter, cls).__new__(cls, *args, **kwargs)
+        return cls._instance
+
+    def __init__(self):
+        QObject.__init__(self, QApplication.instance())
         self.m_webPage = QWebPage(self)
 
         converter = QFile(':/resources/coffee-script.js')
@@ -48,13 +53,3 @@ class CSConverter(QObject):
                                                                   }
                                                                ''')
         return result
-
-    @staticmethod
-    def instance():
-        global CSConverterInstance
-
-        # We need only one instance of the CSConverter for our whole life
-        if CSConverterInstance is None:
-            CSConverterInstance = CSConverter(QCoreApplication.instance())
-
-        return CSConverterInstance
