@@ -19,6 +19,7 @@
 
 from math import ceil, floor
 
+import sip
 from PyQt4.QtCore import (pyqtProperty, pyqtSlot, pyqtSignal, Qt, QObject,
                           QRect, QPoint, QUrl, QFileInfo, QDir, QSize,
                           QSizeF, QByteArray, QEventLoop, QEvent, QFile)
@@ -36,7 +37,8 @@ class CustomPage(QWebPage):
     def __init__(self, parent):
         QWebPage.__init__(self, parent)
 
-        self.parent = parent
+        self.m_parent = parent
+
         self.m_userAgent = QWebPage.userAgentForUrl(self, QUrl())
         self.m_scrollPosition = QPoint()
 
@@ -52,10 +54,10 @@ class CustomPage(QWebPage):
         return False
 
     def javaScriptAlert(self, originatingFrame, msg):
-        self.parent.javaScriptAlertSent.emit(msg)
+        self.m_parent.javaScriptAlertSent.emit(msg)
 
     def javaScriptConsoleMessage(self, message, lineNumber, sourceID):
-        self.parent.javaScriptConsoleMessageSent.emit(message, lineNumber, sourceID)
+        self.m_parent.javaScriptConsoleMessageSent.emit(message, lineNumber, sourceID)
 
     def userAgentForUrl(self, url):
         return self.m_userAgent
@@ -74,6 +76,8 @@ class WebPage(QObject):
 
     def __init__(self, parent):
         QObject.__init__(self, parent)
+
+        self.m_parent = parent
 
         # variable declarations
         self.m_paperSize = {}
@@ -395,6 +399,11 @@ class WebPage(QObject):
     @paperSize.setter
     def paperSize(self, size):
         self.m_paperSize = size
+
+    @pyqtSlot()
+    def release(self):
+        self.m_parent.m_pages.remove(self)
+        sip.delete(self)
 
     @pyqtSlot(str, result=bool)
     def render(self, fileName):
