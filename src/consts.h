@@ -55,4 +55,7 @@
 #define PAGE_SETTINGS_USER_AGENT            "userAgent"
 #define PAGE_SETTINGS_LOCAL_ACCESS_REMOTE   "localAccessRemote"
 
+#define ENVVAR_OUTPUT_ENCODING              "PHANTOMJS_OUTPUT_ENCODING"
+#define ENVVAR_SCRIPT_ENCODING              "PHANTOMJS_SCRIPT_ENCODING"
+
 #endif // CONSTS_H

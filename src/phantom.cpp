@@ -61,6 +61,9 @@ Phantom::Phantom(QObject *parent)
     bool ignoreSslErrors = false;
     bool localAccessRemote = false;
 
+    // Pull defaults from environment variables
+    processEnvVars();
+
     // second argument: script name
     QStringList args = QApplication::arguments();
 
@@ -302,6 +305,11 @@ void Phantom::printConsoleMessage(const QString &message, int lineNumber, const 
 }
 
 // private:
+void Phantom::processEnvVars() {
+    setOutputEncoding(getenv(ENVVAR_OUTPUT_ENCODING));
+    setScriptEncoding(getenv(ENVVAR_SCRIPT_ENCODING));
+}
+
 void Phantom::setScriptEncoding(const QString &encoding) {
     m_scriptFileEnc.setEncoding(encoding);
 }
