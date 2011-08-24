@@ -1,13 +1,14 @@
-// Find pizza in New York using Google Local
+// Find pizza in Mountain View using Yelp
 
-var page = new WebPage();
+var page = new WebPage(),
+    url = 'http://lite.yelp.com/search?find_desc=pizza&find_loc=94040&find_submit=Search';
 
-page.open('http://www.google.com/m/local?site=local&q=pizza+in+new+york', function (status) {
+page.open(url, function (status) {
     if (status !== 'success') {
         console.log('Unable to access network');
     } else {
         var results = page.evaluate(function() {
-            var list = document.querySelectorAll('div.bf'), pizza = [], i;
+            var list = document.querySelectorAll('span.address'), pizza = [], i;
             for (i = 0; i < list.length; i++) {
                 pizza.push(list[i].innerText);
             }

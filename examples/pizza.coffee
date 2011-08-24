@@ -1,15 +1,16 @@
-# Find pizza in New York using Google Local
+# Find pizza in Mountain View using Yelp
 
 page = new WebPage()
+url = 'http://lite.yelp.com/search?find_desc=pizza&find_loc=94040&find_submit=Search'
 
-page.open 'http://www.google.com/m/local?site=local&q=pizza+in+new+york',
+page.open url,
   (status) ->
     if status isnt 'success'
       console.log 'Unable to access network'
     else
       results = page.evaluate ->
         pizza = []
-        list = document.querySelectorAll 'div.bf'
+        list = document.querySelectorAll 'span.address'
         for item in list
           pizza.push(item.innerText)
         return pizza
