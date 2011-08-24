@@ -74,6 +74,8 @@ public:
 
 public slots:
     void openUrl(const QString &address, const QVariant &op, const QVariantMap &settings);
+    void release();
+
     QVariant evaluate(const QString &code);
     bool render(const QString &fileName);
     bool injectJs(const QString &jsFilePath);

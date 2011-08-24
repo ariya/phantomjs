@@ -317,6 +317,11 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
     m_mainFrame->load(QNetworkRequest(QUrl(address)), networkOp, body);
 }
 
+void WebPage::release()
+{
+    deleteLater();
+}
+
 bool WebPage::render(const QString &fileName)
 {
     if (m_mainFrame->contentsSize().isEmpty())

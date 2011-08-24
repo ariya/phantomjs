@@ -73,7 +73,6 @@ public slots:
     QObject *createWebPage();
     bool injectJs(const QString &jsFilePath);
     void exit(int code = 0);
-    void _release(QObject *page);
 
 private slots:
     void printConsoleMessage(const QString &msg, int lineNumber, const QString &source);
@@ -89,7 +88,7 @@ private:
     NetworkAccessManager *m_netAccessMan;
     QVariantMap m_defaultPageSettings;
     FileSystem m_filesystem;
-    QList<WebPage*> m_pages;
+    QList<QPointer<WebPage> > m_pages;
 };
 
 #endif // PHANTOM_H

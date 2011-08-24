@@ -86,10 +86,6 @@ window.WebPage = function () {
         this._appendScriptElement(scriptUrl);
     };
 
-    page.release = function () {
-        phantom._release(page);
-    };
-
     return page;
 };
 
