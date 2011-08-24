@@ -241,8 +241,8 @@ class WebPage(QObject):
             }
 
             p.setPaperSize(QPrinter.A4) # fallback
-            for format, size in formats.items():
-                if format.lower() == paperSize['format'].lower():
+            for format_, size in formats.items():
+                if format_.lower() == paperSize['format'].lower():
                     p.setPaperSize(size)
                     break
         else:
@@ -268,10 +268,10 @@ class WebPage(QObject):
             ('', 72.0 / self.pdf_dpi / 2.54)
         )
 
-        for unit, format in units:
+        for unit, format_ in units:
             if string.endswith(unit):
                 value = string.rstrip(unit)
-                return float(value) * format
+                return float(value) * format_
         return 0
 
     def userAgent(self):

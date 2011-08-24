@@ -50,11 +50,12 @@ class Phantom(QObject):
         self.m_args = args.script_args
 
         self.m_filesystem = FileSystem(self)
+
         self.m_pages.append(self.m_page)
 
         do_action('PhantomInitPre')
 
-        if not args.proxy:
+        if args.proxy is None:
             QNetworkProxyFactory.setUseSystemConfiguration(True)
         else:
             proxy = QNetworkProxy(QNetworkProxy.HttpProxy, args.proxy[0], int(args.proxy[1]))

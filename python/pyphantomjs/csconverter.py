@@ -27,7 +27,7 @@ from PyQt4.QtWebKit import QWebPage
 class CSConverter(QObject):
     _instance = None
     def __new__(cls, *args, **kwargs):
-        if not cls._instance:
+        if cls._instance is None:
             cls._instance = super(CSConverter, cls).__new__(cls, *args, **kwargs)
         return cls._instance
 
@@ -38,9 +38,9 @@ class CSConverter(QObject):
         converter = QFile(':/resources/coffee-script.js')
         if not converter.open(QFile.ReadOnly):
             sys.exit('CoffeeScript compiler is not available!')
-
         script = str(converter.readAll())
         converter.close()
+
         self.m_webPage.mainFrame().evaluateJavaScript(script)
         self.m_webPage.mainFrame().addToJavaScriptWindowObject('converter', self)
 

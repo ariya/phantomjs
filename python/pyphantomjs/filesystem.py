@@ -343,7 +343,7 @@ class FileSystem(QObject):
     @pyqtSlot(str, result=str)
     @pyqtSlot(str, str, result=str)
     def base(self, path, ext=None):
-        if not ext:
+        if ext is None:
             return os.path.basename(path)
         else:
             base = os.path.splitext(os.path.basename(path))
@@ -391,7 +391,7 @@ class FileSystem(QObject):
     @pyqtSlot(str, result=str)
     @pyqtSlot(str, str, result=str)
     def relative(self, source, target=None):
-        if not target:
+        if target is None:
             return os.path.relpath(source)
         else:
             return os.path.relpath(source, target)
@@ -402,10 +402,10 @@ class FileSystem(QObject):
 
     @pyqtSlot(str, result='QStringList')
     def split(self, path):
-        spli = path.split(os.sep)
-        if not spli:
-            spli = path.split(os.altsep)
-        return spli
+        if os.sep in path:
+            return path.split(os.sep)
+        else:
+            return path.split(os.altsep)
 
     ##
     # Permissions
@@ -681,9 +681,7 @@ class FileSystem(QObject):
 
     @pyqtSlot(str, result=bool)
     def isAbsolute(self, path):
-        # :FIXME: windows might need to chop off
-        # drive letter first
-        return os.path.isabs(path)
+        return os.path.isabs(os.path.splitdrive(path)[1])
 
     @pyqtSlot(str, result=bool)
     def isDirectory(self, path):
