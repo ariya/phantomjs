@@ -108,11 +108,12 @@ private:
     QPoint m_scrollPosition;
     QVariantMap m_paperSize; // For PDF output via render()
     QString m_libraryPath;
-    QNetworkReply *_reply;
+    QList<QNetworkReply*> replies;
 
     QImage renderImage();
     bool renderPdf(const QString &fileName);
     void applySettings(const QVariantMap &defaultSettings);
+    void loopFrames(QWebFrame * frame);
     QString userAgent() const;
 
     void emitAlert(const QString &msg);

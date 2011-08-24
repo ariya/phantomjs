@@ -46,6 +46,7 @@
 #include <QMouseEvent>
 
 #include "utils.h"
+#include "networkreplyproxy.h"
 
 #include <gifwriter.h>
 
@@ -152,24 +153,46 @@ void WebPage::setNetworkAccessManager(QNetworkAccessManager *networkAccessManage
             SIGNAL(resourceReceived(QVariant)));
 }
 
+void WebPage::loopFrames(QWebFrame * frame)
+{
+    QNetworkReply *r;
+    foreach(r, replies) {
+        if(frame->requestedUrl() == r->url()) {
+            NetworkReplyProxy *nrp = qobject_cast<NetworkReplyProxy*>(r);
+            frame->setHtml(nrp->body(), r->url());
+        } else {
+            QWebFrame *f;
+            foreach(f, frame->childFrames()) {
+                loopFrames(f);
+            }
+        }
+    }
+}
+
 void WebPage::unsupportedFinish()
 {
-  // Reconnect signal
-  connect(m_webPage, SIGNAL(loadFinished(bool)), this, SLOT(finish(bool)));
-  QByteArray data = _reply->readAll();
-  m_mainFrame->setHtml(QLatin1String(data), _reply->url());
+    // Reconnect mainFrame signal
+    if(m_mainFrame->requestedUrl() == replies.last()->url())
+    {
+        connect(m_webPage, SIGNAL(loadFinished(bool)), this, SLOT(finish(bool)));
+    }
+    loopFrames(m_mainFrame);
 }
 
 void WebPage::handleUnsupportedContent(QNetworkReply *reply)
 {
-  // Make sure it's not a file we should download instead
-  if(!reply->hasRawHeader("Content-Disposition"))
-  {
-    _reply = reply;
-    // Don't emit loadFinished until the reply is done
-    disconnect(m_webPage, SIGNAL(loadFinished(bool)), this, SLOT(finish(bool)));
-    connect(reply, SIGNAL(finished()), SLOT(unsupportedFinish()));
-  }
+    // Make sure it's not a file we should download instead
+    if(!reply->hasRawHeader("Content-Disposition"))
+    {
+        replies << reply;
+        // If no 'Content-Type' header is set in mainFrame,
+        // ignore loadFinished until the reply is done
+        if(m_mainFrame->requestedUrl() == reply->url())
+        {
+            disconnect(m_webPage, SIGNAL(loadFinished(bool)), this, SLOT(finish(bool)));
+        }
+        connect(reply, SIGNAL(finished()), SLOT(unsupportedFinish()));
+    }
 }
 
 QString WebPage::content() const

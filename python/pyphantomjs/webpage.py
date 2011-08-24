@@ -81,6 +81,7 @@ class WebPage(QObject):
         self.m_clipRect = QRect()
         self.m_libraryPath = ''
         self.m_mousePos = QPoint()
+        self.m_replies = []
 
         self.setObjectName('WebPage')
         self.m_webPage = CustomPage(self)
@@ -133,15 +134,27 @@ class WebPage(QObject):
 
     def handleUnsupportedContent(self, reply):
         def _onFinish():
-            # reconnect signal
-            self.m_webPage.loadFinished.connect(self.finish)
-            data = unicode(reply.readAll())
-            self.m_mainFrame.setHtml(data, reply.url())
+            # reconnect mainFrame signal
+            if self.m_mainFrame.requestedUrl() == reply.url():
+                self.m_webPage.loadFinished.connect(self.finish)
+            _loopFrames(self.m_mainFrame)
+
+        def _loopFrames(frame):
+            for reply in self.m_replies:
+                if frame.requestedUrl() == reply.url():
+                    data = unicode(reply.body())
+                    frame.setHtml(data, reply.url())
+                else:
+                    for frame in frame.childFrames():
+                        _loopFrames(frame)
 
         # make sure it's not a file we should download instead
         if not reply.hasRawHeader('Content-Disposition'):
-            # don't emit loadFinished until the reply is done
-            self.m_webPage.loadFinished.disconnect(self.finish)
+            self.m_replies.append(reply)
+            # if no 'Content-Type' header is set in mainFrame,
+            # ignore loadFinished until the reply is done
+            if self.m_mainFrame.requestedUrl() == reply.url():
+                self.m_webPage.loadFinished.disconnect(self.finish)
             reply.finished.connect(_onFinish)
 
     def mainFrame(self):
