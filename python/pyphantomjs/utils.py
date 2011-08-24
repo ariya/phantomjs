@@ -171,4 +171,4 @@ class SafeStreamFilter(object):
         self.target.flush()
 
     def encode(self, s):
-        return s.encode(self.encode_to, self.errors).decode(self.encode_to)
+        return s.encode(self.encode_to, self.errors)
