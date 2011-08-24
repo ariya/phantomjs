@@ -40,6 +40,7 @@
 #include "terminal.h"
 #include "utils.h"
 #include "webpage.h"
+#include "envvars.h"
 
 
 // public:
@@ -306,8 +307,8 @@ void Phantom::printConsoleMessage(const QString &message, int lineNumber, const 
 
 // private:
 void Phantom::processEnvVars() {
-    setOutputEncoding(getenv(ENVVAR_OUTPUT_ENCODING));
-    setScriptEncoding(getenv(ENVVAR_SCRIPT_ENCODING));
+    setOutputEncoding(ENVVAR_OUTPUT_ENCODING);
+    setScriptEncoding(ENVVAR_SCRIPT_ENCODING);
 }
 
 void Phantom::setScriptEncoding(const QString &encoding) {
