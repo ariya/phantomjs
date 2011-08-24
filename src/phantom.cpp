@@ -133,11 +133,11 @@ Phantom::Phantom(QObject *parent)
             continue;
         }
         if (arg.startsWith("--output-encoding=")) {
-            Terminal::instance()->setEncoding(arg.mid(18).trimmed());
+            setOutputEncoding(arg.mid(18).trimmed());
             continue;
         }
         if (arg.startsWith("--script-encoding=")) {
-            m_scriptFileEnc.setEncoding(arg.mid(18).trimmed());
+            setScriptEncoding(arg.mid(18).trimmed());
             continue;
         }
         if (arg.startsWith("--")) {
@@ -299,4 +299,9 @@ void Phantom::printConsoleMessage(const QString &message, int lineNumber, const 
     if (!source.isEmpty())
         msg = source + ":" + QString::number(lineNumber) + " " + msg;
     Terminal::instance()->cout(msg);
+}
+
+// private:
+void Phantom::setScriptEncoding(const QString &encoding) {
+    m_scriptFileEnc.setEncoding(encoding);
 }
