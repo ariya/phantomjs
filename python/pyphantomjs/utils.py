@@ -104,7 +104,7 @@ def argParser():
 
 
 def coffee2js(script):
-    return CSConverter.instance().convert(script)
+    return CSConverter().convert(script)
 
 
 def injectJsInFrame(filePath, libraryPath, targetFrame, startingScript=False):
@@ -159,9 +159,8 @@ class SafeStreamFilter(object):
     '''Convert string to something safe'''
     def __init__(self, target):
         self.target = target
-        self.encoding = 'utf-8'
+        self.encoding = self.encode_to = self.encoding_sys = self.target.encoding or 'utf-8'
         self.errors = 'replace'
-        self.encode_to = self.target.encoding or 'utf-8'
 
     def write(self, s):
         s = self.encode(s)
@@ -171,4 +170,4 @@ class SafeStreamFilter(object):
         self.target.flush()
 
     def encode(self, s):
-        return s.encode(self.encode_to, self.errors).decode(self.encode_to)
+        return s.encode(self.encode_to, self.errors)

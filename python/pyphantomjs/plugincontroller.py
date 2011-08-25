@@ -32,7 +32,7 @@ def add_action(hook, priority=10):
        executed first (priority of 1 for example).
     '''
     def register(func):
-        if hooks[hook].get('plugins'):
+        if hooks[hook].get('plugins') is not None:
             hooks[hook]['plugins'].append((priority, func))
         else:
             hooks[hook]['plugins'] = [(priority, func)]
@@ -42,7 +42,7 @@ def add_action(hook, priority=10):
 
 def did_action(hook):
     '''Find out how many times a hook was fired'''
-    if not hooks[hook].get('count'):
+    if hooks[hook].get('count') is None:
         hooks[hook]['count'] = 0
     return hooks[hook]['count']
 
@@ -52,9 +52,9 @@ def do_action(hook, *args, **kwargs):
        themselves to the hook. Any additional arguments or keyword
        arguments you pass in will be passed to the functions.
     '''
-    if not hooks[hook].get('count'):
+    if hooks[hook].get('count') is None:
         hooks[hook]['count'] = 0
-    if hooks[hook].get('plugins'):
+    if hooks[hook].get('plugins') is not None:
         # sort plugins by priority
         hooks[hook]['plugins'].sort()
         for plugin in hooks[hook]['plugins']:
@@ -84,10 +84,10 @@ def has_action(hook, func=None):
        check if function has been registered for hook.
     '''
     if hook in hooks:
-        if not func:
+        if func is None:
             return True
         else:
-            if hooks[hook].get('plugins'):
+            if hooks[hook].get('plugins') is not None:
                 for plugin in hooks[hook]['plugins']:
                     if plugin[1] == func:
                         return True
@@ -100,11 +100,11 @@ def remove_action(hook, func=None, priority=10):
        functions priority, it will not remove the function.
     '''
     if hook in hooks:
-        if not func:
+        if func is None:
             del hooks[hook]
             return True
         else:
-            if hooks[hook].get('plugins'):
+            if hooks[hook].get('plugins') is not None:
                 for i, plugin in enumerate(hooks[hook]['plugins']):
                     if plugin[1] == func and plugin[0] == priority:
                         del hooks[hook]['plugins'][i]
@@ -118,10 +118,10 @@ def remove_all_actions(hook, priority=None):
        instead.
     '''
     if hook in hooks:
-        if not priority:
+        if priority is None:
             del hooks[hook][:]
         else:
-            if hooks[hook].get('plugins'):
+            if hooks[hook].get('plugins') is not None:
                 indexes = []
                 for i, plugin in enumerate(hooks[hook]['plugins']):
                     if plugin[0] == priority:

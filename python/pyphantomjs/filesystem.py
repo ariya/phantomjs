@@ -269,7 +269,7 @@ class FileSystem(QObject):
     ##
 
     @pyqtSlot(str, name='list', result='QStringList')
-    def _list(self, path):
+    def list_(self, path):
         try:
             p = os.listdir(path)
             p[0:2] = ('.', '..')
@@ -283,8 +283,8 @@ class FileSystem(QObject):
         try:
             listing = []
             for root, dirs, files in os.walk(path):
-                for _file in files:
-                    listing.append(os.path.join(root, _file))
+                for file_ in files:
+                    listing.append(os.path.join(root, file_))
             return listing
         except OSError as (t, e):
             qDebug("FileSystem.listTree - %s: '%s'" % (e, path))
@@ -295,8 +295,8 @@ class FileSystem(QObject):
         try:
             listing = []
             for root, dirs, files in os.walk(path):
-                for _dir in dirs:
-                    listing.append(os.path.join(root, _dir))
+                for dir_ in dirs:
+                    listing.append(os.path.join(root, dir_))
             return listing
         except OSError as (t, e):
             qDebug("FileSystem.listDirectoryTree - %s: '%s'" % (e, path))
@@ -343,7 +343,7 @@ class FileSystem(QObject):
     @pyqtSlot(str, result=str)
     @pyqtSlot(str, str, result=str)
     def base(self, path, ext=None):
-        if not ext:
+        if ext is None:
             return os.path.basename(path)
         else:
             base = os.path.splitext(os.path.basename(path))
@@ -391,7 +391,7 @@ class FileSystem(QObject):
     @pyqtSlot(str, result=str)
     @pyqtSlot(str, str, result=str)
     def relative(self, source, target=None):
-        if not target:
+        if target is None:
             return os.path.relpath(source)
         else:
             return os.path.relpath(source, target)
@@ -402,10 +402,10 @@ class FileSystem(QObject):
 
     @pyqtSlot(str, result='QStringList')
     def split(self, path):
-        spli = path.split(os.sep)
-        if not spli:
-            spli = path.split(os.altsep)
-        return spli
+        if os.sep in path:
+            return path.split(os.sep)
+        else:
+            return path.split(os.altsep)
 
     ##
     # Permissions
@@ -681,9 +681,7 @@ class FileSystem(QObject):
 
     @pyqtSlot(str, result=bool)
     def isAbsolute(self, path):
-        # :FIXME: windows might need to chop off
-        # drive letter first
-        return os.path.isabs(path)
+        return os.path.isabs(os.path.splitdrive(path)[1])
 
     @pyqtSlot(str, result=bool)
     def isDirectory(self, path):
