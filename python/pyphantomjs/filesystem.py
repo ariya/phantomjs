@@ -269,7 +269,7 @@ class FileSystem(QObject):
     ##
 
     @pyqtSlot(str, name='list', result='QStringList')
-    def _list(self, path):
+    def list_(self, path):
         try:
             p = os.listdir(path)
             p[0:2] = ('.', '..')
@@ -283,8 +283,8 @@ class FileSystem(QObject):
         try:
             listing = []
             for root, dirs, files in os.walk(path):
-                for _file in files:
-                    listing.append(os.path.join(root, _file))
+                for file_ in files:
+                    listing.append(os.path.join(root, file_))
             return listing
         except OSError as (t, e):
             qDebug("FileSystem.listTree - %s: '%s'" % (e, path))
@@ -295,8 +295,8 @@ class FileSystem(QObject):
         try:
             listing = []
             for root, dirs, files in os.walk(path):
-                for _dir in dirs:
-                    listing.append(os.path.join(root, _dir))
+                for dir_ in dirs:
+                    listing.append(os.path.join(root, dir_))
             return listing
         except OSError as (t, e):
             qDebug("FileSystem.listDirectoryTree - %s: '%s'" % (e, path))
