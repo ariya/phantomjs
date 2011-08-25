@@ -72,8 +72,8 @@ class NetworkAccessManager(QNetworkAccessManager):
 
         data = {
             'id': self.m_idCounter,
-            'url': req.url().toString(),
-            'method': toString(op),
+            'url': str(req.url()),
+            'method': self.operationToString(op),
             'headers': headers,
             'time': QDateTime.currentDateTime()
         }
@@ -97,7 +97,7 @@ class NetworkAccessManager(QNetworkAccessManager):
         data = {
             'stage': 'end',
             'id': self.m_ids[reply],
-            'url': reply.url().toString(),
+            'url': str(reply.url()),
             'status': reply.attribute(QNetworkRequest.HttpStatusCodeAttribute),
             'statusText': reply.attribute(QNetworkRequest.HttpReasonPhraseAttribute),
             'contentType': reply.header(QNetworkRequest.ContentTypeHeader),
@@ -135,7 +135,7 @@ class NetworkAccessManager(QNetworkAccessManager):
         data = {
             'stage': 'start',
             'id': self.m_ids[reply],
-            'url': reply.url().toString(),
+            'url': str(reply.url()),
             'status': reply.attribute(QNetworkRequest.HttpStatusCodeAttribute),
             'statusText': reply.attribute(QNetworkRequest.HttpReasonPhraseAttribute),
             'contentType': reply.header(QNetworkRequest.ContentTypeHeader),
@@ -149,21 +149,20 @@ class NetworkAccessManager(QNetworkAccessManager):
 
         self.resourceReceived.emit(data)
 
+    def operationToString(self, op):
+        verb = '?'
+
+        if op == QNetworkAccessManager.HeadOperation:
+            verb = 'HEAD'
+        elif op == QNetworkAccessManager.GetOperation:
+            verb = 'GET'
+        elif op == QNetworkAccessManager.PutOperation:
+            verb = 'PUT'
+        elif op == QNetworkAccessManager.PostOperation:
+            verb = 'POST'
+        elif op == QNetworkAccessManager.DeleteOperation:
+            verb = 'DELETE'
+
+        return verb
+
     do_action('NetworkAccessManager')
-
-
-def toString(op):
-    verb = '?'
-
-    if op == QNetworkAccessManager.HeadOperation:
-        verb = 'HEAD'
-    elif op == QNetworkAccessManager.GetOperation:
-        verb = 'GET'
-    elif op == QNetworkAccessManager.PutOperation:
-        verb = 'PUT'
-    elif op == QNetworkAccessManager.PostOperation:
-        verb = 'POST'
-    elif op == QNetworkAccessManager.DeleteOperation:
-        verb = 'DELETE'
-
-    return verb

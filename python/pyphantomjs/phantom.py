@@ -19,6 +19,7 @@
 
 import os
 import sys
+import codecs
 
 import sip
 from PyQt4.QtCore import (pyqtProperty, pyqtSlot, QObject,
@@ -50,11 +51,12 @@ class Phantom(QObject):
         self.m_args = args.script_args
 
         self.m_filesystem = FileSystem(self)
+
         self.m_pages.append(self.m_page)
 
         do_action('PhantomInitPre')
 
-        if not args.proxy:
+        if args.proxy is None:
             QNetworkProxyFactory.setUseSystemConfiguration(True)
         else:
             proxy = QNetworkProxy(QNetworkProxy.HttpProxy, args.proxy[0], int(args.proxy[1]))
@@ -151,6 +153,30 @@ class Phantom(QObject):
     @libraryPath.setter
     def libraryPath(self, dirPath):
         self.m_page.libraryPath = dirPath
+
+    @pyqtProperty(str)
+    def outputEncoding(self):
+        if sys.stdout.encoding.lower() == 'system':
+            return sys.stdout.encoding.lower()
+        return codecs.lookup(sys.stdout.encoding).name
+
+    @outputEncoding.setter
+    def outputEncoding(self, encoding):
+        encode_to = encoding
+        if encoding.lower() == 'system':
+            encode_to = sys.stdout.encoding_sys
+
+        if encoding.lower() != 'system':
+            # ignore encoding if the encoder is invalid
+            try:
+                codecs.lookup(encoding)
+            except LookupError:
+                return
+
+        sys.stdout.encoding = encoding
+        sys.stdout.encode_to = encode_to
+        sys.stderr.encoding = encoding
+        sys.stdout.encode_to = encode_to
 
     @pyqtProperty(str)
     def scriptName(self):

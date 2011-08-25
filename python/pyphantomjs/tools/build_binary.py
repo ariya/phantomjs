@@ -52,10 +52,9 @@ def qt4_plugins_dir():
     for d in qt4_plugin_dirs:
         if os.path.isdir(d):
             return str(d)  # must be 8-bit chars for one-file builds
-    return
 
 qt4_plugin_dir = qt4_plugins_dir()
-if not qt4_plugin_dir:
+if qt4_plugin_dir is None:
     sys.exit('Cannot find PyQt4 plugins directory')
 
 
