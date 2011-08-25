@@ -182,7 +182,7 @@ void WebPage::unsupportedFinish()
 void WebPage::handleUnsupportedContent(QNetworkReply *reply)
 {
     // Make sure it's not a file we should download instead
-    if(!reply->hasRawHeader("Content-Disposition"))
+    if(reply->rawHeader("Content-Disposition") != "attachment")
     {
         replies << reply;
         // If no 'Content-Type' header is set in mainFrame,

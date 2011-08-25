@@ -149,7 +149,7 @@ class WebPage(QObject):
                         _loopFrames(frame)
 
         # make sure it's not a file we should download instead
-        if not reply.hasRawHeader('Content-Disposition'):
+        if reply.rawHeader('Content-Disposition') != 'attachment':
             self.m_replies.append(reply)
             # if no 'Content-Type' header is set in mainFrame,
             # ignore loadFinished until the reply is done
