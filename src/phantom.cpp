@@ -40,6 +40,7 @@
 #include "terminal.h"
 #include "utils.h"
 #include "webpage.h"
+#include "envvars.h"
 
 
 // public:
@@ -60,6 +61,9 @@ Phantom::Phantom(QObject *parent)
     bool diskCacheEnabled = false;
     bool ignoreSslErrors = false;
     bool localAccessRemote = false;
+
+    // Pull defaults from environment variables
+    processEnvVars();
 
     // second argument: script name
     QStringList args = QApplication::arguments();
@@ -133,11 +137,11 @@ Phantom::Phantom(QObject *parent)
             continue;
         }
         if (arg.startsWith("--output-encoding=")) {
-            Terminal::instance()->setEncoding(arg.mid(18).trimmed());
+            setOutputEncoding(arg.mid(18).trimmed());
             continue;
         }
         if (arg.startsWith("--script-encoding=")) {
-            m_scriptFileEnc.setEncoding(arg.mid(18).trimmed());
+            setScriptEncoding(arg.mid(18).trimmed());
             continue;
         }
         if (arg.startsWith("--")) {
@@ -299,4 +303,14 @@ void Phantom::printConsoleMessage(const QString &message, int lineNumber, const 
     if (!source.isEmpty())
         msg = source + ":" + QString::number(lineNumber) + " " + msg;
     Terminal::instance()->cout(msg);
+}
+
+// private:
+void Phantom::processEnvVars() {
+    setOutputEncoding(ENVVAR_OUTPUT_ENCODING);
+    setScriptEncoding(ENVVAR_SCRIPT_ENCODING);
+}
+
+void Phantom::setScriptEncoding(const QString &encoding) {
+    m_scriptFileEnc.setEncoding(encoding);
 }

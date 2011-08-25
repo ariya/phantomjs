@@ -78,6 +78,9 @@ private slots:
     void printConsoleMessage(const QString &msg, int lineNumber, const QString &source);
 
 private:
+    void processEnvVars();
+    void setScriptEncoding(const QString &encoding);
+
     QString m_scriptFile;
     Encoding m_scriptFileEnc;
     QStringList m_args;

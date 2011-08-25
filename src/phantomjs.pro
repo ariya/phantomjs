@@ -20,7 +20,8 @@ HEADERS += csconverter.h \
     cookiejar.h \
     filesystem.h \
     terminal.h \
-    encoding.h
+    encoding.h \
+    envvars.h
 SOURCES += phantom.cpp \
     webpage.cpp \
     main.cpp \
