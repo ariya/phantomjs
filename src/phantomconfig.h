@@ -40,6 +40,9 @@ public:
 
     void load();
 
+    bool autoLoadImages() const;
+    void setAutoLoadImages(const bool value);
+
     QString cookieFile() const;
     void setCookieFile(const QString &cookieFile);
 
@@ -49,8 +52,14 @@ public:
     bool ignoreSslErrors() const;
     void setIgnoreSslErrors(const bool value);
 
+    bool localAccessRemote() const;
+    void setLocalAccessRemote(const bool value);
+
     QString outputEncoding() const;
     void setOutputEncoding(const QString &value);
+
+    bool pluginsEnabled() const;
+    void setPluginsEnabled(const bool value);
 
     void setProxy(const QString &value);
     QString proxyHost() const;
@@ -64,10 +73,13 @@ private:
     void setProxyHost(const QString &value);
     void setProxyPort(const int value);
 
+    bool m_autoLoadImages;
     QString m_cookieFile;
     bool m_diskCacheEnabled;
     bool m_ignoreSslErrors;
+    bool m_localAccessRemote;
     QString m_outputEncoding;
+    bool m_pluginsEnabled;
     QString m_proxyHost;
     int m_proxyPort;
     QString m_scriptEncoding;

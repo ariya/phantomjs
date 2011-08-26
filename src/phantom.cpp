@@ -55,10 +55,6 @@ Phantom::Phantom(QObject *parent)
     m_page = new WebPage(this);
     m_pages.append(m_page);
 
-    bool autoLoadImages = true;
-    bool pluginsEnabled = false;
-    bool localAccessRemote = false;
-
     // second argument: script name
     QStringList args = QApplication::arguments();
 
@@ -75,19 +71,19 @@ Phantom::Phantom(QObject *parent)
             return;
         }
         if (arg == "--load-images=yes") {
-            autoLoadImages = true;
+            m_config.setAutoLoadImages(true);
             continue;
         }
         if (arg == "--load-images=no") {
-            autoLoadImages = false;
+            m_config.setAutoLoadImages(false);
             continue;
         }
         if (arg == "--load-plugins=yes") {
-            pluginsEnabled = true;
+            m_config.setPluginsEnabled(true);
             continue;
         }
         if (arg == "--load-plugins=no") {
-            pluginsEnabled = false;
+            m_config.setPluginsEnabled(false);
             continue;
         }
         if (arg == "--disk-cache=yes") {
@@ -107,11 +103,11 @@ Phantom::Phantom(QObject *parent)
             continue;
         }
         if (arg == "--local-access-remote=no") {
-            localAccessRemote = false;
+            m_config.setLocalAccessRemote(false);
             continue;
         }
         if (arg == "--local-access-remote=yes") {
-            localAccessRemote = true;
+            m_config.setLocalAccessRemote(true);
             continue;
         }
         if (arg.startsWith("--proxy=")) {
@@ -171,12 +167,12 @@ Phantom::Phantom(QObject *parent)
     connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString, int, QString)),
             SLOT(printConsoleMessage(QString, int, QString)));
 
-    m_defaultPageSettings[PAGE_SETTINGS_LOAD_IMAGES] = QVariant::fromValue(autoLoadImages);
-    m_defaultPageSettings[PAGE_SETTINGS_LOAD_PLUGINS] = QVariant::fromValue(pluginsEnabled);
+    m_defaultPageSettings[PAGE_SETTINGS_LOAD_IMAGES] = QVariant::fromValue(m_config.autoLoadImages());
+    m_defaultPageSettings[PAGE_SETTINGS_LOAD_PLUGINS] = QVariant::fromValue(m_config.pluginsEnabled());
     m_defaultPageSettings[PAGE_SETTINGS_JS_ENABLED] = QVariant::fromValue(true);
     m_defaultPageSettings[PAGE_SETTINGS_XSS_AUDITING] = QVariant::fromValue(false);
     m_defaultPageSettings[PAGE_SETTINGS_USER_AGENT] = QVariant::fromValue(m_page->userAgent());
-    m_defaultPageSettings[PAGE_SETTINGS_LOCAL_ACCESS_REMOTE] = QVariant::fromValue(localAccessRemote);
+    m_defaultPageSettings[PAGE_SETTINGS_LOCAL_ACCESS_REMOTE] = QVariant::fromValue(m_config.localAccessRemote());
     m_page->applySettings(m_defaultPageSettings);
 
     setLibraryPath(QFileInfo(m_scriptFile).dir().absolutePath());

@@ -41,6 +41,16 @@ void PhantomConfig::load()
     resetToDefaults();
 }
 
+bool PhantomConfig::autoLoadImages() const
+{
+    return m_autoLoadImages;
+}
+
+void PhantomConfig::setAutoLoadImages(const bool value)
+{
+    m_autoLoadImages = value;
+}
+
 QString PhantomConfig::cookieFile() const
 {
     return m_cookieFile;
@@ -71,6 +81,16 @@ void PhantomConfig::setIgnoreSslErrors(const bool value)
     m_ignoreSslErrors = value;
 }
 
+bool PhantomConfig::localAccessRemote() const
+{
+    return m_localAccessRemote;
+}
+
+void PhantomConfig::setLocalAccessRemote(const bool value)
+{
+    m_localAccessRemote = value;
+}
+
 QString PhantomConfig::outputEncoding() const
 {
     return m_outputEncoding;
@@ -83,6 +103,16 @@ void PhantomConfig::setOutputEncoding(const QString &value)
     }
 
     m_outputEncoding = value;
+}
+
+bool PhantomConfig::pluginsEnabled() const
+{
+    return m_pluginsEnabled;
+}
+
+void PhantomConfig::setPluginsEnabled(const bool value)
+{
+    m_pluginsEnabled = value;
 }
 
 void PhantomConfig::setProxy(const QString &value)
@@ -130,10 +160,13 @@ void PhantomConfig::setScriptEncoding(const QString &value)
 // private:
 void PhantomConfig::resetToDefaults()
 {
+    m_autoLoadImages = true;
     m_cookieFile = QString();
     m_diskCacheEnabled = false;
     m_ignoreSslErrors = false;
+    m_localAccessRemote = false;
     m_outputEncoding = "UTF-8";
+    m_pluginsEnabled = false;
     m_proxyHost = QString();
     m_proxyPort = 1080;
     m_scriptEncoding = "UTF-8";
