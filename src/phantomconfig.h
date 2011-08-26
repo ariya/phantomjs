@@ -32,6 +32,7 @@
 #define PHANTOMCONFIG_H
 
 #include <QString>
+#include <QVariant>
 
 class PhantomConfig
 {
@@ -39,6 +40,7 @@ public:
     PhantomConfig();
 
     void load();
+    void loadConfigFile(const QString &filePath);
 
     bool autoLoadImages() const;
     void setAutoLoadImages(const bool value);
@@ -72,6 +74,8 @@ private:
     void resetToDefaults();
     void setProxyHost(const QString &value);
     void setProxyPort(const int value);
+    QString getGlobalConfigFilePath() const;
+    QString getLocalConfigFilePath() const;
 
     bool m_autoLoadImages;
     QString m_cookieFile;
@@ -83,6 +87,14 @@ private:
     QString m_proxyHost;
     int m_proxyPort;
     QString m_scriptEncoding;
+
+private:
+    static bool asBool(const QVariant &value);
+    static QString asString(const QVariant &value);
+    static QString joinPaths(const QString &path1, const QString &path2);
+    static QString normalisePath(const QString &path);
+
+    static const QString CONFIG_FILE_NAME;
 };
 
 #endif // PHANTOMCONFIG_H
