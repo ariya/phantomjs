@@ -2,7 +2,7 @@
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
-  Copyright (C) 2010 Ariya Hidayat <ariya.hidayat@gmail.com>
+  Copyright (C) 2011 execjosh, http://execjosh.blogspot.com
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -28,69 +28,29 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PHANTOM_H
-#define PHANTOM_H
+#ifndef PHANTOMCONFIG_H
+#define PHANTOMCONFIG_H
 
-#include <QtGui>
+#include <QString>
 
-class WebPage;
-#include "csconverter.h"
-#include "networkaccessmanager.h"
-#include "filesystem.h"
-#include "encoding.h"
-#include "phantomconfig.h"
-
-class Phantom: public QObject
+class PhantomConfig
 {
-    Q_OBJECT
-    Q_PROPERTY(QStringList args READ args)
-    Q_PROPERTY(QVariantMap defaultPageSettings READ defaultPageSettings)
-    Q_PROPERTY(QString libraryPath READ libraryPath WRITE setLibraryPath)
-    Q_PROPERTY(QString outputEncoding READ outputEncoding WRITE setOutputEncoding)
-    Q_PROPERTY(QString scriptName READ scriptName)
-    Q_PROPERTY(QVariantMap version READ version)
-
 public:
-    Phantom(QObject *parent = 0);
+    PhantomConfig();
 
-    QStringList args() const;
-
-    QVariantMap defaultPageSettings() const;
+    void load();
 
     QString outputEncoding() const;
-    void setOutputEncoding(const QString &encoding);
+    void setOutputEncoding(const QString &value);
 
-    bool execute();
-    int returnValue() const;
-
-    QString libraryPath() const;
-    void setLibraryPath(const QString &libraryPath);
-
-    QString scriptName() const;
-
-    QVariantMap version() const;
-
-public slots:
-    QObject *createWebPage();
-    bool injectJs(const QString &jsFilePath);
-    void exit(int code = 0);
-
-private slots:
-    void printConsoleMessage(const QString &msg, int lineNumber, const QString &source);
+    QString scriptEncoding() const;
+    void setScriptEncoding(const QString &value);
 
 private:
-    QString m_scriptFile;
-    Encoding m_scriptFileEnc;
-    QStringList m_args;
-    WebPage *m_page;
-    bool m_terminated;
-    int m_returnValue;
-    QString m_script;
-    NetworkAccessManager *m_netAccessMan;
-    QVariantMap m_defaultPageSettings;
-    FileSystem m_filesystem;
-    QList<QPointer<WebPage> > m_pages;
-    PhantomConfig m_config;
+    void resetToDefaults();
+
+    QString m_outputEncoding;
+    QString m_scriptEncoding;
 };
 
-#endif // PHANTOM_H
+#endif // PHANTOMCONFIG_H

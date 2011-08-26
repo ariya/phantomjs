@@ -20,7 +20,8 @@ HEADERS += csconverter.h \
     cookiejar.h \
     filesystem.h \
     terminal.h \
-    encoding.h
+    encoding.h \
+    phantomconfig.h
 SOURCES += phantom.cpp \
     webpage.cpp \
     main.cpp \
@@ -31,7 +32,8 @@ SOURCES += phantom.cpp \
     cookiejar.cpp \
     filesystem.cpp \
     terminal.cpp \
-    encoding.cpp
+    encoding.cpp \
+    phantomconfig.cpp
 
 OTHER_FILES = bootstrap.js usage.txt
 

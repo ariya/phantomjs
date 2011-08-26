@@ -49,6 +49,9 @@ Phantom::Phantom(QObject *parent)
     , m_returnValue(0)
     , m_netAccessMan(0)
 {
+    // Load default configuration
+    m_config.load();
+
     m_page = new WebPage(this);
     m_pages.append(m_page);
 
@@ -133,11 +136,11 @@ Phantom::Phantom(QObject *parent)
             continue;
         }
         if (arg.startsWith("--output-encoding=")) {
-            Terminal::instance()->setEncoding(arg.mid(18).trimmed());
+            m_config.setOutputEncoding(arg.mid(18).trimmed());
             continue;
         }
         if (arg.startsWith("--script-encoding=")) {
-            m_scriptFileEnc.setEncoding(arg.mid(18).trimmed());
+            m_config.setScriptEncoding(arg.mid(18).trimmed());
             continue;
         }
         if (arg.startsWith("--")) {
@@ -167,6 +170,12 @@ Phantom::Phantom(QObject *parent)
         const QString &arg = argIterator.next();
         m_args += arg;
     }
+
+    // Set output encoding
+    Terminal::instance()->setEncoding(m_config.outputEncoding());
+
+    // Set script file encoding
+    m_scriptFileEnc.setEncoding(m_config.scriptEncoding());
 
     // Provide WebPage with a non-standard Network Access Manager
     m_netAccessMan = new NetworkAccessManager(this, diskCacheEnabled, cookieFile, ignoreSslErrors);
