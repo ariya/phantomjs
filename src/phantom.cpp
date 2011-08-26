@@ -55,11 +55,8 @@ Phantom::Phantom(QObject *parent)
     m_page = new WebPage(this);
     m_pages.append(m_page);
 
-    QString cookieFile;
     bool autoLoadImages = true;
     bool pluginsEnabled = false;
-    bool diskCacheEnabled = false;
-    bool ignoreSslErrors = false;
     bool localAccessRemote = false;
 
     // second argument: script name
@@ -94,19 +91,19 @@ Phantom::Phantom(QObject *parent)
             continue;
         }
         if (arg == "--disk-cache=yes") {
-            diskCacheEnabled = true;
+            m_config.setDiskCacheEnabled(true);
             continue;
         }
         if (arg == "--disk-cache=no") {
-            diskCacheEnabled = false;
+            m_config.setDiskCacheEnabled(false);
             continue;
         }
         if (arg == "--ignore-ssl-errors=yes") {
-            ignoreSslErrors = true;
+            m_config.setIgnoreSslErrors(true);
             continue;
         }
         if (arg == "--ignore-ssl-errors=no") {
-            ignoreSslErrors = false;
+            m_config.setIgnoreSslErrors(false);
             continue;
         }
         if (arg == "--local-access-remote=no") {
@@ -122,7 +119,7 @@ Phantom::Phantom(QObject *parent)
             continue;
         }
         if (arg.startsWith("--cookies=")) {
-            cookieFile = arg.mid(10).trimmed();
+            m_config.setCookieFile(arg.mid(10).trimmed());
             continue;
         }
         if (arg.startsWith("--output-encoding=")) {
@@ -168,7 +165,7 @@ Phantom::Phantom(QObject *parent)
     m_scriptFileEnc.setEncoding(m_config.scriptEncoding());
 
     // Provide WebPage with a non-standard Network Access Manager
-    m_netAccessMan = new NetworkAccessManager(this, diskCacheEnabled, cookieFile, ignoreSslErrors);
+    m_netAccessMan = new NetworkAccessManager(this, m_config.diskCacheEnabled(), m_config.cookieFile(), m_config.ignoreSslErrors());
     m_page->setNetworkAccessManager(m_netAccessMan);
 
     connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString, int, QString)),

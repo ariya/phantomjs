@@ -41,6 +41,36 @@ void PhantomConfig::load()
     resetToDefaults();
 }
 
+QString PhantomConfig::cookieFile() const
+{
+    return m_cookieFile;
+}
+
+void PhantomConfig::setCookieFile(const QString &value)
+{
+    m_cookieFile = value;
+}
+
+bool PhantomConfig::diskCacheEnabled() const
+{
+    return m_diskCacheEnabled;
+}
+
+void PhantomConfig::setDiskCacheEnabled(const bool value)
+{
+    m_diskCacheEnabled = value;
+}
+
+bool PhantomConfig::ignoreSslErrors() const
+{
+    return m_ignoreSslErrors;
+}
+
+void PhantomConfig::setIgnoreSslErrors(const bool value)
+{
+    m_ignoreSslErrors = value;
+}
+
 QString PhantomConfig::outputEncoding() const
 {
     return m_outputEncoding;
@@ -100,6 +130,9 @@ void PhantomConfig::setScriptEncoding(const QString &value)
 // private:
 void PhantomConfig::resetToDefaults()
 {
+    m_cookieFile = QString();
+    m_diskCacheEnabled = false;
+    m_ignoreSslErrors = false;
     m_outputEncoding = "UTF-8";
     m_proxyHost = QString();
     m_proxyPort = 1080;

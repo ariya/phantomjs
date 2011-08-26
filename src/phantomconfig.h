@@ -40,6 +40,15 @@ public:
 
     void load();
 
+    QString cookieFile() const;
+    void setCookieFile(const QString &cookieFile);
+
+    bool diskCacheEnabled() const;
+    void setDiskCacheEnabled(const bool value);
+
+    bool ignoreSslErrors() const;
+    void setIgnoreSslErrors(const bool value);
+
     QString outputEncoding() const;
     void setOutputEncoding(const QString &value);
 
@@ -55,6 +64,9 @@ private:
     void setProxyHost(const QString &value);
     void setProxyPort(const int value);
 
+    QString m_cookieFile;
+    bool m_diskCacheEnabled;
+    bool m_ignoreSslErrors;
     QString m_outputEncoding;
     QString m_proxyHost;
     int m_proxyPort;
