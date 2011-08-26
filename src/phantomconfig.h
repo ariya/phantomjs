@@ -43,13 +43,21 @@ public:
     QString outputEncoding() const;
     void setOutputEncoding(const QString &value);
 
+    void setProxy(const QString &value);
+    QString proxyHost() const;
+    int proxyPort() const;
+
     QString scriptEncoding() const;
     void setScriptEncoding(const QString &value);
 
 private:
     void resetToDefaults();
+    void setProxyHost(const QString &value);
+    void setProxyPort(const int value);
 
     QString m_outputEncoding;
+    QString m_proxyHost;
+    int m_proxyPort;
     QString m_scriptEncoding;
 };
 

@@ -55,9 +55,7 @@ Phantom::Phantom(QObject *parent)
     m_page = new WebPage(this);
     m_pages.append(m_page);
 
-    QString proxyHost;
     QString cookieFile;
-    int proxyPort = 1080;
     bool autoLoadImages = true;
     bool pluginsEnabled = false;
     bool diskCacheEnabled = false;
@@ -120,15 +118,7 @@ Phantom::Phantom(QObject *parent)
             continue;
         }
         if (arg.startsWith("--proxy=")) {
-            proxyHost = arg.mid(8).trimmed();
-            if (proxyHost.lastIndexOf(':') > 0) {
-                bool ok = true;
-                int port = proxyHost.mid(proxyHost.lastIndexOf(':') + 1).toInt(&ok);
-                if (ok) {
-                    proxyHost = proxyHost.left(proxyHost.lastIndexOf(':')).trimmed();
-                    proxyPort = port;
-                }
-            }
+            m_config.setProxy(arg.mid(8).trimmed());
             continue;
         }
         if (arg.startsWith("--cookies=")) {
@@ -158,10 +148,10 @@ Phantom::Phantom(QObject *parent)
         return;
     }
 
-    if (proxyHost.isEmpty()) {
+    if (m_config.proxyHost().isEmpty()) {
         QNetworkProxyFactory::setUseSystemConfiguration(true);
     } else {
-        QNetworkProxy proxy(QNetworkProxy::HttpProxy, proxyHost, proxyPort);
+        QNetworkProxy proxy(QNetworkProxy::HttpProxy, m_config.proxyHost(), m_config.proxyPort());
         QNetworkProxy::setApplicationProxy(proxy);
     }
 

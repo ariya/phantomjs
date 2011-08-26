@@ -55,6 +55,34 @@ void PhantomConfig::setOutputEncoding(const QString &value)
     m_outputEncoding = value;
 }
 
+void PhantomConfig::setProxy(const QString &value)
+{
+    QString proxyHost = value;
+    int proxyPort = 1080;
+
+    if (proxyHost.lastIndexOf(':') > 0) {
+        bool ok = true;
+        int port = proxyHost.mid(proxyHost.lastIndexOf(':') + 1).toInt(&ok);
+        if (ok) {
+            proxyHost = proxyHost.left(proxyHost.lastIndexOf(':')).trimmed();
+            proxyPort = port;
+        }
+    }
+
+    setProxyHost(proxyHost);
+    setProxyPort(proxyPort);
+}
+
+QString PhantomConfig::proxyHost() const
+{
+    return m_proxyHost;
+}
+
+int PhantomConfig::proxyPort() const
+{
+    return m_proxyPort;
+}
+
 QString PhantomConfig::scriptEncoding() const
 {
     return m_scriptEncoding;
@@ -73,5 +101,17 @@ void PhantomConfig::setScriptEncoding(const QString &value)
 void PhantomConfig::resetToDefaults()
 {
     m_outputEncoding = "UTF-8";
+    m_proxyHost = QString();
+    m_proxyPort = 1080;
     m_scriptEncoding = "UTF-8";
+}
+
+void PhantomConfig::setProxyHost(const QString &value)
+{
+    m_proxyHost = value;
+}
+
+void PhantomConfig::setProxyPort(const int value)
+{
+    m_proxyPort = value;
 }
