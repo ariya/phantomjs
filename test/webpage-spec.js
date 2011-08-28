@@ -65,7 +65,6 @@ describe("WebPage object", function() {
         expect(page.viewportSize.width).toEqual(400);
     });
 
-    expectHasFunction(page, '_appendScriptElement');
     expectHasFunction(page, 'click');
     expectHasFunction(page, 'deleteLater');
     expectHasFunction(page, 'destroyed');
