@@ -3,7 +3,7 @@
 
 // This allows creating a new web page using the construct "new WebPage",
 // which feels more natural than "phantom.createWebPage()".
-window.WebPage = function () {
+window.WebPage = function (opts) {
     var page = phantom.createWebPage(),
         handlers = {};
 
