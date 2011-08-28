@@ -24,18 +24,19 @@ window.WebPage = function (opts) {
     }
 
     function copyInto(target, source) {
-        if (isUndefinedOrNull(target)) {
-            return (isUndefinedOrNull(source)) ? target : source;
+        if (target === source || isUndefinedOrNull(source)) {
+            return target;
         }
 
-        var i, newTarget, newSource;
+        target = target || {};
 
         // Copy into objects only
-        if (target !== source && isObject(target)) {
+        if (isObject(target)) {
             // Make sure source exists
-            source = source || false;
+            source = source || {};
 
             if (isObject(source)) {
+                var i, newTarget, newSource;
                 for (i in source) {
                     if (source.hasOwnProperty(i)) {
                         newTarget = target[i];
@@ -48,9 +49,13 @@ window.WebPage = function (opts) {
                             newTarget = newSource;
                         }
 
-                        target[i] = newTarget;
+                        if (!isUndefined(newTarget)) {
+                            target[i] = newTarget;
+                        }
                     }
                 }
+            } else {
+                target = source;
             }
         }
 
