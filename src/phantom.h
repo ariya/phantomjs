@@ -79,9 +79,7 @@ private slots:
     void printConsoleMessage(const QString &msg, int lineNumber, const QString &source);
 
 private:
-    QString m_scriptFile;
     Encoding m_scriptFileEnc;
-    QStringList m_args;
     WebPage *m_page;
     bool m_terminated;
     int m_returnValue;

@@ -30,6 +30,7 @@
 
 #include "config.h"
 
+#include <QApplication>
 #include <QDir>
 #include <QSettings>
 
@@ -39,7 +40,7 @@ Config::Config()
     resetToDefaults();
 }
 
-void Config::load()
+void Config::init(const QStringList *const args)
 {
     resetToDefaults();
 
@@ -51,6 +52,90 @@ void Config::load()
 
     // Load local config (allows for overrides)
     loadIniFile(getLocalConfigFilePath());
+
+    processArgs(*args);
+}
+
+void Config::processArgs(const QStringList &args)
+{
+    QStringListIterator it(args);
+    while (it.hasNext()) {
+        const QString &arg = it.next();
+
+        if (arg == "--version") {
+            setVersionFlag(true);
+            return;
+        }
+        if (arg == "--load-images=yes") {
+            setAutoLoadImages(true);
+            continue;
+        }
+        if (arg == "--load-images=no") {
+            setAutoLoadImages(false);
+            continue;
+        }
+        if (arg == "--load-plugins=yes") {
+            setPluginsEnabled(true);
+            continue;
+        }
+        if (arg == "--load-plugins=no") {
+            setPluginsEnabled(false);
+            continue;
+        }
+        if (arg == "--disk-cache=yes") {
+            setDiskCacheEnabled(true);
+            continue;
+        }
+        if (arg == "--disk-cache=no") {
+            setDiskCacheEnabled(false);
+            continue;
+        }
+        if (arg == "--ignore-ssl-errors=yes") {
+            setIgnoreSslErrors(true);
+            continue;
+        }
+        if (arg == "--ignore-ssl-errors=no") {
+            setIgnoreSslErrors(false);
+            continue;
+        }
+        if (arg == "--local-access-remote=no") {
+            setLocalAccessRemote(false);
+            continue;
+        }
+        if (arg == "--local-access-remote=yes") {
+            setLocalAccessRemote(true);
+            continue;
+        }
+        if (arg.startsWith("--proxy=")) {
+            setProxy(arg.mid(8).trimmed());
+            continue;
+        }
+        if (arg.startsWith("--cookies=")) {
+            setCookieFile(arg.mid(10).trimmed());
+            continue;
+        }
+        if (arg.startsWith("--output-encoding=")) {
+            setOutputEncoding(arg.mid(18).trimmed());
+            continue;
+        }
+        if (arg.startsWith("--script-encoding=")) {
+            setScriptEncoding(arg.mid(18).trimmed());
+            continue;
+        }
+        if (arg.startsWith("--")) {
+            setUnknownOption(QString("Unknown option '%1'").arg(arg));
+            return;
+        }
+
+        // There are no more options at this point.
+        // The remaining arguments are available for the script.
+
+        m_scriptFile = arg;
+
+        while (it.hasNext()) {
+            m_scriptArgs += it.next();
+        }
+    }
 }
 
 void Config::loadIniFile(const QString &filePath)
@@ -203,6 +288,21 @@ int Config::proxyPort() const
     return m_proxyPort;
 }
 
+QStringList Config::scriptArgs() const
+{
+    return m_scriptArgs;
+}
+
+void Config::setScriptArgs(const QStringList &value)
+{
+    m_scriptArgs.clear();
+
+    QStringListIterator it(value);
+    while (it.hasNext()) {
+        m_scriptArgs.append(it.next());
+    }
+}
+
 QString Config::scriptEncoding() const
 {
     return m_scriptEncoding;
@@ -217,19 +317,53 @@ void Config::setScriptEncoding(const QString &value)
     m_scriptEncoding = value;
 }
 
+QString Config::scriptFile() const
+{
+    return m_scriptFile;
+}
+
+void Config::setScriptFile(const QString &value)
+{
+    m_scriptFile = value;
+}
+
+QString Config::unknownOption() const
+{
+    return m_unknownOption;
+}
+
+void Config::setUnknownOption(const QString &value)
+{
+    m_unknownOption = value;
+}
+
+bool Config::versionFlag() const
+{
+    return m_versionFlag;
+}
+
+void Config::setVersionFlag(const bool value)
+{
+    m_versionFlag = value;
+}
+
 // private:
 void Config::resetToDefaults()
 {
     m_autoLoadImages = true;
-    m_cookieFile = QString();
+    m_cookieFile.clear();
     m_diskCacheEnabled = false;
     m_ignoreSslErrors = false;
     m_localAccessRemote = false;
     m_outputEncoding = "UTF-8";
     m_pluginsEnabled = false;
-    m_proxyHost = QString();
+    m_proxyHost.clear();
     m_proxyPort = 1080;
+    m_scriptArgs.clear();
     m_scriptEncoding = "UTF-8";
+    m_scriptFile.clear();
+    m_unknownOption.clear();
+    m_versionFlag = false;
 }
 
 void Config::setProxyHost(const QString &value)

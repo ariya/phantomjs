@@ -49,94 +49,30 @@ Phantom::Phantom(QObject *parent)
     , m_returnValue(0)
     , m_netAccessMan(0)
 {
-    // Load default configuration
-    m_config.load();
-
-    m_page = new WebPage(this);
-    m_pages.append(m_page);
-
     // second argument: script name
     QStringList args = QApplication::arguments();
 
     // Skip the first argument, i.e. the application executable (phantomjs).
     args.removeFirst();
 
-    // Handle all command-line options.
-    QStringListIterator argIterator(args);
-    while (argIterator.hasNext()) {
-        const QString &arg = argIterator.next();
-        if (arg == "--version") {
-            m_terminated = true;
-            Terminal::instance()->cout(QString("%1 (development)").arg(PHANTOMJS_VERSION_STRING));
-            return;
-        }
-        if (arg == "--load-images=yes") {
-            m_config.setAutoLoadImages(true);
-            continue;
-        }
-        if (arg == "--load-images=no") {
-            m_config.setAutoLoadImages(false);
-            continue;
-        }
-        if (arg == "--load-plugins=yes") {
-            m_config.setPluginsEnabled(true);
-            continue;
-        }
-        if (arg == "--load-plugins=no") {
-            m_config.setPluginsEnabled(false);
-            continue;
-        }
-        if (arg == "--disk-cache=yes") {
-            m_config.setDiskCacheEnabled(true);
-            continue;
-        }
-        if (arg == "--disk-cache=no") {
-            m_config.setDiskCacheEnabled(false);
-            continue;
-        }
-        if (arg == "--ignore-ssl-errors=yes") {
-            m_config.setIgnoreSslErrors(true);
-            continue;
-        }
-        if (arg == "--ignore-ssl-errors=no") {
-            m_config.setIgnoreSslErrors(false);
-            continue;
-        }
-        if (arg == "--local-access-remote=no") {
-            m_config.setLocalAccessRemote(false);
-            continue;
-        }
-        if (arg == "--local-access-remote=yes") {
-            m_config.setLocalAccessRemote(true);
-            continue;
-        }
-        if (arg.startsWith("--proxy=")) {
-            m_config.setProxy(arg.mid(8).trimmed());
-            continue;
-        }
-        if (arg.startsWith("--cookies=")) {
-            m_config.setCookieFile(arg.mid(10).trimmed());
-            continue;
-        }
-        if (arg.startsWith("--output-encoding=")) {
-            m_config.setOutputEncoding(arg.mid(18).trimmed());
-            continue;
-        }
-        if (arg.startsWith("--script-encoding=")) {
-            m_config.setScriptEncoding(arg.mid(18).trimmed());
-            continue;
-        }
-        if (arg.startsWith("--")) {
-            Terminal::instance()->cerr(QString("Unknown option '%1'").arg(arg));
-            m_terminated = true;
-            return;
-        } else {
-            m_scriptFile = arg;
-            break;
-        }
+    m_config.init(&args);
+
+    if (m_config.versionFlag()) {
+        m_terminated = true;
+        Terminal::instance()->cout(QString("%1 (development)").arg(PHANTOMJS_VERSION_STRING));
+        return;
     }
 
-    if (m_scriptFile.isEmpty()) {
+    if (!m_config.unknownOption().isEmpty()) {
+        Terminal::instance()->cerr(m_config.unknownOption());
+        m_terminated = true;
+        return;
+    }
+
+    m_page = new WebPage(this);
+    m_pages.append(m_page);
+
+    if (m_config.scriptFile().isEmpty()) {
         Utils::showUsage();
         return;
     }
@@ -146,12 +82,6 @@ Phantom::Phantom(QObject *parent)
     } else {
         QNetworkProxy proxy(QNetworkProxy::HttpProxy, m_config.proxyHost(), m_config.proxyPort());
         QNetworkProxy::setApplicationProxy(proxy);
-    }
-
-    // The remaining arguments are available for the script.
-    while (argIterator.hasNext()) {
-        const QString &arg = argIterator.next();
-        m_args += arg;
     }
 
     // Set output encoding
@@ -175,7 +105,7 @@ Phantom::Phantom(QObject *parent)
     m_defaultPageSettings[PAGE_SETTINGS_LOCAL_ACCESS_REMOTE] = QVariant::fromValue(m_config.localAccessRemote());
     m_page->applySettings(m_defaultPageSettings);
 
-    setLibraryPath(QFileInfo(m_scriptFile).dir().absolutePath());
+    setLibraryPath(QFileInfo(m_config.scriptFile()).dir().absolutePath());
 
     m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
     m_page->mainFrame()->addToJavaScriptWindowObject("fs", &m_filesystem);
@@ -196,7 +126,7 @@ Phantom::Phantom(QObject *parent)
 
 QStringList Phantom::args() const
 {
-    return m_args;
+    return m_config.scriptArgs();
 }
 
 QVariantMap Phantom::defaultPageSettings() const
@@ -219,10 +149,10 @@ bool Phantom::execute()
     if (m_terminated)
         return false;
 
-    if (m_scriptFile.isEmpty())
+    if (m_config.scriptFile().isEmpty())
         return false;
 
-    if (!Utils::injectJsInFrame(m_scriptFile, m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
+    if (!Utils::injectJsInFrame(m_config.scriptFile(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
         m_returnValue = -1;
         return false;
     }
@@ -247,7 +177,7 @@ void Phantom::setLibraryPath(const QString &libraryPath)
 
 QString Phantom::scriptName() const
 {
-    return QFileInfo(m_scriptFile).fileName();
+    return QFileInfo(m_config.scriptFile()).fileName();
 }
 
 QVariantMap Phantom::version() const
@@ -266,7 +196,7 @@ QObject *Phantom::createWebPage()
     m_pages.append(page);
     page->applySettings(m_defaultPageSettings);
     page->setNetworkAccessManager(m_netAccessMan);
-    page->setLibraryPath(QFileInfo(m_scriptFile).dir().absolutePath());
+    page->setLibraryPath(QFileInfo(m_config.scriptFile()).dir().absolutePath());
     return page;
 }
 

@@ -32,6 +32,7 @@
 #define CONFIG_H
 
 #include <QString>
+#include <QStringList>
 #include <QVariant>
 
 class Config
@@ -39,7 +40,8 @@ class Config
 public:
     Config();
 
-    void load();
+    void init(const QStringList *const args);
+    void processArgs(const QStringList &args);
     void loadIniFile(const QString &filePath);
 
     bool autoLoadImages() const;
@@ -67,8 +69,20 @@ public:
     QString proxyHost() const;
     int proxyPort() const;
 
+    QStringList scriptArgs() const;
+    void setScriptArgs(const QStringList &value);
+
     QString scriptEncoding() const;
     void setScriptEncoding(const QString &value);
+
+    QString scriptFile() const;
+    void setScriptFile(const QString &value);
+
+    QString unknownOption() const;
+    void setUnknownOption(const QString &value);
+
+    bool versionFlag() const;
+    void setVersionFlag(const bool value);
 
 private:
     void resetToDefaults();
@@ -86,7 +100,11 @@ private:
     bool m_pluginsEnabled;
     QString m_proxyHost;
     int m_proxyPort;
+    QStringList m_scriptArgs;
     QString m_scriptEncoding;
+    QString m_scriptFile;
+    QString m_unknownOption;
+    bool m_versionFlag;
 
 private:
     static bool asBool(const QVariant &value);
