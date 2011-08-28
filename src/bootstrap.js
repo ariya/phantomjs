@@ -7,6 +7,56 @@ window.WebPage = function () {
     var page = phantom.createWebPage(),
         handlers = {};
 
+    function checkType(o, type) {
+        return typeof o === type;
+    }
+
+    function isObject(o) {
+        return checkType(o, 'object');
+    }
+
+    function isUndefined(o) {
+        return checkType(o, 'undefined');
+    }
+
+    function isUndefinedOrNull(o) {
+        return isUndefined(o) || null === o;
+    }
+
+    function copyInto(target, source) {
+        if (isUndefinedOrNull(target)) {
+            return (isUndefinedOrNull(source)) ? target : source;
+        }
+
+        var i, newTarget, newSource;
+
+        // Copy into objects only
+        if (target !== source && isObject(target)) {
+            // Make sure source exists
+            source = source || false;
+
+            if (isObject(source)) {
+                for (i in source) {
+                    if (source.hasOwnProperty(i)) {
+                        newTarget = target[i];
+                        newSource = source[i];
+
+                        if (newTarget && isObject(newSource)) {
+                            // Deep copy
+                            newTarget = copyInto(target[i], newSource);
+                        } else {
+                            newTarget = newSource;
+                        }
+
+                        target[i] = newTarget;
+                    }
+                }
+            }
+        }
+
+        return target;
+    }
+
     function defineSetter(handlerName, signalName) {
         page.__defineSetter__(handlerName, function (f) {
             if (handlers && typeof handlers[signalName] === 'function') {
@@ -85,6 +135,11 @@ window.WebPage = function () {
         // Append the script tag to the body
         this._appendScriptElement(scriptUrl);
     };
+
+    // Copy options into page
+    if (opts) {
+        page = copyInto(page, opts);
+    }
 
     return page;
 };
