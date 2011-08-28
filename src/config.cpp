@@ -47,13 +47,13 @@ void Config::load()
     //loadConfigFile(getSystemConfigFilePath());
 
     // Load global config
-    loadConfigFile(getGlobalConfigFilePath());
+    loadIniFile(getGlobalConfigFilePath());
 
     // Load local config (allows for overrides)
-    loadConfigFile(getLocalConfigFilePath());
+    loadIniFile(getLocalConfigFilePath());
 }
 
-void Config::loadConfigFile(const QString &filePath)
+void Config::loadIniFile(const QString &filePath)
 {
     QSettings settings(filePath, QSettings::IniFormat);
     QStringList keys = settings.allKeys();

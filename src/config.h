@@ -40,7 +40,7 @@ public:
     Config();
 
     void load();
-    void loadConfigFile(const QString &filePath);
+    void loadIniFile(const QString &filePath);
 
     bool autoLoadImages() const;
     void setAutoLoadImages(const bool value);
