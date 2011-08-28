@@ -38,7 +38,7 @@ class WebPage;
 #include "networkaccessmanager.h"
 #include "filesystem.h"
 #include "encoding.h"
-#include "phantomconfig.h"
+#include "config.h"
 
 class Phantom: public QObject
 {
@@ -90,7 +90,7 @@ private:
     QVariantMap m_defaultPageSettings;
     FileSystem m_filesystem;
     QList<QPointer<WebPage> > m_pages;
-    PhantomConfig m_config;
+    Config m_config;
 };
 
 #endif // PHANTOM_H

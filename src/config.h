@@ -28,16 +28,16 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PHANTOMCONFIG_H
-#define PHANTOMCONFIG_H
+#ifndef CONFIG_H
+#define CONFIG_H
 
 #include <QString>
 #include <QVariant>
 
-class PhantomConfig
+class Config
 {
 public:
-    PhantomConfig();
+    Config();
 
     void load();
     void loadConfigFile(const QString &filePath);
@@ -97,4 +97,4 @@ private:
     static const QString CONFIG_FILE_NAME;
 };
 
-#endif // PHANTOMCONFIG_H
+#endif // CONFIG_H

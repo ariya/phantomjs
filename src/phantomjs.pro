@@ -21,7 +21,7 @@ HEADERS += csconverter.h \
     filesystem.h \
     terminal.h \
     encoding.h \
-    phantomconfig.h
+    config.h
 SOURCES += phantom.cpp \
     webpage.cpp \
     main.cpp \
@@ -33,7 +33,7 @@ SOURCES += phantom.cpp \
     filesystem.cpp \
     terminal.cpp \
     encoding.cpp \
-    phantomconfig.cpp
+    config.cpp
 
 OTHER_FILES = bootstrap.js usage.txt
 

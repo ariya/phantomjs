@@ -28,18 +28,18 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "phantomconfig.h"
+#include "config.h"
 
 #include <QDir>
 #include <QSettings>
 
 // public:
-PhantomConfig::PhantomConfig()
+Config::Config()
 {
     resetToDefaults();
 }
 
-void PhantomConfig::load()
+void Config::load()
 {
     resetToDefaults();
 
@@ -53,7 +53,7 @@ void PhantomConfig::load()
     loadConfigFile(getLocalConfigFilePath());
 }
 
-void PhantomConfig::loadConfigFile(const QString &filePath)
+void Config::loadConfigFile(const QString &filePath)
 {
     QSettings settings(filePath, QSettings::IniFormat);
     QStringList keys = settings.allKeys();
@@ -101,62 +101,62 @@ void PhantomConfig::loadConfigFile(const QString &filePath)
     }
 }
 
-bool PhantomConfig::autoLoadImages() const
+bool Config::autoLoadImages() const
 {
     return m_autoLoadImages;
 }
 
-void PhantomConfig::setAutoLoadImages(const bool value)
+void Config::setAutoLoadImages(const bool value)
 {
     m_autoLoadImages = value;
 }
 
-QString PhantomConfig::cookieFile() const
+QString Config::cookieFile() const
 {
     return m_cookieFile;
 }
 
-void PhantomConfig::setCookieFile(const QString &value)
+void Config::setCookieFile(const QString &value)
 {
     m_cookieFile = value;
 }
 
-bool PhantomConfig::diskCacheEnabled() const
+bool Config::diskCacheEnabled() const
 {
     return m_diskCacheEnabled;
 }
 
-void PhantomConfig::setDiskCacheEnabled(const bool value)
+void Config::setDiskCacheEnabled(const bool value)
 {
     m_diskCacheEnabled = value;
 }
 
-bool PhantomConfig::ignoreSslErrors() const
+bool Config::ignoreSslErrors() const
 {
     return m_ignoreSslErrors;
 }
 
-void PhantomConfig::setIgnoreSslErrors(const bool value)
+void Config::setIgnoreSslErrors(const bool value)
 {
     m_ignoreSslErrors = value;
 }
 
-bool PhantomConfig::localAccessRemote() const
+bool Config::localAccessRemote() const
 {
     return m_localAccessRemote;
 }
 
-void PhantomConfig::setLocalAccessRemote(const bool value)
+void Config::setLocalAccessRemote(const bool value)
 {
     m_localAccessRemote = value;
 }
 
-QString PhantomConfig::outputEncoding() const
+QString Config::outputEncoding() const
 {
     return m_outputEncoding;
 }
 
-void PhantomConfig::setOutputEncoding(const QString &value)
+void Config::setOutputEncoding(const QString &value)
 {
     if (value.isEmpty()) {
         return;
@@ -165,17 +165,17 @@ void PhantomConfig::setOutputEncoding(const QString &value)
     m_outputEncoding = value;
 }
 
-bool PhantomConfig::pluginsEnabled() const
+bool Config::pluginsEnabled() const
 {
     return m_pluginsEnabled;
 }
 
-void PhantomConfig::setPluginsEnabled(const bool value)
+void Config::setPluginsEnabled(const bool value)
 {
     m_pluginsEnabled = value;
 }
 
-void PhantomConfig::setProxy(const QString &value)
+void Config::setProxy(const QString &value)
 {
     QString proxyHost = value;
     int proxyPort = 1080;
@@ -193,22 +193,22 @@ void PhantomConfig::setProxy(const QString &value)
     setProxyPort(proxyPort);
 }
 
-QString PhantomConfig::proxyHost() const
+QString Config::proxyHost() const
 {
     return m_proxyHost;
 }
 
-int PhantomConfig::proxyPort() const
+int Config::proxyPort() const
 {
     return m_proxyPort;
 }
 
-QString PhantomConfig::scriptEncoding() const
+QString Config::scriptEncoding() const
 {
     return m_scriptEncoding;
 }
 
-void PhantomConfig::setScriptEncoding(const QString &value)
+void Config::setScriptEncoding(const QString &value)
 {
     if (value.isEmpty()) {
         return;
@@ -218,7 +218,7 @@ void PhantomConfig::setScriptEncoding(const QString &value)
 }
 
 // private:
-void PhantomConfig::resetToDefaults()
+void Config::resetToDefaults()
 {
     m_autoLoadImages = true;
     m_cookieFile = QString();
@@ -232,40 +232,40 @@ void PhantomConfig::resetToDefaults()
     m_scriptEncoding = "UTF-8";
 }
 
-void PhantomConfig::setProxyHost(const QString &value)
+void Config::setProxyHost(const QString &value)
 {
     m_proxyHost = value;
 }
 
-void PhantomConfig::setProxyPort(const int value)
+void Config::setProxyPort(const int value)
 {
     m_proxyPort = value;
 }
 
-QString PhantomConfig::getGlobalConfigFilePath() const
+QString Config::getGlobalConfigFilePath() const
 {
     return joinPaths(QDir::homePath(), CONFIG_FILE_NAME);
 }
 
-QString PhantomConfig::getLocalConfigFilePath() const
+QString Config::getLocalConfigFilePath() const
 {
     return joinPaths(QDir::currentPath(), CONFIG_FILE_NAME);
 }
 
 // private: (static)
-bool PhantomConfig::asBool(const QVariant &value)
+bool Config::asBool(const QVariant &value)
 {
     QString strVal = asString(value).toLower();
 
     return strVal == "true" || strVal == "1" || strVal == "yes";
 }
 
-QString PhantomConfig::asString(const QVariant &value)
+QString Config::asString(const QVariant &value)
 {
     return value.toString().trimmed();
 }
 
-QString PhantomConfig::joinPaths(const QString &path1, const QString &path2)
+QString Config::joinPaths(const QString &path1, const QString &path2)
 {
     QString joinedPath;
 
@@ -280,9 +280,9 @@ QString PhantomConfig::joinPaths(const QString &path1, const QString &path2)
     return normalisePath(joinedPath);
 }
 
-QString PhantomConfig::normalisePath(const QString &path)
+QString Config::normalisePath(const QString &path)
 {
     return path.isEmpty() ? path : QDir::fromNativeSeparators(path);
 }
 
-const QString PhantomConfig::CONFIG_FILE_NAME = ".phantomjsrc";
+const QString Config::CONFIG_FILE_NAME = ".phantomjsrc";
