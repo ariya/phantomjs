@@ -126,6 +126,11 @@ void Config::processArgs(const QStringList &args)
             setScriptEncoding(arg.mid(18).trimmed());
             continue;
         }
+        if (arg.startsWith("--config=")) {
+            QString configPath = arg.mid(9).trimmed();
+            loadJsonFile(configPath);
+            continue;
+        }
         if (arg.startsWith("--")) {
             setUnknownOption(QString("Unknown option '%1'").arg(arg));
             return;
