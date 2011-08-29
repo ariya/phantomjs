@@ -53,6 +53,7 @@ public:
     void init(const QStringList *const args);
     void processArgs(const QStringList &args);
     void loadIniFile(const QString &filePath);
+    void loadJsonFile(const QString &filePath);
 
     bool autoLoadImages() const;
     void setAutoLoadImages(const bool value);
@@ -122,6 +123,7 @@ private:
     static QString asString(const QVariant &value);
     static QString joinPaths(const QString &path1, const QString &path2);
     static QString normalisePath(const QString &path);
+    static bool readFile(const QString &path, QString *const content);
 
     static const QString CONFIG_FILE_NAME;
 };

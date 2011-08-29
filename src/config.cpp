@@ -32,6 +32,10 @@
 
 #include <QDir>
 #include <QSettings>
+#include <QWebPage>
+#include <QWebFrame>
+
+#include "terminal.h"
 
 // public:
 Config::Config(QObject *parent)
@@ -184,6 +188,38 @@ void Config::loadIniFile(const QString &filePath)
             continue;
         }
     }
+}
+
+void Config::loadJsonFile(const QString &filePath)
+{
+    QString jsonConfig;
+    if (!readFile(normalisePath(filePath), &jsonConfig)) {
+        Terminal::instance()->cerr("Unable to open config: \"" + filePath + "\"");
+        return;
+    } else if (jsonConfig.isEmpty()) {
+        return;
+    } else if (!jsonConfig.startsWith('{') || !jsonConfig.endsWith('}')) {
+        Terminal::instance()->cerr("Config file MUST be in JSON format!");
+        return;
+    }
+
+    // Load configurator
+    QString configurator;
+    if (!readFile(":/configurator.js", &configurator)) {
+        Terminal::instance()->cerr("Unable to load JSON configurator!");
+        return;
+    } else if (configurator.isEmpty()) {
+        Terminal::instance()->cerr("Unable to set-up JSON configurator!");
+        return;
+    }
+
+    QWebPage webPage;
+
+    // Add the config object
+    webPage.mainFrame()->addToJavaScriptWindowObject("config", this);
+
+    // Apply the settings
+    webPage.mainFrame()->evaluateJavaScript(configurator.arg(jsonConfig));
 }
 
 bool Config::autoLoadImages() const
@@ -422,6 +458,25 @@ QString Config::joinPaths(const QString &path1, const QString &path2)
 QString Config::normalisePath(const QString &path)
 {
     return path.isEmpty() ? path : QDir::fromNativeSeparators(path);
+}
+
+// THIS METHOD ASSUMES THAT content IS *NEVER* NULL!
+bool Config::readFile(const QString &path, QString *const content)
+{
+    // Ensure empty content
+    content->clear();
+
+    // Check existence and try to open as text
+    QFile file(path);
+    if (!file.exists() || !file.open(QFile::ReadOnly | QFile::Text)) {
+        return false;
+    }
+
+    content->append(QString::fromUtf8(file.readAll()).trimmed());
+
+    file.close();
+
+    return true;
 }
 
 const QString Config::CONFIG_FILE_NAME = ".phantomjsrc";
