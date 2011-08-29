@@ -35,10 +35,20 @@
 #include <QStringList>
 #include <QVariant>
 
-class Config
+class Config: QObject
 {
+    Q_OBJECT
+    Q_PROPERTY(QString cookieFile READ cookieFile WRITE setCookieFile)
+    Q_PROPERTY(bool diskCacheEnabled READ diskCacheEnabled WRITE setDiskCacheEnabled)
+    Q_PROPERTY(bool ignoreSslErrors READ ignoreSslErrors WRITE setIgnoreSslErrors)
+    Q_PROPERTY(bool localAccessRemote READ localAccessRemote WRITE setLocalAccessRemote)
+    Q_PROPERTY(QString outputEncoding READ outputEncoding WRITE setOutputEncoding)
+    Q_PROPERTY(bool pluginsEnabled READ pluginsEnabled WRITE setPluginsEnabled)
+    Q_PROPERTY(QString proxy READ proxy WRITE setProxy)
+    Q_PROPERTY(QString scriptEncoding READ scriptEncoding WRITE setScriptEncoding)
+
 public:
-    Config();
+    Config(QObject *parent = 0);
 
     void init(const QStringList *const args);
     void processArgs(const QStringList &args);
@@ -65,6 +75,7 @@ public:
     bool pluginsEnabled() const;
     void setPluginsEnabled(const bool value);
 
+    QString proxy() const;
     void setProxy(const QString &value);
     QString proxyHost() const;
     int proxyPort() const;

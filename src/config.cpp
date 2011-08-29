@@ -35,7 +35,8 @@
 #include <QSettings>
 
 // public:
-Config::Config()
+Config::Config(QObject *parent)
+    : QObject(parent)
 {
     resetToDefaults();
 }
@@ -258,6 +259,11 @@ bool Config::pluginsEnabled() const
 void Config::setPluginsEnabled(const bool value)
 {
     m_pluginsEnabled = value;
+}
+
+QString Config::proxy() const
+{
+    return proxyHost() + ":" + proxyPort();
 }
 
 void Config::setProxy(const QString &value)
