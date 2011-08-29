@@ -31,7 +31,6 @@
 #include "config.h"
 
 #include <QDir>
-#include <QSettings>
 #include <QWebPage>
 #include <QWebFrame>
 
@@ -47,15 +46,6 @@ Config::Config(QObject *parent)
 void Config::init(const QStringList *const args)
 {
     resetToDefaults();
-
-    // TODO Should there be a system-wide config file?
-    //loadConfigFile(getSystemConfigFilePath());
-
-    // Load global config
-    loadIniFile(getGlobalConfigFilePath());
-
-    // Load local config (allows for overrides)
-    loadIniFile(getLocalConfigFilePath());
 
     processArgs(*args);
 }
@@ -143,54 +133,6 @@ void Config::processArgs(const QStringList &args)
 
         while (it.hasNext()) {
             m_scriptArgs += it.next();
-        }
-    }
-}
-
-void Config::loadIniFile(const QString &filePath)
-{
-    QSettings settings(filePath, QSettings::IniFormat);
-    QStringList keys = settings.allKeys();
-    QStringListIterator it(keys);
-    while (it.hasNext()) {
-        QString key = it.next().trimmed();
-        QVariant value = settings.value(key);
-
-        if (key == "phantomjs/loadImages") {
-            setAutoLoadImages(asBool(value));
-            continue;
-        }
-        if (key == "phantomjs/loadPlugins") {
-            setPluginsEnabled(asBool(value));
-            continue;
-        }
-        if (key == "phantomjs/proxy") {
-            setProxy(asString(value));
-            continue;
-        }
-        if (key == "phantomjs/diskCache") {
-            setDiskCacheEnabled(asBool(value));
-            continue;
-        }
-        if (key == "phantomjs/ignoreSslErrors") {
-            setIgnoreSslErrors(asBool(value));
-            continue;
-        }
-        if (key == "phantomjs/localAccessRemote") {
-            setLocalAccessRemote(asBool(value));
-            continue;
-        }
-        if (key == "phantomjs/cookies") {
-            setCookieFile(asString(value));
-            continue;
-        }
-        if (key == "phantomjs/outputEncoding") {
-            setOutputEncoding(asString(value));
-            continue;
-        }
-        if (key == "phantomjs/scriptEncoding") {
-            setScriptEncoding(asString(value));
-            continue;
         }
     }
 }
@@ -422,44 +364,7 @@ void Config::setProxyPort(const int value)
     m_proxyPort = value;
 }
 
-QString Config::getGlobalConfigFilePath() const
-{
-    return joinPaths(QDir::homePath(), CONFIG_FILE_NAME);
-}
-
-QString Config::getLocalConfigFilePath() const
-{
-    return joinPaths(QDir::currentPath(), CONFIG_FILE_NAME);
-}
-
 // private: (static)
-bool Config::asBool(const QVariant &value)
-{
-    QString strVal = asString(value).toLower();
-
-    return strVal == "true" || strVal == "1" || strVal == "yes";
-}
-
-QString Config::asString(const QVariant &value)
-{
-    return value.toString().trimmed();
-}
-
-QString Config::joinPaths(const QString &path1, const QString &path2)
-{
-    QString joinedPath;
-
-    if (path1.isEmpty()) {
-        joinedPath = path2;
-    } else if (path2.isEmpty()) {
-        joinedPath = path1;
-    } else {
-        joinedPath = path1 + QDir::separator() + path2;
-    }
-
-    return normalisePath(joinedPath);
-}
-
 QString Config::normalisePath(const QString &path)
 {
     return path.isEmpty() ? path : QDir::fromNativeSeparators(path);
@@ -483,5 +388,3 @@ bool Config::readFile(const QString &path, QString *const content)
 
     return true;
 }
-
-const QString Config::CONFIG_FILE_NAME = ".phantomjsrc";

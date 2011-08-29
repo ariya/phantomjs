@@ -33,7 +33,6 @@
 
 #include <QString>
 #include <QStringList>
-#include <QVariant>
 
 class Config: QObject
 {
@@ -52,7 +51,6 @@ public:
 
     void init(const QStringList *const args);
     void processArgs(const QStringList &args);
-    void loadIniFile(const QString &filePath);
     void loadJsonFile(const QString &filePath);
 
     bool autoLoadImages() const;
@@ -100,8 +98,6 @@ private:
     void resetToDefaults();
     void setProxyHost(const QString &value);
     void setProxyPort(const int value);
-    QString getGlobalConfigFilePath() const;
-    QString getLocalConfigFilePath() const;
 
     bool m_autoLoadImages;
     QString m_cookieFile;
@@ -119,13 +115,8 @@ private:
     bool m_versionFlag;
 
 private:
-    static bool asBool(const QVariant &value);
-    static QString asString(const QVariant &value);
-    static QString joinPaths(const QString &path1, const QString &path2);
     static QString normalisePath(const QString &path);
     static bool readFile(const QString &path, QString *const content);
-
-    static const QString CONFIG_FILE_NAME;
 };
 
 #endif // CONFIG_H
