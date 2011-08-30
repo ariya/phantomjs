@@ -17,3 +17,6 @@ debian/*.substvars
 debian/*/
 python/build/
 python/*.egg-info/
+/nbproject/private/
+/nbproject/
+.gitignore

@@ -60,6 +60,7 @@ Phantom::Phantom(QObject *parent)
     bool diskCacheEnabled = false;
     bool ignoreSslErrors = false;
     bool localAccessRemote = false;
+    qint64 maxCacheSize = 104857600;
 
     // second argument: script name
     QStringList args = QApplication::arguments();
@@ -98,6 +99,10 @@ Phantom::Phantom(QObject *parent)
         }
         if (arg == "--disk-cache=no") {
             diskCacheEnabled = false;
+            continue;
+        }
+        if (arg.startsWith("--max-disk-cache-size=")) {
+            maxCacheSize = arg.mid(arg.indexOf("=") + 1).trimmed().toLongLong();
             continue;
         }
         if (arg == "--ignore-ssl-errors=yes") {
@@ -169,7 +174,7 @@ Phantom::Phantom(QObject *parent)
     }
 
     // Provide WebPage with a non-standard Network Access Manager
-    m_netAccessMan = new NetworkAccessManager(this, diskCacheEnabled, cookieFile, ignoreSslErrors);
+    m_netAccessMan = new NetworkAccessManager(this, diskCacheEnabled, cookieFile, ignoreSslErrors, maxCacheSize);
     m_page->setNetworkAccessManager(m_netAccessMan);
 
     connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString, int, QString)),
