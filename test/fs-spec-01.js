@@ -1,6 +1,7 @@
 describe("Basic Files API (read, write, remove, ...)", function() {
     var FILENAME = "temp-01.test",
 		FILENAME_COPY = FILENAME + ".copy",
+		FILENAME_MOVED = FILENAME + ".moved",
         ABSENT = "absent-01.test";
     
     it("should be able to create and write a file", function() {
@@ -26,17 +27,26 @@ describe("Basic Files API (read, write, remove, ...)", function() {
         expect(content).toEqual("hello\nworld\n");
     });
     
-	it("should copy a file", function() {
+	it("should be able to copy a file", function() {
 		expect(fs.exists(FILENAME_COPY)).toBeFalsy();
 		fs.copy(FILENAME, FILENAME_COPY);
 		expect(fs.exists(FILENAME_COPY)).toBeTruthy();
 		expect(fs.read(FILENAME)).toEqual(fs.read(FILENAME_COPY));
 	});
 
-    it("should be able to remove a file", function() {
+	it("should be able to move a file", function() {
 		expect(fs.exists(FILENAME)).toBeTruthy();
-		fs.remove(FILENAME);
-        expect(fs.exists(FILENAME)).toBeFalsy();
+		var contentBeforeMove = fs.read(FILENAME);
+		fs.move(FILENAME, FILENAME_MOVED);
+		expect(fs.exists(FILENAME)).toBeFalsy();
+		expect(fs.exists(FILENAME_MOVED)).toBeTruthy();
+		expect(fs.read(FILENAME_MOVED)).toEqual(contentBeforeMove);
+	});
+
+    it("should be able to remove a (moved) file", function() {
+		expect(fs.exists(FILENAME_MOVED)).toBeTruthy();
+		fs.remove(FILENAME_MOVED);
+        expect(fs.exists(FILENAME_MOVED)).toBeFalsy();
     });
 
  	it("should be able to remove a (copied) file", function() {

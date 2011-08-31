@@ -102,6 +102,17 @@ window.fs.copy = function (source, destination) {
 	}
 };
 
+/** Move a file.
+ * It will throw an exception if it fails.
+ *
+ * @param source Path of the source file
+ * @param destination Path of the destination file
+ */
+window.fs.move = function (source, destination) {
+	fs.copy(source, destination);
+	fs.remove(source);
+};
+
 /** Removes a file.
  * It will throw an exception if it fails.
  *
