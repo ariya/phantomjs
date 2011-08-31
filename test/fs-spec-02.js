@@ -6,7 +6,7 @@ describe("Attributes Files API", function() {
 
     it("should throw an exception when trying to read the size of a non existing file", function(){
         expect(function(){
-            fs.size(ABSENT, "r");
+            fs.size(ABSENT);
         }).toThrow("Unable to read file '"+ ABSENT +"' size");
     });
     
