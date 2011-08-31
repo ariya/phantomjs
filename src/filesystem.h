@@ -72,7 +72,7 @@ public:
 
 public slots:
     // Attributes
-    // 'size(path)' implemented in "bootstrap.js" JavaScript shim, using '_size(path)'
+    // 'size(path)' implemented in "fs-shim.js" using '_size(path)'
     int _size(const QString &path) const;
     QVariant lastModified(const QString &path) const;
 
@@ -89,16 +89,19 @@ public slots:
     //                                symbolic links to directories.
     bool makeDirectory(const QString &path) const;
     bool makeTree(const QString &path) const;
-    bool removeDirectory(const QString &path) const;
-    bool removeTree(const QString &path) const;
+    // 'removeDirectory(path)' implemented in "fs-shim.js" using '_removeDirectory(path)'
+    bool _removeDirectory(const QString &path) const;
+    // 'removeTree(path)' implemented in "fs-shim.js" using '_removeTree(path)'
+    bool _removeTree(const QString &path) const;
 
     // Files
-    // 'open(path, mode)' implemented in "bootstrap.js" JavaScript shim, using '_open(path, mode)'
+    // 'open(path, mode)' implemented in "fs-shim.js" using '_open(path, mode)'
     QObject *_open(const QString &path, const QString &mode) const;
-    // 'read(path)' implemented in "bootstrap.js" JavaScript shim
-    // 'write(path, mode)' implemented in the "bootstrap.js" JavaScript shim
+    // 'read(path)' implemented in "fs-shim.js"
+    // 'write(path, mode)' implemented in the "fs-shim.js"
 
-    bool remove(const QString &path) const;
+    // 'remove(path)' implemented in "fs-shim.js" using '_remove(path)'
+    bool _remove(const QString &path) const;
 
     // Listing
     QStringList list(const QString &path) const;

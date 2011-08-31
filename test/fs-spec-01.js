@@ -27,7 +27,7 @@ describe("Basic Files API (read, write, remove, ...)", function() {
     
     it("should be able to remove a file", function() {
         expect(fs.exists(FILENAME)).toBeTruthy();
-        expect(fs.remove(FILENAME)).toBeTruthy();
+        fs.remove(FILENAME);
         expect(fs.exists(FILENAME)).toBeFalsy();
     });
     
