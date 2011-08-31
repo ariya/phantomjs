@@ -34,9 +34,64 @@
 
 // This allows creating a new web page using the construct "new WebPage",
 // which feels more natural than "phantom.createWebPage()".
-window.WebPage = function () {
+window.WebPage = function (opts) {
     var page = phantom.createWebPage(),
         handlers = {};
+
+    function checkType(o, type) {
+        return typeof o === type;
+    }
+
+    function isObject(o) {
+        return checkType(o, 'object');
+    }
+
+    function isUndefined(o) {
+        return checkType(o, 'undefined');
+    }
+
+    function isUndefinedOrNull(o) {
+        return isUndefined(o) || null === o;
+    }
+
+    function copyInto(target, source) {
+        if (target === source || isUndefinedOrNull(source)) {
+            return target;
+        }
+
+        target = target || {};
+
+        // Copy into objects only
+        if (isObject(target)) {
+            // Make sure source exists
+            source = source || {};
+
+            if (isObject(source)) {
+                var i, newTarget, newSource;
+                for (i in source) {
+                    if (source.hasOwnProperty(i)) {
+                        newTarget = target[i];
+                        newSource = source[i];
+
+                        if (newTarget && isObject(newSource)) {
+                            // Deep copy
+                            newTarget = copyInto(target[i], newSource);
+                        } else {
+                            newTarget = newSource;
+                        }
+
+                        if (!isUndefined(newTarget)) {
+                            target[i] = newTarget;
+                        }
+                    }
+                }
+            } else {
+                target = source;
+            }
+        }
+
+        return target;
+    }
 
     function defineSetter(handlerName, signalName) {
         page.__defineSetter__(handlerName, function (f) {
@@ -116,6 +171,11 @@ window.WebPage = function () {
         // Append the script tag to the body
         this._appendScriptElement(scriptUrl);
     };
+
+    // Copy options into page
+    if (opts) {
+        page = copyInto(page, opts);
+    }
 
     return page;
 };
