@@ -107,21 +107,20 @@ Phantom::Phantom(QObject *parent)
 
     setLibraryPath(QFileInfo(m_config.scriptFile()).dir().absolutePath());
 
+    // Add 'phantom' and 'fs' object to the global scope
     m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
     m_page->mainFrame()->addToJavaScriptWindowObject("fs", &m_filesystem);
 
-    QFile file(":/bootstrap.js");
-    if (!file.open(QFile::ReadOnly)) {
-        Terminal::instance()->cerr("Can not bootstrap!");
-        exit(1);
+    // Load all the required JavaScript 'shims'
+    QString jsShims[2] = {
+        ":/webpage-shim.js",
+        ":/fs-shim.js"
+    };
+    for (int i = 0, len = 2; i < len; ++i) {
+        QFile f(jsShims[i]);
+        f.open(QFile::ReadOnly); //< It's OK to assume this succeed. If it doesn't, we have a bigger problem.
+        m_page->mainFrame()->evaluateJavaScript(QString::fromUtf8(f.readAll()));
     }
-    QString bootstrapper = QString::fromUtf8(file.readAll());
-    file.close();
-    if (bootstrapper.isEmpty()) {
-        Terminal::instance()->cerr("Can not bootstrap!");
-        exit(1);
-    }
-    m_page->mainFrame()->evaluateJavaScript(bootstrapper);
 }
 
 QStringList Phantom::args() const
