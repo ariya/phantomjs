@@ -20,7 +20,8 @@ HEADERS += csconverter.h \
     cookiejar.h \
     filesystem.h \
     terminal.h \
-    encoding.h
+    encoding.h \
+    config.h
 SOURCES += phantom.cpp \
     webpage.cpp \
     main.cpp \
@@ -31,9 +32,11 @@ SOURCES += phantom.cpp \
     cookiejar.cpp \
     filesystem.cpp \
     terminal.cpp \
-    encoding.cpp
+    encoding.cpp \
+    config.cpp
 
-OTHER_FILES = bootstrap.js usage.txt
+OTHER_FILES = bootstrap.js usage.txt \
+    configurator.js
 
 include(gif/gif.pri)
 

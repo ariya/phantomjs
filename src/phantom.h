@@ -38,6 +38,7 @@ class WebPage;
 #include "networkaccessmanager.h"
 #include "filesystem.h"
 #include "encoding.h"
+#include "config.h"
 
 class Phantom: public QObject
 {
@@ -78,9 +79,7 @@ private slots:
     void printConsoleMessage(const QString &msg, int lineNumber, const QString &source);
 
 private:
-    QString m_scriptFile;
     Encoding m_scriptFileEnc;
-    QStringList m_args;
     WebPage *m_page;
     bool m_terminated;
     int m_returnValue;
@@ -89,6 +88,7 @@ private:
     QVariantMap m_defaultPageSettings;
     FileSystem m_filesystem;
     QList<QPointer<WebPage> > m_pages;
+    Config m_config;
 };
 
 #endif // PHANTOM_H
