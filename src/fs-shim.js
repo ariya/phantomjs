@@ -79,7 +79,7 @@ window.fs.write = function (path, content, mode) {
 /** Return the size of a file, in bytes.
  * It will throw an exception if it fails.
  *
- * @param path Path fo the file to read the size of
+ * @param path Path of the file to read the size of
  * @return File size in bytes
  */
 window.fs.size = function (path) {
@@ -90,10 +90,22 @@ window.fs.size = function (path) {
     throw "Unable to read file '" + path + "' size";
 };
 
+/** Copy a file.
+ * It will throw an exception if it fails.
+ *
+ * @param source Path of the source file
+ * @param destination Path of the destination file
+ */
+window.fs.copy = function (source, destination) {
+	if (!fs._copy(source, destination)) {
+		throw "Unable to copy file '" + source + "' at '" + destination + "'";
+	}
+};
+
 /** Removes a file.
  * It will throw an exception if it fails.
  *
- * @param path Path fo the file to remove
+ * @param path Path of the file to remove
  */
 window.fs.remove = function (path) {
 	if (!fs._remove(path)) {
@@ -104,7 +116,7 @@ window.fs.remove = function (path) {
 /** Removes a directory.
  * It will throw an exception if it fails.
  *
- * @param path Path fo the directory to remove
+ * @param path Path of the directory to remove
  */
 window.fs.removeDirectory = function (path) {
 	if (!fs._removeDirectory(path)) {
@@ -115,7 +127,7 @@ window.fs.removeDirectory = function (path) {
 /** Removes a directory tree.
  * It will throw an exception if it fails.
  *
- * @param path Path fo the directory tree to remove
+ * @param path Path of the directory tree to remove
  */
 window.fs.removeTree = function (path) {
 	if (!fs._removeTree(path)) {
