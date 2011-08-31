@@ -89,3 +89,36 @@ window.fs.size = function (path) {
     }
     throw "Unable to read file '" + path + "' size";
 };
+
+/** Removes a file.
+ * It will throw an exception if it fails.
+ *
+ * @param path Path fo the file to remove
+ */
+window.fs.remove = function (path) {
+	if (!fs._remove(path)) {
+		throw "Unable to remove file '" + path + "'";
+	}
+};
+
+/** Removes a directory.
+ * It will throw an exception if it fails.
+ *
+ * @param path Path fo the directory to remove
+ */
+window.fs.removeDirectory = function (path) {
+	if (!fs._removeDirectory(path)) {
+		throw "Unable to remove directory '" + path + "'";
+	}
+};
+
+/** Removes a directory tree.
+ * It will throw an exception if it fails.
+ *
+ * @param path Path fo the directory tree to remove
+ */
+window.fs.removeTree = function (path) {
+	if (!fs._removeTree(path)) {
+		throw "Unable to remove directory tree '" + path + "'";
+	}
+};

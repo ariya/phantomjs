@@ -41,6 +41,6 @@ describe("Attributes Files API", function() {
     });
     
     it("should remove temporary file '"+ FILENAME +"'", function(){
-        expect(fs.remove(FILENAME)).toBeTruthy();
+        fs.remove(FILENAME);
     });
 });

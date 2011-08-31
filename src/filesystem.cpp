@@ -189,17 +189,17 @@ bool FileSystem::makeTree(const QString &path) const
     return QDir().mkpath(path);
 }
 
-bool FileSystem::remove(const QString &path) const
+bool FileSystem::_remove(const QString &path) const
 {
     return QFile::remove(path);
 }
 
-bool FileSystem::removeDirectory(const QString &path) const
+bool FileSystem::_removeDirectory(const QString &path) const
 {
     return QDir().rmdir(path);
 }
 
-bool FileSystem::removeTree(const QString &path) const
+bool FileSystem::_removeTree(const QString &path) const
 {
     QDir dir(path);
     bool res = false;
@@ -207,16 +207,16 @@ bool FileSystem::removeTree(const QString &path) const
     if (dir.exists()) {
         foreach(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
             if (info.isDir()) {
-                res = removeTree(info.absoluteFilePath());
+                res = _removeTree(info.absoluteFilePath());
             } else {
-                res = remove(info.absoluteFilePath());
+                res = _remove(info.absoluteFilePath());
             }
 
             if (!res) {
                 return res;
             }
         }
-        res = removeDirectory(path);
+        res = _removeDirectory(path);
     }
 
     return res;
