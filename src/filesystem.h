@@ -97,7 +97,7 @@ public slots:
     bool _remove(const QString &path) const;
     // 'copy(source, destination)' implemented in "fs-shim.js" using '_copy(source, destination)'
     bool _copy(const QString &source, const QString &destination) const;
-    // - move()
+    // 'move(source, destination)' implemented in "fs-shim.js"
     // - touch(path, date)
     // - rename()
 
