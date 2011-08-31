@@ -336,7 +336,7 @@ class WebPage(QObject):
 
     @pyqtSlot(str, result=bool)
     def injectJs(self, filePath):
-        return injectJsInFrame(filePath, self.m_libraryPath, self.m_mainFrame)
+        return injectJsInFrame(filePath, self.parent.m_scriptEncoding.encoding, self.m_libraryPath, self.m_mainFrame)
 
     @pyqtSlot()
     def mouseDown(self):

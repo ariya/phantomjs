@@ -19,7 +19,6 @@
 
 import os
 import sys
-import codecs
 
 import sip
 from PyQt4.QtCore import (pyqtProperty, pyqtSlot, QObject,
@@ -33,6 +32,7 @@ from plugincontroller import do_action
 from webpage import WebPage
 from networkaccessmanager import NetworkAccessManager
 from filesystem import FileSystem
+from encoding import Encode
 
 
 class Phantom(QObject):
@@ -49,6 +49,8 @@ class Phantom(QObject):
         # setup the values from args
         self.m_scriptFile = args.script
         self.m_args = args.script_args
+        self.m_scriptEncoding = Encode(args.script_encoding, 'utf-8')
+        self.m_outputEncoding = Encode(args.output_encoding, sys.stdout.encoding_sys)
 
         self.m_filesystem = FileSystem(self)
 
@@ -94,7 +96,7 @@ class Phantom(QObject):
         do_action('PhantomInitPost')
 
     def execute(self):
-        injectJsInFrame(self.m_scriptFile, os.path.dirname(os.path.abspath(__file__)), self.m_page.mainFrame(), True)
+        injectJsInFrame(self.m_scriptFile, self.m_scriptEncoding.encoding, os.path.dirname(os.path.abspath(__file__)), self.m_page.mainFrame(), True)
         return not self.m_terminated
 
     def printConsoleMessage(self, message, lineNumber, source):
@@ -144,7 +146,7 @@ class Phantom(QObject):
 
     @pyqtSlot(str, result=bool)
     def injectJs(self, filePath):
-        return injectJsInFrame(filePath, self.libraryPath, self.m_page.mainFrame())
+        return injectJsInFrame(filePath, self.m_scriptEncoding.encoding, self.libraryPath, self.m_page.mainFrame())
 
     @pyqtProperty(str)
     def libraryPath(self):
@@ -156,27 +158,16 @@ class Phantom(QObject):
 
     @pyqtProperty(str)
     def outputEncoding(self):
-        if sys.stdout.encoding.lower() == 'system':
-            return sys.stdout.encoding.lower()
-        return codecs.lookup(sys.stdout.encoding).name
+        return self.m_outputEncoding.name
 
     @outputEncoding.setter
     def outputEncoding(self, encoding):
-        encode_to = encoding
-        if encoding.lower() == 'system':
-            encode_to = sys.stdout.encoding_sys
+        self.m_outputEncoding = Encode(encoding, self.m_outputEncoding.encoding)
 
-        if encoding.lower() != 'system':
-            # ignore encoding if the encoder is invalid
-            try:
-                codecs.lookup(encoding)
-            except LookupError:
-                return
-
-        sys.stdout.encoding = encoding
-        sys.stdout.encode_to = encode_to
-        sys.stderr.encoding = encoding
-        sys.stdout.encode_to = encode_to
+        sys.stdout.encoding = self.m_outputEncoding.encoding
+        sys.stdout.encode_to = self.m_outputEncoding.encoding
+        sys.stderr.encoding = self.m_outputEncoding.encoding
+        sys.stdout.encode_to = self.m_outputEncoding.encoding
 
     @pyqtProperty(str)
     def scriptName(self):

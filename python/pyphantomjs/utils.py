@@ -87,8 +87,14 @@ def argParser():
         choices=['yes', 'no'],
         help='Local content can access remote URL (default: %(default)s)'
     )
+    parser.add_argument('--output-encoding', default='System', metavar='encoding',
+        help='Sets the encoding used for terminal output (default: %(default)s)'
+    )
     parser.add_argument('--proxy', metavar='address:port',
         help='Set the network proxy'
+    )
+    parser.add_argument('--script-encoding', default='utf-8', metavar='encoding',
+        help='Sets the encoding used for scripts (default: %(default)s)'
     )
     parser.add_argument('-v', '--verbose', action='store_true',
         help='Show verbose debug messages'
@@ -107,21 +113,24 @@ def coffee2js(script):
     return CSConverter().convert(script)
 
 
-def injectJsInFrame(filePath, libraryPath, targetFrame, startingScript=False):
+def injectJsInFrame(filePath, scriptEncoding, libraryPath, targetFrame, startingScript=False):
     try:
         # if file doesn't exist in the CWD, use the lookup
         if not os.path.exists(filePath):
             filePath = os.path.join(libraryPath, filePath)
 
-        with codecs.open(filePath, encoding='utf-8') as f:
-            script = f.read()
+        try:
+            with codecs.open(filePath, encoding=scriptEncoding) as f:
+                script = f.read()
+        except UnicodeDecodeError as e:
+            sys.exit("%s in '%s'" % (e, filePath))
 
         if script.startswith('#!') and not filePath.lower().endswith('.coffee'):
             script = '//' + script
 
         if filePath.lower().endswith('.coffee'):
             result = coffee2js(script)
-            if result[0] is False:
+            if not result[0]:
                 if startingScript:
                     sys.exit("%s: '%s'" % (result[1], filePath))
                 else:
