@@ -76,12 +76,6 @@ public slots:
     int _size(const QString &path) const;
     QVariant lastModified(const QString &path) const;
 
-    // Files / Directories
-    // - copy()
-    // - move()
-    // - touch(path, date)
-    // - rename()
-
     // Directory
     // - copyTree(source, target) //< copies files from a source path to a target path,
     //                                copying the files of the source tree to the corresponding locations
@@ -99,9 +93,13 @@ public slots:
     QObject *_open(const QString &path, const QString &mode) const;
     // 'read(path)' implemented in "fs-shim.js"
     // 'write(path, mode)' implemented in the "fs-shim.js"
-
     // 'remove(path)' implemented in "fs-shim.js" using '_remove(path)'
     bool _remove(const QString &path) const;
+    // 'copy(source, destination)' implemented in "fs-shim.js" using '_copy(source, destination)'
+    bool _copy(const QString &source, const QString &destination) const;
+    // - move()
+    // - touch(path, date)
+    // - rename()
 
     // Listing
     QStringList list(const QString &path) const;

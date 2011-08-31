@@ -189,11 +189,6 @@ bool FileSystem::makeTree(const QString &path) const
     return QDir().mkpath(path);
 }
 
-bool FileSystem::_remove(const QString &path) const
-{
-    return QFile::remove(path);
-}
-
 bool FileSystem::_removeDirectory(const QString &path) const
 {
     return QDir().rmdir(path);
@@ -302,4 +297,13 @@ QObject *FileSystem::_open(const QString &path, const QString &mode) const
     // Return "NULL" if the file couldn't be opened as requested
     qDebug() << "FileSystem::open - " << "Couldn't be opened:" << path;
     return NULL;
+}
+
+bool FileSystem::_remove(const QString &path) const
+{
+    return QFile::remove(path);
+}
+
+bool FileSystem::_copy(const QString &source, const QString &destination) const {
+    return QFile(source).copy(destination);
 }
