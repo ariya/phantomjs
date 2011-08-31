@@ -145,3 +145,7 @@ window.fs.removeTree = function (path) {
 		throw "Unable to remove directory tree '" + path + "'";
 	}
 };
+
+window.fs.touch = function (path) {
+	fs.write(path, "", 'a');
+};
