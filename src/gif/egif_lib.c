@@ -12,7 +12,7 @@
  *****************************************************************************/
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+#include "config.h"
 #endif
 
 /* Find a thirty-two bit int type */
