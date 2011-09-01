@@ -72,7 +72,7 @@ class NetworkAccessManager(QNetworkAccessManager):
 
         data = {
             'id': self.m_idCounter,
-            'url': str(req.url()),
+            'url': req.url().toString(),
             'method': self.operationToString(op),
             'headers': headers,
             'time': QDateTime.currentDateTime()
@@ -97,7 +97,7 @@ class NetworkAccessManager(QNetworkAccessManager):
         data = {
             'stage': 'end',
             'id': self.m_ids[reply],
-            'url': str(reply.url()),
+            'url': reply.url().toString(),
             'status': reply.attribute(QNetworkRequest.HttpStatusCodeAttribute),
             'statusText': reply.attribute(QNetworkRequest.HttpReasonPhraseAttribute),
             'contentType': reply.header(QNetworkRequest.ContentTypeHeader),
@@ -135,7 +135,7 @@ class NetworkAccessManager(QNetworkAccessManager):
         data = {
             'stage': 'start',
             'id': self.m_ids[reply],
-            'url': str(reply.url()),
+            'url': reply.url().toString(),
             'status': reply.attribute(QNetworkRequest.HttpStatusCodeAttribute),
             'statusText': reply.attribute(QNetworkRequest.HttpReasonPhraseAttribute),
             'contentType': reply.header(QNetworkRequest.ContentTypeHeader),
