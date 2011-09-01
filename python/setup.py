@@ -18,8 +18,9 @@
 '''
 
 import os
-from pyphantomjs import __version__
 from setuptools import setup, find_packages
+
+from pyphantomjs import __version__
 
 
 def read(fname):
@@ -35,7 +36,11 @@ if index > -1:
 else:
     README += INSTALL
 
-print README
+try:
+    import PyQt4
+except ImportError:
+    print ('\nWARNING: PyPhantomJS requires PyQt4, which was not found!\n'
+           '           Refer to the README or INSTALL file for installation information.\n')
 
 
 setup(
