@@ -26,11 +26,9 @@ class Encode(object):
         try:
             codecs.lookup(encoding)
             self.encoding = encoding
-            self._encoding = encoding.lower()
         except LookupError:
             # fall back to default encoding
             self.encoding = default
-            self._encoding = default.lower()
 
     @property
     def name(self):
