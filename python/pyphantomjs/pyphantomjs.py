@@ -20,8 +20,9 @@
 
 # automatically convert Qt types by using api 2
 import sip
-sip.setapi('QString', 2)
-sip.setapi('QVariant', 2)
+for item in ('QDate', 'QDateTime', 'QString', 'QTextStream', 'QTime'
+             'QUrl', 'QVariant'):
+    sip.setapi(item, 2)
 
 import os
 import sys
