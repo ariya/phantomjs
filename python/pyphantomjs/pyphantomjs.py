@@ -36,8 +36,9 @@ if __name__ == '__main__':
     load_plugins()
 
 import resources
+from __init__ import __version__
 from phantom import Phantom
-from utils import argParser, MessageHandler, version
+from utils import argParser, MessageHandler
 
 # make keyboard interrupt quit program
 import signal
@@ -97,7 +98,7 @@ def main():
     app.setApplicationName('PyPhantomJS')
     app.setOrganizationName('Umaclan Development')
     app.setOrganizationDomain('www.umaclan.com')
-    app.setApplicationVersion(version)
+    app.setApplicationVersion(__version__)
 
     phantom = Phantom(app, args)
 

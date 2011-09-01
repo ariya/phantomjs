@@ -26,8 +26,8 @@ from PyQt4.QtCore import (pyqtProperty, pyqtSlot, QObject,
 from PyQt4.QtGui import QApplication
 from PyQt4.QtNetwork import QNetworkProxy, QNetworkProxyFactory
 
-from utils import (version_major, version_minor, version_patch,
-                   injectJsInFrame)
+from __init__ import __version_info__
+from utils import injectJsInFrame
 from plugincontroller import do_action
 from webpage import WebPage
 from networkaccessmanager import NetworkAccessManager
@@ -176,9 +176,9 @@ class Phantom(QObject):
     @pyqtProperty('QVariantMap')
     def version(self):
         version = {
-            'major': version_major,
-            'minor': version_minor,
-            'patch': version_patch
+            'major': __version_info__[0],
+            'minor': __version_info__[1],
+            'patch': __version_info__[2]
         }
         return version
 

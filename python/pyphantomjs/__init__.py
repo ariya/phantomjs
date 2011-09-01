@@ -17,6 +17,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from utils import version
+__version_info__ = (1, 3, 0, 'dev')
 
-__version__ = version
+__version__ = '.'.join(map(str, __version_info__))

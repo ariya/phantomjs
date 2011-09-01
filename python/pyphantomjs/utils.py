@@ -25,13 +25,10 @@ import argparse
 from PyQt4.QtCore import (QDateTime, Qt, QtDebugMsg, QtWarningMsg,
                           QtCriticalMsg, QtFatalMsg, qDebug)
 
+from __init__ import __version__
 from csconverter import CSConverter
 from plugincontroller import do_action
 
-
-version_major, version_minor, version_patch = (1, 3, 0)
-version = '%d.%d.%d' % (version_major, version_minor, version_patch)
-is_stable = False
 
 license = '''
   PyPhantomJS Version %s
@@ -50,7 +47,7 @@ license = '''
 
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-''' % (version if is_stable else version + ' (development)')
+''' % __version__
 
 
 def argParser():
