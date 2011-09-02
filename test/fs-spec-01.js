@@ -1,5 +1,8 @@
 describe("Basic Files API (read, write, remove, ...)", function() {
     var FILENAME = "temp-01.test",
+		FILENAME_COPY = FILENAME + ".copy",
+		FILENAME_MOVED = FILENAME + ".moved",
+		FILENAME_EMPTY = FILENAME + ".empty",
         ABSENT = "absent-01.test";
     
     it("should be able to create and write a file", function() {
@@ -13,6 +16,13 @@ describe("Basic Files API (read, write, remove, ...)", function() {
         } catch (e) { }
         expect(fs.exists(FILENAME)).toBeTruthy();
     });
+
+	it("should be able to create (touch) an empty file", function() {
+		expect(fs.exists(FILENAME_EMPTY)).toBeFalsy();
+		fs.touch(FILENAME_EMPTY);
+		expect(fs.exists(FILENAME_EMPTY)).toBeTruthy();
+		expect(fs.size(FILENAME_EMPTY)).toEqual(0);
+	});
     
     it("should be able to read content from a file", function() {
         var content = "";
@@ -25,15 +35,49 @@ describe("Basic Files API (read, write, remove, ...)", function() {
         expect(content).toEqual("hello\nworld\n");
     });
     
-    it("should be able to remove a file", function() {
-        expect(fs.exists(FILENAME)).toBeTruthy();
-        expect(fs.remove(FILENAME)).toBeTruthy();
-        expect(fs.exists(FILENAME)).toBeFalsy();
+	it("should be able to copy a file", function() {
+		expect(fs.exists(FILENAME_COPY)).toBeFalsy();
+		fs.copy(FILENAME, FILENAME_COPY);
+		expect(fs.exists(FILENAME_COPY)).toBeTruthy();
+		expect(fs.read(FILENAME)).toEqual(fs.read(FILENAME_COPY));
+	});
+
+	it("should be able to move a file", function() {
+		expect(fs.exists(FILENAME)).toBeTruthy();
+		var contentBeforeMove = fs.read(FILENAME);
+		fs.move(FILENAME, FILENAME_MOVED);
+		expect(fs.exists(FILENAME)).toBeFalsy();
+		expect(fs.exists(FILENAME_MOVED)).toBeTruthy();
+		expect(fs.read(FILENAME_MOVED)).toEqual(contentBeforeMove);
+	});
+
+    it("should be able to remove a (moved) file", function() {
+		expect(fs.exists(FILENAME_MOVED)).toBeTruthy();
+		fs.remove(FILENAME_MOVED);
+        expect(fs.exists(FILENAME_MOVED)).toBeFalsy();
+    });
+
+ 	it("should be able to remove a (copied) file", function() {
+        expect(fs.exists(FILENAME_COPY)).toBeTruthy();
+        fs.remove(FILENAME_COPY);
+        expect(fs.exists(FILENAME_COPY)).toBeFalsy();
     });
     
+	it("should be able to remove an empty file", function() {
+        expect(fs.exists(FILENAME_EMPTY)).toBeTruthy();
+        fs.remove(FILENAME_EMPTY);
+        expect(fs.exists(FILENAME_EMPTY)).toBeFalsy();
+    });
+
     it("should throw an exception when trying to open for read a non existing file", function(){
         expect(function(){
             fs.open(ABSENT, "r");
         }).toThrow("Unable to open file '"+ ABSENT +"'");
     });
+
+	it("should throw an exception when trying to copy a non existing file", function() {
+		expect(function(){
+			fs.copy(ABSENT, FILENAME_COPY);
+		}).toThrow("Unable to copy file '" + ABSENT + "' at '" + FILENAME_COPY + "'");
+	});
 });
