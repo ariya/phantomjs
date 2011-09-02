@@ -40,7 +40,6 @@
 #include "networkreplyproxy.h"
 #include "cookiejar.h"
 
-#include "terminal.h"
 static const char *toString(QNetworkAccessManager::Operation op)
 {
     const char *str = 0;
