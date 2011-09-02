@@ -104,6 +104,15 @@ void Config::processArgs(const QStringList &args)
             setProxy(arg.mid(8).trimmed());
             continue;
         }
+        if (arg.startsWith("--auth=")) {
+            QString credentials = arg.mid(7).trimmed();
+            if (credentials.startsWith('"') && credentials.endsWith('"'))
+            {
+               QString credentials = credentials.mid(1, credentials.length()-2);
+            }
+            setAuth(credentials);
+            continue;
+        }
         if (arg.startsWith("--cookies=")) {
             setCookieFile(arg.mid(10).trimmed());
             continue;
@@ -276,6 +285,35 @@ int Config::proxyPort() const
     return m_proxyPort;
 }
 
+QString Config::auth() const
+{
+    return authUser() + ":" + authPass();
+}
+
+void Config::setAuth(const QString &value)
+{
+    QString authUser = value;
+    QString authPass = "";
+
+    if (authUser.lastIndexOf(':') > 0) {
+        authPass = authUser.mid(authUser.lastIndexOf(':') + 1).trimmed();
+        authUser = authUser.left(authUser.lastIndexOf(':')).trimmed();
+    }
+
+    setAuthUser(authUser);
+    setAuthPass(authPass);
+}
+
+QString Config::authUser() const
+{
+    return m_authUser;
+}
+
+QString Config::authPass() const
+{
+    return m_authPass;
+}
+
 QStringList Config::scriptArgs() const
 {
     return m_scriptArgs;
@@ -352,6 +390,8 @@ void Config::resetToDefaults()
     m_scriptFile.clear();
     m_unknownOption.clear();
     m_versionFlag = false;
+    m_authUser.clear();
+    m_authPass.clear();
 }
 
 void Config::setProxyHost(const QString &value)
@@ -362,6 +402,16 @@ void Config::setProxyHost(const QString &value)
 void Config::setProxyPort(const int value)
 {
     m_proxyPort = value;
+}
+
+void Config::setAuthUser(const QString &value)
+{
+    m_authUser = value;
+}
+
+void Config::setAuthPass(const QString &value)
+{
+    m_authPass = value;
 }
 
 // private: (static)
