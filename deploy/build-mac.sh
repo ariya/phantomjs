@@ -1,6 +1,6 @@
 #!/bin/bash
 
-QT_VERSION=4.7.3
+QT_VERSION=4.7.4
 QT_FOLDER=Qt-$QT_VERSION
 QT_TARBALL=qt-everywhere-opensource-src-$QT_VERSION.tar.gz
 
@@ -23,24 +23,21 @@ echo
 tar xzf $QT_TARBALL
 mv qt-everywhere-opensource-src-$QT_VERSION Qt-$QT_VERSION
 
-# Step 3: Apply patches.
+# Step 3: Build Qt
 
 cd $QT_FOLDER
-echo "Patching Qt..."
-patch < ../allow-static-qtwebkit.patch
-cd ..
-
-# Step 4: Build Qt
-
-cd $QT_FOLDER
+patch configure ../allow-static-qtwebkit.patch
 echo "Building Qt $QT_VERSION. Please wait..."
 echo
-
-./configure -opensource -confirm-license -release -static -no-exceptions -no-stl -no-xmlpatterns -no-phonon -no-script -no-scripttools -graphicssystem raster -no-nis -no-dwarf2 -no-dbus -no-iconv -no-qt3support -no-opengl -no-declarative -qt-libpng -qt-libjpeg -no-libmng -no-libtiff -D QT_NO_STYLE_CDE -D QT_NO_STYLE_CLEANLOOKS -D QT_NO_STYLE_MOTIF -D QT_NO_STYLE_PLASTIQUE -cocoa -prefix $PWD -arch x86 -nomake demos -nomake examples -nomake tools
-
+./configure -opensource -confirm-license -release -static -no-exceptions -no-stl -no-xmlpatterns -no-phonon -no-qt3support -no-opengl -no-declarative -qt-libpng -qt-libjpeg -no-libmng -no-libtiff -D QT_NO_STYLE_CDE -D QT_NO_STYLE_CLEANLOOKS -D QT_NO_STYLE_MOTIF -D QT_NO_STYLE_PLASTIQUE -cocoa -prefix $PWD -arch x86 -nomake demos -nomake examples -nomake tools
 make -j$COMPILE_JOBS
-make -j$COMPILE_JOBS
-make install -j$COMPILE_JOBS
 cd ..
 
+# Step 4: Build PhantomJS
+
 PATH=`pwd`/$QT_FOLDER/bin:$PATH
+echo "Building PhantomJS. Please wait..."
+echo
+cd ..
+qmake
+make -j$COMPILE_JOBS

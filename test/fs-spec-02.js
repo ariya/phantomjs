@@ -6,7 +6,7 @@ describe("Attributes Files API", function() {
 
     it("should throw an exception when trying to read the size of a non existing file", function(){
         expect(function(){
-            fs.size(ABSENT, "r");
+            fs.size(ABSENT);
         }).toThrow("Unable to read file '"+ ABSENT +"' size");
     });
     
@@ -41,6 +41,6 @@ describe("Attributes Files API", function() {
     });
     
     it("should remove temporary file '"+ FILENAME +"'", function(){
-        expect(fs.remove(FILENAME)).toBeTruthy();
+        fs.remove(FILENAME);
     });
 });

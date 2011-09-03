@@ -20,6 +20,6 @@ describe("Paths Files API", function() {
 	
 	it("shoudl return to previous Current Working Directory and remove temporary directory", function() {
 		expect(fs.changeWorkingDirectory(START_CWD)).toBeTruthy();
-		expect(fs.removeTree(TEST_DIR)).toBeTruthy();
+		fs.removeTree(TEST_DIR);
 	});
 });
