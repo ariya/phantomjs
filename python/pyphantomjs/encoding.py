@@ -17,6 +17,19 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-__version_info__ = (1, 3, 0, 'dev')
+import codecs
 
-__version__ = '.'.join(map(str, __version_info__))
+
+class Encode(object):
+    def __init__(self, encoding, default):
+        # check that encoding is valid
+        try:
+            codecs.lookup(encoding)
+            self.encoding = encoding
+        except LookupError:
+            # fall back to default encoding
+            self.encoding = default
+
+    @property
+    def name(self):
+        return codecs.lookup(self.encoding).name

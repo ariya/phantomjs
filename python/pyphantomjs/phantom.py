@@ -19,7 +19,6 @@
 
 import os
 import sys
-import codecs
 
 import sip
 from PyQt4.QtCore import (pyqtProperty, pyqtSlot, QObject,
@@ -27,12 +26,13 @@ from PyQt4.QtCore import (pyqtProperty, pyqtSlot, QObject,
 from PyQt4.QtGui import QApplication
 from PyQt4.QtNetwork import QNetworkProxy, QNetworkProxyFactory
 
-from utils import (version_major, version_minor, version_patch,
-                   injectJsInFrame)
+from __init__ import __version_info__
+from utils import injectJsInFrame
 from plugincontroller import do_action
 from webpage import WebPage
 from networkaccessmanager import NetworkAccessManager
 from filesystem import FileSystem
+from encoding import Encode
 
 
 class Phantom(QObject):
@@ -49,6 +49,8 @@ class Phantom(QObject):
         # setup the values from args
         self.m_scriptFile = args.script
         self.m_args = args.script_args
+        self.m_scriptEncoding = Encode(args.script_encoding, 'utf-8')
+        self.m_outputEncoding = Encode(args.output_encoding, sys.stdout.encoding_sys)
 
         self.m_filesystem = FileSystem(self)
 
@@ -82,19 +84,24 @@ class Phantom(QObject):
         self.m_page.mainFrame().addToJavaScriptWindowObject('phantom', self)
         self.m_page.mainFrame().addToJavaScriptWindowObject('fs', self.m_filesystem)
 
-        bootstrap = QFile(':/bootstrap.js')
-        if not bootstrap.open(QFile.ReadOnly):
-            sys.exit('Can not bootstrap!')
-        bootstrapper = str(bootstrap.readAll())
-        bootstrap.close()
-        if not bootstrapper:
-            sys.exit('Can not bootstrap!')
-        self.m_page.mainFrame().evaluateJavaScript(bootstrapper)
+        jsShims = (
+            ':/fs-shim.js',
+            ':/webpage-shim.js'
+        )
+        for shim in jsShims:
+            f = QFile(shim)
+            if not f.open(QFile.ReadOnly):
+                sys.exit("Failed to load shim '%s'" % shim)
+
+            f = str(f.readAll())
+            if not f:
+                sys.exit("Failed to load shim '%s'" % shim)
+            self.m_page.mainFrame().evaluateJavaScript(f)
 
         do_action('PhantomInitPost')
 
     def execute(self):
-        injectJsInFrame(self.m_scriptFile, os.path.dirname(os.path.abspath(__file__)), self.m_page.mainFrame(), True)
+        injectJsInFrame(self.m_scriptFile, self.m_scriptEncoding.encoding, os.path.dirname(os.path.abspath(__file__)), self.m_page.mainFrame(), True)
         return not self.m_terminated
 
     def printConsoleMessage(self, message, lineNumber, source):
@@ -144,7 +151,7 @@ class Phantom(QObject):
 
     @pyqtSlot(str, result=bool)
     def injectJs(self, filePath):
-        return injectJsInFrame(filePath, self.libraryPath, self.m_page.mainFrame())
+        return injectJsInFrame(filePath, self.m_scriptEncoding.encoding, self.libraryPath, self.m_page.mainFrame())
 
     @pyqtProperty(str)
     def libraryPath(self):
@@ -156,27 +163,16 @@ class Phantom(QObject):
 
     @pyqtProperty(str)
     def outputEncoding(self):
-        if sys.stdout.encoding.lower() == 'system':
-            return sys.stdout.encoding.lower()
-        return codecs.lookup(sys.stdout.encoding).name
+        return self.m_outputEncoding.name
 
     @outputEncoding.setter
     def outputEncoding(self, encoding):
-        encode_to = encoding
-        if encoding.lower() == 'system':
-            encode_to = sys.stdout.encoding_sys
+        self.m_outputEncoding = Encode(encoding, self.m_outputEncoding.encoding)
 
-        if encoding.lower() != 'system':
-            # ignore encoding if the encoder is invalid
-            try:
-                codecs.lookup(encoding)
-            except LookupError:
-                return
-
-        sys.stdout.encoding = encoding
-        sys.stdout.encode_to = encode_to
-        sys.stderr.encoding = encoding
-        sys.stdout.encode_to = encode_to
+        sys.stdout.encoding = self.m_outputEncoding.encoding
+        sys.stdout.encode_to = self.m_outputEncoding.encoding
+        sys.stderr.encoding = self.m_outputEncoding.encoding
+        sys.stdout.encode_to = self.m_outputEncoding.encoding
 
     @pyqtProperty(str)
     def scriptName(self):
@@ -185,9 +181,9 @@ class Phantom(QObject):
     @pyqtProperty('QVariantMap')
     def version(self):
         version = {
-            'major': version_major,
-            'minor': version_minor,
-            'patch': version_patch
+            'major': __version_info__[0],
+            'minor': __version_info__[1],
+            'patch': __version_info__[2]
         }
         return version
 

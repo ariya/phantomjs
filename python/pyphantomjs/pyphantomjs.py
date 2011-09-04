@@ -20,8 +20,9 @@
 
 # automatically convert Qt types by using api 2
 import sip
-sip.setapi('QString', 2)
-sip.setapi('QVariant', 2)
+for item in ('QDate', 'QDateTime', 'QString', 'QTextStream', 'QTime'
+             'QUrl', 'QVariant'):
+    sip.setapi(item, 2)
 
 import os
 import sys
@@ -36,8 +37,9 @@ if __name__ == '__main__':
     load_plugins()
 
 import resources
+from __init__ import __version__
 from phantom import Phantom
-from utils import argParser, MessageHandler, version
+from utils import argParser, MessageHandler
 
 # make keyboard interrupt quit program
 import signal
@@ -97,7 +99,7 @@ def main():
     app.setApplicationName('PyPhantomJS')
     app.setOrganizationName('Umaclan Development')
     app.setOrganizationDomain('www.umaclan.com')
-    app.setApplicationVersion(version)
+    app.setApplicationVersion(__version__)
 
     phantom = Phantom(app, args)
 
