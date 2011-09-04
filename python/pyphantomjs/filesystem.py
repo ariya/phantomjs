@@ -170,16 +170,6 @@ class FileSystem(QObject):
             qDebug("FileSystem.rename - %s: '%s' -> '%s'" % (e, source, target))
             return False
 
-    @pyqtProperty(int)
-    def umask(self):
-        currentMask = os.umask(0)
-        os.umask(currentMask)
-        return currentMask
-
-    @umask.setter
-    def umask(self, mask):
-        os.umask(mask)
-
     ##
     # Directories
     ##
