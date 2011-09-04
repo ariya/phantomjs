@@ -61,12 +61,15 @@ def argParser():
         help='The script to execute, and any args to pass to it'
     )
 
-    parser.add_argument('--disk-cache', default='no',
-        choices=['yes', 'no'],
-        help='Enable disk cache (default: %(default)s)'
+    parser.add_argument('--config', metavar='/path/to/config',
+        help='Specifies path to a JSON-formatted config file'
     )
     parser.add_argument('--cookies', metavar='/path/to/cookieJar',
         help='Use persistent cookies from an INI-formatted CookieJar file'
+    )
+    parser.add_argument('--disk-cache', default='no',
+        choices=['yes', 'no'],
+        help='Enable disk cache (default: %(default)s)'
     )
     parser.add_argument('--ignore-ssl-errors', default='no',
         choices=['yes', 'no'],
