@@ -30,6 +30,7 @@ from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
 from plugincontroller import do_action
 from utils import injectJsInFrame
+from mimesniffer import Sniff
 
 
 class CustomPage(QWebPage):
@@ -77,11 +78,10 @@ class WebPage(QObject):
         QObject.__init__(self, parent)
 
         # variable declarations
-        self.m_paperSize = {}
+        self.m_paperSize = self.m_replies = {}
         self.m_clipRect = QRect()
         self.m_libraryPath = ''
         self.m_mousePos = QPoint()
-        self.m_replies = []
 
         self.setObjectName('WebPage')
         self.m_webPage = CustomPage(self)
@@ -133,29 +133,44 @@ class WebPage(QObject):
         self.loadFinished.emit(status)
 
     def handleUnsupportedContent(self, reply):
-        def _onFinish():
+        def _onReady():
+            sniffedReply = Sniff(str(reply.readAll()))
+            self.m_replies[reply] = sniffedReply.mime_type
+
             # reconnect mainFrame signal
             if self.m_mainFrame.requestedUrl() == reply.url():
                 self.m_webPage.loadFinished.connect(self.finish)
-            _loopFrames(self.m_mainFrame)
+
+            valid_type = (sniffedReply.isText or sniffedReply.isHtml or sniffedReply.isXml or
+                          sniffedReply.isImage)
+            if valid_type:
+                reply.finished.connect(lambda: _loopFrames(self.m_mainFrame))
+            else:
+                # :TODO: file download implementation. In the meantime, abort the reply,
+                #        and send the failed signal
+                reply.abort()
+                if self.m_mainFrame.requestedUrl() == reply.url():
+                    self.m_webPage.loadFinished.emit(False)
 
         def _loopFrames(frame):
-            for reply in self.m_replies:
+            for reply, mime_type in self.m_replies.items():
                 if frame.requestedUrl() == reply.url():
-                    data = unicode(reply.body())
-                    frame.setHtml(data, reply.url())
+                    frame.setContent(reply.body(), mime_type, reply.url())
                 else:
                     for frame in frame.childFrames():
                         _loopFrames(frame)
 
         # make sure it's not a file we should download instead
         if reply.rawHeader('Content-Disposition') != 'attachment':
-            self.m_replies.append(reply)
             # if no 'Content-Type' header is set in mainFrame,
             # ignore loadFinished until the reply is done
             if self.m_mainFrame.requestedUrl() == reply.url():
                 self.m_webPage.loadFinished.disconnect(self.finish)
-            reply.finished.connect(_onFinish)
+            reply.readyRead.connect(_onReady)
+        else:
+            # :TODO: file download implementation. In the meantime, abort the reply,
+            #        and send the failed signal
+            reply.abort()
 
     def mainFrame(self):
         return self.m_mainFrame
