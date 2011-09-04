@@ -84,12 +84,17 @@ def parseArgs(app, args):
             if setting == 'verbose':
                 messageHandler.verbose = args.verbose
 
-    if args.proxy:
-        item = args.proxy.split(':')
-        if len(item) < 2 or not len(item[1]):
-            p.print_help()
-            sys.exit(1)
-        args.proxy = item
+    split_check = (
+        (args.proxy, 'proxy'),
+        (args.auth, 'auth')
+    )
+    for arg, name in split_check:
+        if arg:
+            item = arg.split(':')
+            if len(item) < 2 or not len(item[1]):
+                p.print_help()
+                sys.exit(1)
+            setattr(args, name, item)
 
     do_action('ParseArgs')
 

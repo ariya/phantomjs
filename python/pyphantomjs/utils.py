@@ -61,6 +61,9 @@ def argParser():
         help='The script to execute, and any args to pass to it'
     )
 
+    parser.add_argument('--auth', metavar='user:pass',
+        help='Sets the authentication username and password'
+    )
     parser.add_argument('--config', metavar='/path/to/config',
         help='Specifies path to a JSON-formatted config file'
     )
