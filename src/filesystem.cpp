@@ -179,6 +179,34 @@ bool FileSystem::isWritable(const QString &path) const {
 }
 
 // Directory
+bool FileSystem::_copyTree(const QString &source, const QString &destination) const {
+    QDir sourceDir(source);
+    QDir::Filters sourceDirFilter = QDir::NoDotAndDotDot | QDir::AllDirs | QDir::Files | QDir::NoSymLinks | QDir::Drives;
+
+    if (sourceDir.exists()) {
+        // Make the destination directory if it doesn't exist already
+        if (!FileSystem::exists(destination) && !FileSystem::makeDirectory(destination)) {
+            return false;
+        }
+
+        foreach(QFileInfo entry, sourceDir.entryInfoList(sourceDirFilter, QDir::DirsFirst)) {
+            if (entry.isDir()) {
+                if (!FileSystem::_copyTree(entry.absoluteFilePath(),
+                            destination + "/" + entry.fileName())) { //< directory: recursive call
+                    return false;
+                }
+            } else {
+                if (!FileSystem::_copy(entry.absoluteFilePath(),
+                                destination + "/" + entry.fileName())) { //< file: copy
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
 bool FileSystem::makeDirectory(const QString &path) const
 {
     return QDir().mkdir(path);
@@ -197,24 +225,26 @@ bool FileSystem::_removeDirectory(const QString &path) const
 bool FileSystem::_removeTree(const QString &path) const
 {
     QDir dir(path);
-    bool res = false;
+    QDir::Filters dirFilter = QDir::NoDotAndDotDot | QDir::System | QDir::Hidden | QDir::AllDirs | QDir::Files;
 
     if (dir.exists()) {
-        foreach(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
+        foreach(QFileInfo info, dir.entryInfoList(dirFilter, QDir::DirsFirst)) {
             if (info.isDir()) {
-                res = _removeTree(info.absoluteFilePath());
+                if (!FileSystem::_removeTree(info.absoluteFilePath())) { //< directory: recursive call
+                    return false;
+                }
             } else {
-                res = _remove(info.absoluteFilePath());
-            }
-
-            if (!res) {
-                return res;
+                if (!FileSystem::_remove(info.absoluteFilePath())) { //< file: remove
+                    return false;
+                }
             }
         }
-        res = _removeDirectory(path);
+        if (!FileSystem::_removeDirectory(path)) { //< delete the top tree directory
+            return false;
+        }
     }
 
-    return res;
+    return true;
 }
 
 QStringList FileSystem::list(const QString &path) const

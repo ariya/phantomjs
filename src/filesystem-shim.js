@@ -102,6 +102,18 @@ window.fs.copy = function (source, destination) {
 	}
 };
 
+/** Copy a directory tree.
+ * It will throw an exception if it fails.
+ *
+ * @param source Path of the source directory tree
+ * @param destination Path of the destination directory tree
+ */
+window.fs.copyTree = function (source, destination) {
+	if (!fs._copyTree(source, destination)) {
+		throw "Unable to copy directory tree '" + source + "' at '" + destination + "'";
+	}
+};
+
 /** Move a file.
  * It will throw an exception if it fails.
  *

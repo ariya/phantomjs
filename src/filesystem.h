@@ -77,10 +77,8 @@ public slots:
     QVariant lastModified(const QString &path) const;
 
     // Directory
-    // - copyTree(source, target) //< copies files from a source path to a target path,
-    //                                copying the files of the source tree to the corresponding locations
-    //                                relative to the target, copying but not traversing into
-    //                                symbolic links to directories.
+    // 'copyTree(source, destination)' implemented in "filesystem-shim.js" using '_copyTree(source, destination)'
+    bool _copyTree(const QString &source, const QString &destination) const;
     bool makeDirectory(const QString &path) const;
     bool makeTree(const QString &path) const;
     // 'removeDirectory(path)' implemented in "filesystem-shim.js" using '_removeDirectory(path)'
