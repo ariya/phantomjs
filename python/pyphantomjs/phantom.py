@@ -84,14 +84,19 @@ class Phantom(QObject):
         self.m_page.mainFrame().addToJavaScriptWindowObject('phantom', self)
         self.m_page.mainFrame().addToJavaScriptWindowObject('fs', self.m_filesystem)
 
-        bootstrap = QFile(':/bootstrap.js')
-        if not bootstrap.open(QFile.ReadOnly):
-            sys.exit('Can not bootstrap!')
-        bootstrapper = str(bootstrap.readAll())
-        bootstrap.close()
-        if not bootstrapper:
-            sys.exit('Can not bootstrap!')
-        self.m_page.mainFrame().evaluateJavaScript(bootstrapper)
+        jsShims = (
+            ':/fs-shim.js',
+            ':/webpage-shim.js'
+        )
+        for shim in jsShims:
+            f = QFile(shim)
+            if not f.open(QFile.ReadOnly):
+                sys.exit("Failed to load shim '%s'" % shim)
+
+            f = str(f.readAll())
+            if not f:
+                sys.exit("Failed to load shim '%s'" % shim)
+            self.m_page.mainFrame().evaluateJavaScript(f)
 
         do_action('PhantomInitPost')
 
