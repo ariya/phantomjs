@@ -91,7 +91,7 @@ Phantom::Phantom(QObject *parent)
     m_scriptFileEnc.setEncoding(m_config.scriptEncoding());
 
     // Provide WebPage with a non-standard Network Access Manager
-    m_netAccessMan = new NetworkAccessManager(this, m_config.diskCacheEnabled(), m_config.cookieFile(), m_config.ignoreSslErrors());
+    m_netAccessMan = new NetworkAccessManager(this, m_config.diskCacheEnabled(), m_config.cookieFile(), m_config.ignoreSslErrors(), m_config.authUser(), m_config.authPass());
     m_page->setNetworkAccessManager(m_netAccessMan);
 
     connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString, int, QString)),

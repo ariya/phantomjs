@@ -34,6 +34,7 @@
 #include <QHash>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QAuthenticator>
 #include <QSet>
 
 class QNetworkDiskCache;
@@ -43,11 +44,13 @@ class NetworkAccessManager : public QNetworkAccessManager
     Q_OBJECT
     QNetworkDiskCache* m_networkDiskCache;
 public:
-    NetworkAccessManager(QObject *parent = 0, bool diskCacheEnabled = false, QString cookieFile = "", bool ignoreSslErrors = false);
+    NetworkAccessManager(QObject *parent = 0, bool diskCacheEnabled = false, QString cookieFile = "", bool ignoreSslErrors = false, QString authUser = "", QString authPass = "");
     virtual ~NetworkAccessManager();
 
 protected:
     bool m_ignoreSslErrors;
+    QString m_authUser;
+    QString m_authPass;
     QNetworkReply *createRequest(Operation op, const QNetworkRequest & req, QIODevice * outgoingData = 0);
 
 signals:
@@ -57,6 +60,7 @@ signals:
 private slots:
     void handleStarted();
     void handleFinished(QNetworkReply *reply);
+    void provideAuthenication(QNetworkReply *reply, QAuthenticator *ator);
 
 private:
     QHash<QNetworkReply*, int> m_ids;

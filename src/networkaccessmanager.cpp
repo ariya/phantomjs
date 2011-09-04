@@ -34,6 +34,7 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QNetworkDiskCache>
+#include <QAuthenticator>
 
 #include "networkaccessmanager.h"
 #include "networkreplyproxy.h"
@@ -66,10 +67,12 @@ static const char *toString(QNetworkAccessManager::Operation op)
 }
 
 // public:
-NetworkAccessManager::NetworkAccessManager(QObject *parent, bool diskCacheEnabled, QString cookieFile, bool ignoreSslErrors)
+NetworkAccessManager::NetworkAccessManager(QObject *parent, bool diskCacheEnabled, QString cookieFile, bool ignoreSslErrors, QString authUser, QString authPass)
     : QNetworkAccessManager(parent)
     , m_networkDiskCache(0)
     , m_ignoreSslErrors(ignoreSslErrors)
+    , m_authUser(authUser)
+    , m_authPass(authPass)
     , m_idCounter(0)
 {
     if (!cookieFile.isEmpty()) {
@@ -81,6 +84,8 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, bool diskCacheEnable
         m_networkDiskCache->setCacheDirectory(QDesktopServices::storageLocation(QDesktopServices::CacheLocation));
         setCache(m_networkDiskCache);
     }
+
+    connect(this, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)), SLOT(provideAuthenication(QNetworkReply*,QAuthenticator*)));
     connect(this, SIGNAL(finished(QNetworkReply*)), SLOT(handleFinished(QNetworkReply*)));
 }
 
@@ -184,4 +189,10 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply)
     m_started.remove(reply);
 
     emit resourceReceived(data);
+}
+
+void NetworkAccessManager::provideAuthenication(QNetworkReply *reply, QAuthenticator *ator)
+{
+    ator->setUser(m_authUser);
+    ator->setPassword(m_authPass);
 }
