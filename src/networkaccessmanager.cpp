@@ -193,6 +193,7 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply)
 
 void NetworkAccessManager::provideAuthenication(QNetworkReply *reply, QAuthenticator *ator)
 {
+    Q_UNUSED(reply);
     ator->setUser(m_authUser);
     ator->setPassword(m_authPass);
 }
