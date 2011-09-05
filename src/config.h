@@ -44,6 +44,7 @@ class Config: QObject
     Q_PROPERTY(QString outputEncoding READ outputEncoding WRITE setOutputEncoding)
     Q_PROPERTY(bool pluginsEnabled READ pluginsEnabled WRITE setPluginsEnabled)
     Q_PROPERTY(QString proxy READ proxy WRITE setProxy)
+    Q_PROPERTY(QString auth READ auth WRITE setAuth)
     Q_PROPERTY(QString scriptEncoding READ scriptEncoding WRITE setScriptEncoding)
 
 public:
@@ -79,6 +80,11 @@ public:
     QString proxyHost() const;
     int proxyPort() const;
 
+    QString auth() const;
+    void setAuth(const QString &value);
+    QString authUser() const;
+    QString authPass() const;
+
     QStringList scriptArgs() const;
     void setScriptArgs(const QStringList &value);
 
@@ -98,6 +104,8 @@ private:
     void resetToDefaults();
     void setProxyHost(const QString &value);
     void setProxyPort(const int value);
+    void setAuthUser(const QString &value);
+    void setAuthPass(const QString &value);
 
     bool m_autoLoadImages;
     QString m_cookieFile;
@@ -113,6 +121,8 @@ private:
     QString m_scriptFile;
     QString m_unknownOption;
     bool m_versionFlag;
+    QString m_authUser;
+    QString m_authPass;
 
 private:
     static QString normalisePath(const QString &path);
