@@ -1,4 +1,4 @@
-describe("Paths Files API", function() {
+describe("Files and Directories API", function() {
 	var TEST_DIR = "testdir",
 		TEST_FILE = "testfile",
 		START_CWD = null;
@@ -18,8 +18,16 @@ describe("Paths Files API", function() {
 		expect(lastIndex + suffix.length === abs.length);
 	});
 	
-	it("shoudl return to previous Current Working Directory and remove temporary directory", function() {
+	it("should return to previous Current Working Directory and remove temporary directory", function() {
 		expect(fs.changeWorkingDirectory(START_CWD)).toBeTruthy();
 		fs.removeTree(TEST_DIR);
+	});
+
+	it("should copy Current Working Directory tree in a temporary directory, compare with the original and remove", function() {
+		expect(fs.changeWorkingDirectory("../")).toBeTruthy();
+		fs.copyTree(START_CWD, TEST_DIR);
+		expect(fs.list(START_CWD).length).toEqual(fs.list(TEST_DIR).length);
+		fs.removeTree(TEST_DIR);
+		expect(fs.changeWorkingDirectory(START_CWD)).toBeTruthy();
 	});
 });
