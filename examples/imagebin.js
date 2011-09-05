@@ -1,6 +1,6 @@
 // Upload an image to imagebin.org
 
-var page = new WebPage(), fname;
+var page = require('webpage'), fname;
 
 if (phantom.args.length !== 1) {
     console.log('Usage: imagebin.js filename');

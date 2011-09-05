@@ -1,5 +1,6 @@
 describe("Attributes Files API", function() {
-    var FILENAME = "temp-02.test",
+    var fs = require('fs'),
+		FILENAME = "temp-02.test",
         CONTENT = "This is a test for PhantomJS, an awesome headless browser to do all sort of stuff :) ",
         CONTENT_MULTIPLIER = 1024,
         ABSENT = "absent-02.test";

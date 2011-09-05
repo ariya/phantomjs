@@ -1,4 +1,4 @@
-page = new WebPage()
+page = require 'webpage'
 
 page.viewportSize = { width: 320, height: 480 }
 

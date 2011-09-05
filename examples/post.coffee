@@ -1,6 +1,6 @@
 # Example using HTTP POST operation
 
-page = new WebPage()
+page = require 'webpage'
 server = 'http://posttestserver.com/post.php?dump'
 data = 'universe=expanding&answer=42'
 

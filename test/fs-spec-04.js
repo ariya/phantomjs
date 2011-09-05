@@ -1,5 +1,6 @@
 describe("Tests Files API", function() {
-	var ABSENT_DIR = "absentdir04",
+	var fs = require('fs'),
+		ABSENT_DIR = "absentdir04",
 		ABSENT_FILE = "absentfile04",
 		TEST_DIR = "testdir04",
 		TEST_FILE = "testfile04",

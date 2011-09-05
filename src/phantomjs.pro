@@ -35,8 +35,11 @@ SOURCES += phantom.cpp \
     encoding.cpp \
     config.cpp
 
-OTHER_FILES = bootstrap.js usage.txt \
-    configurator.js
+OTHER_FILES = usage.txt \
+    configurator.js \
+    phantom-shim.js \
+    builtin-modules/filesystem.js \
+    builtin-modules/webpage.js
 
 include(gif/gif.pri)
 

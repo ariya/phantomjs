@@ -1,5 +1,5 @@
-/*jslint sloppy: true, nomen: true */
-/*global window:true,phantom:true,fs:true */
+/* jslint sloppy: true, nomen: true */
+/* global phantom:true, exports:true, params:true */
 
 /*
   This file is part of the PhantomJS project from Ofi Labs.
@@ -30,8 +30,7 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// window.fs
-// JavaScript "shim" to throw exceptions in case a critical operation fails.
+// Builtin Module: 'fs'
 
 /** Open and return a "file" object.
  * It will throw exception if it fails.
@@ -40,8 +39,8 @@
  * @param mode Open Mode. A string made of 'r', 'w', 'a/+' characters.
  * @return "file" object
  */
-window.fs.open = function (path, mode) {
-    var file = window.fs._open(path, mode);
+exports.open = function (path, mode) {
+    var file = exports._open(path, mode);
     if (file) {
         return file;
     }
@@ -54,8 +53,8 @@ window.fs.open = function (path, mode) {
  * @param path Path of the file to read from
  * @return file content
  */
-window.fs.read = function (path) {
-    var f = fs.open(path, 'r'),
+exports.read = function (path) {
+    var f = exports.open(path, 'r'),
         content = f.read();
 
     f.close();
@@ -69,8 +68,8 @@ window.fs.read = function (path) {
  * @param content Content to write to the file
  * @param mode Open Mode. A string made of 'w' or 'a / +' characters.
  */
-window.fs.write = function (path, content, mode) {
-    var f = fs.open(path, mode);
+exports.write = function (path, content, mode) {
+    var f = exports.open(path, mode);
 
     f.write(content);
     f.close();
@@ -82,8 +81,8 @@ window.fs.write = function (path, content, mode) {
  * @param path Path of the file to read the size of
  * @return File size in bytes
  */
-window.fs.size = function (path) {
-    var size = fs._size(path);
+exports.size = function (path) {
+    var size = exports._size(path);
     if (size !== -1) {
         return size;
     }
@@ -96,8 +95,8 @@ window.fs.size = function (path) {
  * @param source Path of the source file
  * @param destination Path of the destination file
  */
-window.fs.copy = function (source, destination) {
-	if (!fs._copy(source, destination)) {
+exports.copy = function (source, destination) {
+	if (!exports._copy(source, destination)) {
 		throw "Unable to copy file '" + source + "' at '" + destination + "'";
 	}
 };
@@ -108,8 +107,8 @@ window.fs.copy = function (source, destination) {
  * @param source Path of the source directory tree
  * @param destination Path of the destination directory tree
  */
-window.fs.copyTree = function (source, destination) {
-	if (!fs._copyTree(source, destination)) {
+exports.copyTree = function (source, destination) {
+	if (!exports._copyTree(source, destination)) {
 		throw "Unable to copy directory tree '" + source + "' at '" + destination + "'";
 	}
 };
@@ -120,9 +119,9 @@ window.fs.copyTree = function (source, destination) {
  * @param source Path of the source file
  * @param destination Path of the destination file
  */
-window.fs.move = function (source, destination) {
-	fs.copy(source, destination);
-	fs.remove(source);
+exports.move = function (source, destination) {
+	exports.copy(source, destination);
+	exports.remove(source);
 };
 
 /** Removes a file.
@@ -130,8 +129,8 @@ window.fs.move = function (source, destination) {
  *
  * @param path Path of the file to remove
  */
-window.fs.remove = function (path) {
-	if (!fs._remove(path)) {
+exports.remove = function (path) {
+	if (!exports._remove(path)) {
 		throw "Unable to remove file '" + path + "'";
 	}
 };
@@ -141,8 +140,8 @@ window.fs.remove = function (path) {
  *
  * @param path Path of the directory to remove
  */
-window.fs.removeDirectory = function (path) {
-	if (!fs._removeDirectory(path)) {
+exports.removeDirectory = function (path) {
+	if (!exports._removeDirectory(path)) {
 		throw "Unable to remove directory '" + path + "'";
 	}
 };
@@ -152,12 +151,12 @@ window.fs.removeDirectory = function (path) {
  *
  * @param path Path of the directory tree to remove
  */
-window.fs.removeTree = function (path) {
-	if (!fs._removeTree(path)) {
+exports.removeTree = function (path) {
+	if (!exports._removeTree(path)) {
 		throw "Unable to remove directory tree '" + path + "'";
 	}
 };
 
-window.fs.touch = function (path) {
-	fs.write(path, "", 'a');
+exports.touch = function (path) {
+	exports.write(path, "", 'a');
 };

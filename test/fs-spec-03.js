@@ -1,5 +1,6 @@
 describe("Files and Directories API", function() {
-	var TEST_DIR = "testdir",
+	var fs = require('fs'),
+		TEST_DIR = "testdir",
 		TEST_FILE = "testfile",
 		START_CWD = null;
 	

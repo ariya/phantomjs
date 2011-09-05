@@ -1,15 +1,5 @@
-describe("WebPage constructor", function() {
-    it("should exist in window", function() {
-        expect(window.hasOwnProperty('WebPage')).toBeTruthy();
-    });
-
-    it("should be a function", function() {
-        expect(typeof window.WebPage).toEqual('function');
-    });
-});
-
 describe("WebPage object", function() {
-    var page = new WebPage();
+    var page = require("webpage");
 
     it("should be creatable", function() {
         expect(typeof page).toEqual('object');
