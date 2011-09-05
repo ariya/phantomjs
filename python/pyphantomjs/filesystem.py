@@ -174,6 +174,15 @@ class FileSystem(QObject):
     # Directories
     ##
 
+    @pyqtSlot(str, str, result=bool)
+    def _copyTree(self, source, target):
+        try:
+            shutil.copytree(source, target)
+            return True
+        except IOError as (t, e):
+            qDebug("FileSystem.copyTree - %s: '%s' -> '%s'" % (e, source, target))
+            return False
+
     @pyqtSlot(str, result=bool)
     def _removeDirectory(self, path):
         try:
@@ -190,15 +199,6 @@ class FileSystem(QObject):
             return True
         except OSError as e:
             qDebug("FileSystem.removeTree - %s: '%s'" % (e, path))
-            return False
-
-    @pyqtSlot(str, str, result=bool)
-    def copyTree(self, source, target):
-        try:
-            shutil.copytree(source, target)
-            return True
-        except IOError as (t, e):
-            qDebug("FileSystem.copyTree - %s: '%s' -> '%s'" % (e, source, target))
             return False
 
     @pyqtSlot(str, str, result=bool)

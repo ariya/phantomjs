@@ -85,7 +85,7 @@ class Phantom(QObject):
         self.m_page.mainFrame().addToJavaScriptWindowObject('fs', self.m_filesystem)
 
         jsShims = (
-            ':/fs-shim.js',
+            ':/filesystem-shim.js',
             ':/webpage-shim.js'
         )
         for shim in jsShims:
