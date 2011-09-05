@@ -72,33 +72,31 @@ public:
 
 public slots:
     // Attributes
-    // 'size(path)' implemented in "fs-shim.js" using '_size(path)'
+    // 'size(path)' implemented in "filesystem-shim.js" using '_size(path)'
     int _size(const QString &path) const;
     QVariant lastModified(const QString &path) const;
 
     // Directory
-    // - copyTree(source, target) //< copies files from a source path to a target path,
-    //                                copying the files of the source tree to the corresponding locations
-    //                                relative to the target, copying but not traversing into
-    //                                symbolic links to directories.
+    // 'copyTree(source, destination)' implemented in "filesystem-shim.js" using '_copyTree(source, destination)'
+    bool _copyTree(const QString &source, const QString &destination) const;
     bool makeDirectory(const QString &path) const;
     bool makeTree(const QString &path) const;
-    // 'removeDirectory(path)' implemented in "fs-shim.js" using '_removeDirectory(path)'
+    // 'removeDirectory(path)' implemented in "filesystem-shim.js" using '_removeDirectory(path)'
     bool _removeDirectory(const QString &path) const;
-    // 'removeTree(path)' implemented in "fs-shim.js" using '_removeTree(path)'
+    // 'removeTree(path)' implemented in "filesystem-shim.js" using '_removeTree(path)'
     bool _removeTree(const QString &path) const;
 
     // Files
-    // 'open(path, mode)' implemented in "fs-shim.js" using '_open(path, mode)'
+    // 'open(path, mode)' implemented in "filesystem-shim.js" using '_open(path, mode)'
     QObject *_open(const QString &path, const QString &mode) const;
-    // 'read(path)' implemented in "fs-shim.js"
-    // 'write(path, mode)' implemented in the "fs-shim.js"
-    // 'remove(path)' implemented in "fs-shim.js" using '_remove(path)'
+    // 'read(path)' implemented in "filesystem-shim.js"
+    // 'write(path, mode)' implemented in the "filesystem-shim.js"
+    // 'remove(path)' implemented in "filesystem-shim.js" using '_remove(path)'
     bool _remove(const QString &path) const;
-    // 'copy(source, destination)' implemented in "fs-shim.js" using '_copy(source, destination)'
+    // 'copy(source, destination)' implemented in "filesystem-shim.js" using '_copy(source, destination)'
     bool _copy(const QString &source, const QString &destination) const;
-    // 'move(source, destination)' implemented in "fs-shim.js"
-    // 'touch(path)' implemented in "fs-shim.js"
+    // 'move(source, destination)' implemented in "filesystem-shim.js"
+    // 'touch(path)' implemented in "filesystem-shim.js"
 
     // Listing
     QStringList list(const QString &path) const;

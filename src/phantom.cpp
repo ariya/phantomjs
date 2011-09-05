@@ -114,7 +114,7 @@ Phantom::Phantom(QObject *parent)
     // Load all the required JavaScript 'shims'
     QString jsShims[2] = {
         ":/webpage-shim.js",
-        ":/fs-shim.js"
+        ":/filesystem-shim.js"
     };
     for (int i = 0, len = 2; i < len; ++i) {
         QFile f(jsShims[i]);
