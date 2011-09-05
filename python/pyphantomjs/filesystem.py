@@ -153,15 +153,6 @@ class FileSystem(QObject):
             return False
 
     @pyqtSlot(str, str, result=bool)
-    def move(self, source, target):
-        try:
-            shutil.move(source, target)
-            return True
-        except IOError as (t, e):
-            qDebug("FileSystem.move - %s: '%s' -> '%s'" % (e, source, target))
-            return False
-
-    @pyqtSlot(str, str, result=bool)
     def rename(self, source, target):
         try:
             os.rename(source, target)
