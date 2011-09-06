@@ -71,3 +71,18 @@ window.require = function(moduleId, params) {
 	
 	return exports;
 };
+
+/**
+ * Backward compatible "WebPage" global function.
+ *
+ * @deprecated
+ * @param opts Options to pass to the WebPage
+ * @returns An instance of 'webpage'
+ */
+window.WebPage = function(opts) {
+    // NOTE: this might seem weird, but the idea behind is that the "new"
+    //       operator is supposed to always return an object.
+    //       When invoking "new WebPage()", the new operator returns the returned value,
+    //       not the new function object.
+    return require('webpage', opts);
+};
