@@ -42,7 +42,6 @@ class QNetworkDiskCache;
 class NetworkAccessManager : public QNetworkAccessManager
 {
     Q_OBJECT
-    QNetworkDiskCache* m_networkDiskCache;
 public:
     NetworkAccessManager(QObject *parent = 0, bool diskCacheEnabled = false,
         QString cookieFile = QString(), bool ignoreSslErrors = false,
@@ -68,6 +67,7 @@ private:
     QHash<QNetworkReply*, int> m_ids;
     QSet<QNetworkReply*> m_started;
     int m_idCounter;
+    QNetworkDiskCache* m_networkDiskCache;
 };
 
 #endif // NETWORKACCESSMANAGER_H
