@@ -150,10 +150,34 @@ void Config::processArgs(const QStringList &args)
     }
 }
 
+static QString normalizePath(const QString &path)
+{
+    return path.isEmpty() ? path : QDir::fromNativeSeparators(path);
+}
+
+// THIS METHOD ASSUMES THAT content IS *NEVER* NULL!
+static bool readFile(const QString &path, QString *const content)
+{
+    // Ensure empty content
+    content->clear();
+
+    // Check existence and try to open as text
+    QFile file(path);
+    if (!file.exists() || !file.open(QFile::ReadOnly | QFile::Text)) {
+        return false;
+    }
+
+    content->append(QString::fromUtf8(file.readAll()).trimmed());
+
+    file.close();
+
+    return true;
+}
+
 void Config::loadJsonFile(const QString &filePath)
 {
     QString jsonConfig;
-    if (!readFile(normalisePath(filePath), &jsonConfig)) {
+    if (!readFile(normalizePath(filePath), &jsonConfig)) {
         Terminal::instance()->cerr("Unable to open config: \"" + filePath + "\"");
         return;
     } else if (jsonConfig.isEmpty()) {
@@ -427,29 +451,4 @@ void Config::setAuthUser(const QString &value)
 void Config::setAuthPass(const QString &value)
 {
     m_authPass = value;
-}
-
-// private: (static)
-QString Config::normalisePath(const QString &path)
-{
-    return path.isEmpty() ? path : QDir::fromNativeSeparators(path);
-}
-
-// THIS METHOD ASSUMES THAT content IS *NEVER* NULL!
-bool Config::readFile(const QString &path, QString *const content)
-{
-    // Ensure empty content
-    content->clear();
-
-    // Check existence and try to open as text
-    QFile file(path);
-    if (!file.exists() || !file.open(QFile::ReadOnly | QFile::Text)) {
-        return false;
-    }
-
-    content->append(QString::fromUtf8(file.readAll()).trimmed());
-
-    file.close();
-
-    return true;
 }

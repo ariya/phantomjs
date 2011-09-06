@@ -128,10 +128,6 @@ private:
     bool m_versionFlag;
     QString m_authUser;
     QString m_authPass;
-
-private:
-    static QString normalisePath(const QString &path);
-    static bool readFile(const QString &path, QString *const content);
 };
 
 #endif // CONFIG_H
