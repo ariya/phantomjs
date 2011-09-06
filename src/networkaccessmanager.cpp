@@ -68,11 +68,11 @@ static const char *toString(QNetworkAccessManager::Operation op)
 // public:
 NetworkAccessManager::NetworkAccessManager(QObject *parent, bool diskCacheEnabled, QString cookieFile, bool ignoreSslErrors, QString authUser, QString authPass, int maxCacheSize)
     : QNetworkAccessManager(parent)
-    , m_networkDiskCache(0)
     , m_ignoreSslErrors(ignoreSslErrors)
     , m_authUser(authUser)
     , m_authPass(authPass)
     , m_idCounter(0)
+    , m_networkDiskCache(0)
 {
     if (!cookieFile.isEmpty()) {
         setCookieJar(new CookieJar(cookieFile));
