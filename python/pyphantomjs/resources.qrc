@@ -1,8 +1,9 @@
 <RCC>
     <qresource prefix="/">
-        <file>fs-shim.js</file>
+        <file>configurator.js</file>
+        <file>filesystem-shim.js</file>
         <file>webpage-shim.js</file>
-        <file>resources/pyphantomjs-icon.png</file>
         <file>resources/coffee-script.js</file>
+        <file>resources/pyphantomjs-icon.png</file>
     </qresource>
 </RCC>
