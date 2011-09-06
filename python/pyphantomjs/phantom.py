@@ -65,7 +65,7 @@ class Phantom(QObject):
             QNetworkProxy.setApplicationProxy(proxy)
 
         # Provide WebPage with a non-standard Network Access Manager
-        self.m_netAccessMan = NetworkAccessManager(self, args.disk_cache, args.cookies, args.ignore_ssl_errors)
+        self.m_netAccessMan = NetworkAccessManager(self, args.auth, args.cookies, args.disk_cache, args.ignore_ssl_errors)
         self.m_page.setNetworkAccessManager(self.m_netAccessMan)
 
         self.m_page.javaScriptConsoleMessageSent.connect(self.printConsoleMessage)
@@ -85,7 +85,7 @@ class Phantom(QObject):
         self.m_page.mainFrame().addToJavaScriptWindowObject('fs', self.m_filesystem)
 
         jsShims = (
-            ':/fs-shim.js',
+            ':/filesystem-shim.js',
             ':/webpage-shim.js'
         )
         for shim in jsShims:
