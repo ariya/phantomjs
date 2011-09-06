@@ -31,10 +31,10 @@
 #ifndef NETWORKACCESSMANAGER_H
 #define NETWORKACCESSMANAGER_H
 
+#include <QAuthenticator>
 #include <QHash>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QAuthenticator>
 #include <QSet>
 
 class QNetworkDiskCache;

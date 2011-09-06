@@ -28,13 +28,12 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <QDateTime>
-#include <QList>
-#include <QDesktopServices>
-#include <QNetworkRequest>
-#include <QNetworkReply>
-#include <QNetworkDiskCache>
 #include <QAuthenticator>
+#include <QDateTime>
+#include <QDesktopServices>
+#include <QNetworkDiskCache>
+#include <QNetworkReply>
+#include <QNetworkRequest>
 
 #include "networkaccessmanager.h"
 #include "networkreplyproxy.h"
