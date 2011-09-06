@@ -186,9 +186,9 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply)
     emit resourceReceived(data);
 }
 
-void NetworkAccessManager::provideAuthentication(QNetworkReply *reply, QAuthenticator *ator)
+void NetworkAccessManager::provideAuthentication(QNetworkReply *reply, QAuthenticator *authenticator)
 {
     Q_UNUSED(reply);
-    ator->setUser(m_authUser);
-    ator->setPassword(m_authPass);
+    authenticator->setUser(m_authUser);
+    authenticator->setPassword(m_authPass);
 }
