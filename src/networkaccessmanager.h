@@ -46,7 +46,8 @@ class NetworkAccessManager : public QNetworkAccessManager
 public:
     NetworkAccessManager(QObject *parent = 0, bool diskCacheEnabled = false,
         QString cookieFile = QString(), bool ignoreSslErrors = false,
-        QString authUser = QString(), QString authPass = QString());
+        QString authUser = QString(), QString authPass = QString(),
+        int maxCacheSize = -1);
     virtual ~NetworkAccessManager();
 
 protected:

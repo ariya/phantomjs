@@ -67,7 +67,7 @@ static const char *toString(QNetworkAccessManager::Operation op)
 }
 
 // public:
-NetworkAccessManager::NetworkAccessManager(QObject *parent, bool diskCacheEnabled, QString cookieFile, bool ignoreSslErrors, QString authUser, QString authPass)
+NetworkAccessManager::NetworkAccessManager(QObject *parent, bool diskCacheEnabled, QString cookieFile, bool ignoreSslErrors, QString authUser, QString authPass, int maxCacheSize)
     : QNetworkAccessManager(parent)
     , m_networkDiskCache(0)
     , m_ignoreSslErrors(ignoreSslErrors)
@@ -82,6 +82,8 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, bool diskCacheEnable
     if (diskCacheEnabled) {
         m_networkDiskCache = new QNetworkDiskCache();
         m_networkDiskCache->setCacheDirectory(QDesktopServices::storageLocation(QDesktopServices::CacheLocation));
+        if (maxCacheSize >= 0)
+            m_networkDiskCache->setMaximumCacheSize(maxCacheSize * 1024);
         setCache(m_networkDiskCache);
     }
 

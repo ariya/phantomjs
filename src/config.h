@@ -39,6 +39,7 @@ class Config: QObject
     Q_OBJECT
     Q_PROPERTY(QString cookieFile READ cookieFile WRITE setCookieFile)
     Q_PROPERTY(bool diskCacheEnabled READ diskCacheEnabled WRITE setDiskCacheEnabled)
+    Q_PROPERTY(int maxDiskCacheSize READ maxDiskCacheSize WRITE setMaxDiskCacheSize)
     Q_PROPERTY(bool ignoreSslErrors READ ignoreSslErrors WRITE setIgnoreSslErrors)
     Q_PROPERTY(bool localAccessRemote READ localAccessRemote WRITE setLocalAccessRemote)
     Q_PROPERTY(QString outputEncoding READ outputEncoding WRITE setOutputEncoding)
@@ -62,6 +63,9 @@ public:
 
     bool diskCacheEnabled() const;
     void setDiskCacheEnabled(const bool value);
+
+    int maxDiskCacheSize() const;
+    void setMaxDiskCacheSize(int maxDiskCacheSize);
 
     bool ignoreSslErrors() const;
     void setIgnoreSslErrors(const bool value);
@@ -110,6 +114,7 @@ private:
     bool m_autoLoadImages;
     QString m_cookieFile;
     bool m_diskCacheEnabled;
+    int m_maxDiskCacheSize;
     bool m_ignoreSslErrors;
     bool m_localAccessRemote;
     QString m_outputEncoding;

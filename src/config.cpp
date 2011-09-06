@@ -84,6 +84,10 @@ void Config::processArgs(const QStringList &args)
             setDiskCacheEnabled(false);
             continue;
         }
+        if (arg.startsWith("--max-disk-cache-size=")) {
+            setMaxDiskCacheSize(arg.mid(arg.indexOf("=") + 1).trimmed().toInt());
+            continue;
+        }
         if (arg == "--ignore-ssl-errors=yes") {
             setIgnoreSslErrors(true);
             continue;
@@ -206,6 +210,16 @@ bool Config::diskCacheEnabled() const
 void Config::setDiskCacheEnabled(const bool value)
 {
     m_diskCacheEnabled = value;
+}
+
+int Config::maxDiskCacheSize() const
+{
+    return m_maxDiskCacheSize;
+}
+
+void Config::setMaxDiskCacheSize(int maxDiskCacheSize)
+{
+    m_maxDiskCacheSize = maxDiskCacheSize;
 }
 
 bool Config::ignoreSslErrors() const
@@ -379,6 +393,7 @@ void Config::resetToDefaults()
     m_autoLoadImages = true;
     m_cookieFile.clear();
     m_diskCacheEnabled = false;
+    m_maxDiskCacheSize = -1;
     m_ignoreSslErrors = false;
     m_localAccessRemote = false;
     m_outputEncoding = "UTF-8";
