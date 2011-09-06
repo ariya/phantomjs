@@ -86,7 +86,7 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, bool diskCacheEnable
         setCache(m_networkDiskCache);
     }
 
-    connect(this, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)), SLOT(provideAuthenication(QNetworkReply*,QAuthenticator*)));
+    connect(this, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)), SLOT(provideAuthentication(QNetworkReply*,QAuthenticator*)));
     connect(this, SIGNAL(finished(QNetworkReply*)), SLOT(handleFinished(QNetworkReply*)));
 }
 
@@ -186,7 +186,7 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply)
     emit resourceReceived(data);
 }
 
-void NetworkAccessManager::provideAuthenication(QNetworkReply *reply, QAuthenticator *ator)
+void NetworkAccessManager::provideAuthentication(QNetworkReply *reply, QAuthenticator *ator)
 {
     Q_UNUSED(reply);
     ator->setUser(m_authUser);

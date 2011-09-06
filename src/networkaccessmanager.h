@@ -61,7 +61,7 @@ signals:
 private slots:
     void handleStarted();
     void handleFinished(QNetworkReply *reply);
-    void provideAuthenication(QNetworkReply *reply, QAuthenticator *ator);
+    void provideAuthentication(QNetworkReply *reply, QAuthenticator *ator);
 
 private:
     QHash<QNetworkReply*, int> m_ids;
