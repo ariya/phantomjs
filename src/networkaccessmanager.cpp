@@ -80,7 +80,7 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, bool diskCacheEnable
     }
 
     if (diskCacheEnabled) {
-        m_networkDiskCache = new QNetworkDiskCache();
+        m_networkDiskCache = new QNetworkDiskCache(this);
         m_networkDiskCache->setCacheDirectory(QDesktopServices::storageLocation(QDesktopServices::CacheLocation));
         if (maxCacheSize >= 0)
             m_networkDiskCache->setMaximumCacheSize(maxCacheSize * 1024);
@@ -89,12 +89,6 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, bool diskCacheEnable
 
     connect(this, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)), SLOT(provideAuthenication(QNetworkReply*,QAuthenticator*)));
     connect(this, SIGNAL(finished(QNetworkReply*)), SLOT(handleFinished(QNetworkReply*)));
-}
-
-NetworkAccessManager::~NetworkAccessManager()
-{
-    if (m_networkDiskCache)
-        delete m_networkDiskCache;
 }
 
 // protected:

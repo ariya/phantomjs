@@ -48,7 +48,6 @@ public:
         QString cookieFile = QString(), bool ignoreSslErrors = false,
         QString authUser = QString(), QString authPass = QString(),
         int maxCacheSize = -1);
-    virtual ~NetworkAccessManager();
 
 protected:
     bool m_ignoreSslErrors;
