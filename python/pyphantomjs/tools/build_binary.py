@@ -20,11 +20,12 @@
 
 import os
 import sys
+
 # hack to import parent module(s)
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path = sys.path + [parent_dir]
+sys.path = [parent_dir] + sys.path
 
-from utils import version
+from __init__ import __version__
 
 try:
     from cx_Freeze import setup, Executable
@@ -84,7 +85,7 @@ exe = Executable(
 
 setup(
     name = 'PyPhantomJS',
-    version = version,
+    version = __version__,
     description = 'Minimalistic, headless, WebKit-based, JavaScript-driven tool',
     options = {'build_exe': {'includes': includes, 'include_files': include_files}},
     executables = [exe]
