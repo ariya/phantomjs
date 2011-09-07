@@ -96,12 +96,12 @@ void Config::processArgs(const QStringList &args)
             setIgnoreSslErrors(false);
             continue;
         }
-        if (arg == "--local-access-remote=no") {
-            setLocalAccessRemote(false);
+        if (arg == "--local-to-remote-url-access=no") {
+            setLocalToRemoteUrlAccessEnabled(false);
             continue;
         }
-        if (arg == "--local-access-remote=yes") {
-            setLocalAccessRemote(true);
+        if (arg == "--local-to-remote-url-access=yes") {
+            setLocalToRemoteUrlAccessEnabled(true);
             continue;
         }
         if (arg.startsWith("--proxy=")) {
@@ -256,14 +256,14 @@ void Config::setIgnoreSslErrors(const bool value)
     m_ignoreSslErrors = value;
 }
 
-bool Config::localAccessRemote() const
+bool Config::localToRemoteUrlAccessEnabled() const
 {
-    return m_localAccessRemote;
+    return m_localToRemoteUrlAccessEnabled;
 }
 
-void Config::setLocalAccessRemote(const bool value)
+void Config::setLocalToRemoteUrlAccessEnabled(const bool value)
 {
-    m_localAccessRemote = value;
+    m_localToRemoteUrlAccessEnabled = value;
 }
 
 QString Config::outputEncoding() const
@@ -419,7 +419,7 @@ void Config::resetToDefaults()
     m_diskCacheEnabled = false;
     m_maxDiskCacheSize = -1;
     m_ignoreSslErrors = false;
-    m_localAccessRemote = false;
+    m_localToRemoteUrlAccessEnabled = false;
     m_outputEncoding = "UTF-8";
     m_pluginsEnabled = false;
     m_proxyHost.clear();
