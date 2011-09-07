@@ -73,7 +73,8 @@ include_files = [
     (os.path.join(parent_dir, 'plugins'), 'plugins'),
     (os.path.join(parent_dir, '../../examples'), 'examples'),
     (os.path.join(parent_dir, '../LICENSE'), 'LICENSE.txt'),
-    (os.path.join(parent_dir, '../README.md'), 'README.txt')
+    (os.path.join(parent_dir, '../README.md'), 'README.txt'),
+    (os.path.join(parent_dir, '../../ChangeLog'), 'ChangeLog.txt')
 ]
 
 
