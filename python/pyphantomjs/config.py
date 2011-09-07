@@ -58,7 +58,7 @@ class Config(QObject):
         file_ = QFile(':/configurator.js')
         if not file_.open(QFile.ReadOnly):
             sys.exit('Unable to load JSON configurator!')
-        configurator = str(file_.readAll())
+        configurator = file_.readAll().data()
         file_.close()
         if not configurator:
             sys.exit('Unable to set-up JSON configurator!')

@@ -93,7 +93,7 @@ class Phantom(QObject):
             if not f.open(QFile.ReadOnly):
                 sys.exit("Failed to load shim '%s'" % shim)
 
-            f = str(f.readAll())
+            f = f.readAll().data()
             if not f:
                 sys.exit("Failed to load shim '%s'" % shim)
             self.m_page.mainFrame().evaluateJavaScript(f)

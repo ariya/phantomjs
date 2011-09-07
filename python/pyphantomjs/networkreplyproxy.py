@@ -98,7 +98,7 @@ class NetworkReplyProxy(QNetworkReply):
     def readData(self, maxlen):
         size = min(maxlen, len(self.m_buffer))
         data, self.m_buffer = self.m_buffer[:size], self.m_buffer[size:]
-        return str(data)
+        return data.data()
 
     def readInternal(self):
         data = self.m_reply.readAll()

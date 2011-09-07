@@ -38,7 +38,7 @@ class CSConverter(QObject):
         converter = QFile(':/resources/coffee-script.js')
         if not converter.open(QFile.ReadOnly):
             sys.exit('CoffeeScript compiler is not available!')
-        script = str(converter.readAll())
+        script = converter.readAll().data()
         converter.close()
 
         self.m_webPage.mainFrame().evaluateJavaScript(script)

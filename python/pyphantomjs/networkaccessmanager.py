@@ -69,8 +69,8 @@ class NetworkAccessManager(QNetworkAccessManager):
         headers = []
         for header in req.rawHeaderList():
             header = {
-                'name': str(header),
-                'value': str(req.rawHeader(header))
+                'name': header.data(),
+                'value': req.rawHeader(header).data()
             }
             headers.append(header)
 
@@ -96,8 +96,8 @@ class NetworkAccessManager(QNetworkAccessManager):
         headers = []
         for header in reply.rawHeaderList():
             header = {
-                'name': str(header),
-                'value': str(reply.rawHeader(header))
+                'name': header.data(),
+                'value': reply.rawHeader(header).data()
             }
             headers.append(header)
 
@@ -134,8 +134,8 @@ class NetworkAccessManager(QNetworkAccessManager):
         headers = []
         for header in reply.rawHeaderList():
             header = {
-                'name': str(header),
-                'value': str(reply.rawHeader(header))
+                'name': header.data(),
+                'value': reply.rawHeader(header).data()
             }
             headers.append(header)
 
