@@ -39,6 +39,7 @@ class Config(QObject):
             'loadImages': { 'mapping': 'load_images', 'default': True },
             'loadPlugins': { 'mapping': 'load_plugins', 'default': False },
             'localAccessRemote': { 'mapping': 'local_access_remote', 'default': False },
+            'maxDiskCacheSize': { 'mapping': 'max_disk_cache_size', 'default': -1 },
             'outputEncoding': { 'mapping': 'output_encoding', 'default': 'System' },
             'proxy': { 'mapping': 'proxy', 'default': None },
             'scriptEncoding': { 'mapping': 'script_encoding', 'default': 'utf-8' },

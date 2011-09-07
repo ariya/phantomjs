@@ -90,6 +90,9 @@ def argParser():
         choices=['yes', 'no'],
         help='Local content can access remote URL (default: %(default)s)'
     )
+    parser.add_argument('--max-disk-cache-size', default=-1, metavar='size',
+        help='Limits the size of disk cache (in KB)'
+    )
     parser.add_argument('--output-encoding', default='System', metavar='encoding',
         help='Sets the encoding used for terminal output (default: %(default)s)'
     )
