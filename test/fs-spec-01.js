@@ -1,5 +1,6 @@
 describe("Basic Files API (read, write, remove, ...)", function() {
-    var FILENAME = "temp-01.test",
+    var fs = require('fs'),
+		FILENAME = "temp-01.test",
 		FILENAME_COPY = FILENAME + ".copy",
 		FILENAME_MOVED = FILENAME + ".moved",
 		FILENAME_EMPTY = FILENAME + ".empty",

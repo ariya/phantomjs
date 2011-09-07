@@ -108,20 +108,11 @@ Phantom::Phantom(QObject *parent)
 
     setLibraryPath(QFileInfo(m_config.scriptFile()).dir().absolutePath());
 
-    // Add 'phantom' and 'fs' object to the global scope
+    // Add 'phantom'
     m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
-    m_page->mainFrame()->addToJavaScriptWindowObject("fs", &m_filesystem);
-
-    // Load all the required JavaScript 'shims'
-    QString jsShims[2] = {
-        ":/webpage-shim.js",
-        ":/filesystem-shim.js"
-    };
-    for (int i = 0, len = 2; i < len; ++i) {
-        QFile f(jsShims[i]);
-        f.open(QFile::ReadOnly); //< It's OK to assume this succeed. If it doesn't, we have a bigger problem.
-        m_page->mainFrame()->evaluateJavaScript(QString::fromUtf8(f.readAll()));
-    }
+    QFile f(":/phantom-shim.js");
+    f.open(QFile::ReadOnly); //< It's OK to assume this succeed. If it doesn't, we have a bigger problem.
+    m_page->mainFrame()->evaluateJavaScript(QString::fromUtf8(f.readAll()));
 }
 
 QStringList Phantom::args() const
@@ -198,6 +189,20 @@ QObject *Phantom::createWebPage()
     page->setNetworkAccessManager(m_netAccessMan);
     page->setLibraryPath(QFileInfo(m_config.scriptFile()).dir().absolutePath());
     return page;
+}
+
+QObject *Phantom::createFileSystem()
+{
+    return &m_filesystem;
+}
+
+QString Phantom::loadModuleSource(const QString &moduleSourceFilePath)
+{
+    QFile f(moduleSourceFilePath);
+    if (f.open(QFile::ReadOnly)) {
+        return QString::fromUtf8(f.readAll());
+    }
+    return "";
 }
 
 bool Phantom::injectJs(const QString &jsFilePath) {

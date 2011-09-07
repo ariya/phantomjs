@@ -4,6 +4,7 @@ if phantom.args.length < 2
   console.log "Usage: echoToFile.js DESTINATION_FILE <arguments to echo...>"
   phantom.exit()
 else
+  fs = require 'fs'
   content = ""
   f = null
   i = 1

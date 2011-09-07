@@ -3,8 +3,9 @@
         <file>phantomjs-icon.png</file>
         <file>coffee-script.js</file>
         <file>usage.txt</file>
-        <file>webpage-shim.js</file>
-        <file>filesystem-shim.js</file>
         <file>configurator.js</file>
+        <file>builtin-modules/filesystem.js</file>
+        <file>builtin-modules/webpage.js</file>
+        <file>phantom-shim.js</file>
     </qresource>
 </RCC>

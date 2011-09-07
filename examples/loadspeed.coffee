@@ -1,4 +1,4 @@
-page = new WebPage()
+page = require 'webpage'
 
 if phantom.args.length is 0
   console.log 'Usage: loadspeed.js <some URL>'

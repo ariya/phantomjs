@@ -1,5 +1,5 @@
-/*jslint sloppy: true, nomen: true */
-/*global window:true,phantom:true,fs:true */
+/* jslint sloppy: true, nomen: true */
+/* global phantom:true, exports:true */
 
 /*
   This file is part of the PhantomJS project from Ofi Labs.
@@ -33,10 +33,16 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// This allows creating a new web page using the construct "new WebPage",
-// which feels more natural than "phantom.createWebPage()".
-window.WebPage = function (opts) {
-    var page = phantom.createWebPage(),
+// Builtin Module: 'webpage'
+
+/**
+ * Create a new 'webpage'.
+ *
+ * @param opts Options object to initialize the page
+ * @returns A newly created webpage
+ */
+exports.create = function(opts) {
+    var newpage = phantom.createWebPage(),
         handlers = {};
 
     function checkType(o, type) {
@@ -95,7 +101,7 @@ window.WebPage = function (opts) {
     }
 
     function defineSetter(handlerName, signalName) {
-        page.__defineSetter__(handlerName, function (f) {
+        newpage.__defineSetter__(handlerName, function (f) {
             if (handlers && typeof handlers[signalName] === 'function') {
                 try {
                     this[signalName].disconnect(handlers[signalName]);
@@ -107,7 +113,7 @@ window.WebPage = function (opts) {
     }
 
     // deep copy
-    page.settings = JSON.parse(JSON.stringify(phantom.defaultPageSettings));
+    newpage.settings = JSON.parse(JSON.stringify(phantom.defaultPageSettings));
 
     defineSetter("onInitialized", "initialized");
 
@@ -123,60 +129,79 @@ window.WebPage = function (opts) {
 
     defineSetter("onConsoleMessage", "javaScriptConsoleMessageSent");
 
-    page.open = function (url, arg1, arg2, arg3, arg4) {
+    /**
+     * Open a URL.
+     * Can be invoked in one of the following ways:
+     * - open(url)
+     * - open(url, [on load callback])
+     * - open(url, [operation])
+     * - open(url, [operation], [on load callback])
+     * - open(url, [operation], [data])
+     * - open(url, [operation], [data], [on load callback])
+     *
+     * @param url URL to open 
+     */
+    newpage.open = function (url, arg1, arg2, arg3) {
         if (arguments.length === 1) {
-            this.openUrl(url, 'get', this.settings);
+            newpage.openUrl(url, 'get', newpage.settings);
             return;
         }
         if (arguments.length === 2 && typeof arg1 === 'function') {
-            this.onLoadFinished = arg1;
-            this.openUrl(url, 'get', this.settings);
+            newpage.onLoadFinished = arg1;
+            newpage.openUrl(url, 'get', newpage.settings);
             return;
         } else if (arguments.length === 2) {
-            this.openUrl(url, arg1, this.settings);
+            newpage.openUrl(url, arg1, newpage.settings);
             return;
         } else if (arguments.length === 3 && typeof arg2 === 'function') {
-            this.onLoadFinished = arg2;
-            this.openUrl(url, arg1, this.settings);
+            newpage.onLoadFinished = arg2;
+            newpage.openUrl(url, arg1, newpage.settings);
             return;
         } else if (arguments.length === 3) {
-            this.openUrl(url, {
+            newpage.openUrl(url, {
                 operation: arg1,
                 data: arg2
-            }, this.settings);
+            }, newpage.settings);
             return;
         } else if (arguments.length === 4) {
-            this.onLoadFinished = arg3;
-            this.openUrl(url, {
+            newpage.onLoadFinished = arg3;
+            newpage.openUrl(url, {
                 operation: arg1,
                 data: arg2
-            }, this.settings);
+            }, newpage.settings);
             return;
         }
         throw "Wrong use of WebPage#open";
     };
-
-    page.includeJs = function (scriptUrl, onScriptLoaded) {
+    
+    /**
+     * Include JavaScript in the page as '<script>' tag.
+     *
+     * @param scriptUrl URL to the Script to include
+     * @param onScriptLoaded Callback for when the Script is done loading
+     */
+    newpage.includeJs = function (scriptUrl, onScriptLoaded) {
         // Register temporary signal handler for 'alert()'
-        this.javaScriptAlertSent.connect(function (msgFromAlert) {
+        newpage.javaScriptAlertSent.connect(function (msgFromAlert) {
             if (msgFromAlert === scriptUrl) {
                 // Resource loaded, time to fire the callback
                 onScriptLoaded(scriptUrl);
                 // And disconnect the signal handler
                 try {
-                    this.javaScriptAlertSent.disconnect(arguments.callee);
+                    newpage.javaScriptAlertSent.disconnect(arguments.callee);
                 } catch (e) {}
             }
         });
 
         // Append the script tag to the body
-        this._appendScriptElement(scriptUrl);
+        newpage._appendScriptElement(scriptUrl);
     };
 
-    // Copy options into page
+    // Initialise the new 'webpage' with provided 'opts' object
     if (opts) {
-        page = copyInto(page, opts);
+        newpage = copyInto(newpage, opts);
     }
-
-    return page;
+    
+    return newpage;
 };
+

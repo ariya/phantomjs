@@ -1,4 +1,4 @@
-var page = new WebPage(),
+var page = require('webpage'),
     t, address;
 
 if (phantom.args.length === 0) {
