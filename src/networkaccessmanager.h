@@ -31,10 +31,10 @@
 #ifndef NETWORKACCESSMANAGER_H
 #define NETWORKACCESSMANAGER_H
 
+#include <QAuthenticator>
 #include <QHash>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QAuthenticator>
 #include <QSet>
 
 class QNetworkDiskCache;
@@ -42,10 +42,11 @@ class QNetworkDiskCache;
 class NetworkAccessManager : public QNetworkAccessManager
 {
     Q_OBJECT
-    QNetworkDiskCache* m_networkDiskCache;
 public:
-    NetworkAccessManager(QObject *parent = 0, bool diskCacheEnabled = false, QString cookieFile = "", bool ignoreSslErrors = false, QString authUser = "", QString authPass = "");
-    virtual ~NetworkAccessManager();
+    NetworkAccessManager(QObject *parent = 0, bool diskCacheEnabled = false,
+        QString cookieFile = QString(), bool ignoreSslErrors = false,
+        QString authUser = QString(), QString authPass = QString(),
+        int maxCacheSize = -1);
 
 protected:
     bool m_ignoreSslErrors;
@@ -60,12 +61,13 @@ signals:
 private slots:
     void handleStarted();
     void handleFinished(QNetworkReply *reply);
-    void provideAuthenication(QNetworkReply *reply, QAuthenticator *ator);
+    void provideAuthentication(QNetworkReply *reply, QAuthenticator *ator);
 
 private:
     QHash<QNetworkReply*, int> m_ids;
     QSet<QNetworkReply*> m_started;
     int m_idCounter;
+    QNetworkDiskCache* m_networkDiskCache;
 };
 
 #endif // NETWORKACCESSMANAGER_H

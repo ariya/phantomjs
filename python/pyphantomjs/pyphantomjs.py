@@ -40,6 +40,7 @@ import resources
 from __init__ import __version__
 from phantom import Phantom
 from utils import argParser, MessageHandler
+from config import Config
 
 # make keyboard interrupt quit program
 import signal
@@ -51,7 +52,7 @@ sys.stdout = SafeStreamFilter(sys.stdout)
 sys.stderr = SafeStreamFilter(sys.stderr)
 
 
-def parseArgs(args):
+def parseArgs(app, args):
     # Handle all command-line options
     p = argParser()
     arg_data = p.parse_known_args(args)
@@ -64,15 +65,36 @@ def parseArgs(args):
     args.load_plugins = False if args.load_plugins == 'no' else True
     args.local_access_remote = False if args.local_access_remote == 'no' else True
 
-    if args.proxy:
-        item = args.proxy.split(':')
-        if len(item) < 2 or not len(item[1]):
-            p.print_help()
-            sys.exit(1)
-        args.proxy = item
+    # register an alternative Message Handler
+    messageHandler = MessageHandler(args.verbose)
+    qInstallMsgHandler(messageHandler.process)
 
-    if args.cookies is not None and not os.path.exists(args.cookies):
-        sys.exit("No such file or directory: '%s'" % args.cookies)
+    file_check = (args.cookies, args.config)
+    for file_ in file_check:
+        if file_ is not None and not os.path.exists(file_):
+            sys.exit("No such file or directory: '%s'" % file_)
+
+    if args.config:
+        config = Config(app, args.config)
+        # apply settings
+        for setting in config.settings:
+            setattr(args, config.settings[setting]['mapping'], config.property(setting))
+
+            # special case for verbose arg, which will need to be re-applied
+            if setting == 'verbose':
+                messageHandler.verbose = args.verbose
+
+    split_check = (
+        (args.proxy, 'proxy'),
+        (args.auth, 'auth')
+    )
+    for arg, name in split_check:
+        if arg:
+            item = arg.split(':')
+            if len(item) < 2 or not len(item[1]):
+                p.print_help()
+                sys.exit(1)
+            setattr(args, name, item)
 
     do_action('ParseArgs')
 
@@ -87,12 +109,6 @@ def parseArgs(args):
 
 
 def main():
-    args = parseArgs(sys.argv[1:])
-
-    # register an alternative Message Handler
-    messageHandler = MessageHandler(args.verbose)
-    qInstallMsgHandler(messageHandler.process)
-
     app = QApplication(sys.argv)
 
     app.setWindowIcon(QIcon(':/resources/pyphantomjs-icon.png'))
@@ -100,6 +116,8 @@ def main():
     app.setOrganizationName('Umaclan Development')
     app.setOrganizationDomain('www.umaclan.com')
     app.setApplicationVersion(__version__)
+
+    args = parseArgs(app, sys.argv[1:])
 
     phantom = Phantom(app, args)
 

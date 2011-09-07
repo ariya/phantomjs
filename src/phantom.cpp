@@ -91,7 +91,8 @@ Phantom::Phantom(QObject *parent)
     m_scriptFileEnc.setEncoding(m_config.scriptEncoding());
 
     // Provide WebPage with a non-standard Network Access Manager
-    m_netAccessMan = new NetworkAccessManager(this, m_config.diskCacheEnabled(), m_config.cookieFile(), m_config.ignoreSslErrors(), m_config.authUser(), m_config.authPass());
+    m_netAccessMan = new NetworkAccessManager(this, m_config.diskCacheEnabled(),
+        m_config.cookieFile(), m_config.ignoreSslErrors(), m_config.authUser(), m_config.authPass(), m_config.maxDiskCacheSize());
     m_page->setNetworkAccessManager(m_netAccessMan);
 
     connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString, int, QString)),
@@ -102,7 +103,7 @@ Phantom::Phantom(QObject *parent)
     m_defaultPageSettings[PAGE_SETTINGS_JS_ENABLED] = QVariant::fromValue(true);
     m_defaultPageSettings[PAGE_SETTINGS_XSS_AUDITING] = QVariant::fromValue(false);
     m_defaultPageSettings[PAGE_SETTINGS_USER_AGENT] = QVariant::fromValue(m_page->userAgent());
-    m_defaultPageSettings[PAGE_SETTINGS_LOCAL_ACCESS_REMOTE] = QVariant::fromValue(m_config.localAccessRemote());
+    m_defaultPageSettings[PAGE_SETTINGS_LOCAL_ACCESS_REMOTE] = QVariant::fromValue(m_config.localToRemoteUrlAccessEnabled());
     m_page->applySettings(m_defaultPageSettings);
 
     setLibraryPath(QFileInfo(m_config.scriptFile()).dir().absolutePath());

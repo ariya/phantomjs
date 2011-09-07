@@ -31,7 +31,7 @@ class NetworkAccessManager(QNetworkAccessManager):
     resourceReceived = pyqtSignal('QVariantMap')
     resourceRequested = pyqtSignal('QVariantMap')
 
-    def __init__(self, parent, diskCacheEnabled, cookieFile, ignoreSslErrors):
+    def __init__(self, parent, auth, cookieFile, diskCacheEnabled, ignoreSslErrors):
         QNetworkAccessManager.__init__(self, parent)
 
         self.m_ignoreSslErrors = ignoreSslErrors
@@ -41,13 +41,18 @@ class NetworkAccessManager(QNetworkAccessManager):
 
         self.finished.connect(self.handleFinished)
 
+        if auth:
+            self.m_authUser = auth[0]
+            self.m_authPass = auth[1]
+            self.authenticationRequired.connect(self.provideAuthentication)
+
+        if cookieFile:
+            self.setCookieJar(CookieJar(self, cookieFile))
+
         if diskCacheEnabled:
             m_networkDiskCache = QNetworkDiskCache()
             m_networkDiskCache.setCacheDirectory(QDesktopServices.storageLocation(QDesktopServices.CacheLocation))
             self.setCache(m_networkDiskCache)
-
-        if cookieFile:
-            self.setCookieJar(CookieJar(self, cookieFile))
 
         do_action('NetworkAccessManagerInit')
 
@@ -164,5 +169,9 @@ class NetworkAccessManager(QNetworkAccessManager):
             verb = 'DELETE'
 
         return verb
+
+    def provideAuthentication(self, reply, authenticator):
+        authenticator.setUser(self.m_authUser)
+        authenticator.setPassword(self.m_authPass)
 
     do_action('NetworkAccessManager')

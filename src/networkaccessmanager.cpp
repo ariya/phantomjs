@@ -28,13 +28,12 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <QDateTime>
-#include <QList>
-#include <QDesktopServices>
-#include <QNetworkRequest>
-#include <QNetworkReply>
-#include <QNetworkDiskCache>
 #include <QAuthenticator>
+#include <QDateTime>
+#include <QDesktopServices>
+#include <QNetworkDiskCache>
+#include <QNetworkReply>
+#include <QNetworkRequest>
 
 #include "networkaccessmanager.h"
 #include "networkreplyproxy.h"
@@ -67,32 +66,28 @@ static const char *toString(QNetworkAccessManager::Operation op)
 }
 
 // public:
-NetworkAccessManager::NetworkAccessManager(QObject *parent, bool diskCacheEnabled, QString cookieFile, bool ignoreSslErrors, QString authUser, QString authPass)
+NetworkAccessManager::NetworkAccessManager(QObject *parent, bool diskCacheEnabled, QString cookieFile, bool ignoreSslErrors, QString authUser, QString authPass, int maxCacheSize)
     : QNetworkAccessManager(parent)
-    , m_networkDiskCache(0)
     , m_ignoreSslErrors(ignoreSslErrors)
     , m_authUser(authUser)
     , m_authPass(authPass)
     , m_idCounter(0)
+    , m_networkDiskCache(0)
 {
     if (!cookieFile.isEmpty()) {
         setCookieJar(new CookieJar(cookieFile));
     }
 
     if (diskCacheEnabled) {
-        m_networkDiskCache = new QNetworkDiskCache();
+        m_networkDiskCache = new QNetworkDiskCache(this);
         m_networkDiskCache->setCacheDirectory(QDesktopServices::storageLocation(QDesktopServices::CacheLocation));
+        if (maxCacheSize >= 0)
+            m_networkDiskCache->setMaximumCacheSize(maxCacheSize * 1024);
         setCache(m_networkDiskCache);
     }
 
-    connect(this, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)), SLOT(provideAuthenication(QNetworkReply*,QAuthenticator*)));
+    connect(this, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)), SLOT(provideAuthentication(QNetworkReply*,QAuthenticator*)));
     connect(this, SIGNAL(finished(QNetworkReply*)), SLOT(handleFinished(QNetworkReply*)));
-}
-
-NetworkAccessManager::~NetworkAccessManager()
-{
-    if (m_networkDiskCache)
-        delete m_networkDiskCache;
 }
 
 // protected:
@@ -191,8 +186,9 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply)
     emit resourceReceived(data);
 }
 
-void NetworkAccessManager::provideAuthenication(QNetworkReply *reply, QAuthenticator *ator)
+void NetworkAccessManager::provideAuthentication(QNetworkReply *reply, QAuthenticator *authenticator)
 {
-    ator->setUser(m_authUser);
-    ator->setPassword(m_authPass);
+    Q_UNUSED(reply);
+    authenticator->setUser(m_authUser);
+    authenticator->setPassword(m_authPass);
 }
