@@ -71,7 +71,7 @@ include_files = [
     # to make sure images are supported; jpeg, gif, svg, etc.
     (os.path.join(qt4_plugin_dir, 'imageformats'), 'imageformats'),
     (os.path.join(parent_dir, 'plugins'), 'plugins'),
-    (os.path.join(parent_dir, '../examples' if os.path.exists('../examples') else '../../examples'), 'examples'),
+    (os.path.join(parent_dir, '../../examples'), 'examples'),
     (os.path.join(parent_dir, '../LICENSE'), 'LICENSE.txt'),
     (os.path.join(parent_dir, '../README.md'), 'README.txt')
 ]
