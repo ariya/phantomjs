@@ -1,5 +1,5 @@
 describe("WebPage object", function() {
-    var page = require("webpage");
+    var page = require('webpage').create();
 
     it("should be creatable", function() {
         expect(typeof page).toEqual('object');

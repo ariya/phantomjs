@@ -50,7 +50,6 @@ window.require = function(moduleId, params) {
 		exports = phantom.createFileSystem();
 		moduleSourcePath = ":/builtin-modules/filesystem.js";
 	} else if (moduleId === "webpage") {
-		exports = phantom.createWebPage();
 		moduleSourcePath = ":/builtin-modules/webpage.js";
 	} else {
 		// TODO - For now we just handle plain ".js" files in the path.
@@ -59,7 +58,7 @@ window.require = function(moduleId, params) {
 	}
 	
 	// Evaluate the "moduleScript"
-	(function(exports, params){
+	(function(exports){
 		var moduleSource = phantom.loadModuleSource(moduleSourcePath);
 		
 		if (moduleSource !== "") {
@@ -67,7 +66,7 @@ window.require = function(moduleId, params) {
 		} else {
 			throw "Unable to load module '"+ moduleId +"'"; 
 		}
-	})(exports, params);
+	})(exports);
 	
 	return exports;
 };
@@ -84,5 +83,6 @@ window.WebPage = function(opts) {
     //       operator is supposed to always return an object.
     //       When invoking "new WebPage()", the new operator returns the returned value,
     //       not the new function object.
-    return require('webpage', opts);
+    return require('webpage').create(opts);
 };
+
