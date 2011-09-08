@@ -38,7 +38,7 @@ class Config(QObject):
             'ignoreSslErrors': { 'mapping': 'ignore_ssl_errors', 'default': False },
             'loadImages': { 'mapping': 'load_images', 'default': True },
             'loadPlugins': { 'mapping': 'load_plugins', 'default': False },
-            'localAccessRemote': { 'mapping': 'local_access_remote', 'default': False },
+            'localToRemoteUrlAccessEnabled': { 'mapping': 'local_to_remote_url_access', 'default': False },
             'maxDiskCacheSize': { 'mapping': 'max_disk_cache_size', 'default': -1 },
             'outputEncoding': { 'mapping': 'output_encoding', 'default': 'System' },
             'proxy': { 'mapping': 'proxy', 'default': None },

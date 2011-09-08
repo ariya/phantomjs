@@ -75,7 +75,7 @@ class Phantom(QObject):
         self.m_defaultPageSettings['javascriptEnabled'] = True
         self.m_defaultPageSettings['XSSAuditingEnabled'] = False
         self.m_defaultPageSettings['userAgent'] = self.m_page.userAgent()
-        self.m_defaultPageSettings['localAccessRemote'] = args.local_access_remote
+        self.m_defaultPageSettings['localToRemoteUrlAccessEnabled'] = args.local_to_remote_url_access
         self.m_page.applySettings(self.m_defaultPageSettings)
 
         self.libraryPath = os.path.dirname(os.path.abspath(self.m_scriptFile))
