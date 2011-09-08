@@ -35,7 +35,9 @@ SOURCES += phantom.cpp \
     encoding.cpp \
     config.cpp
 
-OTHER_FILES = bootstrap.js usage.txt \
+OTHER_FILES += usage.txt \
+    webpage-shim.js \
+    filesystem-shim.js \
     configurator.js
 
 include(gif/gif.pri)
