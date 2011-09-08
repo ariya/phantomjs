@@ -54,6 +54,7 @@ function expectHasPropertyString(o, name) {
 }
 
 // Load specs
+var fs = require('fs');
 phantom.injectJs("./phantom-spec.js");
 phantom.injectJs("./webpage-spec.js");
 phantom.injectJs("./fs-spec-01.js"); //< Filesystem Specs 01 (Basic)

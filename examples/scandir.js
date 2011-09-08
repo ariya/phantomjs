@@ -6,6 +6,7 @@ if (phantom.args.length !== 1) {
 }
 
 var scanDirectory = function (path) {
+    var fs = require('fs');
     if (fs.exists(path) && fs.isFile(path)) {
         console.log(path);
     } else if (fs.isDirectory(path)) {

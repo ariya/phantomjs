@@ -55,6 +55,6 @@
 #define PAGE_SETTINGS_JS_ENABLED            "javascriptEnabled"
 #define PAGE_SETTINGS_XSS_AUDITING          "XSSAuditingEnabled"
 #define PAGE_SETTINGS_USER_AGENT            "userAgent"
-#define PAGE_SETTINGS_LOCAL_ACCESS_REMOTE   "localAccessRemote"
+#define PAGE_SETTINGS_LOCAL_ACCESS_REMOTE   "localToRemoteUrlAccessEnabled"
 
 #endif // CONSTS_H
