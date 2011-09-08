@@ -82,10 +82,9 @@ class Phantom(QObject):
 
         # inject our properties and slots into javascript
         self.m_page.mainFrame().addToJavaScriptWindowObject('phantom', self)
-        self.m_page.mainFrame().addToJavaScriptWindowObject('fs', self.m_filesystem)
 
         jsShims = (
-            ':/filesystem-shim.js',
+            ':/bootstrap.js',
             ':/webpage-shim.js'
         )
         for shim in jsShims:
@@ -119,6 +118,10 @@ class Phantom(QObject):
     @pyqtProperty('QStringList')
     def args(self):
         return self.m_args
+
+    @pyqtSlot(result=FileSystem)
+    def createFilesystem(self):
+        return self.m_filesystem
 
     @pyqtSlot(result=WebPage)
     def createWebPage(self):
