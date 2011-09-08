@@ -104,9 +104,9 @@ function require (name) {
          * @param destination Path of the destination file
          */
         exports.copy = function (source, destination) {
-                if (!fs._copy(source, destination)) {
-                        throw "Unable to copy file '" + source + "' at '" + destination + "'";
-                }
+            if (!fs._copy(source, destination)) {
+                throw "Unable to copy file '" + source + "' at '" + destination + "'";
+            }
         };
 
         /** Copy a directory tree.
@@ -116,9 +116,9 @@ function require (name) {
          * @param destination Path of the destination directory tree
          */
         exports.copyTree = function (source, destination) {
-                if (!fs._copyTree(source, destination)) {
-                        throw "Unable to copy directory tree '" + source + "' at '" + destination + "'";
-                }
+            if (!fs._copyTree(source, destination)) {
+                throw "Unable to copy directory tree '" + source + "' at '" + destination + "'";
+            }
         };
 
         /** Move a file.
@@ -128,8 +128,8 @@ function require (name) {
          * @param destination Path of the destination file
          */
         exports.move = function (source, destination) {
-                fs.copy(source, destination);
-                fs.remove(source);
+            fs.copy(source, destination);
+            fs.remove(source);
         };
 
         /** Removes a file.
@@ -138,9 +138,9 @@ function require (name) {
          * @param path Path of the file to remove
          */
         exports.remove = function (path) {
-                if (!fs._remove(path)) {
-                        throw "Unable to remove file '" + path + "'";
-                }
+            if (!fs._remove(path)) {
+                throw "Unable to remove file '" + path + "'";
+            }
         };
 
         /** Removes a directory.
@@ -149,9 +149,9 @@ function require (name) {
          * @param path Path of the directory to remove
          */
         exports.removeDirectory = function (path) {
-                if (!fs._removeDirectory(path)) {
-                        throw "Unable to remove directory '" + path + "'";
-                }
+            if (!fs._removeDirectory(path)) {
+                throw "Unable to remove directory '" + path + "'";
+            }
         };
 
         /** Removes a directory tree.
@@ -160,13 +160,13 @@ function require (name) {
          * @param path Path of the directory tree to remove
          */
         exports.removeTree = function (path) {
-                if (!fs._removeTree(path)) {
-                        throw "Unable to remove directory tree '" + path + "'";
-                }
+            if (!fs._removeTree(path)) {
+                throw "Unable to remove directory tree '" + path + "'";
+            }
         };
 
         exports.touch = function (path) {
-                fs.write(path, "", 'a');
+            fs.write(path, "", 'a');
         };
 
     }
