@@ -110,12 +110,11 @@ Phantom::Phantom(QObject *parent)
 
     // Add 'phantom' and 'fs' object to the global scope
     m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
-    m_page->mainFrame()->addToJavaScriptWindowObject("fs", &m_filesystem);
 
     // Load all the required JavaScript 'shims'
     QString jsShims[2] = {
-        ":/webpage-shim.js",
-        ":/filesystem-shim.js"
+        ":/bootstrap.js",
+        ":/webpage-shim.js"
     };
     for (int i = 0, len = 2; i < len; ++i) {
         QFile f(jsShims[i]);
@@ -198,6 +197,11 @@ QObject *Phantom::createWebPage()
     page->setNetworkAccessManager(m_netAccessMan);
     page->setLibraryPath(QFileInfo(m_config.scriptFile()).dir().absolutePath());
     return page;
+}
+
+QObject *Phantom::createFilesystem()
+{
+    return &m_filesystem;
 }
 
 bool Phantom::injectJs(const QString &jsFilePath) {

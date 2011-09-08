@@ -1,4 +1,5 @@
 # echoToFile.coffee - Write in a given file all the parameters passed on the CLI
+fs = require 'fs'
 
 if phantom.args.length < 2
   console.log "Usage: echoToFile.js DESTINATION_FILE <arguments to echo...>"
