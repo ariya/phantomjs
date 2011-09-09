@@ -38,5 +38,6 @@ cd ..
 echo "Building PhantomJS. Please wait..."
 echo
 cd ..
+[ -f Makefile ] && make distclean
 deploy/$QT_FOLDER/bin/qmake
 make -j$COMPILE_JOBS
