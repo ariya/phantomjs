@@ -48,6 +48,7 @@ Phantom::Phantom(QObject *parent)
     , m_terminated(false)
     , m_returnValue(0)
     , m_netAccessMan(0)
+    , m_filesystem(0)
 {
     // second argument: script name
     QStringList args = QApplication::arguments();
@@ -200,7 +201,10 @@ QObject *Phantom::createWebPage()
 
 QObject *Phantom::createFilesystem()
 {
-    return &m_filesystem;
+    if (!m_filesystem)
+        m_filesystem = new FileSystem(this);
+
+    return m_filesystem;
 }
 
 bool Phantom::injectJs(const QString &jsFilePath) {
