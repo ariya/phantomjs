@@ -52,8 +52,6 @@ class Phantom(QObject):
         self.m_scriptEncoding = Encode(args.script_encoding, 'utf-8')
         self.m_outputEncoding = Encode(args.output_encoding, sys.stdout.encoding_sys)
 
-        self.m_filesystem = FileSystem(self)
-
         self.m_pages.append(self.m_page)
 
         do_action('PhantomInitPre')
@@ -120,7 +118,7 @@ class Phantom(QObject):
 
     @pyqtSlot(result=FileSystem)
     def createFilesystem(self):
-        return self.m_filesystem
+        return FileSystem(self)
 
     @pyqtSlot(result=WebPage)
     def createWebPage(self):
