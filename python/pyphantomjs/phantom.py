@@ -85,7 +85,6 @@ class Phantom(QObject):
 
         jsShims = (
             ':/bootstrap.js',
-            ':/webpage-shim.js'
         )
         for shim in jsShims:
             f = QFile(shim)
