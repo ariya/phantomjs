@@ -35,9 +35,8 @@ cd ..
 
 # Step 4: Build PhantomJS
 
-PATH=`pwd`/$QT_FOLDER/bin:$PATH
 echo "Building PhantomJS. Please wait..."
 echo
 cd ..
-qmake
+deploy/$QT_FOLDER/bin/qmake
 make -j$COMPILE_JOBS
