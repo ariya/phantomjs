@@ -34,11 +34,12 @@
 
 CookieJar::CookieJar(QString cookieFile)
         : QNetworkCookieJar()
-    {
-        m_cookieFile = cookieFile;
-    }
+{
+    m_cookieFile = cookieFile;
+}
 
-bool CookieJar::setCookiesFromUrl(const QList<QNetworkCookie> & cookieList, const QUrl & url) {
+bool CookieJar::setCookiesFromUrl(const QList<QNetworkCookie> & cookieList, const QUrl & url)
+{
     QSettings settings(m_cookieFile, QSettings::IniFormat);
 
     settings.beginGroup(url.host());
@@ -52,7 +53,8 @@ bool CookieJar::setCookiesFromUrl(const QList<QNetworkCookie> & cookieList, cons
     return true;
 }
 
-QList<QNetworkCookie> CookieJar::cookiesForUrl(const QUrl & url) const {
+QList<QNetworkCookie> CookieJar::cookiesForUrl(const QUrl & url) const
+{
     QSettings settings(m_cookieFile, QSettings::IniFormat);
     QList<QNetworkCookie> cookieList;
 
@@ -66,4 +68,3 @@ QList<QNetworkCookie> CookieJar::cookiesForUrl(const QUrl & url) const {
     
     return cookieList;
 }
-
