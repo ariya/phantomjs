@@ -112,11 +112,10 @@ Phantom::Phantom(QObject *parent)
     m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
 
     // Load all the required JavaScript 'shims'
-    QString jsShims[2] = {
-        ":/bootstrap.js",
-        ":/webpage-shim.js"
+    QString jsShims[1] = {
+        ":/bootstrap.js"
     };
-    for (int i = 0, len = 2; i < len; ++i) {
+    for (int i = 0, len = 1; i < len; ++i) {
         QFile f(jsShims[i]);
         f.open(QFile::ReadOnly); //< It's OK to assume this succeed. If it doesn't, we have a bigger problem.
         m_page->mainFrame()->evaluateJavaScript(QString::fromUtf8(f.readAll()));
