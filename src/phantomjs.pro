@@ -36,7 +36,6 @@ SOURCES += phantom.cpp \
     config.cpp
 
 OTHER_FILES += usage.txt \
-    webpage-shim.js \
     bootstrap.js \
     configurator.js
 

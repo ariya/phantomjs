@@ -4,7 +4,10 @@
 /*
   This file is part of the PhantomJS project from Ofi Labs.
 
+  Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
   Copyright (C) 2011 Ivan De Marino <ivan.de.marino@gmail.com>
+  Copyright (C) 2011 James Roe <roejames12@hotmail.com>
+  Copyright (C) 2011 execjosh, http://execjosh.blogspot.com
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -30,9 +33,158 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-function require (name) {
+function require(name) {
 
     var exports;
+
+    if (name === 'webpage') {
+
+        exports = function (opts) {
+            var page = phantom.createWebPage(),
+                handlers = {};
+
+            function checkType(o, type) {
+                return typeof o === type;
+            }
+
+            function isObject(o) {
+                return checkType(o, 'object');
+            }
+
+            function isUndefined(o) {
+                return checkType(o, 'undefined');
+            }
+
+            function isUndefinedOrNull(o) {
+                return isUndefined(o) || null === o;
+            }
+
+            function copyInto(target, source) {
+                if (target === source || isUndefinedOrNull(source)) {
+                    return target;
+                }
+
+                target = target || {};
+
+                // Copy into objects only
+                if (isObject(target)) {
+                    // Make sure source exists
+                    source = source || {};
+
+                    if (isObject(source)) {
+                        var i, newTarget, newSource;
+                        for (i in source) {
+                            if (source.hasOwnProperty(i)) {
+                                newTarget = target[i];
+                                newSource = source[i];
+
+                                if (newTarget && isObject(newSource)) {
+                                    // Deep copy
+                                    newTarget = copyInto(target[i], newSource);
+                                } else {
+                                    newTarget = newSource;
+                                }
+
+                                if (!isUndefined(newTarget)) {
+                                    target[i] = newTarget;
+                                }
+                            }
+                        }
+                    } else {
+                        target = source;
+                    }
+                }
+
+                return target;
+            }
+
+            function defineSetter(handlerName, signalName) {
+                page.__defineSetter__(handlerName, function (f) {
+                    if (handlers && typeof handlers[signalName] === 'function') {
+                        try {
+                            this[signalName].disconnect(handlers[signalName]);
+                        } catch (e) {}
+                    }
+                    handlers[signalName] = f;
+                    this[signalName].connect(handlers[signalName]);
+                });
+            }
+
+            // deep copy
+            page.settings = JSON.parse(JSON.stringify(phantom.defaultPageSettings));
+
+            defineSetter("onInitialized", "initialized");
+
+            defineSetter("onLoadStarted", "loadStarted");
+
+            defineSetter("onLoadFinished", "loadFinished");
+
+            defineSetter("onResourceRequested", "resourceRequested");
+
+            defineSetter("onResourceReceived", "resourceReceived");
+
+            defineSetter("onAlert", "javaScriptAlertSent");
+
+            defineSetter("onConsoleMessage", "javaScriptConsoleMessageSent");
+
+            page.open = function (url, arg1, arg2, arg3, arg4) {
+                if (arguments.length === 1) {
+                    this.openUrl(url, 'get', this.settings);
+                    return;
+                }
+                if (arguments.length === 2 && typeof arg1 === 'function') {
+                    this.onLoadFinished = arg1;
+                    this.openUrl(url, 'get', this.settings);
+                    return;
+                } else if (arguments.length === 2) {
+                    this.openUrl(url, arg1, this.settings);
+                    return;
+                } else if (arguments.length === 3 && typeof arg2 === 'function') {
+                    this.onLoadFinished = arg2;
+                    this.openUrl(url, arg1, this.settings);
+                    return;
+                } else if (arguments.length === 3) {
+                    this.openUrl(url, {
+                        operation: arg1,
+                        data: arg2
+                    }, this.settings);
+                    return;
+                } else if (arguments.length === 4) {
+                    this.onLoadFinished = arg3;
+                    this.openUrl(url, {
+                        operation: arg1,
+                        data: arg2
+                    }, this.settings);
+                    return;
+                }
+                throw "Wrong use of WebPage#open";
+            };
+
+            page.includeJs = function (scriptUrl, onScriptLoaded) {
+                // Register temporary signal handler for 'alert()'
+                this.javaScriptAlertSent.connect(function (msgFromAlert) {
+                    if (msgFromAlert === scriptUrl) {
+                        // Resource loaded, time to fire the callback
+                        onScriptLoaded(scriptUrl);
+                        // And disconnect the signal handler
+                        try {
+                            this.javaScriptAlertSent.disconnect(arguments.callee);
+                        } catch (e) {}
+                    }
+                });
+
+                // Append the script tag to the body
+                this._appendScriptElement(scriptUrl);
+            };
+
+            // Copy options into page
+            if (opts) {
+                page = copyInto(page, opts);
+            }
+
+            return page;
+        };
+    }
 
     if (name === 'fs') {
 
@@ -104,9 +256,9 @@ function require (name) {
          * @param destination Path of the destination file
          */
         exports.copy = function (source, destination) {
-                if (!fs._copy(source, destination)) {
-                        throw "Unable to copy file '" + source + "' at '" + destination + "'";
-                }
+            if (!fs._copy(source, destination)) {
+                throw "Unable to copy file '" + source + "' at '" + destination + "'";
+            }
         };
 
         /** Copy a directory tree.
@@ -116,9 +268,9 @@ function require (name) {
          * @param destination Path of the destination directory tree
          */
         exports.copyTree = function (source, destination) {
-                if (!fs._copyTree(source, destination)) {
-                        throw "Unable to copy directory tree '" + source + "' at '" + destination + "'";
-                }
+            if (!fs._copyTree(source, destination)) {
+                throw "Unable to copy directory tree '" + source + "' at '" + destination + "'";
+            }
         };
 
         /** Move a file.
@@ -128,8 +280,8 @@ function require (name) {
          * @param destination Path of the destination file
          */
         exports.move = function (source, destination) {
-                fs.copy(source, destination);
-                fs.remove(source);
+            fs.copy(source, destination);
+            fs.remove(source);
         };
 
         /** Removes a file.
@@ -138,9 +290,9 @@ function require (name) {
          * @param path Path of the file to remove
          */
         exports.remove = function (path) {
-                if (!fs._remove(path)) {
-                        throw "Unable to remove file '" + path + "'";
-                }
+            if (!fs._remove(path)) {
+                throw "Unable to remove file '" + path + "'";
+            }
         };
 
         /** Removes a directory.
@@ -149,9 +301,9 @@ function require (name) {
          * @param path Path of the directory to remove
          */
         exports.removeDirectory = function (path) {
-                if (!fs._removeDirectory(path)) {
-                        throw "Unable to remove directory '" + path + "'";
-                }
+            if (!fs._removeDirectory(path)) {
+                throw "Unable to remove directory '" + path + "'";
+            }
         };
 
         /** Removes a directory tree.
@@ -160,13 +312,13 @@ function require (name) {
          * @param path Path of the directory tree to remove
          */
         exports.removeTree = function (path) {
-                if (!fs._removeTree(path)) {
-                        throw "Unable to remove directory tree '" + path + "'";
-                }
+            if (!fs._removeTree(path)) {
+                throw "Unable to remove directory tree '" + path + "'";
+            }
         };
 
         exports.touch = function (path) {
-                fs.write(path, "", 'a');
+            fs.write(path, "", 'a');
         };
 
     }
@@ -178,3 +330,5 @@ function require (name) {
     return exports;
 }
 
+// Legacy way to use WebPage
+window.WebPage = require('webpage');

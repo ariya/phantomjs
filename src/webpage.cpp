@@ -237,6 +237,7 @@ void WebPage::setScrollPosition(const QVariantMap &size)
     int top = size.value("top").toInt();
     int left = size.value("left").toInt();
     m_scrollPosition = QPoint(left,top);
+    m_mainFrame->setScrollPosition(m_scrollPosition);
 }
 
 QVariantMap WebPage::scrollPosition() const
@@ -345,18 +346,15 @@ bool WebPage::render(const QString &fileName)
 }
 
 QImage WebPage::renderImage()
-
 {
-    QSize viewportSize = m_webPage->viewportSize();
-    QRect frameRect = QRect(QPoint(0, 0), viewportSize);
+    QSize contentsSize = m_mainFrame->contentsSize();
+    contentsSize -= QSize(m_scrollPosition.x(), m_scrollPosition.y());
+    QRect frameRect = QRect(QPoint(0, 0), contentsSize);
     if (!m_clipRect.isNull())
         frameRect = m_clipRect;
 
-    if(!m_scrollPosition.isNull())
-      {
-	m_mainFrame->setScrollPosition(m_scrollPosition);
-      }
-    // m_webPage->setViewportSize(m_mainFrame->contentsSize());
+    QSize viewportSize = m_webPage->viewportSize();
+    m_webPage->setViewportSize(contentsSize);
 
     QImage buffer(frameRect.size(), QImage::Format_ARGB32);
     buffer.fill(qRgba(255, 255, 255, 0));

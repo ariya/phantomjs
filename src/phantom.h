@@ -87,7 +87,7 @@ private:
     QString m_script;
     NetworkAccessManager *m_netAccessMan;
     QVariantMap m_defaultPageSettings;
-    FileSystem m_filesystem;
+    FileSystem *m_filesystem;
     QList<QPointer<WebPage> > m_pages;
     Config m_config;
 };

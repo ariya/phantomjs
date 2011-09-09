@@ -48,6 +48,7 @@ Phantom::Phantom(QObject *parent)
     , m_terminated(false)
     , m_returnValue(0)
     , m_netAccessMan(0)
+    , m_filesystem(0)
 {
     // second argument: script name
     QStringList args = QApplication::arguments();
@@ -112,11 +113,10 @@ Phantom::Phantom(QObject *parent)
     m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
 
     // Load all the required JavaScript 'shims'
-    QString jsShims[2] = {
-        ":/bootstrap.js",
-        ":/webpage-shim.js"
+    QString jsShims[1] = {
+        ":/bootstrap.js"
     };
-    for (int i = 0, len = 2; i < len; ++i) {
+    for (int i = 0, len = 1; i < len; ++i) {
         QFile f(jsShims[i]);
         f.open(QFile::ReadOnly); //< It's OK to assume this succeed. If it doesn't, we have a bigger problem.
         m_page->mainFrame()->evaluateJavaScript(QString::fromUtf8(f.readAll()));
@@ -201,7 +201,10 @@ QObject *Phantom::createWebPage()
 
 QObject *Phantom::createFilesystem()
 {
-    return &m_filesystem;
+    if (!m_filesystem)
+        m_filesystem = new FileSystem(this);
+
+    return m_filesystem;
 }
 
 bool Phantom::injectJs(const QString &jsFilePath) {
