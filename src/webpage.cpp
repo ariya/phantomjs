@@ -353,9 +353,7 @@ QImage WebPage::renderImage()
         frameRect = m_clipRect;
 
     if(!m_scrollPosition.isNull())
-      {
-	m_mainFrame->setScrollPosition(m_scrollPosition);
-      }
+        m_mainFrame->setScrollPosition(m_scrollPosition);
     // m_webPage->setViewportSize(m_mainFrame->contentsSize());
 
     QImage buffer(frameRect.size(), QImage::Format_ARGB32);
