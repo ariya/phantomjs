@@ -6,7 +6,7 @@ Options:
     --config=/path/to/config           Specifies path to a JSON-formatted config file.
     --load-images=[yes|no]             Loads all inlined images (default is 'yes').
     --load-plugins=[yes|no]            Loads all plugins (i.e. 'Flash', 'Silverlight', ...) (default is 'no').
-    --proxy=address:port               Sets the network proxy (e.g. "--proxy=http://192.168.1.42:8080").
+    --proxy=address:port               Sets the network proxy (e.g. "--proxy=192.168.1.42:8080").
     --auth=username:password           Sets the authentication username and password (e.g. "--auth=username:password").
     --disk-cache=[yes|no]              Enables disk cache (at desktop services cache storage location, default is 'no').
     --max-disk-cache-size=size         Limits the size of disk cache (in KB).
