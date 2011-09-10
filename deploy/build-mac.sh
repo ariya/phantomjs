@@ -51,5 +51,9 @@ make -j$COMPILE_JOBS
 
 echo "Compressing PhantomJS executable..."
 echo
-[ ! -z strip ] && strip bin/phantomjs
-[ ! -z upx ] && upx -9 bin/phantomjs
+strip bin/phantomjs
+if [ `command -v upx` ]; then
+    upx -9 bin/phantomjs
+else
+    echo "You don't have UPX. Consider installing it to reduce the executable size."
+fi
