@@ -11,7 +11,7 @@ else
     page.onResourceReceived = (res) ->
         console.log 'received ' + JSON.stringify(res, undefined, 4)
 
-    page.open page.address, (status) ->
+    page.open address, (status) ->
         if status isnt 'success'
             console.log 'FAIL to load the address'
         phantom.exit()
