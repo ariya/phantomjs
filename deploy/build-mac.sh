@@ -33,6 +33,10 @@ echo
 make -j$COMPILE_JOBS
 cd ..
 
+# Extra step: copy JavaScriptCore/release, needed for jscore static lib
+mkdir ../JavaScriptCore
+cp -rp $QT_FOLDER/src/3rdparty/webkit/JavaScriptCore/release ../JavaScriptCore/
+
 # Step 4: Build PhantomJS
 
 echo "Building PhantomJS. Please wait..."
