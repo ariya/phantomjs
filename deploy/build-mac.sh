@@ -46,3 +46,10 @@ cd ..
 [ -f Makefile ] && make distclean
 deploy/$QT_FOLDER/bin/qmake
 make -j$COMPILE_JOBS
+
+# Step 5: Prepare for deployment
+
+echo "Compressing PhantomJS executable..."
+echo
+[ ! -z strip ] && strip bin/phantomjs
+[ ! -z upx ] && upx -9 bin/phantomjs
