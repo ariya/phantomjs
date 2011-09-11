@@ -215,7 +215,8 @@ QString Phantom::loadModuleSource(const QString &name)
     return moduleSource;
 }
 
-bool Phantom::injectJs(const QString &jsFilePath) {
+bool Phantom::injectJs(const QString &jsFilePath)
+{
     return Utils::injectJsInFrame(jsFilePath, libraryPath(), m_page->mainFrame());
 }
 
