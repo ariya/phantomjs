@@ -37,7 +37,9 @@ SOURCES += phantom.cpp \
 
 OTHER_FILES += usage.txt \
     bootstrap.js \
-    configurator.js
+    configurator.js \
+    modules/fs.js \
+    modules/webpage.js
 
 include(gif/gif.pri)
 
