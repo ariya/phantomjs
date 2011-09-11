@@ -1,5 +1,5 @@
 /*jslint sloppy: true, nomen: true */
-/*global window:true,phantom:true,fs:true */
+/*global exports:true */
 
 /*
   This file is part of the PhantomJS project from Ofi Labs.
