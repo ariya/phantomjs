@@ -12,8 +12,16 @@ COMPILE_JOBS=4
 # Step 1: Download Qt source tarball
 # Note: only if it does not exist yet in the current directory
 
-[ -f $QT_TARBALL ] || echo "Downloading Qt $QT_VERSION from Nokia. Please wait..."
-[ -f $QT_TARBALL ] || curl -C - -O -S $QT_URL
+if [ ! -f $QT_TARBALL ]
+then
+    echo "Downloading Qt $QT_VERSION from Nokia. Please wait..."
+    if ! curl -C - -O -S $QT_URL
+    then
+        echo
+        echo "Fatal error: fail to download from $QT_URL !"
+        exit 1
+    fi
+fi
 
 # Step 2: Extract Qt source
 
