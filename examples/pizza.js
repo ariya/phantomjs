@@ -1,6 +1,6 @@
 // Find pizza in Mountain View using Yelp
 
-var page = new WebPage(),
+var page = require('webpage').create(),
     url = 'http://lite.yelp.com/search?find_desc=pizza&find_loc=94040&find_submit=Search';
 
 page.open(url, function (status) {

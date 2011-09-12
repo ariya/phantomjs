@@ -1,4 +1,4 @@
-page = new WebPage()
+page = require('webpage').create()
 
 console.log 'The default user agent is ' + page.settings.userAgent
 

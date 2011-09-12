@@ -1,7 +1,7 @@
 // Use 'page.injectJs()' to load the script itself in the Page context
 
 if ( typeof(phantom) !== "undefined" ) {
-    var page = new WebPage();
+    var page = require('webpage').create();
 
     // Route "console.log()" calls from within the Page context to the main Phantom context (i.e. current "this")
     page.onConsoleMessage = function(msg) {

@@ -34,7 +34,7 @@ function waitFor(testFx, onReady, timeOutMillis) {
 };
 
 
-var page = new WebPage();
+var page = require('webpage').create();
 
 // Open Twitter on 'sencha' profile and, onPageLoad, do...
 page.open("http://twitter.com/#!/sencha", function (status) {
