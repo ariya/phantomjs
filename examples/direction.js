@@ -1,6 +1,6 @@
 // Get driving direction using Google Directions API.
 
-var page = new WebPage(),
+var page = require('webpage').create(),
     origin, dest, steps;
 
 if (phantom.args.length < 2) {

@@ -1,6 +1,6 @@
 # Upload an image to imagebin.org
 
-page = new WebPage()
+page = require('webpage').create()
 
 if phantom.args.length isnt 1
     console.log 'Usage: imagebin.coffee filename'

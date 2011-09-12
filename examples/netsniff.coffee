@@ -73,7 +73,7 @@ createHAR = (address, title, startTime, resources) ->
          ]
         entries: entries
 
-page = new WebPage()
+page = require('webpage').create()
 
 if phantom.args.length is 0
     console.log 'Usage: netsniff.js <some URL>'

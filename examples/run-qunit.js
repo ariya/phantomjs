@@ -39,7 +39,7 @@ if (phantom.args.length === 0 || phantom.args.length > 2) {
     phantom.exit(1);
 }
 
-var page = new WebPage();
+var page = require('webpage').create();
 
 // Route "console.log()" calls from within the Page context to the main Phantom context (i.e. current "this")
 page.onConsoleMessage = function(msg) {

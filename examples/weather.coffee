@@ -1,6 +1,6 @@
 # Get weather info for given address (or for the default one, "Mountain View")
 
-page = new WebPage()
+page = require('webpage').create()
 address = 'Mountain View' #< default value
 
 # Route "console.log()" calls from within the Page context to the main Phantom context (i.e. current "this")

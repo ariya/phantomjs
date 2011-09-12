@@ -28,7 +28,7 @@ var users = ['sencha',
         'whereisthysting'];
 
 function follow(user, callback) {
-    var page = new WebPage();
+    var page = require('webpage').create();
     page.open('http://mobile.twitter.com/' + user, function (status) {
         if (status === 'fail') {
             console.log(user + ': ?');
