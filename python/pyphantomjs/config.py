@@ -26,7 +26,7 @@ from PyQt4.QtWebKit import QWebPage
 
 class Config(QObject):
     def __init__(self, parent, jsonFile):
-        QObject.__init__(self, parent)
+        super(Config, self).__init__(parent)
 
         with codecs.open(jsonFile, encoding='utf-8') as fd:
             json = fd.read()

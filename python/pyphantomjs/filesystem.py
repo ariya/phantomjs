@@ -35,7 +35,7 @@ from plugincontroller import do_action
 
 class File(QObject):
     def __init__(self, parent, openfile):
-        QObject.__init__(self, parent)
+        super(File, self).__init__(parent)
 
         self.m_file = openfile
 
@@ -118,7 +118,7 @@ class FileSystem(QObject):
         return cls._instance
 
     def __init__(self, parent):
-        QObject.__init__(self, parent)
+        super(FileSystem, self).__init__(parent)
 
         do_action('FileSystemInit')
 

@@ -32,7 +32,8 @@ class CSConverter(QObject):
         return cls._instance
 
     def __init__(self):
-        QObject.__init__(self, QApplication.instance())
+        super(CSConverter, self).__init__(QApplication.instance())
+
         self.m_webPage = QWebPage(self)
 
         converter = QFile(':/resources/coffee-script.js')

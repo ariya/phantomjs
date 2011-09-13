@@ -37,7 +37,7 @@ from encoding import Encode
 
 class Phantom(QObject):
     def __init__(self, parent, args):
-        QObject.__init__(self, parent)
+        super(Phantom, self).__init__(parent)
 
         # variable declarations
         self.m_defaultPageSettings = {}

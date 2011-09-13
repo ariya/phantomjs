@@ -35,7 +35,7 @@ from utils import injectJsInFrame
 
 class CustomPage(QWebPage):
     def __init__(self, parent):
-        QWebPage.__init__(self, parent)
+        super(CustomPage, self).__init__(parent)
 
         self.m_parent = parent
 
@@ -74,7 +74,7 @@ class WebPage(QObject):
     resourceRequested = pyqtSignal('QVariantMap')
 
     def __init__(self, parent):
-        QObject.__init__(self, parent)
+        super(WebPage, self).__init__(parent)
 
         self.m_parent = parent
 

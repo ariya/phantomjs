@@ -32,7 +32,7 @@ class NetworkAccessManager(QNetworkAccessManager):
     resourceRequested = pyqtSignal('QVariantMap')
 
     def __init__(self, parent, auth, cookieFile, diskCacheEnabled, ignoreSslErrors, maxDiskCacheSize):
-        QNetworkAccessManager.__init__(self, parent)
+        super(NetworkAccessManager, self).__init__(parent)
 
         self.m_ignoreSslErrors = ignoreSslErrors
         self.m_idCounter = 0
