@@ -21,13 +21,12 @@ import os
 import sys
 
 import sip
-from PyQt4.QtCore import (pyqtProperty, pyqtSlot, QObject,
-                          QFile)
+from PyQt4.QtCore import pyqtProperty, pyqtSlot, QObject
 from PyQt4.QtGui import QApplication
 from PyQt4.QtNetwork import QNetworkProxy, QNetworkProxyFactory
 
 from __init__ import __version_info__
-from utils import injectJsInFrame
+from utils import injectJsInFrame, QPyFile
 from plugincontroller import do_action
 from webpage import WebPage
 from networkaccessmanager import NetworkAccessManager
@@ -81,18 +80,9 @@ class Phantom(QObject):
         # inject our properties and slots into javascript
         self.m_page.mainFrame().addToJavaScriptWindowObject('phantom', self)
 
-        jsShims = (
-            ':/bootstrap.js',
-        )
-        for shim in jsShims:
-            f = QFile(shim)
-            if not f.open(QFile.ReadOnly):
-                sys.exit("Failed to load shim '%s'" % shim)
-
-            f = f.readAll().data()
-            if not f:
-                sys.exit("Failed to load shim '%s'" % shim)
-            self.m_page.mainFrame().evaluateJavaScript(f)
+        with QPyFile(':/bootstrap.js') as f:
+            bootstrap = f.readAll().data()
+        self.m_page.mainFrame().evaluateJavaScript(bootstrap)
 
         do_action('PhantomInitPost')
 
@@ -152,6 +142,15 @@ class Phantom(QObject):
     @pyqtSlot(str, result=bool)
     def injectJs(self, filePath):
         return injectJsInFrame(filePath, self.m_scriptEncoding.encoding, self.libraryPath, self.m_page.mainFrame())
+
+    @pyqtSlot(str, result=str)
+    def loadModuleSource(self, name):
+        moduleSourceFilePath = ':/modules/%s.js' % name
+
+        with QPyFile(moduleSourceFilePath) as f:
+            moduleSource = f.readAll().data()
+
+        return moduleSource
 
     @pyqtProperty(str)
     def libraryPath(self):

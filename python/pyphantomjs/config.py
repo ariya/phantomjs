@@ -20,8 +20,10 @@
 import sys
 import codecs
 
-from PyQt4.QtCore import QObject, QFile, qWarning
+from PyQt4.QtCore import QObject, qWarning
 from PyQt4.QtWebKit import QWebPage
+
+from utils import QPyFile
 
 
 class Config(QObject):
@@ -55,13 +57,8 @@ class Config(QObject):
             qWarning('Config file MUST be in JSON format!')
             return
 
-        file_ = QFile(':/configurator.js')
-        if not file_.open(QFile.ReadOnly):
-            sys.exit('Unable to load JSON configurator!')
-        configurator = file_.readAll().data()
-        file_.close()
-        if not configurator:
-            sys.exit('Unable to set-up JSON configurator!')
+        with QPyFile(':/configurator.js') as f:
+            configurator = f.readAll().data()
 
         webPage = QWebPage(self)
 

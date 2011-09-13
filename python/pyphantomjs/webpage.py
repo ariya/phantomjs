@@ -22,7 +22,7 @@ from math import ceil, floor
 import sip
 from PyQt4.QtCore import (pyqtProperty, pyqtSlot, pyqtSignal, Qt, QObject,
                           QRect, QPoint, QUrl, QFileInfo, QDir, QSize,
-                          QSizeF, QByteArray, QEventLoop, QEvent, QFile)
+                          QSizeF, QByteArray, QEventLoop, QEvent)
 from PyQt4.QtGui import (QPalette, QDesktopServices, QPrinter, QImage,
                          QPainter, QRegion, QApplication, QMouseEvent,
                          qRgba)
