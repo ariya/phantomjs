@@ -13,7 +13,7 @@ if phantom?
   console.log "* Script will 'inject' itself in a page..."
   page.open "about:blank", (status) ->
     if status is "success"
-      if page.injectJs("injectme.js")
+      if page.injectJs("injectme.coffee")
         console.log "... done injecting itself!"
       else
         console.log "... fail! Check the $PWD?!"
