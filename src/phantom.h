@@ -73,6 +73,7 @@ public:
 public slots:
     QObject *createWebPage();
     QObject *createFilesystem();
+    QString loadModuleSource(const QString &name);
     bool injectJs(const QString &jsFilePath);
     void exit(int code = 0);
 

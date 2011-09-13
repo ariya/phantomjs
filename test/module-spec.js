@@ -1,7 +1,7 @@
 describe("module loading using require", function() {
 
     it("should work for 'webpage' module", function() {
-        expect(typeof require('webpage')).toEqual('function');
+        expect(typeof require('webpage')).toEqual('object');
     });
 
     it("should work for 'fs' module", function() {
