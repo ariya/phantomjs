@@ -37,16 +37,14 @@
 #include <QNetworkReply>
 #include <QSet>
 
+class Config;
 class QNetworkDiskCache;
 
 class NetworkAccessManager : public QNetworkAccessManager
 {
     Q_OBJECT
 public:
-    NetworkAccessManager(QObject *parent = 0, bool diskCacheEnabled = false,
-        QString cookieFile = QString(), bool ignoreSslErrors = false,
-        QString authUser = QString(), QString authPass = QString(),
-        int maxCacheSize = -1);
+    NetworkAccessManager(QObject *parent, const Config *config);
 
 protected:
     bool m_ignoreSslErrors;
