@@ -32,8 +32,8 @@
 #define WEBPAGE_H
 
 #include <QMap>
-#include <QWebPage>
 #include <QVariantMap>
+#include <QWebPage>
 
 class CustomPage;
 class Phantom;

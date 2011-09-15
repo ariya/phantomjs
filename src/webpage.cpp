@@ -36,14 +36,14 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QFileInfo>
-#include <QNetworkRequest>
+#include <QMouseEvent>
 #include <QNetworkAccessManager>
+#include <QNetworkRequest>
 #include <QPainter>
 #include <QPrinter>
 #include <QWebElement>
 #include <QWebFrame>
 #include <QWebPage>
-#include <QMouseEvent>
 
 #include "utils.h"
 
