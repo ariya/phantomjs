@@ -35,6 +35,7 @@
 #include <QVariantMap>
 #include <QWebPage>
 
+class Config;
 class CustomPage;
 class Phantom;
 
@@ -49,10 +50,9 @@ class WebPage: public QObject
     Q_PROPERTY(QVariantMap scrollPosition READ scrollPosition WRITE setScrollPosition)
 
 public:
-    WebPage(QObject *parent = 0);
+    WebPage(QObject *parent, const Config *config);
 
     QWebFrame *mainFrame();
-    void setNetworkAccessManager(QNetworkAccessManager *networkAccessManager);
 
     QString content() const;
     void setContent(const QString &content);

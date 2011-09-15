@@ -35,7 +35,6 @@
 
 class WebPage;
 #include "csconverter.h"
-#include "networkaccessmanager.h"
 #include "filesystem.h"
 #include "encoding.h"
 #include "config.h"
@@ -86,7 +85,6 @@ private:
     bool m_terminated;
     int m_returnValue;
     QString m_script;
-    NetworkAccessManager *m_netAccessMan;
     QVariantMap m_defaultPageSettings;
     FileSystem *m_filesystem;
     QList<QPointer<WebPage> > m_pages;

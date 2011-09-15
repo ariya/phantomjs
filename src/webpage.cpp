@@ -45,6 +45,7 @@
 #include <QWebFrame>
 #include <QWebPage>
 
+#include "networkaccessmanager.h"
 #include "utils.h"
 
 #include <gifwriter.h>
@@ -98,7 +99,7 @@ private:
     friend class WebPage;
 };
 
-WebPage::WebPage(QObject *parent)
+WebPage::WebPage(QObject *parent, const Config *config)
     : QObject(parent)
 {
     setObjectName("WebPage");
@@ -134,21 +135,20 @@ WebPage::WebPage(QObject *parent)
     // Ensure we have at least document.body.
     m_mainFrame->setHtml("<html><body></body></html>");
 
+    // Custom network access manager to allow traffic monitoring.
+    NetworkAccessManager *networkAccessManager = new NetworkAccessManager(this, config);
+    m_webPage->setNetworkAccessManager(networkAccessManager);
+    connect(networkAccessManager, SIGNAL(resourceRequested(QVariant)),
+            SIGNAL(resourceRequested(QVariant)));
+    connect(networkAccessManager, SIGNAL(resourceReceived(QVariant)),
+            SIGNAL(resourceReceived(QVariant)));
+
     m_webPage->setViewportSize(QSize(400, 300));
 }
 
 QWebFrame *WebPage::mainFrame()
 {
     return m_mainFrame;
-}
-
-void WebPage::setNetworkAccessManager(QNetworkAccessManager *networkAccessManager)
-{
-    m_webPage->setNetworkAccessManager(networkAccessManager);
-    connect(networkAccessManager, SIGNAL(resourceRequested(QVariant)),
-            SIGNAL(resourceRequested(QVariant)));
-    connect(networkAccessManager, SIGNAL(resourceReceived(QVariant)),
-            SIGNAL(resourceReceived(QVariant)));
 }
 
 QString WebPage::content() const
