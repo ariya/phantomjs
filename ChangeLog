@@ -9,11 +9,15 @@ Version 1.3.0
       * Fixed open() and POST method, without specifying the finished handler
       * Fixed script execution warning dialog (issue 165)
       * Added WebPage.release() to free the web page from memory (issue 154)
+      * Added special handling of about:blank (issue 235)
+      * Made a separate network access manager for each page (issue 190)
 
     New features
 
       * Added Filesystem API, based on CommonJS Filesystem draft specs (issue 129)
       * Added support for persistent cookies (issue 91)
+      * Added page scroll position (issue 162)
+      * Added basic HTTP authentication support (issue 45)
       * Added callback for page initialization (issue 143)
       * Added support to specify script and output encoding (issue 186)
       * Added option to allow local content to do cross-domain access (issue 28)
@@ -25,6 +29,7 @@ Version 1.3.0
 
       * Added a new example on using Modernizr to detect features (issue 144)
       * Fixed pizza.js example to use Mobile Yelp (issue 200)
+      * Added an example to show live network traffic (issue 227)
 
 2011-06-21: Version 1.2.0
 
