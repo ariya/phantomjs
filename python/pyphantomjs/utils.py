@@ -22,11 +22,10 @@ import sys
 import codecs
 import argparse
 
-from PyQt4.QtCore import (QDateTime, Qt, QtDebugMsg, QtWarningMsg,
+from PyQt4.QtCore import (QDateTime, QFile, Qt, QtDebugMsg, QtWarningMsg,
                           QtCriticalMsg, QtFatalMsg, qDebug)
 
 from __init__ import __version__
-from csconverter import CSConverter
 from plugincontroller import do_action
 
 
@@ -86,9 +85,12 @@ def argParser():
         choices=['yes', 'no'],
         help='Load all plugins (i.e. Flash, Silverlight, ...) (default: %(default)s)'
     )
-    parser.add_argument('--local-access-remote', default='no',
+    parser.add_argument('--local-to-remote-url-access', default='no',
         choices=['yes', 'no'],
         help='Local content can access remote URL (default: %(default)s)'
+    )
+    parser.add_argument('--max-disk-cache-size', default=-1, metavar='size',
+        help='Limits the size of disk cache (in KB)'
     )
     parser.add_argument('--output-encoding', default='System', metavar='encoding',
         help='Sets the encoding used for terminal output (default: %(default)s)'
@@ -112,7 +114,11 @@ def argParser():
     return parser
 
 
+CSConverter = None
 def coffee2js(script):
+    global CSConverter
+    if not CSConverter:
+        from csconverter import CSConverter
     return CSConverter().convert(script)
 
 
@@ -183,3 +189,14 @@ class SafeStreamFilter(object):
 
     def encode(self, s):
         return s.encode(self.encode_to, self.errors)
+
+
+class QPyFile(QFile):
+    '''Simple subclass of QFile which supports the context manager'''
+    def __enter__(self):
+        if not self.open(QFile.ReadOnly):
+            raise IOError("Failed to open file '%s'" % self.fileName())
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()

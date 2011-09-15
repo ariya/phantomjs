@@ -19,9 +19,11 @@
 
 import sys
 
-from PyQt4.QtCore import QObject, QFile
+from PyQt4.QtCore import QObject
 from PyQt4.QtGui import QApplication
 from PyQt4.QtWebKit import QWebPage
+
+from utils import QPyFile
 
 
 class CSConverter(QObject):
@@ -32,14 +34,12 @@ class CSConverter(QObject):
         return cls._instance
 
     def __init__(self):
-        QObject.__init__(self, QApplication.instance())
+        super(CSConverter, self).__init__(QApplication.instance())
+
         self.m_webPage = QWebPage(self)
 
-        converter = QFile(':/resources/coffee-script.js')
-        if not converter.open(QFile.ReadOnly):
-            sys.exit('CoffeeScript compiler is not available!')
-        script = str(converter.readAll())
-        converter.close()
+        with QPyFile(':/resources/coffee-script.js') as f:
+            script = f.readAll().data()
 
         self.m_webPage.mainFrame().evaluateJavaScript(script)
         self.m_webPage.mainFrame().addToJavaScriptWindowObject('converter', self)

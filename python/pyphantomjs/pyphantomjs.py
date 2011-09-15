@@ -63,7 +63,8 @@ def parseArgs(app, args):
     args.ignore_ssl_errors = False if args.ignore_ssl_errors == 'no' else True
     args.load_images = True if args.load_images == 'yes' else False
     args.load_plugins = False if args.load_plugins == 'no' else True
-    args.local_access_remote = False if args.local_access_remote == 'no' else True
+    args.local_to_remote_url_access = False if args.local_to_remote_url_access == 'no' else True
+    args.max_disk_cache_size = int(args.max_disk_cache_size)
 
     # register an alternative Message Handler
     messageHandler = MessageHandler(args.verbose)
