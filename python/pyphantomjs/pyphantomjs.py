@@ -70,7 +70,7 @@ def parseArgs(app, args):
     messageHandler = MessageHandler(args.verbose)
     qInstallMsgHandler(messageHandler.process)
 
-    file_check = (args.cookies, args.config)
+    file_check = (args.cookies_file, args.config)
     for file_ in file_check:
         if file_ is not None and not os.path.exists(file_):
             sys.exit("No such file or directory: '%s'" % file_)

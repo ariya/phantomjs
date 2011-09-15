@@ -66,8 +66,8 @@ def argParser():
     parser.add_argument('--config', metavar='/path/to/config',
         help='Specifies path to a JSON-formatted config file'
     )
-    parser.add_argument('--cookies', metavar='/path/to/cookieJar',
-        help='Use persistent cookies from an INI-formatted CookieJar file'
+    parser.add_argument('--cookies-file', metavar='/path/to/cookies.txt',
+        help='Sets the file name to store the persistent cookies'
     )
     parser.add_argument('--disk-cache', default='no',
         choices=['yes', 'no'],

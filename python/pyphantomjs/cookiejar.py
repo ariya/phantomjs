@@ -22,13 +22,13 @@ from PyQt4.QtNetwork import QNetworkCookie, QNetworkCookieJar
 
 
 class CookieJar(QNetworkCookieJar):
-    def __init__(self, parent, cookieFile):
+    def __init__(self, parent, cookiesFile):
         super(CookieJar, self).__init__(parent)
 
-        self.m_cookieFile = cookieFile
+        self.m_cookiesFile = cookiesFile
 
     def setCookiesFromUrl(self, cookieList, url):
-        settings = QSettings(self.m_cookieFile, QSettings.IniFormat)
+        settings = QSettings(self.m_cookiesFile, QSettings.IniFormat)
 
         settings.beginGroup(url.host())
 
@@ -40,7 +40,7 @@ class CookieJar(QNetworkCookieJar):
         return True
 
     def cookiesForUrl(self, url):
-        settings = QSettings(self.m_cookieFile, QSettings.IniFormat)
+        settings = QSettings(self.m_cookiesFile, QSettings.IniFormat)
         cookieList = []
 
         settings.beginGroup(url.host())

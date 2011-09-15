@@ -35,7 +35,7 @@ class Config(QObject):
 
         self.settings = {
             'auth': { 'mapping': 'auth', 'default': None },
-            'cookies': { 'mapping': 'cookies', 'default': None },
+            'cookiesFile': { 'mapping': 'cookies_file', 'default': None },
             'diskCache': { 'mapping': 'disk_cache', 'default': False },
             'ignoreSslErrors': { 'mapping': 'ignore_ssl_errors', 'default': False },
             'loadImages': { 'mapping': 'load_images', 'default': True },

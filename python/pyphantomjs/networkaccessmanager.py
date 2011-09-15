@@ -46,8 +46,8 @@ class NetworkAccessManager(QNetworkAccessManager):
             self.m_authPass = args.auth[1]
             self.authenticationRequired.connect(self.provideAuthentication)
 
-        if args.cookies:
-            self.setCookieJar(CookieJar(self, args.cookies))
+        if args.cookies_file:
+            self.setCookieJar(CookieJar(self, args.cookies_file))
 
         if args.disk_cache:
             m_networkDiskCache = QNetworkDiskCache()
