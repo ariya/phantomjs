@@ -30,6 +30,7 @@ from PyQt4.QtWebKit import QWebSettings, QWebPage
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
 from plugincontroller import do_action
+from networkaccessmanager import NetworkAccessManager
 from utils import injectJsInFrame
 
 
@@ -73,7 +74,7 @@ class WebPage(QObject):
     resourceReceived = pyqtSignal('QVariantMap')
     resourceRequested = pyqtSignal('QVariantMap')
 
-    def __init__(self, parent):
+    def __init__(self, parent, args):
         super(WebPage, self).__init__(parent)
 
         self.m_parent = parent
@@ -112,6 +113,12 @@ class WebPage(QObject):
 
         # Ensure we have a document.body.
         self.m_webPage.mainFrame().setHtml('<html><body></body></html>')
+
+        # Custom network access manager to allow traffic monitoring
+        networkAccessManager = NetworkAccessManager(self, args)
+        self.m_webPage.setNetworkAccessManager(networkAccessManager)
+        networkAccessManager.resourceRequested.connect(self.resourceRequested)
+        networkAccessManager.resourceReceived.connect(self.resourceReceived)
 
         self.m_webPage.setViewportSize(QSize(400, 300))
 
@@ -251,11 +258,6 @@ class WebPage(QObject):
 
         self.m_webPage.mainFrame().print_(p)
         return True
-
-    def setNetworkAccessManager(self, networkAccessManager):
-        self.m_webPage.setNetworkAccessManager(networkAccessManager)
-        networkAccessManager.resourceRequested.connect(self.resourceRequested)
-        networkAccessManager.resourceReceived.connect(self.resourceReceived)
 
     def stringToPointSize(self, string):
         units = (
