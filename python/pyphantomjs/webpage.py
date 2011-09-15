@@ -74,6 +74,8 @@ class WebPage(QObject):
     resourceReceived = pyqtSignal('QVariantMap')
     resourceRequested = pyqtSignal('QVariantMap')
 
+    blankHtml = '<html><body></body></html>'
+
     def __init__(self, parent, args):
         super(WebPage, self).__init__(parent)
 
@@ -112,7 +114,7 @@ class WebPage(QObject):
         self.m_webPage.settings().setLocalStoragePath(QDesktopServices.storageLocation(QDesktopServices.DataLocation))
 
         # Ensure we have a document.body.
-        self.m_webPage.mainFrame().setHtml('<html><body></body></html>')
+        self.m_webPage.mainFrame().setHtml(self.blankHtml)
 
         # Custom network access manager to allow traffic monitoring
         networkAccessManager = NetworkAccessManager(self, args)
@@ -390,7 +392,10 @@ class WebPage(QObject):
             self.m_mainFrame.evaluateJavaScript('console.error("Unknown network operation: %s");' % operation)
             return
 
-        self.m_mainFrame.load(QNetworkRequest(QUrl(address)), networkOp, body)
+        if address.lower() == 'about:blank':
+            self.m_mainFrame.setHtml(self.blankHtml)
+        else:
+            self.m_mainFrame.load(QNetworkRequest(QUrl(address)), networkOp, body)
 
     @pyqtProperty('QVariantMap')
     def paperSize(self):
