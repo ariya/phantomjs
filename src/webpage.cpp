@@ -52,6 +52,9 @@
 
 #include "consts.h"
 
+// Ensure we have at least document.body.
+#define BLANK_HTML "<html><body></body></html>"
+
 class CustomPage: public QWebPage
 {
 Q_OBJECT
@@ -132,8 +135,7 @@ WebPage::WebPage(QObject *parent, const Config *config)
     m_webPage->settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
     m_webPage->settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
 
-    // Ensure we have at least document.body.
-    m_mainFrame->setHtml("<html><body></body></html>");
+    m_mainFrame->setHtml(BLANK_HTML);
 
     // Custom network access manager to allow traffic monitoring.
     NetworkAccessManager *networkAccessManager = new NetworkAccessManager(this, config);
@@ -317,7 +319,11 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
         return;
     }
 
-    m_mainFrame->load(QNetworkRequest(QUrl(address)), networkOp, body);
+    if (address == "about:blank") {
+        m_mainFrame->setHtml(BLANK_HTML);
+    } else {
+        m_mainFrame->load(QNetworkRequest(QUrl(address)), networkOp, body);
+    }
 }
 
 void WebPage::release()
