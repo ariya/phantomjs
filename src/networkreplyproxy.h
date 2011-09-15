@@ -31,6 +31,7 @@
 #define NETWORKREPLYPROXY_H
 
 #include <QNetworkReply>
+#include <QPointer>
 
 class NetworkReplyProxy : public QNetworkReply {
     Q_OBJECT
@@ -60,7 +61,7 @@ public Q_SLOTS:
     void readInternal();
 
 private:
-    QNetworkReply* m_reply;
+    QPointer<QNetworkReply> m_reply;
     QByteArray m_data;
     QByteArray m_buffer;
 };
