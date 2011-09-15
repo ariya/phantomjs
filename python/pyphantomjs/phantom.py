@@ -21,13 +21,12 @@ import os
 import sys
 
 import sip
-from PyQt4.QtCore import (pyqtProperty, pyqtSlot, QObject,
-                          QFile)
+from PyQt4.QtCore import pyqtProperty, pyqtSlot, QObject
 from PyQt4.QtGui import QApplication
 from PyQt4.QtNetwork import QNetworkProxy, QNetworkProxyFactory
 
 from __init__ import __version_info__
-from utils import injectJsInFrame
+from utils import injectJsInFrame, QPyFile
 from plugincontroller import do_action
 from webpage import WebPage
 from networkaccessmanager import NetworkAccessManager
@@ -37,7 +36,7 @@ from encoding import Encode
 
 class Phantom(QObject):
     def __init__(self, parent, args):
-        QObject.__init__(self, parent)
+        super(Phantom, self).__init__(parent)
 
         # variable declarations
         self.m_defaultPageSettings = {}
@@ -52,8 +51,6 @@ class Phantom(QObject):
         self.m_scriptEncoding = Encode(args.script_encoding, 'utf-8')
         self.m_outputEncoding = Encode(args.output_encoding, sys.stdout.encoding_sys)
 
-        self.m_filesystem = FileSystem(self)
-
         self.m_pages.append(self.m_page)
 
         do_action('PhantomInitPre')
@@ -65,7 +62,7 @@ class Phantom(QObject):
             QNetworkProxy.setApplicationProxy(proxy)
 
         # Provide WebPage with a non-standard Network Access Manager
-        self.m_netAccessMan = NetworkAccessManager(self, args.auth, args.cookies, args.disk_cache, args.ignore_ssl_errors)
+        self.m_netAccessMan = NetworkAccessManager(self, args.auth, args.cookies, args.disk_cache, args.ignore_ssl_errors, args.max_disk_cache_size)
         self.m_page.setNetworkAccessManager(self.m_netAccessMan)
 
         self.m_page.javaScriptConsoleMessageSent.connect(self.printConsoleMessage)
@@ -75,28 +72,17 @@ class Phantom(QObject):
         self.m_defaultPageSettings['javascriptEnabled'] = True
         self.m_defaultPageSettings['XSSAuditingEnabled'] = False
         self.m_defaultPageSettings['userAgent'] = self.m_page.userAgent()
-        self.m_defaultPageSettings['localAccessRemote'] = args.local_access_remote
+        self.m_defaultPageSettings['localToRemoteUrlAccessEnabled'] = args.local_to_remote_url_access
         self.m_page.applySettings(self.m_defaultPageSettings)
 
         self.libraryPath = os.path.dirname(os.path.abspath(self.m_scriptFile))
 
         # inject our properties and slots into javascript
         self.m_page.mainFrame().addToJavaScriptWindowObject('phantom', self)
-        self.m_page.mainFrame().addToJavaScriptWindowObject('fs', self.m_filesystem)
 
-        jsShims = (
-            ':/filesystem-shim.js',
-            ':/webpage-shim.js'
-        )
-        for shim in jsShims:
-            f = QFile(shim)
-            if not f.open(QFile.ReadOnly):
-                sys.exit("Failed to load shim '%s'" % shim)
-
-            f = str(f.readAll())
-            if not f:
-                sys.exit("Failed to load shim '%s'" % shim)
-            self.m_page.mainFrame().evaluateJavaScript(f)
+        with QPyFile(':/bootstrap.js') as f:
+            bootstrap = f.readAll().data()
+        self.m_page.mainFrame().evaluateJavaScript(bootstrap)
 
         do_action('PhantomInitPost')
 
@@ -119,6 +105,10 @@ class Phantom(QObject):
     @pyqtProperty('QStringList')
     def args(self):
         return self.m_args
+
+    @pyqtSlot(result=FileSystem)
+    def createFilesystem(self):
+        return FileSystem(self)
 
     @pyqtSlot(result=WebPage)
     def createWebPage(self):
@@ -152,6 +142,15 @@ class Phantom(QObject):
     @pyqtSlot(str, result=bool)
     def injectJs(self, filePath):
         return injectJsInFrame(filePath, self.m_scriptEncoding.encoding, self.libraryPath, self.m_page.mainFrame())
+
+    @pyqtSlot(str, result=str)
+    def loadModuleSource(self, name):
+        moduleSourceFilePath = ':/modules/%s.js' % name
+
+        with QPyFile(moduleSourceFilePath) as f:
+            moduleSource = f.readAll().data()
+
+        return moduleSource
 
     @pyqtProperty(str)
     def libraryPath(self):

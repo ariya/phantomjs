@@ -22,7 +22,7 @@ from PyQt4.QtNetwork import QNetworkRequest, QNetworkReply
 
 class NetworkReplyProxy(QNetworkReply):
     def __init__(self, parent, reply):
-        QNetworkReply.__init__(self, parent)
+        super(NetworkReplyProxy, self).__init__(parent)
 
         self.m_reply = reply
         self.m_buffer = self.m_data = ''
@@ -98,7 +98,7 @@ class NetworkReplyProxy(QNetworkReply):
     def readData(self, maxlen):
         size = min(maxlen, len(self.m_buffer))
         data, self.m_buffer = self.m_buffer[:size], self.m_buffer[size:]
-        return str(data)
+        return data.data()
 
     def readInternal(self):
         data = self.m_reply.readAll()

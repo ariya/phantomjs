@@ -22,7 +22,7 @@ from math import ceil, floor
 import sip
 from PyQt4.QtCore import (pyqtProperty, pyqtSlot, pyqtSignal, Qt, QObject,
                           QRect, QPoint, QUrl, QFileInfo, QDir, QSize,
-                          QSizeF, QByteArray, QEventLoop, QEvent, QFile)
+                          QSizeF, QByteArray, QEventLoop, QEvent)
 from PyQt4.QtGui import (QPalette, QDesktopServices, QPrinter, QImage,
                          QPainter, QRegion, QApplication, QMouseEvent,
                          qRgba)
@@ -35,12 +35,11 @@ from utils import injectJsInFrame
 
 class CustomPage(QWebPage):
     def __init__(self, parent):
-        QWebPage.__init__(self, parent)
+        super(CustomPage, self).__init__(parent)
 
         self.m_parent = parent
 
         self.m_userAgent = QWebPage.userAgentForUrl(self, QUrl())
-        self.m_scrollPosition = QPoint()
 
         self.m_uploadFile = ''
 
@@ -75,7 +74,7 @@ class WebPage(QObject):
     resourceRequested = pyqtSignal('QVariantMap')
 
     def __init__(self, parent):
-        QObject.__init__(self, parent)
+        super(WebPage, self).__init__(parent)
 
         self.m_parent = parent
 
@@ -83,7 +82,7 @@ class WebPage(QObject):
         self.m_paperSize = {}
         self.m_clipRect = QRect()
         self.m_libraryPath = ''
-        self.m_mousePos = QPoint()
+        self.m_mousePos = self.m_scrollPosition = QPoint()
 
         self.setObjectName('WebPage')
         self.m_webPage = CustomPage(self)
@@ -125,7 +124,7 @@ class WebPage(QObject):
         opt.setAttribute(QWebSettings.PluginsEnabled, defaults['loadPlugins'])
         opt.setAttribute(QWebSettings.JavascriptEnabled, defaults['javascriptEnabled'])
         opt.setAttribute(QWebSettings.XSSAuditingEnabled, defaults['XSSAuditingEnabled'])
-        opt.setAttribute(QWebSettings.LocalContentCanAccessRemoteUrls, defaults['localAccessRemote'])
+        opt.setAttribute(QWebSettings.LocalContentCanAccessRemoteUrls, defaults['localToRemoteUrlAccessEnabled'])
         if 'userAgent' in defaults:
             self.m_webPage.m_userAgent = defaults['userAgent']
 
@@ -137,15 +136,14 @@ class WebPage(QObject):
         return self.m_mainFrame
 
     def renderImage(self):
-        viewportSize = self.m_webPage.viewportSize()
-        frameRect = QRect(QPoint(0, 0), viewportSize)
+        contentsSize = self.m_mainFrame.contentsSize()
+        contentsSize -= QSize(self.m_scrollPosition.x(), self.m_scrollPosition.y())
+        frameRect = QRect(QPoint(0, 0), contentsSize)
         if not self.m_clipRect.isEmpty():
             frameRect = self.m_clipRect
 
-        if self.m_webPage.m_scrollPosition:
-            self.m_webPage.mainFrame().\
-                setScrollPosition(QPoint(self.m_webPage.m_scrollPosition.x(),
-                                         self.m_webPage.m_scrollPosition.y() ))
+        viewportSize = self.m_webPage.viewportSize()
+        self.m_webPage.setViewportSize(contentsSize)
 
         image = QImage(frameRect.size(), QImage.Format_ARGB32)
         image.fill(qRgba(255, 255, 255, 0))
@@ -431,7 +429,7 @@ class WebPage(QObject):
 
     @pyqtProperty('QVariantMap')
     def scrollPosition(self):
-        scroll = self.m_webPage.m_scrollPosition
+        scroll = self.m_scrollPosition
         result = {
             'left': scroll.x(),
             'top': scroll.y()
@@ -448,7 +446,8 @@ class WebPage(QObject):
                     positions[item] = 0
             except (KeyError, ValueError):
                 positions[item] = self.scrollPosition[item]
-        self.m_webPage.m_scrollPosition = QPoint(positions['left'], positions['top'])
+        self.m_scrollPosition = QPoint(positions['left'], positions['top'])
+        self.m_mainFrame.setScrollPosition(self.m_scrollPosition)
 
     @pyqtSlot(str, str)
     def uploadFile(self, selector, fileName):

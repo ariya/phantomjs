@@ -20,11 +20,12 @@
 
 import os
 import sys
+
 # hack to import parent module(s)
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path = sys.path + [parent_dir]
+sys.path = [parent_dir] + sys.path
 
-from utils import version
+from __init__ import __version__
 
 try:
     from cx_Freeze import setup, Executable
@@ -70,9 +71,10 @@ include_files = [
     # to make sure images are supported; jpeg, gif, svg, etc.
     (os.path.join(qt4_plugin_dir, 'imageformats'), 'imageformats'),
     (os.path.join(parent_dir, 'plugins'), 'plugins'),
-    (os.path.join(parent_dir, '../examples' if os.path.exists('../examples') else '../../examples'), 'examples'),
+    (os.path.join(parent_dir, '../../examples'), 'examples'),
     (os.path.join(parent_dir, '../LICENSE'), 'LICENSE.txt'),
-    (os.path.join(parent_dir, '../README.md'), 'README.txt')
+    (os.path.join(parent_dir, '../README.md'), 'README.txt'),
+    (os.path.join(parent_dir, '../../ChangeLog'), 'ChangeLog.txt')
 ]
 
 
@@ -84,7 +86,7 @@ exe = Executable(
 
 setup(
     name = 'PyPhantomJS',
-    version = version,
+    version = __version__,
     description = 'Minimalistic, headless, WebKit-based, JavaScript-driven tool',
     options = {'build_exe': {'includes': includes, 'include_files': include_files}},
     executables = [exe]

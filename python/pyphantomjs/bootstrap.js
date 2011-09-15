@@ -1,5 +1,5 @@
 /*jslint sloppy: true, nomen: true */
-/*global window:true,phantom:true,fs:true */
+/*global window:true,phantom:true */
 
 /*
   This file is part of the PhantomJS project from Ofi Labs.
@@ -33,3 +33,25 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+function require(name) {
+
+    var code, func, exports;
+
+    if (name === 'webpage' || name === 'fs') {
+        code = phantom.loadModuleSource(name);
+        func = new Function("exports", "window", code);
+        exports = {};
+        if (name === 'fs') {
+            exports = phantom.createFilesystem();
+        }
+        func.call({}, exports, {});
+        return exports;
+    }
+
+    if (typeof exports === 'undefined') {
+        throw 'Unknown module ' + name + ' for require()';
+    }
+}
+
+// Legacy way to use WebPage
+window.WebPage = require('webpage').create;

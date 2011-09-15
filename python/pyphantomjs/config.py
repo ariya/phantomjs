@@ -20,13 +20,15 @@
 import sys
 import codecs
 
-from PyQt4.QtCore import QObject, QFile, qWarning
+from PyQt4.QtCore import QObject, qWarning
 from PyQt4.QtWebKit import QWebPage
+
+from utils import QPyFile
 
 
 class Config(QObject):
     def __init__(self, parent, jsonFile):
-        QObject.__init__(self, parent)
+        super(Config, self).__init__(parent)
 
         with codecs.open(jsonFile, encoding='utf-8') as fd:
             json = fd.read()
@@ -38,7 +40,8 @@ class Config(QObject):
             'ignoreSslErrors': { 'mapping': 'ignore_ssl_errors', 'default': False },
             'loadImages': { 'mapping': 'load_images', 'default': True },
             'loadPlugins': { 'mapping': 'load_plugins', 'default': False },
-            'localAccessRemote': { 'mapping': 'local_access_remote', 'default': False },
+            'localToRemoteUrlAccessEnabled': { 'mapping': 'local_to_remote_url_access', 'default': False },
+            'maxDiskCacheSize': { 'mapping': 'max_disk_cache_size', 'default': -1 },
             'outputEncoding': { 'mapping': 'output_encoding', 'default': 'System' },
             'proxy': { 'mapping': 'proxy', 'default': None },
             'scriptEncoding': { 'mapping': 'script_encoding', 'default': 'utf-8' },
@@ -54,13 +57,8 @@ class Config(QObject):
             qWarning('Config file MUST be in JSON format!')
             return
 
-        file_ = QFile(':/configurator.js')
-        if not file_.open(QFile.ReadOnly):
-            sys.exit('Unable to load JSON configurator!')
-        configurator = str(file_.readAll())
-        file_.close()
-        if not configurator:
-            sys.exit('Unable to set-up JSON configurator!')
+        with QPyFile(':/configurator.js') as f:
+            configurator = f.readAll().data()
 
         webPage = QWebPage(self)
 

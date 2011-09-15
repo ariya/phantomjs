@@ -70,7 +70,7 @@ createHAR = (address, title, startTime, resources) ->
             id: address
             title: title
             pageTimings: {}
-         ]
+        ]
         entries: entries
 
 page = require('webpage').create()

@@ -31,8 +31,8 @@ class NetworkAccessManager(QNetworkAccessManager):
     resourceReceived = pyqtSignal('QVariantMap')
     resourceRequested = pyqtSignal('QVariantMap')
 
-    def __init__(self, parent, auth, cookieFile, diskCacheEnabled, ignoreSslErrors):
-        QNetworkAccessManager.__init__(self, parent)
+    def __init__(self, parent, auth, cookieFile, diskCacheEnabled, ignoreSslErrors, maxDiskCacheSize):
+        super(NetworkAccessManager, self).__init__(parent)
 
         self.m_ignoreSslErrors = ignoreSslErrors
         self.m_idCounter = 0
@@ -52,6 +52,8 @@ class NetworkAccessManager(QNetworkAccessManager):
         if diskCacheEnabled:
             m_networkDiskCache = QNetworkDiskCache()
             m_networkDiskCache.setCacheDirectory(QDesktopServices.storageLocation(QDesktopServices.CacheLocation))
+            if maxDiskCacheSize > 0:
+                m_networkDiskCache.setMaximumCacheSize(maxDiskCacheSize * 1024)
             self.setCache(m_networkDiskCache)
 
         do_action('NetworkAccessManagerInit')
@@ -67,8 +69,8 @@ class NetworkAccessManager(QNetworkAccessManager):
         headers = []
         for header in req.rawHeaderList():
             header = {
-                'name': str(header),
-                'value': str(req.rawHeader(header))
+                'name': header.data(),
+                'value': req.rawHeader(header).data()
             }
             headers.append(header)
 
@@ -94,8 +96,8 @@ class NetworkAccessManager(QNetworkAccessManager):
         headers = []
         for header in reply.rawHeaderList():
             header = {
-                'name': str(header),
-                'value': str(reply.rawHeader(header))
+                'name': header.data(),
+                'value': reply.rawHeader(header).data()
             }
             headers.append(header)
 
@@ -132,8 +134,8 @@ class NetworkAccessManager(QNetworkAccessManager):
         headers = []
         for header in reply.rawHeaderList():
             header = {
-                'name': str(header),
-                'value': str(reply.rawHeader(header))
+                'name': header.data(),
+                'value': reply.rawHeader(header).data()
             }
             headers.append(header)
 
