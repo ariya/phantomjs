@@ -3,6 +3,7 @@ Usage: phantomjs [options] script.[js|coffee] [script argument [script argument 
 
 Options:
     --version                          Prints out PhantomJS version
+    --cookies=/path/to/cookies.txt     Sets the file name to store the persistent cookies
     --config=/path/to/config           Specifies path to a JSON-formatted config file.
     --load-images=[yes|no]             Loads all inlined images (default is 'yes').
     --load-plugins=[yes|no]            Loads all plugins (i.e. 'Flash', 'Silverlight', ...) (default is 'no').
