@@ -75,8 +75,8 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
     , m_idCounter(0)
     , m_networkDiskCache(0)
 {
-    if (!config->cookieFile().isEmpty()) {
-        setCookieJar(new CookieJar(config->cookieFile()));
+    if (!config->cookiesFile().isEmpty()) {
+        setCookieJar(new CookieJar(config->cookiesFile()));
     }
 
     if (config->diskCacheEnabled()) {

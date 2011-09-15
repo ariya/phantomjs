@@ -4,7 +4,7 @@ Usage: phantomjs [options] script.[js|coffee] [script argument [script argument 
 Options:
 
 --auth=username:password               Sets the authentication username and password
---cookies=/path/to/cookies.txt         Sets the file name to store the persistent cookies
+--cookies-file=/path/to/cookies.txt    Sets the file name to store the persistent cookies
 --config=/path/to/config               Specifies path to a JSON-formatted config file
 --disk-cache=[yes|no]                  Enables disk cache (at desktop services cache storage location, default is 'no')
 --ignore-ssl-errors=[yes|no]           Ignores SSL errors (i.e. expired or self-signed certificate errors)

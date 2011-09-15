@@ -117,8 +117,8 @@ void Config::processArgs(const QStringList &args)
             setAuth(credentials);
             continue;
         }
-        if (arg.startsWith("--cookies=")) {
-            setCookieFile(arg.mid(10).trimmed());
+        if (arg.startsWith("--cookies-file=")) {
+            setCookiesFile(arg.mid(15).trimmed());
             continue;
         }
         if (arg.startsWith("--output-encoding=")) {
@@ -216,14 +216,14 @@ void Config::setAutoLoadImages(const bool value)
     m_autoLoadImages = value;
 }
 
-QString Config::cookieFile() const
+QString Config::cookiesFile() const
 {
-    return m_cookieFile;
+    return m_cookiesFile;
 }
 
-void Config::setCookieFile(const QString &value)
+void Config::setCookiesFile(const QString &value)
 {
-    m_cookieFile = value;
+    m_cookiesFile = value;
 }
 
 bool Config::diskCacheEnabled() const
@@ -415,7 +415,7 @@ void Config::setVersionFlag(const bool value)
 void Config::resetToDefaults()
 {
     m_autoLoadImages = true;
-    m_cookieFile.clear();
+    m_cookiesFile = QString();
     m_diskCacheEnabled = false;
     m_maxDiskCacheSize = -1;
     m_ignoreSslErrors = false;
