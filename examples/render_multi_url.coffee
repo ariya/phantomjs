@@ -11,7 +11,7 @@ Array.prototype.forEach = (action) ->
 # @param file File to render to
 # @param callback Callback function
 renderUrlToFile = (url, file, callback) ->
-    page = new WebPage()
+    page = require('webpage').create()
     page.viewportSize = { width: 800, height : 600 }
     page.settings.userAgent = 'Phantom.js bot'
 

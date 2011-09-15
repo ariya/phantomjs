@@ -1,6 +1,6 @@
 # Get driving direction using Google Directions API.
 
-page = new WebPage()
+page = require('webpage').create()
 
 if phantom.args.length < 2
   console.log 'Usage: direction.js origin destination'

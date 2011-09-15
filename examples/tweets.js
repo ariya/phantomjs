@@ -1,6 +1,6 @@
 // Get twitter status for given account (or for the default one, "sencha")
 
-var page = new WebPage(),
+var page = require('webpage').create(),
     twitterId = "sencha"; //< default value
 
 // Route "console.log()" calls from within the Page context to the main Phantom context (i.e. current "this")
