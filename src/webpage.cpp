@@ -52,8 +52,8 @@
 
 #include "consts.h"
 
-// Ensure we have at least document.body.
-#define BLANK_HTML "<html><body></body></html>"
+// Ensure we have at least head and body.
+#define BLANK_HTML "<html><head></head><body></body></html>"
 
 class CustomPage: public QWebPage
 {

@@ -74,7 +74,7 @@ class WebPage(QObject):
     resourceReceived = pyqtSignal('QVariantMap')
     resourceRequested = pyqtSignal('QVariantMap')
 
-    blankHtml = '<html><body></body></html>'
+    blankHtml = '<html><head></head><body></body></html>'
 
     def __init__(self, parent, args):
         super(WebPage, self).__init__(parent)
