@@ -52,6 +52,29 @@ sys.stdout = SafeStreamFilter(sys.stdout)
 sys.stderr = SafeStreamFilter(sys.stderr)
 
 
+def debug(debug_type):
+    def excepthook(type_, value, tb):
+        import traceback
+
+        # print the exception...
+        traceback.print_exception(type_, value, tb)
+        print
+        # ...then start the debugger in post-mortem mode
+        pdb.pm()
+
+    # we are NOT in interactive mode
+    if not hasattr(sys, 'ps1') or sys.stderr.target.isatty():
+        import pdb
+
+        from PyQt4.QtCore import pyqtRemoveInputHook
+        pyqtRemoveInputHook()
+
+        if debug_type == 'exception':
+            sys.excepthook = excepthook
+        elif debug_type == 'program':
+            pdb.set_trace()
+
+
 def parseArgs(app, args):
     # Handle all command-line options
     p = argParser()
@@ -77,6 +100,9 @@ def parseArgs(app, args):
             # special case for verbose arg, which will need to be re-applied
             if setting == 'verbose':
                 messageHandler.verbose = args.verbose
+
+    if args.debug:
+        debug(args.debug)
 
     split_check = (
         (args.proxy, 'proxy'),

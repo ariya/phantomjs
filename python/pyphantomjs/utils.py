@@ -65,54 +65,65 @@ def argParser():
     parser.add_argument('script', metavar='script.[js|coffee]', nargs='?',
         help='The script to execute, and any args to pass to it'
     )
-
-    parser.add_argument('--auth', metavar='user:pass',
-        help='Sets the authentication username and password'
+    parser.add_argument('-v', '--version',
+        action='version', version=license,
+        help="show this program's version and license"
     )
-    parser.add_argument('--config', metavar='/path/to/config',
+
+    program = parser.add_argument_group('program options')
+    script = parser.add_argument_group('script options')
+    debug = parser.add_argument_group('debug options')
+
+    program.add_argument('--config', metavar='/path/to/config',
         help='Specifies path to a JSON-formatted config file'
     )
-    parser.add_argument('--cookies-file', metavar='/path/to/cookies.txt',
-        help='Sets the file name to store the persistent cookies'
-    )
-    parser.add_argument('--disk-cache', default=False, action=YesOrNoAction,
+    program.add_argument('--disk-cache', default=False, action=YesOrNoAction,
         choices=['yes', 'no'],
         help='Enable disk cache (default: no)'
     )
-    parser.add_argument('--ignore-ssl-errors', default=False, action=YesOrNoAction,
+    program.add_argument('--ignore-ssl-errors', default=False, action=YesOrNoAction,
         choices=['yes', 'no'],
         help='Ignore SSL errors (default: no)'
     )
-    parser.add_argument('--load-images', default=True, action=YesOrNoAction,
+    program.add_argument('--max-disk-cache-size', default=-1, metavar='size', type=int,
+        help='Limits the size of disk cache (in KB)'
+    )
+    program.add_argument('--output-encoding', default='System', metavar='encoding',
+        help='Sets the encoding used for terminal output (default: %(default)s)'
+    )
+    program.add_argument('--proxy', metavar='address:port',
+        help='Set the network proxy'
+    )
+    program.add_argument('--script-encoding', default='utf-8', metavar='encoding',
+        help='Sets the encoding used for scripts (default: %(default)s)'
+    )
+
+    script.add_argument('--auth', metavar='user:pass',
+        help='Sets the authentication username and password'
+    )
+    script.add_argument('--cookies-file', metavar='/path/to/cookies.txt',
+        help='Sets the file name to store the persistent cookies'
+    )
+    script.add_argument('--load-images', default=True, action=YesOrNoAction,
         choices=['yes', 'no'],
         help='Load all inlined images (default: yes)'
     )
-    parser.add_argument('--load-plugins', default=False, action=YesOrNoAction,
+    script.add_argument('--load-plugins', default=False, action=YesOrNoAction,
         choices=['yes', 'no'],
         help='Load all plugins (i.e. Flash, Silverlight, ...) (default: no)'
     )
-    parser.add_argument('--local-to-remote-url-access', default=False, action=YesOrNoAction,
+    script.add_argument('--local-to-remote-url-access', default=False, action=YesOrNoAction,
         choices=['yes', 'no'],
         help='Local content can access remote URL (default: no)'
     )
-    parser.add_argument('--max-disk-cache-size', default=-1, metavar='size', type=int,
-        help='Limits the size of disk cache (in KB)'
+
+    debug.add_argument('--debug', choices=['exception', 'program'], metavar='option',
+        help=('Debug the program with pdb\n'
+              '    exception : Start debugger when program hits exception\n'
+              '    program   : Start the program with the debugger enabled')
     )
-    parser.add_argument('--output-encoding', default='System', metavar='encoding',
-        help='Sets the encoding used for terminal output (default: %(default)s)'
-    )
-    parser.add_argument('--proxy', metavar='address:port',
-        help='Set the network proxy'
-    )
-    parser.add_argument('--script-encoding', default='utf-8', metavar='encoding',
-        help='Sets the encoding used for scripts (default: %(default)s)'
-    )
-    parser.add_argument('-v', '--verbose', action='store_true',
+    debug.add_argument('--verbose', action='store_true',
         help='Show verbose debug messages'
-    )
-    parser.add_argument('--version',
-        action='version', version=license,
-        help="show this program's version and license"
     )
 
     do_action('ArgParser')
