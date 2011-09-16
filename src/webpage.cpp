@@ -52,8 +52,8 @@
 
 #include "consts.h"
 
-// Ensure we have at least document.body.
-#define BLANK_HTML "<html><body></body></html>"
+// Ensure we have at least head and body.
+#define BLANK_HTML "<html><head></head><body></body></html>"
 
 class CustomPage: public QWebPage
 {
@@ -522,36 +522,37 @@ void WebPage::_appendScriptElement(const QString &scriptUrl) {
     m_mainFrame->evaluateJavaScript( QString(JS_APPEND_SCRIPT_ELEMENT).arg(scriptUrl) );
 }
 
-void WebPage::click( int x, int y )
+void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVariant &arg2)
 {
-    mouseMoveTo(x,y);
-    mouseDown();
-    mouseUp();
-}
+    if (type == "mousedown" ||  type == "mouseup" || type == "mousemove") {
+        QMouseEvent::Type eventType = QEvent::None;
+        Qt::MouseButton button = Qt::LeftButton;
+        Qt::MouseButtons buttons = Qt::LeftButton;
 
-void WebPage::mouseDown()
-{
-//    qDebug()  << "EventSender::mouseDown " << m_mousePos.x() << " " << m_mousePos.y();
-    QMouseEvent* event = new QMouseEvent(QEvent::MouseButtonPress, m_mousePos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-    QApplication::postEvent( m_webPage, event);
-    QApplication::processEvents();
-}
+        if (type == "mousedown")
+            eventType = QEvent::MouseButtonPress;
+        if (type == "mouseup")
+            eventType = QEvent::MouseButtonRelease;
+        if (type == "mousemove") {
+            eventType = QEvent::MouseMove;
+            button = Qt::NoButton;
+            buttons = Qt::NoButton;
+        }
+        Q_ASSERT(eventType != QEvent::None);
 
-void WebPage::mouseUp()
-{
-//    qDebug()  << "EventSender::mouseUp " << m_mousePos.x() << " " << m_mousePos.y();
-    QMouseEvent* event = new QMouseEvent(QEvent::MouseButtonRelease, m_mousePos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-    QApplication::postEvent(m_webPage, event);
-    QApplication::processEvents();
-}
+        int x = arg1.toInt();
+        int y = arg2.toInt();
+        QMouseEvent *event = new QMouseEvent(eventType, QPoint(x, y), button, buttons, Qt::NoModifier);
+        QApplication::postEvent(m_webPage, event);
+        QApplication::processEvents();
+        return;
+    }
 
-void WebPage::mouseMoveTo(int x, int y)
-{
-//    qDebug()  << "EventSender::mouseMoveTo " << x << " " << y;
-    m_mousePos = QPoint(x, y);
-    QMouseEvent* event = new QMouseEvent(QEvent::MouseMove, m_mousePos, Qt::NoButton, Qt::NoButton, Qt::NoModifier);
-    QApplication::postEvent(m_webPage, event);
-    QApplication::processEvents();
+    if (type == "click") {
+        sendEvent("mousedown", arg1, arg2);
+        sendEvent("mouseup", arg1, arg2);
+        return;
+    }
 }
 
 #include "webpage.moc"

@@ -81,10 +81,7 @@ public slots:
     bool injectJs(const QString &jsFilePath);
     void _appendScriptElement(const QString &scriptUrl);
     void uploadFile(const QString &selector, const QString &fileName);
-    void click( int x, int y );
-    void mouseDown();
-    void mouseUp();
-    void mouseMoveTo(int x, int y);
+    void sendEvent(const QString &type, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant());
 
 signals:
     void initialized();
