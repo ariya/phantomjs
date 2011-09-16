@@ -26,11 +26,11 @@ from PyQt4.QtGui import QApplication
 from PyQt4.QtNetwork import QNetworkProxy, QNetworkProxyFactory
 
 from __init__ import __version_info__
-from utils import injectJsInFrame, QPyFile
-from plugincontroller import do_action
-from webpage import WebPage
-from filesystem import FileSystem
 from encoding import Encode
+from filesystem import FileSystem
+from plugincontroller import do_action
+from utils import injectJsInFrame, QPyFile
+from webpage import WebPage
 
 
 class Phantom(QObject):

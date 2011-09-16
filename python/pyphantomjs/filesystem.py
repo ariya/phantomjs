@@ -17,18 +17,18 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import os
 import codecs
+import os
 import shutil
 import stat
 try:
-    from pwd import getpwuid, getpwnam
     from grp import getgrgid, getgrnam
+    from pwd import getpwuid, getpwnam
 except ImportError:
     pass
 
-from PyQt4.QtCore import (pyqtSlot, pyqtProperty, QObject, QDateTime,
-                          QFileInfo, qDebug)
+from PyQt4.QtCore import (pyqtProperty, pyqtSlot, QDateTime, qDebug,
+                          QFileInfo, QObject)
 
 from plugincontroller import do_action
 

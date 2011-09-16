@@ -17,8 +17,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import sys
 import codecs
+import sys
 
 from PyQt4.QtCore import QObject, qWarning
 from PyQt4.QtWebKit import QWebPage

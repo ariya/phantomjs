@@ -17,13 +17,13 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
+import argparse
+import codecs
 import os
 import sys
-import codecs
-import argparse
 
-from PyQt4.QtCore import (QDateTime, QFile, Qt, QtDebugMsg, QtWarningMsg,
-                          QtCriticalMsg, QtFatalMsg, qDebug)
+from PyQt4.QtCore import (QDateTime, qDebug, QFile, Qt, QtCriticalMsg,
+                          QtDebugMsg, QtFatalMsg, QtWarningMsg)
 
 from __init__ import __version__
 from plugincontroller import do_action

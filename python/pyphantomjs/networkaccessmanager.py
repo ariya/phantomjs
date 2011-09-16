@@ -17,8 +17,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from PyQt4.QtGui import QDesktopServices
 from PyQt4.QtCore import pyqtSignal, QDateTime
+from PyQt4.QtGui import QDesktopServices
 from PyQt4.QtNetwork import (QNetworkAccessManager, QNetworkDiskCache,
                              QNetworkRequest)
 

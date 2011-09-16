@@ -20,17 +20,17 @@
 from math import ceil, floor
 
 import sip
-from PyQt4.QtCore import (pyqtProperty, pyqtSlot, pyqtSignal, Qt, QObject,
-                          QRect, QPoint, QUrl, QFileInfo, QDir, QSize,
-                          QSizeF, QByteArray, QEventLoop, QEvent)
-from PyQt4.QtGui import (QPalette, QDesktopServices, QPrinter, QImage,
-                         QPainter, QRegion, QApplication, QMouseEvent,
-                         qRgba)
-from PyQt4.QtWebKit import QWebSettings, QWebPage
+from PyQt4.QtCore import (pyqtProperty, pyqtSignal, pyqtSlot, QByteArray,
+                          QDir, QEvent, QEventLoop, QFileInfo, QObject,
+                          QPoint, QRect, QSize, QSizeF, Qt, QUrl)
+from PyQt4.QtGui import (QApplication, QDesktopServices, QImage,
+                         QMouseEvent, QPainter, QPalette, QPrinter,
+                         QRegion, qRgba)
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
+from PyQt4.QtWebKit import QWebPage, QWebSettings
 
-from plugincontroller import do_action
 from networkaccessmanager import NetworkAccessManager
+from plugincontroller import do_action
 from utils import injectJsInFrame
 
 
