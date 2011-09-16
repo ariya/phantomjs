@@ -65,7 +65,6 @@ describe("WebPage object", function() {
         expect(page.viewportSize.width).toEqual(400);
     });
 
-    expectHasFunction(page, 'click');
     expectHasFunction(page, 'deleteLater');
     expectHasFunction(page, 'destroyed');
     expectHasFunction(page, 'evaluate');
@@ -75,13 +74,109 @@ describe("WebPage object", function() {
     expectHasFunction(page, 'javaScriptConsoleMessageSent');
     expectHasFunction(page, 'loadFinished');
     expectHasFunction(page, 'loadStarted');
-    expectHasFunction(page, 'mouseDown');
-    expectHasFunction(page, 'mouseMoveTo');
-    expectHasFunction(page, 'mouseUp');
     expectHasFunction(page, 'openUrl');
     expectHasFunction(page, 'release');
     expectHasFunction(page, 'render');
     expectHasFunction(page, 'resourceReceived');
     expectHasFunction(page, 'resourceRequested');
     expectHasFunction(page, 'uploadFile');
+
+    expectHasFunction(page, 'sendEvent');
+
+    it("should handle mousedown event", function() {
+        runs(function() {
+            page.evaluate(function() {
+                window.addEventListener('mousedown', function(event) {
+                    window.loggedEvent = window.loggedEvent || {};
+                    window.loggedEvent.mousedown = event;
+                }, false);
+            });
+            page.sendEvent('mousedown', 42, 217);
+        });
+
+        waits(50);
+
+        runs(function() {
+            var event = page.evaluate(function() {
+                return window.loggedEvent.mousedown;
+            });
+            expect(event.clientX).toEqual(42);
+            expect(event.clientY).toEqual(217);
+        });
+    });
+
+    it("should handle mouseup event", function() {
+        runs(function() {
+            page.evaluate(function() {
+                window.addEventListener('mouseup', function(event) {
+                    window.loggedEvent = window.loggedEvent || {};
+                    window.loggedEvent.mouseup = event;
+                }, false);
+            });
+            page.sendEvent('mouseup', 14, 3);
+        });
+
+        waits(50);
+
+        runs(function() {
+            var event = page.evaluate(function() {
+                return window.loggedEvent.mouseup;
+            });
+            expect(event.clientX).toEqual(14);
+            expect(event.clientY).toEqual(3);
+        });
+    });
+
+    it("should handle mousemove event", function() {
+        runs(function() {
+            page.evaluate(function() {
+                window.addEventListener('mousemove', function(event) {
+                    window.loggedEvent = window.loggedEvent || {};
+                    window.loggedEvent.mousemove = event;
+                }, false);
+            });
+            page.sendEvent('mousemove', 14, 7);
+        });
+
+        waits(50);
+
+        runs(function() {
+            var event = page.evaluate(function() {
+                return window.loggedEvent.mousemove;
+            });
+            expect(event.clientX).toEqual(14);
+            expect(event.clientY).toEqual(7);
+        });
+    });
+
+
+    it("should handle click event", function() {
+        runs(function() {
+            page.evaluate(function() {
+                window.addEventListener('mousedown', function(event) {
+                    window.loggedEvent = window.loggedEvent || {};
+                    window.loggedEvent.mousedown = event;
+                }, false);
+                window.addEventListener('mouseup', function(event) {
+                    window.loggedEvent = window.loggedEvent || {};
+                    window.loggedEvent.mouseup = event;
+                }, false);
+            });
+            page.sendEvent('click', 42, 217);
+        });
+
+        waits(50);
+
+        runs(function() {
+            var event = page.evaluate(function() {
+                return window.loggedEvent;
+            });
+            expect(event.mouseup.clientX).toEqual(42);
+            expect(event.mouseup.clientY).toEqual(217);
+            expect(event.mousedown.clientX).toEqual(42);
+            expect(event.mousedown.clientY).toEqual(217);
+        });
+    });
+
+
 });

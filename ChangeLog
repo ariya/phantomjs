@@ -16,6 +16,7 @@ Please see also http://code.google.com/p/phantomjs/wiki/ReleaseNotes.
 
       * Added Filesystem API, based on CommonJS Filesystem draft specs (issue 129)
       * Added support for persistent cookies (issue 91)
+      * Added event handling, currently only for mouse events (issue 234)
       * Added page scroll position (issue 162)
       * Added basic HTTP authentication support (issue 45)
       * Added callback for page initialization (issue 143)
