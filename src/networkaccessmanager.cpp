@@ -35,9 +35,10 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 
+#include "config.h"
+#include "cookiejar.h"
 #include "networkaccessmanager.h"
 #include "networkreplyproxy.h"
-#include "cookiejar.h"
 
 static const char *toString(QNetworkAccessManager::Operation op)
 {
@@ -66,23 +67,23 @@ static const char *toString(QNetworkAccessManager::Operation op)
 }
 
 // public:
-NetworkAccessManager::NetworkAccessManager(QObject *parent, bool diskCacheEnabled, QString cookieFile, bool ignoreSslErrors, QString authUser, QString authPass, int maxCacheSize)
+NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config)
     : QNetworkAccessManager(parent)
-    , m_ignoreSslErrors(ignoreSslErrors)
-    , m_authUser(authUser)
-    , m_authPass(authPass)
+    , m_ignoreSslErrors(config->ignoreSslErrors())
+    , m_authUser(config->authUser())
+    , m_authPass(config->authPass())
     , m_idCounter(0)
     , m_networkDiskCache(0)
 {
-    if (!cookieFile.isEmpty()) {
-        setCookieJar(new CookieJar(cookieFile));
+    if (!config->cookiesFile().isEmpty()) {
+        setCookieJar(new CookieJar(config->cookiesFile()));
     }
 
-    if (diskCacheEnabled) {
+    if (config->diskCacheEnabled()) {
         m_networkDiskCache = new QNetworkDiskCache(this);
         m_networkDiskCache->setCacheDirectory(QDesktopServices::storageLocation(QDesktopServices::CacheLocation));
-        if (maxCacheSize >= 0)
-            m_networkDiskCache->setMaximumCacheSize(maxCacheSize * 1024);
+        if (config->maxDiskCacheSize() >= 0)
+            m_networkDiskCache->setMaximumCacheSize(config->maxDiskCacheSize() * 1024);
         setCache(m_networkDiskCache);
     }
 

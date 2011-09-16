@@ -57,7 +57,8 @@ NetworkReplyProxy::NetworkReplyProxy(QObject* parent, QNetworkReply* reply)
 
 NetworkReplyProxy::~NetworkReplyProxy()
 {
-    delete m_reply;
+    if (m_reply)
+        delete m_reply;
 }
 
 QString NetworkReplyProxy::body() 
@@ -66,13 +67,15 @@ QString NetworkReplyProxy::body()
 }
 
 void NetworkReplyProxy::abort() 
-{ 
-    m_reply->abort(); 
+{
+    if (m_reply)
+        m_reply->abort();
 }
 
 void NetworkReplyProxy::close() 
 { 
-    m_reply->close(); 
+    if (m_reply)
+        m_reply->close();
 }
 
 bool NetworkReplyProxy::isSequential() const 

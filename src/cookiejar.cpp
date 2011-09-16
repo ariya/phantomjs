@@ -32,15 +32,15 @@
 #include <QSettings>
 #include <QStringList>
 
-CookieJar::CookieJar(QString cookieFile)
+CookieJar::CookieJar(QString cookiesFile)
         : QNetworkCookieJar()
 {
-    m_cookieFile = cookieFile;
+    m_cookiesFile = cookiesFile;
 }
 
 bool CookieJar::setCookiesFromUrl(const QList<QNetworkCookie> & cookieList, const QUrl & url)
 {
-    QSettings settings(m_cookieFile, QSettings::IniFormat);
+    QSettings settings(m_cookiesFile, QSettings::IniFormat);
 
     settings.beginGroup(url.host());
     
@@ -55,7 +55,7 @@ bool CookieJar::setCookiesFromUrl(const QList<QNetworkCookie> & cookieList, cons
 
 QList<QNetworkCookie> CookieJar::cookiesForUrl(const QUrl & url) const
 {
-    QSettings settings(m_cookieFile, QSettings::IniFormat);
+    QSettings settings(m_cookiesFile, QSettings::IniFormat);
     QList<QNetworkCookie> cookieList;
 
     settings.beginGroup(url.host());

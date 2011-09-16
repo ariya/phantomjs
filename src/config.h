@@ -37,7 +37,7 @@
 class Config: QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString cookieFile READ cookieFile WRITE setCookieFile)
+    Q_PROPERTY(QString cookiesFile READ cookiesFile WRITE setCookiesFile)
     Q_PROPERTY(bool diskCacheEnabled READ diskCacheEnabled WRITE setDiskCacheEnabled)
     Q_PROPERTY(int maxDiskCacheSize READ maxDiskCacheSize WRITE setMaxDiskCacheSize)
     Q_PROPERTY(bool ignoreSslErrors READ ignoreSslErrors WRITE setIgnoreSslErrors)
@@ -58,8 +58,8 @@ public:
     bool autoLoadImages() const;
     void setAutoLoadImages(const bool value);
 
-    QString cookieFile() const;
-    void setCookieFile(const QString &cookieFile);
+    QString cookiesFile() const;
+    void setCookiesFile(const QString &cookiesFile);
 
     bool diskCacheEnabled() const;
     void setDiskCacheEnabled(const bool value);
@@ -112,7 +112,7 @@ private:
     void setAuthPass(const QString &value);
 
     bool m_autoLoadImages;
-    QString m_cookieFile;
+    QString m_cookiesFile;
     bool m_diskCacheEnabled;
     int m_maxDiskCacheSize;
     bool m_ignoreSslErrors;

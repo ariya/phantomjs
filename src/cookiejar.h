@@ -35,10 +35,10 @@
 class CookieJar: public QNetworkCookieJar
 {
 private:
-    QString m_cookieFile;
+    QString m_cookiesFile;
 
 public:
-    CookieJar(QString cookieFile);
+    CookieJar(QString cookiesFile);
 
     bool setCookiesFromUrl(const QList<QNetworkCookie> & cookieList, const QUrl & url);
     QList<QNetworkCookie> cookiesForUrl (const QUrl & url) const;

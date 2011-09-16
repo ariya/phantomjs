@@ -47,7 +47,6 @@ Phantom::Phantom(QObject *parent)
     : QObject(parent)
     , m_terminated(false)
     , m_returnValue(0)
-    , m_netAccessMan(0)
     , m_filesystem(0)
 {
     // second argument: script name
@@ -70,7 +69,7 @@ Phantom::Phantom(QObject *parent)
         return;
     }
 
-    m_page = new WebPage(this);
+    m_page = new WebPage(this, &m_config);
     m_pages.append(m_page);
 
     if (m_config.scriptFile().isEmpty()) {
@@ -90,11 +89,6 @@ Phantom::Phantom(QObject *parent)
 
     // Set script file encoding
     m_scriptFileEnc.setEncoding(m_config.scriptEncoding());
-
-    // Provide WebPage with a non-standard Network Access Manager
-    m_netAccessMan = new NetworkAccessManager(this, m_config.diskCacheEnabled(),
-        m_config.cookieFile(), m_config.ignoreSslErrors(), m_config.authUser(), m_config.authPass(), m_config.maxDiskCacheSize());
-    m_page->setNetworkAccessManager(m_netAccessMan);
 
     connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString, int, QString)),
             SLOT(printConsoleMessage(QString, int, QString)));
@@ -185,10 +179,9 @@ QVariantMap Phantom::version() const
 // public slots:
 QObject *Phantom::createWebPage()
 {
-    WebPage *page = new WebPage(this);
+    WebPage *page = new WebPage(this, &m_config);
     m_pages.append(page);
     page->applySettings(m_defaultPageSettings);
-    page->setNetworkAccessManager(m_netAccessMan);
     page->setLibraryPath(QFileInfo(m_config.scriptFile()).dir().absolutePath());
     return page;
 }

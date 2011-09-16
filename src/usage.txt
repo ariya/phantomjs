@@ -2,15 +2,17 @@
 Usage: phantomjs [options] script.[js|coffee] [script argument [script argument ...]]
 
 Options:
-    --version                          Prints out PhantomJS version
-    --config=/path/to/config           Specifies path to a JSON-formatted config file.
-    --load-images=[yes|no]             Loads all inlined images (default is 'yes').
-    --load-plugins=[yes|no]            Loads all plugins (i.e. 'Flash', 'Silverlight', ...) (default is 'no').
-    --proxy=address:port               Sets the network proxy (e.g. "--proxy=192.168.1.42:8080").
-    --auth=username:password           Sets the authentication username and password (e.g. "--auth=username:password").
-    --disk-cache=[yes|no]              Enables disk cache (at desktop services cache storage location, default is 'no').
-    --max-disk-cache-size=size         Limits the size of disk cache (in KB).
-    --ignore-ssl-errors=[yes|no]       Ignores SSL errors (i.e. expired or self-signed certificate errors).
-    --local-to-remote-url-access=[yes|no]     Local content can access remote URL (default is 'no').
-    --output-encoding                  Sets (if available) the encoding used for terminal output (default is 'utf8').
-    --script-encoding                  Sets (if available) the encoding used for the starting script (default is 'utf8').
+
+--auth=username:password               Sets the authentication username and password
+--cookies-file=/path/to/cookies.txt    Sets the file name to store the persistent cookies
+--config=/path/to/config               Specifies path to a JSON-formatted config file
+--disk-cache=[yes|no]                  Enables disk cache (at desktop services cache storage location, default is 'no')
+--ignore-ssl-errors=[yes|no]           Ignores SSL errors (i.e. expired or self-signed certificate errors)
+--load-images=[yes|no]                 Loads all inlined images (default is 'yes')
+--load-plugins=[yes|no]                Loads all plugins (i.e. 'Flash', 'Silverlight', ...) (default is 'no')
+--local-to-remote-url-access=[yes|no]  Local content can access remote URL (default is 'no')
+--max-disk-cache-size=size             Limits the size of disk cache (in KB)
+--output-encoding                      Sets the encoding used for terminal output (default is 'utf8')
+--proxy=address:port                   Sets the network proxy (e.g. "--proxy=192.168.1.42:8080")
+--script-encoding                      Sets the encoding used for the starting script (default is 'utf8')
+--version                              Prints out PhantomJS version

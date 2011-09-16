@@ -36,20 +36,24 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QFileInfo>
-#include <QNetworkRequest>
+#include <QMouseEvent>
 #include <QNetworkAccessManager>
+#include <QNetworkRequest>
 #include <QPainter>
 #include <QPrinter>
 #include <QWebElement>
 #include <QWebFrame>
 #include <QWebPage>
-#include <QMouseEvent>
 
+#include "networkaccessmanager.h"
 #include "utils.h"
 
 #include <gifwriter.h>
 
 #include "consts.h"
+
+// Ensure we have at least document.body.
+#define BLANK_HTML "<html><body></body></html>"
 
 class CustomPage: public QWebPage
 {
@@ -98,7 +102,7 @@ private:
     friend class WebPage;
 };
 
-WebPage::WebPage(QObject *parent)
+WebPage::WebPage(QObject *parent, const Config *config)
     : QObject(parent)
 {
     setObjectName("WebPage");
@@ -131,8 +135,15 @@ WebPage::WebPage(QObject *parent)
     m_webPage->settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
     m_webPage->settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
 
-    // Ensure we have at least document.body.
-    m_mainFrame->setHtml("<html><body></body></html>");
+    m_mainFrame->setHtml(BLANK_HTML);
+
+    // Custom network access manager to allow traffic monitoring.
+    NetworkAccessManager *networkAccessManager = new NetworkAccessManager(this, config);
+    m_webPage->setNetworkAccessManager(networkAccessManager);
+    connect(networkAccessManager, SIGNAL(resourceRequested(QVariant)),
+            SIGNAL(resourceRequested(QVariant)));
+    connect(networkAccessManager, SIGNAL(resourceReceived(QVariant)),
+            SIGNAL(resourceReceived(QVariant)));
 
     m_webPage->setViewportSize(QSize(400, 300));
 }
@@ -140,15 +151,6 @@ WebPage::WebPage(QObject *parent)
 QWebFrame *WebPage::mainFrame()
 {
     return m_mainFrame;
-}
-
-void WebPage::setNetworkAccessManager(QNetworkAccessManager *networkAccessManager)
-{
-    m_webPage->setNetworkAccessManager(networkAccessManager);
-    connect(networkAccessManager, SIGNAL(resourceRequested(QVariant)),
-            SIGNAL(resourceRequested(QVariant)));
-    connect(networkAccessManager, SIGNAL(resourceReceived(QVariant)),
-            SIGNAL(resourceReceived(QVariant)));
 }
 
 QString WebPage::content() const
@@ -317,7 +319,11 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
         return;
     }
 
-    m_mainFrame->load(QNetworkRequest(QUrl(address)), networkOp, body);
+    if (address == "about:blank") {
+        m_mainFrame->setHtml(BLANK_HTML);
+    } else {
+        m_mainFrame->load(QNetworkRequest(QUrl(address)), networkOp, body);
+    }
 }
 
 void WebPage::release()
