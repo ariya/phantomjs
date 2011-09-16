@@ -132,7 +132,7 @@ def remove_all_actions(hook, priority=None):
     return False
 
 
-def set(name, value, depth=3, scope='local'):
+def set_(name, value, depth=3, scope='local'):
     '''Sets the value of a variable in the parents namespace
 
     Args:
