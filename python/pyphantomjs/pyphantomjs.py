@@ -59,13 +59,6 @@ def parseArgs(app, args):
     args = arg_data[0]
     args.script_args = arg_data[1]
 
-    args.disk_cache = False if args.disk_cache == 'no' else True
-    args.ignore_ssl_errors = False if args.ignore_ssl_errors == 'no' else True
-    args.load_images = True if args.load_images == 'yes' else False
-    args.load_plugins = False if args.load_plugins == 'no' else True
-    args.local_to_remote_url_access = False if args.local_to_remote_url_access == 'no' else True
-    args.max_disk_cache_size = int(args.max_disk_cache_size)
-
     # register an alternative Message Handler
     messageHandler = MessageHandler(args.verbose)
     qInstallMsgHandler(messageHandler.process)

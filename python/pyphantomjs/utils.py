@@ -50,6 +50,12 @@ license = '''
 
 
 def argParser():
+    class YesOrNoAction(argparse.Action):
+        '''Converts yes or no arguments to True/False respectively'''
+        def __call__(self, parser, namespace, value, option_string=None):
+            answer = False if value == 'no' else True
+            setattr(namespace, self.dest, answer)
+
     parser = argparse.ArgumentParser(
         description='Minimalistic headless WebKit-based JavaScript-driven tool',
         usage='%(prog)s [options] script.[js|coffee] [script argument [script argument ...]]',
@@ -69,27 +75,27 @@ def argParser():
     parser.add_argument('--cookies-file', metavar='/path/to/cookies.txt',
         help='Sets the file name to store the persistent cookies'
     )
-    parser.add_argument('--disk-cache', default='no',
+    parser.add_argument('--disk-cache', default=False, action=YesOrNoAction,
         choices=['yes', 'no'],
-        help='Enable disk cache (default: %(default)s)'
+        help='Enable disk cache (default: no)'
     )
-    parser.add_argument('--ignore-ssl-errors', default='no',
+    parser.add_argument('--ignore-ssl-errors', default=False, action=YesOrNoAction,
         choices=['yes', 'no'],
-        help='Ignore SSL errors (default: %(default)s)'
+        help='Ignore SSL errors (default: no)'
     )
-    parser.add_argument('--load-images', default='yes',
+    parser.add_argument('--load-images', default=True, action=YesOrNoAction,
         choices=['yes', 'no'],
-        help='Load all inlined images (default: %(default)s)'
+        help='Load all inlined images (default: yes)'
     )
-    parser.add_argument('--load-plugins', default='no',
+    parser.add_argument('--load-plugins', default=False, action=YesOrNoAction,
         choices=['yes', 'no'],
-        help='Load all plugins (i.e. Flash, Silverlight, ...) (default: %(default)s)'
+        help='Load all plugins (i.e. Flash, Silverlight, ...) (default: no)'
     )
-    parser.add_argument('--local-to-remote-url-access', default='no',
+    parser.add_argument('--local-to-remote-url-access', default=False, action=YesOrNoAction,
         choices=['yes', 'no'],
-        help='Local content can access remote URL (default: %(default)s)'
+        help='Local content can access remote URL (default: no)'
     )
-    parser.add_argument('--max-disk-cache-size', default=-1, metavar='size',
+    parser.add_argument('--max-disk-cache-size', default=-1, metavar='size', type=int,
         help='Limits the size of disk cache (in KB)'
     )
     parser.add_argument('--output-encoding', default='System', metavar='encoding',
