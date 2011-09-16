@@ -195,7 +195,7 @@ class QPyFile(QFile):
     '''Simple subclass of QFile which supports the context manager'''
     def __enter__(self):
         if not self.open(QFile.ReadOnly):
-            raise IOError("Failed to open file '%s'" % self.fileName())
+            raise IOError("No such file or directory: '%s'" % self.fileName())
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
