@@ -28,7 +28,7 @@ import os
 import sys
 
 from PyQt4.QtCore import qInstallMsgHandler
-from PyQt4.QtGui import QIcon, QApplication
+from PyQt4.QtGui import QApplication, QIcon
 
 from plugincontroller import do_action
 # load plugins if running script directly
@@ -38,9 +38,9 @@ if __name__ == '__main__':
 
 import resources
 from __init__ import __version__
+from config import Config
 from phantom import Phantom
 from utils import argParser, MessageHandler
-from config import Config
 
 # make keyboard interrupt quit program
 import signal
@@ -70,7 +70,7 @@ def parseArgs(app, args):
     messageHandler = MessageHandler(args.verbose)
     qInstallMsgHandler(messageHandler.process)
 
-    file_check = (args.cookies, args.config)
+    file_check = (args.cookies_file, args.config)
     for file_ in file_check:
         if file_ is not None and not os.path.exists(file_):
             sys.exit("No such file or directory: '%s'" % file_)

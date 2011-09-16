@@ -17,13 +17,13 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
+import argparse
+import codecs
 import os
 import sys
-import codecs
-import argparse
 
-from PyQt4.QtCore import (QDateTime, QFile, Qt, QtDebugMsg, QtWarningMsg,
-                          QtCriticalMsg, QtFatalMsg, qDebug)
+from PyQt4.QtCore import (QDateTime, qDebug, QFile, Qt, QtCriticalMsg,
+                          QtDebugMsg, QtFatalMsg, QtWarningMsg)
 
 from __init__ import __version__
 from plugincontroller import do_action
@@ -66,8 +66,8 @@ def argParser():
     parser.add_argument('--config', metavar='/path/to/config',
         help='Specifies path to a JSON-formatted config file'
     )
-    parser.add_argument('--cookies', metavar='/path/to/cookieJar',
-        help='Use persistent cookies from an INI-formatted CookieJar file'
+    parser.add_argument('--cookies-file', metavar='/path/to/cookies.txt',
+        help='Sets the file name to store the persistent cookies'
     )
     parser.add_argument('--disk-cache', default='no',
         choices=['yes', 'no'],
@@ -195,7 +195,7 @@ class QPyFile(QFile):
     '''Simple subclass of QFile which supports the context manager'''
     def __enter__(self):
         if not self.open(QFile.ReadOnly):
-            raise IOError("Failed to open file '%s'" % self.fileName())
+            raise IOError("No such file or directory: '%s'" % self.fileName())
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
