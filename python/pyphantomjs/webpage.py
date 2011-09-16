@@ -20,15 +20,16 @@
 from math import ceil, floor
 
 import sip
-from PyQt4.QtCore import (pyqtProperty, pyqtSlot, pyqtSignal, Qt, QObject,
-                          QRect, QPoint, QUrl, QFileInfo, QDir, QSize,
-                          QSizeF, QByteArray, QEventLoop, QEvent)
-from PyQt4.QtGui import (QPalette, QDesktopServices, QPrinter, QImage,
-                         QPainter, QRegion, QApplication, QMouseEvent,
-                         qRgba)
-from PyQt4.QtWebKit import QWebSettings, QWebPage
+from PyQt4.QtCore import (pyqtProperty, pyqtSignal, pyqtSlot, QByteArray,
+                          QDir, QEvent, QEventLoop, QFileInfo, QObject,
+                          QPoint, QRect, QSize, QSizeF, Qt, QUrl)
+from PyQt4.QtGui import (QApplication, QDesktopServices, QImage,
+                         QMouseEvent, QPainter, QPalette, QPrinter,
+                         QRegion, qRgba)
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
+from PyQt4.QtWebKit import QWebPage, QWebSettings
 
+from networkaccessmanager import NetworkAccessManager
 from plugincontroller import do_action
 from utils import injectJsInFrame
 
@@ -73,7 +74,9 @@ class WebPage(QObject):
     resourceReceived = pyqtSignal('QVariantMap')
     resourceRequested = pyqtSignal('QVariantMap')
 
-    def __init__(self, parent):
+    blankHtml = '<html><body></body></html>'
+
+    def __init__(self, parent, args):
         super(WebPage, self).__init__(parent)
 
         self.m_parent = parent
@@ -111,7 +114,13 @@ class WebPage(QObject):
         self.m_webPage.settings().setLocalStoragePath(QDesktopServices.storageLocation(QDesktopServices.DataLocation))
 
         # Ensure we have a document.body.
-        self.m_webPage.mainFrame().setHtml('<html><body></body></html>')
+        self.m_webPage.mainFrame().setHtml(self.blankHtml)
+
+        # Custom network access manager to allow traffic monitoring
+        networkAccessManager = NetworkAccessManager(self, args)
+        self.m_webPage.setNetworkAccessManager(networkAccessManager)
+        networkAccessManager.resourceRequested.connect(self.resourceRequested)
+        networkAccessManager.resourceReceived.connect(self.resourceReceived)
 
         self.m_webPage.setViewportSize(QSize(400, 300))
 
@@ -252,11 +261,6 @@ class WebPage(QObject):
         self.m_webPage.mainFrame().print_(p)
         return True
 
-    def setNetworkAccessManager(self, networkAccessManager):
-        self.m_webPage.setNetworkAccessManager(networkAccessManager)
-        networkAccessManager.resourceRequested.connect(self.resourceRequested)
-        networkAccessManager.resourceReceived.connect(self.resourceReceived)
-
     def stringToPointSize(self, string):
         units = (
             ('mm', 72 / 25.4),
@@ -388,7 +392,10 @@ class WebPage(QObject):
             self.m_mainFrame.evaluateJavaScript('console.error("Unknown network operation: %s");' % operation)
             return
 
-        self.m_mainFrame.load(QNetworkRequest(QUrl(address)), networkOp, body)
+        if address.lower() == 'about:blank':
+            self.m_mainFrame.setHtml(self.blankHtml)
+        else:
+            self.m_mainFrame.load(QNetworkRequest(QUrl(address)), networkOp, body)
 
     @pyqtProperty('QVariantMap')
     def paperSize(self):

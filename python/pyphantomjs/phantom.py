@@ -26,12 +26,11 @@ from PyQt4.QtGui import QApplication
 from PyQt4.QtNetwork import QNetworkProxy, QNetworkProxyFactory
 
 from __init__ import __version_info__
-from utils import injectJsInFrame, QPyFile
-from plugincontroller import do_action
-from webpage import WebPage
-from networkaccessmanager import NetworkAccessManager
-from filesystem import FileSystem
 from encoding import Encode
+from filesystem import FileSystem
+from plugincontroller import do_action
+from utils import injectJsInFrame, QPyFile
+from webpage import WebPage
 
 
 class Phantom(QObject):
@@ -42,10 +41,11 @@ class Phantom(QObject):
         self.m_defaultPageSettings = {}
         self.m_pages = []
         self.m_verbose = args.verbose
-        self.m_page = WebPage(self)
+        self.m_page = WebPage(self, args)
         self.m_returnValue = 0
         self.m_terminated = False
         # setup the values from args
+        self.app_args = args
         self.m_scriptFile = args.script
         self.m_args = args.script_args
         self.m_scriptEncoding = Encode(args.script_encoding, 'utf-8')
@@ -60,10 +60,6 @@ class Phantom(QObject):
         else:
             proxy = QNetworkProxy(QNetworkProxy.HttpProxy, args.proxy[0], int(args.proxy[1]))
             QNetworkProxy.setApplicationProxy(proxy)
-
-        # Provide WebPage with a non-standard Network Access Manager
-        self.m_netAccessMan = NetworkAccessManager(self, args.auth, args.cookies, args.disk_cache, args.ignore_ssl_errors, args.max_disk_cache_size)
-        self.m_page.setNetworkAccessManager(self.m_netAccessMan)
 
         self.m_page.javaScriptConsoleMessageSent.connect(self.printConsoleMessage)
 
@@ -81,7 +77,7 @@ class Phantom(QObject):
         self.m_page.mainFrame().addToJavaScriptWindowObject('phantom', self)
 
         with QPyFile(':/bootstrap.js') as f:
-            bootstrap = f.readAll().data()
+            bootstrap = str(f.readAll())
         self.m_page.mainFrame().evaluateJavaScript(bootstrap)
 
         do_action('PhantomInitPost')
@@ -112,10 +108,9 @@ class Phantom(QObject):
 
     @pyqtSlot(result=WebPage)
     def createWebPage(self):
-        page = WebPage(self)
+        page = WebPage(self, self.app_args)
         self.m_pages.append(page)
         page.applySettings(self.m_defaultPageSettings)
-        page.setNetworkAccessManager(self.m_netAccessMan)
         page.libraryPath = os.path.dirname(os.path.abspath(self.m_scriptFile))
         return page
 
@@ -148,7 +143,7 @@ class Phantom(QObject):
         moduleSourceFilePath = ':/modules/%s.js' % name
 
         with QPyFile(moduleSourceFilePath) as f:
-            moduleSource = f.readAll().data()
+            moduleSource = str(f.readAll())
 
         return moduleSource
 

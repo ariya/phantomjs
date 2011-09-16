@@ -17,8 +17,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from PyQt4.QtGui import QDesktopServices
 from PyQt4.QtCore import pyqtSignal, QDateTime
+from PyQt4.QtGui import QDesktopServices
 from PyQt4.QtNetwork import (QNetworkAccessManager, QNetworkDiskCache,
                              QNetworkRequest)
 
@@ -31,29 +31,29 @@ class NetworkAccessManager(QNetworkAccessManager):
     resourceReceived = pyqtSignal('QVariantMap')
     resourceRequested = pyqtSignal('QVariantMap')
 
-    def __init__(self, parent, auth, cookieFile, diskCacheEnabled, ignoreSslErrors, maxDiskCacheSize):
+    def __init__(self, parent, args):
         super(NetworkAccessManager, self).__init__(parent)
 
-        self.m_ignoreSslErrors = ignoreSslErrors
+        self.m_ignoreSslErrors = args.ignore_ssl_errors
         self.m_idCounter = 0
         self.m_ids = {}
         self.m_started = []
 
         self.finished.connect(self.handleFinished)
 
-        if auth:
-            self.m_authUser = auth[0]
-            self.m_authPass = auth[1]
+        if args.auth:
+            self.m_authUser = args.auth[0]
+            self.m_authPass = args.auth[1]
             self.authenticationRequired.connect(self.provideAuthentication)
 
-        if cookieFile:
-            self.setCookieJar(CookieJar(self, cookieFile))
+        if args.cookies_file:
+            self.setCookieJar(CookieJar(self, args.cookies_file))
 
-        if diskCacheEnabled:
+        if args.disk_cache:
             m_networkDiskCache = QNetworkDiskCache()
             m_networkDiskCache.setCacheDirectory(QDesktopServices.storageLocation(QDesktopServices.CacheLocation))
-            if maxDiskCacheSize > 0:
-                m_networkDiskCache.setMaximumCacheSize(maxDiskCacheSize * 1024)
+            if args.max_disk_cache_size > 0:
+                m_networkDiskCache.setMaximumCacheSize(args.max_disk_cache_size * 1024)
             self.setCache(m_networkDiskCache)
 
         do_action('NetworkAccessManagerInit')
@@ -69,8 +69,8 @@ class NetworkAccessManager(QNetworkAccessManager):
         headers = []
         for header in req.rawHeaderList():
             header = {
-                'name': header.data(),
-                'value': req.rawHeader(header).data()
+                'name': str(header),
+                'value': str(req.rawHeader(header))
             }
             headers.append(header)
 
@@ -96,8 +96,8 @@ class NetworkAccessManager(QNetworkAccessManager):
         headers = []
         for header in reply.rawHeaderList():
             header = {
-                'name': header.data(),
-                'value': reply.rawHeader(header).data()
+                'name': str(header),
+                'value': str(reply.rawHeader(header))
             }
             headers.append(header)
 
@@ -134,8 +134,8 @@ class NetworkAccessManager(QNetworkAccessManager):
         headers = []
         for header in reply.rawHeaderList():
             header = {
-                'name': header.data(),
-                'value': reply.rawHeader(header).data()
+                'name': str(header),
+                'value': str(reply.rawHeader(header))
             }
             headers.append(header)
 
