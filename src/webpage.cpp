@@ -193,7 +193,7 @@ void WebPage::applySettings(const QVariantMap &def)
         m_networkAccessManager->setUserName(def[PAGE_SETTINGS_USERNAME].toString());
 
     if (def.contains(PAGE_SETTINGS_PASSWORD))
-        m_networkAccessManager->setUserName(def[PAGE_SETTINGS_PASSWORD].toString());
+        m_networkAccessManager->setPassword(def[PAGE_SETTINGS_PASSWORD].toString());
 }
 
 QString WebPage::userAgent() const
