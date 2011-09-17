@@ -45,7 +45,6 @@ class Config: QObject
     Q_PROPERTY(QString outputEncoding READ outputEncoding WRITE setOutputEncoding)
     Q_PROPERTY(bool pluginsEnabled READ pluginsEnabled WRITE setPluginsEnabled)
     Q_PROPERTY(QString proxy READ proxy WRITE setProxy)
-    Q_PROPERTY(QString auth READ auth WRITE setAuth)
     Q_PROPERTY(QString scriptEncoding READ scriptEncoding WRITE setScriptEncoding)
 
 public:
@@ -83,11 +82,6 @@ public:
     void setProxy(const QString &value);
     QString proxyHost() const;
     int proxyPort() const;
-
-    QString auth() const;
-    void setAuth(const QString &value);
-    QString authUser() const;
-    QString authPass() const;
 
     QStringList scriptArgs() const;
     void setScriptArgs(const QStringList &value);

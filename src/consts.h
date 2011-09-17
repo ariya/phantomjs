@@ -56,5 +56,7 @@
 #define PAGE_SETTINGS_XSS_AUDITING          "XSSAuditingEnabled"
 #define PAGE_SETTINGS_USER_AGENT            "userAgent"
 #define PAGE_SETTINGS_LOCAL_ACCESS_REMOTE   "localToRemoteUrlAccessEnabled"
+#define PAGE_SETTINGS_USERNAME              "userName"
+#define PAGE_SETTINGS_PASSWORD              "password"
 
 #endif // CONSTS_H

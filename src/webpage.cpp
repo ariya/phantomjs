@@ -138,11 +138,11 @@ WebPage::WebPage(QObject *parent, const Config *config)
     m_mainFrame->setHtml(BLANK_HTML);
 
     // Custom network access manager to allow traffic monitoring.
-    NetworkAccessManager *networkAccessManager = new NetworkAccessManager(this, config);
-    m_webPage->setNetworkAccessManager(networkAccessManager);
-    connect(networkAccessManager, SIGNAL(resourceRequested(QVariant)),
+    m_networkAccessManager = new NetworkAccessManager(this, config);
+    m_webPage->setNetworkAccessManager(m_networkAccessManager);
+    connect(m_networkAccessManager, SIGNAL(resourceRequested(QVariant)),
             SIGNAL(resourceRequested(QVariant)));
-    connect(networkAccessManager, SIGNAL(resourceReceived(QVariant)),
+    connect(m_networkAccessManager, SIGNAL(resourceReceived(QVariant)),
             SIGNAL(resourceReceived(QVariant)));
 
     m_webPage->setViewportSize(QSize(400, 300));
@@ -188,6 +188,12 @@ void WebPage::applySettings(const QVariantMap &def)
 
     if (def.contains(PAGE_SETTINGS_USER_AGENT))
         m_webPage->m_userAgent = def[PAGE_SETTINGS_USER_AGENT].toString();
+
+    if (def.contains(PAGE_SETTINGS_USERNAME))
+        m_networkAccessManager->setUserName(def[PAGE_SETTINGS_USERNAME].toString());
+
+    if (def.contains(PAGE_SETTINGS_PASSWORD))
+        m_networkAccessManager->setUserName(def[PAGE_SETTINGS_PASSWORD].toString());
 }
 
 QString WebPage::userAgent() const
