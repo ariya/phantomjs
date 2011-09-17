@@ -30,7 +30,9 @@ Please see also http://code.google.com/p/phantomjs/wiki/ReleaseNotes.
 
       * Added a new example on using Modernizr to detect features (issue 144)
       * Fixed pizza.js example to use Mobile Yelp (issue 200)
+      * Fixed netsniff.coffee example due to wrong indentation (issue 225)
       * Added an example to show live network traffic (issue 227)
+      * Added an example demonstrating different output encodings (issue 186)
 
 2011-06-21: Version 1.2.0 "Birds of Paradise"
 
