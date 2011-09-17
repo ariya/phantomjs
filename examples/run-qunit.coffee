@@ -33,7 +33,7 @@ if phantom.args.length isnt 1
     console.log 'Usage: run-qunit.coffee URL'
     phantom.exit(1)
 
-page = require('webpage').create()
+page = new WebPage()
 
 # Route "console.log()" calls from within the Page context to the main Phantom context (i.e. current "this")
 page.onConsoleMessage = (msg) ->

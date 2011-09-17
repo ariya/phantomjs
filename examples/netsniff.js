@@ -84,7 +84,7 @@ function createHAR(address, title, startTime, resources)
     };
 }
 
-var page = require('webpage').create();
+var page = new WebPage();
 
 if (phantom.args.length === 0) {
     console.log('Usage: netsniff.js <some URL>');

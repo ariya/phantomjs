@@ -1,7 +1,7 @@
 # Modify global object at the page initialization.
 # In this example, effectively Math.random() always returns 0.42.
 
-page = require('webpage').create()
+page = new WebPage()
 page.onInitialized = ->
   page.evaluate ->
     Math.random = ->

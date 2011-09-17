@@ -16,7 +16,7 @@ Array.prototype.forEach = function (action) {
  * @param callback Callback function
  */
 function renderUrlToFile(url, file, callback) {
-    var page = require('webpage').create();
+    var page = new WebPage();
     page.viewportSize = { width: 800, height : 600 };
     page.settings.userAgent = "Phantom.js bot";
     

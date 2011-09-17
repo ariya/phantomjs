@@ -30,7 +30,7 @@ users= [
   ]
 
 follow = (user, callback) ->
-  page = require('webpage').create()
+  page = new WebPage()
   page.open 'http://mobile.twitter.com/' + user, (status) ->
     if status is 'fail'
       console.log user + ': ?'

@@ -1,6 +1,6 @@
 // Example using HTTP POST operation
 
-var page = require('webpage').create(),
+var page = new WebPage(),
     server = 'http://posttestserver.com/post.php?dump',
     data = 'universe=expanding&answer=42';
 

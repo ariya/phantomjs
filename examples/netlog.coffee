@@ -1,4 +1,4 @@
-page = require('webpage').create()
+page = new WebPage()
 address = phantom.args[0]
 
 if phantom.args.length is 0

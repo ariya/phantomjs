@@ -30,7 +30,7 @@ waitFor = (testFx, onReady, timeOutMillis=3000) ->
     interval = setInterval f, 250 #< repeat check every 250ms
 
 
-page = require('webpage').create()
+page = new WebPage()
 
 # Open Twitter on 'sencha' profile and, onPageLoad, do...
 page.open 'http://twitter.com/#!/sencha', (status) ->

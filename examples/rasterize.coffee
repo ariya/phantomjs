@@ -1,4 +1,4 @@
-page = require('webpage').create()
+page = new WebPage()
 
 if phantom.args.length < 2 or phantom.args.length > 3
   console.log 'Usage: rasterize.js URL filename [paperwidth*paperheight|paperformat]'

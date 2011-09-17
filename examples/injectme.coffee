@@ -1,7 +1,7 @@
 # Use 'page.injectJs()' to load the script itself in the Page context
 
 if phantom?
-  page = require('webpage').create()
+  page = new WebPage()
 
   # Route "console.log()" calls from within the Page context to the main
   # Phantom context (i.e. current "this")

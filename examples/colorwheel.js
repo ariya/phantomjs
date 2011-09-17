@@ -1,4 +1,4 @@
-var page = require('webpage').create();
+var page = new WebPage;
 page.viewportSize = { width: 400, height : 400 };
 page.content = '<html><body><canvas id="surface"></canvas></body></html>';
 page.evaluate(function() {

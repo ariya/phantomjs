@@ -1,6 +1,6 @@
 # Find pizza in Mountain View using Yelp
 
-page = require('webpage').create()
+page = new WebPage()
 url = 'http://lite.yelp.com/search?find_desc=pizza&find_loc=94040&find_submit=Search'
 
 page.open url,
