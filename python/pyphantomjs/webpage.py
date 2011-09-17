@@ -38,8 +38,6 @@ class CustomPage(QWebPage):
     def __init__(self, parent):
         super(CustomPage, self).__init__(parent)
 
-        self.m_parent = parent
-
         self.m_userAgent = QWebPage.userAgentForUrl(self, QUrl())
 
         self.m_uploadFile = ''
@@ -54,10 +52,10 @@ class CustomPage(QWebPage):
         return False
 
     def javaScriptAlert(self, originatingFrame, msg):
-        self.m_parent.javaScriptAlertSent.emit(msg)
+        self.parent().javaScriptAlertSent.emit(msg)
 
     def javaScriptConsoleMessage(self, message, lineNumber, sourceID):
-        self.m_parent.javaScriptConsoleMessageSent.emit(message, lineNumber, sourceID)
+        self.parent().javaScriptConsoleMessageSent.emit(message, lineNumber, sourceID)
 
     def userAgentForUrl(self, url):
         return self.m_userAgent
@@ -78,8 +76,6 @@ class WebPage(QObject):
 
     def __init__(self, parent, args):
         super(WebPage, self).__init__(parent)
-
-        self.m_parent = parent
 
         # variable declarations
         self.m_paperSize = {}
@@ -117,7 +113,7 @@ class WebPage(QObject):
         self.m_webPage.mainFrame().setHtml(self.blankHtml)
 
         # Custom network access manager to allow traffic monitoring
-        networkAccessManager = NetworkAccessManager(self, args)
+        networkAccessManager = NetworkAccessManager(self.parent(), args)
         self.m_webPage.setNetworkAccessManager(networkAccessManager)
         networkAccessManager.resourceRequested.connect(self.resourceRequested)
         networkAccessManager.resourceReceived.connect(self.resourceReceived)
@@ -338,7 +334,7 @@ class WebPage(QObject):
 
     @pyqtSlot(str, result=bool)
     def injectJs(self, filePath):
-        return injectJsInFrame(filePath, self.m_parent.m_scriptEncoding.encoding, self.m_libraryPath, self.m_mainFrame)
+        return injectJsInFrame(filePath, self.parent().m_scriptEncoding.encoding, self.m_libraryPath, self.m_mainFrame)
 
     @pyqtSlot()
     def mouseDown(self):
@@ -407,7 +403,7 @@ class WebPage(QObject):
 
     @pyqtSlot()
     def release(self):
-        self.m_parent.m_pages.remove(self)
+        self.parent().m_pages.remove(self)
         sip.delete(self)
 
     @pyqtSlot(str, result=bool)
