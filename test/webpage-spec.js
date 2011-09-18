@@ -1,3 +1,39 @@
+function checkClipRect(page, clipRect) {
+    expectHasProperty(page, 'clipRect');
+    it("should have clipRect with height "+clipRect.height, function () {
+        expect(page.clipRect.height).toEqual(clipRect.height);
+    });
+    it("should have clipRect with left "+clipRect.left, function () {
+        expect(page.clipRect.left).toEqual(clipRect.left);
+    });
+    it("should have clipRect with top "+clipRect.top, function () {
+        expect(page.clipRect.top).toEqual(clipRect.top);
+    });
+    it("should have clipRect with width "+clipRect.width, function () {
+        expect(page.clipRect.width).toEqual(clipRect.width);
+    });
+}
+
+function checkScrollPosition(page, scrollPosition) {
+    expectHasProperty(page, 'scrollPosition');
+    it("should have scrollPosition with left "+scrollPosition.left, function () {
+        expect(page.scrollPosition.left).toEqual(scrollPosition.left);
+    });
+    it("should have scrollPosition with top "+scrollPosition.top, function () {
+        expect(page.scrollPosition.top).toEqual(scrollPosition.top);
+    });
+}
+
+function checkViewportSize(page, viewportSize) {
+    expectHasProperty(page, 'viewportSize');
+    it("should have viewportSize with height "+viewportSize.height, function () {
+        expect(page.viewportSize.height).toEqual(viewportSize.height);
+    });
+    it("should have viewportSize with width "+viewportSize.width, function () {
+        expect(page.viewportSize.width).toEqual(viewportSize.width);
+    });
+}
+
 describe("WebPage constructor", function() {
     it("should exist in window", function() {
         expect(window.hasOwnProperty('WebPage')).toBeTruthy();
@@ -16,23 +52,12 @@ describe("WebPage object", function() {
         expect(page).toNotEqual(null);
     });
 
-    expectHasProperty(page, 'clipRect');
-    it("should have clipRect with height 0", function() {
-        expect(page.clipRect.height).toEqual(0);
-    });
-    it("should have clipRect with left 0", function() {
-        expect(page.clipRect.left).toEqual(0);
-    });
-    it("should have clipRect with top 0", function() {
-        expect(page.clipRect.top).toEqual(0);
-    });
-    it("should have clipRect with width 0", function() {
-        expect(page.clipRect.width).toEqual(0);
-    });
+    checkClipRect(page, {height:0,left:0,top:0,width:0});
 
     expectHasPropertyString(page, 'content');
 
     expectHasPropertyString(page, 'libraryPath');
+
     it("should have objectName as 'WebPage'", function() {
         expect(page.objectName).toEqual('WebPage');
     });
@@ -42,13 +67,7 @@ describe("WebPage object", function() {
             expect(page.paperSize).toEqual({});
     });
 
-    expectHasProperty(page, 'scrollPosition');
-    it("should have scrollPosition with left 0", function() {
-        expect(page.scrollPosition.left).toEqual(0);
-    });
-    it("should have scrollPosition with top 0", function() {
-        expect(page.scrollPosition.top).toEqual(0);
-    });
+    checkScrollPosition(page, {left:0,top:0});
 
     expectHasProperty(page, 'settings');
     it("should have non-empty settings", function() {
@@ -56,14 +75,7 @@ describe("WebPage object", function() {
         expect(page.settings).toNotEqual({});
     });
 
-
-    expectHasProperty(page, 'viewportSize');
-    it("should have viewportSize with height 300", function() {
-        expect(page.viewportSize.height).toEqual(300);
-    });
-    it("should have viewportSize with width 400", function() {
-        expect(page.viewportSize.width).toEqual(400);
-    });
+    checkViewportSize(page, {height:300,width:400});
 
     expectHasFunction(page, 'deleteLater');
     expectHasFunction(page, 'destroyed');
