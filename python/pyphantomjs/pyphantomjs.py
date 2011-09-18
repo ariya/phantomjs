@@ -97,13 +97,6 @@ def parseArgs(app, args):
         for setting in config.settings:
             setattr(args, config.settings[setting]['mapping'], config.property(setting))
 
-            # special case for verbose arg, which will need to be re-applied
-            if setting == 'verbose':
-                messageHandler.verbose = args.verbose
-
-    if args.debug:
-        debug(args.debug)
-
     split_check = (
         (args.proxy, 'proxy'),
         (args.auth, 'auth')
@@ -116,7 +109,14 @@ def parseArgs(app, args):
                 sys.exit(1)
             setattr(args, name, item)
 
-    do_action('ParseArgs')
+    do_action('ParseArgs', args)
+
+    if args.debug:
+        debug(args.debug)
+
+    # verbose flag got changed on us, so we reload the flag
+    if messageHandler.verbose != args.verbose:
+        messageHandler.verbose = args.verbose
 
     if args.script is None:
         p.print_help()
