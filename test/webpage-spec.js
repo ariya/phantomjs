@@ -1,3 +1,39 @@
+function checkClipRect(page, clipRect) {
+    expectHasProperty(page, 'clipRect');
+    it("should have clipRect with height "+clipRect.height, function () {
+        expect(page.clipRect.height).toEqual(clipRect.height);
+    });
+    it("should have clipRect with left "+clipRect.left, function () {
+        expect(page.clipRect.left).toEqual(clipRect.left);
+    });
+    it("should have clipRect with top "+clipRect.top, function () {
+        expect(page.clipRect.top).toEqual(clipRect.top);
+    });
+    it("should have clipRect with width "+clipRect.width, function () {
+        expect(page.clipRect.width).toEqual(clipRect.width);
+    });
+}
+
+function checkScrollPosition(page, scrollPosition) {
+    expectHasProperty(page, 'scrollPosition');
+    it("should have scrollPosition with left "+scrollPosition.left, function () {
+        expect(page.scrollPosition.left).toEqual(scrollPosition.left);
+    });
+    it("should have scrollPosition with top "+scrollPosition.top, function () {
+        expect(page.scrollPosition.top).toEqual(scrollPosition.top);
+    });
+}
+
+function checkViewportSize(page, viewportSize) {
+    expectHasProperty(page, 'viewportSize');
+    it("should have viewportSize with height "+viewportSize.height, function () {
+        expect(page.viewportSize.height).toEqual(viewportSize.height);
+    });
+    it("should have viewportSize with width "+viewportSize.width, function () {
+        expect(page.viewportSize.width).toEqual(viewportSize.width);
+    });
+}
+
 describe("WebPage constructor", function() {
     it("should exist in window", function() {
         expect(window.hasOwnProperty('WebPage')).toBeTruthy();
@@ -16,23 +52,12 @@ describe("WebPage object", function() {
         expect(page).toNotEqual(null);
     });
 
-    expectHasProperty(page, 'clipRect');
-    it("should have clipRect with height 0", function() {
-        expect(page.clipRect.height).toEqual(0);
-    });
-    it("should have clipRect with left 0", function() {
-        expect(page.clipRect.left).toEqual(0);
-    });
-    it("should have clipRect with top 0", function() {
-        expect(page.clipRect.top).toEqual(0);
-    });
-    it("should have clipRect with width 0", function() {
-        expect(page.clipRect.width).toEqual(0);
-    });
+    checkClipRect(page, {height:0,left:0,top:0,width:0});
 
     expectHasPropertyString(page, 'content');
 
     expectHasPropertyString(page, 'libraryPath');
+
     it("should have objectName as 'WebPage'", function() {
         expect(page.objectName).toEqual('WebPage');
     });
@@ -42,13 +67,7 @@ describe("WebPage object", function() {
             expect(page.paperSize).toEqual({});
     });
 
-    expectHasProperty(page, 'scrollPosition');
-    it("should have scrollPosition with left 0", function() {
-        expect(page.scrollPosition.left).toEqual(0);
-    });
-    it("should have scrollPosition with top 0", function() {
-        expect(page.scrollPosition.top).toEqual(0);
-    });
+    checkScrollPosition(page, {left:0,top:0});
 
     expectHasProperty(page, 'settings');
     it("should have non-empty settings", function() {
@@ -56,14 +75,7 @@ describe("WebPage object", function() {
         expect(page.settings).toNotEqual({});
     });
 
-
-    expectHasProperty(page, 'viewportSize');
-    it("should have viewportSize with height 300", function() {
-        expect(page.viewportSize.height).toEqual(300);
-    });
-    it("should have viewportSize with width 400", function() {
-        expect(page.viewportSize.width).toEqual(400);
-    });
+    checkViewportSize(page, {height:300,width:400});
 
     expectHasFunction(page, 'deleteLater');
     expectHasFunction(page, 'destroyed');
@@ -179,4 +191,101 @@ describe("WebPage object", function() {
     });
 
 
+});
+
+describe("WebPage construction with options", function () {
+    it("should accept an opts object", function() {
+        var opts = {},
+            page = new WebPage(opts);
+        expect(typeof page).toEqual('object');
+        expect(page).toNotEqual(null);
+    });
+
+    describe("specifying clipRect", function() {
+        var opts = {
+            clipRect: {
+                height: 100,
+                left: 10,
+                top: 20,
+                width: 200,
+            }
+        };
+        checkClipRect(new WebPage(opts), opts.clipRect);
+    });
+
+    describe("specifying onConsoleMessage", function() {
+        var message = false,
+            opts = {
+                onConsoleMessage: function (msg) {
+                    message = msg;
+                },
+            };
+        var page = new WebPage(opts);
+        it("should have onConsoleMessage that was specified",function () {
+            page.evaluate("function () {console.log('test log')}");
+            expect(message).toEqual("test log");
+        });
+    });
+
+    describe("specifying onLoadStarted", function() {
+        var started = false,
+            opts = {
+                onLoadStarted: function (status) {
+                    started = true;
+                },
+            };
+        var page = new WebPage(opts);
+        it("should have onLoadStarted that was specified",function () {
+            expect(started).toEqual(false);
+            page.open("about:blank");
+            expect(started).toEqual(true);
+        });
+    });
+
+    describe("specifying onLoadFinished", function() {
+        var finished = false,
+            opts = {
+                onLoadFinished: function (status) {
+                    finished = true;
+                },
+            };
+        var page = new WebPage(opts);
+        it("should have onLoadFinished that was specified",function () {
+            expect(finished).toEqual(false);
+            page.open("about:blank");
+            expect(finished).toEqual(true);
+        });
+    });
+
+    describe("specifying scrollPosition", function () {
+        var opts = {
+            scrollPosition: {
+                left: 1,
+                top: 2,
+            }
+        };
+        checkScrollPosition(new WebPage(opts), opts.scrollPosition);
+    });
+
+    describe("specifying userAgent", function () {
+        var opts = {
+            settings: {
+                userAgent: "PHANTOMJS-TEST-USER-AGENT",
+            }
+        };
+        var page = new WebPage(opts);
+        it("should have userAgent as '"+opts.settings.userAgent+"'",function () {
+            expect(page.settings.userAgent).toEqual(opts.settings.userAgent);
+        });
+    });
+
+    describe("specifying viewportSize", function () {
+        var opts = {
+            viewportSize: {
+                height: 100,
+                width: 200,
+            }
+        };
+        checkViewportSize(new WebPage(opts), opts.viewportSize);
+    });
 });
