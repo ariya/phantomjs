@@ -26,43 +26,53 @@ from glob import glob
 hooks = defaultdict(dict)
 
 
+def _checkHookExists(create=False):
+    '''Decorator that will raise LookupError or create hook if hook doesn't exist'''
+    def outterWrap(func):
+        def innerWrap(*args, **kwargs):
+            if args[0] not in hooks:
+                if create:
+                    hooks[args[0]]['count'] = 0
+                    hooks[args[0]]['plugins'] = []
+                else:
+                    raise LookupError("Hook '%s' was not found" % args[0])
+            return func(*args, **kwargs)
+        return innerWrap
+    return outterWrap
+
+
+@_checkHookExists(True)
 def add_action(hook, priority=10):
     '''Decorator to be used for registering a function to
        a specific hook. Functions with lower priority are
        executed first (priority of 1 for example).
     '''
     def register(func):
-        if hooks[hook].get('plugins') is not None:
-            hooks[hook]['plugins'].append((priority, func))
-        else:
-            hooks[hook]['plugins'] = [(priority, func)]
+        hooks[hook]['plugins'].append((priority, func))
         return func
     return register
 
 
+@_checkHookExists()
 def did_action(hook):
     '''Find out how many times a hook was fired'''
-    if hooks[hook].get('count') is None:
-        hooks[hook]['count'] = 0
     return hooks[hook]['count']
 
 
+@_checkHookExists(True)
 def do_action(hook, *args, **kwargs):
     '''Trigger a hook. It will run any functions that have registered
        themselves to the hook. Any additional arguments or keyword
        arguments you pass in will be passed to the functions.
     '''
-    if hooks[hook].get('count') is None:
-        hooks[hook]['count'] = 0
-    if hooks[hook].get('plugins') is not None:
-        # sort plugins by priority
-        hooks[hook]['plugins'].sort()
-        for plugin in hooks[hook]['plugins']:
-            hooks[hook]['count'] += 1
-            plugin[1](*args, **kwargs)
+    # sort plugins by priority
+    hooks[hook]['plugins'].sort()
+    for plugin in hooks[hook]['plugins']:
+        hooks[hook]['count'] += 1
+        plugin[1](*args, **kwargs)
 
 
-def get(name, depth=3, scope='local'):
+def get(name, depth=4, scope='local'):
     '''Gets the value of a variable in the parents namespace
 
     Args:
@@ -83,14 +93,16 @@ def has_action(hook, func=None):
     '''Check if hook exists. If function is specified,
        check if function has been registered for hook.
     '''
-    if hook in hooks:
-        if func is None:
+    if func is None:
+        if hook in hooks:
             return True
-        else:
-            if hooks[hook].get('plugins') is not None:
-                for plugin in hooks[hook]['plugins']:
-                    if plugin[1] == func:
-                        return True
+    else:
+        if hook not in hooks:
+            raise LookupError("Hook '%s' was not found" % hook)
+
+        for plugin in hooks[hook]['plugins']:
+            if plugin[1] == func:
+                return True
     return False
 
 
@@ -99,40 +111,39 @@ def remove_action(hook, func=None, priority=10):
        remove function from hook. If priority is not same as
        functions priority, it will not remove the function.
     '''
-    if hook in hooks:
-        if func is None:
+    if func is None:
+        if hook in hooks:
             del hooks[hook]
             return True
-        else:
-            if hooks[hook].get('plugins') is not None:
-                for i, plugin in enumerate(hooks[hook]['plugins']):
-                    if plugin[1] == func and plugin[0] == priority:
-                        del hooks[hook]['plugins'][i]
-                        return True
+    else:
+        if hook not in hooks:
+            raise LookupError("Hook '%s' was not found" % hook)
+
+        for i, plugin in enumerate(hooks[hook]['plugins']):
+            if plugin[1] == func and plugin[0] == priority:
+                del hooks[hook]['plugins'][i]
+                return True
     return False
 
 
+@_checkHookExists()
 def remove_all_actions(hook, priority=None):
     '''Remove all functions that have been registered to hook.
        If priority is used, remove all actions from that priority
        instead.
     '''
-    if hook in hooks:
-        if priority is None:
-            del hooks[hook][:]
-        else:
-            if hooks[hook].get('plugins') is not None:
-                indexes = []
-                for i, plugin in enumerate(hooks[hook]['plugins']):
-                    if plugin[0] == priority:
-                        indexes.append(i)
-                for index in indexes:
-                    del hooks[hook]['plugins'][index]
-        return True
-    return False
+    if priority is None:
+        del hooks[hook][:]
+    else:
+        indexes = []
+        for i, plugin in enumerate(hooks[hook]['plugins']):
+            if plugin[0] == priority:
+                indexes.append(i)
+        for index in indexes:
+            del hooks[hook]['plugins'][index]
 
 
-def set_(name, value, depth=3, scope='local'):
+def set_(name, value, depth=4, scope='local'):
     '''Sets the value of a variable in the parents namespace
 
     Args:
