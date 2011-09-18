@@ -70,8 +70,6 @@ static const char *toString(QNetworkAccessManager::Operation op)
 NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config)
     : QNetworkAccessManager(parent)
     , m_ignoreSslErrors(config->ignoreSslErrors())
-    , m_authUser(config->authUser())
-    , m_authPass(config->authPass())
     , m_idCounter(0)
     , m_networkDiskCache(0)
 {
@@ -89,6 +87,16 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
 
     connect(this, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)), SLOT(provideAuthentication(QNetworkReply*,QAuthenticator*)));
     connect(this, SIGNAL(finished(QNetworkReply*)), SLOT(handleFinished(QNetworkReply*)));
+}
+
+void NetworkAccessManager::setUserName(const QString &userName)
+{
+    m_userName = userName;
+}
+
+void NetworkAccessManager::setPassword(const QString &password)
+{
+    m_password = password;
 }
 
 // protected:
@@ -190,6 +198,6 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply)
 void NetworkAccessManager::provideAuthentication(QNetworkReply *reply, QAuthenticator *authenticator)
 {
     Q_UNUSED(reply);
-    authenticator->setUser(m_authUser);
-    authenticator->setPassword(m_authPass);
+    authenticator->setUser(m_userName);
+    authenticator->setPassword(m_password);
 }

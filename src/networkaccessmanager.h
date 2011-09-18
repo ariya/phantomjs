@@ -45,11 +45,13 @@ class NetworkAccessManager : public QNetworkAccessManager
     Q_OBJECT
 public:
     NetworkAccessManager(QObject *parent, const Config *config);
+    void setUserName(const QString &userName);
+    void setPassword(const QString &password);
 
 protected:
     bool m_ignoreSslErrors;
-    QString m_authUser;
-    QString m_authPass;
+    QString m_userName;
+    QString m_password;
     QNetworkReply *createRequest(Operation op, const QNetworkRequest & req, QIODevice * outgoingData = 0);
 
 signals:
@@ -59,7 +61,7 @@ signals:
 private slots:
     void handleStarted();
     void handleFinished(QNetworkReply *reply);
-    void provideAuthentication(QNetworkReply *reply, QAuthenticator *ator);
+    void provideAuthentication(QNetworkReply *reply, QAuthenticator *authenticator);
 
 private:
     QHash<QNetworkReply*, int> m_ids;

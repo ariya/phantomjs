@@ -37,6 +37,7 @@
 
 class Config;
 class CustomPage;
+class NetworkAccessManager;
 class Phantom;
 
 class WebPage: public QObject
@@ -97,6 +98,7 @@ private slots:
 
 private:
     CustomPage *m_webPage;
+    NetworkAccessManager *m_networkAccessManager;
     QWebFrame *m_mainFrame;
     QRect m_clipRect;
     QPoint m_scrollPosition;
