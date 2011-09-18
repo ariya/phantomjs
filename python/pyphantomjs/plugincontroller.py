@@ -163,24 +163,37 @@ def set_(name, value, depth=4, scope='local'):
 def load_plugins():
     ''' Loads the plugins.
 
-        Plugins must be in folders under plugins/ ,
+        Plugins must be in folders under plugins/ (or plugins_path),
         and must also be the same name as the plugin folder.
 
-        E.g. a plugin folder named plugins/my_plugin will
-        have my_plugin.py inside the folder called.
+        E.g. a plugin folder named my_plugin will
+        have my_plugin.py inside the folder loaded.
     '''
+    plugins_path = os.environ.get('PYPHANTOMJS_PLUGINS_PATH')
 
-    # path is different when frozen
-    if hasattr(sys, 'frozen'):
-        path = os.path.dirname(os.path.abspath(sys.executable))
+    if plugins_path is None:
+        # path is different when frozen
+        if hasattr(sys, 'frozen'):
+            path = os.path.dirname(os.path.abspath(sys.executable))
+        else:
+            path = os.path.dirname(os.path.abspath(__file__))
+
+        generateModuleName = lambda p: '.'.join(('plugins', p[0], p[1]))
+        plugin_list = glob(os.path.join(path, 'plugins/*/*.py'))
     else:
-        path = os.path.dirname(os.path.abspath(__file__))
-    # get plugin list
-    plugin_list = glob(os.path.join(path, 'plugins/*/*.py'))
+        # make sure it's an absolute path
+        plugins_path = os.path.abspath(plugins_path)
+        # append directory for module loading
+        sys.path[1:1] = plugins_path,
+
+        generateModuleName = lambda p: '.'.join((p[0], p[1]))
+        plugin_list = glob(os.path.join(plugins_path, '*/*.py'))
+
     # now convert list to [('plugin_folder', 'file'), ...]
     plugin_list = [(os.path.split(os.path.dirname(f))[1], os.path.splitext(os.path.split(f)[1])[0]) for f in plugin_list]
 
     # initialize plugins
     for plugin in plugin_list:
         if plugin[0] == plugin[1]:
-            __import__('plugins.%s.%s' % (plugin[0], plugin[1]), globals(), locals(), [], -1)
+            moduleName = generateModuleName(plugin)
+            __import__(moduleName, globals(), locals(), [], -1)
