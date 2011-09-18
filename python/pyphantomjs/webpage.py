@@ -81,7 +81,7 @@ class WebPage(QObject):
         self.m_paperSize = {}
         self.m_clipRect = QRect()
         self.m_libraryPath = ''
-        self.m_mousePos = self.m_scrollPosition = QPoint()
+        self.m_scrollPosition = QPoint()
 
         self.setObjectName('WebPage')
         self.m_webPage = CustomPage(self)
@@ -288,12 +288,6 @@ class WebPage(QObject):
             document.body.appendChild(el);
         ''' % {'scriptUrl': scriptUrl})
 
-    @pyqtSlot(int, int)
-    def click(self, x, y):
-        self.mouseMoveTo(x, y)
-        self.mouseDown()
-        self.mouseUp()
-
     @pyqtProperty('QVariantMap')
     def clipRect(self):
         clipRect = self.m_clipRect
@@ -335,25 +329,6 @@ class WebPage(QObject):
     @pyqtSlot(str, result=bool)
     def injectJs(self, filePath):
         return injectJsInFrame(filePath, self.parent().m_scriptEncoding.encoding, self.m_libraryPath, self.m_mainFrame)
-
-    @pyqtSlot()
-    def mouseDown(self):
-        event = QMouseEvent(QEvent.MouseButtonPress, self.m_mousePos, Qt.LeftButton, Qt.LeftButton, Qt.NoModifier)
-        QApplication.postEvent(self.m_webPage, event)
-        QApplication.processEvents()
-
-    @pyqtSlot()
-    def mouseUp(self):
-        event = QMouseEvent(QEvent.MouseButtonRelease, self.m_mousePos, Qt.LeftButton, Qt.LeftButton, Qt.NoModifier)
-        QApplication.postEvent(self.m_webPage, event)
-        QApplication.processEvents()
-
-    @pyqtSlot(int, int)
-    def mouseMoveTo(self, x, y):
-        self.m_mousePos = QPoint(x, y)
-        event = QMouseEvent(QEvent.MouseMove, self.m_mousePos, Qt.NoButton, Qt.NoButton, Qt.NoModifier)
-        QApplication.postEvent(self.m_webPage, event)
-        QApplication.processEvents()
 
     @pyqtSlot(str, str, 'QVariantMap')
     @pyqtSlot(str, 'QVariantMap', 'QVariantMap')
@@ -429,6 +404,35 @@ class WebPage(QObject):
     @libraryPath.setter
     def libraryPath(self, dirPath):
         self.m_libraryPath = dirPath
+
+    @pyqtSlot(str, 'QVariant', 'QVariant')
+    def sendEvent(self, type_, arg1, arg2):
+        type_ = type_.lower()
+
+        if type_ in ('mousedown', 'mouseup', 'mousemove'):
+            eventType = QMouseEvent.Type(QEvent.None)
+            button = Qt.MouseButton(Qt.LeftButton)
+            buttons = Qt.MouseButtons(Qt.LeftButton)
+
+            if type_ == 'mousedown':
+                eventType = QEvent.MouseButtonPress
+            elif type_ == 'mouseup':
+                eventType = QEvent.MouseButtonRelease
+            elif type_ == 'mousemove':
+                eventType = QEvent.MouseMove
+                button = buttons = Qt.NoButton
+
+            assert eventType != QEvent.None
+
+            event = QMouseEvent(eventType, QPoint(arg1, arg2), button, buttons, Qt.NoModifier)
+            QApplication.postEvent(self.m_webPage, event)
+            QApplication.processEvents()
+
+            return
+
+        if type_ == 'click':
+            self.sendEvent('mousedown', arg1, arg2)
+            self.sendEvent('mouseup', arg1, arg2)
 
     @pyqtProperty('QVariantMap')
     def scrollPosition(self):
