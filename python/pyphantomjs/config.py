@@ -23,6 +23,7 @@ import sys
 from PyQt4.QtCore import QObject, qWarning
 from PyQt4.QtWebKit import QWebPage
 
+from plugincontroller import do_action
 from utils import QPyFile
 
 
@@ -34,8 +35,8 @@ class Config(QObject):
             json = fd.read()
 
         self.settings = {
-            'auth': { 'mapping': 'auth', 'default': None },
             'cookiesFile': { 'mapping': 'cookies_file', 'default': None },
+            'debug': { 'mapping': 'debug', 'default': None },
             'diskCache': { 'mapping': 'disk_cache', 'default': False },
             'ignoreSslErrors': { 'mapping': 'ignore_ssl_errors', 'default': False },
             'loadImages': { 'mapping': 'load_images', 'default': True },
@@ -47,6 +48,8 @@ class Config(QObject):
             'scriptEncoding': { 'mapping': 'script_encoding', 'default': 'utf-8' },
             'verbose': { 'mapping': 'verbose', 'default': False }
         }
+
+        do_action('ConfigInit', self.settings)
 
         # generate dynamic properties
         for setting in self.settings:
@@ -66,3 +69,5 @@ class Config(QObject):
         webPage.mainFrame().addToJavaScriptWindowObject('config', self)
         # apply settings
         webPage.mainFrame().evaluateJavaScript(configurator.replace('%1', json))
+
+    do_action('Config')

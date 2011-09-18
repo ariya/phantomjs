@@ -17,6 +17,14 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
+__all__ = ['__version_info__', '__version__']
+
+from plugincontroller import do_action
+
+
 __version_info__ = (1, 3, 0, 'dev')
 
 __version__ = '.'.join(map(str, __version_info__))
+
+
+do_action('__init__')
