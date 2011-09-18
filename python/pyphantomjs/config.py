@@ -61,7 +61,7 @@ class Config(QObject):
             return
 
         with QPyFile(':/configurator.js') as f:
-            configurator = str(f.readAll())
+            configurator = f.readAll()
 
         webPage = QWebPage(self)
 
