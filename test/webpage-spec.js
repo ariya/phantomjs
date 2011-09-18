@@ -192,3 +192,100 @@ describe("WebPage object", function() {
 
 
 });
+
+describe("WebPage construction with options", function () {
+    it("should accept an opts object", function() {
+        var opts = {},
+            page = new WebPage(opts);
+        expect(typeof page).toEqual('object');
+        expect(page).toNotEqual(null);
+    });
+
+    describe("specifying clipRect", function() {
+        var opts = {
+            clipRect: {
+                height: 100,
+                left: 10,
+                top: 20,
+                width: 200,
+            }
+        };
+        checkClipRect(new WebPage(opts), opts.clipRect);
+    });
+
+    describe("specifying onConsoleMessage", function() {
+        var message = false,
+            opts = {
+                onConsoleMessage: function (msg) {
+                    message = msg;
+                },
+            };
+        var page = new WebPage(opts);
+        it("should have onConsoleMessage that was specified",function () {
+            page.evaluate("function () {console.log('test log')}");
+            expect(message).toEqual("test log");
+        });
+    });
+
+    describe("specifying onLoadStarted", function() {
+        var started = false,
+            opts = {
+                onLoadStarted: function (status) {
+                    started = true;
+                },
+            };
+        var page = new WebPage(opts);
+        it("should have onLoadStarted that was specified",function () {
+            expect(started).toEqual(false);
+            page.open("about:blank");
+            expect(started).toEqual(true);
+        });
+    });
+
+    describe("specifying onLoadFinished", function() {
+        var finished = false,
+            opts = {
+                onLoadFinished: function (status) {
+                    finished = true;
+                },
+            };
+        var page = new WebPage(opts);
+        it("should have onLoadFinished that was specified",function () {
+            expect(finished).toEqual(false);
+            page.open("about:blank");
+            expect(finished).toEqual(true);
+        });
+    });
+
+    describe("specifying scrollPosition", function () {
+        var opts = {
+            scrollPosition: {
+                left: 1,
+                top: 2,
+            }
+        };
+        checkScrollPosition(new WebPage(opts), opts.scrollPosition);
+    });
+
+    describe("specifying userAgent", function () {
+        var opts = {
+            settings: {
+                userAgent: "PHANTOMJS-TEST-USER-AGENT",
+            }
+        };
+        var page = new WebPage(opts);
+        it("should have userAgent as '"+opts.settings.userAgent+"'",function () {
+            expect(page.settings.userAgent).toEqual(opts.settings.userAgent);
+        });
+    });
+
+    describe("specifying viewportSize", function () {
+        var opts = {
+            viewportSize: {
+                height: 100,
+                width: 200,
+            }
+        };
+        checkViewportSize(new WebPage(opts), opts.viewportSize);
+    });
+});
