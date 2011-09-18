@@ -39,7 +39,7 @@ class CSConverter(QObject):
         self.m_webPage = QWebPage(self)
 
         with QPyFile(':/resources/coffee-script.js') as f:
-            script = str(f.readAll())
+            script = f.readAll()
 
         self.m_webPage.mainFrame().evaluateJavaScript(script)
         self.m_webPage.mainFrame().addToJavaScriptWindowObject('converter', self)
