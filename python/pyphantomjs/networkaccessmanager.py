@@ -34,17 +34,11 @@ class NetworkAccessManager(QNetworkAccessManager):
     def __init__(self, parent, args):
         super(NetworkAccessManager, self).__init__(parent)
 
+        self.m_userName = self.m_password = ''
         self.m_ignoreSslErrors = args.ignore_ssl_errors
         self.m_idCounter = 0
         self.m_ids = {}
         self.m_started = []
-
-        self.finished.connect(self.handleFinished)
-
-        if args.auth:
-            self.m_authUser = args.auth[0]
-            self.m_authPass = args.auth[1]
-            self.authenticationRequired.connect(self.provideAuthentication)
 
         if args.cookies_file:
             self.setCookieJar(CookieJar(self, args.cookies_file))
@@ -55,6 +49,9 @@ class NetworkAccessManager(QNetworkAccessManager):
             if args.max_disk_cache_size > 0:
                 m_networkDiskCache.setMaximumCacheSize(args.max_disk_cache_size * 1024)
             self.setCache(m_networkDiskCache)
+
+        self.authenticationRequired.connect(self.provideAuthentication)
+        self.finished.connect(self.handleFinished)
 
         do_action('NetworkAccessManagerInit')
 
@@ -173,7 +170,13 @@ class NetworkAccessManager(QNetworkAccessManager):
         return verb
 
     def provideAuthentication(self, reply, authenticator):
-        authenticator.setUser(self.m_authUser)
-        authenticator.setPassword(self.m_authPass)
+        authenticator.setUser(self.m_userName)
+        authenticator.setPassword(self.m_password)
+
+    def setPassword(self, password):
+        self.m_password = password
+
+    def setUserName(self, userName):
+        self.m_userName = userName
 
     do_action('NetworkAccessManager')
