@@ -98,9 +98,6 @@ def argParser():
         help='Sets the encoding used for scripts (default: %(default)s)'
     )
 
-    script.add_argument('--auth', metavar='user:pass',
-        help='Sets the authentication username and password'
-    )
     script.add_argument('--cookies-file', metavar='/path/to/cookies.txt',
         help='Sets the file name to store the persistent cookies'
     )

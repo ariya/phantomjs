@@ -99,7 +99,6 @@ def parseArgs(app, args):
 
     split_check = (
         (args.proxy, 'proxy'),
-        (args.auth, 'auth')
     )
     for arg, name in split_check:
         if arg:

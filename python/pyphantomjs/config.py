@@ -35,7 +35,6 @@ class Config(QObject):
             json = fd.read()
 
         self.settings = {
-            'auth': { 'mapping': 'auth', 'default': None },
             'cookiesFile': { 'mapping': 'cookies_file', 'default': None },
             'debug': { 'mapping': 'debug', 'default': None },
             'diskCache': { 'mapping': 'disk_cache', 'default': False },

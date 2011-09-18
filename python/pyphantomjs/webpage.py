@@ -113,10 +113,10 @@ class WebPage(QObject):
         self.m_webPage.mainFrame().setHtml(self.blankHtml)
 
         # Custom network access manager to allow traffic monitoring
-        networkAccessManager = NetworkAccessManager(self.parent(), args)
-        self.m_webPage.setNetworkAccessManager(networkAccessManager)
-        networkAccessManager.resourceRequested.connect(self.resourceRequested)
-        networkAccessManager.resourceReceived.connect(self.resourceReceived)
+        self.m_networkAccessManager = NetworkAccessManager(self.parent(), args)
+        self.m_webPage.setNetworkAccessManager(self.m_networkAccessManager)
+        self.m_networkAccessManager.resourceRequested.connect(self.resourceRequested)
+        self.m_networkAccessManager.resourceReceived.connect(self.resourceReceived)
 
         self.m_webPage.setViewportSize(QSize(400, 300))
 
@@ -130,8 +130,15 @@ class WebPage(QObject):
         opt.setAttribute(QWebSettings.JavascriptEnabled, defaults['javascriptEnabled'])
         opt.setAttribute(QWebSettings.XSSAuditingEnabled, defaults['XSSAuditingEnabled'])
         opt.setAttribute(QWebSettings.LocalContentCanAccessRemoteUrls, defaults['localToRemoteUrlAccessEnabled'])
+
         if 'userAgent' in defaults:
             self.m_webPage.m_userAgent = defaults['userAgent']
+
+        if 'userName' in defaults:
+            self.m_networkAccessManager.setUserName(defaults['userName'])
+
+        if 'password' in defaults:
+            self.m_networkAccessManager.setPassword(defaults['password'])
 
     def finish(self, ok):
         status = 'success' if ok else 'fail'
