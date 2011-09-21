@@ -52,12 +52,8 @@ page.open phantom.args[0], (status) ->
         , ->
             page.evaluate ->
                 console.log document.body.querySelector('.description').innerText
-                list = document.body.querySelectorAll 'div.jasmine_reporter > div.suite.failed'
-                for i in list
-                    el = i
-                    desc = el.querySelectorAll '.description'
-                    console.log ''
-                    for j in desc
-                        console.log j.innerText
+                list = document.body.querySelectorAll('.failed > .description, .failed > .messages > .resultMessage')
+                for el in list 
+                  console.log el.innerText
 
             phantom.exit()
