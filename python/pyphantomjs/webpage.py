@@ -67,8 +67,8 @@ class WebPage(QObject):
     initialized = pyqtSignal()
     javaScriptAlertSent = pyqtSignal(str)
     javaScriptConsoleMessageSent = pyqtSignal(str, int, str)
-    loadStarted = pyqtSignal()
     loadFinished = pyqtSignal(str)
+    loadStarted = pyqtSignal()
     resourceReceived = pyqtSignal('QVariantMap')
     resourceRequested = pyqtSignal('QVariantMap')
 
