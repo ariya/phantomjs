@@ -171,10 +171,4 @@ class NetworkAccessManager(QNetworkAccessManager):
         authenticator.setUser(self.m_userName)
         authenticator.setPassword(self.m_password)
 
-    def setPassword(self, password):
-        self.m_password = password
-
-    def setUserName(self, userName):
-        self.m_userName = userName
-
     do_action('NetworkAccessManager')

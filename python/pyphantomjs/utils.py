@@ -22,8 +22,9 @@ import codecs
 import os
 import sys
 
-from PyQt4.QtCore import (QDateTime, qDebug, QFile, Qt, QtCriticalMsg,
-                          QtDebugMsg, QtFatalMsg, QtWarningMsg)
+from PyQt4.QtCore import (QByteArray, QDateTime, qDebug, QFile, Qt,
+                          QtCriticalMsg, QtDebugMsg, QtFatalMsg,
+                          QtWarningMsg)
 
 from __init__ import __version__
 from plugincontroller import do_action
@@ -206,11 +207,42 @@ class SafeStreamFilter(object):
 
 
 class QPyFile(QFile):
-    '''Simple subclass of QFile which supports the context manager'''
+    '''Simple subclass of QFile which supports the context manager
+
+       It also wraps methods that require/return some foreign data type,
+       such as QByteArray.
+    '''
     def __enter__(self):
-        if not self.open(QFile.ReadOnly):
-            raise IOError("No such file or directory: '%s'" % self.fileName())
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
+
+    def __init__(self, filename, mode='r'):
+        super(QPyFile, self).__init__(filename)
+
+        modeMap = {
+            'r': QFile.ReadOnly,
+            'r+': QFile.ReadOnly | QFile.WriteOnly,
+            'w': QFile.WriteOnly | QFile.Truncate,
+            'w+': QFile.WriteOnly | QFile.ReadOnly | QFile.Truncate,
+            'a': QFile.Append,
+            'a+': QFile.Append | QFile.ReadOnly
+        }
+
+        flags = QFile.NotOpen
+        for key, flag in modeMap.items():
+            if key in mode:
+                flags = flags | flag
+
+        if not self.open(flags):
+            raise IOError("Could not open file: '%s'" % self.fileName())
+
+    def peek(self, maxlen):
+        return str(super(QPyFile, self).peek(maxlen))
+
+    def readAll(self):
+        return str(super(QPyFile, self).readAll())
+
+    def write(self, data):
+        return super(QPyFile, self).write(QByteArray(data))

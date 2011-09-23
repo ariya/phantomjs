@@ -135,10 +135,10 @@ class WebPage(QObject):
             self.m_webPage.m_userAgent = defaults['userAgent']
 
         if 'userName' in defaults:
-            self.m_networkAccessManager.setUserName(defaults['userName'])
+            self.m_networkAccessManager.m_userName = defaults['userName']
 
         if 'password' in defaults:
-            self.m_networkAccessManager.setPassword(defaults['password'])
+            self.m_networkAccessManager.m_password = defaults['password']
 
     def finish(self, ok):
         status = 'success' if ok else 'fail'
