@@ -337,6 +337,14 @@ class WebPage(QObject):
     def injectJs(self, filePath):
         return injectJsInFrame(filePath, self.parent().m_scriptEncoding.encoding, self.m_libraryPath, self.m_mainFrame)
 
+    @pyqtProperty(str)
+    def libraryPath(self):
+        return self.m_libraryPath
+
+    @libraryPath.setter
+    def libraryPath(self, dirPath):
+        self.m_libraryPath = dirPath
+
     @pyqtSlot(str, str, 'QVariantMap')
     @pyqtSlot(str, 'QVariantMap', 'QVariantMap')
     def openUrl(self, address, op, settings):
@@ -403,14 +411,6 @@ class WebPage(QObject):
         image = self.renderImage()
 
         return image.save(fileName)
-
-    @pyqtProperty(str)
-    def libraryPath(self):
-        return self.m_libraryPath
-
-    @libraryPath.setter
-    def libraryPath(self, dirPath):
-        self.m_libraryPath = dirPath
 
     @pyqtSlot(str, 'QVariant', 'QVariant')
     def sendEvent(self, type_, arg1, arg2):
