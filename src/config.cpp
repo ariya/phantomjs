@@ -33,6 +33,7 @@
 #include <QDir>
 #include <QWebPage>
 #include <QWebFrame>
+#include <QNetworkProxy>
 
 #include "terminal.h"
 
@@ -102,6 +103,15 @@ void Config::processArgs(const QStringList &args)
         }
         if (arg == "--local-to-remote-url-access=yes") {
             setLocalToRemoteUrlAccessEnabled(true);
+            continue;
+        }
+        if (arg == "--proxy-type=") {
+            QString proxyType = arg.mid(13).trimmed();
+
+            if (proxyType == "socks5") {
+                setProxyType(QNetworkProxy::Socks5Proxy);
+            }
+
             continue;
         }
         if (arg.startsWith("--proxy=")) {
@@ -281,6 +291,16 @@ void Config::setPluginsEnabled(const bool value)
     m_pluginsEnabled = value;
 }
 
+QString Config::proxyType() const
+{
+    return m_proxyType;
+}
+
+void Config::setProxyType(const QString value)
+{
+    m_proxyType = value;
+}
+
 QString Config::proxy() const
 {
     return proxyHost() + ":" + proxyPort();
@@ -384,6 +404,7 @@ void Config::resetToDefaults()
     m_localToRemoteUrlAccessEnabled = false;
     m_outputEncoding = "UTF-8";
     m_pluginsEnabled = false;
+    m_proxyType = QNetworkProxy::HttpProxy;
     m_proxyHost.clear();
     m_proxyPort = 1080;
     m_scriptArgs.clear();

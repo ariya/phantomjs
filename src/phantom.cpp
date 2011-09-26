@@ -80,7 +80,7 @@ Phantom::Phantom(QObject *parent)
     if (m_config.proxyHost().isEmpty()) {
         QNetworkProxyFactory::setUseSystemConfiguration(true);
     } else {
-        QNetworkProxy proxy(QNetworkProxy::HttpProxy, m_config.proxyHost(), m_config.proxyPort());
+        QNetworkProxy proxy(m_config.proxyType(), m_config.proxyHost(), m_config.proxyPort());
         QNetworkProxy::setApplicationProxy(proxy);
     }
 
