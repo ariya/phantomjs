@@ -36,11 +36,17 @@ if index > -1:
 else:
     README += INSTALL
 
-try:
-    import PyQt4
-except ImportError:
-    print ('\nWARNING: PyPhantomJS requires PyQt4, which was not found!\n'
-           '           Refer to the README or INSTALL file for installation information.\n')
+mainWarningPrinted = False
+mainWarning = ('\nWARNING: PyPhantomJS requires additional libraries, which were not found!\n'
+               '         Refer to the README or INSTALL file for installation information.\n')
+for module in ('PyQt4', 'PIL'):
+    try:
+        __import__(module)
+    except ImportError:
+        if not mainWarningPrinted:
+            print mainWarning
+            mainWarningPrinted = True
+        print "* '%s' library not found" % module
 
 
 setup(
