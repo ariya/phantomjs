@@ -17,17 +17,24 @@
   along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
+from cStringIO import StringIO
 from math import ceil, floor
 
 import sip
-from PyQt4.QtCore import (pyqtProperty, pyqtSignal, pyqtSlot, QByteArray,
-                          QDir, QEvent, QEventLoop, QFileInfo, QObject,
-                          QPoint, QRect, QSize, QSizeF, Qt, QUrl)
+from PyQt4.QtCore import (pyqtProperty, pyqtSignal, pyqtSlot, QBuffer,
+                          QByteArray, QDir, QEvent, QEventLoop, QFileInfo,
+                          QObject, QPoint, QRect, QSize, QSizeF, Qt, QUrl,
+                          qDebug)
 from PyQt4.QtGui import (QApplication, QDesktopServices, QImage,
                          QMouseEvent, QPainter, QPalette, QPrinter,
                          QRegion, qRgba)
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 from PyQt4.QtWebKit import QWebPage, QWebSettings
+
+try:
+    from PIL import Image
+except ImportError:
+    qDebug('PIL not found! Saving to gif files will be disabled.')
 
 from networkaccessmanager import NetworkAccessManager
 from plugincontroller import do_action
@@ -146,6 +153,32 @@ class WebPage(QObject):
 
     def mainFrame(self):
         return self.m_mainFrame
+
+    def renderGif(self, image, fileName):
+        try:
+            Image
+        except NameError:
+            return False
+
+        buffer_ = QBuffer()
+        buffer_.open(QBuffer.ReadWrite)
+        image.save(buffer_, 'PNG')
+
+        stream = StringIO()
+        stream.write(buffer_.data())
+        buffer_.close()
+        stream.seek(0)
+        pilimg = Image.open(stream)
+
+        # use the adaptive quantizer instead of the web quantizer; eases off of grainy images
+        pilimg = pilimg.convert('RGB').convert('P', palette=Image.ADAPTIVE)
+
+        try:
+            pilimg.save(fileName)
+            return True
+        except IOError as (t, e):
+            qDebug("WebPage.renderGif - %s: '%s'" % (e, fileName))
+            return False
 
     def renderImage(self):
         contentsSize = self.m_mainFrame.contentsSize()
@@ -409,6 +442,8 @@ class WebPage(QObject):
             return self.renderPdf(fileName)
 
         image = self.renderImage()
+        if fileName.lower().endswith('.gif'):
+            return self.renderGif(image, fileName)
 
         return image.save(fileName)
 
