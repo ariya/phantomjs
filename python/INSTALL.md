@@ -5,7 +5,7 @@
 * PyQt4 >= 4.8.0
 * Qt >= 4.7.0
 
-* python-argparse == (Python 2.6 only)
+* python-argparse >= 1.2.1 (Python 2.6 only)
 * PIL (python-imaging-library) >= 1.1.7 (optional; for rendering to GIF)
 
 ### INSTALLING
