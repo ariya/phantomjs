@@ -125,8 +125,10 @@ WebPage::WebPage(QObject *parent, const Config *config)
     m_webPage->settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
     m_webPage->settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
 
-    m_webPage->settings()->setAttribute(QWebSettings::OfflineWebApplicationCacheEnabled, true);
-    m_webPage->settings()->setOfflineWebApplicationCachePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+    if (m_webPage->settings()->offlineWebApplicationCachePath().isEmpty() ) {
+        m_webPage->settings()->setAttribute(QWebSettings::OfflineWebApplicationCacheEnabled, true);
+        m_webPage->settings()->setOfflineWebApplicationCachePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+    }
 
 #if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
     m_webPage->settings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
