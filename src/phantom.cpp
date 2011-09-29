@@ -215,6 +215,12 @@ bool Phantom::injectJs(const QString &jsFilePath)
 
 void Phantom::exit(int code)
 {
+    QMetaObject::invokeMethod(this, "doExit", Qt::QueuedConnection, Q_ARG(int, code));
+}
+
+
+void Phantom::doExit(int code)
+{
     m_terminated = true;
     m_returnValue = code;
     qDeleteAll(m_pages);
