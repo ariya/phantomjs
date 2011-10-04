@@ -33,7 +33,7 @@ class CookieJar(QNetworkCookieJar):
         settings.beginGroup(url.host())
 
         for cookie in cookieList:
-            settings.setValue(cookie.name(), cookie.value())
+            settings.setValue(str(cookie.name()), str(cookie.value()))
 
         settings.sync()
 
