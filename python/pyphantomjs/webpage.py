@@ -10,24 +10,31 @@
 
   This program is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
+from cStringIO import StringIO
 from math import ceil, floor
 
 import sip
-from PyQt4.QtCore import (pyqtProperty, pyqtSignal, pyqtSlot, QByteArray,
-                          QDir, QEvent, QEventLoop, QFileInfo, QObject,
-                          QPoint, QRect, QSize, QSizeF, Qt, QUrl)
+from PyQt4.QtCore import (pyqtProperty, pyqtSignal, pyqtSlot, QBuffer,
+                          QByteArray, QDir, QEvent, QEventLoop, QFileInfo,
+                          QObject, QPoint, QRect, QSize, QSizeF, Qt, QUrl,
+                          qDebug)
 from PyQt4.QtGui import (QApplication, QDesktopServices, QImage,
                          QMouseEvent, QPainter, QPalette, QPrinter,
                          QRegion, qRgba)
 from PyQt4.QtNetwork import QNetworkAccessManager, QNetworkRequest
 from PyQt4.QtWebKit import QWebPage, QWebSettings
+
+try:
+    from PIL import Image
+except ImportError:
+    qDebug('PIL not found! Saving to gif files will be disabled.')
 
 from networkaccessmanager import NetworkAccessManager
 from plugincontroller import do_action
@@ -67,8 +74,8 @@ class WebPage(QObject):
     initialized = pyqtSignal()
     javaScriptAlertSent = pyqtSignal(str)
     javaScriptConsoleMessageSent = pyqtSignal(str, int, str)
-    loadStarted = pyqtSignal()
     loadFinished = pyqtSignal(str)
+    loadStarted = pyqtSignal()
     resourceReceived = pyqtSignal('QVariantMap')
     resourceRequested = pyqtSignal('QVariantMap')
 
@@ -146,6 +153,32 @@ class WebPage(QObject):
 
     def mainFrame(self):
         return self.m_mainFrame
+
+    def renderGif(self, image, fileName):
+        try:
+            Image
+        except NameError:
+            return False
+
+        buffer_ = QBuffer()
+        buffer_.open(QBuffer.ReadWrite)
+        image.save(buffer_, 'PNG')
+
+        stream = StringIO()
+        stream.write(buffer_.data())
+        buffer_.close()
+        stream.seek(0)
+        pilimg = Image.open(stream)
+
+        # use the adaptive quantizer instead of the web quantizer; eases off of grainy images
+        pilimg = pilimg.convert('RGB').convert('P', palette=Image.ADAPTIVE)
+
+        try:
+            pilimg.save(fileName)
+            return True
+        except IOError as (t, e):
+            qDebug("WebPage.renderGif - %s: '%s'" % (e, fileName))
+            return False
 
     def renderImage(self):
         contentsSize = self.m_mainFrame.contentsSize()
@@ -337,6 +370,14 @@ class WebPage(QObject):
     def injectJs(self, filePath):
         return injectJsInFrame(filePath, self.parent().m_scriptEncoding.encoding, self.m_libraryPath, self.m_mainFrame)
 
+    @pyqtProperty(str)
+    def libraryPath(self):
+        return self.m_libraryPath
+
+    @libraryPath.setter
+    def libraryPath(self, dirPath):
+        self.m_libraryPath = dirPath
+
     @pyqtSlot(str, str, 'QVariantMap')
     @pyqtSlot(str, 'QVariantMap', 'QVariantMap')
     def openUrl(self, address, op, settings):
@@ -401,16 +442,10 @@ class WebPage(QObject):
             return self.renderPdf(fileName)
 
         image = self.renderImage()
+        if fileName.lower().endswith('.gif'):
+            return self.renderGif(image, fileName)
 
         return image.save(fileName)
-
-    @pyqtProperty(str)
-    def libraryPath(self):
-        return self.m_libraryPath
-
-    @libraryPath.setter
-    def libraryPath(self, dirPath):
-        self.m_libraryPath = dirPath
 
     @pyqtSlot(str, 'QVariant', 'QVariant')
     def sendEvent(self, type_, arg1, arg2):

@@ -10,11 +10,11 @@
 
   This program is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from PyQt4.QtCore import QSettings
@@ -33,7 +33,7 @@ class CookieJar(QNetworkCookieJar):
         settings.beginGroup(url.host())
 
         for cookie in cookieList:
-            settings.setValue(cookie.name(), cookie.value())
+            settings.setValue(str(cookie.name()), str(cookie.value()))
 
         settings.sync()
 

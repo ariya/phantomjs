@@ -10,11 +10,11 @@
 
   This program is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
 import os
@@ -36,11 +36,17 @@ if index > -1:
 else:
     README += INSTALL
 
-try:
-    import PyQt4
-except ImportError:
-    print ('\nWARNING: PyPhantomJS requires PyQt4, which was not found!\n'
-           '           Refer to the README or INSTALL file for installation information.\n')
+mainWarningPrinted = False
+mainWarning = ('\nWARNING: PyPhantomJS requires additional libraries, which were not found!\n'
+               '         Refer to the README or INSTALL file for installation information.\n')
+for module in ('PyQt4', 'PIL'):
+    try:
+        __import__(module)
+    except ImportError:
+        if not mainWarningPrinted:
+            print mainWarning
+            mainWarningPrinted = True
+        print "* '%s' library not found" % module
 
 
 setup(
