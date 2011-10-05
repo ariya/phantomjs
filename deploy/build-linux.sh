@@ -50,8 +50,6 @@ git pull
 # cd $QT_FOLDER
 
 patch -p1 < ../qapplication_skip_qtmenu.patch
-patch -p1 < ../webkit_no_Werr.patch
-patch -p1 < ../wkhtml_qt48_qprinter.patch
 echo "Building Qt $QT_VERSION. Please wait..."
 echo
 ./configure -opensource -confirm-license -release -no-exceptions -no-stl -no-xmlpatterns -no-phonon -no-qt3support -no-opengl -no-declarative -qt-libpng -qt-libjpeg -no-libmng -no-libtiff -D QT_NO_STYLE_CDE -D QT_NO_STYLE_CLEANLOOKS -D QT_NO_STYLE_MOTIF -D QT_NO_STYLE_PLASTIQUE -prefix $PWD -nomake demos -nomake examples -nomake tools -qpa
