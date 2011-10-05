@@ -17,9 +17,9 @@ then
     git checkout -b phantomjs origin/phantomjs
 else
     cd $QT_FOLDER
-    git checkout phantomjs
     git checkout -f
     git clean -xdf
+    git checkout phantomjs
     cd ..
 fi
 
