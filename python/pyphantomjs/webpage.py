@@ -93,10 +93,11 @@ class WebPage(QObject):
         self.setObjectName('WebPage')
         self.m_webPage = CustomPage(self)
         self.m_mainFrame = self.m_webPage.mainFrame()
+        self.m_webPage.mainFrame().setHtml(self.blankHtml)
 
-        self.m_mainFrame.javaScriptWindowObjectCleared.connect(self.initialized)
-        self.m_webPage.loadStarted.connect(self.loadStarted)
-        self.m_webPage.loadFinished.connect(self.finish)
+        self.m_mainFrame.javaScriptWindowObjectCleared.connect(self.initialized, Qt.QueuedConnection)
+        self.m_webPage.loadStarted.connect(self.loadStarted, Qt.QueuedConnection)
+        self.m_webPage.loadFinished.connect(self.finish, Qt.QueuedConnection)
 
         # Start with transparent background
         palette = self.m_webPage.palette()
@@ -115,9 +116,6 @@ class WebPage(QObject):
         self.m_webPage.settings().setAttribute(QWebSettings.FrameFlatteningEnabled, True)
         self.m_webPage.settings().setAttribute(QWebSettings.LocalStorageEnabled, True)
         self.m_webPage.settings().setLocalStoragePath(QDesktopServices.storageLocation(QDesktopServices.DataLocation))
-
-        # Ensure we have a document.body.
-        self.m_webPage.mainFrame().setHtml(self.blankHtml)
 
         # Custom network access manager to allow traffic monitoring
         self.m_networkAccessManager = NetworkAccessManager(self.parent(), args)
