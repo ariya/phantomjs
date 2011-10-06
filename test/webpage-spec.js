@@ -236,9 +236,16 @@ describe("WebPage construction with options", function () {
             };
         var page = new WebPage(opts);
         it("should have onLoadStarted that was specified",function () {
-            expect(started).toEqual(false);
-            page.open("about:blank");
-            expect(started).toEqual(true);
+            runs(function() {
+                expect(started).toEqual(false);
+                page.open("about:blank");
+            });
+
+            waits(0);
+
+            runs(function() {
+                expect(started).toEqual(true);
+            });
         });
     });
 
@@ -251,9 +258,16 @@ describe("WebPage construction with options", function () {
             };
         var page = new WebPage(opts);
         it("should have onLoadFinished that was specified",function () {
-            expect(finished).toEqual(false);
-            page.open("about:blank");
-            expect(finished).toEqual(true);
+            runs(function() {
+                expect(finished).toEqual(false);
+                page.open("about:blank");
+            });
+
+            waits(0);
+
+            runs(function() {
+                expect(finished).toEqual(true);
+            });
         });
     });
 

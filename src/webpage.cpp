@@ -111,10 +111,11 @@ WebPage::WebPage(QObject *parent, const Config *config)
     setObjectName("WebPage");
     m_webPage = new CustomPage(this);
     m_mainFrame = m_webPage->mainFrame();
+    m_mainFrame->setHtml(BLANK_HTML);
 
-    connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()), SIGNAL(initialized()));
-    connect(m_webPage, SIGNAL(loadStarted()), SIGNAL(loadStarted()));
-    connect(m_webPage, SIGNAL(loadFinished(bool)), SLOT(finish(bool)));
+    connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()), SIGNAL(initialized()), Qt::QueuedConnection);
+    connect(m_webPage, SIGNAL(loadStarted()), SIGNAL(loadStarted()), Qt::QueuedConnection);
+    connect(m_webPage, SIGNAL(loadFinished(bool)), SLOT(finish(bool)), Qt::QueuedConnection);
 
     // Start with transparent background.
     QPalette palette = m_webPage->palette();
@@ -139,8 +140,6 @@ WebPage::WebPage(QObject *parent, const Config *config)
 
     m_webPage->settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
     m_webPage->settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-
-    m_mainFrame->setHtml(BLANK_HTML);
 
     // Custom network access manager to allow traffic monitoring.
     m_networkAccessManager = new NetworkAccessManager(this, config);
