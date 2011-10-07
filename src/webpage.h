@@ -84,6 +84,10 @@ public slots:
     void uploadFile(const QString &selector, const QString &fileName);
     void sendEvent(const QString &type, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant());
 
+	QString getLinkText(int x, int y) const;
+	QString getImageUrl(int x, int y) const;
+	QString getLinkUrl(int x, int y) const;
+	void attachObject();
 signals:
     void initialized();
     void loadStarted();

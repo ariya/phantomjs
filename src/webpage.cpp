@@ -44,6 +44,7 @@
 #include <QWebElement>
 #include <QWebFrame>
 #include <QWebPage>
+#include <QWebHitTestResult>
 
 #include "networkaccessmanager.h"
 #include "utils.h"
@@ -110,7 +111,7 @@ WebPage::WebPage(QObject *parent, const Config *config)
     m_mainFrame = m_webPage->mainFrame();
     m_mainFrame->setHtml(BLANK_HTML);
 
-    connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()), SIGNAL(initialized()), Qt::QueuedConnection);
+    connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()),this, SLOT(attachObject()), Qt::QueuedConnection);
     connect(m_webPage, SIGNAL(loadStarted()), SIGNAL(loadStarted()), Qt::QueuedConnection);
     connect(m_webPage, SIGNAL(loadFinished(bool)), SLOT(finish(bool)), Qt::QueuedConnection);
 
@@ -145,6 +146,30 @@ WebPage::WebPage(QObject *parent, const Config *config)
             SIGNAL(resourceReceived(QVariant)));
 
     m_webPage->setViewportSize(QSize(400, 300));
+}
+
+void WebPage::attachObject() {
+	m_mainFrame->addToJavaScriptWindowObject(QString("WebPage"), this);
+	initialized();
+}
+
+QString WebPage::getLinkText(int x, int y) const
+{
+	QPoint pos = QPoint(x, y);
+	if (m_mainFrame->hitTestContent(pos).isNull()) return QString("");
+	return m_mainFrame->hitTestContent(pos).linkText();
+}
+QString WebPage::getImageUrl(int x, int y) const 
+{
+	QPoint pos = QPoint(x, y);
+	if (m_mainFrame->hitTestContent(pos).isNull()) return QString("");
+	return m_mainFrame->hitTestContent(pos).imageUrl().toString();
+}
+QString WebPage::getLinkUrl(int x, int y) const 
+{
+	QPoint pos = QPoint(x, y);
+	if (m_mainFrame->hitTestContent(pos).isNull()) return QString("");
+	return m_mainFrame->hitTestContent(pos).linkUrl().toString();
 }
 
 QWebFrame *WebPage::mainFrame()
