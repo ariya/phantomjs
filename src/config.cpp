@@ -125,6 +125,10 @@ void Config::processArgs(const QStringList &args)
             loadJsonFile(configPath);
             continue;
         }
+        if (arg.startsWith("--debug")) {
+            setDebug(true);
+            continue;
+        }
         if (arg.startsWith("--")) {
             setUnknownOption(QString("Unknown option '%1'").arg(arg));
             return;
@@ -371,6 +375,16 @@ bool Config::versionFlag() const
 void Config::setVersionFlag(const bool value)
 {
     m_versionFlag = value;
+}
+
+bool Config::debug() const
+{
+    return m_debug;
+}
+
+void Config::setDebug(const bool value)
+{
+    m_debug = value;
 }
 
 // private:

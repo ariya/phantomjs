@@ -98,12 +98,12 @@ public:
     bool versionFlag() const;
     void setVersionFlag(const bool value);
 
+    void setDebug(const bool value);
+    bool debug() const;
 private:
     void resetToDefaults();
     void setProxyHost(const QString &value);
     void setProxyPort(const int value);
-    void setAuthUser(const QString &value);
-    void setAuthPass(const QString &value);
 
     bool m_autoLoadImages;
     QString m_cookiesFile;
@@ -122,6 +122,7 @@ private:
     bool m_versionFlag;
     QString m_authUser;
     QString m_authPass;
+    bool m_debug;
 };
 
 #endif // CONFIG_H

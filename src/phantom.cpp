@@ -139,9 +139,18 @@ bool Phantom::execute()
     if (m_config.scriptFile().isEmpty())
         return false;
 
-    if (!Utils::injectJsInFrame(m_config.scriptFile(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
-        m_returnValue = -1;
-        return false;
+    if (m_config.debug())
+    {
+        if (!Utils::loadJSForDebug(m_config.scriptFile(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
+            m_returnValue = -1;
+            return false;
+        }
+        m_page->showInspector();
+    } else {
+        if (!Utils::injectJsInFrame(m_config.scriptFile(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
+            m_returnValue = -1;
+            return false;
+        }
     }
 
     return !m_terminated;

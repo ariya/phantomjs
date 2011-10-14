@@ -44,6 +44,7 @@
 #include <QWebElement>
 #include <QWebFrame>
 #include <QWebPage>
+#include <QWebInspector>
 
 #include "networkaccessmanager.h"
 #include "utils.h"
@@ -51,6 +52,7 @@
 #include <gifwriter.h>
 
 #include "consts.h"
+#include "config.h"
 
 // Ensure we have at least head and body.
 #define BLANK_HTML "<html><head></head><body></body></html>"
@@ -104,6 +106,7 @@ private:
 
 WebPage::WebPage(QObject *parent, const Config *config)
     : QObject(parent)
+    , m_inspector( 0 )
 {
     setObjectName("WebPage");
     m_webPage = new CustomPage(this);
@@ -175,6 +178,16 @@ void WebPage::setLibraryPath(const QString &libraryPath)
 {
    m_libraryPath = libraryPath;
 }
+
+void
+WebPage::showInspector()
+{
+    m_webPage->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
+    m_inspector = new QWebInspector;
+    m_inspector->setPage(m_webPage);
+    m_inspector->setVisible(true);
+}
+
 
 void WebPage::applySettings(const QVariantMap &def)
 {

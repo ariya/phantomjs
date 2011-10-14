@@ -35,6 +35,7 @@
 #include <QVariantMap>
 #include <QWebPage>
 
+class QWebInspector;
 class Config;
 class CustomPage;
 class NetworkAccessManager;
@@ -73,6 +74,8 @@ public:
     void setPaperSize(const QVariantMap &size);
     QVariantMap paperSize() const;
 
+    void showInspector();
+
 public slots:
     void openUrl(const QString &address, const QVariant &op, const QVariantMap &settings);
     void release();
@@ -104,6 +107,7 @@ private:
     QPoint m_scrollPosition;
     QVariantMap m_paperSize; // For PDF output via render()
     QString m_libraryPath;
+    QWebInspector* m_inspector;
 
     QImage renderImage();
     bool renderPdf(const QString &fileName);

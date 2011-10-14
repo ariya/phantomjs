@@ -130,6 +130,73 @@ bool Utils::injectJsInFrame(const QString &jsFilePath, const Encoding &jsFileEnc
     return false;
 }
 
+bool Utils::loadJSForDebug(const QString& jsFilePath, const QString& libraryPath, QWebFrame* targetFrame, const bool startingScript)
+{
+    return loadJSForDebug(jsFilePath, Encoding::UTF8, libraryPath, targetFrame, startingScript);
+}
+
+bool Utils::loadJSForDebug(const QString& jsFilePath, const Encoding& jsFileEnc, const QString& libraryPath, QWebFrame* targetFrame, const bool startingScript)
+{
+    // Don't do anything if an empty string is passed
+//     QString html( "<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\"><script type=\"text/javascript\" src=%1></script></head><body></body>" );
+    QFile f( ":/debug_harness.html" );
+    if (!f.open( QIODevice::ReadOnly))
+        return false; // Wtf?
+    QString html = QString::fromUtf8( f.readAll() );
+
+    if (!jsFilePath.isEmpty()) {
+        QFile jsFile;
+
+        // Is file in the PWD?
+        jsFile.setFileName(QDir::fromNativeSeparators(jsFilePath)); //< Normalise User-provided path
+        if (!jsFile.exists()) {
+            // File is not in the PWD. Is it in the lookup directory?
+            jsFile.setFileName( libraryPath + '/' + QDir::fromNativeSeparators(jsFilePath) );
+        }
+
+        if ( jsFile.open(QFile::ReadOnly) ) {
+            QString scriptBody = jsFileEnc.decode(jsFile.readAll());
+            // Remove CLI script heading
+            if (scriptBody.startsWith("#!") && !jsFile.fileName().endsWith(COFFEE_SCRIPT_EXTENSION)) {
+                scriptBody.prepend("//");
+            }
+
+            if (jsFile.fileName().endsWith(COFFEE_SCRIPT_EXTENSION)) {
+                QVariant result = Utils::coffee2js(scriptBody);
+                if (result.toStringList().at(0) == "false") {
+                    if (startingScript) {
+                        Terminal::instance()->cerr(result.toStringList().at(1));
+                        exit(1);
+                    } else {
+                        qWarning() << qPrintable(result.toStringList().at(1));
+                        scriptBody = QString();
+                    }
+                } else {
+                    scriptBody = result.toStringList().at(1);
+                }
+            }
+
+            // Execute JS code in the context of the document
+//             targetFrame->evaluateJavaScript(scriptBody);
+//             script = script.arg(scriptBody);
+//             jsFile.close();
+            const QFileInfo fileInfo(jsFile);
+            html = html.arg(fileInfo.absoluteFilePath());
+            targetFrame->setHtml(html);
+//             targetFrame->page()->action(QWebPage::Reload);
+            return true;
+        } else {
+            if (startingScript) {
+                Terminal::instance()->cerr(QString("Can't open '%1'").arg(jsFilePath));
+            } else {
+                qWarning("Can't open '%s'", qPrintable(jsFilePath));
+            }
+        }
+    }
+    return false;
+}
+
+
 // private:
 Utils::Utils()
 {
