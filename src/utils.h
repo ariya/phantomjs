@@ -52,7 +52,7 @@ public:
     static bool injectJsInFrame(const QString &jsFilePath, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
     static bool loadJSForDebug(const QString &jsFilePath, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
     static bool loadJSForDebug(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
-
+    static QString readResourceFileUtf8(const QString &resourceFilePath);
 
 private:
     Utils(); //< This class shouldn't be instantiated

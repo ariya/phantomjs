@@ -30,9 +30,9 @@
 #include "csconverter.h"
 
 #include <QCoreApplication>
-#include <QFile>
 #include <QWebFrame>
 
+#include "utils.h"
 #include "terminal.h"
 
 static CSConverter *csconverter_instance = 0;
@@ -48,14 +48,7 @@ CSConverter *CSConverter::instance()
 CSConverter::CSConverter()
     : QObject(QCoreApplication::instance())
 {
-    QFile file(":/coffee-script.js");
-    if (!file.open(QFile::ReadOnly)) {
-        Terminal::instance()->cerr("CoffeeScript compiler is not available!");
-        exit(1);
-    }
-    QString script = QString::fromUtf8(file.readAll());
-    file.close();
-    m_webPage.mainFrame()->evaluateJavaScript(script);
+    m_webPage.mainFrame()->evaluateJavaScript(Utils::readResourceFileUtf8(":/coffee-script.js"));
     m_webPage.mainFrame()->addToJavaScriptWindowObject("converter", this);
 }
 

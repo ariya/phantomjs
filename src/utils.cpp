@@ -40,14 +40,7 @@
 // public:
 void Utils::showUsage()
 {
-    QFile file;
-    file.setFileName(":/usage.txt");
-    if ( !file.open(QFile::ReadOnly) ) {
-        Terminal::instance()->cerr("Unable to print the usage message");
-        exit(1);
-    }
-    Terminal::instance()->cout(QString::fromUtf8(file.readAll()));
-    file.close();
+    Terminal::instance()->cout(Utils::readResourceFileUtf8(":/usage.txt"));
 }
 
 void Utils::messageHandler(QtMsgType type, const char *msg)
@@ -196,6 +189,13 @@ bool Utils::loadJSForDebug(const QString& jsFilePath, const Encoding& jsFileEnc,
     return false;
 }
 
+
+QString Utils::readResourceFileUtf8(const QString &resourceFilePath)
+{
+    QFile f(resourceFilePath);
+    f.open(QFile::ReadOnly); //< It's OK to assume this succeed. If it doesn't, we have a bigger problem.
+    return QString::fromUtf8(f.readAll());
+}
 
 // private:
 Utils::Utils()
