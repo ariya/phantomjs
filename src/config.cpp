@@ -35,6 +35,7 @@
 #include <QWebFrame>
 
 #include "terminal.h"
+#include "utils.h"
 
 // public:
 Config::Config(QObject *parent)
@@ -146,54 +147,35 @@ static QString normalizePath(const QString &path)
     return path.isEmpty() ? path : QDir::fromNativeSeparators(path);
 }
 
-// THIS METHOD ASSUMES THAT content IS *NEVER* NULL!
-static bool readFile(const QString &path, QString *const content)
-{
-    // Ensure empty content
-    content->clear();
-
-    // Check existence and try to open as text
-    QFile file(path);
-    if (!file.exists() || !file.open(QFile::ReadOnly | QFile::Text)) {
-        return false;
-    }
-
-    content->append(QString::fromUtf8(file.readAll()).trimmed());
-
-    file.close();
-
-    return true;
-}
-
 void Config::loadJsonFile(const QString &filePath)
 {
     QString jsonConfig;
-    if (!readFile(normalizePath(filePath), &jsonConfig)) {
+    QFile f(filePath);
+
+    // Check file exists and is readable
+    if (!f.exists() || !f.open(QFile::ReadOnly | QFile::Text)) {
         Terminal::instance()->cerr("Unable to open config: \"" + filePath + "\"");
         return;
-    } else if (jsonConfig.isEmpty()) {
-        return;
-    } else if (!jsonConfig.startsWith('{') || !jsonConfig.endsWith('}')) {
+    }
+
+    // Read content
+    jsonConfig = QString::fromUtf8(f.readAll().trimmed());
+    f.close();
+
+    // Check it's a valid JSON format
+    if (jsonConfig.isEmpty() || !jsonConfig.startsWith('{') || !jsonConfig.endsWith('}')) {
         Terminal::instance()->cerr("Config file MUST be in JSON format!");
         return;
     }
 
     // Load configurator
-    QString configurator;
-    if (!readFile(":/configurator.js", &configurator)) {
-        Terminal::instance()->cerr("Unable to load JSON configurator!");
-        return;
-    } else if (configurator.isEmpty()) {
-        Terminal::instance()->cerr("Unable to set-up JSON configurator!");
-        return;
-    }
+    QString configurator = Utils::readResourceFileUtf8(":/configurator.js");
 
+    // Use a temporary QWebPage to load the JSON configuration in this Object using the 'configurator' above
     QWebPage webPage;
-
-    // Add the config object
+    // Add this object to the global scope
     webPage.mainFrame()->addToJavaScriptWindowObject("config", this);
-
-    // Apply the settings
+    // Apply the JSON config settings to this very object
     webPage.mainFrame()->evaluateJavaScript(configurator.arg(jsonConfig));
 }
 
