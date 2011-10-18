@@ -31,8 +31,8 @@ class Config(QObject):
     def __init__(self, parent, jsonFile):
         super(Config, self).__init__(parent)
 
-        with codecs.open(jsonFile, encoding='utf-8') as fd:
-            json = fd.read()
+        with codecs.open(jsonFile, encoding='utf-8') as f:
+            json = f.read()
 
         self.settings = {
             'cookiesFile': { 'mapping': 'cookies_file', 'default': None },
@@ -60,14 +60,12 @@ class Config(QObject):
             qWarning('Config file MUST be in JSON format!')
             return
 
-        with QPyFile(':/configurator.js') as f:
-            configurator = f.readAll()
-
         webPage = QWebPage(self)
 
-        # add config object
-        webPage.mainFrame().addToJavaScriptWindowObject('config', self)
-        # apply settings
-        webPage.mainFrame().evaluateJavaScript(configurator.replace('%1', json))
+        with QPyFile(':/configurator.js') as f:
+            # add config object
+            webPage.mainFrame().addToJavaScriptWindowObject('config', self)
+            # apply settings
+            webPage.mainFrame().evaluateJavaScript(f.readAll().replace('%1', json))
 
     do_action('Config')
