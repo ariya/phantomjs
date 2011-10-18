@@ -77,8 +77,7 @@ class Phantom(QObject):
         self.m_page.mainFrame().addToJavaScriptWindowObject('phantom', self)
 
         with QPyFile(':/bootstrap.js') as f:
-            bootstrap = f.readAll()
-        self.m_page.mainFrame().evaluateJavaScript(bootstrap)
+            self.m_page.mainFrame().evaluateJavaScript(f.readAll())
 
         do_action('PhantomInitPost')
 
@@ -143,9 +142,7 @@ class Phantom(QObject):
         moduleSourceFilePath = ':/modules/%s.js' % name
 
         with QPyFile(moduleSourceFilePath) as f:
-            moduleSource = f.readAll()
-
-        return moduleSource
+            return f.readAll()
 
     @pyqtProperty(str)
     def libraryPath(self):
