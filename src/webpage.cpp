@@ -110,7 +110,7 @@ WebPage::WebPage(QObject *parent, const Config *config)
     m_mainFrame = m_webPage->mainFrame();
     m_mainFrame->setHtml(BLANK_HTML);
 
-    connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()), SIGNAL(initialized()), Qt::QueuedConnection);
+    connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()), SIGNAL(initialized()));
     connect(m_webPage, SIGNAL(loadStarted()), SIGNAL(loadStarted()), Qt::QueuedConnection);
     connect(m_webPage, SIGNAL(loadFinished(bool)), SLOT(finish(bool)), Qt::QueuedConnection);
 
