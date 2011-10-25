@@ -387,6 +387,7 @@ void Config::resetToDefaults()
     m_scriptFile.clear();
     m_unknownOption.clear();
     m_versionFlag = false;
+    m_debug = false;
 }
 
 void Config::setProxyHost(const QString &value)

@@ -80,7 +80,6 @@ public slots:
 private slots:
     void printConsoleMessage(const QString &msg, int lineNumber, const QString &source);
 
-    void onInitialized();
 private:
     Encoding m_scriptFileEnc;
     WebPage *m_page;

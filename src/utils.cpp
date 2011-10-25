@@ -32,6 +32,7 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QDir>
+#include <QTemporaryFile>
 
 #include "consts.h"
 #include "terminal.h"
@@ -178,13 +179,6 @@ Utils::cleanupFromDebug()
     m_tempFile = 0;
 }
 
-
-QString Utils::readResourceFileUtf8(const QString &resourceFilePath)
-{
-    QFile f(resourceFilePath);
-    f.open(QFile::ReadOnly); //< It's OK to assume this succeed. If it doesn't, we have a bigger problem.
-    return QString::fromUtf8(f.readAll());
-}
 
 QString Utils::readResourceFileUtf8(const QString &resourceFilePath)
 {
