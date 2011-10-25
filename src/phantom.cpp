@@ -92,6 +92,8 @@ Phantom::Phantom(QObject *parent)
 
     connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString, int, QString)),
             SLOT(printConsoleMessage(QString, int, QString)));
+    connect(m_page, SIGNAL(initialized()),
+            SLOT(onInitialized()));
 
     m_defaultPageSettings[PAGE_SETTINGS_LOAD_IMAGES] = QVariant::fromValue(m_config.autoLoadImages());
     m_defaultPageSettings[PAGE_SETTINGS_LOAD_PLUGINS] = QVariant::fromValue(m_config.pluginsEnabled());
@@ -103,11 +105,7 @@ Phantom::Phantom(QObject *parent)
 
     setLibraryPath(QFileInfo(m_config.scriptFile()).dir().absolutePath());
 
-    // Add 'phantom' object to the global scope
-    m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
-
-    // Bootstrap the PhantomJS scope
-    m_page->mainFrame()->evaluateJavaScript(Utils::readResourceFileUtf8(":/bootstrap.js"));
+    onInitialized();
 }
 
 Phantom::~Phantom()
@@ -238,6 +236,16 @@ void Phantom::exit(int code)
         m_page = 0;
         QApplication::instance()->exit(code);
     }
+}
+
+void
+Phantom::onInitialized()
+{
+    // Add 'phantom' object to the global scope
+    m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
+
+    // Bootstrap the PhantomJS scope
+    m_page->mainFrame()->evaluateJavaScript(Utils::readResourceFileUtf8(":/bootstrap.js"));
 }
 
 
