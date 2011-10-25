@@ -93,6 +93,8 @@ Phantom::Phantom(QObject *parent)
 
     connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString, int, QString)),
             SLOT(printConsoleMessage(QString, int, QString)));
+    connect(m_page, SIGNAL(initialized()),
+            SLOT(onInitialized()));
 
     m_defaultPageSettings[PAGE_SETTINGS_LOAD_IMAGES] = QVariant::fromValue(m_config.autoLoadImages());
     m_defaultPageSettings[PAGE_SETTINGS_LOAD_PLUGINS] = QVariant::fromValue(m_config.pluginsEnabled());
@@ -104,12 +106,13 @@ Phantom::Phantom(QObject *parent)
 
     setLibraryPath(QFileInfo(m_config.scriptFile()).dir().absolutePath());
 
-    // Add 'phantom' object to the global scope
-    m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
-
-    // Bootstrap the PhantomJS scope
-    m_page->mainFrame()->evaluateJavaScript(Utils::readResourceFileUtf8(":/bootstrap.js"));
+    onInitialized();
 }
+
+Phantom::~Phantom()
+{
+}
+
 
 QStringList Phantom::args() const
 {
@@ -139,9 +142,18 @@ bool Phantom::execute()
     if (m_config.scriptFile().isEmpty())
         return false;
 
-    if (!Utils::injectJsInFrame(m_config.scriptFile(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
-        m_returnValue = -1;
-        return false;
+    if (m_config.debug())
+    {
+        if (!Utils::loadJSForDebug(m_config.scriptFile(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
+            m_returnValue = -1;
+            return false;
+        }
+        m_page->showInspector(m_config.remoteDebugPort());
+    } else {
+        if (!Utils::injectJsInFrame(m_config.scriptFile(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
+            m_returnValue = -1;
+            return false;
+        }
     }
 
     return !m_terminated;
@@ -221,15 +233,45 @@ bool Phantom::injectJs(const QString &jsFilePath)
 
 void Phantom::exit(int code)
 {
+    if (m_config.debug())
+        Terminal::instance()->cout("Phantom::exit() called but not quitting in debug mode.");
+    else {
+        doExit(0);
+    }
+}
+
+void Phantom::debugExit(int code)
+{
+    doExit(code);
+}
+
+
+void Phantom::doExit(int code)
+{
+    if (m_config.debug())
+    {
+        Utils::cleanupFromDebug();
+    }
+
     m_terminated = true;
     m_returnValue = code;
     qDeleteAll(m_pages);
     m_pages.clear();
     m_page = 0;
-    qDeleteAll(m_servers);
-    m_servers.clear();
     QApplication::instance()->exit(code);
 }
+
+
+void
+Phantom::onInitialized()
+{
+    // Add 'phantom' object to the global scope
+    m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
+
+    // Bootstrap the PhantomJS scope
+    m_page->mainFrame()->evaluateJavaScript(Utils::readResourceFileUtf8(":/bootstrap.js"));
+}
+
 
 // private slots:
 void Phantom::printConsoleMessage(const QString &message, int lineNumber, const QString &source)

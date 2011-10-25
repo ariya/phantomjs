@@ -98,6 +98,11 @@ public:
     bool versionFlag() const;
     void setVersionFlag(const bool value);
 
+    void setDebug(const bool value);
+    bool debug() const;
+
+    void setRemoteDebugPort(const int port);
+    int remoteDebugPort() const;
 private:
     void resetToDefaults();
     void setProxyHost(const QString &value);
@@ -122,6 +127,8 @@ private:
     bool m_versionFlag;
     QString m_authUser;
     QString m_authPass;
+    bool m_debug;
+    int m_remoteDebugPort;
 };
 
 #endif // CONFIG_H

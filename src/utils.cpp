@@ -32,10 +32,14 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QDir>
+#include <QTemporaryFile>
 
 #include "consts.h"
 #include "terminal.h"
 #include "utils.h"
+
+QTemporaryFile* Utils::m_tempHarness = 0;
+QTemporaryFile* Utils::m_tempWrapper = 0;
 
 // public:
 void Utils::showUsage()
@@ -76,6 +80,60 @@ bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &libraryPat
 bool Utils::injectJsInFrame(const QString &jsFilePath, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript)
 {
     // Don't do anything if an empty string is passed
+    QString scriptPath = findScript(jsFilePath, libraryPath);
+    QString scriptBody = jsFromScriptFile(scriptPath, jsFileEnc);
+    if (scriptBody.isEmpty())
+    {
+        if (startingScript) {
+            Terminal::instance()->cerr(QString("Can't open '%1'").arg(jsFilePath));
+        } else {
+            qWarning("Can't open '%s'", qPrintable(jsFilePath));
+        }
+        return false;
+    }
+    // Execute JS code in the context of the document
+    targetFrame->evaluateJavaScript(scriptBody);
+    return true;
+}
+
+bool Utils::loadJSForDebug(const QString& jsFilePath, const QString& libraryPath, QWebFrame* targetFrame, const bool startingScript)
+{
+    return loadJSForDebug(jsFilePath, Encoding::UTF8, libraryPath, targetFrame, startingScript);
+}
+
+bool Utils::loadJSForDebug(const QString& jsFilePath, const Encoding& jsFileEnc, const QString& libraryPath, QWebFrame* targetFrame, const bool startingScript)
+{
+
+    QString scriptPath = findScript(jsFilePath, libraryPath);
+    QString scriptBody = jsFromScriptFile(scriptPath, jsFileEnc);
+
+    QFile wrapper( ":/debug_wrapper.js" );
+    if (!wrapper.open(QIODevice::ReadOnly))
+        return false; // We got big issues
+    QString jsWrapper = QString::fromUtf8( wrapper.readAll() );
+    jsWrapper = jsWrapper.arg( scriptBody );
+    m_tempWrapper = new QTemporaryFile( QDir::tempPath() + QDir::separator() + "debugwrapper_XXXXXX.js" );
+    m_tempWrapper->open();
+    m_tempWrapper->write(jsWrapper.toUtf8());
+    m_tempWrapper->close();
+
+    QFile f( ":/debug_harness.html" );
+    if (!f.open( QIODevice::ReadOnly))
+        return false;
+    QString html = QString::fromUtf8( f.readAll() );
+
+    html = html.arg(m_tempWrapper->fileName());
+    m_tempHarness = new QTemporaryFile( QDir::tempPath() + QDir::separator() + "debugharness_XXXXXX.html" );
+    m_tempHarness->open();
+    m_tempHarness->write( html.toLocal8Bit() );
+    m_tempHarness->close();
+    targetFrame->load( QUrl::fromLocalFile( m_tempHarness->fileName() ) );
+    return true;
+}
+
+QString Utils::findScript(const QString& jsFilePath, const QString &libraryPath)
+{
+    QString filePath = jsFilePath;
     if (!jsFilePath.isEmpty()) {
         QFile jsFile;
 
@@ -86,42 +144,52 @@ bool Utils::injectJsInFrame(const QString &jsFilePath, const Encoding &jsFileEnc
             jsFile.setFileName( libraryPath + '/' + QDir::fromNativeSeparators(jsFilePath) );
         }
 
-        if ( jsFile.open(QFile::ReadOnly) ) {
-            QString scriptBody = jsFileEnc.decode(jsFile.readAll());
-            // Remove CLI script heading
-            if (scriptBody.startsWith("#!") && !jsFile.fileName().endsWith(COFFEE_SCRIPT_EXTENSION)) {
-                scriptBody.prepend("//");
-            }
+        return jsFile.fileName();
+    }
+    return QString();
+}
 
-            if (jsFile.fileName().endsWith(COFFEE_SCRIPT_EXTENSION)) {
-                QVariant result = Utils::coffee2js(scriptBody);
-                if (result.toStringList().at(0) == "false") {
-                    if (startingScript) {
-                        Terminal::instance()->cerr(result.toStringList().at(1));
-                        exit(1);
-                    } else {
-                        qWarning() << qPrintable(result.toStringList().at(1));
-                        scriptBody = QString();
-                    }
-                } else {
-                    scriptBody = result.toStringList().at(1);
-                }
-            }
+QString Utils::jsFromScriptFile(const QString& scriptPath, const Encoding& enc)
+{
+    QFile jsFile(scriptPath);
+    if (jsFile.exists() && jsFile.open(QFile::ReadOnly)) {
+        QString scriptBody = enc.decode(jsFile.readAll());
+        // Remove CLI script heading
+        if (scriptBody.startsWith("#!") && !jsFile.fileName().endsWith(COFFEE_SCRIPT_EXTENSION)) {
+            scriptBody.prepend("//");
+        }
 
-            // Execute JS code in the context of the document
-            targetFrame->evaluateJavaScript(scriptBody);
-            jsFile.close();
-            return true;
-        } else {
-            if (startingScript) {
-                Terminal::instance()->cerr(QString("Can't open '%1'").arg(jsFilePath));
+        if (jsFile.fileName().endsWith(COFFEE_SCRIPT_EXTENSION)) {
+            QVariant result = Utils::coffee2js(scriptBody);
+            if (result.toStringList().at(0) == "false") {
+                return QString();
             } else {
-                qWarning("Can't open '%s'", qPrintable(jsFilePath));
+                scriptBody = result.toStringList().at(1);
             }
         }
+        jsFile.close();
+
+        return scriptBody;
+    } else {
+        return QString();
     }
-    return false;
 }
+
+
+void
+Utils::cleanupFromDebug()
+{
+    if (m_tempHarness) {
+        // Will erase the temp file on disk
+        delete m_tempHarness;
+        m_tempHarness = 0;
+    }
+    if (m_tempWrapper) {
+        delete m_tempWrapper;
+        m_tempWrapper = 0;
+    }
+}
+
 
 QString Utils::readResourceFileUtf8(const QString &resourceFilePath)
 {
