@@ -110,6 +110,15 @@ Phantom::Phantom(QObject *parent)
     m_page->mainFrame()->evaluateJavaScript(Utils::readResourceFileUtf8(":/bootstrap.js"));
 }
 
+Phantom::~Phantom()
+{
+    if (m_config.debug())
+    {
+        Utils::cleanupFromDebug();
+    }
+}
+
+
 QStringList Phantom::args() const
 {
     return m_config.scriptArgs();
@@ -219,19 +228,18 @@ bool Phantom::injectJs(const QString &jsFilePath)
 
 void Phantom::exit(int code)
 {
-    QMetaObject::invokeMethod(this, "doExit", Qt::QueuedConnection, Q_ARG(int, code));
+    if (m_config.debug())
+        Terminal::instance()->cout("Phantom::exit() called but not quitting in debug mode.");
+    else {
+        m_terminated = true;
+        m_returnValue = code;
+        qDeleteAll(m_pages);
+        m_pages.clear();
+        m_page = 0;
+        QApplication::instance()->exit(code);
+    }
 }
 
-
-void Phantom::doExit(int code)
-{
-    m_terminated = true;
-    m_returnValue = code;
-    qDeleteAll(m_pages);
-    m_pages.clear();
-    m_page = 0;
-    QApplication::instance()->exit(code);
-}
 
 // private slots:
 void Phantom::printConsoleMessage(const QString &message, int lineNumber, const QString &source)

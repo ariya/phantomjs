@@ -51,6 +51,7 @@ class Phantom: public QObject
 
 public:
     Phantom(QObject *parent = 0);
+    virtual ~Phantom();
 
     QStringList args() const;
 
@@ -79,7 +80,7 @@ public slots:
 private slots:
     void printConsoleMessage(const QString &msg, int lineNumber, const QString &source);
 
-    void doExit(int);
+    void onInitialized();
 private:
     Encoding m_scriptFileEnc;
     WebPage *m_page;

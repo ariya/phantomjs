@@ -33,10 +33,12 @@
 
 #include <QtGlobal>
 #include <QWebFrame>
+#include <QFile>
 
 #include "csconverter.h"
 #include "encoding.h"
 
+class QTemporaryFile;
 /**
  * Aggregate common utility functions.
  * Functions are static methods.
@@ -50,12 +52,16 @@ public:
     static QVariant coffee2js(const QString &script);
     static bool injectJsInFrame(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
     static bool injectJsInFrame(const QString &jsFilePath, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
-    static bool loadJSForDebug(const QString &jsFilePath, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
-    static bool loadJSForDebug(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
     static QString readResourceFileUtf8(const QString &resourceFilePath);
 
+    static bool loadJSForDebug(const QString &jsFilePath, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
+    static bool loadJSForDebug(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
+    static void cleanupFromDebug();
 private:
+    static QString findScript(const QString &jsFilePath, const QString& libraryPath);
     Utils(); //< This class shouldn't be instantiated
+
+    static QTemporaryFile* m_tempFile; //< We want to make sure to clean up after ourselves
 };
 
 #endif // UTILS_H

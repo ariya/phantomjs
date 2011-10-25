@@ -185,6 +185,7 @@ WebPage::showInspector()
     m_inspector = new QWebInspector;
     m_inspector->setPage(m_webPage);
     m_inspector->setVisible(true);
+//     m_webPage->setProperty("_q_webInspectorServerPort", 8118);
 }
 
 
