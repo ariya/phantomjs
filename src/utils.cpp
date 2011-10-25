@@ -186,6 +186,13 @@ QString Utils::readResourceFileUtf8(const QString &resourceFilePath)
     return QString::fromUtf8(f.readAll());
 }
 
+QString Utils::readResourceFileUtf8(const QString &resourceFilePath)
+{
+    QFile f(resourceFilePath);
+    f.open(QFile::ReadOnly); //< It's OK to assume this succeed. If it doesn't, we have a bigger problem.
+    return QString::fromUtf8(f.readAll());
+}
+
 // private:
 Utils::Utils()
 {
