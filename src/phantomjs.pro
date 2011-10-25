@@ -20,7 +20,8 @@ HEADERS += csconverter.h \
     filesystem.h \
     terminal.h \
     encoding.h \
-    config.h
+    config.h \
+    mimesniffer.cpp
 SOURCES += phantom.cpp \
     webpage.cpp \
     main.cpp \
@@ -31,7 +32,8 @@ SOURCES += phantom.cpp \
     filesystem.cpp \
     terminal.cpp \
     encoding.cpp \
-    config.cpp
+    config.cpp \
+    mimesniffer.cpp
 
 OTHER_FILES += usage.txt \
     bootstrap.js \

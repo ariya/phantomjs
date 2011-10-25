@@ -48,6 +48,7 @@
 
 #include "networkaccessmanager.h"
 #include "utils.h"
+#include "mimesniffer.h"
 
 #include <gifwriter.h>
 
@@ -116,6 +117,7 @@ WebPage::WebPage(QObject *parent, const Config *config)
     connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()), SIGNAL(initialized()));
     connect(m_webPage, SIGNAL(loadStarted()), SIGNAL(loadStarted()), Qt::QueuedConnection);
     connect(m_webPage, SIGNAL(loadFinished(bool)), SLOT(finish(bool)), Qt::QueuedConnection);
+    connect(m_webPage, SIGNAL(unsupportedContent(QNetworkReply *)), SLOT(handleUnsupportedContent(QNetworkReply *)));
 
     // Start with transparent background.
     QPalette palette = m_webPage->palette();
@@ -155,6 +157,117 @@ WebPage::WebPage(QObject *parent, const Config *config)
 QWebFrame *WebPage::mainFrame()
 {
     return m_mainFrame;
+}
+
+
+void WebPage::loopFramesFinished(QWebFrame * frame, QNetworkReply* r)
+{
+    if (!m_mimes.contains(r)) {
+        return;
+    }
+
+    if (frame->requestedUrl() == r->url()) {
+        QByteArray data = r->readAll();
+
+        frame->setContent(data, m_mimes[r], r->url());
+    } else {
+        QWebFrame *f;
+        foreach(f, frame->childFrames()) {
+            loopFramesFinished(f, r);
+        }
+    }
+}
+
+
+void WebPage::doSniff(QNetworkReply* r)
+{
+    // We already sniffed this one.
+    if (m_mimes.contains(r)) {
+        return;
+    }
+
+    // Wait until we have at least 512 bytes.
+    // This may be overly conservative as IE only considers 256.
+    if ((r->bytesAvailable() < 512) && !r->isFinished()) {
+        return;
+    }
+
+    // Don't need this anymore.
+    disconnect(r, SIGNAL(finished()), this, SLOT(readyRead()));
+
+
+    QByteArray data = r->peek(512);
+    QString mime = mimeSniff(data);
+
+    if (mimeIsText(mime) || mimeIsHtml(mime) || mimeIsXml(mime) || mimeIsImage(mime) || mimeIsAudio(mime) || mimeIsVideo(mime) ||
+        (mime == "application/x-shockwave-flash") || (mime == "application/pdf")) {
+        m_mimes[r] = mime;
+
+        if (r->isFinished()) {
+            // The signal won't get fired again so just call the function.
+            unsupportedFinish(r);
+        } else {
+            connect(r, SIGNAL(finished()), SLOT(unsupportedFinish()));
+        }
+    } else {
+        // TODO: file download implementation. In the meantime, abort the reply,
+        // and send the failed signal
+        r->abort();
+
+        if (m_mainFrame->requestedUrl() == r->url()) {
+            emit loadFinished("fail");
+        }
+    }
+}
+
+
+void WebPage::unsupportedFinish(QNetworkReply* r)
+{
+    if ( sender() && qobject_cast<QNetworkReply*>(sender()))
+        r = qobject_cast<QNetworkReply*>(sender());
+
+    loopFramesFinished(m_mainFrame, r);
+
+    // Reconnect mainFrame signal
+    if (m_mainFrame->requestedUrl() == r->url())
+    {
+        emit loadFinished("success");
+    }
+}
+
+
+void WebPage::readyRead()
+{
+    QNetworkReply* r = qobject_cast<QNetworkReply*>(sender());
+    if (r)
+        doSniff(r);
+}
+
+
+void WebPage::handleUnsupportedContent(QNetworkReply *reply)
+{
+    // Make sure it's not a file we should download instead
+    if (!reply->hasRawHeader("Content-Disposition"))
+    {
+        // If no 'Content-Type' header is set in mainFrame,
+        // ignore loadFinished until the reply is done
+        if (m_mainFrame->requestedUrl() == reply->url())
+        {
+            disconnect(m_webPage, SIGNAL(loadFinished(bool)), this, SLOT(finish(bool)));
+        }
+
+        connect(reply, SIGNAL(readyRead()), SLOT(readyRead()));
+        // Also connect the finished signal so we can make sure to sniff when all data is loaded and it was less then 512 bytes.
+        connect(reply, SIGNAL(finished()), SLOT(readyRead()));
+    } else {
+        // TODO: file download implementation. In the meantime, abort the reply, and send the failed signal.
+
+        reply->abort();
+
+        if (m_mainFrame->requestedUrl() == reply->url()) {
+            emit loadFinished("fail");
+        }
+    }
 }
 
 QString WebPage::content() const
