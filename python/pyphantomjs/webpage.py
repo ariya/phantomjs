@@ -95,7 +95,7 @@ class WebPage(QObject):
         self.m_mainFrame = self.m_webPage.mainFrame()
         self.m_webPage.mainFrame().setHtml(self.blankHtml)
 
-        self.m_mainFrame.javaScriptWindowObjectCleared.connect(self.initialized, Qt.QueuedConnection)
+        self.m_mainFrame.javaScriptWindowObjectCleared.connect(self.initialized)
         self.m_webPage.loadStarted.connect(self.loadStarted, Qt.QueuedConnection)
         self.m_webPage.loadFinished.connect(self.finish, Qt.QueuedConnection)
 
