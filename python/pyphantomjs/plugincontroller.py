@@ -26,22 +26,26 @@ from glob import glob
 hooks = defaultdict(dict)
 
 
-def _checkHookExists(create=False):
-    '''Decorator that will raise LookupError or create hook if hook doesn't exist'''
-    def outterWrap(func):
-        def innerWrap(*args, **kwargs):
-            if args[0] not in hooks:
-                if create:
-                    hooks[args[0]]['count'] = 0
-                    hooks[args[0]]['plugins'] = []
-                else:
-                    raise LookupError("Hook '%s' was not found" % args[0])
-            return func(*args, **kwargs)
-        return innerWrap
-    return outterWrap
+def createHook(func):
+    '''Decorator that will create a hook if the hook doesn't exist'''
+    def innerWrap(*args, **kwargs):
+        if args[0] not in hooks:
+            hooks[args[0]]['count'] = 0
+            hooks[args[0]]['plugins'] = []
+        return func(*args, **kwargs)
+    return innerWrap
 
 
-@_checkHookExists(True)
+def checkHookExists(func):
+    '''Decorator that will raise LookupError if the hook doesn't exist'''
+    def innerWrap(*args, **kwargs):
+        if args[0] not in hooks:
+            raise LookupError("Hook '%s' was not found" % args[0])
+        return func(*args, **kwargs)
+    return innerWrap
+
+
+@createHook
 def add_action(hook, priority=10):
     '''Decorator to be used for registering a function to
        a specific hook. Functions with lower priority are
@@ -53,13 +57,13 @@ def add_action(hook, priority=10):
     return register
 
 
-@_checkHookExists()
+@checkHookExists
 def did_action(hook):
     '''Find out how many times a hook was fired'''
     return hooks[hook]['count']
 
 
-@_checkHookExists(True)
+@createHook
 def do_action(hook, *args, **kwargs):
     '''Trigger a hook. It will run any functions that have registered
        themselves to the hook. Any additional arguments or keyword
@@ -126,7 +130,7 @@ def remove_action(hook, func=None, priority=10):
     return False
 
 
-@_checkHookExists()
+@checkHookExists
 def remove_all_actions(hook, priority=None):
     '''Remove all functions that have been registered to hook.
        If priority is used, remove all actions from that priority
@@ -174,20 +178,18 @@ def load_plugins():
     if plugins_path is None:
         # path is different when frozen
         if hasattr(sys, 'frozen'):
-            path = os.path.dirname(os.path.abspath(sys.executable))
+            plugins_path = os.path.dirname(os.path.abspath(sys.executable))
         else:
-            path = os.path.dirname(os.path.abspath(__file__))
+            plugins_path = os.path.dirname(os.path.abspath(__file__))
 
-        generateModuleName = lambda p: '.'.join(('plugins', p[0], p[1]))
-        plugin_list = glob(os.path.join(path, 'plugins/*/*.py'))
+        plugins_path = os.path.join(plugins_path, 'plugins')
     else:
         # make sure it's an absolute path
         plugins_path = os.path.abspath(plugins_path)
-        # append directory for module loading
-        sys.path[1:1] = plugins_path,
 
-        generateModuleName = lambda p: '.'.join((p[0], p[1]))
-        plugin_list = glob(os.path.join(plugins_path, '*/*.py'))
+    sys.path.insert(1, plugins_path)
+
+    plugin_list = glob(os.path.join(plugins_path, '*/*.py'))
 
     # now convert list to [('plugin_folder', 'file'), ...]
     plugin_list = [(os.path.split(os.path.dirname(f))[1], os.path.splitext(os.path.split(f)[1])[0]) for f in plugin_list]
@@ -195,5 +197,5 @@ def load_plugins():
     # initialize plugins
     for plugin in plugin_list:
         if plugin[0] == plugin[1]:
-            moduleName = generateModuleName(plugin)
+            moduleName = '.'.join((plugin[0], plugin[1]))
             __import__(moduleName, globals(), locals(), [], -1)
