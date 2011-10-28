@@ -26,22 +26,26 @@ from glob import glob
 hooks = defaultdict(dict)
 
 
-def _checkHookExists(create=False):
-    '''Decorator that will raise LookupError or create hook if hook doesn't exist'''
-    def outterWrap(func):
-        def innerWrap(*args, **kwargs):
-            if args[0] not in hooks:
-                if create:
-                    hooks[args[0]]['count'] = 0
-                    hooks[args[0]]['plugins'] = []
-                else:
-                    raise LookupError("Hook '%s' was not found" % args[0])
-            return func(*args, **kwargs)
-        return innerWrap
-    return outterWrap
+def createHook(func):
+    '''Decorator that will create a hook if the hook doesn't exist'''
+    def innerWrap(*args, **kwargs):
+        if args[0] not in hooks:
+            hooks[args[0]]['count'] = 0
+            hooks[args[0]]['plugins'] = []
+        return func(*args, **kwargs)
+    return innerWrap
 
 
-@_checkHookExists(True)
+def checkHookExists(func):
+    '''Decorator that will raise LookupError if the hook doesn't exist'''
+    def innerWrap(*args, **kwargs):
+        if args[0] not in hooks:
+            raise LookupError("Hook '%s' was not found" % args[0])
+        return func(*args, **kwargs)
+    return innerWrap
+
+
+@createHook
 def add_action(hook, priority=10):
     '''Decorator to be used for registering a function to
        a specific hook. Functions with lower priority are
@@ -53,13 +57,13 @@ def add_action(hook, priority=10):
     return register
 
 
-@_checkHookExists()
+@checkHookExists
 def did_action(hook):
     '''Find out how many times a hook was fired'''
     return hooks[hook]['count']
 
 
-@_checkHookExists(True)
+@createHook
 def do_action(hook, *args, **kwargs):
     '''Trigger a hook. It will run any functions that have registered
        themselves to the hook. Any additional arguments or keyword
@@ -126,7 +130,7 @@ def remove_action(hook, func=None, priority=10):
     return False
 
 
-@_checkHookExists()
+@checkHookExists
 def remove_all_actions(hook, priority=None):
     '''Remove all functions that have been registered to hook.
        If priority is used, remove all actions from that priority
