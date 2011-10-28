@@ -102,7 +102,9 @@ void NetworkAccessManager::setPassword(const QString &password)
 QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkRequest & req, QIODevice * outgoingData)
 {
     // Pass duty to the superclass - Nothing special to do here (yet?)
-    QNetworkReply *reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
+    QNetworkRequest r = req;
+    r.setAttribute(QNetworkRequest::DoNotBufferUploadDataAttribute, false);
+    QNetworkReply *reply = QNetworkAccessManager::createRequest(op, r, outgoingData);
     if(m_ignoreSslErrors) {
         reply->ignoreSslErrors();
     }
