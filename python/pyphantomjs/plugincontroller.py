@@ -174,20 +174,18 @@ def load_plugins():
     if plugins_path is None:
         # path is different when frozen
         if hasattr(sys, 'frozen'):
-            path = os.path.dirname(os.path.abspath(sys.executable))
+            plugins_path = os.path.dirname(os.path.abspath(sys.executable))
         else:
-            path = os.path.dirname(os.path.abspath(__file__))
+            plugins_path = os.path.dirname(os.path.abspath(__file__))
 
-        generateModuleName = lambda p: '.'.join(('plugins', p[0], p[1]))
-        plugin_list = glob(os.path.join(path, 'plugins/*/*.py'))
+        plugins_path = os.path.join(plugins_path, 'plugins')
     else:
         # make sure it's an absolute path
         plugins_path = os.path.abspath(plugins_path)
-        # append directory for module loading
-        sys.path[1:1] = plugins_path,
 
-        generateModuleName = lambda p: '.'.join((p[0], p[1]))
-        plugin_list = glob(os.path.join(plugins_path, '*/*.py'))
+    sys.path.insert(1, plugins_path)
+
+    plugin_list = glob(os.path.join(plugins_path, '*/*.py'))
 
     # now convert list to [('plugin_folder', 'file'), ...]
     plugin_list = [(os.path.split(os.path.dirname(f))[1], os.path.splitext(os.path.split(f)[1])[0]) for f in plugin_list]
@@ -195,5 +193,5 @@ def load_plugins():
     # initialize plugins
     for plugin in plugin_list:
         if plugin[0] == plugin[1]:
-            moduleName = generateModuleName(plugin)
+            moduleName = '.'.join((plugin[0], plugin[1]))
             __import__(moduleName, globals(), locals(), [], -1)
