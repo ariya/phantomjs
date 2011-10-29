@@ -32,11 +32,12 @@
 #ifndef CONSTS_H
 #define CONSTS_H
 
-// Current Version: 1.3.0 (unstable)
+// Current Version: 1.4.0 (unstable)
 #define PHANTOMJS_VERSION_MAJOR     1
-#define PHANTOMJS_VERSION_MINOR     3
+#define PHANTOMJS_VERSION_MINOR     4
 #define PHANTOMJS_VERSION_PATCH     0
-#define PHANTOMJS_VERSION_STRING    "1.3.0"
+#define PHANTOMJS_VERSION_STRING    "1.4.0"
+
 #define COFFEE_SCRIPT_EXTENSION     ".coffee"
 
 #define JS_ELEMENT_CLICK "(function (el) { " \
