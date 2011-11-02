@@ -10,6 +10,8 @@ COMPILE_JOBS=10
 # Step 1: Download Qt source tarball
 # Note: only if it does not exist yet in the current directory
 
+cd $(dirname $0)
+
 echo "Cloning Qt $QT_VERSION from Gitorious. Please wait..."
 if [ ! -d $QT_FOLDER ]
 then
@@ -53,7 +55,7 @@ patch -p1 < ../qapplication_skip_qtmenu.patch
 echo "Building Qt $QT_VERSION. Please wait..."
 echo
 ./configure -opensource -confirm-license -release -no-exceptions -no-stl -no-xmlpatterns -no-phonon -no-qt3support -no-opengl -no-declarative -qt-libpng -qt-libjpeg -no-libmng -no-libtiff -D QT_NO_STYLE_CDE -D QT_NO_STYLE_CLEANLOOKS -D QT_NO_STYLE_MOTIF -D QT_NO_STYLE_PLASTIQUE -prefix $PWD -nomake demos -nomake examples -nomake tools -qpa
-make -j$COMPILE_JOBS
+make -j$COMPILE_JOBS || (echo "error while building Qt!" && exit 1)
 cd ..
 
 #
