@@ -76,7 +76,7 @@ public:
     void setPaperSize(const QVariantMap &size);
     QVariantMap paperSize() const;
 
-    void showInspector();
+    void showInspector(const int remotePort = -1);
 
 public slots:
     void openUrl(const QString &address, const QVariant &op, const QVariantMap &settings);

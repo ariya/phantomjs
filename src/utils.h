@@ -59,9 +59,11 @@ public:
     static void cleanupFromDebug();
 private:
     static QString findScript(const QString &jsFilePath, const QString& libraryPath);
+    static QString jsFromScriptFile(const QString& scriptPath, const Encoding& enc);
     Utils(); //< This class shouldn't be instantiated
 
-    static QTemporaryFile* m_tempFile; //< We want to make sure to clean up after ourselves
+    static QTemporaryFile* m_tempHarness; //< We want to make sure to clean up after ourselves
+    static QTemporaryFile* m_tempWrapper;
 };
 
 #endif // UTILS_H

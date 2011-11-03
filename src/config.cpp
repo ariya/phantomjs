@@ -130,6 +130,10 @@ void Config::processArgs(const QStringList &args)
             setDebug(true);
             continue;
         }
+        if (arg.startsWith("--remote-debugger-port=")) {
+            setRemoteDebugPort(arg.mid(23).trimmed().toInt());
+            continue;
+        }
         if (arg.startsWith("--")) {
             setUnknownOption(QString("Unknown option '%1'").arg(arg));
             return;
@@ -369,6 +373,16 @@ void Config::setDebug(const bool value)
     m_debug = value;
 }
 
+int Config::remoteDebugPort() const
+{
+    return m_remoteDebugPort;
+}
+
+void Config::setRemoteDebugPort(const int port)
+{
+    m_remoteDebugPort = port;
+}
+
 // private:
 void Config::resetToDefaults()
 {
@@ -388,6 +402,7 @@ void Config::resetToDefaults()
     m_unknownOption.clear();
     m_versionFlag = false;
     m_debug = false;
+    m_remoteDebugPort = -1;
 }
 
 void Config::setProxyHost(const QString &value)

@@ -100,6 +100,9 @@ public:
 
     void setDebug(const bool value);
     bool debug() const;
+
+    void setRemoteDebugPort(const int port);
+    int remoteDebugPort() const;
 private:
     void resetToDefaults();
     void setProxyHost(const QString &value);
@@ -123,6 +126,7 @@ private:
     QString m_authUser;
     QString m_authPass;
     bool m_debug;
+    int m_remoteDebugPort;
 };
 
 #endif // CONFIG_H

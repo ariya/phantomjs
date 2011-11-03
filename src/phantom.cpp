@@ -110,10 +110,6 @@ Phantom::Phantom(QObject *parent)
 
 Phantom::~Phantom()
 {
-    if (m_config.debug())
-    {
-        Utils::cleanupFromDebug();
-    }
 }
 
 
@@ -151,7 +147,7 @@ bool Phantom::execute()
             m_returnValue = -1;
             return false;
         }
-        m_page->showInspector();
+        m_page->showInspector(m_config.remoteDebugPort());
     } else {
         if (!Utils::injectJsInFrame(m_config.scriptFile(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
             m_returnValue = -1;
@@ -229,14 +225,31 @@ void Phantom::exit(int code)
     if (m_config.debug())
         Terminal::instance()->cout("Phantom::exit() called but not quitting in debug mode.");
     else {
-        m_terminated = true;
-        m_returnValue = code;
-        qDeleteAll(m_pages);
-        m_pages.clear();
-        m_page = 0;
-        QApplication::instance()->exit(code);
+        doExit(0);
     }
 }
+
+void Phantom::debugExit(int code)
+{
+    doExit(code);
+}
+
+
+void Phantom::doExit(int code)
+{
+    if (m_config.debug())
+    {
+        Utils::cleanupFromDebug();
+    }
+
+    m_terminated = true;
+    m_returnValue = code;
+    qDeleteAll(m_pages);
+    m_pages.clear();
+    m_page = 0;
+    QApplication::instance()->exit(code);
+}
+
 
 void
 Phantom::onInitialized()

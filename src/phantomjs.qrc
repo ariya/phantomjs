@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>debug_harness.html</file>
+        <file>debug_wrapper.js</file>
         <file>phantomjs-icon.png</file>
         <file>coffee-script.js</file>
         <file>usage.txt</file>
