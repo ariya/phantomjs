@@ -44,7 +44,8 @@ static void *callback(mg_event event,
     // TODO: check whether direct call works as well
     bool handled = false;
     QMetaObject::invokeMethod(server, "handleRequest", Qt::BlockingQueuedConnection,
-                              Q_ARG(mg_event, event), Q_ARG(const mg_request_info*, request_info),
+                              Q_ARG(mg_event, event), Q_ARG(mg_connection*, conn),
+                              Q_ARG(const mg_request_info*, request_info),
                               Q_ARG(bool*, &handled));
     qWarning() << "handled:" << handled;
     if (handled) {
@@ -85,12 +86,59 @@ void WebServer::listenOnPort(const QString& port)
     qWarning() << "listening on port" << port << this;
 }
 
-void WebServer::handleRequest(mg_event event, const mg_request_info *requestInfo, bool* handled)
+void WebServer::handleRequest(mg_event event, mg_connection *conn, const mg_request_info *request,
+                              bool *handled)
 {
-    qWarning() << "GOT CALLBACK" << event << requestInfo << (QThread::currentThread() == thread());
+    Q_ASSERT(QThread::currentThread() == thread());
+    qWarning() << "GOT CALLBACK" << event << request;
     if (event == MG_NEW_REQUEST) {
-        emit newRequest();
+        WebServerRequest requestObj(request);
+        WebServerResponse responseObj(conn);
+        emit newRequest(&requestObj, &responseObj);
         *handled = true;
         return;
     }
+    *handled = false;
 }
+
+//BEGIN WebServerRequest
+WebServerRequest::WebServerRequest(const mg_request_info *request)
+    : m_request(request)
+{
+
+}
+
+QString WebServerRequest::method() const
+{
+    ///TODO: encoding?!
+    return QString::fromLocal8Bit(m_request->request_method);
+}
+
+QString WebServerRequest::url() const
+{
+    ///TODO: encoding?!
+    return QString::fromLocal8Bit(m_request->uri);
+}
+
+//END WebServerRequest
+
+//BEGIN WebServerResponse
+
+WebServerResponse::WebServerResponse(mg_connection *conn)
+    : m_conn(conn)
+{
+
+}
+
+void WebServerResponse::writeHeaders(const QString &headers)
+{
+    mg_printf(m_conn, "%s", qPrintable(headers));
+}
+
+void WebServerResponse::writeBody(const QString &body)
+{
+    mg_printf(m_conn, "%s", qPrintable(body));
+}
+
+
+//END WebServerResponse
