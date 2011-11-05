@@ -39,6 +39,9 @@
 
 class Config;
 
+class WebServerRequest;
+class WebServerResponse;
+
 class WebServer : public QObject
 {
     Q_OBJECT
@@ -50,14 +53,54 @@ public:
 public slots:
     ///WARNING: must not be the same name as in the javascript api...
     void listenOnPort(const QString &port);
-    void handleRequest(mg_event event, const mg_request_info *request_info, bool* handled);
+    void handleRequest(mg_event event, mg_connection* conn, const mg_request_info* request,
+                       bool* handled);
 
 signals:
-    void newRequest();
+    void newRequest(QObject *request, QObject *response);
 
 private:
     Config *m_config;
     mg_context *m_ctx;
+};
+
+/**
+ * TODO: copy more from http://nodejs.org/docs/latest/api/http.html#http.ServerRequest
+ */
+class WebServerRequest : public QObject
+{
+    Q_OBJECT
+
+public:
+    WebServerRequest(const mg_request_info *request);
+
+public slots:
+    QString method() const;
+    QString url() const;
+
+    ///TODO: extend API
+private:
+    const mg_request_info *m_request;
+};
+
+/**
+ * TODO: copy more from http://nodejs.org/docs/latest/api/http.html#http.ServerResponse
+ */
+class WebServerResponse : public QObject
+{
+    Q_OBJECT
+
+public:
+    WebServerResponse(mg_connection *conn);
+
+public slots:
+    ///TODO: improve API
+    void writeHeaders(const QString& headers);
+    ///TODO: implictly write default headers if not called yet
+    void writeBody(const QString& body);
+
+private:
+    mg_connection *m_conn;
 };
 
 #endif // WEBSERVER_H
