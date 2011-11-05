@@ -40,6 +40,7 @@ OTHER_FILES += usage.txt \
     modules/webpage.js
 
 include(gif/gif.pri)
+include(mongoose/mongoose.pri)
 
 win32: RC_FILE = phantomjs_win.rc
 os2:   RC_FILE = phantomjs_os2.rc
