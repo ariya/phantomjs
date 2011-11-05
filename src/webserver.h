@@ -1,13 +1,8 @@
-/*jslint sloppy: true, nomen: true */
-/*global window:true,phantom:true */
-
 /*
   This file is part of the PhantomJS project from Ofi Labs.
 
-  Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
-  Copyright (C) 2011 Ivan De Marino <ivan.de.marino@gmail.com>
-  Copyright (C) 2011 James Roe <roejames12@hotmail.com>
-  Copyright (C) 2011 execjosh, http://execjosh.blogspot.com
+  Copyright (C) 2011 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
+  Author: Milian Wolff <milian.wolff@kdab.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -33,26 +28,36 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-function require(name) {
+#ifndef WEBSERVER_H
+#define WEBSERVER_H
 
-    var code, func, exports;
+#include <QObject>
 
-    if (name === 'webpage' || name === 'fs' || name === 'webserver') {
-        code = phantom.loadModuleSource(name);
-        func = new Function("exports", "window", code);
-        exports = {};
-        if (name === 'fs') {
-            exports = phantom.createFilesystem();
-        }
-        func.call({}, exports, {});
-        return exports;
-    }
+///TODO: is this ok, or should it be put into .cpp
+///      can be done by introducing a WebServerPrivate *d;
+#include "mongoose.h"
 
-    if (typeof exports === 'undefined') {
-        throw 'Unknown module ' + name + ' for require()';
-    }
-}
+class Config;
 
-// Legacy way to use WebPage
-window.WebPage = require('webpage').create;
-window.WebServer = require('webserver').create;
+class WebServer : public QObject
+{
+    Q_OBJECT
+
+public:
+    WebServer(QObject *parent, const Config *config);
+    virtual ~WebServer();
+
+public slots:
+    ///WARNING: must not be the same name as in the javascript api...
+    void listenOnPort(const QString &port);
+    void handleRequest(mg_event event, const mg_request_info *request_info, bool* handled);
+
+signals:
+    void newRequest();
+
+private:
+    Config *m_config;
+    mg_context *m_ctx;
+};
+
+#endif // WEBSERVER_H

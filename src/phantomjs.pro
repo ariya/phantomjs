@@ -21,7 +21,8 @@ HEADERS += csconverter.h \
     terminal.h \
     encoding.h \
     config.h \
-    mimesniffer.cpp
+    mimesniffer.cpp \
+    webserver.h
 SOURCES += phantom.cpp \
     webpage.cpp \
     main.cpp \
@@ -33,13 +34,15 @@ SOURCES += phantom.cpp \
     terminal.cpp \
     encoding.cpp \
     config.cpp \
-    mimesniffer.cpp
+    mimesniffer.cpp \
+    webserver.cpp
 
 OTHER_FILES += usage.txt \
     bootstrap.js \
     configurator.js \
     modules/fs.js \
-    modules/webpage.js
+    modules/webpage.js \
+    modules/webserver.js
 
 include(gif/gif.pri)
 include(mongoose/mongoose.pri)
