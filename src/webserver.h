@@ -83,7 +83,12 @@ public slots:
     int remotePort() const;
     QString remoteUser() const;
 
-    ///TODO: headers
+    //TODO: better javascript api that allows easy "for(i in headers)" iteration?
+    //see e.g.: http://www.qtcentre.org/threads/31298-QtScript-bindings-to-advanced-containers-%28QMap-QList-etc%29
+    int headers() const;
+    QString headerName(int header) const;
+    QString headerValue(int header) const;
+
 private:
     const mg_request_info *m_request;
 };
