@@ -24,14 +24,16 @@ if (phantom.args.length !== 1) {
             console.log("request.headerValue(" + i + ") = " + request.headerValue(i));
         }
 
-        var headers = "HTTP/1.1 200 OK\r\n" +
-                      "Cache: no-cache\r\n" +
-                      "Content-Type: text/html\r\n" +
-                      "\r\n";
-        response.writeHeaders(headers);
-        var contents = "<html><head><title>YES!</title></head>" +
-                       "<body><p>pretty cool :)</body></html>";
-        response.writeBody(contents);
+        // we set the headers here
+        response.statusCode = 200;
+        response.headers = {"Cache": "no-cache", "Content-Type": "text/html"};
+        // this is also possible:
+        response.setHeader("foo", "bar");
+        // now we write the body
+        // note: the headers above will now be sent implictly
+        response.writeBody("<html><head><title>YES!</title></head>");
+        // note: writeBody can be called multiple times
+        response.writeBody("<body><p>pretty cool :)</body></html>");
     });
     var url = "http://localhost:" + port + "/foo/bar.php?asdf=true";
     console.log(url);

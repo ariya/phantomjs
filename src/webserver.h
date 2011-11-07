@@ -32,6 +32,7 @@
 #define WEBSERVER_H
 
 #include <QObject>
+#include <QVariantMap>
 
 ///TODO: is this ok, or should it be put into .cpp
 ///      can be done by introducing a WebServerPrivate *d;
@@ -110,17 +111,37 @@ class WebServerResponse : public QObject
 {
     Q_OBJECT
 
+    Q_PROPERTY(int statusCode READ statusCode WRITE setStatusCode);
+    Q_PROPERTY(QVariantMap headers READ headers WRITE setHeaders);
 public:
     WebServerResponse(mg_connection *conn);
 
 public slots:
     ///TODO: improve API
-    void writeHeaders(const QString& headers);
-    ///TODO: implictly write default headers if not called yet
-    void writeBody(const QString& body);
+    void writeHeaders(int statusCode, const QVariantMap &headers);
+    /// sends @p data to client and makes sure the headers are send beforehand
+    void writeBody(const QString &data);
+
+    /// get the currently set status code, 200 is the default
+    int statusCode() const;
+    /// set the status code to @p code
+    void setStatusCode(int code);
+
+    /// get the value of header @p name
+    QString header(const QString &name) const;
+    /// set the value of header @p name to @p value
+    void setHeader(const QString &name, const QString &value);
+
+    /// get all headers
+    QVariantMap headers() const;
+    /// set all headers
+    void setHeaders(const QVariantMap &headers);
 
 private:
     mg_connection *m_conn;
+    int m_statusCode;
+    QVariantMap m_headers;
+    bool m_headersSent;
 };
 
 #endif // WEBSERVER_H
