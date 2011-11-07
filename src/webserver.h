@@ -67,6 +67,16 @@ private:
 class WebServerRequest : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString method READ method)
+    Q_PROPERTY(QString httpVersion READ httpVersion)
+    Q_PROPERTY(int statusCode READ statusCode)
+    Q_PROPERTY(bool isSSL READ isSSL)
+    Q_PROPERTY(QString url READ url)
+    Q_PROPERTY(QString queryString READ queryString)
+    Q_PROPERTY(QString remoteIP READ remoteIP)
+    Q_PROPERTY(int remotePort READ remotePort)
+    Q_PROPERTY(QString remoteUser READ remoteUser)
+    Q_PROPERTY(int headers READ headers)
 
 public:
     WebServerRequest(const mg_request_info *request);
