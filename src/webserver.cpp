@@ -65,23 +65,35 @@ WebServer::WebServer(QObject *parent, const Config *config)
 
 WebServer::~WebServer()
 {
-    if (m_ctx) {
-        mg_stop(m_ctx);
-    }
+    close();
 }
 
 void WebServer::listenOnPort(const QString& port)
 {
-    if (m_ctx) {
-        ///TODO: listen on multiple ports?
-        mg_stop(m_ctx);
-        m_ctx = 0;
-    }
+    ///TODO: listen on multiple ports?
+    close();
+    m_port = port;
+
     const char *options[] = {"listening_ports", qstrdup(qPrintable(port)), NULL};
     ///TODO: more options from m_config?
     m_ctx = mg_start(&callback, this, options);
     if (!m_ctx) {
         qWarning() << "could not create web server connection on port" << port;
+    }
+}
+
+QString WebServer::port() const
+{
+    qWarning() << "port = " << m_port;
+    return m_port;
+}
+
+void WebServer::close()
+{
+    if (m_ctx) {
+        mg_stop(m_ctx);
+        m_ctx = 0;
+        m_port.clear();
     }
 }
 
