@@ -18,6 +18,11 @@ if (phantom.args.length !== 1) {
         console.log("request.remoteIP() = " + request.remoteIP());
         console.log("request.remotePort() = " + request.remotePort());
         console.log("request.remoteUser() = " + request.remoteUser());
+        console.log("request.headers() = " + request.headers());
+        for(var i = 0; i < request.headers(); ++i) {
+            console.log("request.headerName(" + i + ") = " + request.headerName(i));
+            console.log("request.headerValue(" + i + ") = " + request.headerValue(i));
+        }
 
         var headers = "HTTP/1.1 200 OK\r\n" +
                       "Cache: no-cache\r\n" +

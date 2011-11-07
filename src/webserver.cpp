@@ -158,6 +158,25 @@ QString WebServerRequest::remoteUser() const
     return QString::fromLocal8Bit(m_request->remote_user);
 }
 
+int WebServerRequest::headers() const
+{
+    return m_request->num_headers;
+}
+
+QString WebServerRequest::headerName(int header) const
+{
+    Q_ASSERT(header >= 0 && header < m_request->num_headers);
+    ///TODO: encoding?!
+    return QString::fromLocal8Bit(m_request->http_headers[header].name);
+}
+
+QString WebServerRequest::headerValue(int header) const
+{
+    Q_ASSERT(header >= 0 && header < m_request->num_headers);
+    ///TODO: encoding?!
+    return QString::fromLocal8Bit(m_request->http_headers[header].value);
+}
+
 //END WebServerRequest
 
 //BEGIN WebServerResponse
