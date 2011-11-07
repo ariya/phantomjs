@@ -51,24 +51,43 @@ class WebServerResponse;
 class WebServer : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString port READ port);
 
 public:
     WebServer(QObject *parent, const Config *config);
     virtual ~WebServer();
 
 public slots:
-    ///WARNING: must not be the same name as in the javascript api...
+    /**
+     * Start listening for incoming connections on port @p port.
+     *
+     * For each new request @c handleRequest() will be called which
+     * in turn emits @c newRequest() where appropriate.
+     *
+     * WARNING: must not be the same name as in the javascript api...
+     */
     void listenOnPort(const QString &port);
-    void handleRequest(mg_event event, mg_connection* conn, const mg_request_info* request,
-                       bool* handled);
+    /**
+     * @return the port this server is listening on
+     *         or an empty string if the server is closed.
+     */
+    QString port() const;
+
+    /// Stop listening for incoming connections.
+    void close();
 
 signals:
     /// @p request is a WebServerRequest, @p response is a WebServerResponse
     void newRequest(QObject *request, QObject *response);
 
+private slots:
+    void handleRequest(mg_event event, mg_connection* conn, const mg_request_info* request,
+                       bool* handled);
+
 private:
     Config *m_config;
     mg_context *m_ctx;
+    QString m_port;
 };
 
 /**
