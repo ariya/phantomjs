@@ -64,9 +64,11 @@ public slots:
      * For each new request @c handleRequest() will be called which
      * in turn emits @c newRequest() where appropriate.
      *
+     * @return true if we can listen on @p port, false otherwise.
+     *
      * WARNING: must not be the same name as in the javascript api...
      */
-    void listenOnPort(const QString &port);
+    bool listenOnPort(const QString &port);
     /**
      * @return the port this server is listening on
      *         or an empty string if the server is closed.

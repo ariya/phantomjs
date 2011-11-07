@@ -73,23 +73,24 @@ WebServer::~WebServer()
     close();
 }
 
-void WebServer::listenOnPort(const QString& port)
+bool WebServer::listenOnPort(const QString& port)
 {
     ///TODO: listen on multiple ports?
     close();
-    m_port = port;
 
     const char *options[] = {"listening_ports", qstrdup(qPrintable(port)), NULL};
     ///TODO: more options from m_config?
     m_ctx = mg_start(&callback, this, options);
     if (!m_ctx) {
-        qWarning() << "could not create web server connection on port" << port;
+        return false;
     }
+
+    m_port = port;
+    return true;
 }
 
 QString WebServer::port() const
 {
-    qWarning() << "port = " << m_port;
     return m_port;
 }
 

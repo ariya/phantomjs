@@ -7,7 +7,7 @@ if (phantom.args.length !== 1) {
     phantom.exit();
 } else {
     port = phantom.args[0];
-    server.listen(port, function (request, response) {
+    var listening = server.listen(port, function (request, response) {
         console.log("GOT HTTP REQUEST");
         console.log("request.url = " + request.url);
         console.log("request.queryString = " + request.queryString);
@@ -35,6 +35,10 @@ if (phantom.args.length !== 1) {
         // note: writeBody can be called multiple times
         response.writeBody("<body><p>pretty cool :)</body></html>");
     });
+    if (!listening) {
+        console.log("could not create web server listening on port " + port);
+        phantom.exit();
+    }
     var url = "http://localhost:" + port + "/foo/bar.php?asdf=true";
     console.log(url);
     page.open(url, function (status) {
