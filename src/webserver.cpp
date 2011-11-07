@@ -183,19 +183,161 @@ QString WebServerRequest::headerValue(int header) const
 
 WebServerResponse::WebServerResponse(mg_connection *conn)
     : m_conn(conn)
+    , m_statusCode(200)
+    , m_headersSent(false)
 {
 
 }
 
-void WebServerResponse::writeHeaders(const QString &headers)
+const char* responseCodeString(int code)
 {
-    mg_printf(m_conn, "%s", qPrintable(headers));
+    // see: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+    switch (code) {
+        case 100:
+            return "Continue";
+        case 101:
+            return "Switching Protocols";
+        case 200:
+            return "OK";
+        case 201:
+            return "Created";
+        case 202:
+            return "Accepted";
+        case 203:
+            return "Non-Authoritative Information";
+        case 204:
+            return "No Content";
+        case 205:
+            return "Reset Content";
+        case 206:
+            return "Partial Content";
+        case 300:
+            return "Multiple Choices";
+        case 301:
+            return "Moved Permanently";
+        case 302:
+            return "Found";
+        case 303:
+            return "See Other";
+        case 304:
+            return "Not Modified";
+        case 305:
+            return "Use Proxy";
+        case 307:
+            return "Temporary Redirect";
+        case 400:
+            return "Bad Request";
+        case 401:
+            return "Unauthorized";
+        case 402:
+            return "Payment Required";
+        case 403:
+            return "Forbidden";
+        case 404:
+            return "Not Found";
+        case 405:
+            return "Method Not Allowed";
+        case 406:
+            return "Not Acceptable";
+        case 407:
+            return "Proxy Authentication Required";
+        case 408:
+            return "Request Timeout";
+        case 409:
+            return "Conflict";
+        case 410:
+            return "Gone";
+        case 411:
+            return "Length Required";
+        case 412:
+            return "Precondition Failed";
+        case 413:
+            return "Request Entity Too Large";
+        case 414:
+            return "Request-URI Too Long";
+        case 415:
+            return "Unsupported Media Type";
+        case 416:
+            return "Requested Range not Satisfiable";
+        case 417:
+            return "Expectation Failed";
+        case 500:
+            return "Internal Server Error";
+        case 501:
+            return "Not Implemented";
+        case 502:
+            return "Bad Gateway";
+        case 503:
+            return "Service Unavailable";
+        case 504:
+            return "Gateway Timeout";
+        case 505:
+            return "HTTP Version Not Supported";
+        case 306:
+            // unused: fallthrough
+        default:
+            return "";
+    }
+}
+
+void WebServerResponse::writeHeaders(int statusCode, const QVariantMap &headers)
+{
+    ///TODO: what is the best-practice error handling in javascript? exceptions?
+    Q_ASSERT(!m_headersSent);
+    m_headersSent = true;
+    mg_printf(m_conn, "HTTP/1.1 %d %s\r\n", m_statusCode, responseCodeString(m_statusCode));
+    QVariantMap::const_iterator it = headers.constBegin();
+    while(it != headers.constEnd()) {
+        mg_printf(m_conn, "%s: %s\r\n", qPrintable(it.key()), qPrintable(it.value().toString()));
+        ++it;
+    }
+    mg_write(m_conn, "\r\n", 2);
 }
 
 void WebServerResponse::writeBody(const QString &body)
 {
-    mg_printf(m_conn, "%s", qPrintable(body));
+    if (!m_headersSent) {
+        writeHeaders(m_statusCode, m_headers);
+    }
+    ///TODO: encoding?!
+    const QByteArray data = body.toLocal8Bit();
+    mg_write(m_conn, data.constData(), data.size());
 }
 
+int WebServerResponse::statusCode() const
+{
+    return m_statusCode;
+}
+
+void WebServerResponse::setStatusCode(int code)
+{
+    ///TODO: what is the best-practice error handling in javascript? exceptions?
+    Q_ASSERT(!m_headersSent);
+    m_statusCode = code;
+}
+
+QString WebServerResponse::header(const QString &name) const
+{
+    return m_headers.value(name).toString();
+}
+
+void WebServerResponse::setHeader(const QString &name, const QString &value)
+{
+    ///TODO: what is the best-practice error handling in javascript? exceptions?
+    Q_ASSERT(!m_headersSent);
+    m_headers.insert(name, value);
+}
+
+QVariantMap WebServerResponse::headers() const
+{
+    return m_headers;
+}
+
+void WebServerResponse::setHeaders(const QVariantMap &headers)
+{
+    ///TODO: what is the best-practice error handling in javascript? exceptions?
+    Q_ASSERT(!m_headersSent);
+    m_headers = headers;
+}
 
 //END WebServerResponse
