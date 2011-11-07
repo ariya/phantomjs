@@ -65,6 +65,7 @@ WebServer::WebServer(QObject *parent, const Config *config)
     , m_config(m_config)
     , m_ctx(0)
 {
+    setObjectName("WebServer");
 }
 
 WebServer::~WebServer()
