@@ -34,6 +34,7 @@
 
 #include "mongoose.h"
 #include <QThread>
+#include <QHostAddress>
 
 static void *callback(mg_event event,
                       mg_connection *conn,
@@ -105,7 +106,6 @@ void WebServer::handleRequest(mg_event event, mg_connection *conn, const mg_requ
 WebServerRequest::WebServerRequest(const mg_request_info *request)
     : m_request(request)
 {
-
 }
 
 QString WebServerRequest::method() const
@@ -114,10 +114,48 @@ QString WebServerRequest::method() const
     return QString::fromLocal8Bit(m_request->request_method);
 }
 
+QString WebServerRequest::httpVersion() const
+{
+    ///TODO: encoding?!
+    return QString::fromLocal8Bit(m_request->http_version);
+}
+
+int WebServerRequest::statusCode() const
+{
+    return m_request->status_code;
+}
+
+bool WebServerRequest::isSSL() const
+{
+    return m_request->is_ssl;
+}
+
 QString WebServerRequest::url() const
 {
     ///TODO: encoding?!
     return QString::fromLocal8Bit(m_request->uri);
+}
+
+QString WebServerRequest::queryString() const
+{
+    ///TODO: encoding?!
+    return QString::fromLocal8Bit(m_request->query_string);
+}
+
+QString WebServerRequest::remoteIP() const
+{
+    return QHostAddress(m_request->remote_ip).toString();
+}
+
+int WebServerRequest::remotePort() const
+{
+    return m_request->remote_port;
+}
+
+QString WebServerRequest::remoteUser() const
+{
+    ///TODO: encoding?!
+    return QString::fromLocal8Bit(m_request->remote_user);
 }
 
 //END WebServerRequest

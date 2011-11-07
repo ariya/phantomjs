@@ -64,9 +64,6 @@ private:
     mg_context *m_ctx;
 };
 
-/**
- * TODO: copy more from http://nodejs.org/docs/latest/api/http.html#http.ServerRequest
- */
 class WebServerRequest : public QObject
 {
     Q_OBJECT
@@ -75,10 +72,18 @@ public:
     WebServerRequest(const mg_request_info *request);
 
 public slots:
+    /// @return request method, i.e. Get/Post
     QString method() const;
+    QString httpVersion() const;
+    int statusCode() const;
+    bool isSSL() const;
     QString url() const;
+    QString queryString() const;
+    QString remoteIP() const;
+    int remotePort() const;
+    QString remoteUser() const;
 
-    ///TODO: extend API
+    ///TODO: headers
 private:
     const mg_request_info *m_request;
 };
