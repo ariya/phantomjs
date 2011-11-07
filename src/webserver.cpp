@@ -48,7 +48,6 @@ static void *callback(mg_event event,
                               Q_ARG(mg_event, event), Q_ARG(mg_connection*, conn),
                               Q_ARG(const mg_request_info*, request_info),
                               Q_ARG(bool*, &handled));
-    qWarning() << "handled:" << handled;
     if (handled) {
         // anything non-null... pretty ugly, why not simply a bool??
         return server;
@@ -84,14 +83,12 @@ void WebServer::listenOnPort(const QString& port)
     if (!m_ctx) {
         qWarning() << "could not create web server connection on port" << port;
     }
-    qWarning() << "listening on port" << port << this;
 }
 
 void WebServer::handleRequest(mg_event event, mg_connection *conn, const mg_request_info *request,
                               bool *handled)
 {
     Q_ASSERT(QThread::currentThread() == thread());
-    qWarning() << "GOT CALLBACK" << event << request;
     if (event == MG_NEW_REQUEST) {
         WebServerRequest requestObj(request);
         WebServerResponse responseObj(conn);
