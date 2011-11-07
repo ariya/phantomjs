@@ -9,17 +9,17 @@ if (phantom.args.length !== 1) {
     port = phantom.args[0];
     server.listen(port, function (request, response) {
         console.log("GOT HTTP REQUEST");
-        console.log("request.url() = " + request.url());
-        console.log("request.queryString() = " + request.queryString());
-        console.log("request.method() = " + request.method());
-        console.log("request.httpVersion() = " + request.httpVersion());
-        console.log("request.statusCode() = " + request.statusCode());
-        console.log("request.isSSL() = " + request.isSSL());
-        console.log("request.remoteIP() = " + request.remoteIP());
-        console.log("request.remotePort() = " + request.remotePort());
-        console.log("request.remoteUser() = " + request.remoteUser());
-        console.log("request.headers() = " + request.headers());
-        for(var i = 0; i < request.headers(); ++i) {
+        console.log("request.url = " + request.url);
+        console.log("request.queryString = " + request.queryString);
+        console.log("request.method = " + request.method);
+        console.log("request.httpVersion = " + request.httpVersion);
+        console.log("request.statusCode = " + request.statusCode);
+        console.log("request.isSSL = " + request.isSSL);
+        console.log("request.remoteIP = " + request.remoteIP);
+        console.log("request.remotePort = " + request.remotePort);
+        console.log("request.remoteUser = " + request.remoteUser);
+        console.log("request.headers = " + request.headers);
+        for(var i = 0; i < request.headers; ++i) {
             console.log("request.headerName(" + i + ") = " + request.headerName(i));
             console.log("request.headerValue(" + i + ") = " + request.headerValue(i));
         }
