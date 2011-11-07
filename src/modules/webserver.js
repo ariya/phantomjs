@@ -116,8 +116,7 @@ exports.create = function (opts) {
         if (arguments.length === 2 && typeof handler === 'function') {
             this.onNewRequest = handler;
             //TODO: settings?
-            this.listenOnPort(port);
-            return;
+            return this.listenOnPort(port);
         }
         throw "Wrong use of WebServer#listen";
     };

@@ -39,4 +39,15 @@ describe("WebServer object", function() {
     expectHasFunction(server, 'listenOnPort');
     expectHasFunction(server, 'newRequest');
     expectHasFunction(server, 'close');
+
+    it("should fail to listen to blocked ports", function() {
+        //NOTE: is this really blocked everywhere?
+        expect(server.listen(1, function(){})).toEqual(false);
+        expect(server.port).toEqual("");
+    });
+    it("should be able to listen to some port", function() {
+        //NOTE: this can fail if the port is already being listend on...
+        expect(server.listen(12345, function() {})).toEqual(true);
+        expect(server.port).toEqual("12345");
+    });
 });
