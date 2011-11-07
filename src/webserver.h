@@ -43,6 +43,11 @@ class Config;
 class WebServerRequest;
 class WebServerResponse;
 
+/**
+ * Scriptable HTTP web server.
+ *
+ * see also: modules/webserver.js
+ */
 class WebServer : public QObject
 {
     Q_OBJECT
@@ -58,6 +63,7 @@ public slots:
                        bool* handled);
 
 signals:
+    /// @p request is a WebServerRequest, @p response is a WebServerResponse
     void newRequest(QObject *request, QObject *response);
 
 private:
@@ -65,6 +71,9 @@ private:
     mg_context *m_ctx;
 };
 
+/**
+ * Incoming HTTP client request.
+ */
 class WebServerRequest : public QObject
 {
     Q_OBJECT
@@ -105,7 +114,7 @@ private:
 };
 
 /**
- * TODO: copy more from http://nodejs.org/docs/latest/api/http.html#http.ServerResponse
+ * Outgoing HTTP response to client.
  */
 class WebServerResponse : public QObject
 {
@@ -117,7 +126,7 @@ public:
     WebServerResponse(mg_connection *conn);
 
 public slots:
-    ///TODO: improve API
+    /// send @p headers to client with status code @p statusCode
     void writeHeaders(int statusCode, const QVariantMap &headers);
     /// sends @p data to client and makes sure the headers are send beforehand
     void writeBody(const QString &data);
