@@ -44,7 +44,11 @@ static void *callback(mg_event event,
     // note: we use a blocking queued connection to always handle the request in the main thread
     // TODO: check whether direct call works as well
     bool handled = false;
-    QMetaObject::invokeMethod(server, "handleRequest", Qt::BlockingQueuedConnection,
+    Qt::ConnectionType connectionType = Qt::DirectConnection;
+    if (QThread::currentThread() != server->thread()) {
+        connectionType = Qt::BlockingQueuedConnection;
+    }
+    QMetaObject::invokeMethod(server, "handleRequest", connectionType,
                               Q_ARG(mg_event, event), Q_ARG(mg_connection*, conn),
                               Q_ARG(const mg_request_info*, request_info),
                               Q_ARG(bool*, &handled));
