@@ -10,11 +10,11 @@
 
   This program is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
 import os
@@ -77,8 +77,7 @@ class Phantom(QObject):
         self.m_page.mainFrame().addToJavaScriptWindowObject('phantom', self)
 
         with QPyFile(':/bootstrap.js') as f:
-            bootstrap = f.readAll()
-        self.m_page.mainFrame().evaluateJavaScript(bootstrap)
+            self.m_page.mainFrame().evaluateJavaScript(f.readAll())
 
         do_action('PhantomInitPost')
 
@@ -143,9 +142,7 @@ class Phantom(QObject):
         moduleSourceFilePath = ':/modules/%s.js' % name
 
         with QPyFile(moduleSourceFilePath) as f:
-            moduleSource = f.readAll()
-
-        return moduleSource
+            return f.readAll()
 
     @pyqtProperty(str)
     def libraryPath(self):

@@ -80,7 +80,14 @@ Phantom::Phantom(QObject *parent)
     if (m_config.proxyHost().isEmpty()) {
         QNetworkProxyFactory::setUseSystemConfiguration(true);
     } else {
-        QNetworkProxy proxy(m_config.proxyType(), m_config.proxyHost(), m_config.proxyPort());
+        QString proxyType = m_config.proxyType();
+        QNetworkProxy::ProxyType networkProxyType = QNetworkProxy::HttpProxy;
+
+        if (proxyType == "socks5") {
+            networkProxyType = QNetworkProxy::Socks5Proxy;
+        }
+
+        QNetworkProxy proxy(networkProxyType, m_config.proxyHost(), m_config.proxyPort());
         QNetworkProxy::setApplicationProxy(proxy);
     }
 
@@ -103,12 +110,11 @@ Phantom::Phantom(QObject *parent)
 
     setLibraryPath(QFileInfo(m_config.scriptFile()).dir().absolutePath());
 
-    // Add 'phantom' and 'fs' object to the global scope
+    // Add 'phantom' object to the global scope
     m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
 
-    QFile f(":/bootstrap.js");
-    f.open(QFile::ReadOnly); //< It's OK to assume this succeed. If it doesn't, we have a bigger problem.
-    m_page->mainFrame()->evaluateJavaScript(QString::fromUtf8(f.readAll()));
+    // Bootstrap the PhantomJS scope
+    m_page->mainFrame()->evaluateJavaScript(Utils::readResourceFileUtf8(":/bootstrap.js"));
 }
 
 QStringList Phantom::args() const
@@ -199,11 +205,7 @@ QString Phantom::loadModuleSource(const QString &name)
     QString moduleSource;
     QString moduleSourceFilePath = ":/modules/" + name + ".js";
 
-    QFile f(moduleSourceFilePath);
-    if (f.open(QFile::ReadOnly)) {
-        moduleSource = QString::fromUtf8(f.readAll());
-        f.close();
-    }
+    moduleSource = Utils::readResourceFileUtf8(moduleSourceFilePath);
 
     return moduleSource;
 }

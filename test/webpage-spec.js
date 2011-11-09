@@ -236,9 +236,16 @@ describe("WebPage construction with options", function () {
             };
         var page = new WebPage(opts);
         it("should have onLoadStarted that was specified",function () {
-            expect(started).toEqual(false);
-            page.open("about:blank");
-            expect(started).toEqual(true);
+            runs(function() {
+                expect(started).toEqual(false);
+                page.open("about:blank");
+            });
+
+            waits(0);
+
+            runs(function() {
+                expect(started).toEqual(true);
+            });
         });
     });
 
@@ -251,9 +258,16 @@ describe("WebPage construction with options", function () {
             };
         var page = new WebPage(opts);
         it("should have onLoadFinished that was specified",function () {
-            expect(finished).toEqual(false);
-            page.open("about:blank");
-            expect(finished).toEqual(true);
+            runs(function() {
+                expect(finished).toEqual(false);
+                page.open("about:blank");
+            });
+
+            waits(0);
+
+            runs(function() {
+                expect(finished).toEqual(true);
+            });
         });
     });
 
@@ -288,4 +302,29 @@ describe("WebPage construction with options", function () {
         };
         checkViewportSize(new WebPage(opts), opts.viewportSize);
     });
+
+    var texts = [
+        { codec: 'Shift_JIS', base64: 'g3SDQIOTg2eDgA==', reference: 'ファントム'},
+        { codec: 'EUC-JP', base64: 'pdWloaXzpcil4A0K', reference: 'ファントム'},
+        { codec: 'ISO-2022-JP', base64: 'GyRCJVUlISVzJUglYBsoQg0K', reference: 'ファントム'},
+        { codec: 'Big5', base64: 'pNu2SA0K', reference: '幻象'},
+        { codec: 'GBK', base64: 'u8PP8w0K', reference: '幻象'}
+    ];
+    for (var i = 0; i < texts.length; ++i) {
+        describe("Text codec support", function() {
+            var text = texts[i];
+            var dataUrl = 'data:text/plain;charset=' + text.codec + ';base64,' + text.base64;
+            var page = new WebPage;
+            var decodedText;
+            page.open(dataUrl, function(status) {
+                decodedText = page.evaluate(function() {
+                    return document.getElementsByTagName('pre')[0].innerText;
+                });
+                delete page;
+            });
+            it("Should support text codec " + text.codec, function() {
+                expect(decodedText.match("^" + text.reference) == text.reference).toEqual(true);
+            });
+        });
+    }
 });
