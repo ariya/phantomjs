@@ -40,6 +40,7 @@
 #include "terminal.h"
 #include "utils.h"
 #include "webpage.h"
+#include "webserver.h"
 
 
 // public:
@@ -185,6 +186,16 @@ QObject *Phantom::createWebPage()
     return page;
 }
 
+QObject* Phantom::createWebServer()
+{
+    WebServer *server = new WebServer(this, &m_config);
+    m_servers.append(server);
+    ///TODO:
+//     page->applySettings(m_defaultPageSettings);
+//     page->setLibraryPath(QFileInfo(m_config.scriptFile()).dir().absolutePath());
+    return server;
+}
+
 QObject *Phantom::createFilesystem()
 {
     if (!m_filesystem)
@@ -215,6 +226,8 @@ void Phantom::exit(int code)
     qDeleteAll(m_pages);
     m_pages.clear();
     m_page = 0;
+    qDeleteAll(m_servers);
+    m_servers.clear();
     QApplication::instance()->exit(code);
 }
 
