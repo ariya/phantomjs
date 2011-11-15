@@ -8,6 +8,28 @@ describe("WebServer constructor", function() {
     });
 });
 
+function checkRequest(request, response) {
+    expect(typeof request).toEqual('object');
+    expectHasProperty(request, 'url');
+    expectHasProperty(request, 'queryString');
+    expectHasProperty(request, 'method');
+    expectHasProperty(request, 'httpVersion');
+    expectHasProperty(request, 'statusCode');
+    expectHasProperty(request, 'isSSL');
+    expectHasProperty(request, 'remoteIP');
+    expectHasProperty(request, 'remotePort');
+    expectHasProperty(request, 'remoteUser');
+    expectHasProperty(request, 'headers');
+    expectHasProperty(request, 'headerName');
+    expectHasProperty(request, 'headerValue');
+
+    expect(typeof response).toEqual('object');
+    expectHasProperty(response, 'statusCode');
+    expectHasProperty(response, 'headers');
+    expectHasFunction(response, 'setHeader');
+    expectHasFunction(response, 'writeBody');
+}
+
 describe("WebServer object", function() {
     var server = new WebServer();
 
@@ -47,7 +69,15 @@ describe("WebServer object", function() {
     });
     it("should be able to listen to some port", function() {
         //NOTE: this can fail if the port is already being listend on...
-        expect(server.listen(12345, function() {})).toEqual(true);
+        expect(server.listen(12345, checkRequest)).toEqual(true);
         expect(server.port).toEqual("12345");
+    });
+
+    it("should handle requests", function() {
+        var page = require('webpage').create();
+        var url = "http://localhost:12345/foo/bar.php?asdf=true";
+        page.open(url, function (status) {
+            expect(status == 'success').toEqual(true);
+        });
     });
 });
