@@ -37,7 +37,7 @@ function require(name) {
 
     var code, func, exports;
 
-    if (name === 'webpage' || name === 'fs') {
+    if (name === 'webpage' || name === 'fs' || name == 'webserver') {
         code = phantom.loadModuleSource(name);
         func = new Function("exports", "window", code);
         exports = {};
@@ -55,3 +55,4 @@ function require(name) {
 
 // Legacy way to use WebPage
 window.WebPage = require('webpage').create;
+window.WebServer = require('webserver').create;
