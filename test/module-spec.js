@@ -4,6 +4,10 @@ describe("module loading using require", function() {
         expect(typeof require('webpage')).toEqual('object');
     });
 
+    it("should work for 'webserver' module", function() {
+        expect(typeof require('webserver')).toEqual('object');
+    });
+
     it("should work for 'fs' module", function() {
         expect(typeof require('fs')).toEqual('object');
     });
