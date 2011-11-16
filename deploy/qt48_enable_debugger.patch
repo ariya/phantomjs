@@ -1,0 +1,35 @@
+diff --git a/src/3rdparty/webkit/Source/WebCore/inspector/front-end/Settings.js b/src/3rdparty/webkit/Source/WebCore/inspector/front-end/Settings.js
+index 62bf84a..e830f85 100644
+--- a/src/3rdparty/webkit/Source/WebCore/inspector/front-end/Settings.js
++++ b/src/3rdparty/webkit/Source/WebCore/inspector/front-end/Settings.js
+@@ -40,7 +40,7 @@ var Preferences = {
+     showMissingLocalizedStrings: false,
+     samplingCPUProfiler: false,
+     showColorNicknames: true,
+-    debuggerAlwaysEnabled: false,
++    debuggerAlwaysEnabled: true,
+     profilerAlwaysEnabled: false,
+     onlineDetectionEnabled: true,
+     nativeInstrumentationEnabled: false,
+@@ -58,7 +58,7 @@ WebInspector.Settings = function()
+ {
+     this.installApplicationSetting("colorFormat", "hex");
+     this.installApplicationSetting("consoleHistory", []);
+-    this.installApplicationSetting("debuggerEnabled", false);
++    this.installApplicationSetting("debuggerEnabled", true);
+     this.installApplicationSetting("domWordWrap", true);
+     this.installApplicationSetting("profilerEnabled", false);
+     this.installApplicationSetting("eventListenersFilter", "all");
+diff --git a/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebinspector.cpp b/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebinspector.cpp
+index 6706f2a..bec3d1c 100644
+--- a/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebinspector.cpp
++++ b/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebinspector.cpp
+@@ -161,7 +161,7 @@ void QWebInspector::showEvent(QShowEvent* event)
+ #if ENABLE(INSPECTOR)
+     // Allows QWebInspector::show() to init the inspector.
+     if (d->page)
+-        d->page->d->inspectorController()->show();
++        d->page->d->inspectorController()->showAndEnableDebugger();
+ #endif
+ }
+ 
