@@ -107,27 +107,27 @@ bool Utils::loadJSForDebug(const QString& jsFilePath, const Encoding& jsFileEnc,
     QString scriptPath = findScript(jsFilePath, libraryPath);
     QString scriptBody = jsFromScriptFile(scriptPath, jsFileEnc);
 
-    QFile wrapper( ":/debug_wrapper.js" );
+    QFile wrapper(":/debug_wrapper.js");
     if (!wrapper.open(QIODevice::ReadOnly))
         return false; // We got big issues
-    QString jsWrapper = QString::fromUtf8( wrapper.readAll() );
-    jsWrapper = jsWrapper.arg( scriptBody );
-    m_tempWrapper = new QTemporaryFile( QDir::tempPath() + QDir::separator() + "debugwrapper_XXXXXX.js" );
+    QString jsWrapper = QString::fromUtf8(wrapper.readAll());
+    jsWrapper = jsWrapper.arg(scriptBody);
+    m_tempWrapper = new QTemporaryFile(QDir::tempPath() + "/debugwrapper_XXXXXX.js");
     m_tempWrapper->open();
     m_tempWrapper->write(jsWrapper.toUtf8());
     m_tempWrapper->close();
 
-    QFile f( ":/debug_harness.html" );
-    if (!f.open( QIODevice::ReadOnly))
+    QFile f(":/debug_harness.html");
+    if (!f.open(QIODevice::ReadOnly))
         return false;
-    QString html = QString::fromUtf8( f.readAll() );
+    QString html = QString::fromUtf8(f.readAll());
 
     html = html.arg(m_tempWrapper->fileName());
-    m_tempHarness = new QTemporaryFile( QDir::tempPath() + QDir::separator() + "debugharness_XXXXXX.html" );
+    m_tempHarness = new QTemporaryFile(QDir::tempPath() + "/debugharness_XXXXXX.html");
     m_tempHarness->open();
-    m_tempHarness->write( html.toLocal8Bit() );
+    m_tempHarness->write(html.toLocal8Bit());
     m_tempHarness->close();
-    targetFrame->load( QUrl::fromLocalFile( m_tempHarness->fileName() ) );
+    targetFrame->load(QUrl::fromLocalFile(m_tempHarness->fileName()));
     return true;
 }
 
@@ -141,7 +141,7 @@ QString Utils::findScript(const QString& jsFilePath, const QString &libraryPath)
         jsFile.setFileName(QDir::fromNativeSeparators(jsFilePath)); //< Normalise User-provided path
         if (!jsFile.exists()) {
             // File is not in the PWD. Is it in the lookup directory?
-            jsFile.setFileName( libraryPath + '/' + QDir::fromNativeSeparators(jsFilePath) );
+            jsFile.setFileName(libraryPath + '/' + QDir::fromNativeSeparators(jsFilePath));
         }
 
         return jsFile.fileName();
