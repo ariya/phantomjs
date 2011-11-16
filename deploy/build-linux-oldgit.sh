@@ -4,7 +4,7 @@ QT_VERSION=4.8
 QT_FOLDER=Qt-$QT_VERSION
 
 # Tip: change this to local/shared mirror
-QT_URL=git://gitorious.org/~lfranchi/qt/lfranchi-qt.git
+QT_URL=git://gitorious.org/qt/qt.git
 COMPILE_JOBS=10
 
 # Step 1: Download Qt source tarball
@@ -14,12 +14,12 @@ echo "Cloning Qt $QT_VERSION from Gitorious. Please wait..."
 if [ ! -d $QT_FOLDER ]
 then
     git clone $QT_URL $QT_FOLDER
-    git checkout phantomjs
+    git checkout 4.8
 else
     cd $QT_FOLDER
     git checkout -f
     git clean -d
-    git checkout phantomjs
+    git checkout 4.8
     cd ..
 fi
 
@@ -49,6 +49,9 @@ cd $QT_FOLDER
 # cd $QT_FOLDER
 
 patch -p1 < ../qapplication_skip_qtmenu.patch
+patch -p1 < ../qt48_enable_debugger.patch
+patch -p1 < ../qt48_fix_inspector.patch
+patch -p1 < ../qt48_headless_and_pdf_fixes.patch
 echo "Building Qt $QT_VERSION. Please wait..."
 echo
 ./configure -opensource -confirm-license -release -no-exceptions -no-stl -no-xmlpatterns -no-phonon -no-qt3support -no-opengl -no-declarative -qt-libpng -qt-libjpeg -no-libmng -no-libtiff -D QT_NO_STYLE_CDE -D QT_NO_STYLE_CLEANLOOKS -D QT_NO_STYLE_MOTIF -D QT_NO_STYLE_PLASTIQUE -prefix $PWD -nomake demos -nomake examples -nomake tools -qpa
