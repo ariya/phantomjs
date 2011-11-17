@@ -44,6 +44,7 @@
 #include <QWebElement>
 #include <QWebFrame>
 #include <QWebPage>
+#include <QWebInspector>
 
 #include "networkaccessmanager.h"
 #include "utils.h"
@@ -172,6 +173,21 @@ void WebPage::setLibraryPath(const QString &libraryPath)
 {
    m_libraryPath = libraryPath;
 }
+
+void
+WebPage::showInspector(const int port)
+{
+    m_webPage->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
+    m_inspector = new QWebInspector;
+    m_inspector->setPage(m_webPage);
+
+    if (port == -1)
+        m_inspector->setVisible(true);
+    else {
+        m_webPage->setProperty("_q_webInspectorServerPort", port);
+    }
+}
+
 
 void WebPage::applySettings(const QVariantMap &def)
 {
