@@ -81,7 +81,14 @@ Phantom::Phantom(QObject *parent)
     if (m_config.proxyHost().isEmpty()) {
         QNetworkProxyFactory::setUseSystemConfiguration(true);
     } else {
-        QNetworkProxy proxy(QNetworkProxy::HttpProxy, m_config.proxyHost(), m_config.proxyPort());
+        QString proxyType = m_config.proxyType();
+        QNetworkProxy::ProxyType networkProxyType = QNetworkProxy::HttpProxy;
+
+        if (proxyType == "socks5") {
+            networkProxyType = QNetworkProxy::Socks5Proxy;
+        }
+
+        QNetworkProxy proxy(networkProxyType, m_config.proxyHost(), m_config.proxyPort());
         QNetworkProxy::setApplicationProxy(proxy);
     }
 
