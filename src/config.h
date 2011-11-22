@@ -33,6 +33,7 @@
 
 #include <QString>
 #include <QStringList>
+#include <QNetworkProxy>
 
 class Config: QObject
 {
@@ -44,6 +45,7 @@ class Config: QObject
     Q_PROPERTY(bool localToRemoteUrlAccessEnabled READ localToRemoteUrlAccessEnabled WRITE setLocalToRemoteUrlAccessEnabled)
     Q_PROPERTY(QString outputEncoding READ outputEncoding WRITE setOutputEncoding)
     Q_PROPERTY(bool pluginsEnabled READ pluginsEnabled WRITE setPluginsEnabled)
+    Q_PROPERTY(QString proxyType READ proxyType WRITE setProxyType)
     Q_PROPERTY(QString proxy READ proxy WRITE setProxy)
     Q_PROPERTY(QString scriptEncoding READ scriptEncoding WRITE setScriptEncoding)
 
@@ -77,6 +79,9 @@ public:
 
     bool pluginsEnabled() const;
     void setPluginsEnabled(const bool value);
+
+    QString proxyType() const;
+    void setProxyType(const QString value);
 
     QString proxy() const;
     void setProxy(const QString &value);
@@ -118,6 +123,7 @@ private:
     bool m_localToRemoteUrlAccessEnabled;
     QString m_outputEncoding;
     bool m_pluginsEnabled;
+    QString m_proxyType;
     QString m_proxyHost;
     int m_proxyPort;
     QStringList m_scriptArgs;
