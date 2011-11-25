@@ -59,5 +59,6 @@
 #define PAGE_SETTINGS_LOCAL_ACCESS_REMOTE   "localToRemoteUrlAccessEnabled"
 #define PAGE_SETTINGS_USERNAME              "userName"
 #define PAGE_SETTINGS_PASSWORD              "password"
+#define PAGE_SETTINGS_REQUEST_HEADERS       "requestHeaders"
 
 #endif // CONSTS_H

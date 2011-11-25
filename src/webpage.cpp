@@ -100,6 +100,7 @@ private:
     WebPage *m_webPage;
     QString m_userAgent;
     QString m_uploadFile;
+    QMap<QString, QString> m_requestHeaders;
     friend class WebPage;
 };
 
@@ -209,6 +210,18 @@ void WebPage::applySettings(const QVariantMap &def)
 
     if (def.contains(PAGE_SETTINGS_PASSWORD))
         m_networkAccessManager->setPassword(def[PAGE_SETTINGS_PASSWORD].toString());
+
+    if (def.contains(PAGE_SETTINGS_REQUEST_HEADERS)) {
+        QMap<QString, QVariant> map = def[PAGE_SETTINGS_REQUEST_HEADERS].toMap();
+	
+        QMapIterator<QString, QVariant> i(map);
+        while (i.hasNext()) {
+                i.next();
+                if (i.value().canConvert<QString>()) {
+                        m_webPage->m_requestHeaders[i.key()] = i.value().toString();
+                }
+        }
+    }
 }
 
 QString WebPage::userAgent() const
@@ -343,7 +356,17 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
     if (address == "about:blank") {
         m_mainFrame->setHtml(BLANK_HTML);
     } else {
-        m_mainFrame->load(QNetworkRequest(QUrl(address)), networkOp, body);
+
+        QNetworkRequest request;
+        request.setUrl(QUrl(address));
+	
+        QMapIterator<QString, QString> i(m_webPage->m_requestHeaders);
+        while (i.hasNext()) {
+                i.next();
+                request.setRawHeader(i.key().toAscii(), i.value().toAscii());
+        }
+
+        m_mainFrame->load(request, networkOp, body);
     }
 }
 
