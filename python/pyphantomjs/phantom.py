@@ -58,7 +58,7 @@ class Phantom(QObject):
         if args.proxy is None:
             QNetworkProxyFactory.setUseSystemConfiguration(True)
         else:
-            proxy = QNetworkProxy(QNetworkProxy.HttpProxy, args.proxy[0], int(args.proxy[1]))
+            proxy = QNetworkProxy(args.proxy_type, args.proxy[0], int(args.proxy[1]))
             QNetworkProxy.setApplicationProxy(proxy)
 
         self.m_page.javaScriptConsoleMessageSent.connect(self.printConsoleMessage)

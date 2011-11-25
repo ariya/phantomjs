@@ -29,6 +29,7 @@ import sys
 
 from PyQt4.QtCore import qInstallMsgHandler
 from PyQt4.QtGui import QApplication, QIcon
+from PyQt4.QtNetwork import QNetworkProxy
 
 from plugincontroller import do_action
 # load plugins if running script directly
@@ -107,6 +108,10 @@ def parseArgs(app, args):
                 p.print_help()
                 sys.exit(1)
             setattr(args, name, item)
+
+    if args.proxy is not None:
+        if args.proxy_type == 'socks5':
+            args.proxy_type = QNetworkProxy.Socks5Proxy
 
     do_action('ParseArgs', args)
 

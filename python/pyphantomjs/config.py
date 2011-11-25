@@ -21,6 +21,7 @@ import codecs
 import sys
 
 from PyQt4.QtCore import QObject, qWarning
+from PyQt4.QtNetwork import QNetworkProxy
 from PyQt4.QtWebKit import QWebPage
 
 from plugincontroller import do_action
@@ -45,6 +46,7 @@ class Config(QObject):
             'maxDiskCacheSize': { 'mapping': 'max_disk_cache_size', 'default': -1 },
             'outputEncoding': { 'mapping': 'output_encoding', 'default': 'System' },
             'proxy': { 'mapping': 'proxy', 'default': None },
+            'proxyType': { 'mapping': 'proxy_type', 'default': QNetworkProxy.HttpProxy },
             'scriptEncoding': { 'mapping': 'script_encoding', 'default': 'utf-8' },
             'verbose': { 'mapping': 'verbose', 'default': False }
         }

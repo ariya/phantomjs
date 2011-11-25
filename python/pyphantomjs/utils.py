@@ -25,6 +25,7 @@ import sys
 from PyQt4.QtCore import (QByteArray, QDateTime, qDebug, QFile, Qt,
                           QtCriticalMsg, QtDebugMsg, QtFatalMsg,
                           QtWarningMsg)
+from PyQt4.QtNetwork import QNetworkProxy
 
 from __init__ import __version__
 from plugincontroller import do_action
@@ -94,6 +95,9 @@ def argParser():
     )
     program.add_argument('--proxy', metavar='address:port',
         help='Set the network proxy'
+    )
+    program.add_argument('--proxy-type', default=QNetworkProxy.HttpProxy, metavar='type',
+        help='Set the network proxy type (default: http)'
     )
     program.add_argument('--script-encoding', default='utf-8', metavar='encoding',
         help='Sets the encoding used for scripts (default: %(default)s)'
