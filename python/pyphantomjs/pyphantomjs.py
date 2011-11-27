@@ -39,9 +39,10 @@ if __name__ == '__main__':
 
 import resources
 from __init__ import __version__
+from arguments import argParser
 from config import Config
 from phantom import Phantom
-from utils import argParser, MessageHandler
+from utils import MessageHandler
 
 # make keyboard interrupt quit program
 import signal

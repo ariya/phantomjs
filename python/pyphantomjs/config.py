@@ -21,9 +21,9 @@ import codecs
 import sys
 
 from PyQt4.QtCore import QObject, qWarning
-from PyQt4.QtNetwork import QNetworkProxy
 from PyQt4.QtWebKit import QWebPage
 
+from arguments import defaults
 from plugincontroller import do_action
 from utils import QPyFile
 
@@ -36,19 +36,19 @@ class Config(QObject):
             json = f.read()
 
         self.settings = {
-            'cookiesFile': { 'mapping': 'cookies_file', 'default': None },
-            'debug': { 'mapping': 'debug', 'default': None },
-            'diskCache': { 'mapping': 'disk_cache', 'default': False },
-            'ignoreSslErrors': { 'mapping': 'ignore_ssl_errors', 'default': False },
-            'loadImages': { 'mapping': 'load_images', 'default': True },
-            'loadPlugins': { 'mapping': 'load_plugins', 'default': False },
-            'localToRemoteUrlAccessEnabled': { 'mapping': 'local_to_remote_url_access', 'default': False },
-            'maxDiskCacheSize': { 'mapping': 'max_disk_cache_size', 'default': -1 },
-            'outputEncoding': { 'mapping': 'output_encoding', 'default': 'System' },
-            'proxy': { 'mapping': 'proxy', 'default': None },
-            'proxyType': { 'mapping': 'proxy_type', 'default': QNetworkProxy.HttpProxy },
-            'scriptEncoding': { 'mapping': 'script_encoding', 'default': 'utf-8' },
-            'verbose': { 'mapping': 'verbose', 'default': False }
+            'cookiesFile': { 'mapping': 'cookies_file', 'default': defaults['cookiesFile'] },
+            'debug': { 'mapping': 'debug', 'default': defaults['debug'] },
+            'diskCache': { 'mapping': 'disk_cache', 'default': defaults['diskCache'] },
+            'ignoreSslErrors': { 'mapping': 'ignore_ssl_errors', 'default': defaults['ignoreSslErrors'] },
+            'loadImages': { 'mapping': 'load_images', 'default': defaults['loadImages'] },
+            'loadPlugins': { 'mapping': 'load_plugins', 'default': defaults['loadPlugins'] },
+            'localToRemoteUrlAccessEnabled': { 'mapping': 'local_to_remote_url_access', 'default': defaults['localToRemoteUrlAccessEnabled'] },
+            'maxDiskCacheSize': { 'mapping': 'max_disk_cache_size', 'default': defaults['maxDiskCacheSize'] },
+            'outputEncoding': { 'mapping': 'output_encoding', 'default': defaults['outputEncoding'] },
+            'proxy': { 'mapping': 'proxy', 'default': defaults['proxy'] },
+            'proxyType': { 'mapping': 'proxy_type', 'default': defaults['proxyType'] },
+            'scriptEncoding': { 'mapping': 'script_encoding', 'default': defaults['scriptEncoding'] },
+            'verbose': { 'mapping': 'verbose', 'default': defaults['verbose'] }
         }
 
         do_action('ConfigInit', self.settings)
