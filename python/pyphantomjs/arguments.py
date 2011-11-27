@@ -18,11 +18,17 @@
 '''
 
 import argparse
+import codecs
+import os
+import sys
 
+from PyQt4.QtCore import qInstallMsgHandler, QObject, qWarning
 from PyQt4.QtNetwork import QNetworkProxy
+from PyQt4.QtWebKit import QWebPage
 
 from __init__ import __version__
 from plugincontroller import do_action
+from utils import debug, MessageHandler, QPyFile
 
 
 license = '''
@@ -69,7 +75,14 @@ def argParser():
             answer = True if value == 'yes' else False
             setattr(namespace, self.dest, answer)
 
+    def proxyType(type_):
+        if type_ == QNetworkProxy.HttpProxy:
+            return 'http'
+        elif type_ == QNetworkProxy.Socks5Proxy:
+            return 'socks5'
+
     yesOrNo = lambda d: 'yes' if d else 'no'
+
 
     parser = argparse.ArgumentParser(
         description='Minimalistic headless WebKit-based JavaScript-driven tool',
@@ -110,7 +123,7 @@ def argParser():
         help='Set the network proxy'
     )
     program.add_argument('--proxy-type', default=defaults['proxyType'], metavar='type',
-        help='Set the network proxy type (default: http)'
+        help='Set the network proxy type (default: %s)' % proxyType(defaults['proxyType'])
     )
     program.add_argument('--script-encoding', default=defaults['scriptEncoding'], metavar='encoding',
         help='Sets the encoding used for scripts (default: %(default)s)'
@@ -144,3 +157,104 @@ def argParser():
     do_action('ArgParser')
 
     return parser
+
+
+def parseArgs(app, args):
+    # Handle all command-line options
+    p = argParser()
+    arg_data = p.parse_known_args(args)
+    args = arg_data[0]
+    args.script_args = arg_data[1]
+
+    # register an alternative Message Handler
+    messageHandler = MessageHandler(args.verbose)
+    qInstallMsgHandler(messageHandler.process)
+
+    file_check = (args.cookies_file, args.config)
+    for file_ in file_check:
+        if file_ is not None and not os.path.exists(file_):
+            sys.exit("No such file or directory: '%s'" % file_)
+
+    if args.config:
+        config = Config(app, args.config)
+        # apply settings
+        for setting in config.settings:
+            setattr(args, config.settings[setting]['mapping'], config.property(setting))
+
+    split_check = (
+        (args.proxy, 'proxy'),
+    )
+    for arg, name in split_check:
+        if arg:
+            item = arg.split(':')
+            if len(item) < 2 or not len(item[1]):
+                p.print_help()
+                sys.exit(1)
+            setattr(args, name, item)
+
+    if args.proxy is not None:
+        if args.proxy_type == 'socks5':
+            args.proxy_type = QNetworkProxy.Socks5Proxy
+
+    do_action('ParseArgs', args)
+
+    if args.debug:
+        debug(args.debug)
+
+    # verbose flag got changed on us, so we reload the flag
+    if messageHandler.verbose != args.verbose:
+        messageHandler.verbose = args.verbose
+
+    if args.script is None:
+        p.print_help()
+        sys.exit(1)
+
+    if not os.path.exists(args.script):
+        sys.exit("No such file or directory: '%s'" % args.script)
+
+    return args
+
+
+class Config(QObject):
+    def __init__(self, parent, jsonFile):
+        super(Config, self).__init__(parent)
+
+        with codecs.open(jsonFile, encoding='utf-8') as f:
+            json = f.read()
+
+        self.settings = {
+            'cookiesFile': { 'mapping': 'cookies_file', 'default': defaults['cookiesFile'] },
+            'debug': { 'mapping': 'debug', 'default': defaults['debug'] },
+            'diskCache': { 'mapping': 'disk_cache', 'default': defaults['diskCache'] },
+            'ignoreSslErrors': { 'mapping': 'ignore_ssl_errors', 'default': defaults['ignoreSslErrors'] },
+            'loadImages': { 'mapping': 'load_images', 'default': defaults['loadImages'] },
+            'loadPlugins': { 'mapping': 'load_plugins', 'default': defaults['loadPlugins'] },
+            'localToRemoteUrlAccessEnabled': { 'mapping': 'local_to_remote_url_access', 'default': defaults['localToRemoteUrlAccessEnabled'] },
+            'maxDiskCacheSize': { 'mapping': 'max_disk_cache_size', 'default': defaults['maxDiskCacheSize'] },
+            'outputEncoding': { 'mapping': 'output_encoding', 'default': defaults['outputEncoding'] },
+            'proxy': { 'mapping': 'proxy', 'default': defaults['proxy'] },
+            'proxyType': { 'mapping': 'proxy_type', 'default': defaults['proxyType'] },
+            'scriptEncoding': { 'mapping': 'script_encoding', 'default': defaults['scriptEncoding'] },
+            'verbose': { 'mapping': 'verbose', 'default': defaults['verbose'] }
+        }
+
+        do_action('ConfigInit', self.settings)
+
+        # generate dynamic properties
+        for setting in self.settings:
+            self.setProperty(setting, self.settings[setting]['default'])
+
+        # now it's time to parse our JSON file
+        if not json.lstrip().startswith('{') or not json.rstrip().endswith('}'):
+            qWarning('Config file MUST be in JSON format!')
+            return
+
+        webPage = QWebPage(self)
+
+        with QPyFile(':/configurator.js') as f:
+            # add config object
+            webPage.mainFrame().addToJavaScriptWindowObject('config', self)
+            # apply settings
+            webPage.mainFrame().evaluateJavaScript(f.readAll().replace('%1', json))
+
+    do_action('Config')

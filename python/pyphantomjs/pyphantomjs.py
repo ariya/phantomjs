@@ -24,12 +24,9 @@ for item in ('QDate', 'QDateTime', 'QString', 'QTextStream', 'QTime'
              'QUrl', 'QVariant'):
     sip.setapi(item, 2)
 
-import os
 import sys
 
-from PyQt4.QtCore import qInstallMsgHandler
 from PyQt4.QtGui import QApplication, QIcon
-from PyQt4.QtNetwork import QNetworkProxy
 
 from plugincontroller import do_action
 # load plugins if running script directly
@@ -39,10 +36,8 @@ if __name__ == '__main__':
 
 import resources
 from __init__ import __version__
-from arguments import argParser
-from config import Config
+from arguments import parseArgs
 from phantom import Phantom
-from utils import MessageHandler
 
 # make keyboard interrupt quit program
 import signal
@@ -52,85 +47,6 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 from utils import SafeStreamFilter
 sys.stdout = SafeStreamFilter(sys.stdout)
 sys.stderr = SafeStreamFilter(sys.stderr)
-
-
-def debug(debug_type):
-    def excepthook(type_, value, tb):
-        import traceback
-
-        # print the exception...
-        traceback.print_exception(type_, value, tb)
-        print
-        # ...then start the debugger in post-mortem mode
-        pdb.pm()
-
-    # we are NOT in interactive mode
-    if not hasattr(sys, 'ps1') or sys.stderr.target.isatty():
-        import pdb
-
-        from PyQt4.QtCore import pyqtRemoveInputHook
-        pyqtRemoveInputHook()
-
-        if debug_type == 'exception':
-            sys.excepthook = excepthook
-        elif debug_type == 'program':
-            pdb.set_trace()
-
-
-def parseArgs(app, args):
-    # Handle all command-line options
-    p = argParser()
-    arg_data = p.parse_known_args(args)
-    args = arg_data[0]
-    args.script_args = arg_data[1]
-
-    # register an alternative Message Handler
-    messageHandler = MessageHandler(args.verbose)
-    qInstallMsgHandler(messageHandler.process)
-
-    file_check = (args.cookies_file, args.config)
-    for file_ in file_check:
-        if file_ is not None and not os.path.exists(file_):
-            sys.exit("No such file or directory: '%s'" % file_)
-
-    if args.config:
-        config = Config(app, args.config)
-        # apply settings
-        for setting in config.settings:
-            setattr(args, config.settings[setting]['mapping'], config.property(setting))
-
-    split_check = (
-        (args.proxy, 'proxy'),
-    )
-    for arg, name in split_check:
-        if arg:
-            item = arg.split(':')
-            if len(item) < 2 or not len(item[1]):
-                p.print_help()
-                sys.exit(1)
-            setattr(args, name, item)
-
-    if args.proxy is not None:
-        if args.proxy_type == 'socks5':
-            args.proxy_type = QNetworkProxy.Socks5Proxy
-
-    do_action('ParseArgs', args)
-
-    if args.debug:
-        debug(args.debug)
-
-    # verbose flag got changed on us, so we reload the flag
-    if messageHandler.verbose != args.verbose:
-        messageHandler.verbose = args.verbose
-
-    if args.script is None:
-        p.print_help()
-        sys.exit(1)
-
-    if not os.path.exists(args.script):
-        sys.exit("No such file or directory: '%s'" % args.script)
-
-    return args
 
 
 def main():

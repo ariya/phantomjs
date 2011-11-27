@@ -29,8 +29,8 @@ from __init__ import __version_info__
 from encoding import Encode
 from filesystem import FileSystem
 from plugincontroller import do_action
-from utils import injectJsInFrame, QPyFile
-from webpage import WebPage
+from utils import QPyFile
+from webpage import injectJsInFrame, WebPage
 
 
 class Phantom(QObject):

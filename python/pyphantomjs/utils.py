@@ -17,54 +17,34 @@
   along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import codecs
-import os
 import sys
 
-from PyQt4.QtCore import (QByteArray, QDateTime, qDebug, QFile, Qt,
+from PyQt4.QtCore import (QByteArray, QDateTime, QFile, Qt,
                           QtCriticalMsg, QtDebugMsg, QtFatalMsg,
                           QtWarningMsg)
 
 
-CSConverter = None
-def coffee2js(script):
-    global CSConverter
-    if not CSConverter:
-        from csconverter import CSConverter
-    return CSConverter().convert(script)
+def debug(debug_type):
+    def excepthook(type_, value, tb):
+        import traceback
 
+        # print the exception...
+        traceback.print_exception(type_, value, tb)
+        print
+        # ...then start the debugger in post-mortem mode
+        pdb.pm()
 
-def injectJsInFrame(filePath, scriptEncoding, libraryPath, targetFrame, startingScript=False):
-    try:
-        # if file doesn't exist in the CWD, use the lookup
-        if not os.path.exists(filePath):
-            filePath = os.path.join(libraryPath, filePath)
+    # we are NOT in interactive mode
+    if not hasattr(sys, 'ps1') or sys.stderr.target.isatty():
+        import pdb
 
-        try:
-            with codecs.open(filePath, encoding=scriptEncoding) as f:
-                script = f.read()
-        except UnicodeDecodeError as e:
-            sys.exit("%s in '%s'" % (e, filePath))
+        from PyQt4.QtCore import pyqtRemoveInputHook
+        pyqtRemoveInputHook()
 
-        if script.startswith('#!') and not filePath.lower().endswith('.coffee'):
-            script = '//' + script
-
-        if filePath.lower().endswith('.coffee'):
-            result = coffee2js(script)
-            if not result[0]:
-                if startingScript:
-                    sys.exit("%s: '%s'" % (result[1], filePath))
-                else:
-                    qDebug("%s: '%s'" % (result[1], filePath))
-                    script = ''
-            else:
-                script = result[1]
-
-        targetFrame.evaluateJavaScript(script)
-        return True
-    except IOError as (t, e):
-        qDebug("%s: '%s'" % (e, filePath))
-        return False
+        if debug_type == 'exception':
+            sys.excepthook = excepthook
+        elif debug_type == 'program':
+            pdb.set_trace()
 
 
 class MessageHandler(object):
