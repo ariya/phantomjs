@@ -127,7 +127,10 @@ def parseArgs(app, args):
     return args
 
 
-def main():
+def main(arguments = None):
+    if arguments is None:
+        arguments = sys.argv[1:]
+
     app = QApplication(sys.argv)
 
     app.setWindowIcon(QIcon(':/resources/pyphantomjs-icon.png'))
@@ -136,7 +139,7 @@ def main():
     app.setOrganizationDomain('www.umaclan.com')
     app.setApplicationVersion(__version__)
 
-    args = parseArgs(app, sys.argv[1:])
+    args = parseArgs(app, arguments)
 
     phantom = Phantom(app, args)
 
