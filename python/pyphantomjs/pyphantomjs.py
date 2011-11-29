@@ -127,7 +127,7 @@ def parseArgs(app, args):
     return args
 
 
-def main(arguments = None):
+def main(arguments=None):
     if arguments is None:
         arguments = sys.argv[1:]
 
