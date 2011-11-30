@@ -166,6 +166,10 @@ def parseArgs(app, args):
     args = arg_data[0]
     args.script_args = arg_data[1]
 
+    # convert script args to unicode
+    for i, arg in enumerate(args.script_args):
+        args.script_args[i] = unicode(arg, 'utf-8')
+
     # register an alternative Message Handler
     messageHandler = MessageHandler(args.verbose)
     qInstallMsgHandler(messageHandler.process)
