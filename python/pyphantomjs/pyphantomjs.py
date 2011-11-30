@@ -129,7 +129,7 @@ def parseArgs(app, args):
 
 def main(arguments):
 
-    app = QApplication(sys.argv[0:] + arguments)
+    app = QApplication([sys.argv[0]] + arguments)
 
     app.setWindowIcon(QIcon(':/resources/pyphantomjs-icon.png'))
     app.setApplicationName('PyPhantomJS')
