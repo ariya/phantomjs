@@ -127,9 +127,7 @@ def parseArgs(app, args):
     return args
 
 
-def main(arguments=None):
-    if arguments is None:
-        arguments = sys.argv[1:]
+def main(arguments):
 
     app = QApplication(sys.argv)
 
@@ -154,4 +152,4 @@ do_action('PyPhantomJS')
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))
