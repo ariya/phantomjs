@@ -53,7 +53,7 @@ def injectJsInFrame(filePath, scriptEncoding, libraryPath, targetFrame, starting
         try:
             with codecs.open(filePath, encoding=scriptEncoding) as f:
                 script = f.read()
-        except UnicodeDecodeError as e:
+        except UnicodeError as e:
             sys.exit("%s in '%s'" % (e, filePath))
 
         if script.startswith('#!') and not filePath.lower().endswith('.coffee'):
