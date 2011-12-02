@@ -41,8 +41,7 @@
 #include "utils.h"
 #include "webpage.h"
 #include "webserver.h"
-
-
+#include <iostream>
 // public:
 Phantom::Phantom(QObject *parent)
     : QObject(parent)
@@ -288,3 +287,17 @@ void Phantom::printConsoleMessage(const QString &message, int lineNumber, const 
         msg = source + ":" + QString::number(lineNumber) + " " + msg;
     Terminal::instance()->cout(msg);
 }
+
+
+QString Phantom::getStdinLine()
+{
+    std::string instr;
+    while(true) {
+        int ch = std::cin.get();
+        if (ch == '\n' || ch == EOF)
+            break;
+        instr.push_back(static_cast<char>(ch));
+    }
+    return QString(instr.c_str());
+}
+

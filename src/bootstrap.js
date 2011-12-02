@@ -53,6 +53,10 @@ function require(name) {
     }
 }
 
+window.getStdinLine = function() {
+	return phantom.getStdinLine();
+}
+
 // Legacy way to use WebPage
 window.WebPage = require('webpage').create;
 window.WebServer = require('webserver').create;
