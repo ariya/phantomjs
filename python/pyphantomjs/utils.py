@@ -47,6 +47,41 @@ def debug(debug_type):
             pdb.set_trace()
 
 
+class CaseInsensitiveDict(dict):
+    def __delitem__(self, key):
+        for dictKey in self:
+            if self.lowerKey(key) == self.lowerKey(dictKey):
+                super(CaseInsensitiveDict, self).__delitem__(dictKey)
+                return
+
+        raise KeyError(key)
+
+    def __contains__(self, key):
+        for dictKey in self:
+            if self.lowerKey(key) == self.lowerKey(dictKey):
+                return True
+        return False
+
+    def __getitem__(self, key):
+        for dictKey, dictValue in self.items():
+            if self.lowerKey(key) == self.lowerKey(dictKey):
+                return dictValue
+
+        raise KeyError(key)
+
+    def __setitem__(self, key, value):
+        for dictKey in self:
+            if self.lowerKey(key) == self.lowerKey(dictKey):
+                super(CaseInsensitiveDict, self).__setitem__(dictKey, value)
+                return
+        super(CaseInsensitiveDict, self).__setitem__(key, value)
+
+    def lowerKey(self, key):
+        if hasattr(key, 'lower'):
+            return key.lower()
+        return key
+
+
 class MessageHandler(object):
     def __init__(self, verbose):
         self.verbose = verbose
