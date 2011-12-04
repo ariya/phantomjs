@@ -200,6 +200,11 @@ class WebServerResponse(QObject):
     def headers(self, headers):
         self.m_conn.m_headers = CaseInsensitiveDict(headers)
 
+    @pyqtSlot(int)
+    @pyqtSlot(int, int)
+    def sendError(self, code, message=None):
+        self.m_conn.send_error(code, message)
+
     @pyqtSlot(str, str)
     def setHeader(self, name, value):
         self.m_conn.m_headers[name] = value
