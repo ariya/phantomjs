@@ -50,7 +50,7 @@ def debug(debug_type):
 class CaseInsensitiveDict(dict):
     def __delitem__(self, key):
         for dictKey in self:
-            if self.lowerKey(key) == self.lowerKey(dictKey):
+            if self.sameKey(key, dictKey):
                 super(CaseInsensitiveDict, self).__delitem__(dictKey)
                 return
 
@@ -58,28 +58,34 @@ class CaseInsensitiveDict(dict):
 
     def __contains__(self, key):
         for dictKey in self:
-            if self.lowerKey(key) == self.lowerKey(dictKey):
+            if self.sameKey(key, dictKey):
                 return True
         return False
 
     def __getitem__(self, key):
         for dictKey, dictValue in self.items():
-            if self.lowerKey(key) == self.lowerKey(dictKey):
+            if self.sameKey(key, dictKey):
                 return dictValue
 
         raise KeyError(key)
 
     def __setitem__(self, key, value):
         for dictKey in self:
-            if self.lowerKey(key) == self.lowerKey(dictKey):
+            if self.sameKey(key, dictKey):
                 super(CaseInsensitiveDict, self).__setitem__(dictKey, value)
                 return
+
         super(CaseInsensitiveDict, self).__setitem__(key, value)
 
-    def lowerKey(self, key):
+    def sameKey(self, key, dictKey):
         if hasattr(key, 'lower'):
-            return key.lower()
-        return key
+            key = key.lower()
+        if hasattr(dictKey, 'lower'):
+            dictKey = dictKey.lower()
+
+        if key == dictKey:
+            return True
+        return False
 
 
 class MessageHandler(object):

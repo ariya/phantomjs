@@ -101,9 +101,12 @@ class WebServerHandler(BaseHTTPRequestHandler):
              method error would be returned. Since we patched
              that out as well, the user can actually handle when
              a request is or isn't valid through the code.
-           * Headers are automatically handled; they are sent,
-             and end, after the request handling.
            * Status code is sent after the request handling.
+           * Headers are automatically handled; they get sent,
+             then the content-length gets sent if using HTTP/1.1,
+             and then they end.
+           * We automatically write the body after the end of the
+             headers (otherwise the entire response gets messed up)
         '''
         try:
             self.raw_requestline = self.rfile.readline(65537)
@@ -152,6 +155,7 @@ class WebServerHandler(BaseHTTPRequestHandler):
         response = WebServerResponse(self)
 
         for server in servers:
+            # verify which server this request is for
             if self.server == server.httpd:
                 connectionType = Qt.BlockingQueuedConnection
                 if QThread.currentThread() == server.thread():
@@ -160,6 +164,7 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 QMetaObject.invokeMethod(server, 'newRequest', connectionType,
                                          Q_ARG(WebServerRequest, request),
                                          Q_ARG(WebServerResponse, response))
+                break
 
     def log_message(self, format, *args):
         qDebug("%s - - %s" % (self.address_string(),
