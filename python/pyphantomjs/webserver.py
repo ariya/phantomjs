@@ -30,6 +30,7 @@ from PyQt4.QtCore import (pyqtProperty, pyqtSignal, pyqtSlot, Q_ARG,
                           qDebug, QMetaObject, QObject, Qt, QThread)
 
 from __init__ import __version__
+from plugincontroller import do_action
 from utils import CaseInsensitiveDict
 
 
@@ -52,6 +53,8 @@ class WebServer(QObject):
         self.httpd = None
 
         servers.append(self)
+
+        do_action('WebServerInit')
 
     def __del__(self):
         self.close()
@@ -84,6 +87,8 @@ class WebServer(QObject):
         servers.remove(self)
         self.parent().m_servers.remove(self)
         sip.delete(self)
+
+    do_action('WebServer')
 
 
 class WebServerHandler(BaseHTTPRequestHandler):
@@ -170,6 +175,8 @@ class WebServerHandler(BaseHTTPRequestHandler):
         qDebug("%s - - %s" % (self.address_string(),
                                 format % args))
 
+    do_action('WebServerHandler')
+
 
 class WebServerResponse(QObject):
     def __init__(self, conn):
@@ -178,6 +185,8 @@ class WebServerResponse(QObject):
         self.setObjectName('WebServerResponse')
 
         self.m_conn = conn
+
+        do_action('WebServerResponseInit')
 
     @pyqtSlot(str, result=str)
     def header(self, name):
@@ -212,6 +221,8 @@ class WebServerResponse(QObject):
         self.m_conn.m_statusCode = code
         self.m_conn.m_headers = CaseInsensitiveDict(headers)
 
+    do_action('WebServerResponse')
+
 
 class WebServerRequest(QObject):
     def __init__(self, request):
@@ -223,6 +234,8 @@ class WebServerRequest(QObject):
         self.m_headerNames = list(request.headers)
         self.m_headers = CaseInsensitiveDict(request.headers)
         self.m_numHeaders = len(request.headers)
+
+        do_action('WebServerRequestInit')
 
     @pyqtSlot(int, result=str)
     def headerName(self, header):
@@ -278,3 +291,5 @@ class WebServerRequest(QObject):
     @pyqtProperty(str)
     def queryString(self):
         return urlparse(self.m_request.path).query
+
+    do_action('WebServerRequest')
