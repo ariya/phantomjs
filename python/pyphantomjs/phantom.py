@@ -143,6 +143,7 @@ class Phantom(QObject):
 
         for server in self.m_servers:
             server.release()
+        del self.m_servers[:] # not needed, but I'd rather be thorough
 
         QApplication.instance().exit(code)
 
