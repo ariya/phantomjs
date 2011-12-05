@@ -201,7 +201,7 @@ class WebServerResponse(QObject):
         self.m_conn.m_headers = CaseInsensitiveDict(headers)
 
     @pyqtSlot(int)
-    @pyqtSlot(int, int)
+    @pyqtSlot(int, str)
     def sendError(self, code, message=None):
         self.m_conn.send_error(code, message)
 
