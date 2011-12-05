@@ -106,12 +106,7 @@ class WebServerHandler(BaseHTTPRequestHandler):
              method error would be returned. Since we patched
              that out as well, the user can actually handle when
              a request is or isn't valid through the code.
-           * Status code is sent after the request handling.
-           * Headers are automatically handled; they get sent,
-             then the content-length gets sent if using HTTP/1.1,
-             and then they end.
-           * We automatically write the body after the end of the
-             headers (otherwise the entire response gets messed up)
+           * Then we handle the request and response.
         '''
         try:
             self.raw_requestline = self.rfile.readline(65537)
