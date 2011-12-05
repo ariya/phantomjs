@@ -128,22 +128,21 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 # An error code has been sent, just exit
                 return
 
+            # these variables must get (re)set on every request
+            # for handleRequest(), due to the HTTP/1.1 nature of
+            # keepalive, which seems to keep a constant running
+            # instance of this class
+            self.m_handleResponse = True
+            self.m_headers = CaseInsensitiveDict()
+            self.m_statusCode = 200
+            self.m_wfile = StringIO()
+
             self.handleRequest()
 
-            # send response code with response text (ex. 200 OK)
-            self.send_response(self.m_statusCode, self.responses[self.m_statusCode][0])
+            # some methods handle the response on their own instead
+            if self.m_handleResponse:
+                self.handleResponse()
 
-            # send all headers
-            for name, value in self.m_headers.items():
-                self.send_header(name, value)
-
-            # send content-length if not already sent
-            if self.protocol_version == 'HTTP/1.1':
-                if 'content-length' not in self.m_headers:
-                    self.send_header('Content-Length', self.m_wfile.tell())
-
-            self.end_headers() #finish sending the headers
-            self.wfile.write(self.m_wfile.getvalue()) #write body to page
             self.wfile.flush() #actually send the response if not already done.
         except socket.timeout, e:
             #a read or a write timed out.  Discard this connection
@@ -151,11 +150,23 @@ class WebServerHandler(BaseHTTPRequestHandler):
             self.close_connection = 1
             return
 
-    def handleRequest(self):
-        self.m_statusCode = 200
-        self.m_headers = CaseInsensitiveDict()
-        self.m_wfile = StringIO()
+    def handleResponse(self):
+        # send response code with response text (ex. 200 OK)
+        self.send_response(self.m_statusCode, self.responses[self.m_statusCode][0])
 
+        # send all headers
+        for name, value in self.m_headers.items():
+            self.send_header(name, value)
+
+        # send content-length if not already sent
+        if self.protocol_version == 'HTTP/1.1':
+            if 'content-length' not in self.m_headers:
+                self.send_header('Content-Length', self.m_wfile.tell())
+
+        self.end_headers() #finish sending the headers
+        self.wfile.write(self.m_wfile.getvalue()) #write body to page
+
+    def handleRequest(self):
         request = WebServerRequest(self)
         response = WebServerResponse(self)
 
@@ -204,6 +215,7 @@ class WebServerResponse(QObject):
     @pyqtSlot(int, str)
     def sendError(self, code, message=None):
         self.m_conn.send_error(code, message)
+        self.m_conn.m_handleResponse = False
 
     @pyqtSlot(str, str)
     def setHeader(self, name, value):
