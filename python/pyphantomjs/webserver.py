@@ -67,14 +67,15 @@ class WebServer(QObject):
 
     @pyqtSlot(int, result=bool)
     def listenOnPort(self, port):
-        self.m_port = port
-
         try:
             self.httpd = ThreadingHTTPServer(('localhost', port), WebServerHandler)
             Thread(target=self.httpd.serve_forever).start()
         except socket.error as (e, t):
             qDebug('WebServer.listenOnPort - %s' % t)
+            self.m_port = 0
             return False
+        else:
+            self.m_port = port
         return True
 
     @pyqtProperty(int)
