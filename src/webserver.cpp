@@ -35,6 +35,7 @@
 #include "mongoose.h"
 #include <QThread>
 #include <QHostAddress>
+#include <QMetaType>
 
 static void *callback(mg_event event,
                       mg_connection *conn,
@@ -66,6 +67,10 @@ WebServer::WebServer(QObject *parent, const Config *config)
     , m_ctx(0)
 {
     setObjectName("WebServer");
+    qRegisterMetaType<mg_event>("mg_event");
+    qRegisterMetaType<mg_connection*>("mg_connection*");
+    qRegisterMetaType<const mg_request_info*>("const mg_request_info*");
+    qRegisterMetaType<bool*>("bool*");
 }
 
 WebServer::~WebServer()
