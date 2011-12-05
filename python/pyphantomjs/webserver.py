@@ -156,10 +156,14 @@ class WebServerHandler(BaseHTTPRequestHandler):
         # send content-length if not already sent
         if self.protocol_version == 'HTTP/1.1':
             if 'content-length' not in self.m_headers:
-                self.send_header('Content-Length', self.m_wfile.tell())
+                if self.m_statusCode >= 200 and self.m_statusCode not in (204, 304):
+                    self.send_header('Content-Length', self.m_wfile.tell())
 
         self.end_headers() #finish sending the headers
-        self.wfile.write(self.m_wfile.getvalue()) #write body to page
+
+        # check if body should be written to response
+        if self.command != 'HEAD' and self.m_statusCode >= 200 and self.m_statusCode not in (204, 304):
+            self.wfile.write(self.m_wfile.getvalue()) #write body to page
 
     def handleRequest(self):
         request = WebServerRequest(self)
