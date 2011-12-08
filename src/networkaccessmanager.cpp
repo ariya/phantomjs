@@ -120,7 +120,7 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
 
     QVariantMap data;
     data["id"] = m_idCounter;
-    data["url"] = req.url().toString();
+    data["url"] = req.url().toEncoded().data();
     data["method"] = toString(op);
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
@@ -152,7 +152,7 @@ void NetworkAccessManager::handleStarted()
     QVariantMap data;
     data["stage"] = "start";
     data["id"] = m_ids.value(reply);
-    data["url"] = reply->url().toString();
+    data["url"] = reply->url().toEncoded().data();
     data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
     data["statusText"] = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
     data["contentType"] = reply->header(QNetworkRequest::ContentTypeHeader);
@@ -177,7 +177,7 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply)
     QVariantMap data;
     data["stage"] = "end";
     data["id"] = m_ids.value(reply);
-    data["url"] = reply->url().toString();
+    data["url"] = reply->url().toEncoded().data();
     data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
     data["statusText"] = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
     data["contentType"] = reply->header(QNetworkRequest::ContentTypeHeader);
