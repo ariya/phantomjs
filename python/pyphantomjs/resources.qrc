@@ -4,6 +4,7 @@
         <file>configurator.js</file>
         <file>modules/fs.js</file>
         <file>modules/webpage.js</file>
+        <file>modules/webserver.js</file>
         <file>resources/coffee-script.js</file>
         <file>resources/pyphantomjs-icon.png</file>
     </qresource>

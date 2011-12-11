@@ -20,7 +20,6 @@
 import os
 import sys
 
-import sip
 from PyQt4.QtCore import pyqtProperty, pyqtSlot, QObject
 from PyQt4.QtGui import QApplication
 from PyQt4.QtNetwork import QNetworkProxy, QNetworkProxyFactory
@@ -29,8 +28,9 @@ from __init__ import __version_info__
 from encoding import Encode
 from filesystem import FileSystem
 from plugincontroller import do_action
-from utils import injectJsInFrame, QPyFile
-from webpage import WebPage
+from utils import QPyFile
+from webpage import injectJsInFrame, WebPage
+from webserver import WebServer
 
 
 class Phantom(QObject):
@@ -40,6 +40,7 @@ class Phantom(QObject):
         # variable declarations
         self.m_defaultPageSettings = {}
         self.m_pages = []
+        self.m_servers = []
         self.m_verbose = args.verbose
         self.m_page = WebPage(self, args)
         self.m_returnValue = 0
@@ -58,7 +59,7 @@ class Phantom(QObject):
         if args.proxy is None:
             QNetworkProxyFactory.setUseSystemConfiguration(True)
         else:
-            proxy = QNetworkProxy(QNetworkProxy.HttpProxy, args.proxy[0], int(args.proxy[1]))
+            proxy = QNetworkProxy(args.proxy_type, args.proxy[0], int(args.proxy[1]))
             QNetworkProxy.setApplicationProxy(proxy)
 
         self.m_page.javaScriptConsoleMessageSent.connect(self.printConsoleMessage)
@@ -113,6 +114,15 @@ class Phantom(QObject):
         page.libraryPath = os.path.dirname(os.path.abspath(self.m_scriptFile))
         return page
 
+    @pyqtSlot(result=WebServer)
+    def createWebServer(self):
+        server = WebServer(self)
+        self.m_servers.append(server)
+        # :TODO:
+        # page.applySettings(self.m_defaultPageSettings)
+        # page.libraryPath = os.path.dirname(os.path.abspath(self.m_scriptFile)
+        return server
+
     @pyqtProperty('QVariantMap')
     def defaultPageSettings(self):
         return self.m_defaultPageSettings
@@ -124,12 +134,16 @@ class Phantom(QObject):
         self.m_returnValue = code
 
         # stop javascript execution in start script;
-        # delete all the pages C++ objects, then clear
+        # release all pages, then clear
         # the page list, and empty the Phantom page
         for page in self.m_pages:
-            sip.delete(page)
+            page.release()
         del self.m_pages[:]
         self.m_page = None
+
+        for server in self.m_servers:
+            server.release()
+        del self.m_servers[:] # not needed, but I'd rather be thorough
 
         QApplication.instance().exit(code)
 
