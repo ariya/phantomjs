@@ -103,7 +103,7 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
 {
     // Get the URL string before calling the superclass. Seems to work around
     // segfaults in Qt 4.8: https://gist.github.com/1430393
-    QString url = req.url().toString();
+    QByteArray url = req.url().toEncoded();
 
     // Pass duty to the superclass - Nothing special to do here (yet?)
     QNetworkReply *reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
@@ -156,7 +156,7 @@ void NetworkAccessManager::handleStarted()
     QVariantMap data;
     data["stage"] = "start";
     data["id"] = m_ids.value(reply);
-    data["url"] = reply->url().toString();
+    data["url"] = reply->url().toEncoded().data();
     data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
     data["statusText"] = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
     data["contentType"] = reply->header(QNetworkRequest::ContentTypeHeader);
@@ -181,7 +181,7 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply)
     QVariantMap data;
     data["stage"] = "end";
     data["id"] = m_ids.value(reply);
-    data["url"] = reply->url().toString();
+    data["url"] = reply->url().toEncoded().data();
     data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
     data["statusText"] = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
     data["contentType"] = reply->header(QNetworkRequest::ContentTypeHeader);

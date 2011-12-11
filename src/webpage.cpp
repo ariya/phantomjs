@@ -343,7 +343,8 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
     if (address == "about:blank") {
         m_mainFrame->setHtml(BLANK_HTML);
     } else {
-        m_mainFrame->load(QNetworkRequest(QUrl(address)), networkOp, body);
+        QUrl url = QUrl::fromEncoded(QByteArray(address.toAscii()));
+        m_mainFrame->load(QNetworkRequest(url), networkOp, body);
     }
 }
 
