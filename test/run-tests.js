@@ -73,7 +73,7 @@ jasmineEnv.addReporter(new jasmine.ConsoleReporter(function(msg){
     console.log(msg.replace('\n', ''));
 }, function(reporter){
     // On complete
-    phantom.exit();
+    phantom.exit(reporter.results().failedCount);
 }, true));
 
 // Launch tests
