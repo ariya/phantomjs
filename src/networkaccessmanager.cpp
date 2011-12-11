@@ -101,6 +101,10 @@ void NetworkAccessManager::setPassword(const QString &password)
 // protected:
 QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkRequest & req, QIODevice * outgoingData)
 {
+    // Get the URL string before calling the superclass. Seems to work around
+    // segfaults in Qt 4.8: https://gist.github.com/1430393
+    QString url = req.url().toString();
+
     // Pass duty to the superclass - Nothing special to do here (yet?)
     QNetworkReply *reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
     if(m_ignoreSslErrors) {
@@ -120,7 +124,7 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
 
     QVariantMap data;
     data["id"] = m_idCounter;
-    data["url"] = req.url().toString();
+    data["url"] = url;
     data["method"] = toString(op);
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
