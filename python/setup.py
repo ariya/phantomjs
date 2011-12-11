@@ -61,7 +61,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=['argparse'],
-    scripts = ['pyphantomjs/tools/pyphantomjs'],
+    scripts = ['scripts/pyphantomjs'],
     classifiers = [
         'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
