@@ -127,8 +127,9 @@ def parseArgs(app, args):
     return args
 
 
-def main():
-    app = QApplication(sys.argv)
+def main(arguments):
+
+    app = QApplication([sys.argv[0]] + arguments)
 
     app.setWindowIcon(QIcon(':/resources/pyphantomjs-icon.png'))
     app.setApplicationName('PyPhantomJS')
@@ -136,7 +137,7 @@ def main():
     app.setOrganizationDomain('www.umaclan.com')
     app.setApplicationVersion(__version__)
 
-    args = parseArgs(app, sys.argv[1:])
+    args = parseArgs(app, arguments)
 
     phantom = Phantom(app, args)
 
@@ -151,4 +152,4 @@ do_action('PyPhantomJS')
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))
