@@ -167,7 +167,7 @@ class NetworkAccessManager(QNetworkAccessManager):
 
         return verb
 
-    def provideAuthentication(self, reply, authenticator):
+    def provideAuthentication(self, _, authenticator):
         authenticator.setUser(self.m_userName)
         authenticator.setPassword(self.m_password)
 

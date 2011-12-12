@@ -72,7 +72,7 @@ def injectJsInFrame(filePath, scriptEncoding, libraryPath, targetFrame, starting
 
         targetFrame.evaluateJavaScript(script)
         return True
-    except IOError as (t, e):
+    except IOError as (_, e):
         qDebug("%s: '%s'" % (e, filePath))
         return False
 
@@ -210,7 +210,7 @@ class WebPage(QObject):
         try:
             pilimg.save(fileName)
             return True
-        except IOError as (t, e):
+        except IOError as (_, e):
             qDebug("WebPage.renderGif - %s: '%s'" % (e, fileName))
             return False
 
