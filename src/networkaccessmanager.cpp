@@ -124,7 +124,7 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
 
     QVariantMap data;
     data["id"] = m_idCounter;
-    data["url"] = url;
+    data["url"] = url.data();
     data["method"] = toString(op);
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
