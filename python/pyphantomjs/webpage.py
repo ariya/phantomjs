@@ -87,20 +87,20 @@ class CustomPage(QWebPage):
 
         do_action('CustomPageInit')
 
-    def chooseFile(self, originatingFrame, oldFile):
+    def chooseFile(self, _, _):
         return self.m_uploadFile
 
     def shouldInterruptJavaScript(self):
         QApplication.processEvents(QEventLoop.AllEvents, 42)
         return False
 
-    def javaScriptAlert(self, originatingFrame, msg):
+    def javaScriptAlert(self, _, msg):
         self.parent().javaScriptAlertSent.emit(msg)
 
     def javaScriptConsoleMessage(self, message, lineNumber, sourceID):
         self.parent().javaScriptConsoleMessageSent.emit(message, lineNumber, sourceID)
 
-    def userAgentForUrl(self, url):
+    def userAgentForUrl(self, _):
         return self.m_userAgent
 
     do_action('CustomPage')

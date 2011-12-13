@@ -133,7 +133,7 @@ class QPyFile(QFile):
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, _, _, _):
         self.close()
 
     def __init__(self, filename, mode='r'):
