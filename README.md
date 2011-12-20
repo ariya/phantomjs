@@ -28,6 +28,6 @@ Do not forget to consult the concise [API Reference](http://code.google.com/p/ph
 
 PhantomJS is based on [Qt](http://qt.nokia.com). There are two implementations, using C++ and Python.
 
-The latest [stable release](http://code.google.com/p/phantomjs/wiki/ReleaseNotes) is version 1.3 ("Water Lily").
+The latest [stable release](http://code.google.com/p/phantomjs/wiki/ReleaseNotes) is version 1.4 ("Glory of the Snow").
 
 If you want to contribute, please read the [Contribution Guide](http://code.google.com/p/phantomjs/wiki/ContributionGuide).
