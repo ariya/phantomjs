@@ -13,6 +13,7 @@ Please see also http://code.google.com/p/phantomjs/wiki/ReleaseNotes.
 
       * Fix potential crash in QUrl with Qt 4.8 (issue 304)
       * Fix bug in CookieJar with QSettings and string (PyPhantomJS issue 10)
+      * Prevent showing the icon on Mac OS X Dock (issue 281)
 
     Examples
 
