@@ -36,8 +36,8 @@
 */
 
 exports.create = function (opts) {
-    var server = phantom.createWebServer();
-    var handlers = {};
+    var server = phantom.createWebServer(),
+        handlers = {};
 
     function checkType(o, type) {
         return typeof o === type;
