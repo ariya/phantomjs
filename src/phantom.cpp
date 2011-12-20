@@ -243,7 +243,7 @@ void Phantom::exit(int code)
     if (m_config.debug())
         Terminal::instance()->cout("Phantom::exit() called but not quitting in debug mode.");
     else {
-        doExit(0);
+        doExit(code);
     }
 }
 
