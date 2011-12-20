@@ -7,6 +7,7 @@ Please see also http://code.google.com/p/phantomjs/wiki/ReleaseNotes.
       * Added embedded HTTP server (issue 115)
       * Added convenient build script for Linux (issue 197)
       * Added support for SOCKS5 proxy (issue 266)
+      * Updated CoffeeScript compiler to version 1.2 (issue 312)
 
     Bug fixes
 
