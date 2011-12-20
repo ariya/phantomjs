@@ -83,7 +83,10 @@ bool WebServer::listenOnPort(const QString& port)
     ///TODO: listen on multiple ports?
     close();
 
-    const char *options[] = {"listening_ports", qstrdup(qPrintable(port)), NULL};
+    const char *options[] = {
+        "listening_ports", qstrdup(qPrintable(port)),
+        "enable_directory_listing", "no",
+        NULL};
     ///TODO: more options from m_config?
     m_ctx = mg_start(&callback, this, options);
     if (!m_ctx) {
