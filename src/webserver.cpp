@@ -30,13 +30,12 @@
 
 #include "webserver.h"
 
-#include <QDebug>
-
 #include "mongoose.h"
+
 #include <QByteArray>
-#include <QThread>
 #include <QHostAddress>
 #include <QMetaType>
+#include <QThread>
 #include <QUrl>
 
 static void *callback(mg_event event,
