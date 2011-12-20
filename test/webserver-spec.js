@@ -27,7 +27,7 @@ function checkRequest(request, response) {
     expectHasProperty(response, 'statusCode');
     expectHasProperty(response, 'headers');
     expectHasFunction(response, 'setHeader');
-    expectHasFunction(response, 'writeBody');
+    expectHasFunction(response, 'write');
 }
 
 describe("WebServer object", function() {

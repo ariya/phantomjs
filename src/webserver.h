@@ -80,7 +80,7 @@ public slots:
 
 signals:
     /// @p request is a WebServerRequest, @p response is a WebServerResponse
-    void newRequest(QObject *request, QObject *response);
+    void newRequest(QVariant request, QObject *response);
 
 private slots:
     void handleRequest(mg_event event, mg_connection* conn, const mg_request_info* request,
@@ -92,47 +92,6 @@ private:
     QString m_port;
 };
 
-/**
- * Incoming HTTP client request.
- */
-class WebServerRequest : public QObject
-{
-    Q_OBJECT
-    Q_PROPERTY(QString method READ method)
-    Q_PROPERTY(QString httpVersion READ httpVersion)
-    Q_PROPERTY(int statusCode READ statusCode)
-    Q_PROPERTY(bool isSSL READ isSSL)
-    Q_PROPERTY(QString url READ url)
-    Q_PROPERTY(QString queryString READ queryString)
-    Q_PROPERTY(QString remoteIP READ remoteIP)
-    Q_PROPERTY(int remotePort READ remotePort)
-    Q_PROPERTY(QString remoteUser READ remoteUser)
-    Q_PROPERTY(int headers READ headers)
-
-public:
-    WebServerRequest(const mg_request_info *request);
-
-public slots:
-    /// @return request method, i.e. Get/Post
-    QString method() const;
-    QString httpVersion() const;
-    int statusCode() const;
-    bool isSSL() const;
-    QString url() const;
-    QString queryString() const;
-    QString remoteIP() const;
-    int remotePort() const;
-    QString remoteUser() const;
-
-    //TODO: better javascript api that allows easy "for(i in headers)" iteration?
-    //see e.g.: http://www.qtcentre.org/threads/31298-QtScript-bindings-to-advanced-containers-%28QMap-QList-etc%29
-    int headers() const;
-    QString headerName(int header) const;
-    QString headerValue(int header) const;
-
-private:
-    const mg_request_info *m_request;
-};
 
 /**
  * Outgoing HTTP response to client.
@@ -148,9 +107,9 @@ public:
 
 public slots:
     /// send @p headers to client with status code @p statusCode
-    void writeHeaders(int statusCode, const QVariantMap &headers);
+    void writeHead(int statusCode, const QVariantMap &headers);
     /// sends @p data to client and makes sure the headers are send beforehand
-    void writeBody(const QString &data);
+    void write(const QString &data);
 
     /// get the currently set status code, 200 is the default
     int statusCode() const;

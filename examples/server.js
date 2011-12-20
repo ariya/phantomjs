@@ -31,9 +31,9 @@ if (phantom.args.length !== 1) {
         response.setHeader("foo", "bar");
         // now we write the body
         // note: the headers above will now be sent implictly
-        response.writeBody("<html><head><title>YES!</title></head>");
+        response.write("<html><head><title>YES!</title></head>");
         // note: writeBody can be called multiple times
-        response.writeBody("<body><p>pretty cool :)</body></html>");
+        response.write("<body><p>pretty cool :)</body></html>");
     });
     if (!listening) {
         console.log("could not create web server listening on port " + port);

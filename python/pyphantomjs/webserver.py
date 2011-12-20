@@ -230,11 +230,11 @@ class WebServerResponse(QObject):
         self.m_conn.m_statusCode = code
 
     @pyqtSlot(str)
-    def writeBody(self, body):
+    def write(self, body):
         self.m_conn.m_wfile.write(body)
 
     @pyqtSlot(int, 'QVariantMap')
-    def writeHeaders(self, code, headers):
+    def writeHead(self, code, headers):
         self.m_conn.m_statusCode = code
         self.m_conn.m_headers = CaseInsensitiveDict(headers)
 

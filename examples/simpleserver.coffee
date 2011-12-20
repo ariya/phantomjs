@@ -7,11 +7,8 @@ else
 
   service = server.listen(port, (request, response) ->
 
-    excludeObjectName = (key, value) ->
-      (if (key is "objectName") then `undefined` else value)
-
     console.log "Request at " + new Date()
-    console.log JSON.stringify(request, excludeObjectName, 4)
+    console.log JSON.stringify(request, null, 4)
 
     response.statusCode = 200
     response.headers =
@@ -26,7 +23,7 @@ else
     response.write "<p>This is from PhantomJS web server.</p>"
     response.write "<p>Request data:</p>"
     response.write "<pre>"
-    response.write JSON.stringify(request, excludeObjectName, 4)
+    response.write JSON.stringify(request, null, 4)
     response.write "</pre>"
     response.write "</body>"
     response.write "</html>"

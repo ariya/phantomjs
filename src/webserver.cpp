@@ -33,9 +33,11 @@
 #include <QDebug>
 
 #include "mongoose.h"
+#include <QByteArray>
 #include <QThread>
 #include <QHostAddress>
 #include <QMetaType>
+#include <QUrl>
 
 static void *callback(mg_event event,
                       mg_connection *conn,
@@ -116,91 +118,51 @@ void WebServer::handleRequest(mg_event event, mg_connection *conn, const mg_requ
 {
     Q_ASSERT(QThread::currentThread() == thread());
     if (event == MG_NEW_REQUEST) {
-        WebServerRequest requestObj(request);
         WebServerResponse responseObj(conn);
-        emit newRequest(&requestObj, &responseObj);
+
+        // Modelled after http://nodejs.org/docs/latest/api/http.html#http.ServerRequest
+        QVariantMap requestObject;
+
+        ///TODO: encoding?!
+
+        if (request->request_method)
+            requestObject["method"] = QString::fromLocal8Bit(request->request_method);
+        if (request->http_version)
+            requestObject["httpVersion"] = QString::fromLocal8Bit(request->http_version);
+        if (request->status_code >=0)
+            requestObject["statusCode"] = request->status_code;
+
+        QByteArray uri(request->uri);
+        if (uri.startsWith('/'))
+            uri = '/' + QUrl::toPercentEncoding(QString::fromLatin1(request->uri + 1));
+        if (request->query_string)
+            uri.append('?').append(QByteArray(request->query_string));
+        requestObject["url"] = uri.data();
+
+#if 0
+        // Non-standard and thus disable for the time being.
+        requestObject["isSSL"] = request->is_ssl;
+        requestObject["remoteIP"] = QHostAddress(request->remote_ip).toString();;
+        requestObject["remotePort"] = request->remote_port;
+        if (request->remote_user)
+            requestObject["remoteUser"] = QString::fromLocal8Bit(request->remote_user);
+#endif
+
+        QVariantMap headersObject;
+        for (int i = 0; i < request->num_headers; ++i) {
+            QString key = QString::fromLocal8Bit(request->http_headers[i].name);
+            QString value = QString::fromLocal8Bit(request->http_headers[i].value);
+            headersObject[key] = value;
+        }
+        requestObject["headers"] = headersObject;
+
+        emit newRequest(requestObject, &responseObj);
         *handled = true;
         return;
     }
     *handled = false;
 }
 
-//BEGIN WebServerRequest
-WebServerRequest::WebServerRequest(const mg_request_info *request)
-    : m_request(request)
-{
-}
-
-QString WebServerRequest::method() const
-{
-    ///TODO: encoding?!
-    return QString::fromLocal8Bit(m_request->request_method);
-}
-
-QString WebServerRequest::httpVersion() const
-{
-    ///TODO: encoding?!
-    return QString::fromLocal8Bit(m_request->http_version);
-}
-
-int WebServerRequest::statusCode() const
-{
-    return m_request->status_code;
-}
-
-bool WebServerRequest::isSSL() const
-{
-    return m_request->is_ssl;
-}
-
-QString WebServerRequest::url() const
-{
-    ///TODO: encoding?!
-    return QString::fromLocal8Bit(m_request->uri);
-}
-
-QString WebServerRequest::queryString() const
-{
-    ///TODO: encoding?!
-    return QString::fromLocal8Bit(m_request->query_string);
-}
-
-QString WebServerRequest::remoteIP() const
-{
-    return QHostAddress(m_request->remote_ip).toString();
-}
-
-int WebServerRequest::remotePort() const
-{
-    return m_request->remote_port;
-}
-
-QString WebServerRequest::remoteUser() const
-{
-    ///TODO: encoding?!
-    return QString::fromLocal8Bit(m_request->remote_user);
-}
-
-int WebServerRequest::headers() const
-{
-    return m_request->num_headers;
-}
-
-QString WebServerRequest::headerName(int header) const
-{
-    Q_ASSERT(header >= 0 && header < m_request->num_headers);
-    ///TODO: encoding?!
-    return QString::fromLocal8Bit(m_request->http_headers[header].name);
-}
-
-QString WebServerRequest::headerValue(int header) const
-{
-    Q_ASSERT(header >= 0 && header < m_request->num_headers);
-    ///TODO: encoding?!
-    return QString::fromLocal8Bit(m_request->http_headers[header].value);
-}
-
-//END WebServerRequest
 
 //BEGIN WebServerResponse
 
@@ -303,7 +265,7 @@ const char* responseCodeString(int code)
     }
 }
 
-void WebServerResponse::writeHeaders(int statusCode, const QVariantMap &headers)
+void WebServerResponse::writeHead(int statusCode, const QVariantMap &headers)
 {
     ///TODO: what is the best-practice error handling in javascript? exceptions?
     Q_ASSERT(!m_headersSent);
@@ -317,10 +279,10 @@ void WebServerResponse::writeHeaders(int statusCode, const QVariantMap &headers)
     mg_write(m_conn, "\r\n", 2);
 }
 
-void WebServerResponse::writeBody(const QString &body)
+void WebServerResponse::write(const QString &body)
 {
     if (!m_headersSent) {
-        writeHeaders(m_statusCode, m_headers);
+        writeHead(m_statusCode, m_headers);
     }
     ///TODO: encoding?!
     const QByteArray data = body.toLocal8Bit();
