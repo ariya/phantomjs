@@ -105,7 +105,7 @@ def has_action(hook, func=None):
             raise LookupError("Hook '%s' was not found" % hook)
 
         for plugin in hooks[hook]['plugins']:
-            if plugin[1] == func:
+            if plugin[1] is func:
                 return True
     return False
 
@@ -124,7 +124,7 @@ def remove_action(hook, func=None, priority=10):
             raise LookupError("Hook '%s' was not found" % hook)
 
         for i, plugin in enumerate(hooks[hook]['plugins']):
-            if plugin[1] == func and plugin[0] == priority:
+            if plugin[1] is func and plugin[0] == priority:
                 del hooks[hook]['plugins'][i]
                 return True
     return False
