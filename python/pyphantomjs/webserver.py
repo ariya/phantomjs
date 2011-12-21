@@ -70,8 +70,8 @@ class WebServer(QObject):
         try:
             self.httpd = ThreadingHTTPServer(('localhost', port), WebServerHandler)
             Thread(target=self.httpd.serve_forever).start()
-        except socket.error as (e, t):
-            qDebug('WebServer.listenOnPort - %s' % t)
+        except socket.error as (_, e):
+            qDebug('WebServer.listenOnPort - %s' % e)
             self.m_port = 0
             return False
         else:
