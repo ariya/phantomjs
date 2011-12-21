@@ -269,6 +269,7 @@ void WebServerResponse::writeHead(int statusCode, const QVariantMap &headers)
     ///TODO: what is the best-practice error handling in javascript? exceptions?
     Q_ASSERT(!m_headersSent);
     m_headersSent = true;
+    m_statusCode = statusCode;
     mg_printf(m_conn, "HTTP/1.1 %d %s\r\n", m_statusCode, responseCodeString(m_statusCode));
     QVariantMap::const_iterator it = headers.constBegin();
     while(it != headers.constEnd()) {
