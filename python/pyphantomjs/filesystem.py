@@ -130,7 +130,7 @@ class FileSystem(QObject):
     def _size(self, path):
         try:
             return os.path.getsize(path)
-        except OSError as (t, e):
+        except OSError as (_, e):
             qDebug("FileSystem.size - %s: '%s'" % (e, path))
             return -1
 
@@ -154,7 +154,7 @@ class FileSystem(QObject):
         try:
             shutil.copy2(source, target)
             return True
-        except IOError as (t, e):
+        except IOError as (_, e):
             qDebug("FileSystem.copy - %s: '%s' -> '%s'" % (e, source, target))
             return False
 
@@ -163,7 +163,7 @@ class FileSystem(QObject):
         try:
             os.rename(source, target)
             return True
-        except OSError as (t, e):
+        except OSError as (_, e):
             qDebug("FileSystem.rename - %s: '%s' -> '%s'" % (e, source, target))
             return False
 
@@ -176,7 +176,7 @@ class FileSystem(QObject):
         try:
             shutil.copytree(source, target)
             return True
-        except IOError as (t, e):
+        except IOError as (_, e):
             qDebug("FileSystem.copyTree - %s: '%s' -> '%s'" % (e, source, target))
             return False
 
@@ -203,7 +203,7 @@ class FileSystem(QObject):
         try:
             shutil.copytree(source, target, True)
             return True
-        except IOError as (t, e):
+        except IOError as (_, e):
             qDebug("FileSystem.copyLinkTree - %s: '%s' -> '%s'" % (e, source, target))
             return False
 
@@ -234,7 +234,7 @@ class FileSystem(QObject):
         try:
             f = codecs.open(path, mode, encoding='utf-8')
             return File(self, f)
-        except (IOError, ValueError) as (t, e):
+        except (IOError, ValueError) as (_, e):
             qDebug("FileSystem.open - %s: '%s'" % (e, path))
             return
 
@@ -269,11 +269,11 @@ class FileSystem(QObject):
     def listTree(self, path):
         try:
             listing = []
-            for root, dirs, files in os.walk(path):
+            for root, _, files in os.walk(path):
                 for file_ in files:
                     listing.append(os.path.join(root, file_))
             return listing
-        except OSError as (t, e):
+        except OSError as (_, e):
             qDebug("FileSystem.listTree - %s: '%s'" % (e, path))
             return
 
@@ -281,11 +281,11 @@ class FileSystem(QObject):
     def listDirectoryTree(self, path):
         try:
             listing = []
-            for root, dirs, files in os.walk(path):
+            for root, dirs, _ in os.walk(path):
                 for dir_ in dirs:
                     listing.append(os.path.join(root, dir_))
             return listing
-        except OSError as (t, e):
+        except OSError as (_, e):
             qDebug("FileSystem.listDirectoryTree - %s: '%s'" % (e, path))
             return
 
@@ -298,7 +298,7 @@ class FileSystem(QObject):
         try:
             os.symlink(source, target)
             return True
-        except OSError as (t, e):
+        except OSError as (_, e):
             qDebug("FileSystem.symbolicLink - %s: '%s' -> '%s'" % (e, source, target))
             return False
 
@@ -307,7 +307,7 @@ class FileSystem(QObject):
         try:
             os.link(source, target)
             return True
-        except OSError as (t, e):
+        except OSError as (_, e):
             qDebug("FileSystem.hardLink - %s: '%s' -> '%s'" % (e, source, target))
             return False
 
@@ -315,7 +315,7 @@ class FileSystem(QObject):
     def readLink(self, path):
         try:
             return os.readlink(path)
-        except OSError as (t, e):
+        except OSError as (_, e):
             qDebug("FileSystem.readLink - %s: '%s'" % (e, path))
             return ''
 
@@ -407,8 +407,8 @@ class FileSystem(QObject):
             else:
                 os.chown(path, -1, getgrnam(group).gr_gid)
             return True
-        except OSError as (t, e):
-            qDebug("FileSystem.changeGroup - %s: '%s':'%s'" % (e, owner, path))
+        except OSError as (_, e):
+            qDebug("FileSystem.changeGroup - %s: '%s':'%s'" % (e, group, path))
         except KeyError as e:
             qDebug("FileSystem.changeGroup - %s: '%s'" % (e.args[0], path))
         return False
@@ -422,8 +422,8 @@ class FileSystem(QObject):
             else:
                 os.lchown(path, -1, getgrnam(group).gr_gid)
             return True
-        except OSError as (t, e):
-            qDebug("FileSystem.changeLinkGroup - %s: '%s':'%s'" % (e, owner, path))
+        except OSError as (_, e):
+            qDebug("FileSystem.changeLinkGroup - %s: '%s':'%s'" % (e, group, path))
         except KeyError as e:
             qDebug("FileSystem.changeLinkGroup - %s: '%s'" % (e.args[0], path))
         return False
@@ -437,49 +437,11 @@ class FileSystem(QObject):
             else:
                 os.lchown(path, getpwnam(owner).pw_uid, -1)
             return True
-        except OSError as (t, e):
+        except OSError as (_, e):
             qDebug("FileSystem.changeLinkOwner - %s: '%s':'%s'" % (e, owner, path))
         except KeyError as e:
             qDebug("FileSystem.changeLinkOwner - %s: '%s'" % (e.args[0], path))
         return False
-
-    @pyqtSlot(str, int, result=bool)
-    @pyqtSlot(str, 'QVariantMap', result=bool)
-    def changeLinkPermissions(self, path, permissions):
-        # permissions uses an object in 4 types: owner, group, others, special
-        # owner,group,others each has 3 types, read,write,executable, contained in an array
-        # special uses setuid,setgid,sticky
-        #
-        # In order to turn values on or off, just use true or false values.
-        #
-        # Permissions can alternatively be a numeric mode to chmod too.
-
-        keys = {
-            'owner': {'read': 'S_IRUSR', 'write': 'S_IWUSR', 'executable': 'S_IXUSR'},
-            'group': {'read': 'S_IRGRP', 'write': 'S_IWGRP', 'executable': 'S_IXGRP'},
-            'others': {'read': 'S_IROTH', 'write': 'S_IWOTH', 'executable': 'S_IXOTH'},
-            'special': {'setuid': 'S_ISUID', 'setgid': 'S_ISGID', 'sticky': 'S_ISVTX'}
-        }
-
-        try:
-            if isinstance(permissions, int):
-                os.lchmod(path, permissions)
-            else:
-                bitnum = os.lstat(path).st_mode
-                for section in permissions:
-                    for key in permissions[section]:
-                        try:
-                            if permissions[section][key] is True:
-                                bitnum = bitnum | stat.__dict__[keys[section][key]]
-                            elif permissions[section][key] is False:
-                                bitnum = bitnum & ~stat.__dict__[keys[section][key]]
-                        except KeyError:
-                            pass
-                os.lchmod(path, bitnum)
-            return True
-        except OSError as (t, e):
-            qDebug("FileSystem.changeLinkPermissions - %s: '%s'" % (e, path))
-            return False
 
     @pyqtSlot(str, str, result=bool)
     @pyqtSlot(str, int, result=bool)
@@ -490,7 +452,7 @@ class FileSystem(QObject):
             else:
                 os.chown(path, getpwnam(owner).pw_uid, -1)
             return True
-        except OSError as (t, e):
+        except OSError as (_, e):
             qDebug("FileSystem.changeOwner - %s: '%s':'%s'" % (e, owner, path))
         except KeyError as e:
             qDebug("FileSystem.changeOwner - %s: '%s'" % (e.args[0], path))
@@ -530,7 +492,7 @@ class FileSystem(QObject):
                             pass
                 os.chmod(path, bitnum)
             return True
-        except OSError as (t, e):
+        except OSError as (_, e):
             qDebug("FileSystem.changePermissions - %s: '%s'" % (e, path))
             return False
 
@@ -542,7 +504,7 @@ class FileSystem(QObject):
                 'name': getgrgid(finfo.st_gid).gr_name,
                 'uid': finfo.st_gid
             }
-        except OSError as (t, e):
+        except OSError as (_, e):
             qDebug("FileSystem.group - %s: '%s'" % (e, path))
             return
 
@@ -554,7 +516,7 @@ class FileSystem(QObject):
                 'name': getpwuid(finfo.st_uid).pw_name,
                 'uid': finfo.st_uid
             }
-        except OSError as (t, e):
+        except OSError as (_, e):
             qDebug("FileSystem.owner - %s: '%s'" % (e, path))
             return
 
@@ -566,7 +528,7 @@ class FileSystem(QObject):
                 'name': getgrgid(finfo.st_gid).gr_name,
                 'uid': finfo.st_gid
             }
-        except OSError as (t, e):
+        except OSError as (_, e):
             qDebug("FileSystem.linkGroup - %s: '%s'" % (e, path))
             return
 
@@ -578,7 +540,7 @@ class FileSystem(QObject):
                 'name': getpwuid(finfo.st_uid).pw_name,
                 'uid': finfo.st_uid
             }
-        except OSError as (t, e):
+        except OSError as (_, e):
             qDebug("FileSystem.linkOwner - %s: '%s'" % (e, path))
             return
 
@@ -616,7 +578,7 @@ class FileSystem(QObject):
                 'others': {'read': isOthRd, 'write': isOthWr, 'executable': isOthEx},
                 'special': {'setuid': isSUid, 'setgid': isSGid, 'sticky': isStick}
             }
-        except OSError as (t, e):
+        except OSError as (_, e):
             qDebug("FileSystem.linkPermissions - %s: '%s'" % (e, path))
             return
 
@@ -654,7 +616,7 @@ class FileSystem(QObject):
                 'others': {'read': isOthRd, 'write': isOthWr, 'executable': isOthEx},
                 'special': {'setuid': isSUid, 'setgid': isSGid, 'sticky': isStick}
             }
-        except OSError as (t, e):
+        except OSError as (_, e):
             qDebug("FileSystem.permissions - %s: '%s'" % (e, path))
             return
 
