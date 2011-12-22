@@ -49,7 +49,6 @@ CFG=''
 CFG+=' -opensource'          # Use the open-source license
 CFG+=' -confirm-license'     # Silently acknowledge the license confirmation
 
-CFG+=' -prefix $PWD'         # Install locally
 CFG+=' -release'             # Build only for release (no debugging support)
 CFG+=' -static'              # Compile for static libraries
 CFG+=' -nomake demos'        # Don't build with the demos
@@ -83,7 +82,6 @@ CFG+=' -no-dbus'             # Disable D-Bus feature
 CFG+=' -no-glib'             # No need for Glib integration
 CFG+=' -no-gstreamer'        # Turn off GStreamer support
 CFG+=' -no-gtkstyle'         # Disable theming integration with Gtk+
-CFG+=' -no-mitshm'
 CFG+=' -no-sm'
 CFG+=' -no-xinerama'
 CFG+=' -no-xkb'
@@ -98,7 +96,7 @@ CFG+=' -D QT_NO_STYLE_CDE'
 CFG+=' -D QT_NO_STYLE_CLEANLOOKS'
 CFG+=' -D QT_NO_STYLE_MOTIF'
 
-./configure $CFG
+./configure -prefix $PWD $CFG
 make -j$COMPILE_JOBS
 cd ..
 
