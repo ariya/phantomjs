@@ -1,10 +1,11 @@
 describe("WebServer constructor", function() {
-    it("should exist in window", function() {
-        expect(window.hasOwnProperty('WebServer')).toBeTruthy();
+    it("should not exist in window", function() {
+        expect(window.hasOwnProperty('WebServer')).toBeFalsy();
     });
 
     it("should be a function", function() {
-        expect(typeof window.WebServer).toEqual('function');
+        var WebServer = require('webserver').create;
+        expect(typeof WebServer).toEqual('function');
     });
 });
 
@@ -31,7 +32,7 @@ function checkRequest(request, response) {
 }
 
 describe("WebServer object", function() {
-    var server = new WebServer();
+    var server = require('webserver').create();
 
     it("should be creatable", function() {
         expect(typeof server).toEqual('object');

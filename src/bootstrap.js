@@ -55,4 +55,3 @@ function require(name) {
 
 // Legacy way to use WebPage
 window.WebPage = require('webpage').create;
-window.WebServer = require('webserver').create;
