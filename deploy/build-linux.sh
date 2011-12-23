@@ -2,7 +2,7 @@
 
 QT_VERSION=0
 QT_FOLDER=""
-COMPILE_JOBS=10
+COMPILE_JOBS=4
 
 if [ "$1" = "--qt-4.8" ]
 then
