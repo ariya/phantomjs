@@ -104,7 +104,7 @@ CFG+=' -D QT_NO_STYLE_CDE'
 CFG+=' -D QT_NO_STYLE_CLEANLOOKS'
 CFG+=' -D QT_NO_STYLE_MOTIF'
 
-./configure -prefix $PWD $CFG
+./configure -prefix $PWD $CFG -arch x86
 make -j$COMPILE_JOBS
 cd ..
 
