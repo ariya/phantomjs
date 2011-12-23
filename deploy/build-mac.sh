@@ -37,13 +37,74 @@ cd $QT_FOLDER
 patch configure ../allow-static-qtwebkit.patch
 patch -p1 < ../qapplication_skip_qtmenu.patch
 
-rm -rf src/3rdparty/WebKit/qt/tests
+rm -rf src/3rdparty/webkit/Source/WebKit/qt/tests
 
 # Step 4: Build Qt
 
 echo "Building Qt $QT_VERSION. Please wait..."
 echo
-./configure -opensource -confirm-license -release -static -no-exceptions -no-stl -no-xmlpatterns -no-phonon -no-qt3support -no-opengl -no-declarative -qt-libpng -qt-libjpeg -no-libmng -no-libtiff -D QT_NO_STYLE_CDE -D QT_NO_STYLE_CLEANLOOKS -D QT_NO_STYLE_MOTIF -D QT_NO_STYLE_PLASTIQUE -cocoa -prefix $PWD -arch x86 -nomake demos -nomake examples -nomake tools
+
+CFG=''
+
+CFG+=' -opensource'          # Use the open-source license
+CFG+=' -confirm-license'     # Silently acknowledge the license confirmation
+
+CFG+=' -release'             # Build only for release (no debugging support)
+CFG+=' -static'              # Compile for static libraries
+CFG+=' -fast'                # Accelerate Makefiles generation
+CFG+=' -nomake demos'        # Don't build with the demos
+CFG+=' -nomake docs'         # Don't generate the documentatio
+CFG+=' -nomake examples'     # Don't build any examples
+CFG+=' -nomake translations' # Ignore the translations
+CFG+=' -nomake tools'        # Don't built the tools
+
+CFG+=' -no-exceptions'       # Don't use C++ exception
+CFG+=' -no-stl'              # No need for STL compatibility
+
+# Irrelevant Qt features
+CFG+=' -no-libmng'
+CFG+=' -no-libtiff'
+
+# Unnecessary Qt modules
+CFG+=' -no-declarative'
+CFG+=' -no-multimedia'
+CFG+=' -no-opengl'
+CFG+=' -no-openvg'
+CFG+=' -no-phonon'
+CFG+=' -no-qt3support'
+CFG+=' -no-script'
+CFG+=' -no-scripttools'
+CFG+=' -no-svg'
+CFG+=' -no-xmlpatterns'
+
+# Sets the default graphics system to the raster engine
+CFG+=' -graphicssystem raster'
+
+# Mac
+CFG+=' -cocoa'               # Cocoa only, ignore Carbon
+CFG+=' -no-cups'             # Disable CUPS support
+CFG+=' -no-dwarf2'
+
+# Unix
+CFG+=' -no-dbus'             # Disable D-Bus feature
+CFG+=' -no-glib'             # No need for Glib integration
+CFG+=' -no-gstreamer'        # Turn off GStreamer support
+CFG+=' -no-gtkstyle'         # Disable theming integration with Gtk+
+CFG+=' -no-sm'
+CFG+=' -no-xinerama'
+CFG+=' -no-xkb'
+
+# Use the bundled libraries, vs system-installed
+CFG+=' -qt-libjpeg'
+CFG+=' -qt-libpng'
+
+# Useless styles
+CFG+=' -D QT_NO_STYLESHEET'
+CFG+=' -D QT_NO_STYLE_CDE'
+CFG+=' -D QT_NO_STYLE_CLEANLOOKS'
+CFG+=' -D QT_NO_STYLE_MOTIF'
+
+./configure -prefix $PWD $CFG
 make -j$COMPILE_JOBS
 cd ..
 
