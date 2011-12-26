@@ -106,7 +106,7 @@ void Config::processArgs(const QStringList &args)
             setLocalToRemoteUrlAccessEnabled(true);
             continue;
         }
-        if (arg == "--proxy-type=") {
+        if (arg.startsWith("--proxy-type=")) {
             setProxyType(arg.mid(13).trimmed());
             continue;
         }
