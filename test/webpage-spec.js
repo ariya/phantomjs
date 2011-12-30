@@ -191,6 +191,21 @@ describe("WebPage object", function() {
     });
 
 
+    it("should handle file uploads", function() {
+        runs(function() {
+            page.content = '<input type="file" id="file">';
+            page.uploadFile("#file", 'README.md');
+        });
+
+        waits(50);
+
+        runs(function() {
+            var fileName = page.evaluate(function() {
+                return document.getElementById('file').files[0].fileName;
+            });
+            expect(fileName).toEqual('README.md');
+        });
+    });
 });
 
 describe("WebPage construction with options", function () {
