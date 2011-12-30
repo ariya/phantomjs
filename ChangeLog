@@ -1,5 +1,13 @@
 Please see also http://code.google.com/p/phantomjs/wiki/ReleaseNotes.
 
+2011-12-31: Version 1.4.1
+
+    Bug fixes
+
+      * Fix setting the proxy type (issue 266)
+      * Workaround for file upload regression (issue 307)
+      * Fix extraneous messsages in non-debug mode (issue 323)
+
 2011-12-22: Version 1.4.0 "Glory of the Snow"
 
     New features
