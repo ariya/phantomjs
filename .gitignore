@@ -17,3 +17,5 @@ debian/*.substvars
 debian/*/
 python/build/
 python/*.egg-info/
+/deploy/qt-*.tar.gz
+/deploy/Qt-*

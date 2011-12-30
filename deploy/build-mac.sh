@@ -36,6 +36,7 @@ mv qt-everywhere-opensource-src-$QT_VERSION Qt-$QT_VERSION
 cd $QT_FOLDER
 patch configure ../allow-static-qtwebkit.patch
 patch -p1 < ../qapplication_skip_qtmenu.patch
+patch -p1 < ../qt48_enable_file_input_click.patch
 
 rm -rf src/3rdparty/webkit/Source/WebKit/qt/tests
 

@@ -1,64 +1,44 @@
 #!/bin/bash
 
-QT_VERSION=0
-QT_FOLDER=""
 COMPILE_JOBS=4
+DEPLOY_DIR=`dirname $0`
 
 if [ "$1" = "--qt-4.8" ]
 then
-    echo "Building Qt 4.8"
-    QT_VERSION=4.8
-    QT_FOLDER=Qt-$QT_VERSION
-    QT_URL=git://gitorious.org/qt/qt.git
-
-    echo "Cloning Qt from gitorious into $QT_FOLDER..."
-    if [ ! -d $QT_FOLDER ]
-    then
-        git clone $QT_URL $QT_FOLDER
-        pushd $QT_FOLDER
-        git checkout -b 4.8 origin/4.8
-    else
-        pushd $QT_FOLDER
-        git checkout -f
-        git clean -xdf
-        git checkout 4.8
-    fi
-    
-    popd
+    QT_VERSION=4.8.0
 else
-    echo "Building Qt 4.7"
-    
     QT_VERSION=4.7.4
-    QT_FOLDER=Qt-$QT_VERSION
-    QT_TARBALL=qt-everywhere-opensource-src-$QT_VERSION.tar.gz
-
-    # Tip: change this to local/shared mirror
-    QT_URL=http://get.qt.nokia.com/qt/source/$QT_TARBALL
-
-
-    # Step 1: Download Qt source tarball
-    # Note: only if it does not exist yet in the current directory
-    if [ ! -f $QT_TARBALL ]
-    then
-	echo "Downloading Qt $QT_VERSION from Nokia. Please wait..."
-	if ! curl -C - -O -S $QT_URL
-	then
-	    echo
-	    echo "Fatal error: fail to download from $QT_URL !"
-	    exit 1
-	fi
-    fi
-
-    # Step 2: Extract Qt source
-
-    [ -d $QT_FOLDER ] && rm -rf $QT_FOLDER
-    echo "Extracting Qt $QT_VERSION source tarball..."
-    echo
-    tar xzf $QT_TARBALL
-    mv qt-everywhere-opensource-src-$QT_VERSION Qt-$QT_VERSION
-
 fi
 
+QT_FOLDER=$DEPLOY_DIR/Qt-$QT_VERSION
+echo "Building Qt $QT_VERSION"
+
+QT_TARBALL=$DEPLOY_DIR/qt-everywhere-opensource-src-$QT_VERSION.tar.gz
+
+# Tip: change this to local/shared mirror
+QT_URL=http://get.qt.nokia.com/qt/source/qt-everywhere-opensource-src-$QT_VERSION.tar.gz
+
+
+# Step 1: Download Qt source tarball
+# Note: only if it does not exist yet in the current directory
+if [ ! -f $QT_TARBALL ]
+then
+    echo "Downloading Qt $QT_VERSION from Nokia. Please wait..."
+    if ! curl -C - -o $QT_TARBALL -S $QT_URL
+    then
+        echo
+        echo "Fatal error: fail to download from $QT_URL !"
+        exit 1
+    fi
+fi
+
+# Step 2: Extract Qt source
+
+[ -d $QT_FOLDER ] && rm -rf $QT_FOLDER
+echo "Extracting Qt $QT_VERSION source tarball..."
+echo
+tar -C $DEPLOY_DIR -xzf $QT_TARBALL
+mv $DEPLOY_DIR/qt-everywhere-opensource-src-$QT_VERSION $QT_FOLDER
 
 
 # Step 3: Build Qt
@@ -66,12 +46,13 @@ fi
 pushd $QT_FOLDER
 
 EXTRA_FLAGS=""
-if [ $QT_VERSION = 4.8 ] ; then
-  echo "Patching Qt 4.8"
+if [ $QT_VERSION = 4.8.0 ] ; then
+    echo "Patching Qt 4.8"
     patch -p1 < ../qt48_enable_debugger.patch
     patch -p1 < ../qt48_fix_inspector.patch
     patch -p1 < ../qt48_headless_and_pdf_fixes.patch
-  # Build in lighthose mode for an x-less build
+    patch -p1 < ../qt48_enable_file_input_click.patch
+    # Build in lighthose mode for an x-less build
     if [ "$2" = "--headless" ] ; then
         echo "Building 4.8 in qpa headless mode"
         EXTRA_FLAGS="-qpa"
@@ -91,7 +72,7 @@ make -j$COMPILE_JOBS
 popd
 
 
-if [ $QT_VERSION != 4.8 ] ; then
+if [ $QT_VERSION != 4.8.0 ] ; then
     # Extra step: copy JavaScriptCore/release, needed for jscore static lib
     mkdir ../JavaScriptCore
     cp -rp $QT_FOLDER/src/3rdparty/webkit/JavaScriptCore/release ../JavaScriptCore/
@@ -101,9 +82,9 @@ fi
 
 echo "Building PhantomJS. Please wait..."
 echo
-cd ..
+cd $DEPLOY_DIR/..
 [ -f Makefile ] && make distclean
-deploy/$QT_FOLDER/bin/qmake
+$QT_FOLDER/bin/qmake
 make -j$COMPILE_JOBS
 
 # Step 5: Prepare for deployment
