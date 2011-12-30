@@ -71,6 +71,7 @@ if [ $QT_VERSION = 4.8 ] ; then
     patch -p1 < ../qt48_enable_debugger.patch
     patch -p1 < ../qt48_fix_inspector.patch
     patch -p1 < ../qt48_headless_and_pdf_fixes.patch
+    patch -p1 < ../qt48_enable_file_input_click.patch
   # Build in lighthose mode for an x-less build
     if [ "$2" = "--headless" ] ; then
         echo "Building 4.8 in qpa headless mode"
