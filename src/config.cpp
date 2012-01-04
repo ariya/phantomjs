@@ -152,11 +152,6 @@ void Config::processArgs(const QStringList &args)
     }
 }
 
-static QString normalizePath(const QString &path)
-{
-    return path.isEmpty() ? path : QDir::fromNativeSeparators(path);
-}
-
 void Config::loadJsonFile(const QString &filePath)
 {
     QString jsonConfig;
