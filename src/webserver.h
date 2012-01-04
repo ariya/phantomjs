@@ -40,7 +40,6 @@
 
 class Config;
 
-class WebServerRequest;
 class WebServerResponse;
 
 /**
