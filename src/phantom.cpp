@@ -151,7 +151,7 @@ bool Phantom::execute()
 
     if (m_config.debug())
     {
-        if (!Utils::loadJSForDebug(m_config.scriptFile(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
+        if (!Utils::loadJSForDebug(m_config.scriptFile(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame())) {
             m_returnValue = -1;
             return false;
         }
