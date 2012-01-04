@@ -53,7 +53,7 @@ class WebServer : public QObject
     Q_PROPERTY(QString port READ port);
 
 public:
-    WebServer(QObject *parent, const Config *config);
+    WebServer(QObject *parent, Config *config);
     virtual ~WebServer();
 
 public slots:
