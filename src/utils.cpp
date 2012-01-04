@@ -98,12 +98,12 @@ bool Utils::injectJsInFrame(const QString &jsFilePath, const Encoding &jsFileEnc
     return true;
 }
 
-bool Utils::loadJSForDebug(const QString& jsFilePath, const QString& libraryPath, QWebFrame* targetFrame, const bool startingScript)
+bool Utils::loadJSForDebug(const QString& jsFilePath, const QString& libraryPath, QWebFrame* targetFrame)
 {
-    return loadJSForDebug(jsFilePath, Encoding::UTF8, libraryPath, targetFrame, startingScript);
+    return loadJSForDebug(jsFilePath, Encoding::UTF8, libraryPath, targetFrame);
 }
 
-bool Utils::loadJSForDebug(const QString& jsFilePath, const Encoding& jsFileEnc, const QString& libraryPath, QWebFrame* targetFrame, const bool startingScript)
+bool Utils::loadJSForDebug(const QString& jsFilePath, const Encoding& jsFileEnc, const QString& libraryPath, QWebFrame* targetFrame)
 {
 
     QString scriptPath = findScript(jsFilePath, libraryPath);
