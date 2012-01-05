@@ -76,6 +76,7 @@ public slots:
     QObject *createWebServer();
     QObject *createFilesystem();
     QString loadModuleSource(const QString &name);
+    QString getStdinLine();
     bool injectJs(const QString &jsFilePath);
 
     // exit() will not exit in debug mode. debugExit() will always exit.
