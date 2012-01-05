@@ -62,9 +62,9 @@ static void *callback(mg_event event,
     }
 }
 
-WebServer::WebServer(QObject *parent, const Config *config)
+WebServer::WebServer(QObject *parent, Config *config)
     : QObject(parent)
-    , m_config(m_config)
+    , m_config(config)
     , m_ctx(0)
 {
     setObjectName("WebServer");
