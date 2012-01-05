@@ -35,13 +35,15 @@
 #include <QVariantMap>
 #include <QWebPage>
 
+#include "replcompletable.h"
+
 class Config;
 class CustomPage;
 class NetworkAccessManager;
 class QWebInspector;
 class Phantom;
 
-class WebPage: public QObject
+class WebPage: public REPLCompletable
 {
     Q_OBJECT
     Q_PROPERTY(QString content READ content WRITE setContent)
@@ -107,6 +109,17 @@ private slots:
     void finish(bool ok);
 
 private:
+    QImage renderImage();
+    bool renderPdf(const QString &fileName);
+    void applySettings(const QVariantMap &defaultSettings);
+    QString userAgent() const;
+
+    void emitAlert(const QString &msg);
+    void emitConsoleMessage(const QString &msg, int lineNumber, const QString &source);
+
+    virtual void initCompletions();
+
+private:
     CustomPage *m_webPage;
     NetworkAccessManager *m_networkAccessManager;
     QWebFrame *m_mainFrame;
@@ -115,14 +128,6 @@ private:
     QVariantMap m_paperSize; // For PDF output via render()
     QString m_libraryPath;
     QWebInspector* m_inspector;
-
-    QImage renderImage();
-    bool renderPdf(const QString &fileName);
-    void applySettings(const QVariantMap &defaultSettings);
-    QString userAgent() const;
-
-    void emitAlert(const QString &msg);
-    void emitConsoleMessage(const QString &msg, int lineNumber, const QString &source);
 
     friend class Phantom;
     friend class CustomPage;

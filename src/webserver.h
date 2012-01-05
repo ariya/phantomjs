@@ -31,12 +31,12 @@
 #ifndef WEBSERVER_H
 #define WEBSERVER_H
 
-#include <QObject>
 #include <QVariantMap>
 
 ///TODO: is this ok, or should it be put into .cpp
 ///      can be done by introducing a WebServerPrivate *d;
 #include "mongoose.h"
+#include "replcompletable.h"
 
 class Config;
 
@@ -47,10 +47,10 @@ class WebServerResponse;
  *
  * see also: modules/webserver.js
  */
-class WebServer : public QObject
+class WebServer : public REPLCompletable
 {
     Q_OBJECT
-    Q_PROPERTY(QString port READ port);
+    Q_PROPERTY(QString port READ port)
 
 public:
     WebServer(QObject *parent, Config *config);
@@ -86,6 +86,9 @@ private slots:
                        bool* handled);
 
 private:
+    virtual void initCompletions();
+
+private:
     Config *m_config;
     mg_context *m_ctx;
     QString m_port;
@@ -95,12 +98,12 @@ private:
 /**
  * Outgoing HTTP response to client.
  */
-class WebServerResponse : public QObject
+class WebServerResponse : public REPLCompletable
 {
     Q_OBJECT
 
-    Q_PROPERTY(int statusCode READ statusCode WRITE setStatusCode);
-    Q_PROPERTY(QVariantMap headers READ headers WRITE setHeaders);
+    Q_PROPERTY(int statusCode READ statusCode WRITE setStatusCode)
+    Q_PROPERTY(QVariantMap headers READ headers WRITE setHeaders)
 public:
     WebServerResponse(mg_connection *conn);
 
@@ -134,6 +137,9 @@ public slots:
     QVariantMap headers() const;
     /// set all headers
     void setHeaders(const QVariantMap &headers);
+
+private:
+    virtual void initCompletions();
 
 private:
     mg_connection *m_conn;
