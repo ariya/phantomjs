@@ -1,0 +1,7 @@
+history.txt
+linenoise_example
+linenoise_cpp_example
+linenoise_utf8_example
+*.o
+*~
+*.dSYM

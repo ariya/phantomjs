@@ -58,12 +58,12 @@ void Config::processArgs(const QStringList &args)
     while (it.hasNext()) {
         const QString &arg = it.next();
 
-        if (arg == "--help") {
-            setHelpFlag(true);
+        if (arg == "--version" || arg == "-v") {
+            setVersionFlag(true);
             return;
         }
-        if (arg == "--version") {
-            setVersionFlag(true);
+        if (arg == "--help" || arg == "-h") {
+            setHelpFlag(true);
             return;
         }
         if (arg == "--load-images=yes") {
@@ -412,6 +412,16 @@ void Config::setRemoteDebugAutorun(const bool value)
     m_remoteDebugAutorun = value;
 }
 
+bool Config::helpFlag() const
+{
+    return m_helpFlag;
+}
+
+void Config::setHelpFlag(const bool value)
+{
+    m_helpFlag = value;
+}
+
 // private:
 void Config::resetToDefaults()
 {
@@ -445,14 +455,4 @@ void Config::setProxyHost(const QString &value)
 void Config::setProxyPort(const int value)
 {
     m_proxyPort = value;
-}
-
-bool Config::helpFlag() const
-{
-    return m_helpFlag;
-}
-
-void Config::setHelpFlag(const bool value)
-{
-    m_helpFlag = value;
 }

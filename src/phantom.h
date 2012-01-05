@@ -33,14 +33,16 @@
 
 #include <QtGui>
 
-class WebPage;
-class WebServer;
 #include "csconverter.h"
 #include "filesystem.h"
 #include "encoding.h"
 #include "config.h"
+#include "replcompletable.h"
 
-class Phantom: public QObject
+class WebPage;
+class WebServer;
+
+class Phantom: public REPLCompletable
 {
     Q_OBJECT
     Q_PROPERTY(QStringList args READ args)
@@ -82,12 +84,16 @@ public slots:
     void exit(int code = 0);
     void debugExit(int code = 0);
 
+signals:
+    void aboutToExit(int code);
+
 private slots:
     void printConsoleMessage(const QString &msg, int lineNumber, const QString &source);
 
     void onInitialized();
 private:
     void doExit(int code);
+    virtual void initCompletions();
 
     Encoding m_scriptFileEnc;
     WebPage *m_page;

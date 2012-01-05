@@ -30,14 +30,15 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
-#include <QObject>
 #include <QStringList>
 #include <QFile>
 #include <QTextCodec>
 #include <QTextStream>
 #include <QVariant>
 
-class File : public QObject
+#include "replcompletable.h"
+
+class File : public REPLCompletable
 {
     Q_OBJECT
 
@@ -59,12 +60,15 @@ public slots:
     void close();
 
 private:
+    virtual void initCompletions();
+
+private:
     QFile *m_file;
     QTextStream *m_fileStream;
 };
 
 
-class FileSystem : public QObject
+class FileSystem : public REPLCompletable
 {
     Q_OBJECT
     Q_PROPERTY(QString workingDirectory READ workingDirectory)
@@ -121,6 +125,9 @@ public slots:
     bool isReadable(const QString &path) const;
     bool isWritable(const QString &path) const;
     bool isLink(const QString &path) const;
+
+private:
+    virtual void initCompletions();
 };
 
 #endif // FILESYSTEM_H
