@@ -58,6 +58,10 @@ void Config::processArgs(const QStringList &args)
     while (it.hasNext()) {
         const QString &arg = it.next();
 
+        if (arg == "--help") {
+            setHelpFlag(true);
+            return;
+        }
         if (arg == "--version") {
             setVersionFlag(true);
             return;
@@ -411,6 +415,7 @@ void Config::resetToDefaults()
     m_versionFlag = false;
     m_debug = false;
     m_remoteDebugPort = -1;
+    m_helpFlag = false;
 }
 
 void Config::setProxyHost(const QString &value)
@@ -421,4 +426,14 @@ void Config::setProxyHost(const QString &value)
 void Config::setProxyPort(const int value)
 {
     m_proxyPort = value;
+}
+
+bool Config::helpFlag() const
+{
+    return m_helpFlag;
+}
+
+void Config::setHelpFlag(const bool value)
+{
+    m_helpFlag = value;
 }
