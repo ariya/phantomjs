@@ -58,6 +58,12 @@ Phantom::Phantom(QObject *parent)
 
     m_config.init(&args);
 
+    if (m_config.helpFlag()) {
+        m_terminated = true;
+        Utils::showUsage();
+        return;
+    }
+
     if (m_config.versionFlag()) {
         m_terminated = true;
         Terminal::instance()->cout(QString("%1 (development)").arg(PHANTOMJS_VERSION_STRING));
