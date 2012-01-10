@@ -223,6 +223,11 @@ QObject *Phantom::createFilesystem()
     return m_filesystem;
 }
 
+QObject *Phantom::getSystemModule()
+{
+    return &m_systemModule;
+}
+
 QString Phantom::loadModuleSource(const QString &name)
 {
     QString moduleSource;
