@@ -31,15 +31,24 @@
 #define SYSTEMMODULE_H
 
 #include <QObject>
+#include <QStringList>
 
 // This class implements (will implement) the CommonJS System/1.0 spec.
 // See: http://wiki.commonjs.org/wiki/System/1.0
 class SystemModule : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QStringList args READ args)
 
 public:
     explicit SystemModule(QObject *parent = 0);
+
+    void setArgs(const QStringList &args);
+    // system.args
+    QStringList args() const;
+
+private:
+    QStringList m_args;
 };
 
 #endif // SYSTEMMODULE_H

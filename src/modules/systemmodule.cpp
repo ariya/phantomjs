@@ -33,3 +33,16 @@ SystemModule::SystemModule(QObject *parent) :
     QObject(parent)
 {
 }
+
+// public:
+
+void SystemModule::setArgs(const QStringList &args)
+{
+    m_args.clear();
+    m_args.append(args);
+}
+
+QStringList SystemModule::args() const
+{
+    return m_args;
+}

@@ -78,6 +78,12 @@ Phantom::Phantom(QObject *parent)
         return;
     }
 
+    // Initialize System module args
+    QStringList systemModuleArgs;
+    systemModuleArgs.append(m_config.scriptFile());
+    systemModuleArgs.append(m_config.scriptArgs());
+    m_systemModule.setArgs(systemModuleArgs);
+
     if (m_config.proxyHost().isEmpty()) {
         QNetworkProxyFactory::setUseSystemConfiguration(true);
     } else {
