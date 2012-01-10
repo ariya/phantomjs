@@ -29,6 +29,8 @@
 
 #include "systemmodule.h"
 
+#include "../env.h"
+
 SystemModule::SystemModule(QObject *parent) :
     QObject(parent)
 {
@@ -45,6 +47,11 @@ void SystemModule::setArgs(const QStringList &args)
 QStringList SystemModule::args() const
 {
     return m_args;
+}
+
+QVariantMap SystemModule::env() const
+{
+    return Env::instance()->asVariantMap();
 }
 
 QString SystemModule::platform() const

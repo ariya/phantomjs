@@ -41,6 +41,7 @@ public:
     static Env *instance();
 
     void parse(const char ** envp);
+    QVariantMap asVariantMap() const;
 
 private:
     Env();

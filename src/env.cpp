@@ -74,3 +74,8 @@ void Env::parse(const char **envp)
         m_map.insert(name, value);
     }
 }
+
+QVariantMap Env::asVariantMap() const
+{
+    return m_map;
+}

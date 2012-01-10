@@ -32,6 +32,7 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QVariantMap>
 
 // This class implements (will implement) the CommonJS System/1.0 spec.
 // See: http://wiki.commonjs.org/wiki/System/1.0
@@ -39,6 +40,7 @@ class SystemModule : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QStringList args READ args)
+    Q_PROPERTY(QVariantMap env READ env)
     Q_PROPERTY(QString platform READ platform)
 
 public:
@@ -47,6 +49,9 @@ public:
     void setArgs(const QStringList &args);
     // system.args
     QStringList args() const;
+
+    // system.env
+    QVariantMap env() const;
 
     // system.platform
     QString platform() const;
