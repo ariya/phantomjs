@@ -39,6 +39,7 @@ class SystemModule : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QStringList args READ args)
+    Q_PROPERTY(QString platform READ platform)
 
 public:
     explicit SystemModule(QObject *parent = 0);
@@ -46,6 +47,9 @@ public:
     void setArgs(const QStringList &args);
     // system.args
     QStringList args() const;
+
+    // system.platform
+    QString platform() const;
 
 private:
     QStringList m_args;

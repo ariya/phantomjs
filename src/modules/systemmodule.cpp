@@ -46,3 +46,8 @@ QStringList SystemModule::args() const
 {
     return m_args;
 }
+
+QString SystemModule::platform() const
+{
+    return "phantomjs";
+}
