@@ -22,7 +22,8 @@ HEADERS += csconverter.h \
     terminal.h \
     encoding.h \
     config.h \
-    modules/systemmodule.h
+    modules/systemmodule.h \
+    env.h
 
 SOURCES += phantom.cpp \
     webpage.cpp \
@@ -36,7 +37,8 @@ SOURCES += phantom.cpp \
     terminal.cpp \
     encoding.cpp \
     config.cpp \
-    modules/systemmodule.cpp
+    modules/systemmodule.cpp \
+    env.cpp
 
 OTHER_FILES += usage.txt \
     bootstrap.js \

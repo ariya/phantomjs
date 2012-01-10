@@ -1,7 +1,7 @@
 /*
   This file is part of the PhantomJS project from Ofi Labs.
 
-  Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
+  Copyright (C) 2012 execjosh, http://execjosh.blogspot.com
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -27,40 +27,50 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "consts.h"
-#include "utils.h"
-#include "phantom.h"
 #include "env.h"
 
-#if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
-#error Use Qt 4.7 or later version
-#endif
+#include <QCoreApplication>
+#include <QString>
+#include <QVariantMap>
 
-int main(int argc, char** argv, const char** envp)
+static Env *env_instance = (Env *)NULL;
+
+Env *Env::instance()
 {
-    // Registering an alternative Message Handler
-    qInstallMsgHandler(Utils::messageHandler);
+    if ((Env *)NULL == env_instance)
+        env_instance = new Env();
 
-    // Check number of parameters passed
-    if (argc < 2) {
-        Utils::showUsage();
-        return 1;
+    return env_instance;
+}
+
+Env::Env()
+    : QObject(QCoreApplication::instance())
+{
+}
+
+// public:
+
+void Env::parse(const char **envp)
+{
+    const char **env = (const char **)NULL;
+    QString envvar, name, value;
+    int indexOfEquals;
+    // Loop for each of the <NAME>=<VALUE> pairs and split them into a map
+    for (env = envp; *env != (const char *)NULL; env++) {
+        envvar = QString(*env);
+        indexOfEquals = envvar.indexOf('=');
+        if (0 >= indexOfEquals) {
+            // Should never happen because names cannot contain "=" and cannot
+            // be empty. If it does happen, then just ignore this record.
+            // See: http://pubs.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap08.html
+            continue;
+        }
+        // Extract name and value (if it exists) from envvar
+        // NOTE:
+        //  QString::mid() will gracefully return an empty QString when the
+        //  specified position index is >= the length() of the string
+        name = envvar.left(indexOfEquals);
+        value = envvar.mid(indexOfEquals + 1);
+        m_map.insert(name, value);
     }
-
-    QApplication app(argc, argv);
-
-    app.setWindowIcon(QIcon(":/phantomjs-icon.png"));
-    app.setApplicationName("PhantomJS");
-    app.setOrganizationName("Ofi Labs");
-    app.setOrganizationDomain("www.ofilabs.com");
-    app.setApplicationVersion(PHANTOMJS_VERSION_STRING);
-
-    // Parse env vars
-    Env::instance()->parse(envp);
-
-    Phantom phantom;
-    if (phantom.execute()) {
-        app.exec();
-    }
-    return phantom.returnValue();
 }
