@@ -33,6 +33,9 @@
 #include <QObject>
 #include <QStringList>
 #include <QVariantMap>
+#include <QTextStream>
+
+#include "../textstream.h"
 
 // This class implements (will implement) the CommonJS System/1.0 spec.
 // See: http://wiki.commonjs.org/wiki/System/1.0
@@ -42,6 +45,9 @@ class SystemModule : public QObject
     Q_PROPERTY(QStringList args READ args)
     Q_PROPERTY(QVariantMap env READ env)
     Q_PROPERTY(QString platform READ platform)
+    Q_PROPERTY(QObject *stderr READ _stderr)
+    Q_PROPERTY(QObject *stdin READ _stdin)
+    Q_PROPERTY(QObject *stdout READ _stdout)
 
 public:
     explicit SystemModule(QObject *parent = 0);
@@ -56,8 +62,23 @@ public:
     // system.platform
     QString platform() const;
 
+    // system.stderr
+    QObject *_stderr();
+
+    // system.stdin
+    QObject *_stdin();
+
+    // system.stdout
+    QObject *_stdout();
+
 private:
     QStringList m_args;
+    QTextStream m_stderr;
+    QTextStream m_stdin;
+    QTextStream m_stdout;
+    TextStream m_stream_stderr;
+    TextStream m_stream_stdin;
+    TextStream m_stream_stdout;
 };
 
 #endif // SYSTEMMODULE_H

@@ -32,7 +32,13 @@
 #include "../env.h"
 
 SystemModule::SystemModule(QObject *parent) :
-    QObject(parent)
+    QObject(parent),
+    m_stderr(stderr, QIODevice::WriteOnly),
+    m_stdin(stdin, QIODevice::ReadOnly),
+    m_stdout(stdout, QIODevice::WriteOnly),
+    m_stream_stderr(&m_stderr, this),
+    m_stream_stdin(&m_stdin, this),
+    m_stream_stdout(&m_stdout, this)
 {
 }
 
@@ -57,4 +63,19 @@ QVariantMap SystemModule::env() const
 QString SystemModule::platform() const
 {
     return "phantomjs";
+}
+
+QObject *SystemModule::_stderr()
+{
+    return &m_stream_stderr;
+}
+
+QObject *SystemModule::_stdin()
+{
+    return &m_stream_stdin;
+}
+
+QObject *SystemModule::_stdout()
+{
+    return &m_stream_stdout;
 }
