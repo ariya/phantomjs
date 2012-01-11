@@ -15,7 +15,7 @@ if (phantom.args.length !== 1) {
         response.statusCode = 200;
         response.headers = {
             'Cache': 'no-cache',
-            'Content-Type': 'text/html'
+            'Content-Type': 'text/html;charset=utf-8'
         };
         response.write('<html>');
         response.write('<head>');
@@ -27,6 +27,11 @@ if (phantom.args.length !== 1) {
         response.write('<pre>');
         response.write(JSON.stringify(request, null, 4));
         response.write('</pre>');
+        response.write('<p>Test POST:</p>');
+        response.write('<form action="#" method="post" accept-charset="UTF-8">');
+        response.write('<input name="foo" type="submit" value="submit" />');
+        response.write('<input name="my name" type="text" />');
+        response.write('</form>');
         response.write('</body>');
         response.write('</html>');
     });
