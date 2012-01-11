@@ -37,7 +37,7 @@
 
 #include "../textstream.h"
 
-// This class implements (will implement) the CommonJS System/1.0 spec.
+// This class implements the CommonJS System/1.0 spec.
 // See: http://wiki.commonjs.org/wiki/System/1.0
 class SystemModule : public QObject
 {
