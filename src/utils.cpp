@@ -54,7 +54,7 @@ void Utils::messageHandler(QtMsgType type, const char *msg)
     switch (type) {
 #ifndef QT_NO_DEBUG
     case QtDebugMsg:
-        fprintf(stdout, "%s [DEBUG] %s\n", qPrintable(now.toString(Qt::ISODate)), msg);
+        fprintf(stderr, "%s [DEBUG] %s\n", qPrintable(now.toString(Qt::ISODate)), msg);
         break;
     case QtWarningMsg:
         fprintf(stderr, "%s [WARNING] %s\n", qPrintable(now.toString(Qt::ISODate)), msg);
