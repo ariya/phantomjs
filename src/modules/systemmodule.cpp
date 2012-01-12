@@ -33,12 +33,9 @@
 
 SystemModule::SystemModule(QObject *parent) :
     QObject(parent),
-    m_stderr(stderr, QIODevice::WriteOnly),
-    m_stdin(stdin, QIODevice::ReadOnly),
-    m_stdout(stdout, QIODevice::WriteOnly),
-    m_stream_stderr(&m_stderr, this),
-    m_stream_stdin(&m_stdin, this),
-    m_stream_stdout(&m_stdout, this)
+    m_stderr(new QTextStream(stderr, QIODevice::WriteOnly), this),
+    m_stdin(new QTextStream(stdin, QIODevice::ReadOnly), this),
+    m_stdout(new QTextStream(stdout, QIODevice::WriteOnly), this)
 {
 }
 
@@ -67,15 +64,15 @@ QString SystemModule::platform() const
 
 QObject *SystemModule::_stderr()
 {
-    return &m_stream_stderr;
+    return &m_stderr;
 }
 
 QObject *SystemModule::_stdin()
 {
-    return &m_stream_stdin;
+    return &m_stdin;
 }
 
 QObject *SystemModule::_stdout()
 {
-    return &m_stream_stdout;
+    return &m_stdout;
 }

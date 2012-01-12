@@ -73,12 +73,9 @@ public:
 
 private:
     QStringList m_args;
-    QTextStream m_stderr;
-    QTextStream m_stdin;
-    QTextStream m_stdout;
-    TextStream m_stream_stderr;
-    TextStream m_stream_stdin;
-    TextStream m_stream_stdout;
+    TextStream m_stderr;
+    TextStream m_stdin;
+    TextStream m_stdout;
 };
 
 #endif // SYSTEMMODULE_H
