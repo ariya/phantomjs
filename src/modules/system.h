@@ -27,52 +27,55 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "systemmodule.h"
+#ifndef SYSTEM_H
+#define SYSTEM_H
 
-#include "../env.h"
+#include <QObject>
+#include <QStringList>
+#include <QVariantMap>
+#include <QTextStream>
 
-SystemModule::SystemModule(QObject *parent) :
-    QObject(parent),
-    m_stderr(new QTextStream(stderr, QIODevice::WriteOnly), this),
-    m_stdin(new QTextStream(stdin, QIODevice::ReadOnly), this),
-    m_stdout(new QTextStream(stdout, QIODevice::WriteOnly), this)
+#include "../textstream.h"
+
+// This class implements the CommonJS System/1.0 spec.
+// See: http://wiki.commonjs.org/wiki/System/1.0
+class System : public QObject
 {
-}
+    Q_OBJECT
+    Q_PROPERTY(QStringList args READ args)
+    Q_PROPERTY(QVariantMap env READ env)
+    Q_PROPERTY(QString platform READ platform)
+    Q_PROPERTY(QObject *stderr READ _stderr)
+    Q_PROPERTY(QObject *stdin READ _stdin)
+    Q_PROPERTY(QObject *stdout READ _stdout)
 
-// public:
+public:
+    explicit System(QObject *parent = 0);
 
-void SystemModule::setArgs(const QStringList &args)
-{
-    m_args.clear();
-    m_args.append(args);
-}
+    void setArgs(const QStringList &args);
+    // system.args
+    QStringList args() const;
 
-QStringList SystemModule::args() const
-{
-    return m_args;
-}
+    // system.env
+    QVariantMap env() const;
 
-QVariantMap SystemModule::env() const
-{
-    return Env::instance()->asVariantMap();
-}
+    // system.platform
+    QString platform() const;
 
-QString SystemModule::platform() const
-{
-    return "phantomjs";
-}
+    // system.stderr
+    QObject *_stderr();
 
-QObject *SystemModule::_stderr()
-{
-    return &m_stderr;
-}
+    // system.stdin
+    QObject *_stdin();
 
-QObject *SystemModule::_stdin()
-{
-    return &m_stdin;
-}
+    // system.stdout
+    QObject *_stdout();
 
-QObject *SystemModule::_stdout()
-{
-    return &m_stdout;
-}
+private:
+    QStringList m_args;
+    TextStream m_stderr;
+    TextStream m_stdin;
+    TextStream m_stdout;
+};
+
+#endif // SYSTEM_H

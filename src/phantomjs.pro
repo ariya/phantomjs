@@ -22,7 +22,7 @@ HEADERS += csconverter.h \
     terminal.h \
     encoding.h \
     config.h \
-    modules/systemmodule.h \
+    modules/system.h \
     env.h \
     textstream.h
 
@@ -38,7 +38,7 @@ SOURCES += phantom.cpp \
     terminal.cpp \
     encoding.cpp \
     config.cpp \
-    modules/systemmodule.cpp \
+    modules/system.cpp \
     env.cpp \
     textstream.cpp
 

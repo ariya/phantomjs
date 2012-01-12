@@ -27,55 +27,52 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef SYSTEMMODULE_H
-#define SYSTEMMODULE_H
+#include "system.h"
 
-#include <QObject>
-#include <QStringList>
-#include <QVariantMap>
-#include <QTextStream>
+#include "../env.h"
 
-#include "../textstream.h"
-
-// This class implements the CommonJS System/1.0 spec.
-// See: http://wiki.commonjs.org/wiki/System/1.0
-class SystemModule : public QObject
+System::System(QObject *parent) :
+    QObject(parent),
+    m_stderr(new QTextStream(stderr, QIODevice::WriteOnly), this),
+    m_stdin(new QTextStream(stdin, QIODevice::ReadOnly), this),
+    m_stdout(new QTextStream(stdout, QIODevice::WriteOnly), this)
 {
-    Q_OBJECT
-    Q_PROPERTY(QStringList args READ args)
-    Q_PROPERTY(QVariantMap env READ env)
-    Q_PROPERTY(QString platform READ platform)
-    Q_PROPERTY(QObject *stderr READ _stderr)
-    Q_PROPERTY(QObject *stdin READ _stdin)
-    Q_PROPERTY(QObject *stdout READ _stdout)
+}
 
-public:
-    explicit SystemModule(QObject *parent = 0);
+// public:
 
-    void setArgs(const QStringList &args);
-    // system.args
-    QStringList args() const;
+void System::setArgs(const QStringList &args)
+{
+    m_args.clear();
+    m_args.append(args);
+}
 
-    // system.env
-    QVariantMap env() const;
+QStringList System::args() const
+{
+    return m_args;
+}
 
-    // system.platform
-    QString platform() const;
+QVariantMap System::env() const
+{
+    return Env::instance()->asVariantMap();
+}
 
-    // system.stderr
-    QObject *_stderr();
+QString System::platform() const
+{
+    return "phantomjs";
+}
 
-    // system.stdin
-    QObject *_stdin();
+QObject *System::_stderr()
+{
+    return &m_stderr;
+}
 
-    // system.stdout
-    QObject *_stdout();
+QObject *System::_stdin()
+{
+    return &m_stdin;
+}
 
-private:
-    QStringList m_args;
-    TextStream m_stderr;
-    TextStream m_stdin;
-    TextStream m_stdout;
-};
-
-#endif // SYSTEMMODULE_H
+QObject *System::_stdout()
+{
+    return &m_stdout;
+}

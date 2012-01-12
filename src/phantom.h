@@ -39,7 +39,7 @@ class WebServer;
 #include "filesystem.h"
 #include "encoding.h"
 #include "config.h"
-#include "modules/systemmodule.h"
+#include "modules/system.h"
 
 class Phantom: public QObject
 {
@@ -101,7 +101,7 @@ private:
     QList<QPointer<WebPage> > m_pages;
     QList<QPointer<WebServer> > m_servers;
     Config m_config;
-    SystemModule m_systemModule;
+    System m_systemModule;
 };
 
 #endif // PHANTOM_H
