@@ -1,12 +1,13 @@
 var page = require('webpage').create();
 var server = require('webserver').create();
+var system = require('system');
 var host, port;
 
-if (phantom.args.length !== 1) {
+if (system.args.length !== 2) {
     console.log('Usage: server.js <some port>');
     phantom.exit();
 } else {
-    port = phantom.args[0];
+    port = system.args[1];
     var listening = server.listen(port, function (request, response) {
         console.log("GOT HTTP REQUEST");
         console.log(JSON.stringify(request, null, 4));

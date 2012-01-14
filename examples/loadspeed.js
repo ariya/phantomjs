@@ -1,12 +1,13 @@
 var page = require('webpage').create(),
+    system = require('system'),
     t, address;
 
-if (phantom.args.length === 0) {
+if (system.args.length === 1) {
     console.log('Usage: loadspeed.js <some URL>');
     phantom.exit();
 } else {
     t = Date.now();
-    address = phantom.args[0];
+    address = system.args[1];
     page.open(address, function (status) {
         if (status !== 'success') {
             console.log('FAIL to load the address');

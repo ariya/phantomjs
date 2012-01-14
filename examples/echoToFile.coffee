@@ -1,18 +1,19 @@
 # echoToFile.coffee - Write in a given file all the parameters passed on the CLI
 fs = require 'fs'
+system = require 'system'
 
-if phantom.args.length < 2
-  console.log "Usage: echoToFile.js DESTINATION_FILE <arguments to echo...>"
+if system.args.length < 3
+  console.log "Usage: echoToFile.coffee DESTINATION_FILE <arguments to echo...>"
   phantom.exit()
 else
   content = ""
   f = null
-  i = 1
-  while i < phantom.args.length
-    content += phantom.args[i] + (if i == phantom.args.length - 1 then "" else " ")
+  i = 2
+  while i < system.args.length
+    content += system.args[i] + (if i == system.args.length - 1 then "" else " ")
     ++i
   try
-    f = fs.open(phantom.args[0], "w")
+    f = fs.open(system.args[1], "w")
     f.writeLine content
   catch e
     console.log e

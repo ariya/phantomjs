@@ -1,6 +1,7 @@
 # Get twitter status for given account (or for the default one, "HeadlessPhantom")
 
 page = require('webpage').create()
+system = require 'system'
 twitterId = 'HeadlessPhantom' #< default value
 
 # Route "console.log()" calls from within the Page context to the main Phantom context (i.e. current "this")
@@ -8,10 +9,10 @@ page.onConsoleMessage = (msg) ->
     console.log msg
 
 # Print usage message, if no twitter ID is passed
-if phantom.args.length < 1
+if system.args.length < 2
     console.log 'Usage: tweets.coffee [twitter ID]'
 else
-    twitterId = phantom.args[0]
+    twitterId = system.args[1]
 
 # Heading
 console.log "*** Latest tweets from @#{twitterId} ***\n"

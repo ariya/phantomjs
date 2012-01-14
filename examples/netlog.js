@@ -1,10 +1,12 @@
 var page = require('webpage').create(),
-    address = phantom.args[0];
+    system = require('system'),
+    address;
 
-if (phantom.args.length === 0) {
+if (system.args.length === 1) {
     console.log('Usage: netlog.js <some URL>');
     phantom.exit();
 } else {
+    address = system.args[1];
 
     page.onResourceRequested = function (req) {
         console.log('requested: ' + JSON.stringify(req, undefined, 4));
