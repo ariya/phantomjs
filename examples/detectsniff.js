@@ -1,6 +1,7 @@
 // Detect if a web page sniffs the user agent or not.
 
 var page = require('webpage').create(),
+    system = require('system'),
     sniffed,
     address;
 
@@ -31,11 +32,11 @@ page.onInitialized = function () {
     });
 };
 
-if (phantom.args.length === 0) {
+if (system.args.length === 1) {
     console.log('Usage: unsniff.js <some URL>');
     phantom.exit();
 } else {
-    address = phantom.args[0];
+    address = system.args[1];
     console.log('Checking ' + address + '...');
     page.open(address, function (status) {
         if (status !== 'success') {

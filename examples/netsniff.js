@@ -84,14 +84,15 @@ function createHAR(address, title, startTime, resources)
     };
 }
 
-var page = require('webpage').create();
+var page = require('webpage').create(),
+    system = require('system');
 
-if (phantom.args.length === 0) {
-    console.log('Usage: netsniff.js <some URL>');
+if (system.args.length === 1) {
+    console.log('Usage: netsniff.coffee <some URL>');
     phantom.exit();
 } else {
 
-    page.address = phantom.args[0];
+    page.address = system.args[1];
     page.resources = [];
 
     page.onLoadStarted = function () {

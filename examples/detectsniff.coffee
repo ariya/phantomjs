@@ -1,4 +1,5 @@
 page = require('webpage').create()
+system = require 'system'
 
 page.onInitialized = ->
   page.evaluate ->
@@ -18,11 +19,11 @@ page.onInitialized = ->
       window.navigator.sniffed = true
       platform
 
-if phantom.args.length is 0
-  console.log 'Usage: unsniff.js <some URL>'
+if system.args.length is 1
+  console.log 'Usage: unsniff.coffee <some URL>'
   phantom.exit()
 else
-  address = phantom.args[0]
+  address = system.args[1]
   console.log 'Checking ' + address + '...'
   page.open address, (status) ->
     if status isnt 'success'
