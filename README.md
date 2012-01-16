@@ -26,7 +26,7 @@ which show various PhantomJS scripts, covering:
 
 Do not forget to consult the concise [API Reference](http://code.google.com/p/phantomjs/wiki/Interface).
 
-PhantomJS is based on [Qt](http://qt.nokia.com). There are two implementations, using C++ and Python.
+PhantomJS is based on [Qt](http://qt.nokia.com).
 
 The latest [stable release](http://code.google.com/p/phantomjs/wiki/ReleaseNotes) is version 1.4 ("Glory of the Snow").
 
