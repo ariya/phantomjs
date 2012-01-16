@@ -45,7 +45,6 @@
 #include <QWebFrame>
 #include <QWebPage>
 #include <QWebInspector>
-#include <QDebug>
 
 #include "networkaccessmanager.h"
 #include "utils.h"
@@ -137,9 +136,7 @@ WebPage::WebPage(QObject *parent, const Config *config)
         m_webPage->settings()->setOfflineWebApplicationCachePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
     }
 
-#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
     m_webPage->settings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
-#endif
 
     m_webPage->settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
     m_webPage->settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
@@ -314,9 +311,7 @@ void WebPage::applySettings(const QVariantMap &def)
     opt->setAttribute(QWebSettings::AutoLoadImages, def[PAGE_SETTINGS_LOAD_IMAGES].toBool());
     opt->setAttribute(QWebSettings::PluginsEnabled, def[PAGE_SETTINGS_LOAD_PLUGINS].toBool());
     opt->setAttribute(QWebSettings::JavascriptEnabled, def[PAGE_SETTINGS_JS_ENABLED].toBool());
-#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
     opt->setAttribute(QWebSettings::XSSAuditingEnabled, def[PAGE_SETTINGS_XSS_AUDITING].toBool());
-#endif
     opt->setAttribute(QWebSettings::LocalContentCanAccessRemoteUrls, def[PAGE_SETTINGS_LOCAL_ACCESS_REMOTE].toBool());
 
     if (def.contains(PAGE_SETTINGS_USER_AGENT))
@@ -461,7 +456,8 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
     if (address == "about:blank") {
         m_mainFrame->setHtml(BLANK_HTML);
     } else {
-        m_mainFrame->load(QNetworkRequest(QUrl(address)), networkOp, body);
+        QUrl url = QUrl::fromEncoded(QByteArray(address.toAscii()));
+        m_mainFrame->load(QNetworkRequest(url), networkOp, body);
     }
 }
 

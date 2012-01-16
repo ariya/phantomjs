@@ -34,6 +34,7 @@
 #include <QtGui>
 
 class WebPage;
+class WebServer;
 #include "csconverter.h"
 #include "filesystem.h"
 #include "encoding.h"
@@ -72,6 +73,7 @@ public:
 
 public slots:
     QObject *createWebPage();
+    QObject *createWebServer();
     QObject *createFilesystem();
     QString loadModuleSource(const QString &name);
     bool injectJs(const QString &jsFilePath);
@@ -95,6 +97,7 @@ private:
     QVariantMap m_defaultPageSettings;
     FileSystem *m_filesystem;
     QList<QPointer<WebPage> > m_pages;
+    QList<QPointer<WebServer> > m_servers;
     Config m_config;
 };
 

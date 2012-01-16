@@ -41,6 +41,7 @@ class QWebInspector;
 class Config;
 class CustomPage;
 class NetworkAccessManager;
+class QWebInspector;
 class Phantom;
 
 class WebPage: public QObject
@@ -115,7 +116,6 @@ private:
     QVariantMap m_paperSize; // For PDF output via render()
     QString m_libraryPath;
     QHash<QNetworkReply*, QString> m_mimes;
-
     QWebInspector* m_inspector;
 
     QImage renderImage();

@@ -33,6 +33,7 @@
 #include <QDir>
 #include <QWebPage>
 #include <QWebFrame>
+#include <QNetworkProxy>
 
 #include "terminal.h"
 #include "utils.h"
@@ -57,6 +58,10 @@ void Config::processArgs(const QStringList &args)
     while (it.hasNext()) {
         const QString &arg = it.next();
 
+        if (arg == "--help") {
+            setHelpFlag(true);
+            return;
+        }
         if (arg == "--version") {
             setVersionFlag(true);
             return;
@@ -105,6 +110,10 @@ void Config::processArgs(const QStringList &args)
             setLocalToRemoteUrlAccessEnabled(true);
             continue;
         }
+        if (arg.startsWith("--proxy-type=")) {
+            setProxyType(arg.mid(13).trimmed());
+            continue;
+        }
         if (arg.startsWith("--proxy=")) {
             setProxy(arg.mid(8).trimmed());
             continue;
@@ -126,11 +135,8 @@ void Config::processArgs(const QStringList &args)
             loadJsonFile(configPath);
             continue;
         }
-        if (arg.startsWith("--debug")) {
-            setDebug(true);
-            continue;
-        }
         if (arg.startsWith("--remote-debugger-port=")) {
+            setDebug(true);
             setRemoteDebugPort(arg.mid(23).trimmed().toInt());
             continue;
         }
@@ -148,11 +154,6 @@ void Config::processArgs(const QStringList &args)
             m_scriptArgs += it.next();
         }
     }
-}
-
-static QString normalizePath(const QString &path)
-{
-    return path.isEmpty() ? path : QDir::fromNativeSeparators(path);
 }
 
 void Config::loadJsonFile(const QString &filePath)
@@ -269,6 +270,16 @@ bool Config::pluginsEnabled() const
 void Config::setPluginsEnabled(const bool value)
 {
     m_pluginsEnabled = value;
+}
+
+QString Config::proxyType() const
+{
+    return m_proxyType;
+}
+
+void Config::setProxyType(const QString value)
+{
+    m_proxyType = value;
 }
 
 QString Config::proxy() const
@@ -394,6 +405,7 @@ void Config::resetToDefaults()
     m_localToRemoteUrlAccessEnabled = false;
     m_outputEncoding = "UTF-8";
     m_pluginsEnabled = false;
+    m_proxyType = "http";
     m_proxyHost.clear();
     m_proxyPort = 1080;
     m_scriptArgs.clear();
@@ -403,6 +415,7 @@ void Config::resetToDefaults()
     m_versionFlag = false;
     m_debug = false;
     m_remoteDebugPort = -1;
+    m_helpFlag = false;
 }
 
 void Config::setProxyHost(const QString &value)
@@ -413,4 +426,14 @@ void Config::setProxyHost(const QString &value)
 void Config::setProxyPort(const int value)
 {
     m_proxyPort = value;
+}
+
+bool Config::helpFlag() const
+{
+    return m_helpFlag;
+}
+
+void Config::setHelpFlag(const bool value)
+{
+    m_helpFlag = value;
 }

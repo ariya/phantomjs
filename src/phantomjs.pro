@@ -13,6 +13,7 @@ RESOURCES = phantomjs.qrc
 HEADERS += csconverter.h \
     phantom.h \
     webpage.h \
+    webserver.h \
     consts.h \
     utils.h \
     networkaccessmanager.h \
@@ -22,8 +23,10 @@ HEADERS += csconverter.h \
     encoding.h \
     config.h \
     mimesniffer.cpp
+
 SOURCES += phantom.cpp \
     webpage.cpp \
+    webserver.cpp \
     main.cpp \
     csconverter.cpp \
     utils.cpp \
@@ -39,9 +42,11 @@ OTHER_FILES += usage.txt \
     bootstrap.js \
     configurator.js \
     modules/fs.js \
-    modules/webpage.js
+    modules/webpage.js \
+    modules/webserver.js
 
 include(gif/gif.pri)
+include(mongoose/mongoose.pri)
 
 win32: RC_FILE = phantomjs_win.rc
 os2:   RC_FILE = phantomjs_os2.rc

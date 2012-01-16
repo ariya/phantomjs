@@ -52,12 +52,14 @@ void Utils::messageHandler(QtMsgType type, const char *msg)
     QDateTime now = QDateTime::currentDateTime();
 
     switch (type) {
+#ifndef QT_NO_DEBUG
     case QtDebugMsg:
         fprintf(stdout, "%s [DEBUG] %s\n", qPrintable(now.toString(Qt::ISODate)), msg);
         break;
     case QtWarningMsg:
         fprintf(stderr, "%s [WARNING] %s\n", qPrintable(now.toString(Qt::ISODate)), msg);
         break;
+#endif
     case QtCriticalMsg:
         fprintf(stderr, "%s [CRITICAL] %s\n", qPrintable(now.toString(Qt::ISODate)), msg);
         break;
@@ -96,38 +98,20 @@ bool Utils::injectJsInFrame(const QString &jsFilePath, const Encoding &jsFileEnc
     return true;
 }
 
-bool Utils::loadJSForDebug(const QString& jsFilePath, const QString& libraryPath, QWebFrame* targetFrame, const bool startingScript)
+
+bool Utils::loadJSForDebug(const QString& jsFilePath, const QString& libraryPath, QWebFrame* targetFrame)
 {
-    return loadJSForDebug(jsFilePath, Encoding::UTF8, libraryPath, targetFrame, startingScript);
+    return loadJSForDebug(jsFilePath, Encoding::UTF8, libraryPath, targetFrame);
 }
 
-bool Utils::loadJSForDebug(const QString& jsFilePath, const Encoding& jsFileEnc, const QString& libraryPath, QWebFrame* targetFrame, const bool startingScript)
+bool Utils::loadJSForDebug(const QString& jsFilePath, const Encoding& jsFileEnc, const QString& libraryPath, QWebFrame* targetFrame)
 {
-
     QString scriptPath = findScript(jsFilePath, libraryPath);
     QString scriptBody = jsFromScriptFile(scriptPath, jsFileEnc);
 
-    QFile wrapper( ":/debug_wrapper.js" );
-    if (!wrapper.open(QIODevice::ReadOnly))
-        return false; // We got big issues
-    QString jsWrapper = QString::fromUtf8( wrapper.readAll() );
-    jsWrapper = jsWrapper.arg( scriptBody );
-    m_tempWrapper = new QTemporaryFile( QDir::tempPath() + QDir::separator() + "debugwrapper_XXXXXX.js" );
-    m_tempWrapper->open();
-    m_tempWrapper->write(jsWrapper.toUtf8());
-    m_tempWrapper->close();
-
-    QFile f( ":/debug_harness.html" );
-    if (!f.open( QIODevice::ReadOnly))
-        return false;
-    QString html = QString::fromUtf8( f.readAll() );
-
-    html = html.arg(m_tempWrapper->fileName());
-    m_tempHarness = new QTemporaryFile( QDir::tempPath() + QDir::separator() + "debugharness_XXXXXX.html" );
-    m_tempHarness->open();
-    m_tempHarness->write( html.toLocal8Bit() );
-    m_tempHarness->close();
-    targetFrame->load( QUrl::fromLocalFile( m_tempHarness->fileName() ) );
+    QString remoteDebuggerHarnessSrc =  Utils::readResourceFileUtf8(":/remote_debugger_harness.html");
+    remoteDebuggerHarnessSrc = remoteDebuggerHarnessSrc.arg(scriptBody);
+    targetFrame->setHtml(remoteDebuggerHarnessSrc);
     return true;
 }
 
@@ -141,11 +125,12 @@ QString Utils::findScript(const QString& jsFilePath, const QString &libraryPath)
         jsFile.setFileName(QDir::fromNativeSeparators(jsFilePath)); //< Normalise User-provided path
         if (!jsFile.exists()) {
             // File is not in the PWD. Is it in the lookup directory?
-            jsFile.setFileName( libraryPath + '/' + QDir::fromNativeSeparators(jsFilePath) );
+            jsFile.setFileName(libraryPath + '/' + QDir::fromNativeSeparators(jsFilePath));
         }
 
         return jsFile.fileName();
     }
+    return QString();
 }
 
 QString Utils::jsFromScriptFile(const QString& scriptPath, const Encoding& enc)

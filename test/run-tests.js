@@ -58,6 +58,7 @@ var fs = require('fs');
 phantom.injectJs("./phantom-spec.js");
 phantom.injectJs("./module-spec.js");
 phantom.injectJs("./webpage-spec.js");
+phantom.injectJs("./webserver-spec.js");
 phantom.injectJs("./fs-spec-01.js"); //< Filesystem Specs 01 (Basic)
 phantom.injectJs("./fs-spec-02.js"); //< Filesystem Specs 02 (Attributes)
 phantom.injectJs("./fs-spec-03.js"); //< Filesystem Specs 03 (Paths)
@@ -72,7 +73,7 @@ jasmineEnv.addReporter(new jasmine.ConsoleReporter(function(msg){
     console.log(msg.replace('\n', ''));
 }, function(reporter){
     // On complete
-    phantom.exit();
+    phantom.exit(reporter.results().failedCount);
 }, true));
 
 // Launch tests

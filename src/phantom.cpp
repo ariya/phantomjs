@@ -40,6 +40,7 @@
 #include "terminal.h"
 #include "utils.h"
 #include "webpage.h"
+#include "webserver.h"
 
 
 // public:
@@ -57,9 +58,15 @@ Phantom::Phantom(QObject *parent)
 
     m_config.init(&args);
 
+    if (m_config.helpFlag()) {
+        m_terminated = true;
+        Utils::showUsage();
+        return;
+    }
+
     if (m_config.versionFlag()) {
         m_terminated = true;
-        Terminal::instance()->cout(QString("%1 (development)").arg(PHANTOMJS_VERSION_STRING));
+        Terminal::instance()->cout(QString("%1").arg(PHANTOMJS_VERSION_STRING));
         return;
     }
 
@@ -80,7 +87,14 @@ Phantom::Phantom(QObject *parent)
     if (m_config.proxyHost().isEmpty()) {
         QNetworkProxyFactory::setUseSystemConfiguration(true);
     } else {
-        QNetworkProxy proxy(QNetworkProxy::HttpProxy, m_config.proxyHost(), m_config.proxyPort());
+        QString proxyType = m_config.proxyType();
+        QNetworkProxy::ProxyType networkProxyType = QNetworkProxy::HttpProxy;
+
+        if (proxyType == "socks5") {
+            networkProxyType = QNetworkProxy::Socks5Proxy;
+        }
+
+        QNetworkProxy proxy(networkProxyType, m_config.proxyHost(), m_config.proxyPort());
         QNetworkProxy::setApplicationProxy(proxy);
     }
 
@@ -143,7 +157,7 @@ bool Phantom::execute()
 
     if (m_config.debug())
     {
-        if (!Utils::loadJSForDebug(m_config.scriptFile(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
+        if (!Utils::loadJSForDebug(m_config.scriptFile(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame())) {
             m_returnValue = -1;
             return false;
         }
@@ -197,6 +211,16 @@ QObject *Phantom::createWebPage()
     return page;
 }
 
+QObject* Phantom::createWebServer()
+{
+    WebServer *server = new WebServer(this, &m_config);
+    m_servers.append(server);
+    ///TODO:
+//     page->applySettings(m_defaultPageSettings);
+//     page->setLibraryPath(QFileInfo(m_config.scriptFile()).dir().absolutePath());
+    return server;
+}
+
 QObject *Phantom::createFilesystem()
 {
     if (!m_filesystem)
@@ -225,7 +249,7 @@ void Phantom::exit(int code)
     if (m_config.debug())
         Terminal::instance()->cout("Phantom::exit() called but not quitting in debug mode.");
     else {
-        doExit(0);
+        doExit(code);
     }
 }
 
