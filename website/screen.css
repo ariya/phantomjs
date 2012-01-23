@@ -1,3 +1,10 @@
+/*
+Credits
+Icons from: http://www.smashingmagazine.com/2011/12/29/freebie-free-vector-web-icons-91-icons/
+*/
+@import "reset.css";
+@import "960_12_col.css";
+
 body {
     font-family: 'Droid Sans', 'Lucida Grande', sans-serif;
     line-height: 1.125em;
@@ -92,6 +99,16 @@ body {
             inset 0px 2px 0px 0px #def67e,
             0px 2px 5px rgba(0,0,0,.2);
     }
+    #download:hover {
+        background: #97bd38;
+        background: -moz-linear-gradient(top,  #bef038 0%, #97bd38 100%);
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#bef038), color-stop(100%,#97bd38));
+        background: -webkit-linear-gradient(top,  #bef038 0%,#97bd38 100%);
+        background: -o-linear-gradient(top,  #bef038 0%,#97bd38 100%);
+        background: -ms-linear-gradient(top,  #bef038 0%,#97bd38 100%);
+        background: linear-gradient(top,  #bef038 0%,#97bd38 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#bef038', endColorstr='#97bd38',GradientType=0 );
+    }
         #download span {
             font-weight: normal;
         }
@@ -127,6 +144,10 @@ body {
         color: #43413e;
         text-decoration: none;
     }
+    #community a:hover {
+        color: #000;
+        text-decoration: underline;
+    }
     #link-release,
     #link-ml,
     #link-bugs {
@@ -160,6 +181,10 @@ body {
     }
     #description .feature {
         font-size: 0.875em;
+    }
+    #feature-end {
+        text-align: center;
+        margin: 1.5em 0 0 0;
     }
 
 #footer {
