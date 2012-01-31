@@ -78,6 +78,8 @@ public:
 
 public slots:
     void openUrl(const QString &address, const QVariant &op, const QVariantMap &settings);
+    void setHeaders(const QVariantMap &headers);
+    QVariantMap getHeaders() const;
     void release();
 
     QVariant evaluate(const QString &code);

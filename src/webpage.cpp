@@ -299,6 +299,16 @@ void WebPage::finish(bool ok)
     emit loadFinished(status);
 }
 
+void WebPage::setHeaders(const QVariantMap &headers)
+{
+    m_networkAccessManager->setHeaders(headers);
+}
+
+QVariantMap WebPage::getHeaders() const
+{
+    return m_networkAccessManager->getHeaders();
+}
+
 void WebPage::openUrl(const QString &address, const QVariant &op, const QVariantMap &settings)
 {
     QString operation;

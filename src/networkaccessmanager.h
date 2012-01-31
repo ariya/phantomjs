@@ -47,6 +47,8 @@ public:
     NetworkAccessManager(QObject *parent, const Config *config);
     void setUserName(const QString &userName);
     void setPassword(const QString &password);
+    void setHeaders(const QVariantMap &headers);
+    QVariantMap getHeaders() const;
 
 protected:
     bool m_ignoreSslErrors;
@@ -68,6 +70,7 @@ private:
     QSet<QNetworkReply*> m_started;
     int m_idCounter;
     QNetworkDiskCache* m_networkDiskCache;
+    QVariantMap m_headers;
 };
 
 #endif // NETWORKACCESSMANAGER_H
