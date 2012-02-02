@@ -33,6 +33,7 @@
 #include <QObject>
 #include <QStringList>
 #include <QFile>
+#include <QTextCodec>
 #include <QTextStream>
 #include <QVariant>
 
@@ -41,7 +42,7 @@ class File : public QObject
     Q_OBJECT
 
 public:
-    File(QFile *openfile, QObject *parent = 0);
+    File(QFile *openfile, QTextCodec *codec, QObject *parent = 0);
     virtual ~File();
 
 public slots:

@@ -40,6 +40,7 @@
  *  mode: Open Mode. A string made of 'r', 'w', 'a/+' characters.
  *  opts: Options.
  *          - mode (see Open Mode above)
+ *          - charset An IANA, case insensitive, charset name.
  * @return "file" object
  */
 exports.open = function (path, modeOrOpts) {
@@ -70,6 +71,7 @@ exports.open = function (path, modeOrOpts) {
  *
  * @param path Path of the file to read from
  * @param opts Options.
+ *               - charset An IANA, case insensitive, charset name.
  * @return file content
  */
 exports.read = function (path, opts) {
@@ -93,6 +95,7 @@ exports.read = function (path, opts) {
  *  mode: Open Mode. A string made of 'r', 'w', 'a/+' characters.
  *  opts: Options.
  *          - mode (see Open Mode above)
+ *          - charset An IANA, case insensitive, charset name.
  */
 exports.write = function (path, content, modeOrOpts) {
     if (modeOrOpts == null) {

@@ -37,11 +37,16 @@
 
 // File
 // public:
-File::File(QFile *openfile, QObject *parent) :
+File::File(QFile *openfile, QTextCodec *codec, QObject *parent) :
     QObject(parent),
     m_file(openfile)
 {
     m_fileStream.setDevice(m_file);
+    if ((QTextCodec *)NULL == codec) {
+        m_fileStream.setCodec(QTextCodec::codecForName("UTF-8"));
+    } else {
+        m_fileStream.setCodec(codec);
+    }
 }
 
 File::~File()
@@ -273,6 +278,25 @@ QString FileSystem::absolute(const QString &relativePath) const
    return QFileInfo(relativePath).absoluteFilePath();
 }
 
+static inline QString getCharset(const QVariant &val) {
+    QVariant::Type type = val.type();
+
+    // val must be either a string or null/undefined.
+    if (QVariant::String != type && QVariant::Invalid != type) {
+        qDebug() << "FileSystem::open - " << "Charset must be a string!";
+        return QString();
+    }
+
+    QString charset = val.toString();
+
+    // Default to UTF-8
+    if (charset.isEmpty()) {
+        charset = "UTF-8";
+    }
+
+    return charset;
+}
+
 // Files
 QObject *FileSystem::_open(const QString &path, const QVariantMap &opts) const
 {
@@ -325,9 +349,16 @@ QObject *FileSystem::_open(const QString &path, const QVariantMap &opts) const
     }
     }
 
+    QString charset = getCharset(opts["charset"]);
+    QTextCodec *codec = QTextCodec::codecForName(charset.toAscii());
+    if ((QTextCodec *)NULL == codec) {
+        qDebug() << "FileSystem::open - " << "Unknown charset:" << charset;
+        return NULL;
+    }
+
     // Try to Open
     if ( _f->open(modeCode) ) {
-        f = new File(_f);
+        f = new File(_f, codec);
         if ( f ) {
             return f;
         }
