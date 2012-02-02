@@ -36,11 +36,29 @@
  * It will throw exception if it fails.
  *
  * @param path Path of the file to open
- * @param mode Open Mode. A string made of 'r', 'w', 'a/+' characters.
+ * @param modeOrOpts
+ *  mode: Open Mode. A string made of 'r', 'w', 'a/+' characters.
+ *  opts: Options.
+ *          - mode (see Open Mode above)
  * @return "file" object
  */
-exports.open = function (path, mode) {
-    var file = exports._open(path, mode);
+exports.open = function (path, modeOrOpts) {
+    var file, opts;
+
+    // Extract charset from opts
+    if (modeOrOpts == null) {
+        // Empty options
+        opts = {};
+    } else if (typeof modeOrOpts !== 'object') {
+        opts = {
+            mode: modeOrOpts
+        };
+    } else {
+        opts = modeOrOpts;
+    }
+
+    // Open file
+    file = exports._open(path, opts);
     if (file) {
         return file;
     }
@@ -51,10 +69,15 @@ exports.open = function (path, mode) {
  * It will throw an exception if it fails.
  *
  * @param path Path of the file to read from
+ * @param opts Options.
  * @return file content
  */
-exports.read = function (path) {
-    var f = exports.open(path, 'r'),
+exports.read = function (path, opts) {
+    if (opts == null || typeof opts !== 'object') {
+        opts = {};
+    }
+    opts.mode = 'r';
+    var f = exports.open(path, opts),
         content = f.read();
 
     f.close();
@@ -66,10 +89,16 @@ exports.read = function (path) {
  *
  * @param path Path of the file to read from
  * @param content Content to write to the file
- * @param mode Open Mode. A string made of 'w' or 'a / +' characters.
+ * @param modeOrOpts
+ *  mode: Open Mode. A string made of 'r', 'w', 'a/+' characters.
+ *  opts: Options.
+ *          - mode (see Open Mode above)
  */
-exports.write = function (path, content, mode) {
-    var f = exports.open(path, mode);
+exports.write = function (path, content, modeOrOpts) {
+    if (modeOrOpts == null) {
+        modeOrOpts = {};
+    }
+    var f = exports.open(path, modeOrOpts);
 
     f.write(content);
     f.close();

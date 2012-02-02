@@ -274,11 +274,20 @@ QString FileSystem::absolute(const QString &relativePath) const
 }
 
 // Files
-QObject *FileSystem::_open(const QString &path, const QString &mode) const
+QObject *FileSystem::_open(const QString &path, const QVariantMap &opts) const
 {
     File *f = NULL;
     QFile *_f = new QFile(path);
     QFile::OpenMode modeCode = QFile::NotOpen;
+    QVariant modeVar = opts["mode"];
+
+    // Ensure only strings
+    if (modeVar.type() != QVariant::String) {
+        qDebug() << "FileSystem::open - " << "Mode must be a string!" << modeVar;
+        return NULL;
+    }
+
+    QString mode = modeVar.toString();
 
     // Ensure only one "mode character" has been selected
     if ( mode.length() != 1) {
