@@ -340,6 +340,13 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
         m_mainFrame->setHtml(BLANK_HTML);
     } else {
         QUrl url = QUrl::fromEncoded(QByteArray(address.toAscii()));
+
+        // Assume local file if scheme is empty
+        if (url.scheme().isEmpty()) {
+            url.setPath(QFileInfo(url.toString()).absoluteFilePath().prepend("/"));
+            url.setScheme("file");
+        }
+
         m_mainFrame->load(QNetworkRequest(url), networkOp, body);
     }
 }
