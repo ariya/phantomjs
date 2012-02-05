@@ -3,6 +3,7 @@ describe("Basic Files API (read, write, remove, ...)", function() {
 		FILENAME_COPY = FILENAME + ".copy",
 		FILENAME_MOVED = FILENAME + ".moved",
 		FILENAME_EMPTY = FILENAME + ".empty",
+		FILENAME_ENC = FILENAME + ".enc",
         ABSENT = "absent-01.test";
     
     it("should be able to create and write a file", function() {
@@ -79,5 +80,21 @@ describe("Basic Files API (read, write, remove, ...)", function() {
 		expect(function(){
 			fs.copy(ABSENT, FILENAME_COPY);
 		}).toThrow("Unable to copy file '" + ABSENT + "' at '" + FILENAME_COPY + "'");
+	});
+
+	it("should be read/write utf8 text by default", function() {
+		var content, output = "ÄABCÖ";
+		try {
+			var f = fs.open(FILENAME_ENC, "w");
+			f.write(output);
+			f.close();
+
+			f = fs.open(FILENAME_ENC, "r");
+			content = f.read();
+			f.close();
+
+			fs.remove(FILENAME_ENC);
+		} catch (e) { }
+		expect(content).toEqual(output);
 	});
 });
