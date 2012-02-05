@@ -33,6 +33,7 @@
 #include <QObject>
 #include <QStringList>
 #include <QFile>
+#include <QTextCodec>
 #include <QTextStream>
 #include <QVariant>
 
@@ -41,7 +42,7 @@ class File : public QObject
     Q_OBJECT
 
 public:
-    File(QFile *openfile, QObject *parent = 0);
+    File(QFile *openfile, QTextCodec *codec, QObject *parent = 0);
     virtual ~File();
 
 public slots:
@@ -87,10 +88,10 @@ public slots:
     bool _removeTree(const QString &path) const;
 
     // Files
-    // 'open(path, mode)' implemented in "filesystem-shim.js" using '_open(path, mode)'
-    QObject *_open(const QString &path, const QString &mode) const;
-    // 'read(path)' implemented in "filesystem-shim.js"
-    // 'write(path, mode)' implemented in the "filesystem-shim.js"
+    // 'open(path, mode|options)' implemented in "filesystem-shim.js" using '_open(path, opts)'
+    QObject *_open(const QString &path, const QVariantMap &opts) const;
+    // 'read(path, options)' implemented in "filesystem-shim.js"
+    // 'write(path, mode|options)' implemented in the "filesystem-shim.js"
     // 'remove(path)' implemented in "filesystem-shim.js" using '_remove(path)'
     bool _remove(const QString &path) const;
     // 'copy(source, destination)' implemented in "filesystem-shim.js" using '_copy(source, destination)'
