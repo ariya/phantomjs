@@ -1,13 +1,4 @@
-describe("WebServer constructor", function() {
-    it("should not exist in window", function() {
-        expect(window.hasOwnProperty('WebServer')).toBeFalsy();
-    });
-
-    it("should be a function", function() {
-        var WebServer = require('webserver').create;
-        expect(typeof WebServer).toEqual('function');
-    });
-});
+var handledRequests = 0;
 
 function checkRequest(request, response) {
     expect(typeof request).toEqual('object');
@@ -24,12 +15,33 @@ function checkRequest(request, response) {
     expectHasProperty(request, 'headerName');
     expectHasProperty(request, 'headerValue');
 
+    if (request.method == 'POST' || request.method == 'PUT') {
+      expectHasProperty(request, 'rawData');
+      if (request.method == 'POST') {
+        expectHasProperty(request, 'post');
+      }
+    }
+
     expect(typeof response).toEqual('object');
     expectHasProperty(response, 'statusCode');
     expectHasProperty(response, 'headers');
     expectHasFunction(response, 'setHeader');
     expectHasFunction(response, 'write');
+
+    handledRequests++;
+    respone.write("handled request #" + handledRequests);
 }
+
+describe("WebServer constructor", function() {
+    it("should not exist in window", function() {
+        expect(window.hasOwnProperty('WebServer')).toBeFalsy();
+    });
+
+    it("should be a function", function() {
+        var WebServer = require('webserver').create;
+        expect(typeof WebServer).toEqual('function');
+    });
+});
 
 describe("WebServer object", function() {
     var server = require('webserver').create();
@@ -76,9 +88,35 @@ describe("WebServer object", function() {
 
     it("should handle requests", function() {
         var page = require('webpage').create();
-        var url = "http://localhost:12345/foo/bar.php?asdf=true";
-        page.open(url, function (status) {
-            expect(status == 'success').toEqual(true);
+        runs(function() {
+          page.open("http://localhost:12345/foo/bar.php?asdf=true", function (status) {
+              expect(status == 'success').toEqual(true);
+          });
         });
+
+        waits(0);
+
+        runs(function() {
+          expect(page.content == 'handled request #1').toEqual(true);
+        });
+
+        expect(handledRequests).toEqual(1);
+    });
+
+    it("should handle post requests", function() {
+        var page = require('webpage').create();
+        runs(function() {
+          page.open("http://localhost:12345/foo/bar.php?asdf=true", "post", "foo=bar&bla=xyz", function (status) {
+              expect(status == 'success').toEqual(true);
+          });
+        });
+
+        waits(0);
+
+        runs(function() {
+          expect(page.content == 'handled request #1').toEqual(true);
+        });
+
+        expect(handledRequests).toEqual(1);
     });
 });

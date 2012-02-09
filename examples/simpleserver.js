@@ -15,7 +15,7 @@ if (phantom.args.length !== 1) {
         response.statusCode = 200;
         response.headers = {
             'Cache': 'no-cache',
-            'Content-Type': 'text/html'
+            'Content-Type': 'text/html;charset=utf-8'
         };
         response.write('<html>');
         response.write('<head>');
