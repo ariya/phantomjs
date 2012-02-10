@@ -299,14 +299,14 @@ void WebPage::finish(bool ok)
     emit loadFinished(status);
 }
 
-void WebPage::setHeaders(const QVariantMap &headers)
+void WebPage::setCustomHeaders(const QVariantMap &headers)
 {
-    m_networkAccessManager->setHeaders(headers);
+    m_networkAccessManager->setCustomHeaders(headers);
 }
 
-QVariantMap WebPage::getHeaders() const
+QVariantMap WebPage::customHeaders() const
 {
-    return m_networkAccessManager->getHeaders();
+    return m_networkAccessManager->customHeaders();
 }
 
 void WebPage::openUrl(const QString &address, const QVariant &op, const QVariantMap &settings)

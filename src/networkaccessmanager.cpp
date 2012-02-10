@@ -98,14 +98,14 @@ void NetworkAccessManager::setPassword(const QString &password)
     m_password = password;
 }
 
-void NetworkAccessManager::setHeaders(const QVariantMap &headers) 
+void NetworkAccessManager::setCustomHeaders(const QVariantMap &headers) 
 {
-    m_headers = headers;
+    m_customHeaders = headers;
 }
 
-QVariantMap NetworkAccessManager::getHeaders() const 
+QVariantMap NetworkAccessManager::customHeaders() const 
 {
-    return m_headers;
+    return m_customHeaders;
 }
 
 // protected:
@@ -125,9 +125,9 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
         }
     }
 
-    // set user defined HTTP headers
-    QVariantMap::const_iterator i = m_headers.begin();
-    while (i != m_headers.end()) {
+    // set custom HTTP headers
+    QVariantMap::const_iterator i = m_customHeaders.begin();
+    while (i != m_customHeaders.end()) {
         req.setRawHeader(i.key().toAscii(), i.value().toByteArray());
         ++i;
     }
