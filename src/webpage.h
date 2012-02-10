@@ -50,6 +50,7 @@ class WebPage: public QObject
     Q_PROPERTY(QVariantMap paperSize READ paperSize WRITE setPaperSize)
     Q_PROPERTY(QVariantMap clipRect READ clipRect WRITE setClipRect)
     Q_PROPERTY(QVariantMap scrollPosition READ scrollPosition WRITE setScrollPosition)
+    Q_PROPERTY(bool blockNavigation READ blockNavigation WRITE setBlockNavigation)
 
 public:
     WebPage(QObject *parent, const Config *config);
@@ -74,6 +75,9 @@ public:
     void setPaperSize(const QVariantMap &size);
     QVariantMap paperSize() const;
 
+    void setBlockNavigation(bool block);
+    bool blockNavigation();
+
     void showInspector(const int remotePort = -1);
 
 public slots:
@@ -95,6 +99,8 @@ signals:
     void javaScriptConsoleMessageSent(const QString &message, int lineNumber, const QString &source);
     void resourceRequested(const QVariant &req);
     void resourceReceived(const QVariant &resource);
+    void urlChanged(const QUrl &url);
+    void navigationRequested(const QUrl &url, const QString &navigationType, bool willNavigate);
 
 private slots:
     void finish(bool ok);
@@ -108,6 +114,7 @@ private:
     QVariantMap m_paperSize; // For PDF output via render()
     QString m_libraryPath;
     QWebInspector* m_inspector;
+    bool m_blockNavigation;
 
     QImage renderImage();
     bool renderPdf(const QString &fileName);
