@@ -27,6 +27,7 @@ else
     response.write "</pre>"
     response.write "</body>"
     response.write "</html>"
+    response.close
   )
   if service
     console.log "Web server running on port " + port

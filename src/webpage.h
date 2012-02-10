@@ -35,6 +35,9 @@
 #include <QVariantMap>
 #include <QWebPage>
 
+class QWebFrame;
+class QNetworkReply;
+class QWebInspector;
 class Config;
 class CustomPage;
 class NetworkAccessManager;
@@ -98,6 +101,11 @@ signals:
 
 private slots:
     void finish(bool ok);
+    void unsupportedFinish(QNetworkReply *r = 0);
+    void readyRead();
+
+protected slots:
+    void handleUnsupportedContent(QNetworkReply *reply);
 
 private:
     CustomPage *m_webPage;
@@ -107,11 +115,15 @@ private:
     QPoint m_scrollPosition;
     QVariantMap m_paperSize; // For PDF output via render()
     QString m_libraryPath;
+    QHash<QNetworkReply*, QString> m_mimes;
     QWebInspector* m_inspector;
 
     QImage renderImage();
     bool renderPdf(const QString &fileName);
     void applySettings(const QVariantMap &defaultSettings);
+    void loopFramesFinished(QWebFrame *frame, QNetworkReply* r);
+    void doSniff(QNetworkReply* r);
+
     QString userAgent() const;
 
     void emitAlert(const QString &msg);

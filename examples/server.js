@@ -34,6 +34,7 @@ if (phantom.args.length !== 1) {
         response.write("<html><head><title>YES!</title></head>");
         // note: writeBody can be called multiple times
         response.write("<body><p>pretty cool :)</body></html>");
+        response.close();
     });
     if (!listening) {
         console.log("could not create web server listening on port " + port);

@@ -98,6 +98,7 @@ bool Utils::injectJsInFrame(const QString &jsFilePath, const Encoding &jsFileEnc
     return true;
 }
 
+
 bool Utils::loadJSForDebug(const QString& jsFilePath, const QString& libraryPath, QWebFrame* targetFrame)
 {
     return loadJSForDebug(jsFilePath, Encoding::UTF8, libraryPath, targetFrame);

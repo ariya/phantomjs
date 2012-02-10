@@ -116,8 +116,6 @@ private:
     void resetToDefaults();
     void setProxyHost(const QString &value);
     void setProxyPort(const int value);
-    void setAuthUser(const QString &value);
-    void setAuthPass(const QString &value);
 
     bool m_autoLoadImages;
     QString m_cookiesFile;
