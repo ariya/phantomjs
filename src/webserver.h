@@ -110,6 +110,16 @@ public slots:
     /// sends @p data to client and makes sure the headers are send beforehand
     void write(const QString &data);
 
+    /**
+     * Closes the request once all writing if finished
+     * This MUST be called when done with a request!
+     *
+     * NOTE: After calling close(), this request object
+     *       is no longer valid. Any further calls are
+     *       undefined and may crash.
+     */
+    void close();
+
     /// get the currently set status code, 200 is the default
     int statusCode() const;
     /// set the status code to @p code
