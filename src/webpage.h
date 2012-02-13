@@ -52,7 +52,7 @@ class WebPage: public QObject
     Q_PROPERTY(QVariantMap scrollPosition READ scrollPosition WRITE setScrollPosition)
 
 public:
-    WebPage(QObject *parent, const Config *config);
+    WebPage(QObject *parent, const Config *config, const QUrl &baseUrl = QUrl());
 
     QWebFrame *mainFrame();
 
