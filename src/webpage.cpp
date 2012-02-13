@@ -103,13 +103,13 @@ private:
     friend class WebPage;
 };
 
-WebPage::WebPage(QObject *parent, const Config *config)
+WebPage::WebPage(QObject *parent, const Config *config, const QUrl &baseUrl)
     : QObject(parent)
 {
     setObjectName("WebPage");
     m_webPage = new CustomPage(this);
     m_mainFrame = m_webPage->mainFrame();
-    m_mainFrame->setHtml(BLANK_HTML);
+    m_mainFrame->setHtml(BLANK_HTML, baseUrl);
 
     connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()), SIGNAL(initialized()));
     connect(m_webPage, SIGNAL(loadStarted()), SIGNAL(loadStarted()), Qt::QueuedConnection);
