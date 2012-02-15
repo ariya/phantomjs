@@ -525,7 +525,15 @@ bool WebPage::renderPdf(const QString &fileName)
 
     const qreal border = paperSize.contains("border") ?
                 floor(stringToPointSize(paperSize.value("border").toString())) : 0;
-    printer.setPageMargins(border, border, border, border, QPrinter::Point);
+    const qreal borderBottom = paperSize.contains("borderBottom") ?
+                floor(stringToPointSize(paperSize.value("borderBottom").toString())) : border;
+    const qreal borderTop = paperSize.contains("borderTop") ?
+                floor(stringToPointSize(paperSize.value("borderTop").toString())) : border;
+    const qreal borderLeft = paperSize.contains("borderLeft") ?
+                floor(stringToPointSize(paperSize.value("borderLeft").toString())) : border;
+    const qreal borderRight = paperSize.contains("borderRight") ?
+                floor(stringToPointSize(paperSize.value("borderRight").toString())) : border;
+    printer.setPageMargins(borderLeft, borderTop, borderRight, borderBottom, QPrinter::Point);
 
     m_mainFrame->print(&printer);
     return true;
