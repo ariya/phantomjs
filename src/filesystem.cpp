@@ -92,10 +92,28 @@ bool File::writeLine(const QString &data)
     return false;
 }
 
+QByteArray File::readRaw()
+{
+    if ( m_file->isReadable() ) {
+        return m_file->readAll();
+    }
+    qDebug() << "File::readRaw - " << "Couldn't read:" << m_file->fileName();
+    return QByteArray();
+}
+
+bool File::writeRaw(const QByteArray &data)
+{
+    if ( m_file->isWritable() ) {
+        return m_file->write(data);
+    }
+    qDebug() << "File::writeRaw - " << "Couldn't write:" << m_file->fileName();
+    return false;
+}
+
 bool File::atEnd() const
 {
     if ( m_file->isReadable() ) {
-        return m_fileStream.atEnd();
+        return m_file->atEnd();
     }
     qDebug() << "File::atEnd - " << "Couldn't read:" << m_file->fileName();
     return false;

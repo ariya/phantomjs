@@ -66,8 +66,10 @@ exports.open = function (path, modeOrOpts) {
     throw "Unable to open file '" + path + "'";
 };
 
-/** Open, read and return content of a file.
+/** Open, read and return text content of a file.
  * It will throw an exception if it fails.
+ *
+ * NOTE: do not use this for binary files.
  *
  * @param path Path of the file to read from
  * @param opts Options.
@@ -86,7 +88,22 @@ exports.read = function (path, opts) {
     return content;
 };
 
-/** Open and write content to a file
+/** Open, read and return raw binary content of a file.
+ * It will throw an exception if it fails.
+ *
+ * @param path Path of the file to read from
+ * @return file content
+ */
+exports.readRaw = function (path, opts) {
+    var opts = {'mode': 'r'};
+    var f = exports.open(path, opts),
+        content = f.readRaw();
+
+    f.close();
+    return content;
+};
+
+/** Open and write text content to a file
  * It will throw an exception if it fails.
  *
  * @param path Path of the file to read from
@@ -104,6 +121,26 @@ exports.write = function (path, content, modeOrOpts) {
     var f = exports.open(path, modeOrOpts);
 
     f.write(content);
+    f.close();
+};
+
+/** Open and write raw binary content to a file
+ * It will throw an exception if it fails.
+ *
+ * @param path Path of the file to read from
+ * @param content Content to write to the file
+ * @param modeOrOpts
+ *  mode: Open Mode. A string made of 'r', 'w', 'a/+' characters.
+ *  opts: Options.
+ *          - mode (see Open Mode above)
+ */
+exports.writeRaw = function (path, content, modeOrOpts) {
+    if (modeOrOpts == null) {
+        modeOrOpts = {};
+    }
+    var f = exports.open(path, modeOrOpts);
+
+    f.writeRaw(content);
     f.close();
 };
 
