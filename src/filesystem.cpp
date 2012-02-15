@@ -92,19 +92,31 @@ bool File::writeLine(const QString &data)
     return false;
 }
 
-QByteArray File::readRaw()
+//NOTE: we want to use QString instead of QByteArray as the latter is not really
+//      useable in javascript and e.g. window.btoa expects a string
+//NOTE: special code required since fromAsci() would stop as soon as it encounters \0
+QString File::readRaw()
 {
     if ( m_file->isReadable() ) {
-        return m_file->readAll();
+        const QByteArray data = m_file->readAll();
+        QString ret(data.size());
+        for(int i = 0; i < data.size(); ++i) {
+            ret[i] = data.at(i);
+        }
+        return ret;
     }
     qDebug() << "File::readRaw - " << "Couldn't read:" << m_file->fileName();
-    return QByteArray();
+    return QString();
 }
 
-bool File::writeRaw(const QByteArray &data)
+bool File::writeRaw(const QString &data)
 {
     if ( m_file->isWritable() ) {
-        return m_file->write(data);
+        QByteArray bytes(data.size(), Qt::Uninitialized);
+        for(int i = 0; i < data.size(); ++i) {
+            bytes[i] = data.at(i).toAscii();
+        }
+        return m_file->write(bytes);
     }
     qDebug() << "File::writeRaw - " << "Couldn't write:" << m_file->fileName();
     return false;

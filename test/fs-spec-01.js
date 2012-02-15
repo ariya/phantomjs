@@ -4,6 +4,7 @@ describe("Basic Files API (read, write, remove, ...)", function() {
 		FILENAME_MOVED = FILENAME + ".moved",
 		FILENAME_EMPTY = FILENAME + ".empty",
 		FILENAME_ENC = FILENAME + ".enc",
+        FILENAME_BIN = FILENAME + ".bin",
         ABSENT = "absent-01.test";
     
     it("should be able to create and write a file", function() {
@@ -97,4 +98,20 @@ describe("Basic Files API (read, write, remove, ...)", function() {
 		} catch (e) { }
 		expect(content).toEqual(output);
 	});
+
+    it("should be read/write binary data", function() {
+        var content, output = String.fromCharCode(0, 1, 2, 3, 4, 5);
+        try {
+            var f = fs.open(FILENAME_BIN, "w");
+            f.writeRaw(output);
+            f.close();
+
+            f = fs.open(FILENAME_BIN, "r");
+            content = f.readRaw();
+            f.close();
+
+            fs.remove(FILENAME_BIN);
+        } catch (e) { }
+        expect(content).toEqual(output);
+    });
 });

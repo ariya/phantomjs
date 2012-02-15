@@ -49,8 +49,8 @@ public slots:
     QString read();
     bool write(const QString &data);
 
-    QByteArray readRaw();
-    bool writeRaw(const QByteArray &data);
+    QString readRaw();
+    bool writeRaw(const QString &data);
 
     QString readLine();
     bool writeLine(const QString &data);
