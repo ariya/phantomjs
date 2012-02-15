@@ -29,6 +29,7 @@ if (phantom.args.length !== 1) {
         response.write('</pre>');
         response.write('</body>');
         response.write('</html>');
+        response.close();
     });
 
     if (service) {
