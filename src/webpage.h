@@ -45,6 +45,7 @@ class WebPage: public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString content READ content WRITE setContent)
+    Q_PROPERTY(QString plainText READ plainText)
     Q_PROPERTY(QString libraryPath READ libraryPath WRITE setLibraryPath)
     Q_PROPERTY(QVariantMap viewportSize READ viewportSize WRITE setViewportSize)
     Q_PROPERTY(QVariantMap paperSize READ paperSize WRITE setPaperSize)
@@ -58,6 +59,8 @@ public:
 
     QString content() const;
     void setContent(const QString &content);
+
+    QString plainText() const;
 
     QString libraryPath() const;
     void setLibraryPath(const QString &dirPath);

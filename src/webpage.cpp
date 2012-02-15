@@ -161,6 +161,10 @@ void WebPage::setContent(const QString &content)
     m_mainFrame->setHtml(content);
 }
 
+QString WebPage::plainText() const
+{
+    return m_mainFrame->toPlainText();
+}
 
 QString WebPage::libraryPath() const
 {
