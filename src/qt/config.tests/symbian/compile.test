@@ -1,0 +1,46 @@
+#!/bin/sh
+
+SUCCESS=no
+QMKSPEC=$1
+XPLATFORM=`basename "$1"`
+QMAKE_CONFIG=$2
+VERBOSE=$3
+SRCDIR=$4
+OUTDIR=$5
+TEST=$6
+EXE=`basename "$6"`
+DESCRIPTION=$7
+shift 7
+LFLAGS=""
+INCLUDEPATH=""
+CXXFLAGS=""
+MAC_ARCH_CXXFLAGS=""
+MAC_ARCH_LFLAGS=""
+
+# debuggery
+[ "$VERBOSE" = "yes" ] && echo "$DESCRIPTION auto-detection... ($*)"
+
+test -d "$OUTDIR/$TEST" || mkdir -p "$OUTDIR/$TEST"
+
+cd "$OUTDIR/$TEST"
+
+test -r Makefile && $MAKE distclean >/dev/null 2>&1
+
+"$OUTDIR/bin/qmake" -nocache -spec "$QMKSPEC" "CONFIG+=$QMAKE_CONFIG" "LIBS*=$LFLAGS" "LIBS+=$MAC_ARCH_LFLAGS" "INCLUDEPATH*=$INCLUDEPATH" "QMAKE_CXXFLAGS*=$CXXFLAGS" "QMAKE_CXXFLAGS+=$MAC_ARCH_CXXFLAGS" "QT_BUILD_TREE=$OUTDIR" "$SRCDIR/$TEST/$EXE.pro" -o "$OUTDIR/$TEST/Makefile"
+
+if [ "$VERBOSE" = "yes" ]; then
+    $MAKE
+else
+    $MAKE >/dev/null 2>&1
+fi
+
+[ -x "$EXE.exe" ] && SUCCESS=yes
+
+# done
+if [ "$SUCCESS" != "yes" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "$DESCRIPTION disabled."
+    exit 1
+else
+    [ "$VERBOSE" = "yes" ] && echo "$DESCRIPTION enabled."
+    exit 0
+fi

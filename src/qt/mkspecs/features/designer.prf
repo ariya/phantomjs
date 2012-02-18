@@ -1,0 +1,7 @@
+QT += xml
+contains(QT_CONFIG, script): QT += script
+qt:load(qt)
+
+plugin:DEFINES += QDESIGNER_EXPORT_WIDGETS
+
+qtAddLibrary(QtDesigner)

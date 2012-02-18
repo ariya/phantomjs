@@ -1,0 +1,32 @@
+#!/bin/sh
+
+QMKSPEC=$1
+VERBOSE=$2
+SRCDIR=$3
+OUTDIR=$4
+
+# debuggery
+[ "$VERBOSE" = "yes" ] && echo "Testing size of pointers ... ($*)"
+
+# build and run a test program
+test -d "$OUTDIR/config.tests/unix/ptrsize" || mkdir -p "$OUTDIR/config.tests/unix/ptrsize"
+"$OUTDIR/bin/qmake" -nocache -spec "$QMKSPEC" "QT_BUILD_TREE=$OUTDIR" "$SRCDIR/config.tests/unix/ptrsize/ptrsizetest.pro" -o "$OUTDIR/config.tests/unix/ptrsize/Makefile" >/dev/null 2>&1
+cd "$OUTDIR/config.tests/unix/ptrsize"
+
+if [ "$VERBOSE" = "yes" ]; then
+  ($MAKE clean && $MAKE)
+else
+  ($MAKE clean && $MAKE) >/dev/null 2>&1
+fi
+RETVAL=$?
+
+if [ "$RETVAL" -ne 0 ]; then
+    PTRSIZE=4
+else
+    PTRSIZE=8
+fi
+
+
+# done
+[ "$VERBOSE" = "yes" ] && echo "Pointer size: $PTRSIZE"
+exit $PTRSIZE

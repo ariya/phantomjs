@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="production"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		PreprocessorDefinitions="__PRODUCTION__=1"
+	/>
+	<Tool
+		Name="VCMIDLTool"
+		PreprocessorDefinitions="__PRODUCTION__=1"
+	/>
+	<Tool
+		Name="VCResourceCompilerTool"
+		PreprocessorDefinitions="__PRODUCTION__=1"
+	/>
+	<UserMacro
+		Name="ProductionBuild"
+		Value="1"
+	/>
+	<UserMacro
+		Name="PRODUCTION"
+		Value="1"
+		PerformEnvironmentSet="true"
+	/>
+</VisualStudioPropertySheet>

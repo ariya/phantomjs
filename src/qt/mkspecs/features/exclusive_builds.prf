@@ -1,0 +1,100 @@
+# fixExclusiveOutputDirs(1config, 2config)
+# Change all output paths that references 2config to have the string 1config in them
+defineTest(fixExclusiveOutputDirs) {
+    unset(firstBuild)
+    unset(secondBuild)
+    unset(appendFirstBuild)
+    firstBuild = $$1
+    secondBuild = $$2
+    count(ARGS, 2, greaterThan):isEqual($$list($$lower($$3)), false):appendFirstBuild = false
+    else:appendFirstBuild = true
+
+    isEmpty(QMAKE_DIR_REPLACE):QMAKE_DIR_REPLACE += OBJECTS_DIR MOC_DIR RCC_DIR
+    lessThan(firstBuild, $$secondBuild):eval($${firstBuild}_and_$${secondBuild}_target:QMAKE_DIR_REPLACE += DESTDIR)
+    else:eval($${secondBuild}_and_$${firstBuild}_target:QMAKE_DIR_REPLACE += DESTDIR)
+    for(fix, QMAKE_DIR_REPLACE) {
+        isEmpty($$fix)|isEqual($$fix, .) {
+            eval($$fix = $${firstBuild})
+        } else:contains($$list($$first($$fix)), .*$${secondBuild}.*) {
+            eval($$fix ~= s/$${secondBuild}/$${firstBuild}/gi)
+        } else:isEqual(appendFirstBuild, true):!contains($$list($$first($$fix)), .*$${firstBuild}.*) {
+            contains($$list($${first($$fix)}), .*/$):eval($$fix = $${first($$fix)}$${firstBuild})
+	    else:eval($$fix = $${first($$fix)}-$${firstBuild})
+        }
+        export($$fix)
+    }
+    return(true)
+}
+
+# addExclusiveBuilds(1config, 1name, 2config, 2name)
+# Adds two BUILDS which are exclusive to each other.
+defineTest(addExclusiveBuilds) {
+    unset(firstBuild)
+    unset(firstBuildName)
+    unset(secondBuild)
+    unset(secondBuildName)
+
+    firstBuild = $$1
+    firstBuildName = $$2
+    secondBuild = $$3
+    secondBuildName = $$4
+
+    contains(TEMPLATE, subdirs) {
+        eval(sub_$${firstBuildName}.target = $$firstBuild)
+	export(sub_$${firstBuildName}.target)
+        eval(sub_$${firstBuildName}.CONFIG = recursive)
+	export(sub_$${firstBuildName}.CONFIG)
+        eval(sub_$${secondBuildName}.target = $$secondBuild)
+	export(sub_$${secondBuildName}.target)
+        eval(sub_$${secondBuildName}.CONFIG = recursive)
+	export(sub_$${secondBuildName}.CONFIG)
+	QMAKE_EXTRA_TARGETS += sub_$${firstBuildName} sub_$${secondBuildName}
+	export(QMAKE_EXTRA_TARGETS)
+    } else:!build_pass {
+        first_BUILDS  =
+        second_BUILDS =
+        suffix_BUILDS = Build
+
+        isEmpty(BUILDS): BUILDPERMUTATIONS = $$suffix_BUILDS
+        else: BUILDPERMUTATIONS = $$BUILDS
+
+        for(permutation, BUILDPERMUTATIONS) {
+            permutation ~= s/$${suffix_BUILDS}$//
+            isEmpty(permutation): permutationName =
+            else: permutationName = -$$permutation
+            # Makefile target rule
+            eval($${firstBuildName}$${permutation}.target  = $${firstBuild}$$lower($${permutationName}))
+	    export($${firstBuildName}$${permutation}.target)
+            # IDE name
+            eval($${firstBuildName}$${permutation}.name    = $${firstBuildName}$${permutationName})
+	    export($${firstBuildName}$${permutation}.name)
+	    # prl import CONFIG option
+            eval($${firstBuildName}$${permutation}.PRL_CONFIG  = $${firstBuild}$${permutation})
+            export($${firstBuildName}$${permutation}.PRL_CONFIG)
+            # Individual CONFIG option
+            eval($${firstBuildName}$${permutation}.CONFIG  = $${firstBuild} $${firstBuildName}Build $$eval($${permutation}.CONFIG))
+	    export($${firstBuildName}$${permutation}.CONFIG)
+
+            eval($${secondBuildName}$${permutation}.target = $${secondBuild}$$lower($${permutationName}))
+	    export($${secondBuildName}$${permutation}.target)
+            eval($${secondBuildName}$${permutation}.name   = $${secondBuildName}$${permutationName})
+	    export($${secondBuildName}$${permutation}.name)
+	    eval($${secondBuildName}$${permutation}.PRL_CONFIG  = $${secondBuild}$${permutation})
+	    export($${secondBuildName}$${permutation}.PRL_CONFIG)
+            eval($${secondBuildName}$${permutation}.CONFIG = $${secondBuild} $${secondBuildName}Build $$eval($${permutation}.CONFIG))
+	    export($${secondBuildName}$${permutation}.CONFIG)
+ 
+            first_BUILDS += $${firstBuildName}$${permutation}
+            second_BUILDS += $${secondBuildName}$${permutation}
+        }
+ 
+        # A mutual exclusive block.
+        CONFIG($${firstBuild}, $${firstBuild}|$${secondBuild}): BUILDS = $$first_BUILDS  $$second_BUILDS 
+        else: BUILDS = $$second_BUILDS $$first_BUILDS
+        export(BUILDS)
+    } else {
+        eval($${firstBuildName}Build:fixExclusiveOutputDirs($$firstBuild, $$secondBuild, false))
+        eval($${secondBuildName}Build:fixExclusiveOutputDirs($$secondBuild, $$firstBuild, false))
+    }
+    return(true)
+}

@@ -1,0 +1,122 @@
+QT_BREAKPAD_ROOT_PATH = $$(QT_BREAKPAD_ROOT_PATH)
+!isEmpty(QT_BREAKPAD_ROOT_PATH): \   # quick test first whether requested ...
+        !staticlib:!static:CONFIG(release, debug|release):contains(TEMPLATE, .*(app|lib)): \   # is it applicable?
+        !contains(TARGET, .*phony_target.*): \   # monster hack, you don't really see this here, right? ;)
+        system($$QT_BREAKPAD_ROOT_PATH/qtbreakpadsymbols --breakpad-exists) {    # do we really have it?
+    CONFIG += breakpad
+    CONFIG -= no_debug_info separate_debug_info
+    QMAKE_CFLAGS_RELEASE = $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
+    QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CXXFLAGS_RELEASE_WITH_DEBUGINFO
+    QMAKE_LFLAGS_RELEASE = $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
+}
+
+CONFIG(debug, debug|release):load(debug)
+else:load(release)
+debug_and_release:load(debug_and_release)
+incredibuild_xge {
+    CONFIG -= incredibuild_xge
+    CONFIG = incredibuild_xge $$CONFIG
+}
+
+breakpad {
+    !contains(DESTDIR, (/|.:[/\\\\]).*):TARGET_BASEPATH = $${OUT_PWD}/
+    !isEmpty(DESTDIR):TARGET_BASEPATH = $${TARGET_BASEPATH}$${DESTDIR}/
+
+    win32 {
+        TARGET_BASEPATH ~= s,/,\\,
+        contains(TEMPLATE, .*lib) {
+            isEmpty(TARGET_VERSION_EXT):!isEmpty(VERSION) {
+                TARGET_VERSION_EXT = $$section(VERSION, ., 0, 0)
+                isEqual(TARGET_VERSION_EXT, 0):unset(TARGET_VERSION_EXT)
+            }
+            TARGET_EXT = .dll
+        } else {
+            TARGET_EXT = .exe
+        }
+
+        DEBUGFILENAME = $${TARGET_BASEPATH}$${TARGET}$${TARGET_VERSION_EXT}$${TARGET_EXT}
+        PDBFILENAME = $${TARGET_BASEPATH}$${TARGET}$${TARGET_VERSION_EXT}.pdb
+        DEBUGFILENAME ~= s,/,\\,
+        PDBFILENAME ~= s,/,\\,
+        QMAKE_CLEAN += $$PDBFILENAME  # for the debug case it is hardcoded in qmake
+    } else {
+        contains(TEMPLATE, .*lib):LIBPREFIX = lib
+
+        macx {
+            equals(TEMPLATE, lib) {
+                lib_bundle {
+                    TARGET_BASEPATH = $${TARGET_BASEPATH}$${TARGET}.framework/$${TARGET}
+                } else {
+                    TARGET_BASEPATH = $${TARGET_BASEPATH}$${LIBPREFIX}$${TARGET}
+                    !plugin {
+                        TEMP_VERSION = $$section(VERSION, ., 0, 0)
+                        isEmpty(TEMP_VERSION):TEMP_VERSION = 1
+                        TARGET_BASEPATH = $${TARGET_BASEPATH}.$${TEMP_VERSION}
+                    }
+                    TARGET_BASEPATH = $${TARGET_BASEPATH}.$${QMAKE_EXTENSION_SHLIB}
+                }
+            } else {
+                app_bundle {
+                    TARGET_BASEPATH = $${TARGET_BASEPATH}$${TARGET}.app/Contents/MacOS/$${TARGET}
+                } else {
+                    TARGET_BASEPATH = $${TARGET_BASEPATH}$${TARGET}
+                }
+            }
+            DEBUGFILENAME = $$TARGET_BASEPATH
+        } else {
+            equals(TEMPLATE, lib) {
+                plugin {
+                    TARGET_BASEPATH = $${TARGET_BASEPATH}$${LIBPREFIX}$${TARGET}.so
+                } else {
+                    TEMP_VERSION = $$VERSION
+                    isEmpty(TEMP_VERSION):TEMP_VERSION = 1.0.0
+                    TARGET_BASEPATH = $${TARGET_BASEPATH}$${LIBPREFIX}$${TARGET}.so.$${TEMP_VERSION}
+                }
+            } else {
+                TARGET_BASEPATH = $${TARGET_BASEPATH}$${TARGET}
+            }
+            DEBUGFILENAME = $$TARGET_BASEPATH
+        }
+    }
+
+    PROJECTPATH = $$OUT_PWD
+    win32:PROJECTPATH ~= s,/,\\,
+
+    !isEmpty(QMAKE_POST_LINK):QMAKE_POST_LINK = $$QMAKE_POST_LINK$$escape_expand(\\n\\t)
+    QMAKE_POST_LINK = $$QMAKE_POST_LINK$$quote($${QT_BREAKPAD_ROOT_PATH}$${QMAKE_DIR_SEP}qtbreakpadsymbols \"$$DEBUGFILENAME\" \"$$PROJECTPATH\")
+    !isEmpty(QMAKE_STRIP):QMAKE_POST_LINK = $$QMAKE_POST_LINK$$escape_expand(\\n\\t)$$quote($$QMAKE_STRIP \"$$DEBUGFILENAME\")
+
+    unset(TARGET_BASEPATH)
+    unset(SYMBOLFILENAME)
+    unset(TARGET_EXT)
+    unset(TARGET_VERSION_EXT)
+    unset(TEMP_VERSION)
+}
+
+QMAKE_INCDIR += $$QMAKE_INCDIR_POST
+QMAKE_LIBDIR += $$QMAKE_LIBDIR_POST
+
+# Let every project have a standard GNU `check' target
+!contains(QMAKE_EXTRA_TARGETS, check) {
+    # `make check' should iterate through all subdirs
+    contains(TEMPLATE, subdirs) {
+        check.CONFIG = recursive
+        check.recurse = $$SUBDIRS
+        check.recurse_target = check
+    }
+    # `make check' should imply building the project
+    else {
+        check.depends = first
+    }
+    QMAKE_EXTRA_TARGETS += check
+}
+
+# Add special translation sources for projects that require them.
+# Note 1: Since lupdate will not parse regular config scopes right, contains checks are used instead.
+# Note 2: Checking for last value of TEMPLATE is used instead of simple contains check because
+#         lupdate doesn't respect "-=" variable assignments and therefore always finds "app"
+#         as the first value of TEMPLATE variable.
+contains(CONFIG, lupdate_run):contains(CONFIG, localize_deployment) {
+    equals($$list($$last(TEMPLATE)), app): SOURCES += $$[QT_INSTALL_DATA]/mkspecs/common/symbian/appCaptionForTranslation.cpp
+    SOURCES += $$[QT_INSTALL_DATA]/mkspecs/common/symbian/packageNameForTranslation.cpp
+}

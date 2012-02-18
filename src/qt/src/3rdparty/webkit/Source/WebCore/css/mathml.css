@@ -1,0 +1,238 @@
+@namespace "http://www.w3.org/1998/Math/MathML";
+
+math {
+    font-family: STIXGeneral, Symbol, "Times New Roman", sans-serif;
+    display: inline-block;
+    padding: 0px;
+    margin: 0px;
+    text-align: left;
+    vertical-align: baseline;
+    line-height: 1.0;
+    padding-left: 1px;
+    padding-right: 1px;
+}
+
+math[display="block"] {
+    display: block;
+    page-break-inside: avoid;
+    margin-bottom: 1em;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+mrow, mfenced {
+    display: inline-block;
+    white-space: nowrap;
+    vertical-align: baseline;
+}
+
+mfenced {
+    padding-left: 1px;
+    padding-right: 1px;
+}
+
+mi {
+    font-style: italic;
+    padding-right: 0.1em;
+}
+
+mi + mrow {
+    margin-left: 0.1em;
+}
+
+mfrac {
+    display: inline-block;
+}
+
+msub, msup {
+    display: inline-block;
+    vertical-align: baseline;
+}
+
+msub > * + * {
+    vertical-align: sub;
+    font-size: 0.75em;
+}
+
+msup > * + * {
+    vertical-align: super;
+    font-size: 0.75em;
+}
+
+msubsup {
+    display: inline-block;
+    vertical-align: baseline;
+}
+
+msubsup > * {
+    margin: 0px;
+    padding: 0px;
+}
+
+msubsup > * + * {
+    font-size: 0.75em;
+}
+
+munder, mover, munderover {
+    display: inline-block;
+    vertical-align: baseline;
+}
+
+munderover > * + *, mover > * + *, munder > * + * {
+    font-size: 0.75em;
+}
+
+mo, mn, mi, mtext {
+    padding: 0px;
+    margin: 0px;
+}
+
+mo {
+    display: inline-block;
+}
+
+math > mo, mrow > mo, mfenced > mo {
+    padding-right: 0.1em;
+}
+
+math[mathvariant="normal"], mstyle[mathvariant="normal"], mo[mathvariant="normal"], mn[mathvariant="normal"], mi[mathvariant="normal"], mtext[mathvariant="normal"], mspace[mathvariant="normal"], ms[mathvariant="normal"] {
+    font-style: normal;
+    font-weight: normal;
+}
+
+math[mathvariant="bold"], mstyle[mathvariant="bold"], mo[mathvariant="bold"], mn[mathvariant="bold"], mi[mathvariant="bold"], mtext[mathvariant="bold"], mspace[mathvariant="bold"], ms[mathvariant="bold"] {
+    font-style: normal;
+    font-weight: bold;
+}
+
+math[mathvariant="italic"], mstyle[mathvariant="italic"], mo[mathvariant="italic"], mn[mathvariant="italic"], mi[mathvariant="italic"], mtext[mathvariant="italic"], mspace[mathvariant="italic"], ms[mathvariant="italic"] {
+    font-style: italic;
+    font-weight: normal;
+}
+
+math[mathvariant="bold-italic"], mstyle[mathvariant="bold-italic"], mo[mathvariant="bold-italic"], mn[mathvariant="bold-italic"], mi[mathvariant="bold-italic"], mtext[mathvariant="bold-italic"], mspace[mathvariant="bold-italic"], ms[mathvariant="bold-italic"] {
+    font-weight: bold;
+    font-style: italic;
+}
+
+math[mathsize="small"], mstyle[mathsize="small"], mo[mathsize="small"], mn[mathsize="small"], mi[mathsize="small"], mtext[mathsize="small"], mspace[mathsize="small"], ms[mathsize="small"] {
+    font-size: 0.75em;
+}
+
+math[mathsize="normal"], mstyle[mathsize="normal"], mo[mathsize="normal"], mn[mathsize="normal"], mi[mathsize="normal"], mtext[mathsize="normal"], mspace[mathsize="normal"], ms[mathsize="normal"] {
+    font-size: 1em;
+}
+
+math[mathsize="big"], mstyle[mathsize="big"], mo[mathsize="big"], mn[mathsize="big"], mi[mathsize="big"], mtext[mathsize="big"], mspace[mathsize="big"], ms[mathsize="big"] {
+    font-size: 1.5em;
+}
+ 
+annotation, annotation-xml {
+    display:none;
+}
+
+mphantom {
+    visibility: hidden;
+}
+
+merror {
+    outline: solid thin red;
+    font-weight: bold;
+    font-family: sans-serif;
+    background-color: lightYellow;
+}
+
+msqrt {
+    display: inline-block;
+    padding-top: 0.2em;
+    padding-left: 0.75em;
+}
+
+mroot {
+    display: inline-block;
+    position: relative;
+    padding-top: 0.2em;
+    padding-left: 0.2em;
+}
+
+mroot > * + * {
+    font-size: 0.75em;
+    vertical-align: bottom;
+    position: absolute;
+    left: 0px;
+    padding-right: 0.4em;
+    padding-left: 0.2em;
+    padding-bottom: 0.2em;
+}
+
+mroot > * + mrow, mroot > * + mfenced {
+    padding-bottom: 0.4em;
+}
+
+mtable {
+    display: inline-table;
+    text-align: center;
+    vertical-align: -40%;
+}
+
+mtr {
+    display: table-row;
+}
+
+mtd {
+    display: table-cell;
+    padding: 0 0.5ex;
+}
+
+mtable[columnalign="left"], mtr[columnalign="left"], mtd[columnalign="left"] {
+    text-align: left;
+}
+
+mtable[columnalign="right"], mtr[columnalign="right"], mtd[columnalign="right"] {
+    text-align: right;
+}
+
+mtable[rowalign="top"] mtd, mtable mtr[rowalign="top"] mtd, mtable mtr mtd[rowalign="top"] {
+    vertical-align: top;
+}
+
+mtable[rowalign="bottom"] mtd, mtable mtr[rowalign="bottom"] mtd, mtable mtr mtd[rowalign="bottom"] {
+    vertical-align: bottom;
+}
+
+mtable[rowalign="center"] mtd, mtable mtr[rowalign="center"] mtd, mtable mtr mtd[rowalign="center"] {
+    vertical-align: middle;
+}
+
+mtable[frame="solid"] {
+    border: solid thin;
+}
+
+mtable[frame="dashed"] {
+    border: dashed thin;
+}
+
+mtable[rowlines="solid"], mtable[rowlines="dashed"], mtable[columnlines="solid"], mtable[columnlines="dashed"] {
+    border-collapse: collapse;
+}
+
+mtable[rowlines="solid"] > mtr + mtr {
+    border-top: solid thin;
+}
+
+mtable[rowlines="dashed"] > mtr + mtr {
+    border-top: dashed thin;
+}
+
+mtable[columnlines="solid"] > mtr > mtd + mtd {
+    border-left: solid thin;
+}
+
+mtable[columnlines="dashed"] > mtr > mtd + mtd {
+    border-left: dashed thin;
+}
+
+mspace[linebreak="newline"] {
+    display: block;
+}

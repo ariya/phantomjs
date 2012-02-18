@@ -1,0 +1,43 @@
+# Generate deployment for backup registration file for mobile devices
+symbian|maemo5|linux-g++-maemo {
+    symbian {
+        isEmpty(BACKUP_REGISTRATION_FILE_SYMBIAN) {
+            # Do not require a custom registration file in Symbian builds as the
+            # default file can be used as is in vast majority of projects.
+            # However, if the custom file exists in the default location, use that.
+
+            CUSTOM_BACKUP_REG_FILE = $$_PRO_FILE_PWD_/backup_registration/symbian/backup_registration.xml
+
+            exists($$CUSTOM_BACKUP_REG_FILE) {
+                BACKUP_REGISTRATION_FILE = $$CUSTOM_BACKUP_REG_FILE
+            } else {
+                BACKUP_REGISTRATION_FILE = $$[QT_INSTALL_DATA]/mkspecs/common/symbian/backup_registration.xml
+            }
+        } else {
+            BACKUP_REGISTRATION_FILE = $$BACKUP_REGISTRATION_FILE_SYMBIAN
+        }
+
+        contains(TEMPLATE, app) {
+            enable_backup_deployment.path = /private/$$replace(TARGET.UID3, 0x,)
+        } else {
+            enable_backup_deployment.path = /private/10202D56/import/packages/$$replace(TARGET.UID3, 0x,)
+        }
+        DEPLOYMENT += enable_backup_deployment
+    } else {
+        isEmpty(BACKUP_REGISTRATION_FILE_MAEMO) {
+            BACKUP_REGISTRATION_FILE = $$_PRO_FILE_PWD_/backup_registration/maemo/$$basename(TARGET).conf
+        } else {
+            BACKUP_REGISTRATION_FILE = $$BACKUP_REGISTRATION_FILE_MAEMO
+        }
+
+        enable_backup_deployment.path = /etc/osso-backup/applications
+        INSTALLS += enable_backup_deployment
+    }
+
+    # Make sure that BACKUP_REGISTRATION_FILE has absolute path, otherwise the following exists check will not work.
+    !contains(BACKUP_REGISTRATION_FILE, "(^/|^\\\\|^.:).*"): BACKUP_REGISTRATION_FILE = $$_PRO_FILE_PWD_/$$BACKUP_REGISTRATION_FILE
+
+    !exists($$BACKUP_REGISTRATION_FILE): warning(The backup registration file \'$$BACKUP_REGISTRATION_FILE\' was not found. Please provide a valid backup registration file.)
+
+    enable_backup_deployment.files = $$BACKUP_REGISTRATION_FILE
+}

@@ -1,0 +1,4 @@
+CONFIG -= windows
+contains(TEMPLATE, ".*app") {
+    QMAKE_LFLAGS += $$QMAKE_LFLAGS_CONSOLE $$QMAKE_LFLAGS_EXE
+}

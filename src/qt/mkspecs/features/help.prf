@@ -1,0 +1,4 @@
+INCLUDEPATH = $$QMAKE_INCDIR_QT/QtHelp $$INCLUDEPATH
+QT += sql
+
+qtAddLibrary(QtHelp)

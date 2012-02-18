@@ -1,0 +1,33 @@
+#!/bin/sh
+
+COMPILER=$1
+VERBOSE=$2
+WORKDIR=$3
+QT_MAC_DEFAULT_ARCH=
+
+touch defaultarch.c
+
+# compile something and run 'file' on it.
+if "$COMPILER" -c defaultarch.c 2>/dev/null 1>&2; then
+    FIlE_OUTPUT=`file defaultarch.o`
+    [ "$VERBOSE" = "yes" ] && echo "'file' reports compiler ($COMPILER) default architechture as: $FIlE_OUTPUT"
+
+fi
+rm -f defaultarch.c defaultarch.o
+
+# detect our known archs.
+if echo "$FIlE_OUTPUT" | grep '\<i386\>' > /dev/null 2>&1; then
+    QT_MAC_DEFAULT_ARCH=x86 # configure knows it as "x86" not "i386"
+fi
+if echo "$FIlE_OUTPUT" | grep '\<x86_64\>' > /dev/null 2>&1; then
+    QT_MAC_DEFAULT_ARCH=x86_64
+fi
+if echo "$FIlE_OUTPUT" | grep '\<ppc\>' > /dev/null 2>&1; then
+    QT_MAC_DEFAULT_ARCH=ppc
+fi
+if echo "$FIlE_OUTPUT" | grep '\<ppc64\>' > /dev/null 2>&1; then
+    QT_MAC_DEFAULT_ARCH=ppc64
+fi
+
+[ "$VERBOSE" = "yes" ] && echo "setting QT_MAC_DEFAULT_ARCH to \"$QT_MAC_DEFAULT_ARCH\""
+export QT_MAC_DEFAULT_ARCH

@@ -1,0 +1,327 @@
+#
+# CSS property names
+#
+# Some properties are used internally, but are not part of CSS. They are used to get
+# HTML4 compatibility in the rendering engine.
+#
+# Microsoft extensions are documented here:
+# http://msdn.microsoft.com/workshop/author/css/reference/attributes.asp
+#
+
+# high-priority property names have to be listed first, to simplify the check
+# for applying them first.
+color
+direction
+display
+font
+font-family
+font-size
+font-style
+font-variant
+font-weight
+text-rendering
+-webkit-font-smoothing
+-webkit-text-orientation
+-epub-text-orientation = -webkit-text-orientation
+-webkit-text-size-adjust
+-webkit-writing-mode
+-epub-writing-mode = -webkit-writing-mode
+zoom
+
+# line height needs to be right after the above high-priority properties
+line-height
+
+# The remaining properties are listed in alphabetical order
+background
+background-attachment
+background-clip
+background-color
+background-image
+background-origin
+background-position
+background-position-x
+background-position-y
+background-repeat
+background-repeat-x
+background-repeat-y
+background-size
+border
+border-bottom
+border-bottom-color
+border-bottom-left-radius
+-webkit-border-bottom-left-radius = border-bottom-left-radius
+border-bottom-right-radius
+-webkit-border-bottom-right-radius = border-bottom-right-radius
+border-bottom-style
+border-bottom-width
+border-collapse
+border-color
+border-left
+border-left-color
+border-left-style
+border-left-width
+border-radius
+border-right
+border-right-color
+border-right-style
+border-right-width
+border-spacing
+border-style
+border-top
+border-top-color
+border-top-left-radius
+-webkit-border-top-left-radius = border-top-left-radius
+border-top-right-radius
+-webkit-border-top-right-radius = border-top-right-radius
+border-top-style
+border-top-width
+border-width
+bottom
+box-shadow
+box-sizing
+# -webkit-box-sizing worked in Safari 4 and earlier.
+-webkit-box-sizing = box-sizing
+caption-side
+-epub-caption-side = caption-side
+clear
+clip
+content
+counter-increment
+counter-reset
+cursor
+empty-cells
+float
+font-stretch
+height
+left
+letter-spacing
+list-style
+list-style-image
+list-style-position
+list-style-type
+margin
+margin-bottom
+margin-left
+margin-right
+margin-top
+max-height
+max-width
+min-height
+min-width
+opacity
+# Honor -webkit-opacity as a synonym for opacity. This was the only syntax that worked in Safari 1.1,
+# and may be in use on some websites and widgets.
+-webkit-opacity = opacity
+orphans
+outline
+outline-color
+outline-offset
+outline-style
+outline-width
+overflow
+overflow-x
+overflow-y
+padding
+padding-bottom
+padding-left
+padding-right
+padding-top
+page
+page-break-after
+page-break-before
+page-break-inside
+pointer-events
+position
+quotes
+resize
+right
+size
+src
+speak
+table-layout
+text-align
+text-decoration
+text-indent
+text-line-through
+text-line-through-color
+text-line-through-mode
+text-line-through-style
+text-line-through-width
+text-overflow
+text-overline
+text-overline-color
+text-overline-mode
+text-overline-style
+text-overline-width
+text-shadow
+text-transform
+-epub-text-transform = text-transform
+text-underline
+text-underline-color
+text-underline-mode
+text-underline-style
+text-underline-width
+top
+unicode-bidi
+unicode-range
+vertical-align
+visibility
+white-space
+widows
+width
+word-break
+-epub-word-break = word-break
+word-spacing
+word-wrap
+z-index
+-webkit-animation
+-webkit-animation-delay
+-webkit-animation-direction
+-webkit-animation-duration
+-webkit-animation-fill-mode
+-webkit-animation-iteration-count
+-webkit-animation-name
+-webkit-animation-play-state
+-webkit-animation-timing-function
+-webkit-appearance
+-webkit-backface-visibility
+-webkit-background-clip
+-webkit-background-composite
+-webkit-background-origin
+# -webkit-background-size differs from background-size only in the interpretation of
+# a single value: -webkit-background-size: l; is equivalent to background-size: l l;
+# whereas background-size: l; is equivalent to background-size: l auto;
+-webkit-background-size
+-webkit-border-after
+-webkit-border-after-color
+-webkit-border-after-style
+-webkit-border-after-width
+-webkit-border-before
+-webkit-border-before-color
+-webkit-border-before-style
+-webkit-border-before-width
+-webkit-border-end
+-webkit-border-end-color
+-webkit-border-end-style
+-webkit-border-end-width
+-webkit-border-fit
+-webkit-border-horizontal-spacing
+-webkit-border-image
+# -webkit-border-radius differs from border-radius only in the interpretation of
+# a value consisting of two lengths: "-webkit-border-radius: l1 l2;" is equivalent
+# to "border-radius: l1 / l2;"
+-webkit-border-radius
+-webkit-border-start
+-webkit-border-start-color
+-webkit-border-start-style
+-webkit-border-start-width
+-webkit-border-vertical-spacing
+-webkit-box-align
+-webkit-box-direction
+-webkit-box-flex
+-webkit-box-flex-group
+-webkit-box-lines
+-webkit-box-ordinal-group
+-webkit-box-orient
+-webkit-box-pack
+-webkit-box-reflect
+-webkit-box-shadow
+-webkit-color-correction
+-webkit-column-break-after
+-webkit-column-break-before
+-webkit-column-break-inside
+-webkit-column-count
+-webkit-column-gap
+-webkit-column-rule
+-webkit-column-rule-color
+-webkit-column-rule-style
+-webkit-column-rule-width
+-webkit-column-span
+-webkit-column-width
+-webkit-columns
+-webkit-font-size-delta
+-webkit-highlight
+-webkit-hyphenate-character
+-webkit-hyphenate-limit-after
+-webkit-hyphenate-limit-before
+-webkit-hyphens
+-epub-hyphens = -webkit-hyphens
+-webkit-line-box-contain
+-webkit-line-break
+-webkit-line-clamp
+-webkit-locale
+-webkit-logical-width
+-webkit-logical-height
+-webkit-margin-after-collapse
+-webkit-margin-before-collapse
+-webkit-margin-bottom-collapse
+-webkit-margin-top-collapse
+-webkit-margin-collapse
+-webkit-margin-after
+-webkit-margin-before
+-webkit-margin-end
+-webkit-margin-start
+-webkit-marquee
+-webkit-marquee-direction
+-webkit-marquee-increment
+-webkit-marquee-repetition
+-webkit-marquee-speed
+-webkit-marquee-style
+-webkit-mask
+-webkit-mask-attachment
+-webkit-mask-box-image
+-webkit-mask-clip
+-webkit-mask-composite
+-webkit-mask-image
+-webkit-mask-origin
+-webkit-mask-position
+-webkit-mask-position-x
+-webkit-mask-position-y
+-webkit-mask-repeat
+-webkit-mask-repeat-x
+-webkit-mask-repeat-y
+-webkit-mask-size
+-webkit-match-nearest-mail-blockquote-color
+-webkit-max-logical-width
+-webkit-max-logical-height
+-webkit-min-logical-width
+-webkit-min-logical-height
+-webkit-nbsp-mode
+-webkit-padding-after
+-webkit-padding-before
+-webkit-padding-end
+-webkit-padding-start
+-webkit-perspective
+-webkit-perspective-origin
+-webkit-perspective-origin-x
+-webkit-perspective-origin-y
+-webkit-rtl-ordering
+-webkit-text-combine
+-epub-text-combine = -webkit-text-combine
+-webkit-text-decorations-in-effect
+-webkit-text-emphasis
+-epub-text-emphasis = -webkit-text-emphasis
+-webkit-text-emphasis-color
+-epub-text-emphasis-color = -webkit-text-emphasis-color
+-webkit-text-emphasis-position
+-webkit-text-emphasis-style
+-epub-text-emphasis-style = -webkit-text-emphasis-style
+-webkit-text-fill-color
+-webkit-text-security
+-webkit-text-stroke
+-webkit-text-stroke-color
+-webkit-text-stroke-width
+-webkit-transform
+-webkit-transform-origin
+-webkit-transform-origin-x
+-webkit-transform-origin-y
+-webkit-transform-origin-z
+-webkit-transform-style
+-webkit-transition
+-webkit-transition-delay
+-webkit-transition-duration
+-webkit-transition-property
+-webkit-transition-timing-function
+-webkit-user-drag
+-webkit-user-modify
+-webkit-user-select

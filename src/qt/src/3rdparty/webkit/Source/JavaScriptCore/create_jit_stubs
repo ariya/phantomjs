@@ -1,0 +1,75 @@
+#! /usr/bin/perl -w
+#
+# Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies)
+# Copyright (C) 2010 Patrick Gansterer <paroga@paroga.com>
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Library General Public
+# License as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Library General Public License for more details.
+#
+# You should have received a copy of the GNU Library General Public License
+# along with this library; see the file COPYING.LIB.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+use strict;
+use File::Basename;
+use Getopt::Long;
+
+my $usage = basename($0) . " --prefix prefix file";
+
+my $rtype_template = quotemeta("#rtype#");
+my $op_template = quotemeta("#op#");
+
+my $prefix;
+my $file;
+
+my $getOptionsResult = GetOptions(
+    'prefix=s' => \$prefix
+);
+
+$file = $ARGV[0];
+
+die "$usage\n" unless ($prefix and $file);
+
+my $stub_template = "";
+my $output_end = "";
+my $stub = "";
+
+my $rtype = "";
+my $op = "";
+
+print STDERR "Creating JIT stubs for $file \n";
+open(IN, $file) or die "No such file $file";
+
+while ( $_ = <IN> ) {
+    if ( /^$prefix\_BEGIN\((.*)\)/ ) {
+        $stub = $1;
+        print $stub . "\n";
+    }
+    if ( /^$prefix\((.*)\)/ ) {
+        $stub_template .= $1 . "\n";
+    }
+    if ( /^$prefix\_END\((.*)\)/ ) {
+        $output_end .= $1 . "\n";
+    }
+    if ( /^DEFINE_STUB_FUNCTION\((.*), (.*)\)/ ) {
+        $stub = $stub_template;
+        $rtype = quotemeta($1);
+        $op = quotemeta($2);
+        $stub =~ s/$rtype_template/$rtype/g;
+        $stub =~ s/$op_template/$op/g;
+        $stub =~ s/\\\*/\*/g;
+        print $stub;
+    }
+}
+
+print $output_end;
+
+close(IN);

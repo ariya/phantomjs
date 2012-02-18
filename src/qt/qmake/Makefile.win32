@@ -1,0 +1,215 @@
+!IF "$(QMAKESPEC)" == "win32-msvc" || "$(QMAKESPEC)" == "win32-msvc.net" || "$(QMAKESPEC)" == "win32-msvc2002" || "$(QMAKESPEC)" == "win32-msvc2003" || "$(QMAKESPEC)" == "win32-msvc2005" || "$(QMAKESPEC)" == "win32-msvc2008" || "$(QMAKESPEC)" == "win32-msvc2010" || "$(QMAKESPEC)" == "win32-icc"
+
+!if "$(SOURCE_PATH)" == ""
+SOURCE_PATH = ..
+!endif
+!if "$(BUILD_PATH)" == ""
+BUILD_PATH = ..
+!endif
+
+#
+# specific stuff for NMake and ICC
+#
+!if "$(QMAKESPEC)" == "win32-icc"
+CXX	    = icl
+LINK	    = link
+CFLAGS      = /Zc:forScope
+!else
+CXX         = cl
+LINK	    = link
+!endif
+
+#
+# specific stuff for VS2005
+#
+!if "$(QMAKESPEC)" == "win32-msvc2005"
+CFLAGS_EXTRA      = /Zc:wchar_t-
+!elseif "$(QMAKESPEC)" == "win32-msvc2008" || "$(QMAKESPEC)" == "win32-msvc2010"
+CFLAGS_EXTRA      = /MP
+!endif
+
+CFLAGS_BARE = -c -Fo./ \
+              -W3 -nologo -O2 \
+              $(CFLAGS_EXTRA) \
+              -I. -Igenerators -Igenerators\unix -Igenerators\win32 -Igenerators\mac -Igenerators\symbian -Igenerators\integrity \
+              -I$(BUILD_PATH)\include -I$(BUILD_PATH)\include\QtCore \
+              -I$(SOURCE_PATH)\include -I$(SOURCE_PATH)\include\QtCore \
+              -I$(BUILD_PATH)\src\corelib\global \
+              -I$(BUILD_PATH)\src\corelib\xml \
+              -I$(SOURCE_PATH)\mkspecs\$(QMAKESPEC)  \
+              -I$(SOURCE_PATH)\tools\shared \
+              -DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL \
+              -DQT_NO_COMPRESS -DUNICODE -DHAVE_QCONFIG_CPP -DQT_BUILD_QMAKE -DQT_NO_THREAD \
+              -DQT_NO_QOBJECT -DQT_NO_GEOM_VARIANT -DQT_NO_DATASTREAM -DQT_NO_PCRE -DQT_BOOTSTRAPPED \
+              -DQLIBRARYINFO_EPOCROOT
+CFLAGS   = -Yuqmake_pch.h -FIqmake_pch.h -Fpqmake_pch.pch $(CFLAGS_BARE) $(CFLAGS)
+
+CXXFLAGS_BARE = $(CFLAGS_BARE)
+CXXFLAGS = $(CFLAGS)
+
+LFLAGS	    =
+LIBS	    = ole32.lib advapi32.lib
+LINKQMAKE   = $(LINK) $(LFLAGS) -OUT:qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
+ADDCLEAN    = vc60.pdb vc70.pdb qmake.pdb qmake.ilk
+
+!ELSE
+!ERROR Unsupported compiler for this Makefile
+!ENDIF
+
+#qmake code
+OBJS        = project.obj main.obj makefile.obj unixmake.obj unixmake2.obj mingw_make.obj \
+              option.obj winmakefile.obj projectgenerator.obj property.obj meta.obj \
+              makefiledeps.obj metamakefile.obj xmloutput.obj pbuilder_pbx.obj \
+              borland_bmake.obj msvc_nmake.obj msvc_vcproj.obj msvc_vcxproj.obj \
+              msvc_objectmodel.obj msbuild_objectmodel.obj symmake.obj initprojectdeploy_symbian.obj \
+              symmake_abld.obj symmake_sbsv2.obj symbiancommon.obj registry.obj epocroot.obj \
+              gbuild.obj
+
+!IFDEF QMAKE_OPENSOURCE_EDITION
+CFLAGS      = $(CFLAGS) -DQMAKE_OPENSOURCE_EDITION
+!ENDIF
+
+#qt code
+QTOBJS= \
+	qbitarray.obj \
+	qbuffer.obj \
+	qcryptographichash.obj \
+	qfilesystementry.obj \
+	qfilesystemengine.obj \
+	qfilesystemengine_win.obj \
+	qfilesystemiterator_win.obj \
+	qfsfileengine.obj \
+	qfsfileengine_iterator.obj \
+	qbytearray.obj \
+	qvsnprintf.obj \
+	qbytearraymatcher.obj \
+	qdatetime.obj \
+	qdir.obj \
+	qdiriterator.obj \
+	qfile.obj \
+	qtemporaryfile.obj \
+	qabstractfileengine.obj \
+	qfsfileengine_win.obj \
+	qsystemlibrary.obj \
+	qfileinfo.obj \
+	qglobal.obj \
+	qhash.obj \
+	qiodevice.obj \
+	qlist.obj \
+	qlinkedlist.obj \
+	qlocale.obj \
+	qlocale_tools.obj \
+	qlocale_win.obj \
+	qmalloc.obj \
+	qmap.obj \
+	qregexp.obj \
+	qtextcodec.obj \
+	qutfcodec.obj \
+	qstring.obj \
+	qstringlist.obj \
+	qsystemerror.obj \
+	qtextstream.obj \
+	qdatastream.obj \
+	quuid.obj \
+	qvector.obj \
+	qsettings.obj \
+	qlibraryinfo.obj \
+	qvariant.obj \
+	qurl.obj \
+	qsettings_win.obj \
+	qmetatype.obj \
+	qxmlstream.obj \
+	qxmlutils.obj \
+	qnumeric.obj
+
+
+first all: qmake.exe
+
+qmake.exe: $(OBJS) $(QTOBJS)
+	$(LINKQMAKE) qmake_pch.obj
+	-copy qmake.exe $(BUILD_PATH)\bin\qmake.exe
+
+clean::
+	-del $(QTOBJS)
+	-del $(OBJS)
+	-del qmake_pch.obj
+	-del qmake_pch.pch
+	-del qsystemlibrary.obj
+	-del vc60.pdb
+	-del vc70.pdb
+	-del qmake.pdb
+	-del qmake.ilk
+	-del qmake.tds
+
+distclean:: clean
+	-del qmake
+
+.c.obj:
+	$(CXX) $(CFLAGS) $<
+
+.cpp.obj:
+	$(CXX) $(CXXFLAGS) $<
+
+.cc.obj:
+	$(CXX) $(CXXFLAGS) $<
+
+.cxx.obj:
+	$(CXX) $(CXXFLAGS) $<
+
+$(OBJS): qmake_pch.obj
+
+$(QTOBJS): qmake_pch.obj
+
+qmake_pch.obj:
+	$(CXX) $(CXXFLAGS_BARE) -c -Yc -Fpqmake_pch.pch -TP qmake_pch.h
+
+{$(SOURCE_PATH)\qmake\generators\mac}.cpp{}.obj::
+	$(CXX) $(CXXFLAGS) $<
+
+{$(SOURCE_PATH)\qmake\generators\symbian}.cpp{}.obj::
+	$(CXX) $(CXXFLAGS) $<
+
+{$(SOURCE_PATH)\qmake\generators\integrity}.cpp{}.obj::
+	$(CXX) $(CXXFLAGS) $<
+
+{$(SOURCE_PATH)\qmake\generators\unix}.cpp{}.obj::
+	$(CXX) $(CXXFLAGS) $<
+
+{$(SOURCE_PATH)\qmake\generators\win32}.cpp{}.obj::
+	$(CXX) $(CXXFLAGS) $<
+
+{$(SOURCE_PATH)\qmake\generators}.cpp{}.obj::
+	$(CXX) $(CXXFLAGS) $<
+
+{$(SOURCE_PATH)\qmake}.cpp{}.obj::
+	$(CXX) $(CXXFLAGS) $<
+
+{$(SOURCE_PATH)\src\3rdparty\md5}.cpp{}.obj::
+	$(CXX) $(CXXFLAGS) $<
+
+{$(SOURCE_PATH)\src\corelib\codecs}.cpp{}.obj::
+	$(CXX) $(CXXFLAGS) $<
+
+{$(SOURCE_PATH)\src\corelib\global}.cpp{}.obj::
+	$(CXX) $(CXXFLAGS) $<
+
+{$(SOURCE_PATH)\src\corelib\io}.cpp{}.obj::
+	$(CXX) $(CXXFLAGS) $<
+
+{$(SOURCE_PATH)\src\corelib\kernel}.cpp{}.obj::
+	$(CXX) $(CXXFLAGS) $<
+
+{$(SOURCE_PATH)\src\corelib\plugin}.cpp{}.obj::
+	$(CXX) $(CXXFLAGS) $<
+
+{$(SOURCE_PATH)\src\corelib\tools}.cpp{}.obj::
+	$(CXX) $(CXXFLAGS) $<
+
+{$(SOURCE_PATH)\src\corelib\xml}.cpp{}.obj::
+	$(CXX) $(CXXFLAGS) $<
+
+{$(SOURCE_PATH)\tools\shared\symbian}.cpp{}.obj::
+	$(CXX) $(CXXFLAGS) $<
+
+{$(SOURCE_PATH)\tools\shared\windows}.cpp{}.obj::
+	$(CXX) $(CXXFLAGS) $<

@@ -1,0 +1,3 @@
+Externally provided Qt modules may drop a qmake file here to become part of
+the current Qt configuration. The file name must follow the pattern
+"qt_<module>.pri". It must contain a "QT_CONFIG += <module>" statement.
