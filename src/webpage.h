@@ -51,6 +51,7 @@ class WebPage: public QObject
     Q_PROPERTY(QVariantMap paperSize READ paperSize WRITE setPaperSize)
     Q_PROPERTY(QVariantMap clipRect READ clipRect WRITE setClipRect)
     Q_PROPERTY(QVariantMap scrollPosition READ scrollPosition WRITE setScrollPosition)
+    Q_PROPERTY(QVariantMap customHeaders READ customHeaders WRITE setCustomHeaders)
 
 public:
     WebPage(QObject *parent, const Config *config, const QUrl &baseUrl = QUrl());
@@ -76,6 +77,9 @@ public:
 
     void setPaperSize(const QVariantMap &size);
     QVariantMap paperSize() const;
+
+    void setCustomHeaders(const QVariantMap &headers);
+    QVariantMap customHeaders() const;
 
     void showInspector(const int remotePort = -1);
 
