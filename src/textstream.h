@@ -34,6 +34,8 @@
 #include <QString>
 #include <QTextStream>
 
+namespace commonjs {
+
 // This class implements (will implement) the CommonJS IO/A#TextStream spec.
 // See: http://wiki.commonjs.org/wiki/IO/A#TextStream
 class TextStream : public QObject
@@ -54,5 +56,7 @@ private:
     bool write(const QString &string, const bool newline);
     QTextStream *m_stream;
 };
+
+} // namespace commonjs
 
 #endif // TEXTSTREAM_H

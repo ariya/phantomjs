@@ -37,6 +37,8 @@
 
 #include "../textstream.h"
 
+namespace commonjs {
+
 // This class implements the CommonJS System/1.0 spec.
 // See: http://wiki.commonjs.org/wiki/System/1.0
 class System : public QObject
@@ -77,5 +79,7 @@ private:
     TextStream m_stdin;
     TextStream m_stdout;
 };
+
+} // namespace commonjs
 
 #endif // SYSTEM_H

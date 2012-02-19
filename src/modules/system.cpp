@@ -31,6 +31,8 @@
 
 #include "../env.h"
 
+namespace commonjs {
+
 System::System(QObject *parent) :
     QObject(parent),
     m_stderr(new QTextStream(stderr, QIODevice::WriteOnly), this),
@@ -76,3 +78,5 @@ QObject *System::_stdout()
 {
     return &m_stdout;
 }
+
+} // namespace commonjs

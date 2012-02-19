@@ -29,6 +29,8 @@
 
 #include "textstream.h"
 
+namespace commonjs {
+
 TextStream::TextStream(QTextStream *stream, QObject *parent) :
     QObject(parent),
     m_stream(stream)
@@ -74,3 +76,5 @@ bool TextStream::write(const QString &string, const bool newline)
     if (newline) (*m_stream) << endl;
     return (QTextStream::Ok == m_stream->status());
 }
+
+} // namespace commonjs

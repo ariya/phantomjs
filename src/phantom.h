@@ -101,7 +101,7 @@ private:
     QList<QPointer<WebPage> > m_pages;
     QList<QPointer<WebServer> > m_servers;
     Config m_config;
-    System m_systemModule;
+    commonjs::System m_systemModule;
 };
 
 #endif // PHANTOM_H
