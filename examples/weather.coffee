@@ -1,17 +1,18 @@
 # Get weather info for given address (or for the default one, "Mountain View")
 
 page = require('webpage').create()
+system = require 'system'
 address = 'Mountain View' #< default value
 
 # Route "console.log()" calls from within the Page context to the main Phantom context (i.e. current "this")
 page.onConsoleMessage = (msg) ->
     console.log msg
 
-# Print usage message, if no twitter ID is passed
-if phantom.args.length < 1
+# Print usage message, if no address is passed
+if system.args.length < 2
     console.log 'Usage: weather.coffee [address]'
 else
-    address = phantom.args.join ' '
+    address = Array.prototype.slice.call(system.args, 1).join(' ')
 
 # Heading
 console.log "*** Loading weather information for '#{address}' ***\n"

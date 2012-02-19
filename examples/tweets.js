@@ -1,6 +1,7 @@
 // Get twitter status for given account (or for the default one, "sencha")
 
 var page = require('webpage').create(),
+    system = require('system'),
     twitterId = "sencha"; //< default value
 
 // Route "console.log()" calls from within the Page context to the main Phantom context (i.e. current "this")
@@ -9,10 +10,10 @@ page.onConsoleMessage = function(msg) {
 };
 
 // Print usage message, if no twitter ID is passed
-if (phantom.args.length < 1) {
+if (system.args.length < 2) {
     console.log("Usage: tweets.js [twitter ID]");
 } else {
-    twitterId = phantom.args[0];
+    twitterId = system.args[1];
 }
 
 // Heading

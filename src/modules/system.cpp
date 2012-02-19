@@ -1,7 +1,7 @@
 /*
   This file is part of the PhantomJS project from Ofi Labs.
 
-  Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
+  Copyright (C) 2012 execjosh, http://execjosh.blogspot.com
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -27,40 +27,56 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "consts.h"
-#include "utils.h"
-#include "phantom.h"
-#include "env.h"
+#include "system.h"
 
-#if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
-#error Use Qt 4.7 or later version
-#endif
+#include "../env.h"
 
-int main(int argc, char** argv, const char** envp)
+namespace commonjs {
+
+System::System(QObject *parent) :
+    QObject(parent),
+    m_stderr(new QTextStream(stderr, QIODevice::WriteOnly), this),
+    m_stdin(new QTextStream(stdin, QIODevice::ReadOnly), this),
+    m_stdout(new QTextStream(stdout, QIODevice::WriteOnly), this)
 {
-    // Registering an alternative Message Handler
-    qInstallMsgHandler(Utils::messageHandler);
-
-    // Check number of parameters passed
-    if (argc < 2) {
-        Utils::showUsage();
-        return 1;
-    }
-
-    QApplication app(argc, argv);
-
-    app.setWindowIcon(QIcon(":/phantomjs-icon.png"));
-    app.setApplicationName("PhantomJS");
-    app.setOrganizationName("Ofi Labs");
-    app.setOrganizationDomain("www.ofilabs.com");
-    app.setApplicationVersion(PHANTOMJS_VERSION_STRING);
-
-    // Parse env vars
-    Env::instance()->parse(envp);
-
-    Phantom phantom;
-    if (phantom.execute()) {
-        app.exec();
-    }
-    return phantom.returnValue();
 }
+
+// public:
+
+void System::setArgs(const QStringList &args)
+{
+    m_args.clear();
+    m_args.append(args);
+}
+
+QStringList System::args() const
+{
+    return m_args;
+}
+
+QVariantMap System::env() const
+{
+    return Env::instance()->asVariantMap();
+}
+
+QString System::platform() const
+{
+    return "phantomjs";
+}
+
+QObject *System::_stderr()
+{
+    return &m_stderr;
+}
+
+QObject *System::_stdin()
+{
+    return &m_stdin;
+}
+
+QObject *System::_stdout()
+{
+    return &m_stdout;
+}
+
+} // namespace commonjs

@@ -1,7 +1,7 @@
 /*
   This file is part of the PhantomJS project from Ofi Labs.
 
-  Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
+  Copyright (C) 2012 execjosh, http://execjosh.blogspot.com
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -27,40 +27,54 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "consts.h"
-#include "utils.h"
-#include "phantom.h"
-#include "env.h"
+#include "textstream.h"
 
-#if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
-#error Use Qt 4.7 or later version
-#endif
+namespace commonjs {
 
-int main(int argc, char** argv, const char** envp)
+TextStream::TextStream(QTextStream *stream, QObject *parent) :
+    QObject(parent),
+    m_stream(stream)
 {
-    // Registering an alternative Message Handler
-    qInstallMsgHandler(Utils::messageHandler);
-
-    // Check number of parameters passed
-    if (argc < 2) {
-        Utils::showUsage();
-        return 1;
-    }
-
-    QApplication app(argc, argv);
-
-    app.setWindowIcon(QIcon(":/phantomjs-icon.png"));
-    app.setApplicationName("PhantomJS");
-    app.setOrganizationName("Ofi Labs");
-    app.setOrganizationDomain("www.ofilabs.com");
-    app.setApplicationVersion(PHANTOMJS_VERSION_STRING);
-
-    // Parse env vars
-    Env::instance()->parse(envp);
-
-    Phantom phantom;
-    if (phantom.execute()) {
-        app.exec();
-    }
-    return phantom.returnValue();
 }
+
+TextStream::~TextStream()
+{
+    if ((QTextStream *)NULL != m_stream) {
+        // "delete" should be performed only by owner
+        m_stream = (QTextStream *)NULL;
+    }
+    deleteLater();
+}
+
+// public slots:
+
+QString TextStream::read(qint64 n)
+{
+    return m_stream->read(n);
+}
+
+QString TextStream::readLine()
+{
+    return m_stream->readLine();
+}
+
+bool TextStream::write(const QString &string)
+{
+    return write(string, false);
+}
+
+bool TextStream::writeLine(const QString &string)
+{
+    return write(string, true);
+}
+
+// private:
+
+bool TextStream::write(const QString &string, const bool newline)
+{
+    (*m_stream) << string;
+    if (newline) (*m_stream) << endl;
+    return (QTextStream::Ok == m_stream->status());
+}
+
+} // namespace commonjs

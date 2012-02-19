@@ -1,7 +1,7 @@
 /*
   This file is part of the PhantomJS project from Ofi Labs.
 
-  Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
+  Copyright (C) 2012 execjosh, http://execjosh.blogspot.com
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -27,40 +27,26 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "consts.h"
-#include "utils.h"
-#include "phantom.h"
-#include "env.h"
+#ifndef ENV_H
+#define ENV_H
 
-#if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
-#error Use Qt 4.7 or later version
-#endif
+#include <QObject>
+#include <QVariantMap>
 
-int main(int argc, char** argv, const char** envp)
+class Env : public QObject
 {
-    // Registering an alternative Message Handler
-    qInstallMsgHandler(Utils::messageHandler);
+    Q_OBJECT
 
-    // Check number of parameters passed
-    if (argc < 2) {
-        Utils::showUsage();
-        return 1;
-    }
+public:
+    static Env *instance();
 
-    QApplication app(argc, argv);
+    void parse(const char ** envp);
+    QVariantMap asVariantMap() const;
 
-    app.setWindowIcon(QIcon(":/phantomjs-icon.png"));
-    app.setApplicationName("PhantomJS");
-    app.setOrganizationName("Ofi Labs");
-    app.setOrganizationDomain("www.ofilabs.com");
-    app.setApplicationVersion(PHANTOMJS_VERSION_STRING);
+private:
+    Env();
 
-    // Parse env vars
-    Env::instance()->parse(envp);
+    QVariantMap m_map;
+};
 
-    Phantom phantom;
-    if (phantom.execute()) {
-        app.exec();
-    }
-    return phantom.returnValue();
-}
+#endif // ENV_H

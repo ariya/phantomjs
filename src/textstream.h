@@ -1,7 +1,7 @@
 /*
   This file is part of the PhantomJS project from Ofi Labs.
 
-  Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
+  Copyright (C) 2012 execjosh, http://execjosh.blogspot.com
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -27,40 +27,36 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "consts.h"
-#include "utils.h"
-#include "phantom.h"
-#include "env.h"
+#ifndef TEXTSTREAM_H
+#define TEXTSTREAM_H
 
-#if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
-#error Use Qt 4.7 or later version
-#endif
+#include <QObject>
+#include <QString>
+#include <QTextStream>
 
-int main(int argc, char** argv, const char** envp)
+namespace commonjs {
+
+// This class implements (will implement) the CommonJS IO/A#TextStream spec.
+// See: http://wiki.commonjs.org/wiki/IO/A#TextStream
+class TextStream : public QObject
 {
-    // Registering an alternative Message Handler
-    qInstallMsgHandler(Utils::messageHandler);
+    Q_OBJECT
 
-    // Check number of parameters passed
-    if (argc < 2) {
-        Utils::showUsage();
-        return 1;
-    }
+public:
+    explicit TextStream(QTextStream *stream, QObject *parent = 0);
+    virtual ~TextStream();
 
-    QApplication app(argc, argv);
+public slots:
+    QString read(qint64 n = 1024);
+    QString readLine();
+    bool write(const QString &string);
+    bool writeLine(const QString &string);
 
-    app.setWindowIcon(QIcon(":/phantomjs-icon.png"));
-    app.setApplicationName("PhantomJS");
-    app.setOrganizationName("Ofi Labs");
-    app.setOrganizationDomain("www.ofilabs.com");
-    app.setApplicationVersion(PHANTOMJS_VERSION_STRING);
+private:
+    bool write(const QString &string, const bool newline);
+    QTextStream *m_stream;
+};
 
-    // Parse env vars
-    Env::instance()->parse(envp);
+} // namespace commonjs
 
-    Phantom phantom;
-    if (phantom.execute()) {
-        app.exec();
-    }
-    return phantom.returnValue();
-}
+#endif // TEXTSTREAM_H

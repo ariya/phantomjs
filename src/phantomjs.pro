@@ -21,7 +21,10 @@ HEADERS += csconverter.h \
     filesystem.h \
     terminal.h \
     encoding.h \
-    config.h
+    config.h \
+    modules/system.h \
+    env.h \
+    textstream.h
 
 SOURCES += phantom.cpp \
     webpage.cpp \
@@ -34,14 +37,18 @@ SOURCES += phantom.cpp \
     filesystem.cpp \
     terminal.cpp \
     encoding.cpp \
-    config.cpp
+    config.cpp \
+    modules/system.cpp \
+    env.cpp \
+    textstream.cpp
 
 OTHER_FILES += usage.txt \
     bootstrap.js \
     configurator.js \
     modules/fs.js \
     modules/webpage.js \
-    modules/webserver.js
+    modules/webserver.js \
+    modules/system.js
 
 include(gif/gif.pri)
 include(mongoose/mongoose.pri)

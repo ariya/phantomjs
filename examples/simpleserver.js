@@ -1,10 +1,11 @@
-var port, server, service;
+var port, server, service,
+    system = require('system');
 
-if (phantom.args.length !== 1) {
+if (system.args.length !== 2) {
     console.log('Usage: simpleserver.js <portnumber>');
     phantom.exit();
 } else {
-    port = phantom.args[0];
+    port = system.args[1];
     server = require('webserver').create();
 
     service = server.listen(port, function (request, response) {

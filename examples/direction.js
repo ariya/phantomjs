@@ -1,15 +1,16 @@
 // Get driving direction using Google Directions API.
 
 var page = require('webpage').create(),
+    system = require('system'),
     origin, dest, steps;
 
-if (phantom.args.length < 2) {
+if (system.args.length < 3) {
     console.log('Usage: direction.js origin destination');
     console.log('Example: direction.js "San Diego" "Palo Alto"');
     phantom.exit(1);
 } else {
-    origin = phantom.args[0];
-    dest = phantom.args[1];
+    origin = system.args[1];
+    dest = system.args[2];
     page.open(encodeURI('http://maps.googleapis.com/maps/api/directions/xml?origin=' + origin +
                 '&destination=' + dest + '&units=imperial&mode=driving&sensor=false'), function (status) {
         if (status !== 'success') {

@@ -39,6 +39,7 @@ class WebServer;
 #include "filesystem.h"
 #include "encoding.h"
 #include "config.h"
+#include "modules/system.h"
 
 class Phantom: public QObject
 {
@@ -75,6 +76,7 @@ public slots:
     QObject *createWebPage();
     QObject *createWebServer();
     QObject *createFilesystem();
+    QObject *getSystemModule();
     QString loadModuleSource(const QString &name);
     bool injectJs(const QString &jsFilePath);
 
@@ -99,6 +101,7 @@ private:
     QList<QPointer<WebPage> > m_pages;
     QList<QPointer<WebServer> > m_servers;
     Config m_config;
+    commonjs::System m_systemModule;
 };
 
 #endif // PHANTOM_H

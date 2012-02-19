@@ -84,6 +84,12 @@ Phantom::Phantom(QObject *parent)
         return;
     }
 
+    // Initialize System module args
+    QStringList systemModuleArgs;
+    systemModuleArgs.append(m_config.scriptFile());
+    systemModuleArgs.append(m_config.scriptArgs());
+    m_systemModule.setArgs(systemModuleArgs);
+
     if (m_config.proxyHost().isEmpty()) {
         QNetworkProxyFactory::setUseSystemConfiguration(true);
     } else {
@@ -227,6 +233,11 @@ QObject *Phantom::createFilesystem()
         m_filesystem = new FileSystem(this);
 
     return m_filesystem;
+}
+
+QObject *Phantom::getSystemModule()
+{
+    return &m_systemModule;
 }
 
 QString Phantom::loadModuleSource(const QString &name)
