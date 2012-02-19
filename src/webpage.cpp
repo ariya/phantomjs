@@ -303,6 +303,16 @@ void WebPage::finish(bool ok)
     emit loadFinished(status);
 }
 
+void WebPage::setCustomHeaders(const QVariantMap &headers)
+{
+    m_networkAccessManager->setCustomHeaders(headers);
+}
+
+QVariantMap WebPage::customHeaders() const
+{
+    return m_networkAccessManager->customHeaders();
+}
+
 void WebPage::openUrl(const QString &address, const QVariant &op, const QVariantMap &settings)
 {
     QString operation;
