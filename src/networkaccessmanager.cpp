@@ -98,6 +98,16 @@ void NetworkAccessManager::setPassword(const QString &password)
     m_password = password;
 }
 
+void NetworkAccessManager::setCustomHeaders(const QVariantMap &headers) 
+{
+    m_customHeaders = headers;
+}
+
+QVariantMap NetworkAccessManager::customHeaders() const 
+{
+    return m_customHeaders;
+}
+
 // protected:
 QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkRequest & request, QIODevice * outgoingData)
 {
@@ -113,6 +123,13 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
         if (contentType.isEmpty()) {
             req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
         }
+    }
+
+    // set custom HTTP headers
+    QVariantMap::const_iterator i = m_customHeaders.begin();
+    while (i != m_customHeaders.end()) {
+        req.setRawHeader(i.key().toAscii(), i.value().toByteArray());
+        ++i;
     }
 
     // Pass duty to the superclass - Nothing special to do here (yet?)
