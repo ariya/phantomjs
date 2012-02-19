@@ -1,7 +1,7 @@
 /*
   This file is part of the PhantomJS project from Ofi Labs.
 
-  Copyright (C) 2012 execjosh, http://execjosh.blogspot.com
+  Copyright (C) 2011 Ivan De Marino <ivan.de.marino@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -32,6 +32,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QFile>
 #include <QTextStream>
 
 namespace commonjs {
@@ -43,18 +44,23 @@ class TextStream : public QObject
     Q_OBJECT
 
 public:
-    explicit TextStream(QTextStream *stream, QObject *parent = 0);
+    TextStream(QFile *openfile, QObject *parent = 0);
     virtual ~TextStream();
 
 public slots:
-    QString read(qint64 n = 1024);
+    QString read();
+    bool write(const QString &data);
+
     QString readLine();
-    bool write(const QString &string);
-    bool writeLine(const QString &string);
+    bool writeLine(const QString &data);
+
+    bool atEnd() const;
+    void flush();
+    void close();
 
 private:
-    bool write(const QString &string, const bool newline);
-    QTextStream *m_stream;
+    QFile *m_file;
+    QTextStream m_fileStream;
 };
 
 } // namespace commonjs

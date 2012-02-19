@@ -36,31 +36,6 @@
 #include <QTextStream>
 #include <QVariant>
 
-class File : public QObject
-{
-    Q_OBJECT
-
-public:
-    File(QFile *openfile, QObject *parent = 0);
-    virtual ~File();
-
-public slots:
-    QString read();
-    bool write(const QString &data);
-
-    QString readLine();
-    bool writeLine(const QString &data);
-
-    bool atEnd() const;
-    void flush();
-    void close();
-
-private:
-    QFile *m_file;
-    QTextStream m_fileStream;
-};
-
-
 class FileSystem : public QObject
 {
     Q_OBJECT

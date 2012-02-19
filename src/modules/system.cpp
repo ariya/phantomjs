@@ -31,13 +31,15 @@
 
 #include "../env.h"
 
+#include <QFile>
+
 namespace commonjs {
 
 System::System(QObject *parent) :
     QObject(parent),
-    m_stderr(new QTextStream(stderr, QIODevice::WriteOnly), this),
-    m_stdin(new QTextStream(stdin, QIODevice::ReadOnly), this),
-    m_stdout(new QTextStream(stdout, QIODevice::WriteOnly), this)
+    m_stderr((TextStream *)NULL),
+    m_stdin((TextStream *)NULL),
+    m_stdout((TextStream *)NULL)
 {
 }
 
@@ -64,19 +66,36 @@ QString System::platform() const
     return "phantomjs";
 }
 
+QFile *openFd(FILE *fd, QIODevice::OpenMode flags)
+{
+    QFile *f = new QFile();
+    // TODO: Check success
+    f->open(fd, flags);
+    return f;
+}
+
 QObject *System::_stderr()
 {
-    return &m_stderr;
+    if ((TextStream *)NULL == m_stderr) {
+        m_stderr = new TextStream(openFd(stderr, QIODevice::WriteOnly), this);
+    }
+    return m_stderr;
 }
 
 QObject *System::_stdin()
 {
-    return &m_stdin;
+    if ((TextStream *)NULL == m_stdin) {
+        m_stdin = new TextStream(openFd(stdin, QIODevice::ReadOnly), this);
+    }
+    return m_stdin;
 }
 
 QObject *System::_stdout()
 {
-    return &m_stdout;
+    if ((TextStream *)NULL == m_stdout) {
+        m_stdout = new TextStream(openFd(stdout, QIODevice::WriteOnly), this);
+    }
+    return m_stdout;
 }
 
 } // namespace commonjs

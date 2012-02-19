@@ -28,92 +28,13 @@
 */
 
 #include "filesystem.h"
+#include "textstream.h"
 
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
 #include <QDebug>
 #include <QDateTime>
-
-// File
-// public:
-File::File(QFile *openfile, QObject *parent) :
-    QObject(parent),
-    m_file(openfile)
-{
-    m_fileStream.setDevice(m_file);
-}
-
-File::~File()
-{
-    this->close();
-}
-
-// public slots:
-QString File::read()
-{
-    if ( m_file->isReadable() ) {
-        return m_fileStream.readAll();
-    }
-    qDebug() << "File::read - " << "Couldn't read:" << m_file->fileName();
-    return QString();
-}
-
-bool File::write(const QString &data)
-{
-    if ( m_file->isWritable() ) {
-        m_fileStream << data;
-        return true;
-    }
-    qDebug() << "File::write - " << "Couldn't write:" << m_file->fileName();
-    return false;
-}
-
-QString File::readLine()
-{
-    if ( m_file->isReadable() ) {
-        return m_fileStream.readLine();
-    }
-    qDebug() << "File::readLine - " << "Couldn't read:" << m_file->fileName();
-    return QString();
-}
-
-bool File::writeLine(const QString &data)
-{
-    if ( write(data) && write("\n") ) {
-        return true;
-    }
-    qDebug() << "File::writeLine - " << "Couldn't write:" << m_file->fileName();
-    return false;
-}
-
-bool File::atEnd() const
-{
-    if ( m_file->isReadable() ) {
-        return m_fileStream.atEnd();
-    }
-    qDebug() << "File::atEnd - " << "Couldn't read:" << m_file->fileName();
-    return false;
-}
-
-void File::flush()
-{
-    if ( m_file ) {
-        m_fileStream.flush();
-    }
-}
-
-void File::close()
-{
-    flush();
-    if ( m_file ) {
-        m_file->close();
-        delete m_file;
-        m_file = NULL;
-    }
-    deleteLater();
-}
-
 
 // FileSystem
 // public:
@@ -276,7 +197,7 @@ QString FileSystem::absolute(const QString &relativePath) const
 // Files
 QObject *FileSystem::_open(const QString &path, const QString &mode) const
 {
-    File *f = NULL;
+    commonjs::TextStream *f = NULL;
     QFile *_f = new QFile(path);
     QFile::OpenMode modeCode = QFile::NotOpen;
 
@@ -318,7 +239,7 @@ QObject *FileSystem::_open(const QString &path, const QString &mode) const
 
     // Try to Open
     if ( _f->open(modeCode) ) {
-        f = new File(_f);
+        f = new commonjs::TextStream(_f);
         if ( f ) {
             return f;
         }

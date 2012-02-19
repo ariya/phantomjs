@@ -75,9 +75,9 @@ public:
 
 private:
     QStringList m_args;
-    TextStream m_stderr;
-    TextStream m_stdin;
-    TextStream m_stdout;
+    TextStream *m_stderr;
+    TextStream *m_stdin;
+    TextStream *m_stdout;
 };
 
 } // namespace commonjs

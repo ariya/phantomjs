@@ -1,7 +1,7 @@
 /*
   This file is part of the PhantomJS project from Ofi Labs.
 
-  Copyright (C) 2012 execjosh, http://execjosh.blogspot.com
+  Copyright (C) 2011 Ivan De Marino <ivan.de.marino@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -29,52 +29,86 @@
 
 #include "textstream.h"
 
+#include <QDebug>
+
 namespace commonjs {
 
-TextStream::TextStream(QTextStream *stream, QObject *parent) :
+// public:
+TextStream::TextStream(QFile *openfile, QObject *parent) :
     QObject(parent),
-    m_stream(stream)
+    m_file(openfile)
 {
+    m_fileStream.setDevice(m_file);
 }
 
 TextStream::~TextStream()
 {
-    if ((QTextStream *)NULL != m_stream) {
-        // "delete" should be performed only by owner
-        m_stream = (QTextStream *)NULL;
-    }
-    deleteLater();
+    this->close();
 }
 
 // public slots:
-
-QString TextStream::read(qint64 n)
+QString TextStream::read()
 {
-    return m_stream->read(n);
+    if ( m_file->isReadable() ) {
+        return m_fileStream.readAll();
+    }
+    qDebug() << "TextStream::read - " << "Couldn't read:" << m_file->fileName();
+    return QString();
+}
+
+bool TextStream::write(const QString &data)
+{
+    if ( m_file->isWritable() ) {
+        m_fileStream << data;
+        return true;
+    }
+    qDebug() << "TextStream::write - " << "Couldn't write:" << m_file->fileName();
+    return false;
 }
 
 QString TextStream::readLine()
 {
-    return m_stream->readLine();
+    if ( m_file->isReadable() ) {
+        return m_fileStream.readLine();
+    }
+    qDebug() << "TextStream::readLine - " << "Couldn't read:" << m_file->fileName();
+    return QString();
 }
 
-bool TextStream::write(const QString &string)
+bool TextStream::writeLine(const QString &data)
 {
-    return write(string, false);
+    if ( write(data) && write("\n") ) {
+        return true;
+    }
+    qDebug() << "TextStream::writeLine - " << "Couldn't write:" << m_file->fileName();
+    return false;
 }
 
-bool TextStream::writeLine(const QString &string)
+bool TextStream::atEnd() const
 {
-    return write(string, true);
+    if ( m_file->isReadable() ) {
+        return m_fileStream.atEnd();
+    }
+    qDebug() << "TextStream::atEnd - " << "Couldn't read:" << m_file->fileName();
+    return false;
 }
 
-// private:
-
-bool TextStream::write(const QString &string, const bool newline)
+void TextStream::flush()
 {
-    (*m_stream) << string;
-    if (newline) (*m_stream) << endl;
-    return (QTextStream::Ok == m_stream->status());
+    if ( m_file ) {
+        m_fileStream.flush();
+    }
+}
+
+void TextStream::close()
+{
+    flush();
+    if ( m_file ) {
+        m_file->close();
+        delete m_file;
+        m_file = NULL;
+    }
+    deleteLater();
 }
 
 } // namespace commonjs
