@@ -53,7 +53,7 @@ page.open(phantom.args[0], function(status){
     } else {
         waitFor(function(){
             return page.evaluate(function(){
-                if (document.body.querySelector('.finished-at')) {
+                if (document.body.querySelector('.runner .description')) {
                     return true;
                 }
                 return false;
