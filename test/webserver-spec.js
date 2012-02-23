@@ -9,26 +9,40 @@ describe("WebServer constructor", function() {
     });
 });
 
+var expectedPostData = false;
+
 function checkRequest(request, response) {
     expect(typeof request).toEqual('object');
-    expectHasProperty(request, 'url');
-    expectHasProperty(request, 'queryString');
-    expectHasProperty(request, 'method');
-    expectHasProperty(request, 'httpVersion');
-    expectHasProperty(request, 'statusCode');
-    expectHasProperty(request, 'isSSL');
-    expectHasProperty(request, 'remoteIP');
-    expectHasProperty(request, 'remotePort');
-    expectHasProperty(request, 'remoteUser');
-    expectHasProperty(request, 'headers');
-    expectHasProperty(request, 'headerName');
-    expectHasProperty(request, 'headerValue');
+    expect(request.hasOwnProperty('url')).toBeTruthy();
+    expect(request.hasOwnProperty('method')).toBeTruthy();
+    expect(request.hasOwnProperty('httpVersion')).toBeTruthy();
+    expect(request.hasOwnProperty('headers')).toBeTruthy();
+    expect(typeof request.headers).toEqual('object');
 
     expect(typeof response).toEqual('object');
-    expectHasProperty(response, 'statusCode');
-    expectHasProperty(response, 'headers');
-    expectHasFunction(response, 'setHeader');
-    expectHasFunction(response, 'write');
+    expect(response.hasOwnProperty('statusCode')).toBeTruthy();
+    expect(response.hasOwnProperty('headers')).toBeTruthy();
+    expect(typeof response['setHeaders']).toEqual('function');
+    expect(typeof response['setHeader']).toEqual('function');
+    expect(typeof response['header']).toEqual('function');
+    expect(typeof response['write']).toEqual('function');
+    expect(typeof response['writeHead']).toEqual('function');
+
+    if (expectedPostData !== false) {
+        expect(request.method).toEqual("POST");
+        expect(request.hasOwnProperty('post')).toBeTruthy();
+        expect(typeof request.post).toEqual('object');
+        console.log(JSON.stringify(request.post, null, 4));
+        console.log(JSON.stringify(expectedPostData, null, 4));
+        console.log(JSON.stringify(request.headersappl, null, 4));
+        expect(request.post).toEqual(expectedPostData);
+        expect(request.hasOwnProperty('rawData')).toBeTruthy();
+        expect(typeof request.rawData).toEqual('object');
+        expectedPostData = false;
+    }
+
+    response.write("request handled");
+    response.close();
 }
 
 describe("WebServer object", function() {
@@ -38,7 +52,6 @@ describe("WebServer object", function() {
         expect(typeof server).toEqual('object');
         expect(server).toNotEqual(null);
     });
-
 
     it("should have objectName as 'WebServer'", function() {
         expect(server.objectName).toEqual('WebServer');
@@ -77,8 +90,42 @@ describe("WebServer object", function() {
     it("should handle requests", function() {
         var page = require('webpage').create();
         var url = "http://localhost:12345/foo/bar.php?asdf=true";
-        page.open(url, function (status) {
-            expect(status == 'success').toEqual(true);
+        var handled = false;
+        runs(function() {
+            expect(handled).toEqual(false);
+            page.open(url, function (status) {
+                expect(status == 'success').toEqual(true);
+                expect(page.plainText).toEqual("request handled");
+                handled = true;
+            });
+        });
+
+        waits(50);
+
+        runs(function() {
+            expect(handled).toEqual(true);
+        });
+    });
+
+    it("should handle post requests", function() {
+        var page = require('webpage').create();
+        var url = "http://localhost:12345/foo/bar.txt?asdf=true";
+        //note: sorted by key (map)
+        expectedPostData = {'answer' : "42", 'universe' : "expanding"};
+        var handled = false;
+        runs(function() {
+            expect(handled).toEqual(false);
+            page.open(url, 'post', "universe=expanding&answer=42", function (status) {
+                expect(status == 'success').toEqual(true);
+                expect(page.plainText).toEqual("request handled");
+                handled = true;
+            });
+        });
+
+        waits(50);
+
+        runs(function() {
+            expect(handled).toEqual(true);
         });
     });
 });

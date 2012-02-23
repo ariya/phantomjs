@@ -98,12 +98,12 @@ void NetworkAccessManager::setPassword(const QString &password)
     m_password = password;
 }
 
-void NetworkAccessManager::setCustomHeaders(const QVariantMap &headers) 
+void NetworkAccessManager::setCustomHeaders(const QVariantMap &headers)
 {
     m_customHeaders = headers;
 }
 
-QVariantMap NetworkAccessManager::customHeaders() const 
+QVariantMap NetworkAccessManager::customHeaders() const
 {
     return m_customHeaders;
 }
