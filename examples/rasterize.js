@@ -11,8 +11,8 @@ if (phantom.args.length < 2 || phantom.args.length > 3) {
     page.viewportSize = { width: 600, height: 600 };
     if (phantom.args.length === 3 && phantom.args[1].substr(-4) === ".pdf") {
         size = phantom.args[2].split('*');
-        page.paperSize = size.length === 2 ? { width: size[0], height: size[1], border: '0px' }
-                                           : { format: phantom.args[2], orientation: 'portrait', border: '1cm' };
+        page.paperSize = size.length === 2 ? { width: size[0], height: size[1], margin: '0px' }
+                                           : { format: phantom.args[2], orientation: 'portrait', margin: '1cm' };
     }
     page.open(address, function (status) {
         if (status !== 'success') {
