@@ -45,20 +45,24 @@ class WebPage: public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString content READ content WRITE setContent)
+    Q_PROPERTY(QString plainText READ plainText)
     Q_PROPERTY(QString libraryPath READ libraryPath WRITE setLibraryPath)
     Q_PROPERTY(QVariantMap viewportSize READ viewportSize WRITE setViewportSize)
     Q_PROPERTY(QVariantMap paperSize READ paperSize WRITE setPaperSize)
     Q_PROPERTY(QVariantMap clipRect READ clipRect WRITE setClipRect)
     Q_PROPERTY(QVariantMap scrollPosition READ scrollPosition WRITE setScrollPosition)
     Q_PROPERTY(bool blockNavigation READ blockNavigation WRITE setBlockNavigation)
+    Q_PROPERTY(QVariantMap customHeaders READ customHeaders WRITE setCustomHeaders)
 
 public:
-    WebPage(QObject *parent, const Config *config);
+    WebPage(QObject *parent, const Config *config, const QUrl &baseUrl = QUrl());
 
     QWebFrame *mainFrame();
 
     QString content() const;
     void setContent(const QString &content);
+
+    QString plainText() const;
 
     QString libraryPath() const;
     void setLibraryPath(const QString &dirPath);
@@ -77,6 +81,9 @@ public:
 
     void setBlockNavigation(bool block);
     bool blockNavigation();
+
+    void setCustomHeaders(const QVariantMap &headers);
+    QVariantMap customHeaders() const;
 
     void showInspector(const int remotePort = -1);
 

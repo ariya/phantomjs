@@ -55,6 +55,7 @@ describe("WebPage object", function() {
     checkClipRect(page, {height:0,left:0,top:0,width:0});
 
     expectHasPropertyString(page, 'content');
+    expectHasPropertyString(page, 'plainText');
 
     expectHasPropertyString(page, 'libraryPath');
 

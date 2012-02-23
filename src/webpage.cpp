@@ -137,14 +137,14 @@ private:
     friend class WebPage;
 };
 
-WebPage::WebPage(QObject *parent, const Config *config)
+WebPage::WebPage(QObject *parent, const Config *config, const QUrl &baseUrl)
     : QObject(parent)
     , m_blockNavigation(false)
 {
     setObjectName("WebPage");
     m_webPage = new CustomPage(this);
     m_mainFrame = m_webPage->mainFrame();
-    m_mainFrame->setHtml(BLANK_HTML);
+    m_mainFrame->setHtml(BLANK_HTML, baseUrl);
 
     connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()), SIGNAL(initialized()));
     connect(m_mainFrame, SIGNAL(urlChanged(QUrl)), SIGNAL(urlChanged(QUrl)));
@@ -197,6 +197,10 @@ void WebPage::setContent(const QString &content)
     m_mainFrame->setHtml(content);
 }
 
+QString WebPage::plainText() const
+{
+    return m_mainFrame->toPlainText();
+}
 
 QString WebPage::libraryPath() const
 {
@@ -344,6 +348,16 @@ void WebPage::finish(bool ok)
 {
     QString status = ok ? "success" : "fail";
     emit loadFinished(status);
+}
+
+void WebPage::setCustomHeaders(const QVariantMap &headers)
+{
+    m_networkAccessManager->setCustomHeaders(headers);
+}
+
+QVariantMap WebPage::customHeaders() const
+{
+    return m_networkAccessManager->customHeaders();
 }
 
 void WebPage::openUrl(const QString &address, const QVariant &op, const QVariantMap &settings)

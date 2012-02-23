@@ -76,7 +76,7 @@ Phantom::Phantom(QObject *parent)
         return;
     }
 
-    m_page = new WebPage(this, &m_config);
+    m_page = new WebPage(this, &m_config, QUrl::fromLocalFile(m_config.scriptFile()));
     m_pages.append(m_page);
 
     if (m_config.scriptFile().isEmpty()) {

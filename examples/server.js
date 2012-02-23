@@ -9,20 +9,7 @@ if (phantom.args.length !== 1) {
     port = phantom.args[0];
     var listening = server.listen(port, function (request, response) {
         console.log("GOT HTTP REQUEST");
-        console.log("request.url = " + request.url);
-        console.log("request.queryString = " + request.queryString);
-        console.log("request.method = " + request.method);
-        console.log("request.httpVersion = " + request.httpVersion);
-        console.log("request.statusCode = " + request.statusCode);
-        console.log("request.isSSL = " + request.isSSL);
-        console.log("request.remoteIP = " + request.remoteIP);
-        console.log("request.remotePort = " + request.remotePort);
-        console.log("request.remoteUser = " + request.remoteUser);
-        console.log("request.headers = " + request.headers);
-        for(var i = 0; i < request.headers; ++i) {
-            console.log("request.headerName(" + i + ") = " + request.headerName(i));
-            console.log("request.headerValue(" + i + ") = " + request.headerValue(i));
-        }
+        console.log(JSON.stringify(request, null, 4));
 
         // we set the headers here
         response.statusCode = 200;
@@ -41,11 +28,13 @@ if (phantom.args.length !== 1) {
         phantom.exit();
     }
     var url = "http://localhost:" + port + "/foo/bar.php?asdf=true";
+    console.log("SENDING REQUEST TO:");
     console.log(url);
     page.open(url, function (status) {
         if (status !== 'success') {
             console.log('FAIL to load the address');
         } else {
+            console.log("GOT REPLY FROM SERVER:");
             console.log(page.content);
         }
         phantom.exit();
