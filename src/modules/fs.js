@@ -32,19 +32,16 @@
 
 // JavaScript "shim" to throw exceptions in case a critical operation fails.
 
-/** Open and return a "file" object.
- * It will throw exception if it fails.
+/** Convert a modeOrOpts to a map
  *
- * @param path Path of the file to open
  * @param modeOrOpts
- *  mode: Open Mode. A string made of 'r', 'w', 'a/+' characters.
+ *  mode: Open Mode. A string made of 'r', 'w', 'a/+', 'b' characters.
  *  opts: Options.
  *          - mode (see Open Mode above)
  *          - charset An IANA, case insensitive, charset name.
- * @return "file" object
  */
-exports.open = function (path, modeOrOpts) {
-    var file, opts;
+function modeOrOptsToOpts(modeOrOpts) {
+    var opts;
 
     // Extract charset from opts
     if (modeOrOpts == null) {
@@ -58,8 +55,23 @@ exports.open = function (path, modeOrOpts) {
         opts = modeOrOpts;
     }
 
+    return opts;
+}
+
+/** Open and return a "file" object.
+ * It will throw exception if it fails.
+ *
+ * @param path Path of the file to open
+ * @param modeOrOpts
+ *  mode: Open Mode. A string made of 'r', 'w', 'a/+', 'b' characters.
+ *  opts: Options.
+ *          - mode (see Open Mode above)
+ *          - charset An IANA, case insensitive, charset name.
+ * @return "file" object
+ */
+exports.open = function (path, modeOrOpts) {
     // Open file
-    file = exports._open(path, opts);
+    var file = exports._open(path, modeOrOptsToOpts(modeOrOpts));
     if (file) {
         return file;
     }
@@ -69,35 +81,33 @@ exports.open = function (path, modeOrOpts) {
 /** Open, read and return text content of a file.
  * It will throw an exception if it fails.
  *
- * NOTE: do not use this for binary files.
- *
  * @param path Path of the file to read from
- * @param opts Options.
- *               - charset An IANA, case insensitive, charset name.
+ * @param modeOrOpts
+ *  mode: Open Mode. 'b' to open a raw binary file
+ *  opts: Options.
+ *          - mode (see Open Mode above)
+ *          - charset An IANA, case insensitive, charset name.
  * @return file content
  */
-exports.read = function (path, opts) {
-    if (opts == null || typeof opts !== 'object') {
-        opts = {};
+exports.read = function (path, modeOrOpts) {
+    if (typeof modeOrOpts == 'string') {
+        if (modeOrOpts.toLowerCase() == 'b') {
+            // open binary
+            modeOrOpts = {mode: modeOrOpts};
+        } else {
+            // asume charset is given
+            modeOrOpts = {charset: modeOrOpts};
+        }
     }
-    opts.mode = 'r';
+    var opts = modeOrOptsToOpts(modeOrOpts);
+    // ensure we open for reading
+    if ( typeof opts.mode !== 'string' ) {
+        opts.mode = 'r';
+    } else if ( opts.mode.indexOf('r') == -1 ) {
+        opts.mode += 'r';
+    }
     var f = exports.open(path, opts),
         content = f.read();
-
-    f.close();
-    return content;
-};
-
-/** Open, read and return raw binary content of a file.
- * It will throw an exception if it fails.
- *
- * @param path Path of the file to read from
- * @return file content
- */
-exports.readRaw = function (path, opts) {
-    var opts = {'mode': 'r'};
-    var f = exports.open(path, opts),
-        content = f.readRaw();
 
     f.close();
     return content;
@@ -109,38 +119,22 @@ exports.readRaw = function (path, opts) {
  * @param path Path of the file to read from
  * @param content Content to write to the file
  * @param modeOrOpts
- *  mode: Open Mode. A string made of 'r', 'w', 'a/+' characters.
+ *  mode: Open Mode. A string made of 'r', 'w', 'a/+', 'b' characters.
  *  opts: Options.
  *          - mode (see Open Mode above)
  *          - charset An IANA, case insensitive, charset name.
  */
 exports.write = function (path, content, modeOrOpts) {
-    if (modeOrOpts == null) {
-        modeOrOpts = {};
+    var opts = modeOrOptsToOpts(modeOrOpts);
+    // ensure we open for writing
+    if ( typeof opts.mode !== 'string' ) {
+        opts.mode = 'w';
+    } else if ( opts.mode.indexOf('w') == -1 ) {
+        opts.mode += 'w';
     }
-    var f = exports.open(path, modeOrOpts);
+    var f = exports.open(path, opts);
 
     f.write(content);
-    f.close();
-};
-
-/** Open and write raw binary content to a file
- * It will throw an exception if it fails.
- *
- * @param path Path of the file to read from
- * @param content Content to write to the file
- * @param modeOrOpts
- *  mode: Open Mode. A string made of 'r', 'w', 'a/+' characters.
- *  opts: Options.
- *          - mode (see Open Mode above)
- */
-exports.writeRaw = function (path, content, modeOrOpts) {
-    if (modeOrOpts == null) {
-        modeOrOpts = {};
-    }
-    var f = exports.open(path, modeOrOpts);
-
-    f.writeRaw(content);
     f.close();
 };
 

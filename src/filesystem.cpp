@@ -39,13 +39,12 @@
 // public:
 File::File(QFile *openfile, QTextCodec *codec, QObject *parent) :
     QObject(parent),
-    m_file(openfile)
+    m_file(openfile),
+    m_fileStream(0)
 {
-    m_fileStream.setDevice(m_file);
-    if ((QTextCodec *)NULL == codec) {
-        m_fileStream.setCodec(QTextCodec::codecForName("UTF-8"));
-    } else {
-        m_fileStream.setCodec(codec);
+    if ( codec ) {
+        m_fileStream = new QTextStream(m_file);
+        m_fileStream->setCodec(codec);
     }
 }
 
@@ -54,33 +53,80 @@ File::~File()
     this->close();
 }
 
+//NOTE: for binary files we want to use QString instead of QByteArray as the
+//      latter is not really useable in javascript and e.g. window.btoa expects a string
+//      and we need special code required since fromAsci() would stop as soon as it
+//      encounters \0 or similar
+
 // public slots:
 QString File::read()
 {
-    if ( m_file->isReadable() ) {
-        return m_fileStream.readAll();
+    if ( !m_file->isReadable() ) {
+        qDebug() << "File::read - " << "Couldn't read:" << m_file->fileName();
+        return QString();
     }
-    qDebug() << "File::read - " << "Couldn't read:" << m_file->fileName();
-    return QString();
+    if ( m_file->isWritable() ) {
+        // make sure we write everything to disk before reading
+        flush();
+    }
+    if ( m_fileStream ) {
+        // text file
+        const qint64 pos = m_fileStream->pos();
+        m_fileStream->seek(0);
+        const QString ret = m_fileStream->readAll();
+        m_fileStream->seek(pos);
+        return ret;
+    } else {
+        // binary file
+        const qint64 pos = m_file->pos();
+        m_file->seek(0);
+        const QByteArray data = m_file->readAll();
+        m_file->seek(pos);
+        QString ret(data.size());
+        for(int i = 0; i < data.size(); ++i) {
+            ret[i] = data.at(i);
+        }
+        return ret;
+    }
 }
 
 bool File::write(const QString &data)
 {
-    if ( m_file->isWritable() ) {
-        m_fileStream << data;
+    if ( !m_file->isWritable() ) {
+        qDebug() << "File::write - " << "Couldn't write:" << m_file->fileName();
         return true;
     }
-    qDebug() << "File::write - " << "Couldn't write:" << m_file->fileName();
-    return false;
+    if ( m_fileStream ) {
+        // text file
+        (*m_fileStream) << data;
+        return true;
+    } else {
+        // binary file
+        QByteArray bytes(data.size(), Qt::Uninitialized);
+        for(int i = 0; i < data.size(); ++i) {
+            bytes[i] = data.at(i).toAscii();
+        }
+        return m_file->write(bytes);
+    }
 }
 
 QString File::readLine()
 {
-    if ( m_file->isReadable() ) {
-        return m_fileStream.readLine();
+    if ( !m_file->isReadable() ) {
+        qDebug() << "File::readLine - " << "Couldn't read:" << m_file->fileName();
+        return QString();
     }
-    qDebug() << "File::readLine - " << "Couldn't read:" << m_file->fileName();
-    return QString();
+    if ( m_file->isWritable() ) {
+        // make sure we write everything to disk before reading
+        flush();
+    }
+    if ( m_fileStream ) {
+        // text file
+        return m_fileStream->readLine();
+    } else {
+        // binary file - doesn't make much sense but well...
+        return QString::fromAscii(m_file->readLine());
+    }
 }
 
 bool File::writeLine(const QString &data)
@@ -92,40 +138,16 @@ bool File::writeLine(const QString &data)
     return false;
 }
 
-//NOTE: we want to use QString instead of QByteArray as the latter is not really
-//      useable in javascript and e.g. window.btoa expects a string
-//NOTE: special code required since fromAsci() would stop as soon as it encounters \0
-QString File::readRaw()
-{
-    if ( m_file->isReadable() ) {
-        const QByteArray data = m_file->readAll();
-        QString ret(data.size());
-        for(int i = 0; i < data.size(); ++i) {
-            ret[i] = data.at(i);
-        }
-        return ret;
-    }
-    qDebug() << "File::readRaw - " << "Couldn't read:" << m_file->fileName();
-    return QString();
-}
-
-bool File::writeRaw(const QString &data)
-{
-    if ( m_file->isWritable() ) {
-        QByteArray bytes(data.size(), Qt::Uninitialized);
-        for(int i = 0; i < data.size(); ++i) {
-            bytes[i] = data.at(i).toAscii();
-        }
-        return m_file->write(bytes);
-    }
-    qDebug() << "File::writeRaw - " << "Couldn't write:" << m_file->fileName();
-    return false;
-}
-
 bool File::atEnd() const
 {
     if ( m_file->isReadable() ) {
-        return m_file->atEnd();
+        if (m_fileStream) {
+            // text file
+            return m_fileStream->atEnd();
+        } else {
+            // binary file
+            return m_file->atEnd();
+        }
     }
     qDebug() << "File::atEnd - " << "Couldn't read:" << m_file->fileName();
     return false;
@@ -134,13 +156,22 @@ bool File::atEnd() const
 void File::flush()
 {
     if ( m_file ) {
-        m_fileStream.flush();
+        if ( m_fileStream ) {
+            // text file
+            m_fileStream->flush();
+        }
+        // binary or text file
+        m_file->flush();
     }
 }
 
 void File::close()
 {
     flush();
+    if ( m_fileStream ) {
+        delete m_fileStream;
+        m_fileStream = 0;
+    }
     if ( m_file ) {
         m_file->close();
         delete m_file;
@@ -308,95 +339,81 @@ QString FileSystem::absolute(const QString &relativePath) const
    return QFileInfo(relativePath).absoluteFilePath();
 }
 
-static inline QString getCharset(const QVariant &val) {
-    QVariant::Type type = val.type();
-
-    // val must be either a string or null/undefined.
-    if (QVariant::String != type && QVariant::Invalid != type) {
-        qDebug() << "FileSystem::open - " << "Charset must be a string!";
-        return QString();
-    }
-
-    QString charset = val.toString();
-
-    // Default to UTF-8
-    if (charset.isEmpty()) {
-        charset = "UTF-8";
-    }
-
-    return charset;
-}
-
 // Files
 QObject *FileSystem::_open(const QString &path, const QVariantMap &opts) const
 {
-    File *f = NULL;
-    QFile *_f = new QFile(path);
-    QFile::OpenMode modeCode = QFile::NotOpen;
-    QVariant modeVar = opts["mode"];
-
+    const QVariant modeVar = opts["mode"];
     // Ensure only strings
     if (modeVar.type() != QVariant::String) {
         qDebug() << "FileSystem::open - " << "Mode must be a string!" << modeVar;
-        return NULL;
+        return 0;
     }
 
-    QString mode = modeVar.toString();
-
-    // Ensure only one "mode character" has been selected
-    if ( mode.length() != 1) {
-        qDebug() << "FileSystem::open - " << "Wrong Mode string length:" << mode;
-        return NULL;
-    }
+    bool isBinary = false;
+    QFile::OpenMode modeCode = QFile::NotOpen;
 
     // Determine the OpenMode
-    switch(mode[0].toAscii()) {
-    case 'r': case 'R': {
-        modeCode |= QFile::ReadOnly;
-        // Make sure there is something to read
-        if ( !_f->exists() ) {
-            qDebug() << "FileSystem::open - " << "Trying to read a file that doesn't exist:" << path;
-            return NULL;
+    foreach(const QChar &c, modeVar.toString()) {
+        switch(c.toAscii()) {
+        case 'r': case 'R': {
+            modeCode |= QFile::ReadOnly;
+            break;
         }
-        break;
-    }
-    case 'a': case 'A': case '+': {
-        modeCode |= QFile::Append;
-        // NOTE: no "break" here! This case will also execute the code for case 'w'.
-    }
-    case 'w': case 'W': {
-        modeCode |= QFile::WriteOnly;
-        // Make sure the file exists OR it can be created at the required path
-        if ( !_f->exists() && !makeTree(QFileInfo(path).dir().absolutePath()) ) {
-            qDebug() << "FileSystem::open - " << "Full path coulnd't be created:" << path;
-            return NULL;
+        case 'a': case 'A': case '+': {
+            modeCode |= QFile::Append;
+            modeCode |= QFile::WriteOnly;
+            break;
         }
-        break;
-    }
-    default: {
-        qDebug() << "FileSystem::open - " << "Wrong Mode:" << mode;
-        return NULL;
-    }
+        case 'w': case 'W': {
+            modeCode |= QFile::WriteOnly;
+            break;
+        }
+        case 'b': case 'B': {
+            isBinary = true;
+            break;
+        }
+        default: {
+            qDebug() << "FileSystem::open - " << "Wrong Mode:" << c;
+            return 0;
+        }
+        }
     }
 
-    QString charset = getCharset(opts["charset"]);
-    QTextCodec *codec = QTextCodec::codecForName(charset.toAscii());
-    if ((QTextCodec *)NULL == codec) {
-        qDebug() << "FileSystem::open - " << "Unknown charset:" << charset;
-        return NULL;
+    // Make sure the file exists OR it can be created at the required path
+    if ( !QFile::exists(path) && modeCode & QFile::WriteOnly ) {
+        if ( !makeTree(QFileInfo(path).dir().absolutePath()) ) {
+            qDebug() << "FileSystem::open - " << "Full path coulnd't be created:" << path;
+            return 0;
+        }
+    }
+
+    // Make sure there is something to read
+    if ( !QFile::exists(path) && modeCode & QFile::ReadOnly ) {
+        qDebug() << "FileSystem::open - " << "Trying to read a file that doesn't exist:" << path;
+        return 0;
+    }
+
+    QTextCodec *codec = 0;
+    if (!isBinary) {
+        // default to UTF-8 encoded files
+        const QString charset = opts.value("charset", "UTF-8").toString();
+        codec = QTextCodec::codecForName(charset.toAscii());
+        if (!codec) {
+            qDebug() << "FileSystem::open - " << "Unknown charset:" << charset;
+            return 0;
+        }
     }
 
     // Try to Open
-    if ( _f->open(modeCode) ) {
-        f = new File(_f, codec);
-        if ( f ) {
-            return f;
-        }
+    QFile* file = new QFile(path);
+    if ( !file->open(modeCode) ) {
+        // Return "NULL" if the file couldn't be opened as requested
+        delete file;
+        qDebug() << "FileSystem::open - " << "Couldn't be opened:" << path;
+        return 0;
     }
 
-    // Return "NULL" if the file couldn't be opened as requested
-    qDebug() << "FileSystem::open - " << "Couldn't be opened:" << path;
-    return NULL;
+    return new File(file, codec);
 }
 
 bool FileSystem::_remove(const QString &path) const

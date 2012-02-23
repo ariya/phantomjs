@@ -42,15 +42,14 @@ class File : public QObject
     Q_OBJECT
 
 public:
+    // handle a textfile with given codec
+    // if @p codec is null, the file is considered to be binary
     File(QFile *openfile, QTextCodec *codec, QObject *parent = 0);
     virtual ~File();
 
 public slots:
     QString read();
     bool write(const QString &data);
-
-    QString readRaw();
-    bool writeRaw(const QString &data);
 
     QString readLine();
     bool writeLine(const QString &data);
@@ -61,7 +60,7 @@ public slots:
 
 private:
     QFile *m_file;
-    QTextStream m_fileStream;
+    QTextStream *m_fileStream;
 };
 
 

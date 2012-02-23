@@ -37,6 +37,19 @@ describe("Basic Files API (read, write, remove, ...)", function() {
         expect(content).toEqual("hello\nworld\n");
     });
     
+    it("should be able to read/write/append content from a file", function() {
+        var content = "";
+        try{
+            var f = fs.open(FILENAME, "rw+");
+            console.log(f.read().length);
+            f.writeLine("asdf");
+            content = f.read();
+            console.log(content.length);
+            f.close();
+        } catch (e) { }
+        expect(content).toEqual("hello\nworld\nasdf\n");
+    });
+    
 	it("should be able to copy a file", function() {
 		expect(fs.exists(FILENAME_COPY)).toBeFalsy();
 		fs.copy(FILENAME, FILENAME_COPY);
@@ -102,13 +115,25 @@ describe("Basic Files API (read, write, remove, ...)", function() {
     it("should be read/write binary data", function() {
         var content, output = String.fromCharCode(0, 1, 2, 3, 4, 5);
         try {
-            var f = fs.open(FILENAME_BIN, "w");
-            f.writeRaw(output);
+            var f = fs.open(FILENAME_BIN, "wb");
+            f.write(output);
             f.close();
 
-            f = fs.open(FILENAME_BIN, "r");
-            content = f.readRaw();
+            f = fs.open(FILENAME_BIN, "rb");
+            content = f.read();
             f.close();
+
+            fs.remove(FILENAME_BIN);
+        } catch (e) { }
+        expect(content).toEqual(output);
+    });
+
+    it("should be read/write binary data (shortcuts)", function() {
+        var content, output = String.fromCharCode(0, 1, 2, 3, 4, 5);
+        try {
+            fs.write(FILENAME_BIN, output, "b");
+
+            content = fs.read(FILENAME_BIN, "b");
 
             fs.remove(FILENAME_BIN);
         } catch (e) { }
