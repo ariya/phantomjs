@@ -467,6 +467,16 @@ qreal stringToPointSize(const QString &string)
     return 0;
 }
 
+qreal printMargin(const QVariantMap &map, const QString &key)
+{
+    const QVariant margin = map.value(key);
+    if (margin.isValid() && margin.canConvert(QVariant::String)) {
+        return stringToPointSize(margin.toString());
+    } else {
+        return 0;
+    }
+}
+
 bool WebPage::renderPdf(const QString &fileName)
 {
     QPrinter printer;
@@ -479,7 +489,7 @@ bool WebPage::renderPdf(const QString &fileName)
         const QSize pageSize = m_mainFrame->contentsSize();
         paperSize.insert("width", QString::number(pageSize.width()) + "px");
         paperSize.insert("height", QString::number(pageSize.height()) + "px");
-        paperSize.insert("border", "0px");
+        paperSize.insert("margin", "0px");
     }
 
     if (paperSize.contains("width") && paperSize.contains("height")) {
@@ -537,9 +547,34 @@ bool WebPage::renderPdf(const QString &fileName)
         return false;
     }
 
-    const qreal border = paperSize.contains("border") ?
-                floor(stringToPointSize(paperSize.value("border").toString())) : 0;
-    printer.setPageMargins(border, border, border, border, QPrinter::Point);
+    if (paperSize.contains("border") && !paperSize.contains("margin")) {
+        // backwards compatibility
+        paperSize["margin"] = paperSize["border"];
+    }
+
+    qreal marginLeft = 0;
+    qreal marginTop = 0;
+    qreal marginRight = 0;
+    qreal marginBottom = 0;
+
+    if (paperSize.contains("margin")) {
+        const QVariant margins = paperSize["margin"];
+        if (margins.canConvert(QVariant::Map)) {
+            const QVariantMap map = margins.toMap();
+            marginLeft = printMargin(map, "left");
+            marginTop = printMargin(map, "top");
+            marginRight = printMargin(map, "right");
+            marginBottom = printMargin(map, "bottom");
+        } else if (margins.canConvert(QVariant::String)) {
+            const qreal margin = stringToPointSize(margins.toString());
+            marginLeft = margin;
+            marginTop = margin;
+            marginRight = margin;
+            marginBottom = margin;
+        }
+    }
+
+    printer.setPageMargins(marginLeft, marginTop, marginRight, marginBottom, QPrinter::Point);
 
     m_mainFrame->print(&printer);
     return true;
