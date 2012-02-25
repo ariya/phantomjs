@@ -208,6 +208,11 @@ QObject *Phantom::createWebPage()
     m_pages.append(page);
     page->applySettings(m_defaultPageSettings);
     page->setLibraryPath(QFileInfo(m_config.scriptFile()).dir().absolutePath());
+
+    if (m_config.debug()) {
+      page->showInspector(m_config.remoteDebugPort());
+    }
+
     return page;
 }
 
