@@ -140,6 +140,14 @@ void Config::processArgs(const QStringList &args)
             setRemoteDebugPort(arg.mid(23).trimmed().toInt());
             continue;
         }
+        if (arg == "--remote-debugger-autorun=yes") {
+            setRemoteDebugAutorun(true);
+            continue;
+        }
+        if (arg == "--remote-debugger-autorun=no") {
+            setRemoteDebugAutorun(false);
+            continue;
+        }
         if (arg.startsWith("--")) {
             setUnknownOption(QString("Unknown option '%1'").arg(arg));
             return;
@@ -394,6 +402,16 @@ void Config::setRemoteDebugPort(const int port)
     m_remoteDebugPort = port;
 }
 
+bool Config::remoteDebugAutorun() const
+{
+    return m_remoteDebugAutorun;
+}
+
+void Config::setRemoteDebugAutorun(const bool value)
+{
+    m_remoteDebugAutorun = value;
+}
+
 // private:
 void Config::resetToDefaults()
 {
@@ -415,6 +433,7 @@ void Config::resetToDefaults()
     m_versionFlag = false;
     m_debug = false;
     m_remoteDebugPort = -1;
+    m_remoteDebugAutorun = false;
     m_helpFlag = false;
 }
 
