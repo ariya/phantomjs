@@ -54,8 +54,8 @@ public:
     static bool injectJsInFrame(const QString &jsFilePath, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
     static QString readResourceFileUtf8(const QString &resourceFilePath);
 
-    static bool loadJSForDebug(const QString &jsFilePath, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame);
-    static bool loadJSForDebug(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame);
+    static bool loadJSForDebug(const QString &jsFilePath, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool autorun = false);
+    static bool loadJSForDebug(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool autorun = false);
     static void cleanupFromDebug();
 private:
     static QString findScript(const QString &jsFilePath, const QString& libraryPath);

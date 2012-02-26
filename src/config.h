@@ -109,6 +109,9 @@ public:
     void setRemoteDebugPort(const int port);
     int remoteDebugPort() const;
 
+    void setRemoteDebugAutorun(const bool value);
+    bool remoteDebugAutorun() const;
+
     bool helpFlag() const;
     void setHelpFlag(const bool value);
 
@@ -139,6 +142,7 @@ private:
     QString m_authPass;
     bool m_debug;
     int m_remoteDebugPort;
+    bool m_remoteDebugAutorun;
     bool m_helpFlag;
 };
 
