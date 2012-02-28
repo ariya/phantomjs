@@ -135,6 +135,14 @@ extract_qt() {
     mv $DEPLOY_DIR/qt-everywhere-opensource-src-$QT_VERSION $QT_FOLDER
 }
 
+apply_patches() {
+  for p in $(ls $@); do
+      echo
+      echo "applying patch: $p"
+      patch -p1 < $p
+  done
+}
+
 patch_qt() {
     pushd $QT_FOLDER
     echo "Patching Qt"
@@ -144,10 +152,7 @@ patch_qt() {
     fi
 
     if [ $QT_VERSION = 4.8.0 ] ; then
-        patch -p1 < ../qt48_enable_debugger.patch
-        patch -p1 < ../qt48_fix_inspector.patch
-        patch -p1 < ../qt48_headless_and_pdf_fixes.patch
-        patch -p1 < ../qt48_enable_file_input_click.patch
+        apply_patches ../qt-patches/4.8/*.patch
 
         # Build in lighthose mode for an x-less build
         if [[ "$QT_HEADLESS" == "1" && "$DISABLE_HEADLESS" != "1" ]] ; then
@@ -156,9 +161,7 @@ patch_qt() {
         fi
     fi
 
-    patch configure ../allow-static-qtwebkit.patch
-    patch -p1 < ../qapplication_skip_qtmenu.patch
-    patch -p1 < ../disable_quicktime_video.patch
+    apply_patches ../qt-patches/all/*.patch
 
     # Tests don't build well with -static, but we don't need to build them
     rm -rf src/3rdparty/webkit/Source/WebKit/qt/tests
