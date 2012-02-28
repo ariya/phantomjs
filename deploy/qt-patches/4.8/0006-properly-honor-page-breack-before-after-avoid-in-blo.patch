@@ -1,0 +1,27 @@
+From 39ddf9edd4c0ece8628072ab659e99cd9155798e Mon Sep 17 00:00:00 2001
+From: Milian Wolff <milian.wolff@kdab.com>
+Date: Tue, 28 Feb 2012 13:33:01 +0100
+Subject: [PATCH 2/3] properly honor page-breack-{before,after}:avoid in block
+ elements
+
+see also: https://bugs.webkit.org/show_bug.cgi?id=5097#c17
+---
+ .../Source/WebCore/rendering/RenderBlock.cpp       |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/3rdparty/webkit/Source/WebCore/rendering/RenderBlock.cpp b/src/3rdparty/webkit/Source/WebCore/rendering/RenderBlock.cpp
+index 01810ee..3fb6d2d 100644
+--- a/src/3rdparty/webkit/Source/WebCore/rendering/RenderBlock.cpp
++++ b/src/3rdparty/webkit/Source/WebCore/rendering/RenderBlock.cpp
+@@ -6054,7 +6054,7 @@ int RenderBlock::applyAfterBreak(RenderBox* child, int logicalOffset, MarginInfo
+ 
+ int RenderBlock::adjustForUnsplittableChild(RenderBox* child, int logicalOffset, bool includeMargins)
+ {
+-    bool isUnsplittable = child->isReplaced() || child->scrollsOverflow();
++    bool isUnsplittable = child->isReplaced() || child->scrollsOverflow() || child->style()->pageBreakInside() == PBAVOID;
+     if (!isUnsplittable)
+         return logicalOffset;
+     int childLogicalHeight = logicalHeightForChild(child) + (includeMargins ? marginBeforeForChild(child) + marginAfterForChild(child) : 0);
+-- 
+1.7.5.4
+

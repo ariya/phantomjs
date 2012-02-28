@@ -1,0 +1,201 @@
+From 25ecd9c89a7e4763f9d4848101a77f688478db77 Mon Sep 17 00:00:00 2001
+From: Milian Wolff <milian.wolff@kdab.com>
+Date: Tue, 28 Feb 2012 13:34:22 +0100
+Subject: [PATCH 3/3] improve printing of tables
+
+- header/footer rows are repeated on every page the table spans
+- rows are layouted such that a page-break is avoided inside them
+---
+ .../WebCore/rendering/RenderBlockLineLayout.cpp    |    3 +-
+ .../Source/WebCore/rendering/RenderTable.cpp       |   60 +++++++++++++++++++-
+ .../WebCore/rendering/RenderTableSection.cpp       |   38 +++++++++++-
+ .../Source/WebCore/rendering/RenderTableSection.h  |    2 +-
+ 4 files changed, 95 insertions(+), 8 deletions(-)
+
+diff --git a/src/3rdparty/webkit/Source/WebCore/rendering/RenderBlockLineLayout.cpp b/src/3rdparty/webkit/Source/WebCore/rendering/RenderBlockLineLayout.cpp
+index 2e92801..1690c2f 100644
+--- a/src/3rdparty/webkit/Source/WebCore/rendering/RenderBlockLineLayout.cpp
++++ b/src/3rdparty/webkit/Source/WebCore/rendering/RenderBlockLineLayout.cpp
+@@ -956,7 +956,8 @@ void RenderBlock::layoutRunsAndFloats(bool fullLayout, bool hasInlineChild, Vect
+                     repaintLogicalBottom = max(repaintLogicalBottom, lineBox->logicalBottomVisualOverflow());
+                 }
+ 
+-                if (paginated) {
++                // table cell pagination is handled in RenderTableSection
++                if (paginated && !isTableCell()) {
+                     int adjustment = 0;
+                     adjustLinePositionForPagination(lineBox, adjustment);
+                     if (adjustment) {
+diff --git a/src/3rdparty/webkit/Source/WebCore/rendering/RenderTable.cpp b/src/3rdparty/webkit/Source/WebCore/rendering/RenderTable.cpp
+index 73b0801..790c1ce 100644
+--- a/src/3rdparty/webkit/Source/WebCore/rendering/RenderTable.cpp
++++ b/src/3rdparty/webkit/Source/WebCore/rendering/RenderTable.cpp
+@@ -302,11 +302,20 @@ void RenderTable::layout()
+ 
+     bool collapsing = collapseBorders();
+ 
++    // repeat header and footer on each page
++    int headHeight = 0;
++    int footHeight = 0;
+     for (RenderObject* child = firstChild(); child; child = child->nextSibling()) {
+         if (child->isTableSection()) {
+             child->layoutIfNeeded();
+             RenderTableSection* section = toRenderTableSection(child);
+-            totalSectionLogicalHeight += section->calcRowLogicalHeight();
++            int rowHeight = section->calcRowLogicalHeight();
++            if (child == m_head) {
++                headHeight = rowHeight;
++            } else if (child == m_foot) {
++                footHeight = rowHeight;
++            }
++            totalSectionLogicalHeight += rowHeight;
+             if (collapsing)
+                 section->recalcOuterBorder();
+             ASSERT(!section->needsLayout());
+@@ -355,7 +364,7 @@ void RenderTable::layout()
+     for (RenderObject* child = firstChild(); child; child = child->nextSibling()) {
+         if (child->isTableSection())
+             // FIXME: Distribute extra height between all table body sections instead of giving it all to the first one.
+-            toRenderTableSection(child)->layoutRows(child == m_firstBody ? max(0, computedLogicalHeight - totalSectionLogicalHeight) : 0);
++            toRenderTableSection(child)->layoutRows(child == m_firstBody ? max(0, computedLogicalHeight - totalSectionLogicalHeight) : 0, headHeight, footHeight);
+     }
+ 
+     if (!m_firstBody && computedLogicalHeight > totalSectionLogicalHeight && !document()->inQuirksMode()) {
+@@ -503,7 +512,52 @@ void RenderTable::paintObject(PaintInfo& paintInfo, int tx, int ty)
+             child->paint(info, childPoint.x(), childPoint.y());
+         }
+     }
+-    
++
++    if (view()->pageLogicalHeight()) {
++        // re-paint header/footer if table is split over multiple pages
++        if (m_head) {
++            IntPoint childPoint = flipForWritingMode(m_head, IntPoint(tx, ty), ParentToChildFlippingAdjustment);
++            if (!info.rect.contains(childPoint.x() + m_head->x(), childPoint.y() + m_head->y())) {
++                dynamic_cast<RenderObject*>(m_head)->paint(info, childPoint.x(), info.rect.y() - m_head->y());
++            }
++        }
++        if (m_foot) {
++            IntPoint childPoint = flipForWritingMode(m_foot, IntPoint(tx, ty), ParentToChildFlippingAdjustment);
++            if (!info.rect.contains(childPoint.x() + m_foot->x(), childPoint.y() + m_foot->y())) {
++                // find actual end of table on current page
++                int dy = 0;
++                const int max_dy = info.rect.y() + info.rect.height();
++                const int vspace = vBorderSpacing();
++                for (RenderObject* section = firstChild(); section; section = section->nextSibling()) {
++                    if (section->isTableSection()) {
++                        if (toRenderBox(section)->y() > max_dy) {
++                            continue;
++                        }
++                        int i = 0;
++                        for(RenderObject* row = section->firstChild(); row; row = row->nextSibling()) {
++                            if (!row->isTableRow()) {
++                                continue;
++                            }
++                            // get actual bottom-y position of this row - pretty complicated, how could this be simplified?
++                            // note how we have to take the rowPoint and section's y-offset into account, see e.g.
++                            // RenderTableSection::paint where this is also done...
++                            IntPoint rowPoint = flipForWritingMode(toRenderBox(row), IntPoint(tx, ty), ParentToChildFlippingAdjustment);
++                            int row_dy = rowPoint.y() + toRenderBox(row)->y() + toRenderBox(row)->logicalHeight() + toRenderBox(section)->y();
++                            if (row_dy < max_dy && row_dy > dy) {
++                                dy = row_dy;
++                            } else if (row_dy > max_dy) {
++                                break;
++                            }
++                            i++;
++                        }
++                    }
++                }
++                dynamic_cast<RenderObject*>(m_foot)->paint(info, childPoint.x(),
++                                                           dy - m_foot->y());
++            }
++        }
++    }
++
+     if (collapseBorders() && paintPhase == PaintPhaseChildBlockBackground && style()->visibility() == VISIBLE) {
+         // Collect all the unique border styles that we want to paint in a sorted list.  Once we
+         // have all the styles sorted, we then do individual passes, painting each style of border
+diff --git a/src/3rdparty/webkit/Source/WebCore/rendering/RenderTableSection.cpp b/src/3rdparty/webkit/Source/WebCore/rendering/RenderTableSection.cpp
+index 7d414a0..1e90ac6 100644
+--- a/src/3rdparty/webkit/Source/WebCore/rendering/RenderTableSection.cpp
++++ b/src/3rdparty/webkit/Source/WebCore/rendering/RenderTableSection.cpp
+@@ -414,7 +414,7 @@ void RenderTableSection::layout()
+     setNeedsLayout(false);
+ }
+ 
+-int RenderTableSection::layoutRows(int toAdd)
++int RenderTableSection::layoutRows(int toAdd, int headHeight, int footHeight)
+ {
+ #ifndef NDEBUG
+     setNeedsLayoutIsForbidden(true);
+@@ -496,12 +496,40 @@ int RenderTableSection::layoutRows(int toAdd)
+ 
+     LayoutStateMaintainer statePusher(view(), this, IntSize(x(), y()), style()->isFlippedBlocksWritingMode());
+ 
++    WTF::Vector<int> logicalHeightsForPrinting;
++    // make sure that rows do not overlap a page break
++    if (view()->layoutState()->pageLogicalHeight()) {
++        logicalHeightsForPrinting.resize(totalRows);
++        int pageOffset = 0;
++        for(int r = 0; r < totalRows; ++r) {
++            const int childLogicalHeight = m_rowPos[r + 1] - m_rowPos[r] - (m_grid[r].rowRenderer ? vspacing : 0);
++            logicalHeightsForPrinting[r] = childLogicalHeight;
++            LayoutState* layoutState = view()->layoutState();
++            const int pageLogicalHeight = layoutState->m_pageLogicalHeight;
++            if (childLogicalHeight < pageLogicalHeight - footHeight) {
++                const IntSize delta = layoutState->m_layoutOffset - layoutState->m_pageOffset;
++                const int logicalOffset = m_rowPos[r] + pageOffset;
++                const int offset = isHorizontalWritingMode() ? delta.height() : delta.width();
++                const int remainingLogicalHeight = (pageLogicalHeight - (offset + logicalOffset) % pageLogicalHeight) % pageLogicalHeight;
++                if (remainingLogicalHeight - footHeight < childLogicalHeight) {
++                    pageOffset += remainingLogicalHeight + headHeight;
++                }
++            }
++            m_rowPos[r] += pageOffset;
++        }
++        m_rowPos[totalRows] += pageOffset;
++    }
++
+     for (int r = 0; r < totalRows; r++) {
+         // Set the row's x/y position and width/height.
+         if (RenderTableRow* rowRenderer = m_grid[r].rowRenderer) {
+             rowRenderer->setLocation(0, m_rowPos[r]);
+             rowRenderer->setLogicalWidth(logicalWidth());
+-            rowRenderer->setLogicalHeight(m_rowPos[r + 1] - m_rowPos[r] - vspacing);
++            if (view()->layoutState()->pageLogicalHeight()) {
++                rowRenderer->setLogicalHeight(logicalHeightsForPrinting[r]);
++            } else {
++                rowRenderer->setLogicalHeight(m_rowPos[r + 1] - m_rowPos[r] - vspacing);
++            }
+             rowRenderer->updateLayerTransform();
+         }
+ 
+@@ -513,7 +541,11 @@ int RenderTableSection::layoutRows(int toAdd)
+                 continue;
+ 
+             rindx = cell->row();
+-            rHeight = m_rowPos[rindx + cell->rowSpan()] - m_rowPos[rindx] - vspacing;
++            if (view()->layoutState()->pageLogicalHeight() && cell->rowSpan() == 1) {
++                rHeight = logicalHeightsForPrinting[rindx];
++            } else {
++                rHeight = m_rowPos[rindx + cell->rowSpan()] - m_rowPos[rindx] - vspacing;
++            }
+             
+             // Force percent height children to lay themselves out again.
+             // This will cause these children to grow to fill the cell.
+diff --git a/src/3rdparty/webkit/Source/WebCore/rendering/RenderTableSection.h b/src/3rdparty/webkit/Source/WebCore/rendering/RenderTableSection.h
+index db6edc2..9d912a0 100644
+--- a/src/3rdparty/webkit/Source/WebCore/rendering/RenderTableSection.h
++++ b/src/3rdparty/webkit/Source/WebCore/rendering/RenderTableSection.h
+@@ -49,7 +49,7 @@ public:
+ 
+     void setCellLogicalWidths();
+     int calcRowLogicalHeight();
+-    int layoutRows(int logicalHeight);
++    int layoutRows(int logicalHeight, int headHeight, int footHeight);
+ 
+     RenderTable* table() const { return toRenderTable(parent()); }
+ 
+-- 
+1.7.5.4
+

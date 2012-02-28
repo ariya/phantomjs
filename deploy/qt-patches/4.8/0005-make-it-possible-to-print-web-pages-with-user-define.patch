@@ -1,0 +1,382 @@
+From 5fc23395ea9d78bf7216e2f34b99e57cc415ab5c Mon Sep 17 00:00:00 2001
+From: Milian Wolff <milian.wolff@kdab.com>
+Date: Tue, 28 Feb 2012 13:28:13 +0100
+Subject: [PATCH 1/3] make it possible to print web pages with user-defined
+ headers and footers
+
+the webpage needs to define the following java script functions:
+
+<script type="text/javascript">
+var PhantomJSPrinting = {
+  // supported units: mm, cm, in, px
+  headerHeight : function() { return '1cm'; },
+  footerHeight : function() { return '1cm'; },
+  // just return any kind of html that make up the header/footer
+  // it should not be taller than what is returned in header/footerHeight()
+  header: function(currentPage, totalPages) { return currentPage + " / " + totalPages; },
+  footer: function(currentPage, totalPages) { return currentPage + " / " + totalPages; }
+};
+</script>
+
+The page-counter can be reset by adding the class "phantomjs_reset_pagination"
+attribute to html block-elements that should reset the counter.
+---
+ src/3rdparty/webkit/Source/WebCore/page/Frame.cpp  |   34 ++++
+ src/3rdparty/webkit/Source/WebCore/page/Frame.h    |    4 +
+ .../webkit/Source/WebCore/page/PrintContext.cpp    |   11 +-
+ .../Source/WebCore/rendering/RenderBlock.cpp       |    9 +
+ .../webkit/Source/WebKit/qt/Api/qwebframe.cpp      |   13 ++-
+ .../webkit/Source/WebKit/qt/Api/qwebframe_p.h      |    2 +
+ .../WebKit/qt/Api/qwebframe_printingaddons_p.h     |  165 ++++++++++++++++++++
+ 7 files changed, 235 insertions(+), 3 deletions(-)
+ create mode 100644 src/3rdparty/webkit/Source/WebKit/qt/Api/qwebframe_printingaddons_p.h
+
+diff --git a/src/3rdparty/webkit/Source/WebCore/page/Frame.cpp b/src/3rdparty/webkit/Source/WebCore/page/Frame.cpp
+index 6128231..835be73 100644
+--- a/src/3rdparty/webkit/Source/WebCore/page/Frame.cpp
++++ b/src/3rdparty/webkit/Source/WebCore/page/Frame.cpp
+@@ -544,6 +544,8 @@ Color Frame::getDocumentBackgroundColor() const
+ 
+ void Frame::setPrinting(bool printing, const FloatSize& pageSize, float maximumShrinkRatio, AdjustViewSizeOrNot shouldAdjustViewSize)
+ {
++    m_pageResets.clear();
++
+     m_doc->setPrinting(printing);
+     view()->adjustMediaTypeForPrinting(printing);
+ 
+@@ -561,6 +563,38 @@ void Frame::setPrinting(bool printing, const FloatSize& pageSize, float maximumS
+         child->setPrinting(printing, IntSize(), 0, shouldAdjustViewSize);
+ }
+ 
++void Frame::addResetPage(int page)
++{
++    m_pageResets.append(page);
++}
++
++void Frame::getPagination(int page, int pages, int& logicalPage, int& logicalPages) const
++{
++    logicalPage = page;
++    logicalPages = pages;
++    int last_j = 0;
++    int j = 0;
++    for(size_t i = 0; i < m_pageResets.size(); ++i) {
++        j = m_pageResets.at(i);
++        if (j >= page) {
++            break;
++        }
++        last_j = j;
++    }
++    if (page > last_j) {
++        logicalPage = page - last_j;
++    }
++    if (last_j) {
++        if (j > last_j) {
++            logicalPages = j - last_j;
++        } else {
++            logicalPages = pages - last_j;
++        }
++    } else if (j >= page && j < pages) {
++        logicalPages = j;
++    }
++}
++
+ void Frame::injectUserScripts(UserScriptInjectionTime injectionTime)
+ {
+     if (!m_page)
+diff --git a/src/3rdparty/webkit/Source/WebCore/page/Frame.h b/src/3rdparty/webkit/Source/WebCore/page/Frame.h
+index 2d76aee..96ba9e6 100644
+--- a/src/3rdparty/webkit/Source/WebCore/page/Frame.h
++++ b/src/3rdparty/webkit/Source/WebCore/page/Frame.h
+@@ -144,6 +144,8 @@ namespace WebCore {
+ 
+         enum AdjustViewSizeOrNot { DoNotAdjustViewSize, AdjustViewSize };
+         void setPrinting(bool printing, const FloatSize& pageSize, float maximumShrinkRatio, AdjustViewSizeOrNot);
++        void addResetPage(int page);
++        void getPagination(int page, int pages, int &logicalPage, int &logicalPages) const;
+ 
+         bool inViewSourceMode() const;
+         void setInViewSourceMode(bool = true);
+@@ -251,6 +253,8 @@ namespace WebCore {
+         bool m_isDisconnected;
+         bool m_excludeFromTextSearch;
+ 
++        Vector<int> m_pageResets;
++
+ #if ENABLE(TILED_BACKING_STORE)
+     // FIXME: The tiled backing store belongs in FrameView, not Frame.
+ 
+diff --git a/src/3rdparty/webkit/Source/WebCore/page/PrintContext.cpp b/src/3rdparty/webkit/Source/WebCore/page/PrintContext.cpp
+index 660ad11..a1b8f84 100644
+--- a/src/3rdparty/webkit/Source/WebCore/page/PrintContext.cpp
++++ b/src/3rdparty/webkit/Source/WebCore/page/PrintContext.cpp
+@@ -82,9 +82,16 @@ void PrintContext::computePageRects(const FloatRect& printRect, float headerHeig
+     float pageWidth;
+     float pageHeight;
+     if (isHorizontal) {
+-        float ratio = printRect.height() / printRect.width();
+         pageWidth = view->docWidth();
+-        pageHeight = floorf(pageWidth * ratio);
++        ///NOTE: if we do not reuse the previously set logical page height,
++        ///      we can end up with off-by-one erros in the page height, 
++        ///      leading to rendering issues (e.g. rows overlap pagebreaks)
++        if (view->pageLogicalHeight() == 0) {
++            float ratio = printRect.height() / printRect.width();
++            pageHeight = floorf(pageWidth * ratio);
++        } else {
++            pageHeight = view->pageLogicalHeight();
++        }
+     } else {
+         float ratio = printRect.width() / printRect.height();
+         pageHeight = view->docHeight();
+diff --git a/src/3rdparty/webkit/Source/WebCore/rendering/RenderBlock.cpp b/src/3rdparty/webkit/Source/WebCore/rendering/RenderBlock.cpp
+index 4ad1bfe..01810ee 100644
+--- a/src/3rdparty/webkit/Source/WebCore/rendering/RenderBlock.cpp
++++ b/src/3rdparty/webkit/Source/WebCore/rendering/RenderBlock.cpp
+@@ -1348,6 +1348,15 @@ void RenderBlock::layoutBlock(bool relayoutChildren, int pageLogicalHeight)
+         }
+     }
+     setNeedsLayout(false);
++
++    if (document()->printing()) {
++        // PHANTOMJS CUSTOM: reset pagination counter for printing
++        StyledElement* elem = dynamic_cast<StyledElement*>(generatingNode());
++        if (elem && elem->hasClass() && elem->classNames().contains("phantomjs_reset_pagination")) {
++            frame()->addResetPage(y() / view()->layoutState()->m_pageLogicalHeight);
++        }
++    }
++
+ }
+ 
+ void RenderBlock::addOverflowFromChildren()
+diff --git a/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebframe.cpp b/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebframe.cpp
+index 5ea7059..4094e6d 100644
+--- a/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebframe.cpp
++++ b/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebframe.cpp
+@@ -110,6 +110,8 @@
+ #include <qregion.h>
+ #include <qnetworkrequest.h>
+ 
++#include "qwebframe_printingaddons_p.h"
++
+ using namespace WebCore;
+ 
+ // from text/qfont.cpp
+@@ -1437,6 +1439,8 @@ void QWebFrame::print(QPrinter *printer) const
+     if (!painter.begin(printer))
+         return;
+ 
++    HeaderFooter headerFooter(this, printer);
++
+     const qreal zoomFactorX = (qreal)printer->logicalDpiX() / qt_defaultDpi();
+     const qreal zoomFactorY = (qreal)printer->logicalDpiY() / qt_defaultDpi();
+ 
+@@ -1449,7 +1453,7 @@ void QWebFrame::print(QPrinter *printer) const
+                      int(qprinterRect.width() / zoomFactorX),
+                      int(qprinterRect.height() / zoomFactorY));
+ 
+-    printContext.begin(pageRect.width());
++    printContext.begin(pageRect.width(), pageRect.height());
+ 
+     printContext.computePageRects(pageRect, /* headerHeight */ 0, /* footerHeight */ 0, /* userScaleFactor */ 1.0, pageHeight);
+ 
+@@ -1499,6 +1503,13 @@ void QWebFrame::print(QPrinter *printer) const
+                     printContext.end();
+                     return;
+                 }
++                if (headerFooter.isValid()) {
++                    // print header/footer
++                    int logicalPage, logicalPages;
++                    d->frame->getPagination(page, printContext.pageCount(), logicalPage, logicalPages);
++                    headerFooter.paintHeader(ctx, pageRect, logicalPage, logicalPages);
++                    headerFooter.paintFooter(ctx, pageRect, logicalPage, logicalPages);
++                }
+                 printContext.spoolPage(ctx, page - 1, pageRect.width());
+                 if (j < pageCopies - 1)
+                     printer->newPage();
+diff --git a/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebframe_p.h b/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebframe_p.h
+index 4108972..903db85 100644
+--- a/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebframe_p.h
++++ b/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebframe_p.h
+@@ -108,6 +108,8 @@ public:
+     void emitUrlChanged();
+     void _q_orientationChanged();
+ 
++    static WebCore::Frame* webcoreFrame(QWebFrame* frame) { return frame->d->frame; };
++
+     QWebFrame *q;
+     Qt::ScrollBarPolicy horizontalScrollBarPolicy;
+     Qt::ScrollBarPolicy verticalScrollBarPolicy;
+diff --git a/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebframe_printingaddons_p.h b/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebframe_printingaddons_p.h
+new file mode 100644
+index 0000000..e79b307
+--- /dev/null
++++ b/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebframe_printingaddons_p.h
+@@ -0,0 +1,165 @@
++/*
++    Copyright (C) 2012 Milian Wolff, KDAB (milian.wolff@kdab.com)
++
++    This library is free software; you can redistribute it and/or
++    modify it under the terms of the GNU Library General Public
++    License as published by the Free Software Foundation; either
++    version 2 of the License, or (at your option) any later version.
++
++    This library is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++    Library General Public License for more details.
++
++    You should have received a copy of the GNU Library General Public License
++    along with this library; see the file COPYING.LIB.  If not, write to
++    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
++    Boston, MA 02110-1301, USA.
++*/
++
++#ifndef QWEBFRAME_PRINTINGADDONS_P_H
++#define QWEBFRAME_PRINTINGADDONS_P_H
++
++#include "qwebframe.h"
++#include "qwebframe_p.h"
++
++#include <qprinter.h>
++#include <qstring.h>
++
++#include "GraphicsContext.h"
++#include "PrintContext.h"
++
++#include <iostream>
++
++// for custom header or footers in printing
++class HeaderFooter
++{
++public:
++    HeaderFooter(const QWebFrame* frame, QPrinter* printer);
++    ~HeaderFooter();
++
++    void setPageRect(const WebCore::IntRect& rect);
++
++    void paintHeader(WebCore::GraphicsContext& ctx, const WebCore::IntRect& pageRect, int pageNum, int totalPages);
++    void paintFooter(WebCore::GraphicsContext& ctx, const WebCore::IntRect& pageRect, int pageNum, int totalPages);
++
++    bool isValid()
++    {
++        return headerHeight > 0 || footerHeight > 0;
++    }
++
++private:
++    QWebFrame* masterFrame;
++    QWebPage page;
++    qreal headerHeight;
++    qreal footerHeight;
++
++    WebCore::PrintContext* printCtx;
++
++    qreal stringToPointSize(const QString &string)
++    {
++        static const struct {
++            QString unit;
++            qreal factor;
++        } units[] = {
++            { QLatin1String("mm"), 72 / 25.4 },
++            { QLatin1String("cm"), 72 / 2.54 },
++            { QLatin1String("in"), 72 },
++            { QLatin1String("px"), 72.0 / 72.0 / 2.54 },
++            { QLatin1String(""), 72.0 / 72.0 / 2.54 }
++        };
++        for (uint i = 0; i < sizeof(units) / sizeof(units[0]); ++i) {
++            if (string.endsWith(units[i].unit)) {
++                QString value = string;
++                value.chop(units[i].unit.length());
++                return value.toDouble() * units[i].factor;
++            }
++        }
++        return 0;
++    }
++    void paint(WebCore::GraphicsContext& ctx, const WebCore::IntRect& pageRect, const QString& contents, int height);
++};
++
++HeaderFooter::HeaderFooter(const QWebFrame* frame, QPrinter* printer)
++: masterFrame(const_cast<QWebFrame*>(frame))
++, printCtx(0)
++{
++    headerHeight = qMax(qreal(0), stringToPointSize(masterFrame->evaluateJavaScript(QLatin1String("PhantomJSPrinting.headerHeight()")).toString()));
++    footerHeight = qMax(qreal(0), stringToPointSize(masterFrame->evaluateJavaScript(QLatin1String("PhantomJSPrinting.footerHeight()")).toString()));
++
++    if (isValid()) {
++        // figure out the header/footer height in *DevicePixel*
++        // based on the height given in *Points*
++        qreal marginLeft, marginRight, marginTop, marginBottom;
++        // find existing margins
++        printer->getPageMargins(&marginLeft, &marginTop, &marginRight, &marginBottom, QPrinter::DevicePixel);
++        const qreal oldMarginTop = marginTop;
++        const qreal oldMarginBottom = marginTop;
++
++        printer->getPageMargins(&marginLeft, &marginTop, &marginRight, &marginBottom, QPrinter::Point);
++        // increase margins to hold header+footer
++        marginTop += headerHeight;
++        marginBottom += footerHeight;
++        printer->setPageMargins(marginLeft, marginTop, marginRight, marginBottom, QPrinter::Point);
++
++        // calculate actual heights
++        printer->getPageMargins(&marginLeft, &marginTop, &marginRight, &marginBottom, QPrinter::DevicePixel);
++        headerHeight = marginTop - oldMarginTop;
++        footerHeight = marginBottom - oldMarginBottom;
++
++        printCtx = new WebCore::PrintContext(QWebFramePrivate::webcoreFrame(page.mainFrame()));
++    }
++}
++
++HeaderFooter::~HeaderFooter()
++{
++    delete printCtx;
++    printCtx = 0;
++}
++
++void HeaderFooter::paintHeader(WebCore::GraphicsContext& ctx, const WebCore::IntRect& pageRect, int pageNum, int totalPages)
++{
++    if (!headerHeight) {
++        return;
++    }
++    const QString c = masterFrame->evaluateJavaScript(QString::fromLatin1("PhantomJSPrinting.header(%1, %2)").arg(pageNum).arg(totalPages)).toString();
++    if (c.isEmpty()) {
++        return;
++    }
++
++    ctx.translate(0, -headerHeight);
++    paint(ctx, pageRect, c, headerHeight);
++    ctx.translate(0, +headerHeight);
++}
++
++void HeaderFooter::paintFooter(WebCore::GraphicsContext& ctx, const WebCore::IntRect& pageRect, int pageNum, int totalPages)
++{
++    if (!footerHeight) {
++        return;
++    }
++    const QString c = masterFrame->evaluateJavaScript(QString::fromLatin1("PhantomJSPrinting.footer(%1, %2)").arg(pageNum).arg(totalPages)).toString();
++    if (c.isEmpty()) {
++        return;
++    }
++
++    const int offset = pageRect.height();
++    ctx.translate(0, +offset);
++    paint(ctx, pageRect, c, footerHeight);
++    ctx.translate(0, -offset);
++}
++
++void HeaderFooter::paint(WebCore::GraphicsContext& ctx, const WebCore::IntRect& pageRect, const QString& contents, int height)
++{
++    page.mainFrame()->setHtml(contents);
++
++    printCtx->begin(pageRect.width(), height);
++    float tempHeight;
++    printCtx->computePageRects(pageRect, /* headerHeight */ 0, /* footerHeight */ 0, /* userScaleFactor */ 1.0, tempHeight);
++
++    printCtx->spoolPage(ctx, 0, pageRect.width());
++
++    printCtx->end();
++}
++
++
++#endif // QWEBFRAME_PRINTINGADDONS_P_H
+-- 
+1.7.5.4
+
