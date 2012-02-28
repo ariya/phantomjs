@@ -150,7 +150,7 @@ patch_qt() {
         patch -p1 < ../qt48_enable_file_input_click.patch
 
         # Build in lighthose mode for an x-less build
-        if [ $QT_HEADLESS -eq 1 -a $DISABLE_HEADLESS -eq 0 ] ; then
+        if [[ "$QT_HEADLESS" == "1" && "$DISABLE_HEADLESS" != "1" ]] ; then
             echo "Building 4.8 in qpa headless mode"
             QT_CFG+=' -qpa '
         fi
