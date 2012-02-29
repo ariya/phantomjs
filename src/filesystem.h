@@ -42,6 +42,8 @@ class File : public QObject
     Q_OBJECT
 
 public:
+    // handle a textfile with given codec
+    // if @p codec is null, the file is considered to be binary
     File(QFile *openfile, QTextCodec *codec, QObject *parent = 0);
     virtual ~File();
 
@@ -58,7 +60,7 @@ public slots:
 
 private:
     QFile *m_file;
-    QTextStream m_fileStream;
+    QTextStream *m_fileStream;
 };
 
 
@@ -91,7 +93,9 @@ public slots:
     // 'open(path, mode|options)' implemented in "filesystem-shim.js" using '_open(path, opts)'
     QObject *_open(const QString &path, const QVariantMap &opts) const;
     // 'read(path, options)' implemented in "filesystem-shim.js"
+    // 'readRaw(path, options)' implemented in "filesystem-shim.js"
     // 'write(path, mode|options)' implemented in the "filesystem-shim.js"
+    // 'writeRaw(path, mode|options)' implemented in the "filesystem-shim.js"
     // 'remove(path)' implemented in "filesystem-shim.js" using '_remove(path)'
     bool _remove(const QString &path) const;
     // 'copy(source, destination)' implemented in "filesystem-shim.js" using '_copy(source, destination)'

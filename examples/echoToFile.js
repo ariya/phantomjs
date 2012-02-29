@@ -14,6 +14,7 @@ if (phantom.args.length < 2) {
     try {
         f = fs.open(phantom.args[0], "w");
         f.writeLine(content);
+        f.close();
     } catch (e) {
         console.log(e);
     }
