@@ -1,0 +1,35 @@
+diff -ruN qt-everywhere-opensource-src-4.8.0/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebsettings.cpp qt-everywhere-opensource-src-4.8.0.patched/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebsettings.cpp
+--- qt-everywhere-opensource-src-4.8.0/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebsettings.cpp	2011-12-08 13:06:03.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.0.patched/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebsettings.cpp	2012-03-03 16:24:01.000000000 +0800
+@@ -278,6 +278,10 @@
+         settings->setPasswordEchoEnabled(true);
+         settings->setPasswordEchoDurationInSeconds(1);
+ #endif
++
++        value = attributes.value(QWebSettings::WebSecurityEnabled,
++                                      global->attributes.value(QWebSettings::WebSecurityEnabled));
++        settings->setWebSecurityEnabled(value);
+     } else {
+         QList<QWebSettingsPrivate*> settings = *::allSettings();
+         for (int i = 0; i < settings.count(); ++i)
+@@ -515,6 +519,7 @@
+     d->attributes.insert(QWebSettings::TiledBackingStoreEnabled, false);
+     d->attributes.insert(QWebSettings::FrameFlatteningEnabled, false);
+     d->attributes.insert(QWebSettings::SiteSpecificQuirksEnabled, true);
++    d->attributes.insert(QWebSettings::WebSecurityEnabled, true);
+     d->offlineStorageDefaultQuota = 5 * 1024 * 1024;
+     d->defaultTextEncoding = QLatin1String("iso-8859-1");
+ }
+diff -ruN qt-everywhere-opensource-src-4.8.0/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebsettings.h qt-everywhere-opensource-src-4.8.0.patched/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebsettings.h
+--- qt-everywhere-opensource-src-4.8.0/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebsettings.h	2011-12-08 13:06:03.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.0.patched/src/3rdparty/webkit/Source/WebKit/qt/Api/qwebsettings.h	2012-03-03 16:24:01.000000000 +0800
+@@ -77,7 +77,8 @@
+         SiteSpecificQuirksEnabled,
+         JavascriptCanCloseWindows,
+         WebGLEnabled,
+-        HyperlinkAuditingEnabled
++        HyperlinkAuditingEnabled,
++        WebSecurityEnabled
+     };
+     enum WebGraphic {
+         MissingImageGraphic,
