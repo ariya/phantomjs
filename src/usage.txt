@@ -18,4 +18,5 @@ Options:
 --proxy=address:port                   Sets the network proxy (e.g. "--proxy=192.168.1.42:8080")
 --proxy-type=[http|socks5]             Sets the proxy type, either "http" (default) or "socks5"
 --script-encoding                      Sets the encoding used for the starting script (default is 'utf8')
+--web-security=[yes|no]                Enable web security (default is 'yes')
 --version                              Prints out PhantomJS version
