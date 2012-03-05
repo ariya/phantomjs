@@ -19,3 +19,7 @@ Options:
 --proxy-type=[http|socks5]             Sets the proxy type, either "http" (default) or "socks5"
 --script-encoding                      Sets the encoding used for the starting script (default is 'utf8')
 --version                              Prints out PhantomJS version
+
+NOTE: Without any argument, PhantomJS will launch in interactive mode (REPL).
+
+Documentation can be found at http://code.google.com/p/phantomjs/wiki/PhantomJS
