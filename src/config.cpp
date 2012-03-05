@@ -58,11 +58,11 @@ void Config::processArgs(const QStringList &args)
     while (it.hasNext()) {
         const QString &arg = it.next();
 
-        if (arg == "--help") {
+        if (arg == "--help" || arg == "-h") {
             setHelpFlag(true);
             return;
         }
-        if (arg == "--version") {
+        if (arg == "--version" || arg == "-v") {
             setVersionFlag(true);
             return;
         }
