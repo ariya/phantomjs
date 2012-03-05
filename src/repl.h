@@ -1,7 +1,7 @@
 /*
   This file is part of the PhantomJS project from Ofi Labs.
 
-  Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
+  Copyright (C) 2011 Ivan De Marino <ivan.de.marino@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -27,30 +27,50 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "consts.h"
-#include "utils.h"
+#ifndef REPL_H
+#define REPL_H
+
+#include <QWebFrame>
+
 #include "phantom.h"
 
-#if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
-#error Use Qt 4.7 or later version
-#endif
-
-int main(int argc, char** argv)
-{
-    // Registering an alternative Message Handler
-    qInstallMsgHandler(Utils::messageHandler);
-
-    QApplication app(argc, argv);
-
-    app.setWindowIcon(QIcon(":/phantomjs-icon.png"));
-    app.setApplicationName("PhantomJS");
-    app.setOrganizationName("Ofi Labs");
-    app.setOrganizationDomain("www.ofilabs.com");
-    app.setApplicationVersion(PHANTOMJS_VERSION_STRING);
-
-    Phantom phantom;
-    if (phantom.execute()) {
-        app.exec();
-    }
-    return phantom.returnValue();
+// Linenoise is a C Library: we need to externalise it's symbols for linkage
+extern "C" {
+#include "linenoise.h"
 }
+
+/**
+ * REPL. Read–Eval–Print Loop.
+ *
+ * This class realises the REPL functionality within PhantomJS.
+ * It's a Singleton: invoke "REPL::getInstance(QWebFrame *, Phantom *) to
+ * create the first-and-only instance, or no parameter to get the singleton
+ * if previously created.
+ *
+ * It's based the Linenoise library (https://github.com/tadmarshall/linenoise).
+ * More info about REPL: http://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop
+ */
+class REPL: public QObject
+{
+    Q_OBJECT
+
+public:
+    static bool instanceExists();
+    static REPL *getInstance(QWebFrame *webframe = NULL, Phantom *parent = NULL);
+
+private:
+    REPL(QWebFrame *webframe, Phantom *parent);
+    static void offerCompletion(const char *buf, linenoiseCompletions *lc);
+
+private slots:
+    void startLoop();
+    void stopLoop(const int code);
+
+private:
+    QWebFrame *m_webframe;
+    Phantom *m_parentPhantom;
+    bool m_looping;
+    QByteArray m_historyFilepath;
+};
+
+#endif // REPL_H

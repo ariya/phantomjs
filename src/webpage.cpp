@@ -58,7 +58,8 @@
 
 class CustomPage: public QWebPage
 {
-Q_OBJECT
+    Q_OBJECT
+
 public:
     CustomPage(WebPage *parent = 0)
         : QWebPage(parent)
@@ -103,8 +104,9 @@ private:
     friend class WebPage;
 };
 
+
 WebPage::WebPage(QObject *parent, const Config *config, const QUrl &baseUrl)
-    : QObject(parent)
+    : REPLCompletable(parent)
 {
     setObjectName("WebPage");
     m_webPage = new CustomPage(this);
@@ -629,6 +631,34 @@ void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVarian
         sendEvent("mouseup", arg1, arg2);
         return;
     }
+}
+
+void WebPage::initCompletions()
+{
+    // Add completion for the Dynamic Properties of the 'webpage' object
+    // properties
+    addCompletion("clipRect");
+    addCompletion("content");
+    addCompletion("libraryPath");
+    addCompletion("settings");
+    addCompletion("viewportSize");
+    // functions
+    addCompletion("evaluate");
+    addCompletion("includeJs");
+    addCompletion("injectJs");
+    addCompletion("open");
+    addCompletion("release");
+    addCompletion("render");
+    addCompletion("sendEvent");
+    addCompletion("uploadFile");
+    // callbacks
+    addCompletion("onAlert");
+    addCompletion("onConsoleMessage");
+    addCompletion("onInitialized");
+    addCompletion("onLoadStarted");
+    addCompletion("onLoadFinished");
+    addCompletion("onResourceRequested");
+    addCompletion("onResourceReceived");
 }
 
 #include "webpage.moc"

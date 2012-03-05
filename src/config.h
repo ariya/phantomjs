@@ -138,12 +138,12 @@ private:
     QString m_scriptFile;
     QString m_unknownOption;
     bool m_versionFlag;
+    bool m_helpFlag;
     QString m_authUser;
     QString m_authPass;
     bool m_debug;
     int m_remoteDebugPort;
     bool m_remoteDebugAutorun;
-    bool m_helpFlag;
 };
 
 #endif // CONFIG_H

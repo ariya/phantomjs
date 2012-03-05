@@ -38,7 +38,7 @@
 // File
 // public:
 File::File(QFile *openfile, QTextCodec *codec, QObject *parent) :
-    QObject(parent),
+    REPLCompletable(parent),
     m_file(openfile),
     m_fileStream(0)
 {
@@ -180,11 +180,23 @@ void File::close()
     deleteLater();
 }
 
+void File::initCompletions()
+{
+    // Add completion for the Dynamic Properties of the 'file' object
+    // functions
+    addCompletion("read");
+    addCompletion("write");
+    addCompletion("readLine");
+    addCompletion("writeLine");
+    addCompletion("flush");
+    addCompletion("close");
+}
+
 
 // FileSystem
 // public:
-FileSystem::FileSystem(QObject *parent) :
-    QObject(parent)
+FileSystem::FileSystem(QObject *parent)
+    : REPLCompletable(parent)
 { }
 
 // public slots:
@@ -423,4 +435,37 @@ bool FileSystem::_remove(const QString &path) const
 
 bool FileSystem::_copy(const QString &source, const QString &destination) const {
     return QFile(source).copy(destination);
+}
+
+void FileSystem::initCompletions()
+{
+    // Add completion for the Dynamic Properties of the 'fs' object
+    // properties
+    addCompletion("separator");
+    addCompletion("workingDirectory");
+    // functions
+    addCompletion("list");
+    addCompletion("absolute");
+    addCompletion("exists");
+    addCompletion("isDirectory");
+    addCompletion("isFile");
+    addCompletion("isAbsolute");
+    addCompletion("isExecutable");
+    addCompletion("isReadable");
+    addCompletion("isWritable");
+    addCompletion("isLink");
+    addCompletion("changeWorkingDirectory");
+    addCompletion("makeDirectory");
+    addCompletion("makeTree");
+    addCompletion("removeDirectory");
+    addCompletion("removeTree");
+    addCompletion("copyTree");
+    addCompletion("open");
+    addCompletion("read");
+    addCompletion("write");
+    addCompletion("size");
+    addCompletion("remove");
+    addCompletion("copy");
+    addCompletion("move");
+    addCompletion("touch");
 }

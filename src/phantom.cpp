@@ -41,11 +41,12 @@
 #include "utils.h"
 #include "webpage.h"
 #include "webserver.h"
+#include "repl.h"
 
 
 // public:
 Phantom::Phantom(QObject *parent)
-    : QObject(parent)
+    : REPLCompletable(parent)
     , m_terminated(false)
     , m_returnValue(0)
     , m_filesystem(0)
@@ -78,11 +79,6 @@ Phantom::Phantom(QObject *parent)
 
     m_page = new WebPage(this, &m_config, QUrl::fromLocalFile(m_config.scriptFile()));
     m_pages.append(m_page);
-
-    if (m_config.scriptFile().isEmpty()) {
-        Utils::showUsage();
-        return;
-    }
 
     if (m_config.proxyHost().isEmpty()) {
         QNetworkProxyFactory::setUseSystemConfiguration(true);
@@ -126,7 +122,6 @@ Phantom::~Phantom()
 {
 }
 
-
 QStringList Phantom::args() const
 {
     return m_config.scriptArgs();
@@ -152,20 +147,24 @@ bool Phantom::execute()
     if (m_terminated)
         return false;
 
-    if (m_config.scriptFile().isEmpty())
-        return false;
-
-    if (m_config.debug())
-    {
-        if (!Utils::loadJSForDebug(m_config.scriptFile(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), m_config.remoteDebugAutorun())) {
-            m_returnValue = -1;
-            return false;
-        }
-        m_page->showInspector(m_config.remoteDebugPort());
+    if (m_config.scriptFile().isEmpty()) {
+        // REPL mode requested
+        // Create the REPL: it will launch itself, no need to store this variable.
+        REPL::getInstance(m_page->mainFrame(), this);
     } else {
-        if (!Utils::injectJsInFrame(m_config.scriptFile(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
-            m_returnValue = -1;
-            return false;
+        // Load the User Script
+        if (m_config.debug()) {
+            // Debug enabled
+            if (!Utils::loadJSForDebug(m_config.scriptFile(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), m_config.remoteDebugAutorun())) {
+                m_returnValue = -1;
+                return false;
+            }
+            m_page->showInspector(m_config.remoteDebugPort());
+        } else {
+            if (!Utils::injectJsInFrame(m_config.scriptFile(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
+                m_returnValue = -1;
+                return false;
+            }
         }
     }
 
@@ -251,9 +250,9 @@ bool Phantom::injectJs(const QString &jsFilePath)
 
 void Phantom::exit(int code)
 {
-    if (m_config.debug())
+    if (m_config.debug()) {
         Terminal::instance()->cout("Phantom::exit() called but not quitting in debug mode.");
-    else {
+    } else {
         doExit(code);
     }
 }
@@ -263,25 +262,16 @@ void Phantom::debugExit(int code)
     doExit(code);
 }
 
-
-void Phantom::doExit(int code)
+// private slots:
+void Phantom::printConsoleMessage(const QString &message, int lineNumber, const QString &source)
 {
-    if (m_config.debug())
-    {
-        Utils::cleanupFromDebug();
-    }
-
-    m_terminated = true;
-    m_returnValue = code;
-    qDeleteAll(m_pages);
-    m_pages.clear();
-    m_page = 0;
-    QApplication::instance()->exit(code);
+    QString msg = message;
+    if (!source.isEmpty())
+        msg = source + ":" + QString::number(lineNumber) + " " + msg;
+    Terminal::instance()->cout(msg);
 }
 
-
-void
-Phantom::onInitialized()
+void Phantom::onInitialized()
 {
     // Add 'phantom' object to the global scope
     m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
@@ -290,12 +280,34 @@ Phantom::onInitialized()
     m_page->mainFrame()->evaluateJavaScript(Utils::readResourceFileUtf8(":/bootstrap.js"));
 }
 
-
-// private slots:
-void Phantom::printConsoleMessage(const QString &message, int lineNumber, const QString &source)
+// private:
+void Phantom::doExit(int code)
 {
-    QString msg = message;
-    if (!source.isEmpty())
-        msg = source + ":" + QString::number(lineNumber) + " " + msg;
-    Terminal::instance()->cout(msg);
+    if (m_config.debug())
+    {
+        Utils::cleanupFromDebug();
+    }
+
+    emit aboutToExit(code);
+    m_terminated = true;
+    m_returnValue = code;
+    qDeleteAll(m_pages);
+    m_pages.clear();
+    m_page = 0;
+    QApplication::instance()->exit(code);
+}
+
+void Phantom::initCompletions()
+{
+    // Add completion for the Dynamic Properties of the 'phantom' object
+    // properties
+    addCompletion("args");
+    addCompletion("defaultPageSettings");
+    addCompletion("libraryPath");
+    addCompletion("outputEncoding");
+    addCompletion("scriptName");
+    addCompletion("version");
+    // functions
+    addCompletion("exit");
+    addCompletion("injectJs");
 }

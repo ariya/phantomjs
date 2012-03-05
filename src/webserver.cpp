@@ -63,7 +63,7 @@ static void *callback(mg_event event,
 }
 
 WebServer::WebServer(QObject *parent, Config *config)
-    : QObject(parent)
+    : REPLCompletable(parent)
     , m_config(config)
     , m_ctx(0)
 {
@@ -216,11 +216,23 @@ void WebServer::handleRequest(mg_event event, mg_connection *conn, const mg_requ
     *handled = false;
 }
 
+void WebServer::initCompletions()
+{
+    // Add completion for the Dynamic Properties of the 'webpage' object
+    // properties
+    addCompletion("clipRect");
+    // functions
+    addCompletion("listen");
+    addCompletion("close");
+    // callbacks
+    addCompletion("onNewRequest");
+}
+
 
 //BEGIN WebServerResponse
 
 WebServerResponse::WebServerResponse(mg_connection *conn)
-    : QObject()
+    : REPLCompletable()
     , m_conn(conn)
     , m_statusCode(200)
     , m_headersSent(false)
@@ -387,6 +399,17 @@ void WebServerResponse::setHeaders(const QVariantMap &headers)
     ///TODO: what is the best-practice error handling in javascript? exceptions?
     Q_ASSERT(!m_headersSent);
     m_headers = headers;
+}
+
+void WebServerResponse::initCompletions()
+{
+    // Add completion for the Dynamic Properties of the 'webpage' object
+    // properties
+    addCompletion("statusCode");
+    addCompletion("headers");
+    // functions
+    addCompletion("writeHead");
+    addCompletion("write");
 }
 
 //END WebServerResponse
