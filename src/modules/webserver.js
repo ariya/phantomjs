@@ -112,11 +112,15 @@ exports.create = function (opts) {
 
     defineSetter("onNewRequest", "newRequest");
 
-    server.listen = function (port, handler) {
-        if (arguments.length === 2 && typeof handler === 'function') {
-            this.onNewRequest = handler;
-            //TODO: settings?
-            return this.listenOnPort(port);
+    server.listen = function (port, arg1, arg2) {
+        if (arguments.length === 2 && typeof arg1 === 'function') {
+            this.onNewRequest = arg1;
+            return this.listenOnPort(port, {});
+        }
+        if (arguments.length === 3 && typeof arg2 === 'function') {
+            this.onNewRequest = arg2;
+            // arg1 == settings
+            return this.listenOnPort(port, arg1);
         }
         throw "Wrong use of WebServer#listen";
     };
