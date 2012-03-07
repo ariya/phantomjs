@@ -7,8 +7,10 @@ QT_CFG+=' -opensource'          # Use the open-source license
 QT_CFG+=' -confirm-license'     # Silently acknowledge the license confirmation
 QT_CFG+=' -v'                   # Makes it easier to see what header dependencies are missing
 
-# Static build. FIXME: How about Linux?
-QT_CFG+=' -static'
+# Static build on Mac OS X only
+if [[ $OSTYPE = darwin* ]]; then
+    QT_CFG+=' -static'
+fi
 
 QT_CFG+=' -release'             # Build only for release (no debugging support)
 QT_CFG+=' -fast'                # Accelerate Makefiles generation
