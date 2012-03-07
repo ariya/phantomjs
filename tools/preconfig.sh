@@ -41,7 +41,6 @@ CFG+=' -no-xmlpatterns'
 
 # Graphics
 CFG+=' -graphicssystem raster' # default is the software rasterizer
-CFG+=' -harfbuzz'              # use HarfBuzz for text layout (even on Mac)
 
 # Mac
 CFG+=' -cocoa'               # Cocoa only, ignore Carbon
