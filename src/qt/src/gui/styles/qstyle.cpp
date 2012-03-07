@@ -47,6 +47,7 @@
 #include "qpixmapcache.h"
 #include "qstyleoption.h"
 #include "private/qstyle_p.h"
+#include "private/qapplication_p.h"
 #ifndef QT_NO_DEBUG
 #include "qdebug.h"
 #endif
@@ -2229,7 +2230,7 @@ QPalette QStyle::standardPalette() const
 {
 #ifdef Q_WS_X11
     QColor background;
-    if (QX11Info::appDepth() > 8)
+    if (!qt_is_gui_used || QX11Info::appDepth() > 8)
         background = QColor(0xd4, 0xd0, 0xc8); // win 2000 grey
     else
         background = QColor(192, 192, 192);

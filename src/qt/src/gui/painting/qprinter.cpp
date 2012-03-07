@@ -933,6 +933,39 @@ void QPrinter::setOutputFileName(const QString &fileName)
     d->addToManualSetList(QPrintEngine::PPK_OutputFileName);
 }
 
+/*!
+    Add a section to the document outline. All following sections will be added
+    to as subsections to this section, until endSectionOutline() has been called.
+
+    \a name is the name of the added section. \a anchor is the name of an anchor
+    indicating the beginning of the section.  This anchor must be added by calling
+    QPainter::addAnchor().
+
+    Note that for output formats not supporting outlines, currently all other then PDF,
+    this call has no effect.
+
+    \sa endSectionOutline() QPainter::addAnchor() 
+
+    \since 4.7
+*/
+void QPrinter::beginSectionOutline(const QString &name, const QString &anchor)
+{
+    Q_D(QPrinter);
+    d->printEngine->beginSectionOutline(name, anchor);
+}
+
+/*!
+    End the current section.
+
+    \sa beginSectionOutline()
+
+    \since 4.7
+*/
+void QPrinter::endSectionOutline() 
+{
+    Q_D(QPrinter);
+    d->printEngine->endSectionOutline();
+}
 
 /*!
   Returns the name of the program that sends the print output to the

@@ -2248,11 +2248,11 @@ namespace {
 /*!
     \reimp
 */
-void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRectF &sr,
+void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &_img, const QRectF &_sr,
                                    Qt::ImageConversionFlags)
 {
 #ifdef QT_DEBUG_DRAW
-    qDebug() << " - QRasterPaintEngine::drawImage(), r=" << r << " sr=" << sr << " image=" << img.size() << "depth=" << img.depth();
+    qDebug() << " - QRasterPaintEngine::drawImage(), r=" << r << " sr=" << _sr << " image=" << _img.size() << "depth=" << img.depth();
 #endif
 
     if (r.isEmpty())
@@ -2260,6 +2260,17 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
 
     Q_D(QRasterPaintEngine);
     QRasterPaintEngineState *s = state();
+    
+    QImage img;
+    QRectF sr=_sr;
+    if (s->matrix.isAffine()) {
+        img = _img.copy(sr.toRect()).scaled(
+            s->matrix.mapRect(r).size().toSize(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        sr = img.rect();
+    } else {
+        img=_img;
+    }
+ 
     int sr_l = qFloor(sr.left());
     int sr_r = qCeil(sr.right()) - 1;
     int sr_t = qFloor(sr.top());

@@ -68,10 +68,12 @@ void QMinimalWindowSurface::flush(QWidget *widget, const QRegion &region, const 
     Q_UNUSED(region);
     Q_UNUSED(offset);
 
+/*  Don't save to a temporary file
     static int c = 0;
     QString filename = QString("output%1.png").arg(c++, 4, 10, QLatin1Char('0'));
     qDebug() << "QMinimalWindowSurface::flush() saving contents to" << filename.toLocal8Bit().constData();
     mImage.save(filename);
+*/
 }
 
 void QMinimalWindowSurface::resize(const QSize &size)

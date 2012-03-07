@@ -41,11 +41,22 @@
 
 #include "qminimalintegration.h"
 #include "qminimalwindowsurface.h"
+#include "qfontconfigdatabase.h"
 
 #include <QtGui/private/qpixmap_raster_p.h>
 #include <QtGui/QPlatformWindow>
 
+
+QSize QMinimalScreen::physicalSize() const
+{
+    static const int dpi = 85;
+    int width = geometry().width() / dpi * qreal(25.4) ;
+    int height = geometry().height() / dpi * qreal(25.4) ;
+    return QSize(width,height);
+}
+
 QMinimalIntegration::QMinimalIntegration()
+    : mFontDb(new QFontconfigDatabase())
 {
     QMinimalScreen *mPrimaryScreen = new QMinimalScreen();
 
@@ -54,6 +65,11 @@ QMinimalIntegration::QMinimalIntegration()
     mPrimaryScreen->mFormat = QImage::Format_ARGB32_Premultiplied;
 
     mScreens.append(mPrimaryScreen);
+}
+
+QPlatformFontDatabase *QMinimalIntegration::fontDatabase() const
+{
+    return mFontDb;
 }
 
 bool QMinimalIntegration::hasCapability(QPlatformIntegration::Capability cap) const
