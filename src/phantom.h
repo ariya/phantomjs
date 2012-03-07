@@ -31,7 +31,7 @@
 #ifndef PHANTOM_H
 #define PHANTOM_H
 
-#include <QtGui>
+#include <QPointer>
 
 #include "csconverter.h"
 #include "filesystem.h"

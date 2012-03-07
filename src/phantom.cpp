@@ -30,7 +30,7 @@
 
 #include "phantom.h"
 
-#include <QtGui>
+#include <QApplication>
 #include <QtWebKit>
 #include <QDir>
 #include <QFileInfo>
