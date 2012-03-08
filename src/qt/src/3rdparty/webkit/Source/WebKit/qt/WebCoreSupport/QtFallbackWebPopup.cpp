@@ -28,9 +28,11 @@
 #include "qgraphicswebview.h"
 #include <QAbstractItemView>
 #include <QApplication>
+#ifndef QT_NO_GRAPHICSVIEW
 #include <QGraphicsProxyWidget>
 #include <QGraphicsScene>
 #include <QGraphicsView>
+#endif
 #include <QInputContext>
 #include <QMouseEvent>
 #include <QStandardItemModel>
@@ -115,6 +117,7 @@ void QtFallbackWebPopup::show(const QWebSelectData& data)
     populate(data);
 
     QRect rect = geometry();
+#ifndef QT_NO_GRAPHICSVIEW
     if (QGraphicsWebView *webView = qobject_cast<QGraphicsWebView*>(pageClient()->pluginParent())) {
         QGraphicsProxyWidget* proxy = new QGraphicsProxyWidget(webView);
         proxy->setWidget(m_combo);
@@ -125,6 +128,11 @@ void QtFallbackWebPopup::show(const QWebSelectData& data)
                                rect.width(), m_combo->sizeHint().height()));
 
     }
+#else
+    m_combo->setParent(pageClient()->ownerWidget());
+    m_combo->setGeometry(QRect(rect.left(), rect.top(),
+                           rect.width(), m_combo->sizeHint().height()));
+#endif
 
     QMouseEvent event(QEvent::MouseButtonPress, QCursor::pos(), Qt::LeftButton,
                       Qt::LeftButton, Qt::NoModifier);

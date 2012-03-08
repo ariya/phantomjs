@@ -39,6 +39,10 @@ QT_CFG+=' -no-scripttools'
 QT_CFG+=' -no-svg'
 QT_CFG+=' -no-xmlpatterns'
 
+# Unnecessary Qt features
+QT_CFG+=' -D QT_NO_GRAPHICSVIEW'
+QT_CFG+=' -D QT_NO_GRAPHICSEFFECT'
+
 # Sets the default graphics system to the raster engine
 QT_CFG+=' -graphicssystem raster'
 
