@@ -210,12 +210,13 @@ bool WebServer::handleRequest(mg_event event, mg_connection *conn, const mg_requ
             if (headersObject["Content-Type"] == "application/x-www-form-urlencoded") {
                 requestObject["post"] = UrlEncodedParser::parse(rawData);
             }
+            delete[] data;
         }
     }
 
-    WebServerResponse* responseObject = new WebServerResponse(conn);
-    responseObject->moveToThread(thread());
-    connect(responseObject, SIGNAL(closing(WebServerResponse*)),
+    WebServerResponse responseObject(conn);
+    responseObject.moveToThread(thread());
+    connect(&responseObject, SIGNAL(closing(WebServerResponse*)),
             this, SLOT(responseClosed(WebServerResponse*)),
             Qt::DirectConnection);
 
@@ -236,9 +237,9 @@ bool WebServer::handleRequest(mg_event event, mg_connection *conn, const mg_requ
         if (m_closing) {
             return false;
         }
-        m_pendingResponses[responseObject] = &wait;
+        m_pendingResponses[&responseObject] = &wait;
     }
-    emit newRequest(requestObject, responseObject);
+    emit newRequest(requestObject, &responseObject);
     wait.wait(&m);
     return true;
 }
