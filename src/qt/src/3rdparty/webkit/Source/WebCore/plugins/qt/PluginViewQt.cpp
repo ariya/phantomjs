@@ -182,6 +182,7 @@ void PluginView::updatePluginWidget()
         || (QWebPagePrivate::drtRun && platformPluginWidget() && (m_windowRect != oldWindowRect || m_clipRect != oldClipRect)))
         setNPWindowIfNeeded();
 
+#if USE(ACCELERATED_COMPOSITING)
     if (!m_platformLayer) {
         // Make sure we get repainted afterwards. This is necessary for downward
         // scrolling to move the plugin widget properly.
@@ -190,6 +191,7 @@ void PluginView::updatePluginWidget()
         // to the frame again) before passing it to FrameView.
         invalidate();
     }
+#endif
 }
 
 void PluginView::setFocus(bool focused)

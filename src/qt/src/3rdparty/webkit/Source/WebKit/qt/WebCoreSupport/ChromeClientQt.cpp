@@ -133,7 +133,11 @@ bool ChromeClientQt::allowsAcceleratedCompositing() const
 {
     if (!platformPageClient())
         return false;
+#if USE(ACCELERATED_COMPOSITING)
     return platformPageClient()->allowsAcceleratedCompositing();
+#else
+    return false;
+#endif
 }
 
 FloatRect ChromeClientQt::pageRect()

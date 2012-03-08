@@ -22,6 +22,9 @@
 #include "config.h"
 #include "qwebview.h"
 
+#include <wtf/OwnPtr.h>
+#include <wtf/PassOwnPtr.h>
+
 #include "Page.h"
 #include "QWebPageClient.h"
 #include "Settings.h"

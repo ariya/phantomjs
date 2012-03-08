@@ -21,8 +21,10 @@
 #include "config.h"
 
 #include "PageClientQt.h"
+#if USE(ACCELERATED_COMPOSITING) && USE(TEXTURE_MAPPER)
 #include "TextureMapperQt.h"
 #include "texmap/TextureMapperPlatformLayer.h"
+#endif
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #if defined(Q_WS_X11)

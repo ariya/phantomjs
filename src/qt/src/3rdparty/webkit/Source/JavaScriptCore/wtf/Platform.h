@@ -1158,7 +1158,7 @@
 #endif
 
 /* Accelerated compositing */
-#if PLATFORM(MAC) || PLATFORM(IOS) || PLATFORM(QT) || (PLATFORM(WIN) && !OS(WINCE) &&!defined(WIN_CAIRO))
+#if PLATFORM(MAC) || PLATFORM(IOS) || (PLATFORM(WIN) && !OS(WINCE) &&!defined(WIN_CAIRO))
 #define WTF_USE_ACCELERATED_COMPOSITING 1
 #endif
 
