@@ -31,10 +31,10 @@
 #include "phantom.h"
 
 #include <QApplication>
-#include <QtWebKit>
 #include <QDir>
 #include <QFileInfo>
 #include <QFile>
+#include <QWebPage>
 
 #include "consts.h"
 #include "terminal.h"
