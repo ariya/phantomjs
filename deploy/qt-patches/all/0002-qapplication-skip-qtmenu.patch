@@ -1,0 +1,19 @@
+diff --git a/src/gui/kernel/qapplication_mac.mm b/src/gui/kernel/qapplication_mac.mm
+index ed9e9ce..ca35249 100644
+--- a/src/gui/kernel/qapplication_mac.mm
++++ b/src/gui/kernel/qapplication_mac.mm
+@@ -1253,11 +1253,14 @@ void qt_init(QApplicationPrivate *priv, int)
+         [newDelegate setReflectionDelegate:oldDelegate];
+         [cocoaApp setDelegate:newDelegate];
+
++// https://bugreports.qt.nokia.com/browse/QTBUG-5952
+         QT_MANGLE_NAMESPACE(QCocoaMenuLoader) *qtMenuLoader = [[QT_MANGLE_NAMESPACE(QCocoaMenuLoader) alloc] init];
+         if ([NSBundle loadNibNamed:@"qt_menu" owner:qtMenuLoader] == false) {
++#if 0
+             qFatal("Qt internal error: qt_menu.nib could not be loaded. The .nib file"
+                    " should be placed in QtGui.framework/Versions/Current/Resources/ "
+                    " or in the resources directory of your application bundle.");
++#endif
+         }
+
+         [cocoaApp setMenu:[qtMenuLoader menu]];
