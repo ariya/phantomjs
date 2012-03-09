@@ -114,6 +114,10 @@ void Config::processArgs(const QStringList &args)
             setProxyType(arg.mid(13).trimmed());
             continue;
         }
+        if (arg.startsWith("--proxy-auth=")){
+            setProxyAuth(arg.mid(13).trimmed());
+            continue;
+        }
         if (arg.startsWith("--proxy=")) {
             setProxy(arg.mid(8).trimmed());
             continue;
@@ -313,6 +317,34 @@ void Config::setProxy(const QString &value)
     setProxyPort(proxyPort);
 }
 
+void Config::setProxyAuth(const QString &value)
+{   
+    QString proxyUser = value;
+    QString proxyPass = "";
+
+    if (proxyUser.lastIndexOf(':') > 0) {
+        proxyPass = proxyUser.mid(proxyUser.lastIndexOf(':') + 1).trimmed();
+        proxyUser = proxyUser.left(proxyUser.lastIndexOf(':')).trimmed();
+        
+        setProxyAuthUser(proxyUser);
+        setProxyAuthPass(proxyPass);
+    }
+}
+
+QString Config::proxyAuth() const
+{
+    return proxyAuthUser() + ":" + proxyAuthPass();
+}
+QString Config::proxyAuthUser() const
+{
+    return m_proxyAuthUser;
+}
+
+QString Config::proxyAuthPass() const
+{
+    return m_proxyAuthPass;
+}
+
 QString Config::proxyHost() const
 {
     return m_proxyHost;
@@ -426,6 +458,8 @@ void Config::resetToDefaults()
     m_proxyType = "http";
     m_proxyHost.clear();
     m_proxyPort = 1080;
+    m_proxyAuthUser.clear();
+    m_proxyAuthPass.clear();
     m_scriptArgs.clear();
     m_scriptEncoding = "UTF-8";
     m_scriptFile.clear();
@@ -436,7 +470,14 @@ void Config::resetToDefaults()
     m_remoteDebugAutorun = false;
     m_helpFlag = false;
 }
-
+void Config::setProxyAuthPass(const QString &value)
+{
+    m_proxyAuthPass = value;
+}
+void Config::setProxyAuthUser(const QString &value)
+{
+    m_proxyAuthUser = value;
+}
 void Config::setProxyHost(const QString &value)
 {
     m_proxyHost = value;
