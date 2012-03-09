@@ -10,6 +10,9 @@ QT_CFG+=' -v'                   # Makes it easier to see what header dependencie
 # Static build on Mac OS X only
 if [[ $OSTYPE = darwin* ]]; then
     QT_CFG+=' -static'
+    QT_CFG+=' -arch x86'
+    QT_CFG+=' -cocoa'           # Cocoa only, ignore Carbon
+    QT_CFG+=' -no-dwarf2'
 fi
 
 QT_CFG+=' -release'             # Build only for release (no debugging support)

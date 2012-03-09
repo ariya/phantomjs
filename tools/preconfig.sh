@@ -10,6 +10,9 @@ QT_CFG+=' -v'                   # Makes it easier to see what header dependencie
 # Static build on Mac OS X only
 if [[ $OSTYPE = darwin* ]]; then
     QT_CFG+=' -static'
+    QT_CFG+=' -arch x86'
+    QT_CFG+=' -cocoa'           # Cocoa only, ignore Carbon
+    QT_CFG+=' -no-dwarf2'
 fi
 
 QT_CFG+=' -release'             # Build only for release (no debugging support)
@@ -38,6 +41,10 @@ QT_CFG+=' -no-script'
 QT_CFG+=' -no-scripttools'
 QT_CFG+=' -no-svg'
 QT_CFG+=' -no-xmlpatterns'
+
+# Unnecessary Qt features
+QT_CFG+=' -D QT_NO_GRAPHICSVIEW'
+QT_CFG+=' -D QT_NO_GRAPHICSEFFECT'
 
 # Sets the default graphics system to the raster engine
 QT_CFG+=' -graphicssystem raster'
