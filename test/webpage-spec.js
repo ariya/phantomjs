@@ -207,6 +207,22 @@ describe("WebPage object", function() {
             expect(fileName).toEqual('README.md');
         });
     });
+
+    it("should support console.log with multiple arguments", function() {
+        var message;
+        runs(function() {
+            page.onConsoleMessage = function (msg) {
+                message = msg;
+            }
+        });
+
+        waits(50);
+
+        runs(function() {
+            page.evaluate(function () {console.log('answer', 42)});
+            expect(message).toEqual("answer 42");
+        });
+    });
 });
 
 describe("WebPage construction with options", function () {
