@@ -99,7 +99,7 @@ REPL::REPL(QWebFrame *webframe, Phantom *parent)
     linenoiseSetCompletionCallback(REPL::offerCompletion);
 
     // Inject REPL utility functions
-    m_webframe->evaluateJavaScript(Utils::readResourceFileUtf8(":/repl.js"));
+    m_webframe->evaluateJavaScript(Utils::readResourceFileUtf8(":/repl.js"), QUrl("phantomjs://repl.js"));
 
     // Start the REPL's loop
     QTimer::singleShot(0, this, SLOT(startLoop()));
@@ -133,7 +133,8 @@ void REPL::offerCompletion(const char *buf, linenoiseCompletions *lc)
     QStringList completions = REPL::getInstance()->m_webframe->evaluateJavaScript(
                 QString(JS_RETURN_POSSIBLE_COMPLETIONS).arg(
                     toInspect,
-                    toComplete)
+                    toComplete),
+                QUrl()
                 ).toStringList();
 
     foreach (QString c, completions) {
@@ -158,7 +159,7 @@ void REPL::startLoop()
             // Send the user input to the main Phantom frame for evaluation
             m_webframe->evaluateJavaScript(
                         QString(JS_EVAL_USER_INPUT).arg(
-                            QString(userInput).replace('"', "\\\"")));
+                            QString(userInput).replace('"', "\\\"")), QUrl("repl://"));
 
             // Save command in the REPL history
             linenoiseHistoryAdd(userInput);

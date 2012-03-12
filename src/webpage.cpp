@@ -92,6 +92,10 @@ protected:
         m_webPage->emitConsoleMessage(message, lineNumber, sourceID);
     }
 
+    void javaScriptError(const QWebPage::JavaScriptError& error) {
+        m_webPage->emitError(error);
+    }
+
     QString userAgentForUrl(const QUrl &url) const {
         Q_UNUSED(url);
         return m_userAgent;
@@ -287,7 +291,8 @@ QVariantMap WebPage::paperSize() const
 QVariant WebPage::evaluate(const QString &code)
 {
     QString function = "(" + code + ")()";
-    return m_mainFrame->evaluateJavaScript(function);
+    // TODO: use the proper URL
+    return m_mainFrame->evaluateJavaScript(function, QUrl("phantomjs://WebPage::evaluate"));
 }
 
 void WebPage::emitAlert(const QString &msg)
@@ -298,6 +303,25 @@ void WebPage::emitAlert(const QString &msg)
 void WebPage::emitConsoleMessage(const QString &message, int lineNumber, const QString &source)
 {
     emit javaScriptConsoleMessageSent(message, lineNumber, source);
+}
+
+void WebPage::emitError(const QWebPage::JavaScriptError& error)
+{
+    QList<QWebPage::JavaScriptFrame> backtrace = error.backtrace();
+    QVariantList newBacktrace = QVariantList();
+
+    for (int i = 0; i < backtrace.size(); ++i) {
+        QWebPage::JavaScriptFrame frame = backtrace.at(i);
+
+        QVariantMap newFrame = QVariantMap();
+        newFrame["file"] = frame.file();
+        newFrame["line"] = frame.line();
+        newFrame["function"] = frame.function();
+
+        newBacktrace << newFrame;
+    }
+
+    emit javaScriptErrorSent(error.message(), newBacktrace);
 }
 
 void WebPage::finish(bool ok)
@@ -349,7 +373,7 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
         networkOp = QNetworkAccessManager::DeleteOperation;
 
     if (networkOp == QNetworkAccessManager::UnknownOperation) {
-        m_mainFrame->evaluateJavaScript("console.error('Unknown network operation: " + operation + "');");
+        m_mainFrame->evaluateJavaScript("console.error('Unknown network operation: " + operation + "');", QUrl());
         return;
     }
 
@@ -598,7 +622,7 @@ bool WebPage::injectJs(const QString &jsFilePath) {
 }
 
 void WebPage::_appendScriptElement(const QString &scriptUrl) {
-    m_mainFrame->evaluateJavaScript( QString(JS_APPEND_SCRIPT_ELEMENT).arg(scriptUrl) );
+    m_mainFrame->evaluateJavaScript( QString(JS_APPEND_SCRIPT_ELEMENT).arg(scriptUrl), QUrl(scriptUrl) );
 }
 
 void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVariant &arg2)

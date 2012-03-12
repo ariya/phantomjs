@@ -122,8 +122,6 @@ Phantom::Phantom(QObject *parent)
     m_page->applySettings(m_defaultPageSettings);
 
     setLibraryPath(QFileInfo(m_config.scriptFile()).dir().absolutePath());
-
-    onInitialized();
 }
 
 Phantom::~Phantom()
@@ -208,6 +206,11 @@ QVariantMap Phantom::version() const
     return result;
 }
 
+QObject *Phantom::page() const
+{
+    return m_page;
+}
+
 // public slots:
 QObject *Phantom::createWebPage()
 {
@@ -287,10 +290,7 @@ void Phantom::debugExit(int code)
 // private slots:
 void Phantom::printConsoleMessage(const QString &message, int lineNumber, const QString &source)
 {
-    QString msg = message;
-    if (!source.isEmpty())
-        msg = source + ":" + QString::number(lineNumber) + " " + msg;
-    Terminal::instance()->cout(msg);
+    Terminal::instance()->cout(message);
 }
 
 void Phantom::onInitialized()
@@ -299,7 +299,10 @@ void Phantom::onInitialized()
     m_page->mainFrame()->addToJavaScriptWindowObject("phantom", this);
 
     // Bootstrap the PhantomJS scope
-    m_page->mainFrame()->evaluateJavaScript(Utils::readResourceFileUtf8(":/bootstrap.js"));
+    m_page->mainFrame()->evaluateJavaScript(
+        Utils::readResourceFileUtf8(":/bootstrap.js"),
+        QUrl("phantomjs://boostrap.js")
+    );
 }
 
 // private:

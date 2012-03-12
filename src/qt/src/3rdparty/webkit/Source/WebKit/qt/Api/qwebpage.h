@@ -244,6 +244,40 @@ public:
         friend class QWebPage;
     };
 
+    class QWEBKIT_EXPORT JavaScriptFrame {
+    public:
+        JavaScriptFrame(const QString& file, int line, const QString& function)
+          : m_file(file)
+          , m_line(line)
+          , m_function(function)
+        {
+        }
+
+        QString file() const { return m_file; };
+        int line() const { return m_line; };
+        QString function() const { return m_function; };
+
+    private:
+        QString m_file;
+        int m_line;
+        QString m_function;
+    };
+
+    class QWEBKIT_EXPORT JavaScriptError {
+    public:
+        JavaScriptError(const QString& message, const QList<JavaScriptFrame>& backtrace)
+          : m_message(message)
+          , m_backtrace(backtrace)
+        {
+        }
+
+        QString message() const { return m_message; };
+        QList<JavaScriptFrame> backtrace() const { return m_backtrace; };
+
+    private:
+        QString m_message;
+        QList<JavaScriptFrame> m_backtrace;
+    };
 
     explicit QWebPage(QObject *parent = 0);
     ~QWebPage();
@@ -414,6 +448,7 @@ protected:
     virtual bool javaScriptConfirm(QWebFrame *originatingFrame, const QString& msg);
     virtual bool javaScriptPrompt(QWebFrame *originatingFrame, const QString& msg, const QString& defaultValue, QString* result);
     virtual void javaScriptConsoleMessage(const QString& message, int lineNumber, const QString& sourceID);
+    virtual void javaScriptError(const JavaScriptError& error);
 
     virtual QString userAgentForUrl(const QUrl& url) const;
 
@@ -428,6 +463,7 @@ private:
 
     friend class QWebFrame;
     friend class QWebPagePrivate;
+    friend class QWebPagePrivateDebugger;
     friend class QWebView;
     friend class QWebViewPrivate;
     friend class QGraphicsWebView;

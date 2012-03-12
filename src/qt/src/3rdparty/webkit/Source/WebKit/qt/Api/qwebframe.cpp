@@ -1529,14 +1529,14 @@ void QWebFrame::print(QPrinter *printer) const
 
     \sa addToJavaScriptWindowObject(), javaScriptWindowObjectCleared()
 */
-QVariant QWebFrame::evaluateJavaScript(const QString& scriptSource)
+QVariant QWebFrame::evaluateJavaScript(const QString& scriptSource, const QUrl& file)
 {
     ScriptController *proxy = d->frame->script();
     QVariant rc;
     if (proxy) {
 #if USE(JSC)
         int distance = 0;
-        JSC::JSValue v = d->frame->script()->executeScript(ScriptSourceCode(scriptSource)).jsValue();
+        JSC::JSValue v = d->frame->script()->executeScript(ScriptSourceCode(scriptSource, file)).jsValue();
 
         rc = JSC::Bindings::convertValueToQVariant(proxy->globalObject(mainThreadNormalWorld())->globalExec(), v, QMetaType::Void, &distance);
 #elif USE(V8)
