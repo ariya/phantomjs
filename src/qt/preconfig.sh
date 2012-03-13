@@ -13,6 +13,8 @@ if [[ $OSTYPE = darwin* ]]; then
     QT_CFG+=' -arch x86'
     QT_CFG+=' -cocoa'           # Cocoa only, ignore Carbon
     QT_CFG+=' -no-dwarf2'
+else
+    QT_CFG+=' -no-pulseaudio'
 fi
 
 QT_CFG+=' -release'             # Build only for release (no debugging support)
@@ -29,6 +31,7 @@ QT_CFG+=' -no-stl'              # No need for STL compatibility
 # Irrelevant Qt features
 QT_CFG+=' -no-libmng'
 QT_CFG+=' -no-libtiff'
+QT_CFG+=' -no-icu'
 
 # Unnecessary Qt modules
 QT_CFG+=' -no-declarative'
@@ -62,6 +65,7 @@ QT_CFG+=' -no-xkb'
 # Use the bundled libraries, vs system-installed
 QT_CFG+=' -qt-libjpeg'
 QT_CFG+=' -qt-libpng'
+QT_CFG+=' -qt-zlib'
 
 # Explicitly compile with SSL support, so build will fail if headers are missing
 QT_CFG+=' -openssl'
