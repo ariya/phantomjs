@@ -1,7 +1,7 @@
-// Get twitter status for given account (or for the default one, "sencha")
+// Get twitter status for given account (or for the default one, "HeadlessPhantom")
 
 var page = require('webpage').create(),
-    twitterId = "sencha"; //< default value
+    twitterId = "HeadlessPhantom"; //< default value
 
 // Route "console.log()" calls from within the Page context to the main Phantom context (i.e. current "this")
 page.onConsoleMessage = function(msg) {
