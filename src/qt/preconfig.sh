@@ -13,8 +13,6 @@ if [[ $OSTYPE = darwin* ]]; then
     QT_CFG+=' -arch x86'
     QT_CFG+=' -cocoa'           # Cocoa only, ignore Carbon
     QT_CFG+=' -no-dwarf2'
-else
-    QT_CFG+=' -no-pulseaudio'
 fi
 
 QT_CFG+=' -release'             # Build only for release (no debugging support)
