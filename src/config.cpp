@@ -152,6 +152,14 @@ void Config::processArgs(const QStringList &args)
             setRemoteDebugAutorun(false);
             continue;
         }
+        if (arg == "--web-security=yes") {
+            setWebSecurityEnabled(true);
+            continue;
+        }
+        if (arg == "--web-security=no") {
+            setWebSecurityEnabled(false);
+            continue;
+        }
         if (arg.startsWith("--")) {
             setUnknownOption(QString("Unknown option '%1'").arg(arg));
             return;
@@ -445,6 +453,16 @@ void Config::setRemoteDebugAutorun(const bool value)
     m_remoteDebugAutorun = value;
 }
 
+bool Config::webSecurityEnabled() const
+{
+    return m_webSecurityEnabled;
+}
+
+void Config::setWebSecurityEnabled(const bool value)
+{
+    m_webSecurityEnabled = value;
+}
+
 // private:
 void Config::resetToDefaults()
 {
@@ -469,6 +487,7 @@ void Config::resetToDefaults()
     m_debug = false;
     m_remoteDebugPort = -1;
     m_remoteDebugAutorun = false;
+    m_webSecurityEnabled = true;
     m_helpFlag = false;
 }
 
