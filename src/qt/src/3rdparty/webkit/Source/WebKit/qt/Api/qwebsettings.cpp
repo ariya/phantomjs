@@ -278,6 +278,10 @@ void QWebSettingsPrivate::apply()
         settings->setPasswordEchoEnabled(true);
         settings->setPasswordEchoDurationInSeconds(1);
 #endif
+
+        value = attributes.value(QWebSettings::WebSecurityEnabled,
+                                      global->attributes.value(QWebSettings::WebSecurityEnabled));
+        settings->setWebSecurityEnabled(value);
     } else {
         QList<QWebSettingsPrivate*> settings = *::allSettings();
         for (int i = 0; i < settings.count(); ++i)
@@ -515,6 +519,7 @@ QWebSettings::QWebSettings()
     d->attributes.insert(QWebSettings::TiledBackingStoreEnabled, false);
     d->attributes.insert(QWebSettings::FrameFlatteningEnabled, false);
     d->attributes.insert(QWebSettings::SiteSpecificQuirksEnabled, true);
+    d->attributes.insert(QWebSettings::WebSecurityEnabled, true);
     d->offlineStorageDefaultQuota = 5 * 1024 * 1024;
     d->defaultTextEncoding = QLatin1String("iso-8859-1");
 }
