@@ -32,8 +32,8 @@
 #define WEBSERVER_H
 
 #include <QVariantMap>
-#include <QWaitCondition>
 #include <QMutex>
+#include <QSemaphore>
 
 ///TODO: is this ok, or should it be put into .cpp
 ///      can be done by introducing a WebServerPrivate *d;
@@ -89,15 +89,12 @@ public:
 private:
     virtual void initCompletions();
 
-private slots:
-    void responseClosed(WebServerResponse*);
-
 private:
     Config *m_config;
     mg_context *m_ctx;
     QString m_port;
     QMutex m_mutex;
-    QHash<WebServerResponse*, QWaitCondition*> m_pendingResponses;
+    QList<WebServerResponse*> m_pendingResponses;
     QAtomicInt m_closing;
 };
 
@@ -112,7 +109,7 @@ class WebServerResponse : public REPLCompletable
     Q_PROPERTY(int statusCode READ statusCode WRITE setStatusCode)
     Q_PROPERTY(QVariantMap headers READ headers WRITE setHeaders)
 public:
-    WebServerResponse(mg_connection *conn);
+    WebServerResponse(mg_connection *conn, QSemaphore* close);
 
 public slots:
     /// send @p headers to client with status code @p statusCode
@@ -147,9 +144,6 @@ public slots:
     /// set all headers
     void setHeaders(const QVariantMap &headers);
 
-signals:
-    void closing(WebServerResponse *response);
-
 private:
     virtual void initCompletions();
 
@@ -158,6 +152,7 @@ private:
     int m_statusCode;
     QVariantMap m_headers;
     bool m_headersSent;
+    QSemaphore* m_close;
 };
 
 #endif // WEBSERVER_H
