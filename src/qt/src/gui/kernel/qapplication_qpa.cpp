@@ -66,6 +66,8 @@
 
 #include "qdesktopwidget_qpa_p.h"
 
+#include "qminimalintegration.h"
+
 QT_BEGIN_NAMESPACE
 
 static QString appName;
@@ -455,18 +457,7 @@ QPlatformNativeInterface *QApplication::platformNativeInterface()
 
 static void init_platform(const QString &name, const QString &platformPluginPath)
 {
-    QApplicationPrivate::platform_integration = QPlatformIntegrationFactory::create(name, platformPluginPath);
-    if (!QApplicationPrivate::platform_integration) {
-        QStringList keys = QPlatformIntegrationFactory::keys(platformPluginPath);
-        QString fatalMessage =
-            QString::fromLatin1("Failed to load platform plugin \"%1\". Available platforms are: \n").arg(name);
-        foreach(QString key, keys) {
-            fatalMessage.append(key + QString::fromLatin1("\n"));
-        }
-        qFatal("%s", fatalMessage.toLocal8Bit().constData());
-
-    }
-
+    QApplicationPrivate::platform_integration = new QMinimalIntegration;
 }
 
 
