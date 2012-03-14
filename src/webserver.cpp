@@ -138,10 +138,8 @@ void WebServer::close()
             // make sure we wake up all pending responses, such that mg_stop()
             // can be called without deadlocking
             QMutexLocker lock(&m_mutex);
-            QHash< WebServerResponse*, QWaitCondition* >::iterator it = m_pendingResponses.begin();
-            while(it != m_pendingResponses.end()) {
-                it.value()->wakeAll();
-                it = m_pendingResponses.erase(it);
+            foreach(WebServerResponse* response, m_pendingResponses) {
+                response->close();
             }
         }
         mg_stop(m_ctx);
@@ -214,20 +212,16 @@ bool WebServer::handleRequest(mg_event event, mg_connection *conn, const mg_requ
         }
     }
 
-    WebServerResponse responseObject(conn);
+    // Emit signal that is catched by the PhantomJS callback,
+    // then wait until response.close() was called from
+    // the PhantomJS script.
+    //
+    // This is achieved using the wait semaphore, which is
+    // acquired here, in the background thread, and released
+    // in WebServerResponse::close() i.e. the foreground thread
+    QSemaphore wait;
+    WebServerResponse responseObject(conn, &wait);
     responseObject.moveToThread(thread());
-    connect(&responseObject, SIGNAL(closing(WebServerResponse*)),
-            this, SLOT(responseClosed(WebServerResponse*)),
-            Qt::DirectConnection);
-
-    // emit signal that is catched by the PhantomJS callback
-    // then we wait until response.close() was called from
-    // the PhantomJS script. This is achieved by waiting
-    // on a condition that is woken up in WebServer::close()
-    // and WebServer::aboutToClose(WebServerResponse*)
-    QMutex m;
-    m.lock();
-    QWaitCondition wait;
 
     {
         if (m_closing) {
@@ -237,31 +231,21 @@ bool WebServer::handleRequest(mg_event event, mg_connection *conn, const mg_requ
         if (m_closing) {
             return false;
         }
-        m_pendingResponses[&responseObject] = &wait;
+        m_pendingResponses << (&responseObject);
     }
-    emit newRequest(requestObject, &responseObject);
-    wait.wait(&m);
+    newRequest(requestObject, &responseObject);
+    wait.acquire();
+    {
+        if (m_closing) {
+            return false;
+        }
+        QMutexLocker lock(&m_mutex);
+        if (m_closing) {
+            return false;
+        }
+        m_pendingResponses.removeOne(&responseObject);
+    }
     return true;
-}
-
-void WebServer::responseClosed(WebServerResponse *response)
-{
-    // wake up the condition that waits on this response
-    // if we are shutting down though, we can ignore this
-    // event and return early
-    if (m_closing) {
-        return;
-    }
-    QMutexLocker lock(&m_mutex);
-    if (m_closing) {
-        return;
-    }
-    QHash< WebServerResponse*, QWaitCondition* >::iterator it = m_pendingResponses.find(response);
-    if (it == m_pendingResponses.end()) {
-        return;
-    }
-    it.value()->wakeAll();
-    m_pendingResponses.erase(it);
 }
 
 void WebServer::initCompletions()
@@ -279,14 +263,14 @@ void WebServer::initCompletions()
 
 //BEGIN WebServerResponse
 
-WebServerResponse::WebServerResponse(mg_connection *conn)
+WebServerResponse::WebServerResponse(mg_connection* conn, QSemaphore* close)
     : REPLCompletable()
     , m_conn(conn)
     , m_statusCode(200)
     , m_headersSent(false)
+    , m_close(close)
 {
 }
-
 
 const char* responseCodeString(int code)
 {
@@ -406,7 +390,7 @@ void WebServerResponse::write(const QString &body)
 
 void WebServerResponse::close()
 {
-    emit closing(this);
+    m_close->release();
 }
 
 int WebServerResponse::statusCode() const
