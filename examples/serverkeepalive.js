@@ -7,7 +7,7 @@ if (phantom.args.length !== 1) {
     port = phantom.args[0];
     server = require('webserver').create();
 
-    service = server.listen(port, {"keep-alive":true}, function (request, response) {
+    service = server.listen(port, { keepAlive: true }, function (request, response) {
         console.log('Request at ' + new Date());
         console.log(JSON.stringify(request, null, 4));
 
