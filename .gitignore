@@ -17,3 +17,6 @@ debian/*.substvars
 debian/*/
 /deploy/qt-*.tar.gz
 /deploy/Qt-*
+
+# ignore ctags
+/tags
