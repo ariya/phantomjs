@@ -112,7 +112,7 @@ unix:x11 {
         OBJECTIVE_SOURCES += \
                 text/qfontengine_mac.mm
 }
-!embedded:!x11:mac {
+!embedded:!qpa:!x11:mac {
         OBJECTIVE_HEADERS += \
                 text/qfontengine_coretext_p.h
         OBJECTIVE_SOURCES += \
