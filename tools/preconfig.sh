@@ -7,12 +7,15 @@ QT_CFG+=' -opensource'          # Use the open-source license
 QT_CFG+=' -confirm-license'     # Silently acknowledge the license confirmation
 QT_CFG+=' -v'                   # Makes it easier to see what header dependencies are missing
 
-# Static build on Mac OS X only
 if [[ $OSTYPE = darwin* ]]; then
-    QT_CFG+=' -static'
+    QT_CFG+=' -static'          # Static build on Mac OS X only
     QT_CFG+=' -arch x86'
     QT_CFG+=' -cocoa'           # Cocoa only, ignore Carbon
     QT_CFG+=' -no-dwarf2'
+else
+    QT_CFG+=' -system-freetype' # Freetype for text rendering
+    QT_CFG+=' -fontconfig'      # Fontconfig for better font matching
+    QT_CFG+=' -qpa'             # X11-less with QPA (aka Lighthouse)
 fi
 
 QT_CFG+=' -release'             # Build only for release (no debugging support)
