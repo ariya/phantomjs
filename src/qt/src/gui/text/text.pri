@@ -142,14 +142,13 @@ qpa {
 	SOURCES += \
                 text/qfont_qpa.cpp \
                 text/qfontengine_qpa.cpp \
+                text/qfontengine_ft.cpp \
                 text/qplatformfontdatabase_qpa.cpp \
                 text/qrawfont_qpa.cpp
 
 	HEADERS += \
-                text/qplatformfontdatabase_qpa.h
-
-	DEFINES += QT_NO_FONTCONFIG
-        DEFINES += QT_NO_FREETYPE
+                text/qplatformfontdatabase_qpa.h \
+                text/qfontengine_ft_p.h
 }
 
 symbian {
