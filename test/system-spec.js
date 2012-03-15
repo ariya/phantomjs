@@ -13,4 +13,17 @@ describe("System object", function() {
     it("should have platform set to 'phantomjs'", function() {
         expect(system.platform).toEqual('phantomjs');
     });
+
+    it("should have args as array", function() {
+        expect(system.args instanceof Array).toBeTruthy();
+    });
+
+    it("should have args with at least one item", function() {
+        expect(system.args.length >= 1).toBeTruthy();
+    });
+
+    it("should have args[0] as the this test runner", function() {
+        expect(system.args[0]).toEqual('run-tests.js');
+    });
+
 });

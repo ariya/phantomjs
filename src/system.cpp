@@ -34,7 +34,18 @@ System::System(QObject *parent) :
 {
 }
 
+void System::setArgs(const QStringList &args)
+{
+    m_args = args;
+}
+
+QStringList System::args() const
+{
+    return m_args;
+}
+
 void System::initCompletions()
 {
+    addCompletion("args");
     addCompletion("platform");
 }

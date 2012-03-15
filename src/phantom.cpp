@@ -243,8 +243,14 @@ QObject *Phantom::createFilesystem()
 
 QObject *Phantom::createSystem()
 {
-    if (!m_system)
+    if (!m_system) {
         m_system = new System(this);
+
+        QStringList systemArgs;
+        systemArgs += m_config.scriptFile();
+        systemArgs += m_config.scriptArgs();
+        m_system->setArgs(systemArgs);
+    }
 
     return m_system;
 }

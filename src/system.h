@@ -42,11 +42,16 @@
 class System : public REPLCompletable
 {
     Q_OBJECT
+    Q_PROPERTY(QStringList args READ args)
 
 public:
     explicit System(QObject *parent = 0);
 
+    void setArgs(const QStringList& args);
+    QStringList args() const;
+
 private:
+    QStringList m_args;
     virtual void initCompletions();
 };
 
