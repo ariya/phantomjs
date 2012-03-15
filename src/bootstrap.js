@@ -37,7 +37,7 @@ function require(name) {
 
     var code, func, exports;
 
-    if (name === 'webpage' || name === 'fs' || name === 'webserver' | name === 'system') {
+    if (name === 'webpage' || name === 'fs' || name === 'webserver' || name === 'system') {
         code = phantom.loadModuleSource(name);
         func = new Function("exports", "window", code);
         exports = {};
