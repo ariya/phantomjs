@@ -291,8 +291,7 @@ QVariantMap WebPage::paperSize() const
 QVariant WebPage::evaluate(const QString &code)
 {
     QString function = "(" + code + ")()";
-    // TODO: use the proper URL
-    return m_mainFrame->evaluateJavaScript(function, QString("phantomjs://WebPage::evaluate"));
+    return m_mainFrame->evaluateJavaScript(function, QString("phantomjs://webpage.evaluate()"));
 }
 
 void WebPage::emitAlert(const QString &msg)
