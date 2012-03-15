@@ -59,11 +59,15 @@ function require(name) {
     var signal = phantom.page.javaScriptErrorSent;
 
     phantom.__defineSetter__('onError', function(f) {
-        if (handler) {
+        if (handler && typeof handler === 'function') {
             try { signal.disconnect(handler) } catch (e) {}
         }
+
         handler = f;
-        signal.connect(f);
+
+        if (typeof f === 'function') {
+            signal.connect(f);
+        }
     })
 })();
 

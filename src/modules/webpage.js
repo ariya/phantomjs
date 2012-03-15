@@ -99,8 +99,12 @@ exports.create = function (opts) {
                     this[signalName].disconnect(handlers[signalName]);
                 } catch (e) {}
             }
+
             handlers[signalName] = f;
-            this[signalName].connect(handlers[signalName]);
+
+            if (typeof f === 'function') {
+                this[signalName].connect(f);
+            }
         });
     }
 
