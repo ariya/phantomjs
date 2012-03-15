@@ -26,4 +26,8 @@ describe("System object", function() {
         expect(system.args[0]).toEqual('run-tests.js');
     });
 
+    it("should have env as object", function() {
+        expect(typeof system.env).toEqual('object');
+    });
+
 });

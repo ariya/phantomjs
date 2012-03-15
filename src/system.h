@@ -43,12 +43,15 @@ class System : public REPLCompletable
 {
     Q_OBJECT
     Q_PROPERTY(QStringList args READ args)
+    Q_PROPERTY(QVariant env READ env)
 
 public:
     explicit System(QObject *parent = 0);
 
     void setArgs(const QStringList& args);
     QStringList args() const;
+
+    QVariant env() const;
 
 private:
     QStringList m_args;

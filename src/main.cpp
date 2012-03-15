@@ -29,6 +29,7 @@
 
 #include "consts.h"
 #include "utils.h"
+#include "env.h"
 #include "phantom.h"
 
 #include <QApplication>
@@ -37,7 +38,7 @@
 #error Use Qt 4.7 or later version
 #endif
 
-int main(int argc, char** argv)
+int main(int argc, char** argv, const char** envp)
 {
     // Registering an alternative Message Handler
     qInstallMsgHandler(Utils::messageHandler);
@@ -49,6 +50,8 @@ int main(int argc, char** argv)
     app.setOrganizationName("Ofi Labs");
     app.setOrganizationDomain("www.ofilabs.com");
     app.setApplicationVersion(PHANTOMJS_VERSION_STRING);
+
+    Env::instance()->parse(envp);
 
     Phantom phantom;
     if (phantom.execute()) {

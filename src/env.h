@@ -27,33 +27,26 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "system.h"
+#ifndef ENV_H
+#define ENV_H
 
-#include "../env.h"
+#include <QObject>
+#include <QVariantMap>
 
-System::System(QObject *parent) :
-    REPLCompletable(parent)
+class Env : public QObject
 {
-}
+    Q_OBJECT
 
-void System::setArgs(const QStringList &args)
-{
-    m_args = args;
-}
+public:
+    static Env *instance();
 
-QStringList System::args() const
-{
-    return m_args;
-}
+    void parse(const char ** envp);
+    QVariantMap asVariantMap() const;
 
-QVariant System::env() const
-{
-    return Env::instance()->asVariantMap();
-}
+private:
+    Env();
 
-void System::initCompletions()
-{
-    addCompletion("args");
-    addCompletion("env");
-    addCompletion("platform");
-}
+    QVariantMap m_map;
+};
+
+#endif // ENV_H
