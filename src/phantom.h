@@ -38,6 +38,7 @@
 #include "encoding.h"
 #include "config.h"
 #include "replcompletable.h"
+#include "system.h"
 
 class WebPage;
 class WebServer;
@@ -77,6 +78,7 @@ public slots:
     QObject *createWebPage();
     QObject *createWebServer();
     QObject *createFilesystem();
+    QObject *createSystem();
     QString loadModuleSource(const QString &name);
     bool injectJs(const QString &jsFilePath);
 
@@ -102,6 +104,7 @@ private:
     QString m_script;
     QVariantMap m_defaultPageSettings;
     FileSystem *m_filesystem;
+    System *m_system;
     QList<QPointer<WebPage> > m_pages;
     QList<QPointer<WebServer> > m_servers;
     Config m_config;

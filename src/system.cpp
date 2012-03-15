@@ -1,13 +1,7 @@
-/*jslint sloppy: true, nomen: true */
-/*global window:true,phantom:true */
-
 /*
   This file is part of the PhantomJS project from Ofi Labs.
 
-  Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
-  Copyright (C) 2011 Ivan De Marino <ivan.de.marino@gmail.com>
-  Copyright (C) 2011 James Roe <roejames12@hotmail.com>
-  Copyright (C) 2011 execjosh, http://execjosh.blogspot.com
+  Copyright (C) 2012 execjosh, http://execjosh.blogspot.com
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -33,27 +27,14 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-function require(name) {
+#include "system.h"
 
-    var code, func, exports;
-
-    if (name === 'webpage' || name === 'fs' || name === 'webserver' | name === 'system') {
-        code = phantom.loadModuleSource(name);
-        func = new Function("exports", "window", code);
-        exports = {};
-        if (name === 'fs') {
-            exports = phantom.createFilesystem();
-        } else if (name === 'system') {
-            exports = phantom.createSystem();
-        }
-        func.call({}, exports, {});
-        return exports;
-    }
-
-    if (typeof exports === 'undefined') {
-        throw 'Unknown module ' + name + ' for require()';
-    }
+System::System(QObject *parent) :
+    REPLCompletable(parent)
+{
 }
 
-// Legacy way to use WebPage
-window.WebPage = require('webpage').create;
+void System::initCompletions()
+{
+    addCompletion("platform");
+}

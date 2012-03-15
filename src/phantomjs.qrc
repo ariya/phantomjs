@@ -9,6 +9,7 @@
         <file>modules/webpage.js</file>
         <file>modules/webserver.js</file>
         <file>modules/fs.js</file>
+        <file>modules/system.js</file>
         <file>repl.js</file>
     </qresource>
 </RCC>

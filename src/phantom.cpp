@@ -42,6 +42,7 @@
 #include "webpage.h"
 #include "webserver.h"
 #include "repl.h"
+#include "system.h"
 
 
 // public:
@@ -50,6 +51,7 @@ Phantom::Phantom(QObject *parent)
     , m_terminated(false)
     , m_returnValue(0)
     , m_filesystem(0)
+    , m_system(0)
 {
     // second argument: script name
     QStringList args = QApplication::arguments();
@@ -237,6 +239,14 @@ QObject *Phantom::createFilesystem()
         m_filesystem = new FileSystem(this);
 
     return m_filesystem;
+}
+
+QObject *Phantom::createSystem()
+{
+    if (!m_system)
+        m_system = new System(this);
+
+    return m_system;
 }
 
 QString Phantom::loadModuleSource(const QString &name)

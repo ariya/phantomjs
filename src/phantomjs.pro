@@ -19,6 +19,7 @@ HEADERS += csconverter.h \
     networkaccessmanager.h \
     cookiejar.h \
     filesystem.h \
+    system.h \
     terminal.h \
     encoding.h \
     config.h \
@@ -34,6 +35,7 @@ SOURCES += phantom.cpp \
     networkaccessmanager.cpp \
     cookiejar.cpp \
     filesystem.cpp \
+    system.cpp \
     terminal.cpp \
     encoding.cpp \
     config.cpp \
