@@ -60,9 +60,7 @@ function require(name) {
 
     phantom.__defineSetter__('onError', function(f) {
         if (handler) {
-            try {
-                signal.disconnect(handler);
-            } catch (e) { console.log("got error") }
+            try { signal.disconnect(handler) } catch (e) {}
         }
         handler = f;
         signal.connect(f);
@@ -70,7 +68,7 @@ function require(name) {
 })();
 
 // TODO: Make this output to STDERR
-phantom.onError = function(error, backtrace) {
+phantom.defaultErrorHandler = function(error, backtrace) {
     console.log(error + "\n");
 
     backtrace.forEach(function(item) {
@@ -79,6 +77,8 @@ phantom.onError = function(error, backtrace) {
         console.log("  " + message);
     })
 }
+
+phantom.onError = phantom.defaultErrorHandler;
 
 // Legacy way to use WebPage
 window.WebPage = require('webpage').create;

@@ -123,6 +123,8 @@ exports.create = function (opts) {
 
     defineSetter("onError", "javaScriptErrorSent");
 
+    page.onError = phantom.defaultErrorHandler;
+
     page.open = function (url, arg1, arg2, arg3, arg4) {
         if (arguments.length === 1) {
             this.openUrl(url, 'get', this.settings);
