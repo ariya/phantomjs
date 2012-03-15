@@ -49,6 +49,13 @@ public:
     {
     }
 
+    ScriptSourceCode(const String& source, const String& url, const TextPosition1& startPosition = TextPosition1::minimumPosition())
+        : m_provider(StringSourceProvider::create(source, url, startPosition))
+        , m_code(m_provider, startPosition.m_line.oneBasedInt())
+        , m_url(KURL(ParsedURLString, url))
+    {
+    }
+
     ScriptSourceCode(CachedScript* cs)
         : m_provider(CachedScriptSourceProvider::create(cs))
         , m_code(m_provider)

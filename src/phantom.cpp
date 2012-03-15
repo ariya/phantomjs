@@ -301,7 +301,7 @@ void Phantom::onInitialized()
     // Bootstrap the PhantomJS scope
     m_page->mainFrame()->evaluateJavaScript(
         Utils::readResourceFileUtf8(":/bootstrap.js"),
-        QUrl("phantomjs://boostrap.js")
+        QString("phantomjs://bootstrap.js")
     );
 }
 

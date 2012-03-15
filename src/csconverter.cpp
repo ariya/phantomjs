@@ -50,7 +50,7 @@ CSConverter::CSConverter()
 {
     m_webPage.mainFrame()->evaluateJavaScript(
         Utils::readResourceFileUtf8(":/coffee-script.js"),
-        QUrl("phantomjs://coffee-script.js")
+        QString("phantomjs://coffee-script.js")
     );
     m_webPage.mainFrame()->addToJavaScriptWindowObject("converter", this);
 }
@@ -64,7 +64,7 @@ QVariant CSConverter::convert(const QString &script)
         "} catch (error) {" \
         "    [false, error.message];" \
         "}",
-        QUrl()
+        QString()
     );
     return result;
 }

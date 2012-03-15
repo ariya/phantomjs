@@ -292,7 +292,7 @@ QVariant WebPage::evaluate(const QString &code)
 {
     QString function = "(" + code + ")()";
     // TODO: use the proper URL
-    return m_mainFrame->evaluateJavaScript(function, QUrl("phantomjs://WebPage::evaluate"));
+    return m_mainFrame->evaluateJavaScript(function, QString("phantomjs://WebPage::evaluate"));
 }
 
 void WebPage::emitAlert(const QString &msg)
@@ -373,7 +373,7 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
         networkOp = QNetworkAccessManager::DeleteOperation;
 
     if (networkOp == QNetworkAccessManager::UnknownOperation) {
-        m_mainFrame->evaluateJavaScript("console.error('Unknown network operation: " + operation + "');", QUrl());
+        m_mainFrame->evaluateJavaScript("console.error('Unknown network operation: " + operation + "');", QString());
         return;
     }
 
@@ -622,7 +622,7 @@ bool WebPage::injectJs(const QString &jsFilePath) {
 }
 
 void WebPage::_appendScriptElement(const QString &scriptUrl) {
-    m_mainFrame->evaluateJavaScript( QString(JS_APPEND_SCRIPT_ELEMENT).arg(scriptUrl), QUrl(scriptUrl) );
+    m_mainFrame->evaluateJavaScript( QString(JS_APPEND_SCRIPT_ELEMENT).arg(scriptUrl), scriptUrl );
 }
 
 void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVariant &arg2)
