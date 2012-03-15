@@ -255,6 +255,7 @@ public:
     QWebInspector* inspector;
     bool inspectorIsInternalOnly; // True if created through the Inspect context menu action
     Qt::DropAction m_lastDropAction;
+    QWebPagePrivateDebugger* debugger;
 
     static bool drtRun;
 };

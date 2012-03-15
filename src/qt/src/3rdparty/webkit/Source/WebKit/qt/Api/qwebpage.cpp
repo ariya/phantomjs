@@ -473,7 +473,8 @@ QWebPagePrivate::QWebPagePrivate(QWebPage *qq)
     NotificationPresenterClientQt::notificationPresenter()->addClient();
 #endif
 
-    page->setDebugger(new QWebPagePrivateDebugger(q));
+    debugger = new QWebPagePrivateDebugger(q);
+    page->setDebugger(debugger);
 }
 
 QWebPagePrivate::~QWebPagePrivate()
@@ -491,6 +492,7 @@ QWebPagePrivate::~QWebPagePrivate()
 #endif
     delete settings;
     delete page;
+    delete debugger;
     
     if (inspector)
         inspector->setPage(0);
