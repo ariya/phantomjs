@@ -1,16 +1,17 @@
-var page = require('webpage').create();
+var page = require('webpage').create(),
+    system = require('system');
 
-if (phantom.args.length < 6) {
+if (system.args.length < 7) {
     console.log('Usage: printmargins.js URL filename LEFT TOP RIGHT BOTTOM');
     console.log('  margin examples: "1cm", "10px", "7mm", "5in"');
     phantom.exit();
 } else {
-    var address = phantom.args[0];
-    var output = phantom.args[1];
-    var marginLeft = phantom.args[2];
-    var marginTop = phantom.args[3];
-    var marginRight = phantom.args[4];
-    var marginBottom = phantom.args[5];
+    var address = system.args[1];
+    var output = system.args[2];
+    var marginLeft = system.args[3];
+    var marginTop = system.args[4];
+    var marginRight = system.args[5];
+    var marginBottom = system.args[6];
     page.viewportSize = { width: 600, height: 600 };
     page.paperSize = {
         format: 'A4',
