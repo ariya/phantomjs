@@ -223,6 +223,12 @@ describe("WebPage object", function() {
             expect(message).toEqual("answer 42");
         });
     });
+
+    it("should not load any NPAPI plugins (e.g. Flash)", function() {
+        runs(function() {
+            expect(page.evaluate(function () { return window.navigator.plugins.length })).toEqual(0);
+        });
+    });
 });
 
 describe("WebPage construction with options", function () {
