@@ -96,6 +96,9 @@ contains(DEFINES, ENABLE_SINGLE_THREADED=1) {
 # Tiled Backing Store support
 !contains(DEFINES, ENABLE_TILED_BACKING_STORE=.): DEFINES += ENABLE_TILED_BACKING_STORE=1
 
+# Always disable NPAPI
+DEFINES += ENABLE_NETSCAPE_PLUGIN_API=0
+
 # Nescape plugins support (NPAPI)
 !contains(DEFINES, ENABLE_NETSCAPE_PLUGIN_API=.) {
     unix|win32-*:!embedded:!wince*: {
