@@ -34,8 +34,8 @@
 
 #include <QApplication>
 
-#if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
-#error Use Qt 4.7 or later version
+#if QT_VERSION != QT_VERSION_CHECK(4, 8, 0)
+#error Something is wrong with the setup. Please report to the mailing list!
 #endif
 
 int main(int argc, char** argv, const char** envp)
