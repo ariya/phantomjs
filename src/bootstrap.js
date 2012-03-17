@@ -34,7 +34,6 @@
 */
 
 function require(name) {
-
     var code, func, exports;
 
     if (name === 'webpage' || name === 'fs' || name === 'webserver' || name === 'system') {
@@ -54,6 +53,36 @@ function require(name) {
         throw 'Unknown module ' + name + ' for require()';
     }
 }
+
+(function() {
+    var handler;
+    var signal = phantom.page.javaScriptErrorSent;
+
+    phantom.__defineSetter__('onError', function(f) {
+        if (handler && typeof handler === 'function') {
+            try { signal.disconnect(handler) } catch (e) {}
+        }
+
+        handler = f;
+
+        if (typeof f === 'function') {
+            signal.connect(f);
+        }
+    })
+})();
+
+// TODO: Make this output to STDERR
+phantom.defaultErrorHandler = function(error, backtrace) {
+    console.log(error + "\n");
+
+    backtrace.forEach(function(item) {
+        var message = item.file + ":" + item.line;
+        if (item.function) message += " in " + item.function
+        console.log("  " + message);
+    })
+}
+
+phantom.onError = phantom.defaultErrorHandler;
 
 // Legacy way to use WebPage
 window.WebPage = require('webpage').create;

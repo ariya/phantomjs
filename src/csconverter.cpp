@@ -48,17 +48,23 @@ CSConverter *CSConverter::instance()
 CSConverter::CSConverter()
     : QObject(QCoreApplication::instance())
 {
-    m_webPage.mainFrame()->evaluateJavaScript(Utils::readResourceFileUtf8(":/coffee-script.js"));
+    m_webPage.mainFrame()->evaluateJavaScript(
+        Utils::readResourceFileUtf8(":/coffee-script.js"),
+        QString("phantomjs://coffee-script.js")
+    );
     m_webPage.mainFrame()->addToJavaScriptWindowObject("converter", this);
 }
 
 QVariant CSConverter::convert(const QString &script)
 {
     setProperty("source", script);
-    QVariant result = m_webPage.mainFrame()->evaluateJavaScript("try {" \
-                                                                "    [true, this.CoffeeScript.compile(converter.source)];" \
-                                                                "} catch (error) {" \
-                                                                "    [false, error.message];" \
-                                                                "}");
+    QVariant result = m_webPage.mainFrame()->evaluateJavaScript(
+        "try {" \
+        "    [true, this.CoffeeScript.compile(converter.source)];" \
+        "} catch (error) {" \
+        "    [false, error.message];" \
+        "}",
+        QString()
+    );
     return result;
 }
