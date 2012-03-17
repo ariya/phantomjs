@@ -30,4 +30,9 @@ describe("Files and Directories API", function() {
 		fs.removeTree(TEST_DIR);
 		expect(fs.changeWorkingDirectory(START_CWD)).toBeTruthy();
 	});
+
+    // TODO: test the actual functionality once we can create symlink.
+    it("should have readLink function", function() {
+        expect(typeof fs.readLink).toEqual('function');
+    });
 });

@@ -220,6 +220,12 @@ QVariant FileSystem::lastModified(const QString &path) const
     return QVariant(QDateTime());
 }
 
+// Links
+QString FileSystem::readLink(const QString &path) const
+{
+    return QFileInfo(path).symLinkTarget();
+}
+
 // Tests
 bool FileSystem::exists(const QString &path) const
 {
@@ -446,6 +452,7 @@ void FileSystem::initCompletions()
     // functions
     addCompletion("list");
     addCompletion("absolute");
+    addCompletion("readLink");
     addCompletion("exists");
     addCompletion("isDirectory");
     addCompletion("isFile");

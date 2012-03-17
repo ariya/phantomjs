@@ -116,6 +116,9 @@ public slots:
     bool changeWorkingDirectory(const QString &path) const;
     QString absolute(const QString &relativePath) const;
 
+    // Links
+    QString readLink(const QString &path) const;
+
     // Tests
     bool exists(const QString &path) const;
     bool isDirectory(const QString &path) const;
