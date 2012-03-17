@@ -200,7 +200,7 @@ public:
     QWebSecurityOrigin securityOrigin() const;
 
 public Q_SLOTS:
-    QVariant evaluateJavaScript(const QString& scriptSource);
+    QVariant evaluateJavaScript(const QString& scriptSource, const QString& file);
 #ifndef QT_NO_PRINTER
     void print(QPrinter *printer) const;
 #endif

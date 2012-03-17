@@ -102,6 +102,7 @@ signals:
     void loadFinished(const QString &status);
     void javaScriptAlertSent(const QString &msg);
     void javaScriptConsoleMessageSent(const QString &message, int lineNumber, const QString &source);
+    void javaScriptErrorSent(const QString &message, const QVariantList &backtrace);
     void resourceRequested(const QVariant &req);
     void resourceReceived(const QVariant &resource);
 
@@ -116,6 +117,7 @@ private:
 
     void emitAlert(const QString &msg);
     void emitConsoleMessage(const QString &msg, int lineNumber, const QString &source);
+    void emitError(const QWebPage::JavaScriptError& error);
 
     virtual void initCompletions();
 

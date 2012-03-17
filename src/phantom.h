@@ -52,6 +52,7 @@ class Phantom: public REPLCompletable
     Q_PROPERTY(QString outputEncoding READ outputEncoding WRITE setOutputEncoding)
     Q_PROPERTY(QString scriptName READ scriptName)
     Q_PROPERTY(QVariantMap version READ version)
+    Q_PROPERTY(QObject *page READ page)
 
 public:
     Phantom(QObject *parent = 0);
@@ -73,6 +74,8 @@ public:
     QString scriptName() const;
 
     QVariantMap version() const;
+
+    QObject* page() const;
 
 public slots:
     QObject *createWebPage();
