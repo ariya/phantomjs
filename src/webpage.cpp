@@ -89,7 +89,10 @@ protected:
     }
 
     void javaScriptConsoleMessage(const QString &message, int lineNumber, const QString &sourceID) {
-        m_webPage->emitConsoleMessage(message, lineNumber, sourceID);
+        Q_UNUSED(lineNumber);
+        Q_UNUSED(sourceID);
+
+        m_webPage->emitConsoleMessage(message);
     }
 
     void javaScriptError(const QWebPage::JavaScriptError& error) {
@@ -299,9 +302,9 @@ void WebPage::emitAlert(const QString &msg)
     emit javaScriptAlertSent(msg);
 }
 
-void WebPage::emitConsoleMessage(const QString &message, int lineNumber, const QString &source)
+void WebPage::emitConsoleMessage(const QString &message)
 {
-    emit javaScriptConsoleMessageSent(message, lineNumber, source);
+    emit javaScriptConsoleMessageSent(message);
 }
 
 void WebPage::emitError(const QWebPage::JavaScriptError& error)

@@ -107,8 +107,8 @@ Phantom::Phantom(QObject *parent)
     // Set script file encoding
     m_scriptFileEnc.setEncoding(m_config.scriptEncoding());
 
-    connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString, int, QString)),
-            SLOT(printConsoleMessage(QString, int, QString)));
+    connect(m_page, SIGNAL(javaScriptConsoleMessageSent(QString)),
+            SLOT(printConsoleMessage(QString)));
     connect(m_page, SIGNAL(initialized()),
             SLOT(onInitialized()));
 
@@ -288,7 +288,7 @@ void Phantom::debugExit(int code)
 }
 
 // private slots:
-void Phantom::printConsoleMessage(const QString &message, int lineNumber, const QString &source)
+void Phantom::printConsoleMessage(const QString &message)
 {
     Terminal::instance()->cout(message);
 }
