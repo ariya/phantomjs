@@ -295,6 +295,7 @@ static inline Qt::DropAction dragOpToDropAction(unsigned actions)
 
 QWebPagePrivateDebugger::QWebPagePrivateDebugger(QWebPage* page)
   : m_webPage(page)
+  , m_stackDepth(0)
 {
 }
 
@@ -312,14 +313,14 @@ void QWebPagePrivateDebugger::sourceParsed(JSC::ExecState*, JSC::SourceProvider*
 
 void QWebPagePrivateDebugger::exception(const JSC::DebuggerCallFrame& frame, intptr_t sourceID, int lineNumber, bool hasHandler)
 {
-    if (!hasHandler) {
-        reportError(frame.exception());
-    }
+    m_exceptionFrame = m_callFrame;
 }
 
 void QWebPagePrivateDebugger::reportError(const JSC::JSValue& exception)
 {
-    WTF::RefPtr<WebCore::JavaScriptCallFrame> frame = m_callFrame;
+    if (!m_exceptionFrame) return;
+
+    WTF::RefPtr<WebCore::JavaScriptCallFrame> frame = m_exceptionFrame;
 
     JSC::ExecState* exec = frame->dynamicGlobalObject()->globalExec();
     JSC::UString message = exception.toString(exec);
@@ -345,6 +346,7 @@ void QWebPagePrivateDebugger::reportError(const JSC::JSValue& exception)
     }
 
     m_webPage->javaScriptError(QWebPage::JavaScriptError(qmessage, qbacktrace));
+    m_exceptionFrame = 0;
 }
 
 void QWebPagePrivateDebugger::atStatement(const JSC::DebuggerCallFrame& frame, intptr_t sourceID, int lineNumber)
@@ -357,9 +359,9 @@ void QWebPagePrivateDebugger::callEvent(const JSC::DebuggerCallFrame& frame, int
     stepIn(frame, sourceID, lineNumber);
 }
 
-void QWebPagePrivateDebugger::returnEvent(const JSC::DebuggerCallFrame&, intptr_t sourceID, int lineNumber)
+void QWebPagePrivateDebugger::returnEvent(const JSC::DebuggerCallFrame& frame, intptr_t sourceID, int lineNumber)
 {
-    stepOut();
+    stepOut(frame);
 }
 
 void QWebPagePrivateDebugger::willExecuteProgram(const JSC::DebuggerCallFrame& frame, intptr_t sourceID, int lineNumber)
@@ -367,9 +369,16 @@ void QWebPagePrivateDebugger::willExecuteProgram(const JSC::DebuggerCallFrame& f
     stepIn(frame, sourceID, lineNumber);
 }
 
-void QWebPagePrivateDebugger::didExecuteProgram(const JSC::DebuggerCallFrame&, intptr_t sourceID, int lineNumber)
+void QWebPagePrivateDebugger::didExecuteProgram(const JSC::DebuggerCallFrame& frame, intptr_t sourceID, int lineNumber)
 {
-    stepOut();
+    stepOut(frame);
+
+    // If there is still an exception present at the end of the program, then it hasn't
+    // been caught and we should report it.
+    JSC::JSValue exception = frame.exception();
+    if (exception) {
+        reportError(exception);
+    }
 }
 
 void QWebPagePrivateDebugger::didReachBreakpoint(const JSC::DebuggerCallFrame&, intptr_t sourceID, int lineNumber)
@@ -379,6 +388,7 @@ void QWebPagePrivateDebugger::didReachBreakpoint(const JSC::DebuggerCallFrame&, 
 void QWebPagePrivateDebugger::stepIn(const JSC::DebuggerCallFrame& frame, intptr_t sourceID, int lineNumber)
 {
     m_callFrame = WebCore::JavaScriptCallFrame::create(frame, m_callFrame, sourceID, textPosition(lineNumber));
+    m_stackDepth++;
 }
 
 void QWebPagePrivateDebugger::stepOver(const JSC::DebuggerCallFrame& frame, intptr_t sourceID, int lineNumber)
@@ -386,11 +396,22 @@ void QWebPagePrivateDebugger::stepOver(const JSC::DebuggerCallFrame& frame, intp
     m_callFrame->update(frame, sourceID, textPosition(lineNumber));
 }
 
-void QWebPagePrivateDebugger::stepOut()
+void QWebPagePrivateDebugger::stepOut(const JSC::DebuggerCallFrame& frame)
 {
     m_callFrame = m_callFrame->caller();
-}
+    m_stackDepth--;
 
+    // Sometimes an exception can occur without didExecuteProgram() firing.
+    // For example when a setTimeout callback fires. So if the stack is empty
+    // and there is still an exception present, we report it.
+    if (m_stackDepth == 0) {
+        JSC::JSValue exception = frame.exception();
+
+        if (exception) {
+            reportError(exception);
+        }
+    }
+}
 
 QWebPagePrivate::QWebPagePrivate(QWebPage *qq)
     : q(qq)
