@@ -229,6 +229,52 @@ describe("WebPage object", function() {
             expect(page.evaluate(function () { return window.navigator.plugins.length })).toEqual(0);
         });
     });
+
+    it("reports unhandled errors", function() {
+        var hadError = false;
+
+        runs(function() {
+            page = new require('webpage').create();
+            page.onError = function() { hadError = true };
+            page.evaluate(function() {
+              setTimeout(function() { referenceError }, 0)
+            });
+        });
+
+        waits(0);
+
+        runs(function() {
+            expect(hadError).toEqual(true);
+        });
+    })
+
+    it("doesn't report handled errors", function() {
+        var hadError    = false;
+        var caughtError = false;
+
+        page = new require('webpage').create();
+
+        runs(function() {
+            page.onError = function() { hadError = true };
+            page.evaluate(function() {
+                caughtError = false;
+                setTimeout(function() {
+                    try {
+                        referenceError
+                    } catch(e) {
+                        caughtError = true;
+                    }
+                }, 0)
+            });
+        });
+
+        waits(0);
+
+        runs(function() {
+            expect(hadError).toEqual(false);
+            expect(page.evaluate(function() { return caughtError })).toEqual(true);
+        });
+    })
 });
 
 describe("WebPage construction with options", function () {
