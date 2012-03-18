@@ -93,7 +93,7 @@ signals:
     void aboutToExit(int code);
 
 private slots:
-    void printConsoleMessage(const QString &msg, int lineNumber, const QString &source);
+    void printConsoleMessage(const QString &msg);
 
     void onInitialized();
 private:
