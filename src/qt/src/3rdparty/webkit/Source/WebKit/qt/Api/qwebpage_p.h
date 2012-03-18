@@ -106,7 +106,7 @@ public:
 private:
     void stepIn(const JSC::DebuggerCallFrame& frame, intptr_t sourceID, int lineNumber);
     void stepOver(const JSC::DebuggerCallFrame& frame, intptr_t sourceID, int lineNumber);
-    void stepOut();
+    void stepOut(const JSC::DebuggerCallFrame& frame);
     void reportError(const JSC::JSValue& exception);
 
     WTF::TextPosition0 textPosition(int lineNumber)
@@ -116,6 +116,8 @@ private:
     }
 
     RefPtr<WebCore::JavaScriptCallFrame> m_callFrame;
+    RefPtr<WebCore::JavaScriptCallFrame> m_exceptionFrame;
+    int m_stackDepth;
     QWebPage* m_webPage;
 };
 
