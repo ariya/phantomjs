@@ -172,7 +172,7 @@ bool WebServer::handleRequest(mg_event event, mg_connection *conn, const mg_requ
 
     QByteArray uri(request->uri);
     if (uri.startsWith('/'))
-        uri = '/' + QUrl::toPercentEncoding(QString::fromLatin1(request->uri + 1));
+        uri = '/' + QUrl::toPercentEncoding(QString::fromLatin1(request->uri + 1), "/?&#");
     if (request->query_string)
         uri.append('?').append(QByteArray(request->query_string));
     requestObject["url"] = uri.data();
