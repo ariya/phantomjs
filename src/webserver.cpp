@@ -38,6 +38,7 @@
 #include <QThread>
 #include <QUrl>
 #include <QVector>
+#include <QDebug>
 
 namespace UrlEncodedParser {
 
@@ -204,9 +205,12 @@ bool WebServer::handleRequest(mg_event event, mg_connection *conn, const mg_requ
             char * data = new char[contentLength];
             int read = mg_read(conn, data, contentLength);
             QByteArray rawData(data, read);
-            requestObject["rawData"] = rawData;
+            requestObject["rawData"] = QVariant(rawData);
+            // Check if the 'Content-Type' requires decoding
             if (headersObject["Content-Type"] == "application/x-www-form-urlencoded") {
                 requestObject["post"] = UrlEncodedParser::parse(rawData);
+            } else {
+                requestObject["post"] = QVariant(rawData);
             }
             delete[] data;
         }
@@ -372,6 +376,7 @@ void WebServerResponse::writeHead(int statusCode, const QVariantMap &headers)
     mg_printf(m_conn, "HTTP/1.1 %d %s\r\n", m_statusCode, responseCodeString(m_statusCode));
     QVariantMap::const_iterator it = headers.constBegin();
     while(it != headers.constEnd()) {
+        qDebug() << "Response Header key:" << it.key() << "value:" << it.value().toString();
         mg_printf(m_conn, "%s: %s\r\n", qPrintable(it.key()), qPrintable(it.value().toString()));
         ++it;
     }
