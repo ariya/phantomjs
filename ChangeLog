@@ -27,7 +27,9 @@ Please see also http://code.google.com/p/phantomjs/wiki/ReleaseNotes.
       * Fixed the web server instance to be asynchronous (issue 326) and still support Keep Alive (issue 416)
       * Workaround Qt 4.8.0 crash due to empty URL scheme (issue 365)
       * Fixed a Content-Type problem where POST does not work (issue 337)
+      * Fixed reading body request in the web server even without specific Content-Type (issue 439)
       * Fixed Jasmine test runner with Jasmine 1.1 (issue 402)
+      * Fixed request URL formatting in the web server (issue 437)
       * Don't display debugging and warning messages (issue 323)
 
 2011-12-31: Version 1.4.1
