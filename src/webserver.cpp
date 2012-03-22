@@ -195,24 +195,34 @@ bool WebServer::handleRequest(mg_event event, mg_connection *conn, const mg_requ
     }
     requestObject["headers"] = headersObject;
 
-    if ((requestObject["method"] == "POST" || requestObject["method"] == "PUT")
-        && headersObject.contains("Content-Length"))
-    {
-        bool ok = false;
-        uint contentLength = headersObject["Content-Length"].toUInt(&ok);
-        if (ok) {
-            contentLength += 1; // allow \0 at end
-            char * data = new char[contentLength];
+    // Read request body ONLY for POST and PUT, and ONLY if the "Content-Length" is provided
+    if ((requestObject["method"] == "POST" || requestObject["method"] == "PUT") && headersObject.contains("Content-Length")) {
+        bool contentLengthKnown = false;
+        uint contentLength = headersObject["Content-Length"].toUInt(&contentLengthKnown);
+
+        qDebug() << "HTTP Request - Method POST/PUT";
+
+        // Proceed only if we were able to read the "Content-Length"
+        if (contentLengthKnown) {
+            qDebug() << "HTTP Request - 'Content-Length'" << qPrintable(contentLengthKnown);
+
+            ++contentLength; //< make space for null termination
+            char *data = new char[contentLength];
             int read = mg_read(conn, data, contentLength);
-            QByteArray rawData(data, read);
-            requestObject["rawData"] = QVariant(rawData);
+            data[read] = '\0'; //< adding null termination (no arm if it's already there)
+
+            qDebug() << "HTTP Request - Content Body:" << qPrintable(data);
+
             // Check if the 'Content-Type' requires decoding
             if (headersObject["Content-Type"] == "application/x-www-form-urlencoded") {
-                requestObject["post"] = UrlEncodedParser::parse(rawData);
+                requestObject["post"] = UrlEncodedParser::parse(QByteArray(data, read));
+                requestObject["postRaw"] = QString::fromLocal8Bit(data, read);
             } else {
-                requestObject["post"] = QVariant(rawData);
+                requestObject["post"] = QString::fromLocal8Bit(data, read);
             }
             delete[] data;
+        } else {
+            qWarning() << "HTTP Request - Malformed 'Content-Length'";
         }
     }
 
@@ -376,7 +386,7 @@ void WebServerResponse::writeHead(int statusCode, const QVariantMap &headers)
     mg_printf(m_conn, "HTTP/1.1 %d %s\r\n", m_statusCode, responseCodeString(m_statusCode));
     QVariantMap::const_iterator it = headers.constBegin();
     while(it != headers.constEnd()) {
-        qDebug() << "Response Header key:" << it.key() << "value:" << it.value().toString();
+        qDebug() << "HTTP Response - Sending Header" << it.key() << "=" << it.value().toString();
         mg_printf(m_conn, "%s: %s\r\n", qPrintable(it.key()), qPrintable(it.value().toString()));
         ++it;
     }
