@@ -4,7 +4,7 @@ QT += network webkit
 CONFIG += console
 
 # Comment to enable Debug Messages
-DEFINES += QT_NO_DEBUG_OUTPUT
+DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
 
 DESTDIR = ../bin
 
