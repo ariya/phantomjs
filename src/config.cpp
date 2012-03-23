@@ -74,14 +74,6 @@ void Config::processArgs(const QStringList &args)
             setAutoLoadImages(false);
             continue;
         }
-        if (arg == "--load-plugins=yes") {
-            setPluginsEnabled(true);
-            continue;
-        }
-        if (arg == "--load-plugins=no") {
-            setPluginsEnabled(false);
-            continue;
-        }
         if (arg == "--disk-cache=yes") {
             setDiskCacheEnabled(true);
             continue;
@@ -282,16 +274,6 @@ void Config::setOutputEncoding(const QString &value)
     m_outputEncoding = value;
 }
 
-bool Config::pluginsEnabled() const
-{
-    return m_pluginsEnabled;
-}
-
-void Config::setPluginsEnabled(const bool value)
-{
-    m_pluginsEnabled = value;
-}
-
 QString Config::proxyType() const
 {
     return m_proxyType;
@@ -473,7 +455,6 @@ void Config::resetToDefaults()
     m_ignoreSslErrors = false;
     m_localToRemoteUrlAccessEnabled = false;
     m_outputEncoding = "UTF-8";
-    m_pluginsEnabled = false;
     m_proxyType = "http";
     m_proxyHost.clear();
     m_proxyPort = 1080;

@@ -44,7 +44,6 @@ class Config: QObject
     Q_PROPERTY(bool ignoreSslErrors READ ignoreSslErrors WRITE setIgnoreSslErrors)
     Q_PROPERTY(bool localToRemoteUrlAccessEnabled READ localToRemoteUrlAccessEnabled WRITE setLocalToRemoteUrlAccessEnabled)
     Q_PROPERTY(QString outputEncoding READ outputEncoding WRITE setOutputEncoding)
-    Q_PROPERTY(bool pluginsEnabled READ pluginsEnabled WRITE setPluginsEnabled)
     Q_PROPERTY(QString proxyType READ proxyType WRITE setProxyType)
     Q_PROPERTY(QString proxy READ proxy WRITE setProxy)
     Q_PROPERTY(QString proxyAuth READ proxyAuth WRITE setProxyAuth)
@@ -78,9 +77,6 @@ public:
 
     QString outputEncoding() const;
     void setOutputEncoding(const QString &value);
-
-    bool pluginsEnabled() const;
-    void setPluginsEnabled(const bool value);
 
     QString proxyType() const;
     void setProxyType(const QString value);
@@ -141,7 +137,6 @@ private:
     bool m_ignoreSslErrors;
     bool m_localToRemoteUrlAccessEnabled;
     QString m_outputEncoding;
-    bool m_pluginsEnabled;
     QString m_proxyType;
     QString m_proxyHost;
     int m_proxyPort;
