@@ -31,13 +31,19 @@ function checkRequest(request, response) {
     if (expectedPostData !== false) {
         expect(request.method).toEqual("POST");
         expect(request.hasOwnProperty('post')).toBeTruthy();
-        expect(typeof request.post).toEqual('object');
-        console.log(JSON.stringify(request.post, null, 4));
-        console.log(JSON.stringify(expectedPostData, null, 4));
-        console.log(JSON.stringify(request.headersappl, null, 4));
-        expect(request.post).toEqual(expectedPostData);
-        expect(request.hasOwnProperty('rawData')).toBeTruthy();
-        expect(typeof request.rawData).toEqual('object');
+        console.log("request.post => " + JSON.stringify(request.post, null, 4));
+        console.log("expectedPostData => " + JSON.stringify(expectedPostData, null, 4));
+        console.log("request.headers => " + JSON.stringify(request.headers, null, 4));
+        if (request.headers["Content-Type"] && request.headers["Content-Type"] === "application/x-www-form-urlencoded") {
+            expect(typeof request.post).toEqual('object');
+            expect(request.post).toEqual(expectedPostData);
+            expect(request.hasOwnProperty('postRaw')).toBeTruthy();
+            expect(typeof request.postRaw).toEqual('string');
+        } else {
+            expect(typeof request.post).toEqual('string');
+            expect(request.post).toNotEqual(expectedPostData);
+            expect(request.hasOwnProperty('postRaw')).toBeFalsy();
+        }
         expectedPostData = false;
     }
 
@@ -83,7 +89,7 @@ describe("WebServer object", function() {
     });
     it("should be able to listen to some port", function() {
         //NOTE: this can fail if the port is already being listend on...
-        expect(server.listen(12345, checkRequest)).toEqual(true);
+        expect(server.listen("12345", checkRequest)).toEqual(true);
         expect(server.port).toEqual("12345");
     });
 
@@ -107,7 +113,7 @@ describe("WebServer object", function() {
         });
     });
 
-    it("should handle post requests", function() {
+    it("should handle post requests ('Content-Type' = 'application/x-www-form-urlencoded')", function() {
         var page = require('webpage').create();
         var url = "http://localhost:12345/foo/bar.txt?asdf=true";
         //note: sorted by key (map)
@@ -115,7 +121,29 @@ describe("WebServer object", function() {
         var handled = false;
         runs(function() {
             expect(handled).toEqual(false);
-            page.open(url, 'post', "universe=expanding&answer=42", function (status) {
+            page.open(url, 'post', "universe=expanding&answer=42", { "Content-Type" : "application/x-www-form-urlencoded" }, function (status) {
+                expect(status == 'success').toEqual(true);
+                expect(page.plainText).toEqual("request handled");
+                handled = true;
+            });
+        });
+
+        waits(50);
+
+        runs(function() {
+            expect(handled).toEqual(true);
+        });
+    });
+
+    it("should handle post requests ('Content-Type' = 'ANY')", function() {
+        var page = require('webpage').create();
+        var url = "http://localhost:12345/foo/bar.txt?asdf=true";
+        //note: sorted by key (map)
+        expectedPostData = {'answer' : "42", 'universe' : "expanding"};
+        var handled = false;
+        runs(function() {
+            expect(handled).toEqual(false);
+            page.open(url, 'post', "universe=expanding&answer=42", { "Content-Type" : "application/json;charset=UTF-8" }, function (status) {
                 expect(status == 'success').toEqual(true);
                 expect(page.plainText).toEqual("request handled");
                 handled = true;

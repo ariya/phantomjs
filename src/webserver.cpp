@@ -191,6 +191,7 @@ bool WebServer::handleRequest(mg_event event, mg_connection *conn, const mg_requ
     for (int i = 0; i < request->num_headers; ++i) {
         QString key = QString::fromLocal8Bit(request->http_headers[i].name);
         QString value = QString::fromLocal8Bit(request->http_headers[i].value);
+        qDebug() << "HTTP Request - Receiving Header" << key << "=" << value;
         headersObject[key] = value;
     }
     requestObject["headers"] = headersObject;
@@ -204,8 +205,6 @@ bool WebServer::handleRequest(mg_event event, mg_connection *conn, const mg_requ
 
         // Proceed only if we were able to read the "Content-Length"
         if (contentLengthKnown) {
-            qDebug() << "HTTP Request - 'Content-Length'" << qPrintable(contentLengthKnown);
-
             ++contentLength; //< make space for null termination
             char *data = new char[contentLength];
             int read = mg_read(conn, data, contentLength);
@@ -406,6 +405,12 @@ void WebServerResponse::write(const QString &body)
 void WebServerResponse::close()
 {
     m_close->release();
+}
+
+void WebServerResponse::closeGracefully()
+{
+    write("");
+    close();
 }
 
 int WebServerResponse::statusCode() const

@@ -158,6 +158,14 @@ exports.create = function (opts) {
                 data: arg2
             }, this.settings);
             return;
+        } else if (arguments.length === 5) {
+            this.onLoadFinished = arg4;
+            this.openUrl(url, {
+                operation: arg1,
+                data: arg2,
+                headers : arg3
+            }, this.settings);
+            return;
         }
         throw "Wrong use of WebPage#open";
     };

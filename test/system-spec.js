@@ -23,7 +23,7 @@ describe("System object", function() {
     });
 
     it("should have args[0] as the this test runner", function() {
-        expect(system.args[0]).toEqual('run-tests.js');
+        expect(system.args[0]).toMatch(/run-tests.js$/);
     });
 
     it("should have env as object", function() {

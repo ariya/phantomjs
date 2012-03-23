@@ -45,6 +45,7 @@
 #include <QWebFrame>
 #include <QWebPage>
 #include <QWebInspector>
+#include <QMapIterator>
 
 #include "networkaccessmanager.h"
 #include "utils.h"
@@ -346,6 +347,7 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
 {
     QString operation;
     QByteArray body;
+    QNetworkRequest request;
 
     applySettings(settings);
     m_webPage->triggerAction(QWebPage::Stop);
@@ -356,6 +358,13 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
     if (op.type() == QVariant::Map) {
         operation = op.toMap().value("operation").toString();
         body = op.toMap().value("data").toByteArray();
+        if (op.toMap().contains("headers")) {
+            QMapIterator<QString, QVariant> i(op.toMap().value("headers").toMap());
+            while (i.hasNext()) {
+                i.next();
+                request.setRawHeader(i.key().toUtf8(), i.value().toString().toUtf8());
+            }
+        }
     }
 
     if (operation.isEmpty())
@@ -391,8 +400,8 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
             url.setScheme("file");
         }
 #endif
-
-        m_mainFrame->load(QNetworkRequest(url), networkOp, body);
+        request.setUrl(url);
+        m_mainFrame->load(request, networkOp, body);
     }
 }
 
