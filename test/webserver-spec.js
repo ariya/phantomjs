@@ -32,12 +32,14 @@ function checkRequest(request, response) {
         expect(request.method).toEqual("POST");
         expect(request.hasOwnProperty('post')).toBeTruthy();
         expect(typeof request.post).toEqual('object');
-        console.log(JSON.stringify(request.post, null, 4));
-        console.log(JSON.stringify(expectedPostData, null, 4));
-        console.log(JSON.stringify(request.headersappl, null, 4));
+        console.log("request.post => " + JSON.stringify(request.post, null, 4));
+        console.log("expectedPostData => " + JSON.stringify(expectedPostData, null, 4));
+        console.log("request.headers => " + JSON.stringify(request.headers, null, 4));
         expect(request.post).toEqual(expectedPostData);
-        expect(request.hasOwnProperty('rawData')).toBeTruthy();
-        expect(typeof request.rawData).toEqual('object');
+        if (request.headers["Content-Type"] && request.headers["Content-Type"] === "application/x-www-form-urlencoded") {
+            expect(request.hasOwnProperty('postRaw')).toBeTruthy();
+            expect(typeof request.postRaw).toEqual('string');
+        }
         expectedPostData = false;
     }
 
@@ -83,7 +85,7 @@ describe("WebServer object", function() {
     });
     it("should be able to listen to some port", function() {
         //NOTE: this can fail if the port is already being listend on...
-        expect(server.listen(12345, checkRequest)).toEqual(true);
+        expect(server.listen("12345", checkRequest)).toEqual(true);
         expect(server.port).toEqual("12345");
     });
 
