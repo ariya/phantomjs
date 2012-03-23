@@ -52,7 +52,6 @@
     "document.body.appendChild(el);"
 
 #define PAGE_SETTINGS_LOAD_IMAGES           "loadImages"
-#define PAGE_SETTINGS_LOAD_PLUGINS          "loadPlugins"
 #define PAGE_SETTINGS_JS_ENABLED            "javascriptEnabled"
 #define PAGE_SETTINGS_XSS_AUDITING          "XSSAuditingEnabled"
 #define PAGE_SETTINGS_USER_AGENT            "userAgent"
