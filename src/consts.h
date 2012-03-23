@@ -32,11 +32,11 @@
 #ifndef CONSTS_H
 #define CONSTS_H
 
-// Current Version: 1.5.0
+// Current Version: 1.6.0
 #define PHANTOMJS_VERSION_MAJOR     1
-#define PHANTOMJS_VERSION_MINOR     5
+#define PHANTOMJS_VERSION_MINOR     6
 #define PHANTOMJS_VERSION_PATCH     0
-#define PHANTOMJS_VERSION_STRING    "1.5.0"
+#define PHANTOMJS_VERSION_STRING    "1.6.0 (development)"
 
 #define COFFEE_SCRIPT_EXTENSION     ".coffee"
 
