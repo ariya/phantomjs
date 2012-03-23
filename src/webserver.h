@@ -129,6 +129,9 @@ public slots:
      */
     void close();
 
+    /// Same as 'close()', but ensures response headers have been sent first
+    void closeGracefully();
+
     /// get the currently set status code, 200 is the default
     int statusCode() const;
     /// set the status code to @p code
