@@ -1,0 +1,88 @@
+#!/bin/sh
+
+SUCCESS=no
+QMKSPEC=$1
+XPLATFORM=`basename "$1"`
+QMAKE_CONFIG=$2
+VERBOSE=$3
+SRCDIR=$4
+OUTDIR=$5
+TEST=$6
+EXE=`basename "$6"`
+DESCRIPTION=$7
+shift 7
+LFLAGS="$SYSROOT_FLAG"
+INCLUDEPATH=""
+CXXFLAGS="$SYSROOT_FLAG"
+MAC_ARCH_CXXFLAGS=""
+MAC_ARCH_LFLAGS=""
+while [ "$#" -gt 0 ]; do
+    PARAM=$1
+    case $PARAM in
+    -framework)
+        LFLAGS="$LFLAGS -framework \"$2\""
+        shift
+        ;;
+    -arch)
+        MAC_ARCH_CXXFLAGS="$MAC_ARCH_CXXFLAGS -arch $2"
+        MAC_ARCH_LFLAGS="$MAC_ARCH_LFLAGS -arch $2"
+        shift
+        ;;
+    -sdk)
+        LFLAGS="$LFLAGS -Wl,-syslibroot,$2"
+        CXXFLAGS="$CXXFLAGS -isysroot $2"
+        shift
+        ;;
+    -F*|-m*|-x*)
+        LFLAGS="$LFLAGS $PARAM"
+        CXXFLAGS="$CXXFLAGS $PARAM"
+        ;;
+    -L*|-l*|-pthread)
+	LFLAGS="$LFLAGS $PARAM"
+	;;
+    -I*)
+        INC=`echo $PARAM | sed -e 's/^-I//'`
+        INCLUDEPATH="$INCLUDEPATH $INC"
+        ;;
+    -f*|-D*)
+        CXXFLAGS="$CXXFLAGS $PARAM"
+        ;;
+    -Qoption)
+	# Two-argument form for the Sun Compiler
+	CXXFLAGS="$CXXFLAGS $PARAM \"$2\""
+	shift
+	;;
+    *)  ;;
+    esac
+    shift
+done
+
+# debuggery
+[ "$VERBOSE" = "yes" ] && echo "$DESCRIPTION auto-detection... ($*)"
+
+test -d "$OUTDIR/$TEST" || mkdir -p "$OUTDIR/$TEST"
+
+cd "$OUTDIR/$TEST"
+
+test -r Makefile && $MAKE distclean >/dev/null 2>&1
+# Make sure output from possible previous tests is gone
+rm -f "$EXE" "${EXE}.exe"
+
+"$OUTDIR/bin/qmake" -nocache -spec "$QMKSPEC" "CONFIG+=$QMAKE_CONFIG" "CONFIG-=debug_and_release" "LIBS*=$LFLAGS" "LIBS+=$MAC_ARCH_LFLAGS" "INCLUDEPATH*=$INCLUDEPATH" "QMAKE_CXXFLAGS*=$CXXFLAGS" "QMAKE_CXXFLAGS+=$MAC_ARCH_CXXFLAGS" "QT_BUILD_TREE=$OUTDIR" "$SRCDIR/$TEST/$EXE.pro" -o "$OUTDIR/$TEST/Makefile"
+
+if [ "$VERBOSE" = "yes" ]; then
+    $MAKE
+else
+    $MAKE >/dev/null 2>&1
+fi
+
+( [ -x "$EXE" ] || [ -x "${EXE}.exe" ] ) && SUCCESS=yes
+
+# done
+if [ "$SUCCESS" != "yes" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "$DESCRIPTION disabled."
+    exit 1
+else
+    [ "$VERBOSE" = "yes" ] && echo "$DESCRIPTION enabled."
+    exit 0
+fi

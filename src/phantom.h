@@ -31,16 +31,19 @@
 #ifndef PHANTOM_H
 #define PHANTOM_H
 
-#include <QtGui>
+#include <QPointer>
 
-class WebPage;
-class WebServer;
 #include "csconverter.h"
 #include "filesystem.h"
 #include "encoding.h"
 #include "config.h"
+#include "replcompletable.h"
+#include "system.h"
 
-class Phantom: public QObject
+class WebPage;
+class WebServer;
+
+class Phantom: public REPLCompletable
 {
     Q_OBJECT
     Q_PROPERTY(QStringList args READ args)
@@ -49,6 +52,7 @@ class Phantom: public QObject
     Q_PROPERTY(QString outputEncoding READ outputEncoding WRITE setOutputEncoding)
     Q_PROPERTY(QString scriptName READ scriptName)
     Q_PROPERTY(QVariantMap version READ version)
+    Q_PROPERTY(QObject *page READ page)
 
 public:
     Phantom(QObject *parent = 0);
@@ -71,10 +75,13 @@ public:
 
     QVariantMap version() const;
 
+    QObject* page() const;
+
 public slots:
     QObject *createWebPage();
     QObject *createWebServer();
     QObject *createFilesystem();
+    QObject *createSystem();
     QString loadModuleSource(const QString &name);
     bool injectJs(const QString &jsFilePath);
 
@@ -82,12 +89,16 @@ public slots:
     void exit(int code = 0);
     void debugExit(int code = 0);
 
+signals:
+    void aboutToExit(int code);
+
 private slots:
-    void printConsoleMessage(const QString &msg, int lineNumber, const QString &source);
+    void printConsoleMessage(const QString &msg);
 
     void onInitialized();
 private:
     void doExit(int code);
+    virtual void initCompletions();
 
     Encoding m_scriptFileEnc;
     WebPage *m_page;
@@ -96,6 +107,7 @@ private:
     QString m_script;
     QVariantMap m_defaultPageSettings;
     FileSystem *m_filesystem;
+    System *m_system;
     QList<QPointer<WebPage> > m_pages;
     QList<QPointer<WebServer> > m_servers;
     Config m_config;

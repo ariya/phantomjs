@@ -52,14 +52,12 @@ void Utils::messageHandler(QtMsgType type, const char *msg)
     QDateTime now = QDateTime::currentDateTime();
 
     switch (type) {
-#ifndef QT_NO_DEBUG
     case QtDebugMsg:
         fprintf(stdout, "%s [DEBUG] %s\n", qPrintable(now.toString(Qt::ISODate)), msg);
         break;
     case QtWarningMsg:
         fprintf(stderr, "%s [WARNING] %s\n", qPrintable(now.toString(Qt::ISODate)), msg);
         break;
-#endif
     case QtCriticalMsg:
         fprintf(stderr, "%s [CRITICAL] %s\n", qPrintable(now.toString(Qt::ISODate)), msg);
         break;
@@ -94,16 +92,16 @@ bool Utils::injectJsInFrame(const QString &jsFilePath, const Encoding &jsFileEnc
         return false;
     }
     // Execute JS code in the context of the document
-    targetFrame->evaluateJavaScript(scriptBody);
+    targetFrame->evaluateJavaScript(scriptBody, jsFilePath);
     return true;
 }
 
-bool Utils::loadJSForDebug(const QString& jsFilePath, const QString& libraryPath, QWebFrame* targetFrame)
+bool Utils::loadJSForDebug(const QString& jsFilePath, const QString& libraryPath, QWebFrame* targetFrame, const bool autorun)
 {
-    return loadJSForDebug(jsFilePath, Encoding::UTF8, libraryPath, targetFrame);
+    return loadJSForDebug(jsFilePath, Encoding::UTF8, libraryPath, targetFrame, autorun);
 }
 
-bool Utils::loadJSForDebug(const QString& jsFilePath, const Encoding& jsFileEnc, const QString& libraryPath, QWebFrame* targetFrame)
+bool Utils::loadJSForDebug(const QString& jsFilePath, const Encoding& jsFileEnc, const QString& libraryPath, QWebFrame* targetFrame, const bool autorun)
 {
     QString scriptPath = findScript(jsFilePath, libraryPath);
     QString scriptBody = jsFromScriptFile(scriptPath, jsFileEnc);
@@ -111,6 +109,11 @@ bool Utils::loadJSForDebug(const QString& jsFilePath, const Encoding& jsFileEnc,
     QString remoteDebuggerHarnessSrc =  Utils::readResourceFileUtf8(":/remote_debugger_harness.html");
     remoteDebuggerHarnessSrc = remoteDebuggerHarnessSrc.arg(scriptBody);
     targetFrame->setHtml(remoteDebuggerHarnessSrc);
+
+    if (autorun) {
+        targetFrame->evaluateJavaScript("__run()", QString());
+    }
+
     return true;
 }
 

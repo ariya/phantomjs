@@ -1,0 +1,12 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/trolltech/mac/cursors">
+<file>images/copyarrowcursor.png</file>
+<file>images/forbiddencursor.png</file>
+<file>images/spincursor.png</file>
+<file>images/waitcursor.png</file>
+<file>images/pluscursor.png</file>
+</qresource>
+<qresource prefix="/trolltech/mac/style">
+<file>images/leopard-unified-toolbar-on.png</file>
+</qresource>
+</RCC>

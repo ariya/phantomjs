@@ -1,0 +1,72 @@
+/*
+ * Copyright (C) 2006, 2010 Apple Inc. All rights reserved.
+ * Copyright (C) 2006 Samuel Weinig <sam.weinig@gmail.com>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+module html {
+
+    interface [
+        HasIndexGetter,
+        HasCustomIndexSetter
+    ] HTMLSelectElement : HTMLElement {
+        readonly attribute DOMString type;
+        attribute long selectedIndex;
+        attribute [ConvertNullToNullString] DOMString value;
+        
+        // Modified in DOM Level 2:
+#if defined(LANGUAGE_OBJECTIVE_C) && LANGUAGE_OBJECTIVE_C
+        readonly attribute long length;
+#else
+        attribute unsigned long length setter raises (DOMException);
+#endif
+
+        readonly attribute HTMLFormElement form;
+        readonly attribute ValidityState validity;
+        readonly attribute boolean willValidate;
+        readonly attribute DOMString validationMessage;
+        boolean checkValidity();
+        void setCustomValidity(in [ConvertUndefinedOrNullToNullString] DOMString error);
+
+        // Modified in DOM Level 2:
+        readonly attribute HTMLOptionsCollection options;
+
+        attribute [Reflect] boolean disabled;
+        attribute [Reflect] boolean autofocus;
+        attribute boolean multiple;
+        attribute [ConvertNullToNullString] DOMString name;
+        attribute [Reflect] boolean required;
+        attribute long size;
+        
+        [OldStyleObjC] void add(in HTMLElement element, in HTMLElement before) raises(DOMException);
+
+#if defined(LANGUAGE_JAVASCRIPT) && LANGUAGE_JAVASCRIPT
+        // In JavaScript, we support both option index and option object parameters.
+        // As of this writing this cannot be auto-generated.
+        [Custom] void remove(/* indexOrOption */);
+#else
+        void remove(in long index);
+#endif
+
+        // These methods are not in DOM Level 2 IDL, but are mentioned in the standard:
+        // "The contained options can be directly accessed through the select element as a collection."
+        Node item(in [IsIndex] unsigned long index);
+        Node namedItem(in DOMString name);
+        readonly attribute NodeList labels;
+    };
+
+}

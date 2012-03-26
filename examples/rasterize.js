@@ -1,18 +1,19 @@
 var page = require('webpage').create(),
+    system = require('system'),
     address, output, size;
 
-if (phantom.args.length < 2 || phantom.args.length > 3) {
+if (system.args.length < 3 || system.args.length > 4) {
     console.log('Usage: rasterize.js URL filename [paperwidth*paperheight|paperformat]');
     console.log('  paper (pdf output) examples: "5in*7.5in", "10cm*20cm", "A4", "Letter"');
     phantom.exit();
 } else {
-    address = phantom.args[0];
-    output = phantom.args[1];
+    address = system.args[1];
+    output = system.args[2];
     page.viewportSize = { width: 600, height: 600 };
-    if (phantom.args.length === 3 && phantom.args[1].substr(-4) === ".pdf") {
-        size = phantom.args[2].split('*');
-        page.paperSize = size.length === 2 ? { width: size[0], height: size[1], border: '0px' }
-                                           : { format: phantom.args[2], orientation: 'portrait', border: '1cm' };
+    if (system.args.length === 3 && system.args[1].substr(-4) === ".pdf") {
+        size = system.args[2].split('*');
+        page.paperSize = size.length === 2 ? { width: size[0], height: size[1], margin: '0px' }
+                                           : { format: system.args[2], orientation: 'portrait', margin: '1cm' };
     }
     page.open(address, function (status) {
         if (status !== 'success') {

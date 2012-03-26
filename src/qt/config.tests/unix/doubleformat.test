@@ -1,0 +1,63 @@
+#!/bin/sh
+
+QMKSPEC=$1
+VERBOSE=$2
+SRCDIR=$3
+OUTDIR=$4
+
+# debuggery
+[ "$VERBOSE" = "yes" ] && echo "Determining floating point  word-order... ($*)"
+
+# build and run a test program
+test -d "$OUTDIR/config.tests/unix/doubleformat" || mkdir -p "$OUTDIR/config.tests/unix/doubleformat"
+"$OUTDIR/bin/qmake" -nocache -spec "$QMKSPEC" "QT_BUILD_TREE=$OUTDIR" "$SRCDIR/config.tests/unix/doubleformat/doubleformattest.pro" -o "$OUTDIR/config.tests/unix/doubleformat/Makefile" >/dev/null 2>&1
+cd "$OUTDIR/config.tests/unix/doubleformat"
+
+DOUBLEFORMAT="UNKNOWN"
+[ "$VERBOSE" = "yes" ] && $MAKE || $MAKE >/dev/null 2>&1
+
+if [ -f ./doubleformattest ]; then
+    : # nop
+else
+    [ "$VERBOSE" = "yes" ] && echo "Unknown floating point format!"
+    exit 2
+fi
+
+# LE: strings | grep 0123ABCD0123ABCD
+# BE: strings | grep DCBA3210DCBA3210
+# 
+# LE arm-swapped-dword-order: strings | grep ABCD0123ABCD0123
+# BE arm-swapped-dword-order: strings | grep 3210DCBA3210DCBA (untested)
+
+
+if strings ./doubleformattest | grep "0123ABCD0123ABCD" >/dev/null 2>&1; then
+    [ "$VERBOSE" = "yes" ] && echo "     Normal little endian format"
+    DOUBLEFORMAT="LITTLE"
+elif strings ./doubleformattest | grep "ABCD0123ABCD0123" >/dev/null 2>&1; then
+    [ "$VERBOSE" = "yes" ] && echo "     Swapped little endian format"
+    DOUBLEFORMAT="LITTLESWAPPED"
+elif strings ./doubleformattest | grep "DCBA3210DCBA3210" >/dev/null 2>&1; then
+    [ "$VERBOSE" = "yes" ] && echo "     Normal big endian format"
+    DOUBLEFORMAT="BIG"
+elif strings ./doubleformattest | grep "3210DCBA3210DCBA" >/dev/null 2>&1; then
+    [ "$VERBOSE" = "yes" ] && echo "     Swapped big endian format"
+    DOUBLEFORMAT="BIGSWAPPED"
+fi
+
+# done
+if [ "$DOUBLEFORMAT" = "LITTLE" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "Using little endian."
+    exit 10
+elif [ "$DOUBLEFORMAT" = "BIG" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "Using big endian."
+    exit 11
+elif [ "$DOUBLEFORMAT" = "LITTLESWAPPED" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "Using swapped little endian."
+    exit 12
+elif [ "$DOUBLEFORMAT" = "BIGSWAPPED" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "Using swapped big endian."
+    exit 13
+else
+    [ "$VERBOSE" = "yes" ] && echo "Unknown floating point format!"
+    exit 99
+fi

@@ -1,0 +1,71 @@
+#!/bin/sh
+
+SUCCESS=no
+QMKSPEC=$1
+XPLATFORM=`basename "$1"`
+QMAKE_CONFIG=$2
+VERBOSE=$3
+SRCDIR=$4
+OUTDIR=$5
+TEST=$6
+EXE=`basename "$6"`
+ARG=$7
+shift 7
+LFLAGS=""
+INCLUDEPATH=""
+CXXFLAGS=""
+while [ "$#" -gt 0 ]; do
+    PARAM=$1
+    case $PARAM in
+    -framework)
+        LFLAGS="$LFLAGS -framework \"$2\""
+        shift
+        ;;
+    -F*|-m*|-x*)
+        LFLAGS="$LFLAGS $PARAM"
+        CXXFLAGS="$CXXFLAGS $PARAM"
+        ;;
+    -L*|-l*|-pthread)
+	LFLAGS="$LFLAGS $PARAM"
+	;;
+    -I*)
+        INC=`echo $PARAM | sed -e 's/^-I//'`
+        INCLUDEPATH="$INCLUDEPATH $INC"
+        ;;
+    -f*|-D*)
+        CXXFLAGS="$CXXFLAGS $PARAM"
+        ;;
+    -Qoption)
+	# Two-argument form for the Sun Compiler
+	CXXFLAGS="$CXXFLAGS $PARAM \"$2\""
+	shift
+	;;
+    *)  ;;
+    esac
+    shift
+done
+
+# debuggery
+[ "$VERBOSE" = "yes" ] && echo "$DESCRIPTION auto-detection... ($*)"
+
+test -d "$OUTDIR/$TEST" || mkdir -p "$OUTDIR/$TEST"
+
+cd "$OUTDIR/$TEST"
+
+$MAKE distclean >/dev/null 2>&1
+"$OUTDIR/bin/qmake" -nocache -spec "$QMKSPEC" "CONFIG+=$QMAKE_CONFIG" "LIBS*=$LFLAGS" "INCLUDEPATH*=$INCLUDEPATH" "QMAKE_CXXFLAGS*=$CXXFLAGS" "QT_BUILD_TREE=$OUTDIR" "$SRCDIR/$TEST/$EXE.pro" -o "$OUTDIR/$TEST/Makefile"
+
+if [ "$VERBOSE" = "yes" ]; then
+    $MAKE
+else
+    $MAKE >/dev/null 2>&1
+fi
+
+
+if [ -x "$EXE" ]; then
+    foo=`$OUTDIR/$TEST/$EXE $ARG`
+    echo "$foo"
+else
+    echo "'CUTE'" #1129665605 # == 'CUTE'
+fi
+

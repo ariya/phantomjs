@@ -1,0 +1,18 @@
+
+!separate_debug_info_nocopy:!staticlib:!static:!contains(TEMPLATE, subdirs):!isEmpty(QMAKE_OBJCOPY) {
+    QMAKE_SEPARATE_DEBUG_INFO = test -z \"$(DESTDIR)\" || cd \"$(DESTDIR)\" ; targ=`basename $(TARGET)`; $$QMAKE_OBJCOPY --only-keep-debug \"\$\$targ\" \"\$\$targ.debug\" && $$QMAKE_OBJCOPY --strip-debug \"\$\$targ\" && $$QMAKE_OBJCOPY --add-gnu-debuglink=\"\$\$targ.debug\" \"\$\$targ\" && chmod -x \"\$\$targ.debug\"
+    QMAKE_INSTALL_SEPARATE_DEBUG_INFO = test -z \"$(DESTDIR)\" || cd \"$(DESTDIR)\" ; $(INSTALL_FILE) `basename $(TARGET)`.debug $(INSTALL_ROOT)/\$\$target_path/
+
+    !isEmpty(QMAKE_POST_LINK):QMAKE_POST_LINK = $$escape_expand(\\n\\t)$$QMAKE_POST_LINK
+    QMAKE_POST_LINK = $$QMAKE_SEPARATE_DEBUG_INFO $$QMAKE_POST_LINK
+    silent:QMAKE_POST_LINK = @echo creating $@.debug && $$QMAKE_POST_LINK
+
+    isEmpty(DESTDIR) {
+        target.targets += "`basename $(TARGET)`.debug"
+        QMAKE_DISTCLEAN += "`basename $(TARGET)`.debug"
+    } else {
+        target.targets += "$(DESTDIR)/`basename $(TARGET)`.debug"
+        QMAKE_DISTCLEAN += "$(DESTDIR)/`basename $(TARGET)`.debug"
+    }
+}
+

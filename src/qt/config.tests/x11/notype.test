@@ -1,0 +1,49 @@
+#!/bin/sh
+
+QMKSPEC=$1
+XPLATFORM=`basename $1`
+VERBOSE=$2
+SRCDIR=$3
+OUTDIR=$4
+
+# debuggery
+[ "$VERBOSE" = "yes" ] && echo "Detecting broken X11 headers... ($*)"
+
+# Detect broken X11 headers when using GCC 2.95 or later
+#   Xsun on Solaris 2.5.1:
+#   	Patches are available for Solaris 2.6, 7, and 8 but
+#   	not for Solaris 2.5.1.
+#   HP-UX:
+#   	Patches are available for HP-UX 10.20, 11.00, and 11.11.
+#   AIX 4.3.3 and AIX 5.1:
+#   	Headers are clearly broken on all AIX versions, and we
+#   	don't know of any patches. The strange thing is that we
+#   	did not get any reports about this issue until very
+#   	recently, long after gcc 3.0.x was released. It seems to
+#   	work for us with gcc 2.95.2.
+NOTYPE=no
+
+if [ $XPLATFORM = "solaris-g++" -o $XPLATFORM = "hpux-g++" -o $XPLATFORM = "aix-g++" -o $XPLATFORM = "aix-g++-64" ]; then
+    NOTYPE=yes
+
+    test -d "$OUTDIR/config.tests/x11/notype" || mkdir -p "$OUTDIR/config.tests/x11/notype"
+    "$OUTDIR/bin/qmake" -nocache -spec "$QMKSPEC" "QT_BUILD_TREE=$OUTDIR" "$SRCDIR/config.tests/x11/notype/notypetest.pro" -o "$OUTDIR/config.tests/x11/notype/Makefile" >/dev/null 2>&1
+    cd "$OUTDIR/config.tests/x11/notype"
+
+    if [ "$VERBOSE" = "yes" ]; then
+	$MAKE
+    else
+	$MAKE >/dev/null 2>&1
+    fi
+
+    [ -x notypetest ] && NOTYPE=no
+fi
+
+# done
+if [ "$NOTYPE" = "yes" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "Broken X11 headers detected."
+    exit 0
+else
+    [ "$VERBOSE" = "yes" ] && echo "X11 headers look good."
+    exit 1
+fi

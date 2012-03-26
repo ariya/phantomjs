@@ -1,0 +1,45 @@
+# We'd like to eliminate this file.
+# It would be nice to get rid of dependence on the TextEncodingConvert entirely.
+# Perhaps we can prove these are not used on the web and remove them.
+# Or perhaps we can get them added to ICU.
+
+# The items on the left are names of TEC TextEncoding values (without the leading kTextEncoding).
+# The items on the right are IANA character set names. Names listed in character-sets.txt are not
+# repeated here; mentioning any one character set from a group in there pulls in all the aliases in
+# that group.
+
+DOSChineseTrad: cp950
+DOSGreek: cp737, ibm737
+EUC_TW: EUC-TW
+ISOLatin10: ISO-8859-16
+ISOLatin6: ISO-8859-10
+ISOLatin8: ISO-8859-14
+ISOLatinThai: ISO-8859-11
+ISO_2022_JP_3: ISO-2022-JP-3
+JIS_C6226_78: JIS_C6226-1978
+JIS_X0208_83: JIS_X0208-1983
+JIS_X0208_90: JIS_X0208-1990
+JIS_X0212_90: JIS_X0212-1990
+KOI8_U: KOI8-U
+MacArabic: x-mac-arabic
+MacChineseSimp: x-mac-chinesesimp, xmacsimpchinese
+MacChineseTrad: x-mac-chinesetrad, xmactradchinese
+MacCroatian: x-mac-croatian
+MacDevanagari: x-mac-devanagari
+MacDingbats: x-mac-dingbats
+MacFarsi: x-mac-farsi
+MacGujarati: x-mac-gujarati
+MacGurmukhi: x-mac-gurmukhi
+MacHebrew: x-mac-hebrew
+MacIcelandic: x-mac-icelandic
+MacJapanese: x-mac-japanese
+MacKorean: x-mac-korean
+MacRomanLatin1: x-mac-roman-latin1
+MacRomanian: x-mac-romanian
+MacSymbol: x-mac-symbol
+MacThai: x-mac-thai
+MacTibetan: x-mac-tibetan
+MacVT100: x-mac-vt100
+NextStepLatin: x-nextstep
+ShiftJIS_X0213_00: Shift_JIS_X0213-2000
+WindowsKoreanJohab: johab

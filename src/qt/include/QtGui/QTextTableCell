@@ -1,0 +1,1 @@
+#include "qtexttable.h"

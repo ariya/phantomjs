@@ -1,0 +1,359 @@
+ifeq "$(SOURCE_PATH)" ""
+SOURCE_PATH = ..
+endif
+
+#sh version
+
+ifeq "$(BUILD_PATH)" ""
+BUILD_PATH = ..
+endif
+
+#
+# specific stuff for mingw g++ make
+#
+CXX	    =	g++
+CFLAGS	    =	-c -o$@ -O \
+		-I. -Igenerators -Igenerators/unix \
+		-Igenerators/win32 -Igenerators/mac \
+		-Igenerators/symbian -Igenerators/integrity \
+		-I$(BUILD_PATH)/include -I$(BUILD_PATH)/include/QtCore \
+		-I$(SOURCE_PATH)/include -I$(SOURCE_PATH)/include/QtCore \
+		-I$(BUILD_PATH)/src/corelib/global \
+		-I$(BUILD_PATH)/src/corelib/xml \
+		-I$(SOURCE_PATH)/mkspecs/win32-g++  \
+		-I$(SOURCE_PATH)/tools/shared \
+		-DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT -DQT_NO_PCRE \
+		-DQT_NODLL -DQT_NO_STL -DQT_NO_COMPRESS -DUNICODE -DHAVE_QCONFIG_CPP \
+		-DQT_BUILD_QMAKE -DQT_NO_THREAD -DQT_NO_QOBJECT -DQT_NO_GEOM_VARIANT -DQT_NO_DATASTREAM \
+		-DQT_BOOTSTRAPPED -DQLIBRARYINFO_EPOCROOT
+CXXFLAGS    =   $(CFLAGS)
+LFLAGS	    = -static-libgcc -static-libstdc++ -s
+LIBS	    = -lole32 -luuid -ladvapi32 -lkernel32
+LINKQMAKE   =	g++ $(LFLAGS) -o qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
+ADDCLEAN    =
+
+
+#qmake code
+OBJS        = project.o main.o makefile.o unixmake.o unixmake2.o mingw_make.o \
+              option.o winmakefile.o projectgenerator.o property.o meta.o \
+              makefiledeps.o metamakefile.o xmloutput.o pbuilder_pbx.o \
+              borland_bmake.o msvc_nmake.o msvc_vcproj.o msvc_vcxproj.o \
+              msvc_objectmodel.o msbuild_objectmodel.o symmake.o initprojectdeploy_symbian.o \
+              symmake_abld.o symmake_sbsv2.o symbiancommon.o registry.o epocroot.o gbuild.o
+
+ifdef QMAKE_OPENSOURCE_EDITION
+CFLAGS      += -DQMAKE_OPENSOURCE_EDITION
+endif
+
+#qt code
+QTOBJS= \
+	qbitarray.o \
+	qbuffer.o \
+	qbytearray.o \
+	qcryptographichash.o \
+	qvsnprintf.o \
+	qbytearraymatcher.o \
+	qconfig.o \
+	qdatetime.o \
+	qdir.o \
+	qdiriterator.o \
+	qfile.o \
+	qtemporaryfile.o \
+	qfileinfo.o \
+	qabstractfileengine.o \
+	qfilesystementry.o \
+	qfilesystemengine.o \
+	qfilesystemengine_win.o \
+	qfilesystemiterator_win.o \
+	qfsfileengine.o \
+	qfsfileengine_iterator.o \
+	qfsfileengine_win.o \
+	qglobal.o \
+	qhash.o \
+	qiodevice.o \
+	qlibraryinfo.o \
+	qlist.o \
+	qlinkedlist.o \
+	qlocale.o \
+	qlocale_tools.o \
+	qlocale_win.o \
+	qmalloc.o \
+	qmap.o \
+	qregexp.o \
+	qtextcodec.o \
+	qutfcodec.o \
+	qstring.o \
+	qstringlist.o \
+	qsystemlibrary.o \
+	qsystemerror.o \
+	qtextstream.o \
+	quuid.o \
+	qvector.o \
+	qurl.o \
+	qsettings.o \
+	qsettings_win.o \
+	qvariant.o \
+	qmetatype.o \
+	qxmlstream.o \
+	qxmlutils.o \
+	qnumeric.o
+
+qmake.exe: $(OBJS) $(QTOBJS)
+	$(LINKQMAKE)
+	-cp qmake.exe $(BUILD_PATH)/bin/qmake.exe
+
+Makefile: Makefile.win32-g++-sh
+	@echo "Out of date, please rerun configure"
+
+clean::
+	-del $(OBJS) $(QTOBJS) $(ADDCLEAN)
+
+distclean:: clean
+	-del qmake
+
+.c.o:
+	$(CXX) $(CFLAGS) $<
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) $<
+
+qconfig.o: $(BUILD_PATH)/src/corelib/global/qconfig.cpp
+	$(CXX) $(CXXFLAGS) $(BUILD_PATH)/src/corelib/global/qconfig.cpp
+
+qsettings_win.o: $(SOURCE_PATH)/src/corelib/io/qsettings_win.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qsettings_win.cpp
+
+qsettings.o: $(SOURCE_PATH)/src/corelib/io/qsettings.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qsettings.cpp
+
+qvariant.o: $(SOURCE_PATH)/src/corelib/kernel/qvariant.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/kernel/qvariant.cpp
+
+qurl.o: $(SOURCE_PATH)/src/corelib/io/qurl.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qurl.cpp
+
+qtextstream.o: $(SOURCE_PATH)/src/corelib/io/qtextstream.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qtextstream.cpp
+
+qdatastream.o: $(SOURCE_PATH)/src/corelib/io/qdatastream.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qdatastream.cpp
+
+qiodevice.o: $(SOURCE_PATH)/src/corelib/io/qiodevice.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qiodevice.cpp
+
+qlibraryinfo.o: $(SOURCE_PATH)/src/corelib/global/qlibraryinfo.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/global/qlibraryinfo.cpp
+
+qnumeric.o: $(SOURCE_PATH)/src/corelib/global/qnumeric.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/global/qnumeric.cpp
+
+qmalloc.o: $(SOURCE_PATH)/src/corelib/global/qmalloc.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/global/qmalloc.cpp
+
+qglobal.o: $(SOURCE_PATH)/src/corelib/global/qglobal.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/global/qglobal.cpp
+
+qhash.o: $(SOURCE_PATH)/src/corelib/tools/qhash.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qhash.cpp
+
+qbytearray.o: $(SOURCE_PATH)/src/corelib/tools/qbytearray.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qbytearray.cpp
+
+qcryptographichash.o: $(SOURCE_PATH)/src/corelib/tools/qcryptographichash.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qcryptographichash.cpp
+
+qvsnprintf.o: $(SOURCE_PATH)/src/corelib/tools/qvsnprintf.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qvsnprintf.cpp
+
+qbytearraymatcher.o: $(SOURCE_PATH)/src/corelib/tools/qbytearraymatcher.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qbytearraymatcher.cpp
+
+qutfcodec.o: $(SOURCE_PATH)/src/corelib/codecs/qutfcodec.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/codecs/qutfcodec.cpp
+
+qstring.o: $(SOURCE_PATH)/src/corelib/tools/qstring.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qstring.cpp
+
+qlocale.o: $(SOURCE_PATH)/src/corelib/tools/qlocale.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qlocale.cpp
+
+qlocale_tools.o: $(SOURCE_PATH)/src/corelib/tools/qlocale_tools.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qlocale_tools.cpp
+
+qlocale_win.o: $(SOURCE_PATH)/src/corelib/tools/qlocale_win.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qlocale_win.cpp
+
+quuid.o: $(SOURCE_PATH)/src/corelib/plugin/quuid.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/plugin/quuid.cpp
+
+qbuffer.o: $(SOURCE_PATH)/src/corelib/io/qbuffer.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qbuffer.cpp
+
+qlist.o: $(SOURCE_PATH)/src/corelib/tools/qlist.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qlist.cpp
+
+qlinkedlist.o: $(SOURCE_PATH)/src/corelib/tools/qlinkedlist.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qlinkedlist.cpp
+
+qfile.o: $(SOURCE_PATH)/src/corelib/io/qfile.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qfile.cpp
+
+qtemporaryfile.o: $(SOURCE_PATH)/src/corelib/io/qtemporaryfile.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qtemporaryfile.cpp
+
+qabstractfileengine.o: $(SOURCE_PATH)/src/corelib/io/qabstractfileengine.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qabstractfileengine.cpp
+
+qfilesystementry.o: $(SOURCE_PATH)/src/corelib/io/qfilesystementry.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qfilesystementry.cpp
+
+qfilesystemengine.o: $(SOURCE_PATH)/src/corelib/io/qfilesystemengine.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qfilesystemengine.cpp
+
+qfilesystemengine_win.o: $(SOURCE_PATH)/src/corelib/io/qfilesystemengine_win.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qfilesystemengine_win.cpp
+
+qfilesystemiterator_win.o: $(SOURCE_PATH)/src/corelib/io/qfilesystemiterator_win.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qfilesystemiterator_win.cpp
+
+qfsfileengine_win.o: $(SOURCE_PATH)/src/corelib/io/qfsfileengine_win.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qfsfileengine_win.cpp
+
+qfsfileengine.o: $(SOURCE_PATH)/src/corelib/io/qfsfileengine.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qfsfileengine.cpp
+
+qfsfileengine_iterator.o: $(SOURCE_PATH)/src/corelib/io/qfsfileengine_iterator.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qfsfileengine_iterator.cpp
+
+qtextcodec.o: $(SOURCE_PATH)/src/corelib/codecs/qtextcodec.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/codecs/qtextcodec.cpp
+
+qregexp.o: $(SOURCE_PATH)/src/corelib/tools/qregexp.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qregexp.cpp
+
+qvector.o: $(SOURCE_PATH)/src/corelib/tools/qvector.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qvector.cpp
+
+qbitarray.o: $(SOURCE_PATH)/src/corelib/tools/qbitarray.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qbitarray.cpp
+
+qdir.o: $(SOURCE_PATH)/src/corelib/io/qdir.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qdir.cpp
+
+qdiriterator.o: $(SOURCE_PATH)/src/corelib/io/qdiriterator.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qdiriterator.cpp
+
+qmetatype.o: $(SOURCE_PATH)/src/corelib/kernel/qmetatype.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/kernel/qmetatype.cpp
+
+qfileinfo.o: $(SOURCE_PATH)/src/corelib/io/qfileinfo.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qfileinfo.cpp
+
+qdatetime.o: $(SOURCE_PATH)/src/corelib/tools/qdatetime.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qdatetime.cpp
+
+qstringlist.o: $(SOURCE_PATH)/src/corelib/tools/qstringlist.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qstringlist.cpp
+
+qsystemerror.o: $(SOURCE_PATH)/src/corelib/kernel/qsystemerror.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/kernel/qsystemerror.cpp
+
+qsystemlibrary.o: $(SOURCE_PATH)/src/corelib/plugin/qsystemlibrary.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/plugin/qsystemlibrary.cpp
+
+qmap.o: $(SOURCE_PATH)/src/corelib/tools/qmap.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/tools/qmap.cpp
+
+makefile.o: $(SOURCE_PATH)/qmake/generators/makefile.cpp
+	$(CXX) $(CXXFLAGS) generators/makefile.cpp
+
+unixmake.o: $(SOURCE_PATH)/qmake/generators/unix/unixmake.cpp
+	$(CXX) $(CXXFLAGS) generators/unix/unixmake.cpp
+
+unixmake2.o: $(SOURCE_PATH)/qmake/generators/unix/unixmake2.cpp
+	$(CXX) $(CXXFLAGS) generators/unix/unixmake2.cpp
+
+winmakefile.o: $(SOURCE_PATH)/qmake/generators/win32/winmakefile.cpp
+	$(CXX) $(CXXFLAGS) generators/win32/winmakefile.cpp
+
+borland_bmake.o: $(SOURCE_PATH)/qmake/generators/win32/borland_bmake.cpp
+	$(CXX) $(CXXFLAGS) generators/win32/borland_bmake.cpp
+
+mingw_make.o: $(SOURCE_PATH)/qmake/generators/win32/mingw_make.cpp
+	$(CXX) $(CXXFLAGS) generators/win32/mingw_make.cpp
+
+msvc_nmake.o: $(SOURCE_PATH)/qmake/generators/win32/msvc_nmake.cpp
+	$(CXX) $(CXXFLAGS) generators/win32/msvc_nmake.cpp
+
+msvc_vcproj.o: $(SOURCE_PATH)/qmake/generators/win32/msvc_vcproj.cpp
+	$(CXX) $(CXXFLAGS) generators/win32/msvc_vcproj.cpp
+
+msvc_objectmodel.o: $(SOURCE_PATH)/qmake/generators/win32/msvc_objectmodel.cpp
+	$(CXX) $(CXXFLAGS) generators/win32/msvc_objectmodel.cpp
+
+msvc_vcxproj.o: $(SOURCE_PATH)/qmake/generators/win32/msvc_vcxproj.cpp
+	$(CXX) $(CXXFLAGS) generators/win32/msvc_vcxproj.cpp
+
+msbuild_objectmodel.o: $(SOURCE_PATH)/qmake/generators/win32/msbuild_objectmodel.cpp
+	$(CXX) $(CXXFLAGS) generators/win32/msbuild_objectmodel.cpp
+
+symmake.o: $(SOURCE_PATH)/qmake/generators/symbian/symmake.cpp
+	$(CXX) $(CXXFLAGS) generators/symbian/symmake.cpp
+
+symmake_abld.o: $(SOURCE_PATH)/qmake/generators/symbian/symmake_abld.cpp
+	$(CXX) $(CXXFLAGS) generators/symbian/symmake_abld.cpp
+
+symmake_sbsv2.o: $(SOURCE_PATH)/qmake/generators/symbian/symmake_sbsv2.cpp
+	$(CXX) $(CXXFLAGS) generators/symbian/symmake_sbsv2.cpp
+
+symbiancommon.o: $(SOURCE_PATH)/qmake/generators/symbian/symbiancommon.cpp
+	$(CXX) $(CXXFLAGS) generators/symbian/symbiancommon.cpp
+
+initprojectdeploy_symbian.o: $(SOURCE_PATH)/qmake/generators/symbian/initprojectdeploy_symbian.cpp
+	$(CXX) $(CXXFLAGS) generators/symbian/initprojectdeploy_symbian.cpp
+
+registry.o: $(SOURCE_PATH)/tools/shared/windows/registry.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/tools/shared/windows/registry.cpp
+
+epocroot.o: $(SOURCE_PATH)/tools/shared/symbian/epocroot.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/tools/shared/symbian/epocroot.cpp
+
+gbuild.o: $(SOURCE_PATH)/qmake/generators/integrity/gbuild.cpp
+	$(CXX) $(CXXFLAGS) generators/integrity/gbuild.cpp
+
+
+project.o: $(SOURCE_PATH)/qmake/project.cpp $(SOURCE_PATH)/qmake/project.h $(SOURCE_PATH)/qmake/option.h
+	$(CXX) $(CXXFLAGS) project.cpp
+
+meta.o: $(SOURCE_PATH)/qmake/meta.cpp $(SOURCE_PATH)/qmake/project.h $(SOURCE_PATH)/qmake/option.h
+	$(CXX) $(CXXFLAGS) meta.cpp
+
+main.o: $(SOURCE_PATH)/qmake/main.cpp $(SOURCE_PATH)/qmake/project.h
+	$(CXX) $(CXXFLAGS) main.cpp
+
+option.o: $(SOURCE_PATH)/qmake/option.cpp $(SOURCE_PATH)/qmake/option.h
+	$(CXX) $(CXXFLAGS) option.cpp
+
+property.o: $(SOURCE_PATH)/qmake/property.cpp $(SOURCE_PATH)/qmake/project.h $(SOURCE_PATH)/qmake/option.h
+	$(CXX) $(CXXFLAGS) property.cpp
+
+projectgenerator.o: $(SOURCE_PATH)/qmake/generators/projectgenerator.cpp
+	$(CXX) $(CXXFLAGS) generators/projectgenerator.cpp
+
+pbuilder_pbx.o: $(SOURCE_PATH)/qmake/generators/mac/pbuilder_pbx.cpp
+	$(CXX) $(CXXFLAGS) generators/mac/pbuilder_pbx.cpp
+
+makefiledeps.o: $(SOURCE_PATH)/qmake/generators/makefiledeps.cpp
+	$(CXX) $(CXXFLAGS) generators/makefiledeps.cpp
+
+metamakefile.o: $(SOURCE_PATH)/qmake/generators/metamakefile.cpp $(SOURCE_PATH)/qmake/generators/symbian/symbian_makefile.h
+	$(CXX) $(CXXFLAGS) generators/metamakefile.cpp
+
+xmloutput.o: $(SOURCE_PATH)/qmake/generators/xmloutput.cpp
+	$(CXX) $(CXXFLAGS) generators/xmloutput.cpp
+
+qxmlstream.o: $(SOURCE_PATH)/src/corelib/xml/qxmlstream.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/xml/qxmlstream.cpp
+
+qxmlutils.o: $(SOURCE_PATH)/src/corelib/xml/qxmlutils.cpp
+	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/xml/qxmlutils.cpp

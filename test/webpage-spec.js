@@ -213,6 +213,74 @@ describe("WebPage object", function() {
         });
     });
     
+    it("should support console.log with multiple arguments", function() {
+        var message;
+        runs(function() {
+            page.onConsoleMessage = function (msg) {
+                message = msg;
+            }
+        });
+
+        waits(50);
+
+        runs(function() {
+            page.evaluate(function () {console.log('answer', 42)});
+            expect(message).toEqual("answer 42");
+        });
+    });
+
+    it("should not load any NPAPI plugins (e.g. Flash)", function() {
+        runs(function() {
+            expect(page.evaluate(function () { return window.navigator.plugins.length })).toEqual(0);
+        });
+    });
+
+    it("reports unhandled errors", function() {
+        var hadError = false;
+
+        runs(function() {
+            page = new require('webpage').create();
+            page.onError = function() { hadError = true };
+            page.evaluate(function() {
+              setTimeout(function() { referenceError }, 0)
+            });
+        });
+
+        waits(0);
+
+        runs(function() {
+            expect(hadError).toEqual(true);
+        });
+    })
+
+    it("doesn't report handled errors", function() {
+        var hadError    = false;
+        var caughtError = false;
+
+        page = new require('webpage').create();
+
+        runs(function() {
+            page.onError = function() { hadError = true };
+            page.evaluate(function() {
+                caughtError = false;
+                setTimeout(function() {
+                    try {
+                        referenceError
+                    } catch(e) {
+                        caughtError = true;
+                    }
+                }, 0)
+            });
+        });
+
+        waits(0);
+
+        runs(function() {
+            expect(hadError).toEqual(false);
+            expect(page.evaluate(function() { return caughtError })).toEqual(true);
+        });
+    })
+
     it("should set custom headers properly", function() {
         var server = require('webserver').create();
         server.listen(12345, function(request, response) {
@@ -255,6 +323,7 @@ describe("WebPage object", function() {
         });
 
     });
+
 });
 
 describe("WebPage construction with options", function () {

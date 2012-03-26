@@ -1,0 +1,11 @@
+isEmpty(QMAKE_DUMPCPP_NAME) {
+    QMAKE_DUMPCPP_NAME = make_dumpcpp
+}
+
+# auto depend on dumpcpp
+!contains(TARGET, dumpcpp) {
+    isEmpty(QMAKE_DUMPCPP_SRC): QMAKE_DUMPCPP_SRC = "$(QTDIR)/tools/activeqt/dumpcpp"
+    make_dumpcpp.commands = (cd $$QMAKE_DUMPCPP_SRC && $(QMAKE) && $(MAKE))
+    QMAKE_EXTRA_TARGETS += $$QMAKE_DUMPCPP_NAME
+}
+

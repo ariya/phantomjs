@@ -1,5 +1,37 @@
 Please see also http://code.google.com/p/phantomjs/wiki/ReleaseNotes.
 
+2012-03-20: Version 1.5.0 "Ghost Flower"
+
+    New features
+
+      * Added interactive mode, also known as REPL (issue 252)
+      * Added setting for web security, to allow cross domain XHR (issue 28)
+      * Added error handler for WebPage object (issue 166)
+      * Added support for custom HTTP header in the network request (issue 77)
+      * Added support for read write encoding in the file system module (issue 367)
+      * Added remote debugging support on Linux (issue 6)
+      * Added support for proxy authentication (issue 105)
+      * Added System module, to retrieve environment variables (issue 271) and arguments (issue 276)
+      * Added fs.readLink function (issue 329)
+      * Added support for reading and writing binary data (issue 400)
+      * Added support to retrieve request data in the WebServer? module (issue 340)
+      * Added support for individual top/bottom/left/right print margins (issue 388)
+      * Added command-line option --help (issue 347)
+      * Added short command-line options -v and -h (issue 408)
+      * Removed support for Flash and other plugins (issue 418)
+
+    Bug fixes
+
+      * Fixed multiple console.log arguments (issue 36)
+      * Fixed file upload (issue 307)
+      * Fixed the web server instance to be asynchronous (issue 326) and still support Keep Alive (issue 416)
+      * Workaround Qt 4.8.0 crash due to empty URL scheme (issue 365)
+      * Fixed a Content-Type problem where POST does not work (issue 337)
+      * Fixed reading body request in the web server even without specific Content-Type (issue 439)
+      * Fixed Jasmine test runner with Jasmine 1.1 (issue 402)
+      * Fixed request URL formatting in the web server (issue 437)
+      * Don't display debugging and warning messages (issue 323)
+
 2011-12-31: Version 1.4.1
 
     Bug fixes

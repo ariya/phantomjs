@@ -74,12 +74,13 @@ createHAR = (address, title, startTime, resources) ->
         entries: entries
 
 page = require('webpage').create()
+system = require 'system'
 
-if phantom.args.length is 0
-    console.log 'Usage: netsniff.js <some URL>'
+if system.args.length is 1
+    console.log 'Usage: netsniff.coffee <some URL>'
     phantom.exit()
 else
-    page.address = phantom.args[0]
+    page.address = system.args[1]
     page.resources = []
 
     page.onLoadStarted = ->

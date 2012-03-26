@@ -32,11 +32,11 @@
 #ifndef CONSTS_H
 #define CONSTS_H
 
-// Current Version: 1.5.0
+// Current Version: 1.6.0
 #define PHANTOMJS_VERSION_MAJOR     1
-#define PHANTOMJS_VERSION_MINOR     5
+#define PHANTOMJS_VERSION_MINOR     6
 #define PHANTOMJS_VERSION_PATCH     0
-#define PHANTOMJS_VERSION_STRING    "1.5.0 (development)"
+#define PHANTOMJS_VERSION_STRING    "1.6.0 (development)"
 
 #define COFFEE_SCRIPT_EXTENSION     ".coffee"
 
@@ -52,12 +52,12 @@
     "document.body.appendChild(el);"
 
 #define PAGE_SETTINGS_LOAD_IMAGES           "loadImages"
-#define PAGE_SETTINGS_LOAD_PLUGINS          "loadPlugins"
 #define PAGE_SETTINGS_JS_ENABLED            "javascriptEnabled"
 #define PAGE_SETTINGS_XSS_AUDITING          "XSSAuditingEnabled"
 #define PAGE_SETTINGS_USER_AGENT            "userAgent"
 #define PAGE_SETTINGS_LOCAL_ACCESS_REMOTE   "localToRemoteUrlAccessEnabled"
 #define PAGE_SETTINGS_USERNAME              "userName"
 #define PAGE_SETTINGS_PASSWORD              "password"
+#define PAGE_SETTINGS_WEB_SECURITY_ENABLED  "webSecurityEnabled"
 
 #endif // CONSTS_H

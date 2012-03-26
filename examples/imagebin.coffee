@@ -1,12 +1,13 @@
 # Upload an image to imagebin.org
 
 page = require('webpage').create()
+system = require 'system'
 
-if phantom.args.length isnt 1
+if system.args.length isnt 2
     console.log 'Usage: imagebin.coffee filename'
     phantom.exit()
 else
-    fname = phantom.args[0]
+    fname = system.args[1]
     page.open 'http://imagebin.org/index.php?page=add', ->
         page.uploadFile 'input[name=image]', fname
         page.evaluate ->

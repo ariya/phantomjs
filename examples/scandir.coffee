@@ -1,7 +1,8 @@
 # List all the files in a Tree of Directories
+system = require 'system'
 
-if phantom.args.length != 1
-  console.log "Usage: phantomjs scandir.js DIRECTORY_TO_SCAN"
+if system.args.length != 2
+  console.log "Usage: phantomjs scandir.coffee DIRECTORY_TO_SCAN"
   phantom.exit()
 scanDirectory = (path) ->
   fs = require 'fs'
@@ -11,5 +12,5 @@ scanDirectory = (path) ->
     fs.list(path).forEach (e) ->
       scanDirectory path + "/" + e  if e != "." and e != ".."
 
-scanDirectory phantom.args[0]
+scanDirectory system.args[1]
 phantom.exit()

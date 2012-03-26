@@ -17,6 +17,8 @@
 /* Find a thirty-two bit int type */
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
+#else if defined(Q_CC_MSVC)
+typedef unsigned __int32 uint32_t;
 #endif
 #ifdef HAVE_INTTYPES_H
 #include <inttypes.h>

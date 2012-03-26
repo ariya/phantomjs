@@ -1,6 +1,7 @@
 // List all the files in a Tree of Directories
+var system = require('system');
 
-if (phantom.args.length !== 1) {
+if (system.args.length !== 2) {
     console.log("Usage: phantomjs scandir.js DIRECTORY_TO_SCAN");
     phantom.exit();
 }
@@ -17,5 +18,5 @@ var scanDirectory = function (path) {
         });
     }
 };
-scanDirectory(phantom.args[0]);
+scanDirectory(system.args[1]);
 phantom.exit();

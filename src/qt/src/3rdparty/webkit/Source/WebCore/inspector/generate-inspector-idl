@@ -1,0 +1,159 @@
+#!/usr/bin/env python
+# Copyright (c) 2011 Google Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+# 
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import os.path
+import sys
+
+program_name = os.path.basename(__file__)
+if len(sys.argv) < 4 or sys.argv[1] != "-o":
+    sys.stderr.write("Usage: %s -o OUTPUT_FILE INPUT_FILE\n" % program_name)
+    exit(1)
+
+output_path = sys.argv[2]
+input_path = sys.argv[3]
+
+input_file = open(input_path, "r")
+json_string = input_file.read()
+json_string = json_string.replace(": true", ": True")
+json_string = json_string.replace(": false", ": false")
+json_api = eval(json_string)
+
+output_file = open(output_path, "w")
+output_file.write("""/*
+ * Copyright (C) 2011 Google, Inc. All Rights Reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+ 
+module core {""")
+
+type_traits = {
+    "string": "String",
+    "integer": "int",
+    "number": "double",
+    "boolean": "boolean",
+    "array": "Array",
+    "object": "Object"
+}
+
+ref_types = {}
+
+macro_traits = {
+    "Database": "DATABASE",
+    "DOMStorage": "DOM_STORAGE",
+    "ApplicationCache": "OFFLINE_WEB_APPLICATIONS",
+    "Debugger": "JAVASCRIPT_DEBUGGER",
+    "DOMDebugger": "JAVASCRIPT_DEBUGGER",
+    "Profiler": "JAVASCRIPT_DEBUGGER",
+    "Worker": "WORKERS"
+}
+
+def full_qualified_type_id(domain_name, type_id):
+    if type_id.find(".") == -1:
+       return "%s.%s" % (domain_name, type_id)
+    return type_id
+    
+
+def param_type(domain_name, param):
+    if "type" in param:
+        return type_traits[param["type"]]
+    if "$ref" in param:
+        type_id = full_qualified_type_id(domain_name, param["$ref"])
+        if type_id in ref_types:
+            ref_type = ref_types[type_id]
+            return type_traits[ref_type["type"]]
+        else:
+            return "Object"
+
+for domain in json_api:
+    domain_name = domain["domain"]
+    if domain_name in macro_traits:
+        output_file.write("\n#if defined(ENABLE_%s) && ENABLE_%s" % (macro_traits[domain_name], macro_traits[domain_name]))
+    output_file.write("\n    interface [Conditional=INSPECTOR] %s {" % domain_name)
+
+    if "types" in domain:
+        for type in domain["types"]:
+            type_id = full_qualified_type_id(domain_name, type["id"])
+            ref_types[type_id] = type;
+
+    if "commands" in domain:
+        for command in domain["commands"]:
+            params = []
+            if ("parameters" in command):
+                for in_param in command["parameters"]:
+                    if ("optional" in in_param):
+                        optional = " [optional]"
+                    else:
+                        optional = ""
+                    params.append("in%s %s %s" % (optional, param_type(domain_name, in_param), in_param["name"]))
+            if ("returns" in command):
+                for out_param in command["returns"]:
+                    if ("optional" in out_param):
+                        optional = " [optional]"
+                    else:
+                        optional = ""
+                    params.append("out%s %s %s" % (optional, param_type(domain_name, out_param), out_param["name"]))
+            output_file.write("\n        void %s(%s);" % (command["name"], ", ".join(params)))
+
+    if "events" in domain:
+        for event in domain["events"]:
+            params = []
+            if ("parameters" in event):
+                for in_param in event["parameters"]:
+                    if ("optional" in in_param):
+                        optional = " [optional]"
+                    else:
+                        optional = ""
+                    params.append("out%s %s %s" % (optional, param_type(domain_name, in_param), in_param["name"]))
+            output_file.write("\n        [event] void %s(%s);" % (event["name"], ", ".join(params)))
+
+    output_file.write("\n    };")
+    if domain["domain"] in macro_traits:
+        output_file.write("\n#endif // ENABLE_%s" % macro_traits[domain["domain"]])
+output_file.write("\n}\n")
+output_file.close()

@@ -1,35 +1,10 @@
 // List following and followers from several accounts
 
-var users = ['sencha',
-        'aconran',
-        'adityabansod',
-        'ambisinister',
-        'arnebech',
-        'ariyahidayat',
-        'arthurakay',
-        'bmoeskau',
-        'darrellmeyer',
-        'davidfoelber',
-        'DavidKaneda',
-        'donovanerba',
-        'edspencer',
-        'evantrimboli',
-        'ExtAnimal',
-        'jamieavins',
-        'jarrednicholls',
-        'jayrobinson',
-        'lojjic',
-        'luckymethod',
-        'merrells',
-        'mmullany',
-        'philogb',
-        'philstrong',
-        'rdougan',
-        'SubtleGradient',
-        '__ted__',
-        'tmaintz',
-        'WesleyMoy',
-        'whereisthysting'];
+var users = ['ariyahidayat',
+        'detronizator',
+        'KDABQt',
+        'lfranchi',
+        'jonleighton'];
 
 function follow(user, callback) {
     var page = require('webpage').create();

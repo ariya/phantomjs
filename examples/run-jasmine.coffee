@@ -1,3 +1,5 @@
+system = require 'system'
+
 ##
 # Wait until the test condition is true or a timeout occurs. Useful for waiting
 # on a server response or for a ui change (fadeIn, etc.) to occur.
@@ -29,7 +31,7 @@ waitFor = (testFx, onReady, timeOutMillis=3000) ->
                 clearInterval interval #< Stop this interval
     interval = setInterval f, 100 #< repeat check every 100ms
 
-if phantom.args.length isnt 1
+if system.args.length isnt 2
     console.log 'Usage: run-jasmine.coffee URL'
     phantom.exit()
 
@@ -39,7 +41,7 @@ page = require('webpage').create()
 page.onConsoleMessage = (msg) ->
     console.log msg
 
-page.open phantom.args[0], (status) ->
+page.open system.args[1], (status) ->
     if status isnt 'success'
         console.log 'Unable to access network'
         phantom.exit()
@@ -53,7 +55,7 @@ page.open phantom.args[0], (status) ->
             page.evaluate ->
                 console.log document.body.querySelector('.description').innerText
                 list = document.body.querySelectorAll('.failed > .description, .failed > .messages > .resultMessage')
-                for el in list 
+                for el in list
                   console.log el.innerText
 
             phantom.exit()

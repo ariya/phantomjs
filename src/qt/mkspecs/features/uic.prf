@@ -1,0 +1,117 @@
+defined(qtPrepareTool)|load(qt_functions) ### Qt 5: see default_pre.prf
+qtPrepareTool(QMAKE_UIC3, uic3)
+qtPrepareTool(QMAKE_UIC, uic)
+
+isEmpty(UI_DIR):UI_DIR = .
+isEmpty(UI_SOURCES_DIR):UI_SOURCES_DIR = $$UI_DIR
+isEmpty(UI_HEADERS_DIR):UI_HEADERS_DIR = $$UI_DIR
+isEmpty(QMAKE_MOD_UIC):QMAKE_MOD_UIC = ui_
+
+# Allow FORMS3 to contain old UIC3 forms, while FORMS contains new
+# UIC files in the same project. However, if CONFIG+=uic3 and no
+# FORMS3 is defined, FORMS may only contain old UIC3 files.
+
+!uic3|!isEmpty(FORMS3) {
+    # If we have CONFIG+=uic3 and no FORMS3, then don't do this step,
+    # as UIC3 files don't need a ui_<formname>.h file
+
+    uic.commands = $$QMAKE_UIC ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+    uic.depend_command = "$$QMAKE_UIC" -d "${QMAKE_FILE_IN}"
+    uic.output = $$UI_HEADERS_DIR/$${QMAKE_MOD_UIC}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
+    uic.input = FORMS
+    uic.variable_out = GENERATED_FILES
+    uic.CONFIG += no_link target_predeps
+    uic.name = UIC ${QMAKE_FILE_IN}
+    silent:uic.commands = @echo uic ${QMAKE_FILE_IN} && $$uic.commands
+    QMAKE_EXTRA_COMPILERS += uic
+    INCREDIBUILD_XGE += uic
+}
+
+!isEmpty(FORMS)|!isEmpty(FORMS3) {
+    ui_dir_short = $$UI_HEADERS_DIR
+    contains(QMAKE_HOST.os,Windows):ui_dir_short ~= s,^.:,/,
+    contains(ui_dir_short, ^[/\\\\].*):INCLUDEPATH += $$UI_HEADERS_DIR
+    else:INCLUDEPATH += $$OUT_PWD/$$UI_HEADERS_DIR
+}
+
+# Backwards compatibility: Make shadow builds with default UI_DIR work
+# if the user did not add the source dir explicitly.
+equals(UI_DIR, .) {
+    CONFIG -= include_source_dir
+    CONFIG = include_source_dir $$CONFIG
+}
+
+uic3 {
+    isEmpty(FORMS3) {
+        UIC3_FORMS = FORMS
+        !build_pass:message("Project contains CONFIG+=uic3, but no files in FORMS3; UI files in FORMS treated as UIC3 form files.")
+    } else {
+        UIC3_FORMS = FORMS3
+    }
+
+    uic3_decl.commands = $$QMAKE_UIC3 ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+    uic3_decl.dependency_type = TYPE_UI
+    uic3_decl.output = $$UI_HEADERS_DIR/${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
+    uic3_decl.input = $$UIC3_FORMS
+    uic3_decl.CONFIG += no_link
+    uic3_decl.variable_out = GENERATED_FILES UIC3_HEADERS
+    uic3_decl.name = UIC3 Decl ${QMAKE_FILE_IN}
+    silent:uic3_decl.commands = @echo uic3 ${QMAKE_FILE_IN} && $$uic3_decl.commands
+    QMAKE_EXTRA_COMPILERS += uic3_decl
+
+    uic3_impl.commands = $$QMAKE_UIC3 -impl ${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)} ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+    uic3_impl.dependency_type = TYPE_UI
+    uic3_impl.output = $$UI_SOURCES_DIR/${QMAKE_FILE_BASE}$${first(QMAKE_EXT_CPP)}
+    uic3_impl.depends = $$UI_HEADERS_DIR/${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
+    uic3_impl.input = $$UIC3_FORMS
+    uic3_impl.variable_out = GENERATED_SOURCES
+    uic3_impl.name = UIC3 Impl ${QMAKE_FILE_IN}
+    silent:uic3_impl.commands = @echo uic3 -impl ${QMAKE_FILE_IN} && $$uic3_impl.commands
+    QMAKE_EXTRA_COMPILERS += uic3_impl
+
+    ### add a moc step
+    load(moc)
+    uic3_moc.commands = $$moc_header.commands
+    uic3_moc.output = $$moc_header.output
+    uic3_moc.depends = $$UI_HEADERS_DIR/${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
+    uic3_moc.input = UIC3_HEADERS
+    uic3_moc.variable_out = GENERATED_SOURCES
+    uic3_moc.name = $$moc_header.name
+    !contains(TEMPLATE, "vc.*"):!isEmpty(INCLUDETEMP):uic3_moc.depends += $$INCLUDETEMP
+    QMAKE_EXTRA_COMPILERS += uic3_moc
+}
+
+defineReplace(imageCollectionCmd) {
+    unset(EMBEDDED_IMAGES)
+    RET =
+    for(image, $$list($$split(1))) {
+           EMBEDDED_IMAGES += $$image
+           count(EMBEDDED_IMAGES, 5) {
+                isEmpty(RET): RET += echo $$EMBEDDED_IMAGES > $${UI_DIR}/images.tmp $$escape_expand(\\n\\t)
+                else:         RET += echo $$EMBEDDED_IMAGES >> $${UI_DIR}/images.tmp $$escape_expand(\\n\\t)
+                unset(EMBEDDED_IMAGES)
+           }
+    }
+    !isEmpty(EMBEDDED_IMAGES):RET += echo $$EMBEDDED_IMAGES >> $${UI_DIR}/images.tmp $$escape_expand(\\n\\t)
+    !isEmpty(RET) {
+        RET += $$QMAKE_UIC3 -embed $$TARGET -f $${UI_DIR}/images.tmp -o $$2 $$escape_expand(\\n\\t)
+        return($$RET)
+    }
+    return($$QMAKE_UIC3 -embed $$TARGET $$1 -o $$2)
+}
+
+image_collection.output = $${UI_DIR}/qmake_image_collection$${first(QMAKE_EXT_CPP)}
+image_collection.variable_out = SOURCES
+image_collection.input = IMAGES
+image_collection.CONFIG += combine
+image_collection.name = UIC3 Image collection in ${QMAKE_FILE_OUT}
+!win32 {
+    image_collection.commands = $$QMAKE_UIC3 -embed $$TARGET ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+    silent:image_collection.commands = @echo uic3 -embed ${QMAKE_FILE_IN} && $$image_collection.commands
+} else {
+    image_collection.commands = ${QMAKE_FUNC_imageCollectionCmd}
+    silent:image_collection.commands = @echo uic3 -embed $$TARGET -f $${UI_DIR}/images.tmp && $image_collection.commands
+}
+QMAKE_EXTRA_COMPILERS += image_collection
+
+

@@ -1,0 +1,412 @@
+Qt 4.8 introduces many new features and improvements as well as bugfixes
+over the 4.7.x series. For more details, refer to the online documentation
+included in this distribution. The documentation is also available online:
+
+  http://qt.nokia.com/doc/4.8
+
+The Qt version 4.8 series is binary compatible with the 4.7.x series.
+Applications compiled for 4.7 will continue to run with 4.8.
+
+Some of the changes listed in this file include issue tracking numbers
+corresponding to tasks in the Qt Bug Tracker:
+
+  http://bugreports.qt.nokia.com/
+
+Each of these identifiers can be entered in the bug tracker to obtain more
+information about a particular change.
+
+****************************************************************************
+*                           General                                        *
+****************************************************************************
+
+Qt Platform Abstraction
+-----------------------
+
+Qt 4.8 adds a new platform: QPA (also known as Lighthouse). QPA is a replacement
+for Qt for Embedded Linux (QWS), making it much easier to port Qt to new platforms.
+
+General Improvements
+--------------------
+
+-
+
+Third party components
+----------------------
+
+ - Updated libpng to version 1.5.4
+ - Updated libjpeg to version 8c
+ - Updated zlib to version 1.2.5
+
+
+****************************************************************************
+*                          Library                                         *
+****************************************************************************
+
+QtCore
+------
+ - Removed support for QT_NO_THREAD define for QHostInfo.
+ - Optimized plugin loading on ELF platforms.
+   Print failure reason at runtime with QT_DEBUG_PLUGINS=1 in environment.
+ - QMutexLocker: improved performence of the non contended case by inlining some function
+ - QThreadStorage: Added possibility to store object by value instead of by pointer [QTBUG-15033]
+ - QThread: fixed few race conditions [QTBUG-17257, QTBUG-15030]
+ - QtConcurrent: Entry points were re-written and interfaces changed. This work was
+done in order to add support for QtConcurrent on Symbian, but ultimately it was noted
+that the changes lead to a leaner API and the change applies to all platforms.
+ - QtConcurrent: added support for c++0x lambda in few functions
+ - QObject: Improved performence of the signal activation
+ - QObject: added ways to connect signals using QMetaMethod
+ - QObject: added senderSignalIndex method to discover the signal that invoked a slot
+ - QObject: deprecated qFindChild and qFindChildren
+ - QObject: optimize constructions and destruction of objects
+ - QObject: Qt::BlockingQueuedConnection can handle the return value [QTBUG-10440]
+ - QList/QVector/QStringList: added C++0x initilizer lists constructors.
+ - QList: optimizations
+ - QVarLenghtArray: added method for consistency with QVector
+ - QStringBuilder: added support for QByteArray
+ - qSwap now uses std::swap, specialized std::swap for our container to work better with stl algoritms
+ - Added member-swap function to containers and implicitly shared (including GUI) classes
+ - QVariant: deprecated global function qVariantSetValue, qVariantValue, qVariantCanConvert, qVariantFromValue
+ - QUrl: add method for retrieving effective top level domain [QTBUG-13601] (MR-1205)
+ - optimised performance of QFileInfo, QDir, QDirIterator, these classes now share metadata and access the filesystem less
+ - QFile: new open() overloads allow control over whether QFile should close an adopted file handle or not
+ - Fix QProcess emitting two started signals on X11 [QTBUG-7039]
+ - QLocale: added locale dependent to{Upper,Lower} string conversions
+ - QUuid: Optimize QUuid::toString() and relevant, circa 20 times faster than before on the test machine. [QTBUG-19418]
+ - QUuid: Add QUuid::toByteArray() and relevant, same behavior with QUuid::toString(). [QTBUG-19419]
+ - QUuid: Add QUuid::toRfc4122() and fromRfc4122(), provide interfaces by following the RFC-4122 [QTBUG-19420]
+ - QTextStream, QDataStream and QXmlStreamWriter: added write error reporting [QTBUG-376]
+ - QProcessEnvironment: added keys() and insert(const QProcessEnvironment &)
+ - QProcessEnvironment: preserve variable name case on Windows
+ - QProcessEnvironment: made systemEnvironment() encoding-safe
+ - QProcessEnvironment: major optimizations, especially on Unix
+ - Add branch prediction macros Q_LIKELY and Q_UNLIKELY
+ - QSettings: don't assume XDG_CONFIG_HOME is latin1-encoded
+ - QDateTime: Fix generation of ISO8601 strings to include proper timezone information [QTBUG-18290]
+
+QtGui
+-----
+
+ - QApplication: Add a queryKeyboardModifiers() method.
+ - QTabBar: reduced minimumSizeHint if ElideMode is set.
+ - QComboBox: Fixed a color propagation issue with the lineedit. [QTBUG-5950]
+ - QGraphicsLayout: Made setInstantInvalidatePropagation() public
+ - Deprecate qGenericMatrixFromMatrix4x4 and qGenericMatrixToMatrix4x4
+ - QListView diverse optimisations [QTBUG-11438]
+ - QTreeWidget/QListWidget: use localeAwareCompare for string comparisons [QTBUG-10839]
+ - PNG image I/O: Much improved support for text annotations, including iTXt fields.
+ - QRawFont and QGlyphRun are introduced for low-level text rendering. [QTBUG-18252]
+ - QFont: hintingPreference() is introduced to control hinting in font rendering and
+   subpixel positioning of glyphs for Windows, Mac OS X and X11/raster. [QTBUG-10615]
+ - Subpixel positioned text layout is supported in raster and OpenGL paint engines.
+ - QFont: styleName() is added to allow selecting fonts with irregular style names
+   like UltraLight. [QTBUG-19366]
+ - Visual text cursor movement behavior is added to QTextEdit and QLineEdit controls,
+   which can be used as an optional mode for bi-directional text editing. [QTBUG-13859]
+ - Fixed several bidi reordering bugs.
+ - Make HTML exported from QTextDocument containing empty lines more compliant.
+ - Include font pixel size when exporting HTML from QTextDocument.
+ - QPainter: Added a fast stroking algorithm for thin (< 1px wide) aliased and antialiased
+   lines, giving a huge improvement in drawing speed for certain cases
+ - Fixed a rare race condition when showing toplevel windows on X11
+ - QWindowsStyle: fix bug in eventFilter on KeyPressed event with alt pressed, that
+   caused unnecessary update events
+ - Accessibility: Fix potential crash in QDockWidget.
+ - Accessibility: Fix crash when asking for relations of child accessibles.
+ - Accessibility: More consistency in reporting names (especially when widget is invisible).
+ - Accessibility: Make focus handling more consistent.
+ - Accessibility: Send updates when text changes.
+ - Accessibility: Add IAccessible2 events.
+ - Accessibility: Fix crash when accessing ItemViews during initialization.
+ - Accessibility: Make QTabWidget child hierarchy consistent.
+ - Accessibility: Report correct window title and application name.
+ - Accessibility: Return text attributes for QTextEdit.
+ - Accessibility: Make accessibility work on Windows with alien widgets
+ - Accessibility: Several enablers for accessible graphicsview and Qt Quick applications.
+ - Fixed loading BMP files with version 4 and 5 headers, ignoring extra data.
+ - QTextCursor optimization
+ - QUndoGroup, QUndoStack: Allow using not only prefixes for undo command text [QTBUG-14442]
+ - QUndoView: Allow different text for undo actions and items
+ - QCommonStyle: Fix overrides from the proxy style [QTBUG-20849]
+ - QWindowsVistaStyle: Draw CE_ProgressBarGroove correctly with PP_TRANSPARENTBAR.
+ - Removed obsolete -qt-gif configure option.
+
+QtNetwork
+---------
+
+ - SSL: Switch default version to TLS 1.0
+ - SSL: enable Server Name Indication (SNI) by default
+ - QSslCertificate: report fraudulent certificates as invalid ("Comodogate") [QTBUG-18338]
+ - QSslCertificate: display non-ASCII names from subject and issuerInfo (MR-922)
+ - QSslCertificate: loat root certificates on demand on Unix (excluding Mac) [QTBUG-14016]
+ - QNetworkCookie: retain quotes in value attribute [QTBUG-17746]
+ - QNetworkCookie: allow spaces in unquoted values [QTBUG-18876]
+ - HTTP API: add support for HTTP multipart messages [QTBUG-6222]
+ - HTTP cache: do not load resources from cache that must be revalidated [QTBUG-18983]
+ - HTTP cache: change file organization (MR-2505)
+ - SOCKS5: write errors are propagated to the outer socket [QTBUG-18713]
+ - Cookies: Commas are no longer used to support multiple cookies in a single Set-Cookie header [QTBUG-21456]
+ - QNetworkReply: errorString() returns translated messages now [QTBUG-18382]
+
+ QtOpenGL
+ --------
+ - Removed dependency of OpenGL Utility Library (GLU)
+ - Added QGLFunctions, which provides cross-platform access to the
+   OpenGL/ES 2.0 API.
+ - Including <QtOpenGL> will not work in combination with GLEW, as
+   QGLFunctions will undefine GLEW's defines.
+ - Optimize behavior of QGLTextureCache
+ - Support subpixel antialiasing when possible.
+ - [QTBUG-13450] Fixed path drawing on FBOs without stencil buffer.
+ - Reading from the FrameBuffer with Qt now correctly gives an image
+   marked as premultiplied.
+
+QtScript
+--------
+ - Deprecated qScriptValueFromQMetaObject, qScriptValueToValue, qScriptValueFromValue
+
+QtDBus
+------
+ - Added a method that returns the local machine ID
+
+QtWebKit
+--------
+ - Update QtWebKit to 2.2.0
+   http://trac.webkit.org/wiki/QtWebKitRelease22
+
+QtSql
+-----
+ - Update sqlite to 3.7.7.1
+ - QSqlField now initializes the type of its QVariant value to its own type.
+ - QSqlField's generated flag now controls generation of SQL insert/update/delete
+   in QSqlDriver::sqlStatement(). QSqlTableModel initializes the flag to false in
+   new edit records and sets it to true when a value is set. Applications can still
+   manipulate generated flags directly to control SQL generation. [QTBUG-13211]
+
+QtSvg
+-----
+ - [QTBUG-16216] Fixed infinite loop when loading some SVGs with CSS style.
+
+QtDBus
+------
+ - Make QDBusServer work [QTBUG-186]
+ - QDBusConnection: Add methods disconnectFromPeer and connectToPeer
+ - Make the DBus timeout configurable in QDBusAbstractInterface.
+
+QtTest
+------
+ - Added -random and -seed options to tests, making the test cases within
+   a test execute in arbitrary order.
+ - Added -datatags option to list available data tags for each test function.
+   The test case name is also listed.
+
+****************************************************************************
+*                          Database Drivers                                *
+****************************************************************************
+
+
+****************************************************************************
+*                      Platform Specific Changes                           *
+****************************************************************************
+
+Qt for Linux/X11
+----------------
+ - Now takes font hinting settings from GConf by default if running in
+   GNOME desktop.
+ - Various fixes to FontConfig font matching code to make it consistent
+   with other X11 programs. [QTBUG-2148, QTBUG-19947, QTBUG-14269]
+ - Added experimental support for armCC
+ - Experimental support for associating Wayland clients with PID or a token,
+   to facilitate window management.
+ - Added plugin system for menubars, making it possible to provide
+   alternative menubar implementations. (eg, appmenu:
+   https://launchpad.net/appmenu-qt)
+
+Qt for Windows
+--------------
+ - DirectWrite experimental text shaping engine is added with subpixel
+   positioning support. [QTBUG-12678]
+ - QElapsedTimer: use QueryPerformanceCounter if available.
+ - MSVC runtime is bound to the runtime you're building with. This makes
+   deployment on Windows easier. (QTBUG-8215)
+ - QLocalSocket::isValid() has been fixed. (QTBUG-18204)
+ - qFadeEffect() issue fixed. The QSystemTrayIcon's popup menu no longer
+   stays transparent in rare circumstances after the animation has completed.
+ - The small 16x16 version of the default window icon is now being loaded
+   correctly from the IDI_ICON1 resource.
+ - Fixed version checking for untested versions of Windows. (QTBUG-20480)
+ - Qt libs on MinGW now come with pkg-config .pc files.
+
+Qt for Mac OS X
+---------------
+ - Alien widgets is now used by default for Qt/Cocoa on Mac OS X. 
+ - Qt/Cocoa on Mac OS X has now full support for the raster paint engine.
+ - QApplication has now implemented macEventFilter for Qt/Cocoa
+ - HarfBuzz can now be used as an optional text layout engine on Mac OS X.
+   [QTBUG-17728]
+ - Qt shows some love to OS X Lion (10.7).
+
+Qt for Embedded Linux
+---------------------
+ - Added support for QNX 6.5 with multi-process support, and much improved mouse,
+   keyboard and screen drivers.
+ - Improved support for INTEGRITY RTOS
+ - Allow hard-coding the temp path in mkspecs (QT_UNIX_TEMP_PATH_OVERRIDE define)
+ - Added support for opening LinuxInput devices exclusively (via ioctl EVIOCGRAB)
+ - Added eglnullws QScreen driver for use with OpenGL ES EGL null window system (NullWS).
+
+Qt for Symbian
+--------------
+ - File APIs now have backends using native API rather than unix.
+   This improves performance and stability.
+ - Socket APIs now have a backend using native API rather than unix. [QTBUG-7274]
+   This improves stability and enables IPv6.
+ - IPv6 connectivity is now supported.
+ - Multiple instances of QNetworkAccessManager in the same process with a
+   different QNetworkConfiguration now work. This allows http requests to
+   be made via a specific network. For example to mobile operator websites
+   only accessible via the cellular network, or to websites inside a firewall
+ - System proxy settings now work correctly when using service networks [QTBUG-18618]
+ - Prevent horizontal lines appearing under entered characters when predictive text is off
+ - Checked state is not shown on highlighted itemview item when using QS60Style [QTBUG-19668]
+ - Icon is not shown correctly in a menu item in all cases when using QS60Style [QTBUG-19330]
+ - Remove S60 3rd edition support from QS60Style [QTBUG-18615]
+ - Prevent softkeys from coming to foreground when taskswitcher is opened [QTBUG-19225]
+ - Improve robustness of QS60Style when creating native theme bitmaps [QTBUG-21119]
+ - Make spinboxes and lineedits slightly taller in QS60Style
+ - Default graphics memory quota for Symbian applications support [QT-4963]
+ - Improved support for shadow builds in Symbian [QTBUG-10432]
+ - Fixed panic when global QSettings instance needs flusing at app exit [QTBUG-21421]
+ - Detect app caption and pkg name translations by id attribute [QT-5247]
+ - Fixed center aligned layouts for Symbian [QTBUG-14704]
+ - Fixed Symbian system date format parsing [QT-5237]
+ - Skip softkeys update if application is not on foreground in Symbian [QTBUG-19225]
+ - Removed S60 version plugins [QTBUG-18614]
+ - Improved DEFINES crossplatform compatibility in Symbian builds [QTBUG-19232]
+ - Fixed loss of focus and activation when hiding a child widget [QTBUG-19196]
+ - Fixed softkeys in case a dialog with softkeys that have icons is closed [QTBUG-19154]
+ - Update softkeys after orientation switch [QTBUG-19150]
+ - Implemented support for enable_backup CONFIG value [QTBUG-17214]
+ - Improved logic to find default certificates in createpackage script [QTBUG-18684]
+ - Changed createpackage and patch_capabilties scripts use tmp dir [QTBUG-11394]
+ - Added ".make.cache" to the files to be cleaned for symbian-abld [QTBUG-15733]
+ - Fixed emulator deployment for items with "!:" drive [QTBUG-18134]
+ - Removed broken "deploy.path" support from Symbian [QTBUG-14426]
+ - Strip echo suppression character "@" from commands in symbian-sbsv2 [QTBUG-4767]
+ - Don't leave from QNotifyChangeEvent::RunL() in QFileSystemWatcher [QT-4660]
+ - Fixed QProcess::waitForFinished WaitForRequest handling in Symbian [QT-4659]
+ - Changed DEPLOYMENT keyword to accept both .sources and .files [QTBUG-3216]
+ - Removed static vs dynamic library autodetection from qmake in Symbian [QTBUG-13498]
+ - QtConcurrent is now working both with RVCT 2.2 and GCCE 4.4.1 on Symbian, but not with WINSCW,
+the compiler of Symbian emulator (and there is no plan to support it). [QTBUG-5182] [QTBUG-9070]
+
+Qt for Windows CE
+-----------------
+
+
+****************************************************************************
+*                      Compiler Specific Changes                           *
+****************************************************************************
+- Sun Studio 12
+    * Fixed build issues in the OpenGL module on Solaris with CC 5.9. [QTBUG-19641]
+
+- Microsoft Visual C++
+    * Fixed build issues with STLport. [QTBUG-18374]
+
+****************************************************************************
+*                          Tools                                           *
+****************************************************************************
+
+- Build System
+
+- Assistant
+
+- Designer
+    * [QTBUG-18631] Enabled the use of promoted QWidgets in the buddy editor.
+    * [QTBUG-18120] Fixed saving of the Z-order.
+    * [QTBUG-13683] Fixed saving of QGridLayout and QFormLayout
+      by QFormBuilder.
+    * [QTBUG-10890] Added a filter to the rich text editor dialog.
+      that simplifies the HTML markup generated.
+    * [QTBUG-7777] Added support for QIcon::fromTheme.
+    * [QTBUG-7169] Fixed QtUiTools to be built with the correct
+      lib-infix.
+    * [QTBUG-3120] Added support for alignment of box layout items.
+
+- Linguist
+  - Linguist GUI
+
+  - lupdate
+
+  - lrelease
+
+
+- rcc
+
+
+- moc
+
+
+- uic
+
+
+- uic3
+
+
+- qmake
+    * Look for external Qt modules in $QMAKEPATH
+    * MinGW: fix DEF_FILE for shadow builds. (QTBUG-11643)
+    * Implemented "aux" template that allows making use of the INSTALLS variable
+      without building anything. Needed for projects with QML entry point.
+    * MSVC now link with /DYNAMICBASE /NXCOMPAT in order to increase security.
+    * Add comctl32 v6 assembly dependency to both /SUBSYSTEM:WINDOWS and
+      /SUBSYSTEM:CONSOLE applications to get consistent look and behaviour.
+    * Fix the language settings in generated Windows resource files. (QTBUG-12249)
+    * Write and install pkg-config files for MinGW
+    * Make PKGCONFIG referencing missing packages fatal; add packagesExist() for
+      a-priori checks. (QTBUG-11418)
+    * Make moc use DEFINES from pkg-config. (QTBUG-19922)
+    * Parsing nested quotes works a bit differently now
+    * Added -unset <prop> option
+    * Made the Hurd mkspec useful
+    * Visual Studio project generator
+      - Support x64 Qt builds. (QTBUG-17911)
+      - QMAKE_PROJECT_NAME qmake variable introduced to set the project's name.
+      - Support PCHs with other extensions than ".h". (QTBUG-16639)
+      - Fix setting PCH options manually via the MSVC compiler flags. (QTBUG-15594)
+      - Set the output directory correctly. (QTBUG-16490)
+      - Fix handling of DEFINES from .prl files. (QTBUG-16024)
+
+- configure
+    * The endianness for Windows is always set to little endian.
+    * [QTBUG-5710] Configure now complains on missing perl on windows
+    * Removed obsolete -qt-gif option
+    * Allow setting LD, RANLIB, OBJDUMP, and STRIP.
+    * Allow selecting imageformats to be built as plugin vs. internal.
+
+- qtconfig
+  * removed Qt3support dependency
+
+
+- qt3to4
+
+- qmlplugindump
+    * New tool to generate text descriptions of the QML components defined
+      in plugins loaded by a QML module.
+
+- syncqt
+    * Fix to allow $QTDIR to contain any valid pathname characters.
+
+- qdoc3
+    * Add support for documenting QML using module identifiers.
+    * Change the format of qdocconf files.
+
+****************************************************************************
+*                          Plugins                                         *
+****************************************************************************
+
+
+****************************************************************************
+*                   Important Behavior Changes                             *
+****************************************************************************
+

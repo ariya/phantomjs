@@ -1,13 +1,14 @@
 // Upload an image to imagebin.org
 
 var page = require('webpage').create(),
+    system = require('webpage'),
 	fname;
 
-if (phantom.args.length !== 1) {
+if (system.args.length !== 2) {
     console.log('Usage: imagebin.js filename');
     phantom.exit();
 } else {
-    fname = phantom.args[0];
+    fname = system.args[1];
     page.open("http://imagebin.org/index.php?page=add", function () {
         page.uploadFile('input[name=image]', fname);
         page.evaluate(function () {

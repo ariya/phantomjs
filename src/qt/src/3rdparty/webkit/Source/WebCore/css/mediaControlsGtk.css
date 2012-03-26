@@ -1,0 +1,105 @@
+/*
+ * WebKitGTK+ specific overrides for HTML5 media elements.
+ *
+ * Copyright (C) 2009 Zan Dobersek <zandobersek@gmail.com>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ *
+ */
+
+audio {
+    height: 20px;
+    width: 300px;
+}
+
+audio::-webkit-media-controls-panel, video::-webkit-media-controls-panel {
+    display: -webkit-box;
+    -webkit-box-orient: horizontal;
+    -webkit-box-align: end;
+    -webkit-user-select: none;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    z-index: 0;
+    overflow: hidden;
+    text-align: right;
+    height: 100%;
+}
+
+audio::-webkit-media-controls-mute-button, video::-webkit-media-controls-mute-button {
+    width: 20px;
+    height: 20px;
+}
+
+audio::-webkit-media-controls-play-button, video::-webkit-media-controls-play-button {
+    width: 20px;
+    height: 20px;
+}
+
+audio::-webkit-media-controls-timeline-container, video::-webkit-media-controls-timeline-container {
+    height: 20px;
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+audio::-webkit-media-controls-timeline, video::-webkit-media-controls-timeline {
+    height: 20px;
+}
+
+audio::-webkit-media-controls-current-time-display, video::-webkit-media-controls-current-time-display {
+    -webkit-appearance: media-current-time-display;
+    -webkit-user-select: none;
+    display: inline-block;
+    height: 20px;
+
+    padding: 5px;
+
+    text-align: center;
+    font-size: 10px;
+}
+
+audio::-webkit-media-controls-seek-back-button, video::-webkit-media-controls-seek-back-button {
+    width: 20px;
+    height: 20px;
+}
+
+audio::-webkit-media-controls-seek-forward-button, video::-webkit-media-controls-seek-forward-button {
+    width: 20px;
+    height: 20px;
+}
+
+audio::-webkit-media-controls-fullscreen-button, video::-webkit-media-controls-fullscreen-button {
+    width: 20px;
+    height: 20px;
+}
+
+audio::-webkit-media-controls-volume-slider-container, video::-webkit-media-controls-volume-slider-container {
+    -webkit-appearance: media-volume-slider-container;
+    position: absolute;
+    height: 100px;
+    width: 20px;
+}
+
+audio::-webkit-media-controls-volume-slider, video::-webkit-media-controls-volume-slider {
+    -webkit-appearance: media-volume-slider;
+    display: inline;
+    position: absolute;
+    width: 14px;
+    height: 95px;
+
+    left: 3px;
+    top: 5px;
+}

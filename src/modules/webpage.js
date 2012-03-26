@@ -99,8 +99,12 @@ exports.create = function (opts) {
                     this[signalName].disconnect(handlers[signalName]);
                 } catch (e) {}
             }
+
             handlers[signalName] = f;
-            this[signalName].connect(handlers[signalName]);
+
+            if (typeof f === 'function') {
+                this[signalName].connect(f);
+            }
         });
     }
 
@@ -120,6 +124,10 @@ exports.create = function (opts) {
     defineSetter("onAlert", "javaScriptAlertSent");
 
     defineSetter("onConsoleMessage", "javaScriptConsoleMessageSent");
+
+    defineSetter("onError", "javaScriptErrorSent");
+
+    page.onError = phantom.defaultErrorHandler;
 
     page.open = function (url, arg1, arg2, arg3, arg4) {
         if (arguments.length === 1) {
@@ -148,6 +156,14 @@ exports.create = function (opts) {
             this.openUrl(url, {
                 operation: arg1,
                 data: arg2
+            }, this.settings);
+            return;
+        } else if (arguments.length === 5) {
+            this.onLoadFinished = arg4;
+            this.openUrl(url, {
+                operation: arg1,
+                data: arg2,
+                headers : arg3
             }, this.settings);
             return;
         }

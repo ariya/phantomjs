@@ -1,0 +1,11 @@
+contains(TEMPLATE, "vc.*") {
+    EOC = $$escape_expand(\\n\\t)
+
+    # The VCPROJ generator will replace the \r\h with the coded \r\n: &#x0d;&#x0a;
+    # No other generator understands the \h
+    win32-msvc2*|wince*msvc*: EOC = $$escape_expand(\\r\\h)
+
+    for(xge, INCREDIBUILD_XGE) {
+        $${xge}.commands = Rem IncrediBuild_AllowRemote $$EOC Rem IncrediBuild_OutputFile $$replace($${xge}.output,/,\\) $$EOC $$eval($${xge}.commands)
+    }
+}

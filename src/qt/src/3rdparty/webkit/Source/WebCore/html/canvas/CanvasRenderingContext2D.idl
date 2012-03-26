@@ -1,0 +1,181 @@
+/*
+ * Copyright (C) 2006 Apple Computer, Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+module html {
+
+    interface [
+        InterfaceUUID=98fb48ae-7216-489c-862b-8e1217fc4443,
+        ImplementationUUID=ab4f0781-152f-450e-9546-5b3987491a54
+    ] CanvasRenderingContext2D : CanvasRenderingContext {
+
+        // Web Applications 1.0 draft
+
+        void save();
+        void restore();
+
+        void scale(in float sx, in float sy);
+        void rotate(in float angle);
+        void translate(in float tx, in float ty);
+        void transform(in float m11, in float m12, in float m21, in float m22, in float dx, in float dy);
+        void setTransform(in float m11, in float m12, in float m21, in float m22, in float dx, in float dy);
+
+        attribute float globalAlpha;
+        attribute [ConvertNullToNullString] DOMString globalCompositeOperation;
+
+        CanvasGradient createLinearGradient(in float x0, in float y0, in float x1, in float y1)
+            raises (DOMException);
+        CanvasGradient createRadialGradient(in float x0, in float y0, in float r0, in float x1, in float y1, in float r1)
+            raises (DOMException);
+
+        attribute float lineWidth;
+        attribute [ConvertNullToNullString] DOMString lineCap;
+        attribute [ConvertNullToNullString] DOMString lineJoin;
+        attribute float miterLimit;
+
+        attribute float shadowOffsetX;
+        attribute float shadowOffsetY;
+        attribute float shadowBlur;
+        attribute [ConvertNullToNullString] DOMString shadowColor;
+
+        void clearRect(in float x, in float y, in float width, in float height);
+        void fillRect(in float x, in float y, in float width, in float height);
+
+        void beginPath();
+        void closePath();
+        void moveTo(in float x, in float y);
+        void lineTo(in float x, in float y);
+        void quadraticCurveTo(in float cpx, in float cpy, in float x, in float y);
+        void bezierCurveTo(in float cp1x, in float cp1y, in float cp2x, in float cp2y, in float x, in float y);
+        void arcTo(in float x1, in float y1, in float x2, in float y2, in float radius)
+            raises (DOMException);
+        void rect(in float x, in float y, in float width, in float height);
+        void arc(in float x, in float y, in float radius, in float startAngle, in float endAngle, in boolean anticlockwise)
+            raises (DOMException);
+        void fill();
+        void stroke();
+        void clip();
+        boolean isPointInPath(in float x, in float y);
+
+        // text
+        attribute DOMString font;
+        attribute DOMString textAlign;
+        attribute DOMString textBaseline;
+
+        TextMetrics measureText(in DOMString text);
+
+        // other
+
+        void setAlpha(in float alpha);
+        void setCompositeOperation(in DOMString compositeOperation);
+
+#if !defined(LANGUAGE_CPP) || !LANGUAGE_CPP
+        void setLineWidth(in float width);
+        void setLineCap(in DOMString cap);
+        void setLineJoin(in DOMString join);
+        void setMiterLimit(in float limit);
+#endif
+
+        void clearShadow();
+
+#if defined(V8_BINDING) && V8_BINDING
+        void fillText(in DOMString text, in float x, in float y, in [Optional] float maxWidth);
+        void strokeText(in DOMString text, in float x, in float y, in [Optional] float maxWidth);
+
+        void setStrokeColor(in DOMString color, in [Optional] float alpha);
+        void setStrokeColor(in float grayLevel, in [Optional] float alpha);
+        void setStrokeColor(in float r, in float g, in float b, in float a);
+        void setStrokeColor(in float c, in float m, in float y, in float k, in float a);
+
+        void setFillColor(in DOMString color, in [Optional] float alpha);
+        void setFillColor(in float grayLevel, in [Optional] float alpha);
+        void setFillColor(in float r, in float g, in float b, in float a);
+        void setFillColor(in float c, in float m, in float y, in float k, in float a);
+
+        void strokeRect(in float x, in float y, in float width, in float height, in [Optional] float lineWidth);
+
+        void drawImage(in HTMLImageElement image, in float x, in float y)
+            raises (DOMException);
+        void drawImage(in HTMLImageElement image, in float x, in float y, in float width, in float height)
+            raises (DOMException);
+        void drawImage(in HTMLImageElement image, in float sx, in float sy, in float sw, in float sh, in float dx, in float dy, in float dw, in float dh)
+            raises (DOMException);
+        void drawImage(in HTMLCanvasElement canvas, in float x, in float y)
+            raises (DOMException);
+        void drawImage(in HTMLCanvasElement canvas, in float x, in float y, in float width, in float height)
+            raises (DOMException);
+        void drawImage(in HTMLCanvasElement canvas, in float sx, in float sy, in float sw, in float sh, in float dx, in float dy, in float dw, in float dh)
+            raises (DOMException);
+#if defined(ENABLE_VIDEO) && ENABLE_VIDEO
+        void drawImage(in HTMLVideoElement video, in float x, in float y)
+            raises (DOMException);
+        void drawImage(in HTMLVideoElement video, in float x, in float y, in float width, in float height)
+            raises (DOMException);
+        void drawImage(in HTMLVideoElement video, in float sx, in float sy, in float sw, in float sh, in float dx, in float dy, in float dw, in float dh)
+            raises (DOMException);
+#endif
+        void drawImageFromRect(in HTMLImageElement image,
+                               in float sx, in float sy, in float sw, in float sh,
+                               in float dx, in float dy, in float dw, in float dh, in DOMString compositeOperation);
+
+        void setShadow(in float width, in float height, in float blur, in [Optional] DOMString color, in [Optional] float alpha);
+        void setShadow(in float width, in float height, in float blur, in float grayLevel, in [Optional] float alpha);
+        void setShadow(in float width, in float height, in float blur, in float r, in float g, in float b, in float a);
+        void setShadow(in float width, in float height, in float blur, in float c, in float m, in float y, in float k, in float a);
+
+        CanvasPattern createPattern(in HTMLCanvasElement canvas, in [ConvertNullToNullString] DOMString repetitionType)
+            raises (DOMException);
+        CanvasPattern createPattern(in HTMLImageElement image, in [ConvertNullToNullString] DOMString repetitionType)
+            raises (DOMException);
+        void putImageData(in ImageData imagedata, in float dx, in float dy, in [Optional] float dirtyX, in float dirtyY, in float dirtyWidth, in float dirtyHeight)
+            raises(DOMException);
+        ImageData createImageData(in ImageData imagedata)
+            raises (DOMException);
+        ImageData createImageData(in float sw, in float sh)
+            raises (DOMException);
+#else
+        // FIXME: Remove 'else' once JSC supports overloads too.
+        [Custom] void fillText(/* 4 */);
+        [Custom] void strokeText(/* 4 */);
+        [Custom] void setStrokeColor(/* 1  */);
+        [Custom] void setFillColor(/* 1 */);
+        [Custom] void strokeRect(/* 4 */);
+        [Custom] void drawImage(/* 3 */);
+        [Custom] void drawImageFromRect(/* 10 */);
+        [Custom] void setShadow(/* 3 */);
+        [Custom] void createPattern(/* 2 */);
+        [Custom] void putImageData(/* in ImageData imagedata, in float dx, in float dy [, in float dirtyX, in float dirtyY, in float dirtyWidth, in float dirtyHeight] */);
+        [Custom] ImageData createImageData(/* 3 */);
+#endif // defined(V8_BINDING)
+
+        attribute [Custom] custom strokeStyle;
+        attribute [Custom] custom fillStyle;
+
+        // pixel manipulation
+        ImageData getImageData(in float sx, in float sy, in float sw, in float sh)
+            raises(DOMException);
+    };
+
+}
+

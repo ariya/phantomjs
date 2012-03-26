@@ -1,0 +1,26 @@
+#!/bin/sh
+
+XARCH_SUPPORT=no
+COMPILER=$1
+VERBOSE=$2
+WORKDIR=$3
+
+touch xarch.c
+
+if "$COMPILER" -c xarch.c -Xarch_i386 -mmmx 2>/dev/null 1>&2; then
+    if "$COMPILER" -c xarch.c -Xarch_i386 -mmmx  2>&1 | grep "unrecognized" >/dev/null ; then
+        true
+    else
+        XARCH_SUPPORT=yes
+    fi
+fi
+rm -f xarch.c xarch.o
+
+# done
+if [ "$XARCH_SUPPORT" != "yes" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "Xarch is not supported"
+    exit 0
+else
+    [ "$VERBOSE" = "yes" ] && echo "Xarch support detected"
+    exit 1
+fi

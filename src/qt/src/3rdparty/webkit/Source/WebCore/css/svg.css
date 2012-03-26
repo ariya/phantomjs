@@ -1,0 +1,70 @@
+/*
+ * The default style sheet used to render SVG.
+ *
+ * Copyright (C) 2005, 2006 Apple Computer, Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+@namespace "http://www.w3.org/2000/svg";
+
+/*
+    When an outermost SVG 'svg' element is stand-alone or embedded inline within a parent XML grammar 
+    which does not use CSS layout [CSS2-LAYOUT] or XSL formatting [XSL], the 'overflow' property on the 
+    outermost 'svg' element is ignored for the purposes of visual rendering and the initial clipping path is set 
+    to the bounds of the initial viewport.
+
+    When an outermost 'svg' element is embedded inline within a parent XML grammar which uses CSS layout
+    [CSS2-LAYOUT] or XSL formatting [XSL], if the 'overflow' property has the value hidden or scroll, then
+    the user agent will establish an initial clipping path equal to the bounds of the initial viewport; otherwise,
+    the initial clipping path is set according to the clipping rules as defined in [CSS2-overflow].
+
+    Opera/Firefox & WebKit agreed on NOT setting "overflow: hidden" for the outermost svg element - SVG 1.1 Errata
+    contains these changes as well as all future SVG specifications: see http://lists.w3.org/Archives/Public/public-svg-wg/2008JulSep/0347.html
+*/
+
+svg:not(:root), symbol, image, marker, pattern, foreignObject {
+    overflow: hidden
+}
+
+svg {
+    width: 100%;
+    height: 100%;
+}
+
+text, foreignObject {
+    display: block
+}
+
+text, tspan, textPath {
+   white-space: nowrap
+}
+
+text, tspan, tref {
+   -webkit-text-size-adjust: none;
+}
+
+/* states */
+
+:focus {
+    outline: auto 5px -webkit-focus-ring-color
+}

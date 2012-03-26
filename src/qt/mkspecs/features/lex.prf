@@ -1,0 +1,24 @@
+#
+# Lex extra-compiler for handling files specified in the LEXSOURCES variable
+#
+
+{
+    lex.name = Lex ${QMAKE_FILE_IN}
+    lex.input = LEXSOURCES
+    lex_included {
+        lex.CONFIG += no_link
+    } else {
+        lex.variable_out = GENERATED_SOURCES
+    }
+    isEmpty(QMAKE_LEXFLAGS_MANGLE):QMAKE_LEXFLAGS_MANGLE = -P${QMAKE_FILE_BASE}
+    QMAKE_LEXEXTRAFLAGS = $$QMAKE_LEXFLAGS
+    !yacc_no_name_mangle:QMAKE_LEXEXTRAFLAGS += $$QMAKE_LEXFLAGS_MANGLE
+
+    lex.commands = $$QMAKE_LEX $$QMAKE_LEXEXTRAFLAGS ${QMAKE_FILE_IN}$$escape_expand(\\n\\t) \
+                   $$QMAKE_DEL_FILE $${QMAKE_CPP_MOD_MOC}${QMAKE_FILE_BASE}_lex$${first(QMAKE_EXT_CPP)}$$escape_expand(\\n\\t) \
+                   $$QMAKE_MOVE lex.${QMAKE_FILE_BASE}.c $${QMAKE_CPP_MOD_MOC}${QMAKE_FILE_BASE}_lex$${first(QMAKE_EXT_CPP)}$$escape_expand(\\n\\t)
+    lex.output = $${QMAKE_CPP_MOD_MOC}${QMAKE_FILE_BASE}_lex$${first(QMAKE_EXT_CPP)}
+
+    silent:lex.commands = @echo Lex ${QMAKE_FILE_IN} && $$lex.commands
+    QMAKE_EXTRA_COMPILERS += lex
+}

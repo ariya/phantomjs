@@ -1,11 +1,12 @@
 page = require('webpage').create()
+system = require 'system'
 
-if phantom.args.length is 0
-  console.log 'Usage: loadspeed.js <some URL>'
+if system.args.length is 1
+  console.log 'Usage: loadspeed.coffee <some URL>'
   phantom.exit()
 else
   t = Date.now()
-  address = phantom.args[0]
+  address = system.args[1]
   page.open address, (status) ->
     if status isnt 'success'
       console.log('FAIL to load the address')

@@ -1,0 +1,27 @@
+namespace="MathML"
+namespaceURI="http://www.w3.org/1998/Math/MathML"
+guardFactoryWith="ENABLE(MATHML)"
+
+math
+mfrac interfaceName=MathMLInlineContainerElement
+mfenced interfaceName=MathMLInlineContainerElement
+msubsup interfaceName=MathMLInlineContainerElement
+mrow interfaceName=MathMLInlineContainerElement
+mover interfaceName=MathMLInlineContainerElement
+munder interfaceName=MathMLInlineContainerElement
+munderover interfaceName=MathMLInlineContainerElement
+msqrt interfaceName=MathMLInlineContainerElement
+mroot interfaceName=MathMLInlineContainerElement
+mi interfaceName=MathMLTextElement
+mn interfaceName=MathMLTextElement
+mo interfaceName=MathMLTextElement
+mtext interfaceName=MathMLTextElement
+msub interfaceName=MathMLInlineContainerElement
+msup interfaceName=MathMLInlineContainerElement
+
+#if 0 // Curently only for MathMLNames used by HTMLTreeBuilder.
+ms
+mglyph
+malignmark
+annotation-xml
+#endif
