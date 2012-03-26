@@ -32,9 +32,11 @@ function checkRequest(request, response) {
         expect(request.method).toEqual("POST");
         expect(request.hasOwnProperty('post')).toBeTruthy();
         expect(typeof request.post).toEqual('object');
-        console.log(JSON.stringify(request.post, null, 4));
-        console.log(JSON.stringify(expectedPostData, null, 4));
-        console.log(JSON.stringify(request.headersappl, null, 4));
+        expect(JSON.stringify(request.post, null, 4))
+            .toEqual(JSON.stringify(expectedPostData, null, 4));
+        // console.log(JSON.stringify(request.post, null, 4));
+        // console.log(JSON.stringify(expectedPostData, null, 4));
+        // console.log(JSON.stringify(request.headers, null, 4));
         expect(request.post).toEqual(expectedPostData);
         expect(request.hasOwnProperty('rawData')).toBeTruthy();
         expect(typeof request.rawData).toEqual('object');
