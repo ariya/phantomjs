@@ -369,6 +369,7 @@ void QAccessible::updateAccessibility(QObject *o, int who, Event reason)
             if (w->internalWinId())
                 break;
         }
+#ifndef QT_NO_GRAPHICSVIEW
         if (QGraphicsObject *gfxObj = qobject_cast<QGraphicsObject*>(p)) {
             QGraphicsItem *parentItem = gfxObj->parentItem();
             if (parentItem) {
@@ -384,7 +385,9 @@ void QAccessible::updateAccessibility(QObject *o, int who, Event reason)
                 }
                 p = view;
             }
-        } else {
+        } else
+#endif // QT_NO_GRAPHICSVIEW
+        {
             p = p->parent();
         }
 
