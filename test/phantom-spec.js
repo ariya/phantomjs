@@ -67,4 +67,8 @@ describe("phantom global object", function() {
     it("should have 'exit' function", function() {
         expect(typeof phantom.exit).toEqual("function");
     });
+
+    it("should have 'isDebug' property", function() {
+        expect(typeof phantom.isDebug).toEqual("boolean");
+    });
 });
