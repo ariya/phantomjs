@@ -194,13 +194,13 @@ exports.create = function (opts) {
      * @return  {*}                 the function call result
      */
     page.evaluate = function (func, args) {
-        if (!(func instanceof Function || typeof func == 'string' || func instanceof String)) {
+        var str, arg;
+        if (!(func instanceof Function || typeof func === 'string' || func instanceof String)) {
             throw "Wrong use of WebPage#evaluate";
-            return;
         }
-        var str = 'function() { return (' + func.toString() + ')(';
+        str = 'function() { return (' + func.toString() + ')(';
         for (var i = 1, l = arguments.length; i < l; i++) {
-            var arg = arguments[i];
+            arg = arguments[i];
             if (/object|string/.test(typeof arg) && !(arg instanceof RegExp)) {
                 str += 'JSON.parse(' + JSON.stringify(JSON.stringify(arg)) + '),';
             } else {
