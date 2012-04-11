@@ -323,6 +323,65 @@ describe("WebPage object", function() {
         });
 
     });
+
+    it("should pass variables to functions properly", function() {
+        var testPrimitiveArgs = function() {
+            var samples = [
+                true,
+                0,
+                "`~!@#$%^&*()_+-=[]\{}|;':\",./<>?",
+                undefined,
+                null
+            ];
+            for (var i = 0; i < samples.length; i++) {
+                if (samples[i] !== arguments[i]) {
+                    console.log("FAIL");
+                }
+            }
+        };
+
+        var testComplexArgs = function() {
+            var samples = [
+                {a:true, b:0, c:"string"},
+                function() { return true; },
+                [true, 0, "string"],
+                /\d+\w*\//
+            ];
+            for (var i = 0; i < samples.length; i++) {
+                if (typeof samples[i] !== typeof arguments[i] 
+                    || samples[i].toString() !== arguments[i].toString()) {
+                    console.log("FAIL");
+                }
+            }
+        };
+
+        var message;
+        runs(function() {
+            page.onConsoleMessage = function (msg) {
+                message = msg;
+            }
+        });
+
+        waits(0);
+
+        runs(function() {
+            page.evaluate(function() { 
+                console.log("PASS");
+            });
+            page.evaluate(testPrimitiveArgs, 
+                true,
+                0,
+                "`~!@#$%^&*()_+-=[]\{}|;':\",./<>?",
+                undefined,
+                null);
+            page.evaluate(testComplexArgs,
+                {a:true, b:0, c:"string"},
+                function() { return true; },
+                [true, 0, "string"],
+                /\d+\w*\//);
+            expect(message).toEqual("PASS");
+        });
+    });
 });
 
 describe("WebPage construction with options", function () {

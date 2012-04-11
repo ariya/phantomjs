@@ -187,6 +187,30 @@ exports.create = function (opts) {
         this._appendScriptElement(scriptUrl);
     };
 
+    /**
+     * evaluate a function in the page
+     * @param   {function}  func    the function to evaluate
+     * @param   {...}       args    function arguments
+     * @return  {*}                 the function call result
+     */
+    page.evaluate = function (func, args) {
+        var str, arg, i, l;
+        if (!(func instanceof Function || typeof func === 'string' || func instanceof String)) {
+            throw "Wrong use of WebPage#evaluate";
+        }
+        str = 'function() { return (' + func.toString() + ')(';
+        for (i = 1, l = arguments.length; i < l; i++) {
+            arg = arguments[i];
+            if (/object|string/.test(typeof arg) && !(arg instanceof RegExp)) {
+                str += 'JSON.parse(' + JSON.stringify(JSON.stringify(arg)) + '),';
+            } else {
+                str += arg + ',';
+            }
+        }
+        str = str.replace(/,$/, '') + '); }';
+        return this.evaluateJavaScript(str);
+    }
+
     // Copy options into page
     if (opts) {
         page = copyInto(page, opts);
