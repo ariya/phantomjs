@@ -82,6 +82,15 @@ phantom.defaultErrorHandler = function(error, backtrace) {
     })
 }
 
+phantom.callback = function(callback) {
+    var ret = phantom.createCallback();
+    ret.called.connect(function(args) {
+        var retVal = callback.apply(this, args);
+        ret.returnValue = retVal;
+    });
+    return ret;
+}
+
 phantom.onError = phantom.defaultErrorHandler;
 
 // Legacy way to use WebPage
