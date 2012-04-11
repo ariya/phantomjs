@@ -121,6 +121,7 @@ public:
            barrierBeforeBlocking(0),
            barrierReturnValue(0),
            selectReturnMutex(0),
+           selectWorker(0),
            selectWorkerNeedsSync(true),
            selectWorkerHasResult(false),
            m_integrationInitialised(false),
