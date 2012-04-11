@@ -1,0 +1,147 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8"> 
+    <title>PhantomJS: Headless WebKit with JavaScript API</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="screen.min.css">
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-21665893-1']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+</head>
+
+<body>
+<div id="intro">
+    <div id="header" class="container_12">
+        <a href="http://www.phantomjs.org/" class="grid_4 alpha"><img src="images/phantomjs-logo.png" alt="PhantomJS" id="logo" width="240" height="80"></a>
+        <ul id="nav" class="grid_8 omega">
+            <li><a href="http://code.google.com/p/phantomjs/wiki/SourceCode?tm=4">Source Code</a></li>
+            <li><a href="http://code.google.com/p/phantomjs/wiki/PhantomJS?tm=6">Documentation</a></li>
+            <li><a href="http://code.google.com/p/phantomjs/wiki/Interface">API</a></li>
+            <li><a href="http://code.google.com/p/phantomjs/wiki/QuickStart">Examples</a></li>
+            <li><a href="http://code.google.com/p/phantomjs/wiki/FAQ">FAQ</a></li>
+        </ul>
+    </div>
+    
+    <div id="introduction" class="container_12">
+        <div class="grid_7 alpha">
+            <h1>
+                Full web stack<br>
+                No browser required
+            </h1>
+            <p class="explanation">
+                PhantomJS is a headless WebKit with JavaScript API.
+                It has <strong>fast</strong> and <strong>native</strong> support for various web standards: 
+                DOM handling, CSS selector, JSON, Canvas, and SVG.<br>
+                PhantomJS is created by <a href="http://twitter.com/AriyaHidayat">Ariya Hidayat</a>.
+            </p>
+            <p class="action">
+                <a href="http://code.google.com/p/phantomjs/downloads/list" id="download">Download <span class="version">v1.5</span></a>
+                <a href="http://code.google.com/p/phantomjs/wiki/QuickStart">Get started</a>
+            </p>
+        </div>
+        <div id="intro-example" class="grid_5 omega">
+            <pre class="solarized">
+<strong>Simple Javascript example</strong>
+
+<span class="object">console</span>.<span class="function">log</span>(<span class="literal">'Loading a web page'</span>);
+var <span class="object">page</span> = new <span class="object">WebPage</span>();
+var <span class="object">url</span> = <span class="literal">"http://www.phantomjs.org/"</span>;
+<span class="object">page</span>.<span class="function">open</span>(url, <span class="function">function</span> (status) {
+    <span class="comment">//Page is loaded!</span>
+    <span class="object">phantom</span>.<span class="function">exit</span>();
+});</pre>
+        </div>
+    </div>
+</div>
+
+<div id="community">
+    <h2>Community:</h2>
+    <ul>
+        <li>
+            <a href="http://code.google.com/p/phantomjs/wiki/ReleaseNotes" id="link-release">Read the release notes</a>
+        </li>
+        <li>
+            <a href="https://groups.google.com/forum/#!forum/phantomjs" id="link-ml">Join the mailing list</a>
+        </li>
+        <li>
+            <a href="http://code.google.com/p/phantomjs/issues" id="link-bugs">Report bugs</a>
+        </li>
+    </ul>
+</div>
+
+<div id="description" class="container_12">
+    <h2>PhantomJS is an optimal solution for</h2>
+    <div id="feature-01" class="feature grid_3 alpha">
+        <h3>Headless Website Testing</h3>
+        <div>
+            <p>
+                Run functional tests with frameworks such as Jasmine, QUnit or CasperJS.
+                <br>
+                <a href="http://code.google.com/p/phantomjs/wiki/TestFrameworkIntegration">Learn more</a>
+            </p>
+        </div>
+    </div>
+    <div id="feature-02" class="feature grid_3">
+        <h3>Site Scraping</h3>
+        <div>
+            <p>
+                Access and manipulate webpages
+                with the standard DOM API, or with
+                usual libraries like jQuery.
+                <br>
+                <a href="http://code.google.com/p/phantomjs/wiki/QuickStart#DOM_Manipulation">Learn more</a>
+            </p>
+        </div>
+    </div>
+    <div id="feature-03" class="feature grid_3">
+        <h3>SVG Rendering</h3>
+        <div>
+            <p>
+                Render SVG graphics with the built-in Webkit rendering engine.
+                <br>
+                <a href="http://code.google.com/p/phantomjs/wiki/QuickStart#Rendering">Learn more</a>
+            </p>
+        </div>
+    </div>
+    <div id="feature-04" class="feature grid_3 omega">
+        <h3>Network Monitoring</h3>
+        <div>
+            <p>
+                Monitor page speed loading. Export as standard HAR files.
+                <br>
+                <a href="http://code.google.com/p/phantomjs/wiki/QuickStart#Network_traffic">Learn more</a>
+            </p>
+        </div>
+    </div>
+    <div id="feature-end" class="grid_12">
+        <p>
+        PhantomJS can also integrate with webservices (XML, JSONP, YQL) and with test frameworks (Jasmine, QUnit). 
+        <a href="http://code.google.com/p/phantomjs/wiki/QuickStart">See more examples</a>
+        </p>
+    </div>
+</div>
+
+<div id="footer">
+    <div id="footer-content" class="container_12">
+        <p>
+            &copy; Copyright 2010-2012 <a href="http://twitter.com/AriyaHidayat">Ariya Hidayat</a> &mdash; Website design by <a href="http://svay.com/">Maurice Svay</a>
+        </p>
+    </div>
+</div>
+<a href="http://github.com/ariya/phantomjs"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://a248.e.akamai.net/assets.github.com/img/bec6c51521dcc8148146135149fe06a9cc737577/687474703a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub"></a>
+</body>
+</html>
