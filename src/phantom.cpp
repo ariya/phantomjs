@@ -43,6 +43,7 @@
 #include "webserver.h"
 #include "repl.h"
 #include "system.h"
+#include "callback.h"
 
 
 // public:
@@ -255,6 +256,11 @@ QObject *Phantom::createSystem()
     }
 
     return m_system;
+}
+
+QObject* Phantom::createCallback()
+{
+    return new Callback(this);
 }
 
 QString Phantom::loadModuleSource(const QString &name)

@@ -53,6 +53,7 @@
 #include <gifwriter.h>
 
 #include "consts.h"
+#include "callback.h"
 
 // Ensure we have at least head and body.
 #define BLANK_HTML "<html><head></head><body></body></html>"
@@ -613,8 +614,61 @@ bool WebPage::renderPdf(const QString &fileName)
 
     printer.setPageMargins(marginLeft, marginTop, marginRight, marginBottom, QPrinter::Point);
 
-    m_mainFrame->print(&printer);
+    m_mainFrame->print(&printer, this);
     return true;
+}
+
+qreal getHeight(const QVariantMap &map, const QString &key)
+{
+    QVariant footer = map.value(key);
+    if (!footer.canConvert(QVariant::Map)) {
+        return 0;
+    }
+    QVariant height = footer.toMap().value("height");
+    if (!height.canConvert(QVariant::String)) {
+        return 0;
+    }
+    return stringToPointSize(height.toString());
+}
+
+qreal WebPage::footerHeight() const
+{
+    return getHeight(m_paperSize, "footer");
+}
+
+qreal WebPage::headerHeight() const
+{
+    return getHeight(m_paperSize, "header");
+}
+
+QString getHeaderFooter(const QVariantMap &map, const QString &key, QWebFrame *frame, int page, int numPages)
+{
+    QVariant header = map.value(key);
+    if (!header.canConvert(QVariant::Map)) {
+        return QString();
+    }
+    QVariant callback = header.toMap().value("contents");
+    if (callback.canConvert<QObject*>()) {
+        Callback* caller = qobject_cast<Callback*>(callback.value<QObject*>());
+        if (caller) {
+            QVariant ret = caller->call(QVariantList() << page << numPages);
+            if (ret.canConvert(QVariant::String)) {
+                return ret.toString();
+            }
+        }
+    }
+    frame->evaluateJavaScript("console.error('Bad header callback given, use phantom.callback);", QString());
+    return QString();
+}
+
+QString WebPage::header(int page, int numPages)
+{
+    return getHeaderFooter(m_paperSize, "header", m_mainFrame, page, numPages);
+}
+
+QString WebPage::footer(int page, int numPages)
+{
+    return getHeaderFooter(m_paperSize, "footer", m_mainFrame, page, numPages);
 }
 
 void WebPage::uploadFile(const QString &selector, const QString &fileName)

@@ -108,6 +108,8 @@ public:
     void emitUrlChanged();
     void _q_orientationChanged();
 
+    static WebCore::Frame* webcoreFrame(QWebFrame* frame) { return frame->d->frame; };
+
     QWebFrame *q;
     Qt::ScrollBarPolicy horizontalScrollBarPolicy;
     Qt::ScrollBarPolicy verticalScrollBarPolicy;

@@ -544,6 +544,8 @@ Color Frame::getDocumentBackgroundColor() const
 
 void Frame::setPrinting(bool printing, const FloatSize& pageSize, float maximumShrinkRatio, AdjustViewSizeOrNot shouldAdjustViewSize)
 {
+    m_pageResets.clear();
+
     m_doc->setPrinting(printing);
     view()->adjustMediaTypeForPrinting(printing);
 
@@ -559,6 +561,38 @@ void Frame::setPrinting(bool printing, const FloatSize& pageSize, float maximumS
     // Subframes of the one we're printing don't lay out to the page size.
     for (Frame* child = tree()->firstChild(); child; child = child->tree()->nextSibling())
         child->setPrinting(printing, IntSize(), 0, shouldAdjustViewSize);
+}
+
+void Frame::addResetPage(int page)
+{
+    m_pageResets.append(page);
+}
+
+void Frame::getPagination(int page, int pages, int& logicalPage, int& logicalPages) const
+{
+    logicalPage = page;
+    logicalPages = pages;
+    int last_j = 0;
+    int j = 0;
+    for(size_t i = 0; i < m_pageResets.size(); ++i) {
+        j = m_pageResets.at(i);
+        if (j >= page) {
+            break;
+        }
+        last_j = j;
+    }
+    if (page > last_j) {
+        logicalPage = page - last_j;
+    }
+    if (last_j) {
+        if (j > last_j) {
+            logicalPages = j - last_j;
+        } else {
+            logicalPages = pages - last_j;
+        }
+    } else if (j >= page && j < pages) {
+        logicalPages = j;
+    }
 }
 
 void Frame::injectUserScripts(UserScriptInjectionTime injectionTime)
