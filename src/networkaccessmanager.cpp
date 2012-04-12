@@ -69,6 +69,7 @@ static const char *toString(QNetworkAccessManager::Operation op)
 NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config)
     : QNetworkAccessManager(parent)
     , m_ignoreSslErrors(config->ignoreSslErrors())
+    , m_loadStyles(config->loadStyles())
     , m_idCounter(0)
     , m_networkDiskCache(0)
 {
@@ -136,6 +137,11 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     QNetworkReply *reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
     if(m_ignoreSslErrors) {
         reply->ignoreSslErrors();
+    }
+
+    if (req.url().path().endsWith("css") && !m_loadStyles) {
+        // returning an empty request if we don't want css
+        reply = QNetworkAccessManager::createRequest(op, QNetworkRequest(QUrl()));
     }
 
     QVariantList headers;
