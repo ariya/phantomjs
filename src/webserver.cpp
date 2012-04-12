@@ -398,7 +398,12 @@ void WebServerResponse::write(const QString &body)
         writeHead(m_statusCode, m_headers);
     }
     ///TODO: encoding?!
-    const QByteArray data = body.toLocal8Bit();
+
+    QByteArray data(body.size(), Qt::Uninitialized);
+    for(int i = 0; i < body.size(); ++i) {
+      data[i] = body.at(i).toAscii();
+    }
+
     mg_write(m_conn, data.constData(), data.size());
 }
 
