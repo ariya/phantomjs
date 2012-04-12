@@ -18,6 +18,7 @@ Options:
   --proxy-type=[http|socks5]             Sets the proxy type, either "http" (default) or "socks5"
   --script-encoding                      Sets the encoding used for the starting script (default is 'utf8')
   --web-security=[yes|no]                Enable web security (default is 'yes')
+  --load-styles=[yes|no]                 Load CSS styles (default is 'yes')
   -v, --version                          Prints out PhantomJS version
   -h, --help                             Shows this message and quits
 

@@ -152,6 +152,14 @@ void Config::processArgs(const QStringList &args)
             setWebSecurityEnabled(false);
             continue;
         }
+	if (arg == "--load-styles=yes") {
+            setLoadStyles(true);
+            continue;
+        }
+        if (arg == "--load-styles=no") {
+            setLoadStyles(false);
+            continue;
+        }
         if (arg.startsWith("--")) {
             setUnknownOption(QString("Unknown option '%1'").arg(arg));
             return;
@@ -445,6 +453,16 @@ void Config::setWebSecurityEnabled(const bool value)
     m_webSecurityEnabled = value;
 }
 
+bool Config::loadStyles() const
+{
+    return m_loadStyles;
+}
+
+void Config::setLoadStyles(const bool value)
+{
+    m_loadStyles = value;
+}
+
 // private:
 void Config::resetToDefaults()
 {
@@ -469,6 +487,7 @@ void Config::resetToDefaults()
     m_remoteDebugPort = -1;
     m_remoteDebugAutorun = false;
     m_webSecurityEnabled = true;
+    m_loadStyles = true;
     m_helpFlag = false;
 }
 
