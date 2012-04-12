@@ -12,6 +12,7 @@ RESOURCES = phantomjs.qrc
 
 HEADERS += csconverter.h \
     phantom.h \
+    callback.h \
     webpage.h \
     webserver.h \
     consts.h \
@@ -28,6 +29,7 @@ HEADERS += csconverter.h \
     replcompletable.h
 
 SOURCES += phantom.cpp \
+    callback.cpp \
     webpage.cpp \
     webserver.cpp \
     main.cpp \

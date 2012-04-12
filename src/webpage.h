@@ -34,6 +34,7 @@
 #include <QMap>
 #include <QVariantMap>
 #include <QWebPage>
+#include <QWebFrame>
 
 #include "replcompletable.h"
 
@@ -43,7 +44,7 @@ class NetworkAccessManager;
 class QWebInspector;
 class Phantom;
 
-class WebPage: public REPLCompletable
+class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
 {
     Q_OBJECT
     Q_PROPERTY(QString content READ content WRITE setContent)
@@ -84,6 +85,11 @@ public:
     QVariantMap customHeaders() const;
 
     void showInspector(const int remotePort = -1);
+
+    QString footer(int page, int numPages);
+    qreal footerHeight() const;
+    QString header(int page, int numPages);
+    qreal headerHeight() const;
 
 public slots:
     void openUrl(const QString &address, const QVariant &op, const QVariantMap &settings);
