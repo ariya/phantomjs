@@ -132,16 +132,18 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
         req.setRawHeader(i.key().toAscii(), i.value().toByteArray());
         ++i;
     }
-
-    // Pass duty to the superclass - Nothing special to do here (yet?)
-    QNetworkReply *reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
-    if(m_ignoreSslErrors) {
-        reply->ignoreSslErrors();
-    }
-
+    
+    QNetworkReply *reply = 0;
     if (req.url().path().endsWith("css") && !m_loadStyles) {
         // returning an empty request if we don't want css
         reply = QNetworkAccessManager::createRequest(op, QNetworkRequest(QUrl()));
+    } else {
+        // Pass duty to the superclass - Nothing special to do here (yet?)
+        reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
+    }
+    
+    if(m_ignoreSslErrors) {
+        reply->ignoreSslErrors();
     }
 
     QVariantList headers;
