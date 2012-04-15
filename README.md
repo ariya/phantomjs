@@ -4,6 +4,8 @@ PhantomJS ([www.phantomjs.org](http://phantomjs.org)) is a headless WebKit scrip
 
 The latest [stable release](http://code.google.com/p/phantomjs/wiki/ReleaseNotes) is version 1.5 (codenamed "Ghost Flower"). Follow the official Twitter stream [@HeadlessPhantom](http://twitter.com/HeadlessPhantom) to get the frequent development updates.
 
+PhantomJS is created and maintain by [Ariya Hidayat](http://ariya.ofilabs.com/about) (Twitter: [@ariyahidayat](http://twitter.com/ariyahidayat)), with the help of [many contributors](https://github.com/ariya/phantomjs/contributors).
+
 ## Use Cases
 
 - **Headless web testing**. Lightning-fast testing without the browser is now possible! Various [test frameworks](http://code.google.com/p/phantomjs/wiki/TestFrameworkIntegration) such as Jasmine, Capybara, QUnit,  WebDriver, YUI Test, BusterJS, FuncUnit, Robot Framework, and many others are supported.
