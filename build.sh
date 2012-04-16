@@ -1,8 +1,24 @@
 #!/bin/bash
 
-COMPILE_JOBS=4
-
 QT_CFG=''
+
+COMPILE_JOBS=1
+
+if [[ $OSTYPE = darwin* ]]; then
+   # We only support modern Mac machines, they are at least using
+   # hyperthreaded dual-core CPU.
+   COMPILE_JOBS=4
+else
+   CPU_CORES=`grep -c ^processor /proc/cpuinfo`
+   if [[ "$CPU_CORES" -gt 1 ]]; then
+       COMPILE_JOBS=$CPU_CORES
+       if [[ "$COMPILE_JOBS" -gt 8 ]]; then
+           # Safety net.
+           COMPILE_JOBS=8
+       fi
+   fi
+fi
+
 
 until [ -z "$1" ]; do
     case $1 in
