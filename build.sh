@@ -4,7 +4,11 @@ QT_CFG=''
 
 COMPILE_JOBS=1
 
-if [[ $OSTYPE = darwin* ]]; then
+MAKEFLAGS_JOBS=$(echo $MAKEFLAGS | egrep -o '\-j[0-9]+' | egrep -o '[0-9]+')
+if [[ "$MAKEFLAGS_JOBS" != "" ]]; then
+  # user defined number of jobs in MAKEFLAGS, re-use that number
+  COMPILE_JOBS=$MAKEFLAGS_JOBS
+elif [[ $OSTYPE = darwin* ]]; then
    # We only support modern Mac machines, they are at least using
    # hyperthreaded dual-core CPU.
    COMPILE_JOBS=4
