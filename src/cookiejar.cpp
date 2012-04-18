@@ -43,13 +43,13 @@ bool CookieJar::setCookiesFromUrl(const QList<QNetworkCookie> & cookieList, cons
     QSettings settings(m_cookiesFile, QSettings::IniFormat);
 
     settings.beginGroup(url.host());
-    
+
     for (QList<QNetworkCookie>::const_iterator i = cookieList.begin(); i != cookieList.end(); i++) {
-        settings.setValue((*i).name(), QString((*i).value()));
+      settings.setValue((*i).name(), (*i).toRawForm());
     }
-    
+
     settings.sync();
-    
+
     return true;
 }
 
@@ -61,10 +61,10 @@ QList<QNetworkCookie> CookieJar::cookiesForUrl(const QUrl & url) const
     settings.beginGroup(url.host());
 
     QStringList keys = settings.childKeys();
-    
+
     for (QStringList::iterator i = keys.begin(); i != keys.end(); i++) {
-        cookieList.push_back(QNetworkCookie((*i).toLocal8Bit(), settings.value(*i).toByteArray()));
+        cookieList.append(QNetworkCookie::parseCookies(settings.value(*i).toByteArray()));
     }
-    
+
     return cookieList;
 }
