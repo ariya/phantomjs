@@ -28,7 +28,7 @@ until [ -z "$1" ]; do
     case $1 in
         "--qt-config")
             shift
-            QT_CFG+=" $1"
+            QT_CFG=" $1"
             shift;;
         "--jobs")
             shift
@@ -48,6 +48,6 @@ until [ -z "$1" ]; do
     esac
 done
 
-cd src/qt && ./preconfig.sh --jobs $COMPILE_JOBS && cd ../..
+cd src/qt && ./preconfig.sh --jobs $COMPILE_JOBS --qt-config "$QT_CFG" && cd ../..
 src/qt/bin/qmake
 make -j$COMPILE_JOBS
