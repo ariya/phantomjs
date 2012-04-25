@@ -41,11 +41,30 @@ if (system.args.length < 3) {
         } else {
             /* check whether the loaded page overwrites the header/footer setting,
                i.e. whether a PhantomJSPriting object exists. Use that then instead
-               of our defaults above. */
+               of our defaults above.
+
+               example:
+               <html>
+                 <head>
+                   <script type="text/javascript">
+                     var PhantomJSPrinting = {
+                        header: {
+                            height: "1cm",
+                            contents: function(pageNum, numPages) { return pageNum + "/" + numPages; }
+                        },
+                        footer: {
+                            height: "1cm",
+                            contents: function(pageNum, numPages) { return pageNum + "/" + numPages; }
+                        }
+                     };
+                   </script>
+                 </head>
+                 <body><h1>asdfadsf</h1><p>asdfadsfycvx</p></body>
+              </html>
+            */
             if (page.evaluate(function(){return typeof PhantomJSPrinting == "object";})) {
                 paperSize = page.paperSize;
                 paperSize.header.height = page.evaluate(function() {
-                    console.log("woot?", PhantomJSPrinting.header.height);
                     return PhantomJSPrinting.header.height;
                 });
                 paperSize.header.contents = phantom.callback(function(pageNum, numPages) {
