@@ -49,6 +49,7 @@
 
 #include "networkaccessmanager.h"
 #include "utils.h"
+#include "config.h"
 
 #include <gifwriter.h>
 
@@ -136,7 +137,14 @@ WebPage::WebPage(QObject *parent, const Config *config, const QUrl &baseUrl)
     m_mainFrame->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
     m_webPage->settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
-    m_webPage->settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+    if (config->offlineStoragePath().isEmpty()) {
+    	m_webPage->settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+    } else {
+        m_webPage->settings()->setOfflineStoragePath(config->offlineStoragePath());
+    }
+    if (config->offlineStorageDefaultQuota() > 0) {
+        m_webPage->settings()->setOfflineStorageDefaultQuota(config->offlineStorageDefaultQuota());
+    }
 
     m_webPage->settings()->setAttribute(QWebSettings::OfflineWebApplicationCacheEnabled, true);
     m_webPage->settings()->setOfflineWebApplicationCachePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
