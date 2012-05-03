@@ -103,14 +103,22 @@ static QStringList fallbackFamilies(const QString &family, const QFont::Style &s
     return retList;
 }
 
+static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt);
+
 static void initializeDb()
 {
-    static int initialized = false;
+    QFontDatabasePrivate *db = privateDb();
 
-    if (!initialized) {
-        //init by asking for the platformfontdb for the first time :)
+    // init by asking for the platformfontdb for the first time or after invalidation
+    if (!db->count)
         QApplicationPrivate::platformIntegration()->fontDatabase()->populateFontDatabase();
-        initialized = true;
+
+    if (db->reregisterAppFonts) {
+        for (int i = 0; i < db->applicationFonts.count(); i++) {
+            if (!db->applicationFonts.at(i).families.isEmpty())
+                registerFont(&db->applicationFonts[i]);
+        }
+        db->reregisterAppFonts = false;
     }
 }
 
@@ -133,7 +141,9 @@ void qt_applyFontDatabaseSettings(const QSettings &settings)
 
 static inline void load(const QString & = QString(), int = -1)
 {
-    initializeDb();
+    // Only initialize the database if it has been cleared or not initialized yet
+    if (!privateDb()->count)
+        initializeDb();
 }
 
 static
