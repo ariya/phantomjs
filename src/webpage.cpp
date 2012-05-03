@@ -193,6 +193,16 @@ QString WebPage::libraryPath() const
 void WebPage::setLibraryPath(const QString &libraryPath)
 {
    m_libraryPath = libraryPath;
+} 
+
+QString WebPage::offlineStoragePath() const
+{
+    return m_webPage->settings()->offlineStoragePath();
+}
+
+int WebPage::offlineStorageQuota() const
+{
+    return m_webPage->settings()->offlineStorageDefaultQuota();
 }
 
 void
