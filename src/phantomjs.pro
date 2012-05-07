@@ -63,6 +63,7 @@ os2:   RC_FILE = phantomjs_os2.rc
 
 mac {
     QMAKE_CXXFLAGS += -fvisibility=hidden
+    QMAKE_LFLAGS += '-sectcreate __TEXT __info_plist Info.plist'
     CONFIG -= app_bundle
 # Uncomment to build a Mac OS X Universal Binary (i.e. x86 + ppc)
 #    CONFIG += x86 ppc
