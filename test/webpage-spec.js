@@ -324,6 +324,27 @@ describe("WebPage object", function() {
 
     });
 
+    it("should include post data to request object", function() {
+      var server = require('webserver').create();
+      server.listen(12345, function(request, response) {
+          response.write(JSON.stringify(request.headers));
+          response.close();
+      });
+
+      runs(function() {
+          page.onResourceRequested = function (request) {
+            expect(request.postData).toEqual("ab=cd");
+          };
+          page.open("http://localhost:12345/", 'post', "ab=cd");
+      });
+
+      waits(50);
+
+      runs(function() {
+          server.close();
+      });
+    });
+
     it("should pass variables to functions properly", function() {
         var testPrimitiveArgs = function() {
             var samples = [
