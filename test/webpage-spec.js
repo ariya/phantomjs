@@ -303,6 +303,40 @@ describe("WebPage object", function() {
         });
     });
 
+    it("reports the stack of errors", function() {
+        var helperFile = "./fixtures/error-helper.js";
+        phantom.injectJs(helperFile);
+
+        runs(function() {
+            function test() {
+                ErrorHelper.foo()
+            };
+
+            var err;
+            try {
+                test()
+            } catch (e) {
+                err = e
+            };
+
+            var frame;
+
+            frame = err.stack[0];
+            expect(frame.sourceURL).toEqual(helperFile);
+            expect(frame.line).toEqual(7);
+            expect(frame.function).toEqual("bar");
+
+            frame = err.stack[1];
+            expect(frame.sourceURL).toEqual(helperFile);
+            expect(frame.line).toEqual(3);
+            expect(frame.function).toEqual("foo");
+
+            frame = err.stack[2];
+            expect(frame.sourceURL).toMatch(/webpage-spec.js$/);
+            expect(frame.function).toEqual("test");
+        });
+    });
+
     it("should set custom headers properly", function() {
         var server = require('webserver').create();
         server.listen(12345, function(request, response) {
