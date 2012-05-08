@@ -79,7 +79,13 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
 
     if (config->diskCacheEnabled()) {
         m_networkDiskCache = new QNetworkDiskCache(this);
-        m_networkDiskCache->setCacheDirectory(QDesktopServices::storageLocation(QDesktopServices::CacheLocation));
+
+        if (config->diskCacheLocation().isEmpty()) {
+          m_networkDiskCache->setCacheDirectory(QDesktopServices::storageLocation(QDesktopServices::CacheLocation));
+        } else {
+            m_networkDiskCache->setCacheDirectory(config->diskCacheLocation());
+        }
+
         if (config->maxDiskCacheSize() >= 0)
             m_networkDiskCache->setMaximumCacheSize(config->maxDiskCacheSize() * 1024);
         setCache(m_networkDiskCache);
