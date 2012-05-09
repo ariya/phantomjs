@@ -60,15 +60,17 @@ phantom.__defineErrorSetter__ = function(obj, page) {
 
     obj.__defineSetter__('onError', function(f) {
         if (handler && typeof handler === 'function') {
-            try { signal.disconnect(handler) } catch (e) {}
+            try { signal.disconnect(handler); }
+            catch (e) {}
         }
 
         if (typeof f === 'function') {
             handler = function() {
+              var error;
               if (page === phantom.page) {
-                  var error = window.__exception;
+                  error = window.__exception;
               } else {
-                  var error = page.evaluate(function() {
+                  error = page.evaluate(function() {
                       var orig = window.__exception;
 
                       if (typeof orig === 'object') {
@@ -79,14 +81,14 @@ phantom.__defineErrorSetter__ = function(obj, page) {
                               sourceId:  orig.sourceId,
                               sourceURL: orig.sourceURL,
                               stack:     orig.stack
-                          }
+                          };
                       } else {
-                          return orig
+                          return orig;
                       }
                   });
 
                   if (typeof error === 'object') {
-                      error.toString = function() { return this.name + ": " + this.message };
+                      error.toString = function() { return this.name + ": " + this.message; };
                   }
               }
 
@@ -97,8 +99,8 @@ phantom.__defineErrorSetter__ = function(obj, page) {
         } else {
             handler = null;
         }
-    })
-}
+    });
+};
 
 phantom.__defineErrorSetter__(phantom, phantom.page);
 
@@ -109,11 +111,12 @@ phantom.defaultErrorHandler = function(error) {
     if (error.stack) {
         error.stack.forEach(function(item) {
             var message = item.sourceURL + ":" + item.line;
-            if (item.function) message += " in " + item.function
+            if (item.function)
+              message += " in " + item.function;
             console.log("  " + message);
-        })
+        });
     }
-}
+};
 
 phantom.callback = function(callback) {
     var ret = phantom.createCallback();
@@ -122,7 +125,7 @@ phantom.callback = function(callback) {
         ret.returnValue = retVal;
     });
     return ret;
-}
+};
 
 phantom.onError = phantom.defaultErrorHandler;
 

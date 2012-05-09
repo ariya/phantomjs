@@ -209,7 +209,26 @@ exports.create = function (opts) {
         }
         str = str.replace(/,$/, '') + '); }';
         return this.evaluateJavaScript(str);
-    }
+    };
+
+    /**
+     * evaluate a function in the page, asynchronously
+     * NOTE: it won't return anything: the execution is asynchronous respect to the call.
+     * NOTE: the execution stack starts from within the page object
+     * @param   {function}  func    the function to evaluate
+     * @param   {number}    timeMs  time to wait before execution
+     * @param   {...}       args    function arguments
+     */
+    page.evaluateAsync = function (func, timeMs, args) {
+        var funcAsync;
+
+        if (!(func instanceof Function || typeof func === 'string' || func instanceof String)) {
+            throw "Wrong use of WebPage#evaluateAsync";
+        }
+        funcAsync = "function() { setTimeout(" + func.toString() + ", " + timeMs + "); }";
+
+        this.evaluate(funcAsync, arguments);
+    };
 
     // Copy options into page
     if (opts) {
