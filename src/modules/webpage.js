@@ -235,5 +235,27 @@ exports.create = function (opts) {
         page = copyInto(page, opts);
     }
 
+    function defineSetterCallback(handlerName, callbackConstructor) {
+        page.__defineSetter__(handlerName, function(f) {
+            var callbackObj = page[callbackConstructor]();
+
+            callbackObj.called.connect(function() {
+                // Callback will receive a "deserialized", normal "arguments" array
+                callbackObj.returnValue = f.apply(this, arguments[0]);
+            });
+        });
+    }
+
+    // Calls from within the page to "phantomCallback()" arrive to this handler
+    defineSetterCallback("onCallback", "_getGenericCallback");
+
+    // Calls from within the page to "window.confirm(message)" arrive to this handler
+    // @see https://developer.mozilla.org/en/DOM/window.confirm
+    defineSetterCallback("onConfirm", "_getJsConfirmCallback");
+
+    // Calls from within the page to "window.prompt(message, defaultValue)" arrive to this handler
+    // @see https://developer.mozilla.org/en/DOM/window.prompt
+    defineSetterCallback("onPrompt", "_getJsPromptCallback");
+
     return page;
 };
