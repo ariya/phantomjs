@@ -40,6 +40,7 @@
 
 class Config;
 class CustomPage;
+class WebpageCallbacks;
 class NetworkAccessManager;
 class QWebInspector;
 class Phantom;
@@ -109,6 +110,9 @@ public slots:
     bool render(const QString &fileName);
     bool injectJs(const QString &jsFilePath);
     void _appendScriptElement(const QString &scriptUrl);
+    QObject *_getGenericCallback();
+    QObject *_getJsConfirmCallback();
+    QObject *_getJsPromptCallback();
     void uploadFile(const QString &selector, const QString &fileName);
     void sendEvent(const QString &type, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant());
 
@@ -124,6 +128,7 @@ signals:
 
 private slots:
     void finish(bool ok);
+    void registerCallbacksHolder();
 
 private:
     QImage renderImage();
@@ -134,6 +139,9 @@ private:
     void emitAlert(const QString &msg);
     void emitConsoleMessage(const QString &msg);
     void emitError();
+
+    bool javaScriptConfirm(const QString &msg);
+    bool javaScriptPrompt(const QString &msg, const QString &defaultValue, QString *result);
 
     virtual void initCompletions();
 
@@ -146,6 +154,7 @@ private:
     QVariantMap m_paperSize; // For PDF output via render()
     QString m_libraryPath;
     QWebInspector* m_inspector;
+    WebpageCallbacks *m_callbacks;
 
     friend class Phantom;
     friend class CustomPage;
