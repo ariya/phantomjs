@@ -4,7 +4,7 @@ var page = require('webpage').create(),
 
 if (system.args.length === 1) {
     console.log('Usage: loadspeed.js <some URL>');
-    phantom.exit();
+    phantom.exit(1);
 } else {
     t = Date.now();
     address = system.args[1];

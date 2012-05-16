@@ -4,7 +4,7 @@ var page = require('webpage').create(),
 
 if (system.args.length === 1) {
     console.log('Usage: netlog.js <some URL>');
-    phantom.exit();
+    phantom.exit(1);
 } else {
     address = system.args[1];
 

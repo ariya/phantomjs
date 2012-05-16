@@ -4,7 +4,7 @@ system = require 'system'
 if system.args.length < 3 or system.args.length > 4
   console.log 'Usage: rasterize.coffee URL filename [paperwidth*paperheight|paperformat]'
   console.log '  paper (pdf output) examples: "5in*7.5in", "10cm*20cm", "A4", "Letter"'
-  phantom.exit()
+  phantom.exit 1
 else
   address = system.args[1]
   output = system.args[2]

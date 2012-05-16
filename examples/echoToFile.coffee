@@ -4,7 +4,7 @@ system = require 'system'
 
 if system.args.length < 3
   console.log "Usage: echoToFile.coffee DESTINATION_FILE <arguments to echo...>"
-  phantom.exit()
+  phantom.exit 1
 else
   content = ""
   f = null

@@ -5,7 +5,7 @@ system = require 'system'
 
 if system.args.length isnt 2
     console.log 'Usage: imagebin.coffee filename'
-    phantom.exit()
+    phantom.exit 1
 else
     fname = system.args[1]
     page.open 'http://imagebin.org/index.php?page=add', ->

@@ -7,7 +7,7 @@ var page = require('webpage').create(),
 
 if (system.args.length !== 2) {
     console.log('Usage: postserver.js <portnumber>');
-    phantom.exit();
+    phantom.exit(1);
 }
 
 var port = system.args[1];
