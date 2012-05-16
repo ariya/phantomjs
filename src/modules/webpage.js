@@ -220,14 +220,15 @@ exports.create = function (opts) {
      * @param   {...}       args    function arguments
      */
     page.evaluateAsync = function (func, timeMs, args) {
-        var funcAsync;
+        var args = Array.prototype.splice.call(arguments, 0);
 
         if (!(func instanceof Function || typeof func === 'string' || func instanceof String)) {
             throw "Wrong use of WebPage#evaluateAsync";
         }
-        funcAsync = "function() { setTimeout(" + func.toString() + ", " + timeMs + "); }";
+        // Wrapping the "func" argument into a setTimeout
+        args.splice(0, 0, "function() { setTimeout(" + func.toString() + ", " + timeMs + "); }");
 
-        this.evaluate(funcAsync, arguments);
+        this.evaluate.apply(this, args);
     };
 
     // Copy options into page
