@@ -5,7 +5,7 @@ var host, port;
 
 if (system.args.length !== 2) {
     console.log('Usage: server.js <some port>');
-    phantom.exit();
+    phantom.exit(1);
 } else {
     port = system.args[1];
     var listening = server.listen(port, function (request, response) {

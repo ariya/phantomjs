@@ -23,7 +23,7 @@ waitFor = (testFx, onReady, timeOutMillis=3000) ->
             if not condition
                 # If condition still not fulfilled (timeout but condition is 'false')
                 console.log "'waitFor()' timeout"
-                phantom.exit(1)
+                phantom.exit 1
             else
                 # Condition fulfilled (timeout and/or condition is 'true')
                 console.log "'waitFor()' finished in #{new Date().getTime() - start}ms."
@@ -33,7 +33,7 @@ waitFor = (testFx, onReady, timeOutMillis=3000) ->
 
 if system.args.length isnt 2
     console.log 'Usage: run-jasmine.coffee URL'
-    phantom.exit()
+    phantom.exit 1
 
 page = require('webpage').create()
 

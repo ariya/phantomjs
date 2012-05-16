@@ -78,7 +78,7 @@ system = require 'system'
 
 if system.args.length is 1
     console.log 'Usage: netsniff.coffee <some URL>'
-    phantom.exit()
+    phantom.exit 1
 else
     page.address = system.args[1]
     page.resources = []

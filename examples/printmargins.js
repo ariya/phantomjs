@@ -4,7 +4,7 @@ var page = require('webpage').create(),
 if (system.args.length < 7) {
     console.log('Usage: printmargins.js URL filename LEFT TOP RIGHT BOTTOM');
     console.log('  margin examples: "1cm", "10px", "7mm", "5in"');
-    phantom.exit();
+    phantom.exit(1);
 } else {
     var address = system.args[1];
     var output = system.args[2];

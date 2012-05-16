@@ -6,7 +6,7 @@ var page = require('webpage').create(),
 
 if (system.args.length !== 2) {
     console.log('Usage: imagebin.js filename');
-    phantom.exit();
+    phantom.exit(1);
 } else {
     fname = system.args[1];
     page.open("http://imagebin.org/index.php?page=add", function () {

@@ -6,7 +6,7 @@ system = require 'system'
 if system.args.length < 3
   console.log 'Usage: direction.coffee origin destination'
   console.log 'Example: direction.coffee "San Diego" "Palo Alto"'
-  phantom.exit(1)
+  phantom.exit 1
 else
   origin = system.args[1]
   dest = system.args[2]

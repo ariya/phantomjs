@@ -3,7 +3,7 @@ system = require 'system'
 
 if system.args.length is 1
     console.log 'Usage: netlog.coffee <some URL>'
-    phantom.exit()
+    phantom.exit 1
 else
     address = system.args[1]
     page.onResourceRequested = (req) ->
