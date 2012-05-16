@@ -108,6 +108,9 @@ public slots:
 
     QVariant evaluateJavaScript(const QString &code);
     bool render(const QString &fileName);
+    QString renderBase64PNG();
+    QString renderBase64JPG();
+    QString renderBase64BMP();
     bool injectJs(const QString &jsFilePath);
     void _appendScriptElement(const QString &scriptUrl);
     QObject *_getGenericCallback();
@@ -132,6 +135,7 @@ private slots:
 
 private:
     QImage renderImage();
+    QString renderBase64(const char *format = "PNG");
     bool renderPdf(const QString &fileName);
     void applySettings(const QVariantMap &defaultSettings);
     QString userAgent() const;

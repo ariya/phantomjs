@@ -46,6 +46,7 @@
 #include <QWebPage>
 #include <QWebInspector>
 #include <QMapIterator>
+#include <QBuffer>
 #include <QDebug>
 
 #include "networkaccessmanager.h"
@@ -546,6 +547,36 @@ bool WebPage::render(const QString &fileName)
     return buffer.save(fileName);
 }
 
+QString WebPage::renderBase64PNG()
+{
+    return renderBase64("PNG");
+}
+
+QString WebPage::renderBase64JPG()
+{
+    return renderBase64("JPG");
+}
+
+QString WebPage::renderBase64BMP()
+{
+    return renderBase64("BMP");
+}
+
+QString WebPage::renderBase64(const char *format)
+{
+    QImage rawPageRendering = renderImage();
+
+    // Prepare buffer for writing
+    QByteArray bytes;
+    QBuffer buffer(&bytes);
+    buffer.open(QIODevice::WriteOnly);
+
+    // Writing image to the buffer, using PNG encoding
+    rawPageRendering.save(&buffer, format);
+
+    return bytes.toBase64();
+}
+
 QImage WebPage::renderImage()
 {
     QSize contentsSize = m_mainFrame->contentsSize();
@@ -593,7 +624,6 @@ QImage WebPage::renderImage()
     }
 
     m_webPage->setViewportSize(viewportSize);
-
     return buffer;
 }
 
