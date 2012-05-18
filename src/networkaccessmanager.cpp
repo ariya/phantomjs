@@ -69,6 +69,7 @@ static const char *toString(QNetworkAccessManager::Operation op)
 NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config)
     : QNetworkAccessManager(parent)
     , m_ignoreSslErrors(config->ignoreSslErrors())
+    , m_loadStyles(config->loadStyles())
     , m_idCounter(0)
     , m_networkDiskCache(0)
 {
@@ -131,9 +132,16 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
         req.setRawHeader(i.key().toAscii(), i.value().toByteArray());
         ++i;
     }
-
-    // Pass duty to the superclass - Nothing special to do here (yet?)
-    QNetworkReply *reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
+    
+    QNetworkReply *reply = 0;
+    if (req.url().path().endsWith("css") && !m_loadStyles) {
+        // returning an empty request if we don't want css
+        reply = QNetworkAccessManager::createRequest(op, QNetworkRequest(QUrl()));
+    } else {
+        // Pass duty to the superclass - Nothing special to do here (yet?)
+        reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
+    }
+    
     if(m_ignoreSslErrors) {
         reply->ignoreSslErrors();
     }

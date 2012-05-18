@@ -52,6 +52,7 @@ public:
 
 protected:
     bool m_ignoreSslErrors;
+    bool m_loadStyles;
     QString m_userName;
     QString m_password;
     QNetworkReply *createRequest(Operation op, const QNetworkRequest & req, QIODevice * outgoingData = 0);

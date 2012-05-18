@@ -531,8 +531,8 @@ bool WebPage::renderPdf(const QString &fileName)
     }
 
     if (paperSize.contains("width") && paperSize.contains("height")) {
-        const QSizeF sizePt(ceil(stringToPointSize(paperSize.value("width").toString())),
-                            ceil(stringToPointSize(paperSize.value("height").toString())));
+        const QSizeF sizePt(stringToPointSize(paperSize.value("width").toString()),
+                            stringToPointSize(paperSize.value("height").toString()));
         printer.setPaperSize(sizePt, QPrinter::Point);
     } else if (paperSize.contains("format")) {
         const QPrinter::Orientation orientation = paperSize.contains("orientation")
