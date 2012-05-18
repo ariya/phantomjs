@@ -32,8 +32,8 @@
 
 #include <QObject>
 #include <QStringList>
-#include <QVariantMap>
-#include <QTextStream>
+#include <QMap>
+#include <QVariant>
 
 #include "replcompletable.h"
 
@@ -44,6 +44,7 @@ class System : public REPLCompletable
     Q_OBJECT
     Q_PROPERTY(QStringList args READ args)
     Q_PROPERTY(QVariant env READ env)
+    Q_PROPERTY(QVariant os READ os)
 
 public:
     explicit System(QObject *parent = 0);
@@ -53,8 +54,12 @@ public:
 
     QVariant env() const;
 
+    QVariant os() const;
+
 private:
     QStringList m_args;
+    QVariant m_env;
+    QMap<QString, QVariant> m_os;
     virtual void initCompletions();
 };
 
