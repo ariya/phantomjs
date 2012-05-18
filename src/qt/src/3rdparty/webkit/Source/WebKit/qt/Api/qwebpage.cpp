@@ -324,7 +324,7 @@ void QWebPagePrivateDebugger::reportError(const JSC::JSValue& exception)
 
     JSC::ExecState* exec = frame->dynamicGlobalObject()->globalExec();
     JSC::UString message = exception.toString(exec);
-
+    
     QString qmessage = QString::fromUtf8(message.utf8().data());
     QList<QWebPage::JavaScriptFrame> qbacktrace;
 
@@ -333,6 +333,8 @@ void QWebPagePrivateDebugger::reportError(const JSC::JSValue& exception)
     QString file;
     int line;
     QString function;
+    
+    qbacktrace << QWebPage::JavaScriptFrame(s_file, s_line, s_function);
 
     while (frame) {
         provider = reinterpret_cast<JSC::SourceProvider*>(frame->sourceID());
@@ -351,6 +353,7 @@ void QWebPagePrivateDebugger::reportError(const JSC::JSValue& exception)
 
 void QWebPagePrivateDebugger::atStatement(const JSC::DebuggerCallFrame& frame, intptr_t sourceID, int lineNumber)
 {
+    s_line = lineNumber;
     stepOver(frame, sourceID, lineNumber);
 }
 
@@ -389,28 +392,51 @@ void QWebPagePrivateDebugger::stepIn(const JSC::DebuggerCallFrame& frame, intptr
 {
     m_callFrame = WebCore::JavaScriptCallFrame::create(frame, m_callFrame, sourceID, textPosition(lineNumber));
     m_stackDepth++;
+    
+    JSC::SourceProvider* provider;
+    provider = reinterpret_cast<JSC::SourceProvider*>(m_callFrame->sourceID());
+    s_line = m_callFrame->line();
+    s_file = QString::fromUtf8(provider->url().utf8().data());
+    s_function = QString::fromUtf8(m_callFrame->functionName().utf8().data());
 }
 
 void QWebPagePrivateDebugger::stepOver(const JSC::DebuggerCallFrame& frame, intptr_t sourceID, int lineNumber)
 {
+    if (m_stackDepth) {
+        JSC::SourceProvider* provider;
+        provider = reinterpret_cast<JSC::SourceProvider*>(m_callFrame->sourceID());
+        s_line = m_callFrame->line();
+        s_file = QString::fromUtf8(provider->url().utf8().data());
+        s_function = QString::fromUtf8(m_callFrame->functionName().utf8().data());
+    }
+    
+    s_line = lineNumber;
     m_callFrame->update(frame, sourceID, textPosition(lineNumber));
 }
 
 void QWebPagePrivateDebugger::stepOut(const JSC::DebuggerCallFrame& frame)
-{
+{    
+    /*if (m_stackDepth) {
+        JSC::SourceProvider* provider;
+        provider = reinterpret_cast<JSC::SourceProvider*>(m_callFrame->sourceID());
+        s_line = m_callFrame->line();
+        s_file = QString::fromUtf8(provider->url().utf8().data());
+        s_function = QString::fromUtf8(m_callFrame->functionName().utf8().data());
+    }*/
+    
     m_callFrame = m_callFrame->caller();
     m_stackDepth--;
-
+    
     // Sometimes an exception can occur without didExecuteProgram() firing.
     // For example when a setTimeout callback fires. So if the stack is empty
     // and there is still an exception present, we report it.
     if (m_stackDepth == 0) {
         JSC::JSValue exception = frame.exception();
-
+        
         if (exception) {
             reportError(exception);
         }
-    }
+    }    
 }
 
 QWebPagePrivate::QWebPagePrivate(QWebPage *qq)

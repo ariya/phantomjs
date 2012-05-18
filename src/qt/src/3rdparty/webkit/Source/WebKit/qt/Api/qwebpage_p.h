@@ -119,6 +119,10 @@ private:
     RefPtr<WebCore::JavaScriptCallFrame> m_exceptionFrame;
     int m_stackDepth;
     QWebPage* m_webPage;
+    
+    QString s_file;
+    int s_line;
+    QString s_function;
 };
 
 class QWebPagePrivate {
