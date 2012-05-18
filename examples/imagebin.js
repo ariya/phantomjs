@@ -1,7 +1,7 @@
 // Upload an image to imagebin.org
 
 var page = require('webpage').create(),
-    system = require('webpage'),
+    system = require('system'),
 	fname;
 
 if (system.args.length !== 2) {
