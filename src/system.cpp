@@ -106,7 +106,7 @@ System::System(QObject *parent) :
     }
 #elif defined(Q_OS_LINUX)
     m_os.insert("name", "linux");
-    m_os.insert("version", "unknown")
+    m_os.insert("version", "unknown");
 #else
     m_os.insert("name", "unknown");
     m_os.insert("version", "unknown");
