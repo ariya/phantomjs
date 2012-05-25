@@ -10,6 +10,7 @@ Options:
   --load-images=[yes|no]                 Loads all inlined images (default is 'yes')
   --local-to-remote-url-access=[yes|no]  Local content can access remote URL (default is 'no')
   --max-disk-cache-size=size             Limits the size of disk cache (in KB)
+  --disk-cache-location=/path/to/cahce   Specifies path to disk cache
   --output-encoding                      Sets the encoding used for terminal output (default is 'utf8')
   --remote-debugger-port=port            Starts the script in a debug harness and listens on the desired port.
   --remote-debugger-autorun=[yes|no]     Whether to run the script in the debugger immediately, or wait for the user to type __run() in the console. (default is 'no')

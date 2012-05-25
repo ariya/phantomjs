@@ -69,6 +69,9 @@ public:
     int maxDiskCacheSize() const;
     void setMaxDiskCacheSize(int maxDiskCacheSize);
 
+    void setDiskCacheLocation(const QString &cookiesFile);
+    QString diskCacheLocation() const;
+
     bool ignoreSslErrors() const;
     void setIgnoreSslErrors(const bool value);
 
@@ -134,6 +137,7 @@ private:
     QString m_cookiesFile;
     bool m_diskCacheEnabled;
     int m_maxDiskCacheSize;
+    QString m_diskCacheLocation;
     bool m_ignoreSslErrors;
     bool m_localToRemoteUrlAccessEnabled;
     QString m_outputEncoding;
