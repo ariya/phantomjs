@@ -20,6 +20,8 @@
 #ifndef GtkTypedefs_h
 #define GtkTypedefs_h
 
+#include <glib.h>
+
 /* Vanilla C code does not seem to be able to handle forward-declaration typedefs. */
 #ifdef  __cplusplus
 
@@ -52,7 +54,11 @@ typedef struct _GFile GFile;
 typedef struct _GHashTable GHashTable;
 typedef struct _GInputStream GInputStream;
 typedef struct _GList GList;
+#if GLIB_CHECK_VERSION(2, 31, 0)
 typedef union _GMutex GMutex;
+#else
+typedef struct _GMutex GMutex;
+#endif
 typedef struct _GPatternSpec GPatternSpec;
 typedef struct _GPollableOutputStream GPollableOutputStream;
 typedef struct _GSocketClient GSocketClient;
