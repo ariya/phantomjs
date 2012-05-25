@@ -24,6 +24,7 @@
 
 #if ENABLE(GLIB_SUPPORT)
 
+#include <glib.h>
 #include <algorithm>
 #include <wtf/Assertions.h>
 #include <wtf/Noncopyable.h>

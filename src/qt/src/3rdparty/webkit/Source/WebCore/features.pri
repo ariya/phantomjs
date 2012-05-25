@@ -6,7 +6,7 @@ CONFIG(minimal) {
 
 CONFIG(production) {
     DEFINES += ENABLE_XSLT=0
-    DEFINES += ENABLE_WEB_TIMING=0
+    DEFINES += ENABLE_WEB_TIMING=1
 }
 
 meegotouch {
