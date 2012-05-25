@@ -52,7 +52,7 @@ typedef struct _GFile GFile;
 typedef struct _GHashTable GHashTable;
 typedef struct _GInputStream GInputStream;
 typedef struct _GList GList;
-typedef struct _GMutex GMutex;
+typedef union _GMutex GMutex;
 typedef struct _GPatternSpec GPatternSpec;
 typedef struct _GPollableOutputStream GPollableOutputStream;
 typedef struct _GSocketClient GSocketClient;
