@@ -32,12 +32,15 @@
 #include "JSString.h"
 #include "NativeErrorConstructor.h"
 #include "SourceCode.h"
+#include "CodeBlock.h"
 
 namespace JSC {
 
 static const char* linePropertyName = "line";
 static const char* sourceIdPropertyName = "sourceId";
 static const char* sourceURLPropertyName = "sourceURL";
+static const char* stackPropertyName = "stack";
+static const char* functionPropertyName = "function";
 
 JSObject* createError(JSGlobalObject* globalObject, const UString& message)
 {
@@ -133,7 +136,57 @@ JSObject* addErrorInfo(JSGlobalData* globalData, JSObject* error, int line, cons
 
 JSObject* addErrorInfo(ExecState* exec, JSObject* error, int line, const SourceCode& source)
 {
-    return addErrorInfo(&exec->globalData(), error, line, source);
+    JSGlobalData* globalData = &exec->globalData();
+
+    addErrorInfo(globalData, error, line, source);
+
+    JSArray* stack = constructEmptyArray(exec);
+    CallFrame* frame = exec;
+
+    JSObject* stackFrame;
+    CodeBlock* codeBlock;
+    UString sourceURL;
+    UString functionName;
+    ReturnAddressPtr pc;
+
+    while (!frame->hasHostCallFrameFlag()) {
+        stackFrame = constructEmptyObject(exec);
+        codeBlock = frame->codeBlock();
+
+        // sourceURL
+        sourceURL = codeBlock->ownerExecutable()->sourceURL();
+        stackFrame->putWithAttributes(
+            globalData, Identifier(globalData, sourceURLPropertyName),
+            jsString(globalData, sourceURL), ReadOnly | DontDelete
+        );
+
+        // line
+        if (frame != exec) {
+            line = codeBlock->lineNumberForBytecodeOffset(codeBlock->bytecodeOffset(pc));
+        }
+        stackFrame->putWithAttributes(
+            globalData, Identifier(globalData, linePropertyName),
+            jsNumber(line), ReadOnly | DontDelete
+        );
+
+        // function
+        JSObject* function = frame->callee();
+        if (function && function->inherits(&JSFunction::s_info)) {
+            functionName = asFunction(function)->calculatedDisplayName(exec);
+            stackFrame->putWithAttributes(
+                globalData, Identifier(globalData, functionPropertyName),
+                jsString(globalData, functionName), ReadOnly | DontDelete
+            );
+        }
+
+        stack->push(exec, JSValue(stackFrame));
+
+        pc = frame->returnPC();
+        frame = frame->callerFrame();
+    }
+
+    error->putWithAttributes(globalData, Identifier(globalData, stackPropertyName), stack, ReadOnly | DontDelete);
+    return error;
 }
 
 bool hasErrorInfo(ExecState* exec, JSObject* error)
