@@ -3,7 +3,7 @@ var port, server, service,
 
 if (system.args.length !== 2) {
     console.log('Usage: serverkeepalive.js <portnumber>');
-    phantom.exit();
+    phantom.exit(1);
 } else {
     port = system.args[1];
     server = require('webserver').create();

@@ -7,7 +7,7 @@ function someCallback(pageNum, numPages) {
 
 if (system.args.length < 3) {
     console.log('Usage: printheaderfooter.js URL filename');
-    phantom.exit();
+    phantom.exit(1);
 } else {
     var address = system.args[1];
     var output = system.args[2];

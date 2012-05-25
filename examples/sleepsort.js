@@ -17,7 +17,7 @@ function sleepSort(array, callback) {
 
 if ( system.args < 2 ) {
     console.log("Usage: phantomjs sleepsort.js PUT YOUR INTEGERS HERE SEPARATED BY SPACES");
-    phantom.exit();
+    phantom.exit(1);
 } else {
     sleepSort(Array.prototype.slice.call(system.args, 1), function() {
         phantom.exit();

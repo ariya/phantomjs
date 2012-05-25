@@ -2,7 +2,7 @@ system = require 'system'
 
 if system.args.length is 1
   console.log "Usage: simpleserver.coffee <portnumber>"
-  phantom.exit()
+  phantom.exit 1
 else
   port = system.args[1]
   server = require("webserver").create()

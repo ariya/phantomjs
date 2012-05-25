@@ -3,7 +3,7 @@ var system = require('system');
 
 if (system.args.length !== 2) {
     console.log("Usage: phantomjs scandir.js DIRECTORY_TO_SCAN");
-    phantom.exit();
+    phantom.exit(1);
 }
 
 var scanDirectory = function (path) {
