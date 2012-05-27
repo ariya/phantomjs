@@ -5,6 +5,7 @@ Options:
 
   --cookies-file=/path/to/cookies.txt    Sets the file name to store the persistent cookies
   --config=/path/to/config               Specifies path to a JSON-formatted config file
+  --debug                                Turn on debugging (e.g., error stacktraces)
   --disk-cache=[yes|no]                  Enables disk cache (at desktop services cache storage location, default is 'no')
   --ignore-ssl-errors=[yes|no]           Ignores SSL errors (i.e. expired or self-signed certificate errors)
   --load-images=[yes|no]                 Loads all inlined images (default is 'yes')

@@ -131,6 +131,10 @@ void Config::processArgs(const QStringList &args)
             loadJsonFile(configPath);
             continue;
         }
+        if (arg.startsWith("--debug")) {
+            setDebug(true);
+            continue;
+        }
         if (arg.startsWith("--remote-debugger-port=")) {
             setDebug(true);
             setRemoteDebugPort(arg.mid(23).trimmed().toInt());

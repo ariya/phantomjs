@@ -211,6 +211,11 @@ QObject *Phantom::page() const
     return m_page;
 }
 
+bool Phantom::isDebug() const
+{
+    return m_config.debug();
+}
+
 // public slots:
 QObject *Phantom::createWebPage()
 {
@@ -333,6 +338,7 @@ void Phantom::initCompletions()
     // properties
     addCompletion("args");
     addCompletion("defaultPageSettings");
+    addCompletion("isDebug");
     addCompletion("libraryPath");
     addCompletion("outputEncoding");
     addCompletion("scriptName");
