@@ -90,6 +90,16 @@ protected:
         m_webPage->emitAlert(msg);
     }
 
+    bool javaScriptConfirm(QWebFrame *frame, const QString &msg) {
+        Q_UNUSED(frame);
+        return m_webPage->emitConfirm(msg);
+    }
+
+    bool javaScriptPrompt(QWebFrame *frame, const QString &msg, const QString &defaultValue, QString *result) {
+        Q_UNUSED(frame);
+        return m_webPage->emitPrompt(msg, defaultValue, result);
+    }
+    
     void javaScriptConsoleMessage(const QString &message, int lineNumber, const QString &sourceID) {
         Q_UNUSED(lineNumber);
         Q_UNUSED(sourceID);
@@ -97,9 +107,11 @@ protected:
         m_webPage->emitConsoleMessage(message);
     }
 
+    /*
     void javaScriptError(const QWebPage::JavaScriptError& error) {
         m_webPage->emitError(error);
     }
+    */
 
     QString userAgentForUrl(const QUrl &url) const {
         Q_UNUSED(url);
@@ -187,8 +199,27 @@ void WebPage::setLibraryPath(const QString &libraryPath)
    m_libraryPath = libraryPath;
 }
 
-void
-WebPage::showInspector(const int port)
+QVariant WebPage::confirmResult() const
+{
+   return m_confirmResult;
+}
+
+void WebPage::setConfirmResult(const QVariant &confirmResult)
+{
+   m_confirmResult = confirmResult;
+}
+
+QVariant WebPage::promptResult() const
+{
+   return m_promptResult;
+}
+
+void WebPage::setPromptResult(const QVariant &promptResult)
+{
+   m_promptResult = promptResult;
+}
+
+void WebPage::showInspector(const int port)
 {
     m_webPage->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
     m_inspector = new QWebInspector;
@@ -210,7 +241,7 @@ void WebPage::applySettings(const QVariantMap &def)
     opt->setAttribute(QWebSettings::JavascriptEnabled, def[PAGE_SETTINGS_JS_ENABLED].toBool());
     opt->setAttribute(QWebSettings::XSSAuditingEnabled, def[PAGE_SETTINGS_XSS_AUDITING].toBool());
     opt->setAttribute(QWebSettings::LocalContentCanAccessRemoteUrls, def[PAGE_SETTINGS_LOCAL_ACCESS_REMOTE].toBool());
-    opt->setAttribute(QWebSettings::WebSecurityEnabled, def[PAGE_SETTINGS_WEB_SECURITY_ENABLED].toBool());
+    //opt->setAttribute(QWebSettings::WebSecurityEnabled, def[PAGE_SETTINGS_WEB_SECURITY_ENABLED].toBool());
 
     if (def.contains(PAGE_SETTINGS_USER_AGENT))
         m_webPage->m_userAgent = def[PAGE_SETTINGS_USER_AGENT].toString();
@@ -295,7 +326,7 @@ QVariantMap WebPage::paperSize() const
 QVariant WebPage::evaluateJavaScript(const QString &code)
 {
     QString function = "(" + code + ")()";
-    return m_mainFrame->evaluateJavaScript(function, QString("phantomjs://webpage.evaluate()"));
+    return m_mainFrame->evaluateJavaScript(function);
 }
 
 void WebPage::emitAlert(const QString &msg)
@@ -303,11 +334,24 @@ void WebPage::emitAlert(const QString &msg)
     emit javaScriptAlertSent(msg);
 }
 
+bool WebPage::emitConfirm(const QString &msg)
+{
+    emit javaScriptConfirmSent(msg);
+    return m_confirmResult.toBool();
+}
+
+bool WebPage::emitPrompt(const QString &msg, const QString &defaultValue, QString *result) {
+    emit javaScriptPromptSent(msg, defaultValue);
+    *result = m_promptResult.toString();
+    return true;
+}
+
 void WebPage::emitConsoleMessage(const QString &message)
 {
     emit javaScriptConsoleMessageSent(message);
 }
 
+/*
 void WebPage::emitError(const QWebPage::JavaScriptError& error)
 {
     QList<QWebPage::JavaScriptFrame> backtrace = error.backtrace();
@@ -326,6 +370,7 @@ void WebPage::emitError(const QWebPage::JavaScriptError& error)
 
     emit javaScriptErrorSent(error.message(), newBacktrace);
 }
+*/
 
 void WebPage::finish(bool ok)
 {
@@ -384,7 +429,7 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
         networkOp = QNetworkAccessManager::DeleteOperation;
 
     if (networkOp == QNetworkAccessManager::UnknownOperation) {
-        m_mainFrame->evaluateJavaScript("console.error('Unknown network operation: " + operation + "');", QString());
+        m_mainFrame->evaluateJavaScript("console.error('Unknown network operation: " + operation + "');");
         return;
     }
 
@@ -614,7 +659,7 @@ bool WebPage::renderPdf(const QString &fileName)
 
     printer.setPageMargins(marginLeft, marginTop, marginRight, marginBottom, QPrinter::Point);
 
-    m_mainFrame->print(&printer, this);
+    m_mainFrame->print(&printer);
     return true;
 }
 
@@ -657,7 +702,7 @@ QString getHeaderFooter(const QVariantMap &map, const QString &key, QWebFrame *f
             }
         }
     }
-    frame->evaluateJavaScript("console.error('Bad header callback given, use phantom.callback);", QString());
+    frame->evaluateJavaScript("console.error('Bad header callback given, use phantom.callback);");
     return QString();
 }
 
@@ -686,7 +731,7 @@ bool WebPage::injectJs(const QString &jsFilePath) {
 }
 
 void WebPage::_appendScriptElement(const QString &scriptUrl) {
-    m_mainFrame->evaluateJavaScript( QString(JS_APPEND_SCRIPT_ELEMENT).arg(scriptUrl), scriptUrl );
+    m_mainFrame->evaluateJavaScript(QString(JS_APPEND_SCRIPT_ELEMENT).arg(scriptUrl));
 }
 
 void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVariant &arg2)

@@ -92,7 +92,7 @@ exports.create = function (opts) {
         return target;
     }
 
-    function defineSetter(handlerName, signalName) {
+    function defineSetter(handlerName, signalName, resultSetter) {
         page.__defineSetter__(handlerName, function (f) {
             if (handlers && typeof handlers[signalName] === 'function') {
                 try {
@@ -103,7 +103,13 @@ exports.create = function (opts) {
             handlers[signalName] = f;
 
             if (typeof f === 'function') {
-                this[signalName].connect(f);
+                if (resultSetter) {
+                    this[signalName].connect(function() {
+                        page[resultSetter] = f.apply(arguments.callee, arguments);
+                    });
+                } else {
+                    this[signalName].connect(f);
+                }
             }
         });
     }
@@ -123,6 +129,10 @@ exports.create = function (opts) {
 
     defineSetter("onAlert", "javaScriptAlertSent");
 
+    defineSetter("onConfirm", "javaScriptConfirmSent", "confirmResult");
+
+    defineSetter("onPrompt", "javaScriptPromptSent", "promptResult");
+    
     defineSetter("onConsoleMessage", "javaScriptConsoleMessageSent");
 
     defineSetter("onError", "javaScriptErrorSent");
