@@ -97,8 +97,8 @@ protected:
         m_webPage->emitConsoleMessage(message);
     }
 
-    void javaScriptError(const QWebPage::JavaScriptError& error) {
-        m_webPage->emitError(error);
+    void javaScriptError(const QString &message, int lineNumber, const QString &sourceID) {
+        m_webPage->emitError();
     }
 
     QString userAgentForUrl(const QUrl &url) const {
@@ -308,23 +308,9 @@ void WebPage::emitConsoleMessage(const QString &message)
     emit javaScriptConsoleMessageSent(message);
 }
 
-void WebPage::emitError(const QWebPage::JavaScriptError& error)
+void WebPage::emitError()
 {
-    QList<QWebPage::JavaScriptFrame> backtrace = error.backtrace();
-    QVariantList newBacktrace = QVariantList();
-
-    for (int i = 0; i < backtrace.size(); ++i) {
-        QWebPage::JavaScriptFrame frame = backtrace.at(i);
-
-        QVariantMap newFrame = QVariantMap();
-        newFrame["file"] = frame.file();
-        newFrame["line"] = frame.line();
-        newFrame["function"] = frame.function();
-
-        newBacktrace << newFrame;
-    }
-
-    emit javaScriptErrorSent(error.message(), newBacktrace);
+    emit javaScriptErrorSent();
 }
 
 void WebPage::finish(bool ok)

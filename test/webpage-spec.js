@@ -236,20 +236,30 @@ describe("WebPage object", function() {
     });
 
     it("reports unhandled errors", function() {
-        var hadError = false;
+        var lastError = null;
+
+        page = new require('webpage').create();
+        page.onError = function(e) { lastError = e };
 
         runs(function() {
-            page = new require('webpage').create();
-            page.onError = function() { hadError = true };
             page.evaluate(function() {
-              setTimeout(function() { referenceError }, 0)
+                setTimeout(function() { referenceError }, 0)
             });
         });
 
         waits(0);
 
         runs(function() {
-            expect(hadError).toEqual(true);
+            expect(lastError.toString()).toEqual("ReferenceError: Can't find variable: referenceError");
+
+            page.evaluate(function() { referenceError2 });
+            expect(lastError.toString()).toEqual("ReferenceError: Can't find variable: referenceError2");
+
+            page.evaluate(function() { throw "foo" });
+            expect(lastError).toEqual("foo");
+
+            page.evaluate(function() { throw Error("foo") });
+            expect(lastError.toString()).toEqual("Error: foo");
         });
     })
 
@@ -263,19 +273,14 @@ describe("WebPage object", function() {
             page.onError = function() { hadError = true };
             page.evaluate(function() {
                 caughtError = false;
-                setTimeout(function() {
-                    try {
-                        referenceError
-                    } catch(e) {
-                        caughtError = true;
-                    }
-                }, 0)
+
+                try {
+                    referenceError
+                } catch(e) {
+                    caughtError = true;
+                }
             });
-        });
 
-        waits(0);
-
-        runs(function() {
             expect(hadError).toEqual(false);
             expect(page.evaluate(function() { return caughtError })).toEqual(true);
         });
@@ -334,6 +339,22 @@ describe("WebPage object", function() {
             frame = err.stack[2];
             expect(frame.sourceURL).toMatch(/webpage-spec.js$/);
             expect(frame.function).toEqual("test");
+        });
+    });
+
+    it("reports errors that occur in the main context", function() {
+        var error;
+        phantom.onError = function(e) { error = e };
+
+        runs(function() {
+            setTimeout(function() { zomg }, 0);
+        });
+
+        waits(0);
+
+        runs(function() {
+            expect(error.toString()).toEqual("ReferenceError: Can't find variable: zomg");
+            phantom.onError = phantom.defaultErrorHandler;
         });
     });
 
