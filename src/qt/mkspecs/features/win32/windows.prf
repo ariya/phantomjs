@@ -1,0 +1,15 @@
+CONFIG -= console
+contains(TEMPLATE, ".*app"){
+    QMAKE_LFLAGS += $$QMAKE_LFLAGS_WINDOWS $$QMAKE_LFLAGS_EXE
+    win32-g++:DEFINES += QT_NEEDS_QMAIN
+    win32-borland:DEFINES += QT_NEEDS_QMAIN
+
+    qt:for(entryLib, $$list($$unique(QMAKE_LIBS_QT_ENTRY))) {
+        isEqual(entryLib, -lqtmain): {
+            CONFIG(debug, debug|release): QMAKE_LIBS += $${entryLib}$${QT_LIBINFIX}d
+            else: QMAKE_LIBS += $${entryLib}$${QT_LIBINFIX}
+        } else {
+            QMAKE_LIBS += $${entryLib}
+        }
+    }
+}

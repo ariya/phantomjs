@@ -1,0 +1,99 @@
+2.10a -
+
+   support for spaces in filenames.
+
+2.00a -
+
+   Automatic feature loading (from CONFIG) has been added, this allows qmake to be
+   written using qmake language.
+
+   The dependency generation system has been redesigned to be faster (as over time
+   it had gotten slower and slower as features crept in). This new system is used
+   for dependency calcuation and moc detection.
+
+   qmake has been changed to allow features to be introduced without changes to
+   C++ sources (ie project files).
+
+   DEPENDS supported to allow hard coded dependencies (when qmake's depend are inadaquate)
+
+   $$sprintf() added to allow easy expansion of complex strings (using %1..%n)
+
+   for() iteration has been introduced to do simple looping in a qmake script. 
+
+   CONFIG() test function added.
+
+   $$basename() and $$dirname() added for file manipulation.
+
+   warning() can be used in place of message() now.
+
+   improved support for subdirs with .pro's listed
+   support for QT added to add functionality from Qt
+
+1.07a -
+
+   support for precompiled headers added
+
+1.06b -
+  
+   support for reading and writing libtool (.la) files
+   support for reading pkgconfig (.pkg) files
+
+   PWD added as an automatic variable to mean the directory
+   the file being parsed is in (this change required that the
+   directory be set to the file being parsed as well, function
+   tests that query relative paths will need to be relative the
+   file being parsed).
+
+   persistant data cache introduced
+
+1.05a -
+
+  caching of more information (speed ups)
+  $$list() added to be used as a lambda function in qmake
+  $$files() added to allow regular expression matching
+  $$fromfile() added to grab one single variable value from a parsed file
+  $$prompt() added to allow querying for user input from qmake
+  include() modified to support specifying which variables to import
+  equals() test added to test for equality
+  MSVC.net generator added [partial solution files in vcsubdirs]
+
+1.04a -
+
+  subdirs supports multiple project files in a single directory.
+
+1.03a -
+
+  New function $$system() to extract the value of a shell call.
+
+1.02a -
+
+  Dependency / Mocable caching. qmake can cache these expensive operations with qmake_cache
+  CONFIG.
+
+  The parser has been improved to cover more error cases, as well as more forgiving 
+
+  qmake now includes a special else scope to invert the previous test
+
+  Ability to add user defined targets to UnixMakefiles.
+
+1.01a -
+
+ New system for library linking. This system allows a user several different features:
+
+ 1) libtool like library dependencies to static libraries build with qmake
+ 2) library dependencies, when on .pro depends on another library - it will
+    automatically build that other library (unix makefiles only)
+ 3) automatic detection of configurations for Qt, if CONFIG qt is specified
+    it will find the settings for the most recent Qt itself.
+
+ Project Builder for Mac OS X is now a supported backend for qmake.
+
+ qmake now offers a 'make uninstall' feature, to reverse the actions of a 'make install'.
+
+ qmake can now do recursive searches in project-file mode (-r option).
+
+1.00a -
+
+ First release, shipped with Qt 3.0.
+
+ qmake ships with support for Unix make, MSVC (both dsp and nmake), Borland make.

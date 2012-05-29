@@ -1,0 +1,8 @@
+CONFIG -= release
+contains(QT_CONFIG,dwarf2)|dwarf2:load(dwarf2, true)
+QMAKE_CFLAGS += $$QMAKE_CFLAGS_DEBUG
+QMAKE_CXXFLAGS += $$QMAKE_CXXFLAGS_DEBUG
+QMAKE_OBJECTIVE_CFLAGS += $$QMAKE_OBJECTIVE_CFLAGS_DEBUG
+QMAKE_LFLAGS += $$QMAKE_LFLAGS_DEBUG
+QMAKE_LIBFLAGS += $$QMAKE_LIBFLAGS_DEBUG
+!debug_and_release:fix_output_dirs:fixExclusiveOutputDirs(debug, release)

@@ -1,0 +1,53 @@
+/*
+ * Copyright (C) 2006, 2007, 2009 Apple Inc. All rights reserved.
+ * Copyright (C) 2006 Samuel Weinig <sam.weinig@gmail.com>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+module css {
+
+    // Introduced in DOM Level 2:
+    interface [
+        CustomMarkFunction,
+        GenerateIsReachable=ImplRoot,
+        DelegatingPutFunction,
+        HasNameGetter,
+        HasIndexGetter
+    ] CSSStyleDeclaration {
+                 attribute [ConvertNullStringTo=Null, ConvertNullToNullString] DOMString        cssText
+                     setter raises(DOMException);
+
+        [ConvertNullStringTo=Null] DOMString          getPropertyValue(in DOMString propertyName);
+        [JSCCustom] CSSValue           getPropertyCSSValue(in DOMString propertyName);
+        [ConvertNullStringTo=Null] DOMString          removeProperty(in DOMString propertyName)
+            raises(DOMException);
+        [ConvertNullStringTo=Null] DOMString          getPropertyPriority(in DOMString propertyName);
+        [OldStyleObjC] void setProperty(in DOMString propertyName, 
+                                        in [ConvertNullToNullString] DOMString value, 
+                                        in DOMString priority)
+            raises(DOMException);
+
+        readonly attribute unsigned long    length;
+        DOMString          item(in unsigned long index);
+        readonly attribute CSSRule          parentRule;
+
+        // Extensions
+        [ConvertNullStringTo=Null] DOMString          getPropertyShorthand(in DOMString propertyName);
+        boolean            isPropertyImplicit(in DOMString propertyName);
+    };
+
+}

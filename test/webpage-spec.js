@@ -76,6 +76,11 @@ describe("WebPage object", function() {
         expect(page.settings).toNotEqual({});
     });
 
+    expectHasProperty(page, 'customHeaders');
+    it("should have customHeaders as an empty object", function() {
+            expect(page.customHeaders).toEqual({});
+    });
+
     checkViewportSize(page, {height:300,width:400});
 
     expectHasFunction(page, 'deleteLater');
@@ -205,6 +210,176 @@ describe("WebPage object", function() {
                 return document.getElementById('file').files[0].fileName;
             });
             expect(fileName).toEqual('README.md');
+        });
+    });
+
+    it("should support console.log with multiple arguments", function() {
+        var message;
+        runs(function() {
+            page.onConsoleMessage = function (msg) {
+                message = msg;
+            }
+        });
+
+        waits(50);
+
+        runs(function() {
+            page.evaluate(function () {console.log('answer', 42)});
+            expect(message).toEqual("answer 42");
+        });
+    });
+
+    it("should not load any NPAPI plugins (e.g. Flash)", function() {
+        runs(function() {
+            expect(page.evaluate(function () { return window.navigator.plugins.length })).toEqual(0);
+        });
+    });
+
+    it("reports unhandled errors", function() {
+        var hadError = false;
+
+        runs(function() {
+            page = new require('webpage').create();
+            page.onError = function() { hadError = true };
+            page.evaluate(function() {
+              setTimeout(function() { referenceError }, 0)
+            });
+        });
+
+        waits(0);
+
+        runs(function() {
+            expect(hadError).toEqual(true);
+        });
+    })
+
+    it("doesn't report handled errors", function() {
+        var hadError    = false;
+        var caughtError = false;
+
+        page = new require('webpage').create();
+
+        runs(function() {
+            page.onError = function() { hadError = true };
+            page.evaluate(function() {
+                caughtError = false;
+                setTimeout(function() {
+                    try {
+                        referenceError
+                    } catch(e) {
+                        caughtError = true;
+                    }
+                }, 0)
+            });
+        });
+
+        waits(0);
+
+        runs(function() {
+            expect(hadError).toEqual(false);
+            expect(page.evaluate(function() { return caughtError })).toEqual(true);
+        });
+    })
+
+    it("should set custom headers properly", function() {
+        var server = require('webserver').create();
+        server.listen(12345, function(request, response) {
+            // echo received request headers in response body
+            response.write(JSON.stringify(request.headers));
+            response.close();
+        });
+
+        var url = "http://localhost:12345/foo/headers.txt?ab=cd";
+        var customHeaders = {
+            "Custom-Key" : "Custom-Value",
+            "User-Agent" : "Overriden-UA",
+            "Referer" : "Overriden-Referer",
+        };
+        page.customHeaders = customHeaders;
+
+        var handled = false;
+        runs(function() {
+            expect(handled).toEqual(false);
+            page.open(url, function (status) {
+                expect(status == 'success').toEqual(true);
+                handled = true;
+
+                var echoedHeaders = JSON.parse(page.plainText);
+                // console.log(JSON.stringify(echoedHeaders, null, 4));
+                // console.log(JSON.stringify(customHeaders, null, 4));
+
+                expect(echoedHeaders["Custom-Key"]).toEqual(customHeaders["Custom-Key"]);
+                expect(echoedHeaders["User-Agent"]).toEqual(customHeaders["User-Agent"]);
+                expect(echoedHeaders["Referer"]).toEqual(customHeaders["Referer"]);
+
+            });
+        });
+
+        waits(50);
+
+        runs(function() {
+            expect(handled).toEqual(true);
+            server.close();
+        });
+
+    });
+
+    it("should pass variables to functions properly", function() {
+        var testPrimitiveArgs = function() {
+            var samples = [
+                true,
+                0,
+                "`~!@#$%^&*()_+-=[]\{}|;':\",./<>?",
+                undefined,
+                null
+            ];
+            for (var i = 0; i < samples.length; i++) {
+                if (samples[i] !== arguments[i]) {
+                    console.log("FAIL");
+                }
+            }
+        };
+
+        var testComplexArgs = function() {
+            var samples = [
+                {a:true, b:0, c:"string"},
+                function() { return true; },
+                [true, 0, "string"],
+                /\d+\w*\//
+            ];
+            for (var i = 0; i < samples.length; i++) {
+                if (typeof samples[i] !== typeof arguments[i] 
+                    || samples[i].toString() !== arguments[i].toString()) {
+                    console.log("FAIL");
+                }
+            }
+        };
+
+        var message;
+        runs(function() {
+            page.onConsoleMessage = function (msg) {
+                message = msg;
+            }
+        });
+
+        waits(0);
+
+        runs(function() {
+            page.evaluate(function() { 
+                console.log("PASS");
+            });
+            page.evaluate(testPrimitiveArgs, 
+                true,
+                0,
+                "`~!@#$%^&*()_+-=[]\{}|;':\",./<>?",
+                undefined,
+                null);
+            page.evaluate(testComplexArgs,
+                {a:true, b:0, c:"string"},
+                function() { return true; },
+                [true, 0, "string"],
+                /\d+\w*\//);
+            expect(message).toEqual("PASS");
         });
     });
 });

@@ -29,22 +29,19 @@
 
 #include "consts.h"
 #include "utils.h"
+#include "env.h"
 #include "phantom.h"
 
-#if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
-#error Use Qt 4.7 or later version
+#include <QApplication>
+
+#if QT_VERSION != QT_VERSION_CHECK(4, 8, 0)
+#error Something is wrong with the setup. Please report to the mailing list!
 #endif
 
-int main(int argc, char** argv)
+int main(int argc, char** argv, const char** envp)
 {
     // Registering an alternative Message Handler
     qInstallMsgHandler(Utils::messageHandler);
-
-    // Check number of parameters passed
-    if (argc < 2) {
-        Utils::showUsage();
-        return 1;
-    }
 
     QApplication app(argc, argv);
 
@@ -53,6 +50,8 @@ int main(int argc, char** argv)
     app.setOrganizationName("Ofi Labs");
     app.setOrganizationDomain("www.ofilabs.com");
     app.setApplicationVersion(PHANTOMJS_VERSION_STRING);
+
+    Env::instance()->parse(envp);
 
     Phantom phantom;
     if (phantom.execute()) {

@@ -1,0 +1,55 @@
+#!/bin/sh
+
+QMKSPEC=$1
+VERBOSE=$2
+SRCDIR=$3
+OUTDIR=$4
+
+# debuggery
+[ "$VERBOSE" = "yes" ] && echo "Determining machine byte-order... ($*)"
+
+# build and run a test program
+test -d "$OUTDIR/config.tests/unix/endian" || mkdir -p "$OUTDIR/config.tests/unix/endian"
+"$OUTDIR/bin/qmake" -nocache -spec "$QMKSPEC" "QT_BUILD_TREE=$OUTDIR" "$SRCDIR/config.tests/unix/endian/endiantest.pro" -o "$OUTDIR/config.tests/unix/endian/Makefile" >/dev/null 2>&1
+cd "$OUTDIR/config.tests/unix/endian"
+
+
+ENDIAN="UNKNOWN"
+[ "$VERBOSE" = "yes" ] && $MAKE || $MAKE >/dev/null 2>&1
+
+if [ -f ./endiantest.exe ]; then
+    binary=./endiantest.exe
+else
+    binary=./endiantest
+fi
+
+
+if [ -f $binary ]; then
+    : # nop
+else
+    [ "$VERBOSE" = "yes" ] && echo "Unknown byte order!"
+    exit 2
+fi
+
+if strings $binary | grep LeastSignificantByteFirst >/dev/null 2>&1; then
+    [ "$VERBOSE" = "yes" ] && echo "    Found 'LeastSignificantByteFirst' in binary"
+    ENDIAN="LITTLE"
+elif strings $binary | grep MostSignificantByteFirst >/dev/null 2>&1; then
+    [ "$VERBOSE" = "yes" ] && echo "    Found 'MostSignificantByteFirst' in binary"
+    ENDIAN="BIG"
+fi
+
+# make clean as this tests is compiled for both the host and the target
+$MAKE distclean
+
+# done
+if [ "$ENDIAN" = "LITTLE" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "Using little endian."
+    exit 0
+elif [ "$ENDIAN" = "BIG" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "Using big endian."
+    exit 1
+else
+    [ "$VERBOSE" = "yes" ] && echo "Unknown byte order!"
+    exit 2
+fi

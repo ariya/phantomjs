@@ -30,18 +30,21 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
-#include <QObject>
 #include <QStringList>
 #include <QFile>
 #include <QTextCodec>
 #include <QTextStream>
 #include <QVariant>
 
-class File : public QObject
+#include "replcompletable.h"
+
+class File : public REPLCompletable
 {
     Q_OBJECT
 
 public:
+    // handle a textfile with given codec
+    // if @p codec is null, the file is considered to be binary
     File(QFile *openfile, QTextCodec *codec, QObject *parent = 0);
     virtual ~File();
 
@@ -57,12 +60,15 @@ public slots:
     void close();
 
 private:
+    virtual void initCompletions();
+
+private:
     QFile *m_file;
-    QTextStream m_fileStream;
+    QTextStream *m_fileStream;
 };
 
 
-class FileSystem : public QObject
+class FileSystem : public REPLCompletable
 {
     Q_OBJECT
     Q_PROPERTY(QString workingDirectory READ workingDirectory)
@@ -91,7 +97,9 @@ public slots:
     // 'open(path, mode|options)' implemented in "filesystem-shim.js" using '_open(path, opts)'
     QObject *_open(const QString &path, const QVariantMap &opts) const;
     // 'read(path, options)' implemented in "filesystem-shim.js"
+    // 'readRaw(path, options)' implemented in "filesystem-shim.js"
     // 'write(path, mode|options)' implemented in the "filesystem-shim.js"
+    // 'writeRaw(path, mode|options)' implemented in the "filesystem-shim.js"
     // 'remove(path)' implemented in "filesystem-shim.js" using '_remove(path)'
     bool _remove(const QString &path) const;
     // 'copy(source, destination)' implemented in "filesystem-shim.js" using '_copy(source, destination)'
@@ -108,6 +116,9 @@ public slots:
     bool changeWorkingDirectory(const QString &path) const;
     QString absolute(const QString &relativePath) const;
 
+    // Links
+    QString readLink(const QString &path) const;
+
     // Tests
     bool exists(const QString &path) const;
     bool isDirectory(const QString &path) const;
@@ -117,6 +128,9 @@ public slots:
     bool isReadable(const QString &path) const;
     bool isWritable(const QString &path) const;
     bool isLink(const QString &path) const;
+
+private:
+    virtual void initCompletions();
 };
 
 #endif // FILESYSTEM_H

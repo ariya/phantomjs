@@ -1,0 +1,895 @@
+/*
+ * The default style sheet used to render HTML.
+ *
+ * Copyright (C) 2000 Lars Knoll (knoll@kde.org)
+ * Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Apple Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ *
+ */
+
+@namespace "http://www.w3.org/1999/xhtml";
+
+html {
+    display: block
+}
+
+/* children of the <head> element all have display:none */
+head {
+    display: none
+}
+
+meta {
+    display: none
+}
+
+title {
+    display: none
+}
+
+link {
+    display: none
+}
+
+style {
+    display: none
+}
+
+script {
+    display: none
+}
+
+/* generic block-level elements */
+
+body {
+    display: block;
+    margin: 8px
+}
+
+p {
+    display: block;
+    -webkit-margin-before: 1__qem;
+    -webkit-margin-after: 1__qem;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
+}
+
+div {
+    display: block
+}
+
+layer {
+    display: block
+}
+
+article, aside, footer, header, hgroup, nav, section {
+    display: block
+}
+
+marquee {
+    display: inline-block;
+    overflow: -webkit-marquee
+}
+
+address {
+    display: block
+}
+
+blockquote {
+    display: block;
+    -webkit-margin-before: 1__qem;
+    -webkit-margin-after: 1em;
+    -webkit-margin-start: 40px;
+    -webkit-margin-end: 40px;
+}
+
+figcaption {
+    display: block
+}
+
+figure {
+    display: block;
+    -webkit-margin-before: 1em;
+    -webkit-margin-after: 1em;
+    -webkit-margin-start: 40px;
+    -webkit-margin-end: 40px;
+}
+
+q {
+    display: inline
+}
+
+q:before {
+    content: open-quote;
+}
+
+q:after {
+    content: close-quote;
+}
+
+center {
+    display: block;
+    /* special centering to be able to emulate the html4/netscape behaviour */
+    text-align: -webkit-center
+}
+
+hr {
+    display: block;
+    -webkit-margin-before: 0.5em;
+    -webkit-margin-after: 0.5em;
+    -webkit-margin-start: auto;
+    -webkit-margin-end: auto;
+    border-style: inset;
+    border-width: 1px
+}
+
+map {
+    display: inline
+}
+
+/* heading elements */
+
+h1 {
+    display: block;
+    font-size: 2em;
+    -webkit-margin-before: 0.67__qem;
+    -webkit-margin-after: 0.67em;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
+    font-weight: bold
+}
+
+:-webkit-any(article,aside,nav,section) h1 {
+    font-size: 1.5em;
+    -webkit-margin-before: 0.83__qem;
+    -webkit-margin-after: 0.83em;
+}
+
+:-webkit-any(article,aside,nav,section) :-webkit-any(article,aside,nav,section) h1 {
+    font-size: 1.17em;
+    -webkit-margin-before: 1__qem;
+    -webkit-margin-after: 1em;
+}
+
+:-webkit-any(article,aside,nav,section) :-webkit-any(article,aside,nav,section) :-webkit-any(article,aside,nav,section) h1 {
+    font-size: 1.00em;
+    -webkit-margin-before: 1.33__qem;
+    -webkit-margin-after: 1.33em;
+}
+
+:-webkit-any(article,aside,nav,section) :-webkit-any(article,aside,nav,section) :-webkit-any(article,aside,nav,section) :-webkit-any(article,aside,nav,section) h1 {
+    font-size: .83em;
+    -webkit-margin-before: 1.67__qem;
+    -webkit-margin-after: 1.67em;
+}
+
+:-webkit-any(article,aside,nav,section) :-webkit-any(article,aside,nav,section) :-webkit-any(article,aside,nav,section) :-webkit-any(article,aside,nav,section) :-webkit-any(article,aside,nav,section) h1 {
+    font-size: .67em;
+    -webkit-margin-before: 2.33__qem;
+    -webkit-margin-after: 2.33em;
+}
+
+h2 {
+    display: block;
+    font-size: 1.5em;
+    -webkit-margin-before: 0.83__qem;
+    -webkit-margin-after: 0.83em;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
+    font-weight: bold
+}
+
+h3 {
+    display: block;
+    font-size: 1.17em;
+    -webkit-margin-before: 1__qem;
+    -webkit-margin-after: 1em;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
+    font-weight: bold
+}
+
+h4 {
+    display: block;
+    -webkit-margin-before: 1.33__qem;
+    -webkit-margin-after: 1.33em;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
+    font-weight: bold
+}
+
+h5 {
+    display: block;
+    font-size: .83em;
+    -webkit-margin-before: 1.67__qem;
+    -webkit-margin-after: 1.67em;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
+    font-weight: bold
+}
+
+h6 {
+    display: block;
+    font-size: .67em;
+    -webkit-margin-before: 2.33__qem;
+    -webkit-margin-after: 2.33em;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
+    font-weight: bold
+}
+
+/* tables */
+
+table {
+    display: table;
+    border-collapse: separate;
+    border-spacing: 2px;
+    border-color: gray
+}
+
+thead {
+    display: table-header-group;
+    vertical-align: middle;
+    border-color: inherit
+}
+
+tbody {
+    display: table-row-group;
+    vertical-align: middle;
+    border-color: inherit
+}
+
+tfoot {
+    display: table-footer-group;
+    vertical-align: middle;
+    border-color: inherit
+}
+
+/* for tables without table section elements (can happen with XHTML or dynamically created tables) */
+table > tr {
+    vertical-align: middle;
+}
+
+col {
+    display: table-column
+}
+
+colgroup {
+    display: table-column-group
+}
+
+tr {
+    display: table-row;
+    vertical-align: inherit;
+    border-color: inherit
+}
+
+td, th {
+    display: table-cell;
+    vertical-align: inherit
+}
+
+th {
+    font-weight: bold
+}
+
+caption {
+    display: table-caption;
+    text-align: -webkit-center
+}
+
+/* lists */
+
+ul, menu, dir {
+    display: block;
+    list-style-type: disc;
+    -webkit-margin-before: 1__qem;
+    -webkit-margin-after: 1em;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
+    -webkit-padding-start: 40px
+}
+
+ol {
+    display: block;
+    list-style-type: decimal;
+    -webkit-margin-before: 1__qem;
+    -webkit-margin-after: 1em;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
+    -webkit-padding-start: 40px
+}
+
+li {
+    display: list-item
+}
+
+ul ul, ol ul {
+    list-style-type: circle
+}
+
+ol ol ul, ol ul ul, ul ol ul, ul ul ul {
+    list-style-type: square
+}
+
+dd {
+    display: block;
+    -webkit-margin-start: 40px
+}
+
+dl {
+    display: block;
+    -webkit-margin-before: 1__qem;
+    -webkit-margin-after: 1em;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
+}
+
+dt {
+    display: block
+}
+
+ol ul, ul ol, ul ul, ol ol {
+    -webkit-margin-before: 0;
+    -webkit-margin-after: 0
+}
+
+/* form elements */
+
+form {
+    display: block;
+    margin-top: 0__qem;
+}
+
+label {
+    cursor: default;
+}
+
+legend {
+    display: block;
+    -webkit-padding-start: 2px;
+    -webkit-padding-end: 2px;
+    border: none
+}
+
+fieldset {
+    display: block;
+    -webkit-margin-start: 2px;
+    -webkit-margin-end: 2px;
+    -webkit-padding-before: 0.35em;
+    -webkit-padding-start: 0.75em;
+    -webkit-padding-end: 0.75em;
+    -webkit-padding-after: 0.625em;
+    border: 2px groove ThreeDFace
+}
+
+button {
+    -webkit-appearance: button;
+}
+
+/* Form controls don't go vertical. */
+input, textarea, keygen, select, button, isindex, meter, progress {
+    -webkit-block-flow: tb !important;
+}
+
+input, textarea, keygen, select, button, isindex {
+    margin: 0__qem;
+    font: -webkit-small-control;
+    color: initial;
+    letter-spacing: normal;
+    word-spacing: normal;
+    line-height: normal;
+    text-transform: none;
+    text-indent: 0;
+    text-shadow: none;
+    display: inline-block;
+    text-align: -webkit-auto;
+}
+
+input[type="hidden"] {
+    display: none
+}
+
+input, input[type="password"], input[type="search"], isindex {
+    -webkit-appearance: textfield;
+    padding: 1px;
+    background-color: white;
+    border: 2px inset;
+    -webkit-rtl-ordering: logical;
+    -webkit-user-select: text;
+    cursor: auto;
+}
+
+input[type="search"] {
+    -webkit-appearance: searchfield;
+    -webkit-box-sizing: border-box;
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: searchfield-cancel-button;
+    display: inline-block;
+}
+
+input[type="search"]::-webkit-search-decoration {
+    -webkit-appearance: searchfield-decoration;
+    display: inline-block;
+}
+
+input[type="search"]::-webkit-search-results-decoration {
+    -webkit-appearance: searchfield-results-decoration;
+    display: inline-block;
+}
+
+input[type="search"]::-webkit-search-results-button {
+    -webkit-appearance: searchfield-results-button;
+    display: inline-block;
+}
+
+input::-webkit-input-list-button {
+    -webkit-appearance: list-button;
+    display: inline-block;
+}
+
+input::-webkit-inner-spin-button {
+    -webkit-appearance: inner-spin-button;
+    display: inline-block;
+    position: relative;
+    cursor: default;
+    -webkit-user-select: none;
+}
+
+input::-webkit-outer-spin-button {
+    -webkit-appearance: outer-spin-button;
+    display: inline-block;
+    position: relative;
+    cursor: default;
+    margin-left: 2px;
+    -webkit-user-select: none;
+}
+
+input::-webkit-input-speech-button {
+    -webkit-appearance: -webkit-input-speech-button;
+    display: inline-block;
+}
+
+keygen, select {
+    -webkit-border-radius: 5px;
+}
+
+keygen::-webkit-keygen-select {
+    margin: 0px;
+}
+
+textarea {
+    -webkit-appearance: textarea;
+    background-color: white;
+    border: 1px solid;
+    -webkit-rtl-ordering: logical;
+    -webkit-user-select: text;
+    -webkit-box-orient: vertical;
+    resize: auto;
+    cursor: auto;
+    padding: 2px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+input::-webkit-input-placeholder, isindex::-webkit-input-placeholder, textarea::-webkit-input-placeholder {
+    color: darkGray;
+}
+
+input[type="password"] {
+    -webkit-text-security: disc !important;
+}
+
+input[type="hidden"], input[type="image"], input[type="file"] {
+    -webkit-appearance: initial;
+    padding: initial;
+    background-color: initial;
+    border: initial;
+}
+
+input[type="file"] {
+    -webkit-box-align: baseline;
+    text-align: start !important;
+}
+
+input:-webkit-autofill {
+    background-color: #FAFFBD !important;
+    background-image:none !important;
+    color: #000000 !important;
+}
+
+input[type="radio"], input[type="checkbox"] {
+    margin: 3px 0.5ex;
+    padding: initial;
+    background-color: initial;
+    border: initial;
+}
+
+input[type="button"], input[type="submit"], input[type="reset"], input[type="file"]::-webkit-file-upload-button {
+    -webkit-appearance: push-button;
+    white-space: pre
+}
+
+input[type="button"], input[type="submit"], input[type="reset"], input[type="file"]::-webkit-file-upload-button, button {
+    -webkit-box-align: center;
+    text-align: center;
+    cursor: default;
+    color: ButtonText;
+    padding: 2px 6px 3px 6px;
+    border: 2px outset ButtonFace;
+    background-color: ButtonFace;
+    -webkit-box-sizing: border-box
+}
+
+input[type="range"] {
+    -webkit-appearance: slider-horizontal;
+    padding: initial;
+    border: initial;
+    margin: 2px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: sliderthumb-horizontal;
+    display: block;
+}
+
+input[type="button"]:disabled, input[type="submit"]:disabled, input[type="reset"]:disabled,
+input[type="file"]:disabled::-webkit-file-upload-button, button:disabled,
+select:disabled, keygen:disabled, optgroup:disabled, option:disabled {
+    color: GrayText
+}
+
+input[type="button"]:active, input[type="submit"]:active, input[type="reset"]:active, input[type="file"]:active::-webkit-file-upload-button, button:active {
+    border-style: inset
+}
+
+input[type="button"]:active:disabled, input[type="submit"]:active:disabled, input[type="reset"]:active:disabled, input[type="file"]:active:disabled::-webkit-file-upload-button, button:active:disabled {
+    border-style: outset
+}
+
+area, param {
+    display: none
+}
+
+input[type="checkbox"] {
+    -webkit-appearance: checkbox;
+    -webkit-box-sizing: border-box;
+}
+
+input[type="radio"] {
+    -webkit-appearance: radio;
+    -webkit-box-sizing: border-box;
+}
+
+select {
+    -webkit-appearance: menulist;
+    -webkit-box-sizing: border-box;
+    -webkit-box-align: center;
+    border: 1px solid;
+    white-space: pre;
+    -webkit-rtl-ordering: logical;
+    color: black;
+    background-color: white;
+    cursor: default;
+}
+
+select[size],
+select[multiple],
+select[size][multiple] {
+    -webkit-appearance: listbox;
+    -webkit-box-align: start;
+    border: 1px inset gray;
+    -webkit-border-radius: initial;
+    white-space: initial;
+}
+
+select[size="0"],
+select[size="1"] {
+    -webkit-appearance: menulist;
+    -webkit-box-align: center;
+    border: 1px solid;
+    -webkit-border-radius: 5px;
+    white-space: pre;
+}
+
+optgroup {
+    font-weight: bolder;
+}
+
+option {
+    font-weight: normal;
+}
+
+output {
+    display: inline;
+}
+
+/* form validation message bubble */
+
+::-webkit-validation-bubble {
+    display: inline-block;
+    z-index: 2147483647;
+    position: absolute;
+    opacity: 0.95;
+    line-height: 0;
+    margin: 0;
+    -webkit-text-security: none;
+    -webkit-transition: opacity 05.5s ease;
+}
+
+::-webkit-validation-bubble-message {
+    display: block;
+    position: relative;
+    top: -4px;
+    font: message-box;
+    color: black;
+    min-width: 50px;
+    max-width: 200px;
+    border: solid 2px #400;
+    background: -webkit-gradient(linear, left top, left bottom, from(#f8ecec), to(#e8cccc));
+    padding: 8px;
+    -webkit-border-radius: 8px;
+    -webkit-box-shadow: 4px 4px 4px rgba(100,100,100,0.6),
+        inset -2px -2px 1px #d0c4c4,
+        inset 2px 2px 1px white;
+    line-height: normal;
+    z-index: 2147483644;
+}
+
+::-webkit-validation-bubble-arrow {
+    display: inline-block;
+    position: relative;
+    left: 32px;
+    width: 16px;
+    height: 16px;
+    background-color: #f8ecec;
+    border-width: 2px 0 0 2px;
+    border-style: solid;
+    border-color: #400;
+    box-shadow: inset 2px 2px 1px white;
+    -webkit-transform-origin: 0 0;
+    -webkit-transform: rotate(45deg);
+    z-index: 2147483645;
+}
+
+::-webkit-validation-bubble-arrow-clipper {
+    display: block;
+    overflow: hidden;
+    height: 16px;
+}
+
+/* meter */
+
+meter {
+    -webkit-appearance: meter;
+    -webkit-box-sizing: border-box;
+    display: inline-box;
+    height: 1em;
+    width: 5em;
+    vertical-align: -0.2em;
+}
+
+meter::-webkit-meter-bar {
+    background: -webkit-gradient(linear, left top, left bottom, from(#ddd), to(#ddd), color-stop(0.20, #eee), color-stop(0.45, #ccc), color-stop(0.55, #ccc));
+    height: 100%;
+    width: 100%;
+    -webkit-box-sizing: border-box;
+}
+
+meter::-webkit-meter-optimum-value {
+    background: -webkit-gradient(linear, left top, left bottom, from(#ad7), to(#ad7), color-stop(0.20, #cea), color-stop(0.45, #7a3), color-stop(0.55, #7a3));
+    height: 100%;
+    -webkit-box-sizing: border-box;
+}
+
+meter::-webkit-meter-suboptimum-value {
+    background: -webkit-gradient(linear, left top, left bottom, from(#fe7), to(#fe7), color-stop(0.20, #ffc), color-stop(0.45, #db3), color-stop(0.55, #db3));
+    height: 100%;
+    -webkit-box-sizing: border-box;
+}
+
+meter::-webkit-meter-even-less-good-value {
+    background: -webkit-gradient(linear, left top, left bottom, from(#f77), to(#f77), color-stop(0.20, #fcc), color-stop(0.45, #d44), color-stop(0.55, #d44));
+    height: 100%;
+    -webkit-box-sizing: border-box;
+}
+
+/* progress */
+
+progress {
+    -webkit-appearance: progress-bar;
+    -webkit-box-sizing: border-box;
+    display: inline-block;
+    height: 1em;
+    width: 10em;
+    vertical-align: -0.2em;
+}
+
+progress::-webkit-progress-bar {
+    background-color: gray;
+    height: 100%;
+    width: 100%;
+    -webkit-box-sizing: border-box;
+}
+
+progress::-webkit-progress-value {
+    background-color: green;
+    height: 100%;
+    width: 50%; /* should be removed later */
+    -webkit-box-sizing: border-box;
+}
+
+/* inline elements */
+
+u, ins {
+    text-decoration: underline
+}
+
+strong, b {
+    font-weight: bolder
+}
+
+i, cite, em, var, address {
+    font-style: italic
+}
+
+tt, code, kbd, samp {
+    font-family: monospace
+}
+
+pre, xmp, plaintext, listing {
+    display: block;
+    font-family: monospace;
+    white-space: pre;
+    margin: 1__qem 0
+}
+
+mark {
+    background-color: yellow;
+    color: black
+}
+
+big {
+    font-size: larger
+}
+
+small {
+    font-size: smaller
+}
+
+s, strike, del {
+    text-decoration: line-through
+}
+
+sub {
+    vertical-align: sub;
+    font-size: smaller
+}
+
+sup {
+    vertical-align: super;
+    font-size: smaller
+}
+
+nobr {
+    white-space: nowrap
+}
+
+/* states */
+
+:focus { 
+    outline: auto 5px -webkit-focus-ring-color
+}
+
+/* Read-only text fields do not show a focus ring but do still receive focus */
+html:focus, body:focus, input[readonly]:focus { 
+    outline: none
+}
+  
+input:focus, textarea:focus, isindex:focus, keygen:focus, select:focus {
+    outline-offset: -2px
+}
+
+input[type="button"]:focus,
+input[type="checkbox"]:focus,
+input[type="file"]:focus,
+input[type="hidden"]:focus,
+input[type="image"]:focus,
+input[type="radio"]:focus,
+input[type="reset"]:focus,
+input[type="search"]:focus,
+input[type="submit"]:focus,
+input[type="file"]:focus::-webkit-file-upload-button {
+    outline-offset: 0
+}
+    
+a:-webkit-any-link {
+    color: -webkit-link;
+    text-decoration: underline;
+    cursor: auto;
+}
+
+a:-webkit-any-link:active {
+    color: -webkit-activelink
+}
+
+/* HTML5 ruby elements */
+
+ruby, rt {
+    text-indent: 0; /* blocks used for ruby rendering should not trigger this */
+}
+
+rt {
+    line-height: normal;
+    -webkit-text-emphasis: none;
+}
+
+ruby > rt {
+    display: block;
+    font-size: 50%;
+    text-align: -webkit-auto;
+}
+
+ruby > rp {
+    display: none;
+}
+
+/* other elements */
+
+noframes {
+    display: none
+}
+
+frameset, frame {
+    display: block
+}
+
+frameset {
+    border-color: inherit
+}
+
+iframe {
+    border: 2px inset
+}
+
+details {
+    display: block
+}
+
+summary {
+    display: block
+}
+
+summary::-webkit-details-marker {
+    display: inline-block;
+    width: 0.66em;
+    height: 0.66em;
+    margin-right: 0.4em;
+}
+
+/* page */
+
+@page {
+    /* FIXME: Define the right default values for page properties. */
+    size: auto;
+    margin: auto;
+    padding: 0px;
+    border-width: 0px;
+}
+
+/* noscript is handled internally, as it depends on settings */

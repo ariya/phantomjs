@@ -1,0 +1,54 @@
+#!/bin/sh
+
+PRECOMP_SUPPORT=no
+COMPILER=$1
+VERBOSE=$2
+
+case "$COMPILER" in
+icpc)
+    cat >header.h <<EOF
+#define HEADER_H
+
+EOF
+    >header.cpp
+    cat >source.cpp <<EOF
+#ifndef HEADER_H
+#error no go
+#endif
+
+EOF
+
+    rm -f header.pchi
+    $COMPILER -pch-create header.pchi -include header.h -c header.cpp -o header.o >/dev/null 2>&1 \
+        && $COMPILER -pch-use header.pchi -include header.h -c source.cpp -o source.o >/dev/null 2>&1 \
+        && PRECOMP_SUPPORT=yes
+
+    rm -f header.h header.cpp source.cpp
+    rm -f header.pchi header.o source.o
+    ;;
+
+*g++*|c++)
+    case `"$COMPILER" -dumpversion 2>/dev/null` in
+    3.*)
+        ;;
+    *)
+
+        >precomp_header.h
+        if $COMPILER -x c-header precomp_header.h >/dev/null 2>&1; then
+           $COMPILER -x c++-header precomp_header.h && PRECOMP_SUPPORT=yes
+        fi
+        rm -f precomp_header.h precomp_header.h.gch
+        ;;
+    esac
+    ;;
+esac
+
+
+# done
+if [ "$PRECOMP_SUPPORT" != "yes" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "Precompiled-headers support disabled."
+    exit 0
+else
+    [ "$VERBOSE" = "yes" ] && echo "Precompiled-headers support enabled."
+    exit 1
+fi

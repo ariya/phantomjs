@@ -1,8 +1,10 @@
-if phantom.args.length is 0
-  console.log "Usage: simpleserver.js <portnumber>"
-  phantom.exit()
+system = require 'system'
+
+if system.args.length is 1
+  console.log "Usage: simpleserver.coffee <portnumber>"
+  phantom.exit 1
 else
-  port = phantom.args[0]
+  port = system.args[1]
   server = require("webserver").create()
 
   service = server.listen(port, (request, response) ->
@@ -27,7 +29,7 @@ else
     response.write "</pre>"
     response.write "</body>"
     response.write "</html>"
-    response.close
+    response.close()
   )
   if service
     console.log "Web server running on port " + port

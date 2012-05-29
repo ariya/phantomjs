@@ -99,8 +99,12 @@ exports.create = function (opts) {
                     this[signalName].disconnect(handlers[signalName]);
                 } catch (e) {}
             }
+
             handlers[signalName] = f;
-            this[signalName].connect(handlers[signalName]);
+
+            if (typeof f === 'function') {
+                this[signalName].connect(f);
+            }
         });
     }
 
@@ -124,6 +128,10 @@ exports.create = function (opts) {
     defineSetter("onAlert", "javaScriptAlertSent");
 
     defineSetter("onConsoleMessage", "javaScriptConsoleMessageSent");
+
+    defineSetter("onError", "javaScriptErrorSent");
+
+    page.onError = phantom.defaultErrorHandler;
 
     page.open = function (url, arg1, arg2, arg3, arg4) {
         if (arguments.length === 1) {
@@ -154,6 +162,14 @@ exports.create = function (opts) {
                 data: arg2
             }, this.settings);
             return;
+        } else if (arguments.length === 5) {
+            this.onLoadFinished = arg4;
+            this.openUrl(url, {
+                operation: arg1,
+                data: arg2,
+                headers : arg3
+            }, this.settings);
+            return;
         }
         throw "Wrong use of WebPage#open";
     };
@@ -174,6 +190,30 @@ exports.create = function (opts) {
         // Append the script tag to the body
         this._appendScriptElement(scriptUrl);
     };
+
+    /**
+     * evaluate a function in the page
+     * @param   {function}  func    the function to evaluate
+     * @param   {...}       args    function arguments
+     * @return  {*}                 the function call result
+     */
+    page.evaluate = function (func, args) {
+        var str, arg, i, l;
+        if (!(func instanceof Function || typeof func === 'string' || func instanceof String)) {
+            throw "Wrong use of WebPage#evaluate";
+        }
+        str = 'function() { return (' + func.toString() + ')(';
+        for (i = 1, l = arguments.length; i < l; i++) {
+            arg = arguments[i];
+            if (/object|string/.test(typeof arg) && !(arg instanceof RegExp)) {
+                str += 'JSON.parse(' + JSON.stringify(JSON.stringify(arg)) + '),';
+            } else {
+                str += arg + ',';
+            }
+        }
+        str = str.replace(/,$/, '') + '); }';
+        return this.evaluateJavaScript(str);
+    }
 
     // Copy options into page
     if (opts) {

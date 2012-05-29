@@ -1,0 +1,112 @@
+/*
+ * Copyright (C) 2006, 2010 Apple Inc. All rights reserved.
+ * Copyright (C) 2006 Samuel Weinig <sam.weinig@gmail.com>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+module html {
+
+    interface HTMLInputElement : HTMLElement {
+        attribute [ConvertNullToNullString] DOMString defaultValue;
+        attribute [Reflect=checked] boolean defaultChecked;
+        readonly attribute HTMLFormElement form;
+        attribute [Reflect, URL] DOMString formAction;
+        attribute [Reflect] DOMString formEnctype;
+        attribute [Reflect] DOMString formMethod;
+        attribute [Reflect] boolean formNoValidate;
+        attribute [Reflect] DOMString formTarget;
+        readonly attribute ValidityState validity;
+        attribute [Reflect] DOMString accept;
+        attribute [Reflect] DOMString accessKey;
+        attribute [Reflect] DOMString align;
+        attribute [Reflect] DOMString alt;
+        attribute boolean checked;
+        attribute [Reflect] boolean disabled;
+        attribute [Reflect] boolean autofocus;
+#if defined(ENABLE_DATALIST) && ENABLE_DATALIST
+        readonly attribute HTMLElement     list;
+#endif
+        attribute [Reflect] DOMString max;
+        attribute long maxLength setter raises(DOMException);
+        attribute [Reflect] DOMString min;
+        attribute [Reflect] boolean multiple;
+#if defined(ENABLE_DIRECTORY_UPLOAD) && ENABLE_DIRECTORY_UPLOAD
+        attribute [Reflect] boolean webkitdirectory;
+#endif
+        attribute [Reflect] DOMString name;
+        attribute [Reflect] DOMString pattern;
+        attribute [Reflect] DOMString placeholder;
+        attribute [Reflect] boolean readOnly;
+        attribute [Reflect] boolean required;
+#if defined(LANGUAGE_OBJECTIVE_C) && LANGUAGE_OBJECTIVE_C
+        attribute [ConvertToString] DOMString size; // DOM level 2 changed this to a long, but our existing API is a string
+#else
+        // FIXME: The spec says this should be a long, not an unsigned long.
+        attribute unsigned long size; // Changed string -> long as part of DOM level 2
+#endif
+        attribute [Reflect, URL] DOMString src;
+        attribute [Reflect] DOMString step;
+        attribute [ConvertNullToNullString] DOMString type; // readonly dropped as part of DOM level 2
+        attribute [Reflect] DOMString useMap;
+        attribute [ConvertNullToNullString] DOMString value;
+#if !defined(LANGUAGE_CPP) || !LANGUAGE_CPP
+        attribute Date valueAsDate setter raises(DOMException);
+#endif
+        attribute double valueAsNumber setter raises(DOMException);
+#if defined(ENABLE_DATALIST) && ENABLE_DATALIST
+        readonly attribute HTMLOptionElement selectedOption;
+#endif
+        attribute [Reflect] boolean incremental;
+
+        void stepUp(in [Optional] long n) raises(DOMException);
+        void stepDown(in [Optional] long n) raises(DOMException);
+
+        readonly attribute boolean willValidate;
+        readonly attribute DOMString validationMessage;
+        boolean checkValidity();
+        void setCustomValidity(in [ConvertUndefinedOrNullToNullString] DOMString error);
+        void select();
+        void click();
+
+#if !defined(LANGUAGE_JAVASCRIPT) || !LANGUAGE_JAVASCRIPT
+        void setValueForUser(in [ConvertNullToNullString] DOMString value);
+#endif
+
+        // WinIE extension:
+        attribute boolean indeterminate;
+
+        attribute [Custom] long selectionStart;
+        attribute [Custom] long selectionEnd;
+        [Custom] void setSelectionRange(in long start, in long end);
+
+#if defined(LANGUAGE_OBJECTIVE_C)
+        // Objective-C extension:
+        readonly attribute DOMString altDisplayString;
+        readonly attribute URL absoluteImageURL;
+#endif
+
+        readonly attribute FileList files;
+        readonly attribute NodeList labels;
+
+#if defined(ENABLE_INPUT_SPEECH) && ENABLE_INPUT_SPEECH
+        attribute [Reflect, EnabledAtRuntime] boolean webkitSpeech;
+        attribute [Reflect, EnabledAtRuntime] boolean webkitGrammar;
+        attribute [DontEnum] EventListener onwebkitspeechchange;
+#endif
+    };
+
+}

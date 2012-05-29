@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="WinCairo"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="&quot;$(WebKitLibrariesDir)\include\cairo&quot;;&quot;$(SolutionDir)\..\..\..\JavaScriptCore\os-win32&quot;"
+		PreprocessorDefinitions="WIN_CAIRO=1"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		AdditionalDependencies="cairo.lib libjpeg.lib zlib.lib libpng.lib"
+		AdditionalLibraryDirectories="&quot;$(WebKitLibrariesDir)\lib&quot;"
+	/>
+</VisualStudioPropertySheet>

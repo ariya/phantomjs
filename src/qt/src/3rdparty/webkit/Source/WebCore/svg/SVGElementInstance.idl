@@ -1,0 +1,100 @@
+/*
+ * Copyright (C) 2007, 2008 Nikolas Zimmermann <zimmermann@kde.org>
+ * Copyright (C) 2008 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+module svg {
+
+    interface [
+        Conditional=SVG,
+        CustomMarkFunction,
+        GenerateNativeConverter
+    ] SVGElementInstance
+#if defined(LANGUAGE_OBJECTIVE_C) && LANGUAGE_OBJECTIVE_C
+        : Object, EventTarget
+#endif /* defined(LANGUAGE_OBJECTIVE_C) */
+    {
+        readonly attribute SVGElement correspondingElement;
+        readonly attribute SVGUseElement correspondingUseElement;
+        readonly attribute SVGElementInstance parentNode;
+        readonly attribute SVGElementInstanceList childNodes;
+        readonly attribute SVGElementInstance firstChild;
+        readonly attribute SVGElementInstance lastChild;
+        readonly attribute SVGElementInstance previousSibling;
+        readonly attribute SVGElementInstance nextSibling;
+
+        // EventTarget
+#if !defined(LANGUAGE_OBJECTIVE_C) || !LANGUAGE_OBJECTIVE_C
+        attribute [DontEnum] EventListener onabort;
+        attribute [DontEnum] EventListener onblur;
+        attribute [DontEnum] EventListener onchange;
+        attribute [DontEnum] EventListener onclick;
+        attribute [DontEnum] EventListener oncontextmenu;
+        attribute [DontEnum] EventListener ondblclick;
+        attribute [DontEnum] EventListener onerror;
+        attribute [DontEnum] EventListener onfocus;
+        attribute [DontEnum] EventListener oninput;
+        attribute [DontEnum] EventListener onkeydown;
+        attribute [DontEnum] EventListener onkeypress;
+        attribute [DontEnum] EventListener onkeyup;
+        attribute [DontEnum] EventListener onload;
+        attribute [DontEnum] EventListener onmousedown;
+        attribute [DontEnum] EventListener onmousemove;
+        attribute [DontEnum] EventListener onmouseout;
+        attribute [DontEnum] EventListener onmouseover;
+        attribute [DontEnum] EventListener onmouseup;
+        attribute [DontEnum] EventListener onmousewheel;
+        attribute [DontEnum] EventListener onbeforecut;
+        attribute [DontEnum] EventListener oncut;
+        attribute [DontEnum] EventListener onbeforecopy;
+        attribute [DontEnum] EventListener oncopy;
+        attribute [DontEnum] EventListener onbeforepaste;
+        attribute [DontEnum] EventListener onpaste;
+        attribute [DontEnum] EventListener ondragenter;
+        attribute [DontEnum] EventListener ondragover;
+        attribute [DontEnum] EventListener ondragleave;
+        attribute [DontEnum] EventListener ondrop;
+        attribute [DontEnum] EventListener ondragstart;
+        attribute [DontEnum] EventListener ondrag;
+        attribute [DontEnum] EventListener ondragend;
+        attribute [DontEnum] EventListener onreset;
+        attribute [DontEnum] EventListener onresize;
+        attribute [DontEnum] EventListener onscroll;
+        attribute [DontEnum] EventListener onsearch;
+        attribute [DontEnum] EventListener onselect;
+        attribute [DontEnum] EventListener onselectstart;
+        attribute [DontEnum] EventListener onsubmit;
+        attribute [DontEnum] EventListener onunload;
+
+        void addEventListener(in DOMString type, 
+                              in EventListener listener, 
+                              in boolean useCapture);
+        void removeEventListener(in DOMString type, 
+                                 in EventListener listener, 
+                                 in boolean useCapture);
+        boolean dispatchEvent(in Event event)
+            raises(EventException);
+#endif /* defined(LANGUAGE_OBJECTIVE_C) */
+    };
+}

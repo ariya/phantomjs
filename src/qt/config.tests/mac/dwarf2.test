@@ -1,0 +1,42 @@
+#!/bin/sh
+
+DWARF2_SUPPORT=no
+DWARF2_SUPPORT_BROKEN=no
+COMPILER=$1
+VERBOSE=$2
+WORKDIR=$3
+
+touch dwarf2.c
+
+if "$COMPILER" -c dwarf2.c -Werror -gdwarf-2 2>/dev/null 1>&2; then
+    if "$COMPILER" -c dwarf2.c -Werror -gdwarf-2  2>&1 | grep "unsupported" >/dev/null ; then
+        true
+    else
+        DWARF2_SUPPORT=yes
+    fi
+fi
+rm -f dwarf2.c dwarf2.o
+
+# Test for xcode 2.4.0, which has a broken implementation of DWARF
+"$COMPILER" $WORKDIR/xcodeversion.cpp -o xcodeversion -framework Carbon;
+./xcodeversion
+
+if [ "$?" == "1" ]; then
+    DWARF2_SUPPORT_BROKEN=yes
+fi
+
+rm xcodeversion
+
+# done
+if [ "$DWARF2_SUPPORT" != "yes" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "DWARF2 debug symbols disabled."
+    exit 0
+else
+    if [ "$DWARF2_SUPPORT_BROKEN" == "yes" ]; then
+        [ "$VERBOSE" = "yes" ] && echo "DWARF2 debug symbols disabled."
+        exit 0
+    else
+        [ "$VERBOSE" = "yes" ] && echo "DWARF2 debug symbols enabled."
+        exit 1
+    fi
+fi

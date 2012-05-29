@@ -1,0 +1,10 @@
+{
+     extern "C" {
+         "qt_startup_hook";
+         "qt_addObject";
+         "qt_removeObject";
+     };
+     extern "C++" {
+         "QEventLoop::exec(QFlags<QEventLoop::ProcessEventsFlag>)";
+     };
+};

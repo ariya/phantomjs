@@ -1,0 +1,1 @@
+contains(QT, declarative):DEFINES += QT_DECLARATIVE_DEBUG

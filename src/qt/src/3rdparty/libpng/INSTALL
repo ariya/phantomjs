@@ -1,0 +1,135 @@
+
+Installing libpng
+
+On Unix/Linux and similar systems, you can simply type
+
+    ./configure [--prefix=/path]
+    make check
+    make install
+
+and ignore the rest of this document.
+
+If configure does not work on your system and you have a reasonably
+up-to-date set of tools, running ./autogen.sh before running ./configure
+may fix the problem.  You can also run the individual commands in
+autogen.sh with the --force option, if supported by your version of
+the tools.  To be really sure that you aren't using any of the included
+pre-built scripts, you can do this:
+
+    ./configure --enable-maintainer-mode
+    make maintainer-clean
+    ./autogen.sh
+    ./configure [--prefix=/path] [other options]
+    make
+    make install
+    make check
+
+Instead, you can use one of the custom-built makefiles in the
+"scripts" directory
+
+    cp scripts/makefile.system makefile
+    make test
+    make install
+
+The files that are presently available in the scripts directory
+are listed and described in scripts/README.txt.
+
+Or you can use one of the "projects" in the "projects" directory.
+
+Before installing libpng, you must first install zlib, if it
+is not already on your system.  zlib can usually be found
+wherever you got libpng.  zlib can be placed in another directory,
+at the same level as libpng.
+
+If you want to use "cmake" (see www.cmake.org), type
+
+   cmake . -DCMAKE_INSTALL_PREFIX=/path
+   make
+   make install
+
+If your system already has a preinstalled zlib you will still need
+to have access to the zlib.h and zconf.h include files that
+correspond to the version of zlib that's installed.
+
+You can rename the directories that you downloaded (they
+might be called "libpng-x.y.z" or "libpngNN" and "zlib-1.2.5"
+or "zlib125") so that you have directories called "zlib" and "libpng".
+
+Your directory structure should look like this:
+
+   ..       (the parent directory)
+      libpng  (this directory)
+          INSTALL (this file)
+          README
+          *.h
+          *.c
+          CMakeLists.txt    =>  "cmake" script
+          configuration files:
+             configure.ac, configure, Makefile.am, Makefile.in,
+             autogen.sh, config.guess, ltmain.sh, missing, libpng.pc.in,
+             libpng-config.in, aclocal.m4, config.h.in, config.sub,
+             depcomp, install-sh, mkinstalldirs, test-pngtest.sh
+          contrib
+             gregbook
+             pngminim
+             pngminus
+             pngsuite
+             visupng
+          projects
+             visualc71
+             vstudio
+          scripts
+             makefile.*
+             *.def (module definition files)
+             etc.
+          pngtest.png
+          etc.
+      zlib
+          README
+          *.h
+          *.c
+          contrib
+          etc.
+
+If the line endings in the files look funny, you may wish to get the other
+distribution of libpng.  It is available in both tar.gz (UNIX style line
+endings) and zip (DOS style line endings) formats.
+
+If you are building libpng with MSVC, you can enter the
+libpng projects\visualc6 or visualc71 directory and follow the instructions
+in README.txt.
+
+Otherwise enter the zlib directory and follow the instructions in zlib/README,
+then come back here and run "configure" or choose the appropriate
+makefile.sys in the scripts directory.
+
+Copy the file (or files) that you need from the
+scripts directory into this directory, for example
+
+   MSDOS example: copy scripts\makefile.msc makefile
+   UNIX example:    cp scripts/makefile.std makefile
+
+Read the makefile to see if you need to change any source or
+target directories to match your preferences.
+
+Then read pnglibconf.dfa to see if you want to make any configuration
+changes.
+
+Then just run "make" which will create the libpng library in
+this directory and "make test" which will run a quick test that reads
+the "pngtest.png" file and writes a "pngout.png" file that should be
+identical to it.  Look for "9782 zero samples" in the output of the
+test.  For more confidence, you can run another test by typing
+"pngtest pngnow.png" and looking for "289 zero samples" in the output.
+Also, you can run "pngtest -m contrib/pngsuite/*.png" and compare
+your output with the result shown in contrib/pngsuite/README.
+
+Most of the makefiles will allow you to run "make install" to
+put the library in its final resting place (if you want to
+do that, run "make install" in the zlib directory first if necessary).
+Some also allow you to run "make test-installed" after you have
+run "make install".
+
+Further information can be found in the README and libpng-manual.txt
+files, in the individual makefiles, in png.h, and the manual pages
+libpng.3 and png.5.

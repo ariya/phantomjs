@@ -1,0 +1,447 @@
+/*
+** $Header: /cvs/projects/ogl-sample/main/gfx/lib/glu/libtess/README,v 1.1 2000/04/26 05:53:59 ljp Exp $
+*/
+
+General Polygon Tesselation
+---------------------------
+
+  This note describes a tesselator for polygons consisting of one or
+  more closed contours.  It is backward-compatible with the current
+  OpenGL Utilities tesselator, and is intended to replace it.  Here is
+  a summary of the major differences:
+
+   - input contours can be intersecting, self-intersecting, or degenerate.
+  
+   - supports a choice of several winding rules for determining which parts
+     of the polygon are on the "interior".  This makes it possible to do
+     CSG operations on polygons.
+  
+   - boundary extraction: instead of tesselating the polygon, returns a
+     set of closed contours which separate the interior from the exterior.
+  
+   - returns the output as a small number of triangle fans and strips,
+     rather than a list of independent triangles (when possible).
+  
+   - output is available as an explicit mesh (a quad-edge structure),
+     in addition to the normal callback interface.
+  
+   - the algorithm used is extremely robust.
+
+
+The interface
+-------------
+
+  The tesselator state is maintained in a "tesselator object".
+  These are allocated and destroyed using
+
+     GLUtesselator *gluNewTess( void );
+     void gluDeleteTess( GLUtesselator *tess );
+
+  Several tesselator objects may be used simultaneously.
+
+  Inputs
+  ------
+  
+  The input contours are specified with the following routines:
+
+     void gluTessBeginPolygon( GLUtesselator *tess );
+     void gluTessBeginContour( GLUtesselator *tess );
+     void gluTessVertex( GLUtesselator *tess, GLUcoord coords[3], void *data );
+     void gluTessEndContour( GLUtesselator *tess );
+     void gluTessEndPolygon( GLUtesselator *tess );
+
+  Within each BeginPolygon/EndPolygon pair, there can be zero or more
+  calls to BeginContour/EndContour.  Within each contour, there are zero
+  or more calls to gluTessVertex().  The vertices specify a closed
+  contour (the last vertex of each contour is automatically linked to
+  the first).
+
+  "coords" give the coordinates of the vertex in 3-space.  For useful
+  results, all vertices should lie in some plane, since the vertices
+  are projected onto a plane before tesselation.  "data" is a pointer
+  to a user-defined vertex structure, which typically contains other
+  information such as color, texture coordinates, normal, etc.  It is
+  used to refer to the vertex during rendering.
+
+  The library can be compiled in single- or double-precision; the type
+  GLUcoord represents either "float" or "double" accordingly.  The GLU
+  version will be available in double-precision only.  Compile with
+  GLU_TESS_API_FLOAT defined to get the single-precision version.
+
+  When EndPolygon is called, the tesselation algorithm determines
+  which regions are interior to the given contours, according to one
+  of several "winding rules" described below.  The interior regions
+  are then tesselated, and the output is provided as callbacks.
+
+
+  Rendering Callbacks
+  -------------------
+
+  Callbacks are specified by the client using
+
+     void gluTessCallback( GLUtesselator *tess, GLenum which, void (*fn)());
+
+  If "fn" is NULL, any previously defined callback is discarded.
+  
+  The callbacks used to provide output are:	/* which == */
+
+     void begin( GLenum type );			/* GLU_TESS_BEGIN */
+     void edgeFlag( GLboolean flag );		/* GLU_TESS_EDGE_FLAG */
+     void vertex( void *data );			/* GLU_TESS_VERTEX */
+     void end( void );				/* GLU_TESS_END */
+
+  Any of the callbacks may be left undefined; if so, the corresponding
+  information will not be supplied during rendering.
+
+  The "begin" callback indicates the start of a primitive; type is one
+  of GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, or GL_TRIANGLES (but see the
+  notes on "boundary extraction" below).
+  
+  It is followed by any number of "vertex" callbacks, which supply the
+  vertices in the same order as expected by the corresponding glBegin()
+  call.  After the last vertex of a given primitive, there is a callback
+  to "end".
+
+  If the "edgeFlag" callback is provided, no triangle fans or strips
+  will be used.  When edgeFlag is called, if "flag" is GL_TRUE then each
+  vertex which follows begins an edge which lies on the polygon boundary
+  (ie. an edge which separates an interior region from an exterior one).
+  If "flag" is GL_FALSE, each vertex which follows begins an edge which lies
+  in the polygon interior.  "edgeFlag" will be called before the first
+  call to "vertex".
+
+  Other Callbacks
+  ---------------
+
+   void mesh( GLUmesh *mesh );			/* GLU_TESS_MESH */
+
+   - Returns an explicit mesh, represented using the quad-edge structure
+     (Guibas/Stolfi '85).  Other implementations of this interface might
+     use a different mesh structure, so this is available only only as an
+     SGI extension.  When the mesh is no longer needed, it should be freed
+     using
+
+	void gluDeleteMesh( GLUmesh *mesh );
+
+     There is a brief description of this data structure in the include
+     file "mesh.h".  For the full details, see L. Guibas and J. Stolfi,
+     Primitives for the manipulation of general subdivisions and the
+     computation of Voronoi diagrams, ACM Transactions on Graphics,
+     4(2):74-123, April 1985.  For an introduction, see the course notes
+     for CS348a, "Mathematical Foundations of Computer Graphics",
+     available at the Stanford bookstore (and taught during the fall
+     quarter).
+
+   void error( GLenum errno );			/* GLU_TESS_ERROR */
+
+   - errno is one of	GLU_TESS_MISSING_BEGIN_POLYGON,
+			GLU_TESS_MISSING_END_POLYGON,
+			GLU_TESS_MISSING_BEGIN_CONTOUR,
+			GLU_TESS_MISSING_END_CONTOUR,
+			GLU_TESS_COORD_TOO_LARGE,
+			GLU_TESS_NEED_COMBINE_CALLBACK
+
+     The first four are obvious.  The interface recovers from these
+     errors by inserting the missing call(s).
+  
+     GLU_TESS_COORD_TOO_LARGE says that some vertex coordinate exceeded
+     the predefined constant GLU_TESS_MAX_COORD in absolute value, and
+     that the value has been clamped.  (Coordinate values must be small
+     enough so that two can be multiplied together without overflow.)
+
+     GLU_TESS_NEED_COMBINE_CALLBACK says that the algorithm detected an
+     intersection between two edges in the input data, and the "combine"
+     callback (below) was not provided.  No output will be generated.
+
+
+   void combine( GLUcoord coords[3], void *data[4],	/* GLU_TESS_COMBINE */
+		 GLUcoord weight[4], void **outData );
+
+   - When the algorithm detects an intersection, or wishes to merge
+     features, it needs to create a new vertex.  The vertex is defined
+     as a linear combination of up to 4 existing vertices, referenced
+     by data[0..3].  The coefficients of the linear combination are
+     given by weight[0..3]; these weights always sum to 1.0.  All vertex
+     pointers are valid even when some of the weights are zero.
+     "coords" gives the location of the new vertex.
+
+     The user must allocate another vertex, interpolate parameters
+     using "data" and "weights", and return the new vertex pointer in
+     "outData".  This handle is supplied during rendering callbacks.
+     For example, if the polygon lies in an arbitrary plane in 3-space,
+     and we associate a color with each vertex, the combine callback might
+     look like this:
+    
+     void myCombine( GLUcoord coords[3], VERTEX *d[4],
+                     GLUcoord w[4], VERTEX **dataOut )
+     {
+        VERTEX *new = new_vertex();
+       
+        new->x = coords[0];
+        new->y = coords[1];
+        new->z = coords[2];
+        new->r = w[0]*d[0]->r + w[1]*d[1]->r + w[2]*d[2]->r + w[3]*d[3]->r;
+        new->g = w[0]*d[0]->g + w[1]*d[1]->g + w[2]*d[2]->g + w[3]*d[3]->g;
+        new->b = w[0]*d[0]->b + w[1]*d[1]->b + w[2]*d[2]->b + w[3]*d[3]->b;
+        new->a = w[0]*d[0]->a + w[1]*d[1]->a + w[2]*d[2]->a + w[3]*d[3]->a;
+        *dataOut = new;
+     }
+
+     If the algorithm detects an intersection, then the "combine" callback
+     must be defined, and must write a non-NULL pointer into "dataOut".
+     Otherwise the GLU_TESS_NEED_COMBINE_CALLBACK error occurs, and no
+     output is generated.  This is the only error that can occur during
+     tesselation and rendering.
+
+
+  Control over Tesselation
+  ------------------------
+  
+   void gluTessProperty( GLUtesselator *tess, GLenum which, GLUcoord value );
+
+   Properties defined:
+
+    - GLU_TESS_WINDING_RULE.  Possible values:
+
+	  GLU_TESS_WINDING_ODD
+	  GLU_TESS_WINDING_NONZERO
+	  GLU_TESS_WINDING_POSITIVE
+	  GLU_TESS_WINDING_NEGATIVE
+	  GLU_TESS_WINDING_ABS_GEQ_TWO
+
+      The input contours parition the plane into regions.  A winding
+      rule determines which of these regions are inside the polygon.
+      
+      For a single contour C, the winding number of a point x is simply
+      the signed number of revolutions we make around x as we travel
+      once around C (where CCW is positive).  When there are several
+      contours, the individual winding numbers are summed.  This
+      procedure associates a signed integer value with each point x in
+      the plane.  Note that the winding number is the same for all
+      points in a single region.
+
+      The winding rule classifies a region as "inside" if its winding
+      number belongs to the chosen category (odd, nonzero, positive,
+      negative, or absolute value of at least two).  The current GLU
+      tesselator implements the "odd" rule.  The "nonzero" rule is another
+      common way to define the interior.  The other three rules are
+      useful for polygon CSG operations (see below).
+
+    - GLU_TESS_BOUNDARY_ONLY.  Values: TRUE (non-zero) or FALSE (zero).
+
+      If TRUE, returns a set of closed contours which separate the
+      polygon interior and exterior (rather than a tesselation).
+      Exterior contours are oriented CCW with respect to the normal,
+      interior contours are oriented CW.  The GLU_TESS_BEGIN callback
+      uses the type GL_LINE_LOOP for each contour.
+      
+    - GLU_TESS_TOLERANCE.  Value: a real number between 0.0 and 1.0.
+
+      This specifies a tolerance for merging features to reduce the size
+      of the output.  For example, two vertices which are very close to
+      each other might be replaced by a single vertex.  The tolerance
+      is multiplied by the largest coordinate magnitude of any input vertex;
+      this specifies the maximum distance that any feature can move as the
+      result of a single merge operation.  If a single feature takes part
+      in several merge operations, the total distance moved could be larger.
+
+      Feature merging is completely optional; the tolerance is only a hint.
+      The implementation is free to merge in some cases and not in others,
+      or to never merge features at all.  The default tolerance is zero.
+      
+      The current implementation merges vertices only if they are exactly
+      coincident, regardless of the current tolerance.  A vertex is
+      spliced into an edge only if the implementation is unable to
+      distinguish which side of the edge the vertex lies on.
+      Two edges are merged only when both endpoints are identical.
+
+
+   void gluTessNormal( GLUtesselator *tess,
+		      GLUcoord x, GLUcoord y, GLUcoord z )
+
+    - Lets the user supply the polygon normal, if known.  All input data
+      is projected into a plane perpendicular to the normal before
+      tesselation.  All output triangles are oriented CCW with
+      respect to the normal (CW orientation can be obtained by
+      reversing the sign of the supplied normal).  For example, if
+      you know that all polygons lie in the x-y plane, call
+      "gluTessNormal(tess, 0.0, 0.0, 1.0)" before rendering any polygons.
+      
+    - If the supplied normal is (0,0,0) (the default value), the
+      normal is determined as follows.  The direction of the normal,
+      up to its sign, is found by fitting a plane to the vertices,
+      without regard to how the vertices are connected.  It is
+      expected that the input data lies approximately in plane;
+      otherwise projection perpendicular to the computed normal may
+      substantially change the geometry.  The sign of the normal is
+      chosen so that the sum of the signed areas of all input contours
+      is non-negative (where a CCW contour has positive area).
+    
+    - The supplied normal persists until it is changed by another
+      call to gluTessNormal.
+
+
+  Backward compatibility with the GLU tesselator
+  ----------------------------------------------
+
+  The preferred interface is the one described above.  The following
+  routines are obsolete, and are provided only for backward compatibility:
+
+    typedef GLUtesselator GLUtriangulatorObj;	/* obsolete name */
+
+    void gluBeginPolygon( GLUtesselator *tess );
+    void gluNextContour( GLUtesselator *tess, GLenum type );
+    void gluEndPolygon( GLUtesselator *tess );
+  
+  "type" is one of GLU_EXTERIOR, GLU_INTERIOR, GLU_CCW, GLU_CW, or
+  GLU_UNKNOWN.  It is ignored by the current GLU tesselator.
+  
+  GLU_BEGIN, GLU_VERTEX, GLU_END, GLU_ERROR, and GLU_EDGE_FLAG are defined
+  as synonyms for GLU_TESS_BEGIN, GLU_TESS_VERTEX, GLU_TESS_END,
+  GLU_TESS_ERROR, and GLU_TESS_EDGE_FLAG.
+
+
+Polygon CSG operations
+----------------------
+
+  The features of the tesselator make it easy to find the union, difference,
+  or intersection of several polygons.
+
+  First, assume that each polygon is defined so that the winding number
+  is 0 for each exterior region, and 1 for each interior region.  Under
+  this model, CCW contours define the outer boundary of the polygon, and
+  CW contours define holes.  Contours may be nested, but a nested
+  contour must be oriented oppositely from the contour that contains it.
+
+  If the original polygons do not satisfy this description, they can be
+  converted to this form by first running the tesselator with the
+  GLU_TESS_BOUNDARY_ONLY property turned on.  This returns a list of
+  contours satisfying the restriction above.  By allocating two
+  tesselator objects, the callbacks from one tesselator can be fed
+  directly to the input of another.
+
+  Given two or more polygons of the form above, CSG operations can be
+  implemented as follows:
+
+  Union
+     Draw all the input contours as a single polygon.  The winding number
+     of each resulting region is the number of original polygons
+     which cover it.  The union can be extracted using the
+     GLU_TESS_WINDING_NONZERO or GLU_TESS_WINDING_POSITIVE winding rules.
+     Note that with the nonzero rule, we would get the same result if
+     all contour orientations were reversed.
+
+  Intersection (two polygons at a time only)
+     Draw a single polygon using the contours from both input polygons.
+     Extract the result using GLU_TESS_WINDING_ABS_GEQ_TWO.  (Since this
+     winding rule looks at the absolute value, reversing all contour
+     orientations does not change the result.)
+
+  Difference
+  
+     Suppose we want to compute A \ (B union C union D).  Draw a single
+     polygon consisting of the unmodified contours from A, followed by
+     the contours of B,C,D with the vertex order reversed (this changes
+     the winding number of the interior regions to -1).  To extract the
+     result, use the GLU_TESS_WINDING_POSITIVE rule.
+   
+     If B,C,D are the result of a GLU_TESS_BOUNDARY_ONLY call, an
+     alternative to reversing the vertex order is to reverse the sign of
+     the supplied normal.  For example in the x-y plane, call
+     gluTessNormal( tess, 0.0, 0.0, -1.0 ).
+ 
+
+Performance
+-----------
+
+  The tesselator is not intended for immediate-mode rendering; when
+  possible the output should be cached in a user structure or display
+  list.  General polygon tesselation is an inherently difficult problem,
+  especially given the goal of extreme robustness.
+
+  The implementation makes an effort to output a small number of fans
+  and strips; this should improve the rendering performance when the
+  output is used in a display list.
+
+  Single-contour input polygons are first tested to see whether they can
+  be rendered as a triangle fan with respect to the first vertex (to
+  avoid running the full decomposition algorithm on convex polygons).
+  Non-convex polygons may be rendered by this "fast path" as well, if
+  the algorithm gets lucky in its choice of a starting vertex.
+
+  For best performance follow these guidelines:
+
+   - supply the polygon normal, if available, using gluTessNormal().
+     This represents about 10% of the computation time.  For example,
+     if all polygons lie in the x-y plane, use gluTessNormal(tess,0,0,1).
+
+   - render many polygons using the same tesselator object, rather than
+     allocating a new tesselator for each one.  (In a multi-threaded,
+     multi-processor environment you may get better performance using
+     several tesselators.)
+
+
+Comparison with the GLU tesselator
+----------------------------------
+
+  On polygons which make it through the "fast path", the tesselator is
+  3 to 5 times faster than the GLU tesselator.
+
+  On polygons which don't make it through the fast path (but which don't
+  have self-intersections or degeneracies), it is about 2 times slower.
+
+  On polygons with self-intersections or degeneraces, there is nothing
+  to compare against.
+
+  The new tesselator generates many more fans and strips, reducing the
+  number of vertices that need to be sent to the hardware.
+
+  Key to the statistics:
+
+	vert		number of input vertices on all contours
+	cntr		number of input contours
+	tri		number of triangles in all output primitives
+	strip		number of triangle strips
+	fan		number of triangle fans
+	ind		number of independent triangles
+	ms		number of milliseconds for tesselation
+			(on a 150MHz R4400 Indy)
+
+  Convex polygon examples:
+
+New:     3 vert,   1 cntr,     1 tri,   0 strip,   0 fan,     1 ind,  0.0459 ms
+Old:     3 vert,   1 cntr,     1 tri,   0 strip,   0 fan,     1 ind,   0.149 ms
+New:     4 vert,   1 cntr,     2 tri,   0 strip,   1 fan,     0 ind,  0.0459 ms
+Old:     4 vert,   1 cntr,     2 tri,   0 strip,   0 fan,     2 ind,   0.161 ms
+New:    36 vert,   1 cntr,    34 tri,   0 strip,   1 fan,     0 ind,   0.153 ms
+Old:    36 vert,   1 cntr,    34 tri,   0 strip,   0 fan,    34 ind,   0.621 ms
+
+  Concave single-contour polygons:
+
+New:     5 vert,   1 cntr,     3 tri,   0 strip,   1 fan,     0 ind,   0.052 ms
+Old:     5 vert,   1 cntr,     3 tri,   0 strip,   0 fan,     3 ind,   0.252 ms
+New:    19 vert,   1 cntr,    17 tri,   2 strip,   2 fan,     1 ind,   0.911 ms
+Old:    19 vert,   1 cntr,    17 tri,   0 strip,   0 fan,    17 ind,   0.529 ms
+New:   151 vert,   1 cntr,   149 tri,  13 strip,  18 fan,     3 ind,    6.82 ms
+Old:   151 vert,   1 cntr,   149 tri,   0 strip,   3 fan,   143 ind,     2.7 ms
+New:   574 vert,   1 cntr,   572 tri,  59 strip,  54 fan,    11 ind,    26.6 ms
+Old:   574 vert,   1 cntr,   572 tri,   0 strip,  31 fan,   499 ind,    12.4 ms
+
+  Multiple contours, but no intersections:
+
+New:     7 vert,   2 cntr,     7 tri,   1 strip,   0 fan,     0 ind,   0.527 ms
+Old:     7 vert,   2 cntr,     7 tri,   0 strip,   0 fan,     7 ind,   0.274 ms
+New:    81 vert,   6 cntr,    89 tri,   9 strip,   7 fan,     6 ind,    3.88 ms
+Old:    81 vert,   6 cntr,    89 tri,   0 strip,  13 fan,    61 ind,     2.2 ms
+New:   391 vert,  19 cntr,   413 tri,  37 strip,  32 fan,    26 ind,    20.2 ms
+Old:   391 vert,  19 cntr,   413 tri,   0 strip,  25 fan,   363 ind,    8.68 ms
+
+  Self-intersecting and degenerate examples:
+
+Bowtie:  4 vert,   1 cntr,     2 tri,   0 strip,   0 fan,     2 ind,   0.483 ms
+Star:    5 vert,   1 cntr,     5 tri,   0 strip,   0 fan,     5 ind,    0.91 ms
+Random: 24 vert,   7 cntr,    46 tri,   2 strip,  12 fan,     7 ind,    5.32 ms
+Font:  333 vert,   2 cntr,   331 tri,  32 strip,  16 fan,     3 ind,    14.1 ms
+:      167 vert,  35 cntr,   254 tri,   8 strip,  56 fan,    52 ind,    46.3 ms
+:       78 vert,   1 cntr,  2675 tri, 148 strip, 207 fan,   180 ind,     243 ms
+:    12480 vert,   2 cntr, 12478 tri, 736 strip,1275 fan,     5 ind,    1010 ms

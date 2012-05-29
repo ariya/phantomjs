@@ -1,0 +1,59 @@
+/*
+ * Copyright (C) 2010, Google Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1.  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2.  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+module audio {
+    interface [
+        Conditional=WEB_AUDIO,
+        GenerateConstructor,
+        GenerateToJS
+    ] AudioPannerNode : AudioNode {
+        // Panning model
+        const unsigned short EQUALPOWER = 0;
+        const unsigned short HRTF = 1;
+        const unsigned short SOUNDFIELD = 2;
+
+        // Default model for stereo is HRTF 
+        attribute unsigned long panningModel; // FIXME: use unsigned short when glue generation supports it
+
+        // Uses a 3D cartesian coordinate system 
+        void setPosition(in float x, in float y, in float z);
+        void setOrientation(in float x, in float y, in float z);
+        void setVelocity(in float x, in float y, in float z);
+
+        // Distance model
+        attribute unsigned long distanceModel; // FIXME: use unsigned short when glue generation supports it
+        attribute float refDistance;
+        attribute float maxDistance;
+        attribute float rolloffFactor;
+
+        // Directional sound cone
+        attribute float coneInnerAngle;
+        attribute float coneOuterAngle;
+        attribute float coneOuterGain;
+
+        // Dynamically calculated gain values          
+        readonly attribute AudioGain coneGain;
+        readonly attribute AudioGain distanceGain;
+    };
+}

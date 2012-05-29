@@ -31,12 +31,14 @@
 #ifndef WEBSERVER_H
 #define WEBSERVER_H
 
-#include <QObject>
 #include <QVariantMap>
+#include <QMutex>
+#include <QSemaphore>
 
 ///TODO: is this ok, or should it be put into .cpp
 ///      can be done by introducing a WebServerPrivate *d;
 #include "mongoose.h"
+#include "replcompletable.h"
 
 class Config;
 
@@ -47,10 +49,10 @@ class WebServerResponse;
  *
  * see also: modules/webserver.js
  */
-class WebServer : public QObject
+class WebServer : public REPLCompletable
 {
     Q_OBJECT
-    Q_PROPERTY(QString port READ port);
+    Q_PROPERTY(QString port READ port)
 
 public:
     WebServer(QObject *parent, Config *config);
@@ -67,7 +69,7 @@ public slots:
      *
      * WARNING: must not be the same name as in the javascript api...
      */
-    bool listenOnPort(const QString &port);
+    bool listenOnPort(const QString &port, const QVariantMap& options);
     /**
      * @return the port this server is listening on
      *         or an empty string if the server is closed.
@@ -81,28 +83,33 @@ signals:
     /// @p request is a WebServerRequest, @p response is a WebServerResponse
     void newRequest(QVariant request, QObject *response);
 
-private slots:
-    void handleRequest(mg_event event, mg_connection* conn, const mg_request_info* request,
-                       bool* handled);
+public:
+    bool handleRequest(mg_event event, mg_connection *conn, const mg_request_info *request);
+
+private:
+    virtual void initCompletions();
 
 private:
     Config *m_config;
     mg_context *m_ctx;
     QString m_port;
+    QMutex m_mutex;
+    QList<WebServerResponse*> m_pendingResponses;
+    QAtomicInt m_closing;
 };
 
 
 /**
  * Outgoing HTTP response to client.
  */
-class WebServerResponse : public QObject
+class WebServerResponse : public REPLCompletable
 {
     Q_OBJECT
 
-    Q_PROPERTY(int statusCode READ statusCode WRITE setStatusCode);
-    Q_PROPERTY(QVariantMap headers READ headers WRITE setHeaders);
+    Q_PROPERTY(int statusCode READ statusCode WRITE setStatusCode)
+    Q_PROPERTY(QVariantMap headers READ headers WRITE setHeaders)
 public:
-    WebServerResponse(mg_connection *conn);
+    WebServerResponse(mg_connection *conn, QSemaphore* close);
 
 public slots:
     /// send @p headers to client with status code @p statusCode
@@ -111,14 +118,19 @@ public slots:
     void write(const QString &data);
 
     /**
-     * Closes the request once all writing if finished
-     * This MUST be called when done with a request!
+     * Closes the request once all data has been written to the client.
+     *
+     * NOTE: This MUST be called, otherwise the server will
+     *       not allow new connections anymore.
      *
      * NOTE: After calling close(), this request object
      *       is no longer valid. Any further calls are
      *       undefined and may crash.
      */
     void close();
+
+    /// Same as 'close()', but ensures response headers have been sent first
+    void closeGracefully();
 
     /// get the currently set status code, 200 is the default
     int statusCode() const;
@@ -136,10 +148,14 @@ public slots:
     void setHeaders(const QVariantMap &headers);
 
 private:
+    virtual void initCompletions();
+
+private:
     mg_connection *m_conn;
     int m_statusCode;
     QVariantMap m_headers;
     bool m_headersSent;
+    QSemaphore* m_close;
 };
 
 #endif // WEBSERVER_H

@@ -1,6 +1,8 @@
 # Render Multiple URLs to file
 # FIXME: For now it is fine with pure domain names: don't think it would work with paths and stuff like that
 
+system = require 'system'
+
 # Extend the Array Prototype with a 'foreach'
 Array.prototype.forEach = (action) ->
     for i, j in this
@@ -25,8 +27,8 @@ renderUrlToFile = (url, file, callback) ->
        callback url, file
 
 # Read the passed args
-if phantom.args.length > 0
-    arrayOfUrls = phantom.args
+if system.args.length > 1
+    arrayOfUrls = Array.prototype.slice.call system.args, 1
 else
     # Default (no args passed)
     console.log 'Usage: phantomjs render_multi_url.coffee [domain.name1, domain.name2, ...]'

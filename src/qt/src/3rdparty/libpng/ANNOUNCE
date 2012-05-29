@@ -1,0 +1,195 @@
+
+Libpng 1.5.4 - July 7, 2011
+
+This is a public release of libpng, intended for use in production codes.
+
+Files available for download:
+
+Source files with LF line endings (for Unix/Linux) and with a
+"configure" script
+
+   libpng-1.5.4.tar.xz (LZMA-compressed, recommended)
+   libpng-1.5.4.tar.gz
+   libpng-1.5.4.tar.bz2
+
+Source files with CRLF line endings (for Windows), without the
+"configure" script
+
+   lpng154.7z  (LZMA-compressed, recommended)
+   lpng154.zip
+
+Other information:
+
+   libpng-1.5.4-README.txt
+   libpng-1.5.4-LICENSE.txt
+
+Changes since the last public release (1.5.2):
+
+  Re-initialize the zlib compressor before compressing non-IDAT chunks.
+  Added API functions to set parameters for zlib compression of non-IDAT
+    chunks.
+  Updated scripts/symbols.def with new API functions.
+  Only compile the new zlib re-initializing code when text or iCCP is
+    supported, using PNG_WRITE_COMPRESSED_TEXT_SUPPORTED macro.
+  Improved the optimization of the zlib CMF byte (see libpng-1.2.6).
+  Optimize the zlib CMF byte in non-IDAT compressed chunks
+  Fixed gcc -ansi -pedantic compile. A strict ANSI system does not have
+    snprintf, and the "__STRICT_ANSI__" detects that condition more reliably
+    than __STDC__ (John Bowler).
+  Removed the PNG_PTR_NORETURN attribute because it too dangerous. It tells
+    the compiler that a user supplied callback (the error handler) does not
+    return, yet there is no guarantee in practice that the application code
+    will correctly implement the error handler because the compiler only
+    issues a warning if there is a mistake (John Bowler).
+  Removed the no-longer-used PNG_DEPSTRUCT macro.
+  Updated the zlib version to 1.2.5 in the VStudio project.
+  Fixed 64-bit builds where png_uint_32 is smaller than png_size_t in
+    pngwutil.c (John Bowler).
+  Fixed bug with stripping the filler or alpha channel when writing, that
+    was introduced in libpng-1.5.2 (bug report by Andrew Church).
+  Updated pngtest.png with the new zlib CMF optimization.
+  Cleaned up conditional compilation code and of background/gamma handling
+    Internal changes only except a new option to avoid compiling the
+    png_build_grayscale_palette API (which is not used at all internally.)
+    The main change is to move the transform tests (READ_TRANSFORMS,
+    WRITE_TRANSFORMS) up one level to the caller of the APIs.  This avoids
+    calls to spurious functions if all transforms are disabled and slightly
+    simplifies those functions.  Pngvalid modified to handle this.
+    A minor change is to stop the strip_16 and expand_16 interfaces from
+    disabling each other; this allows the future alpha premultiplication
+    code to use 16-bit intermediate values while still producing 8-bit output.
+    png_do_background and png_do_gamma have been simplified to take a single
+    pointer to the png_struct rather than pointers to every item required
+    from the png_struct. This makes no practical difference to the internal
+    code.
+  A serious bug in the pngvalid internal routine 'standard_display_init' has
+    been fixed - this failed to initialize the red channel and accidentally
+    initialized the alpha channel twice.
+  Changed png_struct jmp_buf member name from png_jmpbuf to tmp_jmpbuf to
+    avoid a clash with the png_jmpbuf macro on some platforms.
+  Added appropriate feature test macros to ensure libpng sees the correct API
+   _POSIX_SOURCE is defined in pngpriv.h, pngtest.c and pngvalid.c to ensure
+    that POSIX conformant systems disable non-POSIX APIs.  _ISOC99_SOURCE is
+    defined in pngpriv.h to obtain the ISO C99 snprintf definition, when
+    available.
+  Removed png_snprintf and added formatted warning messages.  This change adds
+    internal APIs to allow png_warning messages to have parameters without
+    requiring the host OS to implement snprintf.  As a side effect the
+    dependency of the tIME-supporting RFC1132 code on stdio is removed and
+    PNG_NO_WARNINGS does actually work now.
+  Added PNG_WRITE_OPTIMIZE_CMF_SUPPORTED macro to make the zlib "CMF" byte
+    optimization configureable.
+  Internal functions were added to claim/release the z_stream and, hopefully,
+    make the code more robust.  Also deflateEnd checking is added - previously
+    libpng would ignore an error at the end of the stream.
+  Removed the -D_ALL_SOURCE from definitions for AIX in CMakeLists.txt
+  Implemented premultiplied alpha support: png_set_alpha_mode API
+  Added expand_16 support to the high level interface.
+  Added named value and 'flag' gamma support to png_set_gamma.  Made a minor
+    change from the previous (unreleased) ABI/API to hide the exact value used
+    for Macs - it's not a good idea to embed this in the ABI!
+  Moved macro definitions for PNG_HAVE_IHDR, PNG_HAVE_PLTE, and PNG_AFTER_IDAT
+    from pngpriv.h to png.h because they must be visible to applications
+    that call png_set_unknown_chunks().
+  Check for up->location !PNG_AFTER_IDAT when writing unknown chunks
+    before IDAT.
+  Improved "pngvalid --speed" to exclude more of pngvalid from the time.
+  Documented png_set_alpha_mode(), other changes in libpng.3/libpng-manual.txt
+  The cHRM chunk now sets the defaults for png_set_rgb_to_gray() (when negative
+    parameters are supplied by the caller), while in the absence of cHRM
+    sRGB/Rec 709 values are still used.
+  The bKGD chunk no longer overwrites the background value set by
+    png_set_background(), allowing the latter to be used before the file
+    header is read. It never performed any useful function to override
+    the default anyway.
+  Added memory overwrite and palette image checks to pngvalid.c
+    Previously palette image code was poorly checked. Since the transformation
+    code has a special palette path in most cases this was a severe weakness.
+  Minor cleanup and some extra checking in pngrutil.c and pngrtran.c. When
+    expanding an indexed image, always expand to RGBA if transparency is
+    present.
+  Reversed earlier 1.5.3 change of transformation order; move png_expand_16
+    back where it was.  The change doesn't work because it requires 16-bit
+    gamma tables when the code only generates 8-bit ones.  This fails
+    silently; the libpng code just doesn't do any gamma correction.  Moving
+    the tests back leaves the old, inaccurate, 8-bit gamma calculations, but
+    these are clearly better than none!
+  png_set_background() and png_expand_16() did not work together correctly.
+    This problem is present in 1.5.2; if png_set_background is called with
+    need_expand false and the matching 16 bit color libpng erroneously just
+    treats it as an 8-bit color because of where png_do_expand_16 is in the
+    transform list.  This simple fix reduces the supplied colour to 8-bits,
+    so it gets smashed, but this is better than the current behavior.
+  Added tests for expand16, more fixes for palette image tests to pngvalid.
+    Corrects the code for palette image tests and disables attempts to
+    validate palette colors.
+  Fixed uninitialized memory read in png_format_buffer() (Bug report by
+    Frank Busse, related to CVE-2004-0421).
+  Fixed png_handle_sCAL which is broken in 1.5; added sCAL to pngtest.png
+  Revised documentation about png_set_user_limits() to say that it also affects
+    png writing.
+  Revised handling of png_set_user_limits() so that it can increase the
+    limit beyond the PNG_USER_WIDTH|HEIGHT_MAX; previously it could only
+    reduce it.
+  Make the 16-to-8 scaling accurate. Dividing by 256 with no rounding is
+    wrong (high by one) 25% of the time. Dividing by 257 with rounding is
+    wrong in 128 out of 65536 cases. Getting the right answer all the time
+    without division is easy.
+  Added "_SUPPORTED" to the PNG_WRITE_CUSTOMIZE_ZTXT_COMPRESSION macro.
+  Added projects/owatcom, an IDE project for OpenWatcom to replace
+    scripts/makefile.watcom.  This project works with OpenWatcom 1.9. The
+    IDE autogenerates appropriate makefiles (libpng.mk) for batch processing.
+    The project is configurable, unlike the Visual Studio project, so long
+    as the developer has an awk.
+  Changed png_set_gAMA to limit the gamma value range so that the inverse
+    of the stored value cannot overflow the fixed point representation,
+    and changed other things OpenWatcom warns about.
+  Revised pngvalid.c to test PNG_ALPHA_MODE_SUPPORTED correctly. This allows
+    pngvalid to build when ALPHA_MODE is not supported, which is required if
+    it is to build on libpng 1.4.
+  Removed string/memory macros that are no longer used and are not
+    necessarily fully supportable, particularly png_strncpy and png_snprintf.
+  Added log option to pngvalid.c and attempted to improve gamma messages.
+  People found the presence of a beta release following an rc release
+    to be confusing; therefore we bump the version to libpng-1.5.4beta01
+    and there will be no libpng-1.5.3 release.
+  Moved definitions of PNG_HAVE_IHDR, PNG_AFTER_IDAT, and PNG_HAVE_PLTE
+    outside of an unknown-chunk block in png.h because they are also
+    needed for other uses.
+  Added png_set_scale_16() API, to match inaccurate results from previous
+    libpng versions, configurable with PNG_READ_SCALE_16_TO_8_SUPPORTED.
+  Fixed a problem in png_do_expand_palette() exposed by optimization in
+    1.5.3beta06
+  Also removed a spurious and confusing "trans" member ("trans") from png_info.
+  The palette expand optimization prevented expansion to an intermediate RGBA
+    form if tRNS was present but alpha was marked to be stripped; this exposed
+    a check for tRNS in png_do_expand_palette() which is inconsistent with the
+    code elsewhere in libpng.
+  Added PNG_TRANSFORM_SCALE_16 to the high-level read transforms.
+  If PNG_READ_16_TO_8_ACCURATE_SCALE is not enabled, png_set_scale_16()
+    and png_do_scale_16_to_8() aren't built.
+  Revised contrib/visupng, gregbook, and pngminim to demonstrate scale_16_to_8
+  Fixed pngvalid, simplified macros, added checking for 0 in sCAL.
+    The ACCURATE scale macro is no longer defined in libpng-1.5 - call the
+    png_scale_16_to_8 API.  Made sure that PNG_READ_16_TO_8 is still defined
+    if the png_strip_16_to_8 API is present.  png_check_fp_number now
+    maintains some state so that positive, negative and zero values are
+    identified.  sCAL uses these to be strictly spec conformant.
+  Define PNG_ALLOCATED to "restrict" only if MSC_VER >= 1400.
+
+Send comments/corrections/commendations to png-mng-implement at lists.sf.net
+(subscription required; visit
+https://lists.sourceforge.net/lists/listinfo/png-mng-implement
+to subscribe)
+or to glennrp at users.sourceforge.net
+
+Glenn R-P
+*/ }
+#endif
+
+Send comments/corrections/commendations to png-mng-implement at lists.sf.net
+(subscription required; visit
+https://lists.sourceforge.net/lists/listinfo/png-mng-implement
+to subscribe) or to glennrp at users.sourceforge.net
+
+Glenn R-P

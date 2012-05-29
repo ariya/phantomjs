@@ -1,0 +1,182 @@
+/*
+ * Copyright (C) 2009, 2010, 2011 Apple Inc.  All rights reserved.
+ * Copyright (C) 2011 Samsung Electronics
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+/* EFLWebKit media controls. Extends mediaControls.css */
+
+audio {
+    width: 300px;
+    height: 20px;
+}
+
+audio::-webkit-media-controls-panel, video::-webkit-media-controls-panel {
+    display: -webkit-box;
+    -webkit-box-orient: horizontal;
+    -webkit-box-align: center;
+    -webkit-user-select: none;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    z-index: 0;
+    overflow: hidden;
+    height: 20px;
+    text-align: right;
+}
+
+video:-webkit-full-page-media::-webkit-media-controls-panel {
+    bottom: 0px;
+}
+
+audio::-webkit-media-controls-mute-button, video::-webkit-media-controls-mute-button {
+    -webkit-appearance: media-mute-button;
+    display: -webkit-box;
+    width: 20px;
+    height: 20px;
+    background-color: initial;
+    border: initial;
+    color: inherit;
+}
+
+audio::-webkit-media-controls-play-button, video::-webkit-media-controls-play-button {
+    -webkit-appearance: media-play-button;
+    display: -webkit-box;
+    width: 20px;
+    height: 20px;
+    background-color: initial;
+    border: initial;
+    color: inherit;
+}
+
+audio::-webkit-media-controls-timeline-container, video::-webkit-media-controls-timeline-container {
+    -webkit-appearance: media-controls-background;
+    display: -webkit-box;
+    -webkit-box-orient: horizontal;
+    -webkit-box-align: center;
+    -webkit-box-pack: end;
+    -webkit-box-flex: 1;
+    -webkit-user-select: none;
+    height: 20px;
+}
+
+audio::-webkit-media-controls-current-time-display, video::-webkit-media-controls-current-time-display {
+    -webkit-appearance: media-current-time-display;
+    -webkit-user-select: none;
+    display: inline-block;
+    height: 20px;
+
+    padding: 4px;
+
+    text-align: center;
+    font-size: 10px;
+}
+
+audio::-webkit-media-controls-time-remaining-display, video::-webkit-media-controls-time-remaining-display {
+    display: none;
+}
+
+audio::-webkit-media-controls-timeline, video::-webkit-media-controls-timeline {
+    -webkit-appearance: media-slider;
+    display: -webkit-box;
+    -webkit-box-flex: 1;
+    height: 20px;
+    padding: 0px 2px;
+    background-color: initial;
+    border: initial;
+    color: inherit;
+    margin: initial;
+}
+
+audio::-webkit-media-controls-volume-slider-container, video::-webkit-media-controls-volume-slider-container {
+    display: none;
+}
+
+audio::-webkit-media-controls-volume-slider, video::-webkit-media-controls-volume-slider {
+    display: none;
+    background-color: initial;
+    border: initial;
+    color: inherit;
+    margin: initial;
+}
+
+audio::-webkit-media-controls-seek-back-button, video::-webkit-media-controls-seek-back-button {
+    -webkit-appearance: media-seek-back-button;
+    display: -webkit-box;
+    width: 20px;
+    height: 20px;
+    background-color: initial;
+    border: initial;
+    color: inherit;
+}
+
+audio::-webkit-media-controls-seek-forward-button, video::-webkit-media-controls-seek-forward-button {
+    -webkit-appearance: media-seek-forward-button;
+    display: -webkit-box;
+    width: 20px;
+    height: 20px;
+    background-color: initial;
+    border: initial;
+    color: inherit;
+}
+
+audio::-webkit-media-controls-fullscreen-button, video::-webkit-media-controls-fullscreen-button {
+    -webkit-appearance: media-fullscreen-button;
+    display: -webkit-box;
+    width: 20px;
+    height: 20px;
+    background-color: initial;
+    border: initial;
+    color: inherit;
+}
+
+audio::-webkit-media-controls-rewind-button, video::-webkit-media-controls-rewind-button {
+    display: none;
+    background-color: initial;
+    border: initial;
+    color: inherit;
+}
+
+audio::-webkit-media-controls-return-to-realtime-button, video::-webkit-media-controls-return-to-realtime-button {
+    display: none;
+    background-color: initial;
+    border: initial;
+    color: inherit;
+}
+
+audio::-webkit-media-controls-toggle-closed-captions-button, video::-webkit-media-controls-toggle-closed-captions-button {
+    -webkit-appearance: media-toggle-closed-captions-button;
+    display: -webkit-box;
+    width: 20px;
+    height: 20px;
+    background-color: initial;
+    border: initial;
+    color: inherit;
+}
+
+audio::-webkit-media-controls-volume-slider-mute-button, video::-webkit-media-controls-volume-slider-mute-button {
+    -webkit-appearance: media-volume-slider-mute-button;
+    display: none;
+    background-color: initial;
+    border: initial;
+    color: inherit;
+}
