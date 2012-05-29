@@ -44,7 +44,8 @@ class NetworkAccessManager;
 class QWebInspector;
 class Phantom;
 
-class WebPage: public REPLCompletable, public QWebFrame::PrintCallback {
+class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
+{
     Q_OBJECT
     Q_PROPERTY(QString content READ content WRITE setContent)
     Q_PROPERTY(QVariant confirmResult READ confirmResult WRITE setConfirmResult)
@@ -135,6 +136,7 @@ private:
     bool emitPrompt(const QString &msg, const QString &defaultValue, QString *result);
     void emitConsoleMessage(const QString &msg);
     void emitError(const QWebPage::JavaScriptError &error);
+
     virtual void initCompletions();
 
 private:

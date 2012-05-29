@@ -565,7 +565,7 @@ bool WebPage::renderPdf(const QString &fileName)
     QVariantMap paperSize = m_paperSize;
 
     if (paperSize.isEmpty()) {
-        const QSize pageSize = m_mainFrame->contentsSize(
+        const QSize pageSize = m_mainFrame->contentsSize();
         paperSize.insert("width", QString::number(pageSize.width()) + "px");
         paperSize.insert("height", QString::number(pageSize.height()) + "px");
         paperSize.insert("margin", "0px");
