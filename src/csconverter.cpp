@@ -49,7 +49,8 @@ CSConverter::CSConverter()
     : QObject(QCoreApplication::instance())
 {
     m_webPage.mainFrame()->evaluateJavaScript(
-        Utils::readResourceFileUtf8(":/coffee-script.js")
+        Utils::readResourceFileUtf8(":/coffee-script.js"),
+        QString("phantomjs://coffee-script.js")
     );
     m_webPage.mainFrame()->addToJavaScriptWindowObject("converter", this);
 }
@@ -62,7 +63,8 @@ QVariant CSConverter::convert(const QString &script)
         "    [true, this.CoffeeScript.compile(converter.source)];" \
         "} catch (error) {" \
         "    [false, error.message];" \
-        "}"
+        "}",
+        QString()
     );
     return result;
 }
