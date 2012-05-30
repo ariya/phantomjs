@@ -69,6 +69,7 @@ void Utils::messageHandler(QtMsgType type, const char *msg)
 
 bool Utils::exceptionHandler(const char* dump_path, const char* minidump_id, void* context, bool succeeded)
 {
+    Q_UNUSED(context);
     fprintf(stderr, "PhantomJS has crashed. Please file a bug report at " \
                     "https://code.google.com/p/phantomjs/issues/entry and " \
                     "attach the crash dump file: %s/%s.dmp\n",

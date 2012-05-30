@@ -119,6 +119,52 @@ public slots:
     void uploadFile(const QString &selector, const QString &fileName);
     void sendEvent(const QString &type, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant());
 
+    /**
+     * Returns the number of Child Frames inside the Current Frame.
+     * NOTE: The Current Frame changes when focus moves (via API or JS) to a specific child frame.
+     * @brief childFramesCount
+     * @return Number of Frames inside the Current Frame
+     */
+    int childFramesCount();
+    /**
+     * Returns a list of Child Frames name.
+     * NOTE: The Current Frame changes when focus moves (via API or JS) to a specific child frame.
+     * @brief childFramesName
+     * @return List (JS Array) containing the names of the Child Frames inside the Current Frame (if any)
+     */
+    QVariantList childFramesName();
+    /**
+     * Switches focus from the Current Frame to a Child Frame, identified by it's name.
+     * @brief switchToChildFrame
+     * @param frameName Name of the Child frame
+     * @return "true" if the frame was found, "false" otherwise
+     */
+    bool switchToChildFrame(const QString &frameName);
+    /**
+     * Switches focus from the Current Frame to a Child Frame, identified by it positional order.
+     * @brief switchToChildFrame
+     * @param framePosition Position of the Frame inside the Child Frames array (i.e. "window.frames[i]")
+     * @return "true" if the frame was found, "false" otherwise
+     */
+    bool switchToChildFrame(const int framePosition);
+    /**
+     * Switches focus to the Main Frame within this Page.
+     * @brief switchToMainFrame
+     */
+    void switchToMainFrame();
+    /**
+     * Switches focus to the Parent Frame of the Current Frame (if it exists).
+     * @brief switchToParentFrame
+     * @return "true" if the Current Frame is not a Main Frame, "false" otherwise (i.e. there is no parent frame to switch to)
+     */
+    bool switchToParentFrame();
+    /**
+     * Returns the name of the Current Frame (if it has one)
+     * @brief currentFrameName
+     * @return Name of the Current Frame
+     */
+    QString currentFrameName();
+
 signals:
     void initialized();
     void loadStarted();
@@ -131,7 +177,7 @@ signals:
 
 private slots:
     void finish(bool ok);
-    void registerCallbacksHolder();
+    void handleJavaScriptWindowObjectCleared();
 
 private:
     QImage renderImage();
