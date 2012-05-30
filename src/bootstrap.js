@@ -112,7 +112,7 @@ phantom.__defineErrorSetter__(phantom, phantom.page);
 phantom.defaultErrorHandler = function(error) {
     console.log(error + "\n");
 
-    if (error.stack) {
+    if (error && error.stack) {
         error.stack.forEach(function(item) {
             var message = item.sourceURL + ":" + item.line;
             if (item.function)
