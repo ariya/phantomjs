@@ -107,6 +107,7 @@ protected:
     }
 
     bool acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, QWebPage::NavigationType type) {
+        bool isMainFrame = (frame == m_webPage->m_mainFrame);
         // check for all frames (including iframes)
         //if (frame == m_webPage->m_mainFrame) {
             QString navigation = "Undefined";
@@ -131,7 +132,7 @@ protected:
                 break;
             }
 
-            emit m_webPage->navigationRequested(request.url(), navigation, !m_webPage->navigationLocked());
+            emit m_webPage->navigationRequested(request.url(), navigation, !m_webPage->navigationLocked(), isMainFrame);
 
             return !m_webPage->navigationLocked();
         //} else {

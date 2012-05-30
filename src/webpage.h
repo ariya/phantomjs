@@ -116,7 +116,7 @@ signals:
     void resourceRequested(const QVariant &req);
     void resourceReceived(const QVariant &resource);
     void urlChanged(const QUrl &url);
-    void navigationRequested(const QUrl &url, const QString &navigationType, bool navigationLocked);
+    void navigationRequested(const QUrl &url, const QString &navigationType, bool navigationLocked, bool isMainFrame);
 
 private slots:
     void finish(bool ok);
