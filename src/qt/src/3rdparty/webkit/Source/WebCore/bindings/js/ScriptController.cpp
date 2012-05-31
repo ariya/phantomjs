@@ -154,6 +154,10 @@ ScriptValue ScriptController::evaluateInWorld(const ScriptSourceCode& sourceCode
         return ScriptValue(exec->globalData(), comp.value());
     }
 
+    if (comp.complType() == Throw || comp.complType() == Interrupted) {
+        reportException(exec, comp.value());
+    }
+
     m_sourceURL = savedSourceURL;
     return ScriptValue();
 }

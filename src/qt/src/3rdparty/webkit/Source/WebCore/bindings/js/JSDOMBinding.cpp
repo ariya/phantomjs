@@ -185,6 +185,11 @@ void reportException(ExecState* exec, JSValue exception)
     if (!scriptExecutionContext)
         return;
 
+    exec->dynamicGlobalObject()->putWithAttributes(
+        exec, Identifier(exec, "__exception"),
+        exception, ReadOnly
+    );
+
     scriptExecutionContext->reportException(ustringToString(errorMessage), lineNumber, ustringToString(exceptionSourceURL), 0);
 }
 
