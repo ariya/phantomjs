@@ -83,6 +83,11 @@ describe("WebPage object", function() {
             expect(page.customHeaders).toEqual({});
     });
 
+    expectHasProperty(page, 'zoomFactor');
+    it("should have zoomFactor of 1", function() {
+            expect(page.zoomFactor).toEqual(1.0);
+    });
+
     checkViewportSize(page, {height:300,width:400});
 
     expectHasFunction(page, 'deleteLater');
