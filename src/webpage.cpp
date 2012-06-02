@@ -138,7 +138,7 @@ WebPage::WebPage(QObject *parent, const Config *config, const QUrl &baseUrl)
 
     m_webPage->settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
     if (config->offlineStoragePath().isEmpty()) {
-    	m_webPage->settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+        m_webPage->settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
     } else {
         m_webPage->settings()->setOfflineStoragePath(config->offlineStoragePath());
     }
@@ -193,7 +193,7 @@ QString WebPage::libraryPath() const
 void WebPage::setLibraryPath(const QString &libraryPath)
 {
    m_libraryPath = libraryPath;
-} 
+}
 
 QString WebPage::offlineStoragePath() const
 {
