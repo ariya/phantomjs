@@ -118,6 +118,14 @@ void Config::processArgs(const QStringList &args)
             setCookiesFile(arg.mid(15).trimmed());
             continue;
         }
+        if (arg.startsWith("--local-storage-path=")) {
+            setOfflineStoragePath(arg.mid(21).trimmed());
+            continue;
+        }
+        if (arg.startsWith("--local-storage-quota=")) {
+            setOfflineStorageDefaultQuota(arg.mid(arg.indexOf("=") + 1).trimmed().toInt());
+            continue;
+        }
         if (arg.startsWith("--output-encoding=")) {
             setOutputEncoding(arg.mid(18).trimmed());
             continue;
@@ -218,6 +226,27 @@ QString Config::cookiesFile() const
 void Config::setCookiesFile(const QString &value)
 {
     m_cookiesFile = value;
+}
+
+QString Config::offlineStoragePath() const
+{
+    return m_offlineStoragePath;
+}
+
+void Config::setOfflineStoragePath(const QString &value)
+{
+    QDir dir(value);
+    m_offlineStoragePath = dir.absolutePath();
+}
+
+int Config::offlineStorageDefaultQuota() const
+{
+    return m_offlineStorageDefaultQuota;
+}
+
+void Config::setOfflineStorageDefaultQuota(int offlineStorageDefaultQuota)
+{
+    m_offlineStorageDefaultQuota = offlineStorageDefaultQuota * 1024;
 }
 
 bool Config::diskCacheEnabled() const
@@ -450,6 +479,8 @@ void Config::resetToDefaults()
 {
     m_autoLoadImages = true;
     m_cookiesFile = QString();
+    m_offlineStoragePath = QString();
+    m_offlineStorageDefaultQuota = -1;
     m_diskCacheEnabled = false;
     m_maxDiskCacheSize = -1;
     m_ignoreSslErrors = false;

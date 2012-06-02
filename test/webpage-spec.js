@@ -58,6 +58,8 @@ describe("WebPage object", function() {
     expectHasPropertyString(page, 'plainText');
 
     expectHasPropertyString(page, 'libraryPath');
+    expectHasPropertyString(page, 'offlineStoragePath');
+    expectHasProperty(page, 'offlineStorageQuota');
 
     it("should have objectName as 'WebPage'", function() {
         expect(page.objectName).toEqual('WebPage');
