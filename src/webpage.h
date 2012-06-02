@@ -50,6 +50,8 @@ class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
     Q_PROPERTY(QString content READ content WRITE setContent)
     Q_PROPERTY(QString plainText READ plainText)
     Q_PROPERTY(QString libraryPath READ libraryPath WRITE setLibraryPath)
+    Q_PROPERTY(QString offlineStoragePath READ offlineStoragePath)
+    Q_PROPERTY(int offlineStorageQuota READ offlineStorageQuota)
     Q_PROPERTY(QVariantMap viewportSize READ viewportSize WRITE setViewportSize)
     Q_PROPERTY(QVariantMap paperSize READ paperSize WRITE setPaperSize)
     Q_PROPERTY(QVariantMap clipRect READ clipRect WRITE setClipRect)
@@ -68,6 +70,10 @@ public:
 
     QString libraryPath() const;
     void setLibraryPath(const QString &dirPath);
+
+    QString offlineStoragePath() const;
+
+    int offlineStorageQuota() const;
 
     void setViewportSize(const QVariantMap &size);
     QVariantMap viewportSize() const;
