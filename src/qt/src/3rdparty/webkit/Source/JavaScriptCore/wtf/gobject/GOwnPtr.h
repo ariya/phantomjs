@@ -24,7 +24,6 @@
 
 #if ENABLE(GLIB_SUPPORT)
 
-#include <glib.h>
 #include <algorithm>
 #include <wtf/Assertions.h>
 #include <wtf/Noncopyable.h>
@@ -37,7 +36,6 @@ template <typename T> inline void freeOwnedGPtr(T* ptr);
 template<> void freeOwnedGPtr<GError>(GError*);
 template<> void freeOwnedGPtr<GList>(GList*);
 template<> void freeOwnedGPtr<GCond>(GCond*);
-template<> void freeOwnedGPtr<GMutex>(GMutex*);
 template<> void freeOwnedGPtr<GPatternSpec>(GPatternSpec*);
 template<> void freeOwnedGPtr<GDir>(GDir*);
 
