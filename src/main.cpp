@@ -45,6 +45,11 @@ int main(int argc, char** argv, const char** envp)
 
     QApplication app(argc, argv);
 
+#ifdef STATIC_BUILD
+    Q_INIT_RESOURCE(WebKit);
+    Q_INIT_RESOURCE(InspectorBackendStub);
+#endif
+
     app.setWindowIcon(QIcon(":/phantomjs-icon.png"));
     app.setApplicationName("PhantomJS");
     app.setOrganizationName("Ofi Labs");
