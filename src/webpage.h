@@ -141,7 +141,7 @@ private:
     bool emitConfirm(const QString &msg);
     bool emitPrompt(const QString &msg, const QString &defaultValue, QString *result);
     void emitConsoleMessage(const QString &msg);
-    void emitError(const QWebPage::JavaScriptError &error);
+    void emitError();
 
     virtual void initCompletions();
 
