@@ -35,11 +35,8 @@
 #include "KURL.h"
 #include "PlatformString.h"
 
-#include <debugger/Debugger.h>
-
 #include <wtf/OwnPtr.h>
 #include <wtf/RefPtr.h>
-#include <wtf/text/TextPosition.h>
 
 #include "ViewportArguments.h"
 
@@ -57,15 +54,6 @@ namespace WebCore {
     class NodeList;
     class Page;
     class Frame;
-    class JavaScriptCallFrame;
-}
-
-namespace JSC {
-    class JSGlobalObject;
-    class ExecState;
-    class SourceProvider;
-    class DebuggerCallFrame;
-    class UString;
 }
 
 QT_BEGIN_NAMESPACE
@@ -84,41 +72,6 @@ public:
     { }
 
     QWebPage::ViewportAttributes* q;
-};
-
-class QWebPagePrivateDebugger : public JSC::Debugger {
-public:
-    QWebPagePrivateDebugger(QWebPage*);
-    ~QWebPagePrivateDebugger();
-
-    void detach(JSC::JSGlobalObject*);
-
-    void sourceParsed(JSC::ExecState*, JSC::SourceProvider*, int errorLineNumber, const JSC::UString& errorMessage);
-    void exception(const JSC::DebuggerCallFrame&, intptr_t sourceID, int lineNumber, bool hasHandler);
-    void atStatement(const JSC::DebuggerCallFrame&, intptr_t sourceID, int lineNumber);
-    void callEvent(const JSC::DebuggerCallFrame&, intptr_t sourceID, int lineNumber);
-    void returnEvent(const JSC::DebuggerCallFrame&, intptr_t sourceID, int lineNumber);
-
-    void willExecuteProgram(const JSC::DebuggerCallFrame&, intptr_t sourceID, int lineNumber);
-    void didExecuteProgram(const JSC::DebuggerCallFrame&, intptr_t sourceID, int lineNumber);
-    void didReachBreakpoint(const JSC::DebuggerCallFrame&, intptr_t sourceID, int lineNumber);
-
-private:
-    void stepIn(const JSC::DebuggerCallFrame& frame, intptr_t sourceID, int lineNumber);
-    void stepOver(const JSC::DebuggerCallFrame& frame, intptr_t sourceID, int lineNumber);
-    void stepOut(const JSC::DebuggerCallFrame& frame);
-    void reportError(const JSC::JSValue& exception);
-
-    WTF::TextPosition0 textPosition(int lineNumber)
-    {
-        WTF::ZeroBasedNumber zeroBasedNumber = WTF::OneBasedNumber::fromOneBasedInt(lineNumber).convertToZeroBased();
-        return WTF::TextPosition0(zeroBasedNumber, WTF::ZeroBasedNumber::base());
-    }
-
-    RefPtr<WebCore::JavaScriptCallFrame> m_callFrame;
-    RefPtr<WebCore::JavaScriptCallFrame> m_exceptionFrame;
-    int m_stackDepth;
-    QWebPage* m_webPage;
 };
 
 class QWebPagePrivate {
@@ -257,7 +210,6 @@ public:
     QWebInspector* inspector;
     bool inspectorIsInternalOnly; // True if created through the Inspect context menu action
     Qt::DropAction m_lastDropAction;
-    QWebPagePrivateDebugger* debugger;
 
     static bool drtRun;
 };

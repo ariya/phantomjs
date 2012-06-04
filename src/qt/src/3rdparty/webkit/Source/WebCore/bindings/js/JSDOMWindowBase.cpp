@@ -109,24 +109,7 @@ bool JSDOMWindowBase::supportsProfiling() const
 
 bool JSDOMWindowBase::supportsRichSourceInfo() const
 {
-#if PLATFORM(ANDROID)
     return true;
-#elif !ENABLE(JAVASCRIPT_DEBUGGER) || !ENABLE(INSPECTOR)
-    return false;
-#else
-    Frame* frame = impl()->frame();
-    if (!frame)
-        return false;
-
-    Page* page = frame->page();
-    if (!page)
-        return false;
-
-    bool enabled = page->inspectorController()->enabled();
-    ASSERT(enabled || !debugger());
-    ASSERT(enabled || !supportsProfiling());
-    return enabled;
-#endif
 }
 
 bool JSDOMWindowBase::shouldInterruptScript() const
