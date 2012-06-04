@@ -18,6 +18,8 @@ Options:
   --proxy-type=[http|socks5]             Sets the proxy type, either "http" (default) or "socks5"
   --script-encoding                      Sets the encoding used for the starting script (default is 'utf8')
   --web-security=[yes|no]                Enable web security (default is 'yes')
+  --local-storage-path=/path/to/storage  Sets the offline local storage location
+  --local-storage-quota=size             Sets the max size of the offline local storage (in KB)
   -v, --version                          Prints out PhantomJS version
   -h, --help                             Shows this message and quits
 

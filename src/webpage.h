@@ -52,6 +52,8 @@ class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
     Q_PROPERTY(QVariant promptResult READ promptResult WRITE setPromptResult)
     Q_PROPERTY(QString plainText READ plainText)
     Q_PROPERTY(QString libraryPath READ libraryPath WRITE setLibraryPath)
+    Q_PROPERTY(QString offlineStoragePath READ offlineStoragePath)
+    Q_PROPERTY(int offlineStorageQuota READ offlineStorageQuota)
     Q_PROPERTY(QVariantMap viewportSize READ viewportSize WRITE setViewportSize)
     Q_PROPERTY(QVariantMap paperSize READ paperSize WRITE setPaperSize)
     Q_PROPERTY(QVariantMap clipRect READ clipRect WRITE setClipRect)
@@ -70,6 +72,10 @@ public:
 
     QString libraryPath() const;
     void setLibraryPath(const QString &dirPath);
+
+    QString offlineStoragePath() const;
+
+    int offlineStorageQuota() const;
 
     void setViewportSize(const QVariantMap &size);
     QVariantMap viewportSize() const;
@@ -118,7 +124,7 @@ signals:
     void javaScriptConfirmSent(const QString &msg);
     void javaScriptPromptSent(const QString &msg, const QString &defaultValue);
     void javaScriptConsoleMessageSent(const QString &message);
-    void javaScriptErrorSent(const QString &message, const QVariantList &backtrace);
+    void javaScriptErrorSent();
     void resourceRequested(const QVariant &req);
     void resourceReceived(const QVariant &resource);
 

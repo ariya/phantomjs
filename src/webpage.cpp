@@ -49,6 +49,7 @@
 
 #include "networkaccessmanager.h"
 #include "utils.h"
+#include "config.h"
 
 #include <gifwriter.h>
 
@@ -107,8 +108,8 @@ protected:
         m_webPage->emitConsoleMessage(message);
     }
 
-    void javaScriptError(const QWebPage::JavaScriptError& error) {
-        m_webPage->emitError(error);
+    void javaScriptError(const QString &message, int lineNumber, const QString &sourceID) {
+        m_webPage->emitError();
     }
 
     QString userAgentForUrl(const QUrl &url) const {
@@ -146,7 +147,14 @@ WebPage::WebPage(QObject *parent, const Config *config, const QUrl &baseUrl)
     m_mainFrame->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
     m_webPage->settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
-    m_webPage->settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+    if (config->offlineStoragePath().isEmpty()) {
+        m_webPage->settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+    } else {
+        m_webPage->settings()->setOfflineStoragePath(config->offlineStoragePath());
+    }
+    if (config->offlineStorageDefaultQuota() > 0) {
+        m_webPage->settings()->setOfflineStorageDefaultQuota(config->offlineStorageDefaultQuota());
+    }
 
     m_webPage->settings()->setAttribute(QWebSettings::OfflineWebApplicationCacheEnabled, true);
     m_webPage->settings()->setOfflineWebApplicationCachePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
@@ -217,6 +225,16 @@ void WebPage::setPromptResult(const QVariant &promptResult)
    m_promptResult = promptResult;
 }
 
+QString WebPage::offlineStoragePath() const
+{
+    return m_webPage->settings()->offlineStoragePath();
+}
+
+int WebPage::offlineStorageQuota() const
+{
+    return m_webPage->settings()->offlineStorageDefaultQuota();
+}
+
 void WebPage::showInspector(const int port)
 {
     m_webPage->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
@@ -229,7 +247,6 @@ void WebPage::showInspector(const int port)
         m_webPage->setProperty("_q_webInspectorServerPort", port);
     }
 }
-
 
 void WebPage::applySettings(const QVariantMap &def)
 {
@@ -349,23 +366,9 @@ void WebPage::emitConsoleMessage(const QString &message)
     emit javaScriptConsoleMessageSent(message);
 }
 
-void WebPage::emitError(const QWebPage::JavaScriptError& error)
+void WebPage::emitError()
 {
-    QList<QWebPage::JavaScriptFrame> backtrace = error.backtrace();
-    QVariantList newBacktrace = QVariantList();
-
-    for (int i = 0; i < backtrace.size(); ++i) {
-        QWebPage::JavaScriptFrame frame = backtrace.at(i);
-
-        QVariantMap newFrame = QVariantMap();
-        newFrame["file"] = frame.file();
-        newFrame["line"] = frame.line();
-        newFrame["function"] = frame.function();
-
-        newBacktrace << newFrame;
-    }
-
-    emit javaScriptErrorSent(error.message(), newBacktrace);
+    emit javaScriptErrorSent();
 }
 
 void WebPage::finish(bool ok)

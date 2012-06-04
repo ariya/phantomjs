@@ -49,6 +49,8 @@ class Config: QObject
     Q_PROPERTY(QString proxyAuth READ proxyAuth WRITE setProxyAuth)
     Q_PROPERTY(QString scriptEncoding READ scriptEncoding WRITE setScriptEncoding)
     Q_PROPERTY(bool webSecurityEnabled READ webSecurityEnabled WRITE setWebSecurityEnabled)
+    Q_PROPERTY(QString offlineStoragePath READ offlineStoragePath WRITE setOfflineStoragePath)
+    Q_PROPERTY(int offlineStorageDefaultQuota READ offlineStorageDefaultQuota WRITE setOfflineStorageDefaultQuota)
 
 public:
     Config(QObject *parent = 0);
@@ -62,6 +64,12 @@ public:
 
     QString cookiesFile() const;
     void setCookiesFile(const QString &cookiesFile);
+
+    QString offlineStoragePath() const;
+    void setOfflineStoragePath(const QString &value);
+
+    int offlineStorageDefaultQuota() const;
+    void setOfflineStorageDefaultQuota(int offlineStorageDefaultQuota);
 
     bool diskCacheEnabled() const;
     void setDiskCacheEnabled(const bool value);
@@ -132,6 +140,8 @@ private:
 
     bool m_autoLoadImages;
     QString m_cookiesFile;
+    QString m_offlineStoragePath;
+    int m_offlineStorageDefaultQuota;
     bool m_diskCacheEnabled;
     int m_maxDiskCacheSize;
     bool m_ignoreSslErrors;
