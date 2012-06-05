@@ -58,6 +58,7 @@ public:
     Phantom(QObject *parent = 0);
     virtual ~Phantom();
 
+    void init();
     QStringList args() const;
 
     QVariantMap defaultPageSettings() const;
@@ -76,6 +77,8 @@ public:
     QVariantMap version() const;
 
     QObject* page() const;
+
+    bool printDebugMessages() const;
 
 public slots:
     QObject *createWebPage();

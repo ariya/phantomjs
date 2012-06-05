@@ -40,6 +40,7 @@
 
 QTemporaryFile* Utils::m_tempHarness = 0;
 QTemporaryFile* Utils::m_tempWrapper = 0;
+bool Utils::printDebugMessages = false;
 
 // public:
 void Utils::showUsage()
@@ -53,10 +54,14 @@ void Utils::messageHandler(QtMsgType type, const char *msg)
 
     switch (type) {
     case QtDebugMsg:
-        fprintf(stdout, "%s [DEBUG] %s\n", qPrintable(now.toString(Qt::ISODate)), msg);
+        if (printDebugMessages) {
+            fprintf(stderr, "%s [DEBUG] %s\n", qPrintable(now.toString(Qt::ISODate)), msg);
+        }
         break;
     case QtWarningMsg:
-        fprintf(stderr, "%s [WARNING] %s\n", qPrintable(now.toString(Qt::ISODate)), msg);
+        if (printDebugMessages) {
+            fprintf(stderr, "%s [WARNING] %s\n", qPrintable(now.toString(Qt::ISODate)), msg);
+        }
         break;
     case QtCriticalMsg:
         fprintf(stderr, "%s [CRITICAL] %s\n", qPrintable(now.toString(Qt::ISODate)), msg);
