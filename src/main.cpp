@@ -48,10 +48,12 @@ int main(int argc, char** argv, const char** envp)
     google_breakpad::ExceptionHandler eh("/tmp", NULL, Utils::exceptionHandler, NULL, true);
 #endif
 
-    // Registering an alternative Message Handler
-    qInstallMsgHandler(Utils::messageHandler);
-
     QApplication app(argc, argv);
+    Phantom phantom;
+
+    // Registering an alternative Message Handler
+    Utils::printDebugMessages = phantom.printDebugMessages();
+    qInstallMsgHandler(Utils::messageHandler);
 
 #ifdef STATIC_BUILD
     Q_INIT_RESOURCE(WebKit);
@@ -66,7 +68,7 @@ int main(int argc, char** argv, const char** envp)
 
     Env::instance()->parse(envp);
 
-    Phantom phantom;
+    phantom.init();
     if (phantom.execute()) {
         app.exec();
     }

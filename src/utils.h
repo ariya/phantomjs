@@ -59,6 +59,8 @@ public:
     static bool loadJSForDebug(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool autorun = false);
     static void cleanupFromDebug();
 
+    static bool printDebugMessages;
+
 private:
     static QString findScript(const QString &jsFilePath, const QString& libraryPath);
     static QString jsFromScriptFile(const QString& scriptPath, const Encoding& enc);
