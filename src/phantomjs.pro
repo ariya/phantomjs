@@ -58,6 +58,11 @@ include(gif/gif.pri)
 include(mongoose/mongoose.pri)
 include(linenoise/linenoise.pri)
 
+linux* {
+    INCLUDEPATH += $$PWD/breakpad/src
+    LIBS += $$PWD/breakpad/src/client/linux/libbreakpad_client.a
+}
+
 win32: RC_FILE = phantomjs_win.rc
 os2:   RC_FILE = phantomjs_os2.rc
 
