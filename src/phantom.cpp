@@ -61,7 +61,10 @@ Phantom::Phantom(QObject *parent)
     args.removeFirst();
 
     m_config.init(&args);
+}
 
+void Phantom::init()
+{
     if (m_config.helpFlag()) {
         m_terminated = true;
         Utils::showUsage();
@@ -209,6 +212,11 @@ QVariantMap Phantom::version() const
 QObject *Phantom::page() const
 {
     return m_page;
+}
+
+bool Phantom::printDebugMessages() const
+{
+    return m_config.printDebugMessages();
 }
 
 // public slots:
