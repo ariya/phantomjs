@@ -125,7 +125,7 @@ exports.create = function (opts) {
 
     defineSetter("onConsoleMessage", "javaScriptConsoleMessageSent");
 
-    defineSetter("onError", "javaScriptErrorSent");
+    phantom.__defineErrorSetter__(page, page);
 
     page.onError = phantom.defaultErrorHandler;
 

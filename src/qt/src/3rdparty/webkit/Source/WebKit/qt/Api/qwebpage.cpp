@@ -116,9 +116,6 @@
 #include "WorkerThread.h"
 #include "runtime/InitializeThreading.h"
 #include "wtf/Threading.h"
-#include "DebuggerCallFrame.h"
-#include "JavaScriptCallFrame.h"
-#include "SourceProvider.h"
 
 #include <QApplication>
 #include <QBasicTimer>
@@ -293,126 +290,6 @@ static inline Qt::DropAction dragOpToDropAction(unsigned actions)
     return result;
 }
 
-QWebPagePrivateDebugger::QWebPagePrivateDebugger(QWebPage* page)
-  : m_webPage(page)
-  , m_stackDepth(0)
-{
-}
-
-QWebPagePrivateDebugger::~QWebPagePrivateDebugger()
-{
-}
-
-void QWebPagePrivateDebugger::detach(JSC::JSGlobalObject*)
-{
-}
-
-void QWebPagePrivateDebugger::sourceParsed(JSC::ExecState*, JSC::SourceProvider*, int errorLineNumber, const JSC::UString& errorMessage)
-{
-}
-
-void QWebPagePrivateDebugger::exception(const JSC::DebuggerCallFrame& frame, intptr_t sourceID, int lineNumber, bool hasHandler)
-{
-    m_exceptionFrame = m_callFrame;
-}
-
-void QWebPagePrivateDebugger::reportError(const JSC::JSValue& exception)
-{
-    if (!m_exceptionFrame) return;
-
-    WTF::RefPtr<WebCore::JavaScriptCallFrame> frame = m_exceptionFrame;
-
-    JSC::ExecState* exec = frame->dynamicGlobalObject()->globalExec();
-    JSC::UString message = exception.toString(exec);
-
-    QString qmessage = QString::fromUtf8(message.utf8().data());
-    QList<QWebPage::JavaScriptFrame> qbacktrace;
-
-    JSC::SourceProvider* provider;
-
-    QString file;
-    int line;
-    QString function;
-
-    while (frame) {
-        provider = reinterpret_cast<JSC::SourceProvider*>(frame->sourceID());
-
-        line = frame->line();
-        file = QString::fromUtf8(provider->url().utf8().data());
-        function = QString::fromUtf8(frame->functionName().utf8().data());
-
-        qbacktrace << QWebPage::JavaScriptFrame(file, line + 1, function);
-        frame = frame->caller();
-    }
-
-    m_webPage->javaScriptError(QWebPage::JavaScriptError(qmessage, qbacktrace));
-    m_exceptionFrame = 0;
-}
-
-void QWebPagePrivateDebugger::atStatement(const JSC::DebuggerCallFrame& frame, intptr_t sourceID, int lineNumber)
-{
-    stepOver(frame, sourceID, lineNumber);
-}
-
-void QWebPagePrivateDebugger::callEvent(const JSC::DebuggerCallFrame& frame, intptr_t sourceID, int lineNumber)
-{
-    stepIn(frame, sourceID, lineNumber);
-}
-
-void QWebPagePrivateDebugger::returnEvent(const JSC::DebuggerCallFrame& frame, intptr_t sourceID, int lineNumber)
-{
-    stepOut(frame);
-}
-
-void QWebPagePrivateDebugger::willExecuteProgram(const JSC::DebuggerCallFrame& frame, intptr_t sourceID, int lineNumber)
-{
-    stepIn(frame, sourceID, lineNumber);
-}
-
-void QWebPagePrivateDebugger::didExecuteProgram(const JSC::DebuggerCallFrame& frame, intptr_t sourceID, int lineNumber)
-{
-    stepOut(frame);
-
-    // If there is still an exception present at the end of the program, then it hasn't
-    // been caught and we should report it.
-    JSC::JSValue exception = frame.exception();
-    if (exception) {
-        reportError(exception);
-    }
-}
-
-void QWebPagePrivateDebugger::didReachBreakpoint(const JSC::DebuggerCallFrame&, intptr_t sourceID, int lineNumber)
-{
-}
-
-void QWebPagePrivateDebugger::stepIn(const JSC::DebuggerCallFrame& frame, intptr_t sourceID, int lineNumber)
-{
-    m_callFrame = WebCore::JavaScriptCallFrame::create(frame, m_callFrame, sourceID, textPosition(lineNumber));
-    m_stackDepth++;
-}
-
-void QWebPagePrivateDebugger::stepOver(const JSC::DebuggerCallFrame& frame, intptr_t sourceID, int lineNumber)
-{
-    m_callFrame->update(frame, sourceID, textPosition(lineNumber));
-}
-
-void QWebPagePrivateDebugger::stepOut(const JSC::DebuggerCallFrame& frame)
-{
-    m_callFrame = m_callFrame->caller();
-    m_stackDepth--;
-
-    // Sometimes an exception can occur without didExecuteProgram() firing.
-    // For example when a setTimeout callback fires. So if the stack is empty
-    // and there is still an exception present, we report it.
-    if (m_stackDepth == 0) {
-        JSC::JSValue exception = frame.exception();
-
-        if (exception) {
-            reportError(exception);
-        }
-    }
-}
-
 QWebPagePrivate::QWebPagePrivate(QWebPage *qq)
     : q(qq)
     , page(0)
@@ -493,9 +370,6 @@ QWebPagePrivate::QWebPagePrivate(QWebPage *qq)
 #if ENABLE(NOTIFICATIONS)    
     NotificationPresenterClientQt::notificationPresenter()->addClient();
 #endif
-
-    debugger = new QWebPagePrivateDebugger(q);
-    page->setDebugger(debugger);
 }
 
 QWebPagePrivate::~QWebPagePrivate()
@@ -513,7 +387,6 @@ QWebPagePrivate::~QWebPagePrivate()
 #endif
     delete settings;
     delete page;
-    delete debugger;
     
     if (inspector)
         inspector->setPage(0);
@@ -2228,9 +2101,11 @@ void QWebPage::javaScriptConsoleMessage(const QString& message, int lineNumber, 
 }
 
 /* Subclasses should reimplement this to add error handling. */
-void QWebPage::javaScriptError(const QWebPage::JavaScriptError& error)
+void QWebPage::javaScriptError(const QString& message, int lineNumber, const QString& sourceID)
 {
-    Q_UNUSED(error)
+    Q_UNUSED(message);
+    Q_UNUSED(lineNumber);
+    Q_UNUSED(sourceID);
 }
 
 /*!
