@@ -30,14 +30,17 @@
 
 #include "webpage.h"
 
+#include <iostream>
 #include <math.h>
 
 #include <QApplication>
 #include <QDesktopServices>
+#include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
 #include <QMouseEvent>
 #include <QNetworkAccessManager>
+#include <QNetworkCookie>
 #include <QNetworkRequest>
 #include <QPainter>
 #include <QPrinter>
@@ -341,6 +344,40 @@ void WebPage::setCustomHeaders(const QVariantMap &headers)
 QVariantMap WebPage::customHeaders() const
 {
     return m_networkAccessManager->customHeaders();
+}
+
+void WebPage::setCookies(const QString &address, const QVariantList &cookies)
+{
+	QNetworkCookieJar* cookiejar = m_networkAccessManager->cookieJar();
+	QUrl url = QUrl::fromEncoded(QByteArray(address.toAscii()));
+	QList<QNetworkCookie> cookieList;
+
+	for (int i = 0; i < cookies.size(); ++i) {
+		QNetworkCookie nc;
+		QVariantMap cookie = cookies.at(i).toMap();
+		nc.setDomain(cookie.value("domain").toString());
+		nc.setName(cookie.value("name").toByteArray());
+		nc.setValue(cookie.value("value").toByteArray());
+		if (!cookie.value("path").isNull()) { nc.setPath(cookie.value("path").toString()); }
+		if (!cookie.value("expires").isNull()) { nc.setExpirationDate(cookie.value("expires").toDateTime()); }
+		if (!cookie.value("httponly").isNull()) { nc.setHttpOnly(cookie.value("httponly").toBool()); }
+		if (!cookie.value("secure").isNull()) { nc.setSecure(cookie.value("secure").toBool()); }
+		cookieList.append(nc);
+	}
+
+	cookiejar->setCookiesFromUrl(cookieList, url);
+}
+
+QVariantMap WebPage::getCookies(const QString &address)
+{
+	QVariantMap cookies;
+	QNetworkCookieJar* cookiejar = m_networkAccessManager->cookieJar();
+	QUrl url = QUrl::fromEncoded(QByteArray(address.toAscii()));
+	QList<QNetworkCookie> cookiesList = cookiejar->cookiesForUrl(url);
+	for (QList<QNetworkCookie>::const_iterator i = cookiesList.begin(); i != cookiesList.end(); i++) {
+		cookies[(*i).name()] = QString((*i).value());
+	}
+	return cookies;
 }
 
 void WebPage::openUrl(const QString &address, const QVariant &op, const QVariantMap &settings)

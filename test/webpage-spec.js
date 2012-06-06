@@ -98,6 +98,8 @@ describe("WebPage object", function() {
     expectHasFunction(page, 'resourceReceived');
     expectHasFunction(page, 'resourceRequested');
     expectHasFunction(page, 'uploadFile');
+	expectHasFunction(page, 'setCookies');
+	expectHasFunction(page, 'getCookies');
 
     expectHasFunction(page, 'sendEvent');
 
@@ -323,6 +325,46 @@ describe("WebPage object", function() {
         });
 
     });
+
+	it("should set cookies properly", function() {
+		var server = require('webserver').create();
+		server.listen(12345, function(request, response) {
+			// echo received request headers in response body
+			response.write(JSON.stringify(request.headers));
+			response.close();
+		});
+
+		var url = "http://localhost:12345/foo/headers.txt?ab=cd";
+
+		var cookies = [];
+		cookies[0] = {
+			'name' : 'Cookie-Name',
+			'value' : 'Cookie-Value',
+			'domain' : 'localhost'
+		};
+		page.setCookies(url, cookies);
+
+		var handled = false;
+		runs(function() {
+			expect(handled).toEqual(false);
+			page.open(url, function (status) {
+				expect(status == 'success').toEqual(true);
+				handled = true;
+
+				var cookies = page.getCookies(url);
+				// console.log(JSON.stringify(cookies));
+				expect(cookies["Cookie-Name"]).toEqual("Cookie-Value");
+			});
+		});
+
+		waits(50);
+
+		runs(function() {
+			expect(handled).toEqual(true);
+			server.close();
+		});
+
+	});
 
     it("should pass variables to functions properly", function() {
         var testPrimitiveArgs = function() {

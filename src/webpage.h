@@ -101,6 +101,8 @@ public slots:
     void _appendScriptElement(const QString &scriptUrl);
     void uploadFile(const QString &selector, const QString &fileName);
     void sendEvent(const QString &type, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant());
+	void setCookies(const QString &address, const QVariantList &cookies);
+	QVariantMap getCookies(const QString &address);
 
 signals:
     void initialized();
