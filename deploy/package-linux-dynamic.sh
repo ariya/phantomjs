@@ -72,11 +72,12 @@ echo
 
 echo -n "writing run script..."
 # write run scripts
-run=$dest/phantomjs.sh
+mv $dest/bin/phantomjs $dest/bin/phantomjs.bin
+run=$dest/bin/phantomjs
 echo '#!/bin/sh' >> $run
-echo 'path=$(dirname $(readlink -f $0))' >> $run
+echo 'path=$(dirname $(dirname $(readlink -f $0)))' >> $run
 echo 'export LD_LIBRARY_PATH=$path/lib' >> $run
-echo '$path/lib/'$libld' $path/bin/phantomjs $@' >> $run
+echo 'exec $path/lib/'$libld' $path/bin/phantomjs.bin $@' >> $run
 chmod +x $run
 echo "done"
 
@@ -89,4 +90,3 @@ echo "done"
 echo
 
 echo "you can now deploy $dest or $dest.tar.bz2"
-echo "run phantomjs on the target via $dest/phantomjs.sh"

@@ -1,0 +1,33 @@
+MODULE solaris x86 3DC8191474338D8587339B5FB3E2C62A0 dump_syms_regtest.o
+FILE 0 dump_syms_regtest.cc
+FUNC 0 156 0 main
+12 18 57 0
+1e 12 58 0
+36 24 59 0
+42 12 60 0
+57 21 61 0
+6c 21 63 0
+9c 48 64 0
+FUNC 0 16 0 int google_breakpad::i()
+6 6 51 0
+10 10 52 0
+FUNC 0 37 0 google_breakpad::C::C()
+25 37 36 0
+FUNC 0 3 0 google_breakpad::C::~C()
+3 3 37 0
+FUNC 0 12 0 void google_breakpad::C::set_member(int)
+3 3 39 0
+c 9 39 0
+FUNC 0 29 0 void google_breakpad::C::f()
+3 3 42 0
+1d 26 42 0
+FUNC 0 16 0 int google_breakpad::C::g()
+6 6 43 0
+10 10 43 0
+FUNC 0 16 0 char*google_breakpad::C::h(const google_breakpad::C&)
+6 6 44 0
+10 10 44 0
+FUNC 0 15 0 google_breakpad::C::~C #Nvariant 1()
+f 15 37 0
+FUNC 0 0 0 __SLIP.DELETER__A
+FUNC 0 0 0 void operator delete(void*)

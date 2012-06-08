@@ -1,0 +1,8 @@
+//
+// Prefix header for all source files of the 'Breakpad' target in the
+// 'Breakpad' project.
+//
+
+#ifdef __OBJC__
+    #import <Cocoa/Cocoa.h>
+#endif

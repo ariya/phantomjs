@@ -58,6 +58,7 @@ class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
     Q_PROPERTY(QVariantMap scrollPosition READ scrollPosition WRITE setScrollPosition)
     Q_PROPERTY(bool navigationLocked READ navigationLocked WRITE setNavigationLocked)
     Q_PROPERTY(QVariantMap customHeaders READ customHeaders WRITE setCustomHeaders)
+    Q_PROPERTY(qreal zoomFactor READ zoomFactor WRITE setZoomFactor)
 
 public:
     WebPage(QObject *parent, const Config *config, const QUrl &baseUrl = QUrl());
@@ -100,6 +101,9 @@ public:
     qreal footerHeight() const;
     QString header(int page, int numPages);
     qreal headerHeight() const;
+
+    void setZoomFactor(qreal zoom);
+    qreal zoomFactor() const;
 
 public slots:
     void openUrl(const QString &address, const QVariant &op, const QVariantMap &settings);
