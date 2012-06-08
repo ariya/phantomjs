@@ -662,6 +662,16 @@ bool WebPage::renderPdf(const QString &fileName)
     return true;
 }
 
+void WebPage::setZoomFactor(qreal zoom)
+{
+    m_mainFrame->setZoomFactor(zoom);
+}
+
+qreal WebPage::zoomFactor() const
+{
+    return m_mainFrame->zoomFactor();
+}
+
 qreal getHeight(const QVariantMap &map, const QString &key)
 {
     QVariant footer = map.value(key);

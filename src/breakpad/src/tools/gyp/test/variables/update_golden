@@ -1,0 +1,7 @@
+#!/bin/bash
+
+python ../../gyp --debug variables --debug general --format gypd --depth . commands.gyp > commands.gyp.stdout
+python ../../gyp --ignore-environment --debug variables --debug general --format gypd --depth . commands.gyp > commands.gyp.ignore-env.stdout
+cp -f commands.gypd commands.gypd.golden
+python ../../gyp --debug variables --debug general --format gypd --depth . commands-repeated.gyp > commands-repeated.gyp.stdout
+cp -f commands-repeated.gypd commands-repeated.gypd.golden
