@@ -67,6 +67,15 @@ void Utils::messageHandler(QtMsgType type, const char *msg)
     }
 }
 
+bool Utils::exceptionHandler(const char* dump_path, const char* minidump_id, void* context, bool succeeded)
+{
+    fprintf(stderr, "PhantomJS has crashed. Please file a bug report at " \
+                    "https://code.google.com/p/phantomjs/issues/entry and " \
+                    "attach the crash dump file: %s/%s.dmp\n",
+                    dump_path, minidump_id);
+    return succeeded;
+}
+
 QVariant Utils::coffee2js(const QString &script)
 {
     return CSConverter::instance()->convert(script);

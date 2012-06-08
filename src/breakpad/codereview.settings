@@ -1,0 +1,5 @@
+# This file is used by gcl to get repository specific information.
+CODE_REVIEW_SERVER: breakpad.appspot.com
+CC_LIST: google-breakpad-dev@googlegroups.com
+TRY_ON_UPLOAD: False
+VIEW_VC: http://code.google.com/p/google-breakpad/source/detail?r=
