@@ -30,7 +30,7 @@ PhantomJS needs not be used only as a stand-alone tool. Check also some excellen
 - [CasperJS](http://casperjs.org) enables easy navigation scripting and common high-level testing.
 - [Poltergeist](https://github.com/jonleighton/poltergeist) allows running Capybara tests headlessly.
 - [Guard::Jasmine](https://github.com/netzpirat/guard-jasmine) automatically tests Jasmine specs on Rails when files are modified.
-- [GhostDriver](http://detro.github.com/ghostdriver/) complements Selenium tests with a PhantomJS WebDriver implementation.
+- [GhostDriver](http://github.com/detro/ghostdriver/) complements Selenium tests with a PhantomJS WebDriver implementation.
 - [PhantomRobot](https://github.com/datakurre/phantomrobot) runs Robot Framework acceptance tests in the background via PhantomJS.
 
 and many others [companion projects](http://code.google.com/p/phantomjs/wiki/WhoUsesPhantomJS).
