@@ -48,10 +48,6 @@ until [ -z "$1" ]; do
     esac
 done
 
-if [[ $OSTYPE = linux* ]]; then
-    cd src/breakpad && ./configure && make && cd ../..
-fi
-
 cd src/qt && ./preconfig.sh --jobs $COMPILE_JOBS --qt-config "$QT_CFG" && cd ../..
 src/qt/bin/qmake
 make -j$COMPILE_JOBS
