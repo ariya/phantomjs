@@ -1,5 +1,5 @@
 ErrorHelper = {
-    foo: function foo() {
+    foo: function() {
         this.bar()
     },
 

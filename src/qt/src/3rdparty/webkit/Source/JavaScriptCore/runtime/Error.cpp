@@ -33,6 +33,7 @@
 #include "NativeErrorConstructor.h"
 #include "SourceCode.h"
 #include "CodeBlock.h"
+#include "UStringBuilder.h"
 
 namespace JSC {
 
@@ -40,7 +41,6 @@ static const char* linePropertyName = "line";
 static const char* sourceIdPropertyName = "sourceId";
 static const char* sourceURLPropertyName = "sourceURL";
 static const char* stackPropertyName = "stack";
-static const char* functionPropertyName = "function";
 
 JSObject* createError(JSGlobalObject* globalObject, const UString& message)
 {
@@ -140,52 +140,56 @@ JSObject* addErrorInfo(ExecState* exec, JSObject* error, int line, const SourceC
 
     addErrorInfo(globalData, error, line, source);
 
-    JSArray* stack = constructEmptyArray(exec);
+    UStringBuilder stack;
     CallFrame* frame = exec;
 
-    JSObject* stackFrame;
-    CodeBlock* codeBlock;
-    UString sourceURL;
-    UString functionName;
+    stack.append(error->toString(exec));
+
+    bool functionKnown;
     ReturnAddressPtr pc;
 
     while (!frame->hasHostCallFrameFlag()) {
-        stackFrame = constructEmptyObject(exec);
-        codeBlock = frame->codeBlock();
+        CodeBlock* codeBlock = frame->codeBlock();
 
-        // sourceURL
-        sourceURL = codeBlock->ownerExecutable()->sourceURL();
-        stackFrame->putWithAttributes(
-            globalData, Identifier(globalData, sourceURLPropertyName),
-            jsString(globalData, sourceURL), ReadOnly | DontDelete
-        );
+        stack.append("\n    at ");
 
-        // line
+        JSObject* callee = frame->callee();
+        UString functionName;
+
+        if (callee && callee->inherits(&JSFunction::s_info)) {
+            functionName = asFunction(callee)->calculatedDisplayName(exec);
+            functionKnown = !functionName.isEmpty();
+        } else {
+            functionKnown = false;
+        }
+
+        if (functionKnown) {
+            stack.append(functionName);
+            stack.append(" (");
+        }
+
+        stack.append(codeBlock->ownerExecutable()->sourceURL());
+        stack.append(":");
+
         if (frame != exec) {
             line = codeBlock->lineNumberForBytecodeOffset(codeBlock->bytecodeOffset(pc));
         }
-        stackFrame->putWithAttributes(
-            globalData, Identifier(globalData, linePropertyName),
-            jsNumber(line), ReadOnly | DontDelete
-        );
 
-        // function
-        JSObject* function = frame->callee();
-        if (function && function->inherits(&JSFunction::s_info)) {
-            functionName = asFunction(function)->calculatedDisplayName(exec);
-            stackFrame->putWithAttributes(
-                globalData, Identifier(globalData, functionPropertyName),
-                jsString(globalData, functionName), ReadOnly | DontDelete
-            );
+        stack.append(UString::number(line));
+
+        if (functionKnown) {
+            stack.append(")");
         }
-
-        stack->push(exec, JSValue(stackFrame));
 
         pc = frame->returnPC();
         frame = frame->callerFrame();
     }
 
-    error->putWithAttributes(globalData, Identifier(globalData, stackPropertyName), stack, ReadOnly | DontDelete);
+    error->putWithAttributes(
+        globalData, Identifier(globalData, stackPropertyName),
+        jsString(globalData, stack.toUString()), ReadOnly | DontDelete
+    );
+
     return error;
 }
 
