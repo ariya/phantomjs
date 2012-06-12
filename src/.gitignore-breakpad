@@ -11,6 +11,8 @@
 /config.log
 /config.status
 /autom4te.cache
+!Makefile.am
+!Makefile.in
 
 .dirstamp
 .deps
