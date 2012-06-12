@@ -206,15 +206,24 @@ describe("WebPage object", function() {
 
     it("should handle file uploads", function() {
         runs(function() {
-            page.content = '<input type="file" id="file">';
+            page.content = '<input type="file" id="file">\n' +
+                           '<input type="file" id="file2" multiple>';
             page.uploadFile("#file", 'README.md');
+            page.uploadFile("#file2", 'README.md');
         });
 
         waits(50);
 
         runs(function() {
-            var fileName = page.evaluate(function() {
+            var fileName;
+
+            fileName = page.evaluate(function() {
                 return document.getElementById('file').files[0].fileName;
+            });
+            expect(fileName).toEqual('README.md');
+
+            fileName = page.evaluate(function() {
+                return document.getElementById('file2').files[0].fileName;
             });
             expect(fileName).toEqual('README.md');
         });

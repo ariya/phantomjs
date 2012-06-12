@@ -72,6 +72,15 @@ public:
         setForwardUnsupportedContent(true);
     }
 
+    bool extension(Extension extension, const ExtensionOption* option, ExtensionReturn* output) {
+        if (extension == ChooseMultipleFilesExtension) {
+            static_cast<ChooseMultipleFilesExtensionReturn*>(output)->fileNames = QStringList(m_uploadFile);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 public slots:
     bool shouldInterruptJavaScript() {
         QApplication::processEvents(QEventLoop::AllEvents, 42);
@@ -79,6 +88,10 @@ public slots:
     }
 
 protected:
+
+    bool supportsExtension(Extension extension) const {
+        return extension == ChooseMultipleFilesExtension;
+    }
 
     QString chooseFile(QWebFrame *originatingFrame, const QString &oldFile) {
         Q_UNUSED(originatingFrame);
