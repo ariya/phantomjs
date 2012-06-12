@@ -85,6 +85,10 @@ phantom.__defineErrorSetter__ = function(obj, page) {
                       }
                   });
 
+                  if (error === null || error === undefined) {
+                      error = {};
+                  }
+
                   if (typeof error === 'object') {
                       error.toString = function() { return this.name + ": " + this.message };
                   }
