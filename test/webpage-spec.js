@@ -313,7 +313,7 @@ describe("WebPage object", function() {
     it("reports unhandled errors", function() {
         var lastError = null;
 
-        page = new require('webpage').create();
+        var page = new require('webpage').create();
         page.onError = function(e) { lastError = e; };
 
         runs(function() {
@@ -341,8 +341,7 @@ describe("WebPage object", function() {
     it("doesn't report handled errors", function() {
         var hadError    = false;
         var caughtError = false;
-
-        page = new require('webpage').create();
+        var page        = require('webpage').create();
 
         runs(function() {
             page.onError = function() { hadError = true; };
