@@ -206,15 +206,24 @@ describe("WebPage object", function() {
 
     it("should handle file uploads", function() {
         runs(function() {
-            page.content = '<input type="file" id="file">';
+            page.content = '<input type="file" id="file">\n' +
+                           '<input type="file" id="file2" multiple>';
             page.uploadFile("#file", 'README.md');
+            page.uploadFile("#file2", 'README.md');
         });
 
         waits(50);
 
         runs(function() {
-            var fileName = page.evaluate(function() {
+            var fileName;
+
+            fileName = page.evaluate(function() {
                 return document.getElementById('file').files[0].fileName;
+            });
+            expect(fileName).toEqual('README.md');
+
+            fileName = page.evaluate(function() {
+                return document.getElementById('file2').files[0].fileName;
             });
             expect(fileName).toEqual('README.md');
         });
@@ -331,21 +340,12 @@ describe("WebPage object", function() {
                 err = e
             };
 
-            var frame;
+            var lines = err.stack.split("\n");
 
-            frame = err.stack[0];
-            expect(frame.sourceURL).toEqual(helperFile);
-            expect(frame.line).toEqual(7);
-            expect(frame.function).toEqual("bar");
-
-            frame = err.stack[1];
-            expect(frame.sourceURL).toEqual(helperFile);
-            expect(frame.line).toEqual(3);
-            expect(frame.function).toEqual("foo");
-
-            frame = err.stack[2];
-            expect(frame.sourceURL).toMatch(/webpage-spec.js$/);
-            expect(frame.function).toEqual("test");
+            expect(lines[0]).toEqual("ReferenceError: Can't find variable: referenceError");
+            expect(lines[1]).toEqual("    at bar (./fixtures/error-helper.js:7)");
+            expect(lines[2]).toEqual("    at ./fixtures/error-helper.js:3");
+            expect(lines[3]).toMatch(/    at test \(\.\/webpage-spec\.js:\d+\)/);
         });
     });
 
