@@ -104,6 +104,16 @@ protected:
         m_webPage->emitAlert(msg);
     }
 
+    bool javaScriptConfirm(QWebFrame *frame, const QString &msg) {
+        Q_UNUSED(frame);
+        return m_webPage->emitConfirm(msg);
+    }
+
+    bool javaScriptPrompt(QWebFrame *frame, const QString &msg, const QString &defaultValue, QString *result) {
+        Q_UNUSED(frame);
+        return m_webPage->emitPrompt(msg, defaultValue, result);
+    }
+    
     void javaScriptConsoleMessage(const QString &message, int lineNumber, const QString &sourceID) {
         Q_UNUSED(lineNumber);
         Q_UNUSED(sourceID);
@@ -208,6 +218,26 @@ void WebPage::setLibraryPath(const QString &libraryPath)
    m_libraryPath = libraryPath;
 }
 
+QVariant WebPage::confirmResult() const
+{
+   return m_confirmResult;
+}
+
+void WebPage::setConfirmResult(const QVariant &confirmResult)
+{
+   m_confirmResult = confirmResult;
+}
+
+QVariant WebPage::promptResult() const
+{
+   return m_promptResult;
+}
+
+void WebPage::setPromptResult(const QVariant &promptResult)
+{
+   m_promptResult = promptResult;
+}
+
 QString WebPage::offlineStoragePath() const
 {
     return m_webPage->settings()->offlineStoragePath();
@@ -218,8 +248,7 @@ int WebPage::offlineStorageQuota() const
     return m_webPage->settings()->offlineStorageDefaultQuota();
 }
 
-void
-WebPage::showInspector(const int port)
+void WebPage::showInspector(const int port)
 {
     m_webPage->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
     m_inspector = new QWebInspector;
@@ -231,7 +260,6 @@ WebPage::showInspector(const int port)
         m_webPage->setProperty("_q_webInspectorServerPort", port);
     }
 }
-
 
 void WebPage::applySettings(const QVariantMap &def)
 {
@@ -332,6 +360,18 @@ QVariant WebPage::evaluateJavaScript(const QString &code)
 void WebPage::emitAlert(const QString &msg)
 {
     emit javaScriptAlertSent(msg);
+}
+
+bool WebPage::emitConfirm(const QString &msg)
+{
+    emit javaScriptConfirmSent(msg);
+    return m_confirmResult.toBool();
+}
+
+bool WebPage::emitPrompt(const QString &msg, const QString &defaultValue, QString *result) {
+    emit javaScriptPromptSent(msg, defaultValue);
+    *result = m_promptResult.toString();
+    return true;
 }
 
 void WebPage::emitConsoleMessage(const QString &message)
@@ -713,7 +753,7 @@ bool WebPage::injectJs(const QString &jsFilePath) {
 }
 
 void WebPage::_appendScriptElement(const QString &scriptUrl) {
-    m_mainFrame->evaluateJavaScript( QString(JS_APPEND_SCRIPT_ELEMENT).arg(scriptUrl), scriptUrl );
+    m_mainFrame->evaluateJavaScript(QString(JS_APPEND_SCRIPT_ELEMENT).arg(scriptUrl), scriptUrl);
 }
 
 void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVariant &arg2)

@@ -48,6 +48,8 @@ class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
 {
     Q_OBJECT
     Q_PROPERTY(QString content READ content WRITE setContent)
+    Q_PROPERTY(QVariant confirmResult READ confirmResult WRITE setConfirmResult)
+    Q_PROPERTY(QVariant promptResult READ promptResult WRITE setPromptResult)
     Q_PROPERTY(QString plainText READ plainText)
     Q_PROPERTY(QString libraryPath READ libraryPath WRITE setLibraryPath)
     Q_PROPERTY(QString offlineStoragePath READ offlineStoragePath)
@@ -90,6 +92,12 @@ public:
 
     void setCustomHeaders(const QVariantMap &headers);
     QVariantMap customHeaders() const;
+	
+    void setConfirmResult(const QVariant &confirmResult);
+    QVariant confirmResult() const;
+	
+    void setPromptResult(const QVariant &promptResult);
+    QVariant promptResult() const;
 
     void showInspector(const int remotePort = -1);
 
@@ -117,6 +125,8 @@ signals:
     void loadStarted();
     void loadFinished(const QString &status);
     void javaScriptAlertSent(const QString &msg);
+    void javaScriptConfirmSent(const QString &msg);
+    void javaScriptPromptSent(const QString &msg, const QString &defaultValue);
     void javaScriptConsoleMessageSent(const QString &message);
     void javaScriptErrorSent();
     void resourceRequested(const QVariant &req);
@@ -132,6 +142,8 @@ private:
     QString userAgent() const;
 
     void emitAlert(const QString &msg);
+    bool emitConfirm(const QString &msg);
+    bool emitPrompt(const QString &msg, const QString &defaultValue, QString *result);
     void emitConsoleMessage(const QString &msg);
     void emitError();
 
@@ -145,6 +157,8 @@ private:
     QPoint m_scrollPosition;
     QVariantMap m_paperSize; // For PDF output via render()
     QString m_libraryPath;
+    QVariant m_promptResult;
+    QVariant m_confirmResult;
     QWebInspector* m_inspector;
 
     friend class Phantom;
