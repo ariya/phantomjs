@@ -1027,6 +1027,15 @@ void WebPage::initCompletions()
     addCompletion("render");
     addCompletion("sendEvent");
     addCompletion("uploadFile");
+    addCompletion("renderBase64PNG");
+    addCompletion("renderBase64JPG");
+    addCompletion("renderBase64BMP");
+    addCompletion("childFramesCount");
+    addCompletion("childFramesName");
+    addCompletion("switchToChildFrame");
+    addCompletion("switchToMainFrame");
+    addCompletion("switchToParentFrame");
+    addCompletion("currentFrameName");
     // callbacks
     addCompletion("onAlert");
     addCompletion("onCallback");
