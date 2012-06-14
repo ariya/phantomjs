@@ -49,6 +49,8 @@ public:
     void setPassword(const QString &password);
     void setCustomHeaders(const QVariantMap &headers);
     QVariantMap customHeaders() const;
+    void setCookies(const QVariantList &cookies);
+    QVariantList cookies() const;
 
 protected:
     bool m_ignoreSslErrors;
@@ -71,6 +73,7 @@ private:
     int m_idCounter;
     QNetworkDiskCache* m_networkDiskCache;
     QVariantMap m_customHeaders;
+    QVariantList m_cookies;
 };
 
 #endif // NETWORKACCESSMANAGER_H

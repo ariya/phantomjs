@@ -58,6 +58,7 @@ class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
     Q_PROPERTY(QVariantMap scrollPosition READ scrollPosition WRITE setScrollPosition)
     Q_PROPERTY(QVariantMap customHeaders READ customHeaders WRITE setCustomHeaders)
     Q_PROPERTY(qreal zoomFactor READ zoomFactor WRITE setZoomFactor)
+    Q_PROPERTY(QVariantList cookies READ cookies WRITE setCookies)
 
 public:
     WebPage(QObject *parent, const Config *config, const QUrl &baseUrl = QUrl());
@@ -111,6 +112,9 @@ public slots:
     void _appendScriptElement(const QString &scriptUrl);
     void uploadFile(const QString &selector, const QString &fileName);
     void sendEvent(const QString &type, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant());
+
+    void setCookies(const QVariantList &cookies);
+    QVariantList cookies() const;
 
 signals:
     void initialized();
