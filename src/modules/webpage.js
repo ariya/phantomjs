@@ -209,7 +209,31 @@ exports.create = function (opts) {
         }
         str = str.replace(/,$/, '') + '); }';
         return this.evaluateJavaScript(str);
-    }
+    };
+
+    /**
+     * set cookies of the page
+     * @param	[]{...} cookies	an array of cookies object with arguments in mozilla format
+     * 			cookies[0] = {
+     *				'name' => 'Cookie-Name',
+     *				'value' => 'Cookie-Value',
+     *				'domain' => 'foo.com',
+     *				'path' => 'Cookie-Path',
+     *				'expires' => 'Cookie-Expiration-Date',
+     *				'httponly' => true | false,
+     *				'secure' => true | false
+     * 			};
+     */
+    page.setCookies = function (cookies) {
+        this.setCookies(cookies);
+    };
+
+    /**
+     * get cookies of the page
+     */
+    page.getCookies = function () {
+        return this.cookies;
+    };
 
     // Copy options into page
     if (opts) {
