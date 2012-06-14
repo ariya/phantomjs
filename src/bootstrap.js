@@ -85,7 +85,7 @@ phantom.__defineErrorSetter__ = function(obj, page) {
                       }
                   });
 
-                  if (error === null || error === undefined) {
+                  if (error === null || typeof error === 'undefined') {
                       error = {};
                   }
 
