@@ -120,6 +120,41 @@ protected:
         return m_userAgent;
     }
 
+    bool acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, QWebPage::NavigationType type) {
+        bool isMainFrame = (frame == m_webPage->m_mainFrame);
+        // check for all frames (including iframes)
+        //if (frame == m_webPage->m_mainFrame) {
+            QString navigation = "Undefined";
+            switch (type) {
+            case NavigationTypeLinkClicked:
+                navigation = "LinkClicked"; 
+                break;
+            case NavigationTypeFormSubmitted:
+                navigation = "FormSubmitted";
+                break;
+            case NavigationTypeBackOrForward:
+                navigation = "BackOrForward";
+                break;
+            case NavigationTypeReload:
+                navigation = "Reload"; 
+                break;
+            case NavigationTypeFormResubmitted:
+                navigation = "FormResubmitted";
+                break;
+            case NavigationTypeOther:
+                navigation = "Other";
+                break;
+            }
+
+            emit m_webPage->navigationRequested(request.url(), navigation, !m_webPage->navigationLocked(), isMainFrame);
+
+            return !m_webPage->navigationLocked();
+        //} else {
+        //    return true;
+        //}
+    }
+
+
 private:
     WebPage *m_webPage;
     QString m_userAgent;
@@ -130,6 +165,7 @@ private:
 
 WebPage::WebPage(QObject *parent, const Config *config, const QUrl &baseUrl)
     : REPLCompletable(parent)
+    , m_navigationLocked(false)
 {
     setObjectName("WebPage");
     m_webPage = new CustomPage(this);
@@ -137,6 +173,7 @@ WebPage::WebPage(QObject *parent, const Config *config, const QUrl &baseUrl)
     m_mainFrame->setHtml(BLANK_HTML, baseUrl);
 
     connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()), SIGNAL(initialized()));
+    connect(m_mainFrame, SIGNAL(urlChanged(QUrl)), SIGNAL(urlChanged(QUrl)));
     connect(m_webPage, SIGNAL(loadStarted()), SIGNAL(loadStarted()), Qt::QueuedConnection);
     connect(m_webPage, SIGNAL(loadFinished(bool)), SLOT(finish(bool)), Qt::QueuedConnection);
 
@@ -257,6 +294,17 @@ QString WebPage::userAgent() const
 {
     return m_webPage->m_userAgent;
 }
+
+void WebPage::setNavigationLocked(bool lock)
+{
+    m_navigationLocked = lock;;
+}
+
+bool WebPage::navigationLocked()
+{
+    return m_navigationLocked;
+}
+
 
 void WebPage::setViewportSize(const QVariantMap &size)
 {
