@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 QT_CFG=''
 
 COMPILE_JOBS=1
