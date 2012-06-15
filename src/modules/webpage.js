@@ -117,6 +117,10 @@ exports.create = function (opts) {
 
     defineSetter("onLoadFinished", "loadFinished");
 
+    defineSetter("onUrlChanged", "urlChanged");
+
+    defineSetter("onNavigationRequested", "navigationRequested");
+
     defineSetter("onResourceRequested", "resourceRequested");
 
     defineSetter("onResourceReceived", "resourceReceived");

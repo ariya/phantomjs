@@ -57,6 +57,7 @@ class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
     Q_PROPERTY(QVariantMap paperSize READ paperSize WRITE setPaperSize)
     Q_PROPERTY(QVariantMap clipRect READ clipRect WRITE setClipRect)
     Q_PROPERTY(QVariantMap scrollPosition READ scrollPosition WRITE setScrollPosition)
+    Q_PROPERTY(bool navigationLocked READ navigationLocked WRITE setNavigationLocked)
     Q_PROPERTY(QVariantMap customHeaders READ customHeaders WRITE setCustomHeaders)
     Q_PROPERTY(qreal zoomFactor READ zoomFactor WRITE setZoomFactor)
 
@@ -88,6 +89,9 @@ public:
 
     void setPaperSize(const QVariantMap &size);
     QVariantMap paperSize() const;
+
+    void setNavigationLocked(bool lock);
+    bool navigationLocked();
 
     void setCustomHeaders(const QVariantMap &headers);
     QVariantMap customHeaders() const;
@@ -128,6 +132,8 @@ signals:
     void javaScriptErrorSent();
     void resourceRequested(const QVariant &req);
     void resourceReceived(const QVariant &resource);
+    void urlChanged(const QUrl &url);
+    void navigationRequested(const QUrl &url, const QString &navigationType, bool navigationLocked, bool isMainFrame);
 
 private slots:
     void finish(bool ok);
@@ -159,6 +165,7 @@ private:
     QString m_libraryPath;
     QWebInspector* m_inspector;
     WebpageCallbacks *m_callbacks;
+    bool m_navigationLocked;
 
     friend class Phantom;
     friend class CustomPage;
