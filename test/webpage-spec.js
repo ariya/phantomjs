@@ -424,7 +424,7 @@ describe("WebPage object", function() {
             'name' : 'Cookie-Name',
             'value' : 'Cookie-Value',
             'domain' : 'localhost'
-	}];
+        }];
 
         var handled = false;
         runs(function() {
