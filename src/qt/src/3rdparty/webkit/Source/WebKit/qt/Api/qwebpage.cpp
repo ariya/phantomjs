@@ -2101,11 +2101,12 @@ void QWebPage::javaScriptConsoleMessage(const QString& message, int lineNumber, 
 }
 
 /* Subclasses should reimplement this to add error handling. */
-void QWebPage::javaScriptError(const QString& message, int lineNumber, const QString& sourceID)
+void QWebPage::javaScriptError(const QString& message, int lineNumber, const QString& sourceID, const QString& stack)
 {
     Q_UNUSED(message);
     Q_UNUSED(lineNumber);
     Q_UNUSED(sourceID);
+    Q_UNUSED(stack);
 }
 
 /*!
