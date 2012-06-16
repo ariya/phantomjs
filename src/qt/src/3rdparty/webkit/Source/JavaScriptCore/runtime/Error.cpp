@@ -41,6 +41,7 @@ static const char* linePropertyName = "line";
 static const char* sourceIdPropertyName = "sourceId";
 static const char* sourceURLPropertyName = "sourceURL";
 static const char* stackPropertyName = "stack";
+static const char* functionPropertyName = "function";
 
 JSObject* createError(JSGlobalObject* globalObject, const UString& message)
 {
@@ -140,18 +141,20 @@ JSObject* addErrorInfo(ExecState* exec, JSObject* error, int line, const SourceC
 
     addErrorInfo(globalData, error, line, source);
 
-    UStringBuilder stack;
+    UStringBuilder stackString;
+    JSArray* stackArray = constructEmptyArray(exec);
     CallFrame* frame = exec;
 
-    stack.append(error->toString(exec));
+    stackString.append(error->toString(exec));
 
     bool functionKnown;
     ReturnAddressPtr pc;
 
     while (!frame->hasHostCallFrameFlag()) {
         CodeBlock* codeBlock = frame->codeBlock();
+        JSObject* arrayItem = constructEmptyObject(exec);
 
-        stack.append("\n    at ");
+        stackString.append("\n    at ");
 
         JSObject* callee = frame->callee();
         UString functionName;
@@ -164,22 +167,41 @@ JSObject* addErrorInfo(ExecState* exec, JSObject* error, int line, const SourceC
         }
 
         if (functionKnown) {
-            stack.append(functionName);
-            stack.append(" (");
+            stackString.append(functionName);
+            stackString.append(" (");
+
+            arrayItem->putWithAttributes(
+                globalData, Identifier(globalData, functionPropertyName),
+                jsString(globalData, functionName), ReadOnly | DontDelete
+            );
         }
 
-        stack.append(codeBlock->ownerExecutable()->sourceURL());
-        stack.append(":");
+        UString sourceURL = codeBlock->ownerExecutable()->sourceURL();
+
+        arrayItem->putWithAttributes(
+            globalData, Identifier(globalData, sourceURLPropertyName),
+            jsString(globalData, sourceURL), ReadOnly | DontDelete
+        );
+
+        stackString.append(sourceURL);
+        stackString.append(":");
 
         if (frame != exec) {
             line = codeBlock->lineNumberForBytecodeOffset(codeBlock->bytecodeOffset(pc));
         }
 
-        stack.append(UString::number(line));
+        arrayItem->putWithAttributes(
+            globalData, Identifier(globalData, linePropertyName),
+            jsNumber(line), ReadOnly | DontDelete
+        );
+
+        stackString.append(UString::number(line));
 
         if (functionKnown) {
-            stack.append(")");
+            stackString.append(")");
         }
+
+        stackArray->push(exec, JSValue(arrayItem));
 
         pc = frame->returnPC();
         frame = frame->callerFrame();
@@ -187,7 +209,12 @@ JSObject* addErrorInfo(ExecState* exec, JSObject* error, int line, const SourceC
 
     error->putWithAttributes(
         globalData, Identifier(globalData, stackPropertyName),
-        jsString(globalData, stack.toUString()), ReadOnly | DontDelete
+        jsString(globalData, stackString.toUString()), ReadOnly | DontDelete
+    );
+
+    error->putWithAttributes(
+        globalData, Identifier(globalData, "stackArray"),
+        stackArray, ReadOnly | DontDelete
     );
 
     return error;

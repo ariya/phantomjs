@@ -130,11 +130,11 @@ protected:
         m_webPage->emitConsoleMessage(message);
     }
 
-    void javaScriptError(const QString &message, int lineNumber, const QString &sourceID) {
-        Q_UNUSED(message);
+    void javaScriptError(const QString &message, int lineNumber, const QString &sourceID, const QString &stack) {
         Q_UNUSED(lineNumber);
         Q_UNUSED(sourceID);
-        m_webPage->emitError();
+
+        m_webPage->emitError(message, stack);
     }
 
     QString userAgentForUrl(const QUrl &url) const {
@@ -469,9 +469,9 @@ void WebPage::emitConsoleMessage(const QString &message)
     emit javaScriptConsoleMessageSent(message);
 }
 
-void WebPage::emitError()
+void WebPage::emitError(const QString &msg, const QString &stack)
 {
-    emit javaScriptErrorSent();
+    emit javaScriptErrorSent(msg, stack);
 }
 
 bool WebPage::javaScriptConfirm(const QString &msg)

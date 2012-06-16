@@ -175,7 +175,7 @@ signals:
     void loadFinished(const QString &status);
     void javaScriptAlertSent(const QString &msg);
     void javaScriptConsoleMessageSent(const QString &message);
-    void javaScriptErrorSent();
+    void javaScriptErrorSent(const QString &msg, const QString &stack);
     void resourceRequested(const QVariant &req);
     void resourceReceived(const QVariant &resource);
     void urlChanged(const QUrl &url);
@@ -194,7 +194,7 @@ private:
 
     void emitAlert(const QString &msg);
     void emitConsoleMessage(const QString &msg);
-    void emitError();
+    void emitError(const QString &msg, const QString &stack);
 
     bool javaScriptConfirm(const QString &msg);
     bool javaScriptPrompt(const QString &msg, const QString &defaultValue, QString *result);
