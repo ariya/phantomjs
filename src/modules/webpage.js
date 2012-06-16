@@ -212,8 +212,15 @@ exports.create = function (opts) {
     };
 
     /**
+     * get cookies of the page
+     */
+    page.__defineGetter__("cookies", function() {
+        return this.cookies;
+    });
+
+    /**
      * set cookies of the page
-     * @param	[]{...} cookies	an array of cookies object with arguments in mozilla format
+     * @param	[]{...} cookies	an array of cookies object with arguments in mozilla cookie format
      * 			cookies[0] = {
      *				'name' => 'Cookie-Name',
      *				'value' => 'Cookie-Value',
@@ -224,16 +231,9 @@ exports.create = function (opts) {
      *				'secure' => true | false
      * 			};
      */
-    page.setCookies = function (cookies) {
+    page.__defineSetter__("cookies", function(cookies) {
         this.setCookies(cookies);
-    };
-
-    /**
-     * get cookies of the page
-     */
-    page.getCookies = function () {
-        return this.cookies;
-    };
+    });
 
     // Copy options into page
     if (opts) {

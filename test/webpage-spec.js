@@ -88,6 +88,8 @@ describe("WebPage object", function() {
             expect(page.zoomFactor).toEqual(1.0);
     });
 
+    expectHasProperty(page, 'cookies');
+
     checkViewportSize(page, {height:300,width:400});
 
     expectHasFunction(page, 'deleteLater');
@@ -105,8 +107,6 @@ describe("WebPage object", function() {
     expectHasFunction(page, 'resourceReceived');
     expectHasFunction(page, 'resourceRequested');
     expectHasFunction(page, 'uploadFile');
-    expectHasFunction(page, 'setCookies');
-    expectHasFunction(page, 'getCookies');
 
     expectHasFunction(page, 'sendEvent');
 
@@ -413,20 +413,18 @@ describe("WebPage object", function() {
     it("should set cookies properly", function() {
         var server = require('webserver').create();
         server.listen(12345, function(request, response) {
-        // echo received request headers in response body
+            // echo received request headers in response body
             response.write(JSON.stringify(request.headers));
             response.close();
         });
 
         var url = "http://localhost:12345/foo/headers.txt?ab=cd";
 
-        var cookies = [];
-        cookies[0] = {
+        page.cookies = [{
             'name' : 'Cookie-Name',
             'value' : 'Cookie-Value',
             'domain' : 'localhost'
-        };
-        page.setCookies(cookies);
+	}];
 
         var handled = false;
         runs(function() {
