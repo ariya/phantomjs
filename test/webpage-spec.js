@@ -313,8 +313,8 @@ describe("WebPage object", function() {
     it("reports unhandled errors", function() {
         var lastError = null;
 
-        page = new require('webpage').create();
-        page.onError = function(e) { lastError = e; };
+        var page = new require('webpage').create();
+        page.onError = function(message) { lastError = message; };
 
         runs(function() {
             page.evaluate(function() {
@@ -325,24 +325,23 @@ describe("WebPage object", function() {
         waits(0);
 
         runs(function() {
-            expect(lastError.toString()).toEqual("ReferenceError: Can't find variable: referenceError");
+            expect(lastError).toEqual("ReferenceError: Can't find variable: referenceError");
 
             page.evaluate(function() { referenceError2 });
-            expect(lastError.toString()).toEqual("ReferenceError: Can't find variable: referenceError2");
+            expect(lastError).toEqual("ReferenceError: Can't find variable: referenceError2");
 
             page.evaluate(function() { throw "foo" });
             expect(lastError).toEqual("foo");
 
             page.evaluate(function() { throw Error("foo") });
-            expect(lastError.toString()).toEqual("Error: foo");
+            expect(lastError).toEqual("Error: foo");
         });
     });
 
     it("doesn't report handled errors", function() {
         var hadError    = false;
         var caughtError = false;
-
-        page = new require('webpage').create();
+        var page        = require('webpage').create();
 
         runs(function() {
             page.onError = function() { hadError = true; };
@@ -387,6 +386,8 @@ describe("WebPage object", function() {
         var helperFile = "./fixtures/error-helper.js";
         phantom.injectJs(helperFile);
 
+        var page = require('webpage').create(), stack;
+
         runs(function() {
             function test() {
                 ErrorHelper.foo()
@@ -405,6 +406,19 @@ describe("WebPage object", function() {
             expect(lines[1]).toEqual("    at bar (./fixtures/error-helper.js:7)");
             expect(lines[2]).toEqual("    at ./fixtures/error-helper.js:3");
             expect(lines[3]).toMatch(/    at test \(\.\/webpage-spec\.js:\d+\)/);
+
+            page.injectJs(helperFile);
+
+            page.onError = function(message, s) { stack = s };
+            page.evaluate(function() { setTimeout(function() { ErrorHelper.foo() }, 0) });
+        });
+
+        waits(0);
+
+        runs(function() {
+            expect(stack[0].file).toEqual("./fixtures/error-helper.js");
+            expect(stack[0].line).toEqual(7);
+            expect(stack[0].function).toEqual("bar");
         });
     });
 
