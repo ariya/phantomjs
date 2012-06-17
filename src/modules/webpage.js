@@ -235,6 +235,30 @@ exports.create = function (opts) {
         this.evaluate.apply(this, args);
     };
 
+    /**
+     * get cookies of the page
+     */
+    page.__defineGetter__("cookies", function() {
+        return this.cookies;
+    });
+
+    /**
+     * set cookies of the page
+     * @param	[]{...} cookies	an array of cookies object with arguments in mozilla cookie format
+     * 			cookies[0] = {
+     *				'name' => 'Cookie-Name',
+     *				'value' => 'Cookie-Value',
+     *				'domain' => 'foo.com',
+     *				'path' => 'Cookie-Path',
+     *				'expires' => 'Cookie-Expiration-Date',
+     *				'httponly' => true | false,
+     *				'secure' => true | false
+     * 			};
+     */
+    page.__defineSetter__("cookies", function(cookies) {
+        this.setCookies(cookies);
+    });
+
     // Copy options into page
     if (opts) {
         page = copyInto(page, opts);

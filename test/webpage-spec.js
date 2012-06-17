@@ -142,6 +142,8 @@ describe("WebPage object", function() {
             expect(page.zoomFactor).toEqual(1.0);
     });
 
+    expectHasProperty(page, 'cookies');
+
     checkViewportSize(page, {height:300,width:400});
 
     expectHasFunction(page, 'deleteLater');
@@ -469,6 +471,44 @@ describe("WebPage object", function() {
                 expect(echoedHeaders["User-Agent"]).toEqual(customHeaders["User-Agent"]);
                 expect(echoedHeaders["Referer"]).toEqual(customHeaders["Referer"]);
 
+            });
+        });
+
+        waits(50);
+
+        runs(function() {
+            expect(handled).toEqual(true);
+            server.close();
+        });
+
+    });
+
+    it("should set cookies properly", function() {
+        var server = require('webserver').create();
+        server.listen(12345, function(request, response) {
+            // echo received request headers in response body
+            response.write(JSON.stringify(request.headers));
+            response.close();
+        });
+
+        var url = "http://localhost:12345/foo/headers.txt?ab=cd";
+
+        page.cookies = [{
+            'name' : 'Cookie-Name',
+            'value' : 'Cookie-Value',
+            'domain' : 'localhost'
+        }];
+
+        var handled = false;
+        runs(function() {
+            expect(handled).toEqual(false);
+            page.open(url, function (status) {
+                expect(status == 'success').toEqual(true);
+                handled = true;
+
+                var echoedHeaders = JSON.parse(page.plainText);
+                // console.log(JSON.stringify(echoedHeaders));
+                expect(echoedHeaders["Cookie"]).toEqual("Cookie-Name=Cookie-Value");
             });
         });
 

@@ -34,10 +34,12 @@
 
 #include <QApplication>
 #include <QDesktopServices>
+#include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
 #include <QMouseEvent>
 #include <QNetworkAccessManager>
+#include <QNetworkCookie>
 #include <QNetworkRequest>
 #include <QPainter>
 #include <QPrinter>
@@ -511,6 +513,16 @@ void WebPage::setCustomHeaders(const QVariantMap &headers)
 QVariantMap WebPage::customHeaders() const
 {
     return m_networkAccessManager->customHeaders();
+}
+
+void WebPage::setCookies(const QVariantList &cookies)
+{
+    m_networkAccessManager->setCookies(cookies);
+}
+
+QVariantList WebPage::cookies() const
+{
+    return m_networkAccessManager->cookies();
 }
 
 void WebPage::openUrl(const QString &address, const QVariant &op, const QVariantMap &settings)

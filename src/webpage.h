@@ -60,6 +60,7 @@ class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
     Q_PROPERTY(bool navigationLocked READ navigationLocked WRITE setNavigationLocked)
     Q_PROPERTY(QVariantMap customHeaders READ customHeaders WRITE setCustomHeaders)
     Q_PROPERTY(qreal zoomFactor READ zoomFactor WRITE setZoomFactor)
+    Q_PROPERTY(QVariantList cookies READ cookies WRITE setCookies)
 
 public:
     WebPage(QObject *parent, const Config *config, const QUrl &baseUrl = QUrl());
@@ -168,6 +169,9 @@ public slots:
      * @return Name of the Current Frame
      */
     QString currentFrameName();
+
+    void setCookies(const QVariantList &cookies);
+    QVariantList cookies() const;
 
 signals:
     void initialized();
