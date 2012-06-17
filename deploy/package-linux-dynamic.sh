@@ -32,7 +32,7 @@ if [[ ! -f brandelf ]]; then
 fi
 
 src=..
-dest=phantomjs-$version
+dest="phantomjs-$version-linux-$(uname -m)-dynamic"
 
 rm -Rf $dest{.tar.bz2,} &> /dev/null
 mkdir -p $dest/bin $dest/lib

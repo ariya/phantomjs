@@ -1,0 +1,30 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+unless ENV['PHANTOMJS_VERSION']
+  STDERR.puts 'Please specify PhantomJS version in the PHANTOMJS_VERSION environment variable.'
+  STDERR.puts '(This can be any git ref, e.g. "1.5.0", "master", "origin/1.5", etc.)'
+  exit 1
+end
+
+Vagrant::Config.run do |config|
+  config.vm.define :i686 do |c|
+    c.vm.box_url = "http://files.vagrantup.com/lucid32.box"
+    c.vm.box     = "lucid32"
+  end
+
+  config.vm.define :x86_64 do |c|
+    c.vm.box_url = "http://files.vagrantup.com/lucid64.box"
+    c.vm.box     = "lucid64"
+  end
+
+  config.vm.provision :shell do |s|
+    s.path = "provision-vm.sh"
+    s.args = ENV['PHANTOMJS_VERSION']
+  end
+
+  # You may wish to tweak these, but be aware that you need quite a lot of
+  # memory for the linking stage.
+  config.vm.customize ["modifyvm", :id, "--memory", 2048]
+  config.vm.customize ["modifyvm", :id, "--cpus",   2]
+end

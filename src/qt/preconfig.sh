@@ -109,6 +109,12 @@ export MAKEFLAGS=-j$COMPILE_JOBS
 ./configure -prefix $PWD $QT_CFG
 make -j$COMPILE_JOBS
 
+if [[ $QT_CFG =~ "-webkit-debug" ]]; then
+  DEBUG_OR_RELEASE=debug
+else
+  DEBUG_OR_RELEASE=release
+fi
+
 # Extra step to ensure the static libraries are found
-cp -rp src/3rdparty/webkit/Source/JavaScriptCore/release/* lib/
-cp -rp src/3rdparty/webkit/Source/WebCore/release/* lib/
+cp -rp src/3rdparty/webkit/Source/JavaScriptCore/$DEBUG_OR_RELEASE/* lib/
+cp -rp src/3rdparty/webkit/Source/WebCore/$DEBUG_OR_RELEASE/* lib/
