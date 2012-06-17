@@ -11,6 +11,7 @@
 #
 #  $ tools/crash-report.sh /tmp/5e2cc287-96c8-7a1b-59c79999-00fa22a2.dmp
 
+mkdir -p symbols
 rm -r symbols/*
 
 files=""
