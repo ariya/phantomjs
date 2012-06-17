@@ -102,7 +102,6 @@ CONFIG -= warn_on
 
 # Treat warnings as errors on x86/Linux/GCC
 linux-g++* {
-    !CONFIG(standalone_package):isEqual(QT_ARCH,x86_64)|isEqual(QT_ARCH,i386): QMAKE_CXXFLAGS += -Werror
 
     greaterThan(QT_GCC_MAJOR_VERSION, 3):greaterThan(QT_GCC_MINOR_VERSION, 5) {
         if (!contains(QMAKE_CXXFLAGS, -std=c++0x) && !contains(QMAKE_CXXFLAGS, -std=gnu++0x)) {
