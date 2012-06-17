@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -3147,8 +3147,14 @@ QStringList &QMakeProject::values(const QString &_var, QMap<QString, QStringList
             QString ret, type = var.mid(13);
             if(type == "arch") {
                 QString paths = qgetenv("PATH");
-                QString vcBin64 = qgetenv("VCINSTALLDIR").append("\\bin\\amd64");
-                QString vcBinX86_64 = qgetenv("VCINSTALLDIR").append("\\bin\\x86_amd64");
+                QString vcBin64 = qgetenv("VCINSTALLDIR");
+                if (!vcBin64.endsWith('\\'))
+                    vcBin64.append('\\');
+                vcBin64.append("bin\\amd64");
+                QString vcBinX86_64 = qgetenv("VCINSTALLDIR");
+                if (!vcBinX86_64.endsWith('\\'))
+                    vcBinX86_64.append('\\');
+                vcBinX86_64.append("bin\\x86_amd64");
                 if(paths.contains(vcBin64,Qt::CaseInsensitive) || paths.contains(vcBinX86_64,Qt::CaseInsensitive))
                     ret = "x86_64";
                 else

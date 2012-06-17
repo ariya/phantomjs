@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -260,8 +260,6 @@ static bool read_dib_body(QDataStream &s, const BMP_INFOHDR &bi, int offset, int
         d->seek(startpos + BMP_FILEHDR_SIZE + (bi.biSize >= BMP_WIN4? BMP_WIN : bi.biSize)); // goto start of colormap
 
     if (bi.biSize >= BMP_WIN4 || (comp == BMP_BITFIELDS && (nbits == 16 || nbits == 32))) {
-        Q_ASSERT(ncols == 0);
-
         if (d->read((char *)&red_mask, sizeof(red_mask)) != sizeof(red_mask))
             return false;
         if (d->read((char *)&green_mask, sizeof(green_mask)) != sizeof(green_mask))

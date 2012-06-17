@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -42,7 +42,6 @@
 #ifndef QPAINTENGINE_BLITTER_P_H
 #define QPAINTENGINE_BLITTER_P_H
 
-#include "private/qpaintengineex_p.h"
 #include "private/qpaintengine_raster_p.h"
 
 #ifndef QT_NO_BLITTABLE
@@ -52,59 +51,51 @@ class QBlitterPaintEnginePrivate;
 class QBlittablePixmapData;
 class QBlittable;
 
-class Q_GUI_EXPORT QBlitterPaintEngine : public QPaintEngineEx
+class Q_GUI_EXPORT QBlitterPaintEngine : public QRasterPaintEngine
 {
     Q_DECLARE_PRIVATE(QBlitterPaintEngine);
 public:
     QBlitterPaintEngine(QBlittablePixmapData *p);
-    ~QBlitterPaintEngine();
-
-    virtual QPainterState *createState(QPainterState *orig) const;
 
     virtual QPaintEngine::Type type() const { return Blitter; }
 
     virtual bool begin(QPaintDevice *pdev);
     virtual bool end();
 
+    // Call down into QBlittable
     virtual void fill(const QVectorPath &path, const QBrush &brush);
-    virtual void stroke(const QVectorPath &path, const QPen &pen);
+    virtual void fillRect(const QRectF &rect, const QBrush &brush);
+    virtual void fillRect(const QRectF &rect, const QColor &color);
+    virtual void drawRects(const QRect *rects, int rectCount);
+    virtual void drawRects(const QRectF *rects, int rectCount);
+    void drawPixmap(const QPointF &p, const QPixmap &pm);
+    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
 
-    virtual void clip(const QVectorPath &path, Qt::ClipOperation op);
-    virtual void clip(const QRect &rect, Qt::ClipOperation op);
-    virtual void clip(const QRegion &region, Qt::ClipOperation op);
-
+    // State tracking
+    void setState(QPainterState *s);
     virtual void clipEnabledChanged();
     virtual void penChanged();
     virtual void brushChanged();
-    virtual void brushOriginChanged();
     virtual void opacityChanged();
     virtual void compositionModeChanged();
     virtual void renderHintsChanged();
     virtual void transformChanged();
 
-    virtual void fillRect(const QRectF &rect, const QBrush &brush);
-    virtual void fillRect(const QRectF &rect, const QColor &color);
-
-    virtual void drawRects(const QRect *rects, int rectCount);
-    virtual void drawRects(const QRectF *rects, int rectCount);
-
-    virtual void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
-
-    virtual void drawImage(const QRectF &r, const QImage &pm, const QRectF &sr, Qt::ImageConversionFlags flags);
-
-    virtual void drawTextItem(const QPointF &pos, const QTextItem &ti);
-    virtual void drawStaticTextItem(QStaticTextItem *);
-
-    virtual void drawEllipse(const QRectF &r);
-
-    virtual void setState(QPainterState *s);
-
-    inline QPainterState *state() { return raster()->state(); }
-    inline const QPainterState *state() const { const QPainterState *state = raster()->state(); return state;}
-    inline const QClipData *clip(){return raster()->d_func()->clip();}
-
-private:
-    QRasterPaintEngine *raster() const;
+    // Override to lock the QBlittable before using raster
+    void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
+    void drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode);
+    void fillPath(const QPainterPath &path, QSpanData *fillData);
+    void fillPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
+    void drawEllipse(const QRectF &rect);
+    void drawImage(const QPointF &p, const QImage &img);
+    void drawImage(const QRectF &r, const QImage &pm, const QRectF &sr,
+                   Qt::ImageConversionFlags flags = Qt::AutoColor);
+    void drawTiledPixmap(const QRectF &r, const QPixmap &pm, const QPointF &sr);
+    void drawTextItem(const QPointF &p, const QTextItem &textItem);
+    void drawPoints(const QPointF *points, int pointCount);
+    void drawPoints(const QPoint *points, int pointCount);
+    void stroke(const QVectorPath &path, const QPen &pen);
+    void drawStaticTextItem(QStaticTextItem *);
 };
 
 QT_END_NAMESPACE

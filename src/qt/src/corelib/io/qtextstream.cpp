@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -65,11 +65,6 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
     standard input using the correct codec. Example:
 
     \snippet doc/src/snippets/code/src_corelib_io_qtextstream.cpp 1
-
-    Note that you cannot use QTextStream::atEnd(), which returns true when you
-    have reached the end of the data stream, with stdin. The reason for this is
-    that as long as stdin doesn't give any input to the QTextStream, \c atEnd()
-    will return true even if the stdin is open and waiting for more characters.
 
     Besides using QTextStream's constructors, you can also set the
     device or string QTextStream operates on by calling setDevice() or

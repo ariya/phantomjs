@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -194,7 +194,7 @@ bool QNetworkCookieJar::setCookiesFromUrl(const QList<QNetworkCookie> &cookieLis
         // validate the cookie & set the defaults if unset
         if (cookie.path().isEmpty())
             cookie.setPath(defaultPath);
-        // don't do path checking. See http://bugreports.qt.nokia.com/browse/QTBUG-5815
+        // don't do path checking. See http://bugreports.qt-project.org/browse/QTBUG-5815
 //        else if (!isParentPath(pathAndFileName, cookie.path())) {
 //            continue;           // not accepted
 //        }

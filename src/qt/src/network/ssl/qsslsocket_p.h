@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -158,6 +158,9 @@ public:
     void _q_bytesWrittenSlot(qint64);
     void _q_flushWriteBuffer();
     void _q_flushReadBuffer();
+
+    virtual qint64 peek(char *data, qint64 maxSize);
+    virtual QByteArray peek(qint64 maxSize);
 
     // Platform specific functions
     virtual void startClientEncryption() = 0;

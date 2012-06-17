@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -260,9 +260,9 @@
 
 // #define GESTURE_DEBUG
 #ifndef GESTURE_DEBUG
-# define DEBUG if (0) qDebug
+# define G_DEBUG if (0) qDebug
 #else
-# define DEBUG qDebug
+# define G_DEBUG qDebug
 #endif
 
 QT_BEGIN_NAMESPACE
@@ -1084,7 +1084,7 @@ void QGraphicsScenePrivate::enableMouseTrackingOnViews()
 /*!
     Returns all items for the screen position in \a event.
 */
-QList<QGraphicsItem *> QGraphicsScenePrivate::itemsAtPosition(const QPoint &/*screenPos*/,
+QList<QGraphicsItem *> QGraphicsScenePrivate::itemsAtPosition(const QPoint &screenPos,
                                                               const QPointF &scenePos,
                                                               QWidget *widget) const
 {
@@ -1093,12 +1093,16 @@ QList<QGraphicsItem *> QGraphicsScenePrivate::itemsAtPosition(const QPoint &/*sc
     if (!view)
         return q->items(scenePos, Qt::IntersectsItemShape, Qt::DescendingOrder, QTransform());
 
-    const QRectF pointRect(scenePos, QSizeF(1, 1));
+    const QRectF pointRect(QPointF(widget->mapFromGlobal(screenPos)), QSizeF(1, 1));
     if (!view->isTransformed())
         return q->items(pointRect, Qt::IntersectsItemShape, Qt::DescendingOrder);
 
     const QTransform viewTransform = view->viewportTransform();
-    return q->items(pointRect, Qt::IntersectsItemShape,
+    if (viewTransform.type() <= QTransform::TxScale) {
+        return q->items(viewTransform.inverted().mapRect(pointRect), Qt::IntersectsItemShape,
+                        Qt::DescendingOrder, viewTransform);
+    }
+    return q->items(viewTransform.inverted().map(pointRect), Qt::IntersectsItemShape,
                     Qt::DescendingOrder, viewTransform);
 }
 
@@ -6158,7 +6162,7 @@ void QGraphicsScenePrivate::gestureEventHandler(QGestureEvent *event)
         return;
 
     QList<QGesture *> allGestures = event->gestures();
-    DEBUG() << "QGraphicsScenePrivate::gestureEventHandler:"
+    G_DEBUG() << "QGraphicsScenePrivate::gestureEventHandler:"
             << "Gestures:" <<  allGestures;
 
     QSet<QGesture *> startedGestures;
@@ -6189,7 +6193,7 @@ void QGraphicsScenePrivate::gestureEventHandler(QGestureEvent *event)
                                  &normalGestures, &conflictedGestures);
         cachedTargetItems = cachedItemGestures.keys();
         qSort(cachedTargetItems.begin(), cachedTargetItems.end(), qt_closestItemFirst);
-        DEBUG() << "QGraphicsScenePrivate::gestureEventHandler:"
+        G_DEBUG() << "QGraphicsScenePrivate::gestureEventHandler:"
                 << "Normal gestures:" << normalGestures
                 << "Conflicting gestures:" << conflictedGestures;
 
@@ -6204,7 +6208,7 @@ void QGraphicsScenePrivate::gestureEventHandler(QGestureEvent *event)
                 if (gestures.isEmpty())
                     continue;
 
-                DEBUG() << "QGraphicsScenePrivate::gestureEventHandler:"
+                G_DEBUG() << "QGraphicsScenePrivate::gestureEventHandler:"
                         << "delivering override to"
                         << item.data() << gestures;
                 // send gesture override
@@ -6230,7 +6234,7 @@ void QGraphicsScenePrivate::gestureEventHandler(QGestureEvent *event)
                                 it.value().remove(g);
                             cachedItemGestures[item.data()].insert(g);
                         }
-                        DEBUG() << "QGraphicsScenePrivate::gestureEventHandler:"
+                        G_DEBUG() << "QGraphicsScenePrivate::gestureEventHandler:"
                                 << "override was accepted:"
                                 << g << item.data();
                     }
@@ -6276,7 +6280,7 @@ void QGraphicsScenePrivate::gestureEventHandler(QGestureEvent *event)
             if (flags & Qt::IgnoredGesturesPropagateToParent)
                 parentPropagatedGestures.insert(gesture);
         } else {
-            DEBUG() << "QGraphicsScenePrivate::gestureEventHandler:"
+            G_DEBUG() << "QGraphicsScenePrivate::gestureEventHandler:"
                     << "no target for" << gesture << "at"
                     << gesture->hotSpot() << gesture->d_func()->sceneHotSpot;
         }
@@ -6294,7 +6298,7 @@ void QGraphicsScenePrivate::gestureEventHandler(QGestureEvent *event)
         cachedAlreadyDeliveredGestures[receiver.data()] += gestures;
         const bool isPanel = receiver.data()->isPanel();
 
-        DEBUG() << "QGraphicsScenePrivate::gestureEventHandler:"
+        G_DEBUG() << "QGraphicsScenePrivate::gestureEventHandler:"
                 << "delivering to"
                 << receiver.data() << gestures;
         QGestureEvent ev(gestures.toList());
@@ -6362,7 +6366,7 @@ void QGraphicsScenePrivate::gestureEventHandler(QGestureEvent *event)
 
             cachedTargetItems = targetsSet.toList();
             qSort(cachedTargetItems.begin(), cachedTargetItems.end(), qt_closestItemFirst);
-            DEBUG() << "QGraphicsScenePrivate::gestureEventHandler:"
+            G_DEBUG() << "QGraphicsScenePrivate::gestureEventHandler:"
                     << "new targets:" << cachedTargetItems;
             i = -1; // start delivery again
             continue;
@@ -6371,7 +6375,7 @@ void QGraphicsScenePrivate::gestureEventHandler(QGestureEvent *event)
 
     foreach (QGesture *g, startedGestures) {
         if (g->gestureCancelPolicy() == QGesture::CancelAllInContext) {
-            DEBUG() << "lets try to cancel some";
+            G_DEBUG() << "lets try to cancel some";
             // find gestures in context in Qt::GestureStarted or Qt::GestureUpdated state and cancel them
             cancelGesturesForChildren(g);
         }
@@ -6410,7 +6414,7 @@ void QGraphicsScenePrivate::cancelGesturesForChildren(QGesture *original)
         QGraphicsObject *item = iter.value();
         // note that we don't touch the gestures for our originalItem
         if (item != originalItem && originalItem->isAncestorOf(item)) {
-            DEBUG() << "  found a gesture to cancel" << iter.key();
+            G_DEBUG() << "  found a gesture to cancel" << iter.key();
             iter.key()->d_func()->state = Qt::GestureCanceled;
             canceledGestures << iter.key();
         }

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -209,6 +209,9 @@ typedef Bool (*PtrXFixesQueryExtension)(Display *, int *, int *);
 typedef Status (*PtrXFixesQueryVersion)(Display *, int *, int *);
 typedef void (*PtrXFixesSetCursorName)(Display *dpy, Cursor cursor, const char *name);
 typedef void (*PtrXFixesSelectSelectionInput)(Display *dpy, Window win, Atom selection, unsigned long eventMask);
+typedef void (*PtrXFixesDestroyRegion)(Display *dpy, /*XserverRegion*/ XID region);
+typedef /*XserverRegion*/ XID (*PtrXFixesCreateRegionFromWindow)(Display *dpy, Window window, int kind);
+typedef XRectangle *(*PtrXFixesFetchRegion)(Display *dpy, /*XserverRegion*/ XID region, int *nrectanglesRet);
 #endif // QT_NO_XFIXES
 
 #ifndef QT_NO_XCURSOR
@@ -350,7 +353,7 @@ struct QX11Data
     Window findClientWindow(Window, Atom, bool);
 
     // from qclipboard_x11.cpp
-    bool clipboardWaitForEvent(Window win, int type, XEvent *event, int timeout);
+    bool clipboardWaitForEvent(Window win, int type, XEvent *event, int timeout, bool checkManager = false);
     bool clipboardReadProperty(Window win, Atom property, bool deleteProperty,
                             QByteArray *buffer, int *size, Atom *type, int *format);
     QByteArray clipboardReadIncrementalProperty(Window win, Atom property, int nbytes, bool nullterm);

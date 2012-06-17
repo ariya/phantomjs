@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -252,6 +252,7 @@ QHttpNetworkReplyPrivate::QHttpNetworkReplyPrivate(const QUrl &newUrl)
       chunkedTransferEncoding(false),
       connectionCloseEnabled(true),
       forceConnectionCloseEnabled(false),
+      lastChunkRead(false),
       currentChunkSize(0), currentChunkRead(0), connection(0), initInflate(false),
       autoDecompress(false), responseData(), requestIsPrepared(false)
       ,pipeliningUsed(false), downstreamLimited(false)
@@ -272,6 +273,7 @@ void QHttpNetworkReplyPrivate::clearHttpLayerInformation()
     totalProgress = 0;
     currentChunkSize = 0;
     currentChunkRead = 0;
+    lastChunkRead = false;
     connectionCloseEnabled = true;
 #ifndef QT_NO_COMPRESS
     if (initInflate)
@@ -770,7 +772,7 @@ qint64 QHttpNetworkReplyPrivate::readReplyBodyChunked(QAbstractSocket *socket, Q
 {
     qint64 bytes = 0;
     while (socket->bytesAvailable()) {
-        if (currentChunkRead >= currentChunkSize) {
+        if (!lastChunkRead && currentChunkRead >= currentChunkSize) {
             // For the first chunk and when we're done with a chunk
             currentChunkSize = 0;
             currentChunkRead = 0;
@@ -793,8 +795,23 @@ qint64 QHttpNetworkReplyPrivate::readReplyBodyChunked(QAbstractSocket *socket, Q
                 break;
         }
         // if the chunk size is 0, end of the stream
-        if (currentChunkSize == 0) {
-            state = AllDoneState;
+        if (currentChunkSize == 0 || lastChunkRead) {
+            lastChunkRead = true;
+            // try to read the "\r\n" after the chunk
+            char crlf[2];
+            qint64 haveRead = socket->read(crlf, 2);
+            if (haveRead > 0)
+                bytes += haveRead;
+
+            if ((haveRead == 2 && crlf[0] == '\r' && crlf[1] == '\n') || (haveRead == 1 && crlf[0] == '\n'))
+                state = AllDoneState;
+            else if (haveRead == 1 && crlf[0] == '\r')
+                break; // Still waiting for the last \n
+            else if (haveRead > 0) {
+                // If we read something else then CRLF, we need to close the channel.
+                forceConnectionCloseEnabled = true;
+                state = AllDoneState;
+            }
             break;
         }
 

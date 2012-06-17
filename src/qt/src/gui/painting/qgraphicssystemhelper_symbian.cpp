@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -39,6 +39,9 @@
 **
 ****************************************************************************/
 
+#include "qapplication_p.h"
+#include "qgraphicssystem_p.h"
+#include "qgraphicssystemex_symbian_p.h"
 #include "qgraphicssystemhelper_symbian.h"
 #include "qt_s60_p.h"
 #include "qwidget_p.h"
@@ -136,6 +139,14 @@ void QSymbianGraphicsSystemHelper::setReceiveNativePaintEvents(QWidget *widget, 
     QWidgetPrivate *widgetPrivate = qt_widget_private(widget);
     widgetPrivate->createExtra();
     widgetPrivate->extraData()->receiveNativePaintEvents = value;
+}
+
+void QSymbianGraphicsSystemHelper::releaseCachedGpuResources()
+{
+    QSymbianGraphicsSystemEx *ex = static_cast<QSymbianGraphicsSystemEx *>(
+        QApplicationPrivate::graphicsSystem()->platformExtension());
+    if (ex)
+        ex->releaseCachedGpuResources();
 }
 
 QT_END_NAMESPACE

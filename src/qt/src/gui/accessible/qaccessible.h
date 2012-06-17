@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -251,6 +251,8 @@ public:
         Splitter       = 0x0000003E,
         // Additional Qt roles where enum value does not map directly to MSAA:
         LayeredPane    = 0x0000003F,
+        Terminal       = 0x00000040,
+        Desktop        = 0x00000041,
         UserRole       = 0x0000ffff
     };
 

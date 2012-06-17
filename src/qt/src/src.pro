@@ -11,7 +11,7 @@ nacl: SRC_SUBDIRS -= src_network src_testlib
 !wince*:!symbian:!vxworks:!integrity:contains(QT_CONFIG, qt3support): SRC_SUBDIRS += src_qt3support
 
 !wince*:!symbian-abld:!symbian-sbsv2:include(tools/tools.pro)
-win32:!win32-g++*:SRC_SUBDIRS += src_activeqt
+win32:SRC_SUBDIRS += src_activeqt
 
 contains(QT_CONFIG, opengl)|contains(QT_CONFIG, opengles1)|contains(QT_CONFIG, opengles2): SRC_SUBDIRS += src_opengl
 contains(QT_CONFIG, openvg): SRC_SUBDIRS += src_openvg

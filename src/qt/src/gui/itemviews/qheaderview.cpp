@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -2204,8 +2204,15 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
     if (pos < 0)
         return;
     if (e->buttons() == Qt::NoButton) {
+#if !defined(Q_WS_MAC)
+        // Under Cocoa, when the mouse button is released, may include an extra
+        // simulated mouse moved event. The state of the buttons when this event
+        // is generated is already "no button" and the code below gets executed
+        // just before the mouseReleaseEvent and resets the state. This prevents
+        // column dragging from working. So this code is disabled under Cocoa.
         d->state = QHeaderViewPrivate::NoState;
         d->pressed = -1;
+#endif
     }
     switch (d->state) {
         case QHeaderViewPrivate::ResizeSection: {

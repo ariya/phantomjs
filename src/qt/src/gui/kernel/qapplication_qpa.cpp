@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -131,6 +131,9 @@ void QApplicationPrivate::processWindowSystemEvent(QWindowSystemInterfacePrivate
     case QWindowSystemInterfacePrivate::ScreenAvailableGeometry:
         QApplicationPrivate::reportAvailableGeometryChange(
                 static_cast<QWindowSystemInterfacePrivate::ScreenAvailableGeometryEvent *>(e));
+        break;
+    case QWindowSystemInterfacePrivate::LocaleChange:
+        QApplicationPrivate::reportLocaleChange();
         break;
     default:
         qWarning() << "Unknown user input event type:" << e->type;
@@ -970,6 +973,11 @@ void QApplicationPrivate::reportAvailableGeometryChange(
         else if (w->isMaximized())
             w->d_func()->setMaxWindowState_helper();
     }
+}
+
+void QApplicationPrivate::reportLocaleChange()
+{
+    QApplication::sendSpontaneousEvent( qApp, new QEvent( QEvent::LocaleChange ) );
 }
 
 QT_END_NAMESPACE

@@ -136,14 +136,6 @@ const char * ZEXPORT zError(err)
     return ERR_MSG(err);
 }
 
-#if defined(_WIN32_WCE)
-    /* The Microsoft C Run-Time Library for Windows CE doesn't have
-     * errno.  We define it as a global variable to simplify porting.
-     * Its value is always 0 and should not be used.
-     */
-    int errno = 0;
-#endif
-
 #ifndef HAVE_MEMCPY
 
 void ZLIB_INTERNAL zmemcpy(dest, source, len)

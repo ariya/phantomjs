@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -649,11 +649,11 @@ bool VCCLCompilerTool::parseOption(const char* option)
                 RuntimeLibrary = rtMultiThreadedDebug;
             break;
         } else if (second == 'P') {
-            if (config->CompilerVersion >= NET2005) {
-                AdditionalOptions += option;
-            } else if (config->CompilerVersion >= NET2010) {
+            if (config->CompilerVersion >= NET2010) {
                 MultiProcessorCompilation = _True;
                 MultiProcessorCompilationProcessorCount = option+3;
+            } else if (config->CompilerVersion >= NET2005) {
+                AdditionalOptions += option;
             } else {
                 warn_msg(WarnLogic, "/MP option is not supported in Visual C++ < 2005, ignoring.");
             }
@@ -2185,7 +2185,6 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
         QString tmp_cmd_name = Project->project->variables()[extraCompilerName + ".name"].join(" ");
         QStringList tmp_dep = Project->project->variables()[extraCompilerName + ".depends"];
         QString tmp_dep_cmd = Project->project->variables()[extraCompilerName + ".depend_command"].join(" ");
-        QStringList vars = Project->project->variables()[extraCompilerName + ".variables"];
         QStringList configs = Project->project->variables()[extraCompilerName + ".CONFIG"];
         bool combined = configs.indexOf("combine") != -1;
 

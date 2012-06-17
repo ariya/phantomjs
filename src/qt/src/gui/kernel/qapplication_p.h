@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -277,17 +277,6 @@ typedef struct tagGESTURECONFIG
 
 #endif // Q_WS_WIN
 
-class QScopedLoopLevelCounter
-{
-    QThreadData *threadData;
-public:
-    QScopedLoopLevelCounter(QThreadData *threadData)
-        : threadData(threadData)
-    { ++threadData->loopLevel; }
-    ~QScopedLoopLevelCounter()
-    { --threadData->loopLevel; }
-};
-
 typedef QHash<QByteArray, QFont> FontHash;
 FontHash *qt_app_fonts_hash();
 
@@ -419,7 +408,9 @@ public:
     }
 #endif
     static QInputContext *inputContext;
-
+#ifdef Q_OS_SYMBIAN
+    static bool inputContextBeingCreated;
+#endif
     static Qt::MouseButtons mouse_buttons;
     static Qt::KeyboardModifiers modifier_buttons;
 
@@ -464,8 +455,6 @@ public:
     static bool animate_toolbox;
     static bool widgetCount; // Coupled with -widgetcount switch
     static bool load_testability; // Coupled with -testability switch
-    static QString qmljs_debug_arguments; // a string containing arguments for js/qml debugging.
-    static QString qmljsDebugArgumentsString(); // access string from other libraries
 
 #ifdef Q_WS_MAC
     static bool native_modal_dialog_active;
@@ -516,7 +505,7 @@ public:
     static void reportGeometryChange(QWindowSystemInterfacePrivate::ScreenGeometryEvent *e);
 //    static void reportAvailableGeometryChange(int screenIndex);
     static void reportAvailableGeometryChange(QWindowSystemInterfacePrivate::ScreenAvailableGeometryEvent *e);
-
+    static void reportLocaleChange();
 #endif
 
 #ifdef Q_WS_QWS

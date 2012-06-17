@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -608,8 +608,10 @@ void QTextEngine::shapeTextMac(int item) const
     // Skip shaping of line or paragraph separators since we are not
     // going to draw them anyway
     if (si.analysis.flags == QScriptAnalysis::LineOrParagraphSeparator
-        && !(option.flags() & QTextOption::ShowLineAndParagraphSeparators))
+        && !(option.flags() & QTextOption::ShowLineAndParagraphSeparators)) {
+        memset(log_clusters, 0, len * sizeof(unsigned short));
         goto cleanUp;
+    }
 
     if (!fe->stringToCMap(str, len, &g, &num_glyphs, flags, log_clusters, attributes(), &si)) {
         ensureSpace(num_glyphs);

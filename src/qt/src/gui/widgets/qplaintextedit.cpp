@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -58,6 +58,7 @@
 #include "private/qtextdocument_p.h"
 #include "qtextlist.h"
 #include "private/qtextcontrol_p.h"
+#include "qaccessible.h"
 
 #include <qtextformat.h>
 #include <qdatetime.h>
@@ -443,6 +444,10 @@ QPlainTextEditControl::QPlainTextEditControl(QPlainTextEdit *parent)
 void QPlainTextEditPrivate::_q_cursorPositionChanged()
 {
     pageUpDownLastCursorYIsValid = false;
+#ifndef QT_NO_ACCESSIBILITY
+    Q_Q(QPlainTextEdit);
+    QAccessible::updateAccessibility(q, 0, QAccessible::TextCaretMoved);
+#endif
 }
 
 void QPlainTextEditPrivate::_q_verticalScrollbarActionTriggered(int action) {

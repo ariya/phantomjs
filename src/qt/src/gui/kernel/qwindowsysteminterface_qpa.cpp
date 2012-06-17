@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -42,6 +42,7 @@
 #include "qwindowsysteminterface_qpa_p.h"
 #include "qapplication_p.h"
 #include <QAbstractEventDispatcher>
+#include <private/qlocale_p.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -287,5 +288,15 @@ void QWindowSystemInterface::handleScreenCountChange(int count)
             new QWindowSystemInterfacePrivate::ScreenCountEvent(count);
     QWindowSystemInterfacePrivate::queueWindowSystemEvent(e);
 }
+
+void QWindowSystemInterface::handleLocaleChange()
+{
+    QWindowSystemInterfacePrivate::LocaleChangeEvent *e =
+            new QWindowSystemInterfacePrivate::LocaleChangeEvent();
+
+    QLocalePrivate::updateSystemPrivate();
+    QWindowSystemInterfacePrivate::queueWindowSystemEvent(e);
+}
+
 
 QT_END_NAMESPACE

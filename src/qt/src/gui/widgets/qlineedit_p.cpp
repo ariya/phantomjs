@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -61,9 +61,10 @@ const int QLineEditPrivate::horizontalMargin(2);
 
 QRect QLineEditPrivate::adjustedControlRect(const QRect &rect) const
 {
+    QRect widgetRect = !rect.isEmpty() ? rect : q_func()->rect();
     QRect cr = adjustedContentsRect();
     int cix = cr.x() - hscroll + horizontalMargin;
-    return rect.translated(QPoint(cix, vscroll));
+    return widgetRect.translated(QPoint(cix, vscroll));
 }
 
 int QLineEditPrivate::xToPos(int x, QTextLine::CursorPosition betweenOrOn) const
@@ -132,7 +133,7 @@ void QLineEditPrivate::_q_editFocusChange(bool e)
 void QLineEditPrivate::_q_selectionChanged()
 {
     Q_Q(QLineEdit);
-    if (!control->text().isEmpty() && control->preeditAreaText().isEmpty()) {
+    if (control->preeditAreaText().isEmpty()) {
         QStyleOptionFrameV2 opt;
         q->initStyleOption(&opt);
         bool showCursor = control->hasSelectedText() ?
@@ -142,6 +143,9 @@ void QLineEditPrivate::_q_selectionChanged()
     }
 
     emit q->selectionChanged();
+#ifndef QT_NO_ACCESSIBILITY
+    QAccessible::updateAccessibility(q, 0, QAccessible::TextSelectionChanged);
+#endif
 }
 
 void QLineEditPrivate::_q_updateNeeded(const QRect &rect)

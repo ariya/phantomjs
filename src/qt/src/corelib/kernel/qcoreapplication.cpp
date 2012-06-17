@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -74,10 +74,14 @@
 #  include "private/qfilesystemengine_p.h"
 #  include <apacmdln.h>
 #elif defined(Q_OS_UNIX)
-#  if !defined(QT_NO_GLIB)
-#    include "qeventdispatcher_glib_p.h"
+#  if defined(Q_OS_BLACKBERRY)
+#    include "qeventdispatcher_blackberry_p.h"
+#  else
+#    if !defined(QT_NO_GLIB)
+#      include "qeventdispatcher_glib_p.h"
+#    endif
+#    include "qeventdispatcher_unix_p.h"
 #  endif
-#  include "qeventdispatcher_unix_p.h"
 #endif
 
 #ifdef Q_OS_WIN
@@ -215,6 +219,30 @@ bool QCoreApplicationPrivate::checkInstance(const char *function)
     if (!b)
         qWarning("QApplication::%s: Please instantiate the QApplication object first", function);
     return b;
+}
+
+Q_GLOBAL_STATIC(QString, qmljs_debug_arguments);
+
+void QCoreApplicationPrivate::processCommandLineArguments()
+{
+    int j = argc ? 1 : 0;
+    for (int i = 1; i < argc; ++i) {
+        if (argv[i] && *argv[i] != '-') {
+            argv[j++] = argv[i];
+            continue;
+        }
+        QByteArray arg = argv[i];
+        if (arg.startsWith("-qmljsdebugger=")) {
+            *qmljs_debug_arguments() = QString::fromLocal8Bit(arg.right(arg.length() - 15));
+        } else {
+            argv[j++] = argv[i];
+        }
+    }
+
+    if (j < argc) {
+        argv[j] = 0;
+        argc = j;
+    }
 }
 
 // Support for introspection
@@ -433,12 +461,16 @@ void QCoreApplicationPrivate::createEventDispatcher()
 #if defined(Q_OS_SYMBIAN)
     eventDispatcher = new QEventDispatcherSymbian(q);
 #elif defined(Q_OS_UNIX)
+#  if defined(Q_OS_BLACKBERRY)
+    eventDispatcher = new QEventDispatcherBlackberry(q);
+#  else
 #  if !defined(QT_NO_GLIB)
     if (qgetenv("QT_NO_GLIB").isEmpty() && QEventDispatcherGlib::versionSupported())
         eventDispatcher = new QEventDispatcherGlib(q);
     else
 #  endif
         eventDispatcher = new QEventDispatcherUNIX(q);
+#  endif
 #elif defined(Q_OS_WIN)
     eventDispatcher = new QEventDispatcherWin32(q);
 #else
@@ -495,6 +527,11 @@ void QCoreApplicationPrivate::appendApplicationPathToLibraryPaths()
 # endif
         app_libpaths->append(app_location);
 #endif
+}
+
+QString QCoreApplicationPrivate::qmljsDebugArguments()
+{
+    return *qmljs_debug_arguments();
 }
 
 QString qAppName()
@@ -741,6 +778,8 @@ void QCoreApplication::init()
         CleanupStack::PopAndDestroy(&loader);
     }
 #endif
+
+    d->processCommandLineArguments();
 
     qt_startup_hook();
 }

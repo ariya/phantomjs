@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -48,62 +48,84 @@ QT_BEGIN_HEADER
 
 QT_BEGIN_NAMESPACE
 
-#define qt_i2addr(a) reinterpret_cast<Address *>(const_cast<int *>(a))
-#define qt_p2addr(a) reinterpret_cast<Address *>(const_cast<void *>(a))
+#define qt_pp2addrp(a)  reinterpret_cast<Address *>(const_cast<T **>(a))
+#define qt_ip2addrp(a) reinterpret_cast<Address *>(const_cast<int *>(a))
+#define qt_p2addrp(a) reinterpret_cast<Address *>(a)
 #define qt_addr(a) reinterpret_cast<Address>(a)
 
 
-#define Q_ATOMIC_INT_REFERENCE_COUNTING_IS_NOT_NATIVE
+#define Q_ATOMIC_INT_REFERENCE_COUNTING_IS_ALWAYS_NATIVE
 
 inline bool QBasicAtomicInt::isReferenceCountingNative()
-{ return false; }
-inline bool QBasicAtomicInt::isReferenceCountingWaitFree()
-{ return false; }
+{ return true; }
 
-#define Q_ATOMIC_INT_TEST_AND_SET_IS_NOT_NATIVE
+#define Q_ATOMIC_INT_REFERENCE_COUNTING_IS_WAIT_FREE
+
+inline bool QBasicAtomicInt::isReferenceCountingWaitFree()
+{ return true; }
+
+#define Q_ATOMIC_INT_TEST_AND_SET_IS_ALWAYS_NATIVE
 
 inline bool QBasicAtomicInt::isTestAndSetNative()
 { return true; }
+
+#define Q_ATOMIC_INT_TEST_AND_SET_IS_WAIT_FREE
+
 inline bool QBasicAtomicInt::isTestAndSetWaitFree()
 { return true; }
 
-#define Q_ATOMIC_INT_FETCH_AND_STORE_IS_NOT_NATIVE
+#define Q_ATOMIC_INT_FETCH_AND_STORE_IS_ALWAYS_NATIVE
 
 inline bool QBasicAtomicInt::isFetchAndStoreNative()
 { return true; }
+
+#define Q_ATOMIC_INT_FETCH_AND_STORE_IS_WAIT_FREE
+
 inline bool QBasicAtomicInt::isFetchAndStoreWaitFree()
 { return true; }
 
-#define Q_ATOMIC_INT_FETCH_AND_ADD_IS_NOT_NATIVE
+#define Q_ATOMIC_INT_FETCH_AND_ADD_IS_ALWAYS_NATIVE
 
 inline bool QBasicAtomicInt::isFetchAndAddNative()
 { return true; }
+
+#define Q_ATOMIC_INT_FETCH_AND_ADD_IS_WAIT_FREE
+
 inline bool QBasicAtomicInt::isFetchAndAddWaitFree()
 { return true; }
 
-#define Q_ATOMIC_POINTER_TEST_AND_SET_IS_NOT_NATIVE
+#define Q_ATOMIC_POINTER_TEST_AND_SET_IS_ALWAYS_NATIVE
 
 template <typename T>
 Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isTestAndSetNative()
 { return true; }
+
+#define Q_ATOMIC_POINTER_FETCH_AND_ADD_IS_WAIT_FREE
+
 template <typename T>
 Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isTestAndSetWaitFree()
 { return true; }
 
-#define Q_ATOMIC_POINTER_FETCH_AND_STORE_IS_NOT_NATIVE
+#define Q_ATOMIC_POINTER_FETCH_AND_STORE_IS_ALWAYS_NATIVE
 
 template <typename T>
 Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndStoreNative()
 { return true; }
+
+#define Q_ATOMIC_POINTER_FETCH_AND_STORE_IS_WAIT_FREE
+
 template <typename T>
 Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndStoreWaitFree()
 { return true; }
 
-#define Q_ATOMIC_POINTER_FETCH_AND_ADD_IS_NOT_NATIVE
+#define Q_ATOMIC_POINTER_FETCH_AND_ADD_IS_ALWAYS_NATIVE
 
 template <typename T>
 Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndAddNative()
 { return true; }
+
+#define Q_ATOMIC_POINTER_TEST_AND_SET_IS_WAIT_FREE
+
 template <typename T>
 Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndAddWaitFree()
 { return true; }
@@ -112,15 +134,15 @@ Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::isFetchAndAddWaitFree()
 
 inline bool QBasicAtomicInt::ref()
 {
-    int oldval;
-    AtomicModify(qt_i2addr(&_q_value), qt_i2addr(&oldval), 0, 1);
-    return _q_value != -1;
+    int old_value;
+    AtomicModify(qt_ip2addrp(&_q_value), qt_ip2addrp(&old_value), 0, 1U);
+    return _q_value != 0;
 }
 
 inline bool QBasicAtomicInt::deref()
 {
-    int oldval;
-    AtomicModify(qt_i2addr(&_q_value), qt_i2addr(&oldval), 0, -1U);
+    int old_value;
+    AtomicModify(qt_ip2addrp(&_q_value), qt_ip2addrp(&old_value), 0, -1U);
     return _q_value != 0;
 }
 
@@ -128,7 +150,7 @@ inline bool QBasicAtomicInt::deref()
 
 inline bool QBasicAtomicInt::testAndSetOrdered(int expectedValue, int newValue)
 {
-    return TestAndSet(qt_i2addr(&_q_value), expectedValue, newValue) == Success;
+    return TestAndSet(qt_ip2addrp(&_q_value), expectedValue, newValue) == Success;
 }
 
 inline bool QBasicAtomicInt::testAndSetRelaxed(int expectedValue, int newValue)
@@ -150,11 +172,11 @@ inline bool QBasicAtomicInt::testAndSetRelease(int expectedValue, int newValue)
 
 inline int QBasicAtomicInt::fetchAndStoreOrdered(int newValue)
 {
-    int old_val;
+    int old_value;
     do {
-        old_val = _q_value;
-    } while (TestAndSet(qt_i2addr(&_q_value), old_val, newValue) != Success);
-    return old_val;
+        old_value = _q_value;
+    } while (TestAndSet(qt_ip2addrp(&_q_value), old_value, newValue) != Success);
+    return old_value;
 }
 
 inline int QBasicAtomicInt::fetchAndStoreRelaxed(int newValue)
@@ -176,11 +198,10 @@ inline int QBasicAtomicInt::fetchAndStoreRelease(int newValue)
 
 inline int QBasicAtomicInt::fetchAndAddOrdered(int valueToAdd)
 {
-    int old_val;
-    do {
-        old_val = _q_value;
-    } while (TestAndSet(qt_i2addr(&_q_value), old_val, old_val + valueToAdd) != Success);
-    return old_val;
+    int old_value;
+    AtomicModify(qt_ip2addrp(&_q_value), qt_ip2addrp(&old_value), 0, valueToAdd);
+
+    return old_value;
 }
 
 inline int QBasicAtomicInt::fetchAndAddRelaxed(int valueToAdd)
@@ -203,7 +224,7 @@ inline int QBasicAtomicInt::fetchAndAddRelease(int valueToAdd)
 template <typename T>
 Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetOrdered(T *expectedValue, T *newValue)
 {
-    return TestAndSet(reinterpret_cast<Address *>(const_cast<T **>(&_q_value)), qt_addr(expectedValue), qt_addr(newValue)) == Success;
+    return TestAndSet(qt_pp2addrp(&_q_value), qt_addr(expectedValue), qt_addr(newValue)) == Success;
 }
 
 template <typename T>
@@ -229,11 +250,13 @@ Q_INLINE_TEMPLATE bool QBasicAtomicPointer<T>::testAndSetRelease(T *expectedValu
 template <typename T>
 Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndStoreOrdered(T *newValue)
 {
-    Address old_val;
+    Address old_value;
+
     do {
-        old_val = *reinterpret_cast<Address *>(const_cast<T *>(_q_value));
-    } while (TestAndSet(reinterpret_cast<Address *>(const_cast<T **>(&_q_value)), old_val, qt_addr(newValue)) != Success);
-    return reinterpret_cast<T *>(old_val);
+        old_value = qt_addr(_q_value);
+    } while (TestAndSet(qt_pp2addrp(&_q_value), old_value, qt_addr(newValue)) != Success);
+
+    return reinterpret_cast<T *>(old_value);
 }
 
 template <typename T>
@@ -260,8 +283,9 @@ template <typename T>
 Q_INLINE_TEMPLATE T *QBasicAtomicPointer<T>::fetchAndAddOrdered(qptrdiff valueToAdd)
 {
     Address old_value;
-    AtomicModify(reinterpret_cast<volatile Address*>(&_q_value), &old_value, 0, valueToAdd * sizeof(T));
-    return _q_value;
+    AtomicModify(qt_pp2addrp(&_q_value), &old_value, 0, valueToAdd * sizeof(T));
+
+    return reinterpret_cast<T *>(old_value);
 }
 
 template <typename T>
@@ -287,4 +311,3 @@ QT_END_NAMESPACE
 QT_END_HEADER
 
 #endif // QATOMIC_INTEGRITY_H
-

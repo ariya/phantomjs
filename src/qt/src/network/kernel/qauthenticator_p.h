@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -77,6 +77,7 @@ public:
     Method method;
     QString realm;
     QByteArray challenge;
+    bool hasFailed; //credentials have been tried but rejected by server.
 
     enum Phase {
         Start,

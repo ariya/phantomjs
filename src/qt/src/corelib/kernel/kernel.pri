@@ -162,3 +162,9 @@ integrity {
    contains(QT_CONFIG, clock-gettime):include($$QT_SOURCE_TREE/config.tests/unix/clock-gettime/clock-gettime.pri)
 }
 
+blackberry {
+        SOURCES += \
+                kernel/qeventdispatcher_blackberry.cpp
+        HEADERS += \
+                kernel/qeventdispatcher_blackberry_p.h
+}

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -301,20 +301,23 @@
     \value ProxyAuthenticationRequiredError The socket is using a proxy, and
            the proxy requires authentication.
     \value SslHandshakeFailedError The SSL/TLS handshake failed, so
-           the connection was closed (only used in QSslSocket)
+           the connection was closed (only used in QSslSocket) (This value was introduced in 4.4.)
     \value UnfinishedSocketOperationError Used by QAbstractSocketEngine only,
            The last operation attempted has not finished yet (still in progress in
-            the background).
+            the background). (This value was introduced in 4.4.)
     \value ProxyConnectionRefusedError Could not contact the proxy server because
-           the connection to that server was denied
+           the connection to that server was denied (This value was introduced in 4.5.)
     \value ProxyConnectionClosedError The connection to the proxy server was closed
            unexpectedly (before the connection to the final peer was established)
+           (This value was introduced in 4.5.)
     \value ProxyConnectionTimeoutError The connection to the proxy server timed out
            or the proxy server stopped responding in the authentication phase.
+           (This value was introduced in 4.5.)
     \value ProxyNotFoundError The proxy address set with setProxy() (or the application
-           proxy) was not found.
+           proxy) was not found. (This value was introduced in 4.5.)
     \value ProxyProtocolError The connection negotiation with the proxy server
            because the response from the proxy server could not be understood.
+           (This value was introduced in 4.5.)
 
     \value UnknownSocketError An unidentified error occurred.
     \sa QAbstractSocket::error()

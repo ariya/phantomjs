@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -396,7 +396,7 @@ static QPair<QByteArray, QByteArray> nextField(const QByteArray &text, int &posi
         // quoted-pair    = "\" CHAR
 
         // If it is NAME=VALUE, retain the value as is
-        // refer to http://bugreports.qt.nokia.com/browse/QTBUG-17746
+        // refer to http://bugreports.qt-project.org/browse/QTBUG-17746
         if (isNameValue)
             second += '"';
         ++i;

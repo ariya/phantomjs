@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -38,6 +38,9 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+
+#ifndef CP949CODETBL_H
+#define CP494CODETBL_H
 
 static const unsigned short cp949_icode_to_unicode[] = {
 0xac02, 0xac03, 0xac05, 0xac06, 0xac0b, 0xac0c, 0xac0d, 0xac0e, 0xac0f, 0xac18, 0xac1e, 0xac1f, 0xac21, 0xac22, 0xac23, 
@@ -630,3 +633,5 @@ static const unsigned short cp949_icode_to_unicode[] = {
 0xd78e, 0xd78f, 0xd791, 0xd792, 0xd793, 0xd794, 0xd795, 0xd796, 0xd797, 0xd79a, 0xd79c, 0xd79e, 0xd79f, 0xd7a0, 0xd7a1, 
 0xd7a2, 0xd7a3
 };
+
+#endif // CP494CODETBL_H

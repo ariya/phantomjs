@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -286,12 +286,16 @@ QString QIconvCodec::convertToUnicode(const char* chars, int len, ConverterState
         }
     } while (inBytesLeft != 0);
 
-    QString s = utf16Codec->toUnicode(ba.constData(), ba.size() - outBytesLeft);
+    QString s;
 
     if (convState) {
+        s = utf16Codec->toUnicode(ba.constData(), ba.size() - outBytesLeft, &state->internalState);
+
         convState->invalidChars = invalidCount;
         convState->remainingChars = remainingCount;
     } else {
+        s = utf16Codec->toUnicode(ba.constData(), ba.size() - outBytesLeft);
+
         // reset state
         iconv(state->cd, 0, &inBytesLeft, 0, &outBytesLeft);
     }
@@ -461,9 +465,14 @@ iconv_t QIconvCodec::createIconv_t(const char *to, const char *from)
     Q_ASSERT((to == 0 && from != 0) || (to != 0 && from == 0));
 
     iconv_t cd = (iconv_t) -1;
-#if defined(__GLIBC__) || defined(GNU_LIBICONV)
+#if defined(__GLIBC__) || defined(GNU_LIBICONV) || defined(Q_OS_QNX)
+#if defined(Q_OS_QNX)
+    // on QNX the default locale is UTF-8, and an empty string will cause iconv_open to fail
+    static const char empty_codeset[] = "UTF-8";
+#else
     // both GLIBC and libgnuiconv will use the locale's encoding if from or to is an empty string
     static const char empty_codeset[] = "";
+#endif
     const char *codeset = empty_codeset;
     cd = iconv_open(to ? to : codeset, from ? from : codeset);
 #else

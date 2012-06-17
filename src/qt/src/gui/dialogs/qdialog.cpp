@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -430,7 +430,9 @@ bool QDialog::event(QEvent *e)
 #endif
 
 /*!
-  Returns the modal dialog's result code, \c Accepted or \c Rejected.
+  In general returns the modal dialog's result code, \c Accepted or \c Rejected.
+
+  \note When used from QMessageBox instance the result code type is \l QMessageBox::StandardButton
 
   Do not call this function if the dialog was constructed with the
   Qt::WA_DeleteOnClose attribute.

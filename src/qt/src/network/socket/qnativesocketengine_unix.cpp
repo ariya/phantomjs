@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -325,7 +325,13 @@ bool QNativeSocketEnginePrivate::setOption(QNativeSocketEngine::SocketOption opt
     }
     case QNativeSocketEngine::AddressReusable:
 #if defined(SO_REUSEPORT)
-        n = SO_REUSEPORT;
+        // on OS X, SO_REUSEADDR isn't sufficient to allow multiple binds to the
+        // same port (which is useful for multicast UDP). SO_REUSEPORT is, but
+        // we most definitely do not want to use this for TCP. See QTBUG-6305.
+        if (socketType == QAbstractSocket::UdpSocket)
+            n = SO_REUSEPORT;
+        else
+            n = SO_REUSEADDR;
 #else
         n = SO_REUSEADDR;
 #endif

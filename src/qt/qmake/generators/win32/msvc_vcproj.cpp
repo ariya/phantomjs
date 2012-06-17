@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -115,11 +115,13 @@ DotNET which_dotnet_version()
     current_version = NET2002;
 
     QStringList warnPath;
+    QHash<DotNET, QString> installPaths;
     int installed = 0;
     int i = 0;
     for(; dotNetCombo[i].version; ++i) {
         QString path = qt_readRegistryKey(HKEY_LOCAL_MACHINE, dotNetCombo[i].regKey);
-        if(!path.isEmpty()) {
+        if (!path.isEmpty() && installPaths.value(dotNetCombo[i].version) != path) {
+            installPaths.insert(dotNetCombo[i].version, path);
             ++installed;
             current_version = dotNetCombo[i].version;
                         warnPath += QString("%1").arg(dotNetCombo[i].versionStr);
@@ -455,10 +457,13 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
                         // and to be able to extract all the dependencies
                         Option::QMAKE_MODE old_mode = Option::qmake_mode;
                         Option::qmake_mode = Option::QMAKE_GENERATE_NOTHING;
+                        QString old_output_dir = Option::output_dir;
+                        Option::output_dir = QFileInfo(fileFixify(dir, qmake_getpwd(), Option::output_dir)).canonicalFilePath();
                         VcprojGenerator tmp_vcproj;
                         tmp_vcproj.setNoIO(true);
                         tmp_vcproj.setProjectFile(&tmp_proj);
                         Option::qmake_mode = old_mode;
+                        Option::output_dir = old_output_dir;
                         if(Option::debug_level) {
                             debug_msg(1, "Dumping all variables:");
                             QMap<QString, QStringList> &vars = tmp_proj.variables();
@@ -943,6 +948,10 @@ void VcprojGenerator::initCompilerTool()
         placement = ".\\";
 
     VCConfiguration &conf = vcProject.Configuration;
+    if (conf.CompilerVersion >= NET2010) {
+        // adjust compiler tool defaults for VS 2010 and above
+        conf.compiler.Optimization = optimizeDisabled;
+    }
     conf.compiler.AssemblerListingLocation = placement ;
     conf.compiler.ProgramDataBaseFileName = ".\\" ;
     conf.compiler.ObjectFile = placement ;

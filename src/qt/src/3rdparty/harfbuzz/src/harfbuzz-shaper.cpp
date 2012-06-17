@@ -265,6 +265,34 @@ static inline void positionCluster(HB_ShaperItem *item, int gfrom,  int glast)
     //qreal offsetBase = (size - 4) / 4 + qMin<qreal>(size, 4) + 1;
 //     qDebug("offset = %f", offsetBase);
 
+    // To fix some Thai character heights check for two above glyphs
+    if (nmarks == 2 && (attributes[gfrom+1].combiningClass == HB_Combining_AboveRight ||
+            attributes[gfrom+1].combiningClass  == HB_Combining_AboveLeft ||
+            attributes[gfrom+1].combiningClass == HB_Combining_Above))
+        if (attributes[gfrom+2].combiningClass == 23 ||
+            attributes[gfrom+2].combiningClass == 24 ||
+            attributes[gfrom+2].combiningClass == 25 ||
+            attributes[gfrom+2].combiningClass == 27 ||
+            attributes[gfrom+2].combiningClass == 28 ||
+            attributes[gfrom+2].combiningClass == 30 ||
+            attributes[gfrom+2].combiningClass == 31 ||
+            attributes[gfrom+2].combiningClass == 33 ||
+            attributes[gfrom+2].combiningClass == 34 ||
+            attributes[gfrom+2].combiningClass == 35 ||
+            attributes[gfrom+2].combiningClass == 36 ||
+            attributes[gfrom+2].combiningClass == 107 ||
+            attributes[gfrom+2].combiningClass == 122) {
+            // Two above glyphs, check total height
+            int markTotalHeight = baseMetrics.height;
+            HB_GlyphMetrics markMetrics;
+            item->font->klass->getGlyphMetrics(item->font, glyphs[gfrom+1], &markMetrics);
+            markTotalHeight += markMetrics.height;
+            item->font->klass->getGlyphMetrics(item->font, glyphs[gfrom+2], &markMetrics);
+            markTotalHeight += markMetrics.height;
+            if ((markTotalHeight + 2 * offsetBase) > (size * 10))
+                offsetBase = ((size * 10) - markTotalHeight) / 2; // Use offset that just fits
+        }
+
     bool rightToLeft = item->item.bidiLevel % 2;
 
     int i;
@@ -315,6 +343,11 @@ static inline void positionCluster(HB_ShaperItem *item, int gfrom,  int glast)
             //  19 21
 
         }
+
+        // Check drawing below fonts descent
+        if (cmb == HB_Combining_Below || cmb == HB_Combining_BelowRight)
+            if ((markMetrics.height + offset) > item->font->klass->getFontMetric(item->font, HB_FontDescent))
+                offset = markMetrics.y; // Use offset from mark metrics so it won't get drawn below descent
 
         // combining marks of different class don't interact. Reset the rectangle.
         if (cmb != lastCmb) {
@@ -1250,30 +1283,52 @@ HB_Bool HB_OpenTypePosition(HB_ShaperItem *item, int availableGlyphs, HB_Bool do
         glyphs[i] = face->buffer->in_string[i].gindex;
         attributes[i] = face->tmpAttributes[face->buffer->in_string[i].cluster];
         if (i && face->buffer->in_string[i].cluster == face->buffer->in_string[i-1].cluster)
-            attributes[i].clusterStart = false;
+            attributes[i].clusterStart = false; //FIXME - Shouldn't we otherwise set this to true, rather than leaving it?
     }
     item->num_glyphs = face->buffer->in_length;
 
     if (doLogClusters && face->glyphs_substituted) {
         // we can't do this for indic, as we pass the stuf in syllables and it's easier to do it in the shaper.
-        unsigned short *logClusters = item->log_clusters;
-        int clusterStart = 0;
-        int oldCi = 0;
         // #### the reconstruction of the logclusters currently does not work if the original string
         // contains surrogate pairs
+
+        unsigned short *logClusters = item->log_clusters;
+        int clusterStart = 0;
+        int oldIntermediateIndex = 0;
+
+        // This code makes a mapping, logClusters, between the original utf16 string (item->string) and the final
+        // set of glyphs (in_string).
+        //
+        // The code sets the value of logClusters[i] to the index of in_string containing the glyph that will render
+        // item->string[i].
+        //
+        // This is complicated slightly because in_string[i].cluster is an index to an intermediate
+        // array of glyphs - the array that we were passed as the original value of item->glyphs.
+        // To map from the original string to the intermediate array of glyphs we have tmpLogClusters.
+        //
+        // So we have three groups of indexes:
+        //
+        // i,clusterStart = index to in_length, the final set of glyphs.  Also an index to attributes
+        // intermediateIndex = index to the glyphs originally passed in.
+        // stringIndex = index to item->string, the original string.
+
+        int stringIndex = 0;
+        // Iterate over the final set of glyphs...
         for (unsigned int i = 0; i < face->buffer->in_length; ++i) {
-            int ci = face->buffer->in_string[i].cluster;
-            //         DEBUG("   ci[%d] = %d mark=%d, cmb=%d, cs=%d",
-            //                i, ci, glyphAttributes[i].mark, glyphAttributes[i].combiningClass, glyphAttributes[i].clusterStart);
-            if (!attributes[i].mark && attributes[i].clusterStart && ci != oldCi) {
-                for (int j = oldCi; j < ci; j++)
-                    logClusters[j] = clusterStart;
+            // Get the index into the intermediate string for the start of the cluster of chars
+            int intermediateIndex = face->buffer->in_string[i].cluster;
+            if (intermediateIndex != oldIntermediateIndex) {
+                // We have found the end of the cluster of chars in the intermediate string
+                while (face->tmpLogClusters[stringIndex] < intermediateIndex) {
+                    logClusters[stringIndex++] = clusterStart;
+                }
                 clusterStart = i;
-                oldCi = ci;
+                oldIntermediateIndex = intermediateIndex;
             }
         }
-        for (int j = oldCi; j < face->length; j++)
-            logClusters[j] = clusterStart;
+        while (stringIndex < face->length) {
+            logClusters[stringIndex++] = clusterStart;
+        }
     }
 
     // calulate the advances for the shaped glyphs

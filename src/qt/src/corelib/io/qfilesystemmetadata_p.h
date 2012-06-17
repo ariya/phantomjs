@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -369,8 +369,7 @@ inline void QFileSystemMetaData::fillFromFindData(WIN32_FIND_DATA &findData, boo
         entryFlags &= ~LinkType;
 #if !defined(Q_OS_WINCE)
         if ((fileAttribute_ & FILE_ATTRIBUTE_REPARSE_POINT)
-            && (findData.dwReserved0 == IO_REPARSE_TAG_SYMLINK
-                || findData.dwReserved0 == IO_REPARSE_TAG_MOUNT_POINT)) {
+            && findData.dwReserved0 == IO_REPARSE_TAG_SYMLINK) {
             entryFlags |= LinkType;
         }
 #endif

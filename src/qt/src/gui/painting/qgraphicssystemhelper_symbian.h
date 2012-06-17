@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -72,6 +72,8 @@ public:
     static void setNativePaintMode(QWidget *widget, NativePaintMode mode);
     static void setNativePaintMode(WId wid, NativePaintMode mode);
     static void setReceiveNativePaintEvents(QWidget *widget, bool value);
+
+    static void releaseCachedGpuResources();
 };
 
 QT_END_NAMESPACE

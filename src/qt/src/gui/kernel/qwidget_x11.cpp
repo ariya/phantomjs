@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -44,6 +44,7 @@
 #include "qdesktopwidget.h"
 #include "qapplication.h"
 #include "qapplication_p.h"
+#include "qabstracteventdispatcher.h"
 #include "qnamespace.h"
 #include "qpainter.h"
 #include "qbitmap.h"
@@ -376,17 +377,21 @@ void qt_x11_wait_for_window_manager(QWidget *w, bool sendPostedEvents)
     do {
         if (XEventsQueued(X11->display, QueuedAlready)) {
             XNextEvent(X11->display, &ev);
-            qApp->x11ProcessEvent(&ev);
+            // Pass the event through the event dispatcher filter so that applications
+            // which install an event filter on the dispatcher get to handle it first.
+            if (!QAbstractEventDispatcher::instance()->filterEvent(&ev)) {
+                qApp->x11ProcessEvent(&ev);
 
-            switch (state) {
-            case Initial:
-                if (ev.type == MapNotify && ev.xany.window == winid)
-                    state = Mapped;
-                break;
-            case Mapped:
-                if (ev.type == Expose && ev.xany.window == winid)
-                    return;
-                break;
+                switch (state) {
+                case Initial:
+                    if (ev.type == MapNotify && ev.xany.window == winid)
+                        state = Mapped;
+                    break;
+                case Mapped:
+                    if (ev.type == Expose && ev.xany.window == winid)
+                        return;
+                    break;
+                }
             }
         } else {
             if (!XEventsQueued(X11->display, QueuedAfterFlush))

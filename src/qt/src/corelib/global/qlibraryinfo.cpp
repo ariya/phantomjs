@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -520,7 +520,7 @@ extern "C" void qt_core_boilerplate();
 void qt_core_boilerplate()
 {
     printf("This is the QtCore library version " QT_VERSION_STR "\n"
-           "Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).\n"
+           "Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).\n"
            "Contact: Nokia Corporation (qt-info@nokia.com)\n"
            "\n"
            "Build key:           " QT_BUILD_KEY "\n"

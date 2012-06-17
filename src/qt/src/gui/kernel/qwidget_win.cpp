@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -49,6 +49,7 @@
 #include "qlayout.h"
 #include "qpainter.h"
 #include "qstack.h"
+#include "qthread.h"
 #include "qt_windows.h"
 #include "qwidget.h"
 #include "qwidget_p.h"
@@ -427,8 +428,8 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                 }
             }
             if (!wasMoved) {
-                x = sw/2 - w/2;
-                y = sh/2 - h/2;
+                x = qMax(sw/2 - w/2, 0);
+                y = qMax(sh/2 - h/2, 0);
             }
         }
 
@@ -1636,6 +1637,8 @@ void QWidgetPrivate::scroll_sys(int dx, int dy, const QRect &r)
     }
 }
 
+extern Q_GUI_EXPORT HDC qt_win_display_dc();
+
 int QWidget::metric(PaintDeviceMetric m) const
 {
     Q_D(const QWidget);
@@ -1645,7 +1648,8 @@ int QWidget::metric(PaintDeviceMetric m) const
     } else if (m == PdmHeight) {
         val = data->crect.height();
     } else {
-        HDC gdc = GetDC(0);
+        bool ownDC = QThread::currentThread() != qApp->thread();
+        HDC gdc = ownDC ? GetDC(0) : qt_win_display_dc();
         switch (m) {
         case PdmDpiX:
         case PdmPhysicalDpiX:
@@ -1696,7 +1700,8 @@ int QWidget::metric(PaintDeviceMetric m) const
             val = 0;
             qWarning("QWidget::metric: Invalid metric command");
         }
-        ReleaseDC(0, gdc);
+        if (ownDC)
+            ReleaseDC(0, gdc);
     }
     return val;
 }

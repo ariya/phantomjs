@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -321,7 +321,7 @@ static void resolveTimerAPI()
 {
     static bool triedResolve = false;
     if (!triedResolve) {
-#ifndef Q_OS_WINCE
+#ifdef Q_OS_WINCE
         QSystemLibrary library(QLatin1String("Mmtimer"));
 #else
         QSystemLibrary library(QLatin1String("winmm"));
@@ -542,6 +542,7 @@ LRESULT QT_WIN_CALLBACK qt_GetMessageHook(int code, WPARAM wp, LPARAM lp)
         }
     }
 #ifdef Q_OS_WINCE
+    Q_UNUSED(code);
     return 0;
 #else
     return CallNextHookEx(0, code, wp, lp);

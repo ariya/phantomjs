@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -108,10 +108,15 @@ public:
         : QSharedData(),
         fileEntry(file),
         metaData(data),
+        fileEngine(QFileSystemEngine::resolveEntryAndCreateLegacyEngine(fileEntry, metaData)),
         cachedFlags(0),
         isDefaultConstructed(false),
         cache_enabled(true), fileFlags(0), fileSize(0)
     {
+        //If the file engine is not null, this maybe a "mount point" for a custom file engine
+        //in which case we can't trust the metadata
+        if (fileEngine)
+            metaData = QFileSystemMetaData();
     }
 
     inline void clearFlags() const {

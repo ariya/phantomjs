@@ -38,7 +38,7 @@
 
 #include <QApplication>
 
-#if QT_VERSION != QT_VERSION_CHECK(4, 8, 0)
+#if QT_VERSION != QT_VERSION_CHECK(4, 8, 2)
 #error Something is wrong with the setup. Please report to the mailing list!
 #endif
 

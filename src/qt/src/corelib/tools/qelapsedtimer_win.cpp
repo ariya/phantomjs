@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -81,7 +81,9 @@ static inline qint64 ticksToNanoseconds(qint64 ticks)
 {
     if (counterFrequency > 0) {
         // QueryPerformanceCounter uses an arbitrary frequency
-        return ticks * 1000000000 / counterFrequency;
+        qint64 seconds = ticks / counterFrequency;
+        qint64 nanoSeconds = (ticks - seconds * counterFrequency) * 1000000000 / counterFrequency;
+        return seconds * 1000000000 + nanoSeconds;
     } else {
         // GetTickCount(64) return milliseconds
         return ticks * 1000000;

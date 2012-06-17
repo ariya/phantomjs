@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -44,11 +44,15 @@
 #include "qplatformdefs.h"
 
 #include <private/qcoreapplication_p.h>
-#if !defined(QT_NO_GLIB)
-#  include "../kernel/qeventdispatcher_glib_p.h"
-#endif
 
-#include <private/qeventdispatcher_unix_p.h>
+#if defined(Q_OS_BLACKBERRY)
+#  include <private/qeventdispatcher_blackberry_p.h>
+#else
+#  if !defined(QT_NO_GLIB)
+#    include "../kernel/qeventdispatcher_glib_p.h"
+#  endif
+#  include <private/qeventdispatcher_unix_p.h>
+#endif
 
 #include "qthreadstorage.h"
 
@@ -254,6 +258,9 @@ typedef void*(*QtThreadCallback)(void*);
 
 void QThreadPrivate::createEventDispatcher(QThreadData *data)
 {
+#if defined(Q_OS_BLACKBERRY)
+    data->eventDispatcher = new QEventDispatcherBlackberry;
+#else
 #if !defined(QT_NO_GLIB)
     if (qgetenv("QT_NO_GLIB").isEmpty()
         && qgetenv("QT_NO_THREADED_GLIB").isEmpty()
@@ -262,6 +269,8 @@ void QThreadPrivate::createEventDispatcher(QThreadData *data)
     else
 #endif
     data->eventDispatcher = new QEventDispatcherUNIX;
+#endif
+
     data->eventDispatcher->startingUp();
 }
 

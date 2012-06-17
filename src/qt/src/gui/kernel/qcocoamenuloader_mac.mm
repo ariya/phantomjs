@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -260,5 +260,17 @@ QT_USE_NAMESPACE
  {
      [NSApp orderFrontCharacterPalette:sender];
  }
+
+- (BOOL)validateMenuItem:(NSMenuItem*)menuItem
+{
+    if ([menuItem action] == @selector(hide:)
+        || [menuItem action] == @selector(hideOtherApplications:)
+        || [menuItem action] == @selector(unhideAllApplications:)) {
+        return [NSApp validateMenuItem:menuItem];
+    } else {
+        return [menuItem isEnabled];
+    }
+}
+
 @end
 #endif // QT_MAC_USE_COCOA

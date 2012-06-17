@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -2108,6 +2108,7 @@ void QTreeWidgetItem::sortChildren(int column, Qt::SortOrder order, bool climb)
         return;
     if (model->isChanging())
         return;
+    QTreeModel::SkipSorting skipSorting(model);
     int oldSortColumn = view->d_func()->explicitSortColumn;
     view->d_func()->explicitSortColumn = column;
     emit model->layoutAboutToBeChanged();

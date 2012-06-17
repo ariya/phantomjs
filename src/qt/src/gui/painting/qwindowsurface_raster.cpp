@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -97,7 +97,7 @@ QRasterWindowSurface::QRasterWindowSurface(QWidget *window, bool setDefaultSurfa
     d_ptr->translucentBackground = X11->use_xrender
         && window->x11Info().depth() == 32;
 #endif
-#ifndef QT_NO_MITHSM
+#ifndef QT_NO_MITSHM
     d_ptr->needsSync = false;
 #endif
 #endif

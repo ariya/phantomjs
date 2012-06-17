@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -421,6 +421,8 @@ void Win32MakefileGenerator::processRcFileVar()
             productName = project->values("TARGET").first();
 
         QString originalName = project->values("TARGET").first() + project->values("TARGET_EXT").first();
+        int rcLang = project->intValue("RC_LANG", 1033);            // default: English(USA)
+        int rcCodePage = project->intValue("RC_CODEPAGE", 1200);    // default: Unicode
 
         ts << "# if defined(UNDER_CE)" << endl;
         ts << "#  include <winbase.h>" << endl;
@@ -446,7 +448,9 @@ void Win32MakefileGenerator::processRcFileVar()
         ts << "\tBEGIN" << endl;
         ts << "\t\tBLOCK \"StringFileInfo\"" << endl;
         ts << "\t\tBEGIN" << endl;
-        ts << "\t\t\tBLOCK \"040904B0\"" << endl;
+        ts << "\t\t\tBLOCK \""
+           << QString("%1%2").arg(rcLang, 4, 16, QLatin1Char('0')).arg(rcCodePage, 4, 16, QLatin1Char('0'))
+           << "\"" << endl;
         ts << "\t\t\tBEGIN" << endl;
         ts << "\t\t\t\tVALUE \"CompanyName\", \"" << companyName << "\\0\"" << endl;
         ts << "\t\t\t\tVALUE \"FileDescription\", \"" <<  description << "\\0\"" << endl;
@@ -455,6 +459,12 @@ void Win32MakefileGenerator::processRcFileVar()
         ts << "\t\t\t\tVALUE \"OriginalFilename\", \"" << originalName << "\\0\"" << endl;
         ts << "\t\t\t\tVALUE \"ProductName\", \"" << productName << "\\0\"" << endl;
         ts << "\t\t\tEND" << endl;
+        ts << "\t\tEND" << endl;
+        ts << "\t\tBLOCK \"VarFileInfo\"" << endl;
+        ts << "\t\tBEGIN" << endl;
+        ts << "\t\t\tVALUE \"Translation\", "
+           << QString("0x%1").arg(rcLang, 4, 16, QLatin1Char('0'))
+           << ", " << QString("%1").arg(rcCodePage, 4) << endl;
         ts << "\t\tEND" << endl;
         ts << "\t\tBLOCK \"VarFileInfo\"" << endl;
         ts << "\t\tBEGIN" << endl;
@@ -650,6 +660,7 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     t << "DEF_FILE      = " << varList("DEF_FILE") << endl;
     t << "RES_FILE      = " << varList("RES_FILE") << endl; // Not on mingw, can't see why not though...
     t << "COPY          = " << var("QMAKE_COPY") << endl;
+    t << "SED           = " << var("QMAKE_STREAM_EDITOR") << endl;
     t << "COPY_FILE     = " << var("QMAKE_COPY_FILE") << endl;
     t << "COPY_DIR      = " << var("QMAKE_COPY_DIR") << endl;
     t << "DEL_FILE      = " << var("QMAKE_DEL_FILE") << endl;
@@ -845,9 +856,30 @@ QString Win32MakefileGenerator::defaultInstall(const QString &t)
             QString dst_pc = pkgConfigFileName(false);
             if (!dst_pc.isEmpty()) {
                 dst_pc = filePrefixRoot(root, targetdir + dst_pc);
+                const QString dst_pc_dir = fileInfo(dst_pc).path();
+                if (!dst_pc_dir.isEmpty()) {
+                    if (!ret.isEmpty())
+                        ret += "\n\t";
+                    ret += mkdir_p_asstring(dst_pc_dir, true);
+                }
                 if(!ret.isEmpty())
                     ret += "\n\t";
-                ret += "-$(INSTALL_FILE) \"" + pkgConfigFileName(true) + "\" \"" + dst_pc + "\"";
+                const QString replace_rule("QMAKE_PKGCONFIG_INSTALL_REPLACE");
+                if (project->isEmpty(replace_rule)
+                    || project->isActiveConfig("no_sed_meta_install")
+                    || project->isEmpty("QMAKE_STREAM_EDITOR")) {
+                    ret += "-$(INSTALL_FILE) \"" + pkgConfigFileName(true) + "\" \"" + dst_pc + "\"";
+                } else {
+                    ret += "-$(SED)";
+                    QStringList replace_rules = project->values(replace_rule);
+                    for (int r = 0; r < replace_rules.size(); ++r) {
+                        const QString match = project->first(replace_rules.at(r) + ".match"),
+                                    replace = project->first(replace_rules.at(r) + ".replace");
+                        if (!match.isEmpty() /*&& match != replace*/)
+                            ret += " -e \"s," + match + "," + replace + ",g\"";
+                    }
+                    ret += " \"" + pkgConfigFileName(true) + "\" >\"" + dst_pc + "\"";
+                }
                 if(!uninst.isEmpty())
                     uninst.append("\n\t");
                 uninst.append("-$(DEL_FILE) \"" + dst_pc + "\"");

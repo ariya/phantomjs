@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -128,11 +128,17 @@ static void hb_getGlyphMetrics(HB_Font font, HB_Glyph glyph, HB_GlyphMetrics *me
 
 static HB_Fixed hb_getFontMetric(HB_Font font, HB_FontMetric metric)
 {
-    if (metric == HB_FontAscent) {
-        QFontEngine *fe = (QFontEngine *)font->userData;
+    QFontEngine *fe = (QFontEngine *)font->userData;
+    switch (metric) {
+    case HB_FontAscent:
         return fe->ascent().value();
+        break;
+    case HB_FontDescent:
+        return fe->descent().value();
+        break;
+    default:
+        return 0;
     }
-    return 0;
 }
 
 HB_Error QFontEngine::getPointInOutline(HB_Glyph glyph, int flags, hb_uint32 point, HB_Fixed *xpos, HB_Fixed *ypos, hb_uint32 *nPoints)

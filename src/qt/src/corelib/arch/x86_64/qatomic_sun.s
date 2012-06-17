@@ -7,6 +7,7 @@
 q_atomic_increment:
 	lock
 	incl (%rdi)
+        movl $0,%eax
 	setne %al
 	ret
 	.size q_atomic_increment,.-q_atomic_increment
@@ -18,6 +19,7 @@ q_atomic_increment:
 q_atomic_decrement:
 	lock
 	decl (%rdi)
+        movl $0,%eax
 	setne %al
 	ret
 	.size q_atomic_decrement,.-q_atomic_decrement

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -2079,6 +2079,11 @@ void qt_init(QApplicationPrivate *priv, int,
                 X11->use_xfixes = (major >= 1);
                 X11->xfixes_major = major;
             }
+        } else {
+            X11->ptrXFixesQueryExtension  = 0;
+            X11->ptrXFixesQueryVersion    = 0;
+            X11->ptrXFixesSetCursorName   = 0;
+            X11->ptrXFixesSelectSelectionInput = 0;
         }
 #endif // QT_NO_XFIXES
 
@@ -4223,7 +4228,10 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
                     && (nextEvent.xclient.message_type == ATOM(_QT_SCROLL_DONE) ||
                     (nextEvent.xclient.message_type == ATOM(WM_PROTOCOLS) &&
                      (Atom)nextEvent.xclient.data.l[0] == ATOM(_NET_WM_SYNC_REQUEST))))) {
-                qApp->x11ProcessEvent(&nextEvent);
+                // Pass the event through the event dispatcher filter so that applications
+                // which install an event filter on the dispatcher get to handle it first.
+                if (!QAbstractEventDispatcher::instance()->filterEvent(&nextEvent))
+                    qApp->x11ProcessEvent(&nextEvent);
                 continue;
             } else if (nextEvent.type != MotionNotify ||
                        nextEvent.xmotion.window != event->xmotion.window ||

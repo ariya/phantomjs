@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -45,7 +45,9 @@
 
 #include <qdebug.h>
 
-#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+#if defined(Q_OS_BLACKBERRY)
+#include "qdesktopservices_blackberry.cpp"
+#elif defined(Q_WS_QWS) || defined(Q_WS_QPA)
 #include "qdesktopservices_qws.cpp"
 #elif defined(Q_WS_X11)
 #include "qdesktopservices_x11.cpp"

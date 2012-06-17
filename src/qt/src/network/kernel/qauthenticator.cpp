@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -82,11 +82,9 @@ static QByteArray qNtlmPhase3(QAuthenticatorPrivate *ctx, const QByteArray& phas
   QAuthenticator supports the following authentication methods:
   \list
     \o Basic
-    \o NTLM version 1
+    \o NTLM version 2
     \o Digest-MD5
   \endlist
-
-  Note that, in particular, NTLM version 2 is not supported.
 
   \section1 Options
 
@@ -113,7 +111,7 @@ static QByteArray qNtlmPhase3(QAuthenticatorPrivate *ctx, const QByteArray& phas
 
   The Basic authentication mechanism supports no outgoing options.
 
-  \section2 NTLM version 1
+  \section2 NTLM version 2
 
   The NTLM authentication mechanism currently supports no incoming or outgoing options.
 
@@ -219,12 +217,6 @@ void QAuthenticator::setUser(const QString &user)
             d->realm.clear();
             d->userDomain = user.left(separatorPosn);
             d->extractedUser = user.mid(separatorPosn + 1);
-            d->user = user;
-        } else if((separatorPosn = user.indexOf(QLatin1String("@"))) != -1) {
-            //domain name is present
-            d->realm.clear();
-            d->userDomain = user.mid(separatorPosn + 1);
-            d->extractedUser = user.left(separatorPosn);
             d->user = user;
         } else {
             d->extractedUser = user;
@@ -332,6 +324,7 @@ bool QAuthenticator::isNull() const
 QAuthenticatorPrivate::QAuthenticatorPrivate()
     : ref(0)
     , method(None)
+    , hasFailed(false)
     , phase(Start)
     , nonceCount(0)
 {
@@ -393,17 +386,17 @@ void QAuthenticatorPrivate::parseHttpResponse(const QList<QPair<QByteArray, QByt
 
     switch(method) {
     case Basic:
-        if(realm.isEmpty())
-            this->options[QLatin1String("realm")] = realm = QString::fromLatin1(options.value("realm"));
+        this->options[QLatin1String("realm")] = realm = QString::fromLatin1(options.value("realm"));
         if (user.isEmpty() && password.isEmpty())
             phase = Done;
         break;
     case Ntlm:
         // #### extract from header
+        if (user.isEmpty() && password.isEmpty())
+            phase = Done;
         break;
     case DigestMd5: {
-        if(realm.isEmpty())
-            this->options[QLatin1String("realm")] = realm = QString::fromLatin1(options.value("realm"));
+        this->options[QLatin1String("realm")] = realm = QString::fromLatin1(options.value("realm"));
         if (options.value("stale").toLower() == "true")
             phase = Start;
         if (user.isEmpty() && password.isEmpty())
@@ -1381,8 +1374,9 @@ static QByteArray qNtlmPhase3(QAuthenticatorPrivate *ctx, const QByteArray& phas
 
     int offset = QNtlmPhase3BlockBase::Size;
     Q_ASSERT(QNtlmPhase3BlockBase::Size == sizeof(QNtlmPhase3BlockBase));
-    
-    if(ctx->userDomain.isEmpty()) {
+
+    // for kerberos style user@domain logins, NTLM domain string should be left empty
+    if (ctx->userDomain.isEmpty() && !ctx->extractedUser.contains(QLatin1Char('@'))) {
         offset = qEncodeNtlmString(pb.domain, offset, ch.targetNameStr, unicode);
         pb.domainStr = ch.targetNameStr;
     } else {

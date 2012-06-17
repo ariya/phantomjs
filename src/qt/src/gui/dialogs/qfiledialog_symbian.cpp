@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -143,8 +143,8 @@ static QString launchSymbianDialog(const QString dialogCaption, const QString st
             tryCount = 0;
         } else {
             // Symbian native file dialog doesn't allow accessing files outside C:/Data
-            // It will always leave in that case, so default into QDir::rootPath() in error cases.
-            QString dir = QDir::toNativeSeparators(QDir::rootPath());
+            // It will always leave in that case, so default into QDir::homePath() in error cases.
+            QString dir = QDir::toNativeSeparators(QDir::homePath());
             startFolder = qt_QString2TPtrC(dir);
         }
     }

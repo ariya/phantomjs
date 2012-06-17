@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -525,7 +525,7 @@ QVariant QSystemLocalePrivate::toCurrencyString(const QSystemLocale::CurrencyToS
 QVariant QSystemLocalePrivate::uiLanguages()
 {
     if (QSysInfo::windowsVersion() >= QSysInfo::WV_VISTA) {
-        typedef BOOL (*GetUserPreferredUILanguagesFunc) (
+        typedef BOOL (WINAPI *GetUserPreferredUILanguagesFunc) (
                     DWORD dwFlags,
                     PULONG pulNumLanguages,
                     PWSTR pwszLanguagesBuffer,

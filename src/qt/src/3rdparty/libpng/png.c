@@ -1,8 +1,8 @@
 
 /* png.c - location for general purpose libpng functions
  *
- * Last changed in libpng 1.5.4 [July 7, 2011]
- * Copyright (c) 1998-2011 Glenn Randers-Pehrson
+ * Last changed in libpng 1.5.10 [March 8, 2012]
+ * Copyright (c) 1998-2012 Glenn Randers-Pehrson
  * (Version 0.96 Copyright (c) 1996, 1997 Andreas Dilger)
  * (Version 0.88 Copyright (c) 1995, 1996 Guy Eric Schalnat, Group 42, Inc.)
  *
@@ -13,10 +13,8 @@
 
 #include "pngpriv.h"
 
-namespace PrivatePng {
-
 /* Generate a compiler error if there is an old png.h in the search path. */
-typedef png_libpng_version_1_5_4 Your_png_h_is_not_version_1_5_4;
+typedef png_libpng_version_1_5_10 Your_png_h_is_not_version_1_5_10;
 
 /* Tells libpng that we have already handled the first "num_bytes" bytes
  * of the PNG file signature.  If the PNG data is embedded into another
@@ -45,7 +43,7 @@ png_set_sig_bytes(png_structp png_ptr, int num_bytes)
  * can simply check the remaining bytes for extra assurance.  Returns
  * an integer less than, equal to, or greater than zero if sig is found,
  * respectively, to be less than, to match, or be greater than the correct
- * PNG signature (this is the same behaviour as strcmp, memcmp, etc).
+ * PNG signature (this is the same behavior as strcmp, memcmp, etc).
  */
 int PNGAPI
 png_sig_cmp(png_const_bytep sig, png_size_t start, png_size_t num_to_check)
@@ -109,7 +107,8 @@ png_zfree(voidpf png_ptr, voidpf ptr)
 void /* PRIVATE */
 png_reset_crc(png_structp png_ptr)
 {
-   png_ptr->crc = crc32(0, Z_NULL, 0);
+   /* The cast is safe because the crc is a 32 bit value. */
+   png_ptr->crc = (png_uint_32)crc32(0, Z_NULL, 0);
 }
 
 /* Calculate the CRC over a section of data.  We can only pass as
@@ -122,21 +121,48 @@ png_calculate_crc(png_structp png_ptr, png_const_bytep ptr, png_size_t length)
 {
    int need_crc = 1;
 
-   if (png_ptr->chunk_name[0] & 0x20)                     /* ancillary */
+   if (PNG_CHUNK_ANCILLIARY(png_ptr->chunk_name))
    {
       if ((png_ptr->flags & PNG_FLAG_CRC_ANCILLARY_MASK) ==
           (PNG_FLAG_CRC_ANCILLARY_USE | PNG_FLAG_CRC_ANCILLARY_NOWARN))
          need_crc = 0;
    }
 
-   else                                                    /* critical */
+   else /* critical */
    {
       if (png_ptr->flags & PNG_FLAG_CRC_CRITICAL_IGNORE)
          need_crc = 0;
    }
 
-   if (need_crc)
-      png_ptr->crc = crc32(png_ptr->crc, ptr, (uInt)length);
+   /* 'uLong' is defined as unsigned long, this means that on some systems it is
+    * a 64 bit value.  crc32, however, returns 32 bits so the following cast is
+    * safe.  'uInt' may be no more than 16 bits, so it is necessary to perform a
+    * loop here.
+    */
+   if (need_crc && length > 0)
+   {
+      uLong crc = png_ptr->crc; /* Should never issue a warning */
+
+      do
+      {
+         uInt safeLength = (uInt)length;
+         if (safeLength == 0)
+            safeLength = (uInt)-1; /* evil, but safe */
+
+         crc = crc32(crc, ptr, safeLength);
+
+         /* The following should never issue compiler warnings, if they do the
+          * target system has characteristics that will probably violate other
+          * assumptions within the libpng code.
+          */
+         ptr += safeLength;
+         length -= safeLength;
+      }
+      while (length > 0);
+
+      /* And the following is always safe because the crc is only 32 bits. */
+      png_ptr->crc = (png_uint_32)crc;
+   }
 }
 
 /* Check a user supplied version number, called from both read and write
@@ -544,8 +570,8 @@ png_get_io_ptr(png_structp png_ptr)
 /* Initialize the default input/output functions for the PNG file.  If you
  * use your own read or write routines, you can call either png_set_read_fn()
  * or png_set_write_fn() instead of png_init_io().  If you have defined
- * PNG_NO_STDIO, you must use a function of your own because "FILE *" isn't
- * necessarily available.
+ * PNG_NO_STDIO or otherwise disabled PNG_STDIO_SUPPORTED, you must use a
+ * function of your own because "FILE *" isn't necessarily available.
  */
 void PNGAPI
 png_init_io(png_structp png_ptr, png_FILE_p fp)
@@ -573,9 +599,19 @@ png_convert_to_rfc1123(png_structp png_ptr, png_const_timep ptime)
    if (png_ptr == NULL)
       return (NULL);
 
+   if (ptime->year > 9999 /* RFC1123 limitation */ ||
+       ptime->month == 0    ||  ptime->month > 12  ||
+       ptime->day   == 0    ||  ptime->day   > 31  ||
+       ptime->hour  > 23    ||  ptime->minute > 59 ||
+       ptime->second > 60)
+   {
+      png_warning(png_ptr, "Ignoring invalid time value");
+      return (NULL);
+   }
+
    {
       size_t pos = 0;
-      char number_buf[5]; /* enough for a four digit year */
+      char number_buf[5]; /* enough for a four-digit year */
 
 #     define APPEND_STRING(string)\
          pos = png_safecat(png_ptr->time_buffer, sizeof png_ptr->time_buffer,\
@@ -586,17 +622,17 @@ png_convert_to_rfc1123(png_structp png_ptr, png_const_timep ptime)
          if (pos < (sizeof png_ptr->time_buffer)-1)\
             png_ptr->time_buffer[pos++] = (ch)
 
-      APPEND_NUMBER(PNG_NUMBER_FORMAT_u, (unsigned)ptime->day % 32);
+      APPEND_NUMBER(PNG_NUMBER_FORMAT_u, (unsigned)ptime->day);
       APPEND(' ');
-      APPEND_STRING(short_months[(ptime->month - 1) % 12]);
+      APPEND_STRING(short_months[(ptime->month - 1)]);
       APPEND(' ');
       APPEND_NUMBER(PNG_NUMBER_FORMAT_u, ptime->year);
       APPEND(' ');
-      APPEND_NUMBER(PNG_NUMBER_FORMAT_02u, (unsigned)ptime->hour % 24);
+      APPEND_NUMBER(PNG_NUMBER_FORMAT_02u, (unsigned)ptime->hour);
       APPEND(':');
-      APPEND_NUMBER(PNG_NUMBER_FORMAT_02u, (unsigned)ptime->minute % 60);
+      APPEND_NUMBER(PNG_NUMBER_FORMAT_02u, (unsigned)ptime->minute);
       APPEND(':');
-      APPEND_NUMBER(PNG_NUMBER_FORMAT_02u, (unsigned)ptime->second % 61);
+      APPEND_NUMBER(PNG_NUMBER_FORMAT_02u, (unsigned)ptime->second);
       APPEND_STRING(" +0000"); /* This reliably terminates the buffer */
 
 #     undef APPEND
@@ -619,13 +655,13 @@ png_get_copyright(png_const_structp png_ptr)
 #else
 #  ifdef __STDC__
    return PNG_STRING_NEWLINE \
-     "libpng version 1.5.4 - July 7, 2011" PNG_STRING_NEWLINE \
+     "libpng version 1.5.10 - March 29, 2012" PNG_STRING_NEWLINE \
      "Copyright (c) 1998-2011 Glenn Randers-Pehrson" PNG_STRING_NEWLINE \
      "Copyright (c) 1996-1997 Andreas Dilger" PNG_STRING_NEWLINE \
      "Copyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc." \
      PNG_STRING_NEWLINE;
 #  else
-      return "libpng version 1.5.4 - July 7, 2011\
+      return "libpng version 1.5.10 - March 29, 2012\
       Copyright (c) 1998-2011 Glenn Randers-Pehrson\
       Copyright (c) 1996-1997 Andreas Dilger\
       Copyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc.";
@@ -672,25 +708,43 @@ png_get_header_version(png_const_structp png_ptr)
 #endif
 }
 
-#if defined(PNG_READ_SUPPORTED) || defined(PNG_WRITE_SUPPORTED)
-#  ifdef PNG_HANDLE_AS_UNKNOWN_SUPPORTED
+#ifdef PNG_HANDLE_AS_UNKNOWN_SUPPORTED
 int PNGAPI
 png_handle_as_unknown(png_structp png_ptr, png_const_bytep chunk_name)
 {
    /* Check chunk_name and return "keep" value if it's on the list, else 0 */
-   int i;
-   png_bytep p;
-   if (png_ptr == NULL || chunk_name == NULL || png_ptr->num_chunk_list<=0)
-      return 0;
+   png_const_bytep p, p_end;
 
-   p = png_ptr->chunk_list + png_ptr->num_chunk_list*5 - 5;
-   for (i = png_ptr->num_chunk_list; i; i--, p -= 5)
+   if (png_ptr == NULL || chunk_name == NULL || png_ptr->num_chunk_list <= 0)
+      return PNG_HANDLE_CHUNK_AS_DEFAULT;
+
+   p_end = png_ptr->chunk_list;
+   p = p_end + png_ptr->num_chunk_list*5; /* beyond end */
+
+   /* The code is the fifth byte after each four byte string.  Historically this
+    * code was always searched from the end of the list, so it should continue
+    * to do so in case there are duplicated entries.
+    */
+   do /* num_chunk_list > 0, so at least one */
+   {
+      p -= 5;
       if (!png_memcmp(chunk_name, p, 4))
-        return ((int)*(p + 4));
-   return 0;
+         return p[4];
+   }
+   while (p > p_end);
+
+   return PNG_HANDLE_CHUNK_AS_DEFAULT;
 }
-#  endif
-#endif /* defined(PNG_READ_SUPPORTED) || defined(PNG_WRITE_SUPPORTED) */
+
+int /* PRIVATE */
+png_chunk_unknown_handling(png_structp png_ptr, png_uint_32 chunk_name)
+{
+   png_byte chunk_string[5];
+
+   PNG_CSTRING_FROM_CHUNK(chunk_string, chunk_name);
+   return png_handle_as_unknown(png_ptr, chunk_string);
+}
+#endif
 
 #ifdef PNG_READ_SUPPORTED
 /* This function, added to libpng-1.0.6g, is untested. */
@@ -715,18 +769,9 @@ png_access_version_number(void)
 
 
 #if defined(PNG_READ_SUPPORTED) || defined(PNG_WRITE_SUPPORTED)
-#  ifdef PNG_SIZE_T
-/* Added at libpng version 1.2.6 */
-   PNG_EXTERN png_size_t PNGAPI png_convert_size PNGARG((size_t size));
-png_size_t PNGAPI
-png_convert_size(size_t size)
-{
-   if (size > (png_size_t)-1)
-      PNG_ABORT();  /* We haven't got access to png_ptr, so no png_error() */
-
-   return ((png_size_t)size);
-}
-#  endif /* PNG_SIZE_T */
+/* png_convert_size: a PNGAPI but no longer in png.h, so deleted
+ * at libpng 1.5.5!
+ */
 
 /* Added at libpng version 1.2.34 and 1.4.0 (moved from pngset.c) */
 #  ifdef PNG_CHECK_cHRM_SUPPORTED
@@ -799,6 +844,326 @@ png_check_cHRM_fixed(png_structp png_ptr,
    return ret;
 }
 #  endif /* PNG_CHECK_cHRM_SUPPORTED */
+
+#ifdef PNG_cHRM_SUPPORTED
+/* Added at libpng-1.5.5 to support read and write of true CIEXYZ values for
+ * cHRM, as opposed to using chromaticities.  These internal APIs return
+ * non-zero on a parameter error.  The X, Y and Z values are required to be
+ * positive and less than 1.0.
+ */
+int png_xy_from_XYZ(png_xy *xy, png_XYZ XYZ)
+{
+   png_int_32 d, dwhite, whiteX, whiteY;
+
+   d = XYZ.redX + XYZ.redY + XYZ.redZ;
+   if (!png_muldiv(&xy->redx, XYZ.redX, PNG_FP_1, d)) return 1;
+   if (!png_muldiv(&xy->redy, XYZ.redY, PNG_FP_1, d)) return 1;
+   dwhite = d;
+   whiteX = XYZ.redX;
+   whiteY = XYZ.redY;
+
+   d = XYZ.greenX + XYZ.greenY + XYZ.greenZ;
+   if (!png_muldiv(&xy->greenx, XYZ.greenX, PNG_FP_1, d)) return 1;
+   if (!png_muldiv(&xy->greeny, XYZ.greenY, PNG_FP_1, d)) return 1;
+   dwhite += d;
+   whiteX += XYZ.greenX;
+   whiteY += XYZ.greenY;
+
+   d = XYZ.blueX + XYZ.blueY + XYZ.blueZ;
+   if (!png_muldiv(&xy->bluex, XYZ.blueX, PNG_FP_1, d)) return 1;
+   if (!png_muldiv(&xy->bluey, XYZ.blueY, PNG_FP_1, d)) return 1;
+   dwhite += d;
+   whiteX += XYZ.blueX;
+   whiteY += XYZ.blueY;
+
+   /* The reference white is simply the same of the end-point (X,Y,Z) vectors,
+    * thus:
+    */
+   if (!png_muldiv(&xy->whitex, whiteX, PNG_FP_1, dwhite)) return 1;
+   if (!png_muldiv(&xy->whitey, whiteY, PNG_FP_1, dwhite)) return 1;
+
+   return 0;
+}
+
+int png_XYZ_from_xy(png_XYZ *XYZ, png_xy xy)
+{
+   png_fixed_point red_inverse, green_inverse, blue_scale;
+   png_fixed_point left, right, denominator;
+
+   /* Check xy and, implicitly, z.  Note that wide gamut color spaces typically
+    * have end points with 0 tristimulus values (these are impossible end
+    * points, but they are used to cover the possible colors.)
+    */
+   if (xy.redx < 0 || xy.redx > PNG_FP_1) return 1;
+   if (xy.redy < 0 || xy.redy > PNG_FP_1-xy.redx) return 1;
+   if (xy.greenx < 0 || xy.greenx > PNG_FP_1) return 1;
+   if (xy.greeny < 0 || xy.greeny > PNG_FP_1-xy.greenx) return 1;
+   if (xy.bluex < 0 || xy.bluex > PNG_FP_1) return 1;
+   if (xy.bluey < 0 || xy.bluey > PNG_FP_1-xy.bluex) return 1;
+   if (xy.whitex < 0 || xy.whitex > PNG_FP_1) return 1;
+   if (xy.whitey < 0 || xy.whitey > PNG_FP_1-xy.whitex) return 1;
+
+   /* The reverse calculation is more difficult because the original tristimulus
+    * value had 9 independent values (red,green,blue)x(X,Y,Z) however only 8
+    * derived values were recorded in the cHRM chunk;
+    * (red,green,blue,white)x(x,y).  This loses one degree of freedom and
+    * therefore an arbitrary ninth value has to be introduced to undo the
+    * original transformations.
+    *
+    * Think of the original end-points as points in (X,Y,Z) space.  The
+    * chromaticity values (c) have the property:
+    *
+    *           C
+    *   c = ---------
+    *       X + Y + Z
+    *
+    * For each c (x,y,z) from the corresponding original C (X,Y,Z).  Thus the
+    * three chromaticity values (x,y,z) for each end-point obey the
+    * relationship:
+    *
+    *   x + y + z = 1
+    *
+    * This describes the plane in (X,Y,Z) space that intersects each axis at the
+    * value 1.0; call this the chromaticity plane.  Thus the chromaticity
+    * calculation has scaled each end-point so that it is on the x+y+z=1 plane
+    * and chromaticity is the intersection of the vector from the origin to the
+    * (X,Y,Z) value with the chromaticity plane.
+    *
+    * To fully invert the chromaticity calculation we would need the three
+    * end-point scale factors, (red-scale, green-scale, blue-scale), but these
+    * were not recorded.  Instead we calculated the reference white (X,Y,Z) and
+    * recorded the chromaticity of this.  The reference white (X,Y,Z) would have
+    * given all three of the scale factors since:
+    *
+    *    color-C = color-c * color-scale
+    *    white-C = red-C + green-C + blue-C
+    *            = red-c*red-scale + green-c*green-scale + blue-c*blue-scale
+    *
+    * But cHRM records only white-x and white-y, so we have lost the white scale
+    * factor:
+    *
+    *    white-C = white-c*white-scale
+    *
+    * To handle this the inverse transformation makes an arbitrary assumption
+    * about white-scale:
+    *
+    *    Assume: white-Y = 1.0
+    *    Hence:  white-scale = 1/white-y
+    *    Or:     red-Y + green-Y + blue-Y = 1.0
+    *
+    * Notice the last statement of the assumption gives an equation in three of
+    * the nine values we want to calculate.  8 more equations come from the
+    * above routine as summarised at the top above (the chromaticity
+    * calculation):
+    *
+    *    Given: color-x = color-X / (color-X + color-Y + color-Z)
+    *    Hence: (color-x - 1)*color-X + color.x*color-Y + color.x*color-Z = 0
+    *
+    * This is 9 simultaneous equations in the 9 variables "color-C" and can be
+    * solved by Cramer's rule.  Cramer's rule requires calculating 10 9x9 matrix
+    * determinants, however this is not as bad as it seems because only 28 of
+    * the total of 90 terms in the various matrices are non-zero.  Nevertheless
+    * Cramer's rule is notoriously numerically unstable because the determinant
+    * calculation involves the difference of large, but similar, numbers.  It is
+    * difficult to be sure that the calculation is stable for real world values
+    * and it is certain that it becomes unstable where the end points are close
+    * together.
+    *
+    * So this code uses the perhaps slighly less optimal but more understandable
+    * and totally obvious approach of calculating color-scale.
+    *
+    * This algorithm depends on the precision in white-scale and that is
+    * (1/white-y), so we can immediately see that as white-y approaches 0 the
+    * accuracy inherent in the cHRM chunk drops off substantially.
+    *
+    * libpng arithmetic: a simple invertion of the above equations
+    * ------------------------------------------------------------
+    *
+    *    white_scale = 1/white-y
+    *    white-X = white-x * white-scale
+    *    white-Y = 1.0
+    *    white-Z = (1 - white-x - white-y) * white_scale
+    *
+    *    white-C = red-C + green-C + blue-C
+    *            = red-c*red-scale + green-c*green-scale + blue-c*blue-scale
+    *
+    * This gives us three equations in (red-scale,green-scale,blue-scale) where
+    * all the coefficients are now known:
+    *
+    *    red-x*red-scale + green-x*green-scale + blue-x*blue-scale
+    *       = white-x/white-y
+    *    red-y*red-scale + green-y*green-scale + blue-y*blue-scale = 1
+    *    red-z*red-scale + green-z*green-scale + blue-z*blue-scale
+    *       = (1 - white-x - white-y)/white-y
+    *
+    * In the last equation color-z is (1 - color-x - color-y) so we can add all
+    * three equations together to get an alternative third:
+    *
+    *    red-scale + green-scale + blue-scale = 1/white-y = white-scale
+    *
+    * So now we have a Cramer's rule solution where the determinants are just
+    * 3x3 - far more tractible.  Unfortunately 3x3 determinants still involve
+    * multiplication of three coefficients so we can't guarantee to avoid
+    * overflow in the libpng fixed point representation.  Using Cramer's rule in
+    * floating point is probably a good choice here, but it's not an option for
+    * fixed point.  Instead proceed to simplify the first two equations by
+    * eliminating what is likely to be the largest value, blue-scale:
+    *
+    *    blue-scale = white-scale - red-scale - green-scale
+    *
+    * Hence:
+    *
+    *    (red-x - blue-x)*red-scale + (green-x - blue-x)*green-scale =
+    *                (white-x - blue-x)*white-scale
+    *
+    *    (red-y - blue-y)*red-scale + (green-y - blue-y)*green-scale =
+    *                1 - blue-y*white-scale
+    *
+    * And now we can trivially solve for (red-scale,green-scale):
+    *
+    *    green-scale =
+    *                (white-x - blue-x)*white-scale - (red-x - blue-x)*red-scale
+    *                -----------------------------------------------------------
+    *                                  green-x - blue-x
+    *
+    *    red-scale =
+    *                1 - blue-y*white-scale - (green-y - blue-y) * green-scale
+    *                ---------------------------------------------------------
+    *                                  red-y - blue-y
+    *
+    * Hence:
+    *
+    *    red-scale =
+    *          ( (green-x - blue-x) * (white-y - blue-y) -
+    *            (green-y - blue-y) * (white-x - blue-x) ) / white-y
+    * -------------------------------------------------------------------------
+    *  (green-x - blue-x)*(red-y - blue-y)-(green-y - blue-y)*(red-x - blue-x)
+    *
+    *    green-scale =
+    *          ( (red-y - blue-y) * (white-x - blue-x) -
+    *            (red-x - blue-x) * (white-y - blue-y) ) / white-y
+    * -------------------------------------------------------------------------
+    *  (green-x - blue-x)*(red-y - blue-y)-(green-y - blue-y)*(red-x - blue-x)
+    *
+    * Accuracy:
+    * The input values have 5 decimal digits of accuracy.  The values are all in
+    * the range 0 < value < 1, so simple products are in the same range but may
+    * need up to 10 decimal digits to preserve the original precision and avoid
+    * underflow.  Because we are using a 32-bit signed representation we cannot
+    * match this; the best is a little over 9 decimal digits, less than 10.
+    *
+    * The approach used here is to preserve the maximum precision within the
+    * signed representation.  Because the red-scale calculation above uses the
+    * difference between two products of values that must be in the range -1..+1
+    * it is sufficient to divide the product by 7; ceil(100,000/32767*2).  The
+    * factor is irrelevant in the calculation because it is applied to both
+    * numerator and denominator.
+    *
+    * Note that the values of the differences of the products of the
+    * chromaticities in the above equations tend to be small, for example for
+    * the sRGB chromaticities they are:
+    *
+    * red numerator:    -0.04751
+    * green numerator:  -0.08788
+    * denominator:      -0.2241 (without white-y multiplication)
+    *
+    *  The resultant Y coefficients from the chromaticities of some widely used
+    *  color space definitions are (to 15 decimal places):
+    *
+    *  sRGB
+    *    0.212639005871510 0.715168678767756 0.072192315360734
+    *  Kodak ProPhoto
+    *    0.288071128229293 0.711843217810102 0.000085653960605
+    *  Adobe RGB
+    *    0.297344975250536 0.627363566255466 0.075291458493998
+    *  Adobe Wide Gamut RGB
+    *    0.258728243040113 0.724682314948566 0.016589442011321
+    */
+   /* By the argument, above overflow should be impossible here. The return
+    * value of 2 indicates an internal error to the caller.
+    */
+   if (!png_muldiv(&left, xy.greenx-xy.bluex, xy.redy - xy.bluey, 7)) return 2;
+   if (!png_muldiv(&right, xy.greeny-xy.bluey, xy.redx - xy.bluex, 7)) return 2;
+   denominator = left - right;
+
+   /* Now find the red numerator. */
+   if (!png_muldiv(&left, xy.greenx-xy.bluex, xy.whitey-xy.bluey, 7)) return 2;
+   if (!png_muldiv(&right, xy.greeny-xy.bluey, xy.whitex-xy.bluex, 7)) return 2;
+
+   /* Overflow is possible here and it indicates an extreme set of PNG cHRM
+    * chunk values.  This calculation actually returns the reciprocal of the
+    * scale value because this allows us to delay the multiplication of white-y
+    * into the denominator, which tends to produce a small number.
+    */
+   if (!png_muldiv(&red_inverse, xy.whitey, denominator, left-right) ||
+       red_inverse <= xy.whitey /* r+g+b scales = white scale */)
+      return 1;
+
+   /* Similarly for green_inverse: */
+   if (!png_muldiv(&left, xy.redy-xy.bluey, xy.whitex-xy.bluex, 7)) return 2;
+   if (!png_muldiv(&right, xy.redx-xy.bluex, xy.whitey-xy.bluey, 7)) return 2;
+   if (!png_muldiv(&green_inverse, xy.whitey, denominator, left-right) ||
+       green_inverse <= xy.whitey)
+      return 1;
+
+   /* And the blue scale, the checks above guarantee this can't overflow but it
+    * can still produce 0 for extreme cHRM values.
+    */
+   blue_scale = png_reciprocal(xy.whitey) - png_reciprocal(red_inverse) -
+      png_reciprocal(green_inverse);
+   if (blue_scale <= 0) return 1;
+
+
+   /* And fill in the png_XYZ: */
+   if (!png_muldiv(&XYZ->redX, xy.redx, PNG_FP_1, red_inverse)) return 1;
+   if (!png_muldiv(&XYZ->redY, xy.redy, PNG_FP_1, red_inverse)) return 1;
+   if (!png_muldiv(&XYZ->redZ, PNG_FP_1 - xy.redx - xy.redy, PNG_FP_1,
+      red_inverse))
+      return 1;
+
+   if (!png_muldiv(&XYZ->greenX, xy.greenx, PNG_FP_1, green_inverse)) return 1;
+   if (!png_muldiv(&XYZ->greenY, xy.greeny, PNG_FP_1, green_inverse)) return 1;
+   if (!png_muldiv(&XYZ->greenZ, PNG_FP_1 - xy.greenx - xy.greeny, PNG_FP_1,
+      green_inverse))
+      return 1;
+
+   if (!png_muldiv(&XYZ->blueX, xy.bluex, blue_scale, PNG_FP_1)) return 1;
+   if (!png_muldiv(&XYZ->blueY, xy.bluey, blue_scale, PNG_FP_1)) return 1;
+   if (!png_muldiv(&XYZ->blueZ, PNG_FP_1 - xy.bluex - xy.bluey, blue_scale,
+      PNG_FP_1))
+      return 1;
+
+   return 0; /*success*/
+}
+
+int png_XYZ_from_xy_checked(png_structp png_ptr, png_XYZ *XYZ, png_xy xy)
+{
+   switch (png_XYZ_from_xy(XYZ, xy))
+   {
+      case 0: /* success */
+         return 1;
+
+      case 1:
+         /* The chunk may be technically valid, but we got png_fixed_point
+          * overflow while trying to get XYZ values out of it.  This is
+          * entirely benign - the cHRM chunk is pretty extreme.
+          */
+         png_warning(png_ptr,
+            "extreme cHRM chunk cannot be converted to tristimulus values");
+         break;
+
+      default:
+         /* libpng is broken; this should be a warning but if it happens we
+          * want error reports so for the moment it is an error.
+          */
+         png_error(png_ptr, "internal error in png_XYZ_from_xy");
+         break;
+   }
+
+   /* ERROR RETURN */
+   return 0;
+}
+#endif
 
 void /* PRIVATE */
 png_check_IHDR(png_structp png_ptr,
@@ -1102,7 +1467,7 @@ static double
 png_pow10(int power)
 {
    int recip = 0;
-   double d = 1;
+   double d = 1.0;
 
    /* Handle negative exponent with a reciprocal at the end because
     * 10 is exact whereas .1 is inexact in base 2
@@ -1116,7 +1481,7 @@ png_pow10(int power)
    if (power > 0)
    {
       /* Decompose power bitwise. */
-      double mult = 10;
+      double mult = 10.0;
       do
       {
          if (power & 1) d *= mult;
@@ -1235,7 +1600,8 @@ png_ascii_from_fp(png_structp png_ptr, png_charp ascii, png_size_t size,
             {
                double d;
 
-               fp *= 10;
+               fp *= 10.0;
+
                /* Use modf here, not floor and subtract, so that
                 * the separation is done in one step.  At the end
                 * of the loop don't break the number into parts so
@@ -1248,7 +1614,7 @@ png_ascii_from_fp(png_structp png_ptr, png_charp ascii, png_size_t size,
                {
                   d = floor(fp + .5);
 
-                  if (d > 9)
+                  if (d > 9.0)
                   {
                      /* Rounding up to 10, handle that here. */
                      if (czero > 0)
@@ -1256,9 +1622,10 @@ png_ascii_from_fp(png_structp png_ptr, png_charp ascii, png_size_t size,
                         --czero, d = 1;
                         if (cdigits == 0) --clead;
                      }
+
                      else
                      {
-                        while (cdigits > 0 && d > 9)
+                        while (cdigits > 0 && d > 9.0)
                         {
                            int ch = *--ascii;
 
@@ -1283,7 +1650,7 @@ png_ascii_from_fp(png_structp png_ptr, png_charp ascii, png_size_t size,
                          * exponent but take into account the leading
                          * decimal point.
                          */
-                        if (d > 9)  /* cdigits == 0 */
+                        if (d > 9.0)  /* cdigits == 0 */
                         {
                            if (exp_b10 == (-1))
                            {
@@ -1304,18 +1671,19 @@ png_ascii_from_fp(png_structp png_ptr, png_charp ascii, png_size_t size,
                               ++exp_b10;
 
                            /* In all cases we output a '1' */
-                           d = 1;
+                           d = 1.0;
                         }
                      }
                   }
                   fp = 0; /* Guarantees termination below. */
                }
 
-               if (d == 0)
+               if (d == 0.0)
                {
                   ++czero;
                   if (cdigits == 0) ++clead;
                }
+
                else
                {
                   /* Included embedded zeros in the digit count. */
@@ -1343,6 +1711,7 @@ png_ascii_from_fp(png_structp png_ptr, png_charp ascii, png_size_t size,
                                                                  above */
                      --exp_b10;
                   }
+
                   *ascii++ = (char)(48 + (int)d), ++cdigits;
                }
             }
@@ -1385,18 +1754,30 @@ png_ascii_from_fp(png_structp png_ptr, png_charp ascii, png_size_t size,
             size -= cdigits;
 
             *ascii++ = 69, --size;    /* 'E': PLUS 1 TOTAL 2+precision */
-            if (exp_b10 < 0)
-            {
-               *ascii++ = 45, --size; /* '-': PLUS 1 TOTAL 3+precision */
-               exp_b10 = -exp_b10;
-            }
 
-            cdigits = 0;
-
-            while (exp_b10 > 0)
+            /* The following use of an unsigned temporary avoids ambiguities in
+             * the signed arithmetic on exp_b10 and permits GCC at least to do
+             * better optimization.
+             */
             {
-               exponent[cdigits++] = (char)(48 + exp_b10 % 10);
-               exp_b10 /= 10;
+               unsigned int uexp_b10;
+
+               if (exp_b10 < 0)
+               {
+                  *ascii++ = 45, --size; /* '-': PLUS 1 TOTAL 3+precision */
+                  uexp_b10 = -exp_b10;
+               }
+
+               else
+                  uexp_b10 = exp_b10;
+
+               cdigits = 0;
+
+               while (uexp_b10 > 0)
+               {
+                  exponent[cdigits++] = (char)(48 + uexp_b10 % 10);
+                  uexp_b10 /= 10;
+               }
             }
 
             /* Need another size check here for the exponent digits, so
@@ -1454,7 +1835,7 @@ png_ascii_from_fixed(png_structp png_ptr, png_charp ascii, png_size_t size,
       else
          num = fp;
 
-      if (num <= 0x80000000U) /* else overflowed */
+      if (num <= 0x80000000) /* else overflowed */
       {
          unsigned int ndigits = 0, first = 16 /* flag value */;
          char digits[10];
@@ -1797,9 +2178,9 @@ png_64bit_product (long v1, long v2, unsigned long *hi_product,
 static png_uint_32
 png_8bit_l2[128] =
 {
-#  if PNG_DO_BC
+#  ifdef PNG_DO_BC
       for (i=128;i<256;++i) { .5 - l(i/255)/l(2)*65536*65536; }
-#  endif
+#  else
    4270715492U, 4222494797U, 4174646467U, 4127164793U, 4080044201U, 4033279239U,
    3986864580U, 3940795015U, 3895065449U, 3849670902U, 3804606499U, 3759867474U,
    3715449162U, 3671346997U, 3627556511U, 3584073329U, 3540893168U, 3498011834U,
@@ -1822,6 +2203,8 @@ png_8bit_l2[128] =
    324227938U, 298676034U, 273229066U, 247886176U, 222646516U, 197509248U,
    172473545U, 147538590U, 122703574U, 97967701U, 73330182U, 48790236U,
    24347096U, 0U
+#  endif
+
 #if 0
    /* The following are the values for 16-bit tables - these work fine for the
     * 8-bit conversions but produce very slightly larger errors in the 16-bit
@@ -1956,7 +2339,7 @@ png_log16bit(png_uint_32 x)
  * integer bits (the top 4) simply determine a shift.
  *
  * The worst case is the 16-bit distinction between 65535 and 65534, this
- * requires perhaps spurious accuracty in the decoding of the logarithm to
+ * requires perhaps spurious accuracy in the decoding of the logarithm to
  * distinguish log2(65535/65534.5) - 10^-5 or 17 bits.  There is little chance
  * of getting this accuracy in practice.
  *
@@ -1967,17 +2350,18 @@ png_log16bit(png_uint_32 x)
 static png_uint_32
 png_32bit_exp[16] =
 {
-#  if PNG_DO_BC
+#  ifdef PNG_DO_BC
       for (i=0;i<16;++i) { .5 + e(-i/16*l(2))*2^32; }
-#  endif
+#  else
    /* NOTE: the first entry is deliberately set to the maximum 32-bit value. */
    4294967295U, 4112874773U, 3938502376U, 3771522796U, 3611622603U, 3458501653U,
    3311872529U, 3171459999U, 3037000500U, 2908241642U, 2784941738U, 2666869345U,
    2553802834U, 2445529972U, 2341847524U, 2242560872U
+#  endif
 };
 
 /* Adjustment table; provided to explain the numbers in the code below. */
-#if PNG_DO_BC
+#ifdef PNG_DO_BC
 for (i=11;i>=0;--i){ print i, " ", (1 - e(-(2^i)/65536*l(2))) * 2^(32-i), "\n"}
    11 44937.64284865548751208448
    10 45180.98734845585101160448
@@ -2140,7 +2524,7 @@ png_gamma_significant(png_fixed_point gamma_val)
 }
 
 /* Internal function to build a single 16-bit table - the table consists of
- * 'num' 256 entry subtables, where 'num' is determined by 'shift' - the amount
+ * 'num' 256-entry subtables, where 'num' is determined by 'shift' - the amount
  * to shift the input values right (or 16-number_of_signifiant_bits).
  *
  * The caller is responsible for ensuring that the table gets cleaned up on
@@ -2227,9 +2611,9 @@ png_build_16to8_table(png_structp png_ptr, png_uint_16pp *ptable,
    png_uint_16pp table = *ptable =
        (png_uint_16pp)png_calloc(png_ptr, num * png_sizeof(png_uint_16p));
 
-   /* 'num' is the number of tables and also the number of low bits of low
-    * bits of the input 16-bit value used to select a table.  Each table is
-    * itself index by the high 8 bits of the value.
+   /* 'num' is the number of tables and also the number of low bits of the
+    * input 16-bit value used to select a table.  Each table is itself indexed
+    * by the high 8 bits of the value.
     */
    for (i = 0; i < num; i++)
       table[i] = (png_uint_16p)png_malloc(png_ptr,
@@ -2280,7 +2664,7 @@ png_build_16to8_table(png_structp png_ptr, png_uint_16pp *ptable,
 
 /* Build a single 8-bit table: same as the 16-bit case but much simpler (and
  * typically much faster).  Note that libpng currently does no sBIT processing
- * (apparently contrary to the spec) so a 256 entry table is always generated.
+ * (apparently contrary to the spec) so a 256-entry table is always generated.
  */
 static void
 png_build_8bit_table(png_structp png_ptr, png_bytepp ptable,
@@ -2296,6 +2680,60 @@ png_build_8bit_table(png_structp png_ptr, png_bytepp ptable,
       table[i] = (png_byte)i;
 }
 
+/* Used from png_read_destroy and below to release the memory used by the gamma
+ * tables.
+ */
+void /* PRIVATE */
+png_destroy_gamma_table(png_structp png_ptr)
+{
+   png_free(png_ptr, png_ptr->gamma_table);
+   png_ptr->gamma_table = NULL;
+
+   if (png_ptr->gamma_16_table != NULL)
+   {
+      int i;
+      int istop = (1 << (8 - png_ptr->gamma_shift));
+      for (i = 0; i < istop; i++)
+      {
+         png_free(png_ptr, png_ptr->gamma_16_table[i]);
+      }
+   png_free(png_ptr, png_ptr->gamma_16_table);
+   png_ptr->gamma_16_table = NULL;
+   }
+
+#if defined(PNG_READ_BACKGROUND_SUPPORTED) || \
+   defined(PNG_READ_ALPHA_MODE_SUPPORTED) || \
+   defined(PNG_READ_RGB_TO_GRAY_SUPPORTED)
+   png_free(png_ptr, png_ptr->gamma_from_1);
+   png_ptr->gamma_from_1 = NULL;
+   png_free(png_ptr, png_ptr->gamma_to_1);
+   png_ptr->gamma_to_1 = NULL;
+
+   if (png_ptr->gamma_16_from_1 != NULL)
+   {
+      int i;
+      int istop = (1 << (8 - png_ptr->gamma_shift));
+      for (i = 0; i < istop; i++)
+      {
+         png_free(png_ptr, png_ptr->gamma_16_from_1[i]);
+      }
+   png_free(png_ptr, png_ptr->gamma_16_from_1);
+   png_ptr->gamma_16_from_1 = NULL;
+   }
+   if (png_ptr->gamma_16_to_1 != NULL)
+   {
+      int i;
+      int istop = (1 << (8 - png_ptr->gamma_shift));
+      for (i = 0; i < istop; i++)
+      {
+         png_free(png_ptr, png_ptr->gamma_16_to_1[i]);
+      }
+   png_free(png_ptr, png_ptr->gamma_16_to_1);
+   png_ptr->gamma_16_to_1 = NULL;
+   }
+#endif /* READ_BACKGROUND || READ_ALPHA_MODE || RGB_TO_GRAY */
+}
+
 /* We build the 8- or 16-bit gamma tables here.  Note that for 16-bit
  * tables, we don't make a full table if we are reducing to 8-bit in
  * the future.  Note also how the gamma_16 tables are segmented so that
@@ -2305,6 +2743,18 @@ void /* PRIVATE */
 png_build_gamma_table(png_structp png_ptr, int bit_depth)
 {
   png_debug(1, "in png_build_gamma_table");
+
+  /* Remove any existing table; this copes with multiple calls to
+   * png_read_update_info.  The warning is because building the gamma tables
+   * multiple times is a performance hit - it's harmless but the ability to call
+   * png_read_update_info() multiple times is new in 1.5.6 so it seems sensible
+   * to warn if the app introduces such a hit.
+   */
+  if (png_ptr->gamma_table != NULL || png_ptr->gamma_16_table != NULL)
+  {
+    png_warning(png_ptr, "gamma table being rebuilt");
+    png_destroy_gamma_table(png_ptr);
+  }
 
   if (bit_depth <= 8)
   {
@@ -2350,7 +2800,7 @@ png_build_gamma_table(png_structp png_ptr, int bit_depth)
       * Where 'iv' is the input color value and 'ov' is the output value -
       * pow(iv, gamma).
       *
-      * Thus the gamma table consists of up to 256 256 entry tables.  The table
+      * Thus the gamma table consists of up to 256 256-entry tables.  The table
       * is selected by the (8-gamma_shift) most significant of the low 8 bits of
       * the color value then indexed by the upper 8 bits:
       *
@@ -2422,4 +2872,3 @@ png_build_gamma_table(png_structp png_ptr, int bit_depth)
 }
 #endif /* READ_GAMMA */
 #endif /* defined(PNG_READ_SUPPORTED) || defined(PNG_WRITE_SUPPORTED) */
-} // namespace PrivatePng

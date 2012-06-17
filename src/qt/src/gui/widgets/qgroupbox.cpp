@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -641,6 +641,9 @@ void QGroupBox::setChecked(bool b)
         update();
         d->checked = b;
         d->_q_setChildrenEnabled(b);
+#ifndef QT_NO_ACCESSIBILITY
+        QAccessible::updateAccessibility(this, 0, QAccessible::StateChanged);
+#endif
         emit toggled(b);
     }
 }

@@ -20,7 +20,11 @@
 #include "config.h"
 #include "MIMESniffing.h"
 
+#if OS(QNX)
+#include <string.h>
+#else
 #include <cstring>
+#endif
 #include <stdint.h>
 
 // MIME type sniffing implementation based on http://tools.ietf.org/html/draft-abarth-mime-sniff-06

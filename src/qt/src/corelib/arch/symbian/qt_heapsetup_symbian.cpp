@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -39,67 +39,15 @@
 **
 ****************************************************************************/
 
-#include "qt_hybridheap_symbian_p.h"
-
-#ifdef QT_USE_NEW_SYMBIAN_ALLOCATOR
-
-extern const TInt KHeapShrinkHysRatio = 0x800;
-
-/*
- * \internal
- * Called from the qtmain.lib application wrapper.
- * Create a new heap as requested, but use the new allocator
- */
-Q_CORE_EXPORT TInt qt_symbian_SetupThreadHeap(TBool aNotFirst, SStdEpocThreadCreateInfo& aInfo)
-{
-    TInt r = KErrNone;
-    if (!aInfo.iAllocator && aInfo.iHeapInitialSize>0)
-    {
-        // new heap required
-        RHeap* pH = NULL;
-        r = UserHeap::CreateThreadHeap(aInfo, pH);
-    }
-    else if (aInfo.iAllocator)
-    {
-        // sharing a heap
-        RAllocator* pA = aInfo.iAllocator;
-        pA->Open();
-        User::SwitchAllocator(pA);
-    }
-    return r;
-}
-
-#ifndef NO_NAMED_LOCAL_CHUNKS
-void TChunkCreateInfo::SetThreadHeap(TInt aInitialSize, TInt aMaxSize, const TDesC& aName)
-{
-    iType = TChunkCreate::ENormal | TChunkCreate::EData;
-    iMaxSize = aMaxSize;
-    iInitialBottom = 0;
-    iInitialTop = aInitialSize;
-    iAttributes |= TChunkCreate::ELocalNamed;
-    iName = &aName;
-    iOwnerType = EOwnerThread;
-}
-#endif // NO_NAMED_LOCAL_CHUNKS
-
-void Panic(TCdtPanic reason)
-{
-    _LIT(KCat, "QtHybridHeap");
-    User::Panic(KCat, reason);
-}
-
-#else /* QT_USE_NEW_SYMBIAN_ALLOCATOR */
-
+#include <qglobal.h>
 #include <e32std.h>
 
 /*
  * \internal
- * Called from the qtmain.lib application wrapper.
+ * Called from the qtmain.lib application wrapper from Qt 4.7.2 to 4.8.0.
  * Create a new heap as requested, using the default system allocator
  */
 Q_CORE_EXPORT TInt qt_symbian_SetupThreadHeap(TBool aNotFirst, SStdEpocThreadCreateInfo& aInfo)
 {
     return UserHeap::SetupThreadHeap(aNotFirst, aInfo);
 }
-
-#endif /* QT_USE_NEW_SYMBIAN_ALLOCATOR */

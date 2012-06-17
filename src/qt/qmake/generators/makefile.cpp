@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -2476,7 +2476,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
         //qmake it
         if(!subtarget->profile.isEmpty()) {
             QString out = subtarget->makefile;
-            QString in = fileFixify(in_directory + subtarget->profile, FileFixifyAbsolute);
+            QString in = escapeFilePath(fileFixify(in_directory + subtarget->profile, FileFixifyAbsolute));
             if(out.startsWith(in_directory))
                 out = out.mid(in_directory.length());
             t << mkfile << ": " << "\n\t";
@@ -3258,6 +3258,8 @@ MakefileGenerator::writePkgConfigFile()
     } else {
         pkgConfiglibDir = "-L${libdir}";
         pkgConfiglibName = "-l" + lname.left(lname.length()-Option::libtool_ext.length());
+        if (project->isActiveConfig("shared"))
+            pkgConfiglibName += project->first("TARGET_VERSION_EXT");
     }
     t << pkgConfiglibDir << " " << pkgConfiglibName << " " << endl;
 

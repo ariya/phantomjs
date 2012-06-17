@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -134,6 +134,9 @@ QMacCocoaViewContainer::QMacCocoaViewContainer(void *cocoaViewToWrap, QWidget *p
 {
     if (cocoaViewToWrap)
         setCocoaView(cocoaViewToWrap);
+
+    // QMacCocoaViewContainer requires a native window handle.
+    setAttribute(Qt::WA_NativeWindow);
 }
 
 /*!

@@ -74,10 +74,10 @@ static void to_tis620(const HB_UChar16 *string, hb_uint32 len, const char *cstr)
     for (i = 0; i < len; ++i) {
         if (string[i] <= 0xa0)
             result[i] = (unsigned char)string[i];
-        if (string[i] >= 0xe01 && string[i] <= 0xe5b)
+        else if (string[i] >= 0xe01 && string[i] <= 0xe5b)
             result[i] = (unsigned char)(string[i] - 0xe00 + 0xa0);
         else
-            result[i] = '?';
+            result[i] = (unsigned char)~0; // Same encoding as libthai uses for invalid chars
     }
 
     result[len] = 0;
@@ -258,20 +258,49 @@ static HB_Bool HB_ThaiConvertStringToGlyphIndices (HB_ShaperItem *item)
         /* Add glyphs to glyphs string and setting some attributes */
         for (int lgi = 0; lgi < lgn; lgi++) {
             if ( rglyphs[lgi] == 0xdd/*TH_BLANK_BASE_GLYPH*/ ) {
-                //if ( !item->fixedPitch ) {
-                    glyphString[slen++] = C_DOTTED_CIRCLE;
-                    item->attributes[slen-1].dontPrint = true; // FIXME this will hide all dotted circle
-                //}
-            }
-            else {
+                glyphString[slen++] = C_DOTTED_CIRCLE;
+            } else if (cstr[i] == (signed char)~0) {
+                // The only glyphs that should be passed to this function that cannot be mapped to
+                // tis620 are the ones of type Inherited class.  Pass these glyphs untouched.
+                glyphString[slen++] = string[i];
+                if (string[i] == 0x200D || string[i] == 0x200C) {
+                    // Check that we do not run out of bounds when setting item->attributes.  If we do
+                    // run out of bounds then this function will return false, the necessary amount of
+                    // memory is reallocated, and this function will then be called again.
+                    if (slen <= item->num_glyphs)
+                        item->attributes[slen-1].dontPrint = true; // Hide ZWJ and ZWNJ characters
+                }
+            } else {
                 glyphString[slen++] = (HB_UChar16) thai_get_glyph_index (font_type, rglyphs[lgi]);
             }
         }
 
+        /* Special case to handle U+0E33 (SARA AM, ำ): SARA AM is normally written at the end of a
+         * word with a base character and an optional top character before it. For example, U+0E0B
+         * (base), U+0E49 (top), U+0E33 (SARA AM). The sequence should be converted to 4 glyphs:
+         * base, hilo (the little circle in the top left part of SARA AM, NIKHAHIT), top, then the
+         * right part of SARA AM (SARA AA).
+         *
+         * The painting process finds out the starting glyph and ending glyph of a character
+         * sequence by checking the logClusters array. In this case, logClusters array should
+         * ideally be [ 0, 1, 3 ] so that glyphsStart = 0 and glyphsEnd = 3 (slen - 1) to paint out
+         * all the glyphs generated.
+         *
+         * A special case in this special case is when we have no base character. When an isolated
+         * SARA AM is processed (cell_length = 1), libthai will produce 3 glyphs: dotted circle
+         * (indicates that the base is empty), NIKHAHIT then SARA AA. If logClusters[0] = 1, it will
+         * paint from the second glyph in the glyphs array. So in this case logClusters[0] should
+         * point to the first glyph it produces, aka. the dotted circle. */
         if (haveSaraAm) {
-            logClusters[i + cell_length - 1] = slen - 1; // Set logClusters before NIKAHIT
-            if (tis_cell.top != 0)
-                logClusters[i + cell_length - 2] = slen - 2; // Set logClusters before NIKAHIT when tis_cell has top
+            logClusters[i + cell_length - 1] = cell_length == 1 ? slen - 3 : slen - 1;
+            if (tis_cell.top != 0) {
+                if (cell_length > 1) {
+                    /* set the logClusters[top character] to slen - 2 as it points to the second to
+                     * lastglyph (slen - 2) */
+                    logClusters[i + cell_length - 2] = slen - 2;
+                }
+            }
+            /* check for overflow */
             if (logClusters[i + cell_length - 1] > slen)
                 logClusters[i + cell_length - 1] = 0;
         }
@@ -334,7 +363,7 @@ HB_Bool HB_ThaiShape (HB_ShaperItem *shaper_item)
     const int availableGlyphs = shaper_item->num_glyphs;
     if ( HB_SelectScript (shaper_item, thai_features) ) {
         HB_OpenTypeShape (shaper_item, /*properties*/0);
-        return HB_OpenTypePosition (shaper_item, availableGlyphs, /*doLogClusters*/false);
+        return HB_OpenTypePosition (shaper_item, availableGlyphs, /*doLogClusters*/true);
     }
 #endif
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -114,7 +114,9 @@ Q_GUI_EXPORT extern bool qt_tab_all_widgets;
     checkable buttons can be checked and unchecked (see below).
 
     \o isEnabled() indicates whether the button can be pressed by the
-    user.
+    user. \note As opposed to other widgets, buttons derived from
+    QAbstractButton accepts mouse and context menu events
+    when disabled.
 
     \o setAutoRepeat() sets whether the button will auto-repeat if the
     user holds it down. \l autoRepeatDelay and \l autoRepeatInterval

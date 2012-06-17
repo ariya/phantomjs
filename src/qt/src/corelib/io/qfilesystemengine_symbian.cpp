@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -237,12 +237,19 @@ bool QFileSystemEngine::createDirectory(const QFileSystemEntry &entry, bool crea
     if (!abspath.endsWith(QLatin1Char('\\')))
         abspath.append(QLatin1Char('\\'));
     TInt r;
+    TPtrC symPath(qt_QString2TPtrC(abspath));
     if (createParents)
-        r = qt_s60GetRFs().MkDirAll(qt_QString2TPtrC(abspath));
+        r = qt_s60GetRFs().MkDirAll(symPath);
     else
-        r = qt_s60GetRFs().MkDir(qt_QString2TPtrC(abspath));
+        r = qt_s60GetRFs().MkDir(symPath);
     if (createParents && r == KErrAlreadyExists)
         return true; //# Qt5 - QDir::mkdir returns false for existing dir, QDir::mkpath returns true (should be made consistent in Qt 5)
+    if (createParents && r == KErrPermissionDenied) {
+        // check for already exists, which is not returned from RFs when it denies permission
+        TEntry entry;
+        if (qt_s60GetRFs().Entry(symPath, entry) == KErrNone)
+            r = KErrNone;
+    }
     return (r == KErrNone);
 }
 

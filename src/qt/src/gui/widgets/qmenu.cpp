@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -513,7 +513,7 @@ void QMenuPrivate::hideMenu(QMenu *menu, bool justRegister)
     menu->blockSignals(false);
 #endif // QT_NO_EFFECTS
     if (!justRegister)
-        menu->hide();
+        menu->close();
 }
 
 void QMenuPrivate::popupAction(QAction *action, int delay, bool activateFirst)
@@ -1850,16 +1850,17 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
     screen = d->popupGeometry(QApplication::desktop()->screenNumber(p));
     const int desktopFrame = style()->pixelMetric(QStyle::PM_MenuDesktopFrameWidth, 0, this);
     bool adjustToDesktop = !window()->testAttribute(Qt::WA_DontShowOnScreen);
-
-    // if the screens have very different geometries and the menu is too big, we have to recalculate
-    if (size.height() > screen.height() || size.width() > screen.width()) {
-        size = d->adjustMenuSizeForScreen(screen);
-        adjustToDesktop = true;
-    }
-    // Layout is not right, we might be able to save horizontal space
-    if (d->ncols >1 && size.height() < screen.height()) {
-        size = d->adjustMenuSizeForScreen(screen);
-        adjustToDesktop = true;
+    if (!d->scroll) {
+        // if the screens have very different geometries and the menu is too big, we have to recalculate
+        if (size.height() > screen.height() || size.width() > screen.width()) {
+            size = d->adjustMenuSizeForScreen(screen);
+            adjustToDesktop = true;
+        }
+        // Layout is not right, we might be able to save horizontal space
+        if (d->ncols >1 && size.height() < screen.height()) {
+            size = d->adjustMenuSizeForScreen(screen);
+            adjustToDesktop = true;
+        }
     }
 
 #ifdef QT_KEYPAD_NAVIGATION
@@ -1966,13 +1967,21 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
             if ((pos.x() + menuSize.width() > parentActionRect.left() - subMenuOffset)
                 && (pos.x() < parentActionRect.right()))
             {
+                pos.rx() = parentActionRect.left() - menuSize.width();
+                if (pos.x() < screen.x())
                     pos.rx() = parentActionRect.right();
+                if (pos.x() + menuSize.width() > screen.x() + screen.width())
+                    pos.rx() = screen.x();
             }
         } else {
             if ((pos.x() < parentActionRect.right() + subMenuOffset)
                 && (pos.x() + menuSize.width() > parentActionRect.left()))
             {
+                pos.rx() = parentActionRect.right();
+                if (pos.x() + menuSize.width() > screen.x() + screen.width())
                     pos.rx() = parentActionRect.left() - menuSize.width();
+                if (pos.x() < screen.x())
+                    pos.rx() = screen.x() + screen.width() - menuSize.width();
             }
         }
     }

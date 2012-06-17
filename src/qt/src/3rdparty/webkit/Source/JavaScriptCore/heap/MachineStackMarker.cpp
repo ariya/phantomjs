@@ -47,6 +47,10 @@
 #include <windows.h>
 #include <malloc.h>
 
+#elif OS(QNX)
+
+#include <sys/neutrino.h>
+
 #elif OS(HAIKU)
 
 #include <OS.h>
@@ -76,7 +80,7 @@
 #include <errno.h>
 #endif
 
-#if USE(PTHREADS) && !OS(WINDOWS) && !OS(DARWIN)
+#if USE(PTHREADS) && !OS(WINDOWS) && !OS(DARWIN) && !OS(QNX)
 #include <signal.h>
 #ifndef SA_RESTART
 #error MachineThreads requires SA_RESTART
@@ -105,6 +109,8 @@ UNUSED_PARAM(end);
 
 #if OS(DARWIN)
 typedef mach_port_t PlatformThread;
+#elif OS(QNX)
+typedef pthread_t PlatformThread;
 #elif OS(WINDOWS)
 typedef HANDLE PlatformThread;
 #elif USE(PTHREADS)
@@ -127,7 +133,7 @@ public:
         , platformThread(platThread)
         , stackBase(base)
     {
-#if USE(PTHREADS) && !OS(WINDOWS) && !OS(DARWIN)
+#if USE(PTHREADS) && !OS(WINDOWS) && !OS(DARWIN) && !OS(QNX)
         struct sigaction action;
         action.sa_handler = pthreadSignalHandlerSuspendResume;
         sigemptyset(&action.sa_mask);
@@ -283,6 +289,8 @@ static inline void suspendThread(const PlatformThread& platformThread)
 {
 #if OS(DARWIN)
     thread_suspend(platformThread);
+#elif OS(QNX)
+    ThreadCtl(_NTO_TCTL_ONE_THREAD_HOLD, static_cast<void*>(platformThread));
 #elif OS(WINDOWS)
     SuspendThread(platformThread);
 #elif USE(PTHREADS)
@@ -296,6 +304,8 @@ static inline void resumeThread(const PlatformThread& platformThread)
 {
 #if OS(DARWIN)
     thread_resume(platformThread);
+#elif OS(QNX)
+    ThreadCtl(_NTO_TCTL_ONE_THREAD_CONT, static_cast<void*>(platformThread));
 #elif OS(WINDOWS)
     ResumeThread(platformThread);
 #elif USE(PTHREADS)

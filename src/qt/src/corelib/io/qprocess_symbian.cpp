@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -890,10 +890,14 @@ qint64 QProcessPrivate::writeToStdin(const char *data, qint64 maxlen)
 
 void QProcessPrivate::terminateProcess()
 {
-    // Needs PowerMgmt capability if process has been started; will panic kern-exec 46 otherwise.
+    // Needs PowerMgmt capability if process has been started; will issue a debug message otherwise.
     // Always works if process is not yet started.
     if (qt_rprocess_running(symbianProcess)) {
-        symbianProcess->Terminate(0);
+        if (RProcess().HasCapability(ECapabilityPowerMgmt)) {
+            symbianProcess->Terminate(0);
+        } else {
+            qWarning("QProcessPrivate::terminateProcess(), can't terminate process without PowerMgmt capability");
+        }
     } else {
         QPROCESS_DEBUG_PRINT("QProcessPrivate::terminateProcess(), Process not running");
     }
@@ -901,10 +905,14 @@ void QProcessPrivate::terminateProcess()
 
 void QProcessPrivate::killProcess()
 {
-    // Needs PowerMgmt capability if process has been started; will panic kern-exec 46 otherwise.
+    // Needs PowerMgmt capability if process has been started; will issue a debug message otherwise.
     // Always works if process is not yet started.
     if (qt_rprocess_running(symbianProcess)) {
-        symbianProcess->Kill(0);
+        if (RProcess().HasCapability(ECapabilityPowerMgmt)) {
+            symbianProcess->Kill(0);
+        } else {
+            qWarning("QProcessPrivate::killProcess(), can't kill process without PowerMgmt capability");
+        }
     } else {
         QPROCESS_DEBUG_PRINT("QProcessPrivate::killProcess(), Process not running");
     }

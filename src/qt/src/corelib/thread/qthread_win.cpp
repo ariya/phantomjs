@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -72,7 +72,7 @@
 QT_BEGIN_NAMESPACE
 
 void qt_watch_adopted_thread(const HANDLE adoptedThreadHandle, QThread *qthread);
-void qt_adopted_thread_watcher_function(void *);
+DWORD WINAPI qt_adopted_thread_watcher_function(LPVOID);
 
 static DWORD qt_current_thread_data_tls_index = TLS_OUT_OF_INDEXES;
 void qt_create_tls()
@@ -157,7 +157,7 @@ void QAdoptedThread::init()
 static QVector<HANDLE> qt_adopted_thread_handles;
 static QVector<QThread *> qt_adopted_qthreads;
 static QMutex qt_adopted_thread_watcher_mutex;
-static HANDLE qt_adopted_thread_watcher_handle = 0;
+static DWORD qt_adopted_thread_watcher_id = 0;
 static HANDLE qt_adopted_thread_wakeup = 0;
 
 /*! \internal
@@ -168,18 +168,25 @@ static HANDLE qt_adopted_thread_wakeup = 0;
 void qt_watch_adopted_thread(const HANDLE adoptedThreadHandle, QThread *qthread)
 {
     QMutexLocker lock(&qt_adopted_thread_watcher_mutex);
+
+    if (GetCurrentThreadId() == qt_adopted_thread_watcher_id) {
+#if !defined(Q_OS_WINCE) || (defined(_WIN32_WCE) && (_WIN32_WCE>=0x600))
+        CloseHandle(adoptedThreadHandle);
+#endif
+        return;
+    }
+
     qt_adopted_thread_handles.append(adoptedThreadHandle);
     qt_adopted_qthreads.append(qthread);
 
     // Start watcher thread if it is not already running.
-    if (qt_adopted_thread_watcher_handle == 0) {
+    if (qt_adopted_thread_watcher_id == 0) {
         if (qt_adopted_thread_wakeup == 0) {
             qt_adopted_thread_wakeup = CreateEvent(0, false, false, 0);
             qt_adopted_thread_handles.prepend(qt_adopted_thread_wakeup);
         }
 
-        qt_adopted_thread_watcher_handle =
-            (HANDLE)_beginthread(qt_adopted_thread_watcher_function, 0, NULL);
+        CreateThread(0, 0, qt_adopted_thread_watcher_function, 0, 0, &qt_adopted_thread_watcher_id);
     } else {
         SetEvent(qt_adopted_thread_wakeup);
     }
@@ -190,13 +197,13 @@ void qt_watch_adopted_thread(const HANDLE adoptedThreadHandle, QThread *qthread)
     When this happens it derefs the QThreadData for the adopted thread
     to make sure it gets cleaned up properly.
 */
-void qt_adopted_thread_watcher_function(void *)
+DWORD WINAPI qt_adopted_thread_watcher_function(LPVOID)
 {
     forever {
         qt_adopted_thread_watcher_mutex.lock();
 
         if (qt_adopted_thread_handles.count() == 1) {
-            qt_adopted_thread_watcher_handle = 0;
+            qt_adopted_thread_watcher_id = 0;
             qt_adopted_thread_watcher_mutex.unlock();
             break;
         }
@@ -234,7 +241,9 @@ void qt_adopted_thread_watcher_function(void *)
 //             printf("(qt) - qt_adopted_thread_watcher_function... called\n");
             const int qthreadIndex = handleIndex - 1;
 
+            qt_adopted_thread_watcher_mutex.lock();
             QThreadData *data = QThreadData::get2(qt_adopted_qthreads.at(qthreadIndex));
+            qt_adopted_thread_watcher_mutex.unlock();
             if (data->isAdopted) {
                 QThread *thread = data->thread;
                 Q_ASSERT(thread);
@@ -244,14 +253,20 @@ void qt_adopted_thread_watcher_function(void *)
             }
             data->deref();
 
+            QMutexLocker lock(&qt_adopted_thread_watcher_mutex);
 #if !defined(Q_OS_WINCE) || (defined(_WIN32_WCE) && (_WIN32_WCE>=0x600))
             CloseHandle(qt_adopted_thread_handles.at(handleIndex));
 #endif
-            QMutexLocker lock(&qt_adopted_thread_watcher_mutex);
             qt_adopted_thread_handles.remove(handleIndex);
             qt_adopted_qthreads.remove(qthreadIndex);
         }
     }
+
+    QThreadData *threadData = reinterpret_cast<QThreadData *>(TlsGetValue(qt_current_thread_data_tls_index));
+    if (threadData)
+        threadData->deref();
+
+    return 0;
 }
 
 #if !defined(QT_NO_DEBUG) && defined(Q_CC_MSVC) && !defined(Q_OS_WINCE)

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -100,16 +100,14 @@ static QString buddyString(const QWidget *widget)
     return QString();
 }
 
-QString Q_GUI_EXPORT qt_accStripAmp(const QString &text)
-{
-    return QString(text).remove(QLatin1Char('&'));
-}
-
-QString Q_GUI_EXPORT qt_accHotKey(const QString &text)
+/* This function will return the offset of the '&' in the text that would be
+   preceding the accelerator character.
+   If this text does not have an accelerator, -1 will be returned. */
+static int qt_accAmpIndex(const QString &text)
 {
 #ifndef QT_NO_SHORTCUT
     if (text.isEmpty())
-        return text;
+        return -1;
 
     int fa = 0;
     QChar ac;
@@ -121,18 +119,36 @@ QString Q_GUI_EXPORT qt_accHotKey(const QString &text)
                 ++fa;
                 continue;
             } else {
-                ac = text.at(fa);
+                return fa - 1;
                 break;
             }
         }
     }
-    if (ac.isNull())
-        return QString();
-    return (QString)QKeySequence(Qt::ALT) + ac.toUpper();
+
+    return -1;
 #else
     Q_UNUSED(text);
-    return QString();
+    return -1;
 #endif
+}
+
+QString Q_GUI_EXPORT qt_accStripAmp(const QString &text)
+{
+    QString newText(text);
+    int ampIndex = qt_accAmpIndex(newText);
+    if (ampIndex != -1)
+        newText.remove(ampIndex, 1);
+
+    return newText.replace(QLatin1String("&&"), QLatin1String("&"));
+}
+
+QString Q_GUI_EXPORT qt_accHotKey(const QString &text)
+{
+    int ampIndex = qt_accAmpIndex(text);
+    if (ampIndex != -1)
+        return (QString)QKeySequence(Qt::ALT) + text.at(ampIndex + 1);
+
+    return QString();
 }
 
 class QAccessibleWidgetPrivate : public QAccessible
@@ -888,12 +904,15 @@ bool QAccessibleWidget::doAction(int action, int child, const QVariantList &para
     if (action == SetFocus || action == DefaultAction) {
         if (child || !widget()->isEnabled())
             return false;
-        if (widget()->focusPolicy() != Qt::NoFocus)
-            widget()->setFocus();
-        else if (widget()->isWindow())
-            widget()->activateWindow();
-        else
+
+        if ((widget()->focusPolicy() == Qt::NoFocus) && (!widget()->isWindow()))
             return false;
+
+        if (!widget()->isWindow())
+            widget()->setFocus();
+
+        widget()->activateWindow();
+
         return true;
     } else if (action > 0) {
         if (QAction *act = widget()->actions().value(action - 1)) {
@@ -937,7 +956,7 @@ QAccessible::State QAccessibleWidget::state(int child) const
     QWidget *w = widget();
     if (w->testAttribute(Qt::WA_WState_Visible) == false)
         state |= Invisible;
-    if (w->focusPolicy() != Qt::NoFocus && w->isActiveWindow())
+    if (w->focusPolicy() != Qt::NoFocus)
         state |= Focusable;
     if (w->hasFocus())
         state |= Focused;

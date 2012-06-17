@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -84,6 +84,7 @@ QT_BEGIN_NAMESPACE
 #if defined(Q_OS_WINCE)
 HINSTANCE QSystemLibrary::load(const wchar_t *libraryName, bool onlySystemDirectory /* = true */)
 {
+    Q_UNUSED(onlySystemDirectory);
     return ::LoadLibrary(libraryName);
 }
 #else

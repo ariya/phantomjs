@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -756,7 +756,9 @@ template <class Iterator> bool qt_stroke_side(Iterator *it,
 #ifdef QPP_STROKE_DEBUG
         qDebug("\n ---> (side) closed subpath");
 #endif
-        stroker->joinPoints(prev.x, prev.y, *startTangent, stroker->joinStyleMode());
+        // don't join empty subpaths
+        if (!first)
+            stroker->joinPoints(prev.x, prev.y, *startTangent, stroker->joinStyleMode());
         return true;
     } else {
 #ifdef QPP_STROKE_DEBUG

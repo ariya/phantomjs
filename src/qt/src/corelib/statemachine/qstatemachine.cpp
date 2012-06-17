@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -2345,7 +2345,7 @@ QStateMachine::SignalEvent::~SignalEvent()
 /*!
   \class QStateMachine::WrappedEvent
 
-  \brief The WrappedEvent class holds a clone of an event associated with a QObject.
+  \brief The WrappedEvent class inherits QEvent and holds a clone of an event associated with a QObject.
 
   \since 4.6
   \ingroup statemachine

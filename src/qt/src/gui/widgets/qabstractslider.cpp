@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -689,6 +689,16 @@ void QAbstractSlider::sliderChange(SliderChange)
     update();
 }
 
+/*!
+    \internal
+
+    Truncate qreal to int without flipping on overflow.
+*/
+static inline int clampScrollStep(qreal x)
+{
+    return int(qBound(qreal(INT_MIN), x, qreal(INT_MAX)));
+}
+
 bool QAbstractSliderPrivate::scrollByDelta(Qt::Orientation orientation, Qt::KeyboardModifiers modifiers, int delta)
 {
     Q_Q(QAbstractSlider);
@@ -700,7 +710,7 @@ bool QAbstractSliderPrivate::scrollByDelta(Qt::Orientation orientation, Qt::Keyb
 
     if ((modifiers & Qt::ControlModifier) || (modifiers & Qt::ShiftModifier)) {
         // Scroll one page regardless of delta:
-        stepsToScroll = qBound(-pageStep, int(offset * pageStep), pageStep);
+        stepsToScroll = qBound(-pageStep, clampScrollStep(offset * pageStep), pageStep);
         offset_accumulated = 0;
     } else {
         // Calculate how many lines to scroll. Depending on what delta is (and
@@ -718,14 +728,14 @@ bool QAbstractSliderPrivate::scrollByDelta(Qt::Orientation orientation, Qt::Keyb
         offset_accumulated += stepsToScrollF;
 #ifndef Q_WS_MAC
         // Don't scroll more than one page in any case:
-        stepsToScroll = qBound(-pageStep, int(offset_accumulated), pageStep);
+        stepsToScroll = qBound(-pageStep, clampScrollStep(offset_accumulated), pageStep);
 #else
         // Native UI-elements on Mac can scroll hundreds of lines at a time as
         // a result of acceleration. So keep the same behaviour in Qt, and
         // don't restrict stepsToScroll to certain maximum (pageStep): 
-        stepsToScroll = int(offset_accumulated);
+        stepsToScroll = clampScrollStep(offset_accumulated);
 #endif
-        offset_accumulated -= int(offset_accumulated);
+        offset_accumulated -= clampScrollStep(offset_accumulated);
         if (stepsToScroll == 0)
             return false;
     }

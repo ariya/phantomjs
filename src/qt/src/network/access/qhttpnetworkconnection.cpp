@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -375,9 +375,23 @@ bool QHttpNetworkConnectionPrivate::handleAuthenticateChallenge(QAbstractSocket 
         if (priv->phase == QAuthenticatorPrivate::Done) {
             pauseConnection();
             if (!isProxy) {
+                if (channels[i].authenticationCredentialsSent) {
+                    auth->detach();
+                    priv = QAuthenticatorPrivate::getPrivate(*auth);
+                    priv->hasFailed = true;
+                    priv->phase = QAuthenticatorPrivate::Done;
+                    channels[i].authenticationCredentialsSent = false;
+                }
                 emit reply->authenticationRequired(reply->request(), auth);
 #ifndef QT_NO_NETWORKPROXY
             } else {
+                if (channels[i].proxyCredentialsSent) {
+                    auth->detach();
+                    priv = QAuthenticatorPrivate::getPrivate(*auth);
+                    priv->hasFailed = true;
+                    priv->phase = QAuthenticatorPrivate::Done;
+                    channels[i].proxyCredentialsSent = false;
+                }
                 emit reply->proxyAuthenticationRequired(networkProxy, auth);
 #endif
             }
@@ -415,7 +429,6 @@ bool QHttpNetworkConnectionPrivate::handleAuthenticateChallenge(QAbstractSocket 
             reply->d_func()->errorString = errorDetail(errorCode, socket);
             emit reply->finishedWithError(errorCode, reply->d_func()->errorString);
             // ### at this point the reply could be deleted
-            socket->close();
             return true;
         }
         //resend the request
@@ -438,6 +451,7 @@ void QHttpNetworkConnectionPrivate::createAuthorization(QAbstractSocket *socket,
             if (priv && priv->method != QAuthenticatorPrivate::None) {
                 QByteArray response = priv->calculateResponse(request.d->methodName(), request.d->uri(false));
                 request.setHeaderField("Authorization", response);
+                channels[i].authenticationCredentialsSent = true;
             }
         }
     }
@@ -449,6 +463,7 @@ void QHttpNetworkConnectionPrivate::createAuthorization(QAbstractSocket *socket,
             if (priv && priv->method != QAuthenticatorPrivate::None) {
                 QByteArray response = priv->calculateResponse(request.d->methodName(), request.d->uri(false));
                 request.setHeaderField("Proxy-Authorization", response);
+                channels[i].proxyCredentialsSent = true;
             }
         }
     }
@@ -582,9 +597,13 @@ void QHttpNetworkConnectionPrivate::fillPipeline(QAbstractSocket *socket)
 
     // we do not like authentication stuff
     // ### make sure to be OK with this in later releases
-    if (!channels[i].authenticator.isNull() || !channels[i].authenticator.user().isEmpty())
+    if (!channels[i].authenticator.isNull()
+        && (!channels[i].authenticator.user().isEmpty()
+            || !channels[i].authenticator.password().isEmpty()))
         return;
-    if (!channels[i].proxyAuthenticator.isNull() || !channels[i].proxyAuthenticator.user().isEmpty())
+    if (!channels[i].proxyAuthenticator.isNull()
+        && (!channels[i].proxyAuthenticator.user().isEmpty()
+            || !channels[i].proxyAuthenticator.password().isEmpty()))
         return;
 
     // must be in ReadingState or WaitingState

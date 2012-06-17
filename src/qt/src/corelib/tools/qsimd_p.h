@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -95,6 +95,72 @@ QT_BEGIN_HEADER
 // SSE4.2 intrinsics
 #if defined(QT_HAVE_SSE4_2) && (defined(__SSE4_2__) || defined(Q_CC_MSVC))
 #include <nmmintrin.h>
+
+// Add missing intrisics in some compilers (e.g. llvm-gcc)
+#ifndef _SIDD_UBYTE_OPS
+#define _SIDD_UBYTE_OPS                 0x00
+#endif
+
+#ifndef _SIDD_UWORD_OPS
+#define _SIDD_UWORD_OPS                 0x01
+#endif
+
+#ifndef _SIDD_SBYTE_OPS
+#define _SIDD_SBYTE_OPS                 0x02
+#endif
+
+#ifndef _SIDD_SWORD_OPS
+#define _SIDD_SWORD_OPS                 0x03
+#endif
+
+#ifndef _SIDD_CMP_EQUAL_ANY
+#define _SIDD_CMP_EQUAL_ANY             0x00
+#endif
+
+#ifndef _SIDD_CMP_RANGES
+#define _SIDD_CMP_RANGES                0x04
+#endif
+
+#ifndef _SIDD_CMP_EQUAL_EACH
+#define _SIDD_CMP_EQUAL_EACH            0x08
+#endif
+
+#ifndef _SIDD_CMP_EQUAL_ORDERED
+#define _SIDD_CMP_EQUAL_ORDERED         0x0c
+#endif
+
+#ifndef _SIDD_POSITIVE_POLARITY
+#define _SIDD_POSITIVE_POLARITY         0x00
+#endif
+
+#ifndef _SIDD_NEGATIVE_POLARITY
+#define _SIDD_NEGATIVE_POLARITY         0x10
+#endif
+
+#ifndef _SIDD_MASKED_POSITIVE_POLARITY
+#define _SIDD_MASKED_POSITIVE_POLARITY  0x20
+#endif
+
+#ifndef _SIDD_MASKED_NEGATIVE_POLARITY
+#define _SIDD_MASKED_NEGATIVE_POLARITY  0x30
+#endif
+
+#ifndef _SIDD_LEAST_SIGNIFICANT
+#define _SIDD_LEAST_SIGNIFICANT         0x00
+#endif
+
+#ifndef _SIDD_MOST_SIGNIFICANT
+#define _SIDD_MOST_SIGNIFICANT          0x40
+#endif
+
+#ifndef _SIDD_BIT_MASK
+#define _SIDD_BIT_MASK                  0x00
+#endif
+
+#ifndef _SIDD_UNIT_MASK
+#define _SIDD_UNIT_MASK                 0x40
+#endif
+
 #endif
 
 // AVX intrinsics

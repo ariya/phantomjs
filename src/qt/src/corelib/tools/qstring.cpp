@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -57,6 +57,7 @@
 #include "qhash.h"
 #include "qdebug.h"
 #include "qendian.h"
+#include "qmutex.h"
 
 #ifdef Q_OS_MAC
 #include <private/qcore_mac_p.h>
@@ -104,13 +105,14 @@ QTextCodec *QString::codecForCStrings;
 
 #ifdef QT3_SUPPORT
 static QHash<void *, QByteArray> *asciiCache = 0;
+Q_GLOBAL_STATIC(QMutex, asciiCacheMutex)
+
 #endif
 
 #ifdef QT_USE_ICU
 // qlocale_icu.cpp
 extern bool qt_ucol_strcoll(const QChar *source, int sourceLength, const QChar *target, int targetLength, int *result);
 #endif
-
 
 // internal
 int qFindString(const QChar *haystack, int haystackLen, int from,
@@ -1225,6 +1227,7 @@ void QString::free(Data *d)
 {
 #ifdef QT3_SUPPORT
     if (d->asciiCache) {
+        QMutexLocker locker(asciiCacheMutex());
         Q_ASSERT(asciiCache);
         asciiCache->remove(d);
     }
@@ -1359,6 +1362,7 @@ void QString::realloc(int alloc)
     } else {
 #ifdef QT3_SUPPORT
         if (d->asciiCache) {
+            QMutexLocker locker(asciiCacheMutex());
             Q_ASSERT(asciiCache);
             asciiCache->remove(d);
         }
@@ -3905,6 +3909,7 @@ QString QString::fromLatin1(const char *str, int size)
 */
 const char *QString::ascii_helper() const
 {
+    QMutexLocker locker(asciiCacheMutex());
     if (!asciiCache)
         asciiCache = new QHash<void *, QByteArray>();
 
@@ -3922,6 +3927,7 @@ const char *QString::ascii_helper() const
 */
 const char *QString::latin1_helper() const
 {
+    QMutexLocker locker(asciiCacheMutex());
     if (!asciiCache)
         asciiCache = new QHash<void *, QByteArray>();
 
@@ -7239,6 +7245,7 @@ QString &QString::setRawData(const QChar *unicode, int size)
     } else {
 #ifdef QT3_SUPPORT
         if (d->asciiCache) {
+            QMutexLocker locker(asciiCacheMutex());
             Q_ASSERT(asciiCache);
             asciiCache->remove(d);
         }

@@ -1,8 +1,8 @@
 
 /* pngwrite.c - general routines to write a PNG file
  *
- * Last changed in libpng 1.5.4 [July 7, 2011]
- * Copyright (c) 1998-2011 Glenn Randers-Pehrson
+ * Last changed in libpng 1.5.10 [March 8, 2012]
+ * Copyright (c) 1998-2012 Glenn Randers-Pehrson
  * (Version 0.96 Copyright (c) 1996, 1997 Andreas Dilger)
  * (Version 0.88 Copyright (c) 1995, 1996 Guy Eric Schalnat, Group 42, Inc.)
  *
@@ -12,8 +12,6 @@
  */
 
 #include "pngpriv.h"
-
-namespace PrivatePng {
 
 #ifdef PNG_WRITE_SUPPORTED
 
@@ -307,6 +305,11 @@ png_write_end(png_structp png_ptr, png_infop info_ptr)
    if (!(png_ptr->mode & PNG_HAVE_IDAT))
       png_error(png_ptr, "No IDATs written into file");
 
+#ifdef PNG_WRITE_CHECK_FOR_INVALID_INDEX_SUPPORTED
+   if (png_ptr->num_palette_max > png_ptr->num_palette)
+      png_benign_error(png_ptr, "Wrote palette index exceeding num_palette");
+#endif
+
    /* See if user wants us to write information chunks */
    if (info_ptr != NULL)
    {
@@ -492,8 +495,9 @@ png_create_write_struct_2,(png_const_charp user_png_ver, png_voidp error_ptr,
 
 #ifdef PNG_SETJMP_SUPPORTED
 /* Applications that neglect to set up their own setjmp() and then
-   encounter a png_error() will longjmp here.  Since the jmpbuf is
-   then meaningless we abort instead of returning. */
+ * encounter a png_error() will longjmp here.  Since the jmpbuf is
+ * then meaningless we abort instead of returning.
+ */
 #ifdef USE_FAR_KEYWORD
    if (setjmp(tmp_jmpbuf))
 #else
@@ -610,6 +614,9 @@ png_write_image(png_structp png_ptr, png_bytepp image)
 void PNGAPI
 png_write_row(png_structp png_ptr, png_const_bytep row)
 {
+   /* 1.5.6: moved from png_struct to be a local structure: */
+   png_row_info row_info;
+
    if (png_ptr == NULL)
       return;
 
@@ -733,36 +740,31 @@ png_write_row(png_structp png_ptr, png_const_bytep row)
 #endif
 
    /* Set up row info for transformations */
-   png_ptr->row_info.color_type = png_ptr->color_type;
-   png_ptr->row_info.width = png_ptr->usr_width;
-   png_ptr->row_info.channels = png_ptr->usr_channels;
-   png_ptr->row_info.bit_depth = png_ptr->usr_bit_depth;
-   png_ptr->row_info.pixel_depth = (png_byte)(png_ptr->row_info.bit_depth *
-      png_ptr->row_info.channels);
+   row_info.color_type = png_ptr->color_type;
+   row_info.width = png_ptr->usr_width;
+   row_info.channels = png_ptr->usr_channels;
+   row_info.bit_depth = png_ptr->usr_bit_depth;
+   row_info.pixel_depth = (png_byte)(row_info.bit_depth * row_info.channels);
+   row_info.rowbytes = PNG_ROWBYTES(row_info.pixel_depth, row_info.width);
 
-   png_ptr->row_info.rowbytes = PNG_ROWBYTES(png_ptr->row_info.pixel_depth,
-      png_ptr->row_info.width);
-
-   png_debug1(3, "row_info->color_type = %d", png_ptr->row_info.color_type);
-   png_debug1(3, "row_info->width = %u", png_ptr->row_info.width);
-   png_debug1(3, "row_info->channels = %d", png_ptr->row_info.channels);
-   png_debug1(3, "row_info->bit_depth = %d", png_ptr->row_info.bit_depth);
-   png_debug1(3, "row_info->pixel_depth = %d", png_ptr->row_info.pixel_depth);
-   png_debug1(3, "row_info->rowbytes = %lu",
-       (unsigned long)png_ptr->row_info.rowbytes);
+   png_debug1(3, "row_info->color_type = %d", row_info.color_type);
+   png_debug1(3, "row_info->width = %u", row_info.width);
+   png_debug1(3, "row_info->channels = %d", row_info.channels);
+   png_debug1(3, "row_info->bit_depth = %d", row_info.bit_depth);
+   png_debug1(3, "row_info->pixel_depth = %d", row_info.pixel_depth);
+   png_debug1(3, "row_info->rowbytes = %lu", (unsigned long)row_info.rowbytes);
 
    /* Copy user's row into buffer, leaving room for filter byte. */
-   png_memcpy(png_ptr->row_buf + 1, row, png_ptr->row_info.rowbytes);
+   png_memcpy(png_ptr->row_buf + 1, row, row_info.rowbytes);
 
 #ifdef PNG_WRITE_INTERLACING_SUPPORTED
    /* Handle interlacing */
    if (png_ptr->interlaced && png_ptr->pass < 6 &&
        (png_ptr->transformations & PNG_INTERLACE))
    {
-      png_do_write_interlace(&(png_ptr->row_info),
-          png_ptr->row_buf + 1, png_ptr->pass);
+      png_do_write_interlace(&row_info, png_ptr->row_buf + 1, png_ptr->pass);
       /* This should always get caught above, but still ... */
-      if (!(png_ptr->row_info.width))
+      if (!(row_info.width))
       {
          png_write_finish_row(png_ptr);
          return;
@@ -773,8 +775,15 @@ png_write_row(png_structp png_ptr, png_const_bytep row)
 #ifdef PNG_WRITE_TRANSFORMS_SUPPORTED
    /* Handle other transformations */
    if (png_ptr->transformations)
-      png_do_write_transformations(png_ptr);
+      png_do_write_transformations(png_ptr, &row_info);
 #endif
+
+   /* At this point the row_info pixel depth must match the 'transformed' depth,
+    * which is also the output depth.
+    */
+   if (row_info.pixel_depth != png_ptr->pixel_depth ||
+      row_info.pixel_depth != png_ptr->transformed_pixel_depth)
+      png_error(png_ptr, "internal write transform logic error");
 
 #ifdef PNG_MNG_FEATURES_SUPPORTED
    /* Write filter_method 64 (intrapixel differencing) only if
@@ -790,12 +799,19 @@ png_write_row(png_structp png_ptr, png_const_bytep row)
        (png_ptr->filter_type == PNG_INTRAPIXEL_DIFFERENCING))
    {
       /* Intrapixel differencing */
-      png_do_write_intrapixel(&(png_ptr->row_info), png_ptr->row_buf + 1);
+      png_do_write_intrapixel(&row_info, png_ptr->row_buf + 1);
    }
 #endif
 
+/* Added at libpng-1.5.10 */
+#ifdef PNG_WRITE_CHECK_FOR_INVALID_INDEX_SUPPORTED
+   /* Check for out-of-range palette index */
+   if(row_info.color_type == PNG_COLOR_TYPE_PALETTE)
+      png_do_check_palette_indexes(png_ptr, &row_info);
+#endif
+
    /* Find a filter if necessary, filter the row and write it out. */
-   png_write_find_filter(png_ptr, &(png_ptr->row_info));
+   png_write_find_filter(png_ptr, &row_info);
 
    if (png_ptr->write_row_fn != NULL)
       (*(png_ptr->write_row_fn))(png_ptr, png_ptr->row_number, png_ptr->pass);
@@ -881,13 +897,7 @@ png_destroy_write_struct(png_structpp png_ptr_ptr, png_infopp info_ptr_ptr)
    png_debug(1, "in png_destroy_write_struct");
 
    if (png_ptr_ptr != NULL)
-   {
       png_ptr = *png_ptr_ptr;
-#ifdef PNG_USER_MEM_SUPPORTED
-      free_fn = png_ptr->free_fn;
-      mem_ptr = png_ptr->mem_ptr;
-#endif
-   }
 
 #ifdef PNG_USER_MEM_SUPPORTED
    if (png_ptr != NULL)
@@ -1655,4 +1665,3 @@ png_write_png(png_structp png_ptr, png_infop info_ptr,
 }
 #endif
 #endif /* PNG_WRITE_SUPPORTED */
-} // namespace PrivatePng

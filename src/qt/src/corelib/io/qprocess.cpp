@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -528,6 +528,11 @@ void QProcessPrivate::Channel::clear()
     is not supported. The working directory will always be the private
     directory of the running process.
 
+    \note On QNX, setting the working directory may cause all
+    application threads, with the exception of the QProcess caller
+    thread, to temporarily freeze, owing to a limitation in
+    the operating system.
+
     \section1 Synchronous Process API
 
     QProcess provides a set of functions which allow it to be used
@@ -751,16 +756,12 @@ QProcessPrivate::QProcessPrivate()
     sequenceNumber = 0;
     exitCode = 0;
     exitStatus = QProcess::NormalExit;
-#ifndef Q_OS_QNX
     startupSocketNotifier = 0;
-#endif
     deathNotifier = 0;
     notifier = 0;
     pipeWriter = 0;
-#ifndef Q_OS_QNX
     childStartedPipe[0] = INVALID_Q_PIPE;
     childStartedPipe[1] = INVALID_Q_PIPE;
-#endif
     deathPipe[0] = INVALID_Q_PIPE;
     deathPipe[1] = INVALID_Q_PIPE;
     exitCode = 0;
@@ -829,13 +830,11 @@ void QProcessPrivate::cleanup()
         qDeleteInEventHandler(stdinChannel.notifier);
         stdinChannel.notifier = 0;
     }
-#ifndef Q_OS_QNX
     if (startupSocketNotifier) {
         startupSocketNotifier->setEnabled(false);
         qDeleteInEventHandler(startupSocketNotifier);
         startupSocketNotifier = 0;
     }
-#endif
     if (deathNotifier) {
         deathNotifier->setEnabled(false);
         qDeleteInEventHandler(deathNotifier);
@@ -848,9 +847,7 @@ void QProcessPrivate::cleanup()
     destroyPipe(stdoutChannel.pipe);
     destroyPipe(stderrChannel.pipe);
     destroyPipe(stdinChannel.pipe);
-#ifndef Q_OS_QNX
     destroyPipe(childStartedPipe);
-#endif
     destroyPipe(deathPipe);
 #ifdef Q_OS_UNIX
     serial = 0;
@@ -1085,10 +1082,8 @@ bool QProcessPrivate::_q_startupNotification()
     qDebug("QProcessPrivate::startupNotification()");
 #endif
 
-#ifndef Q_OS_QNX
     if (startupSocketNotifier)
         startupSocketNotifier->setEnabled(false);
-#endif
     if (processStarted()) {
         q->setProcessState(QProcess::Running);
         emit q->started();
@@ -1467,6 +1462,9 @@ QString QProcess::workingDirectory() const
     the private directory of the process is considered its working
     directory.
 
+    \note On QNX, this may cause all application threads to
+    temporarily freeze.
+
     \sa workingDirectory(), start()
 */
 void QProcess::setWorkingDirectory(const QString &dir)
@@ -1789,7 +1787,7 @@ void QProcess::setProcessState(ProcessState state)
     exit().
 
     \warning This function is called by QProcess on Unix and Mac OS X
-    only. On Windows, it is not called.
+    only. On Windows and QNX, it is not called.
 */
 void QProcess::setupChildProcess()
 {
@@ -2196,6 +2194,9 @@ int QProcess::execute(const QString &program)
     The started process will run as a regular standalone process.
 
     The process will be started in the directory \a workingDirectory.
+
+    \note On QNX, this may cause all application threads to
+    temporarily freeze.
 
     If the function is successful then *\a pid is set to the process
     identifier of the started process.

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -97,6 +97,7 @@ QCoreTextFontEngineMulti::QCoreTextFontEngineMulti(const QCFString &name, const 
     if (fontDef.stretch != 100) {
         transform = CGAffineTransformMakeScale(float(fontDef.stretch) / float(100), 1);
     }
+    transformAdvances = QSysInfo::MacintoshVersion >= QSysInfo::MV_10_7;
 
     QCFType<CTFontDescriptorRef> descriptor = CTFontDescriptorCreateWithNameAndSize(name, fontDef.pixelSize);
     QCFType<CTFontRef> baseFont = CTFontCreateWithFontDescriptor(descriptor, fontDef.pixelSize, &transform);
@@ -225,6 +226,7 @@ bool QCoreTextFontEngineMulti::stringToCMap(const QChar *str, int len, QGlyphLay
 
         Q_ASSERT((CTRunGetStatus(run) & kCTRunStatusRightToLeft) == rtl);
         CFRange stringRange = CTRunGetStringRange(run);
+        CGAffineTransform textMatrix = CTRunGetTextMatrix(run);
         int prepend = 0;
 #if MAC_OS_X_VERSION_MAX_ALLOWED == MAC_OS_X_VERSION_10_5
         UniChar beginGlyph = CFStringGetCharacterAtIndex(cfstring, stringRange.location);
@@ -319,9 +321,13 @@ bool QCoreTextFontEngineMulti::stringToCMap(const QChar *str, int len, QGlyphLay
             for (CFIndex i = 0; i < glyphCount - 1; ++i) {
                 int idx = rtlOffset + rtlSign * i;
                 outGlyphs[idx] = tmpGlyphs[i] | fontIndex;
-                outAdvances_x[idx] = QFixed::fromReal(tmpPoints[i + 1].x - tmpPoints[i].x);
+                CGSize advance = CGSizeMake(tmpPoints[i + 1].x - tmpPoints[i].x, tmpPoints[i].y - tmpPoints[i + 1].y);
+                if (transformAdvances)
+                    advance = CGSizeApplyAffineTransform(advance, textMatrix);
+
+                outAdvances_x[idx] = QFixed::fromReal(advance.width);
                 // Use negative y advance for flipped coordinate system
-                outAdvances_y[idx] = QFixed::fromReal(tmpPoints[i].y - tmpPoints[i + 1].y);
+                outAdvances_y[idx] = QFixed::fromReal(advance.height);
 
                 if (fontDef.styleStrategy & QFont::ForceIntegerMetrics) {
                     outAdvances_x[idx] = outAdvances_x[idx].round();

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -1014,14 +1014,25 @@ static int qCocoaViewCount = 0;
     // When entering characters through Character Viewer or Keyboard Viewer, the text is passed
     // through this insertText method. Since we dont receive a keyDown Event in such cases, the
     // composing flag will be false.
-    if (([aString length] && composing) || !fromKeyDownEvent) {
+    //
+    // Characters can be sent through input method directly without composing process as well,
+    // for instance a Chinese input method will send "，" (U+FF0C) to insertText: when "," key
+    // is pressed. In that case we want to set commit string directly instead of going through
+    // key events handling again. Hence we only leave the string with Unicode value less than
+    // 256 to the key events handling process.
+    if (([aString length] && (composing || commitText.at(0).unicode() > 0xff)) || !fromKeyDownEvent) {
         // Send the commit string to the widget.
-        composing = false;
-        sendKeyEvents = false;
         QInputMethodEvent e;
         e.setCommitString(commitText);
-        if (QWidget *widgetToGetKey = qt_mac_getTargetForKeyEvent(qwidget))
+        QWidget *widgetToGetKey = 0;
+        if (!composing || qApp->focusWidget())
+            widgetToGetKey = qt_mac_getTargetForKeyEvent(qwidget);
+        else if (QMacInputContext *mic = qobject_cast<QMacInputContext *>(qApp->inputContext()))
+            widgetToGetKey = mic->lastFocusWidget();
+        if (widgetToGetKey)
             qt_sendSpontaneousEvent(widgetToGetKey, &e);
+        composing = false;
+        sendKeyEvents = false;
     } else {
         // The key sequence "`q" on a French Keyboard will generate two calls to insertText before
         // it returns from interpretKeyEvents. The first call will turn off 'composing' and accept

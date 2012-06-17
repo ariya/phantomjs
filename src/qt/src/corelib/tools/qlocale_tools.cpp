@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -49,6 +49,10 @@
 #include <math.h>
 #include <stdlib.h>
 #include <time.h>
+
+#ifdef Q_OS_WINCE
+#   include "qfunctions_wince.h"    // for _control87
+#endif
 
 #if defined(Q_OS_LINUX) && !defined(__UCLIBC__)
 #    include <fenv.h>

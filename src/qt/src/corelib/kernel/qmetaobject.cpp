@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -1369,7 +1369,30 @@ const char *QMetaMethod::typeName() const
     Returns the tag associated with this method.
 
     Tags are special macros recognized by \c moc that make it
-    possible to add extra information about a method. For the moment,
+    possible to add extra information about a method.
+
+    Tag information can be added in the following
+    way in the function declaration:
+
+    \code
+        #define THISISTESTTAG // tag text
+        ...
+        private slots:
+            THISISTESTTAG void testFunc();
+    \endcode
+
+    and the information can be accessed by using:
+
+    \code
+        MainWindow win;
+        win.show();
+
+        int functionIndex = win.metaObject()->indexOfSlot("testFunc()");
+        QMetaMethod mm = metaObject()->method(functionIndex);
+        qDebug() << mm.tag(); // prints THISISTESTTAG
+    \endcode
+
+    For the moment,
     \c moc doesn't support any special tags.
 */
 const char *QMetaMethod::tag() const

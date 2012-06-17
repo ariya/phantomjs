@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -129,9 +129,9 @@
     \value NoProxy No proxying is used
     \value DefaultProxy Proxy is determined based on the application proxy set using setApplicationProxy()
     \value Socks5Proxy \l Socks5 proxying is used
-    \value HttpProxy HTTP transparent proxying is used
-    \value HttpCachingProxy Proxying for HTTP requests only
-    \value FtpCachingProxy Proxying for FTP requests only
+    \value HttpProxy HTTP transparent proxying is used (This value was introduced in 4.3.)
+    \value HttpCachingProxy Proxying for HTTP requests only (This value was introduced in 4.4.)
+    \value FtpCachingProxy Proxying for FTP requests only (This value was introduced in 4.4.)
 
     The table below lists different proxy types and their
     capabilities. Since each proxy type has different capabilities, it
@@ -247,6 +247,12 @@ public:
         , socks5SocketEngineHandler(0)
         , httpSocketEngineHandler(0)
     {
+#ifndef QT_NO_SOCKS5
+        socks5SocketEngineHandler = new QSocks5SocketEngineHandler();
+#endif
+#ifndef QT_NO_HTTP
+        httpSocketEngineHandler = new QHttpSocketEngineHandler();
+#endif
     }
 
     ~QGlobalNetworkProxy()
@@ -255,19 +261,6 @@ public:
         delete applicationLevelProxyFactory;
         delete socks5SocketEngineHandler;
         delete httpSocketEngineHandler;
-    }
-
-    void init()
-    {
-        QMutexLocker lock(&mutex);
-#ifndef QT_NO_SOCKS5
-        if (!socks5SocketEngineHandler)
-            socks5SocketEngineHandler = new QSocks5SocketEngineHandler();
-#endif
-#ifndef QT_NO_HTTP
-        if (!httpSocketEngineHandler)
-            httpSocketEngineHandler = new QHttpSocketEngineHandler();
-#endif
     }
 
     void setApplicationProxy(const QNetworkProxy &proxy)
@@ -430,8 +423,10 @@ template<> void QSharedDataPointer<QNetworkProxyPrivate>::detach()
 QNetworkProxy::QNetworkProxy()
     : d(0)
 {
-    if (QGlobalNetworkProxy *globalProxy = globalNetworkProxy())
-        globalProxy->init();
+    // make sure we have QGlobalNetworkProxy singleton created, otherwise
+    // you don't have any socket engine handler created when directly setting
+    // a proxy to the socket
+    globalNetworkProxy();
 }
 
 /*!
@@ -446,8 +441,10 @@ QNetworkProxy::QNetworkProxy(ProxyType type, const QString &hostName, quint16 po
                   const QString &user, const QString &password)
     : d(new QNetworkProxyPrivate(type, hostName, port, user, password))
 {
-    if (QGlobalNetworkProxy *globalProxy = globalNetworkProxy())
-        globalProxy->init();
+    // make sure we have QGlobalNetworkProxy singleton created, otherwise
+    // you don't have any socket engine handler created when directly setting
+    // a proxy to a socket
+    globalNetworkProxy();
 }
 
 /*!
@@ -1337,7 +1334,7 @@ void QNetworkProxyFactory::setApplicationProxyFactory(QNetworkProxyFactory *fact
 /*!
     \fn QList<QNetworkProxy> QNetworkProxyFactory::queryProxy(const QNetworkProxyQuery &query)
 
-    This function examines takes the query request, \a query,
+    This function takes the query request, \a query,
     examines the details of the type of socket or request and returns
     a list of QNetworkProxy objects that indicate the proxy servers to
     be used, in order of preference.
@@ -1358,7 +1355,7 @@ void QNetworkProxyFactory::setApplicationProxyFactory(QNetworkProxyFactory *fact
 /*!
     \fn QList<QNetworkProxy> QNetworkProxyFactory::systemProxyForQuery(const QNetworkProxyQuery &query)
 
-    This function examines takes the query request, \a query,
+    This function takes the query request, \a query,
     examines the details of the type of socket or request and returns
     a list of QNetworkProxy objects that indicate the proxy servers to
     be used, in order of preference.
@@ -1404,7 +1401,7 @@ void QNetworkProxyFactory::setApplicationProxyFactory(QNetworkProxyFactory *fact
 */
 
 /*!
-    This function examines takes the query request, \a query,
+    This function takes the query request, \a query,
     examines the details of the type of socket or request and returns
     a list of QNetworkProxy objects that indicate the proxy servers to
     be used, in order of preference.

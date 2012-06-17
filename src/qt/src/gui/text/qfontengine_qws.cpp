@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -331,7 +331,7 @@ QFontEngineQPF1::QFontEngineQPF1(const QFontDef&, const QString &fn)
         d->used_mmap = false;
 #endif
         d->mmapStart = new uchar[d->mmapLength];
-        if (QT_READ(fd, d->mmapStart, d->mmapLength) != d->mmapLength)
+        if (QT_READ(fd, d->mmapStart, d->mmapLength) != (qint64)d->mmapLength)
             qFatal("Failed to read '%s'", QFile::encodeName(fn).constData());
     }
     QT_CLOSE(fd);

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -46,7 +46,27 @@
 #include "qstringlist.h"
 #include "qvariant.h"
 
+#if defined(Q_OS_QNX)
+#include <unistd.h>
+#endif
+
 QT_BEGIN_NAMESPACE
+
+static const char *getSystemLocale()
+{
+#if defined(Q_OS_QNX)
+    static char buff[257];
+
+    memset(buff, 0, sizeof buff);
+
+    if (confstr(_CS_LOCALE, buff, 257) > 0)
+        return buff;
+    else
+        return qgetenv("LC_ALL");
+#else
+    return qgetenv("LC_ALL");
+#endif
+}
 
 #ifndef QT_NO_SYSTEMLOCALE
 struct QSystemLocaleData
@@ -57,17 +77,25 @@ struct QSystemLocaleData
          ,lc_monetary(QLocale::C)
          ,lc_messages(QLocale::C)
     {
-        QByteArray all = qgetenv("LC_ALL");
+        updateLocale();
+    }
+
+    void updateLocale()
+    {
+        QByteArray all = getSystemLocale();
         QByteArray numeric  = all.isEmpty() ? qgetenv("LC_NUMERIC") : all;
         QByteArray time     = all.isEmpty() ? qgetenv("LC_TIME") : all;
         QByteArray monetary = all.isEmpty() ? qgetenv("LC_MONETARY") : all;
         lc_messages_var     = all.isEmpty() ? qgetenv("LC_MESSAGES") : all;
         lc_measurement_var  = all.isEmpty() ? qgetenv("LC_MEASUREMENT") : all;
+
         QByteArray lang = qgetenv("LANG");
         if (lang.isEmpty())
             lang = QByteArray("C");
         if (numeric.isEmpty())
             numeric = lang;
+        if (time.isEmpty())
+            time = lang;
         if (monetary.isEmpty())
             monetary = lang;
         if (lc_messages_var.isEmpty())
@@ -93,7 +121,9 @@ Q_GLOBAL_STATIC(QSystemLocaleData, qSystemLocaleData)
 #ifndef QT_NO_SYSTEMLOCALE
 QLocale QSystemLocale::fallbackLocale() const
 {
-    QByteArray lang = qgetenv("LC_ALL");
+
+    QByteArray lang = getSystemLocale();
+
     if (lang.isEmpty())
         lang = qgetenv("LC_NUMERIC");
     if (lang.isEmpty())
@@ -216,6 +246,9 @@ QVariant QSystemLocale::query(QueryType type, QVariant in) const
         return lc_messages.quoteString(in.value<QStringRef>(), QLocale::AlternateQuotation);
     case ListToSeparatedString:
         return lc_messages.createSeparatedList(in.value<QStringList>());
+    case LocaleChanged:
+        d->updateLocale();
+        break;
     default:
         break;
     }

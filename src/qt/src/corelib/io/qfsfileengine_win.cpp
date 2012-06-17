@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -550,7 +550,7 @@ QString QFSFileEngine::currentPath(const QString &fileName)
     return ret;
 #else
     Q_UNUSED(fileName);
-    return QFileSystemEngine::currentPath();
+    return QFileSystemEngine::currentPath().filePath();
 #endif
 }
 
@@ -666,6 +666,7 @@ bool QFSFileEngine::link(const QString &newName)
 #endif // QT_NO_LIBRARY
 #else
     QString linkName = newName;
+    linkName.replace(QLatin1Char('/'), QLatin1Char('\\'));
     if (!linkName.endsWith(QLatin1String(".lnk")))
         linkName += QLatin1String(".lnk");
     QString orgName = fileName(AbsoluteName).replace(QLatin1Char('/'), QLatin1Char('\\'));

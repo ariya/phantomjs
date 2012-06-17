@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -1205,6 +1205,7 @@ bool qSharedBuild()
     \value SV_SF_4 \e{This enum value is deprecated.}
     \value SV_API_5_3 Symbian/S60 API version 5.3 release
     \value SV_API_5_4 Symbian/S60 API version 5.4 release
+    \value SV_API_5_5 Symbian/S60 API version 5.5 release
     \value SV_Unknown An unknown and currently unsupported platform
 
     \sa S60Version, WinVersion, MacVersion
@@ -1225,6 +1226,7 @@ bool qSharedBuild()
     \value SV_S60_5_2 Symbian^3 and Symbian Anna
     \value SV_S60_5_3 Symbian/S60 API version 5.3 release
     \value SV_S60_5_4 Symbian/S60 API version 5.4 release
+    \value SV_S60_5_5 Symbian/S60 API version 5.5 release
     \value SV_S60_Unknown An unknown and currently unsupported platform
     \omitvalue SV_S60_None
 
@@ -1821,9 +1823,12 @@ static void symbianInitVersions()
                 } else if (minor == 3) {
                     cachedS60Version = QSysInfo::SV_S60_5_3;
                     cachedSymbianVersion = QSysInfo::SV_API_5_3;
-                } else if (minor >= 4) {
+                } else if (minor == 4) {
                     cachedS60Version = QSysInfo::SV_S60_5_4;
                     cachedSymbianVersion = QSysInfo::SV_API_5_4;
+                } else if (minor >= 5) {
+                    cachedS60Version = QSysInfo::SV_S60_5_5;
+                    cachedSymbianVersion = QSysInfo::SV_API_5_5;
                 }
             }
         }
@@ -1853,6 +1858,9 @@ static void symbianInitVersions()
 #   elif defined(S60_VERSION_5_4)
         cachedS60Version = QSysInfo::SV_S60_5_4;
         cachedSymbianVersion = QSysInfo::SV_API_5_4;
+#   elif defined(S60_VERSION_5_5)
+        cachedS60Version = QSysInfo::SV_S60_5_5;
+        cachedSymbianVersion = QSysInfo::SV_API_5_5;
 #   endif
     }
 #  endif

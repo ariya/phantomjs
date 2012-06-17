@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -108,6 +108,9 @@ public:
     int &argc;
     char **argv;
     void appendApplicationPathToLibraryPaths(void);
+    void processCommandLineArguments();
+
+    static QString qmljsDebugArguments(); // access arguments from other libraries
 
 #ifndef QT_NO_TRANSLATION
     QTranslatorList translators;

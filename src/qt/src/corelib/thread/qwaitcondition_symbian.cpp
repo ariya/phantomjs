@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -112,7 +112,10 @@ public:
             --wakeups;
         }
 
-        mutex.Signal();
+        // if err is KErrGeneral it signals that the RCondVar is closed along with the mutex and that this has been deleted
+        // we must not access any member variables in this case
+        if (err != KErrGeneral)
+            mutex.Signal();
 
         if (err && err != KErrTimedOut)
             report_error(err, "QWaitCondition::wait()", "cv wait");

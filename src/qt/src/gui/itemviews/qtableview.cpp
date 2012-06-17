@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -3186,8 +3186,8 @@ void QTableView::currentChanged(const QModelIndex &current, const QModelIndex &p
 void QTableView::selectionChanged(const QItemSelection &selected,
                                   const QItemSelection &deselected)
 {
-    Q_D(QTableView);
 #ifndef QT_NO_ACCESSIBILITY
+    Q_D(QTableView);
     if (QAccessible::isActive()) {
         // ### does not work properly for selection ranges.
         QModelIndex sel = selected.indexes().value(0);

@@ -1,8 +1,8 @@
 
 /* pngset.c - storage of image information into info struct
  *
- * Last changed in libpng 1.5.4 [July 7, 2011]
- * Copyright (c) 1998-2011 Glenn Randers-Pehrson
+ * Last changed in libpng 1.5.10 [(PENDING RELEASE)]
+ * Copyright (c) 1998-2012 Glenn Randers-Pehrson
  * (Version 0.96 Copyright (c) 1996, 1997 Andreas Dilger)
  * (Version 0.88 Copyright (c) 1995, 1996 Guy Eric Schalnat, Group 42, Inc.)
  *
@@ -17,8 +17,6 @@
  */
 
 #include "pngpriv.h"
-
-namespace PrivatePng {
 
 #if defined(PNG_READ_SUPPORTED) || defined(PNG_WRITE_SUPPORTED)
 
@@ -66,6 +64,39 @@ png_set_cHRM_fixed(png_structp png_ptr, png_infop info_ptr,
    }
 }
 
+void PNGFAPI
+png_set_cHRM_XYZ_fixed(png_structp png_ptr, png_infop info_ptr,
+    png_fixed_point int_red_X, png_fixed_point int_red_Y,
+    png_fixed_point int_red_Z, png_fixed_point int_green_X,
+    png_fixed_point int_green_Y, png_fixed_point int_green_Z,
+    png_fixed_point int_blue_X, png_fixed_point int_blue_Y,
+    png_fixed_point int_blue_Z)
+{
+   png_XYZ XYZ;
+   png_xy xy;
+
+   png_debug1(1, "in %s storage function", "cHRM XYZ fixed");
+
+   if (png_ptr == NULL || info_ptr == NULL)
+      return;
+
+   XYZ.redX = int_red_X;
+   XYZ.redY = int_red_Y;
+   XYZ.redZ = int_red_Z;
+   XYZ.greenX = int_green_X;
+   XYZ.greenY = int_green_Y;
+   XYZ.greenZ = int_green_Z;
+   XYZ.blueX = int_blue_X;
+   XYZ.blueY = int_blue_Y;
+   XYZ.blueZ = int_blue_Z;
+
+   if (png_xy_from_XYZ(&xy, XYZ))
+      png_error(png_ptr, "XYZ values out of representable range");
+
+   png_set_cHRM_fixed(png_ptr, info_ptr, xy.whitex, xy.whitey, xy.redx, xy.redy,
+      xy.greenx, xy.greeny, xy.bluex, xy.bluey);
+}
+
 #  ifdef PNG_FLOATING_POINT_SUPPORTED
 void PNGAPI
 png_set_cHRM(png_structp png_ptr, png_infop info_ptr,
@@ -81,6 +112,23 @@ png_set_cHRM(png_structp png_ptr, png_infop info_ptr,
       png_fixed(png_ptr, green_y, "cHRM Green Y"),
       png_fixed(png_ptr, blue_x, "cHRM Blue X"),
       png_fixed(png_ptr, blue_y, "cHRM Blue Y"));
+}
+
+void PNGAPI
+png_set_cHRM_XYZ(png_structp png_ptr, png_infop info_ptr, double red_X,
+    double red_Y, double red_Z, double green_X, double green_Y, double green_Z,
+    double blue_X, double blue_Y, double blue_Z)
+{
+   png_set_cHRM_XYZ_fixed(png_ptr, info_ptr,
+      png_fixed(png_ptr, red_X, "cHRM Red X"),
+      png_fixed(png_ptr, red_Y, "cHRM Red Y"),
+      png_fixed(png_ptr, red_Z, "cHRM Red Z"),
+      png_fixed(png_ptr, green_X, "cHRM Red X"),
+      png_fixed(png_ptr, green_Y, "cHRM Red Y"),
+      png_fixed(png_ptr, green_Z, "cHRM Red Z"),
+      png_fixed(png_ptr, blue_X, "cHRM Red X"),
+      png_fixed(png_ptr, blue_Y, "cHRM Red Y"),
+      png_fixed(png_ptr, blue_Z, "cHRM Red Z"));
 }
 #  endif /* PNG_FLOATING_POINT_SUPPORTED */
 
@@ -101,7 +149,7 @@ png_set_gAMA_fixed(png_structp png_ptr, png_infop info_ptr, png_fixed_point
     * possible for 1/gamma to overflow the limit of 21474 and this means the
     * gamma value must be at least 5/100000 and hence at most 20000.0.  For
     * safety the limits here are a little narrower.  The values are 0.00016 to
-    * 6250.0, which are truely ridiculous gammma values (and will produce
+    * 6250.0, which are truly ridiculous gammma values (and will produce
     * displays that are all black or all white.)
     */
    if (file_gamma < 16 || file_gamma > 625000000)
@@ -554,10 +602,10 @@ png_set_sRGB_gAMA_and_cHRM(png_structp png_ptr, png_infop info_ptr,
 #  ifdef PNG_cHRM_SUPPORTED
    png_set_cHRM_fixed(png_ptr, info_ptr,
       /* color      x       y */
-      /* white */ 31270L, 32900L,
-      /* red   */ 64000L, 33000L,
-      /* green */ 30000L, 60000L,
-      /* blue  */ 15000L,  6000L
+      /* white */ 31270, 32900,
+      /* red   */ 64000, 33000,
+      /* green */ 30000, 60000,
+      /* blue  */ 15000,  6000
    );
 #  endif /* cHRM */
 }
@@ -572,7 +620,7 @@ png_set_iCCP(png_structp png_ptr, png_infop info_ptr,
 {
    png_charp new_iccp_name;
    png_bytep new_iccp_profile;
-   png_uint_32 length;
+   png_size_t length;
 
    png_debug1(1, "in %s storage function", "iCCP");
 
@@ -633,9 +681,8 @@ png_set_text_2(png_structp png_ptr, png_infop info_ptr,
 {
    int i;
 
-   png_debug1(1, "in %s storage function", ((png_ptr == NULL ||
-       png_ptr->chunk_name[0] == '\0') ?
-       "text" : (png_const_charp)png_ptr->chunk_name));
+   png_debug1(1, "in %lx storage function", png_ptr == NULL ? "unexpected" :
+      (unsigned long)png_ptr->chunk_name);
 
    if (png_ptr == NULL || info_ptr == NULL || num_text == 0)
       return(0);
@@ -645,24 +692,28 @@ png_set_text_2(png_structp png_ptr, png_infop info_ptr,
     */
    if (info_ptr->num_text + num_text > info_ptr->max_text)
    {
+      int old_max_text = info_ptr->max_text;
+      int old_num_text = info_ptr->num_text;
+
       if (info_ptr->text != NULL)
       {
          png_textp old_text;
-         int old_max;
 
-         old_max = info_ptr->max_text;
          info_ptr->max_text = info_ptr->num_text + num_text + 8;
          old_text = info_ptr->text;
+
          info_ptr->text = (png_textp)png_malloc_warn(png_ptr,
             (png_size_t)(info_ptr->max_text * png_sizeof(png_text)));
 
          if (info_ptr->text == NULL)
          {
-            png_free(png_ptr, old_text);
+            /* Restore to previous condition */
+            info_ptr->max_text = old_max_text;
+            info_ptr->text = old_text;
             return(1);
          }
 
-         png_memcpy(info_ptr->text, old_text, (png_size_t)(old_max *
+         png_memcpy(info_ptr->text, old_text, (png_size_t)(old_max_text *
              png_sizeof(png_text)));
          png_free(png_ptr, old_text);
       }
@@ -674,7 +725,12 @@ png_set_text_2(png_structp png_ptr, png_infop info_ptr,
          info_ptr->text = (png_textp)png_malloc_warn(png_ptr,
              (png_size_t)(info_ptr->max_text * png_sizeof(png_text)));
          if (info_ptr->text == NULL)
+         {
+            /* Restore to previous condition */
+            info_ptr->num_text = old_num_text;
+            info_ptr->max_text = old_max_text;
             return(1);
+         }
          info_ptr->free_me |= PNG_FREE_TEXT;
       }
 
@@ -817,6 +873,15 @@ png_set_tIME(png_structp png_ptr, png_infop info_ptr, png_const_timep mod_time)
        (png_ptr->mode & PNG_WROTE_tIME))
       return;
 
+   if (mod_time->month == 0   || mod_time->month > 12  ||
+       mod_time->day   == 0   || mod_time->day   > 31  ||
+       mod_time->hour  > 23   || mod_time->minute > 59 ||
+       mod_time->second > 60)
+   {
+      png_warning(png_ptr, "Ignoring invalid time value");
+      return;
+   }
+
    png_memcpy(&(info_ptr->mod_time), mod_time, png_sizeof(png_time));
    info_ptr->valid |= PNG_INFO_tIME;
 }
@@ -918,10 +983,10 @@ png_set_sPLT(png_structp png_ptr,
    {
       png_sPLT_tp to = np + info_ptr->splt_palettes_num + i;
       png_const_sPLT_tp from = entries + i;
-      png_uint_32 length;
+      png_size_t length;
 
       length = png_strlen(from->name) + 1;
-      to->name = (png_charp)png_malloc_warn(png_ptr, (png_size_t)length);
+      to->name = (png_charp)png_malloc_warn(png_ptr, length);
 
       if (to->name == NULL)
       {
@@ -932,7 +997,7 @@ png_set_sPLT(png_structp png_ptr,
 
       png_memcpy(to->name, from->name, length);
       to->entries = (png_sPLT_entryp)png_malloc_warn(png_ptr,
-          (png_size_t)(from->nentries * png_sizeof(png_sPLT_entry)));
+          from->nentries * png_sizeof(png_sPLT_entry));
 
       if (to->entries == NULL)
       {
@@ -1225,5 +1290,20 @@ png_set_benign_errors(png_structp png_ptr, int allowed)
       png_ptr->flags &= ~PNG_FLAG_BENIGN_ERRORS_WARN;
 }
 #endif /* PNG_BENIGN_ERRORS_SUPPORTED */
+
+#ifdef PNG_READ_CHECK_FOR_INVALID_INDEX_SUPPORTED
+   /* Do not report invalid palette index; added at libng-1.5.10 */
+void PNGAPI
+png_set_check_for_invalid_index(png_structp png_ptr, int allowed)
+{
+   png_debug(1, "in png_set_check_for_invalid_index");
+
+   if (allowed)
+      png_ptr->num_palette_max = 0;
+
+   else
+      png_ptr->num_palette_max = -1;
+}
+#endif
+
 #endif /* PNG_READ_SUPPORTED || PNG_WRITE_SUPPORTED */
-} // namespace PrivatePng

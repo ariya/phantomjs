@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -84,6 +84,46 @@ qDebug() << "first char" << hex << unicodeRange[0];
     for (int i = 0; i < systems.count(); ++i)
         family->writingSystems[systems.at(i)] = QtFontFamily::Supported;
 }
+#else
+// this could become a list of all languages used for each writing
+// system, instead of using the single most common language.
+static const char *languageForWritingSystem[] = {
+    0,     // Any
+    "en",  // Latin
+    "el",  // Greek
+    "ru",  // Cyrillic
+    "hy",  // Armenian
+    "he",  // Hebrew
+    "ar",  // Arabic
+    "syr", // Syriac
+    "div", // Thaana
+    "hi",  // Devanagari
+    "bn",  // Bengali
+    "pa",  // Gurmukhi
+    "gu",  // Gujarati
+    "or",  // Oriya
+    "ta",  // Tamil
+    "te",  // Telugu
+    "kn",  // Kannada
+    "ml",  // Malayalam
+    "si",  // Sinhala
+    "th",  // Thai
+    "lo",  // Lao
+    "bo",  // Tibetan
+    "my",  // Myanmar
+    "ka",  // Georgian
+    "km",  // Khmer
+    "zh-cn", // SimplifiedChinese
+    "zh-tw", // TraditionalChinese
+    "ja",  // Japanese
+    "ko",  // Korean
+    "vi",  // Vietnamese
+    0, // Symbol
+    0, // Ogham
+    0, // Runic
+    0 // N'Ko
+};
+enum { LanguageCount = sizeof(languageForWritingSystem) / sizeof(const char *) };
 #endif
 
 static void initializeDb()
@@ -107,8 +147,18 @@ if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_5) {
         QCFString family_name = (CFStringRef)CTFontDescriptorCopyLocalizedAttribute(font, kCTFontFamilyNameAttribute, NULL);
         QCFString style_name = (CFStringRef)CTFontDescriptorCopyLocalizedAttribute(font, kCTFontStyleNameAttribute, NULL);
         QtFontFamily *family = db->family(family_name, true);
-        for(int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws)
-            family->writingSystems[ws] = QtFontFamily::Supported;
+
+        if (QCFType<CFArrayRef> languages = (CFArrayRef) CTFontDescriptorCopyAttribute(font, kCTFontLanguagesAttribute)) {
+            CFIndex length = CFArrayGetCount(languages);
+            for (int i = 1; i < LanguageCount; ++i) {
+                if (!languageForWritingSystem[i])
+                    continue;
+                QCFString lang = CFStringCreateWithCString(NULL, languageForWritingSystem[i], kCFStringEncodingASCII);
+                if (CFArrayContainsValue(languages, CFRangeMake(0, length), lang))
+                    family->writingSystems[i] = QtFontFamily::Supported;
+            }
+        }
+
         QtFontFoundry *foundry = family->foundry(foundry_name, true);
 
         QtFontStyle::Key styleKey;

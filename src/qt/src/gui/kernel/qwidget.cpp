@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -314,6 +314,7 @@ QWidgetPrivate::QWidgetPrivate(int version)
 #elif defined(Q_OS_SYMBIAN)
       , symbianScreenNumber(0)
       , fixNativeOrientationCalled(false)
+      , isGLGlobalShareWidget(0)
 #endif
 {
     if (!qApp) {
@@ -1312,6 +1313,7 @@ void QWidgetPrivate::init(QWidget *parentWidget, Qt::WindowFlags f)
 #elif defined(Q_WS_QPA)
     if (desktopWidget) {
         int screen = desktopWidget->d_func()->topData()->screenIndex;
+        topData()->screenIndex = screen;
         QPlatformIntegration *platform = QApplicationPrivate::platformIntegration();
         platform->moveToScreen(q, screen);
     }
@@ -2418,11 +2420,19 @@ void QWidgetPrivate::paintBackground(QPainter *painter, const QRegion &rgn, int 
 
     if ((flags & DrawAsRoot) && !(q->autoFillBackground() && autoFillBrush.isOpaque())) {
         const QBrush bg = q->palette().brush(QPalette::Window);
-#ifdef Q_WS_QWS
-        if (!(flags & DontSetCompositionMode) && painter->paintEngine()->hasFeature(QPaintEngine::PorterDuff))
-            painter->setCompositionMode(QPainter::CompositionMode_Source); //copy alpha straight in
-#endif
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
+        if (!(flags & DontSetCompositionMode)) {
+            //copy alpha straight in
+            QPainter::CompositionMode oldMode = painter->compositionMode();
+            painter->setCompositionMode(QPainter::CompositionMode_Source);
+            fillRegion(painter, rgn, bg);
+            painter->setCompositionMode(oldMode);
+        } else {
+            fillRegion(painter, rgn, bg);
+        }
+#else
         fillRegion(painter, rgn, bg);
+#endif
     }
 
     if (q->autoFillBackground())
@@ -3344,8 +3354,8 @@ QList<QAction*> QWidget::actions() const
     \property QWidget::enabled
     \brief whether the widget is enabled
 
-    An enabled widget handles keyboard and mouse events; a disabled
-    widget does not.
+    In general an enabled widget handles keyboard and mouse events; a disabled
+    widget does not. An exception is made with \l{QAbstractButton}.
 
     Some widgets display themselves differently when they are
     disabled. For example a button might draw its label grayed out. If
@@ -5705,7 +5715,7 @@ void QWidgetPrivate::render(QPaintDevice *target, const QPoint &targetOffset,
     else
         flags |= DontSubtractOpaqueChildren;
 
-#ifdef Q_WS_QWS
+#if defined(Q_WS_QWS) || defined(Q_WS_QPA)
     flags |= DontSetCompositionMode;
 #endif
 

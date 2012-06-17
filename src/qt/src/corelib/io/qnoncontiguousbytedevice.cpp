@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -392,6 +392,7 @@ bool QNonContiguousByteDeviceIoDeviceImpl::reset()
 
     if (device->seek(initialPosition)) {
         eof = false; // assume eof is false, it will be true after a read has been attempted
+        totalAdvancements = 0; //reset the progress counter
         return true;
     }
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -156,6 +156,7 @@ public:
     QStringList &values(const QString &v); // With compat mapping and magic variables
     QString first(const QString &v); // ditto
     QMap<QString, QStringList> &variables(); // No compat mapping and magic, obviously
+    int intValue(const QString &v, int defaultValue = 0); // ditto
 
     bool isRecursive() const { return recursive; }
 
@@ -186,6 +187,18 @@ inline QString QMakeProject::first(const QString &v)
     if(vals.isEmpty())
         return QString("");
     return vals.first();
+}
+
+inline int QMakeProject::intValue(const QString &v, int defaultValue)
+{
+    const QString str = first(v);
+    if (!str.isEmpty()) {
+        bool ok;
+        int i = str.toInt(&ok);
+        if (ok)
+            return i;
+    }
+    return defaultValue;
 }
 
 inline QMap<QString, QStringList> &QMakeProject::variables()

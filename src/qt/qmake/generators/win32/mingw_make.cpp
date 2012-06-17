@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -410,14 +410,14 @@ void MingwMakefileGenerator::writeObjectsPart(QTextStream &t)
             QString ar_cmd = project->values("QMAKE_LIB").join(" ");
             if (ar_cmd.isEmpty())
                 ar_cmd = "armar --create";
-            objectsLinkLine = ar_cmd + " " + var("DEST_TARGET") + " --via " + ar_script_file;
+            objectsLinkLine = ar_cmd + " " + var("DEST_TARGET") + " --via " + escapeFilePath(ar_script_file);
         } else {
             // Strip off any options since the ar commands will be read from file.
             QString ar_cmd = var("QMAKE_LIB").section(" ", 0, 0);;
             if (ar_cmd.isEmpty())
                 ar_cmd = "ar";
             createArObjectScriptFile(ar_script_file, var("DEST_TARGET"), project->values("OBJECTS"));
-            objectsLinkLine = ar_cmd + " -M < " + ar_script_file;
+            objectsLinkLine = ar_cmd + " -M < " + escapeFilePath(ar_script_file);
         }
     } else {
         QString ld_script_file = var("QMAKE_LINK_OBJECT_SCRIPT") + "." + var("TARGET");
@@ -426,10 +426,10 @@ void MingwMakefileGenerator::writeObjectsPart(QTextStream &t)
 	}
         if (project->isActiveConfig("rvct_linker")) {
             createRvctObjectScriptFile(ld_script_file, project->values("OBJECTS"));
-            objectsLinkLine = QString::fromLatin1("--via ") + ld_script_file;
+            objectsLinkLine = QString::fromLatin1("--via ") + escapeFilePath(ld_script_file);
         } else {
             createLdObjectScriptFile(ld_script_file, project->values("OBJECTS"));
-            objectsLinkLine = ld_script_file;
+            objectsLinkLine = escapeFilePath(ld_script_file);
         }
     }
     Win32MakefileGenerator::writeObjectsPart(t);

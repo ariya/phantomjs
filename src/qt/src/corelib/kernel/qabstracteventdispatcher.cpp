@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -265,8 +265,8 @@ void QAbstractEventDispatcherPrivate::releaseTimerId(int timerId)
 
     QAbstractEventDispatcher also allows the integration of an
     external event loop with the Qt event loop. For example, the
-    \l{Qt Solutions}{Motif Extension Qt Solution} includes a
-    reimplementation of QAbstractEventDispatcher that merges Qt and
+    \l{Motif Extension}
+    includes a reimplementation of QAbstractEventDispatcher that merges Qt and
     Motif events together.
 
     \sa QEventLoop, QCoreApplication
@@ -532,8 +532,12 @@ QAbstractEventDispatcher::EventFilter QAbstractEventDispatcher::setEventFilter(E
 bool QAbstractEventDispatcher::filterEvent(void *message)
 {
     Q_D(QAbstractEventDispatcher);
-    if (d->event_filter)
+    if (d->event_filter) {
+        // Raise the loopLevel so that deleteLater() calls in or triggered
+        // by event_filter() will be processed from the main event loop.
+        QScopedLoopLevelCounter loopLevelCounter(d->threadData);
         return d->event_filter(message);
+    }
     return false;
 }
 

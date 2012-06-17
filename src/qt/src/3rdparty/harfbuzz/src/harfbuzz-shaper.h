@@ -231,7 +231,8 @@ typedef struct {
 } HB_GlyphMetrics;
 
 typedef enum {
-    HB_FontAscent
+    HB_FontAscent,
+    HB_FontDescent
 } HB_FontMetric;
 
 typedef struct {

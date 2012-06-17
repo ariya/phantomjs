@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -315,7 +315,8 @@ void QProgressBar::setValue(int value)
     d->value = value;
     emit valueChanged(value);
 #ifndef QT_NO_ACCESSIBILITY
-    QAccessible::updateAccessibility(this, 0, QAccessible::ValueChanged);
+    if (isVisible())
+        QAccessible::updateAccessibility(this, 0, QAccessible::ValueChanged);
 #endif
     if (d->repaintRequired())
         repaint();

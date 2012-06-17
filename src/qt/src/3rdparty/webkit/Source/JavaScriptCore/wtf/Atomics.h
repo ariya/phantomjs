@@ -67,6 +67,8 @@
 #include <libkern/OSAtomic.h>
 #elif OS(ANDROID)
 #include <cutils/atomic.h>
+#elif OS(QNX)
+#include <atomic.h>
 #elif COMPILER(GCC) && !OS(SYMBIAN)
 #if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 2))
 #include <ext/atomicity.h>
@@ -98,6 +100,11 @@ inline int atomicDecrement(int volatile* addend) { return OSAtomicDecrement32Bar
 
 inline int atomicIncrement(int volatile* addend) { return android_atomic_inc(addend); }
 inline int atomicDecrement(int volatile* addend) { return android_atomic_dec(addend); }
+
+#elif OS(QNX)
+
+inline int atomicIncrement(int volatile* addend) { return (int) atomic_add_value((unsigned int volatile*)addend, 1); }
+inline int atomicDecrement(int volatile* addend) { return (int) atomic_sub_value((unsigned int volatile*)addend, 1); }
 
 #elif COMPILER(GCC) && !CPU(SPARC64) && !OS(SYMBIAN) // sizeof(_Atomic_word) != sizeof(int) on sparc64 gcc
 #define WTF_USE_LOCKFREE_THREADSAFEREFCOUNTED 1

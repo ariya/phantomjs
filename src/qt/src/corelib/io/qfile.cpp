@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -1669,7 +1669,6 @@ bool QFile::atEnd() const
 
 /*!
     \fn bool QFile::seek(qint64 pos)
-    \since 4.8
 
     For random-access devices, this function sets the current position
     to \a pos, returning true on success, or false if an error occurred.
@@ -1691,6 +1690,9 @@ bool QFile::seek(qint64 off)
         qWarning("QFile::seek: IODevice is not open");
         return false;
     }
+
+    if (off == d->pos && off == d->devicePos)
+        return true; //avoid expensive flush for NOP seek to current position
 
     if (!d->ensureFlushed())
         return false;

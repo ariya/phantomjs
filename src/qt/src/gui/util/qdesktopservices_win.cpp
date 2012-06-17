@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -54,9 +54,6 @@
 #  include <intshcut.h>
 #else
 #  include <qguifunctions_wince.h>
-#  if !defined(STANDARDSHELL_UI_MODEL)
-#    include <winx.h>
-#  endif
 #endif
 
 #ifndef CSIDL_MYMUSIC

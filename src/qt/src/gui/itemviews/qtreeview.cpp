@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -83,7 +83,7 @@ QT_BEGIN_NAMESPACE
 
     It is simple to construct a tree view displaying data from a
     model. In the following example, the contents of a directory are
-    supplied by a QDirModel and displayed as a tree:
+    supplied by a QFileSystemModel and displayed as a tree:
 
     \snippet doc/src/snippets/shareddirmodel/main.cpp 3
     \snippet doc/src/snippets/shareddirmodel/main.cpp 6
@@ -1390,7 +1390,10 @@ void QTreeViewPrivate::adjustViewOptionsForIndex(QStyleOptionViewItemV4 *option,
 
     QVector<int> logicalIndices; // index = visual index of visible columns only. data = logical index.
     QVector<QStyleOptionViewItemV4::ViewItemPosition> viewItemPosList; // vector of left/middle/end for each logicalIndex, visible columns only.
-    calcLogicalIndices(&logicalIndices, &viewItemPosList);
+    const bool spanning = viewItems.at(row).spanning;
+    const int left = (spanning ? header->visualIndex(0) : 0);
+    const int right = (spanning ? header->visualIndex(0) : header->count() - 1 );
+    calcLogicalIndices(&logicalIndices, &viewItemPosList, left, right);
 
     int columnIndex = 0;
     for (int visualIndex = 0; visualIndex < current.column(); ++visualIndex) {
@@ -1488,10 +1491,8 @@ static inline bool ancestorOf(QObject *widget, QObject *other)
     return false;
 }
 
-void QTreeViewPrivate::calcLogicalIndices(QVector<int> *logicalIndices, QVector<QStyleOptionViewItemV4::ViewItemPosition> *itemPositions) const
+void QTreeViewPrivate::calcLogicalIndices(QVector<int> *logicalIndices, QVector<QStyleOptionViewItemV4::ViewItemPosition> *itemPositions, int left, int right) const
 {
-    const int left = (spanning ? header->visualIndex(0) : leftAndRight.first);
-    const int right = (spanning ? header->visualIndex(0) : leftAndRight.second);
     const int columnCount = header->count();
     /* 'left' and 'right' are the left-most and right-most visible visual indices.
        Compute the first visible logical indices before and after the left and right.
@@ -1615,7 +1616,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
 
     QVector<int> logicalIndices;
     QVector<QStyleOptionViewItemV4::ViewItemPosition> viewItemPosList; // vector of left/middle/end for each logicalIndex
-    d->calcLogicalIndices(&logicalIndices, &viewItemPosList);
+    d->calcLogicalIndices(&logicalIndices, &viewItemPosList, left, right);
 
     for (int currentLogicalSection = 0; currentLogicalSection < logicalIndices.count(); ++currentLogicalSection) {
         int headerSection = logicalIndices.at(currentLogicalSection);

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -54,6 +54,7 @@
 #include <QtCore/QDebug>
 
 #include <errno.h>
+#include <limits.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -242,11 +243,10 @@ bool QEventDispatcherQPA::processEvents(QEventLoop::ProcessEventsFlags flags)
     }
 
     if (!d->interrupt) {
-        if (QEventDispatcherUNIX::processEvents(flags)) {
-            QEventDispatcherUNIX::processEvents(flags);
+        if (QEventDispatcherUNIX::processEvents(flags))
             return true;
-        }
     }
+
     return (nevents > 0);
 }
 
@@ -285,7 +285,7 @@ int QEventDispatcherQPA::select(int nfds, fd_set *readfds, fd_set *writefds, fd_
     Q_D(QEventDispatcherQPA);
     int retVal = 0;
     if (d->hasIntegration()) {
-        qint64 timeoutmsec = 1000; // wait a second if we don't have timers
+        qint64 timeoutmsec = LONG_MAX; // wait if we don't have timers
         if (timeout)
             timeoutmsec = timeout->tv_sec * 1000 + (timeout->tv_usec/1000);
         d->selectReturnMutex->lock();

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -790,6 +790,9 @@ bool QSettingsPrivate::iniUnescapedStringList(const QByteArray &str, int from, i
                                               QString &stringResult, QStringList &stringListResult,
                                               QTextCodec *codec)
 {
+#ifdef QT_NO_TEXTCODE
+    Q_UNUSED(codec);
+#endif
     static const char escapeCodes[][2] =
     {
         { 'a', '\a' },
@@ -2433,6 +2436,27 @@ void QConfFileSettingsPrivate::ensureSectionParsed(QConfFile *confFile,
 
     Note that this may affect framework libraries' functionality if they expect
     the settings to be shared between applications.
+
+    \section2 Changing the location of global Qt settings on Mac OS X
+
+    On Mac OS X, the global Qt settings (stored in \c com.trolltech.plist)
+    are stored in the application settings file in two situations:
+
+    \list 1
+    \o If the application runs in a Mac OS X sandbox (on Mac OS X 10.7 or later) or
+    \o If the \c Info.plist file of the application contains the key \c "ForAppStore" with the value \c "yes"
+    \endlist
+
+    In these situations, the application settings file is named using
+    the bundle identifier of the application, which must consequently
+    be set in the application's \c Info.plist file.
+
+    This feature is provided to ease the acceptance of Qt applications into
+    the Mac App Store, as the default behaviour of storing global Qt
+    settings in the \c com.trolltech.plist file does not conform with Mac
+    App Store file system usage requirements. For more information
+    about submitting Qt applications to the Mac App Store, see
+    \l{mac-differences.html#Preparing a Qt application for Mac App Store submission}{Preparing a Qt application for Mac App Store submission}.
 
     \section2 Platform Limitations
 

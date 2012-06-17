@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -183,6 +183,7 @@ QSslSocketBackendPrivate::QSslSocketBackendPrivate()
 
 QSslSocketBackendPrivate::~QSslSocketBackendPrivate()
 {
+    destroySslContext();
 }
 
 QSslCipher QSslSocketBackendPrivate::QSslCipher_from_SSL_CIPHER(SSL_CIPHER *cipher)
@@ -451,11 +452,7 @@ init_context:
         if (!ace.isEmpty()
             && !QHostAddress().setAddress(tlsHostName)
             && !(configuration.sslOptions & QSsl::SslOptionDisableServerNameIndication)) {
-#if OPENSSL_VERSION_NUMBER >= 0x10000000L
             if (!q_SSL_ctrl(ssl, SSL_CTRL_SET_TLSEXT_HOSTNAME, TLSEXT_NAMETYPE_host_name, ace.data()))
-#else
-            if (!q_SSL_ctrl(ssl, SSL_CTRL_SET_TLSEXT_HOSTNAME, TLSEXT_NAMETYPE_host_name, ace.constData()))
-#endif
                 qWarning("could not set SSL_CTRL_SET_TLSEXT_HOSTNAME, Server Name Indication disabled");
         }
     }
@@ -485,6 +482,22 @@ init_context:
         q_SSL_set_accept_state(ssl);
 
     return true;
+}
+
+void QSslSocketBackendPrivate::destroySslContext()
+{
+    if (ssl) {
+        q_SSL_free(ssl);
+        ssl = 0;
+    }
+    if (ctx) {
+        q_SSL_CTX_free(ctx);
+        ctx = 0;
+    }
+    if (pkey) {
+        q_EVP_PKEY_free(pkey);
+        pkey = 0;
+    }
 }
 
 /*!
@@ -1044,10 +1057,17 @@ void QSslSocketBackendPrivate::transmit()
             int encryptedBytesRead = q_BIO_read(writeBio, data.data(), pendingBytes);
 
             // Write encrypted data from the buffer to the socket.
-            plainSocket->write(data.constData(), encryptedBytesRead);
+            qint64 actualWritten = plainSocket->write(data.constData(), encryptedBytesRead);
 #ifdef QSSLSOCKET_DEBUG
-            qDebug() << "QSslSocketBackendPrivate::transmit: wrote" << encryptedBytesRead << "encrypted bytes to the socket";
+            qDebug() << "QSslSocketBackendPrivate::transmit: wrote" << encryptedBytesRead << "encrypted bytes to the socket" << actualWritten << "actual.";
 #endif
+            if (actualWritten < 0) {
+                //plain socket write fails if it was in the pending close state.
+                q->setErrorString(plainSocket->errorString());
+                q->setSocketError(plainSocket->error());
+                emit q->error(plainSocket->error());
+                return;
+            }
             transmitting = true;
         }
 
@@ -1400,19 +1420,10 @@ void QSslSocketBackendPrivate::disconnectFromHost()
 
 void QSslSocketBackendPrivate::disconnected()
 {
-    if (ssl) {
-        q_SSL_free(ssl);
-        ssl = 0;
-    }
-    if (ctx) {
-        q_SSL_CTX_free(ctx);
-        ctx = 0;
-    }
-    if (pkey) {
-        q_EVP_PKEY_free(pkey);
-        pkey = 0;
-    }
-
+    if (plainSocket->bytesAvailable() <= 0)
+        destroySslContext();
+    //if there is still buffered data in the plain socket, don't destroy the ssl context yet.
+    //it will be destroyed when the socket is deleted.
 }
 
 QSslCipher QSslSocketBackendPrivate::sessionCipher() const

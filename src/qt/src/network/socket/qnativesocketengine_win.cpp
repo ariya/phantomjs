@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -429,10 +429,14 @@ int QNativeSocketEnginePrivate::option(QNativeSocketEngine::SocketOption opt) co
         break;
     }
 
-    int v = -1;
+#if Q_BYTE_ORDER != Q_LITTLE_ENDIAN
+#error code assumes windows is little endian
+#endif
+    int v = 0; //note: windows doesn't write to all bytes if the option type is smaller than int
     QT_SOCKOPTLEN_T len = sizeof(v);
-    if (getsockopt(socketDescriptor, level, n, (char *) &v, &len) != -1)
+    if (getsockopt(socketDescriptor, level, n, (char *) &v, &len) == 0)
         return v;
+    WS_ERROR_DEBUG(WSAGetLastError());
     return -1;
 }
 

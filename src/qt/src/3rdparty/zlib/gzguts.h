@@ -4,8 +4,12 @@
  */
 
 #ifdef _MSC_VER
-#  define _CRT_SECURE_NO_DEPRECATE
-#  define _CRT_NONSTDC_NO_DEPRECATE
+#  ifndef _CRT_SECURE_NO_DEPRECATE
+#    define _CRT_SECURE_NO_DEPRECATE
+#  endif
+#  ifndef _CRT_NONSTDC_NO_DEPRECATE
+#    define _CRT_NONSTDC_NO_DEPRECATE
+#  endif
 #endif
 
 #ifdef _LARGEFILE64_SOURCE
@@ -32,7 +36,10 @@
 #  include <limits.h>
 #endif
 #if !defined(_WIN32_WCE)
-#include <fcntl.h>
+#  include <fcntl.h>
+#else
+# include <qglobal.h>
+# include <qfunctions_wince.h>
 #endif
 
 #ifdef NO_DEFLATE       /* for compatibility with old definition */
@@ -40,7 +47,9 @@
 #endif
 
 #ifdef _MSC_VER
-#  include <io.h>
+#  if !defined(_WIN32_WCE)
+#    include <io.h>
+#  endif
 #  define vsnprintf _vsnprintf
 #endif
 

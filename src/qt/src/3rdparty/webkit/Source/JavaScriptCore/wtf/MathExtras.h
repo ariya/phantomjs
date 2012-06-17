@@ -32,6 +32,10 @@
 #include <limits>
 #include <stdlib.h>
 
+#if OS(QNX)
+#include <math.h>
+#endif
+
 #if OS(SOLARIS)
 #include <ieeefp.h>
 #endif

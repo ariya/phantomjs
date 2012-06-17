@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -980,7 +980,7 @@ const QString qt_reg_winclass(QWidget *w)        // register window class
         icon  = true;
     } else if (w && (type == Qt::Tool || type == Qt::ToolTip)) {
         style = CS_DBLCLKS;
-        if (w->inherits("QTipLabel") || w->inherits("QAlphaWidget")) {
+        if (type == Qt::ToolTip || w->inherits("QTipLabel") || w->inherits("QAlphaWidget")) {
             if ((QSysInfo::WindowsVersion >= QSysInfo::WV_XP
                 && (QSysInfo::WindowsVersion & QSysInfo::WV_NT_based))) {
                 style |= CS_DROPSHADOW;
@@ -1714,8 +1714,8 @@ extern "C" LRESULT QT_WIN_CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wPa
                         shrg.ptDown.x = GET_X_LPARAM(lParam);
                         shrg.ptDown.y = GET_Y_LPARAM(lParam);
                         shrg.dwFlags = SHRG_RETURNCMD | SHRG_NOANIMATION;
-                        resolveAygLibs();
 #ifndef QT_NO_GESTURES
+                        resolveAygLibs();
                         if (ptrRecognizeGesture && (ptrRecognizeGesture(&shrg) == GN_CONTEXTMENU)) {
                             if (QApplication::activePopupWidget())
                                 QApplication::activePopupWidget()->close();
@@ -2360,6 +2360,7 @@ extern "C" LRESULT QT_WIN_CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wPa
 #ifndef QT_NO_ACCESSIBILITY
         case WM_GETOBJECT:
             {
+#if !defined(Q_OS_WINCE)
                 /* On Win64, lParam can be 0x00000000fffffffc or 0xfffffffffffffffc (!),
                    but MSDN says that lParam should be converted to a DWORD
                    before its compared against OBJID_CLIENT
@@ -2371,7 +2372,6 @@ extern "C" LRESULT QT_WIN_CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wPa
                     break;
                 }
 
-#if !defined(Q_OS_WINCE)
                 typedef LRESULT (WINAPI *PtrLresultFromObject)(REFIID, WPARAM, LPUNKNOWN);
                 static PtrLresultFromObject ptrLresultFromObject = 0;
                 static bool oleaccChecked = false;

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -67,7 +67,7 @@ QWindowsPipeWriter::~QWindowsPipeWriter()
     quitNow = true;
     waitCondition.wakeOne();
     lock.unlock();
-    if (!wait(100))
+    if (!wait(30000))
         terminate();
 #if !defined(Q_OS_WINCE) || (_WIN32_WCE >= 0x600)
     CloseHandle(writePipe);

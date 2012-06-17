@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -9509,7 +9509,7 @@ QVariant QGraphicsLineItem::extension(const QVariant &variant) const
     QPixmap::createHeuristicMask().  The performance and memory consumption
     is similar to MaskShape.
 */
-extern QPainterPath qt_regionToPath(const QRegion &region);
+extern Q_AUTOTEST_EXPORT QPainterPath qt_regionToPath(const QRegion &region);
 
 class QGraphicsPixmapItemPrivate : public QGraphicsItemPrivate
 {
@@ -11068,9 +11068,9 @@ QGraphicsItemGroup::~QGraphicsItemGroup()
 }
 
 /*!
-    Adds the given \a item to this item group. The item will be
-    reparented to this group, but its position and transformation
-    relative to the scene will stay intact.
+    Adds the given \a item and item's child items to this item group.
+    The item and child items will be reparented to this group, but its
+    position and transformation relative to the scene will stay intact.
 
     \sa removeFromGroup(), QGraphicsScene::createItemGroup()
 */

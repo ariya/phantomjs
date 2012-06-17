@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -559,6 +559,8 @@ void VCXProjectWriter::write(XmlOutput &xml, VCProjectSingleConfig &tool)
         outputFilter(tempProj, xml, xmlFilter, tempProj.ExtraCompilers.at(x));
     }
 
+    outputFilter(tempProj, xml, xmlFilter, "Root Files");
+
     xml << import("Project", "$(VCTargetsPath)\\Microsoft.Cpp.targets");
 
     xml << tag("ImportGroup")
@@ -658,6 +660,13 @@ void VCXProjectWriter::write(XmlOutput &xml, VCProject &tool)
             xml << tag("LinkIncremental")
                 << attrTag("Condition", QString("'$(Configuration)|$(Platform)'=='%1'").arg(tool.SingleProjects.at(i).Configuration.Name))
                 << valueTagT(ts);
+        }
+
+        const triState generateManifest = tool.SingleProjects.at(i).Configuration.linker.GenerateManifest;
+        if (generateManifest != unset) {
+            xml << tag("GenerateManifest")
+                << attrTag("Condition", QString("'$(Configuration)|$(Platform)'=='%1'").arg(tool.SingleProjects.at(i).Configuration.Name))
+                << valueTagT(generateManifest);
         }
 
         if ( tool.SingleProjects.at(i).Configuration.preBuild.ExcludedFromBuild != unset )
@@ -902,10 +911,14 @@ static inline QString toString(inlineExpansionOption option)
 static inline QString toString(optimizeOption option)
 {
     switch (option) {
+    case optimizeDisabled:
+        return "Disabled";
     case optimizeMinSpace:
         return "MinSpace";
     case optimizeMaxSpeed:
         return "MaxSpeed";
+    case optimizeFull:
+        return "Full";
     }
     return QString();
 }

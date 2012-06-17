@@ -4,7 +4,7 @@ INCLUDEPATH *= $$QMAKE_INCDIR_QT/$$TARGET #just for today to have some compat
 isEmpty(QT_ARCH):!isEmpty(ARCH):QT_ARCH=$$ARCH #another compat that will rot for change #215700
 TEMPLATE	= lib
 isEmpty(QT_MAJOR_VERSION) {
-   VERSION=4.8.0
+   VERSION=4.8.2
 } else {
    VERSION=$${QT_MAJOR_VERSION}.$${QT_MINOR_VERSION}.$${QT_PATCH_VERSION}
 }
@@ -135,10 +135,8 @@ embedded:DEPENDPATH += ;$$EMBEDDED_H
 #install directives
 include(qt_install.pri)
 
-unix:!symbian {
-   CONFIG     += create_libtool create_pc explicitlib
-   QMAKE_LIBTOOL_LIBDIR = $$[QT_INSTALL_LIBS]
-   QMAKE_PRL_LIBDIR = $$[QT_INSTALL_LIBS]
+unix|win32-g++*:!symbian {
+   CONFIG += create_pc
    QMAKE_PKGCONFIG_LIBDIR = $$[QT_INSTALL_LIBS]
    QMAKE_PKGCONFIG_INCDIR = $$[QT_INSTALL_HEADERS]/$$TARGET
    QMAKE_PKGCONFIG_CFLAGS = -I$$[QT_INSTALL_HEADERS]
@@ -149,17 +147,15 @@ unix:!symbian {
    lib_replace.replace = $$[QT_INSTALL_LIBS]
    prefix_replace.match = $$QT_BUILD_TREE
    prefix_replace.replace = $$[QT_INSTALL_PREFIX]
-   QMAKE_PRL_INSTALL_REPLACE += include_replace lib_replace
-   QMAKE_LIBTOOL_INSTALL_REPLACE += include_replace lib_replace
    QMAKE_PKGCONFIG_INSTALL_REPLACE += include_replace lib_replace prefix_replace
 }
 
-win32-g++* {
-   CONFIG += create_pc
-   QMAKE_PKGCONFIG_LIBDIR = $$[QT_INSTALL_LIBS]
-   QMAKE_PKGCONFIG_INCDIR = $$[QT_INSTALL_HEADERS]/$$TARGET
-   QMAKE_PKGCONFIG_CFLAGS = -I$$[QT_INSTALL_HEADERS]
-   QMAKE_PKGCONFIG_DESTDIR = pkgconfig
+unix:!symbian {
+   CONFIG += create_libtool explicitlib
+   QMAKE_LIBTOOL_LIBDIR = $$[QT_INSTALL_LIBS]
+   QMAKE_PRL_LIBDIR = $$[QT_INSTALL_LIBS]
+   QMAKE_PRL_INSTALL_REPLACE += include_replace lib_replace
+   QMAKE_LIBTOOL_INSTALL_REPLACE += include_replace lib_replace
 }
 
 contains(QT_PRODUCT, OpenSource.*):DEFINES *= QT_OPENSOURCE
@@ -209,7 +205,7 @@ symbian {
         else: PARTIAL_UPGRADE_UID = 0xE001E61C
 
         pu_header = "; Partial upgrade package for testing $${TARGET} changes without reinstalling everything" \
-                    "$${LITERAL_HASH}{\"$${TARGET}\"}, ($$PARTIAL_UPGRADE_UID), $${QT_MAJOR_VERSION},$${QT_MINOR_VERSION},$${QT_PATCH_VERSION}, TYPE=PU"
+                    "$${LITERAL_HASH}{\"$${TARGET}\"}, ($$PARTIAL_UPGRADE_UID), $${QT_MAJOR_VERSION},$${QT_MINOR_VERSION},$${QT_PATCH_VERSION}, TYPE=PU,RU"
         partial_upgrade.pkg_prerules = pu_header vendorinfo
         partial_upgrade.files = $$QMAKE_LIBDIR_QT/$${TARGET}.dll
         partial_upgrade.path = c:/sys/bin

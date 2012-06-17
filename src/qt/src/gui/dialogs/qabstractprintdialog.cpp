@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -79,7 +79,7 @@ class QPrintDialogPrivate : public QAbstractPrintDialogPrivate
     \value AllPages All pages should be printed.
     \value Selection Only the selection should be printed.
     \value PageRange The specified page range should be printed.
-    \value CurrentPage Only the currently visible page should be printed.
+    \value CurrentPage Only the currently visible page should be printed. (This value was introduced in 4.7.)
 
     \sa QPrinter::PrintRange
 */
@@ -95,7 +95,7 @@ class QPrintDialogPrivate : public QAbstractPrintDialogPrivate
     \value PrintPageRange The page range selection option is enabled.
     \value PrintShowPageSize  Show the page size + margins page only if this is enabled.
     \value PrintCollateCopies The collate copies option is enabled
-    \value PrintCurrentPage The print current page option is enabled
+    \value PrintCurrentPage The print current page option is enabled (This value was introduced in 4.7.)
 
     This value is obsolete and does nothing since Qt 4.5:
 

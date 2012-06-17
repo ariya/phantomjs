@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -223,12 +223,21 @@ void initProjectDeploySymbian(QMakeProject* project,
         } else {
             if (0 == platform.compare(QLatin1String(EMULATOR_DEPLOYMENT_PLATFORM))) {
                 if (devicePathHasDriveLetter) {
-                    if (devicePath.startsWith("!"))
-                        devicePath = qt_epocRoot() + "epoc32/winscw/c" + devicePath.remove(0, 2);
-                    else
-                        devicePath = qt_epocRoot() + "epoc32/winscw/" + devicePath.remove(1, 1);
+                    if (devicePath.startsWith("z", Qt::CaseInsensitive)) {
+                        devicePath = qt_epocRoot() + "epoc32/release/winscw/" + build + "/z" + devicePath.remove(0, 2);
+                    } else {
+                        // Do not create deployment for urel target. Otherwise we would be generating two
+                        // identical deployments for paths with drive letter other than Z.
+                        if (0 == build.compare(QLatin1String("urel"), Qt::CaseInsensitive))
+                            continue;
+                        if (devicePath.startsWith("!"))
+                            devicePath = qt_epocRoot() + "epoc32/winscw/c" + devicePath.remove(0, 2);
+                        else
+                            devicePath = qt_epocRoot() + "epoc32/winscw/" + devicePath.remove(1, 1);
+                    }
                 } else {
-                    devicePath = qt_epocRoot() + "epoc32/winscw/c" + devicePath;
+                    // If no device path drive letter, deploy to "emulator ROM drive"
+                    devicePath = qt_epocRoot() + "epoc32/release/winscw/" + build + "/z" + devicePath;
                 }
             } else {
                 if (devicePathHasDriveLetter

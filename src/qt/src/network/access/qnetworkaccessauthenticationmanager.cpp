@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -159,6 +159,11 @@ void QNetworkAccessAuthenticationManager::cacheProxyCredentials(const QNetworkPr
     QString realm = authenticator->realm();
     QNetworkProxy proxy = p;
     proxy.setUser(authenticator->user());
+
+    // don't cache null passwords, empty password may be valid though
+    if (authenticator->password().isNull())
+        return;
+
     // Set two credentials: one with the username and one without
     do {
         // Set two credentials actually: one with and one without the realm
@@ -283,9 +288,12 @@ QNetworkAccessAuthenticationManager::fetchCachedCredentials(const QUrl &url,
 
     QNetworkAuthenticationCache *auth =
         static_cast<QNetworkAuthenticationCache *>(authenticationCache.requestEntryNow(cacheKey));
-    QNetworkAuthenticationCredential cred = *auth->findClosestMatch(url.path());
+    QNetworkAuthenticationCredential *cred = auth->findClosestMatch(url.path());
+    QNetworkAuthenticationCredential ret;
+    if (cred)
+        ret = *cred;
     authenticationCache.releaseEntry(cacheKey);
-    return cred;
+    return ret;
 }
 
 void QNetworkAccessAuthenticationManager::clearCache()

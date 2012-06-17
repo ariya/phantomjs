@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -135,6 +135,8 @@ bool QHttpSocketEngine::isValid() const
 bool QHttpSocketEngine::connectInternal()
 {
     Q_D(QHttpSocketEngine);
+
+    d->credentialsSent = false;
 
     // If the handshake is done, enter ConnectedState state and return true.
     if (d->state == Connected) {
@@ -514,6 +516,7 @@ void QHttpSocketEngine::slotSocketConnected()
     QAuthenticatorPrivate *priv = QAuthenticatorPrivate::getPrivate(d->authenticator);
     //qDebug() << "slotSocketConnected: priv=" << priv << (priv ? (int)priv->method : -1);
     if (priv && priv->method != QAuthenticatorPrivate::None) {
+        d->credentialsSent = true;
         data += "Proxy-Authorization: " + priv->calculateResponse(method, path);
         data += "\r\n";
     }
@@ -591,15 +594,26 @@ void QHttpSocketEngine::slotSocketReadNotification()
     d->readBuffer.clear(); // we parsed the proxy protocol response. from now on direct socket reading will be done
 
     int statusCode = responseHeader.statusCode();
+    QAuthenticatorPrivate *priv = 0;
     if (statusCode == 200) {
         d->state = Connected;
         setLocalAddress(d->socket->localAddress());
         setLocalPort(d->socket->localPort());
         setState(QAbstractSocket::ConnectedState);
+        d->authenticator.detach();
+        priv = QAuthenticatorPrivate::getPrivate(d->authenticator);
+        priv->hasFailed = false;
     } else if (statusCode == 407) {
-        if (d->authenticator.isNull())
+        if (d->credentialsSent) {
+            //407 response again means the provided username/password were invalid.
+            d->authenticator = QAuthenticator(); //this is needed otherwise parseHttpResponse won't set the state, and then signal isn't emitted.
             d->authenticator.detach();
-        QAuthenticatorPrivate *priv = QAuthenticatorPrivate::getPrivate(d->authenticator);
+            priv = QAuthenticatorPrivate::getPrivate(d->authenticator);
+            priv->hasFailed = true;
+        }
+        else if (d->authenticator.isNull())
+            d->authenticator.detach();
+        priv = QAuthenticatorPrivate::getPrivate(d->authenticator);
 
         priv->parseHttpResponse(responseHeader, true);
 
@@ -639,7 +653,6 @@ void QHttpSocketEngine::slotSocketReadNotification()
 
         if (priv->phase == QAuthenticatorPrivate::Done)
             emit proxyAuthenticationRequired(d->proxy, &d->authenticator);
-
         // priv->phase will get reset to QAuthenticatorPrivate::Start if the authenticator got modified in the signal above.
         if (priv->phase == QAuthenticatorPrivate::Done) {
             setError(QAbstractSocket::ProxyAuthenticationRequiredError, tr("Authentication required"));
@@ -796,6 +809,7 @@ QHttpSocketEnginePrivate::QHttpSocketEnginePrivate()
     , readNotificationPending(false)
     , writeNotificationPending(false)
     , connectionNotificationPending(false)
+    , credentialsSent(false)
     , pendingResponseData(0)
 {
     socket = 0;

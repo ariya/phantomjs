@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -406,7 +406,7 @@ void QTextEditPrivate::_q_ensureVisible(const QRectF &_rect)
     within the text.
 
     If you want to limit the total number of paragraphs in a QTextEdit,
-    as it is for example open useful in a log viewer, then you can use
+    as for example it is often useful in a log viewer, then you can use
     QTextDocument's maximumBlockCount property for that.
 
     \section2 Read-only Key Bindings

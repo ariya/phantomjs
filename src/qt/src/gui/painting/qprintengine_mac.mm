@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -148,7 +148,7 @@ QMacPrintEnginePrivate::~QMacPrintEnginePrivate()
 void QMacPrintEnginePrivate::setPaperSize(QPrinter::PaperSize ps)
 {
     Q_Q(QMacPrintEngine);
-    QSizeF newSize = qt_paperSizeToQSizeF(ps);
+    QSize newSize = qt_paperSizeToQSizeF(ps).toSize();
     QCFType<CFArrayRef> formats;
     PMPrinter printer;
 
@@ -179,12 +179,14 @@ void QMacPrintEnginePrivate::setPaperSize(QPrinter::PaperSize ps)
 
 QPrinter::PaperSize QMacPrintEnginePrivate::paperSize() const
 {
+    if (hasCustomPaperSize)
+        return QPrinter::Custom;
     PMRect paper;
     PMGetUnadjustedPaperRect(format, &paper);
     int wMM = int((paper.right - paper.left) / 72 * 25.4 + 0.5);
     int hMM = int((paper.bottom - paper.top) / 72 * 25.4 + 0.5);
     for (int i = QPrinter::A4; i < QPrinter::NPaperSize; ++i) {
-        QSizeF s = qt_paperSizeToQSizeF(QPrinter::PaperSize(i));
+        QSize s = qt_paperSizeToQSizeF(QPrinter::PaperSize(i)).toSize();
         if (s.width() == wMM && s.height() == hMM)
             return (QPrinter::PaperSize)i;
     }
@@ -854,11 +856,11 @@ QVariant QMacPrintEngine::property(PrintEnginePropertyKey key) const
     case PPK_PaperRect: {
         QRect r;
         PMRect macrect;
+        qreal hRatio = d->resolution.hRes / 72;
+        qreal vRatio = d->resolution.vRes / 72;
         if (d->hasCustomPaperSize) {
-            r = QRect(0, 0, qRound(d->customSize.width()), qRound(d->customSize.height()));
+            r = QRect(0, 0, qRound(d->customSize.width() * hRatio), qRound(d->customSize.height() * vRatio));
         } else if (PMGetAdjustedPaperRect(d->format, &macrect) == noErr) {
-            qreal hRatio = d->resolution.hRes / 72;
-            qreal vRatio = d->resolution.vRes / 72;
             r.setCoords(int(macrect.left * hRatio), int(macrect.top * vRatio),
                         int(macrect.right * hRatio), int(macrect.bottom * vRatio));
             r.translate(-r.x(), -r.y());

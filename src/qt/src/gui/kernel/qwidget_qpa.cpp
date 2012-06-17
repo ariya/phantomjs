@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -441,7 +441,15 @@ void QWidgetPrivate::hide_sys()
 
 void QWidgetPrivate::setMaxWindowState_helper()
 {
-    setFullScreenSize_helper(); //### decoration size
+    Q_Q(QWidget);
+
+    const uint old_state = data.in_set_window_state;
+    data.in_set_window_state = 1;
+
+    const QRect desktop = qApp->desktop()->availableGeometry(qApp->desktop()->screenNumber(q));
+    q->setGeometry(desktop);
+
+    data.in_set_window_state = old_state;
 }
 
 void QWidgetPrivate::setFullScreenSize_helper()

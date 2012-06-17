@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -393,16 +393,18 @@ void QWidgetPrivate::create_sys(WId window, bool /* initializeWindow */, bool de
                 stackingFlags = ECoeStackFlagStandard;
             }
             control->MakeVisible(false);
-            QT_TRAP_THROWING(control->ControlEnv()->AppUi()->AddToStackL(control.data(), ECoeStackPriorityDefault, stackingFlags));
-            // Avoid keyboard focus to a hidden window.
-            control->setFocusSafely(false);
 
-            RDrawableWindow *const drawableWindow = control->DrawableWindow();
-            // Request mouse move events.
-            drawableWindow->PointerFilter(EPointerFilterEnterExit
-                | EPointerFilterMove | EPointerFilterDrag, 0);
-            drawableWindow->EnableVisibilityChangeEvents();
+            if (!isGLGlobalShareWidget) {
+                QT_TRAP_THROWING(control->ControlEnv()->AppUi()->AddToStackL(control.data(), ECoeStackPriorityDefault, stackingFlags));
+                // Avoid keyboard focus to a hidden window.
+                control->setFocusSafely(false);
 
+                RDrawableWindow *const drawableWindow = control->DrawableWindow();
+                // Request mouse move events.
+                drawableWindow->PointerFilter(EPointerFilterEnterExit
+                    | EPointerFilterMove | EPointerFilterDrag, 0);
+                drawableWindow->EnableVisibilityChangeEvents();
+            }
         }
 
         q->setAttribute(Qt::WA_WState_Created);
@@ -1201,8 +1203,8 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
             window->setFocusSafely(false);
             window->MakeVisible(false);
         } else if (window && oldstate & Qt::WindowMinimized) {
-            window->setFocusSafely(true);
             window->MakeVisible(true);
+            window->setFocusSafely(true);
         }
 
 #ifdef Q_WS_S60

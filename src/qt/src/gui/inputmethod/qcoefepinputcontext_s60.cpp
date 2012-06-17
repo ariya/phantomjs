@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -501,6 +501,14 @@ void QCoeFepInputContext::setFocusWidget(QWidget *w)
     QInputContext::setFocusWidget(w);
 
     updateHints(true);
+    if (w) {
+        // Store last focused widget and object. Needed when Menu is Opened
+        QObject *focusObject = 0;
+        m_lastFocusedEditor = getQWidgetFromQGraphicsView(focusWidget(),
+            &focusObject);
+        m_lastFocusedObject = focusObject; // Can be null
+        Q_ASSERT(m_lastFocusedEditor);
+    }
 }
 
 void QCoeFepInputContext::widgetDestroyed(QWidget *w)
@@ -1166,7 +1174,7 @@ void QCoeFepInputContext::applyHints(Qt::InputMethodHints hints)
         flags |= EAknEditorFlagNoT9;
     }
     
-   if ((hints & (ImhEmailCharactersOnly | ImhUrlCharactersOnly)) && (S60->editorFlags & EAknEditorFlagLatinInputModesOnly)){
+    if (S60->editorFlags & EAknEditorFlagLatinInputModesOnly){
         flags |= EAknEditorFlagLatinInputModesOnly;
     }
    
@@ -1388,15 +1396,25 @@ void QCoeFepInputContext::StartFepInlineEditL(const TDesC& aInitialInlineText,
     // but FEP requires that selected text is always removed at StartFepInlineEditL.
     // Let's remove the selected text if aInitialInlineText is empty and there is selected text
     if (m_preeditString.isEmpty()) {
-        int anchor = w->inputMethodQuery(Qt::ImAnchorPosition).toInt();
-        int cursorPos = w->inputMethodQuery(Qt::ImCursorPosition).toInt();
-        int replacementLength = qAbs(cursorPos-anchor);
-        if (replacementLength > 0) {
-            int replacementStart = cursorPos < anchor ? 0 : -replacementLength;
-            QList<QInputMethodEvent::Attribute> clearSelectionAttributes;
-            QInputMethodEvent clearSelectionEvent(QLatin1String(""), clearSelectionAttributes);
-            clearSelectionEvent.setCommitString(QLatin1String(""), replacementStart, replacementLength);
+        QString currentSelection = w->inputMethodQuery(Qt::ImCurrentSelection).toString();
+        if (!currentSelection.isEmpty()) {
+            // To correctly remove selection in cases where we have multiple lines selected,
+            // we must rely on the control's own selection removal mechanism, as surrounding
+            // text contains only one line. It's also impossible to accurately detect
+            // these overselection cases as the anchor and cursor positions are limited to the
+            // surrounding text.
+            // Solution is to clear the selection by faking a preedit. Use a dummy character
+            // from the current selection just to be safe.
+            QString dummyText = currentSelection.left(1);
+            QList<QInputMethodEvent::Attribute> attributes;
+            QInputMethodEvent clearSelectionEvent(dummyText, attributes);
+            clearSelectionEvent.setCommitString(QLatin1String(""), 0, 0);
             sendEvent(clearSelectionEvent);
+
+            // Now that selection is taken care of, clear the fake preedit.
+            QInputMethodEvent clearPreeditEvent(QLatin1String(""), attributes);
+            clearPreeditEvent.setCommitString(QLatin1String(""), 0, 0);
+            sendEvent(clearPreeditEvent);
         }
     }
 
@@ -1483,9 +1501,10 @@ void QCoeFepInputContext::CancelFepInlineEdit()
         m_inlinePosition = 0;
         sendEvent(event);
 
-        // Sync with native side editor state. Native side can then do various operations
-        // based on editor state, such as removing 'exact word bubble'.
-        if (!m_pendingInputCapabilitiesChanged)
+        // Prior to S60 5.4 need to sync with native side editor state so that native side can then do
+        // various operations based on editor state, such as removing 'exact word bubble'.
+        // Starting with S60 5.4 this sync request is not needed and can actually lead to a crash.
+        if (QSysInfo::s60Version() < QSysInfo::SV_S60_5_4 && !m_pendingInputCapabilitiesChanged)
             ReportAknEdStateEvent(MAknEdStateObserver::EAknSyncEdwinState);
     } QT_CATCH(const std::exception&) {
         m_preeditString.clear();
@@ -1499,21 +1518,52 @@ TInt QCoeFepInputContext::DocumentLengthForFep() const
 {
     QT_TRY {
         QWidget *w = focusWidget();
+        QObject *focusObject = 0;
+        if (!w) {
+            //when Menu is opened editor lost the focus, but fep manager wants focused editor
+            w = m_lastFocusedEditor;
+            focusObject = m_lastFocusedObject;
+        } else {
+            w = getQWidgetFromQGraphicsView(w, &focusObject);
+        }
         if (!w)
             return 0;
 
         QVariant variant = w->inputMethodQuery(Qt::ImSurroundingText);
-
         int size = variant.value<QString>().size() + m_preeditString.size();
 
         // To fix an issue with backspaces not being generated if document size is zero,
         // fake document length to be at least one always, except when dealing with
-        // hidden text widgets, where this faking would generate extra asterisk. Since the
-        // primary use of hidden text widgets is password fields, they are unlikely to
-        // support multiple lines anyway.
-        if (size == 0 && !(m_textCapabilities & TCoeInputCapabilities::ESecretText))
-            size = 1;
-
+        // hidden text widgets, all singleline text widgets and
+        // also multiline text widget with single line.
+        if (size == 0 && !(m_textCapabilities & TCoeInputCapabilities::ESecretText)
+            && !(qobject_cast< QLineEdit *> (w))) {
+            int lineCount = 0;
+            if (QTextEdit* tedit = qobject_cast<QTextEdit *>(w)) {
+                lineCount = tedit->document()->lineCount();
+            } else if (QPlainTextEdit* ptedit = qobject_cast<QPlainTextEdit *>(w)) {
+                lineCount = ptedit->document()->lineCount();
+            } else {
+                // Unknown editor (probably a QML one); Request the "lineCount" property.
+                QObject *invokeTarget = w;
+                if (focusObject)
+                    invokeTarget = focusObject;
+                QVariant lineVariant = invokeTarget->property("lineCount");
+                if (lineVariant.isValid()) {
+                    lineCount = lineVariant.toInt();
+                } else {
+                    // If we can't get linecount from a custom QML editor, assume that it
+                    // has multiple lines, so that it can receive backspaces also when
+                    // the current line is empty.
+                    lineCount = 2;
+                }
+            }
+            // To fix an issue with backspaces not being generated if document size is zero,
+            // return size to 1 only for multiline editors with
+            // no text and multiple lines presented.
+            if (lineCount > 1)
+                size = 1;
+        }
         return size;
     } QT_CATCH(const std::exception&) {
         return 0;

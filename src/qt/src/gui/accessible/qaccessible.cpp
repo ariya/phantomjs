@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -333,6 +333,7 @@ QT_BEGIN_NAMESPACE
     \value ColumnHeader     A header for a column of data.
     \value ComboBox         A list of choices that the user can select from.
     \value Cursor           An object that represents the mouse cursor.
+    \value Desktop          The object represents the desktop or workspace.
     \value Dial             An object that represents a dial or knob.
     \value Dialog           A dialog box.
     \value Document         A document window, usually in an MDI environment.
@@ -370,6 +371,7 @@ QT_BEGIN_NAMESPACE
     \value StaticText       Static text, such as labels for other widgets.
     \value StatusBar        A status bar.
     \value Table            A table representing data in a grid of rows and columns.
+    \value Terminal         A terminal or command line interface.
     \value TitleBar         The title bar caption of a window.
     \value ToolBar          A tool bar, which groups widgets that the user accesses frequently.
     \value ToolTip          A tool tip which provides information about other objects.
@@ -583,9 +585,6 @@ QAccessibleInterface *QAccessible::queryAccessibleInterface(QObject *object)
     QAccessibleInterface *iface = 0;
     if (!object)
         return 0;
-
-    QEvent e(QEvent::AccessibilityPrepare);
-    QApplication::sendEvent(object, &e);
 
     const QMetaObject *mo = object->metaObject();
     while (mo) {

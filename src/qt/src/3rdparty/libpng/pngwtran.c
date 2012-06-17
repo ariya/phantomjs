@@ -1,7 +1,7 @@
 
 /* pngwtran.c - transforms the data in a row for PNG writers
  *
- * Last changed in libpng 1.5.4 [July 7, 2011]
+ * Last changed in libpng 1.5.6 [November 3, 2011]
  * Copyright (c) 1998-2011 Glenn Randers-Pehrson
  * (Version 0.96 Copyright (c) 1996, 1997 Andreas Dilger)
  * (Version 0.88 Copyright (c) 1995, 1996 Guy Eric Schalnat, Group 42, Inc.)
@@ -13,8 +13,6 @@
 
 #include "pngpriv.h"
 
-namespace PrivatePng {
-
 #ifdef PNG_WRITE_SUPPORTED
 
 #ifdef PNG_WRITE_TRANSFORMS_SUPPORTED
@@ -22,7 +20,7 @@ namespace PrivatePng {
  * transformations is significant.
  */
 void /* PRIVATE */
-png_do_write_transformations(png_structp png_ptr)
+png_do_write_transformations(png_structp png_ptr, png_row_infop row_info)
 {
    png_debug(1, "in png_do_write_transformations");
 
@@ -34,8 +32,8 @@ png_do_write_transformations(png_structp png_ptr)
       if (png_ptr->write_user_transform_fn != NULL)
          (*(png_ptr->write_user_transform_fn)) /* User write transform
                                                  function */
-             (png_ptr,                    /* png_ptr */
-             &(png_ptr->row_info),           /* row_info: */
+             (png_ptr,  /* png_ptr */
+             row_info,  /* row_info: */
                 /*  png_uint_32 width;       width of row */
                 /*  png_size_t rowbytes;     number of bytes in row */
                 /*  png_byte color_type;     color type of pixels */
@@ -47,50 +45,50 @@ png_do_write_transformations(png_structp png_ptr)
 
 #ifdef PNG_WRITE_FILLER_SUPPORTED
    if (png_ptr->transformations & PNG_FILLER)
-      png_do_strip_channel(&(png_ptr->row_info), png_ptr->row_buf + 1,
+      png_do_strip_channel(row_info, png_ptr->row_buf + 1,
          !(png_ptr->flags & PNG_FLAG_FILLER_AFTER));
 #endif
 
 #ifdef PNG_WRITE_PACKSWAP_SUPPORTED
    if (png_ptr->transformations & PNG_PACKSWAP)
-      png_do_packswap(&(png_ptr->row_info), png_ptr->row_buf + 1);
+      png_do_packswap(row_info, png_ptr->row_buf + 1);
 #endif
 
 #ifdef PNG_WRITE_PACK_SUPPORTED
    if (png_ptr->transformations & PNG_PACK)
-      png_do_pack(&(png_ptr->row_info), png_ptr->row_buf + 1,
+      png_do_pack(row_info, png_ptr->row_buf + 1,
           (png_uint_32)png_ptr->bit_depth);
 #endif
 
 #ifdef PNG_WRITE_SWAP_SUPPORTED
    if (png_ptr->transformations & PNG_SWAP_BYTES)
-      png_do_swap(&(png_ptr->row_info), png_ptr->row_buf + 1);
+      png_do_swap(row_info, png_ptr->row_buf + 1);
 #endif
 
 #ifdef PNG_WRITE_SHIFT_SUPPORTED
    if (png_ptr->transformations & PNG_SHIFT)
-      png_do_shift(&(png_ptr->row_info), png_ptr->row_buf + 1,
+      png_do_shift(row_info, png_ptr->row_buf + 1,
           &(png_ptr->shift));
 #endif
 
 #ifdef PNG_WRITE_SWAP_ALPHA_SUPPORTED
    if (png_ptr->transformations & PNG_SWAP_ALPHA)
-      png_do_write_swap_alpha(&(png_ptr->row_info), png_ptr->row_buf + 1);
+      png_do_write_swap_alpha(row_info, png_ptr->row_buf + 1);
 #endif
 
 #ifdef PNG_WRITE_INVERT_ALPHA_SUPPORTED
    if (png_ptr->transformations & PNG_INVERT_ALPHA)
-      png_do_write_invert_alpha(&(png_ptr->row_info), png_ptr->row_buf + 1);
+      png_do_write_invert_alpha(row_info, png_ptr->row_buf + 1);
 #endif
 
 #ifdef PNG_WRITE_BGR_SUPPORTED
    if (png_ptr->transformations & PNG_BGR)
-      png_do_bgr(&(png_ptr->row_info), png_ptr->row_buf + 1);
+      png_do_bgr(row_info, png_ptr->row_buf + 1);
 #endif
 
 #ifdef PNG_WRITE_INVERT_SUPPORTED
    if (png_ptr->transformations & PNG_INVERT_MONO)
-      png_do_invert(&(png_ptr->row_info), png_ptr->row_buf + 1);
+      png_do_invert(row_info, png_ptr->row_buf + 1);
 #endif
 }
 
@@ -633,4 +631,3 @@ png_do_write_intrapixel(png_row_infop row_info, png_bytep row)
 }
 #endif /* PNG_MNG_FEATURES_SUPPORTED */
 #endif /* PNG_WRITE_SUPPORTED */
-} // namespace PrivatePng

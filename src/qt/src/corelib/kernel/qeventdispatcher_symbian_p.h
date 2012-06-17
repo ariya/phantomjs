@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -88,6 +88,7 @@ public:
     void reactivateAndComplete();
 protected:
     QEventDispatcherSymbian *m_dispatcher;
+    QThreadData *m_threadData;
 
 private:
     bool m_hasAlreadyRun : 1;
@@ -247,8 +248,8 @@ public:
     void startingUp();
     void closingDown();
 
-    void timerFired(int timerId);
-    void wakeUpWasCalled();
+    void timerFired(int timerId, QTimerActiveObject *ao);
+    void wakeUpWasCalled(QWakeUpActiveObject *ao);
     void reactivateSocketNotifier(QSocketNotifier *notifier);
 
     void addDeferredActiveObject(QActiveObject *object);

@@ -20,7 +20,7 @@
 #include "jconfig.h"		/* auto configuration options */
 #define JCONFIG_INCLUDED	/* so that jpeglib.h doesn't do it again */
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined (_CRT_SECURE_NO_DEPRECATE)
 #  define _CRT_SECURE_NO_DEPRECATE
 #endif
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -54,7 +54,7 @@ QT_BEGIN_NAMESPACE
 
 static const char boilerplate_unsuported[] =
     "\nQt %1 Evaluation License\n"
-    "Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).\n"
+    "Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).\n"
     "All rights reserved.\n\n"
     "This trial version may only be used for evaluation purposes\n"
     "and will shut down after 120 minutes.\n"
@@ -65,7 +65,7 @@ static const char boilerplate_unsuported[] =
 
 static const char boilerplate_supported[] =
     "\nQt %1 Evaluation License\n"
-    "Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).\n"
+    "Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).\n"
     "All rights reserved.\n\n"
     "This trial version may only be used for evaluation purposes\n"
     "Registered to:\n"

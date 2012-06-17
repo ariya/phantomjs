@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -392,13 +392,16 @@ int QUnifiedTimer::closestPauseAnimationTimeToFinish()
 
 void QUnifiedTimer::installAnimationDriver(QAnimationDriver *d)
 {
-    if (driver->isRunning()) {
-        qWarning("QUnifiedTimer: Cannot change animation driver while animations are running");
-        return;
-    }
+    if (driver) {
 
-    if (driver && driver != &defaultDriver)
-        delete driver;
+        if (driver->isRunning()) {
+            qWarning("QUnifiedTimer: Cannot change animation driver while animations are running");
+            return;
+        }
+
+        if (driver != &defaultDriver)
+            delete driver;
+    }
 
     driver = d;
 }

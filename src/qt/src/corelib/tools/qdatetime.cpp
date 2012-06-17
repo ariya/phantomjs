@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -388,7 +388,7 @@ int QDate::day() const
 }
 
 /*!
-    Returns the weekday (1 to 7) for this date.
+    Returns the weekday (1 = Monday to 7 = Sunday) for this date.
 
     \sa day(), dayOfYear(), Qt::DayOfWeek
 */
@@ -4038,6 +4038,7 @@ static QDateTimePrivate::Spec utcToLocal(QDate &date, QTime &time)
     tm res;
     if(err == KErrNone) {
         TTime utcTTime = epochTTime + tTimeIntervalSecsSince1Jan1970UTC;
+        CTrapCleanup *cleanup = CTrapCleanup::New();    // needed to avoid crashes in apps that previously were able to use this function in static data initialization
         TRAP(err,
             RTz tz;
             User::LeaveIfError(tz.Connect());
@@ -4048,6 +4049,7 @@ static QDateTimePrivate::Spec utcToLocal(QDate &date, QTime &time)
             User::LeaveIfError(tz.ConvertToLocalTime(utcTTime));
             CleanupStack::PopAndDestroy(tzId);
             CleanupStack::PopAndDestroy(&tz));
+        delete cleanup;
         if (KErrNone == err) {
             TDateTime localDateTime = utcTTime.DateTime();
             res.tm_sec = localDateTime.Second();

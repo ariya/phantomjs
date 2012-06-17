@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -114,7 +114,20 @@ private:
             return;
         const int end = start + length;
         for (int i = start + 1; i < end; ++i) {
-            if ((m_analysis[i] == m_analysis[start])
+            // According to the unicode spec we should be treating characters in the Common script
+            // (punctuation, spaces, etc) as being the same script as the surrounding text for the
+            // purpose of splitting up text. This is important because, for example, a fullstop
+            // (0x2E) can be used to indicate an abbreviation and so must be treated as part of a
+            // word.  Thus it must be passed along with the word in languages that have to calculate
+            // word breaks.  For example the thai word "ครม." has no word breaks but the word "ครม"
+            // does.
+            // Unfortuntely because we split up the strings for both wordwrapping and for setting
+            // the font and because Japanese and Chinese are also aliases of the script "Common",
+            // doing this would break too many things.  So instead we only pass the full stop
+            // along, and nothing else.
+            if (m_analysis[i].bidiLevel == m_analysis[start].bidiLevel
+                && m_analysis[i].flags == m_analysis[start].flags
+                && (m_analysis[i].script == m_analysis[start].script || m_string[i] == QLatin1Char('.'))
                 && m_analysis[i].flags < QScriptAnalysis::SpaceTabOrObject
                 && i - start < MaxItemLength)
                 continue;
@@ -1894,12 +1907,17 @@ QFontEngine *QTextEngine::fontEngine(const QScriptItem &si, QFixed *ascent, QFix
                     font.setPixelSize((font.pixelSize() * 2) / 3);
                 scaledEngine = font.d->engineForScript(script);
             }
-            feCache.prevFontEngine = engine;
             if (engine)
                 engine->ref.ref();
-            feCache.prevScaledFontEngine = scaledEngine;
+            if (feCache.prevFontEngine)
+                releaseCachedFontEngine(feCache.prevFontEngine);
+            feCache.prevFontEngine = engine;
+
             if (scaledEngine)
                 scaledEngine->ref.ref();
+            if (feCache.prevScaledFontEngine)
+                releaseCachedFontEngine(feCache.prevScaledFontEngine);
+            feCache.prevScaledFontEngine = scaledEngine;
             feCache.prevScript = script;
             feCache.prevPosition = si.position;
             feCache.prevLength = length(&si);
@@ -1909,9 +1927,11 @@ QFontEngine *QTextEngine::fontEngine(const QScriptItem &si, QFixed *ascent, QFix
             engine = feCache.prevFontEngine;
         else {
             engine = font.d->engineForScript(script);
-            feCache.prevFontEngine = engine;
             if (engine)
                 engine->ref.ref();
+            if (feCache.prevFontEngine)
+                releaseCachedFontEngine(feCache.prevFontEngine);
+            feCache.prevFontEngine = engine;
             feCache.prevScript = script;
             feCache.prevPosition = -1;
             feCache.prevLength = -1;
@@ -2904,6 +2924,8 @@ int QTextEngine::positionInLigature(const QScriptItem *si, int end,
         QFixed glyphWidth = glyphs.effectiveAdvance(glyph_pos);
         // the approximate width of each individual element of the ligature
         QFixed perItemWidth = glyphWidth / clusterLength;
+        if (perItemWidth <= 0)
+            return si->position + clusterStart;
         QFixed left = x > edge ? edge : edge - glyphWidth;
         int n = ((x - left) / perItemWidth).floor().toInt();
         QFixed dist = x - left - n * perItemWidth;
@@ -2912,7 +2934,7 @@ int QTextEngine::positionInLigature(const QScriptItem *si, int end,
             closestItem--;
         int pos = si->position + clusterStart + closestItem;
         // Jump to the next charStop
-        while (!attrs[pos].charStop && pos < end)
+        while (pos < end && !attrs[pos].charStop)
             pos++;
         return pos;
     }

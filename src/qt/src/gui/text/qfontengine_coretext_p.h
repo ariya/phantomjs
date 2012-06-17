@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -146,6 +146,7 @@ private:
     mutable QCFType<CFMutableDictionaryRef> attributeDict;
     CGAffineTransform transform;
     friend class QFontDialogPrivate;
+    bool transformAdvances;
 };
 
 CGAffineTransform qt_transform_from_fontdef(const QFontDef &fontDef);

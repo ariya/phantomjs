@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -79,6 +79,7 @@
 #include <qtooltip.h>
 #include <qstyleoption.h>
 #include <QtGui/qlineedit.h>
+#include <QtGui/qaccessible.h>
 
 #ifndef QT_NO_SHORTCUT
 #include "private/qapplication_p.h"
@@ -404,7 +405,6 @@ void QTextControlPrivate::createAutoBulletList()
 
 void QTextControlPrivate::init(Qt::TextFormat format, const QString &text, QTextDocument *document)
 {
-    Q_Q(QTextControl);
     setContent(format, text, document);
 
     doc->setUndoRedoEnabled(interactionFlags & Qt::TextEditable);
@@ -573,8 +573,13 @@ void QTextControlPrivate::repaintOldAndNewSelection(const QTextCursor &oldSelect
 void QTextControlPrivate::selectionChanged(bool forceEmitSelectionChanged /*=false*/)
 {
     Q_Q(QTextControl);
-    if (forceEmitSelectionChanged)
+    if (forceEmitSelectionChanged) {
         emit q->selectionChanged();
+#ifndef QT_NO_ACCESSIBILITY
+        if (q->parent())
+            QAccessible::updateAccessibility(q->parent(), 0, QAccessible::TextSelectionChanged);
+#endif
+    }
 
     bool current = cursor.hasSelection();
     if (current == lastSelectionState)
@@ -582,8 +587,13 @@ void QTextControlPrivate::selectionChanged(bool forceEmitSelectionChanged /*=fal
 
     lastSelectionState = current;
     emit q->copyAvailable(current);
-    if (!forceEmitSelectionChanged)
+    if (!forceEmitSelectionChanged) {
         emit q->selectionChanged();
+#ifndef QT_NO_ACCESSIBILITY
+        if (q->parent())
+            QAccessible::updateAccessibility(q->parent(), 0, QAccessible::TextSelectionChanged);
+#endif
+    }
     emit q->microFocusChanged();
 }
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -3392,9 +3392,9 @@ void QAbstractItemViewPrivate::_q_rowsInserted(const QModelIndex &index, int sta
     Q_UNUSED(start)
     Q_UNUSED(end)
 
-    Q_Q(QAbstractItemView);
 #ifndef QT_NO_ACCESSIBILITY
 #ifdef Q_WS_X11
+    Q_Q(QAbstractItemView);
     if (QAccessible::isActive()) {
         QAccessible::queryAccessibleInterface(q)->table2Interface()->rowsInserted(index, start, end);
         QAccessible::updateAccessibility(q, 0, QAccessible::TableModelChanged);
@@ -3443,10 +3443,10 @@ void QAbstractItemViewPrivate::_q_modelDestroyed()
 */
 void QAbstractItemViewPrivate::_q_layoutChanged()
 {
-    Q_Q(QAbstractItemView);
     doDelayedItemsLayout();
 #ifndef QT_NO_ACCESSIBILITY
 #ifdef Q_WS_X11
+    Q_Q(QAbstractItemView);
     if (QAccessible::isActive()) {
         QAccessible::queryAccessibleInterface(q)->table2Interface()->modelReset();
         QAccessible::updateAccessibility(q, 0, QAccessible::TableModelChanged);

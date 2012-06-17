@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -179,11 +179,7 @@ void QNetworkAccessFtpBackend::closeDownstreamChannel()
 {
     state = Disconnecting;
     if (operation() == QNetworkAccessManager::GetOperation)
-#ifndef Q_OS_WINCE
-        abort();
-#else
-        exit(3);
-#endif
+        ftp->abort();
 }
 
 void QNetworkAccessFtpBackend::downstreamReadyWrite()

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -2508,6 +2508,10 @@ qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
     int pos = *cursorPos;
     int itm;
     const HB_CharAttributes *attributes = eng->attributes();
+    if (!attributes) {
+        *cursorPos = 0;
+        return x.toReal();
+    }
     while (pos < line.from + line.length && !attributes[pos].charStop)
         pos++;
     if (pos == line.from + (int)line.length) {

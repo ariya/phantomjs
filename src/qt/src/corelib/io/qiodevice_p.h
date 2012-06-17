@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -108,6 +108,11 @@ public:
         memcpy(target, first, r);
         len -= r;
         first += r;
+        return r;
+    }
+    int peek(char* target, int size) {
+        int r = qMin(size, len);
+        memcpy(target, first, r);
         return r;
     }
     char* reserve(int size) {

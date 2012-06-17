@@ -5,7 +5,7 @@
  * (Version 0.96 Copyright (c) 1996, 1997 Andreas Dilger)
  * (Version 0.88 Copyright (c) 1995, 1996 Guy Eric Schalnat, Group 42, Inc.)
  *
- * Last changed in libpng 1.5.4 [July 7, 2011]
+ * Last changed in libpng 1.5.9 [March 29, 2012]
  *
  * This code is released under the libpng license.
  * For conditions of distribution and use, see the disclaimer
@@ -26,7 +26,6 @@
  */
 #include "zlib.h"
 
-namespace PrivatePng {
 struct png_struct_def
 {
 #ifdef PNG_SETJMP_SUPPORTED
@@ -105,21 +104,30 @@ struct png_struct_def
    png_size_t rowbytes;       /* size of row in bytes */
    png_uint_32 iwidth;        /* width of current interlaced row in pixels */
    png_uint_32 row_number;    /* current row in interlace pass */
-   png_bytep prev_row;        /* buffer to save previous (unfiltered) row */
-   png_bytep row_buf;         /* buffer to save current (unfiltered) row */
+   png_uint_32 chunk_name;    /* PNG_CHUNK() id of current chunk */
+   png_bytep prev_row;        /* buffer to save previous (unfiltered) row.
+                               * This is a pointer into big_prev_row
+                               */
+   png_bytep row_buf;         /* buffer to save current (unfiltered) row.
+                               * This is a pointer into big_row_buf
+                               */
    png_bytep sub_row;         /* buffer to save "sub" row when filtering */
    png_bytep up_row;          /* buffer to save "up" row when filtering */
    png_bytep avg_row;         /* buffer to save "avg" row when filtering */
    png_bytep paeth_row;       /* buffer to save "Paeth" row when filtering */
-   png_row_info row_info;     /* used for transformation routines */
    png_size_t info_rowbytes;  /* Added in 1.5.4: cache of updated row bytes */
 
    png_uint_32 idat_size;     /* current IDAT size for read */
    png_uint_32 crc;           /* current chunk CRC value */
    png_colorp palette;        /* palette from the input file */
    png_uint_16 num_palette;   /* number of color entries in palette */
+
+/* Added at libpng-1.5.10 */
+#ifdef PNG_CHECK_FOR_INVALID_INDEX_SUPPORTED
+   int num_palette_max;       /* maximum palette index found in IDAT */
+#endif
+
    png_uint_16 num_trans;     /* number of transparency values */
-   png_byte chunk_name[5];    /* null-terminated name of current chunk */
    png_byte compression;      /* file compression type (always 0) */
    png_byte filter;           /* file filter type (always 0) */
    png_byte interlaced;       /* PNG_INTERLACE_NONE, PNG_INTERLACE_ADAM7 */
@@ -127,11 +135,17 @@ struct png_struct_def
    png_byte do_filter;        /* row filter flags (see PNG_FILTER_ below ) */
    png_byte color_type;       /* color type of file */
    png_byte bit_depth;        /* bit depth of file */
-   png_byte usr_bit_depth;    /* bit depth of users row */
+   png_byte usr_bit_depth;    /* bit depth of users row: write only */
    png_byte pixel_depth;      /* number of bits per pixel */
    png_byte channels;         /* number of channels in file */
-   png_byte usr_channels;     /* channels at start of write */
+   png_byte usr_channels;     /* channels at start of write: write only */
    png_byte sig_bytes;        /* magic bytes read/written from start of file */
+   png_byte maximum_pixel_depth;
+                              /* pixel depth used for the row buffers */
+   png_byte transformed_pixel_depth;
+                              /* pixel depth after read/write transforms */
+   png_byte io_chunk_string[5];
+                              /* string name of chunk */
 
 #if defined(PNG_READ_FILLER_SUPPORTED) || defined(PNG_WRITE_FILLER_SUPPORTED)
    png_uint_16 filler;           /* filler bytes for pixel expansion */
@@ -153,19 +167,21 @@ struct png_struct_def
    png_uint_32 flush_rows;    /* number of rows written since last flush */
 #endif
 
-#if defined(PNG_READ_GAMMA_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED)
+#ifdef PNG_READ_GAMMA_SUPPORTED
    int gamma_shift;      /* number of "insignificant" bits in 16-bit gamma */
    png_fixed_point gamma;        /* file gamma value */
    png_fixed_point screen_gamma; /* screen gamma value (display_exponent) */
-#endif
 
-#if defined(PNG_READ_GAMMA_SUPPORTED) || defined(PNG_READ_BACKGROUND_SUPPORTED)
    png_bytep gamma_table;     /* gamma table for 8-bit depth files */
+   png_uint_16pp gamma_16_table; /* gamma table for 16-bit depth files */
+#if defined(PNG_READ_BACKGROUND_SUPPORTED) || \
+   defined(PNG_READ_ALPHA_MODE_SUPPORTED) || \
+   defined(PNG_READ_RGB_TO_GRAY_SUPPORTED)
    png_bytep gamma_from_1;    /* converts from 1.0 to screen */
    png_bytep gamma_to_1;      /* converts from file to 1.0 */
-   png_uint_16pp gamma_16_table; /* gamma table for 16-bit depth files */
    png_uint_16pp gamma_16_from_1; /* converts from 1.0 to screen */
    png_uint_16pp gamma_16_to_1; /* converts from file to 1.0 */
+#endif /* READ_BACKGROUND || READ_ALPHA_MODE || RGB_TO_GRAY */
 #endif
 
 #if defined(PNG_READ_GAMMA_SUPPORTED) || defined(PNG_sBIT_SUPPORTED)
@@ -200,13 +216,6 @@ struct png_struct_def
    png_size_t current_buffer_size;   /* amount of data now in current_buffer */
    int process_mode;                 /* what push library is currently doing */
    int cur_palette;                  /* current push library palette index */
-
-#  ifdef PNG_TEXT_SUPPORTED
-     png_size_t current_text_size;   /* current size of text input data */
-     png_size_t current_text_left;   /* how much text left to read in input */
-     png_charp current_text;         /* current text chunk buffer */
-     png_charp current_text_ptr;     /* current location in current_text */
-#  endif /* PNG_PROGRESSIVE_READ_SUPPORTED && PNG_TEXT_SUPPORTED */
 
 #endif /* PNG_PROGRESSIVE_READ_SUPPORTED */
 
@@ -256,19 +265,24 @@ struct png_struct_def
    png_bytep chunk_list;
 #endif
 
+#ifdef PNG_READ_sRGB_SUPPORTED
+   /* Added in 1.5.5 to record an sRGB chunk in the png. */
+   png_byte is_sRGB;
+#endif
+
 /* New members added in libpng-1.0.3 */
 #ifdef PNG_READ_RGB_TO_GRAY_SUPPORTED
    png_byte rgb_to_gray_status;
+   /* Added in libpng 1.5.5 to record setting of coefficients: */
+   png_byte rgb_to_gray_coefficients_set;
    /* These were changed from png_byte in libpng-1.0.6 */
    png_uint_16 rgb_to_gray_red_coeff;
    png_uint_16 rgb_to_gray_green_coeff;
-   png_uint_16 rgb_to_gray_blue_coeff;
+   /* deleted in 1.5.5: rgb_to_gray_blue_coeff; */
 #endif
 
 /* New member added in libpng-1.0.4 (renamed in 1.0.9) */
-#if defined(PNG_MNG_FEATURES_SUPPORTED) || \
-    defined(PNG_READ_EMPTY_PLTE_SUPPORTED) || \
-    defined(PNG_WRITE_EMPTY_PLTE_SUPPORTED)
+#if defined(PNG_MNG_FEATURES_SUPPORTED)
 /* Changed from png_byte to png_uint_32 at version 1.2.0 */
    png_uint_32 mng_features_permitted;
 #endif
@@ -323,9 +337,8 @@ struct png_struct_def
    png_unknown_chunk unknown_chunk;
 #endif
 
-/* New members added in libpng-1.2.26 */
+/* New member added in libpng-1.2.26 */
   png_size_t old_big_row_buf_size;
-  png_size_t old_prev_row_size;
 
 /* New member added in libpng-1.2.30 */
   png_charp chunkdata;  /* buffer for reading chunk data */
@@ -334,6 +347,11 @@ struct png_struct_def
 /* New member added in libpng-1.4.0 */
    png_uint_32 io_state;
 #endif
+
+/* New member added in libpng-1.5.6 */
+   png_bytep big_prev_row;
+
+   void (*read_filter[PNG_FILTER_VALUE_LAST-1])(png_row_infop row_info,
+      png_bytep row, png_const_bytep prev_row);
 };
-} // namespace PrivatePng
 #endif /* PNGSTRUCT_H */

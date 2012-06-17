@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -521,7 +521,7 @@ void QNetworkAccessHttpBackend::postRequest()
 
     // Create the HTTP thread delegate
     QHttpThreadDelegate *delegate = new QHttpThreadDelegate;
-#ifndef Q_NO_BEARERMANAGEMENT
+#ifndef QT_NO_BEARERMANAGEMENT
     QVariant v(property("_q_networksession"));
     if (v.isValid())
         delegate->networkSession = qvariant_cast<QSharedPointer<QNetworkSession> >(v);
@@ -668,6 +668,7 @@ void QNetworkAccessHttpBackend::postRequest()
 
         // End the thread. It will delete itself from the finished() signal
         thread->quit();
+        thread->wait(5000);
 
         finished();
     } else {

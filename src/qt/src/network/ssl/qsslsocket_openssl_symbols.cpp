@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -52,6 +52,9 @@
 #include <QtCore/qdatetime.h>
 #if defined(Q_OS_UNIX)
 #include <QtCore/qdir.h>
+#endif
+#ifdef Q_OS_LINUX
+#include <link.h>
 #endif
 
 QT_BEGIN_NAMESPACE
@@ -210,11 +213,7 @@ DEFINEFUNC(int, SSL_library_init, void, DUMMYARG, return -1, return)
 DEFINEFUNC(void, SSL_load_error_strings, void, DUMMYARG, return, DUMMYARG)
 DEFINEFUNC(SSL *, SSL_new, SSL_CTX *a, a, return 0, return)
 #if OPENSSL_VERSION_NUMBER >= 0x0090806fL && !defined(OPENSSL_NO_TLSEXT)
-#if OPENSSL_VERSION_NUMBER >= 0x10000000L
 DEFINEFUNC4(long, SSL_ctrl, SSL *a, a, int cmd, cmd, long larg, larg, void *parg, parg, return -1, return)
-#else
-DEFINEFUNC4(long, SSL_ctrl, SSL *a, a, int cmd, cmd, long larg, larg, const void *parg, parg, return -1, return)
-#endif
 #endif
 DEFINEFUNC3(int, SSL_read, SSL *a, a, void *b, b, int c, c, return -1, return)
 DEFINEFUNC3(void, SSL_set_bio, SSL *a, a, BIO *b, b, BIO *c, c, return, DUMMYARG)
@@ -340,7 +339,24 @@ static bool libGreaterThan(const QString &lhs, const QString &rhs)
     return true;
 }
 
-static QStringList findAllLibSsl()
+#ifdef Q_OS_LINUX
+static int dlIterateCallback(struct dl_phdr_info *info, size_t size, void *data)
+{
+    if (size < sizeof (info->dlpi_addr) + sizeof (info->dlpi_name))
+        return 1;
+    QSet<QString> *paths = (QSet<QString> *)data;
+    QString path = QString::fromLocal8Bit(info->dlpi_name);
+    if (!path.isEmpty()) {
+        QFileInfo fi(path);
+        path = fi.absolutePath();
+        if (!path.isEmpty())
+            paths->insert(path);
+    }
+    return 0;
+}
+#endif
+
+static QStringList libraryPathList()
 {
     QStringList paths;
 #  ifdef Q_OS_DARWIN
@@ -351,10 +367,27 @@ static QStringList findAllLibSsl()
             .split(QLatin1Char(':'), QString::SkipEmptyParts);
 #  endif
     paths << QLatin1String("/lib") << QLatin1String("/usr/lib") << QLatin1String("/usr/local/lib");
+    paths << QLatin1String("/lib64") << QLatin1String("/usr/lib64") << QLatin1String("/usr/local/lib64");
+    paths << QLatin1String("/lib32") << QLatin1String("/usr/lib32") << QLatin1String("/usr/local/lib32");
 
+#ifdef Q_OS_LINUX
+    // discover paths of already loaded libraries
+    QSet<QString> loadedPaths;
+    dl_iterate_phdr(dlIterateCallback, &loadedPaths);
+    paths.append(loadedPaths.toList());
+#endif
+
+    return paths;
+}
+
+
+static QStringList findAllLibSsl()
+{
+    QStringList paths = libraryPathList();
     QStringList foundSsls;
+
     foreach (const QString &path, paths) {
-        QDir dir = QDir(path);
+        QDir dir(path);
         QStringList entryList = dir.entryList(QStringList() << QLatin1String("libssl.*"), QDir::Files);
 
         qSort(entryList.begin(), entryList.end(), libGreaterThan);
@@ -363,6 +396,23 @@ static QStringList findAllLibSsl()
     }
 
     return foundSsls;
+}
+
+static QStringList findAllLibCrypto()
+{
+    QStringList paths = libraryPathList();
+
+    QStringList foundCryptos;
+    foreach (const QString &path, paths) {
+        QDir dir(path);
+        QStringList entryList = dir.entryList(QStringList() << QLatin1String("libcrypto.*"), QDir::Files);
+
+        qSort(entryList.begin(), entryList.end(), libGreaterThan);
+        foreach (const QString &entry, entryList)
+            foundCryptos << path + QLatin1Char('/') + entry;
+    }
+
+    return foundCryptos;
 }
 # endif
 
@@ -474,18 +524,29 @@ static QPair<QLibrary*, QLibrary*> loadOpenSsl()
 
     // third attempt: loop on the most common library paths and find libssl
     QStringList sslList = findAllLibSsl();
-    foreach (const QString &ssl, sslList) {
-        QString crypto = ssl;
-        crypto.replace(QLatin1String("ssl"), QLatin1String("crypto"));
-        libssl->setFileNameAndVersion(ssl, -1);
+    QStringList cryptoList = findAllLibCrypto();
+
+    foreach (const QString &crypto, cryptoList) {
         libcrypto->setFileNameAndVersion(crypto, -1);
-        if (libcrypto->load() && libssl->load()) {
-            // libssl.so.0 and libcrypto.so.0 found
-            return pair;
-        } else {
-            libssl->unload();
-            libcrypto->unload();
+        if (libcrypto->load()) {
+            QFileInfo fi(crypto);
+            QString version = fi.completeSuffix();
+
+            foreach (const QString &ssl, sslList) {
+                if (!ssl.endsWith(version))
+                    continue;
+
+                libssl->setFileNameAndVersion(ssl, -1);
+
+                if (libssl->load()) {
+                    // libssl.so.x and libcrypto.so.x found
+                    return pair;
+                } else {
+                    libssl->unload();
+                }
+            }
         }
+        libcrypto->unload();
     }
 
     // failed to load anything

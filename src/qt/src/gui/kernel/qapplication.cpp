@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -163,6 +163,10 @@ QApplicationPrivate *QApplicationPrivate::self = 0;
 QInputContext *QApplicationPrivate::inputContext = 0;
 
 bool QApplicationPrivate::quitOnLastWindowClosed = true;
+
+#ifdef Q_OS_SYMBIAN
+bool QApplicationPrivate::inputContextBeingCreated = false;
+#endif
 
 #ifdef Q_WS_WINCE
 int QApplicationPrivate::autoMaximizeThreshold = -1;
@@ -502,7 +506,6 @@ bool QApplicationPrivate::fade_tooltip = false;
 bool QApplicationPrivate::animate_toolbox = false;
 bool QApplicationPrivate::widgetCount = false;
 bool QApplicationPrivate::load_testability = false;
-QString QApplicationPrivate::qmljs_debug_arguments;
 #ifdef QT_KEYPAD_NAVIGATION
 #  ifdef Q_OS_SYMBIAN
 Qt::NavigationMode QApplicationPrivate::navigationMode = Qt::NavigationModeKeypadDirectional;
@@ -574,8 +577,6 @@ void QApplicationPrivate::process_cmdline()
         QString s;
         if (arg == "-qdevel" || arg == "-qdebug") {
             // obsolete argument
-        } else if (arg.indexOf("-qmljsdebugger=", 0) != -1) {
-            qmljs_debug_arguments = QString::fromLocal8Bit(arg.right(arg.length() - 15));
         } else if (arg.indexOf("-style=", 0) != -1) {
             s = QString::fromLocal8Bit(arg.right(arg.length() - 7).toLower());
         } else if (arg == "-style" && i < argc-1) {
@@ -5508,7 +5509,11 @@ QInputContext *QApplication::inputContext() const
         if (keys.contains(QLatin1String("hbim"))) {
             that->d_func()->inputContext = QInputContextFactory::create(QLatin1String("hbim"), that);
         } else if (keys.contains(QLatin1String("coefep"))) {
-            that->d_func()->inputContext = QInputContextFactory::create(QLatin1String("coefep"), that);
+            if (!that->d_func()->inputContextBeingCreated) {
+                that->d_func()->inputContextBeingCreated = true;
+                that->d_func()->inputContext = QInputContextFactory::create(QLatin1String("coefep"), that);
+                that->d_func()->inputContextBeingCreated = false;
+            }
         } else {
             for (int c = 0; c < keys.size() && !d->inputContext; ++c) {
                 that->d_func()->inputContext = QInputContextFactory::create(keys[c], that);
@@ -6182,11 +6187,6 @@ QPixmap QApplicationPrivate::getPixmapCursor(Qt::CursorShape cshape)
     Q_UNUSED(cshape);
 #endif
     return QPixmap();
-}
-
-QString QApplicationPrivate::qmljsDebugArgumentsString()
-{
-    return qmljs_debug_arguments;
 }
 
 QT_END_NAMESPACE

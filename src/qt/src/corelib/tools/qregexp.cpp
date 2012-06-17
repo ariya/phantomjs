@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -425,7 +425,7 @@ int qFindString(const QChar *haystack, int haystackLen, int from,
 
     For historical reasons, quantifiers (e.g. \bold{*}) that apply to
     capturing parentheses are more "greedy" than other quantifiers.
-    For example, \bold{a*(a)*} will match "aaa" with cap(1) == "aaa".
+    For example, \bold{a*(a*)} will match "aaa" with cap(1) == "aaa".
     This behavior is different from what other regexp engines do
     (notably, Perl). To obtain a more intuitive capturing behavior,
     specify QRegExp::RegExp2 to the QRegExp constructor or call
@@ -669,7 +669,7 @@ int qFindString(const QChar *haystack, int haystackLen, int from,
 
     Wildcard matching can be convenient because of its simplicity, but
     any wildcard regexp can be defined using full regexps, e.g.
-    \bold{.*\.html$}. Notice that we can't match both \c .html and \c
+    \bold{.*\\.html$}. Notice that we can't match both \c .html and \c
     .htm files with a wildcard unless we use \bold{*.htm*} which will
     also match 'test.html.bak'. A full regexp gives us the precision
     we need, \bold{.*\\.html?$}.
@@ -772,7 +772,7 @@ static QString wc2rx(const QString &wc_str, const bool enableEscaping)
                 if (isEscaping) {
                     rx += QLatin1String("\\\\");
                 } // we insert the \\ later if necessary
-                if (i+1 == wclen) { // the end
+                if (i == wclen) { // the end
                     rx += QLatin1String("\\\\");
                 }
             } else {

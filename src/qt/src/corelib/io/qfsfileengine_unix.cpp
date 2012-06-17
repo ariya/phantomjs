@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -191,18 +191,15 @@ bool QFSFileEnginePrivate::nativeOpen(QIODevice::OpenMode openMode)
     if(openMode & QIODevice::Text)
         symbianMode |= EFileStreamText;
 
-    // pre Symbian 9.4, file I/O is always unbuffered, and the enum values don't exist
-    if(QSysInfo::symbianVersion() >= QSysInfo::SV_9_4) {
-        if (openMode & QFile::Unbuffered) {
-            if (openMode & QIODevice::WriteOnly)
-                symbianMode |= 0x00001000; //EFileWriteDirectIO;
-            // ### Unbuffered read is not used, because it prevents file open in /resource
-            // ### and has no obvious benefits
-        } else {
-            if (openMode & QIODevice::WriteOnly)
-                symbianMode |= 0x00000800; //EFileWriteBuffered;
-            // use implementation defaults for read buffering
-        }
+    if (openMode & QFile::Unbuffered) {
+        if (openMode & QIODevice::WriteOnly)
+            symbianMode |= 0x00001000; //EFileWriteDirectIO;
+        // ### Unbuffered read is not used, because it prevents file open in /resource
+        // ### and has no obvious benefits
+    } else {
+        if (openMode & QIODevice::WriteOnly)
+            symbianMode |= 0x00000800; //EFileWriteBuffered;
+        // use implementation defaults for read buffering
     }
 
     // Until Qt supports file sharing, we can't support EFileShareReadersOrWriters safely,
@@ -1058,22 +1055,24 @@ uchar *QFSFileEnginePrivate::map(qint64 offset, qint64 size, QFile::MemoryMapFla
     TInt nativeMapError = KErrNone;
     RFileMap mapping;
     TUint mode(EFileMapRemovableMedia);
+    TUint64 nativeOffset = offset & ~(mapping.PageSizeInBytes() - 1);
+
     //If the file was opened for write or read/write, then open the map for read/write
     if (openMode & QIODevice::WriteOnly)
         mode |= EFileMapWrite;
     if (symbianFile.SubSessionHandle()) {
-        nativeMapError = mapping.Open(symbianFile, offset, size, mode);
+        nativeMapError = mapping.Open(symbianFile, nativeOffset, size, mode);
     } else {
         //map file by name if we don't have a native handle
         QString fn = QFileSystemEngine::absoluteName(fileEntry).nativeFilePath();
         TUint filemode = EFileShareReadersOrWriters | EFileRead;
         if (openMode & QIODevice::WriteOnly)
             filemode |= EFileWrite;
-        nativeMapError = mapping.Open(qt_s60GetRFs(), qt_QString2TPtrC(fn), filemode, offset, size, mode);
+        nativeMapError = mapping.Open(qt_s60GetRFs(), qt_QString2TPtrC(fn), filemode, nativeOffset, size, mode);
     }
     if (nativeMapError == KErrNone) {
         QScopedResource<RFileMap> ptr(mapping); //will call Close if adding to mapping throws an exception
-        uchar *address = mapping.Base();
+        uchar *address = mapping.Base() + (offset - nativeOffset);
         maps[address] = mapping;
         ptr.take();
         return address;

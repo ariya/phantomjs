@@ -20,7 +20,6 @@
 
 #include "pngpriv.h"
 
-namespace PrivatePng {
 #ifdef PNG_READ_SUPPORTED
 
 /* Read the data from whatever input you are using.  The default routine
@@ -175,4 +174,3 @@ png_set_read_fn(png_structp png_ptr, png_voidp io_ptr,
 #endif
 }
 #endif /* PNG_READ_SUPPORTED */
-} // namespace PrivatePng

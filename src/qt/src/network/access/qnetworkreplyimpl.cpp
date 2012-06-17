@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -801,7 +801,7 @@ void QNetworkReplyImplPrivate::error(QNetworkReplyImpl::NetworkError code, const
     Q_Q(QNetworkReplyImpl);
     // Can't set and emit multiple errors.
     if (errorCode != QNetworkReply::NoError) {
-        qWarning() << "QNetworkReplyImplPrivate::error: Internal problem, this method must only be called once.";
+        qWarning("QNetworkReplyImplPrivate::error: Internal problem, this method must only be called once.");
         return;
     }
 

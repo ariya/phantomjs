@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -236,6 +236,17 @@ public:
 # ifdef Q_OS_SYMBIAN
     RThread symbian_thread_handle;
 # endif
+};
+
+class QScopedLoopLevelCounter
+{
+    QThreadData *threadData;
+public:
+    inline QScopedLoopLevelCounter(QThreadData *threadData)
+        : threadData(threadData)
+    { ++threadData->loopLevel; }
+    inline ~QScopedLoopLevelCounter()
+    { --threadData->loopLevel; }
 };
 
 // thread wrapper for the main() thread

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -101,7 +101,9 @@ class QHostInfoAgent : public QObject
     Q_OBJECT
 public:
     static QHostInfo fromName(const QString &hostName);
+#ifndef QT_NO_BEARERMANAGEMENT
     static QHostInfo fromName(const QString &hostName, QSharedPointer<QNetworkSession> networkSession);
+#endif
 
 #ifdef Q_OS_SYMBIAN
     static int lookupHost(const QString &name, QObject *receiver, const char *member);
