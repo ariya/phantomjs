@@ -22,3 +22,4 @@ debian/*/
 
 # ignore ctags
 /tags
+tools/dump_syms.app/

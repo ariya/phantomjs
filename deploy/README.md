@@ -51,4 +51,10 @@ again to ensure a clean state. (Or SSH in and do a git clean.)
 Packaging for OS X
 ------------------
 
-TODO
+Run `deploy/build-and-package.sh`. That's it.
+
+However, if you have previously built the sources in release mode, you
+should clean your tree to make sure all the debugging symbols gets
+compiled:
+
+    $ make clean && cd src/qt && make clean && cd ../..
