@@ -302,9 +302,7 @@ void ChromeClientQt::addMessageToConsole(MessageSource src, MessageType type, Me
     QString x = message;
     QString y = sourceID;
 
-    // the MessageType value isn't useful - it will be LogMessageType for both errors
-    // and log messages.
-    if (level == ErrorMessageLevel) {
+    if (src == JSMessageSource && type == UncaughtExceptionMessageType && level == ErrorMessageLevel) {
         QString stack = callStack->buildInspectorArray()->toJSONString();
         m_webPage->javaScriptError(x, lineNumber, y, stack);
     } else {
