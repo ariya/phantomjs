@@ -2,7 +2,7 @@
 
 cd `dirname $0`/..
 
-./build.sh --qt-config "-debug -webkit-debug" || exit 1
+./build.sh --qt-config "-debug -webkit-debug" --qmake-args "CONFIG-=release CONFIG+=debug" || exit 1
 
 rm deploy/*.tar.bz2
 ./deploy/package-linux-dynamic.sh || exit 1
