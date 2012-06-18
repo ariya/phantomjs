@@ -85,6 +85,8 @@ public:
     }
 
     bool extension(Extension extension, const ExtensionOption* option, ExtensionReturn* output) {
+        Q_UNUSED(option);
+
         if (extension == ChooseMultipleFilesExtension) {
             static_cast<ChooseMultipleFilesExtensionReturn*>(output)->fileNames = QStringList(m_uploadFile);
             return true;
