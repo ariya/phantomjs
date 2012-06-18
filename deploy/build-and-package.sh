@@ -9,7 +9,7 @@ echo "    $ make clean && cd src/qt && make clean && cd ../.."
 echo
 
 # Build the project
-./build.sh --qt-config "-debug -webkit-debug" || exit 1
+./build.sh --qt-config "-debug -webkit-debug" --qmake-args "CONFIG-=release CONFIG+=debug" || exit 1
 
 # Package the release tarball
 rm deploy/*.tar.bz2 2>/dev/null
