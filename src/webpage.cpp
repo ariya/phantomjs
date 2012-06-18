@@ -50,6 +50,7 @@
 #include <QMapIterator>
 #include <QBuffer>
 #include <QDebug>
+#include <QImageWriter>
 
 #include "networkaccessmanager.h"
 #include "utils.h"
@@ -84,6 +85,8 @@ public:
     }
 
     bool extension(Extension extension, const ExtensionOption* option, ExtensionReturn* output) {
+        Q_UNUSED(option);
+
         if (extension == ChooseMultipleFilesExtension) {
             static_cast<ChooseMultipleFilesExtensionReturn*>(output)->fileNames = QStringList(m_uploadFile);
             return true;
@@ -612,34 +615,27 @@ bool WebPage::render(const QString &fileName)
     return buffer.save(fileName);
 }
 
-QString WebPage::renderBase64PNG()
+QString WebPage::renderBase64(const QByteArray &format)
 {
-    return renderBase64("PNG");
-}
+    QByteArray nformat = format.toLower();
 
-QString WebPage::renderBase64JPG()
-{
-    return renderBase64("JPG");
-}
+    // Check if the given format is supported
+    if (QImageWriter::supportedImageFormats().contains(nformat)) {
+        QImage rawPageRendering = renderImage();
 
-QString WebPage::renderBase64BMP()
-{
-    return renderBase64("BMP");
-}
+        // Prepare buffer for writing
+        QByteArray bytes;
+        QBuffer buffer(&bytes);
+        buffer.open(QIODevice::WriteOnly);
 
-QString WebPage::renderBase64(const char *format)
-{
-    QImage rawPageRendering = renderImage();
+        // Writing image to the buffer, using PNG encoding
+        rawPageRendering.save(&buffer, nformat);
 
-    // Prepare buffer for writing
-    QByteArray bytes;
-    QBuffer buffer(&bytes);
-    buffer.open(QIODevice::WriteOnly);
+        return bytes.toBase64();
+    }
 
-    // Writing image to the buffer, using PNG encoding
-    rawPageRendering.save(&buffer, format);
-
-    return bytes.toBase64();
+    // Return an empty string in case an unsupported format was provided
+    return "";
 }
 
 QImage WebPage::renderImage()

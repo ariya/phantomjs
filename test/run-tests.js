@@ -53,8 +53,11 @@ function expectHasPropertyString(o, name) {
     });
 }
 
-// Load specs
+// Setting the "working directory" to the "/test" directory
 var fs = require('fs');
+fs.changeWorkingDirectory(phantom.libraryPath);
+
+// Load specs
 phantom.injectJs("./phantom-spec.js");
 phantom.injectJs("./module-spec.js");
 phantom.injectJs("./webpage-spec.js");

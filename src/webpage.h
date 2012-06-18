@@ -113,9 +113,19 @@ public slots:
 
     QVariant evaluateJavaScript(const QString &code);
     bool render(const QString &fileName);
-    QString renderBase64PNG();
-    QString renderBase64JPG();
-    QString renderBase64BMP();
+    /**
+     * Render the page as base-64 encoded string.
+     * Default image format is "png".
+     *
+     * To choose a different format, pass a string with it's name.
+     * Available formats are the one supported by Qt QImageWriter class:
+     * @link http://qt-project.org/doc/qt-4.8/qimagewriter.html#supportedImageFormats.
+     *
+     * @brief renderBase64
+     * @param format String containing one of the supported types
+     * @return Rendering base-64 encoded of the page if the given format is supported, otherwise an empty string
+     */
+    QString renderBase64(const QByteArray &format = "png");
     bool injectJs(const QString &jsFilePath);
     void _appendScriptElement(const QString &scriptUrl);
     QObject *_getGenericCallback();
@@ -191,7 +201,6 @@ private slots:
 
 private:
     QImage renderImage();
-    QString renderBase64(const char *format = "PNG");
     bool renderPdf(const QString &fileName);
     void applySettings(const QVariantMap &defaultSettings);
     QString userAgent() const;
