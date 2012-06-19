@@ -9,10 +9,11 @@ fi
 
 cd phantomjs
 git fetch origin
+git reset --hard
 git checkout $1
 
 cp /vagrant/build-and-package.sh deploy/
-cp /vagrant/package-linux-dynamic.sh deploy/
+cp /vagrant/package.sh deploy/
 
 deploy/build-and-package.sh
 
