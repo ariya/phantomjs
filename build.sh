@@ -35,6 +35,10 @@ until [ -z "$1" ]; do
             shift
             QT_CFG=" $1"
             shift;;
+        "--qmake-args")
+            shift
+            QMAKE_ARGS=$1
+            shift;;
         "--jobs")
             shift
             COMPILE_JOBS=$1
@@ -54,5 +58,5 @@ until [ -z "$1" ]; do
 done
 
 cd src/qt && ./preconfig.sh --jobs $COMPILE_JOBS --qt-config "$QT_CFG" && cd ../..
-src/qt/bin/qmake
+src/qt/bin/qmake $QMAKE_ARGS
 make -j$COMPILE_JOBS

@@ -35,6 +35,9 @@
 #ifdef Q_OS_LINUX
 #include "client/linux/handler/exception_handler.h"
 #endif
+#ifdef Q_OS_MAC
+#include "client/mac/handler/exception_handler.h"
+#endif
 
 #include <QApplication>
 
@@ -46,6 +49,9 @@ int main(int argc, char** argv, const char** envp)
 {
 #ifdef Q_OS_LINUX
     google_breakpad::ExceptionHandler eh("/tmp", NULL, Utils::exceptionHandler, NULL, true);
+#endif
+#ifdef Q_OS_MAC
+    google_breakpad::ExceptionHandler eh("/tmp", NULL, Utils::exceptionHandler, NULL, true, NULL);
 #endif
 
     QApplication app(argc, argv);
