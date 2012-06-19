@@ -45,9 +45,6 @@
 #include "dynamic_images.h"
 #include "mach_vm_compat.h"
 
-#if !TARGET_OS_IPHONE && (MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_7)
-  #define HAS_PPC_SUPPORT
-#endif
 #if defined(__arm__)
   #define HAS_ARM_SUPPORT
 #elif defined(__i386__) || defined(__x86_64__)
