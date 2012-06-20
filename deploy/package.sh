@@ -52,7 +52,12 @@ cp -r $src/{ChangeLog,examples,LICENSE.BSD,README.md} $dest/
 echo "done"
 echo
 
-if [[ $OSTYPE != darwin* ]]; then
+if [[ $OSTYPE == darwin* ]]; then
+    echo -n "compressing binary..."
+    upx -qqq $dest/bin/phantomjs
+    echo "done"
+    echo
+else
     echo -n "copying shared libs..."
     libld=
     for l in $(ldd $dest/bin/phantomjs | egrep -o "/[^ ]+ "); do
