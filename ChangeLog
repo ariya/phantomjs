@@ -1,5 +1,38 @@
 Please see also http://code.google.com/p/phantomjs/wiki/ReleaseNotes.
 
+2012-06-20: Version 1.6.0 "Lavender"
+
+    New features
+
+      * Added support for passing arguments to WebPage's evaluate (issue 132)
+      * Added callbacks for JavaScript onConfirm and onAlert (issue 133)
+      * Added stack trace when error occurs (issue 166)
+      * Added initial support for cookies handling (issue 354)
+      * Added support for header footer when printing the page (issue 410, 512)
+      * Added headers support in the loading request (issue 452)
+      * Added support to render the web page as base64-encoded string (issue 547)
+      * Added hooks for navigation event (issue 562)
+      * Added command-line option to show debug messages (issue 575)
+      * Added support for the zoom factor for web page rendering (issue 579)
+      * Added crash reporter for Mac OS X and Linux, based on Google Breakpad (issue 576)
+      * Added 'os' object to the system module (issue 585)
+      * Added support for asynchronous evaluation (issue 593)
+
+    Improvements
+
+      * Fixed remote debugging to work on Mac OS X and Windows (issue 430)
+      * Fixed web server getting the dropped connection for empty response (issue 451)
+      * Fixed text rendered as boxes (squares) on headless Linux (issue 460)
+      * Updated Qt to version 4.8.2 (issue 495)
+      * Updated CoffeeScript compiler to version 1.3.3 (issue 496)
+      * Fixed the build script to detect and use MAKEFLAGS (issue 503)
+      * Fixed the build script to properly pass Qt config flags (issue 507)
+      * Changed Info.plist to be embedded in Mac OS X executable (issue 528)
+      * Fixed wrong module require in the imagebin example (issue 536)
+      * Fixed example scripts to exit with the right exit code (issue 544)
+      * Fixed build failure with glib 2.31.0+ (issue 559)
+      * Fixed error handler failures in some cases (issue 589)
+
 2012-03-20: Version 1.5.0 "Ghost Flower"
 
     New features
