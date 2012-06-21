@@ -54,7 +54,7 @@ echo
 
 if [[ $OSTYPE == darwin* ]]; then
     echo -n "compressing binary..."
-    upx -qqq $dest/bin/phantomjs
+    [ ! -z upx ] && upx -qqq -9 $dest/bin/phantomjs
     echo "done"
     echo
 else
