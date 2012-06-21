@@ -25,7 +25,7 @@ page.open encodeURI("http://mobile.twitter.com/#{twitterId}"), (status) ->
     else
         # Execute some DOM inspection within the page context
         page.evaluate ->
-            list = document.querySelectorAll 'span.status'
+            list = document.querySelectorAll 'div.tweet-text'
             for i, j in list
-                console.log "#{j + 1}: #{i.innerHTML.replace /<.*?>/g, ''}"
+                console.log "#{j + 1}: #{i.innerText}"
     phantom.exit()

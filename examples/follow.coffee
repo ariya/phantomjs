@@ -14,7 +14,7 @@ follow = (user, callback) ->
     if status is 'fail'
       console.log user + ': ?'
     else
-      data = page.evaluate -> document.querySelector('div.timeline-following').innerText
+      data = page.evaluate -> document.querySelector('div.profile td.stat.stat-last div.statnum').innerText;
       console.log user + ': ' + data
     callback.apply()
 
