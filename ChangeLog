@@ -32,6 +32,7 @@ Please see also http://code.google.com/p/phantomjs/wiki/ReleaseNotes.
       * Fixed example scripts to exit with the right exit code (issue 544)
       * Fixed build failure with glib 2.31.0+ (issue 559)
       * Fixed error handler failures in some cases (issue 589)
+      * Fixed Twitter-related examples to work with the new site (issue 609)
 
 2012-03-20: Version 1.5.0 "Ghost Flower"
 
