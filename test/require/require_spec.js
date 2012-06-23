@@ -51,6 +51,14 @@ describe("require()", function() {
     }).should.Throw("Cannot find module 'dummy_missing'");
   });
 
+  it("maintains proper .stack when an error is thrown in module's exports", function() {
+    try {
+      require('./thrower').fn();
+    } catch (e) {
+      e.stack.should.match(/^Error: fn\n *at .*thrower\.js:2/);
+    }
+  });
+
   describe("stub()", function() {
     it("stubs modules in given context", function() {
       require('./stubber').stubbed.should.equal('stubbed module');
