@@ -87,6 +87,7 @@ public slots:
     QObject *createSystem();
     QObject *createCallback();
     QString loadModuleSource(const QString &name);
+    void loadModule(const QString &moduleSource, const QString &filename);
     bool injectJs(const QString &jsFilePath);
 
     // exit() will not exit in debug mode. debugExit() will always exit.

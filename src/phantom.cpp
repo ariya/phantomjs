@@ -281,6 +281,19 @@ QString Phantom::loadModuleSource(const QString &name)
     return moduleSource;
 }
 
+void Phantom::loadModule(const QString &moduleSource, const QString &filename)
+{
+   QString scriptSource =
+      "(function(require, exports, module) {" +
+      moduleSource +
+      "}(" +
+      "require.cache['" + filename + "']._getRequire()," +
+      "require.cache['" + filename + "'].exports," +
+      "require.cache['" + filename + "']" +
+      "));";
+   m_page->mainFrame()->evaluateJavaScript(scriptSource, filename);
+}
+
 bool Phantom::injectJs(const QString &jsFilePath)
 {
     return Utils::injectJsInFrame(jsFilePath, libraryPath(), m_page->mainFrame());

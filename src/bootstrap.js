@@ -76,7 +76,6 @@
 
     var rootPath = fs.absolute(phantom.libraryPath);
     var mainScript = joinPath(rootPath, basename(nativeRequire('system').args[0]) || 'repl');
-    var sourceIds = {};
 
     var cache = {};
     var extensions = {
@@ -193,22 +192,7 @@
     };
 
     Module.prototype._compile = function(code) {
-        // a trick to associate Error's sourceId with file
-        code += ";throw new Error('__sourceId__');";
-        try {
-            var fn = new Function('require', 'exports', 'module', code);
-            fn(this._getRequire(), this.exports, this);
-        } catch (e) {
-            // assign source id (check if already assigned to avoid reassigning
-            // on exceptions propagated from other files)
-            if (!sourceIds.hasOwnProperty(e.sourceId)) {
-                sourceIds[e.sourceId] = this.filename;
-            }
-            // if it's not the error we added, propagate it
-            if (e.message !== '__sourceId__') {
-                throw e;
-            }
-        }
+        phantom.loadModule(code, this.filename);
     };
 
     Module.prototype.require = function(request) {
