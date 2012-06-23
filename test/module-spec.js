@@ -16,7 +16,7 @@ describe("module loading using require", function() {
         var module = 'foobar';
         expect(function(){
             var foo = require(module);
-        }).toThrow("Unknown module " + module + " for require()");
+        }).toThrow("Cannot find module '" + module + "'");
     });
 
 });
