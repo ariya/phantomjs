@@ -31,6 +31,9 @@
 // Load Jasmine and the HTML reporter
 phantom.injectJs("./lib/jasmine.js");
 phantom.injectJs("./lib/jasmine-console.js");
+phantom.injectJs("./lib/chai.js");
+
+var should = chai.should();
 
 // Helper funcs
 function expectHasFunction(o, name) {
@@ -67,6 +70,8 @@ phantom.injectJs("./fs-spec-02.js"); //< Filesystem Specs 02 (Attributes)
 phantom.injectJs("./fs-spec-03.js"); //< Filesystem Specs 03 (Paths)
 phantom.injectJs("./fs-spec-04.js"); //< Filesystem Specs 04 (Tests)
 phantom.injectJs("./system-spec.js");
+phantom.injectJs("./module_spec.js");
+phantom.injectJs("./require/require_spec.js");
 
 // Launch tests
 var jasmineEnv = jasmine.getEnv();
