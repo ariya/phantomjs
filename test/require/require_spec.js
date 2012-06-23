@@ -10,15 +10,6 @@ describe("require()", function() {
     }
   });
 
-  it("loads phantomjs-nodify modules", function() {
-    should.exist(require('assert').AssertionError);
-    should.exist(require('events').EventEmitter);
-    should.exist(require('http').STATUS_CODES);
-    should.exist(require('path').dirname);
-    should.exist(require('tty').isatty);
-    should.exist(require('util').inspect);
-  });
-
   it("loads CoffeeScript modules", function() {
     require('./coffee_dummy').should.equal('require/coffee_dummy');
   });
