@@ -1,3 +1,3 @@
 exports.fn = function() {
-  throw new Error('fn');
+    throw new Error('fn');
 };
