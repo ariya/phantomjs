@@ -483,7 +483,7 @@ describe("WebPage object", function() {
 
     });
 
-    it("should set cookies properly", function() {
+    it("should set valid cookies properly", function() {
         var server = require('webserver').create();
         server.listen(12345, function(request, response) {
             // echo received request headers in response body
@@ -496,7 +496,10 @@ describe("WebPage object", function() {
         page.cookies = [{
             'name' : 'Cookie-Name',
             'value' : 'Cookie-Value',
-            'domain' : 'localhost'
+            'domain' : 'localhost',
+            'path' : '/foo',
+            'httponly' : true,
+            'secure' : false
         }];
 
         var handled = false;
@@ -508,7 +511,7 @@ describe("WebPage object", function() {
 
                 var echoedHeaders = JSON.parse(page.plainText);
                 // console.log(JSON.stringify(echoedHeaders));
-                expect(echoedHeaders["Cookie"]).toEqual("Cookie-Name=Cookie-Value");
+                expect(echoedHeaders["Cookie"]).toContain("Cookie-Value");
             });
         });
 
@@ -516,6 +519,65 @@ describe("WebPage object", function() {
 
         runs(function() {
             expect(handled).toEqual(true);
+            page.clearAllCookies();
+            server.close();
+        });
+
+    });
+
+    it("should not set invalid cookies", function() {
+        var server = require('webserver').create();
+        server.listen(12345, function(request, response) {
+            // echo received request headers in response body
+            response.write(JSON.stringify(request.headers));
+            response.close();
+        });
+
+        var url = "http://localhost:12345/foo/headers.txt?ab=cd";
+
+        page.cookies = [
+        {   // domain field missing.
+            'name' : 'Cookie-Name',
+            'value' : 'Cookie-Value',
+        },{ // domain mismatch.
+            'name' : 'Cookie-Name',
+            'value' : 'Cookie-Value',
+            'domain' : 'foo.com'
+        },{ // path mismatch.
+            'name' : 'Cookie-Name',
+            'value' : 'Cookie-Value',
+            'domain' : 'localhost',
+            'path' : '/bar',
+        },{ // cookie expired.
+            'name' : 'Cookie-Name',
+            'value' : 'Cookie-Value',
+            'domain' : 'localhost',
+            'expires' : 'Sat, 09 Jun 2012 00:00:00 GMT',
+        },{ // https only.
+            'name' : 'Cookie-Name',
+            'value' : 'Cookie-Value',
+            'domain' : 'localhost',
+            'secure' : true,
+        }];
+
+        var handled = false;
+        runs(function() {
+            expect(handled).toEqual(false);
+            page.open(url, function (status) {
+                expect(status == 'success').toEqual(true);
+                handled = true;
+
+                var echoedHeaders = JSON.parse(page.plainText);
+                // console.log(JSON.stringify(echoedHeaders));
+                expect(echoedHeaders["Cookie"]).toBeUndefined();
+            });
+        });
+
+        waits(50);
+
+        runs(function() {
+            expect(handled).toEqual(true);
+            page.clearAllCookies();
             server.close();
         });
 

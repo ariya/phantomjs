@@ -259,6 +259,13 @@ exports.create = function (opts) {
         this.setCookies(cookies);
     });
 
+    /**
+     * clear all the cookies of the page.
+     */
+    page.clearAllCookies = function() {
+        this.clearAllCookies();
+    }
+
     // Copy options into page
     if (opts) {
         page = copyInto(page, opts);
