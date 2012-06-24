@@ -271,7 +271,7 @@ QObject* Phantom::createCallback()
     return new Callback(this);
 }
 
-QString Phantom::loadModuleSource(const QString &name)
+QString Phantom::readNativeModule(const QString &name)
 {
     QString moduleSource;
     QString moduleSourceFilePath = ":/modules/" + name + ".js";
