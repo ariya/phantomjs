@@ -1,13 +1,18 @@
 describe("require()", function() {
-    it("loads native PhantomJS modules", function() {
+    it("loads 'webpage' native module", function() {
         should.exist(require('webpage').create);
+    });
+
+    it("loads 'fs' native module", function() {
         should.exist(require('fs').separator);
-        if (phantom.version.major >= 1 && phantom.version.minor >= 4) {
-            should.exist(require('webserver').create);
-        }
-        if (phantom.version.major >= 1 && phantom.version.minor >= 5) {
-            require('system').platform.should.equal('phantomjs');
-        }
+    });
+
+    it("loads 'webserver' native module", function() {
+        should.exist(require('webserver').create);
+    });
+
+    it("loads 'system' native module", function() {
+        require('system').platform.should.equal('phantomjs');
     });
 
     it("loads CoffeeScript modules", function() {
