@@ -247,7 +247,7 @@ phantom.onError = phantom.defaultErrorHandler;
     };
 
     Module.prototype.require = function(request) {
-        var filename, module, error;
+        var filename, module;
 
         // first see if there are any stubs for the request
         if (this.stubs.hasOwnProperty(request)) {
@@ -262,10 +262,7 @@ phantom.onError = phantom.defaultErrorHandler;
         // else look for a file
         filename = this._getFilename(request);
         if (!filename) {
-            error = new Error("Cannot find module '" + request + "'");
-            error.fileName = this.filename;
-            error.line = '';
-            throw error;
+            throw new Error("Cannot find module '" + request + "'");
         }
 
         if (cache.hasOwnProperty(filename)) {
