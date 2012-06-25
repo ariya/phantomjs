@@ -1035,9 +1035,7 @@ void WebPage::initCompletions()
     addCompletion("render");
     addCompletion("sendEvent");
     addCompletion("uploadFile");
-    addCompletion("renderBase64PNG");
-    addCompletion("renderBase64JPG");
-    addCompletion("renderBase64BMP");
+    addCompletion("renderBase64");
     addCompletion("childFramesCount");
     addCompletion("childFramesName");
     addCompletion("switchToChildFrame");
