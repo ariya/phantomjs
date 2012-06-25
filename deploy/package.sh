@@ -26,14 +26,6 @@ echo "packaging phantomjs $version"
 if [[ $OSTYPE = darwin* ]]; then
     dest="phantomjs-$version-macosx-static"
 else
-    if [[ ! -f brandelf ]]; then
-        echo
-        echo "brandelf executable not found in current dir"
-        echo -n "compiling it now..."
-        g++ brandelf.c -o brandelf || exit 1
-        echo "done"
-    fi
-
     dest="phantomjs-$version-linux-$(uname -m)-dynamic"
 fi
 
@@ -59,47 +51,23 @@ if [[ $OSTYPE == darwin* ]]; then
     echo
 else
     echo -n "copying shared libs..."
-    libld=
-    for l in $(ldd $dest/bin/phantomjs | egrep -o "/[^ ]+ "); do
-        if [[ "$l" != "" ]]; then
-            ll=$(basename $l)
-            cp $l $dest/lib/$ll
-            # ensure OS ABI compatibility
-            ./brandelf -t SVR4 $dest/lib/$ll
-            if [[ "$l" == *"ld-linux"* ]]; then
-                libld=$ll
-            fi
-        fi
+    for l in $(ldd $dest/bin/phantomjs | egrep "lib(Qt|fontconfig|freetype)" | egrep -o "/[^ ]+ "); do
+        cp $l $dest/lib/
     done
+    chrpath -r \$ORIGIN/../lib $dest/bin/phantomjs
     echo "done"
     echo
 fi
 
 # strip to reduce file size
 echo -n "stripping binary and libs..."
-
 if [[ $OSTYPE = darwin* ]]; then
     strip -x $dest/bin/*
 else
     strip -s $dest/lib/*  $dest/bin/*
 fi
-
 echo "done"
 echo
-
-if [[ $OSTYPE != darwin* ]]; then
-    echo -n "writing run script..."
-    # write run scripts
-    mv $dest/bin/phantomjs $dest/bin/phantomjs.bin
-    run=$dest/bin/phantomjs
-    echo '#!/bin/sh' >> $run
-    echo 'path=$(dirname $(dirname $(readlink -f $0)))' >> $run
-    echo 'export LD_LIBRARY_PATH=$path/lib' >> $run
-    echo 'exec $path/lib/'$libld' $path/bin/phantomjs.bin $@' >> $run
-    chmod +x $run
-    echo "done"
-    echo
-fi
 
 echo -n "creating tarball..."
 tar -cjf $dest{.tar.bz2,}
