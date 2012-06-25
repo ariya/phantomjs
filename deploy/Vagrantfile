@@ -25,6 +25,6 @@ Vagrant::Config.run do |config|
 
   # You may wish to tweak these, but be aware that you need quite a lot of
   # memory for the linking stage.
-  config.vm.customize ["modifyvm", :id, "--memory", 2048]
+  config.vm.customize ["modifyvm", :id, "--memory", 3072]
   config.vm.customize ["modifyvm", :id, "--cpus",   2]
 end
