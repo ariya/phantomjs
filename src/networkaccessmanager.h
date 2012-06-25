@@ -51,7 +51,6 @@ public:
     QVariantMap customHeaders() const;
     void setCookies(const QVariantList &cookies);
     QVariantList cookies() const;
-    void clearAllCookies();
 
 protected:
     bool m_ignoreSslErrors;

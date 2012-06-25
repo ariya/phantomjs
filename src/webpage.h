@@ -182,7 +182,6 @@ public slots:
 
     void setCookies(const QVariantList &cookies);
     QVariantList cookies() const;
-    void clearAllCookies();
 
 signals:
     void initialized();

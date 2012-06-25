@@ -519,7 +519,7 @@ describe("WebPage object", function() {
 
         runs(function() {
             expect(handled).toEqual(true);
-            page.clearAllCookies();
+            page.cookies = [];
             server.close();
         });
 
@@ -577,7 +577,7 @@ describe("WebPage object", function() {
 
         runs(function() {
             expect(handled).toEqual(true);
-            page.clearAllCookies();
+            page.cookies = [];
             server.close();
         });
 

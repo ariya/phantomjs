@@ -44,7 +44,6 @@ public:
     QList<QNetworkCookie> cookiesForUrl (const QUrl & url) const;
     void setCookies(const QVariantList &cookies);
     QVariantList cookies() const;
-    void clearAllCookies();
 };
 
 #endif // COOKIEJAR_H

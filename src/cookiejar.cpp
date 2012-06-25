@@ -159,9 +159,10 @@ void CookieJar::setCookies(const QVariantList &cookies)
         newCookies.append(nc);
     }
 
-    QList<QNetworkCookie> allCookies = this->allCookies();
-    allCookies.append(newCookies);
-    this->setAllCookies(allCookies);
+    // QList<QNetworkCookie> allCookies = this->allCookies();
+    // allCookies.append(newCookies);
+    // this->setAllCookies(allCookies);
+    this->setAllCookies(newCookies);
 }
 
 QVariantList CookieJar::cookies() const
@@ -186,10 +187,4 @@ QVariantList CookieJar::cookies() const
     }
 
     return returnCookies;
-}
-
-void CookieJar::clearAllCookies() 
-{
-    QList<QNetworkCookie> newCookies;
-    this->setAllCookies(newCookies);
 }

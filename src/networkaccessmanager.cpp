@@ -118,12 +118,6 @@ QVariantList NetworkAccessManager::cookies() const
     return cookiejar->cookies();
 }
 
-void NetworkAccessManager::clearAllCookies()
-{
-    CookieJar* cookiejar = static_cast<CookieJar*>(cookieJar());
-    return cookiejar->clearAllCookies();
-}
-
 // protected:
 QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkRequest & request, QIODevice * outgoingData)
 {
