@@ -66,8 +66,10 @@ QGesture *QWinNativePanGestureRecognizer::create(QObject *target)
         return new QPanGesture; // a special case
     if (!target->isWidgetType())
         return 0;
+#ifndef QT_NO_GRAPHICSVIEW
     if (qobject_cast<QGraphicsObject *>(target))
         return 0;
+#endif // QT_NO_GRAPHICSVIEW
 
     QWidget *q = static_cast<QWidget *>(target);
     QWidgetPrivate *d = q->d_func();

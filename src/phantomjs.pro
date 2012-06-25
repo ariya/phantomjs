@@ -105,4 +105,11 @@ mac {
 }
 CONFIG(static) {
     DEFINES += STATIC_BUILD
+    QTPLUGIN += \
+        qcncodecs \
+        qjpcodecs \
+        qkrcodecs \
+        qtwcodecs
 }
+
+win32-msvc*:LIBS += -lCrypt32
