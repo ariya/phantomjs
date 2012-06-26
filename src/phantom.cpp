@@ -286,7 +286,7 @@ void Phantom::loadModule(const QString &moduleSource, const QString &filename)
    QString scriptSource =
       "(function(require, exports, module) {" +
       moduleSource +
-      "}(" +
+      "}.call({}," +
       "require.cache['" + filename + "']._getRequire()," +
       "require.cache['" + filename + "'].exports," +
       "require.cache['" + filename + "']" +
