@@ -8,8 +8,10 @@ echo
 echo "    $ make clean && cd src/qt && make clean && cd ../.."
 echo
 
-# Build the project
-./build.sh --qt-config "-debug -webkit-debug" --qmake-args "CONFIG-=release CONFIG+=debug" || exit 1
+# This incantation will cause Qt and WebKit and PhantomJS to all build in "release"
+# mode, with compiler optimisations, but also with debug symbols. (We will strip the
+# symbols in package.sh.)
+CFLAGS=-g CXXFLAGS=-g ./build.sh --qt-config '-webkit-debug' --qmake-args "QMAKE_CFLAGS=-g QMAKE_CXXFLAGS=-g" || exit 1
 
 # Package the release tarball
 rm deploy/*.tar.bz2 2>/dev/null
