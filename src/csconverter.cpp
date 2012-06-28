@@ -49,8 +49,8 @@ CSConverter::CSConverter()
     : QObject(QCoreApplication::instance())
 {
     m_webPage.mainFrame()->evaluateJavaScript(
-        Utils::readResourceFileUtf8(":/coffee-script.js"),
-        QString("phantomjs://coffee-script.js")
+        Utils::readResourceFileUtf8(":/coffee-script/extras/coffee-script.js"),
+        QString("phantomjs://coffee-script/extras/coffee-script.js")
     );
     m_webPage.mainFrame()->addToJavaScriptWindowObject("converter", this);
 }

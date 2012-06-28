@@ -27,5 +27,6 @@
         <file>coffee-script/lib/coffee-script/helpers.js</file>
         <file>coffee-script/lib/coffee-script/rewriter.js</file>
         <file>coffee-script/lib/coffee-script/index.js</file>
+        <file>coffee-script/extras/coffee-script.js</file>
     </qresource>
 </RCC>
