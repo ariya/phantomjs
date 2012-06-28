@@ -102,18 +102,6 @@ phantom.onError = phantom.defaultErrorHandler;
             module._compile(code);
         },
 
-        '.coffee': function(module, filename) {
-            var code = fs.read(filename);
-            var CoffeeScript = require('_coffee-script');
-            try {
-                code = CoffeeScript.compile(code);
-            } catch (e) {
-                e.fileName = filename;
-                throw e;
-            }
-            module._compile(code);
-        },
-
         '.json': function(module, filename) {
             module.exports = JSON.parse(fs.read(filename));
         }
@@ -190,7 +178,7 @@ phantom.onError = phantom.defaultErrorHandler;
     };
 
     Module.prototype._isNative = function() {
-        return this.filename[0] === ':';
+        return this.filename && this.filename[0] === ':';
     }
 
     Module.prototype._getPaths = function(request) {
@@ -204,10 +192,12 @@ phantom.onError = phantom.defaultErrorHandler;
             // first look in PhantomJS modules
             paths.push(joinPath(':/modules', request));
             // then look in node_modules directories
-            dir = this.dirname;
-            while (dir) {
-                paths.push(joinPath(dir, 'node_modules', request));
-                dir = dirname(dir);
+            if (!this._isNative()) {
+                dir = this.dirname;
+                while (dir) {
+                    paths.push(joinPath(dir, 'node_modules', request));
+                    dir = dirname(dir);
+                }
             }
         }
 
@@ -233,6 +223,7 @@ phantom.onError = phantom.defaultErrorHandler;
             return self.require(request);
         }
         require.cache = cache;
+        require.extensions = extensions;
         require.stub = function(request, exports) {
             self.stubs[request] = { exports: exports };
         };
@@ -285,6 +276,8 @@ phantom.onError = phantom.defaultErrorHandler;
         cwd = fs.absolute(phantom.libraryPath);
         mainFilename = joinPath(cwd, basename(require('system').args[0]) || 'repl');
         mainModule._setFilename(mainFilename);
+        // include CoffeeScript which takes care of adding .coffee extension
+        require('_coffee-script');
     }());
 }());
 
