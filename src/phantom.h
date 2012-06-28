@@ -86,7 +86,6 @@ public slots:
     QObject *createFilesystem();
     QObject *createSystem();
     QObject *createCallback();
-    QString readNativeModule(const QString &name);
     void loadModule(const QString &moduleSource, const QString &filename);
     bool injectJs(const QString &jsFilePath);
 

@@ -89,10 +89,9 @@ phantom.onError = phantom.defaultErrorHandler;
     window.global = window;
     // fs is loaded at the end, when everything is ready
     var fs;
-
     var cache = {};
-    var nativeModules = ['fs', 'webpage', 'webserver', 'system'];
     // use getters to initialize lazily
+    // (for future, now both fs and system are loaded anyway)
     var nativeExports = {
         get fs() { return phantom.createFilesystem(); },
         get system() { return phantom.createSystem(); }
@@ -120,18 +119,16 @@ phantom.onError = phantom.defaultErrorHandler;
         }
     };
     
-    function nativeRequire(request) {
-        var code, module, filename = 'phantomjs://modules/' + request + '.js';
+    function loadFs() {
+        var file, code, module, filename = ':/modules/fs.js';
         
-        if (cache.hasOwnProperty(filename)) {
-            return cache[filename].exports;
-        }
-        
-        code = phantom.readNativeModule(request);
         module = new Module(filename);
-
         cache[filename] = module;
-        module.exports = nativeExports[request] || {};
+        module.exports = nativeExports.fs;
+
+        file = module.exports._open(filename, { mode: 'r' })
+        code = file.read();
+        file.close();
         module._compile(code);
 
         return module.exports;
@@ -192,6 +189,10 @@ phantom.onError = phantom.defaultErrorHandler;
         this.dirname = dirname(filename);
     };
 
+    Module.prototype._isNative = function() {
+        return this.filename[0] === ':';
+    }
+
     Module.prototype._getPaths = function(request) {
         var paths = [], dir;
 
@@ -200,8 +201,11 @@ phantom.onError = phantom.defaultErrorHandler;
         } else if (request[0] === '/') {
             paths.push(fs.absolute(request));
         } else {
+            // first look in PhantomJS modules
+            paths.push(joinPath(':/modules', request));
+            // then look in node_modules directories
             dir = this.dirname;
-            while (dir !== '') {
+            while (dir) {
                 paths.push(joinPath(dir, 'node_modules', request));
                 dir = dirname(dir);
             }
@@ -254,11 +258,6 @@ phantom.onError = phantom.defaultErrorHandler;
             return this.stubs[request].exports;
         }
 
-        // then try loading a native module
-        if (nativeModules.indexOf(request) !== -1) {
-            return nativeRequire(request);
-        }
-
         // else look for a file
         filename = this._getFilename(request);
         if (!filename) {
@@ -270,6 +269,9 @@ phantom.onError = phantom.defaultErrorHandler;
         }
 
         module = new Module(filename, this.stubs);
+        if (module._isNative()) {
+            module.exports = nativeExports[request] || {};
+        }
         cache[filename] = module;
         module._load();
 
@@ -279,9 +281,9 @@ phantom.onError = phantom.defaultErrorHandler;
     (function() {
         var cwd, mainFilename, mainModule = new Module();
         window.require = mainModule._getRequire();
-        fs = nativeRequire('fs');
+        fs = loadFs();
         cwd = fs.absolute(phantom.libraryPath);
-        mainFilename = joinPath(cwd, basename(nativeRequire('system').args[0]) || 'repl');
+        mainFilename = joinPath(cwd, basename(require('system').args[0]) || 'repl');
         mainModule._setFilename(mainFilename);
     }());
 }());
