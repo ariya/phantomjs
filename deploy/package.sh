@@ -101,9 +101,11 @@ if [[ $OSTYPE != darwin* ]]; then
     echo
 fi
 
-echo -n "creating tarball..."
-tar -cjf $dest{.tar.bz2,}
+echo -n "creating archive..."
+if [[ $OSTYPE != darwin* ]]; then
+    zip -r $dest.zip $dest
+else
+    tar -cjf $dest{.tar.bz2,}
+fi
 echo "done"
 echo
-
-echo "you can now deploy $dest or $dest.tar.bz2"
