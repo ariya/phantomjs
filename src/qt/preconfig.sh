@@ -109,10 +109,10 @@ export MAKEFLAGS=-j$COMPILE_JOBS
 ./configure -prefix $PWD $QT_CFG
 make -j$COMPILE_JOBS
 
-if [[ $QT_CFG =~ "-webkit-debug" ]]; then
-  DEBUG_OR_RELEASE=debug
-else
+if [[ $QT_CFG =~ "-release" ]]; then
   DEBUG_OR_RELEASE=release
+else
+  DEBUG_OR_RELEASE=debug
 fi
 
 # Extra step to ensure the static libraries are found
