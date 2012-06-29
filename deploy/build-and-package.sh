@@ -32,13 +32,22 @@ fi
 
 ./tools/dump-symbols.sh
 
+version=$(bin/phantomjs --version | sed 's/ /-/' | sed 's/[()]//g')
+if [[ $OSTYPE = darwin* ]]; then
+    symbols="phantomjs-$version-macosx-static-symbols"
+else
+    symbols="phantomjs-$version-linux-$(uname -m)-dynamic-symbols"
+fi
+
+cp -r symbols/ $symbols
+
 # The minidump_stackwalk program is architecture-specific, so copy the
 # binary for later use. This means that e.g. a developer on x86_64 can
 # analyse a crash dump produced by a i686 user.
 #
 # We don't yet have a process for building minidump_stackwalk on OS X
 if [[ $OSTYPE != darwin* ]]; then
-    cp src/breakpad/src/processor/minidump_stackwalk symbols/
+    cp src/breakpad/src/processor/minidump_stackwalk $symbols
 
     read -r -d '' README <<EOT
 These are symbols files that can be used to analyse a crash dump
@@ -48,10 +57,11 @@ run:
 ./minidump_stackwalk /path/to/crash.dmp .
 EOT
 
-    echo "$README" > symbols/README
+    echo "$README" > $symbols/README
 fi
 
-tar -cjf $(ls deploy/*.bz2 | sed 's/\.tar\.bz2/-symbols.tar.bz2/') symbols/
+tar -cjf deploy/$symbols.tar.bz2 $symbols
+rm -r $symbols
 
 echo "PhantomJS built and packaged:"
 echo
