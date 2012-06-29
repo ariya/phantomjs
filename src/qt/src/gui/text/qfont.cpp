@@ -39,6 +39,7 @@
 **
 ****************************************************************************/
 
+
 #include "qfont.h"
 #include "qdebug.h"
 #include "qpaintdevice.h"
@@ -220,16 +221,7 @@ Q_GUI_EXPORT int qt_defaultDpiY()
         screen = subScreens.at(0);
     dpi = qRound(screen->height() / (screen->physicalHeight() / qreal(25.4)));
 #elif defined(Q_WS_QPA)
-    QPlatformIntegration *pi = QApplicationPrivate::platformIntegration();
-    if (pi) {
-        QPlatformScreen *screen = QApplicationPrivate::platformIntegration()->screens().at(0);
-        const QSize screenSize = screen->geometry().size();
-        const QSize physicalSize = screen->physicalSize();
-        dpi = qRound(screenSize.height() / (physicalSize.height() / qreal(25.4)));
-    } else {
-        //PI has not been initialised, or it is being initialised. Give a default dpi
-        dpi = 100;
-    }
+    dpi = 72;
 #elif defined(Q_OS_SYMBIAN)
     dpi = S60->defaultDpiY;
 #endif // Q_WS_X11
