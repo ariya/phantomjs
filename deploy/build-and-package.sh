@@ -8,8 +8,10 @@ echo
 echo "    $ make clean && cd src/qt && make clean && cd ../.."
 echo
 
-# Build the project
-./build.sh --qt-config "-debug -webkit-debug" --qmake-args "CONFIG-=release CONFIG+=debug" || exit 1
+# This incantation will cause Qt and WebKit and PhantomJS to all build in "release"
+# mode, with compiler optimisations, but also with debug symbols. (We will strip the
+# symbols in package.sh.)
+CFLAGS=-g CXXFLAGS=-g ./build.sh --qt-config '-webkit-debug' --qmake-args "QMAKE_CFLAGS=-g QMAKE_CXXFLAGS=-g" || exit 1
 
 # Package the release tarball
 rm deploy/*.tar.bz2 2>/dev/null
@@ -30,13 +32,22 @@ fi
 
 ./tools/dump-symbols.sh
 
+version=$(bin/phantomjs --version | sed 's/ /-/' | sed 's/[()]//g')
+if [[ $OSTYPE = darwin* ]]; then
+    symbols="phantomjs-$version-macosx-static-symbols"
+else
+    symbols="phantomjs-$version-linux-$(uname -m)-dynamic-symbols"
+fi
+
+cp -r symbols/ $symbols
+
 # The minidump_stackwalk program is architecture-specific, so copy the
 # binary for later use. This means that e.g. a developer on x86_64 can
 # analyse a crash dump produced by a i686 user.
 #
 # We don't yet have a process for building minidump_stackwalk on OS X
 if [[ $OSTYPE != darwin* ]]; then
-    cp src/breakpad/src/processor/minidump_stackwalk symbols/
+    cp src/breakpad/src/processor/minidump_stackwalk $symbols
 
     read -r -d '' README <<EOT
 These are symbols files that can be used to analyse a crash dump
@@ -46,10 +57,11 @@ run:
 ./minidump_stackwalk /path/to/crash.dmp .
 EOT
 
-    echo "$README" > symbols/README
+    echo "$README" > $symbols/README
 fi
 
-tar -cjf $(ls deploy/*.bz2 | sed 's/\.tar\.bz2/-symbols.tar.bz2/') symbols/
+tar -cjf deploy/$symbols.tar.bz2 $symbols
+rm -r $symbols
 
 echo "PhantomJS built and packaged:"
 echo
