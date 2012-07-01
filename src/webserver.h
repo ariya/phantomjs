@@ -116,6 +116,8 @@ public slots:
     void writeHead(int statusCode, const QVariantMap &headers);
     /// sends @p data to client and makes sure the headers are send beforehand
     void write(const QString &data);
+    /// sends @p binary data to client and makes sure the headers are send beforehand
+    void writeBinary(const QString &data);
 
     /**
      * Closes the request once all data has been written to the client.
