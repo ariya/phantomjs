@@ -37,6 +37,7 @@
 #include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
+#include <QKeyEvent>
 #include <QMouseEvent>
 #include <QNetworkAccessManager>
 #include <QNetworkCookie>
@@ -941,7 +942,28 @@ QObject *WebPage::_getJsPromptCallback() {
 
 void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVariant &arg2)
 {
-    if (type == "mousedown" ||  type == "mouseup" || type == "mousemove") {
+    // keyboard events
+    if (type == "keydown" || type == "keyup") {
+        QKeyEvent::Type keyEventType = QEvent::None;
+        if (type == "keydown")
+            keyEventType = QKeyEvent::KeyPress;
+        if (type == "keyup")
+            keyEventType = QKeyEvent::KeyRelease;
+        Q_ASSERT(keyEventType != QEvent::None);
+
+        QKeyEvent *keyEvent = new QKeyEvent(keyEventType, arg1.toInt(), Qt::NoModifier);
+        QApplication::postEvent(m_webPage, keyEvent);
+        QApplication::processEvents();
+        return;
+    }
+
+    if (type == "keypress") {
+        sendEvent("keydown", arg1.toInt());
+        sendEvent("keyup", arg1.toInt());
+    }
+
+    // mouse events
+    if (type == "mousedown" || type == "mouseup" || type == "mousemove") {
         QMouseEvent::Type eventType = QEvent::None;
         Qt::MouseButton button = Qt::LeftButton;
         Qt::MouseButtons buttons = Qt::LeftButton;
