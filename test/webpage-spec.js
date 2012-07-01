@@ -169,6 +169,83 @@ describe("WebPage object", function() {
     expectHasFunction(page, 'switchToParentFrame');
     expectHasFunction(page, 'currentFrameName');
 
+    it("should handle keydown event", function() {
+        runs(function() {
+            page.evaluate(function() {
+                window.addEventListener('keydown', function(event) {
+                    window.loggedEvent = window.loggedEvent || {};
+                    window.loggedEvent.keydown = event;
+                }, false);
+            });
+            page.sendEvent('keydown', 65);
+        });
+
+        waits(50);
+
+        runs(function() {
+            var event = page.evaluate(function() {
+                return window.loggedEvent.keydown;
+            });
+            expect(event.which).toEqual(65);
+        });
+    });
+
+    it("should handle keyup event", function() {
+        runs(function() {
+            page.evaluate(function() {
+                window.addEventListener('keyup', function(event) {
+                    window.loggedEvent = window.loggedEvent || {};
+                    window.loggedEvent.keyup = event;
+                }, false);
+            });
+            page.sendEvent('keyup', 65);
+        });
+
+        waits(50);
+
+        runs(function() {
+            var event = page.evaluate(function() {
+                return window.loggedEvent.keyup;
+            });
+            expect(event.which).toEqual(65);
+        });
+    });
+
+    it("should handle keypress event", function() {
+        runs(function() {
+            page.evaluate(function() {
+                window.addEventListener('keypress', function(event) {
+                    window.loggedEvent = window.loggedEvent || {};
+                    window.loggedEvent.keypress = event;
+                }, false);
+            });
+            page.sendEvent('keypress', 65);
+        });
+
+        waits(50);
+
+        runs(function() {
+            var event = page.evaluate(function() {
+                return window.loggedEvent.keypress;
+            });
+            expect(event.which).toEqual(65);
+        });
+    });
+
+    it("should handle keypress event with inputs", function() {
+        runs(function() {
+            page.content = '<input type="text">';
+            page.evaluate(function() {
+                document.querySelector('input').focus();
+            });
+            page.sendEvent('keypress', 65);
+            var text = page.evaluate(function() {
+                return document.querySelector('input').value;
+            });
+            expect(text).toEqual("A");
+        });
+    });
+
     it("should handle mousedown event", function() {
         runs(function() {
             page.evaluate(function() {
