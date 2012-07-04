@@ -53,6 +53,7 @@ class Phantom: public REPLCompletable
     Q_PROPERTY(QString scriptName READ scriptName)
     Q_PROPERTY(QVariantMap version READ version)
     Q_PROPERTY(QObject *page READ page)
+    Q_PROPERTY(QVariantMap keys READ keys)
 
 public:
     Phantom(QObject *parent = 0);
@@ -79,6 +80,8 @@ public:
     QObject* page() const;
 
     bool printDebugMessages() const;
+
+    QVariantMap keys() const;
 
 public slots:
     QObject *createWebPage();
@@ -115,6 +118,7 @@ private:
     QList<QPointer<WebPage> > m_pages;
     QList<QPointer<WebServer> > m_servers;
     Config m_config;
+    QVariantMap m_keyMap;
 };
 
 #endif // PHANTOM_H
