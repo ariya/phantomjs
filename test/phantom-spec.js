@@ -1,5 +1,4 @@
 describe("phantom global object", function() {
-
     it("should exist", function() {
         expect(typeof phantom).toEqual('object');
     });
@@ -66,5 +65,9 @@ describe("phantom global object", function() {
 
     it("should have 'exit' function", function() {
         expect(typeof phantom.exit).toEqual("function");
+    });
+
+    it("should have 'keys' property", function() {
+        expect(phantom.hasOwnProperty('keys')).toBeTruthy();
     });
 });
