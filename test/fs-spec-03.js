@@ -22,14 +22,17 @@ describe("Files and Directories API", function() {
 		fs.removeTree(TEST_DIR);
 	});
 
-	//it("should copy Content of the '/test/' Directory in a temporary directory, compare with the original and then remove", function() {
-		//fs.copyTree(phantom.libraryPath, TEST_DIR);
-		//expect(fs.list(phantom.libraryPath).length).toEqual(fs.list(TEST_DIR).length);
-		//fs.removeTree(TEST_DIR);
-	//});
+	it("should copy Content of the '/test/' Directory in a temporary directory, compare with the original and then remove", function() {
+		var phantomLibraryPathListingLength = fs.list(phantom.libraryPath).length;
+		fs.copyTree(phantom.libraryPath, "/tmp/"+TEST_DIR);
+		expect(phantomLibraryPathListingLength === fs.list("/tmp/"+TEST_DIR).length);
+		fs.removeTree("/tmp/"+TEST_DIR);
+	});
 
     // TODO: test the actual functionality once we can create symlink.
     it("should have readLink function", function() {
         expect(typeof fs.readLink).toEqual('function');
     });
+
+    fs.removeTree(TEST_DIR);
 });
