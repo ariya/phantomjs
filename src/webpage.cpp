@@ -951,15 +951,42 @@ void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVarian
             keyEventType = QKeyEvent::KeyRelease;
         Q_ASSERT(keyEventType != QEvent::None);
 
-        QKeyEvent *keyEvent = new QKeyEvent(keyEventType, arg1.toInt(), Qt::NoModifier);
+        int key = 0;
+        QString text;
+        if (arg1.type() == QVariant::Char) {
+            // a single char was given
+            text = arg1.toChar();
+            key = text.at(0).toAscii();
+        } else if (arg1.type() == QVariant::String) {
+            // javascript invokation of a single char
+            text = arg1.toString();
+            if (!text.isEmpty()) {
+                key = text.at(0).toAscii();
+            }
+        } else {
+            // assume a raw integer char code was given
+            key = arg1.toInt();
+        }
+        QKeyEvent *keyEvent = new QKeyEvent(keyEventType, key, Qt::NoModifier, text);
         QApplication::postEvent(m_webPage, keyEvent);
         QApplication::processEvents();
         return;
     }
 
     if (type == "keypress") {
-        sendEvent("keydown", arg1.toInt());
-        sendEvent("keyup", arg1.toInt());
+        if (arg1.type() == QVariant::String) {
+            // this is the case for e.g. sendEvent("...", 'A')
+            // but also works with sendEvent("...", "ABCD")
+            foreach(QChar typeChar, arg1.toString()) {
+                sendEvent("keydown", typeChar);
+                sendEvent("keyup", typeChar);
+            }
+        } else {
+            // otherwise we assume a raw integer char-code was given
+            sendEvent("keydown", arg1.toInt());
+            sendEvent("keyup", arg1.toInt());
+        }
+        return;
     }
 
     // mouse events

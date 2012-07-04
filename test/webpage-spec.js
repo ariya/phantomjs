@@ -246,6 +246,34 @@ describe("WebPage object", function() {
         });
     });
 
+    it("should handle keypress event of string with inputs", function() {
+        runs(function() {
+            page.content = '<input type="text">';
+            page.evaluate(function() {
+                document.querySelector('input').focus();
+            });
+            page.sendEvent('keypress', "ABCD");
+            var text = page.evaluate(function() {
+                return document.querySelector('input').value;
+            });
+            expect(text).toEqual("ABCD");
+        });
+    });
+
+    it("should handle keypress event of umlaut char with inputs", function() {
+        runs(function() {
+            page.content = '<input type="text">';
+            page.evaluate(function() {
+                document.querySelector('input').focus();
+            });
+            page.sendEvent('keypress', "ä");
+            var text = page.evaluate(function() {
+                return document.querySelector('input').value;
+            });
+            expect(text).toEqual("ä");
+        });
+    });
+
     it("should handle mousedown event", function() {
         runs(function() {
             page.evaluate(function() {
