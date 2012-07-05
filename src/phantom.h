@@ -54,11 +54,15 @@ class Phantom: public REPLCompletable
     Q_PROPERTY(QVariantMap version READ version)
     Q_PROPERTY(QObject *page READ page)
 
-public:
+private:
+    // Private constructor: the Phantom class is a singleton
     Phantom(QObject *parent = 0);
+    void init();
+
+public:
+    static Phantom *instance();
     virtual ~Phantom();
 
-    void init();
     QStringList args() const;
 
     QVariantMap defaultPageSettings() const;
@@ -76,7 +80,16 @@ public:
 
     QVariantMap version() const;
 
-    QObject* page() const;
+    QObject *page() const;
+
+    /**
+     * Pointer to the Config loaded at startup.
+     * The configuration is determined by the commandline parameters.
+     *
+     * @brief config
+     * @return Pointer to the current Config(uration)
+     */
+    Config *config();
 
     bool printDebugMessages() const;
 
@@ -100,6 +113,7 @@ private slots:
     void printConsoleMessage(const QString &msg);
 
     void onInitialized();
+
 private:
     void doExit(int code);
     virtual void initCompletions();

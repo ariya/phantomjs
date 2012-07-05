@@ -61,9 +61,12 @@ class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
     Q_PROPERTY(QVariantMap customHeaders READ customHeaders WRITE setCustomHeaders)
     Q_PROPERTY(qreal zoomFactor READ zoomFactor WRITE setZoomFactor)
     Q_PROPERTY(QVariantList cookies READ cookies WRITE setCookies)
+    Q_PROPERTY(QString windowName READ windowName)
+    Q_PROPERTY(QObjectList pages READ pages)
+    Q_PROPERTY(QStringList pagesWindowName READ pagesWindowName)
 
 public:
-    WebPage(QObject *parent, const Config *config, const QUrl &baseUrl = QUrl());
+    WebPage(QObject *parent, const QUrl &baseUrl = QUrl());
 
     QWebFrame *mainFrame();
 
@@ -107,6 +110,47 @@ public:
     void setZoomFactor(qreal zoom);
     qreal zoomFactor() const;
 
+    /**
+     * Value of <code>"window.name"</code> within the main page frame.
+     *
+     * It's just a convenience method for
+     * <code>"page.evaluate('return window.name;')"</code>
+     *
+     * @brief windowName
+     * @return Returns the value of <code>'window.name'</code>
+     *         within the current frame
+     */
+    QString windowName() const;
+
+    /**
+     * Returns a list of (Child) Pages that this page has currently open.
+     * A page opens chilp pages when using <code>"window.open()"</code>.
+     * If a child page spontaneously closes
+     * (i.e. a call to <code>"window.close()"<code>) or it's manually closed
+     * (i.e. "page.pages[i].release()"), the page is automatically removed by
+     * this array.
+     *
+     * NOTE: The ownership of this array is held by the Page: it's not adviced
+     * to have a "long running reference" to this array, as it might change.
+     *
+     * @brief pages
+     * @return List (JS Array) containing the Pages that this page
+     *         has currently open.
+     */
+    QObjectList pages() const;
+    /**
+     * Returns a list of (Child) Pages <code>"window.name"</code>.
+     *
+     * NOTE: When a page is opened with <code>"window.open"</code>, a window
+     * <code>"name"</code> might be provided as second parameter.
+     * This provides a useful list of those.
+     *
+     * @brief pagesWindowName
+     * @return List (JS Array) containing the <code>'window.name'</code>(s) of
+     *         Pages that this page has currently open.
+     */
+    QStringList pagesWindowName() const;
+
 public slots:
     void openUrl(const QString &address, const QVariant &op, const QVariantMap &settings);
     void release();
@@ -135,19 +179,32 @@ public slots:
     void sendEvent(const QString &type, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant());
 
     /**
+     * Returns a Child Page that matches the given <code>"window.name"</code>.
+     * This utility method is faster than accessing the
+     * <code>"windowName"</code> property of every <code>"page.pages"</code>
+     * and try to match.
+     *
+     * @brief getPage
+     * @param windowName
+     * @return Returns the page that matches <code>'window.name'</code>,
+     *         or NULL if none is found
+     */
+    QObject *getPage(const QString &windowName) const;
+
+    /**
      * Returns the number of Child Frames inside the Current Frame.
      * NOTE: The Current Frame changes when focus moves (via API or JS) to a specific child frame.
      * @brief childFramesCount
      * @return Number of Frames inside the Current Frame
      */
-    int childFramesCount();
+    int childFramesCount() const;
     /**
      * Returns a list of Child Frames name.
      * NOTE: The Current Frame changes when focus moves (via API or JS) to a specific child frame.
      * @brief childFramesName
      * @return List (JS Array) containing the names of the Child Frames inside the Current Frame (if any)
      */
-    QVariantList childFramesName();
+    QStringList childFramesName() const;
     /**
      * Switches focus from the Current Frame to a Child Frame, identified by it's name.
      * @brief switchToChildFrame
@@ -178,7 +235,7 @@ public slots:
      * @brief currentFrameName
      * @return Name of the Current Frame
      */
-    QString currentFrameName();
+    QString currentFrameName() const;
 
     void setCookies(const QVariantList &cookies);
     QVariantList cookies() const;
@@ -194,6 +251,7 @@ signals:
     void resourceReceived(const QVariant &resource);
     void urlChanged(const QUrl &url);
     void navigationRequested(const QUrl &url, const QString &navigationType, bool navigationLocked, bool isMainFrame);
+    void rawPageCreated(QObject *page);
 
 private slots:
     void finish(bool ok);
@@ -205,17 +263,13 @@ private:
     void applySettings(const QVariantMap &defaultSettings);
     QString userAgent() const;
 
-    void emitAlert(const QString &msg);
-    void emitConsoleMessage(const QString &msg);
-    void emitError(const QString &msg, const QString &stack);
-
     bool javaScriptConfirm(const QString &msg);
     bool javaScriptPrompt(const QString &msg, const QString &defaultValue, QString *result);
 
     virtual void initCompletions();
 
 private:
-    CustomPage *m_webPage;
+    CustomPage *m_customWebPage;
     NetworkAccessManager *m_networkAccessManager;
     QWebFrame *m_mainFrame;
     QRect m_clipRect;
@@ -225,11 +279,10 @@ private:
     QWebInspector* m_inspector;
     WebpageCallbacks *m_callbacks;
     bool m_navigationLocked;
+    QPoint m_mousePos;
 
     friend class Phantom;
     friend class CustomPage;
-
-    QPoint m_mousePos;
 };
 
 #endif // WEBPAGE_H
