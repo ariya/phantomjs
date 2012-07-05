@@ -53,7 +53,7 @@ describe("phantom global object", function() {
     });
 
     it("should return 6 as the minor version", function() {
-        expect(phantom.version.minor).toEqual(6);
+        expect(phantom.version.minor).toEqual(7);
     });
 
     it("should return 0 as the patch version", function() {

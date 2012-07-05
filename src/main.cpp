@@ -47,6 +47,7 @@
 
 int main(int argc, char** argv, const char** envp)
 {
+    // Setup Google Breakpad exception handler
 #ifdef Q_OS_LINUX
     google_breakpad::ExceptionHandler eh("/tmp", NULL, Utils::exceptionHandler, NULL, true);
 #endif
@@ -55,11 +56,6 @@ int main(int argc, char** argv, const char** envp)
 #endif
 
     QApplication app(argc, argv);
-    Phantom phantom;
-
-    // Registering an alternative Message Handler
-    Utils::printDebugMessages = phantom.printDebugMessages();
-    qInstallMsgHandler(Utils::messageHandler);
 
     app.setWindowIcon(QIcon(":/phantomjs-icon.png"));
     app.setApplicationName("PhantomJS");
@@ -67,11 +63,23 @@ int main(int argc, char** argv, const char** envp)
     app.setOrganizationDomain("www.ofilabs.com");
     app.setApplicationVersion(PHANTOMJS_VERSION_STRING);
 
+    // Prepare the "env" singleton using the environment variables
     Env::instance()->parse(envp);
 
-    phantom.init();
-    if (phantom.execute()) {
+    // Get the Phantom singleton
+    Phantom *phantom = Phantom::instance();
+
+    // Registering an alternative Message Handler
+    Utils::printDebugMessages = phantom->printDebugMessages();
+    qInstallMsgHandler(Utils::messageHandler);
+
+    // Start script execution
+    if (phantom->execute()) {
         app.exec();
     }
-    return phantom.returnValue();
+
+    // End script execution: delete the phantom singleton and set execution return value
+    int retVal = phantom->returnValue();
+    delete phantom;
+    return retVal;
 }
