@@ -30,17 +30,13 @@ src=..
 echo "packaging phantomjs $version"
 
 if [[ $OSTYPE = darwin* ]]; then
-    dest="phantomjs-$version-macosx-static"
+    dest="phantomjs-$version-macosx"
 else
-    dest="phantomjs-$version-linux-$(uname -m)-dynamic"
+    dest="phantomjs-$version-linux-$(uname -m)"
 fi
 
 rm -Rf $dest{.tar.bz2,} &> /dev/null
 mkdir -p $dest/bin
-
-if [[ $OSTYPE != darwin* ]]; then
-    mkdir -p $dest/lib
-fi
 
 echo
 
@@ -52,20 +48,18 @@ echo
 
 phantomjs=$dest/bin/phantomjs
 
-if [[ $OSTYPE != darwin* ]]; then
-    if [[ "$bundle_libs" = "1" ]]; then
-        if [[ ! -f brandelf ]]; then
-            echo
-            echo "brandelf executable not found in current dir"
-            echo -n "compiling it now..."
-            g++ brandelf.c -o brandelf || exit 1
-            echo "done"
-        fi
+if [[ "$bundle_libs" = "1" ]]; then
+    mkdir -p $dest/lib
 
-        libs=$(ldd $phantomjs | egrep -o "/[^ ]+ ")
-    else
-        libs=$(ldd $phantomjs | egrep "libQt" | egrep -o "/[^ ]+ ")
+    if [[ ! -f brandelf ]]; then
+        echo
+        echo "brandelf executable not found in current dir"
+        echo -n "compiling it now..."
+        g++ brandelf.c -o brandelf || exit 1
+        echo "done"
     fi
+
+    libs=$(ldd $phantomjs | egrep -o "/[^ ]+ ")
 
     echo -n "copying shared libs..."
     libld=
@@ -84,40 +78,37 @@ if [[ $OSTYPE != darwin* ]]; then
     echo "done"
     echo
 
-    if [[ "$bundle_libs" = "1" ]]; then
-        echo -n "writing run script..."
-        mv $phantomjs $phantomjs.bin
-        phantomjs=$phantomjs.bin
-        run=$dest/bin/phantomjs
-        echo '#!/bin/sh' >> $run
-        echo 'path=$(dirname $(dirname $(readlink -f $0)))' >> $run
-        echo 'export LD_LIBRARY_PATH=$path/lib' >> $run
-        echo 'exec $path/lib/'$libld' $phantomjs $@' >> $run
-        chmod +x $run
-        echo "done"
-        echo
-    fi
+    echo -n "writing run script..."
+    mv $phantomjs $phantomjs.bin
+    phantomjs=$phantomjs.bin
+    run=$dest/bin/phantomjs
+    echo '#!/bin/sh' >> $run
+    echo 'path=$(dirname $(dirname $(readlink -f $0)))' >> $run
+    echo 'export LD_LIBRARY_PATH=$path/lib' >> $run
+    echo 'exec $path/lib/'$libld' $phantomjs $@' >> $run
+    chmod +x $run
+    echo "done"
+    echo
 fi
 
 echo -n "stripping binary and libs..."
 if [[ $OSTYPE = darwin* ]]; then
     strip -x $phantomjs
 else
-    strip -s $dest/lib/* $phantomjs
+    strip -s $phantomjs
+    [[ -d $dest/lib ]] && strip -s $dest/lib/*
 fi
 echo "done"
 echo
 
-if [[ $OSTYPE == darwin* ]]; then
-    echo -n "compressing binary..."
-    if [[ ! -z upx ]]; then
-        upx -qqq -9 $phantomjs
-        echo "done"
-    else
-        echo "upx not found"
-    fi
-    echo
+echo -n "compressing binary..."
+if [[ ! -z upx ]]; then
+    upx -qqq -9 $phantomjs
+    echo "done"
+else
+    echo "upx not found"
 fi
+echo
 
 echo -n "creating archive..."
 if [[ $OSTYPE = darwin* ]]; then

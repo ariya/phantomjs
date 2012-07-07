@@ -6,9 +6,9 @@ QT_CFG=''
 QT_CFG+=' -opensource'          # Use the open-source license
 QT_CFG+=' -confirm-license'     # Silently acknowledge the license confirmation
 QT_CFG+=' -v'                   # Makes it easier to see what header dependencies are missing
+QT_CFG+=' -static'
 
 if [[ $OSTYPE = darwin* ]]; then
-    QT_CFG+=' -static'          # Static build on Mac OS X only
     QT_CFG+=' -arch x86'
     QT_CFG+=' -cocoa'           # Cocoa only, ignore Carbon
     QT_CFG+=' -no-dwarf2'
@@ -108,13 +108,3 @@ export MAKEFLAGS=-j$COMPILE_JOBS
 
 ./configure -prefix $PWD $QT_CFG
 make -j$COMPILE_JOBS
-
-if [[ $QT_CFG =~ "-release" ]]; then
-  DEBUG_OR_RELEASE=release
-else
-  DEBUG_OR_RELEASE=debug
-fi
-
-# Extra step to ensure the static libraries are found
-cp -rp src/3rdparty/webkit/Source/JavaScriptCore/$DEBUG_OR_RELEASE/* lib/
-cp -rp src/3rdparty/webkit/Source/WebCore/$DEBUG_OR_RELEASE/* lib/
