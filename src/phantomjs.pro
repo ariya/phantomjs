@@ -105,3 +105,14 @@ mac {
 # Uncomment to build a Mac OS X Universal Binary (i.e. x86 + ppc)
 #    CONFIG += x86 ppc
 }
+
+CONFIG(static) {
+    DEFINES += STATIC_BUILD
+    QTPLUGIN += \
+        qcncodecs \
+        qjpcodecs \
+        qkrcodecs \
+        qtwcodecs
+}
+
+win32-msvc*:LIBS += -lCrypt32
