@@ -102,7 +102,7 @@ if [[ $OSTYPE != darwin* ]]; then
 fi
 
 echo -n "creating archive..."
-if [[ $OSTYPE != darwin* ]]; then
+if [[ $OSTYPE = darwin* ]]; then
     zip -r $dest.zip $dest
 else
     tar -cjf $dest{.tar.bz2,}
