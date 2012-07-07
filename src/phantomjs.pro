@@ -5,7 +5,9 @@ CONFIG += console
 
 DESTDIR = ../bin
 
-RESOURCES = phantomjs.qrc
+RESOURCES = phantomjs.qrc \
+    qt/src/3rdparty/webkit/Source/WebCore/inspector/front-end/WebKit.qrc \
+    qt/src/3rdparty/webkit/Source/WebCore/generated/InspectorBackendStub.qrc
 
 HEADERS += csconverter.h \
     phantom.h \
@@ -102,7 +104,4 @@ mac {
     CONFIG -= app_bundle
 # Uncomment to build a Mac OS X Universal Binary (i.e. x86 + ppc)
 #    CONFIG += x86 ppc
-}
-CONFIG(static) {
-    DEFINES += STATIC_BUILD
 }
