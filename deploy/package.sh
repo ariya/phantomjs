@@ -96,8 +96,12 @@ echo
 
 if [[ $OSTYPE == darwin* ]]; then
     echo -n "compressing binary..."
-    [ ! -z upx ] && upx -qqq -9 $phantomjs
-    echo "done"
+    if [[ ! -z upx ]]; then
+        upx -qqq -9 $phantomjs
+        echo "done"
+    else
+        echo "upx not found"
+    fi
     echo
 fi
 
