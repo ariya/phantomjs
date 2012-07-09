@@ -18,6 +18,12 @@ if [[ ! -f ../bin/phantomjs ]]; then
     exit 1
 fi
 
+if [[ "$1" = "--bundle-libs" ]]; then
+    bundle_libs=1
+else
+    bundle_libs=0
+fi
+
 version=$(../bin/phantomjs --version | sed 's/ /-/' | sed 's/[()]//g')
 src=..
 
@@ -26,14 +32,6 @@ echo "packaging phantomjs $version"
 if [[ $OSTYPE = darwin* ]]; then
     dest="phantomjs-$version-macosx-static"
 else
-    if [[ ! -f brandelf ]]; then
-        echo
-        echo "brandelf executable not found in current dir"
-        echo -n "compiling it now..."
-        g++ brandelf.c -o brandelf || exit 1
-        echo "done"
-    fi
-
     dest="phantomjs-$version-linux-$(uname -m)-dynamic"
 fi
 
@@ -52,18 +50,30 @@ cp -r $src/{ChangeLog,examples,LICENSE.BSD,README.md} $dest/
 echo "done"
 echo
 
-if [[ $OSTYPE == darwin* ]]; then
-    echo -n "compressing binary..."
-    [ ! -z upx ] && upx -qqq -9 $dest/bin/phantomjs
-    echo "done"
-    echo
-else
+phantomjs=$dest/bin/phantomjs
+
+if [[ $OSTYPE != darwin* ]]; then
+    if [[ "$bundle_libs" = "1" ]]; then
+        if [[ ! -f brandelf ]]; then
+            echo
+            echo "brandelf executable not found in current dir"
+            echo -n "compiling it now..."
+            g++ brandelf.c -o brandelf || exit 1
+            echo "done"
+        fi
+
+        libs=$(ldd $phantomjs | egrep -o "/[^ ]+ ")
+    else
+        libs=$(ldd $phantomjs | egrep "libQt" | egrep -o "/[^ ]+ ")
+    fi
+
     echo -n "copying shared libs..."
     libld=
-    for l in $(ldd $dest/bin/phantomjs | egrep -o "/[^ ]+ "); do
-        if [[ "$l" != "" ]]; then
-            ll=$(basename $l)
-            cp $l $dest/lib/$ll
+    for l in $libs; do
+        ll=$(basename $l)
+        cp $l $dest/lib/$ll
+
+        if [[ "$bundle_libs" = "1" ]]; then
             # ensure OS ABI compatibility
             ./brandelf -t SVR4 $dest/lib/$ll
             if [[ "$l" == *"ld-linux"* ]]; then
@@ -73,36 +83,44 @@ else
     done
     echo "done"
     echo
+
+    if [[ "$bundle_libs" = "1" ]]; then
+        echo -n "writing run script..."
+        mv $phantomjs $phantomjs.bin
+        phantomjs=$phantomjs.bin
+        run=$dest/bin/phantomjs
+        echo '#!/bin/sh' >> $run
+        echo 'path=$(dirname $(dirname $(readlink -f $0)))' >> $run
+        echo 'export LD_LIBRARY_PATH=$path/lib' >> $run
+        echo 'exec $path/lib/'$libld' $phantomjs $@' >> $run
+        chmod +x $run
+        echo "done"
+        echo
+    fi
 fi
 
-# strip to reduce file size
 echo -n "stripping binary and libs..."
-
 if [[ $OSTYPE = darwin* ]]; then
-    strip -x $dest/bin/*
+    strip -x $phantomjs
 else
-    strip -s $dest/lib/*  $dest/bin/*
+    strip -s $dest/lib/* $phantomjs
 fi
-
 echo "done"
 echo
 
-if [[ $OSTYPE != darwin* ]]; then
-    echo -n "writing run script..."
-    # write run scripts
-    mv $dest/bin/phantomjs $dest/bin/phantomjs.bin
-    run=$dest/bin/phantomjs
-    echo '#!/bin/sh' >> $run
-    echo 'path=$(dirname $(dirname $(readlink -f $0)))' >> $run
-    echo 'export LD_LIBRARY_PATH=$path/lib' >> $run
-    echo 'exec $path/lib/'$libld' $path/bin/phantomjs.bin $@' >> $run
-    chmod +x $run
-    echo "done"
+if [[ $OSTYPE == darwin* ]]; then
+    echo -n "compressing binary..."
+    if [[ ! -z upx ]]; then
+        upx -qqq -9 $phantomjs
+        echo "done"
+    else
+        echo "upx not found"
+    fi
     echo
 fi
 
 echo -n "creating archive..."
-if [[ $OSTYPE != darwin* ]]; then
+if [[ $OSTYPE = darwin* ]]; then
     zip -r $dest.zip $dest
 else
     tar -cjf $dest{.tar.bz2,}
