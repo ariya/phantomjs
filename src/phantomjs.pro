@@ -106,7 +106,7 @@ mac {
 #    CONFIG += x86 ppc
 }
 
-CONFIG(static) {
+win32:CONFIG(static) {
     DEFINES += STATIC_BUILD
     QTPLUGIN += \
         qcncodecs \
