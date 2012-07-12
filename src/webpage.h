@@ -64,6 +64,9 @@ class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
     Q_PROPERTY(QString windowName READ windowName)
     Q_PROPERTY(QObjectList pages READ pages)
     Q_PROPERTY(QStringList pagesWindowName READ pagesWindowName)
+    Q_PROPERTY(QStringList framesName READ framesName)
+    Q_PROPERTY(QString frameName READ frameName)
+    Q_PROPERTY(int framesCount READ framesCount)
 
 public:
     WebPage(QObject *parent, const QUrl &baseUrl = QUrl());
@@ -151,6 +154,30 @@ public:
      */
     QStringList pagesWindowName() const;
 
+    /**
+     * Returns the number of Child Frames inside the Current Frame.
+     * NOTE: The Current Frame changes when focus moves (via API or JS) to a specific child frame.
+     *
+     * @brief framesCount
+     * @return Number of Frames inside the Current Frame
+     */
+    int framesCount() const;
+    /**
+     * Returns a list of (Child) Frames name.
+     * NOTE: The Current Frame changes when focus moves (via API or JS) to a specific child frame.
+     *
+     * @brief framesName
+     * @return List (JS Array) containing the names of the Child Frames inside the Current Frame (if any)
+     */
+    QStringList framesName() const;
+    /**
+     * Returns the name of the (Current) Frame
+     *
+     * @brief frameName
+     * @return Name of the Current Frame
+     */
+    QString frameName() const;
+
 public slots:
     void openUrl(const QString &address, const QVariant &op, const QVariantMap &settings);
     void release();
@@ -194,6 +221,8 @@ public slots:
     /**
      * Returns the number of Child Frames inside the Current Frame.
      * NOTE: The Current Frame changes when focus moves (via API or JS) to a specific child frame.
+     *
+     * @deprecated
      * @brief childFramesCount
      * @return Number of Frames inside the Current Frame
      */
@@ -201,12 +230,24 @@ public slots:
     /**
      * Returns a list of Child Frames name.
      * NOTE: The Current Frame changes when focus moves (via API or JS) to a specific child frame.
+     *
+     * @deprecated
      * @brief childFramesName
      * @return List (JS Array) containing the names of the Child Frames inside the Current Frame (if any)
      */
     QStringList childFramesName() const;
     /**
      * Switches focus from the Current Frame to a Child Frame, identified by it's name.
+     *
+     * @brief switchToFrame
+     * @param frameName Name of the Child frame
+     * @return "true" if the frame was found, "false" otherwise
+     */
+    bool switchToFrame(const QString &frameName);
+    /**
+     * Switches focus from the Current Frame to a Child Frame, identified by it's name.
+     *
+     * @deprecated
      * @brief switchToChildFrame
      * @param frameName Name of the Child frame
      * @return "true" if the frame was found, "false" otherwise
@@ -214,6 +255,16 @@ public slots:
     bool switchToChildFrame(const QString &frameName);
     /**
      * Switches focus from the Current Frame to a Child Frame, identified by it positional order.
+     *
+     * @brief switchToFrame
+     * @param framePosition Position of the Frame inside the Child Frames array (i.e. "window.frames[i]")
+     * @return "true" if the frame was found, "false" otherwise
+     */
+    bool switchToFrame(const int framePosition);
+    /**
+     * Switches focus from the Current Frame to a Child Frame, identified by it positional order.
+     *
+     * @deprecated
      * @brief switchToChildFrame
      * @param framePosition Position of the Frame inside the Child Frames array (i.e. "window.frames[i]")
      * @return "true" if the frame was found, "false" otherwise
@@ -221,17 +272,21 @@ public slots:
     bool switchToChildFrame(const int framePosition);
     /**
      * Switches focus to the Main Frame within this Page.
+     *
      * @brief switchToMainFrame
      */
     void switchToMainFrame();
     /**
      * Switches focus to the Parent Frame of the Current Frame (if it exists).
+     *
      * @brief switchToParentFrame
      * @return "true" if the Current Frame is not a Main Frame, "false" otherwise (i.e. there is no parent frame to switch to)
      */
     bool switchToParentFrame();
     /**
      * Returns the name of the Current Frame (if it has one)
+     *
+     * @deprecated
      * @brief currentFrameName
      * @return Name of the Current Frame
      */
