@@ -1004,12 +1004,17 @@ QObject *WebPage::getPage(const QString &windowName) const
     return NULL;
 }
 
-int WebPage::childFramesCount() const
+int WebPage::framesCount() const
 {
     return m_customWebPage->currentFrame()->childFrames().count();
 }
 
-QStringList WebPage::childFramesName() const
+int WebPage::childFramesCount() const //< deprecated
+{
+    return this->framesCount();
+}
+
+QStringList WebPage::framesName() const
 {
     QStringList framesName;
 
@@ -1019,7 +1024,12 @@ QStringList WebPage::childFramesName() const
     return framesName;
 }
 
-bool WebPage::switchToChildFrame(const QString &frameName)
+QStringList WebPage::childFramesName() const //< deprecated
+{
+    return this->framesName();
+}
+
+bool WebPage::switchToFrame(const QString &frameName)
 {
     foreach(QWebFrame * f, m_customWebPage->currentFrame()->childFrames()) {
         if (f->frameName() == frameName) {
@@ -1030,7 +1040,12 @@ bool WebPage::switchToChildFrame(const QString &frameName)
     return false;
 }
 
-bool WebPage::switchToChildFrame(const int framePosition)
+bool WebPage::switchToChildFrame(const QString &frameName) //< deprecated
+{
+    return this->switchToFrame(frameName);
+}
+
+bool WebPage::switchToFrame(const int framePosition)
 {
     QList<QWebFrame *> childFrames = m_customWebPage->currentFrame()->childFrames();
     if (framePosition >= 0 && framePosition < childFrames.size()) {
@@ -1038,6 +1053,11 @@ bool WebPage::switchToChildFrame(const int framePosition)
         return true;
     }
     return false;
+}
+
+bool WebPage::switchToChildFrame(const int framePosition) //< deprecated
+{
+    return this->switchToFrame(framePosition);
 }
 
 void WebPage::switchToMainFrame()
@@ -1054,9 +1074,14 @@ bool WebPage::switchToParentFrame()
     return false;
 }
 
-QString WebPage::currentFrameName() const
+QString WebPage::frameName() const
 {
     return m_customWebPage->currentFrame()->frameName();
+}
+
+QString WebPage::currentFrameName() const //< deprecated
+{
+    return this->frameName();
 }
 
 void WebPage::handleJavaScriptWindowObjectCleared()
