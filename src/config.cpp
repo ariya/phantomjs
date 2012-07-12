@@ -482,6 +482,26 @@ void Config::setWebSecurityEnabled(const bool value)
     m_webSecurityEnabled = value;
 }
 
+void Config::setJavascriptCanOpenWindows(const bool value)
+{
+    m_javascriptCanOpenWindows = value;
+}
+
+bool Config::javascriptCanOpenWindows() const
+{
+    return m_javascriptCanOpenWindows;
+}
+
+void Config::setJavascriptCanCloseWindows(const bool value)
+{
+    m_javascriptCanCloseWindows = value;
+}
+
+bool Config::javascriptCanCloseWindows() const
+{
+    return m_javascriptCanCloseWindows;
+}
+
 // private:
 void Config::resetToDefaults()
 {
@@ -508,6 +528,8 @@ void Config::resetToDefaults()
     m_remoteDebugPort = -1;
     m_remoteDebugAutorun = false;
     m_webSecurityEnabled = true;
+    m_javascriptCanOpenWindows = true;
+    m_javascriptCanCloseWindows = true;
     m_helpFlag = false;
     m_printDebugMessages = false;
 }

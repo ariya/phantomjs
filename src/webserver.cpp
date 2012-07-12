@@ -2,6 +2,7 @@
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
+  Copyright (C) 2011 Ivan De Marino <ivan.de.marino@gmail.com>
   Author: Milian Wolff <milian.wolff@kdab.com>
 
   Redistribution and use in source and binary forms, with or without
@@ -90,9 +91,8 @@ static void *callback(mg_event event,
     }
 }
 
-WebServer::WebServer(QObject *parent, Config *config)
+WebServer::WebServer(QObject *parent)
     : REPLCompletable(parent)
-    , m_config(config)
     , m_ctx(0)
 {
     setObjectName("WebServer");
@@ -106,9 +106,9 @@ WebServer::~WebServer()
 
 bool WebServer::listenOnPort(const QString& port, const QVariantMap& opts)
 {
-    ///TODO: listen on multiple ports?
     close();
 
+    // Create options vector
     QVector<const char*> options;
     options <<  "listening_ports" << qstrdup(qPrintable(port));
     options << "enable_directory_listing" << "no";
@@ -116,7 +116,8 @@ bool WebServer::listenOnPort(const QString& port, const QVariantMap& opts)
         options << "enable_keep_alive" << "yes";
     }
     options << NULL;
-    ///TODO: more options from m_config?
+
+    // Start the server
     m_ctx = mg_start(&callback, this, options.data());
     if (!m_ctx) {
         return false;

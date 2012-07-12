@@ -59,5 +59,7 @@
 #define PAGE_SETTINGS_USERNAME              "userName"
 #define PAGE_SETTINGS_PASSWORD              "password"
 #define PAGE_SETTINGS_WEB_SECURITY_ENABLED  "webSecurityEnabled"
+#define PAGE_SETTINGS_JS_CAN_OPEN_WINDOWS   "javascriptCanOpenWindows"
+#define PAGE_SETTINGS_JS_CAN_CLOSE_WINDOWS  "javascriptCanCloseWindows"
 
 #endif // CONSTS_H
