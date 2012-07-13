@@ -46,6 +46,7 @@ bool CookieJar::setCookiesFromUrl(const QList<QNetworkCookie> & cookieList, cons
 
     settings.beginGroup(url.host());
     
+    // updating cookies from the server.
     QList<QNetworkCookie> newCookies;
     QList<QNetworkCookie> allCookies = this->allCookies();
     for (QList<QNetworkCookie>::const_iterator i = cookieList.begin(); i != cookieList.end(); i++) {
@@ -102,25 +103,10 @@ QList<QNetworkCookie> CookieJar::cookiesForUrl(const QUrl & url) const
         cookieList.push_back(QNetworkCookie((*i).toLocal8Bit(), settings.value(*i).toByteArray()));
     }
     
-    QList<QNetworkCookie> allCookies = this->allCookies();
+    // sending cookies to the server.
+    QList<QNetworkCookie> allCookies = QNetworkCookieJar::cookiesForUrl(url);
     for (QList<QNetworkCookie>::const_iterator i = allCookies.begin(); i != allCookies.end(); i++) {
-        //
-        // Search for exact domain match, subdomain match and path match cookies.
-        //
-        QRegExp pathReg(QString("^") + (*i).path());
-        QRegExp subdomainReg((*i).domain() + QString("$"));
-        if ((url.host() == (*i).domain()
-            || (QRegExp("^\\.").indexIn((*i).domain(), 0) == 0 && subdomainReg.indexIn(url.host(), 0) != -1))
-            && pathReg.indexIn(url.path(), 0) != -1
-        ) {
-            if ((*i).isSecure() && url.scheme() != "https") {
-                continue;
-            }
-            if ((*i).expirationDate().isValid() && QDateTime::currentDateTime() > (*i).expirationDate()) {
-                continue;
-            }
-            cookieList.push_back((*i));
-        }
+	cookieList.push_back((*i));
     }
 
     return cookieList;
