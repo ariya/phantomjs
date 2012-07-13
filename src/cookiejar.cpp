@@ -46,46 +46,14 @@ bool CookieJar::setCookiesFromUrl(const QList<QNetworkCookie> & cookieList, cons
 
     settings.beginGroup(url.host());
     
-    // updating cookies from the server.
-    QList<QNetworkCookie> newCookies;
-    QList<QNetworkCookie> allCookies = this->allCookies();
     for (QList<QNetworkCookie>::const_iterator i = cookieList.begin(); i != cookieList.end(); i++) {
         settings.setValue((*i).name(), QString((*i).value()));
-        //
-        // Search and update the in memory cookies list. 
-        // We need to consider to build the search index for in memory cookies, 
-        // but the complexity comes into how does the security policy being implemented.
-        //
-        bool found = false;
-        for (QList<QNetworkCookie>::iterator j = allCookies.begin(); j != allCookies.end(); j++) {
-            QRegExp pathReg(QString("^") + (*j).path());
-            QRegExp subdomainReg((*j).domain() + QString("$"));
-            if ((url.host() == (*j).domain()
-                || (QRegExp("^\\.").indexIn((*j).domain(), 0) == 0 && subdomainReg.indexIn(url.host(), 0) != -1)) 
-                && pathReg.indexIn(url.path(), 0) != -1
-                && (*i).name() == (*j).name()
-            ) {
-                found = true;
-                (*j).setValue((*i).value());
-            }
-        }
-        if (found == false) {
-            QNetworkCookie nc;
-            nc.setDomain(url.host());
-            nc.setName((*i).name());
-            nc.setValue((*i).value());
-            if ((*i).path().isNull() || (*i).path().isEmpty()) { nc.setPath("/"); } else { nc.setPath((*i).path()); }
-            if ((*i).expirationDate().isValid()) { nc.setExpirationDate((*i).expirationDate()); }
-            if ((*i).isHttpOnly()) { nc.setHttpOnly(true); } else { nc.setHttpOnly(false); }
-            if ((*i).isSecure()) { nc.setSecure(true); } else { nc.setSecure(false); }
-            newCookies.append(nc);
-        }
     }
-    
+
     settings.sync();
 
-    allCookies.append(newCookies);
-    this->setAllCookies(allCookies);
+    // updating cookies from the server.
+    QNetworkCookieJar::setCookiesFromUrl(cookieList, url);
 
     return true;
 }
