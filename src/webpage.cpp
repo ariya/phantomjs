@@ -37,6 +37,7 @@
 #include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
+#include <QKeyEvent>
 #include <QMouseEvent>
 #include <QNetworkAccessManager>
 #include <QNetworkCookie>
@@ -932,7 +933,55 @@ QObject *WebPage::_getJsPromptCallback() {
 
 void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVariant &arg2)
 {
-    if (type == "mousedown" ||  type == "mouseup" || type == "mousemove") {
+    // keyboard events
+    if (type == "keydown" || type == "keyup") {
+        QKeyEvent::Type keyEventType = QEvent::None;
+        if (type == "keydown")
+            keyEventType = QKeyEvent::KeyPress;
+        if (type == "keyup")
+            keyEventType = QKeyEvent::KeyRelease;
+        Q_ASSERT(keyEventType != QEvent::None);
+
+        int key = 0;
+        QString text;
+        if (arg1.type() == QVariant::Char) {
+            // a single char was given
+            text = arg1.toChar();
+            key = text.at(0).toAscii();
+        } else if (arg1.type() == QVariant::String) {
+            // javascript invokation of a single char
+            text = arg1.toString();
+            if (!text.isEmpty()) {
+                key = text.at(0).toAscii();
+            }
+        } else {
+            // assume a raw integer char code was given
+            key = arg1.toInt();
+        }
+        QKeyEvent *keyEvent = new QKeyEvent(keyEventType, key, Qt::NoModifier, text);
+        QApplication::postEvent(m_webPage, keyEvent);
+        QApplication::processEvents();
+        return;
+    }
+
+    if (type == "keypress") {
+        if (arg1.type() == QVariant::String) {
+            // this is the case for e.g. sendEvent("...", 'A')
+            // but also works with sendEvent("...", "ABCD")
+            foreach(QChar typeChar, arg1.toString()) {
+                sendEvent("keydown", typeChar);
+                sendEvent("keyup", typeChar);
+            }
+        } else {
+            // otherwise we assume a raw integer char-code was given
+            sendEvent("keydown", arg1.toInt());
+            sendEvent("keyup", arg1.toInt());
+        }
+        return;
+    }
+
+    // mouse events
+    if (type == "mousedown" || type == "mouseup" || type == "mousemove") {
         QMouseEvent::Type eventType = QEvent::None;
         Qt::MouseButton button = Qt::LeftButton;
         Qt::MouseButtons buttons = Qt::LeftButton;

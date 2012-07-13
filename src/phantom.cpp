@@ -34,6 +34,8 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFile>
+// note: QMetaObject apparently does not define QMetaEnum...
+#include <qmetaobject.h>
 #include <QWebPage>
 
 #include "consts.h"
@@ -44,7 +46,6 @@
 #include "repl.h"
 #include "system.h"
 #include "callback.h"
-
 
 // public:
 Phantom::Phantom(QObject *parent)
@@ -61,6 +62,16 @@ Phantom::Phantom(QObject *parent)
     args.removeFirst();
 
     m_config.init(&args);
+
+    // initialize key map
+    QMetaEnum keys = staticQtMetaObject.enumerator( staticQtMetaObject.indexOfEnumerator("Key") );
+    for(int i = 0; i < keys.keyCount(); ++i) {
+        QString name = keys.key(i);
+        if (name.startsWith("Key_")) {
+            name.remove(0, 4);
+        }
+        m_keyMap[name] = keys.value(i);
+    }
 }
 
 void Phantom::init()
@@ -351,4 +362,9 @@ void Phantom::initCompletions()
     // functions
     addCompletion("exit");
     addCompletion("injectJs");
+}
+
+QVariantMap Phantom::keys() const
+{
+    return m_keyMap;
 }

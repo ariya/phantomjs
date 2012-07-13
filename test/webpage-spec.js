@@ -169,6 +169,117 @@ describe("WebPage object", function() {
     expectHasFunction(page, 'switchToParentFrame');
     expectHasFunction(page, 'currentFrameName');
 
+    it("should handle keydown event", function() {
+        runs(function() {
+            page.evaluate(function() {
+                window.addEventListener('keydown', function(event) {
+                    window.loggedEvent = window.loggedEvent || {};
+                    window.loggedEvent.keydown = event;
+                }, false);
+            });
+            page.sendEvent('keydown', phantom.keys.A);
+        });
+
+        waits(50);
+
+        runs(function() {
+            var event = page.evaluate(function() {
+                return window.loggedEvent.keydown;
+            });
+            expect(event.which).toEqual(phantom.keys.A);
+        });
+    });
+
+    it("should handle keyup event", function() {
+        runs(function() {
+            page.evaluate(function() {
+                window.addEventListener('keyup', function(event) {
+                    window.loggedEvent = window.loggedEvent || {};
+                    window.loggedEvent.keyup = event;
+                }, false);
+            });
+            page.sendEvent('keyup', phantom.keys.A);
+        });
+
+        waits(50);
+
+        runs(function() {
+            var event = page.evaluate(function() {
+                return window.loggedEvent.keyup;
+            });
+            expect(event.which).toEqual(phantom.keys.A);
+        });
+    });
+
+    it("should handle keypress event", function() {
+        runs(function() {
+            page.evaluate(function() {
+                window.addEventListener('keypress', function(event) {
+                    window.loggedEvent = window.loggedEvent || {};
+                    window.loggedEvent.keypress = event;
+                }, false);
+            });
+            page.sendEvent('keypress', phantom.keys.A);
+        });
+
+        waits(50);
+
+        runs(function() {
+            var event = page.evaluate(function() {
+                return window.loggedEvent.keypress;
+            });
+            expect(event.which).toEqual(phantom.keys.A);
+        });
+    });
+
+    it("should handle keypress event with inputs", function() {
+        runs(function() {
+            page.content = '<input type="text">';
+            page.evaluate(function() {
+                document.querySelector('input').focus();
+            });
+            var getText = function() {
+                return page.evaluate(function() {
+                    return document.querySelector('input').value;
+                });
+            }
+            page.sendEvent('keypress', phantom.keys.A);
+            expect(getText()).toEqual("A");
+            page.sendEvent('keypress', phantom.keys.B);
+            expect(getText()).toEqual("AB");
+            page.sendEvent('keypress', phantom.keys.Backspace);
+            expect(getText()).toEqual("A");
+        });
+    });
+
+    it("should handle keypress event of string with inputs", function() {
+        runs(function() {
+            page.content = '<input type="text">';
+            page.evaluate(function() {
+                document.querySelector('input').focus();
+            });
+            page.sendEvent('keypress', "ABCD");
+            var text = page.evaluate(function() {
+                return document.querySelector('input').value;
+            });
+            expect(text).toEqual("ABCD");
+        });
+    });
+
+    it("should handle keypress event of umlaut char with inputs", function() {
+        runs(function() {
+            page.content = '<input type="text">';
+            page.evaluate(function() {
+                document.querySelector('input').focus();
+            });
+            page.sendEvent('keypress', "ä");
+            var text = page.evaluate(function() {
+                return document.querySelector('input').value;
+            });
+            expect(text).toEqual("ä");
+        });
+    });
+
     it("should handle mousedown event", function() {
         runs(function() {
             page.evaluate(function() {
