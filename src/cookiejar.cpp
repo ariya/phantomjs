@@ -74,7 +74,7 @@ QList<QNetworkCookie> CookieJar::cookiesForUrl(const QUrl & url) const
     // sending cookies to the server.
     QList<QNetworkCookie> allCookies = QNetworkCookieJar::cookiesForUrl(url);
     for (QList<QNetworkCookie>::const_iterator i = allCookies.begin(); i != allCookies.end(); i++) {
-	cookieList.push_back((*i));
+        cookieList.push_back((*i));
     }
 
     return cookieList;
@@ -113,9 +113,6 @@ void CookieJar::setCookies(const QVariantList &cookies)
         newCookies.append(nc);
     }
 
-    // QList<QNetworkCookie> allCookies = this->allCookies();
-    // allCookies.append(newCookies);
-    // this->setAllCookies(allCookies);
     this->setAllCookies(newCookies);
 }
 
