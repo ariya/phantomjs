@@ -968,7 +968,7 @@ void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVarian
             key = arg1.toInt();
         }
         QKeyEvent *keyEvent = new QKeyEvent(keyEventType, key, Qt::NoModifier, text);
-        QApplication::postEvent(m_webPage, keyEvent);
+        QApplication::postEvent(m_customWebPage, keyEvent);
         QApplication::processEvents();
         return;
     }
