@@ -106,13 +106,14 @@ mac {
 #    CONFIG += x86 ppc
 }
 
-win32:CONFIG(static) {
-    DEFINES += STATIC_BUILD
-    QTPLUGIN += \
-        qcncodecs \
-        qjpcodecs \
-        qkrcodecs \
-        qtwcodecs
+win32-msvc* {
+    LIBS += -lCrypt32
+    CONFIG(static) {
+        DEFINES += STATIC_BUILD
+        QTPLUGIN += \
+            qcncodecs \
+            qjpcodecs \
+            qkrcodecs \
+            qtwcodecs
+    }
 }
-
-win32-msvc*:LIBS += -lCrypt32
