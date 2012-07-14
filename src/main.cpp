@@ -41,7 +41,7 @@
 
 #include <QApplication>
 
-#ifdef Q_OS_WINDOWS
+#ifdef Q_OS_WIN32
 #if !defined(QT_SHARED) && !defined(QT_DLL)
 #include <QtPlugin>
 
