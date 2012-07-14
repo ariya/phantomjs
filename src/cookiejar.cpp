@@ -94,20 +94,37 @@ void CookieJar::setCookies(const QVariantList &cookies)
             || cookie["name"].isNull() || cookie["name"].toString().isEmpty()
             || cookie["value"].isNull()
         ) {
-            continue; 
+            continue;
         } else {
             nc.setDomain(cookie["domain"].toString());
             nc.setName(cookie["name"].toByteArray());
             nc.setValue(cookie["value"].toByteArray());
         }
 
-        if (cookie["path"].isNull() || cookie["path"].toString().isEmpty()) { nc.setPath("/"); } else { nc.setPath(cookie["path"].toString()); } 
-        if (cookie["httponly"].isNull()) { nc.setHttpOnly(false); } else { nc.setHttpOnly(cookie["httponly"].toBool()); }
-        if (cookie["secure"].isNull()) { nc.setSecure(false); } else { nc.setSecure(cookie["secure"].toBool()); }
+        if (cookie["path"].isNull() || cookie["path"].toString().isEmpty()) { 
+            nc.setPath("/");
+        } else { 
+            nc.setPath(cookie["path"].toString()); 
+        } 
+
+        if (cookie["httponly"].isNull()) { 
+            nc.setHttpOnly(false); 
+        } else { 
+            nc.setHttpOnly(cookie["httponly"].toBool()); 
+        }
+
+        if (cookie["secure"].isNull()) { 
+            nc.setSecure(false); 
+        } else { 
+            nc.setSecure(cookie["secure"].toBool()); 
+        }
+
         if (!cookie["expires"].isNull()) {
             QString datetime = cookie["expires"].toString().replace(" GMT", "");
             QDateTime expires = QDateTime::fromString(datetime, "ddd, dd MMM yyyy hh:mm:ss");
-            if (expires.isValid()) { nc.setExpirationDate(expires); }
+            if (expires.isValid()) { 
+                nc.setExpirationDate(expires); 
+            }
         }
 
         newCookies.append(nc);
@@ -127,9 +144,24 @@ QVariantList CookieJar::cookies() const
         cookie["name"] = QVariant(QString((*i).name()));
         cookie["value"] = QVariant(QString((*i).value()));
 
-        if ((*i).path().isNull() || (*i).path().isEmpty()) { cookie["path"] = QVariant("/"); } else { cookie["path"] = QVariant((*i).path()); }
-        if ((*i).isHttpOnly()) { cookie["httponly"] = QVariant(true); } else { cookie["httponly"] = QVariant(false); }
-        if ((*i).isSecure()) { cookie["secure"] = QVariant(true); } else { cookie["secure"] = QVariant(false); }
+        if ((*i).path().isNull() || (*i).path().isEmpty()) { 
+            cookie["path"] = QVariant("/");
+        } else { 
+            cookie["path"] = QVariant((*i).path()); 
+        }
+
+        if ((*i).isHttpOnly()) { 
+            cookie["httponly"] = QVariant(true); 
+        } else { 
+            cookie["httponly"] = QVariant(false); 
+        }
+ 
+        if ((*i).isSecure()) { 
+            cookie["secure"] = QVariant(true); 
+        } else { 
+            cookie["secure"] = QVariant(false); 
+        }
+
         if ((*i).expirationDate().isValid()) {
             cookie["expires"] = QVariant(QString((*i).expirationDate().toString("ddd, dd MMM yyyy hh:mm:ss")).append(" GMT")); 
         }
