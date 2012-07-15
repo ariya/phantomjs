@@ -2,7 +2,7 @@
 
 PhantomJS ([www.phantomjs.org](http://phantomjs.org)) is a headless WebKit scriptable with JavaScript or CoffeeScript. It is used by hundreds of [developers](http://code.google.com/p/phantomjs/wiki/ExternalArticles) and dozens of [organizations](http://code.google.com/p/phantomjs/wiki/WhoUsesPhantomJS) for web-related development workflow.
 
-The latest [stable release](http://code.google.com/p/phantomjs/wiki/ReleaseNotes) is version 1.6 (codenamed "Lavender"). Follow the official Twitter stream [@HeadlessPhantom](http://twitter.com/HeadlessPhantom) to get the frequent development updates.
+The latest [stable release](http://code.google.com/p/phantomjs/wiki/ReleaseNotes) is version 1.6 (codenamed "Lavender"). Follow the official Twitter stream [@PhantomJS](http://twitter.com/PhantomJS) to get the frequent development updates.
 
 PhantomJS is created and maintained by [Ariya Hidayat](http://ariya.ofilabs.com/about) (Twitter: [@ariyahidayat](http://twitter.com/ariyahidayat)), with the help of [many contributors](https://github.com/ariya/phantomjs/contributors).
 
