@@ -1,8 +1,8 @@
-// Get twitter status for given account (or for the default one, "HeadlessPhantom")
+// Get twitter status for given account (or for the default one, "PhantomJS")
 
 var page = require('webpage').create(),
     system = require('system'),
-    twitterId = "HeadlessPhantom"; //< default value
+    twitterId = "PhantomJS"; //< default value
 
 // Route "console.log()" calls from within the Page context to the main Phantom context (i.e. current "this")
 page.onConsoleMessage = function(msg) {
