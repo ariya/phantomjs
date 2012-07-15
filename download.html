@@ -1,0 +1,104 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <title>PhantomJS: Download and Install</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="screen.min.css">
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-21665893-1']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+<style>
+#description p {
+    line-height: 125%;
+    text-align: left;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+#description h2 {
+    text-align: left;
+    margin: 0.8em 0;
+}
+</style>
+</head>
+
+<body>
+<div id="intro">
+    <div id="header" class="container_12">
+        <a href="index.html" class="grid_4 alpha"><img src="images/phantomjs-logo.png" alt="PhantomJS" id="logo" width="240" height="80"></a>
+        <ul id="nav" class="grid_8 omega">
+            <li><a href="http://code.google.com/p/phantomjs/wiki/SourceCode?tm=4">Source Code</a></li>
+            <li><a href="http://code.google.com/p/phantomjs/wiki/PhantomJS?tm=6">Documentation</a></li>
+            <li><a href="http://code.google.com/p/phantomjs/wiki/Interface">API</a></li>
+            <li><a href="http://code.google.com/p/phantomjs/wiki/QuickStart">Examples</a></li>
+            <li><a href="http://code.google.com/p/phantomjs/wiki/FAQ">FAQ</a></li>
+        </ul>
+    </div>
+
+    <div id="introduction" class="container_12">
+        <div class="grid_7 alpha">
+            <h1>Download</h1>
+        </div>
+    </div>
+</div>
+
+<div id="description" class="container_12">
+
+    <div class="grid_10">
+        <p><strong>Note</strong> Binary packages are made available on a volunteer basis. There is no need to 
+        ask when a binary package for a given platform will be ready. The packagers are fully aware of every source release and they give their best effort to make the binaries available.</p>
+
+        <p>Download service is kindly provided by <a href="http://code.google.com/p/phantomjs/downloads/">Google Code Project Hosting</a>.</p>
+
+        <h2>Windows</h2>
+        <p>Download <a href="http://phantomjs.googlecode.com/files/phantomjs-1.6.0-win32-static.zip">phantomjs-1.6.0-win32-static.zip</a> (6.4 MB) and extract (unzip) the content.</p>
+        <p>The executable <code>bin/phantomjs.exe</code> is ready to use.</p>
+        <p><strong>Note</strong>: For this static build, the binary is self-contained with no external dependency. It will run on a fresh install of Windows (as old as Windows XP). There is no requirement to install Qt or any other libraries.</p>
+
+        <h2>Mac OS X</h2>
+        <p>Download <a href="http://phantomjs.googlecode.com/files/phantomjs-1.6.0-macosx-static.zip">phantomjs-1.6.0-macosx-static.zip</a> (9.9 MB) and extract (unzip) the content.</p>
+        <p>The executable <code>bin/phantomjs.exe</code> is ready to use.</p>
+        <p><strong>Note</strong>: For this static build, the binary is self-contained with no external dependency. It will run on a fresh install of Snow Leopard or later versions. There is no requirement to install Qt or any other libraries.</p>
+        <p><strong>Alternative</strong> installation using Homebrew:</p>
+        <pre>brew update &amp;&amp; brew install phantomjs</pre>
+        <p><strong>Warning</strong>: MacPorts does not have updated PhantomJS build yet. Installing via MacPorts is not recommended.</p>
+
+        <h2>Linux</h2>
+        <p>For 32-bit system, download <a href="http://phantomjs.googlecode.com/files/phantomjs-1.6.0-linux-i686-dynamic.tar.bz2">phantomjs-1.6.0-linux-i686-dynamic.tar.bz2</a> (13.5 MB).</p>
+        <p>For 64-bit system, download <a href="http://phantomjs.googlecode.com/files/phantomjs-1.6.0-linux-x86_64-dynamic.tar.bz2">phantomjs-1.6.0-linux-x86_64-dynamic.tar.bz2</a> (13.5 MB).</p>
+    </ul>
+
+        <p>The executable <code>bin/phantomjs</code> file must be kept in the same place relative to the lib/ directory, so it's best to symlink it:</p>
+        <pre>ln -s /path/to/download/bin/phantomjs /usr/local/bin/phantomjs</pre>
+
+        <p>This package is built on Ubuntu Lucid (10.04). It should run successfully on Lucid or more modern systems (including other distributions). For older systems, please compile PhantomJS from source (see below).</p>
+
+        <h2>Source Code</h2>
+        <p>Download <a href="http://phantomjs.googlecode.com/files/phantomjs-1.6.0-source.zip">phantomjs-1.6.0-source.zip</a> (37.6 MB) and follow the <a href="build.html">build instructions</a>.</p>
+    </div>
+
+</div>
+
+<div id="footer">
+    <div id="footer-content" class="container_12">
+        <p>
+            &copy; Copyright 2010-2012 <a href="http://twitter.com/AriyaHidayat">Ariya Hidayat</a> &mdash; Website design by <a href="http://svay.com/">Maurice Svay</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>
