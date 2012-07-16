@@ -109,7 +109,35 @@ git checkout 1.6
 
         <h2>Windows</h2>
 
-        <p>To be written. Please check again in few weeks.</p>
+        <p>Install <a href="http://www.microsoft.com/visualstudio/">Microsoft Visual C++</a>, either version 2010 or 2008 (the <a href="http://www.microsoft.com/visualstudio/en-us/products/2010-editions/express">Express edition</a> should work just fine).</p>
+
+        <p>First step is to build OpenSSL static library. Go to <a href="http://www.openssl.org/source/">openssl.org/source</a> and download the source package (tested with version 1.0.1). Unpack the package to a working directory, e.g. <code>C:\openssl</code>. Configure and build OpenSSL:</p>
+<pre>
+perl Configure VC-WIN32 no-asm --prefix=C:\openssl
+ms\do_ms
+nmake -f ms\nt.mak install
+</pre>
+        <p>Get PhantomJS source code:</p>
+<pre>
+git clone git://github.com/ariya/phantomjs.git
+cd phantomjs
+git checkout 1.6
+</pre>
+
+        <p>Edit file <code>src\qt\preconfig.cmd</code> and change OPEN_SSL_DIR variable to point to the OpenSSL working directory.</p>
+
+        <p>Finally, compile PhantomJS:</p>
+<pre>
+cd src\qt
+preconfig.cmd
+cd ..\..
+src\qt\bin\qmake -r
+nmake
+</pre>
+
+        <p>This produces a static build <code>bin/phantomjs.exe</code>. This is a self-contained executable, it can be moved to a different directory or another machine.</p>
+
+
     </div>
 </div>
 
