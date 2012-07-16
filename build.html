@@ -68,7 +68,7 @@
 
         <p><strong>Warning</strong>: Compiling PhantomJS from source takes a long time, mainly due to thousands of files in the WebKit module. With 4 parallel compile jobs on a modern machine, the entire process takes roughly 30 minutes. It is highly recommended to download and install the ready-made <a href="download.html">binary package</a> if it is available.</p>
 
-        <h2>Mac OS X</h2>
+        <h2 id="mac">Mac OS X</h2>
 
         <p>Install <a href="https://developer.apple.com/xcode/">Xcode</a> and the necessary SDK for development (gcc, various tools, libraries, etc).</p>
 
@@ -81,7 +81,7 @@ git checkout 1.6
 
         <p>This produces a static build <code>bin/phantomjs</code>. This is a self-contained executable, it can be moved to a different directory or another machine.</p>
 
-        <h2>Linux</h2>
+        <h2 id="linux">Linux</h2>
 
         <p>For Ubuntu Linux (tested on a barebone install of Ubuntu 10.04 Lucid Lynx and Ubuntu 11.04 Natty Narwhal):</p>
 
@@ -107,7 +107,7 @@ git checkout 1.6
 
         <p><strong>Note 2</strong>: After finishing the build, run <code>deploy/package.sh</code> which creates PhantomJS binary tarball that can be moved around and/or extracted to a different location. This is the correct way to install the built binary into an arbitrary directory, i.e. do not simply copy the executable as it won't work.</p>
 
-        <h2>Windows</h2>
+        <h2 id="windows">Windows</h2>
 
         <p>Install <a href="http://www.microsoft.com/visualstudio/">Microsoft Visual C++</a>, either version 2010 or 2008 (the <a href="http://www.microsoft.com/visualstudio/en-us/products/2010-editions/express">Express edition</a> should work just fine).</p>
 
