@@ -1,5 +1,13 @@
 Please see also http://code.google.com/p/phantomjs/wiki/ReleaseNotes.
 
+2012-07-22: Version 1.6.1
+
+    Bug fixes
+
+      * Don't build the deploy in debug mode (issue 599)
+      * Fixed building on Windows (issue 424)
+      * Fixed remote inspector when building statically (issue 430)
+
 2012-06-20: Version 1.6.0 "Lavender"
 
     New features
