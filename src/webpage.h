@@ -70,6 +70,7 @@ class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
 
 public:
     WebPage(QObject *parent, const QUrl &baseUrl = QUrl());
+    virtual ~WebPage();
 
     QWebFrame *mainFrame();
 
@@ -181,6 +182,7 @@ public:
 public slots:
     void openUrl(const QString &address, const QVariant &op, const QVariantMap &settings);
     void release();
+    void close();
 
     QVariant evaluateJavaScript(const QString &code);
     bool render(const QString &fileName);
@@ -307,6 +309,7 @@ signals:
     void urlChanged(const QUrl &url);
     void navigationRequested(const QUrl &url, const QString &navigationType, bool navigationLocked, bool isMainFrame);
     void rawPageCreated(QObject *page);
+    void closing(QObject *page);
 
 private slots:
     void finish(bool ok);

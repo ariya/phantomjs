@@ -1104,3 +1104,39 @@ describe("WebPage opening and closing of windows/child-pages", function(){
         });
     });
 });
+
+describe("WebPage closing notification/alerting", function(){
+    it("should call 'onClosing' when 'page.close()' is called", function(){
+        var p = require("webpage").create(),
+            spy;
+
+        spy = jasmine.createSpy("onClosing spy");
+        p.onClosing = spy;
+
+        expect(spy.calls.length).toEqual(0);
+
+        p.close();
+
+        expect(spy).toHaveBeenCalled();         //< called
+        expect(spy.calls.length).toEqual(1);    //< only once
+        expect(spy).toHaveBeenCalledWith(p);    //< called passing reference to the closing page 'p'
+    });
+
+    it("should call 'onClosing' when a page closes on it's own", function(){
+        var p = require("webpage").create(),
+            spy;
+
+        spy = jasmine.createSpy("onClosing spy");
+        p.onClosing = spy;
+
+        expect(spy.calls.length).toEqual(0);
+
+        p.evaluate(function() {
+            window.close();
+        });
+
+        expect(spy).toHaveBeenCalled();         //< called
+        expect(spy.calls.length).toEqual(1);    //< only once
+        expect(spy).toHaveBeenCalledWith(p);    //< called passing reference to the closing page 'p'
+    });
+});

@@ -160,6 +160,8 @@ function decorateNewPage(opts, page) {
 
     definePageSignalSetter(page, handlers, "onConsoleMessage", "javaScriptConsoleMessageSent");
 
+    definePageSignalSetter(page, handlers, "onClosing", "closing");
+
     phantom.__defineErrorSetter__(page, page);
 
     page.onError = phantom.defaultErrorHandler;

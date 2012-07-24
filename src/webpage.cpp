@@ -277,7 +277,7 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
     connect(m_mainFrame, SIGNAL(urlChanged(QUrl)), SIGNAL(urlChanged(QUrl)));
     connect(m_customWebPage, SIGNAL(loadStarted()), SIGNAL(loadStarted()), Qt::QueuedConnection);
     connect(m_customWebPage, SIGNAL(loadFinished(bool)), SLOT(finish(bool)), Qt::QueuedConnection);
-    connect(m_customWebPage, SIGNAL(windowCloseRequested()), this, SLOT(release()));
+    connect(m_customWebPage, SIGNAL(windowCloseRequested()), this, SLOT(close()));
 
     // Start with transparent background.
     QPalette palette = m_customWebPage->palette();
@@ -318,6 +318,11 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
             SIGNAL(resourceReceived(QVariant)));
 
     m_customWebPage->setViewportSize(QSize(400, 300));
+}
+
+WebPage::~WebPage()
+{
+    emit closing(this);
 }
 
 QWebFrame *WebPage::mainFrame()
@@ -597,6 +602,10 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
 
 void WebPage::release()
 {
+    close();
+}
+
+void WebPage::close() {
     deleteLater();
 }
 
