@@ -63,6 +63,8 @@ win32*:!win32-msvc* {
     contains(DEFINES, ENABLE_WEBGL=1)|contains(CONFIG, texmap): LIBS += $$QMAKE_LIBS_OPENGL
 }
 
+win32-msvc*:LIBS += -lAdvapi32
+
 include_webinspector: RESOURCES += $$SOURCE_DIR/WebCore/inspector/front-end/WebKit.qrc $$WC_GENERATED_SOURCES_DIR/InspectorBackendStub.qrc
 
 # Extract sources to build from the generator definitions
