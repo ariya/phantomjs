@@ -92,10 +92,12 @@ if [[ $OSTYPE != darwin* ]]; then
         echo '#!/bin/sh' >> $run
         echo 'path=$(dirname $(dirname $(readlink -f $0)))' >> $run
         echo 'export LD_LIBRARY_PATH=$path/lib' >> $run
-        echo 'exec $path/lib/'$libld' $phantomjs $@' >> $run
+        echo 'exec $path/lib/'$libld' $path/bin/phantomjs.bin $@' >> $run
         chmod +x $run
         echo "done"
         echo
+    else
+        chrpath -r '$ORIGIN/../lib' $phantomjs
     fi
 fi
 
