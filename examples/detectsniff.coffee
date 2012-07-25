@@ -20,7 +20,7 @@ page.onInitialized = ->
       platform
 
 if system.args.length is 1
-  console.log 'Usage: unsniff.coffee <some URL>'
+  console.log 'Usage: detectsniff.coffee <some URL>'
   phantom.exit 1
 else
   address = system.args[1]
