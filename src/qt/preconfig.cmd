@@ -71,9 +71,3 @@ cd src\3rdparty\webkit\Source\
 ..\..\..\..\bin\qmake -r
 %MAKE_COMMAND%
 cd ..\..\..\..\
-
-set PHANTOMJSDIR=..\..\
-md %PHANTOMJSDIR%\..\JavaScriptCore\release
-copy src\3rdparty\webkit\Source\JavaScriptCore\release %PHANTOMJSDIR%\..\JavaScriptCore\release\
-md %PHANTOMJSDIR%\..\WebCore\release
-copy src\3rdparty\webkit\Source\WebCore\release %PHANTOMJSDIR%\..\WebCore\release\
