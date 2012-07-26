@@ -105,10 +105,8 @@ mac {
 # Uncomment to build a Mac OS X Universal Binary (i.e. x86 + ppc)
 #    CONFIG += x86 ppc
 }
-<<<<<<< HEAD
-=======
+
 CONFIG(static) {
-    DEFINES += STATIC_BUILD
     QTPLUGIN += \
         qcncodecs \
         qjpcodecs \
@@ -117,4 +115,3 @@ CONFIG(static) {
 }
 
 win32-msvc*:LIBS += -lCrypt32
->>>>>>> aportale/windows-build-1.6.0
