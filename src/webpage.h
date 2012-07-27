@@ -64,6 +64,7 @@ class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
     Q_PROPERTY(QString windowName READ windowName)
     Q_PROPERTY(QObjectList pages READ pages)
     Q_PROPERTY(QStringList pagesWindowName READ pagesWindowName)
+    Q_PROPERTY(bool ownsPages READ ownsPages WRITE setOwnsPages)
     Q_PROPERTY(QStringList framesName READ framesName)
     Q_PROPERTY(QString frameName READ frameName)
     Q_PROPERTY(int framesCount READ framesCount)
@@ -136,6 +137,8 @@ public:
      *
      * NOTE: The ownership of this array is held by the Page: it's not adviced
      * to have a "long running reference" to this array, as it might change.
+     * NOTE: If "ownsPages()" is "false", the page will create pages but not
+     * hold any ownership to it. Resource management is than left to the user.
      *
      * @brief pages
      * @return List (JS Array) containing the Pages that this page
@@ -148,12 +151,34 @@ public:
      * NOTE: When a page is opened with <code>"window.open"</code>, a window
      * <code>"name"</code> might be provided as second parameter.
      * This provides a useful list of those.
+     * NOTE: If "ownsPages()" is "false", the page will create pages but not
+     * hold any ownership of it. Resource management is than left to the user.
      *
      * @brief pagesWindowName
      * @return List (JS Array) containing the <code>'window.name'</code>(s) of
      *         Pages that this page has currently open.
      */
     QStringList pagesWindowName() const;
+
+    /**
+     * Returns "true" if it owns the pages it creates (and keeps them in "pages[]").
+     * Default value is "true". Can be changed using {@link setOwnsPages()}.
+     *
+     * @brief ownsPages()
+     * @return "true" if it owns the pages it creates in "pages[]", "false" otherwise.
+     */
+    bool ownsPages() const;
+    /**
+     * Set if, from now on, it should own the pages it creates in "pages[]".
+     * Default value is "true".
+     *
+     * NOTE: When switching from "false" to "true", only the pages created
+     * from that point on will be owned. It's NOT retroactive.
+     *
+     * @brief setOwnsPages
+     * @param owns "true" to make it own the pages it creates in "pages[]", "false" otherwise.
+     */
+    void setOwnsPages(const bool owns);
 
     /**
      * Returns the number of Child Frames inside the Current Frame.
@@ -338,6 +363,7 @@ private:
     WebpageCallbacks *m_callbacks;
     bool m_navigationLocked;
     QPoint m_mousePos;
+    bool m_ownsPages;
 
     friend class Phantom;
     friend class CustomPage;

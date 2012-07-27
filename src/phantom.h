@@ -41,6 +41,7 @@
 #include "system.h"
 
 class WebPage;
+class CustomPage;
 class WebServer;
 
 class Phantom: public REPLCompletable
@@ -133,6 +134,8 @@ private:
     QList<QPointer<WebServer> > m_servers;
     Config m_config;
     QVariantMap m_keyMap;
+
+    friend class CustomPage;
 };
 
 #endif // PHANTOM_H

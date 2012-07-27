@@ -181,9 +181,16 @@ protected:
 
     QWebPage *createWindow (WebWindowType type) {
         Q_UNUSED(type);
+        WebPage *newPage;
 
         // Create a new "raw" WebPage object
-        WebPage *newPage = new WebPage(m_webPage);
+        if (m_webPage->ownsPages()) {
+            newPage = new WebPage(m_webPage);
+        } else {
+            newPage = new WebPage(Phantom::instance());
+            Phantom::instance()->m_pages.append(newPage);
+        }
+
         // Apply default settings
         newPage->applySettings(Phantom::instance()->defaultPageSettings());
 
@@ -264,6 +271,7 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
     : REPLCompletable(parent)
     , m_callbacks(NULL)
     , m_navigationLocked(false)
+    , m_ownsPages(true)
 {
     setObjectName("WebPage");
     m_customWebPage = new CustomPage(this);
@@ -414,7 +422,6 @@ bool WebPage::navigationLocked()
 {
     return m_navigationLocked;
 }
-
 
 void WebPage::setViewportSize(const QVariantMap &size)
 {
@@ -1060,6 +1067,16 @@ QObject *WebPage::getPage(const QString &windowName) const
         }
     }
     return NULL;
+}
+
+bool WebPage::ownsPages() const
+{
+    return m_ownsPages;
+}
+
+void WebPage::setOwnsPages(const bool owns)
+{
+    m_ownsPages = owns;
 }
 
 int WebPage::framesCount() const
