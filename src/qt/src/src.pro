@@ -11,14 +11,12 @@ nacl: SRC_SUBDIRS -= src_network src_testlib
 !wince*:!symbian:!vxworks:!integrity:contains(QT_CONFIG, qt3support): SRC_SUBDIRS += src_qt3support
 
 !wince*:!symbian-abld:!symbian-sbsv2:include(tools/tools.pro)
-win32:SRC_SUBDIRS += src_activeqt
 
 contains(QT_CONFIG, opengl)|contains(QT_CONFIG, opengles1)|contains(QT_CONFIG, opengles2): SRC_SUBDIRS += src_opengl
 contains(QT_CONFIG, openvg): SRC_SUBDIRS += src_openvg
 contains(QT_CONFIG, xmlpatterns): SRC_SUBDIRS += src_xmlpatterns
 contains(QT_CONFIG, phonon): SRC_SUBDIRS += src_phonon
 contains(QT_CONFIG, multimedia): SRC_SUBDIRS += src_multimedia
-contains(QT_CONFIG, svg): SRC_SUBDIRS += src_svg
 contains(QT_CONFIG, script): SRC_SUBDIRS += src_script
 contains(QT_CONFIG, declarative): SRC_SUBDIRS += src_declarative
 contains(QT_CONFIG, webkit)  {
