@@ -123,16 +123,18 @@ phantom.onError = phantom.defaultErrorHandler;
     }
 
     function dirname(path) {
-        return path.replace(/\/[^\/]*\/?$/, '');
+        return path.replace(/[\\\/][^\\\/]*[\\\/]?$/, ''); // don't forget the windows!
     }
 
     function basename(path) {
-        return path.replace(/.*\//, '');
+        return path.replace(/.*[\\\/]/, ''); // don't forget the windows!
     }
 
     function joinPath() {
         var args = Array.prototype.slice.call(arguments);
-        return args.join(fs.separator);
+        // windows can handle the '\' and '/' both.
+        // qt-resource's separator is platform independent.
+        return args.join('/');
     }
 
     function tryFile(path) {
@@ -196,6 +198,8 @@ phantom.onError = phantom.defaultErrorHandler;
                 dir = this.dirname;
                 while (dir) {
                     paths.push(joinPath(dir, 'node_modules', request));
+                    if(dir.charAt(dir.length-1) != ':') // don't forget the windows!
+                        break;
                     dir = dirname(dir);
                 }
             }
