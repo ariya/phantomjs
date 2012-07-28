@@ -172,7 +172,7 @@ public:
     virtual void addCheckBox(const QRectF &r, bool checked, const QString &name, bool readOnly) {
         Q_UNUSED(r); Q_UNUSED(checked); Q_UNUSED(name); Q_UNUSED(readOnly);
     }
-    virtual void addRadioButton(const QRectF &r, const QString & group="", bool checked=false, const QString &name="", bool readOnly=false) {
+    virtual void addRadioButton(const QRectF &r, const QString &group = QString(), bool checked = false, const QString &name = QString(), bool readOnly = false) {
         Q_UNUSED(r); Q_UNUSED(checked); Q_UNUSED(name); Q_UNUSED(readOnly); Q_UNUSED(group);
     }
 
