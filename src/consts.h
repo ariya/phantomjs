@@ -35,8 +35,8 @@
 // Current Version: 1.6.0
 #define PHANTOMJS_VERSION_MAJOR     1
 #define PHANTOMJS_VERSION_MINOR     6
-#define PHANTOMJS_VERSION_PATCH     1
-#define PHANTOMJS_VERSION_STRING    "1.6.1"
+#define PHANTOMJS_VERSION_PATCH     2
+#define PHANTOMJS_VERSION_STRING    "1.6.2"
 
 #define COFFEE_SCRIPT_EXTENSION     ".coffee"
 
