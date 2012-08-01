@@ -21,7 +21,7 @@ PhantomJS is created and maintained by [Ariya Hidayat](http://ariya.ofilabs.com/
 - **Multiplatform**, available on major operating systems: Windows, Mac OS X, Linux, other Unices.
 - **Fast and native implementation** of web standards: DOM, CSS, JavaScript, Canvas, SVG. No emulation!
 - **Pure headless (no X11) on Linux**, ideal for continuous integration systems. Also runs on Amazon EC2, Heroku, Iron.io.
-- **Easy to install**: [Download](http://code.google.com/p/phantomjs/wiki/Installation), unpack, and start having fun in just 5 minutes.
+- **Easy to install**: [Download](http://phantomjs.org/download.html), unpack, and start having fun in just 5 minutes.
 
 ## Ecosystem
 
