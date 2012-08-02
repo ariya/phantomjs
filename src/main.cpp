@@ -51,6 +51,10 @@
 #include <QUuid>
 #include <QPainter>
 #include <QXmlStreamAttributes>
+#include <QFileDialog>
+#include <QPainter>
+#include <QToolTip>
+#include <QStandardItem>
 void makeLinkerHappy()
 {
     QWidget().colorCount();
@@ -58,6 +62,13 @@ void makeLinkerHappy()
     QPainter().drawImage(QPointF(), QImage(), QRect());
     const QXmlStreamAttributes foo;
     foo[0];
+    QFileDialog().getOpenFileName();
+    QPainter::staticMetaObject.indexOfMethod(0);
+    QToolTip::hideText();
+    QStandardItem standardItem;
+    standardItem.setForeground(QBrush());
+    standardItem.setBackground(QBrush());
+    standardItem.setToolTip(QString());
 }
 // End of linker hack.
 
