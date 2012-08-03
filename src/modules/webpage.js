@@ -264,13 +264,23 @@ function decorateNewPage(opts, page) {
      * @param   {...}       args    function arguments
      */
     page.evaluateAsync = function (func, timeMs, args) {
-        var args = Array.prototype.splice.call(arguments, 0);
+        var args = Array.prototype.splice.call(arguments, 2), //< remove the first 2 arguments because we are going to consume them
+            numArgsToAppend = args.length,
+            funcTimeoutWrapper;
 
         if (!(func instanceof Function || typeof func === 'string' || func instanceof String)) {
             throw "Wrong use of WebPage#evaluateAsync";
         }
         // Wrapping the "func" argument into a setTimeout
-        args.splice(0, 0, "function() { setTimeout(" + func.toString() + ", " + timeMs + "); }");
+        funcTimeoutWrapper = "function() { setTimeout(" + func.toString() + ", " + timeMs;
+        while(numArgsToAppend > 0) {
+            --numArgsToAppend;
+            funcTimeoutWrapper += ", arguments[" + numArgsToAppend + "]";
+        }
+        funcTimeoutWrapper += "); }";
+
+        // Augment the "args" array
+        args.splice(0, 0, funcTimeoutWrapper);
 
         this.evaluate.apply(this, args);
     };
