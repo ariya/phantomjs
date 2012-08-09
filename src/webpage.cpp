@@ -1189,6 +1189,13 @@ void WebPage::initCompletions()
     addCompletion("libraryPath");
     addCompletion("settings");
     addCompletion("viewportSize");
+    addCompletion("ownsPages");
+    addCompletion("windowName");
+    addCompletion("pages");
+    addCompletion("pagesWindowName");
+    addCompletion("frameName");
+    addCompletion("framesName");
+    addCompletion("framesCount");
     // functions
     addCompletion("evaluate");
     addCompletion("includeJs");
@@ -1196,17 +1203,13 @@ void WebPage::initCompletions()
     addCompletion("open");
     addCompletion("release");
     addCompletion("render");
+    addCompletion("renderBase64");
     addCompletion("sendEvent");
     addCompletion("uploadFile");
-    addCompletion("renderBase64");
-    addCompletion("childPages");
-    addCompletion("childPagesCount");
-    addCompletion("childFramesCount");
-    addCompletion("childFramesName");
-    addCompletion("switchToChildFrame");
+    addCompletion("getPage");
+    addCompletion("switchToFrame");
     addCompletion("switchToMainFrame");
     addCompletion("switchToParentFrame");
-    addCompletion("currentFrameName");
     // callbacks
     addCompletion("onAlert");
     addCompletion("onCallback");
@@ -1221,7 +1224,8 @@ void WebPage::initCompletions()
     addCompletion("onUrlChanged");
     addCompletion("onNavigationRequested");
     addCompletion("onError");
-    addCompletion("onChildPageCreated");
+    addCompletion("onPageCreated");
+    addCompletion("onClosing");
 }
 
 #include "webpage.moc"
