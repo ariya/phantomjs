@@ -271,6 +271,7 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
     : REPLCompletable(parent)
     , m_callbacks(NULL)
     , m_navigationLocked(false)
+    , m_mousePos(QPoint(0, 0))
     , m_ownsPages(true)
 {
     setObjectName("WebPage");
@@ -956,14 +957,17 @@ QObject *WebPage::_getJsPromptCallback() {
     return m_callbacks->getJsPromptCallback();
 }
 
-void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVariant &arg2)
+void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVariant &arg2, const QString &mouseButton)
 {
-    // keyboard events
-    if (type == "keydown" || type == "keyup") {
+    // Normalize the event "type" to lowercase
+    const QString eventType = type.toLower();
+
+    // single keyboard events
+    if (eventType == "keydown" || eventType == "keyup") {
         QKeyEvent::Type keyEventType = QEvent::None;
-        if (type == "keydown")
+        if (eventType == "keydown")
             keyEventType = QKeyEvent::KeyPress;
-        if (type == "keyup")
+        if (eventType == "keyup")
             keyEventType = QKeyEvent::KeyRelease;
         Q_ASSERT(keyEventType != QEvent::None);
 
@@ -989,7 +993,8 @@ void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVarian
         return;
     }
 
-    if (type == "keypress") {
+    // sequence of key events: will generate all the single keydown/keyup events
+    if (eventType == "keypress") {
         if (arg1.type() == QVariant::String) {
             // this is the case for e.g. sendEvent("...", 'A')
             // but also works with sendEvent("...", "ABCD")
@@ -1006,33 +1011,58 @@ void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVarian
     }
 
     // mouse events
-    if (type == "mousedown" || type == "mouseup" || type == "mousemove") {
-        QMouseEvent::Type eventType = QEvent::None;
-        Qt::MouseButton button = Qt::LeftButton;
-        Qt::MouseButtons buttons = Qt::LeftButton;
+    if (eventType == "mousedown" ||
+            eventType == "mouseup" ||
+            eventType == "mousemove" ||
+            eventType == "doubleclick") {
+        QMouseEvent::Type mouseEventType = QEvent::None;
 
-        if (type == "mousedown")
-            eventType = QEvent::MouseButtonPress;
-        if (type == "mouseup")
-            eventType = QEvent::MouseButtonRelease;
-        if (type == "mousemove") {
-            eventType = QEvent::MouseMove;
+        // Which mouse button (if it's a click)
+        Qt::MouseButton button = Qt::LeftButton;
+        Qt::MouseButton buttons = Qt::LeftButton;
+        if (mouseButton.toLower() == "middle") {
+            button = Qt::MiddleButton;
+            buttons = Qt::MiddleButton;
+        } else if (mouseButton.toLower() == "right") {
+            button = Qt::RightButton;
+            buttons = Qt::RightButton;
+        }
+
+        // Which mouse event
+        if (eventType == "mousedown") {
+            mouseEventType = QEvent::MouseButtonPress;
+        } else if (eventType == "mouseup") {
+            mouseEventType = QEvent::MouseButtonRelease;
+        } else if (eventType == "doubleclick") {
+            mouseEventType = QEvent::MouseButtonDblClick;
+        } else if (eventType == "mousemove") {
+            mouseEventType = QEvent::MouseMove;
             button = Qt::NoButton;
             buttons = Qt::NoButton;
         }
-        Q_ASSERT(eventType != QEvent::None);
+        Q_ASSERT(mouseEventType != QEvent::None);
 
-        int x = arg1.toInt();
-        int y = arg2.toInt();
-        QMouseEvent *event = new QMouseEvent(eventType, QPoint(x, y), button, buttons, Qt::NoModifier);
+        // Gather coordinates
+        if (arg1.isValid() && arg2.isValid()) {
+            m_mousePos.setX(arg1.toInt());
+            m_mousePos.setY(arg2.toInt());
+        }
+
+        // Prepare the Mouse event (no modifiers or other buttons are supported for now)
+        qDebug() << "Mouse Event:" << eventType << "(" << mouseEventType << ")" << m_mousePos << ")" << button << buttons;
+        QMouseEvent *event = new QMouseEvent(mouseEventType, m_mousePos, button, buttons, Qt::NoModifier);
+
+        // Post and process events
         QApplication::postEvent(m_customWebPage, event);
         QApplication::processEvents();
         return;
     }
 
+    // mouse click events: Qt doesn't provide this as a separate events,
+    // so we compose it with a mousedown/mouseup sequence
     if (type == "click") {
-        sendEvent("mousedown", arg1, arg2);
-        sendEvent("mouseup", arg1, arg2);
+        sendEvent("mousedown", arg1, arg2, mouseButton);
+        sendEvent("mouseup", arg1, arg2, mouseButton);
         return;
     }
 }

@@ -230,7 +230,7 @@ public slots:
     QObject *_getJsConfirmCallback();
     QObject *_getJsPromptCallback();
     void uploadFile(const QString &selector, const QString &fileName);
-    void sendEvent(const QString &type, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant());
+    void sendEvent(const QString &type, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant(), const QString &mouseButton = QString());
 
     /**
      * Returns a Child Page that matches the given <code>"window.name"</code>.
