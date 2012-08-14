@@ -2,7 +2,6 @@
 CONFIG += building-libs
 CONFIG += depend_includepath
 
-TARGET = QtWebKit
 TEMPLATE = lib
 
 DEFINES += BUILDING_WEBKIT
@@ -15,23 +14,45 @@ else: CONFIG_DIR = release
 
 SOURCE_DIR = $$replace(PWD, /WebKit/qt, "")
 
-include($$PWD/Api/headers.pri)
 include($$SOURCE_DIR/WebKit.pri)
-include($$SOURCE_DIR/JavaScriptCore/JavaScriptCore.pri)
+
+include($$SOURCE_DIR/JavaScriptCore/JavaScriptCore.pro)
+
+for(item, SOURCES):JAVASCRIPT_CORE_SOURCES += ../../JavaScriptCore/$$item
+
+unset(SOURCES)
+
+include($$SOURCE_DIR/WebCore/WebCore.pro)
+
+for(item, SOURCES): {
+    path = $$split(item, '/')
+
+    contains(path, sqlite3.c) {
+        WEB_CORE_SOURCES += $$item
+    }
+
+    !contains(path, sqlite3.c) {
+        WEB_CORE_SOURCES += ../../WebCore/$$item
+    }
+}
+for(item, HEADERS):WEB_CORE_HEADERS += ../../WebCore/$$item
+
+SOURCES = $$JAVASCRIPT_CORE_SOURCES $$WEB_CORE_SOURCES
+HEADERS = $$WEB_CORE_HEADERS
+
+include($$PWD/Api/headers.pri)
+
 webkit2 {
     include($$SOURCE_DIR/WebKit2/WebKit2.pri)
     include($$SOURCE_DIR/WebKit2/WebKit2API.pri)
 }
-include($$SOURCE_DIR/WebCore/WebCore.pri)
 
-!v8:prependJavaScriptCoreLib(../../JavaScriptCore)
-prependWebCoreLib(../../WebCore)
-webkit2:prependWebKit2Lib(../../WebKit2)
+TARGET = QtWebKit
 
 # This is needed for syncqt when it parses the dependencies on module's main pro file so
 # the generated includes are containing the dependencies.
 # It used to be in WebCore.pro but now that this is the main pro file it has to be here.
-QT += network
+QT += network gui
 
 isEmpty(OUTPUT_DIR): OUTPUT_DIR = ../..
 
@@ -41,6 +62,8 @@ win32*:!win32-msvc* {
     # Make sure OpenGL libs are after the webcore lib so MinGW can resolve symbols
     contains(DEFINES, ENABLE_WEBGL=1)|contains(CONFIG, texmap): LIBS += $$QMAKE_LIBS_OPENGL
 }
+
+win32-msvc*:LIBS += -lAdvapi32
 
 include_webinspector: RESOURCES += $$SOURCE_DIR/WebCore/inspector/front-end/WebKit.qrc $$WC_GENERATED_SOURCES_DIR/InspectorBackendStub.qrc
 

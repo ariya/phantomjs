@@ -52,6 +52,8 @@ class Config: QObject
     Q_PROPERTY(QString offlineStoragePath READ offlineStoragePath WRITE setOfflineStoragePath)
     Q_PROPERTY(int offlineStorageDefaultQuota READ offlineStorageDefaultQuota WRITE setOfflineStorageDefaultQuota)
     Q_PROPERTY(bool printDebugMessages READ printDebugMessages WRITE setPrintDebugMessages)
+    Q_PROPERTY(bool javascriptCanOpenWindows READ javascriptCanOpenWindows WRITE setJavascriptCanOpenWindows)
+    Q_PROPERTY(bool javascriptCanCloseWindows READ javascriptCanCloseWindows WRITE setJavascriptCanCloseWindows)
 
 public:
     Config(QObject *parent = 0);
@@ -135,6 +137,12 @@ public:
     void setPrintDebugMessages(const bool value);
     bool printDebugMessages() const;
 
+    void setJavascriptCanOpenWindows(const bool value);
+    bool javascriptCanOpenWindows() const;
+
+    void setJavascriptCanCloseWindows(const bool value);
+    bool javascriptCanCloseWindows() const;
+
 private:
     void resetToDefaults();
     void setProxyHost(const QString &value);
@@ -169,6 +177,8 @@ private:
     bool m_webSecurityEnabled;
     bool m_helpFlag;
     bool m_printDebugMessages;
+    bool m_javascriptCanOpenWindows;
+    bool m_javascriptCanCloseWindows;
 };
 
 #endif // CONFIG_H

@@ -34,6 +34,8 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFile>
+// note: QMetaObject apparently does not define QMetaEnum...
+#include <qmetaobject.h>
 #include <QWebPage>
 
 #include "consts.h"
@@ -45,8 +47,9 @@
 #include "system.h"
 #include "callback.h"
 
+static Phantom *phantomInstance = NULL;
 
-// public:
+// private:
 Phantom::Phantom(QObject *parent)
     : REPLCompletable(parent)
     , m_terminated(false)
@@ -54,13 +57,23 @@ Phantom::Phantom(QObject *parent)
     , m_filesystem(0)
     , m_system(0)
 {
-    // second argument: script name
-    QStringList args = QApplication::arguments();
-
     // Skip the first argument, i.e. the application executable (phantomjs).
+    QStringList args = QApplication::arguments();
     args.removeFirst();
 
+    // Prepare the configuration object based on the command line arguments.
+    // Because this object will be used by other classes, it needs to be ready ASAP.
     m_config.init(&args);
+
+    // initialize key map
+    QMetaEnum keys = staticQtMetaObject.enumerator( staticQtMetaObject.indexOfEnumerator("Key") );
+    for(int i = 0; i < keys.keyCount(); ++i) {
+        QString name = keys.key(i);
+        if (name.startsWith("Key_")) {
+            name.remove(0, 4);
+        }
+        m_keyMap[name] = keys.value(i);
+    }
 }
 
 void Phantom::init()
@@ -83,7 +96,7 @@ void Phantom::init()
         return;
     }
 
-    m_page = new WebPage(this, &m_config, QUrl::fromLocalFile(m_config.scriptFile()));
+    m_page = new WebPage(this, QUrl::fromLocalFile(m_config.scriptFile()));
     m_pages.append(m_page);
 
     if (m_config.proxyHost().isEmpty()) {
@@ -122,13 +135,25 @@ void Phantom::init()
     m_defaultPageSettings[PAGE_SETTINGS_USER_AGENT] = QVariant::fromValue(m_page->userAgent());
     m_defaultPageSettings[PAGE_SETTINGS_LOCAL_ACCESS_REMOTE] = QVariant::fromValue(m_config.localToRemoteUrlAccessEnabled());
     m_defaultPageSettings[PAGE_SETTINGS_WEB_SECURITY_ENABLED] = QVariant::fromValue(m_config.webSecurityEnabled());
+    m_defaultPageSettings[PAGE_SETTINGS_JS_CAN_OPEN_WINDOWS] = QVariant::fromValue(m_config.javascriptCanOpenWindows());
+    m_defaultPageSettings[PAGE_SETTINGS_JS_CAN_CLOSE_WINDOWS] = QVariant::fromValue(m_config.javascriptCanCloseWindows());
     m_page->applySettings(m_defaultPageSettings);
 
     setLibraryPath(QFileInfo(m_config.scriptFile()).dir().absolutePath());
 }
 
+// public:
+Phantom *Phantom::instance() {
+    if (NULL == phantomInstance) {
+        phantomInstance = new Phantom();
+        phantomInstance->init();
+    }
+    return phantomInstance;
+}
+
 Phantom::~Phantom()
 {
+    // Nothing to do: cleanup is handled by QObject relationships
 }
 
 QStringList Phantom::args() const
@@ -187,12 +212,12 @@ int Phantom::returnValue() const
 
 QString Phantom::libraryPath() const
 {
-   return m_page->libraryPath();
+    return m_page->libraryPath();
 }
 
 void Phantom::setLibraryPath(const QString &libraryPath)
 {
-   m_page->setLibraryPath(libraryPath);
+    m_page->setLibraryPath(libraryPath);
 }
 
 QString Phantom::scriptName() const
@@ -214,6 +239,11 @@ QObject *Phantom::page() const
     return m_page;
 }
 
+Config *Phantom::config()
+{
+    return &m_config;
+}
+
 bool Phantom::printDebugMessages() const
 {
     return m_config.printDebugMessages();
@@ -222,13 +252,16 @@ bool Phantom::printDebugMessages() const
 // public slots:
 QObject *Phantom::createWebPage()
 {
-    WebPage *page = new WebPage(this, &m_config);
-    m_pages.append(page);
-    page->applySettings(m_defaultPageSettings);
-    page->setLibraryPath(QFileInfo(m_config.scriptFile()).dir().absolutePath());
+    WebPage *page = new WebPage(this);
 
+    // Store pointer to the page for later cleanup
+    m_pages.append(page);
+    // Apply default settings to the page
+    page->applySettings(m_defaultPageSettings);
+
+    // Show web-inspector if in debug mode
     if (m_config.debug()) {
-      page->showInspector(m_config.remoteDebugPort());
+        page->showInspector(m_config.remoteDebugPort());
     }
 
     return page;
@@ -236,11 +269,8 @@ QObject *Phantom::createWebPage()
 
 QObject* Phantom::createWebServer()
 {
-    WebServer *server = new WebServer(this, &m_config);
+    WebServer *server = new WebServer(this);
     m_servers.append(server);
-    ///TODO:
-//     page->applySettings(m_defaultPageSettings);
-//     page->setLibraryPath(QFileInfo(m_config.scriptFile()).dir().absolutePath());
     return server;
 }
 
@@ -271,14 +301,17 @@ QObject* Phantom::createCallback()
     return new Callback(this);
 }
 
-QString Phantom::loadModuleSource(const QString &name)
+void Phantom::loadModule(const QString &moduleSource, const QString &filename)
 {
-    QString moduleSource;
-    QString moduleSourceFilePath = ":/modules/" + name + ".js";
-
-    moduleSource = Utils::readResourceFileUtf8(moduleSourceFilePath);
-
-    return moduleSource;
+   QString scriptSource =
+      "(function(require, exports, module) {" +
+      moduleSource +
+      "}.call({}," +
+      "require.cache['" + filename + "']._getRequire()," +
+      "require.cache['" + filename + "'].exports," +
+      "require.cache['" + filename + "']" +
+      "));";
+   m_page->mainFrame()->evaluateJavaScript(scriptSource, filename);
 }
 
 bool Phantom::injectJs(const QString &jsFilePath)
@@ -313,9 +346,9 @@ void Phantom::onInitialized()
 
     // Bootstrap the PhantomJS scope
     m_page->mainFrame()->evaluateJavaScript(
-        Utils::readResourceFileUtf8(":/bootstrap.js"),
-        QString("phantomjs://bootstrap.js")
-    );
+                Utils::readResourceFileUtf8(":/bootstrap.js"),
+                QString("phantomjs://bootstrap.js")
+                );
 }
 
 // private:
@@ -348,4 +381,9 @@ void Phantom::initCompletions()
     // functions
     addCompletion("exit");
     addCompletion("injectJs");
+}
+
+QVariantMap Phantom::keys() const
+{
+    return m_keyMap;
 }

@@ -41,7 +41,6 @@ include(statemachine/statemachine.pri)
 include(math3d/math3d.pri)
 include(effects/effects.pri)
 
-include(egl/egl.pri)
 win32:!wince*: DEFINES += QT_NO_EGL
 embedded: QT += network
 

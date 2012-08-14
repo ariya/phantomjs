@@ -30,28 +30,10 @@ my $basedir = $ENV{"QTDIR"};
 $basedir =~ s=\\=/=g;
 my %modules = ( # path to module name map
         "QtGui" => "$basedir/src/gui",
-        "QtOpenGL" => "$basedir/src/opengl",
-        "QtOpenVG" => "$basedir/src/openvg",
         "QtCore" => "$basedir/src/corelib",
         "QtXml" => "$basedir/src/xml",
-        "QtXmlPatterns" => "$basedir/src/xmlpatterns",
-        "QtSql" => "$basedir/src/sql",
         "QtNetwork" => "$basedir/src/network",
-        "QtSvg" => "$basedir/src/svg",
-        "QtDeclarative" => "$basedir/src/declarative",
-        "QtScript" => "$basedir/src/script",
-        "QtScriptTools" => "$basedir/src/scripttools",
-        "Qt3Support" => "$basedir/src/qt3support",
-        "ActiveQt" => "$basedir/src/activeqt",
-        "QtTest" => "$basedir/src/testlib",
-        "QtHelp" => "$basedir/tools/assistant/lib",
-        "QtDesigner" => "$basedir/tools/designer/src/lib",
-        "QtUiTools" => "$basedir/tools/designer/src/uitools",
-        "QtDBus" => "$basedir/src/dbus",
         "QtWebKit" => "$basedir/src/3rdparty/webkit/Source/WebKit/qt",
-        "phonon" => "$basedir/src/phonon",
-        "QtMultimedia" => "$basedir/src/multimedia",
-        "QtMeeGoGraphicsSystemHelper" => "$basedir/tools/qmeegographicssystemhelper",
 );
 my %moduleheaders = ( # restrict the module headers to those found in relative path
         "QtWebKit" => "Api",
@@ -694,7 +676,7 @@ my @ignore_for_master_contents = ( "qt.h", "qpaintdevicedefs.h" );
 my @ignore_for_include_check = ( "qatomic.h" );
 my @ignore_for_qt_begin_header_check = ( "qiconset.h", "qconfig.h", "qconfig-dist.h", "qconfig-large.h", "qconfig-medium.h", "qconfig-minimal.h", "qconfig-small.h", "qfeatures.h", "qt_windows.h" );
 my @ignore_for_qt_begin_namespace_check = ( "qconfig.h", "qconfig-dist.h", "qconfig-large.h", "qconfig-medium.h", "qconfig-minimal.h", "qconfig-small.h", "qfeatures.h", "qatomic_arch.h", "qatomic_windowsce.h", "qt_windows.h", "qatomic_macosx.h", "qatomic_arm.h", "qatomic_armv7.h" );
-my @ignore_for_qt_module_check = ( "$modules{QtCore}/arch", "$modules{QtCore}/global", "$modules{QtSql}/drivers", "$modules{QtTest}", "$modules{QtDesigner}", "$modules{QtUiTools}", "$modules{QtDBus}", "$modules{phonon}" );
+my @ignore_for_qt_module_check = ( "$modules{QtCore}/arch", "$modules{QtCore}/global" );
 my %colliding_headers = ();
 my %inject_headers = ( "$basedir/src/corelib/global" => ( "qconfig.h" ) ); # all from build dir
 
@@ -740,7 +722,6 @@ foreach my $lib (@modules_to_sync) {
                         $master_contents .= "#include <QtCore/QtCore>\n" if($_ eq "core");
                         $master_contents .= "#include <QtGui/QtGui>\n" if($_ eq "gui");
                         $master_contents .= "#include <QtNetwork/QtNetwork>\n" if($_ eq "network");
-                        $master_contents .= "#include <QtSvg/QtSvg>\n" if($_ eq "svg");
                         $master_contents .= "#include <QtDeclarative/QtDeclarative>\n" if($_ eq "declarative");
                         $master_contents .= "#include <QtScript/QtScript>\n" if($_ eq "script");
                         $master_contents .= "#include <QtScriptTools/QtScriptTools>\n" if($_ eq "scripttools");

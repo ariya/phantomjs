@@ -41,12 +41,51 @@
 
 #include <QApplication>
 
+#ifdef Q_OS_WIN32
+#if !defined(QT_SHARED) && !defined(QT_DLL)
+#include <QtPlugin>
+
+// HACK: When linking a static PhantomJS + MSVC agains the
+// static Qt included in PhantomJS, we get linker errors.
+// This noop function can cure them.
+#include <QUuid>
+#include <QPainter>
+#include <QXmlStreamAttributes>
+#include <QFileDialog>
+#include <QPainter>
+#include <QToolTip>
+#include <QStandardItem>
+void makeLinkerHappy()
+{
+    QWidget().colorCount();
+    QUuid().createUuid();
+    QPainter().drawImage(QPointF(), QImage(), QRect());
+    const QXmlStreamAttributes foo;
+    foo[0];
+    QFileDialog().getOpenFileName();
+    QPainter::staticMetaObject.indexOfMethod(0);
+    QToolTip::hideText();
+    QStandardItem standardItem;
+    standardItem.setForeground(QBrush());
+    standardItem.setBackground(QBrush());
+    standardItem.setToolTip(QString());
+}
+// End of linker hack.
+
+Q_IMPORT_PLUGIN(qcncodecs)
+Q_IMPORT_PLUGIN(qjpcodecs)
+Q_IMPORT_PLUGIN(qkrcodecs)
+Q_IMPORT_PLUGIN(qtwcodecs)
+#endif
+#endif
+
 #if QT_VERSION != QT_VERSION_CHECK(4, 8, 2)
 #error Something is wrong with the setup. Please report to the mailing list!
 #endif
 
 int main(int argc, char** argv, const char** envp)
 {
+    // Setup Google Breakpad exception handler
 #ifdef Q_OS_LINUX
     google_breakpad::ExceptionHandler eh("/tmp", NULL, Utils::exceptionHandler, NULL, true);
 #endif
@@ -55,11 +94,6 @@ int main(int argc, char** argv, const char** envp)
 #endif
 
     QApplication app(argc, argv);
-    Phantom phantom;
-
-    // Registering an alternative Message Handler
-    Utils::printDebugMessages = phantom.printDebugMessages();
-    qInstallMsgHandler(Utils::messageHandler);
 
     app.setWindowIcon(QIcon(":/phantomjs-icon.png"));
     app.setApplicationName("PhantomJS");
@@ -67,11 +101,23 @@ int main(int argc, char** argv, const char** envp)
     app.setOrganizationDomain("www.ofilabs.com");
     app.setApplicationVersion(PHANTOMJS_VERSION_STRING);
 
+    // Prepare the "env" singleton using the environment variables
     Env::instance()->parse(envp);
 
-    phantom.init();
-    if (phantom.execute()) {
+    // Get the Phantom singleton
+    Phantom *phantom = Phantom::instance();
+
+    // Registering an alternative Message Handler
+    Utils::printDebugMessages = phantom->printDebugMessages();
+    qInstallMsgHandler(Utils::messageHandler);
+
+    // Start script execution
+    if (phantom->execute()) {
         app.exec();
     }
-    return phantom.returnValue();
+
+    // End script execution: delete the phantom singleton and set execution return value
+    int retVal = phantom->returnValue();
+    delete phantom;
+    return retVal;
 }

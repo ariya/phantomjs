@@ -33,11 +33,11 @@
 #include <QString>
 #include <QVariantMap>
 
-static Env *env_instance = (Env *)NULL;
+static Env *env_instance = NULL;
 
 Env *Env::instance()
 {
-    if ((Env *)NULL == env_instance)
+    if (NULL == env_instance)
         env_instance = new Env();
 
     return env_instance;

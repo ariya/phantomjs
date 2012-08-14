@@ -78,6 +78,9 @@ System::System(QObject *parent) :
     case QSysInfo::WV_WINDOWS7:
         m_os.insert("version", "7");
         break;
+    case QSysInfo::WV_WINDOWS8:
+        m_os.insert("version", "8");
+        break;
     default:
         m_os.insert("version", "unknown");
         break;
@@ -99,6 +102,9 @@ System::System(QObject *parent) :
         break;
     case QSysInfo::MV_10_7:
         m_os.insert("version", "10.7 (Lion)");
+        break;
+    case QSysInfo::MV_10_8:
+        m_os.insert("version", "10.8 (Mountain Lion)");
         break;
     default:
         m_os.insert("version", "unknown");

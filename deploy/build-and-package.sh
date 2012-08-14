@@ -2,10 +2,10 @@
 
 cd `dirname $0`/..
 
-echo "Building Qt and PhantomJS in debug mode. If you have previously" \
-     "built in release mode, you should run:"
+echo "Building Qt and PhantomJS with debugging symbols. If you have previously" \
+     "built without debugging symbols, you should run:"
 echo
-echo "    $ make clean && cd src/qt && make clean && cd ../.."
+echo "    $ git clean -xdff"
 echo
 
 # This incantation will cause Qt and WebKit and PhantomJS to all build in "release"
@@ -34,9 +34,9 @@ fi
 
 version=$(bin/phantomjs --version | sed 's/ /-/' | sed 's/[()]//g')
 if [[ $OSTYPE = darwin* ]]; then
-    symbols="phantomjs-$version-macosx-static-symbols"
+    symbols="phantomjs-$version-macosx-symbols"
 else
-    symbols="phantomjs-$version-linux-$(uname -m)-dynamic-symbols"
+    symbols="phantomjs-$version-linux-$(uname -m)-symbols"
 fi
 
 cp -r symbols/ $symbols

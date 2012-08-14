@@ -169,6 +169,117 @@ describe("WebPage object", function() {
     expectHasFunction(page, 'switchToParentFrame');
     expectHasFunction(page, 'currentFrameName');
 
+    it("should handle keydown event", function() {
+        runs(function() {
+            page.evaluate(function() {
+                window.addEventListener('keydown', function(event) {
+                    window.loggedEvent = window.loggedEvent || {};
+                    window.loggedEvent.keydown = event;
+                }, false);
+            });
+            page.sendEvent('keydown', phantom.keys.A);
+        });
+
+        waits(50);
+
+        runs(function() {
+            var event = page.evaluate(function() {
+                return window.loggedEvent.keydown;
+            });
+            expect(event.which).toEqual(phantom.keys.A);
+        });
+    });
+
+    it("should handle keyup event", function() {
+        runs(function() {
+            page.evaluate(function() {
+                window.addEventListener('keyup', function(event) {
+                    window.loggedEvent = window.loggedEvent || {};
+                    window.loggedEvent.keyup = event;
+                }, false);
+            });
+            page.sendEvent('keyup', phantom.keys.A);
+        });
+
+        waits(50);
+
+        runs(function() {
+            var event = page.evaluate(function() {
+                return window.loggedEvent.keyup;
+            });
+            expect(event.which).toEqual(phantom.keys.A);
+        });
+    });
+
+    it("should handle keypress event", function() {
+        runs(function() {
+            page.evaluate(function() {
+                window.addEventListener('keypress', function(event) {
+                    window.loggedEvent = window.loggedEvent || {};
+                    window.loggedEvent.keypress = event;
+                }, false);
+            });
+            page.sendEvent('keypress', phantom.keys.A);
+        });
+
+        waits(50);
+
+        runs(function() {
+            var event = page.evaluate(function() {
+                return window.loggedEvent.keypress;
+            });
+            expect(event.which).toEqual(phantom.keys.A);
+        });
+    });
+
+    it("should handle keypress event with inputs", function() {
+        runs(function() {
+            page.content = '<input type="text">';
+            page.evaluate(function() {
+                document.querySelector('input').focus();
+            });
+            var getText = function() {
+                return page.evaluate(function() {
+                    return document.querySelector('input').value;
+                });
+            }
+            page.sendEvent('keypress', phantom.keys.A);
+            expect(getText()).toEqual("A");
+            page.sendEvent('keypress', phantom.keys.B);
+            expect(getText()).toEqual("AB");
+            page.sendEvent('keypress', phantom.keys.Backspace);
+            expect(getText()).toEqual("A");
+        });
+    });
+
+    it("should handle keypress event of string with inputs", function() {
+        runs(function() {
+            page.content = '<input type="text">';
+            page.evaluate(function() {
+                document.querySelector('input').focus();
+            });
+            page.sendEvent('keypress', "ABCD");
+            var text = page.evaluate(function() {
+                return document.querySelector('input').value;
+            });
+            expect(text).toEqual("ABCD");
+        });
+    });
+
+    it("should handle keypress event of umlaut char with inputs", function() {
+        runs(function() {
+            page.content = '<input type="text">';
+            page.evaluate(function() {
+                document.querySelector('input').focus();
+            });
+            page.sendEvent('keypress', "ä");
+            var text = page.evaluate(function() {
+                return document.querySelector('input').value;
+            });
+            expect(text).toEqual("ä");
+        });
+    });
+
     it("should handle mousedown event", function() {
         runs(function() {
             page.evaluate(function() {
@@ -779,7 +890,7 @@ describe("WebPage construction with options", function () {
     }
 });
 
-describe("WebPage should be able to switch frame of execution", function(){
+describe("WebPage switch frame of execution (deprecated API)", function(){
     var p = require("webpage").create();
 
     function pageTitle(page) {
@@ -857,5 +968,139 @@ describe("WebPage should be able to switch frame of execution", function(){
         expect(p.currentFrameName()).toEqual("frame2");
         expect(p.childFramesCount()).toEqual(3);
         expect(p.childFramesName()).toEqual(["frame2-1", "frame2-2", "frame2-3"]);
+    });
+});
+
+describe("WebPage switch frame of execution", function(){
+    var p = require("webpage").create();
+
+    function pageTitle(page) {
+        return page.evaluate(function(){
+            return window.document.title;
+        });
+    }
+
+    function setPageTitle(page, newTitle) {
+        page.evaluate(function(newTitle){
+            window.document.title = newTitle;
+        }, newTitle);
+    }
+
+    it("should load a page full of frames", function(){
+        runs(function() {
+            p.open("../test/webpage-spec-frames/index.html");
+        });
+        waits(50);
+    });
+
+    it("should be able to detect frames at level 0", function(){
+        expect(pageTitle(p)).toEqual("index");
+        expect(p.frameName).toEqual("");
+        expect(p.framesCount).toEqual(2);
+        expect(p.framesName).toEqual(["frame1", "frame2"]);
+        setPageTitle(p, pageTitle(p) + "-visited");
+    });
+
+    it("should go down to a child frame at level 1", function(){
+        expect(p.switchToFrame("frame1")).toBeTruthy();
+        expect(pageTitle(p)).toEqual("frame1");
+        expect(p.frameName).toEqual("frame1");
+        expect(p.framesCount).toEqual(2);
+        expect(p.framesName).toEqual(["frame1-1", "frame1-2"]);
+        setPageTitle(p, pageTitle(p) + "-visited");
+    });
+
+    it("should go down to a child frame at level 2", function(){
+        expect(p.switchToFrame("frame1-2")).toBeTruthy();
+        expect(pageTitle(p)).toEqual("frame1-2");
+        expect(p.frameName).toEqual("frame1-2");
+        expect(p.framesCount).toEqual(0);
+        expect(p.framesName).toEqual([]);
+        setPageTitle(p, pageTitle(p) + "-visited");
+    });
+
+    it("should go up to the parent frame at level 1", function(){
+        expect(p.switchToParentFrame()).toBeTruthy();
+        expect(pageTitle(p)).toEqual("frame1-visited");
+        expect(p.frameName).toEqual("frame1");
+        expect(p.framesCount).toEqual(2);
+        expect(p.framesName).toEqual(["frame1-1", "frame1-2"]);
+    });
+
+    it("should go down to a child frame at level 2 (again)", function(){
+        expect(p.switchToFrame(0)).toBeTruthy();
+        expect(pageTitle(p)).toEqual("frame1-1");
+        expect(p.frameName).toEqual("frame1-1");
+        expect(p.framesCount).toEqual(0);
+        expect(p.framesName).toEqual([]);
+    });
+
+    it("should go up to the main (top) frame at level 0", function(){
+        expect(p.switchToMainFrame()).toBeUndefined();
+        expect(pageTitle(p)).toEqual("index-visited");
+        expect(p.frameName).toEqual("");
+        expect(p.framesCount).toEqual(2);
+        expect(p.framesName).toEqual(["frame1", "frame2"]);
+    });
+
+    it("should go down to (the other) child frame at level 1", function(){
+        expect(p.switchToFrame("frame2")).toBeTruthy();
+        expect(pageTitle(p)).toEqual("frame2");
+        expect(p.frameName).toEqual("frame2");
+        expect(p.framesCount).toEqual(3);
+        expect(p.framesName).toEqual(["frame2-1", "frame2-2", "frame2-3"]);
+    });
+});
+
+describe("WebPage opening and closing of windows/child-pages", function(){
+    var p = require("webpage").create();
+
+    it("should call 'onPageCreated' every time a call to 'window.open' is done", function(){
+        p.onPageCreated = jasmine.createSpy("onPageCreated spy");
+
+        p.evaluate(function() {
+            // yeah, I know globals. YIKES!
+            window.w1 = window.open("http://www.google.com", "google");
+            window.w2 = window.open("http://www.yahoo.com", "yahoo");
+            window.w3 = window.open("http://www.bing.com", "bing");
+        });
+        expect(p.onPageCreated).toHaveBeenCalled();
+        expect(p.onPageCreated.calls.length).toEqual(3);
+    });
+
+    it("should correctly resize the 'pages' array if a page gets closed", function(){
+        expect(p.pages.length).toEqual(3);
+        expect(p.pagesWindowName).toEqual(["google", "yahoo", "bing"]);
+
+        p.evaluate(function() {
+            window.w1.close();
+        });
+
+        waitsFor(function(){
+            return p.pages.length === 2;
+        }, "'pages' array didn't shrink after 1sec", 1000);
+
+        runs(function(){
+            expect(p.pages.length).toEqual(2);
+            expect(p.pagesWindowName).toEqual(["yahoo", "bing"]);
+        });
+    });
+
+    it("should resize the 'pages' array even more, when closing a page directly", function() {
+        expect(p.pages.length).toEqual(2);
+        expect(p.pagesWindowName).toEqual(["yahoo", "bing"]);
+
+        var yahoo = p.getPage("yahoo");
+        expect(yahoo).not.toBe(null);
+        yahoo.release();
+
+        waitsFor(function(){
+            return p.pages.length === 1;
+        }, "'pages' array didn't shrink after 1sec", 1000);
+
+        runs(function(){
+            expect(p.pages.length).toEqual(1);
+            expect(p.pagesWindowName).toEqual(["bing"]);
+        });
     });
 });

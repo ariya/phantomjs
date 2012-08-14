@@ -1,5 +1,4 @@
 describe("phantom global object", function() {
-
     it("should exist", function() {
         expect(typeof phantom).toEqual('object');
     });
@@ -52,8 +51,8 @@ describe("phantom global object", function() {
         expect(phantom.version.major).toEqual(1);
     });
 
-    it("should return 6 as the minor version", function() {
-        expect(phantom.version.minor).toEqual(6);
+    it("should return 7 as the minor version", function() {
+        expect(phantom.version.minor).toEqual(7);
     });
 
     it("should return 0 as the patch version", function() {
@@ -66,5 +65,9 @@ describe("phantom global object", function() {
 
     it("should have 'exit' function", function() {
         expect(typeof phantom.exit).toEqual("function");
+    });
+
+    it("should have 'keys' property", function() {
+        expect(phantom.hasOwnProperty('keys')).toBeTruthy();
     });
 });

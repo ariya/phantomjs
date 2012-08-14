@@ -53,12 +53,17 @@ class Phantom: public REPLCompletable
     Q_PROPERTY(QString scriptName READ scriptName)
     Q_PROPERTY(QVariantMap version READ version)
     Q_PROPERTY(QObject *page READ page)
+    Q_PROPERTY(QVariantMap keys READ keys)
+
+private:
+    // Private constructor: the Phantom class is a singleton
+    Phantom(QObject *parent = 0);
+    void init();
 
 public:
-    Phantom(QObject *parent = 0);
+    static Phantom *instance();
     virtual ~Phantom();
 
-    void init();
     QStringList args() const;
 
     QVariantMap defaultPageSettings() const;
@@ -76,9 +81,20 @@ public:
 
     QVariantMap version() const;
 
-    QObject* page() const;
+    QObject *page() const;
+
+    /**
+     * Pointer to the Config loaded at startup.
+     * The configuration is determined by the commandline parameters.
+     *
+     * @brief config
+     * @return Pointer to the current Config(uration)
+     */
+    Config *config();
 
     bool printDebugMessages() const;
+
+    QVariantMap keys() const;
 
 public slots:
     QObject *createWebPage();
@@ -86,7 +102,7 @@ public slots:
     QObject *createFilesystem();
     QObject *createSystem();
     QObject *createCallback();
-    QString loadModuleSource(const QString &name);
+    void loadModule(const QString &moduleSource, const QString &filename);
     bool injectJs(const QString &jsFilePath);
 
     // exit() will not exit in debug mode. debugExit() will always exit.
@@ -100,6 +116,7 @@ private slots:
     void printConsoleMessage(const QString &msg);
 
     void onInitialized();
+
 private:
     void doExit(int code);
     virtual void initCompletions();
@@ -115,6 +132,7 @@ private:
     QList<QPointer<WebPage> > m_pages;
     QList<QPointer<WebServer> > m_servers;
     Config m_config;
+    QVariantMap m_keyMap;
 };
 
 #endif // PHANTOM_H

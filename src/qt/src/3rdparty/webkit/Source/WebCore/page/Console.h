@@ -33,6 +33,7 @@
 #include "PlatformString.h"
 #include "ScriptProfile.h"
 #include "ScriptState.h"
+#include "../inspector/ScriptCallStack.h"
 
 #include <wtf/Forward.h>
 #include <wtf/PassRefPtr.h>
@@ -48,7 +49,6 @@ typedef Vector<RefPtr<ScriptProfile> > ProfilesArray;
 
 class Frame;
 class Page;
-class ScriptCallStack;
 
 enum MessageSource {
     HTMLMessageSource,

@@ -2,7 +2,7 @@
 
 PhantomJS ([www.phantomjs.org](http://phantomjs.org)) is a headless WebKit scriptable with JavaScript or CoffeeScript. It is used by hundreds of [developers](http://code.google.com/p/phantomjs/wiki/ExternalArticles) and dozens of [organizations](http://code.google.com/p/phantomjs/wiki/WhoUsesPhantomJS) for web-related development workflow.
 
-The latest [stable release](http://code.google.com/p/phantomjs/wiki/ReleaseNotes) is version 1.6 (codenamed "Lavender"). Follow the official Twitter stream [@HeadlessPhantom](http://twitter.com/HeadlessPhantom) to get the frequent development updates.
+The latest [stable release](http://code.google.com/p/phantomjs/wiki/ReleaseNotes) is version 1.6 (codenamed "Lavender"). Follow the official Twitter stream [@PhantomJS](http://twitter.com/PhantomJS) to get the frequent development updates.
 
 PhantomJS is created and maintained by [Ariya Hidayat](http://ariya.ofilabs.com/about) (Twitter: [@ariyahidayat](http://twitter.com/ariyahidayat)), with the help of [many contributors](https://github.com/ariya/phantomjs/contributors).
 
@@ -20,8 +20,8 @@ PhantomJS is created and maintained by [Ariya Hidayat](http://ariya.ofilabs.com/
 
 - **Multiplatform**, available on major operating systems: Windows, Mac OS X, Linux, other Unices.
 - **Fast and native implementation** of web standards: DOM, CSS, JavaScript, Canvas, SVG. No emulation!
-- **Pure headless (X11) on Linux**, ideal for continuous integration systems. Also runs on Amazon EC2.
-- **Easy to install**: [Download](http://code.google.com/p/phantomjs/wiki/Installation), unpack, and start having fun in just 5 minutes.
+- **Pure headless (no X11) on Linux**, ideal for continuous integration systems. Also runs on Amazon EC2, Heroku, Iron.io.
+- **Easy to install**: [Download](http://phantomjs.org/download.html), unpack, and start having fun in just 5 minutes.
 
 ## Ecosystem
 

@@ -542,7 +542,7 @@ static int outputChars(struct current *current, const char *buf, int len)
     COORD pos = { current->x, current->y };
     DWORD n;
 	
-    WriteConsoleOutputCharacter(current->outh, buf, len, pos, &n);
+    WriteConsoleOutputCharacterA(current->outh, buf, len, pos, &n);
     current->x += len;
     return 0;
 }

@@ -1569,6 +1569,7 @@ public:
         WV_2003     = 0x0040,
         WV_VISTA    = 0x0080,
         WV_WINDOWS7 = 0x0090,
+        WV_WINDOWS8 = 0x00a0,
         WV_NT_based = 0x00f0,
 
         /* version numbers */
@@ -1578,6 +1579,7 @@ public:
         WV_5_2      = WV_2003,
         WV_6_0      = WV_VISTA,
         WV_6_1      = WV_WINDOWS7,
+        WV_6_2      = WV_WINDOWS8,
 
         WV_CE       = 0x0100,
         WV_CENET    = 0x0200,
@@ -1603,6 +1605,7 @@ public:
         MV_10_5 = 0x0007,
         MV_10_6 = 0x0008,
         MV_10_7 = 0x0009,
+        MV_10_8 = 0x000A,
 
         /* codenames */
         MV_CHEETAH = MV_10_0,
@@ -1612,7 +1615,8 @@ public:
         MV_TIGER = MV_10_4,
         MV_LEOPARD = MV_10_5,
         MV_SNOWLEOPARD = MV_10_6,
-        MV_LION = MV_10_7
+        MV_LION = MV_10_7,
+        MV_MOUNTAINLION = MV_10_8
     };
     static const MacVersion MacintoshVersion;
 #endif

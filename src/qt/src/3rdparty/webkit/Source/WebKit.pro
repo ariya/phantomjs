@@ -3,14 +3,8 @@ CONFIG += ordered
 
 include(WebKit.pri)
 
-!v8 {
-    exists($$PWD/JavaScriptCore/JavaScriptCore.pro): SUBDIRS += JavaScriptCore/JavaScriptCore.pro
-    exists($$PWD/JavaScriptCore/jsc.pro): SUBDIRS += JavaScriptCore/jsc.pro
-}
-
 webkit2:exists($$PWD/WebKit2/WebKit2.pro): SUBDIRS += WebKit2/WebKit2.pro
 
-SUBDIRS += WebCore
 SUBDIRS += WebKit/qt/QtWebKit.pro
 
 webkit2 {
@@ -38,5 +32,3 @@ symbian {
     install.commands = $(MAKE) -C WebCore install
     QMAKE_EXTRA_TARGETS += install
 }
-
-include(WebKit/qt/docs/docs.pri)
