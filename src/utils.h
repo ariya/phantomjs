@@ -38,6 +38,10 @@
 #include "csconverter.h"
 #include "encoding.h"
 
+#ifdef Q_OS_WIN32
+#include "client/windows/handler/exception_handler.h"
+#endif
+
 class QTemporaryFile;
 /**
  * Aggregate common utility functions.
@@ -49,7 +53,11 @@ class Utils
 public:
     static void showUsage();
     static void messageHandler(QtMsgType type, const char *msg);
+#ifdef Q_OS_WIN32
+    static bool exceptionHandler(const wchar_t* dump_path, const wchar_t* minidump_id, void* context, EXCEPTION_POINTERS* exinfo, MDRawAssertionInfo *assertion, bool succeeded);
+#else
     static bool exceptionHandler(const char* dump_path, const char* minidump_id, void* context, bool succeeded);
+#endif    
     static QVariant coffee2js(const QString &script);
     static bool injectJsInFrame(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
     static bool injectJsInFrame(const QString &jsFilePath, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
