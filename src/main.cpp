@@ -101,16 +101,14 @@ int main(int argc, char** argv, const char** envp)
 
     DWORD cbBuffer = ExpandEnvironmentStrings(TEXT("%TEMP%"), NULL, 0);
 
-    if (cbBuffer == 0)
+    if (cbBuffer == 0) {
         eh = new ExceptionHandler(TEXT("."), NULL, Utils::exceptionHandler, NULL, ExceptionHandler::HANDLER_ALL);
-    else
-    {
-        LPWSTR szBuffer = (LPWSTR)malloc(sizeof(TCHAR) * (cbBuffer + 1));
+	} else {
+        LPWSTR szBuffer = reinterpret_cast<LPWSTR>(malloc(sizeof(TCHAR) * (cbBuffer + 1)));
         
-        if (ExpandEnvironmentStrings(TEXT("%TEMP%"), szBuffer, cbBuffer + 1) > 0)
-        {
-            wstring lpResult(szBuffer);
-            eh = new ExceptionHandler(lpResult, NULL, Utils::exceptionHandler, NULL, ExceptionHandler::HANDLER_ALL);
+        if (ExpandEnvironmentStrings(TEXT("%TEMP%"), szBuffer, cbBuffer + 1) > 0) {
+            wstring lpDumpPath(szBuffer);
+            eh = new ExceptionHandler(lpDumpPath, NULL, Utils::exceptionHandler, NULL, ExceptionHandler::HANDLER_ALL);
         }
         free(szBuffer);
     }
