@@ -40,3 +40,5 @@ and many others [companion projects](http://code.google.com/p/phantomjs/wiki/Who
 - Explore the complete [documentation](http://code.google.com/p/phantomjs/wiki/PhantomJS?tm=6).
 - Read tons of [user articles](http://code.google.com/p/phantomjs/wiki/ExternalArticles) on using PhantomJS.
 - Join the [mailing-list](http://groups.google.com/group/phantomjs) and discuss with other PhantomJS fans.
+
+PhantomJS is free software/open source, and is distributed under the [BSD license](http://opensource.org/licenses/BSD-3-Clause). It contains third-party code, see the included `third-party.txt` file for the license information on third-party code.
