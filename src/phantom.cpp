@@ -93,7 +93,6 @@ void Phantom::init()
     CookieJar::instance(m_config.cookiesFile());
 
     m_page = new WebPage(this, QUrl::fromLocalFile(m_config.scriptFile()));
-    m_pages.append(m_page);
 
     QString proxyType = m_config.proxyType();
     if (proxyType != "none") {
@@ -265,10 +264,6 @@ void Phantom::setCookiesEnabled(const bool value)
 QObject *Phantom::createWebPage()
 {
     WebPage *page = new WebPage(this);
-
-    // Store pointer to the page for later cleanup
-    m_pages.append(page);
-    // Apply default settings to the page
     page->applySettings(m_defaultPageSettings);
 
     // Show web-inspector if in debug mode
@@ -407,9 +402,6 @@ void Phantom::doExit(int code)
     emit aboutToExit(code);
     m_terminated = true;
     m_returnValue = code;
-    qDeleteAll(m_pages);
-    m_pages.clear();
-    m_page = 0;
     QApplication::instance()->exit(code);
 }
 

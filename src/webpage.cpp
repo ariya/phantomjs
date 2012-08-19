@@ -189,7 +189,6 @@ protected:
             newPage = new WebPage(m_webPage);
         } else {
             newPage = new WebPage(Phantom::instance());
-            Phantom::instance()->m_pages.append(newPage);
         }
 
         // Apply default settings
