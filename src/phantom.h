@@ -129,7 +129,6 @@ private:
     QVariantMap m_defaultPageSettings;
     FileSystem *m_filesystem;
     System *m_system;
-    QList<QPointer<WebPage> > m_pages;
     QList<QPointer<WebServer> > m_servers;
     Config m_config;
     QVariantMap m_keyMap;

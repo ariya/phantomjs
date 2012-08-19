@@ -97,7 +97,6 @@ void Phantom::init()
     }
 
     m_page = new WebPage(this, QUrl::fromLocalFile(m_config.scriptFile()));
-    m_pages.append(m_page);
 
     if (m_config.proxyHost().isEmpty()) {
         QNetworkProxyFactory::setUseSystemConfiguration(true);
@@ -253,10 +252,6 @@ bool Phantom::printDebugMessages() const
 QObject *Phantom::createWebPage()
 {
     WebPage *page = new WebPage(this);
-
-    // Store pointer to the page for later cleanup
-    m_pages.append(page);
-    // Apply default settings to the page
     page->applySettings(m_defaultPageSettings);
 
     // Show web-inspector if in debug mode
@@ -362,9 +357,6 @@ void Phantom::doExit(int code)
     emit aboutToExit(code);
     m_terminated = true;
     m_returnValue = code;
-    qDeleteAll(m_pages);
-    m_pages.clear();
-    m_page = 0;
     QApplication::instance()->exit(code);
 }
 
