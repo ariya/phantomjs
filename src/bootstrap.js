@@ -123,7 +123,11 @@ phantom.onError = phantom.defaultErrorHandler;
     }
 
     function dirname(path) {
-        return path.replace(/\/[^\/]*\/?$/, '');
+        var replaced = path.replace(/\/[^\/]*\/?$/, '');
+        if (replaced == path) {
+            replaced = '';
+        }
+        return replaced;
     }
 
     function basename(path) {
@@ -131,8 +135,12 @@ phantom.onError = phantom.defaultErrorHandler;
     }
 
     function joinPath() {
+        // It should be okay to hard-code a slash here.
+        // The FileSystem module returns a platform-specific
+        // separator, but the JavaScript engine only expects
+        // the slash.
         var args = Array.prototype.slice.call(arguments);
-        return args.join(fs.separator);
+        return args.join('/');
     }
 
     function tryFile(path) {
