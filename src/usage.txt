@@ -8,6 +8,7 @@ Options:
   --disk-cache=[yes|no]                  Enables disk cache (at desktop services cache storage location, default is 'no')
   --ignore-ssl-errors=[yes|no]           Ignores SSL errors (i.e. expired or self-signed certificate errors)
   --load-images=[yes|no]                 Loads all inlined images (default is 'yes')
+  --local-only=[yes|no]                  Only request local resources (default is 'no')
   --local-to-remote-url-access=[yes|no]  Local content can access remote URL (default is 'no')
   --max-disk-cache-size=size             Limits the size of disk cache (in KB)
   --output-encoding                      Sets the encoding used for terminal output (default is 'utf8')

@@ -74,6 +74,7 @@ private:
     QNetworkDiskCache* m_networkDiskCache;
     QVariantMap m_customHeaders;
     QVariantList m_cookies;
+    const Config* m_config;
 };
 
 #endif // NETWORKACCESSMANAGER_H

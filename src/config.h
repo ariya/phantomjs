@@ -143,6 +143,9 @@ public:
     void setJavascriptCanCloseWindows(const bool value);
     bool javascriptCanCloseWindows() const;
 
+    void setLocalOnly(const bool value);
+    bool localOnly() const;
+
 private:
     void resetToDefaults();
     void setProxyHost(const QString &value);
@@ -179,6 +182,7 @@ private:
     bool m_printDebugMessages;
     bool m_javascriptCanOpenWindows;
     bool m_javascriptCanCloseWindows;
+    bool m_localOnly;
 };
 
 #endif // CONFIG_H
