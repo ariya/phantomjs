@@ -71,7 +71,23 @@ void Utils::messageHandler(QtMsgType type, const char *msg)
         abort();
     }
 }
-
+#ifdef Q_OS_WIN32
+bool Utils::exceptionHandler(const TCHAR* dump_path, const TCHAR* minidump_id,
+                             void* context, EXCEPTION_POINTERS* exinfo,
+                             MDRawAssertionInfo *assertion, bool succeeded)
+{
+    Q_UNUSED(exinfo);
+    Q_UNUSED(assertion);
+    Q_UNUSED(context);
+  
+    fprintf(stderr, "PhantomJS has crashed. Please read the crash reporting guide at " \
+                    "https://code.google.com/p/phantomjs/wiki/CrashReporting and file a " \
+                    "bug report at https://code.google.com/p/phantomjs/issues/entry with the " \
+                    "crash dump file attached: %ls\\%ls.dmp\n",
+                    dump_path, minidump_id);
+    return succeeded;
+}
+#else
 bool Utils::exceptionHandler(const char* dump_path, const char* minidump_id, void* context, bool succeeded)
 {
     Q_UNUSED(context);
@@ -82,6 +98,7 @@ bool Utils::exceptionHandler(const char* dump_path, const char* minidump_id, voi
                     dump_path, minidump_id);
     return succeeded;
 }
+#endif
 
 QVariant Utils::coffee2js(const QString &script)
 {

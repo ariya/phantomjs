@@ -42,7 +42,7 @@ echo
 
 echo -n "copying files..."
 cp $src/bin/phantomjs $dest/bin
-cp -r $src/{ChangeLog,examples,LICENSE.BSD,README.md} $dest/
+cp -r $src/{ChangeLog,examples,LICENSE.BSD,third-party.txt,README.md} $dest/
 echo "done"
 echo
 
