@@ -1,8 +1,8 @@
 #include "command_socket.h"
 
-#include <stdio.h>
 #include <QByteArray.h>
 #include <QNetworkCookieJar.h>
+#include <QDateTime.h>
 
 CommandSocket::CommandSocket(QWebFrame *webframe, Phantom *parent)
     : QObject(parent)
@@ -48,7 +48,7 @@ void CommandSocket::readCommand() {
                 if (success) {
                     m_clientConnection->write("+ ok\r\n");
                 } else {
-                    m_clientConnection->write("no dice\r\n");
+                    m_clientConnection->write("- unable to render image\r\n");
                 }
 
             } else if (message.startsWith("show cookies for ")) {
@@ -58,10 +58,51 @@ void CommandSocket::readCommand() {
                 QList<QNetworkCookie> cookies = cookie_jar->cookiesForUrl(url);
 
                 QString resp;
-                QString cookie = cookies.first().toRawForm();
-                QTextStream(&resp) << "+ " << cookies.count() << "cookies: " << cookie << "\r\n";
-                //QTextStream(&resp) << "+ " << cookies.count() << " cookies\r\n";
+                QTextStream(&resp) << "+ " << cookies.count() << " cookies: \r\n";
+
+                for (int i = 0; i < cookies.size(); i++) {
+                    QString cookie = cookies.at(i).toRawForm();
+                    QTextStream(&resp) << cookie << "\r\n";
+                }
+
+                QTextStream(&resp) << ".\r\n";
                 m_clientConnection->write(resp.toAscii());
+
+
+            } else if (message.startsWith("set cookies for ")) {
+                QByteArray address = message.replace("show cookies for ", "").simplified();
+
+                QVariantList cookies;
+                QByteArray last_line;
+
+                bool still_working = true;
+                do {
+                    m_clientConnection->waitForReadyRead();
+                    last_line = m_clientConnection->readLine();
+                    if (last_line.simplified() == ".") {
+                        still_working = false;
+                    } else {
+                        QList<QNetworkCookie> new_cookies = QNetworkCookie::parseCookies(last_line);
+                        for (int i = 0; i < new_cookies.size(); i++) {
+                            QNetworkCookie c = new_cookies.at(i);
+                            QVariantMap cookie;
+                            cookie["domain"] = c.domain();
+                            cookie["name"] = c.name();
+                            cookie["value"] = c.value();
+                            cookie["path"] = c.path();
+                            cookie["expires"] = c.expirationDate();
+                            cookie["httponly"] = c.isHttpOnly();
+                            cookie["secure"] = c.isSecure();
+
+                            cookies << cookie;
+                        }
+                    }
+                } while (still_working);
+
+                QUrl url = QUrl::fromEncoded(address);
+                m_page->setCookies(cookies);
+                m_clientConnection->write("+ ok\r\n");
+
 
             } else if (message == "set images on") {
                 m_settings[PAGE_SETTINGS_LOAD_IMAGES] = true;
