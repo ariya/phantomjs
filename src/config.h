@@ -114,7 +114,8 @@ public:
     void setScriptFile(const QString &value);
 
     bool openSocket() const;
-    void setOpenSocket(const bool value);
+    void setOpenSocket(const bool, QString );
+    QString socketFileName();
 
     QString unknownOption() const;
     void setUnknownOption(const QString &value);
@@ -171,6 +172,7 @@ private:
     QString m_scriptEncoding;
     QString m_scriptFile;
     bool m_openSocket;
+    QString m_socketFileName;
     QString m_unknownOption;
     bool m_versionFlag;
     QString m_authUser;

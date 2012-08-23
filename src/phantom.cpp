@@ -183,7 +183,8 @@ bool Phantom::execute()
         return false;
 
     if (m_config.openSocket()) {
-        new CommandSocket(m_page->mainFrame(), this);
+        QString socketFileName = m_config.socketFileName();
+        new CommandSocket(m_page->mainFrame(), this, socketFileName );
     } else if (m_config.scriptFile().isEmpty()) {
         // REPL mode requested
         // Create the REPL: it will launch itself, no need to store this variable.

@@ -168,8 +168,12 @@ void Config::processArgs(const QStringList &args)
             setPrintDebugMessages(false);
             continue;
         }
+        if (arg.startsWith("--open-socket=")){
+            setOpenSocket(true, arg.mid(14).trimmed());
+            continue;
+        }
         if (arg.startsWith("--open-socket")) {
-            setOpenSocket(true);
+            setOpenSocket(true, QString("/tmp/phantomjs.socket") );
             continue;
         }
         if (arg.startsWith("--")) {
@@ -431,9 +435,15 @@ bool Config::openSocket() const
     return m_openSocket;
 }
 
-void Config::setOpenSocket(const bool value)
+QString Config::socketFileName()
+{
+    return m_socketFileName;
+}
+
+void Config::setOpenSocket(const bool value, QString socketFileName)
 {
     m_openSocket = value;
+    m_socketFileName = socketFileName;
 }
 
 QString Config::unknownOption() const
@@ -547,6 +557,7 @@ void Config::resetToDefaults()
     m_helpFlag = false;
     m_printDebugMessages = false;
     m_openSocket = false;
+    m_socketFileName = QString("/tmp/phantomjs.socket");
 }
 
 void Config::setProxyAuthPass(const QString &value)

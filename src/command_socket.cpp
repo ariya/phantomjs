@@ -4,7 +4,7 @@
 #include <QNetworkCookieJar.h>
 #include <QDateTime.h>
 
-CommandSocket::CommandSocket(QWebFrame *webframe, Phantom *parent)
+CommandSocket::CommandSocket(QWebFrame *webframe, Phantom *parent, QString socketFileName)
     : QObject(parent)
 {
     m_webframe = webframe;
@@ -12,7 +12,7 @@ CommandSocket::CommandSocket(QWebFrame *webframe, Phantom *parent)
     m_terminal = Terminal::instance();
 
     m_server = new QLocalServer(this);
-    if (!m_server->listen("/tmp/phantomjs.socket")) {
+    if (!m_server->listen(socketFileName)) {
         m_terminal->cerr("Not able to start the server", true);
         exit();
     }

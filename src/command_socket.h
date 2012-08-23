@@ -15,7 +15,7 @@ class CommandSocket: public QObject
     Q_OBJECT
 
 public:
-    CommandSocket(QWebFrame*, Phantom* const);
+    CommandSocket(QWebFrame*, Phantom* const, QString );
     void exit();
 
 private slots:
