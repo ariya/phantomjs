@@ -168,6 +168,10 @@ void Config::processArgs(const QStringList &args)
             setPrintDebugMessages(false);
             continue;
         }
+        if (arg.startsWith("--open-socket")) {
+            setOpenSocket(true);
+            continue;
+        }
         if (arg.startsWith("--")) {
             setUnknownOption(QString("Unknown option '%1'").arg(arg));
             return;
@@ -422,6 +426,16 @@ void Config::setScriptFile(const QString &value)
     m_scriptFile = value;
 }
 
+bool Config::openSocket() const
+{
+    return m_openSocket;
+}
+
+void Config::setOpenSocket(const bool value)
+{
+    m_openSocket = value;
+}
+
 QString Config::unknownOption() const
 {
     return m_unknownOption;
@@ -532,6 +546,7 @@ void Config::resetToDefaults()
     m_javascriptCanCloseWindows = true;
     m_helpFlag = false;
     m_printDebugMessages = false;
+    m_openSocket = false;
 }
 
 void Config::setProxyAuthPass(const QString &value)

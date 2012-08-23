@@ -44,6 +44,7 @@
 #include "webpage.h"
 #include "webserver.h"
 #include "repl.h"
+#include "command_socket.h"
 #include "system.h"
 #include "callback.h"
 
@@ -181,7 +182,9 @@ bool Phantom::execute()
     if (m_terminated)
         return false;
 
-    if (m_config.scriptFile().isEmpty()) {
+    if (m_config.openSocket()) {
+        new CommandSocket(m_page->mainFrame(), this);
+    } else if (m_config.scriptFile().isEmpty()) {
         // REPL mode requested
         // Create the REPL: it will launch itself, no need to store this variable.
         REPL::getInstance(m_page->mainFrame(), this);
