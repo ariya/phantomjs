@@ -26,6 +26,13 @@ private slots:
 private:
     void handlePostCommand(QByteArray);
     void handleGetCommand(QByteArray);
+    void handleQuitCommand();
+    void handleShowSettingsCommnad();
+    void handleSetCommand(QByteArray);
+    void handleShowContentCommand();
+    void handleSetCookiesCommand(QByteArray);
+    void handleShowCookiesCommand(QByteArray);
+    void handleRendercommand(QByteArray);
     QWebFrame *m_webframe;
     Phantom *m_parentPhantom;
     QLocalServer *m_server;
