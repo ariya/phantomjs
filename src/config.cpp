@@ -168,6 +168,14 @@ void Config::processArgs(const QStringList &args)
             setPrintDebugMessages(false);
             continue;
         }
+        if (arg.startsWith("--open-socket=")){
+            setOpenSocket(true, arg.mid(14).trimmed());
+            continue;
+        }
+        if (arg.startsWith("--open-socket")) {
+            setOpenSocket(true, QString("/tmp/phantomjs.socket") );
+            continue;
+        }
         if (arg.startsWith("--")) {
             setUnknownOption(QString("Unknown option '%1'").arg(arg));
             return;
@@ -422,6 +430,22 @@ void Config::setScriptFile(const QString &value)
     m_scriptFile = value;
 }
 
+bool Config::openSocket() const
+{
+    return m_openSocket;
+}
+
+QString Config::socketFileName()
+{
+    return m_socketFileName;
+}
+
+void Config::setOpenSocket(const bool value, QString socketFileName)
+{
+    m_openSocket = value;
+    m_socketFileName = socketFileName;
+}
+
 QString Config::unknownOption() const
 {
     return m_unknownOption;
@@ -532,6 +556,8 @@ void Config::resetToDefaults()
     m_javascriptCanCloseWindows = true;
     m_helpFlag = false;
     m_printDebugMessages = false;
+    m_openSocket = false;
+    m_socketFileName = QString("/tmp/phantomjs.socket");
 }
 
 void Config::setProxyAuthPass(const QString &value)

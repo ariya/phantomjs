@@ -533,6 +533,11 @@ QVariantList WebPage::cookies() const
     return m_networkAccessManager->cookies();
 }
 
+QNetworkCookieJar * WebPage::cookieJar()
+{
+    return m_networkAccessManager->cookieJar();
+}
+
 void WebPage::openUrl(const QString &address, const QVariant &op, const QVariantMap &settings)
 {
     QString operation;

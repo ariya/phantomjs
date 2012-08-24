@@ -44,6 +44,7 @@
 #include "webpage.h"
 #include "webserver.h"
 #include "repl.h"
+#include "command_socket.h"
 #include "system.h"
 #include "callback.h"
 
@@ -181,7 +182,10 @@ bool Phantom::execute()
     if (m_terminated)
         return false;
 
-    if (m_config.scriptFile().isEmpty()) {
+    if (m_config.openSocket()) {
+        QString socketFileName = m_config.socketFileName();
+        new CommandSocket(m_page->mainFrame(), this, socketFileName );
+    } else if (m_config.scriptFile().isEmpty()) {
         // REPL mode requested
         // Create the REPL: it will launch itself, no need to store this variable.
         REPL::getInstance(m_page->mainFrame(), this);
@@ -321,6 +325,7 @@ bool Phantom::injectJs(const QString &jsFilePath)
 
 void Phantom::exit(int code)
 {
+  Terminal::instance()->cout("exit called");
     if (m_config.debug()) {
         Terminal::instance()->cout("Phantom::exit() called but not quitting in debug mode.");
     } else {
