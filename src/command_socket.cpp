@@ -119,6 +119,16 @@ void CommandSocket::readCommand() {
                 m_clientConnection->write("+ ok\r\n");
 
 
+            } else if (message == "show content") {
+              QString content = m_page->content();
+              m_clientConnection->write("+ content:\r\n");
+              m_clientConnection->write(content.toAscii());
+              if (! content.endsWith("\n")) {
+                m_clientConnection->write("\r\n");
+              }
+              m_clientConnection->write(".\r\n");
+
+
             } else if (message == "set images on") {
                 m_settings[PAGE_SETTINGS_LOAD_IMAGES] = true;
                 m_clientConnection->write("+ ok\r\n");

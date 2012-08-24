@@ -325,6 +325,7 @@ bool Phantom::injectJs(const QString &jsFilePath)
 
 void Phantom::exit(int code)
 {
+  Terminal::instance()->cout("exit called");
     if (m_config.debug()) {
         Terminal::instance()->cout("Phantom::exit() called but not quitting in debug mode.");
     } else {
