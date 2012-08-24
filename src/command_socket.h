@@ -24,6 +24,8 @@ private slots:
     void loadFinished(const QString &status);
 
 private:
+    void handlePostCommand(QByteArray);
+    void handleGetCommand(QByteArray);
     QWebFrame *m_webframe;
     Phantom *m_parentPhantom;
     QLocalServer *m_server;

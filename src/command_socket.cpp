@@ -31,6 +31,26 @@ void CommandSocket::handleConnection() {
     connect(m_clientConnection, SIGNAL(readyRead()), this, SLOT(readCommand()));
 }
 
+void CommandSocket::handlePostCommand(QByteArray message){
+    // post command: post <url> <body>
+    // eg. post http://www.google.com name=jakub+oboza
+    QStringList msg = QString(message.simplified()).split(" ", QString::SkipEmptyParts);
+    QByteArray url = msg[1].toUtf8();
+    QMap<QString, QVariant> params;
+    params["operation"] = "post";
+    if(msg.size() == 3){
+        params["data"] = msg[2];
+    }
+    else{
+        params["data"] = "";
+    }
+    m_page->openUrl(url, params, m_settings);  
+}
+
+void CommandSocket::handleGetCommand(QByteArray message){
+    QByteArray url = message.replace("get ", "").simplified();
+    m_page->openUrl(url, "get", m_settings);
+}
 
 void CommandSocket::readCommand() {
     bool shutdown = false;
@@ -40,23 +60,10 @@ void CommandSocket::readCommand() {
             message = message.simplified();
 
             if (message.startsWith("get ")) {
-                QByteArray url = message.replace("get ", "").simplified();
-                m_page->openUrl(url, "get", m_settings);
+                this->handleGetCommand(message);
             }
             else if(message.startsWith("post ")){
-                // post command: post <url> <body>
-                // eg. post http://www.google.com name=jakub+oboza
-                QStringList msg = QString(message.simplified()).split(" ", QString::SkipEmptyParts);
-                QByteArray url = msg[1].toUtf8();
-                QMap<QString, QVariant> params;
-                params["operation"] = "post";
-                if(msg.size() == 3){
-                    params["data"] = msg[2];
-                }
-                else{
-                    params["data"] = "";
-                }
-                m_page->openUrl(url, params, m_settings);
+                this->handlePostCommand(message);
             } else if (message.startsWith("render ")) {
                 QByteArray path = message.replace("render ", "").simplified();
                 bool success = m_page->render(path);
