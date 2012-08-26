@@ -557,6 +557,13 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
         }
     }
 
+	//Also send the custom headers within our request
+	QMapIterator<QString, QVariant> i(customHeaders());
+    while (i.hasNext()) {
+        i.next();
+        request.setRawHeader(i.key().toUtf8(), i.value().toString().toUtf8());
+    }
+
     if (operation.isEmpty())
         operation = "get";
 
