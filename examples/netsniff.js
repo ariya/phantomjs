@@ -61,7 +61,8 @@ function createHAR(address, title, startTime, resources)
                 wait: startReply.time - request.time,
                 receive: endReply.time - startReply.time,
                 ssl: -1
-            }
+            },
+            pageref: address
         });
     });
 
