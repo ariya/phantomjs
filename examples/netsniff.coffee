@@ -58,6 +58,7 @@ createHAR = (address, title, startTime, resources) ->
                 wait: startReply.time - request.time
                 receive: endReply.time - startReply.time
                 ssl: -1
+            pageref: address
 
     log:
         version: '1.2'
@@ -69,7 +70,8 @@ createHAR = (address, title, startTime, resources) ->
             startedDateTime: startTime.toISOString()
             id: address
             title: title
-            pageTimings: {}
+            pageTimings:
+                onLoad: page.endTime - page.startTime
         ]
         entries: entries
 
@@ -102,6 +104,7 @@ else
         if status isnt 'success'
             console.log 'FAIL to load the address'
         else
+            page.endTime = new Date()
             page.title = page.evaluate ->
                 document.title
 

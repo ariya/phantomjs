@@ -61,7 +61,8 @@ function createHAR(address, title, startTime, resources)
                 wait: startReply.time - request.time,
                 receive: endReply.time - startReply.time,
                 ssl: -1
-            }
+            },
+            pageref: address
         });
     });
 
@@ -77,7 +78,9 @@ function createHAR(address, title, startTime, resources)
                 startedDateTime: startTime.toISOString(),
                 id: address,
                 title: title,
-                pageTimings: {}
+                pageTimings: {
+                    onLoad: page.endTime - page.startTime
+                }
             }],
             entries: entries
         }
@@ -121,6 +124,7 @@ if (system.args.length === 1) {
         if (status !== 'success') {
             console.log('FAIL to load the address');
         } else {
+            page.endTime = new Date();
             page.title = page.evaluate(function () {
                 return document.title;
             });
