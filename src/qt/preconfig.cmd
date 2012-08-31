@@ -44,7 +44,7 @@ set QT_CFG=%QT_CFG% -I %OPEN_SSL_DIR%\include
 set QT_CFG=%QT_CFG% -L %OPEN_SSL_DIR%\lib
 set QT_CFG=%QT_CFG% -l libeay32
 set QT_CFG=%QT_CFG% -l ssleay32
-set QT_CFG=%QT_CFG% OPENSSL_LIBS="-L%OPEN_SSL_DIR%\lib -lssleay32 -llibeay32 -luser32 -lgdi32"
+set QT_CFG=%QT_CFG% OPENSSL_LIBS="-L%OPEN_SSL_DIR:\=\\%\\lib -lssleay32 -llibeay32 -luser32 -lgdi32"
 
 set MAKE_COMMAND=nmake
 rem set QT_CFG=%QT_CFG% -make %MAKE_COMMAND%
@@ -62,9 +62,3 @@ cd src\3rdparty\webkit\Source\
 ..\..\..\..\bin\qmake -r
 %MAKE_COMMAND%
 cd ..\..\..\..\
-
-set PHANTOMJSDIR=..\..\
-md %PHANTOMJSDIR%\..\JavaScriptCore\release
-copy src\3rdparty\webkit\Source\JavaScriptCore\release %PHANTOMJSDIR%\..\JavaScriptCore\release\
-md %PHANTOMJSDIR%\..\WebCore\release
-copy src\3rdparty\webkit\Source\WebCore\release %PHANTOMJSDIR%\..\WebCore\release\
