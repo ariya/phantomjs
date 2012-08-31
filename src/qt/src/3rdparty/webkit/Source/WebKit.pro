@@ -1,5 +1,6 @@
 TEMPLATE = subdirs
 CONFIG += ordered
+DEFINES += Q_NODLL Q_DECL_IMPORT QT_STATIC_BUILD STATIC
 
 include(WebKit.pri)
 
