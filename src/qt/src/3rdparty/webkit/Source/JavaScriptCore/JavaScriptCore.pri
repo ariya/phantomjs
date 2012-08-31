@@ -53,7 +53,7 @@ symbian {
     INCLUDEPATH *= $$MW_LAYER_SYSTEMINCLUDE
 }
 
-win32-*: DEFINES += _HAS_TR1=0
+win32-msvc200*: DEFINES += _HAS_TR1=0
 
 DEFINES += BUILDING_JavaScriptCore BUILDING_WTF
 
