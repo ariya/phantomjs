@@ -86,6 +86,8 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
 
     connect(this, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)), SLOT(provideAuthentication(QNetworkReply*,QAuthenticator*)));
     connect(this, SIGNAL(finished(QNetworkReply*)), SLOT(handleFinished(QNetworkReply*)));
+
+    m_config = config;
 }
 
 void NetworkAccessManager::setUserName(const QString &userName)
@@ -126,6 +128,11 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     // Get the URL string before calling the superclass. Seems to work around
     // segfaults in Qt 4.8: https://gist.github.com/1430393
     QByteArray url = req.url().toEncoded();
+
+    // Return a blank reply for any external requests
+    if (m_config->localOnly() && req.url().scheme() != "file") {
+        return QNetworkAccessManager::createRequest(QNetworkAccessManager::GetOperation, QNetworkRequest(QUrl()));
+    }
 
     // http://code.google.com/p/phantomjs/issues/detail?id=337
     if (op == QNetworkAccessManager::PostOperation) {

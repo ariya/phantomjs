@@ -168,6 +168,14 @@ void Config::processArgs(const QStringList &args)
             setPrintDebugMessages(false);
             continue;
         }
+        if (arg == "--local-only=yes") {
+            setLocalOnly(true);
+            continue;
+        }
+        if (arg == "--local-only=no") {
+            setLocalOnly(false);
+            continue;
+        }
         if (arg.startsWith("--")) {
             setUnknownOption(QString("Unknown option '%1'").arg(arg));
             return;
@@ -532,6 +540,7 @@ void Config::resetToDefaults()
     m_javascriptCanCloseWindows = true;
     m_helpFlag = false;
     m_printDebugMessages = false;
+    m_localOnly = false;
 }
 
 void Config::setProxyAuthPass(const QString &value)
@@ -572,4 +581,14 @@ bool Config::printDebugMessages() const
 void Config::setPrintDebugMessages(const bool value)
 {
     m_printDebugMessages = value;
+}
+
+void Config::setLocalOnly(const bool value)
+{
+    m_localOnly = value;
+}
+
+bool Config::localOnly() const
+{
+    return m_localOnly;
 }
