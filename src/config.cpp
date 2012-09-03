@@ -508,7 +508,7 @@ void Config::handleOption(const QString &option, const QVariant &value)
     booleanFlags << "local-to-remote-url-access";
     booleanFlags << "remote-debugger-autorun";
     booleanFlags << "web-security";
-    if (booleanFlags.indexOf(option)) {
+    if (booleanFlags.contains(option)) {
         if ((value != "true") && (value != "yes") && (value != "false") && (value != "no")) {
             setUnknownOption(QString("Invalid values for '%1' option.").arg(option));
             return;
@@ -592,6 +592,8 @@ void Config::handleOption(const QString &option, const QVariant &value)
 
 void Config::handleParam(const QString& param, const QVariant &value)
 {
+    Q_UNUSED(param);
+
     if (m_scriptFile.isEmpty())
         m_scriptFile = value.toString();
     else
