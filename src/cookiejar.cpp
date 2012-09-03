@@ -27,8 +27,10 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "config.h"
 #include "cookiejar.h"
 
+#include <QDateTime>
 #include <QSettings>
 #include <QStringList>
 
@@ -47,9 +49,12 @@ bool CookieJar::setCookiesFromUrl(const QList<QNetworkCookie> & cookieList, cons
     for (QList<QNetworkCookie>::const_iterator i = cookieList.begin(); i != cookieList.end(); i++) {
         settings.setValue((*i).name(), QString((*i).value()));
     }
-    
+
     settings.sync();
-    
+
+    // updating cookies from the server.
+    QNetworkCookieJar::setCookiesFromUrl(cookieList, url);
+
     return true;
 }
 
@@ -66,5 +71,103 @@ QList<QNetworkCookie> CookieJar::cookiesForUrl(const QUrl & url) const
         cookieList.push_back(QNetworkCookie((*i).toLocal8Bit(), settings.value(*i).toByteArray()));
     }
     
+    // sending cookies to the server.
+    QList<QNetworkCookie> allCookies = QNetworkCookieJar::cookiesForUrl(url);
+    for (QList<QNetworkCookie>::const_iterator i = allCookies.begin(); i != allCookies.end(); i++) {
+        cookieList.push_back((*i));
+    }
+
     return cookieList;
+}
+
+void CookieJar::setCookies(const QVariantList &cookies)
+{
+    QList<QNetworkCookie> newCookies;
+    for (int i = 0; i < cookies.size(); ++i) {
+        QNetworkCookie nc;
+        QVariantMap cookie = cookies.at(i).toMap();
+
+        //
+        // The field of domain and cookie name/value MUST be set, otherwise skip it.
+        //
+        if (cookie["domain"].isNull() || cookie["domain"].toString().isEmpty()
+            || cookie["name"].isNull() || cookie["name"].toString().isEmpty()
+            || cookie["value"].isNull()
+        ) {
+            continue;
+        } else {
+            nc.setDomain(cookie["domain"].toString());
+            nc.setName(cookie["name"].toByteArray());
+            nc.setValue(cookie["value"].toByteArray());
+        }
+
+        if (cookie["path"].isNull() || cookie["path"].toString().isEmpty()) {
+            nc.setPath("/");
+        } else {
+            nc.setPath(cookie["path"].toString());
+        }
+
+        if (cookie["httponly"].isNull()) {
+            nc.setHttpOnly(false);
+        } else {
+            nc.setHttpOnly(cookie["httponly"].toBool());
+        }
+
+        if (cookie["secure"].isNull()) {
+            nc.setSecure(false);
+        } else {
+            nc.setSecure(cookie["secure"].toBool());
+        }
+
+        if (!cookie["expires"].isNull()) {
+            QString datetime = cookie["expires"].toString().replace(" GMT", "");
+            QDateTime expires = QDateTime::fromString(datetime, "ddd, dd MMM yyyy hh:mm:ss");
+            if (expires.isValid()) {
+                nc.setExpirationDate(expires);
+            }
+        }
+
+        newCookies.append(nc);
+    }
+
+    this->setAllCookies(newCookies);
+}
+
+QVariantList CookieJar::cookies() const
+{
+    QVariantList returnCookies;
+    QList<QNetworkCookie> allCookies = this->allCookies();
+    for (QList<QNetworkCookie>::const_iterator i = allCookies.begin(); i != allCookies.end(); i++) {
+        QVariantMap cookie;
+
+        cookie["domain"] = QVariant((*i).domain());
+        cookie["name"] = QVariant(QString((*i).name()));
+        cookie["value"] = QVariant(QString((*i).value()));
+
+        if ((*i).path().isNull() || (*i).path().isEmpty()) {
+            cookie["path"] = QVariant("/");
+        } else {
+            cookie["path"] = QVariant((*i).path());
+        }
+
+        if ((*i).isHttpOnly()) {
+            cookie["httponly"] = QVariant(true);
+        } else {
+            cookie["httponly"] = QVariant(false);
+        }
+
+        if ((*i).isSecure()) {
+            cookie["secure"] = QVariant(true);
+        } else {
+            cookie["secure"] = QVariant(false);
+        }
+
+        if ((*i).expirationDate().isValid()) {
+            cookie["expires"] = QVariant(QString((*i).expirationDate().toString("ddd, dd MMM yyyy hh:mm:ss")).append(" GMT"));
+        }
+
+        returnCookies.append(cookie);
+    }
+
+    return returnCookies;
 }

@@ -72,9 +72,7 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
     , m_idCounter(0)
     , m_networkDiskCache(0)
 {
-    if (!config->cookiesFile().isEmpty()) {
-        setCookieJar(new CookieJar(config->cookiesFile()));
-    }
+    setCookieJar(new CookieJar(config->cookiesFile()));
 
     if (config->diskCacheEnabled()) {
         m_networkDiskCache = new QNetworkDiskCache(this);
@@ -110,12 +108,14 @@ QVariantMap NetworkAccessManager::customHeaders() const
 
 void NetworkAccessManager::setCookies(const QVariantList &cookies)
 {
-    m_cookies = cookies;
+    CookieJar* cookiejar = static_cast<CookieJar*>(cookieJar());
+    cookiejar->setCookies(cookies);
 }
 
 QVariantList NetworkAccessManager::cookies() const
 {
-    return m_cookies;
+    CookieJar* cookiejar = static_cast<CookieJar*>(cookieJar());
+    return cookiejar->cookies();
 }
 
 // protected:
@@ -140,25 +140,6 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     while (i != m_customHeaders.end()) {
         req.setRawHeader(i.key().toAscii(), i.value().toByteArray());
         ++i;
-    }
-
-    // set HTTP cookies
-    QList<QNetworkCookie> cookieList;
-    for (int i = 0; i < m_cookies.size(); ++i) {
-        QNetworkCookie nc;
-        QVariantMap cookie = m_cookies.at(i).toMap();
-        nc.setDomain(cookie.value("domain").toString());
-        nc.setName(cookie.value("name").toByteArray());
-        nc.setValue(cookie.value("value").toByteArray());
-        if (!cookie.value("path").isNull()) { nc.setPath(cookie.value("path").toString()); }
-        if (!cookie.value("expires").isNull()) { nc.setExpirationDate(cookie.value("expires").toDateTime()); }
-        if (!cookie.value("httponly").isNull()) { nc.setHttpOnly(cookie.value("httponly").toBool()); }
-        if (!cookie.value("secure").isNull()) { nc.setSecure(cookie.value("secure").toBool()); }
-        cookieList.append(nc);
-    }
-    if (m_cookies.size() > 0) {
-        QNetworkCookieJar* cookiejar = cookieJar();
-        cookiejar->setCookiesFromUrl(cookieList, req.url());
     }
 
     // Pass duty to the superclass - Nothing special to do here (yet?)
