@@ -42,6 +42,8 @@ public:
 
     bool setCookiesFromUrl(const QList<QNetworkCookie> & cookieList, const QUrl & url);
     QList<QNetworkCookie> cookiesForUrl (const QUrl & url) const;
+    void setCookies(const QVariantList &cookies);
+    QVariantList cookies() const;
 };
 
 #endif // COOKIEJAR_H
