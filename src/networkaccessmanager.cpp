@@ -34,6 +34,7 @@
 #include <QNetworkDiskCache>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QSslSocket>
 
 #include "config.h"
 #include "cookiejar.h"
@@ -122,6 +123,11 @@ QVariantList NetworkAccessManager::cookies() const
 QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkRequest & request, QIODevice * outgoingData)
 {
     QNetworkRequest req(request);
+
+    if (!QSslSocket::supportsSsl()) {
+        if (req.url().scheme().toLower() == QLatin1String("https"))
+            qWarning() << "Request using https scheme without SSL support";
+    }
 
     // Get the URL string before calling the superclass. Seems to work around
     // segfaults in Qt 4.8: https://gist.github.com/1430393
