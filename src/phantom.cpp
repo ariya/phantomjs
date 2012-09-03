@@ -57,9 +57,7 @@ Phantom::Phantom(QObject *parent)
     , m_filesystem(0)
     , m_system(0)
 {
-    // Skip the first argument, i.e. the application executable (phantomjs).
     QStringList args = QApplication::arguments();
-    args.removeFirst();
 
     // Prepare the configuration object based on the command line arguments.
     // Because this object will be used by other classes, it needs to be ready ASAP.
@@ -79,8 +77,12 @@ Phantom::Phantom(QObject *parent)
 void Phantom::init()
 {
     if (m_config.helpFlag()) {
+        Terminal::instance()->cout(QString("%1").arg(m_config.helpText()));
+        Terminal::instance()->cout("Without any argument, PhantomJS will launch in interactive mode (REPL).");
+        Terminal::instance()->cout("");
+        Terminal::instance()->cout("Documentation can be found at the web site, http://phantomjs.org.");
+        Terminal::instance()->cout("");
         m_terminated = true;
-        Utils::showUsage();
         return;
     }
 

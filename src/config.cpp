@@ -1,6 +1,7 @@
 /*
   This file is part of the PhantomJS project from Ofi Labs.
 
+  Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
   Copyright (C) 2011 execjosh, http://execjosh.blogspot.com
 
@@ -36,12 +37,42 @@
 #include <QNetworkProxy>
 
 #include "terminal.h"
+#include "qcommandline.h"
 #include "utils.h"
 
-// public:
+#include <iostream>
+
+static const struct QCommandLineConfigEntry flags[] =
+{
+    { QCommandLine::Option, '\0', "cookies-file", "Sets the file name to store the persistent cookies", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "config", "Specifies JSON-formatted configuration file", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "debug", "Prints additional warning and debug message: 'yes' or 'no' (default)", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "disk-cache", "Enables disk cache: 'yes' (default) or 'no'", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "ignore-ssl-errors", "Ignores SSL errors (expired/self-signed certificate errors): 'yes' or 'no' (default)", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "load-images", "Loads all inlined images: 'yes' (default) or 'no'", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "local-storage-path", "Specifies the location for offline local storage", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "local-storage-quota", "Sets the maximum size of the offline local storage (in KB)", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "local-to-remote-url-access", "Allows local content to access remote URL: 'yes' or 'no' (default)", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "max-disk-cache-size", "Limits the size of the disk cache (in KB)", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "output-encoding", "Sets the encoding for the terminal output, default is 'utf8'", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "remote-debugger-port", "Starts the script in a debug harness and listens on the specified port", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "remote-debugger-autorun", "Runs the script in the debugger immediately: 'yes' or 'no' (default)", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "proxy", "Sets the proxy server, e.g. '--proxy=http://proxy.company.com:8080'", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "proxy-auth", "Provides authentication information for the proxy, e.g. ''-proxy-auth=username:password'", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "proxy-type", "Specifies the proxy type, 'http' (default) or 'socks5'", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "script-encoding", "Sets the encoding used for the starting script, default is 'utf8'", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "web-security", "Enables web security, 'yes' (default) or 'no'", QCommandLine::Optional },
+    { QCommandLine::Param, NULL, "script", "Script", QCommandLine::Optional },
+    { QCommandLine::Param, NULL, "argument", "Script argument", QCommandLine::OptionalMultiple },
+    { QCommandLine::Switch, 'h', "help", "Shows this message and quits", QCommandLine::Optional },
+    { QCommandLine::Switch, 'v', "version", "Prints out PhantomJS version", QCommandLine::Optional },
+    QCOMMANDLINE_CONFIG_ENTRY_END
+};
+
 Config::Config(QObject *parent)
     : QObject(parent)
 {
+    m_cmdLine = new QCommandLine;
     resetToDefaults();
 }
 
@@ -54,134 +85,14 @@ void Config::init(const QStringList *const args)
 
 void Config::processArgs(const QStringList &args)
 {
-    QStringListIterator it(args);
-    while (it.hasNext()) {
-        const QString &arg = it.next();
+    connect(m_cmdLine, SIGNAL(switchFound(const QString &)), this, SLOT(handleSwitch(const QString &)));
+    connect(m_cmdLine, SIGNAL(optionFound(const QString &, const QVariant &)), this, SLOT(handleOption(const QString &, const QVariant &)));
+    connect(m_cmdLine, SIGNAL(paramFound(const QString &, const QVariant &)), this, SLOT(handleParam(const QString &, const QVariant &)));
+    connect(m_cmdLine, SIGNAL(parseError(const QString &)), this, SLOT(handleError(const QString &)));
 
-        if (arg == "--help" || arg == "-h") {
-            setHelpFlag(true);
-            return;
-        }
-        if (arg == "--version" || arg == "-v") {
-            setVersionFlag(true);
-            return;
-        }
-        if (arg == "--load-images=yes") {
-            setAutoLoadImages(true);
-            continue;
-        }
-        if (arg == "--load-images=no") {
-            setAutoLoadImages(false);
-            continue;
-        }
-        if (arg == "--disk-cache=yes") {
-            setDiskCacheEnabled(true);
-            continue;
-        }
-        if (arg == "--disk-cache=no") {
-            setDiskCacheEnabled(false);
-            continue;
-        }
-        if (arg.startsWith("--max-disk-cache-size=")) {
-            setMaxDiskCacheSize(arg.mid(arg.indexOf("=") + 1).trimmed().toInt());
-            continue;
-        }
-        if (arg == "--ignore-ssl-errors=yes") {
-            setIgnoreSslErrors(true);
-            continue;
-        }
-        if (arg == "--ignore-ssl-errors=no") {
-            setIgnoreSslErrors(false);
-            continue;
-        }
-        if (arg == "--local-to-remote-url-access=no") {
-            setLocalToRemoteUrlAccessEnabled(false);
-            continue;
-        }
-        if (arg == "--local-to-remote-url-access=yes") {
-            setLocalToRemoteUrlAccessEnabled(true);
-            continue;
-        }
-        if (arg.startsWith("--proxy-type=")) {
-            setProxyType(arg.mid(13).trimmed());
-            continue;
-        }
-        if (arg.startsWith("--proxy-auth=")){
-            setProxyAuth(arg.mid(13).trimmed());
-            continue;
-        }
-        if (arg.startsWith("--proxy=")) {
-            setProxy(arg.mid(8).trimmed());
-            continue;
-        }
-        if (arg.startsWith("--cookies-file=")) {
-            setCookiesFile(arg.mid(15).trimmed());
-            continue;
-        }
-        if (arg.startsWith("--local-storage-path=")) {
-            setOfflineStoragePath(arg.mid(21).trimmed());
-            continue;
-        }
-        if (arg.startsWith("--local-storage-quota=")) {
-            setOfflineStorageDefaultQuota(arg.mid(arg.indexOf("=") + 1).trimmed().toInt());
-            continue;
-        }
-        if (arg.startsWith("--output-encoding=")) {
-            setOutputEncoding(arg.mid(18).trimmed());
-            continue;
-        }
-        if (arg.startsWith("--script-encoding=")) {
-            setScriptEncoding(arg.mid(18).trimmed());
-            continue;
-        }
-        if (arg.startsWith("--config=")) {
-            QString configPath = arg.mid(9).trimmed();
-            loadJsonFile(configPath);
-            continue;
-        }
-        if (arg.startsWith("--remote-debugger-port=")) {
-            setDebug(true);
-            setRemoteDebugPort(arg.mid(23).trimmed().toInt());
-            continue;
-        }
-        if (arg == "--remote-debugger-autorun=yes") {
-            setRemoteDebugAutorun(true);
-            continue;
-        }
-        if (arg == "--remote-debugger-autorun=no") {
-            setRemoteDebugAutorun(false);
-            continue;
-        }
-        if (arg == "--web-security=yes") {
-            setWebSecurityEnabled(true);
-            continue;
-        }
-        if (arg == "--web-security=no") {
-            setWebSecurityEnabled(false);
-            continue;
-        }
-        if (arg == "--debug=yes") {
-            setPrintDebugMessages(true);
-            continue;
-        }
-        if (arg == "--debug=no") {
-            setPrintDebugMessages(false);
-            continue;
-        }
-        if (arg.startsWith("--")) {
-            setUnknownOption(QString("Unknown option '%1'").arg(arg));
-            return;
-        }
-
-        // There are no more options at this point.
-        // The remaining arguments are available for the script.
-
-        m_scriptFile = arg;
-
-        while (it.hasNext()) {
-            m_scriptArgs += it.next();
-        }
-    }
+    m_cmdLine->setArguments(args);
+    m_cmdLine->setConfig(flags);
+    m_cmdLine->parse();
 }
 
 void Config::loadJsonFile(const QString &filePath)
@@ -214,6 +125,11 @@ void Config::loadJsonFile(const QString &filePath)
     webPage.mainFrame()->addToJavaScriptWindowObject("config", this);
     // Apply the JSON config settings to this very object
     webPage.mainFrame()->evaluateJavaScript(configurator.arg(jsonConfig), QString());
+}
+
+QString Config::helpText() const
+{
+    return m_cmdLine->help();
 }
 
 bool Config::autoLoadImages() const
@@ -573,3 +489,117 @@ void Config::setPrintDebugMessages(const bool value)
 {
     m_printDebugMessages = value;
 }
+
+void Config::handleSwitch(const QString &sw)
+{
+    setHelpFlag(sw == "help");
+    setVersionFlag(sw == "version");
+}
+
+void Config::handleOption(const QString &option, const QVariant &value)
+{
+    bool boolValue = false;
+
+    QStringList booleanFlags;
+    booleanFlags << "debug";
+    booleanFlags << "disk-cache";
+    booleanFlags << "ignore-ssl-errors";
+    booleanFlags << "load-images";
+    booleanFlags << "local-to-remote-url-access";
+    booleanFlags << "remote-debugger-autorun";
+    booleanFlags << "web-security";
+    if (booleanFlags.indexOf(option)) {
+        if ((value != "true") && (value != "yes") && (value != "false") && (value != "no")) {
+            setUnknownOption(QString("Invalid values for '%1' option.").arg(option));
+            return;
+        }
+        boolValue = (value == "true") || (value == "yes");
+    }
+
+    if (option == "cookies-file") {
+        setCookiesFile(value.toString());
+    }
+
+    if (option == "config") {
+        loadJsonFile(value.toString());
+    }
+
+    if (option == "debug") {
+        setPrintDebugMessages(boolValue);
+    }
+
+    if (option == "disk-cache") {
+        setDiskCacheEnabled(boolValue);
+    }
+
+    if (option == "ignore-ssl-errors") {
+        setIgnoreSslErrors(boolValue);
+    }
+
+    if (option == "load-images") {
+        setAutoLoadImages(boolValue);
+    }
+
+    if (option == "local-storage-path") {
+        setOfflineStoragePath(value.toString());
+    }
+
+    if (option == "local-storage-quota") {
+        setOfflineStorageDefaultQuota(value.toInt());
+    }
+
+    if (option == "local-to-remote-url-access") {
+        setLocalToRemoteUrlAccessEnabled(boolValue);
+    }
+
+    if (option == "max-disk-cache") {
+        setMaxDiskCacheSize(value.toInt());
+    }
+
+    if (option == "output-encoding") {
+        setOutputEncoding(value.toString());
+    }
+
+    if (option == "remote-debugger-autorun") {
+        setRemoteDebugAutorun(boolValue);
+    }
+
+    if (option == "remote-debugger-port") {
+        setDebug(true);
+        setRemoteDebugPort(value.toInt());
+    }
+
+    if (option == "proxy") {
+        setProxy(value.toString());
+    }
+
+    if (option == "proxy-type") {
+        setProxyType(value.toString());
+    }
+
+    if (option == "proxy-auth") {
+        setProxyAuth(value.toString());
+    }
+
+    if (option == "script-encoding") {
+        setScriptEncoding(value.toString());
+    }
+
+    if (option == "web-security") {
+        setWebSecurityEnabled(boolValue);
+    }
+}
+
+void Config::handleParam(const QString& param, const QVariant &value)
+{
+    if (m_scriptFile.isEmpty())
+        m_scriptFile = value.toString();
+    else
+        m_scriptArgs += value.toString();
+}
+
+void Config::handleError(const QString &error)
+{
+    setUnknownOption(QString("Error: %1").arg(error));
+}
+

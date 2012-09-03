@@ -45,7 +45,7 @@ SOURCES += phantom.cpp \
     repl.cpp \
     replcompletable.cpp
 
-OTHER_FILES += usage.txt \
+OTHER_FILES += \
     bootstrap.js \
     configurator.js \
     modules/fs.js \

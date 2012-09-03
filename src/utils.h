@@ -51,7 +51,6 @@ class QTemporaryFile;
 class Utils
 {
 public:
-    static void showUsage();
     static void messageHandler(QtMsgType type, const char *msg);
 #ifdef Q_OS_WIN32
     static bool exceptionHandler(const wchar_t* dump_path, const wchar_t* minidump_id, void* context, EXCEPTION_POINTERS* exinfo, MDRawAssertionInfo *assertion, bool succeeded);

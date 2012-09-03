@@ -34,6 +34,9 @@
 #include <QString>
 #include <QStringList>
 #include <QNetworkProxy>
+#include <QVariant>
+
+class QCommandLine;
 
 class Config: QObject
 {
@@ -61,6 +64,8 @@ public:
     void init(const QStringList *const args);
     void processArgs(const QStringList &args);
     void loadJsonFile(const QString &filePath);
+
+    QString helpText() const;
 
     bool autoLoadImages() const;
     void setAutoLoadImages(const bool value);
@@ -143,6 +148,12 @@ public:
     void setJavascriptCanCloseWindows(const bool value);
     bool javascriptCanCloseWindows() const;
 
+public slots:
+    void handleSwitch(const QString &sw);
+    void handleOption(const QString &option, const QVariant &value);
+    void handleParam(const QString& param, const QVariant &value);
+    void handleError(const QString &error);
+
 private:
     void resetToDefaults();
     void setProxyHost(const QString &value);
@@ -150,6 +161,7 @@ private:
     void setAuthUser(const QString &value);
     void setAuthPass(const QString &value);
 
+    QCommandLine *m_cmdLine;
     bool m_autoLoadImages;
     QString m_cookiesFile;
     QString m_offlineStoragePath;

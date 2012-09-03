@@ -2,7 +2,6 @@
     <qresource prefix="/">
         <file>remote_debugger_harness.html</file>
         <file>phantomjs-icon.png</file>
-        <file>usage.txt</file>
         <file>bootstrap.js</file>
         <file>configurator.js</file>
         <file>modules/webpage.js</file>

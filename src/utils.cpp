@@ -42,12 +42,6 @@ QTemporaryFile* Utils::m_tempHarness = 0;
 QTemporaryFile* Utils::m_tempWrapper = 0;
 bool Utils::printDebugMessages = false;
 
-// public:
-void Utils::showUsage()
-{
-    Terminal::instance()->cout(Utils::readResourceFileUtf8(":/usage.txt"));
-}
-
 void Utils::messageHandler(QtMsgType type, const char *msg)
 {
     QDateTime now = QDateTime::currentDateTime();
