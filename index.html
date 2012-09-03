@@ -58,8 +58,8 @@
 <strong>Simple Javascript example</strong>
 
 <span class="object">console</span>.<span class="function">log</span>(<span class="literal">'Loading a web page'</span>);
-var <span class="object">page</span> = new <span class="object">WebPage</span>();
-var <span class="object">url</span> = <span class="literal">"http://www.phantomjs.org/"</span>;
+var <span class="object">page</span> = require(<span class="literal">'webpage'</span>).<span class="function">create</span>();
+var <span class="object">url</span> = <span class="literal">'http://www.phantomjs.org/'</span>;
 <span class="object">page</span>.<span class="function">open</span>(url, <span class="function">function</span> (status) {
     <span class="comment">//Page is loaded!</span>
     <span class="object">phantom</span>.<span class="function">exit</span>();
