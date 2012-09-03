@@ -29,8 +29,9 @@
 
 #include "system.h"
 
-#include <QVariantMap>
+#include <QSslSocket>
 #include <QSysInfo>
+#include <QVariantMap>
 
 #include "../env.h"
 
@@ -139,10 +140,16 @@ QVariant System::os() const
     return m_os;
 }
 
+bool System::isSSLSupported() const
+{
+    return QSslSocket::supportsSsl();
+}
+
 void System::initCompletions()
 {
     addCompletion("args");
     addCompletion("env");
     addCompletion("platform");
     addCompletion("os");
+    addCompletion("isSSLSupported");
 }

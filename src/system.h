@@ -45,6 +45,7 @@ class System : public REPLCompletable
     Q_PROPERTY(QStringList args READ args)
     Q_PROPERTY(QVariant env READ env)
     Q_PROPERTY(QVariant os READ os)
+    Q_PROPERTY(bool isSSLSupported READ isSSLSupported)
 
 public:
     explicit System(QObject *parent = 0);
@@ -55,6 +56,8 @@ public:
     QVariant env() const;
 
     QVariant os() const;
+
+    bool isSSLSupported() const;
 
 private:
     QStringList m_args;
