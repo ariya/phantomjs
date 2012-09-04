@@ -15,6 +15,7 @@ Please see also http://code.google.com/p/phantomjs/wiki/ReleaseNotes.
       * Added support for passing arguments to WebPage's evaluate (issue 132)
       * Added callbacks for JavaScript onConfirm and onPrompt (issue 133)
       * Added stack trace when error occurs (issue 166)
+      * Added support for local storage path and quota (issue 300)
       * Added initial support for cookies handling (issue 354)
       * Added support for header footer when printing the page (issue 410, 512)
       * Added headers support in the loading request (issue 452)
