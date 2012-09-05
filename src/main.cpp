@@ -47,33 +47,6 @@ static google_breakpad::ExceptionHandler* eh;
 #if !defined(QT_SHARED) && !defined(QT_DLL)
 #include <QtPlugin>
 
-// HACK: When linking a static PhantomJS + MSVC agains the
-// static Qt included in PhantomJS, we get linker errors.
-// This noop function can cure them.
-#include <QUuid>
-#include <QPainter>
-#include <QXmlStreamAttributes>
-#include <QFileDialog>
-#include <QPainter>
-#include <QToolTip>
-#include <QStandardItem>
-void makeLinkerHappy()
-{
-    QWidget().colorCount();
-    QUuid().createUuid();
-    QPainter().drawImage(QPointF(), QImage(), QRect());
-    const QXmlStreamAttributes foo;
-    foo[0];
-    QFileDialog().getOpenFileName();
-    QPainter::staticMetaObject.indexOfMethod(0);
-    QToolTip::hideText();
-    QStandardItem standardItem;
-    standardItem.setForeground(QBrush());
-    standardItem.setBackground(QBrush());
-    standardItem.setToolTip(QString());
-}
-// End of linker hack.
-
 Q_IMPORT_PLUGIN(qcncodecs)
 Q_IMPORT_PLUGIN(qjpcodecs)
 Q_IMPORT_PLUGIN(qkrcodecs)
