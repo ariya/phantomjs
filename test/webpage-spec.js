@@ -169,6 +169,9 @@ describe("WebPage object", function() {
     expectHasFunction(page, 'switchToMainFrame');
     expectHasFunction(page, 'switchToParentFrame');
     expectHasFunction(page, 'currentFrameName');
+    expectHasFunction(page, 'addCookie');
+    expectHasFunction(page, 'deleteCookie');
+    expectHasFunction(page, 'clearCookies');
 
     it("should handle keydown event", function() {
         runs(function() {
@@ -595,7 +598,7 @@ describe("WebPage object", function() {
 
     });
 
-    it("should set valid cookies properly", function() {
+    it("should set valid cookie properly, then remove it", function() {
         var server = require('webserver').create();
         server.listen(12345, function(request, response) {
             // echo received request headers in response body
@@ -606,8 +609,8 @@ describe("WebPage object", function() {
         var url = "http://localhost:12345/foo/headers.txt?ab=cd";
 
         page.cookies = [{
-            'name' : 'Cookie-Name',
-            'value' : 'Cookie-Value',
+            'name' : 'Valid-Cookie-Name',
+            'value' : 'Valid-Cookie-Value',
             'domain' : 'localhost',
             'path' : '/foo',
             'httponly' : true,
@@ -623,7 +626,8 @@ describe("WebPage object", function() {
 
                 var echoedHeaders = JSON.parse(page.plainText);
                 // console.log(JSON.stringify(echoedHeaders));
-                expect(echoedHeaders["Cookie"]).toContain("Cookie-Value");
+                expect(echoedHeaders["Cookie"]).toContain("Valid-Cookie-Name");
+                expect(echoedHeaders["Cookie"]).toContain("Valid-Cookie-Value");
             });
         });
 
@@ -631,10 +635,11 @@ describe("WebPage object", function() {
 
         runs(function() {
             expect(handled).toEqual(true);
-            page.cookies = [];
+            expect(page.cookies.length).toNotBe(0);
+            page.cookies = []; //< delete all the cookies visible to this URL
+            expect(page.cookies.length).toBe(0);
             server.close();
         });
-
     });
 
     it("should not set invalid cookies", function() {
@@ -648,28 +653,30 @@ describe("WebPage object", function() {
         var url = "http://localhost:12345/foo/headers.txt?ab=cd";
 
         page.cookies = [
-        {   // domain field missing.
-            'name' : 'Cookie-Name',
-            'value' : 'Cookie-Value',
+        {   // domain missing.
+            'name' : 'Invalid-Cookie-Name',
+            'value' : 'Invalid-Cookie-Value'
         },{ // domain mismatch.
-            'name' : 'Cookie-Name',
-            'value' : 'Cookie-Value',
+            'name' : 'Invalid-Cookie-Name',
+            'value' : 'Invalid-Cookie-Value',
             'domain' : 'foo.com'
-        },{ // path mismatch.
-            'name' : 'Cookie-Name',
-            'value' : 'Cookie-Value',
+        },{ // path mismatch: the cookie will be set,
+            // but won't be visible from the given URL (not same path).
+            'name' : 'Invalid-Cookie-Name',
+            'value' : 'Invalid-Cookie-Value',
             'domain' : 'localhost',
-            'path' : '/bar',
+            'path' : '/bar'
         },{ // cookie expired.
-            'name' : 'Cookie-Name',
-            'value' : 'Cookie-Value',
+            'name' : 'Invalid-Cookie-Name',
+            'value' : 'Invalid-Cookie-Value',
             'domain' : 'localhost',
-            'expires' : 'Sat, 09 Jun 2012 00:00:00 GMT',
-        },{ // https only.
-            'name' : 'Cookie-Name',
-            'value' : 'Cookie-Value',
+            'expires' : 'Sat, 09 Jun 2012 00:00:00 GMT'
+        },{ // https only: the cookie will be set,
+            // but won't be visible from the given URL (not https).
+            'name' : 'Invalid-Cookie-Name',
+            'value' : 'Invalid-Cookie-Value',
             'domain' : 'localhost',
-            'secure' : true,
+            'secure' : true
         }];
 
         var handled = false;
@@ -689,10 +696,82 @@ describe("WebPage object", function() {
 
         runs(function() {
             expect(handled).toEqual(true);
-            page.cookies = [];
+            expect(page.cookies.length).toBe(0);
+            page.clearCookies(); //< delete all the cookies visible to this URL
+            expect(page.cookies.length).toBe(0);
             server.close();
         });
+    });
 
+    it("should add a cookie", function() {
+        var server = require('webserver').create();
+        server.listen(12345, function(request, response) {
+            // echo received request headers in response body
+            response.write(JSON.stringify(request.headers));
+            response.close();
+        });
+
+        var url = "http://localhost:12345/foo/headers.txt?ab=cd";
+
+        page.addCookie({
+            'name' : 'Added-Cookie-Name',
+            'value' : 'Added-Cookie-Value',
+            'domain' : 'localhost'
+        });
+
+        var handled = false;
+        runs(function() {
+            expect(handled).toEqual(false);
+            page.open(url, function (status) {
+                expect(status == 'success').toEqual(true);
+                handled = true;
+
+                var echoedHeaders = JSON.parse(page.plainText);
+                // console.log(JSON.stringify(echoedHeaders));
+                expect(echoedHeaders["Cookie"]).toContain("Added-Cookie-Name");
+                expect(echoedHeaders["Cookie"]).toContain("Added-Cookie-Value");
+            });
+        });
+
+        waits(50);
+
+        runs(function() {
+            expect(handled).toEqual(true);
+            server.close();
+        });
+    });
+
+    it("should delete a cookie", function() {
+        var server = require('webserver').create();
+        server.listen(12345, function(request, response) {
+            // echo received request headers in response body
+            response.write(JSON.stringify(request.headers));
+            response.close();
+        });
+
+        var url = "http://localhost:12345/foo/headers.txt?ab=cd";
+
+        page.deleteCookie("Added-Cookie-Name");
+
+        var handled = false;
+        runs(function() {
+            expect(handled).toEqual(false);
+            page.open(url, function (status) {
+                expect(status == 'success').toEqual(true);
+                handled = true;
+
+                var echoedHeaders = JSON.parse(page.plainText);
+                // console.log(JSON.stringify(echoedHeaders));
+                expect(echoedHeaders["Cookie"]).toBeUndefined();
+            });
+        });
+
+        waits(50);
+
+        runs(function() {
+            expect(handled).toEqual(true);
+            server.close();
+        });
     });
 
     it("should pass variables to functions properly", function() {

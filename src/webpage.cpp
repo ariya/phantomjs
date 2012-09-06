@@ -61,6 +61,7 @@
 #include "config.h"
 #include "consts.h"
 #include "callback.h"
+#include "cookiejar.h"
 
 // Ensure we have at least head and body.
 #define BLANK_HTML                      "<html><head></head><body></body></html>"
@@ -563,12 +564,33 @@ QVariantMap WebPage::customHeaders() const
 
 void WebPage::setCookies(const QVariantList &cookies)
 {
-    m_networkAccessManager->setCookies(cookies);
+    // Delete all the cookies for this URL
+    CookieJar::instance()->deleteCookies(this->url());
+    // Add a new set of cookies foor this URL
+    CookieJar::instance()->addCookiesFromMap(cookies, this->url());
 }
 
 QVariantList WebPage::cookies() const
 {
-    return m_networkAccessManager->cookies();
+    // Return all the Cookies visible to this Page, as a list of Maps (aka JSON in JS space)
+    return CookieJar::instance()->cookiesToMap(this->url());
+}
+
+void WebPage::addCookie(const QVariantMap &cookie)
+{
+    CookieJar::instance()->addCookieFromMap(cookie, this->url());
+}
+
+void WebPage::deleteCookie(const QString &cookieName)
+{
+    if (!cookieName.isEmpty()) {
+        CookieJar::instance()->deleteCookie(cookieName, this->url());
+    }
+}
+
+void WebPage::clearCookies()
+{
+    CookieJar::instance()->deleteCookie(this->url());
 }
 
 void WebPage::openUrl(const QString &address, const QVariant &op, const QVariantMap &settings)
@@ -1251,6 +1273,7 @@ void WebPage::initCompletions()
     addCompletion("frameName");
     addCompletion("framesName");
     addCompletion("framesCount");
+    addCompletion("cookies");
     // functions
     addCompletion("evaluate");
     addCompletion("includeJs");
@@ -1265,6 +1288,9 @@ void WebPage::initCompletions()
     addCompletion("switchToFrame");
     addCompletion("switchToMainFrame");
     addCompletion("switchToParentFrame");
+    addCompletion("addCookie");
+    addCompletion("deleteCookie");
+    addCompletion("clearCookies");
     // callbacks
     addCompletion("onAlert");
     addCompletion("onCallback");

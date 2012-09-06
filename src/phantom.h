@@ -55,6 +55,7 @@ class Phantom: public REPLCompletable
     Q_PROPERTY(QVariantMap version READ version)
     Q_PROPERTY(QObject *page READ page)
     Q_PROPERTY(QVariantMap keys READ keys)
+    Q_PROPERTY(bool cookiesEnabled READ areCookiesEnabled WRITE setCookiesEnabled)
 
 private:
     // Private constructor: the Phantom class is a singleton
@@ -96,6 +97,9 @@ public:
     bool printDebugMessages() const;
 
     QVariantMap keys() const;
+
+    bool areCookiesEnabled() const;
+    void setCookiesEnabled(const bool value);
 
 public slots:
     QObject *createWebPage();

@@ -2,6 +2,7 @@
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
+  Copyright (C) 2012 Ivan De Marino <ivan.de.marino@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -30,20 +31,53 @@
 #ifndef COOKIEJAR_H
 #define COOKIEJAR_H
 
+#include <QSettings>
 #include <QNetworkCookieJar>
+#include <QVariantList>
+#include <QVariantMap>
 
 class CookieJar: public QNetworkCookieJar
 {
+    Q_OBJECT
+
 private:
-    QString m_cookiesFile;
+    CookieJar(QString cookiesFile, QObject *parent = NULL);
 
 public:
-    CookieJar(QString cookiesFile);
+    static CookieJar *instance(QString cookiesFile = QString());
+    virtual ~CookieJar();
 
-    bool setCookiesFromUrl(const QList<QNetworkCookie> & cookieList, const QUrl & url);
+    bool setCookiesFromUrl(const QList<QNetworkCookie> &cookieList, const QUrl & url);
     QList<QNetworkCookie> cookiesForUrl (const QUrl & url) const;
-    void setCookies(const QVariantList &cookies);
-    QVariantList cookies() const;
+
+    void addCookie(const QNetworkCookie &cookie, const QString &url = QString());
+    void addCookieFromMap(const QVariantMap &cookie, const QString &url = QString());
+    void addCookies(const QList<QNetworkCookie> &cookiesList, const QString &url = QString());
+    void addCookiesFromMap(const QVariantList &cookiesList, const QString &url = QString());
+
+    QList<QNetworkCookie> cookies(const QString &url = QString()) const;
+    QVariantList cookiesToMap(const QString &url = QString()) const;
+
+    QNetworkCookie cookie(const QString &name, const QString &url = QString()) const;
+    QVariantMap cookieToMap(const QString &name, const QString &url = QString()) const;
+
+    void deleteCookie(const QString &name, const QString &url = QString());
+    void deleteCookies(const QString &url = QString());
+    void clearCookies();
+
+    void enable();
+    void disable();
+    bool isEnabled() const;
+
+private slots:
+    void save();
+    void load();
+    bool purgeExpiredCookies();
+    bool purgeSessionCookies();
+
+private:
+    QSettings *m_cookieStorage;
+    bool m_enabled;
 };
 
 #endif // COOKIEJAR_H

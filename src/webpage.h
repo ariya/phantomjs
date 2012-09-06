@@ -329,8 +329,53 @@ public slots:
      */
     QString currentFrameName() const;
 
+    /**
+     * Allows to set cookies by this Page, at the current URL.
+     * This means that loading new URLs, causes the cookies to change dynamically
+     * as in a normal desktop browser.
+     *
+     * Cookies are expected in the format:
+     * <pre>
+     * {
+     *   "name"     : "cookie name (string)",
+     *   "value"    : "cookie value (string)",
+     *   "domain"   : "cookie domain (string)",
+     *   "path"     : "cookie path (string, optional)",
+     *   "httponly" : "http only cookie (boolean, optional)",
+     *   "secure"   : "secure cookie (boolean, optional)",
+     *   "expires"  : "expiration date (string, GMT format, optional)"
+     * }
+     * </pre>
+     * @brief setCookies
+     * @param cookies Expects a QList of QVariantMaps
+     */
     void setCookies(const QVariantList &cookies);
+    /**
+     * Cookies visible by this Page, at the current URL.
+     *
+     * @see WebPage::setCookies for details on the format
+     * @brief cookies
+     * @return QList of QVariantMap cookies visible to this Page, at the current URL.
+     */
     QVariantList cookies() const;
+    /**
+     * Add a Cookie in QVariantMap format
+     * @see WebPage::setCookies for details on the format
+     * @brief addCookie
+     * @param cookie Cookie in QVariantMap format
+     */
+    void addCookie(const QVariantMap &cookie);
+    /**
+     * Delete cookie by name from the ones visible by this Page, at the current URL
+     * @brief deleteCookie
+     * @param cookieName Name of the Cookie to delete
+     */
+    void deleteCookie(const QString &cookieName);
+    /**
+     * Delete All Cookies visible by this Page, at the current URL
+     * @brief clearCookies
+     */
+    void clearCookies();
 
 signals:
     void initialized();

@@ -36,6 +36,7 @@
 #include <QNetworkRequest>
 #include <QSslSocket>
 
+#include "phantom.h"
 #include "config.h"
 #include "cookiejar.h"
 #include "networkaccessmanager.h"
@@ -73,7 +74,7 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
     , m_idCounter(0)
     , m_networkDiskCache(0)
 {
-    setCookieJar(new CookieJar(config->cookiesFile()));
+    setCookieJar(CookieJar::instance());
 
     if (config->diskCacheEnabled()) {
         m_networkDiskCache = new QNetworkDiskCache(this);
@@ -107,16 +108,14 @@ QVariantMap NetworkAccessManager::customHeaders() const
     return m_customHeaders;
 }
 
-void NetworkAccessManager::setCookies(const QVariantList &cookies)
+void NetworkAccessManager::setCookieJar(QNetworkCookieJar *cookieJar)
 {
-    CookieJar* cookiejar = static_cast<CookieJar*>(cookieJar());
-    cookiejar->setCookies(cookies);
-}
-
-QVariantList NetworkAccessManager::cookies() const
-{
-    CookieJar* cookiejar = static_cast<CookieJar*>(cookieJar());
-    return cookiejar->cookies();
+    QNetworkAccessManager::setCookieJar(cookieJar);
+    // Remove NetworkAccessManager's ownership of this CookieJar and
+    // pass it to the PhantomJS Singleton object.
+    // CookieJar is a SINGLETON, shouldn't be deleted when
+    // the NetworkAccessManager is deleted but only when we shutdown.
+    cookieJar->setParent(Phantom::instance());
 }
 
 // protected:
