@@ -49,7 +49,11 @@ class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
 {
     Q_OBJECT
     Q_PROPERTY(QString content READ content WRITE setContent)
+    Q_PROPERTY(QString frameContent READ frameContent WRITE setFrameContent)
+    Q_PROPERTY(QString url READ url)
+    Q_PROPERTY(QString frameUrl READ frameUrl)
     Q_PROPERTY(QString plainText READ plainText)
+    Q_PROPERTY(QString framePlainText READ framePlainText)
     Q_PROPERTY(QString libraryPath READ libraryPath WRITE setLibraryPath)
     Q_PROPERTY(QString offlineStoragePath READ offlineStoragePath)
     Q_PROPERTY(int offlineStorageQuota READ offlineStorageQuota)
@@ -76,9 +80,15 @@ public:
     QWebFrame *mainFrame();
 
     QString content() const;
+    QString frameContent() const;
     void setContent(const QString &content);
+    void setFrameContent(const QString &content);
+
+    QString url() const;
+    QString frameUrl() const;
 
     QString plainText() const;
+    QString framePlainText() const;
 
     QString libraryPath() const;
     void setLibraryPath(const QString &dirPath);

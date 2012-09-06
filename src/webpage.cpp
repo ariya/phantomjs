@@ -344,14 +344,39 @@ QString WebPage::content() const
     return m_mainFrame->toHtml();
 }
 
+QString WebPage::frameContent() const
+{
+    return m_customWebPage->currentFrame()->toHtml();
+}
+
 void WebPage::setContent(const QString &content)
 {
     m_mainFrame->setHtml(content);
 }
 
+void WebPage::setFrameContent(const QString &content)
+{
+    m_customWebPage->currentFrame()->setHtml(content);
+}
+
+QString WebPage::url() const
+{
+    return m_mainFrame->url().toString();
+}
+
+QString WebPage::frameUrl() const
+{
+    return m_customWebPage->currentFrame()->url().toString();
+}
+
 QString WebPage::plainText() const
 {
     return m_mainFrame->toPlainText();
+}
+
+QString WebPage::framePlainText() const
+{
+    return m_customWebPage->currentFrame()->toPlainText();
 }
 
 QString WebPage::libraryPath() const
