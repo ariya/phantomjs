@@ -49,8 +49,8 @@ public:
     void setPassword(const QString &password);
     void setCustomHeaders(const QVariantMap &headers);
     QVariantMap customHeaders() const;
-    void setCookies(const QVariantList &cookies);
-    QVariantList cookies() const;
+
+    void setCookieJar(QNetworkCookieJar *cookieJar);
 
 protected:
     bool m_ignoreSslErrors;

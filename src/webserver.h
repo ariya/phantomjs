@@ -35,8 +35,6 @@
 #include <QMutex>
 #include <QSemaphore>
 
-///TODO: is this ok, or should it be put into .cpp
-///      can be done by introducing a WebServerPrivate *d;
 #include "mongoose.h"
 #include "replcompletable.h"
 

@@ -157,6 +157,7 @@ describe("WebPage object", function() {
     expectHasFunction(page, 'loadStarted');
     expectHasFunction(page, 'openUrl');
     expectHasFunction(page, 'release');
+    expectHasFunction(page, 'close');
     expectHasFunction(page, 'render');
     expectHasFunction(page, 'resourceReceived');
     expectHasFunction(page, 'resourceRequested');
@@ -168,6 +169,9 @@ describe("WebPage object", function() {
     expectHasFunction(page, 'switchToMainFrame');
     expectHasFunction(page, 'switchToParentFrame');
     expectHasFunction(page, 'currentFrameName');
+    expectHasFunction(page, 'addCookie');
+    expectHasFunction(page, 'deleteCookie');
+    expectHasFunction(page, 'clearCookies');
 
     it("should handle keydown event", function() {
         runs(function() {
@@ -242,7 +246,7 @@ describe("WebPage object", function() {
                 return page.evaluate(function() {
                     return document.querySelector('input').value;
                 });
-            }
+            };
             page.sendEvent('keypress', phantom.keys.A);
             expect(getText()).toEqual("A");
             page.sendEvent('keypress', phantom.keys.B);
@@ -431,7 +435,7 @@ describe("WebPage object", function() {
 
         runs(function() {
             page.evaluate(function() {
-                setTimeout(function() { referenceError }, 0);
+                setTimeout(function() { referenceError(); }, 0);
             });
         });
 
@@ -440,13 +444,13 @@ describe("WebPage object", function() {
         runs(function() {
             expect(lastError).toEqual("ReferenceError: Can't find variable: referenceError");
 
-            page.evaluate(function() { referenceError2 });
+            page.evaluate(function() { referenceError2(); });
             expect(lastError).toEqual("ReferenceError: Can't find variable: referenceError2");
 
-            page.evaluate(function() { throw "foo" });
+            page.evaluate(function() { throw "foo"; });
             expect(lastError).toEqual("foo");
 
-            page.evaluate(function() { throw Error("foo") });
+            page.evaluate(function() { throw Error("foo"); });
             expect(lastError).toEqual("Error: foo");
         });
     });
@@ -462,32 +466,32 @@ describe("WebPage object", function() {
                 caughtError = false;
 
                 try {
-                    referenceError
+                    referenceError();
                 } catch(e) {
                     caughtError = true;
                 }
             });
 
             expect(hadError).toEqual(false);
-            expect(page.evaluate(function() { return caughtError })).toEqual(true);
+            expect(page.evaluate(function() { return caughtError; })).toEqual(true);
         });
-    })
+    });
 
     it("reports the sourceURL and line of errors", function() {
         runs(function() {
             var e1, e2;
 
             try {
-                referenceError
+                referenceError();
             } catch (e) {
-                e1 = e
-            };
+                e1 = e;
+            }
 
             try {
-                referenceError
+                referenceError();
             } catch (e) {
-                e2 = e
-            };
+                e2 = e;
+            }
 
             expect(e1.sourceURL).toMatch(/webpage-spec.js$/);
             expect(e1.line).toBeGreaterThan(1);
@@ -503,15 +507,15 @@ describe("WebPage object", function() {
 
         runs(function() {
             function test() {
-                ErrorHelper.foo()
-            };
+                ErrorHelper.foo();
+            }
 
             var err;
             try {
-                test()
+                test();
             } catch (e) {
-                err = e
-            };
+                err = e;
+            }
 
             var lines = err.stack.split("\n");
 
@@ -522,8 +526,8 @@ describe("WebPage object", function() {
 
             page.injectJs(helperFile);
 
-            page.onError = function(message, s) { stack = s };
-            page.evaluate(function() { setTimeout(function() { ErrorHelper.foo() }, 0) });
+            page.onError = function(message, s) { stack = s; };
+            page.evaluate(function() { setTimeout(function() { ErrorHelper.foo(); }, 0); });
         });
 
         waits(0);
@@ -531,16 +535,16 @@ describe("WebPage object", function() {
         runs(function() {
             expect(stack[0].file).toEqual("./fixtures/error-helper.js");
             expect(stack[0].line).toEqual(7);
-            expect(stack[0].function).toEqual("bar");
+            expect(stack[0]["function"]).toEqual("bar");
         });
     });
 
     it("reports errors that occur in the main context", function() {
         var error;
-        phantom.onError = function(e) { error = e };
+        phantom.onError = function(e) { error = e; };
 
         runs(function() {
-            setTimeout(function() { zomg }, 0);
+            setTimeout(function() { zomg(); }, 0);
         });
 
         waits(0);
@@ -594,7 +598,7 @@ describe("WebPage object", function() {
 
     });
 
-    it("should set valid cookies properly", function() {
+    it("should set valid cookie properly, then remove it", function() {
         var server = require('webserver').create();
         server.listen(12345, function(request, response) {
             // echo received request headers in response body
@@ -605,8 +609,8 @@ describe("WebPage object", function() {
         var url = "http://localhost:12345/foo/headers.txt?ab=cd";
 
         page.cookies = [{
-            'name' : 'Cookie-Name',
-            'value' : 'Cookie-Value',
+            'name' : 'Valid-Cookie-Name',
+            'value' : 'Valid-Cookie-Value',
             'domain' : 'localhost',
             'path' : '/foo',
             'httponly' : true,
@@ -622,7 +626,8 @@ describe("WebPage object", function() {
 
                 var echoedHeaders = JSON.parse(page.plainText);
                 // console.log(JSON.stringify(echoedHeaders));
-                expect(echoedHeaders["Cookie"]).toContain("Cookie-Value");
+                expect(echoedHeaders["Cookie"]).toContain("Valid-Cookie-Name");
+                expect(echoedHeaders["Cookie"]).toContain("Valid-Cookie-Value");
             });
         });
 
@@ -630,10 +635,11 @@ describe("WebPage object", function() {
 
         runs(function() {
             expect(handled).toEqual(true);
-            page.cookies = [];
+            expect(page.cookies.length).toNotBe(0);
+            page.cookies = []; //< delete all the cookies visible to this URL
+            expect(page.cookies.length).toBe(0);
             server.close();
         });
-
     });
 
     it("should not set invalid cookies", function() {
@@ -647,28 +653,30 @@ describe("WebPage object", function() {
         var url = "http://localhost:12345/foo/headers.txt?ab=cd";
 
         page.cookies = [
-        {   // domain field missing.
-            'name' : 'Cookie-Name',
-            'value' : 'Cookie-Value',
+        {   // domain missing.
+            'name' : 'Invalid-Cookie-Name',
+            'value' : 'Invalid-Cookie-Value'
         },{ // domain mismatch.
-            'name' : 'Cookie-Name',
-            'value' : 'Cookie-Value',
+            'name' : 'Invalid-Cookie-Name',
+            'value' : 'Invalid-Cookie-Value',
             'domain' : 'foo.com'
-        },{ // path mismatch.
-            'name' : 'Cookie-Name',
-            'value' : 'Cookie-Value',
+        },{ // path mismatch: the cookie will be set,
+            // but won't be visible from the given URL (not same path).
+            'name' : 'Invalid-Cookie-Name',
+            'value' : 'Invalid-Cookie-Value',
             'domain' : 'localhost',
-            'path' : '/bar',
+            'path' : '/bar'
         },{ // cookie expired.
-            'name' : 'Cookie-Name',
-            'value' : 'Cookie-Value',
+            'name' : 'Invalid-Cookie-Name',
+            'value' : 'Invalid-Cookie-Value',
             'domain' : 'localhost',
-            'expires' : 'Sat, 09 Jun 2012 00:00:00 GMT',
-        },{ // https only.
-            'name' : 'Cookie-Name',
-            'value' : 'Cookie-Value',
+            'expires' : 'Sat, 09 Jun 2012 00:00:00 GMT'
+        },{ // https only: the cookie will be set,
+            // but won't be visible from the given URL (not https).
+            'name' : 'Invalid-Cookie-Name',
+            'value' : 'Invalid-Cookie-Value',
             'domain' : 'localhost',
-            'secure' : true,
+            'secure' : true
         }];
 
         var handled = false;
@@ -688,10 +696,82 @@ describe("WebPage object", function() {
 
         runs(function() {
             expect(handled).toEqual(true);
-            page.cookies = [];
+            expect(page.cookies.length).toBe(0);
+            page.clearCookies(); //< delete all the cookies visible to this URL
+            expect(page.cookies.length).toBe(0);
             server.close();
         });
+    });
 
+    it("should add a cookie", function() {
+        var server = require('webserver').create();
+        server.listen(12345, function(request, response) {
+            // echo received request headers in response body
+            response.write(JSON.stringify(request.headers));
+            response.close();
+        });
+
+        var url = "http://localhost:12345/foo/headers.txt?ab=cd";
+
+        page.addCookie({
+            'name' : 'Added-Cookie-Name',
+            'value' : 'Added-Cookie-Value',
+            'domain' : 'localhost'
+        });
+
+        var handled = false;
+        runs(function() {
+            expect(handled).toEqual(false);
+            page.open(url, function (status) {
+                expect(status == 'success').toEqual(true);
+                handled = true;
+
+                var echoedHeaders = JSON.parse(page.plainText);
+                // console.log(JSON.stringify(echoedHeaders));
+                expect(echoedHeaders["Cookie"]).toContain("Added-Cookie-Name");
+                expect(echoedHeaders["Cookie"]).toContain("Added-Cookie-Value");
+            });
+        });
+
+        waits(50);
+
+        runs(function() {
+            expect(handled).toEqual(true);
+            server.close();
+        });
+    });
+
+    it("should delete a cookie", function() {
+        var server = require('webserver').create();
+        server.listen(12345, function(request, response) {
+            // echo received request headers in response body
+            response.write(JSON.stringify(request.headers));
+            response.close();
+        });
+
+        var url = "http://localhost:12345/foo/headers.txt?ab=cd";
+
+        page.deleteCookie("Added-Cookie-Name");
+
+        var handled = false;
+        runs(function() {
+            expect(handled).toEqual(false);
+            page.open(url, function (status) {
+                expect(status == 'success').toEqual(true);
+                handled = true;
+
+                var echoedHeaders = JSON.parse(page.plainText);
+                // console.log(JSON.stringify(echoedHeaders));
+                expect(echoedHeaders["Cookie"]).toBeUndefined();
+            });
+        });
+
+        waits(50);
+
+        runs(function() {
+            expect(handled).toEqual(true);
+            server.close();
+        });
     });
 
     it("should pass variables to functions properly", function() {
@@ -881,7 +961,7 @@ describe("WebPage construction with options", function () {
                 decodedText = page.evaluate(function() {
                     return document.getElementsByTagName('pre')[0].innerText;
                 });
-                page.release();
+                page.close();
             });
             it("Should support text codec " + text.codec, function() {
                 expect(decodedText.match("^" + text.reference) == text.reference).toEqual(true);
@@ -1092,7 +1172,7 @@ describe("WebPage opening and closing of windows/child-pages", function(){
 
         var yahoo = p.getPage("yahoo");
         expect(yahoo).not.toBe(null);
-        yahoo.release();
+        yahoo.close();
 
         waitsFor(function(){
             return p.pages.length === 1;
@@ -1101,6 +1181,129 @@ describe("WebPage opening and closing of windows/child-pages", function(){
         runs(function(){
             expect(p.pages.length).toEqual(1);
             expect(p.pagesWindowName).toEqual(["bing"]);
+            p.close();
+        });
+    });
+});
+
+describe("WebPage closing notification/alerting", function(){
+    it("should call 'onClosing' when 'page.close()' is called", function(){
+        var p = require("webpage").create(),
+            spy;
+
+        spy = jasmine.createSpy("onClosing spy");
+        p.onClosing = spy;
+
+        expect(spy.calls.length).toEqual(0);
+
+        p.close();
+
+        waitsFor(function() {
+            return spy.calls.length === 1;
+        }, "after 2sec 'onClosing' had still not been invoked", 2000);
+
+        runs(function() {
+            expect(spy).toHaveBeenCalled();         //< called
+            expect(spy.calls.length).toEqual(1);    //< only once
+            expect(spy).toHaveBeenCalledWith(p);    //< called passing reference to the closing page 'p'
+        });
+    });
+
+    it("should call 'onClosing' when a page closes on it's own", function(){
+        var p = require("webpage").create(),
+            spy;
+
+        spy = jasmine.createSpy("onClosing spy");
+        p.onClosing = spy;
+
+        expect(spy.calls.length).toEqual(0);
+
+        p.evaluate(function() {
+            window.close();
+        });
+
+        waitsFor(function() {
+            return spy.calls.length === 1;
+        }, "after 2sec 'onClosing' had still not been invoked", 2000);
+
+        runs(function() {
+            expect(spy).toHaveBeenCalled();         //< called
+            expect(spy.calls.length).toEqual(1);    //< only once
+            expect(spy).toHaveBeenCalledWith(p);    //< called passing reference to the closing page 'p'
+        });
+    });
+});
+
+describe("WebPage closing notification/alerting: closing propagation control", function(){
+    it("should close all 4 pages if parent page is closed (default value for 'ownsPages')", function(){
+        var p = require("webpage").create(),
+            pages,
+            openPagesCount = 0;
+
+        p.onPageCreated = jasmine.createSpy("onPageCreated spy");
+
+        expect(p.ownsPages).toBeTruthy();
+
+        p.evaluate(function() {
+            // yeah, I know globals. YIKES!
+            window.w1 = window.open("http://www.google.com", "google");
+            window.w2 = window.open("http://www.yahoo.com", "yahoo");
+            window.w3 = window.open("http://www.bing.com", "bing");
+        });
+        pages = p.pages;
+        openPagesCount = p.pages.length + 1;
+        expect(p.onPageCreated).toHaveBeenCalled();
+        expect(p.onPageCreated.calls.length).toEqual(3);
+        expect(p.pages.length).toEqual(3);
+
+        p.onClosing = function() { --openPagesCount; };
+        pages[0].onClosing = function() { --openPagesCount; };
+        pages[1].onClosing = function() { --openPagesCount; };
+        pages[2].onClosing = function() { --openPagesCount; };
+
+        p.close();
+
+        waitsFor(function() {
+            return openPagesCount === 0;
+        }, "after 2sec pages were still open", 2000);
+
+        runs(function() {
+            expect(openPagesCount).toBe(0);
+        });
+    });
+
+    it("should NOT close all 4 pages if parent page is closed, just parent itself ('ownsPages' set to false)", function(){
+        var p = require("webpage").create(),
+            pages,
+            openPagesCount = 0;
+        p.ownsPages = false;
+
+        p.onPageCreated = jasmine.createSpy("onPageCreated spy");
+
+        expect(p.ownsPages).toBeFalsy();
+
+        p.evaluate(function() {
+            // yeah, I know globals. YIKES!
+            window.w1 = window.open("http://www.google.com", "google");
+            window.w2 = window.open("http://www.yahoo.com", "yahoo");
+            window.w3 = window.open("http://www.bing.com", "bing");
+        });
+        pages = p.pages;
+        openPagesCount = 1;
+        expect(p.onPageCreated).toHaveBeenCalled();
+        expect(p.onPageCreated.calls.length).toEqual(3);
+        expect(p.pages.length).toEqual(0);
+
+        p.onClosing = function() { --openPagesCount; };
+
+        p.close();
+
+        waitsFor(function() {
+            return openPagesCount === 0;
+        }, "after 2sec pages were still open", 2000);
+
+        runs(function() {
+            expect(openPagesCount).toBe(0);
         });
     });
 });

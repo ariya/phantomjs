@@ -46,6 +46,7 @@
 #include "repl.h"
 #include "system.h"
 #include "callback.h"
+#include "cookiejar.h"
 
 static Phantom *phantomInstance = NULL;
 
@@ -97,6 +98,9 @@ void Phantom::init()
         m_terminated = true;
         return;
     }
+
+    // Initialize the CookieJar
+    CookieJar::instance(m_config.cookiesFile());
 
     m_page = new WebPage(this, QUrl::fromLocalFile(m_config.scriptFile()));
     m_pages.append(m_page);
@@ -253,6 +257,25 @@ bool Phantom::printDebugMessages() const
     return m_config.printDebugMessages();
 }
 
+QVariantMap Phantom::keys() const
+{
+    return m_keyMap;
+}
+
+bool Phantom::areCookiesEnabled() const
+{
+    return CookieJar::instance()->isEnabled();
+}
+
+void Phantom::setCookiesEnabled(const bool value)
+{
+    if (value) {
+        CookieJar::instance()->enable();
+    } else {
+        CookieJar::instance()->disable();
+    }
+}
+
 // public slots:
 QObject *Phantom::createWebPage()
 {
@@ -382,12 +405,9 @@ void Phantom::initCompletions()
     addCompletion("outputEncoding");
     addCompletion("scriptName");
     addCompletion("version");
+    addCompletion("keys");
+    addCompletion("cookiesEnabled");
     // functions
     addCompletion("exit");
     addCompletion("injectJs");
-}
-
-QVariantMap Phantom::keys() const
-{
-    return m_keyMap;
 }

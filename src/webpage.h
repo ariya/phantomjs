@@ -49,7 +49,11 @@ class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
 {
     Q_OBJECT
     Q_PROPERTY(QString content READ content WRITE setContent)
+    Q_PROPERTY(QString frameContent READ frameContent WRITE setFrameContent)
+    Q_PROPERTY(QString url READ url)
+    Q_PROPERTY(QString frameUrl READ frameUrl)
     Q_PROPERTY(QString plainText READ plainText)
+    Q_PROPERTY(QString framePlainText READ framePlainText)
     Q_PROPERTY(QString libraryPath READ libraryPath WRITE setLibraryPath)
     Q_PROPERTY(QString offlineStoragePath READ offlineStoragePath)
     Q_PROPERTY(int offlineStorageQuota READ offlineStorageQuota)
@@ -64,19 +68,27 @@ class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
     Q_PROPERTY(QString windowName READ windowName)
     Q_PROPERTY(QObjectList pages READ pages)
     Q_PROPERTY(QStringList pagesWindowName READ pagesWindowName)
+    Q_PROPERTY(bool ownsPages READ ownsPages WRITE setOwnsPages)
     Q_PROPERTY(QStringList framesName READ framesName)
     Q_PROPERTY(QString frameName READ frameName)
     Q_PROPERTY(int framesCount READ framesCount)
 
 public:
     WebPage(QObject *parent, const QUrl &baseUrl = QUrl());
+    virtual ~WebPage();
 
     QWebFrame *mainFrame();
 
     QString content() const;
+    QString frameContent() const;
     void setContent(const QString &content);
+    void setFrameContent(const QString &content);
+
+    QString url() const;
+    QString frameUrl() const;
 
     QString plainText() const;
+    QString framePlainText() const;
 
     QString libraryPath() const;
     void setLibraryPath(const QString &dirPath);
@@ -135,6 +147,8 @@ public:
      *
      * NOTE: The ownership of this array is held by the Page: it's not adviced
      * to have a "long running reference" to this array, as it might change.
+     * NOTE: If "ownsPages()" is "false", the page will create pages but not
+     * hold any ownership to it. Resource management is than left to the user.
      *
      * @brief pages
      * @return List (JS Array) containing the Pages that this page
@@ -147,12 +161,34 @@ public:
      * NOTE: When a page is opened with <code>"window.open"</code>, a window
      * <code>"name"</code> might be provided as second parameter.
      * This provides a useful list of those.
+     * NOTE: If "ownsPages()" is "false", the page will create pages but not
+     * hold any ownership of it. Resource management is than left to the user.
      *
      * @brief pagesWindowName
      * @return List (JS Array) containing the <code>'window.name'</code>(s) of
      *         Pages that this page has currently open.
      */
     QStringList pagesWindowName() const;
+
+    /**
+     * Returns "true" if it owns the pages it creates (and keeps them in "pages[]").
+     * Default value is "true". Can be changed using {@link setOwnsPages()}.
+     *
+     * @brief ownsPages()
+     * @return "true" if it owns the pages it creates in "pages[]", "false" otherwise.
+     */
+    bool ownsPages() const;
+    /**
+     * Set if, from now on, it should own the pages it creates in "pages[]".
+     * Default value is "true".
+     *
+     * NOTE: When switching from "false" to "true", only the pages created
+     * from that point on will be owned. It's NOT retroactive.
+     *
+     * @brief setOwnsPages
+     * @param owns "true" to make it own the pages it creates in "pages[]", "false" otherwise.
+     */
+    void setOwnsPages(const bool owns);
 
     /**
      * Returns the number of Child Frames inside the Current Frame.
@@ -181,6 +217,7 @@ public:
 public slots:
     void openUrl(const QString &address, const QVariant &op, const QVariantMap &settings);
     void release();
+    void close();
 
     QVariant evaluateJavaScript(const QString &code);
     bool render(const QString &fileName);
@@ -203,7 +240,7 @@ public slots:
     QObject *_getJsConfirmCallback();
     QObject *_getJsPromptCallback();
     void uploadFile(const QString &selector, const QString &fileName);
-    void sendEvent(const QString &type, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant());
+    void sendEvent(const QString &type, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant(), const QString &mouseButton = QString());
 
     /**
      * Returns a Child Page that matches the given <code>"window.name"</code>.
@@ -292,8 +329,53 @@ public slots:
      */
     QString currentFrameName() const;
 
+    /**
+     * Allows to set cookies by this Page, at the current URL.
+     * This means that loading new URLs, causes the cookies to change dynamically
+     * as in a normal desktop browser.
+     *
+     * Cookies are expected in the format:
+     * <pre>
+     * {
+     *   "name"     : "cookie name (string)",
+     *   "value"    : "cookie value (string)",
+     *   "domain"   : "cookie domain (string)",
+     *   "path"     : "cookie path (string, optional)",
+     *   "httponly" : "http only cookie (boolean, optional)",
+     *   "secure"   : "secure cookie (boolean, optional)",
+     *   "expires"  : "expiration date (string, GMT format, optional)"
+     * }
+     * </pre>
+     * @brief setCookies
+     * @param cookies Expects a QList of QVariantMaps
+     */
     void setCookies(const QVariantList &cookies);
+    /**
+     * Cookies visible by this Page, at the current URL.
+     *
+     * @see WebPage::setCookies for details on the format
+     * @brief cookies
+     * @return QList of QVariantMap cookies visible to this Page, at the current URL.
+     */
     QVariantList cookies() const;
+    /**
+     * Add a Cookie in QVariantMap format
+     * @see WebPage::setCookies for details on the format
+     * @brief addCookie
+     * @param cookie Cookie in QVariantMap format
+     */
+    void addCookie(const QVariantMap &cookie);
+    /**
+     * Delete cookie by name from the ones visible by this Page, at the current URL
+     * @brief deleteCookie
+     * @param cookieName Name of the Cookie to delete
+     */
+    void deleteCookie(const QString &cookieName);
+    /**
+     * Delete All Cookies visible by this Page, at the current URL
+     * @brief clearCookies
+     */
+    void clearCookies();
 
 signals:
     void initialized();
@@ -307,6 +389,7 @@ signals:
     void urlChanged(const QUrl &url);
     void navigationRequested(const QUrl &url, const QString &navigationType, bool navigationLocked, bool isMainFrame);
     void rawPageCreated(QObject *page);
+    void closing(QObject *page);
 
 private slots:
     void finish(bool ok);
@@ -335,6 +418,7 @@ private:
     WebpageCallbacks *m_callbacks;
     bool m_navigationLocked;
     QPoint m_mousePos;
+    bool m_ownsPages;
 
     friend class Phantom;
     friend class CustomPage;

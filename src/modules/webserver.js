@@ -106,10 +106,6 @@ exports.create = function (opts) {
         });
     }
 
-    // deep copy
-    //TODO: use this?
-//     server.settings = JSON.parse(JSON.stringify(phantom.defaultServerSettings));
-
     defineSetter("onNewRequest", "newRequest");
 
     server.listen = function (port, arg1, arg2) {

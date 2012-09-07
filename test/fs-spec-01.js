@@ -6,11 +6,11 @@ describe("Basic Files API (read, write, remove, ...)", function() {
 		FILENAME_ENC = FILENAME + ".enc",
         FILENAME_BIN = FILENAME + ".bin",
         ABSENT = "absent-01.test";
-    
+
     it("should be able to create and write a file", function() {
         try{
             var f = fs.open(FILENAME, "w");
-            
+
             f.write("hello");
             f.writeLine("");
             f.writeLine("world");
@@ -25,31 +25,29 @@ describe("Basic Files API (read, write, remove, ...)", function() {
 		expect(fs.exists(FILENAME_EMPTY)).toBeTruthy();
 		expect(fs.size(FILENAME_EMPTY)).toEqual(0);
 	});
-    
+
     it("should be able to read content from a file", function() {
         var content = "";
         try{
             var f = fs.open(FILENAME, "r");
-            
-            content = f.read();    
+
+            content = f.read();
             f.close();
         } catch (e) { }
         expect(content).toEqual("hello\nworld\n");
     });
-    
+
     it("should be able to read/write/append content from a file", function() {
         var content = "";
         try{
             var f = fs.open(FILENAME, "rw+");
-            console.log(f.read().length);
             f.writeLine("asdf");
             content = f.read();
-            console.log(content.length);
             f.close();
         } catch (e) { }
         expect(content).toEqual("hello\nworld\nasdf\n");
     });
-    
+
 	it("should be able to copy a file", function() {
 		expect(fs.exists(FILENAME_COPY)).toBeFalsy();
 		fs.copy(FILENAME, FILENAME_COPY);
@@ -77,7 +75,7 @@ describe("Basic Files API (read, write, remove, ...)", function() {
         fs.remove(FILENAME_COPY);
         expect(fs.exists(FILENAME_COPY)).toBeFalsy();
     });
-    
+
 	it("should be able to remove an empty file", function() {
         expect(fs.exists(FILENAME_EMPTY)).toBeTruthy();
         fs.remove(FILENAME_EMPTY);

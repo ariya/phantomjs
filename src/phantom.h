@@ -41,6 +41,7 @@
 #include "system.h"
 
 class WebPage;
+class CustomPage;
 class WebServer;
 
 class Phantom: public REPLCompletable
@@ -54,6 +55,7 @@ class Phantom: public REPLCompletable
     Q_PROPERTY(QVariantMap version READ version)
     Q_PROPERTY(QObject *page READ page)
     Q_PROPERTY(QVariantMap keys READ keys)
+    Q_PROPERTY(bool cookiesEnabled READ areCookiesEnabled WRITE setCookiesEnabled)
 
 private:
     // Private constructor: the Phantom class is a singleton
@@ -96,6 +98,9 @@ public:
 
     QVariantMap keys() const;
 
+    bool areCookiesEnabled() const;
+    void setCookiesEnabled(const bool value);
+
 public slots:
     QObject *createWebPage();
     QObject *createWebServer();
@@ -133,6 +138,8 @@ private:
     QList<QPointer<WebServer> > m_servers;
     Config m_config;
     QVariantMap m_keyMap;
+
+    friend class CustomPage;
 };
 
 #endif // PHANTOM_H
