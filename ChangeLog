@@ -1,5 +1,23 @@
 Please see also http://code.google.com/p/phantomjs/wiki/ReleaseNotes.
 
+Version 1.7.0
+
+    New features
+
+      * Added a module system modelled after CommonJS/Node.js (issue 47)
+      * Static build on Linux (issue 413)
+      * Added run-time detection of SSL support (issue 484)
+      * Added support for disabling automatic proxy detection (issue 580)
+      * Added more cookies-related API (issue 761)
+
+    Improvements
+
+      * Refactored command-line options handling (issue 55)
+      * Improved cookies implementation (issue 603, 761)
+      * Fixed OS version number with Windows 8 and Mountain Lion (issue 684, 688)
+      * Fixed HAR navigation info in the netsniff example (issue 733)
+      * Fixed compile warnings with Visual Studio (issue 744)
+
 2012-07-22: Version 1.6.1
 
     Bug fixes
