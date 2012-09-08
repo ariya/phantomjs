@@ -4,7 +4,7 @@ PhantomJS ([www.phantomjs.org](http://phantomjs.org)) is a headless WebKit scrip
 
 The latest [stable release](http://code.google.com/p/phantomjs/wiki/ReleaseNotes) is version 1.6 (codenamed "Lavender"). Follow the official Twitter stream [@PhantomJS](http://twitter.com/PhantomJS) to get the frequent development updates.
 
-PhantomJS is created and maintained by [Ariya Hidayat](http://ariya.ofilabs.com/about) (Twitter: [@ariyahidayat](http://twitter.com/ariyahidayat)), with the help of [many contributors](https://github.com/ariya/phantomjs/contributors).
+**Note**: Please **do not** create a GitHub pull request **without** reading the [Contribution Guide](http://phantomjs.org/contributing.html) first. Failure to do so may result in the rejection of the pull request.
 
 ## Use Cases
 
@@ -42,3 +42,6 @@ and many others [companion projects](http://code.google.com/p/phantomjs/wiki/Who
 - Join the [mailing-list](http://groups.google.com/group/phantomjs) and discuss with other PhantomJS fans.
 
 PhantomJS is free software/open source, and is distributed under the [BSD license](http://opensource.org/licenses/BSD-3-Clause). It contains third-party code, see the included `third-party.txt` file for the license information on third-party code.
+
+PhantomJS is created and maintained by [Ariya Hidayat](http://ariya.ofilabs.com/about) (Twitter: [@ariyahidayat](http://twitter.com/ariyahidayat)), with the help of [many contributors](https://github.com/ariya/phantomjs/contributors).
+
