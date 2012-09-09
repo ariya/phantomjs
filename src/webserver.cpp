@@ -165,6 +165,11 @@ bool WebServer::handleRequest(mg_event event, mg_connection *conn, const mg_requ
 
     ///TODO: encoding?!
 
+    qDebug() << "HTTP Request - URI" << request->uri;
+    qDebug() << "HTTP Request - Method" << request->request_method;
+    qDebug() << "HTTP Request - HTTP Version" << request->http_version;
+    qDebug() << "HTTP Request - Query String" << request->query_string;
+
     if (request->request_method)
         requestObject["method"] = QString::fromLocal8Bit(request->request_method);
     if (request->http_version)
@@ -384,6 +389,7 @@ void WebServerResponse::writeHead(int statusCode, const QVariantMap &headers)
     m_headersSent = true;
     m_statusCode = statusCode;
     mg_printf(m_conn, "HTTP/1.1 %d %s\r\n", m_statusCode, responseCodeString(m_statusCode));
+    qDebug() << "HTTP Response - Status Code" << m_statusCode << responseCodeString(m_statusCode);
     QVariantMap::const_iterator it = headers.constBegin();
     while(it != headers.constEnd()) {
         qDebug() << "HTTP Response - Sending Header" << it.key() << "=" << it.value().toString();

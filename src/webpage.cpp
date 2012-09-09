@@ -563,12 +563,12 @@ QVariantMap WebPage::customHeaders() const
     return m_networkAccessManager->customHeaders();
 }
 
-void WebPage::setCookies(const QVariantList &cookies)
+bool WebPage::setCookies(const QVariantList &cookies)
 {
     // Delete all the cookies for this URL
     CookieJar::instance()->deleteCookies(this->url());
     // Add a new set of cookies foor this URL
-    CookieJar::instance()->addCookiesFromMap(cookies, this->url());
+    return CookieJar::instance()->addCookiesFromMap(cookies, this->url());
 }
 
 QVariantList WebPage::cookies() const
@@ -577,21 +577,22 @@ QVariantList WebPage::cookies() const
     return CookieJar::instance()->cookiesToMap(this->url());
 }
 
-void WebPage::addCookie(const QVariantMap &cookie)
+bool WebPage::addCookie(const QVariantMap &cookie)
 {
-    CookieJar::instance()->addCookieFromMap(cookie, this->url());
+    return CookieJar::instance()->addCookieFromMap(cookie, this->url());
 }
 
-void WebPage::deleteCookie(const QString &cookieName)
+bool WebPage::deleteCookie(const QString &cookieName)
 {
     if (!cookieName.isEmpty()) {
-        CookieJar::instance()->deleteCookie(cookieName, this->url());
+        return CookieJar::instance()->deleteCookie(cookieName, this->url());
     }
+    return false;
 }
 
-void WebPage::clearCookies()
+bool WebPage::clearCookies()
 {
-    CookieJar::instance()->deleteCookie(this->url());
+    return CookieJar::instance()->deleteCookies(this->url());
 }
 
 void WebPage::openUrl(const QString &address, const QVariant &op, const QVariantMap &settings)
