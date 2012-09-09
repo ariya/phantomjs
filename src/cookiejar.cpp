@@ -93,9 +93,9 @@ CookieJar *CookieJar::instance(QString cookiesFile)
     static CookieJar *singleton = NULL;
     if (!singleton) {
         if (cookiesFile.isEmpty()) {
-            qDebug() << "Creating CookieJar, but no file to store cookies was provided (use '--cookies-file=<filename>')";
+            qDebug() << "CookieJar - Created but will not store cookies (use option '--cookies-file=<filename>' to enable persisten cookie storage)";
         } else {
-            qDebug() << "Creating CookieJar, using file:" << cookiesFile;
+            qDebug() << "CookieJar - Created and will store cookies in:" << cookiesFile;
         }
         // Create singleton and assign ownershipt to the Phantom singleton object
         // NOTE: First time this is done is when we set "once and for all" the Cookies' File
@@ -114,10 +114,9 @@ CookieJar::~CookieJar()
 bool CookieJar::setCookiesFromUrl(const QList<QNetworkCookie> & cookieList, const QUrl &url)
 {
     // Update cookies in memory
-    if (isEnabled() && QNetworkCookieJar::setCookiesFromUrl(cookieList, url)) {
-        // Update cookies in permanent storage, because at least 1 changed
+    if (isEnabled()) {
+        QNetworkCookieJar::setCookiesFromUrl(cookieList, url);
         save();
-        return true;
     }
     // No changes occurred
     return false;
@@ -151,25 +150,49 @@ void CookieJar::addCookieFromMap(const QVariantMap &cookie, const QString &url)
 {
     QNetworkCookie newCookie;
 
-    // The cookie must have "domain", "name" and "value"
-    if (!cookie["domain"].isNull() && !cookie["domain"].toString().isEmpty() &&
-        !cookie["name"].isNull() && !cookie["name"].toString().isEmpty() &&
-        !cookie["value"].isNull()
-    ) {
-        newCookie.setDomain(cookie["domain"].toString());
+    // The cookie must have a non-empty "name" and a "value"
+    if (!cookie["name"].isNull() && !cookie["name"].toString().isEmpty() && !cookie["value"].isNull()) {
+        // Name & Value
         newCookie.setName(cookie["name"].toByteArray());
         newCookie.setValue(cookie["value"].toByteArray());
 
-        newCookie.setPath((cookie["path"].isNull() || cookie["path"].toString().isEmpty()) ?
-                              "/" :cookie["path"].toString());
+        // Domain, if provided
+        if (!cookie["domain"].isNull() && !cookie["domain"].toString().isEmpty()) {
+            newCookie.setDomain(cookie["domain"].toString());
+        }
+
+        // Path, if provided
+        if (!cookie["path"].isNull() || !cookie["path"].toString().isEmpty()) {
+            newCookie.setPath(cookie["path"].toString());
+        }
+
+        // HttpOnly, false by default
         newCookie.setHttpOnly(cookie["httponly"].isNull() ? false : cookie["httponly"].toBool());
+        // Secure, false by default
         newCookie.setSecure(cookie["secure"].isNull() ? false : cookie["secure"].toBool());
 
+        // Expiration Date, if provided, giving priority to "expires" over "expiry"
+        QVariant expiresVar;
         if (!cookie["expires"].isNull()) {
-            QString datetime = cookie["expires"].toString().replace(" GMT", "");
-            QDateTime expires = QDateTime::fromString(datetime, "ddd, dd MMM yyyy hh:mm:ss");
-            if (expires.isValid()) {
-                newCookie.setExpirationDate(expires);
+            expiresVar = cookie["expires"];
+        } else if (!cookie["expiry"].isNull()) {
+            expiresVar = cookie["expiry"];
+        }
+
+        if (expiresVar.isValid()) {
+            QDateTime expirationDate;
+            if (expiresVar.type() == QVariant::String) {
+                // Set cookie expire date via "classic" string format
+                QString datetime = expiresVar.toString().replace(" GMT", "");
+                expirationDate = QDateTime::fromString(datetime, "ddd, dd MMM yyyy hh:mm:ss");
+            } else if (expiresVar.type() == QVariant::Int){
+                // Set cookie expire date via "number of seconds since epoch"
+                // NOTE: Need to multiple by 1000 because factory method requires msecs
+                expirationDate = QDateTime::fromMSecsSinceEpoch(expiresVar.toInt() * 1000);
+            }
+
+            if (expirationDate.isValid()) {
+                newCookie.setExpirationDate(expirationDate);
             }
         }
 
@@ -220,6 +243,7 @@ QVariantList CookieJar::cookiesToMap(const QString &url) const
         cookie["secure"] = QVariant(c.isSecure());
         if (c.expirationDate().isValid()) {
             cookie["expires"] = QVariant(QString(c.expirationDate().toString("ddd, dd MMM yyyy hh:mm:ss")).append(" GMT"));
+            cookie["expiry"] = QVariant(c.expirationDate().toMSecsSinceEpoch() / 1000);
         }
 
         result.append(cookie);
@@ -256,27 +280,25 @@ QVariantMap CookieJar::cookieToMap(const QString &name, const QString &url) cons
 void CookieJar::deleteCookie(const QString &name, const QString &url)
 {
     if (isEnabled()) {
-        QNetworkCookie cookie;
-
         // For all the cookies that are visible to this URL
-        QList<QNetworkCookie> cookiesList = cookies(url);
-        for (int i = cookiesList.length() -1; i >= 0; --i) {
-            if (cookiesList.at(i).name() == name || name.isEmpty()) {
+        QList<QNetworkCookie> cookiesListUrl = cookies(url);
+        QList<QNetworkCookie> cookiesListAll = allCookies();
+
+        for (int i = cookiesListAll.length() -1; i >= 0; --i) {
+            if (cookiesListUrl.contains(cookiesListAll.at(i)) && //< if it part of the set of cookies visible at URL
+                (cookiesListAll.at(i).name() == name || name.isEmpty())) { //< and if the name matches, or no name provided
                 // Remove item from list
-                cookie = cookiesList.takeAt(i);
-                // If we found the right cookie, mark it expired so it gets purged
-                cookie.setExpirationDate(QDateTime::currentDateTime().addYears(-1));
-                // Add it back to the list
-                cookiesList.append(cookie);
-                // Set a new list of cookies for this URL
-                setCookiesFromUrl(cookiesList, url);
+                cookiesListAll.removeAt(i);
 
                 if (!name.isEmpty()) {
                     // Only one cookie was supposed to be deleted: we are done here!
-                    return;
+                    break;
                 }
             }
         }
+
+        // Set a new list of cookies
+        setAllCookies(cookiesListAll);
     }
 }
 
@@ -288,6 +310,7 @@ void CookieJar::deleteCookies(const QString &url)
             clearCookies();
         } else {
             // No cookie name provided: delete all the cookies visible by this URL
+            qDebug() << "Delete all cookies for URL:" << url;
             deleteCookie("", url);
         }
     }
@@ -324,7 +347,7 @@ void CookieJar::save()
 
 #ifndef QT_NO_DEBUG_OUTPUT
         foreach (QNetworkCookie cookie, allCookies()) {
-            qDebug() << "CookieJar - Saved" << cookie.toRawForm() << "expires:" << cookie.expirationDate().toString();
+            qDebug() << "CookieJar - Saved" << cookie.toRawForm();
         }
 #endif
 
@@ -347,6 +370,7 @@ bool CookieJar::purgeExpiredCookies()
     QDateTime now = QDateTime::currentDateTime();
     for (int i = cookies.count() - 1; i >= 0; --i) {
         if (!cookies.at(i).isSessionCookie() && cookies.at(i).expirationDate() < now) {
+            qDebug() << "CookieJar - Purged (expired)" << cookies.at(i).toRawForm();
             cookies.removeAt(i);
         }
     }
@@ -368,6 +392,7 @@ bool CookieJar::purgeSessionCookies()
     int prePurgeCookiesCount = cookies.count();
     for (int i = cookies.count() - 1; i >= 0; --i) {
         if (cookies.at(i).isSessionCookie() || !cookies.at(i).expirationDate().isValid() || cookies.at(i).expirationDate().isNull()) {
+            qDebug() << "CookieJar - Purged (session)" << cookies.at(i).toRawForm();
             cookies.removeAt(i);
         }
     }
@@ -392,7 +417,7 @@ void CookieJar::load()
 
 #ifndef QT_NO_DEBUG_OUTPUT
         foreach (QNetworkCookie cookie, allCookies()) {
-            qDebug() << "CookieJar - Loaded" << cookie.toRawForm() << "expires:" << cookie.expirationDate().toString();
+            qDebug() << "CookieJar - Loaded" << cookie.toRawForm();
         }
 #endif
     }
