@@ -74,6 +74,8 @@ page.open(system.args[1], function(status){
                       console.log(msg.innerText);
                       console.log('');
                   }
+                } else {
+                  console.log(document.body.querySelector('.alert > .passingAlert.bar').innerText);
                 }
             });
             phantom.exit();
