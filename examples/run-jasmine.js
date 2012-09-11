@@ -59,15 +59,21 @@ page.open(system.args[1], function(status){
             });
         }, function(){
             page.evaluate(function(){
+                console.log('');
                 console.log(document.body.querySelector('.description').innerText);
-                list = document.body.querySelectorAll('div.jasmine_reporter > div.suite.failed');
-                for (i = 0; i < list.length; ++i) {
-                    el = list[i];
-                    desc = el.querySelectorAll('.description');
-                    console.log('');
-                    for (j = 0; j < desc.length; ++j) {
-                        console.log(desc[j].innerText);
-                    }
+                var list = document.body.querySelectorAll('.results > #details > .specDetail.failed');
+                if (list && list.length > 0) {
+                  console.log('');
+                  console.log(list.length + ' test(s) FAILED:');
+                  for (i = 0; i < list.length; ++i) {
+                      var el = list[i],
+                          desc = el.querySelector('.description'),
+                          msg = el.querySelector('.resultMessage.fail');
+                      console.log('');
+                      console.log(desc.innerText);
+                      console.log(msg.innerText);
+                      console.log('');
+                  }
                 }
             });
             phantom.exit();
