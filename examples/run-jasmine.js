@@ -55,10 +55,7 @@ page.open(system.args[1], function(status){
     } else {
         waitFor(function(){
             return page.evaluate(function(){
-                if (document.body.querySelector('.runner .description')) {
-                    return true;
-                }
-                return false;
+                return document.body.querySelector('.symbolSummary .pending') === null
             });
         }, function(){
             page.evaluate(function(){
