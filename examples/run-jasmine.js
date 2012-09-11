@@ -58,7 +58,7 @@ page.open(system.args[1], function(status){
                 return document.body.querySelector('.symbolSummary .pending') === null
             });
         }, function(){
-            page.evaluate(function(){
+            var exitCode = page.evaluate(function(){
                 console.log('');
                 console.log(document.body.querySelector('.description').innerText);
                 var list = document.body.querySelectorAll('.results > #details > .specDetail.failed');
@@ -74,11 +74,13 @@ page.open(system.args[1], function(status){
                       console.log(msg.innerText);
                       console.log('');
                   }
+                  return 1;
                 } else {
                   console.log(document.body.querySelector('.alert > .passingAlert.bar').innerText);
+                  return 0;
                 }
             });
-            phantom.exit();
+            phantom.exit(exitCode);
         });
     }
 });
