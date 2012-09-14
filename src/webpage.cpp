@@ -590,7 +590,7 @@ void WebPage::deleteCookie(const QString &cookieName)
 
 void WebPage::clearCookies()
 {
-    CookieJar::instance()->deleteCookie(this->url());
+    CookieJar::instance()->deleteCookies(this->url());
 }
 
 void WebPage::openUrl(const QString &address, const QVariant &op, const QVariantMap &settings)
