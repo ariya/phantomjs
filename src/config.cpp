@@ -62,7 +62,7 @@ static const struct QCommandLineConfigEntry flags[] =
     { QCommandLine::Option, '\0', "proxy-type", "Specifies the proxy type, 'http' (default), 'none' (disable completely), or 'socks5'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "script-encoding", "Sets the encoding used for the starting script, default is 'utf8'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "web-security", "Enables web security, 'yes' (default) or 'no'", QCommandLine::Optional },
-    { QCommandLine::Param, '\0', "script", "Script", QCommandLine::Optional },
+    { QCommandLine::Param, '\0', "script", "Script", QCommandLine::Flags(QCommandLine::Optional|QCommandLine::ParameterFence)},
     { QCommandLine::Param, '\0', "argument", "Script argument", QCommandLine::OptionalMultiple },
     { QCommandLine::Switch, 'h', "help", "Shows this message and quits", QCommandLine::Optional },
     { QCommandLine::Switch, 'v', "version", "Prints out PhantomJS version", QCommandLine::Optional },
