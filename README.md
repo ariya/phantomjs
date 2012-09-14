@@ -8,7 +8,7 @@ The latest [stable release](http://code.google.com/p/phantomjs/wiki/ReleaseNotes
 
 ## Use Cases
 
-- **Headless web testing**. Lightning-fast testing without the browser is now possible! Various [test frameworks](http://code.google.com/p/phantomjs/wiki/TestFrameworkIntegration) such as Jasmine, Capybara, QUnit,  WebDriver, YUI Test, BusterJS, FuncUnit, Robot Framework, and many others are supported.
+- **Headless web testing**. Lightning-fast testing without the browser is now possible! Various [test frameworks](http://code.google.com/p/phantomjs/wiki/TestFrameworkIntegration) such as Jasmine, Capybara, QUnit, Mocha, WebDriver, YUI Test, BusterJS, FuncUnit, Robot Framework, and many others are supported.
 
 - **Site scraping**. [Access and manipulate](http://code.google.com/p/phantomjs/wiki/QuickStart#DOM_Manipulation) webpages with the standard DOM API, or with usual libraries like jQuery.
 
