@@ -279,6 +279,7 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
     m_customWebPage = new CustomPage(this);
     m_mainFrame = m_customWebPage->mainFrame();
     m_mainFrame->setHtml(BLANK_HTML, baseUrl);
+    changeCurrentFrame(m_mainFrame);
 
     Config *phantomCfg = Phantom::instance()->config();
 
@@ -347,7 +348,7 @@ QString WebPage::content() const
 
 QString WebPage::frameContent() const
 {
-    return m_customWebPage->currentFrame()->toHtml();
+    return m_currentFrame->toHtml();
 }
 
 void WebPage::setContent(const QString &content)
@@ -357,7 +358,7 @@ void WebPage::setContent(const QString &content)
 
 void WebPage::setFrameContent(const QString &content)
 {
-    m_customWebPage->currentFrame()->setHtml(content);
+    m_currentFrame->setHtml(content);
 }
 
 QString WebPage::url() const
@@ -367,7 +368,7 @@ QString WebPage::url() const
 
 QString WebPage::frameUrl() const
 {
-    return m_customWebPage->currentFrame()->url().toString();
+    return m_currentFrame->url().toString();
 }
 
 QString WebPage::plainText() const
@@ -377,7 +378,7 @@ QString WebPage::plainText() const
 
 QString WebPage::framePlainText() const
 {
-    return m_customWebPage->currentFrame()->toPlainText();
+    return m_currentFrame->toPlainText();
 }
 
 QString WebPage::libraryPath() const
@@ -518,7 +519,7 @@ QVariantMap WebPage::paperSize() const
 QVariant WebPage::evaluateJavaScript(const QString &code)
 {
     QString function = "(" + code + ")()";
-    return m_customWebPage->currentFrame()->evaluateJavaScript(
+    return m_currentFrame->evaluateJavaScript(
                 function,
                 QString("phantomjs://webpage.evaluate()"));
 }
@@ -964,7 +965,7 @@ QString WebPage::footer(int page, int numPages)
 
 void WebPage::uploadFile(const QString &selector, const QString &fileName)
 {
-    QWebElement el = m_customWebPage->currentFrame()->findFirstElement(selector);
+    QWebElement el = m_currentFrame->findFirstElement(selector);
     if (el.isNull())
         return;
 
@@ -973,11 +974,11 @@ void WebPage::uploadFile(const QString &selector, const QString &fileName)
 }
 
 bool WebPage::injectJs(const QString &jsFilePath) {
-    return Utils::injectJsInFrame(jsFilePath, m_libraryPath, m_customWebPage->currentFrame());
+    return Utils::injectJsInFrame(jsFilePath, m_libraryPath, m_currentFrame);
 }
 
 void WebPage::_appendScriptElement(const QString &scriptUrl) {
-    m_customWebPage->currentFrame()->evaluateJavaScript(QString(JS_APPEND_SCRIPT_ELEMENT).arg(scriptUrl), scriptUrl);
+    m_currentFrame->evaluateJavaScript(QString(JS_APPEND_SCRIPT_ELEMENT).arg(scriptUrl), scriptUrl);
 }
 
 QObject *WebPage::_getGenericCallback() {
@@ -1158,7 +1159,7 @@ void WebPage::setOwnsPages(const bool owns)
 
 int WebPage::framesCount() const
 {
-    return m_customWebPage->currentFrame()->childFrames().count();
+    return m_currentFrame->childFrames().count();
 }
 
 int WebPage::childFramesCount() const //< deprecated
@@ -1170,7 +1171,7 @@ QStringList WebPage::framesName() const
 {
     QStringList framesName;
 
-    foreach(QWebFrame *f, m_customWebPage->currentFrame()->childFrames()) {
+    foreach(QWebFrame *f, m_currentFrame->childFrames()) {
         framesName << f->frameName();
     }
     return framesName;
@@ -1181,11 +1182,16 @@ QStringList WebPage::childFramesName() const //< deprecated
     return this->framesName();
 }
 
+void WebPage::changeCurrentFrame(QWebFrame * const frame)
+{
+  m_currentFrame = frame;
+}
+
 bool WebPage::switchToFrame(const QString &frameName)
 {
-    foreach(QWebFrame * f, m_customWebPage->currentFrame()->childFrames()) {
+    foreach(QWebFrame * f, m_currentFrame->childFrames()) {
         if (f->frameName() == frameName) {
-            f->setFocus();
+            this->changeCurrentFrame(f);
             return true;
         }
     }
@@ -1199,9 +1205,9 @@ bool WebPage::switchToChildFrame(const QString &frameName) //< deprecated
 
 bool WebPage::switchToFrame(const int framePosition)
 {
-    QList<QWebFrame *> childFrames = m_customWebPage->currentFrame()->childFrames();
+    QList<QWebFrame *> childFrames = m_currentFrame->childFrames();
     if (framePosition >= 0 && framePosition < childFrames.size()) {
-        childFrames.at(framePosition)->setFocus();
+        this->changeCurrentFrame(childFrames.at(framePosition));
         return true;
     }
     return false;
@@ -1214,26 +1220,36 @@ bool WebPage::switchToChildFrame(const int framePosition) //< deprecated
 
 void WebPage::switchToMainFrame()
 {
-    m_mainFrame->setFocus();
+    this->changeCurrentFrame(m_mainFrame);
 }
 
 bool WebPage::switchToParentFrame()
 {
-    if (m_customWebPage->currentFrame()->parentFrame() != NULL) {
-        m_customWebPage->currentFrame()->parentFrame()->setFocus();
+    if (m_currentFrame->parentFrame() != NULL) {
+        this->changeCurrentFrame(m_currentFrame->parentFrame());
         return true;
     }
     return false;
 }
 
+void WebPage::switchToFocusedFrame()
+{
+    this->changeCurrentFrame(m_customWebPage->currentFrame());
+}
+
 QString WebPage::frameName() const
 {
-    return m_customWebPage->currentFrame()->frameName();
+    return m_currentFrame->frameName();
 }
 
 QString WebPage::currentFrameName() const //< deprecated
 {
     return this->frameName();
+}
+
+QString WebPage::focusedFrameName() const
+{
+    return m_customWebPage->currentFrame()->frameName();
 }
 
 void WebPage::handleJavaScriptWindowObjectCleared()
@@ -1288,6 +1304,7 @@ void WebPage::initCompletions()
     addCompletion("switchToFrame");
     addCompletion("switchToMainFrame");
     addCompletion("switchToParentFrame");
+    addCompletion("switchToFocusedFrame");
     addCompletion("addCookie");
     addCompletion("deleteCookie");
     addCompletion("clearCookies");
