@@ -1130,6 +1130,46 @@ describe("WebPage switch frame of execution", function(){
         expect(p.framesCount).toEqual(3);
         expect(p.framesName).toEqual(["frame2-1", "frame2-2", "frame2-3"]);
     });
+
+    it("should have top level as focused frame", function(){
+        expect(p.focusedFrameName).toEqual("");
+    });
+
+    it("should move focus to level 1 frame", function(){
+        p.evaluate(function(){
+            window.focus();
+        });
+        expect(p.focusedFrameName).toEqual("frame2");
+    });
+
+    it("should move focus to level 2 frame", function(){
+        expect(p.switchToFrame("frame2-1")).toBeTruthy();
+        p.evaluate(function(){
+            window.focus();
+        });
+        expect(p.focusedFrameName).toEqual("frame2-1");
+    });
+
+    it("should move focus back to main frame", function(){
+        expect(p.switchToMainFrame()).toBeUndefined();
+        p.evaluate(function(){
+            window.focus();
+        });
+        expect(p.focusedFrameName).toEqual("");
+    });
+
+    it("should maintain focus but move current frame", function(){
+        p.evaluate(function(){
+            window.frames[0].focus();
+        });
+        expect(p.focusedFrameName).toEqual("frame1");
+        expect(p.frameName).toEqual("");
+    });
+
+    it("should change current frame to focused frame", function(){
+        expect(p.switchToFocusedFrame()).toBeUndefined();
+        expect(p.frameName).toEqual("frame1");
+    });
 });
 
 describe("WebPage opening and closing of windows/child-pages", function(){

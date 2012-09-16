@@ -72,6 +72,7 @@ class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
     Q_PROPERTY(QStringList framesName READ framesName)
     Q_PROPERTY(QString frameName READ frameName)
     Q_PROPERTY(int framesCount READ framesCount)
+    Q_PROPERTY(QString focusedFrameName READ focusedFrameName)
 
 public:
     WebPage(QObject *parent, const QUrl &baseUrl = QUrl());
@@ -213,6 +214,13 @@ public:
      * @return Name of the Current Frame
      */
     QString frameName() const;
+    /**
+     * Returns the currently focused Frame's name.
+     *
+     * @brief focusedFrameName
+     * @return Frame
+     */
+    QString focusedFrameName() const;
 
 public slots:
     void openUrl(const QString &address, const QVariant &op, const QVariantMap &settings);
@@ -321,6 +329,13 @@ public slots:
      */
     bool switchToParentFrame();
     /**
+     * Switches to the currently focused frame, as per QWebPage.  This is the frame whose
+     * window element was last focus()ed, and is currently the target of key events.
+     *
+     * @brief switchToFocusedFrame
+     */
+    void switchToFocusedFrame();
+    /**
      * Returns the name of the Current Frame (if it has one)
      *
      * @deprecated
@@ -401,6 +416,14 @@ private:
     void applySettings(const QVariantMap &defaultSettings);
     QString userAgent() const;
 
+    /**
+     * Switches focus from the Current Frame to the Child Frame, identified by `frame`.
+     *
+     * @brief changeCurrentFrame
+     * @param frame The Child frame
+     */
+    void changeCurrentFrame(QWebFrame * const frame);
+
     bool javaScriptConfirm(const QString &msg);
     bool javaScriptPrompt(const QString &msg, const QString &defaultValue, QString *result);
 
@@ -410,6 +433,7 @@ private:
     CustomPage *m_customWebPage;
     NetworkAccessManager *m_networkAccessManager;
     QWebFrame *m_mainFrame;
+    QWebFrame *m_currentFrame;
     QRect m_clipRect;
     QPoint m_scrollPosition;
     QVariantMap m_paperSize; // For PDF output via render()
