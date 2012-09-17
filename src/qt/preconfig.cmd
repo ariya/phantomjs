@@ -58,6 +58,11 @@ cd src\plugins\codecs\
 %MAKE_COMMAND%
 cd ..\..\..\
 
+cd src\plugins\imageformats\
+..\..\..\bin\qmake -r
+%MAKE_COMMAND%
+cd ..\..\..\
+
 cd src\3rdparty\webkit\Source\
 ..\..\..\..\bin\qmake -r
 %MAKE_COMMAND%
