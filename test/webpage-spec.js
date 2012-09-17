@@ -172,6 +172,23 @@ describe("WebPage object", function() {
     expectHasFunction(page, 'addCookie');
     expectHasFunction(page, 'deleteCookie');
     expectHasFunction(page, 'clearCookies');
+    expectHasFunction(page, 'setContentAndLocation');
+
+    it("should set content and location when setContentAndLocation is called", function() {
+        runs(function() {
+            var expectedContent = "<html><body><div>Test div</div></body></html>";
+            var expectedLocation = "http://www.phantomjs.org/";
+            page.setContentAndLocation(expectedContent, expectedLocation);
+            var actualLocation = page.evaluate(function(){
+                return window.location.href;
+            });
+            var actualContent = page.evaluate(function(){
+                return document.documentElement.outerHTML;
+            });
+            expect(actualLocation).toEqual(expectedLocation);
+            expect(actualContent).toEqual(expectedContent);
+        });
+    });
 
     it("should handle keydown event", function() {
         runs(function() {

@@ -370,6 +370,16 @@ QString WebPage::frameUrl() const
     return m_customWebPage->currentFrame()->url().toString();
 }
 
+void WebPage::setContentAndLocation(const QString &content, const QString &baseUrl)
+{
+    if (baseUrl == "about:blank") {
+        m_mainFrame->setHtml(BLANK_HTML);
+    } else {
+        QUrl url = QUrl::fromEncoded(QByteArray(baseUrl.toAscii()));
+        m_mainFrame->setHtml(content, url);
+    }
+}
+
 QString WebPage::plainText() const
 {
     return m_mainFrame->toPlainText();
