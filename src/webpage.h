@@ -363,8 +363,9 @@ public slots:
      * </pre>
      * @brief setCookies
      * @param cookies Expects a QList of QVariantMaps
+     * @return Boolean "true" if at least 1 cookie was set
      */
-    void setCookies(const QVariantList &cookies);
+    bool setCookies(const QVariantList &cookies);
     /**
      * Cookies visible by this Page, at the current URL.
      *
@@ -378,19 +379,22 @@ public slots:
      * @see WebPage::setCookies for details on the format
      * @brief addCookie
      * @param cookie Cookie in QVariantMap format
+     * @return Boolean "true" if cookie was added
      */
-    void addCookie(const QVariantMap &cookie);
+    bool addCookie(const QVariantMap &cookie);
     /**
      * Delete cookie by name from the ones visible by this Page, at the current URL
      * @brief deleteCookie
      * @param cookieName Name of the Cookie to delete
+     * @return Boolean "true" if cookie was deleted
      */
-    void deleteCookie(const QString &cookieName);
+    bool deleteCookie(const QString &cookieName);
     /**
      * Delete All Cookies visible by this Page, at the current URL
      * @brief clearCookies
+     * @return Boolean "true" if cookies were deleted
      */
-    void clearCookies();
+    bool clearCookies();
 
 signals:
     void initialized();

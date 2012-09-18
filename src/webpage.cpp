@@ -563,12 +563,12 @@ QVariantMap WebPage::customHeaders() const
     return m_networkAccessManager->customHeaders();
 }
 
-void WebPage::setCookies(const QVariantList &cookies)
+bool WebPage::setCookies(const QVariantList &cookies)
 {
     // Delete all the cookies for this URL
     CookieJar::instance()->deleteCookies(this->url());
     // Add a new set of cookies foor this URL
-    CookieJar::instance()->addCookiesFromMap(cookies, this->url());
+    return CookieJar::instance()->addCookiesFromMap(cookies, this->url());
 }
 
 QVariantList WebPage::cookies() const
@@ -577,21 +577,22 @@ QVariantList WebPage::cookies() const
     return CookieJar::instance()->cookiesToMap(this->url());
 }
 
-void WebPage::addCookie(const QVariantMap &cookie)
+bool WebPage::addCookie(const QVariantMap &cookie)
 {
-    CookieJar::instance()->addCookieFromMap(cookie, this->url());
+    return CookieJar::instance()->addCookieFromMap(cookie, this->url());
 }
 
-void WebPage::deleteCookie(const QString &cookieName)
+bool WebPage::deleteCookie(const QString &cookieName)
 {
     if (!cookieName.isEmpty()) {
-        CookieJar::instance()->deleteCookie(cookieName, this->url());
+        return CookieJar::instance()->deleteCookie(cookieName, this->url());
     }
+    return false;
 }
 
-void WebPage::clearCookies()
+bool WebPage::clearCookies()
 {
-    CookieJar::instance()->deleteCookie(this->url());
+    return CookieJar::instance()->deleteCookies(this->url());
 }
 
 void WebPage::openUrl(const QString &address, const QVariant &op, const QVariantMap &settings)
@@ -1252,6 +1253,18 @@ QString WebPage::focusedFrameName() const
     return m_customWebPage->currentFrame()->frameName();
 }
 
+static void injectCallbacksObjIntoFrames(QWebFrame *frame, WebpageCallbacks *callbacksObject)
+{
+    // Decorate the window object in this frame
+    frame->addToJavaScriptWindowObject(CALLBACKS_OBJECT_NAME, callbacksObject, QScriptEngine::QtOwnership);
+    frame->evaluateJavaScript(CALLBACKS_OBJECT_INJECTION);
+
+    // Decorate the window object in the child frames (recursively)
+    foreach (QWebFrame *childFrame, frame->childFrames()) {
+        injectCallbacksObjIntoFrames(childFrame, callbacksObject);
+    }
+}
+
 void WebPage::handleJavaScriptWindowObjectCleared()
 {
     // Create Callbacks Holder object, if not already present for this page
@@ -1262,15 +1275,8 @@ void WebPage::handleJavaScriptWindowObjectCleared()
     // Reset focus on the Main Frame
     m_mainFrame->setFocus();
 
-    // Decorate the window object in the Main Frame
-    m_mainFrame->addToJavaScriptWindowObject(CALLBACKS_OBJECT_NAME, m_callbacks, QScriptEngine::QtOwnership);
-    m_mainFrame->evaluateJavaScript(CALLBACKS_OBJECT_INJECTION);
-
-    // Decorate the window object in the Main Frame's Child Frames
-    foreach (QWebFrame *childFrame, m_mainFrame->childFrames()) {
-        childFrame->addToJavaScriptWindowObject(CALLBACKS_OBJECT_NAME, m_callbacks, QScriptEngine::QtOwnership);
-        childFrame->evaluateJavaScript(CALLBACKS_OBJECT_INJECTION);
-    }
+    // Inject the Callbacks object in the frame and child-frames (recursively)
+    injectCallbacksObjIntoFrames(m_mainFrame, m_callbacks);
 }
 
 void WebPage::initCompletions()

@@ -93,9 +93,9 @@ CookieJar *CookieJar::instance(QString cookiesFile)
     static CookieJar *singleton = NULL;
     if (!singleton) {
         if (cookiesFile.isEmpty()) {
-            qDebug() << "Creating CookieJar, but no file to store cookies was provided (use '--cookies-file=<filename>')";
+            qDebug() << "CookieJar - Created but will not store cookies (use option '--cookies-file=<filename>' to enable persisten cookie storage)";
         } else {
-            qDebug() << "Creating CookieJar, using file:" << cookiesFile;
+            qDebug() << "CookieJar - Created and will store cookies in:" << cookiesFile;
         }
         // Create singleton and assign ownershipt to the Phantom singleton object
         // NOTE: First time this is done is when we set "once and for all" the Cookies' File
@@ -114,10 +114,9 @@ CookieJar::~CookieJar()
 bool CookieJar::setCookiesFromUrl(const QList<QNetworkCookie> & cookieList, const QUrl &url)
 {
     // Update cookies in memory
-    if (isEnabled() && QNetworkCookieJar::setCookiesFromUrl(cookieList, url)) {
-        // Update cookies in permanent storage, because at least 1 changed
+    if (isEnabled()) {
+        QNetworkCookieJar::setCookiesFromUrl(cookieList, url);
         save();
-        return true;
     }
     // No changes occurred
     return false;
@@ -132,63 +131,107 @@ QList<QNetworkCookie> CookieJar::cookiesForUrl(const QUrl &url) const
     return QList<QNetworkCookie>();
 }
 
-void CookieJar::addCookie(const QNetworkCookie &cookie, const QString &url)
+bool CookieJar::addCookie(const QNetworkCookie &cookie, const QString &url)
 {
-    if (isEnabled()) {
+    if (isEnabled() && (!url.isEmpty() || !cookie.domain().isEmpty())) {
         // Save a single cookie
         setCookiesFromUrl(
-                    QList<QNetworkCookie>() << cookie, //< unfortunately, "setCookiesFromUrl" requires a list
-                    !url.isEmpty() ?
-                        url :       //< use given URL
-                        QUrl(       //< mock-up a URL
-                            (cookie.isSecure() ? "https://" : "http://") +                              //< URL protocol
-                            QString(cookie.domain().startsWith('.') ? "www" : "") + cookie.domain() +   //< URL domain
-                            (cookie.path().isEmpty() ? "/" : cookie.path())));                          //< URL path
+            QList<QNetworkCookie>() << cookie, //< unfortunately, "setCookiesFromUrl" requires a list
+            !url.isEmpty() ?
+                url :           //< use given URL
+                QString(        //< mock-up a URL
+                    (cookie.isSecure() ? "https://" : "http://") +                              //< URL protocol
+                    QString(cookie.domain().startsWith('.') ? "www" : "") + cookie.domain() +   //< URL domain
+                    (cookie.path().isEmpty() ? "/" : cookie.path())));                          //< URL path
+
+        // Return "true" if the cookie was really set
+        if (contains(cookie)) {
+            return true;
+        }
+        qDebug() << "CookieJar - Rejected Cookie" << cookie.toRawForm();
+        return false;
     }
+    return false;
 }
 
-void CookieJar::addCookieFromMap(const QVariantMap &cookie, const QString &url)
+bool CookieJar::addCookieFromMap(const QVariantMap &cookie, const QString &url)
 {
     QNetworkCookie newCookie;
 
-    // The cookie must have "domain", "name" and "value"
-    if (!cookie["domain"].isNull() && !cookie["domain"].toString().isEmpty() &&
-        !cookie["name"].isNull() && !cookie["name"].toString().isEmpty() &&
-        !cookie["value"].isNull()
-    ) {
-        newCookie.setDomain(cookie["domain"].toString());
+    // The cookie must have a non-empty "name" and a "value"
+    if (!cookie["name"].isNull() && !cookie["name"].toString().isEmpty() && !cookie["value"].isNull()) {
+        // Name & Value
         newCookie.setName(cookie["name"].toByteArray());
         newCookie.setValue(cookie["value"].toByteArray());
 
-        newCookie.setPath((cookie["path"].isNull() || cookie["path"].toString().isEmpty()) ?
-                              "/" :cookie["path"].toString());
+        // Domain, if provided
+        if (!cookie["domain"].isNull() && !cookie["domain"].toString().isEmpty()) {
+            newCookie.setDomain(cookie["domain"].toString());
+        }
+
+        // Path, if provided
+        if (!cookie["path"].isNull() || !cookie["path"].toString().isEmpty()) {
+            newCookie.setPath(cookie["path"].toString());
+        }
+
+        // HttpOnly, false by default
         newCookie.setHttpOnly(cookie["httponly"].isNull() ? false : cookie["httponly"].toBool());
+        // Secure, false by default
         newCookie.setSecure(cookie["secure"].isNull() ? false : cookie["secure"].toBool());
 
+        // Expiration Date, if provided, giving priority to "expires" over "expiry"
+        QVariant expiresVar;
         if (!cookie["expires"].isNull()) {
-            QString datetime = cookie["expires"].toString().replace(" GMT", "");
-            QDateTime expires = QDateTime::fromString(datetime, "ddd, dd MMM yyyy hh:mm:ss");
-            if (expires.isValid()) {
-                newCookie.setExpirationDate(expires);
+            expiresVar = cookie["expires"];
+        } else if (!cookie["expiry"].isNull()) {
+            expiresVar = cookie["expiry"];
+        }
+
+        if (expiresVar.isValid()) {
+            QDateTime expirationDate;
+            if (expiresVar.type() == QVariant::String) {
+                // Set cookie expire date via "classic" string format
+                QString datetime = expiresVar.toString().replace(" GMT", "");
+                expirationDate = QDateTime::fromString(datetime, "ddd, dd MMM yyyy hh:mm:ss");
+            } else if (expiresVar.type() == QVariant::Double){
+                // Set cookie expire date via "number of seconds since epoch"
+                // NOTE: Every JS number is a Double.
+                // @see http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-262.pdf
+                expirationDate = QDateTime::fromMSecsSinceEpoch(expiresVar.toLongLong());
+            }
+
+            if (expirationDate.isValid()) {
+                newCookie.setExpirationDate(expirationDate);
             }
         }
 
-        addCookie(newCookie, url);
+        return addCookie(newCookie, url);
     }
+    return false;
 }
 
-void CookieJar::addCookies(const QList<QNetworkCookie> &cookiesList, const QString &url)
+bool CookieJar::addCookies(const QList<QNetworkCookie> &cookiesList, const QString &url)
 {
+    bool added = false;
     for (int i = cookiesList.length() -1; i >=0; --i) {
-        addCookie(cookiesList.at(i), url);
+        if (addCookie(cookiesList.at(i), url)) {
+            // change it to "true" if at least 1 cookie was set
+            added = true;
+        }
     }
+    return added;
 }
 
-void CookieJar::addCookiesFromMap(const QVariantList &cookiesList, const QString &url)
+bool CookieJar::addCookiesFromMap(const QVariantList &cookiesList, const QString &url)
 {
+    bool added = false;
     for (int i = cookiesList.length() -1; i >= 0; --i) {
-        addCookieFromMap(cookiesList.at(i).toMap(), url);
+        if (addCookieFromMap(cookiesList.at(i).toMap(), url)) {
+            // change it to "true" if at least 1 cookie was set
+            added = true;
+        }
     }
+    return added;
 }
 
 QList<QNetworkCookie> CookieJar::cookies(const QString &url) const
@@ -220,6 +263,7 @@ QVariantList CookieJar::cookiesToMap(const QString &url) const
         cookie["secure"] = QVariant(c.isSecure());
         if (c.expirationDate().isValid()) {
             cookie["expires"] = QVariant(QString(c.expirationDate().toString("ddd, dd MMM yyyy hh:mm:ss")).append(" GMT"));
+            cookie["expiry"] = QVariant(c.expirationDate().toMSecsSinceEpoch() / 1000);
         }
 
         result.append(cookie);
@@ -253,44 +297,75 @@ QVariantMap CookieJar::cookieToMap(const QString &name, const QString &url) cons
     return QVariantMap();
 }
 
-void CookieJar::deleteCookie(const QString &name, const QString &url)
+bool CookieJar::deleteCookie(const QString &name, const QString &url)
 {
+    bool deleted = false;
     if (isEnabled()) {
-        QNetworkCookie cookie;
 
-        // For all the cookies that are visible to this URL
-        QList<QNetworkCookie> cookiesList = cookies(url);
-        for (int i = cookiesList.length() -1; i >= 0; --i) {
-            if (cookiesList.at(i).name() == name || name.isEmpty()) {
-                // Remove item from list
-                cookie = cookiesList.takeAt(i);
-                // If we found the right cookie, mark it expired so it gets purged
-                cookie.setExpirationDate(QDateTime::currentDateTime().addYears(-1));
-                // Add it back to the list
-                cookiesList.append(cookie);
-                // Set a new list of cookies for this URL
-                setCookiesFromUrl(cookiesList, url);
+        // NOTE: This code has been written in an "extended form" to make it
+        // easy to understand. Surely this could be "shrinked", but it
+        // would probably look uglier.
 
-                if (!name.isEmpty()) {
-                    // Only one cookie was supposed to be deleted: we are done here!
-                    return;
+        QList<QNetworkCookie> cookiesListAll;
+
+        if (url.isEmpty()) {
+            if (name.isEmpty()) {           //< Neither "name" or "url" provided
+                // This method has been used wrong:
+                // "redirecting" to the right method for the job
+                clearCookies();
+            } else {                        //< Only "name" provided
+                // Delete all cookies with the given name from the CookieJar
+                cookiesListAll = allCookies();
+                for (int i = cookiesListAll.length() -1; i >= 0; --i) {
+                    if (cookiesListAll.at(i).name() == name) {
+                        // Remove this cookie
+                        qDebug() << "CookieJar - Deleted" << cookiesListAll.at(i).toRawForm();
+                        cookiesListAll.removeAt(i);
+                        deleted = true;
+                    }
+                }
+            }
+        } else {
+            // Delete cookie(s) from the ones visible to the given "url".
+            // Use the "name" to delete only the right one, otherwise all of them.
+            QList<QNetworkCookie> cookiesListUrl = cookies(url);
+            cookiesListAll = allCookies();
+            for (int i = cookiesListAll.length() -1; i >= 0; --i) {
+                if (cookiesListUrl.contains(cookiesListAll.at(i)) &&            //< if it part of the set of cookies visible at URL
+                    (cookiesListAll.at(i).name() == name || name.isEmpty())) {  //< and if the name matches, or no name provided
+                    // Remove this cookie
+                    qDebug() << "CookieJar - Deleted" << cookiesListAll.at(i).toRawForm();
+                    cookiesListAll.removeAt(i);
+                    deleted = true;
+
+                    if (!name.isEmpty()) {
+                        // Only one cookie was supposed to be deleted: we are done here!
+                        break;
+                    }
                 }
             }
         }
+
+        // Put back the remaining cookies
+        setAllCookies(cookiesListAll);
     }
+    return deleted;
 }
 
-void CookieJar::deleteCookies(const QString &url)
+bool CookieJar::deleteCookies(const QString &url)
 {
     if (isEnabled()) {
         if (url.isEmpty()) {
             // No URL provided: delete ALL the cookies in the CookieJar
             clearCookies();
-        } else {
-            // No cookie name provided: delete all the cookies visible by this URL
-            deleteCookie("", url);
+            return true;
         }
+
+        // No cookie name provided: delete all the cookies visible by this URL
+        qDebug() << "Delete all cookies for URL:" << url;
+        return deleteCookie("", url);
     }
+    return false;
 }
 
 void CookieJar::clearCookies()
@@ -316,6 +391,59 @@ bool CookieJar::isEnabled() const
 }
 
 // private:
+bool CookieJar::purgeExpiredCookies()
+{
+    QList<QNetworkCookie> cookiesList = allCookies();
+
+    // If empty, there is nothing to purge
+    if (cookiesList.isEmpty()) {
+        return false;
+    }
+
+    // Check if any cookie has expired
+    int prePurgeCookiesCount = cookiesList.count();
+    QDateTime now = QDateTime::currentDateTime();
+    for (int i = cookiesList.count() - 1; i >= 0; --i) {
+        if (!cookiesList.at(i).isSessionCookie() && cookiesList.at(i).expirationDate() < now) {
+            qDebug() << "CookieJar - Purged (expired)" << cookiesList.at(i).toRawForm();
+            cookiesList.removeAt(i);
+        }
+    }
+
+    // Set cookies and returns "true" if at least 1 cookie expired and has been removed
+    if (prePurgeCookiesCount != cookiesList.count()) {
+        setAllCookies(cookiesList);
+        return true;
+    }
+    return false;
+}
+
+bool CookieJar::purgeSessionCookies()
+{
+    QList<QNetworkCookie> cookiesList = allCookies();
+
+    // If empty, there is nothing to purge
+    if (cookiesList.isEmpty()) {
+        return false;
+    }
+
+    // Check if any cookie has expired
+    int prePurgeCookiesCount = cookiesList.count();
+    for (int i = cookiesList.count() - 1; i >= 0; --i) {
+        if (cookiesList.at(i).isSessionCookie() || !cookiesList.at(i).expirationDate().isValid() || cookiesList.at(i).expirationDate().isNull()) {
+            qDebug() << "CookieJar - Purged (session)" << cookiesList.at(i).toRawForm();
+            cookiesList.removeAt(i);
+        }
+    }
+
+    // Set cookies and returns "true" if at least 1 session cookie was found and removed
+    if (prePurgeCookiesCount != cookiesList.count()) {
+        setAllCookies(cookiesList);
+        return true;
+    }
+    return false;
+}
+
 void CookieJar::save()
 {
     if (isEnabled()) {
@@ -324,56 +452,13 @@ void CookieJar::save()
 
 #ifndef QT_NO_DEBUG_OUTPUT
         foreach (QNetworkCookie cookie, allCookies()) {
-            qDebug() << "CookieJar - Saved" << cookie.toRawForm() << "expires:" << cookie.expirationDate().toString();
+            qDebug() << "CookieJar - Saved" << cookie.toRawForm();
         }
 #endif
 
         // Store cookies
         m_cookieStorage->setValue(QLatin1String("cookies"), QVariant::fromValue<QList<QNetworkCookie> >(allCookies()));
     }
-}
-
-bool CookieJar::purgeExpiredCookies()
-{
-    QList<QNetworkCookie> cookies = allCookies();
-
-    // If empty, there is nothing to purge
-    if (cookies.isEmpty()) {
-        return false;
-    }
-
-    // Check if any cookie has expired
-    int prePurgeCookiesCount = cookies.count();
-    QDateTime now = QDateTime::currentDateTime();
-    for (int i = cookies.count() - 1; i >= 0; --i) {
-        if (!cookies.at(i).isSessionCookie() && cookies.at(i).expirationDate() < now) {
-            cookies.removeAt(i);
-        }
-    }
-
-    // Returns "true" if at least 1 cookie expired and has been removed
-    return prePurgeCookiesCount != cookies.count();
-}
-
-bool CookieJar::purgeSessionCookies()
-{
-    QList<QNetworkCookie> cookies = allCookies();
-
-    // If empty, there is nothing to purge
-    if (cookies.isEmpty()) {
-        return false;
-    }
-
-    // Check if any cookie has expired
-    int prePurgeCookiesCount = cookies.count();
-    for (int i = cookies.count() - 1; i >= 0; --i) {
-        if (cookies.at(i).isSessionCookie() || !cookies.at(i).expirationDate().isValid() || cookies.at(i).expirationDate().isNull()) {
-            cookies.removeAt(i);
-        }
-    }
-
-    // Returns "true" if at least 1 session cookie was found and removed
-    return prePurgeCookiesCount != cookies.count();
 }
 
 void CookieJar::load()
@@ -392,8 +477,27 @@ void CookieJar::load()
 
 #ifndef QT_NO_DEBUG_OUTPUT
         foreach (QNetworkCookie cookie, allCookies()) {
-            qDebug() << "CookieJar - Loaded" << cookie.toRawForm() << "expires:" << cookie.expirationDate().toString();
+            qDebug() << "CookieJar - Loaded" << cookie.toRawForm();
         }
 #endif
     }
+}
+
+bool CookieJar::contains(const QNetworkCookie &cookie) const
+{
+    QList<QNetworkCookie> cookiesList = allCookies();
+    for (int i = cookiesList.length() -1; i >= 0; --i) {
+        if (cookie.name() == cookiesList.at(i).name() &&
+            cookie.value() == cookiesList.at(i).value() &&
+            (cookie.domain().isEmpty() || cookiesList.at(i).domain().prepend('.').endsWith(cookie.domain())) &&
+            (cookie.path().isEmpty() || cookiesList.at(i).path() == cookie.path()) &&
+            cookie.isSecure() == cookiesList.at(i).isSecure() &&
+            cookie.isHttpOnly() == cookiesList.at(i).isHttpOnly() &&
+            cookie.expirationDate().toMSecsSinceEpoch() == cookie.expirationDate().toMSecsSinceEpoch()
+            ) {
+            return true;
+        }
+    }
+
+    return false;
 }

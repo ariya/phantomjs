@@ -615,6 +615,14 @@ describe("WebPage object", function() {
             'path' : '/foo',
             'httponly' : true,
             'secure' : false
+        },{
+            'name' : 'Valid-Cookie-Name-Sec',
+            'value' : 'Valid-Cookie-Value-Sec',
+            'domain' : 'localhost',
+            'path' : '/foo',
+            'httponly' : true,
+            'secure' : false,
+            'expires' : new Date().getTime() + 3600 //< expires in 1h
         }];
 
         var handled = false;
@@ -628,6 +636,8 @@ describe("WebPage object", function() {
                 // console.log(JSON.stringify(echoedHeaders));
                 expect(echoedHeaders["Cookie"]).toContain("Valid-Cookie-Name");
                 expect(echoedHeaders["Cookie"]).toContain("Valid-Cookie-Value");
+                expect(echoedHeaders["Cookie"]).toContain("Valid-Cookie-Name-Sec");
+                expect(echoedHeaders["Cookie"]).toContain("Valid-Cookie-Value-Sec");
             });
         });
 
@@ -653,10 +663,7 @@ describe("WebPage object", function() {
         var url = "http://localhost:12345/foo/headers.txt?ab=cd";
 
         page.cookies = [
-        {   // domain missing.
-            'name' : 'Invalid-Cookie-Name',
-            'value' : 'Invalid-Cookie-Value'
-        },{ // domain mismatch.
+        { // domain mismatch.
             'name' : 'Invalid-Cookie-Name',
             'value' : 'Invalid-Cookie-Value',
             'domain' : 'foo.com'
@@ -677,6 +684,16 @@ describe("WebPage object", function() {
             'value' : 'Invalid-Cookie-Value',
             'domain' : 'localhost',
             'secure' : true
+        },{ // cookie expired (date in "sec since epoch").
+            'name' : 'Invalid-Cookie-Name',
+            'value' : 'Invalid-Cookie-Value',
+            'domain' : 'localhost',
+            'expires' : new Date().getTime() - 1 //< date in the past
+        },{ // cookie expired (date in "sec since epoch" - using "expiry").
+            'name' : 'Invalid-Cookie-Name',
+            'value' : 'Invalid-Cookie-Value',
+            'domain' : 'localhost',
+            'expiry' : new Date().getTime() - 1 //< date in the past
         }];
 
         var handled = false;

@@ -63,6 +63,8 @@ Phantom::Phantom(QObject *parent)
     // Prepare the configuration object based on the command line arguments.
     // Because this object will be used by other classes, it needs to be ready ASAP.
     m_config.init(&args);
+    // Apply debug configuration as early as possible
+    Utils::printDebugMessages = m_config.printDebugMessages();
 
     // initialize key map
     QMetaEnum keys = staticQtMetaObject.enumerator( staticQtMetaObject.indexOfEnumerator("Key") );
@@ -378,6 +380,39 @@ void Phantom::onInitialized()
                 );
 }
 
+bool Phantom::setCookies(const QVariantList &cookies)
+{
+    // Delete all the cookies from the CookieJar
+    CookieJar::instance()->clearCookies();
+    // Add a new set of cookies
+    return CookieJar::instance()->addCookiesFromMap(cookies);
+}
+
+QVariantList Phantom::cookies() const
+{
+    // Return all the Cookies in the CookieJar, as a list of Maps (aka JSON in JS space)
+    return CookieJar::instance()->cookiesToMap();
+}
+
+bool Phantom::addCookie(const QVariantMap &cookie)
+{
+    return CookieJar::instance()->addCookieFromMap(cookie);
+}
+
+bool Phantom::deleteCookie(const QString &cookieName)
+{
+    if (!cookieName.isEmpty()) {
+        return CookieJar::instance()->deleteCookie(cookieName);
+    }
+    return false;
+}
+
+void Phantom::clearCookies()
+{
+    CookieJar::instance()->clearCookies();
+}
+
+
 // private:
 void Phantom::doExit(int code)
 {
@@ -407,7 +442,12 @@ void Phantom::initCompletions()
     addCompletion("version");
     addCompletion("keys");
     addCompletion("cookiesEnabled");
+    addCompletion("cookies");
     // functions
     addCompletion("exit");
+    addCompletion("debugExit");
     addCompletion("injectJs");
+    addCompletion("addCookie");
+    addCompletion("deleteCookie");
+    addCompletion("clearCookies");
 }
