@@ -4,7 +4,7 @@ PhantomJS ([www.phantomjs.org](http://phantomjs.org)) is a headless WebKit scrip
 
 The latest [stable release](http://code.google.com/p/phantomjs/wiki/ReleaseNotes) is version 1.6 (codenamed "Lavender"). Follow the official Twitter stream [@PhantomJS](http://twitter.com/PhantomJS) to get the frequent development updates.
 
-**Note**: Please **do not** create a GitHub pull request **without** reading the [Contribution Guide](CONTRIBUTING.md) first. Failure to do so may result in the rejection of the pull request.
+**Note**: Please **do not** create a GitHub pull request **without** reading the [Contribution Guide](https://github.com/ariya/phantomjs/blob/master/CONTRIBUTING.md) first. Failure to do so may result in the rejection of the pull request.
 
 ## Use Cases
 
