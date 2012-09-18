@@ -174,7 +174,7 @@ describe("WebPage object", function() {
     expectHasFunction(page, 'clearCookies');
     expectHasFunction(page, 'setContentAndLocation');
 
-    it("should set content and location when setContentAndLocation is called", function() {
+    it("should set content and location", function() {
         runs(function() {
             var expectedContent = "<html><body><div>Test div</div></body></html>";
             var expectedLocation = "http://www.phantomjs.org/";
@@ -183,10 +183,10 @@ describe("WebPage object", function() {
                 return window.location.href;
             });
             var actualContent = page.evaluate(function(){
-                return document.documentElement.outerHTML;
+                return document.documentElement.textContent;
             });
-            expect(actualLocation).toEqual(expectedLocation);
-            expect(actualContent).toEqual(expectedContent);
+            expect(expectedLocation).toEqual(actualLocation);
+            expect(expectedContent).toContain("Test div");
         });
     });
 
