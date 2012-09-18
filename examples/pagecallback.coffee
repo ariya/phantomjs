@@ -7,7 +7,7 @@ p.onCallback = (msg) ->
   "Hello there, I'm coming to you from the 'phantom' context instead"
 
 p.evaluate ->
-  callbackResponse = phantomCallback("Hello, I'm coming to you from the 'page' context")
+  callbackResponse = callPhantom("Hello, I'm coming to you from the 'page' context")
   console.log "Received by the 'page' context: " + callbackResponse
 
 phantom.exit()

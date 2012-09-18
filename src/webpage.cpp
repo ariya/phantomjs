@@ -1253,6 +1253,18 @@ QString WebPage::focusedFrameName() const
     return m_customWebPage->currentFrame()->frameName();
 }
 
+static void injectCallbacksObjIntoFrames(QWebFrame *frame, WebpageCallbacks *callbacksObject)
+{
+    // Decorate the window object in this frame
+    frame->addToJavaScriptWindowObject(CALLBACKS_OBJECT_NAME, callbacksObject, QScriptEngine::QtOwnership);
+    frame->evaluateJavaScript(CALLBACKS_OBJECT_INJECTION);
+
+    // Decorate the window object in the child frames (recursively)
+    foreach (QWebFrame *childFrame, frame->childFrames()) {
+        injectCallbacksObjIntoFrames(childFrame, callbacksObject);
+    }
+}
+
 void WebPage::handleJavaScriptWindowObjectCleared()
 {
     // Create Callbacks Holder object, if not already present for this page
@@ -1263,15 +1275,8 @@ void WebPage::handleJavaScriptWindowObjectCleared()
     // Reset focus on the Main Frame
     m_mainFrame->setFocus();
 
-    // Decorate the window object in the Main Frame
-    m_mainFrame->addToJavaScriptWindowObject(CALLBACKS_OBJECT_NAME, m_callbacks, QScriptEngine::QtOwnership);
-    m_mainFrame->evaluateJavaScript(CALLBACKS_OBJECT_INJECTION);
-
-    // Decorate the window object in the Main Frame's Child Frames
-    foreach (QWebFrame *childFrame, m_mainFrame->childFrames()) {
-        childFrame->addToJavaScriptWindowObject(CALLBACKS_OBJECT_NAME, m_callbacks, QScriptEngine::QtOwnership);
-        childFrame->evaluateJavaScript(CALLBACKS_OBJECT_INJECTION);
-    }
+    // Inject the Callbacks object in the frame and child-frames (recursively)
+    injectCallbacksObjIntoFrames(m_mainFrame, m_callbacks);
 }
 
 void WebPage::initCompletions()
