@@ -9,6 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta http-equiv="refresh" content="0;URL='https://github.com/ariya/phantomjs/blob/master/CONTRIBUTING.md'">
     <link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="screen.min.css">
     <script type="text/javascript">
@@ -73,83 +74,7 @@
 
     <div class="grid_10">
 
-        <p>This page describes how to contribute changes to the PhantomJS source control repository.</p>
-
-        <p><strong>Note</strong>: Please do not create a GitHub pull request without reading this guide first. Failure to do so may result in the rejection of the pull request.</p>
-
-        <h2>Communicate</h2>
-
-        <p><em>Second opinion is always important</em>.</p>
-
-        <p>If you have a fix for a bug, please attach your patch in the corresponding issue in the <a href="http://issues.phantomjs.org">issue tracker</a>. If there is no entry for the bug yet, then please create a new one. If you are convenient working with Git, see the <em>Get Ready</em> section below on how to submit your change.</p>
-
-        <p>If you have an idea for improvement, then please send an email to <a href="http://groups.google.com/group/phantomjs">mailing list</a> (preferable than contacting the developers directly) so that other people can give their insights and opinions. This is also important to avoid duplicate work.</p>
-
-        <p>Once the feature idea is agreed upon and translated into concrete actions and tasks, please use the <a href="http://issues.phantomjs.org">issue tracker</a> to create an issue for each individual task. Further technical discussion about the task and the implementation details should be carried out in the issue tracker.
-
-
-        <p>Whenever you want to introduce a new API, please send an email to the mailing list along with the link to the issue. Consider good API name for the object or function, read the <a href="http://developer.qt.nokia.com/wiki/API_Design_Principles">API Design Principle</a> article. It may require few iterations to agree on the final API and hence it is important to engage all interested parties as early as possible.</p>
-
-        <h2>Get Ready</h2>
-
-        <p>For your proposed change, you need to have:</p>
-
-        <ul>
-            <li>an issue (in the issue tracker) which describe your bug or feature</li>
-            <li>a feature branch in your git fork</li>
-        </ul>
-
-        <p><strong>Refer the Issue</strong></p>
-
-        <p>The commit message needs to link to the issue. This cross-reference is <a href="http://ariya.ofilabs.com/2012/01/small-scale-software-craftsmanship.html">very important</a> for the following reasons.</p>
-
-        <p>First, the commit log is <em>frozen</em> and can not be changed. If it contains a mistake or outdated information, the log can not be amended. However, further updates can be still posted to the linked issue, which can be followed from the commit log itself.</p>
-
-        <p>Second, it provides a placeholder to place code review and other feedback. Reviewing the change using GitHub commenting system is not encouraged because it is <strong>not</strong> <a href="http://ariya.ofilabs.com/2012/08/github-and-lack-of-searchability.html">searchable</a> at all (if there is a future need to refer the previous discussion again, the comment is almost impossible to locate)</p>
-
-        <p>An example of a bad commit log:</p>
-
-        <pre>Fix Mountain Lion</pre>
-
-        <p>The above log is too short and useless in the long run. A better version (and note the issue link):</p>
-
-        <pre>Better support for OS X Mountain Lion.
-require('system').os.version should give "10.8 (Mountain Lion)".
-
-http://code.google.com/p/phantomjs/issues/detail?id=688</pre>
-
-        <p><strong>Use Feature Branch</strong></p>
-
-        <p>To isolate your change, please avoid working on the master branch. Instead, work on a <em>feature branch</em> (often also known as topic branch). You can create a new branch (example here crash-fix) off the master branch by using:</p>
-
-        <pre>git checkout -b crash-fix master</pre>
-
-        <p>Refer to your favorite Git tutorial/book for further detailed help.</p>
-
-        <p>Some good practices for the feature branch:</p>
-
-        <ul>
-            <li>Give it a meaningful name instead of, e.g. <em>prevent-zero-divide</em> instead of just <em>fix</em>
-            <li>Make <strong>granular and atomic</strong> commits, e.g. do not mix a typo fix with some major refactoring
-            <li>Keep one branch for one specific issue. If you need to work on other unrelated issues, create another branch.
-        </ul>
-
-        <h2>Review and Merge</h2>
-
-        <p>When your branch is ready, send the pull request.</p>
-
-        <p>While it is not always the case, often it is necessary to improve parts of your code in the branch. This is the actual review process.</p>
-
-        <p>Here is a check list for the review:</p>
-
-        <ul>
-            <li>It does not break the test suite
-            <li>There is no typo
-            <li>The coding style follows the existing one
-            <li>There is a reasonable amount of comment
-            <li>The license header is intact
-            <li>All examples are still working
-        </ul>
+        <p>The content of this page is moved to <a href="https://github.com/ariya/phantomjs/blob/master/CONTRIBUTING.md">Contributing Guide</a>.</p>
 
     </div>
 </div>
