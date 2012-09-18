@@ -223,6 +223,10 @@ QCommandLine::parse()
 	entry.flags = (QCommandLine::Flags) (entry.flags & ~QCommandLine::Mandatory);
 	entry.flags = (QCommandLine::Flags) (entry.flags | QCommandLine::Optional);
       }
+  
+		if (entry.flags & QCommandLine::ParameterFence) {
+			allparam = true;
+		}
 
       emit paramFound(entry.longName, arg);
 
