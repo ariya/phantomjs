@@ -7,16 +7,20 @@ Version 1.7.0
       * Added a module system modelled after CommonJS/Node.js (issue 47)
       * Static build on Linux (issue 413)
       * Added run-time detection of SSL support (issue 484)
+      * Added more events support (issue 492, 712)
       * Added support for disabling automatic proxy detection (issue 580)
       * Added more cookies-related API (issue 761)
 
     Improvements
 
       * Refactored command-line options handling (issue 55)
+      * Improved the workflow for producing release builds (issue 599)
       * Improved cookies implementation (issue 603, 761)
       * Fixed OS version number with Windows 8 and Mountain Lion (issue 684, 688)
       * Fixed HAR navigation info in the netsniff example (issue 733)
       * Fixed compile warnings with Visual Studio (issue 744)
+      * Removed hacks for static linking on Windows (issue 753)
+      * Added ICO image handling on Windows (issue 779)
 
 2012-07-22: Version 1.6.1
 
