@@ -19,6 +19,7 @@ debian/*/
 /deploy/qt-*.tar.gz
 /deploy/Qt-*
 /symbols
+src/qt/qtc-debugging-helper
 
 # ignore ctags
 /tags

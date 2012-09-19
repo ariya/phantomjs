@@ -77,9 +77,9 @@ int main(int argc, char** argv, const char** envp)
 
     if (cbBuffer == 0) {
         eh = new ExceptionHandler(TEXT("."), NULL, Utils::exceptionHandler, NULL, ExceptionHandler::HANDLER_ALL);
-	} else {
+    } else {
         LPWSTR szBuffer = reinterpret_cast<LPWSTR>(malloc(sizeof(TCHAR) * (cbBuffer + 1)));
-        
+
         if (ExpandEnvironmentStrings(TEXT("%TEMP%"), szBuffer, cbBuffer + 1) > 0) {
             wstring lpDumpPath(szBuffer);
             eh = new ExceptionHandler(lpDumpPath, NULL, Utils::exceptionHandler, NULL, ExceptionHandler::HANDLER_ALL);
@@ -87,7 +87,7 @@ int main(int argc, char** argv, const char** envp)
         free(szBuffer);
     }
 #endif
-   
+
     QApplication app(argc, argv);
 
     app.setWindowIcon(QIcon(":/phantomjs-icon.png"));
@@ -99,12 +99,11 @@ int main(int argc, char** argv, const char** envp)
     // Prepare the "env" singleton using the environment variables
     Env::instance()->parse(envp);
 
+    // Registering an alternative Message Handler
+    qInstallMsgHandler(Utils::messageHandler);
+
     // Get the Phantom singleton
     Phantom *phantom = Phantom::instance();
-
-    // Registering an alternative Message Handler
-    Utils::printDebugMessages = phantom->printDebugMessages();
-    qInstallMsgHandler(Utils::messageHandler);
 
     // Start script execution
     if (phantom->execute()) {
