@@ -73,6 +73,11 @@ Config::Config(QObject *parent)
     : QObject(parent)
 {
     m_cmdLine = new QCommandLine;
+
+    // We will handle --help and --version ourselves in phantom.cpp
+    m_cmdLine->enableHelp(false);
+    m_cmdLine->enableVersion(false);
+
     resetToDefaults();
 }
 
