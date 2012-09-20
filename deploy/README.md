@@ -19,7 +19,7 @@ for instructions on how to install VirtualBox and Vagrant.
 Once you have Vagrant installed, building should be as simple as
 running:
 
-    $ export PHANTOMJS_VERSION=1.6.0 # change as necessary
+    $ export PHANTOMJS_VERSION=1.7.0 # change as necessary
     $ vagrant up $ARCH
 
 Where $ARCH is either `i686` or `x86_64`.
