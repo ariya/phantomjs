@@ -720,7 +720,13 @@ QImage WebPage::renderImage()
     QSize viewportSize = m_customWebPage->viewportSize();
     m_customWebPage->setViewportSize(contentsSize);
 
-    QImage buffer(frameRect.size(), QImage::Format_ARGB32_Premultiplied);
+#ifdef Q_OS_WIN32
+    QImage::Format format = QImage::Format_ARGB32_Premultiplied;
+#else
+    QImage::Format format = QImage::Format_ARGB32;
+#endif
+
+    QImage buffer(frameRect.size(), format);
     buffer.fill(qRgba(255, 255, 255, 0));
 
     QPainter painter;
@@ -734,7 +740,7 @@ QImage WebPage::renderImage()
     for (int x = 0; x < htiles; ++x) {
         for (int y = 0; y < vtiles; ++y) {
 
-            QImage tileBuffer(tileSize, tileSize, QImage::Format_ARGB32_Premultiplied);
+            QImage tileBuffer(tileSize, tileSize, format);
             tileBuffer.fill(qRgba(255, 255, 255, 0));
 
             // Render the web page onto the small tile first
