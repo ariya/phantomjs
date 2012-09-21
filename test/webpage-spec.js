@@ -142,6 +142,7 @@ describe("WebPage object", function() {
             expect(page.zoomFactor).toEqual(1.0);
     });
 
+    expectHasProperty(page, 'event');
     expectHasProperty(page, 'cookies');
 
     checkViewportSize(page, {height:300,width:400});
@@ -181,7 +182,7 @@ describe("WebPage object", function() {
                     window.loggedEvent.keydown = event;
                 }, false);
             });
-            page.sendEvent('keydown', phantom.keys.A);
+            page.sendEvent('keydown', page.event.key.A);
         });
 
         waits(50);
@@ -190,7 +191,7 @@ describe("WebPage object", function() {
             var event = page.evaluate(function() {
                 return window.loggedEvent.keydown;
             });
-            expect(event.which).toEqual(phantom.keys.A);
+            expect(event.which).toEqual(page.event.key.A);
         });
     });
 
@@ -202,7 +203,7 @@ describe("WebPage object", function() {
                     window.loggedEvent.keyup = event;
                 }, false);
             });
-            page.sendEvent('keyup', phantom.keys.A);
+            page.sendEvent('keyup', page.event.key.A);
         });
 
         waits(50);
@@ -211,7 +212,7 @@ describe("WebPage object", function() {
             var event = page.evaluate(function() {
                 return window.loggedEvent.keyup;
             });
-            expect(event.which).toEqual(phantom.keys.A);
+            expect(event.which).toEqual(page.event.key.A);
         });
     });
 
@@ -223,7 +224,7 @@ describe("WebPage object", function() {
                     window.loggedEvent.keypress = event;
                 }, false);
             });
-            page.sendEvent('keypress', phantom.keys.A);
+            page.sendEvent('keypress', page.event.key.A);
         });
 
         waits(50);
@@ -232,7 +233,7 @@ describe("WebPage object", function() {
             var event = page.evaluate(function() {
                 return window.loggedEvent.keypress;
             });
-            expect(event.which).toEqual(phantom.keys.A);
+            expect(event.which).toEqual(page.event.key.A);
         });
     });
 
@@ -247,11 +248,11 @@ describe("WebPage object", function() {
                     return document.querySelector('input').value;
                 });
             };
-            page.sendEvent('keypress', phantom.keys.A);
+            page.sendEvent('keypress', page.event.key.A);
             expect(getText()).toEqual("A");
-            page.sendEvent('keypress', phantom.keys.B);
+            page.sendEvent('keypress', page.event.key.B);
             expect(getText()).toEqual("AB");
-            page.sendEvent('keypress', phantom.keys.Backspace);
+            page.sendEvent('keypress', page.event.key.Backspace);
             expect(getText()).toEqual("A");
         });
     });

@@ -34,8 +34,6 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFile>
-// note: QMetaObject apparently does not define QMetaEnum...
-#include <qmetaobject.h>
 #include <QWebPage>
 
 #include "consts.h"
@@ -65,16 +63,6 @@ Phantom::Phantom(QObject *parent)
     m_config.init(&args);
     // Apply debug configuration as early as possible
     Utils::printDebugMessages = m_config.printDebugMessages();
-
-    // initialize key map
-    QMetaEnum keys = staticQtMetaObject.enumerator( staticQtMetaObject.indexOfEnumerator("Key") );
-    for(int i = 0; i < keys.keyCount(); ++i) {
-        QString name = keys.key(i);
-        if (name.startsWith("Key_")) {
-            name.remove(0, 4);
-        }
-        m_keyMap[name] = keys.value(i);
-    }
 }
 
 void Phantom::init()
@@ -105,7 +93,6 @@ void Phantom::init()
     CookieJar::instance(m_config.cookiesFile());
 
     m_page = new WebPage(this, QUrl::fromLocalFile(m_config.scriptFile()));
-    m_pages.append(m_page);
 
     QString proxyType = m_config.proxyType();
     if (proxyType != "none") {
@@ -259,11 +246,6 @@ bool Phantom::printDebugMessages() const
     return m_config.printDebugMessages();
 }
 
-QVariantMap Phantom::keys() const
-{
-    return m_keyMap;
-}
-
 bool Phantom::areCookiesEnabled() const
 {
     return CookieJar::instance()->isEnabled();
@@ -282,10 +264,6 @@ void Phantom::setCookiesEnabled(const bool value)
 QObject *Phantom::createWebPage()
 {
     WebPage *page = new WebPage(this);
-
-    // Store pointer to the page for later cleanup
-    m_pages.append(page);
-    // Apply default settings to the page
     page->applySettings(m_defaultPageSettings);
 
     // Show web-inspector if in debug mode
@@ -424,9 +402,6 @@ void Phantom::doExit(int code)
     emit aboutToExit(code);
     m_terminated = true;
     m_returnValue = code;
-    qDeleteAll(m_pages);
-    m_pages.clear();
-    m_page = 0;
     QApplication::instance()->exit(code);
 }
 
@@ -440,7 +415,6 @@ void Phantom::initCompletions()
     addCompletion("outputEncoding");
     addCompletion("scriptName");
     addCompletion("version");
-    addCompletion("keys");
     addCompletion("cookiesEnabled");
     addCompletion("cookies");
     // functions

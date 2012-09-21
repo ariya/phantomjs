@@ -189,7 +189,6 @@ protected:
             newPage = new WebPage(m_webPage);
         } else {
             newPage = new WebPage(Phantom::instance());
-            Phantom::instance()->m_pages.append(newPage);
         }
 
         // Apply default settings
@@ -720,7 +719,13 @@ QImage WebPage::renderImage()
     QSize viewportSize = m_customWebPage->viewportSize();
     m_customWebPage->setViewportSize(contentsSize);
 
-    QImage buffer(frameRect.size(), QImage::Format_ARGB32);
+#ifdef Q_OS_WIN32
+    QImage::Format format = QImage::Format_ARGB32_Premultiplied;
+#else
+    QImage::Format format = QImage::Format_ARGB32;
+#endif
+
+    QImage buffer(frameRect.size(), format);
     buffer.fill(qRgba(255, 255, 255, 0));
 
     QPainter painter;
@@ -734,7 +739,7 @@ QImage WebPage::renderImage()
     for (int x = 0; x < htiles; ++x) {
         for (int y = 0; y < vtiles; ++y) {
 
-            QImage tileBuffer(tileSize, tileSize, QImage::Format_ARGB32);
+            QImage tileBuffer(tileSize, tileSize, format);
             tileBuffer.fill(qRgba(255, 255, 255, 0));
 
             // Render the web page onto the small tile first
