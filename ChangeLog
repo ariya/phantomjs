@@ -5,22 +5,29 @@ Version 1.7.0
     New features
 
       * Added a module system modelled after CommonJS/Node.js (issue 47)
+      * Added support for window pop-up (issue 151)
       * Static build on Linux (issue 413)
       * Added run-time detection of SSL support (issue 484)
       * Added more events support (issue 492, 712)
       * Added support for disabling automatic proxy detection (issue 580)
+      * Provided page closing callback (issue 678)
+      * Added methods to access URL, frames URL, frame Content (issue 758)
       * Added more cookies-related API (issue 761)
 
     Improvements
 
       * Refactored command-line options handling (issue 55)
       * Improved the workflow for producing release builds (issue 599)
-      * Improved cookies implementation (issue 603, 761)
+      * Improved cookies API and implementation (issue 603, 761)
+      * Improved frame switching API (issue 654)
+      * Fixed iframe handling regression (issue 683)
       * Fixed OS version number with Windows 8 and Mountain Lion (issue 684, 688)
       * Fixed HAR navigation info in the netsniff example (issue 733)
       * Fixed compile warnings with Visual Studio (issue 744)
       * Removed hacks for static linking on Windows (issue 753)
       * Added ICO image handling on Windows (issue 779)
+      * Fixed font antialiasing on Windows (issue 785)
+      * Improved Jasmine test runner for Jasmine 1.2 (issue 792)
 
 2012-07-22: Version 1.6.1
 
