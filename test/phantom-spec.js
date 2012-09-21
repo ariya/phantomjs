@@ -67,10 +67,6 @@ describe("phantom global object", function() {
         expect(typeof phantom.exit).toEqual("function");
     });
 
-    it("should have 'keys' property", function() {
-        expect(phantom.hasOwnProperty('keys')).toBeTruthy();
-    });
-
     it("should have 'cookiesEnabled' property, and should be 'true' by default", function() {
         expect(phantom.hasOwnProperty('cookiesEnabled')).toBeTruthy();
         expect(phantom.cookiesEnabled).toBeTruthy();

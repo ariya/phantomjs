@@ -54,7 +54,6 @@ class Phantom: public REPLCompletable
     Q_PROPERTY(QString scriptName READ scriptName)
     Q_PROPERTY(QVariantMap version READ version)
     Q_PROPERTY(QObject *page READ page)
-    Q_PROPERTY(QVariantMap keys READ keys)
     Q_PROPERTY(bool cookiesEnabled READ areCookiesEnabled WRITE setCookiesEnabled)
     Q_PROPERTY(QVariantList cookies READ cookies WRITE setCookies)
 
@@ -96,8 +95,6 @@ public:
     Config *config();
 
     bool printDebugMessages() const;
-
-    QVariantMap keys() const;
 
     bool areCookiesEnabled() const;
     void setCookiesEnabled(const bool value);
@@ -188,7 +185,6 @@ private:
     QList<QPointer<WebPage> > m_pages;
     QList<QPointer<WebServer> > m_servers;
     Config m_config;
-    QVariantMap m_keyMap;
 
     friend class CustomPage;
 };

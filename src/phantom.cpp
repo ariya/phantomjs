@@ -34,8 +34,6 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFile>
-// note: QMetaObject apparently does not define QMetaEnum...
-#include <qmetaobject.h>
 #include <QWebPage>
 
 #include "consts.h"
@@ -65,16 +63,6 @@ Phantom::Phantom(QObject *parent)
     m_config.init(&args);
     // Apply debug configuration as early as possible
     Utils::printDebugMessages = m_config.printDebugMessages();
-
-    // initialize key map
-    QMetaEnum keys = staticQtMetaObject.enumerator( staticQtMetaObject.indexOfEnumerator("Key") );
-    for(int i = 0; i < keys.keyCount(); ++i) {
-        QString name = keys.key(i);
-        if (name.startsWith("Key_")) {
-            name.remove(0, 4);
-        }
-        m_keyMap[name] = keys.value(i);
-    }
 }
 
 void Phantom::init()
@@ -259,11 +247,6 @@ bool Phantom::printDebugMessages() const
     return m_config.printDebugMessages();
 }
 
-QVariantMap Phantom::keys() const
-{
-    return m_keyMap;
-}
-
 bool Phantom::areCookiesEnabled() const
 {
     return CookieJar::instance()->isEnabled();
@@ -440,7 +423,6 @@ void Phantom::initCompletions()
     addCompletion("outputEncoding");
     addCompletion("scriptName");
     addCompletion("version");
-    addCompletion("keys");
     addCompletion("cookiesEnabled");
     addCompletion("cookies");
     // functions
