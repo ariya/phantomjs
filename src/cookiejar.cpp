@@ -84,7 +84,7 @@ CookieJar::CookieJar(QString cookiesFile, QObject *parent)
     , m_cookieStorage(new QSettings(cookiesFile, QSettings::IniFormat, this))
     , m_enabled(true)
 {
-    QTimer::singleShot(0, this, SLOT(load()));
+    load();
 }
 
 // public:
