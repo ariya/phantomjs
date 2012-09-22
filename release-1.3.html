@@ -1,0 +1,355 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <title>PhantomJS 1.3 Release Notes</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="screen.min.css">
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-21665893-1']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+<style>
+#description p {
+    line-height: 125%;
+    text-align: left;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+#description h2 {
+    text-align: left;
+    margin: 0.8em 0;
+    font-size: 150%;
+}
+
+#description pre {
+    margin-left: 2em;
+}
+
+#description ul {
+    line-height: 125%;
+    list-style-type: disc;
+    margin-left: 1em;
+    margin-bottom: 1em;
+}
+
+#description li {
+    margin-left: 1em;
+}
+</style>
+</head>
+
+<body>
+<div id="intro">
+    <div id="header" class="container_12">
+        <a href="index.html" class="grid_4 alpha"><img src="images/phantomjs-logo.png" alt="PhantomJS" id="logo" width="240" height="80"></a>
+        <ul id="nav" class="grid_8 omega">
+            <li><a href="https://github.com/ariya/phantomjs">Source Code</a></li>
+            <li><a href="http://code.google.com/p/phantomjs/wiki/PhantomJS?tm=6">Documentation</a></li>
+            <li><a href="http://code.google.com/p/phantomjs/wiki/Interface">API</a></li>
+            <li><a href="http://code.google.com/p/phantomjs/wiki/QuickStart">Examples</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+        </ul>
+    </div>
+
+    <div id="introduction" class="container_12">
+        <div class="grid_7 alpha">
+            <h1>PhantomJS 1.3 Release Notes</h1>
+        </div>
+    </div>
+</div>
+
+<div id="description" class="container_12">
+
+    <div class="grid_10">
+
+<p>PhantomJS 1.3, <em><a href="release-names.html">Water Lily</a></em>, was released on September 23, 2011. It is a minor update, mostly bug fixes and few additional new features.</p>
+
+<p>This version is backward compatible with version 1.2. Existing scripts should work without any modification.</p>
+
+<p>Minimum requirement to build PhantomJS 1.3 is Qt 4.6 or later. Latest stable release of Qt, i.e. version 4.7.4, is strongly recommended.</p>
+
+<p><strong>Initial module support</strong></p>
+
+<p>Module API modelled after CommonJS Modules is available, currently only supporting webpage and fs built-in modules.</p>
+
+<p>For compatibility reason, WebPage object at the global scope is still available. It will be deprecated in some future release. The new recommended way to create a web page is as follows:</p>
+
+<pre>
+var page = require('webpage').create();
+
+page.open(url, function (status) {
+  // do something
+});
+</pre>
+
+<p><strong>WebPage object improvement</strong></p>
+
+<p>WebPage object wraps a native object that represents the web page. Because of technical limitation, a WebPage object can not be properly garbage collected and freed from the memory. To prevent increasing heap usage when create a lot of WebPage objects, use the new release() function, as in this example:</p>
+
+<pre>
+var page = require('webpage').create();
+
+page.open(url, function (status) {
+  // do something
+  // ....
+  // finish
+  page.release();
+});
+</pre>
+
+<p>A new callback onInitialized can be used to modify the global objects before a page is loaded. In the following example, further calls to Math.random() effectively will always return the specified constant.</p>
+
+<pre>
+page.onInitialized = function() {
+    Math.random = function() {
+        return 42;
+    };
+};
+</pre>
+
+<p>Related to page rasterization using render() function, it is now possible to control the physical scroll offset of the web page using the new property of WebPage called scrollPosition, as illustrated below:
+
+<pre>
+page.scrollPosition = { top: 100, left: 0 };
+page.render('output.png');
+</pre>
+
+<p>There is now a convenient way to create a new page by passing an option the constructor:
+
+<pre>
+var page = new WebPage({
+  onConsoleMessage: function (msg) {
+    console.log(msg);
+  },
+
+  settings: {
+    loadPlugins: false,
+    userAgent: 'Dragonless Phantom'
+  },
+
+  viewportSize: {
+    width: 800,
+    height: 600
+  }
+});
+</pre>
+
+<p><strong>Page settings</strong></p>
+
+<p>The behavior of the web page can be further modified by the following new settings:</p>
+
+<ul>
+    <li>javascriptEnabled defines whether to execute the script in the page or not (default to true)
+    <li>XSSAuditingEnabled defines whether load requests should be monitored for cross-site scripting attempts (default to false)
+    <li>localToRemoteUrlAccessEnabled defines whether local resource (e.g. from file) can access remote URLs or not (default to false)
+    <li>userName sets the user name used for HTTP authentication
+    <li>password sets the password used for HTTP authentication
+</ul>
+
+<p>Example usage:</p>
+
+<pre>
+var page = new WebPage();
+
+page.settings.javascriptEnabled = true;
+page.settings.XSSAuditingEnabled = true;
+page.settings.localToRemoteUrlAccessEnabled = true;
+
+page.open(url, function (status) {
+  // do something
+});
+</pre>
+
+<p><strong>Mouse events</strong></p>
+
+<p>Mouse events can be sent to the page using the new sendEvent function, like in the following examples:</p>
+
+<pre>
+page.sendEvent('mousedown', 45, 50);
+</pre>
+
+<p>The first argument is the event type. Other available types are mouseup, mousemove, and click. The next two arguments represents the mouse position.</p>
+
+<p>As of now, left button is the only pressed button for the event. For mousemove however, there is no button pressed (i.e. it is not dragging).</p>
+
+<p>The events are not like synthetic DOM events. Each event is sent to the web page as if it comes as part of user interaction.</p>
+
+<p><strong>File system access</strong></p>
+
+<p>A set of API functions is available to access files and directories. They are modelled after CommonJS Filesystem proposal.
+
+<p>To start using, it needs to be instantiated via the fs module such as:
+
+<pre>
+var fs = require('fs');
+</pre>
+
+<p>Read-only properties:</p>
+
+<ul>
+    <li>separator is the path separator (forward slash or backslash, depending on the operating system).
+    <li>workingDirectory is the current working directory.
+</ul>
+
+<p>Query functions:</p>
+
+<ul>
+    <li>list(path) returns the list of all the names of all the files in a specified path.
+    <li>absolute(path) returns the absolute path starting from the root file system, resolved from the current working directory.
+    <li>exists(path) returns true if a file or a directory exists.
+    <li>isDirectory(path) returns true if the specified path is a directory.
+    <li>isFile(path) returns true if the specified path is a file.
+    <li>isAbsolute(path) returns true if the specified path is an absolute path.
+    <li>isExecutable(path) returns true if the specified file can be executed.
+    <li>isReadable(path) returns true if a file or a directory is readable.
+    <li>isWritable(path) returns true if a file or a directory is writeable.
+    <li>isLink(path) returns true if the specified path is a symbolic link.
+</ul>
+
+<p>Directory-related functions:</p>
+
+<ul>
+    <li>changeWorkingDirectory(path) changes the current working directory to the specified path.
+    <li>makeDirectory(path) creates a new directory.
+    <li>makeTree(path) creates a directory including any missing parent directories.
+    <li>removeDirectory(path) removes a directory if it is empty
+    <li>removeTree(path) removes the specified path, regardless of whether it is a file or a directory.
+    <li>copyTree(source, destination) copies the entire files from a source path to the destination path.
+</ul>
+
+<p>File-related functions:</p>
+
+<ul>
+    <li>open(path, mode) returns a stream object representing the stream interface to the specified file (mode can be r for read, w for write, or a for append).
+    <li>read(path) returns the entire content of a file.
+    <li>write(path, content, mode) writes content to a file (mode can be w for write or a for append).
+    <li>size(path) returns the size (in bytes) of the file specified by the path.
+    <li>remove(path) removes the file specified by the path.
+    <li>copy(source, destination) copies a file to another.
+    <li>move(source, destination) movies a file to another, effectively renaming it.
+    <li>touch(path) touches a file (i.e. changes its access timestamp).
+</ul>
+
+<p>A stream object returned from the open() function has the following functions:
+
+<ul>
+    <li>read returns the content of the stream.
+    <li>write(data) writes the string to the stream.
+    <li>readLine reads only a line from the stream and return it.
+    <li>writeLine(data) writes the data as a line to the stream.
+    <li>flush() flushes all pending input output.
+    <li>close() completes the stream operation.
+</ul>
+
+<p>As an example of file access API, the following function recursively traverses a directory and prints all the found entries:
+
+<pre>
+function scanDirectory(path) {
+    var fs = require('fs');
+    if (fs.exists(path) && fs.isFile(path)) {
+        console.log(path);
+    } else if (fs.isDirectory(path)) {
+        fs.list(path).forEach(function (e) {
+            if (e !== '.' && e !== '..') {
+                scanDirectory(path + '/' + e);
+            }
+        });
+    }
+};
+</pre>
+
+<p><strong>Command-line options</strong></p>
+
+<p>Newly available options are:</p>
+
+<ul>
+    <li>--max-disk-cache-size=size limits the size of disk cache (in KB)
+    <li>--output-encoding=encoding sets the encoding used for terminal output (default is utf8).
+    <li>--script-encoding=encoding sets the encoding used for the starting script (default is utf8).
+    <li>--local-to-remote-url-access=[yes|no] allows local content to access remote URL (default is no).
+    <li>--ignore-ssl-errors=[yes|no] ignores SSL errors, such as expired or self-signed certificate errors (default is no).
+    <li>--cookies-file=/path/to/cookies.txt specifies the file name to store the persistent cookies.
+</ul>
+
+<p>Rather than passing all options in the command-line, it is also possible to store the options in a file using JavaScript Object Notation (JSON) and then tell PhantomJS to read it:</p>
+
+<pre>phantomjs --config=/path/to/config.json script.js arg1 arg2 arg3</pre>
+
+<p>where the contents of config.json looks like:</p>
+
+<pre>
+{
+    'ignoreSslErrors': true,
+    'localToRemoteUrlAccessEnabled': true
+}
+</pre>
+
+<p><strong>Platform-specific</strong></p>
+
+<p>Mac OS X: There is no more application bundle, the executable is bin/phantomjs and not bin/phantomjs.app/Contents/MacOS/phantomjs anymore.</p>
+
+<p><strong>Bug fixes</strong></p>
+
+<ul>
+    <li>Fixed open() and POST method, without specifying the finished handler
+    <li>Fixed script execution warning dialog (issue 165)
+    <li>Added WebPage.release() to free the web page from memory (issue 154)
+    <li>Added special handling of about:blank (issue 235)
+    <li>Made a separate network access manager for each page (issue 190)
+</ul>
+
+<p><strong>New features</strong></p>
+
+<ul>
+    <li>Introduced file system API based on CommonJS Filesystem proposal (issue 129)
+    <li>Added support for persistent cookies (issue 91)
+    <li>Added event handling, currently only for mouse events (issue 234)
+    <li>Added page scroll position (issue 162)
+    <li>Added HTTP authentication support (issue 45)
+    <li>Added callback for page initialization (issue 143)
+    <li>Added support to specify script and output encoding (issue 186)
+    <li>Added option to allow local content to do cross-domain access (issue 28)
+    <li>Added support to apply configurations from a JSON file (issue 180)
+    <li>Added a convenient WebPage initialization construction (issue 206)
+    <li>Added option to limit the size of disk cache (issue 220)
+</ul>
+
+<p><strong>Examples</strong></p>
+
+<ul>
+    <li>Added a new example on using Modernizr to detect features (issue 144)
+    <li>Fixed pizza.js example to use Mobile Yelp (issue 200)
+    <li>Fixed netsniff.coffee example due to wrong indentation (issue 225)
+    <li>Added an example to show live network traffic (issue 227)
+    <li>Added an example demonstrating different output encodings (issue 186)
+</ul>
+
+
+<p>Back to <a href="releases.html">all releases</a>.</p>
+
+</div>
+</div>
+
+<div id="footer">
+    <div id="footer-content" class="container_12">
+        <p>
+            &copy; Copyright 2010-2012 <a href="http://twitter.com/AriyaHidayat">Ariya Hidayat</a> &mdash; Website design by <a href="http://svay.com/">Maurice Svay</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>
