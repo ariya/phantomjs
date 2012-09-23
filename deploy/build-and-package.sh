@@ -20,7 +20,7 @@ rm deploy/*.tar.bz2 2>/dev/null
 # Build the dump_syms program for dumping breakpad debugging symbols
 if [[ $OSTYPE = darwin* ]]; then
     pushd tools
-    ../src/qt/bin/qmake dump-syms-mac.pro
+    ../src/qt/bin/qmake dump-syms-mac.pro && make
     popd
 else
     pushd src/breakpad
