@@ -5,7 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
 <head>
     <meta charset="utf-8">
-    <title>PhantomJS: Releases</title>
+    <title>PhantomJS 1.7 Release Notes</title>
     <meta name="description" content="">
     <meta name="author" content="">
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -67,7 +67,7 @@
 
     <div id="introduction" class="container_12">
         <div class="grid_7 alpha">
-            <h1>PhantomJS Releases</h1>
+            <h1>PhantomJS 1.7 Release Notes</h1>
         </div>
     </div>
 </div>
@@ -76,19 +76,48 @@
 
 <div class="grid_10">
 
-    <p><a href="release-1.7.html">PhantomJS 1.7</a> "Blazing Star", was released on September 22, 2011. It added module system support (modelled after CommonJS), better cookies handling, and other small improvements.</p>
+<p>PhantomJS 1.7, <em><a href="release-names.html">Blazing Star</a></em>, was released on September 22, 2011. It added module system support (modelled after CommonJS), better cookies handling, and other small improvements.</p>
 
-    <p><a href="release-1.6.html">PhantomJS 1.6</a> "Lavender" was released on June 20, 2012. It is a minor update with some improvements on the rendering and script evaluation, as well as various bug fixes.</p>
+<p><strong>Module system</strong></p>
 
-    <p><a href="release-1.5.html">PhantomJS 1.5</a> "Ghost Flower" was released on March 20, 2012. It added pure headless (no X11) for the Linux version, improved troubleshooting with interactive mode and remote debugger, and a new system module.</p>
+<p>(To be written)</p>
 
-    <p><a href="release-1.4.html">PhantomJS 1.4</a> "Glory of the Snow" was released on December 22, 2011. It is a minor update, mostly bug fixes and one new major feature: WebServer module.</p>
+<p><strong>Cookies handling</strong></p>
 
-    <p><a href="release-1.3.html">PhantomJS 1.3</a> "Water Lily" was released on September 23, 2011. It added preliminary module syntax, file system support, mouse events, and other page-related improvements.</p>
+<p>(To be written)</p>
 
-    <p><a href="release-1.2.html">PhantomJS 1.2</a> "Birds of Paradise" was released on June 21, 2011. It implemented an abstraction for web page object, added support for rasterization and network traffic monitoring.</p>
+<p><strong>New features</strong></p>
 
-    <p><a href="release-1.1.html">PhantomJS 1.1</a> "Cherry Blossom" was released on April 27, 2011. It added supports for file upload, network proxy, disk cache, GIF output. In addition, scripts can now be written in CoffeeScript.</p>
+<ul>
+    <li>Added a module system modelled after CommonJS/Node.js (issue 47)
+    <li>Added support for window pop-up (issue 151)
+    <li>Static build on Linux (issue 413)
+    <li>Added run-time detection of SSL support (issue 484)
+    <li>Added more events support (issue 492, 712)
+    <li>Added support for disabling automatic proxy detection (issue 580)
+    <li>Provided page closing callback (issue 678)
+    <li>Added methods to access URL, frames URL, frame Content (issue 758)
+    <li>Added more cookies-related API (issue 761)
+</ul>
+
+<p><strong>Improvements</strong></p>
+
+<ul>
+    <li>Refactored command-line options handling (issue 55)
+    <li>Improved the workflow for producing release builds (issue 599)
+    <li>Improved cookies API and implementation (issue 603, 761)
+    <li>Improved frame switching API (issue 654)
+    <li>Fixed iframe handling regression (issue 683)
+    <li>Fixed OS version number with Windows 8 and Mountain Lion (issue 684, 688)
+    <li>Fixed HAR navigation info in the netsniff example (issue 733)
+    <li>Fixed compile warnings with Visual Studio (issue 744)
+    <li>Removed hacks for static linking on Windows (issue 753)
+    <li>Added ICO image handling on Windows (issue 779)
+    <li>Fixed font antialiasing on Windows (issue 785)
+    <li>Improved Jasmine test runner for Jasmine 1.2 (issue 792)
+</ul>
+
+<p>Back to <a href="releases.html">all releases</a>.</p>
 
 </div>
 </div>
