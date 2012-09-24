@@ -315,6 +315,9 @@ QObject* Phantom::createCallback()
 
 void Phantom::loadModule(const QString &moduleSource, const QString &filename)
 {
+    if (m_terminated)
+        return;
+
    QString scriptSource =
       "(function(require, exports, module) {" +
       moduleSource +
@@ -328,6 +331,9 @@ void Phantom::loadModule(const QString &moduleSource, const QString &filename)
 
 bool Phantom::injectJs(const QString &jsFilePath)
 {
+    if (m_terminated)
+        return false;
+
     return Utils::injectJsInFrame(jsFilePath, libraryPath(), m_page->mainFrame());
 }
 
