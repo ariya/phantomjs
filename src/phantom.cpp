@@ -315,20 +315,27 @@ QObject* Phantom::createCallback()
 
 void Phantom::loadModule(const QString &moduleSource, const QString &filename)
 {
-   QString scriptSource =
-      "(function(require, exports, module) {" +
-      moduleSource +
-      "}.call({}," +
-      "require.cache['" + filename + "']._getRequire()," +
-      "require.cache['" + filename + "'].exports," +
-      "require.cache['" + filename + "']" +
-      "));";
-   m_page->mainFrame()->evaluateJavaScript(scriptSource, filename);
+    //m_page may not exist if doExit has been called.
+    if (m_page) {
+        QString scriptSource =
+          "(function(require, exports, module) {" +
+          moduleSource +
+          "}.call({}," +
+          "require.cache['" + filename + "']._getRequire()," +
+          "require.cache['" + filename + "'].exports," +
+          "require.cache['" + filename + "']" +
+          "));";
+        m_page->mainFrame()->evaluateJavaScript(scriptSource, filename);
+    }
 }
 
 bool Phantom::injectJs(const QString &jsFilePath)
 {
-    return Utils::injectJsInFrame(jsFilePath, libraryPath(), m_page->mainFrame());
+    //m_page may not exist if doExit has been called.
+    if (m_page) {
+        return Utils::injectJsInFrame(jsFilePath, libraryPath(), m_page->mainFrame());
+    }
+    return false;
 }
 
 void Phantom::exit(int code)
