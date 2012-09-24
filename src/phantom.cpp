@@ -93,6 +93,7 @@ void Phantom::init()
     CookieJar::instance(m_config.cookiesFile());
 
     m_page = new WebPage(this, QUrl::fromLocalFile(m_config.scriptFile()));
+    m_pages.append(m_page);
 
     QString proxyType = m_config.proxyType();
     if (proxyType != "none") {
@@ -264,6 +265,10 @@ void Phantom::setCookiesEnabled(const bool value)
 QObject *Phantom::createWebPage()
 {
     WebPage *page = new WebPage(this);
+
+    // Store pointer to the page for later cleanup
+    m_pages.append(page);
+    // Apply default settings to the page
     page->applySettings(m_defaultPageSettings);
 
     // Show web-inspector if in debug mode
@@ -310,20 +315,27 @@ QObject* Phantom::createCallback()
 
 void Phantom::loadModule(const QString &moduleSource, const QString &filename)
 {
-   QString scriptSource =
-      "(function(require, exports, module) {" +
-      moduleSource +
-      "}.call({}," +
-      "require.cache['" + filename + "']._getRequire()," +
-      "require.cache['" + filename + "'].exports," +
-      "require.cache['" + filename + "']" +
-      "));";
-   m_page->mainFrame()->evaluateJavaScript(scriptSource, filename);
+    //m_page may not exist if doExit has been called.
+    if (m_page) {
+        QString scriptSource =
+          "(function(require, exports, module) {" +
+          moduleSource +
+          "}.call({}," +
+          "require.cache['" + filename + "']._getRequire()," +
+          "require.cache['" + filename + "'].exports," +
+          "require.cache['" + filename + "']" +
+          "));";
+        m_page->mainFrame()->evaluateJavaScript(scriptSource, filename);
+    }
 }
 
 bool Phantom::injectJs(const QString &jsFilePath)
 {
-    return Utils::injectJsInFrame(jsFilePath, libraryPath(), m_page->mainFrame());
+    //m_page may not exist if doExit has been called.
+    if (m_page) {
+        return Utils::injectJsInFrame(jsFilePath, libraryPath(), m_page->mainFrame());
+    }
+    return false;
 }
 
 void Phantom::exit(int code)
@@ -402,6 +414,9 @@ void Phantom::doExit(int code)
     emit aboutToExit(code);
     m_terminated = true;
     m_returnValue = code;
+    qDeleteAll(m_pages);
+    m_pages.clear();
+    m_page = 0;
     QApplication::instance()->exit(code);
 }
 
