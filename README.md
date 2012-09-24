@@ -10,7 +10,7 @@ The latest [stable release](http://phantomjs.org/release-1.7.html) is version 1.
 
 - **Headless web testing**. Lightning-fast testing without the browser is now possible! Various [test frameworks](https://github.com/ariya/phantomjs/wiki/Headless-Testing) such as Jasmine, Capybara, QUnit, Mocha, WebDriver, YUI Test, BusterJS, FuncUnit, Robot Framework, and many others are supported.
 - **Page automation**. [Access and manipulate](https://github.com/ariya/phantomjs/wiki/Page-Automation) web pages with the standard DOM API, or with usual libraries like jQuery.
-- **Screen capture**. Programmatically [capture web contents](https://github.com/ariya/phantomjs/wiki/Screen-Capture), including SVG and Canvas. . Build server-side web graphics apps, from a screenshot service to a vector chart rasterizer.
+- **Screen capture**. Programmatically [capture web contents](https://github.com/ariya/phantomjs/wiki/Screen-Capture), including CSs, SVG and Canvas. Build server-side web graphics apps, from a screenshot service to a vector chart rasterizer.
 - **Network monitoring**. Automate performance analysis, track [page loading](https://github.com/ariya/phantomjs/wiki/Network-Monitoring) and export as standard HAR format.
 
 ## Features
