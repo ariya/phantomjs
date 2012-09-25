@@ -76,7 +76,7 @@
 
 <div class="grid_10">
 
-<p>PhantomJS 1.7, <em><a href="release-names.html">Blazing Star</a></em>, was released on September 22, 2012. It added module system support (modelled after CommonJS), better cookies handling, and other small improvements.</p>
+<p>PhantomJS 1.7, <em><a href="release-names.html">Blazing Star</a></em>, was released on September 22, 2012. It added module system support (modelled after CommonJS), better cookies handling, additional input events, and other small improvements.</p>
 
 <p><strong>Module system</strong></p>
 
@@ -116,9 +116,26 @@ page.open('http://m.bing.com', function () {
 });
 </pre>
 
-<p><strong>More events</strong></p>
+<p><strong>More input events</strong></p>
 
-<p>(To be written)</p>
+<p>PhantomJS can send input events to a web page. This not a DOM event, it is more like a real user input in a web browser.</p>
+
+<p>In this version, a mouse event can now explicitly specify the button corresponding to the event: <code>middle</code> or <code>right</code> (otherwise it is left by default). In addition, <code>doubleclick</code> event type is also supported. The following code fragment demonstrates sending a right-click:</p>
+
+<pre class="prettyprint lang-js">
+page.open(url, function () {
+    page.sendEvent('mousepress', 50, 100, 'right');
+});
+</pre>
+
+<p>Beside mouse events, finally you can also trigger keyboard-related events: <code>keyup</code>, <code>keydown</code>, and <code>keypress</code>. For any of these events, a character or a string needs to be passed as in the following code fragment:</p>
+
+<pre class="prettyprint lang-js">
+page.open(url, function () {
+    page.sendEvent('keypress', 'A'); // send one char
+    page.sendEvent('keypress', 'PhantomJS'); // send a sequence of characters
+});
+</pre>
 
 <p><strong>New features</strong></p>
 
