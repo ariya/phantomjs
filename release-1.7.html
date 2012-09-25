@@ -21,6 +21,10 @@
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
     })();
     </script>
+    <link rel="stylesheet" type="text/css" href="prettify.css"/>
+    <link rel="stylesheet" type="text/css" href="snippet.css"/>
+    <script type="text/javascript" src="js/prettify.js"></script>
+
 <style>
 #description p {
     line-height: 125%;
@@ -33,10 +37,6 @@
     text-align: left;
     margin: 0.8em 0;
     font-size: 150%;
-}
-
-#description pre {
-    margin-left: 2em;
 }
 
 #description ul {
@@ -52,7 +52,7 @@
 </style>
 </head>
 
-<body>
+<body onload="prettyPrint()">
 <div id="intro">
     <div id="header" class="container_12">
         <a href="index.html" class="grid_4 alpha"><img src="images/phantomjs-logo.png" alt="PhantomJS" id="logo" width="240" height="80"></a>
@@ -84,7 +84,7 @@
 
 <p>As an example, supposed there is a script <code>universe.js</code> which contains the following code:</p>
 
-<pre>
+<pre class="prettyprint lang-js">
 exports.answer = 42;
 exports.start = function () {
     console.log('Starting the universe....');
@@ -93,7 +93,7 @@ exports.start = function () {
 
 <p>This module can be used in another script like the following:</p>
 
-<pre>
+<pre class="prettyprint lang-js">
 var universe = require('./universe');
 universe.start();
 console.log('The answer is', universe.answer);
@@ -107,7 +107,7 @@ console.log('The answer is', universe.answer);
 
 <p>The following simple example shows every single cookie set when accessing a web site:</p>
 
-<pre>
+<pre class="prettyprint lang-js">
 var page = require('webpage').create();
 phantom.cookiesEnabled = true;
 page.open('http://m.bing.com', function () {
