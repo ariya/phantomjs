@@ -80,7 +80,26 @@
 
 <p><strong>Module system</strong></p>
 
-<p>(To be written)</p>
+<p>There has been module system support for a while, however it works only for internal modules. In this release, that support is extended for generic module written in JavaScript or CoffeeScript. The construct for the module system is modelled after <a href="http://wiki.commonjs.org/wiki/Modules/1.1.1">CommonJS Modules 1.1</a>.</p>
+
+<p>As an example, supposed there is a script <code>universe.js</code> which contains the following code:</p>
+
+<pre>
+exports.answer = 42;
+exports.start = function () {
+    console.log('Starting the universe....');
+}
+</pre>
+
+<p>This module can be used in another script like the following:</p>
+
+<pre>
+var universe = require('./universe');
+universe.start();
+console.log('The answer is', universe.answer);
+</pre>
+
+<p>With this module support, a long PhantomJS script can be broken down into smaller files and thus it becomes more maintainable.</p>
 
 <p><strong>Cookies handling</strong></p>
 
