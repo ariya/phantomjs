@@ -324,7 +324,7 @@ String DefaultLocalizationStrategy::contextMenuItemTagLookUpInDictionary(const S
     RetainPtr<CFStringRef> selectedCFString(AdoptCF, truncatedStringForLookupMenuItem(selectedString).createCFString());
     return formatLocalizedString(WEB_UI_STRING("Look Up “%@”", "Look Up context menu item with selected word"), selectedCFString.get());
 #else
-    return WEB_UI_STRING("Look Up “<selection>”", "Look Up context menu item with selected word").replace("<selection>", truncatedStringForLookupMenuItem(selectedString));
+    return WEB_UI_STRING("Look Up \"<selection>\"", "Look Up context menu item with selected word").replace("<selection>", truncatedStringForLookupMenuItem(selectedString));
 #endif
 #endif
 }
