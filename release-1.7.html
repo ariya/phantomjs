@@ -103,7 +103,18 @@ console.log('The answer is', universe.answer);
 
 <p><strong>Cookies handling</strong></p>
 
-<p>(To be written)</p>
+<p>Support for cookies has been added in the previous version. In this release, the implementation is significantly improved in order to make it behave as similar as possible in a real web browser. The cookies are stored in a global container ("cookiejar") which can be serialized and modified easily.</p>
+
+<p>The following simple example shows every single cookie set when accessing a web site:</p>
+
+<pre>
+var page = require('webpage').create();
+phantom.cookiesEnabled = true;
+page.open('http://m.bing.com', function () {
+    console.log(JSON.stringify(phantom.cookies, null, 2));
+    phantom.exit();
+});
+</pre>
 
 <p><strong>More events</strong></p>
 
