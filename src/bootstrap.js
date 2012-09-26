@@ -291,3 +291,22 @@ phantom.onError = phantom.defaultErrorHandler;
 
 // Legacy way to use WebPage
 window.WebPage = require('webpage').create;
+
+// Remedy to fauly "typeof": "typeOf" by Douglas Crockford
+// NOTE: Renamed to "detectType" and added support for RegExp
+// @see http://javascript.crockford.com/remedial.html
+window.detectType = function (value) {
+    var s = typeof value;
+    if (s === 'object') {
+        if (value) {
+            if (value instanceof Array) {
+                s = 'array';
+            } else if (value instanceof RegExp) {
+                s = 'regexp';
+            }
+        } else {
+            s = 'null';
+        }
+    }
+    return s;
+};

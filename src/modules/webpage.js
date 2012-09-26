@@ -238,17 +238,25 @@ function decorateNewPage(opts, page) {
      * @return  {*}                 the function call result
      */
     page.evaluate = function (func, args) {
-        var str, arg, i, l;
+        var str, arg, argType, i, l;
         if (!(func instanceof Function || typeof func === 'string' || func instanceof String)) {
             throw "Wrong use of WebPage#evaluate";
         }
         str = 'function() { return (' + func.toString() + ')(';
         for (i = 1, l = arguments.length; i < l; i++) {
             arg = arguments[i];
-            if (/object|string/.test(typeof arg) && !(arg instanceof RegExp)) {
-                str += 'JSON.parse(' + JSON.stringify(JSON.stringify(arg)) + '),';
-            } else {
+            argType = detectType(arg);
+
+            switch (argType) {
+            case "object": case "array":    //< for type "object" and "array"
+                str += "JSON.parse(" + JSON.stringify(JSON.stringify(arg)) + "),"
+                break;
+            case "string":                  //< for type "string"
+                str += '"' + arg +'",';
+                break;
+            default:                // for types: "null", "number", "function", "regexp", "undefined"
                 str += arg + ',';
+                break;
             }
         }
         str = str.replace(/,$/, '') + '); }';
