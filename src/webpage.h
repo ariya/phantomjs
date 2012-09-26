@@ -48,6 +48,8 @@ class Phantom;
 class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
 {
     Q_OBJECT
+    Q_PROPERTY(QString title READ title)
+    Q_PROPERTY(QString frameTitle READ frameTitle)
     Q_PROPERTY(QString content READ content WRITE setContent)
     Q_PROPERTY(QString frameContent READ frameContent WRITE setFrameContent)
     Q_PROPERTY(QString url READ url)
@@ -84,6 +86,9 @@ public:
     QString frameContent() const;
     void setContent(const QString &content);
     void setFrameContent(const QString &content);
+
+    QString title() const;
+    QString frameTitle() const;
 
     QString url() const;
     QString frameUrl() const;

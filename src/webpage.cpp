@@ -361,6 +361,16 @@ void WebPage::setFrameContent(const QString &content)
     m_currentFrame->setHtml(content);
 }
 
+QString WebPage::title() const
+{
+    return m_mainFrame->title();
+}
+
+QString WebPage::frameTitle() const
+{
+    return m_currentFrame->title();
+}
+
 QString WebPage::url() const
 {
     return m_mainFrame->url().toString();
