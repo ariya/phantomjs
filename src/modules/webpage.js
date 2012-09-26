@@ -289,7 +289,8 @@ function decorateNewPage(opts, page) {
      * @param   {...}       args    function arguments
      */
     page.evaluateAsync = function (func, timeMs, args) {
-        var args = Array.prototype.splice.call(arguments, 2), //< remove the first 2 arguments because we are going to consume them
+        // Remove the first 2 arguments because we are going to consume them
+        var args = Array.prototype.slice.call(arguments, 2),
             numArgsToAppend = args.length,
             funcTimeoutWrapper;
 
