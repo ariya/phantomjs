@@ -264,13 +264,14 @@ function decorateNewPage(opts, page) {
             argType = detectType(arg);
 
             switch (argType) {
-            case "object": case "array":    //< for type "object" and "array"
+            case "object":      //< for type "object"
+            case "array":       //< for type "array"
                 str += "JSON.parse(" + JSON.stringify(JSON.stringify(arg)) + "),"
                 break;
-            case "string":                  //< for type "string"
-                str += '"' + arg +'",';
+            case "string":      //< for type "string"
+                str += arg.quote() + ',';
                 break;
-            default:                // for types: "null", "number", "function", "regexp", "undefined"
+            default:            // for types: "null", "number", "function", "regexp", "undefined"
                 str += arg + ',';
                 break;
             }
