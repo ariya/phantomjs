@@ -54,6 +54,8 @@ class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
     Q_PROPERTY(QString frameContent READ frameContent WRITE setFrameContent)
     Q_PROPERTY(QString url READ url)
     Q_PROPERTY(QString frameUrl READ frameUrl)
+    Q_PROPERTY(bool canGoBack READ canGoBack)
+    Q_PROPERTY(bool canGoForward READ canGoForward)
     Q_PROPERTY(QString plainText READ plainText)
     Q_PROPERTY(QString framePlainText READ framePlainText)
     Q_PROPERTY(QString libraryPath READ libraryPath WRITE setLibraryPath)
@@ -400,6 +402,46 @@ public slots:
      * @return Boolean "true" if cookies were deleted
      */
     bool clearCookies();
+
+    /**
+     * Checks if this Page can go back in the Navigation History
+     * @brief canGoBack
+     * @return "true" if it can, "false" otherwise
+     */
+    bool canGoBack();
+    /**
+     * Goes back in the Navigation History
+     * @brief back
+     * @return "true" if it does go back in the Navigation History, "false" otherwise
+     */
+    bool back();
+    /**
+     * Checks if this Page can go forward in the Navigation History (i.e. next URL)
+     * @brief canGoForward
+     * @return "true" if it can, "false" otherwise
+     */
+    bool canGoForward();
+    /**
+     * Goes forward in the Navigation History
+     * @brief forward
+     * @return "true" if it does go forward in the Navigation History, "false" otherwise
+     */
+    bool forward();
+    /**
+     * Reload current page
+     * @brief reload
+     */
+    void reload();
+    /**
+     * Stop loading page (if the page is loading)
+     *
+     * NOTE: This method does nothing when page is not actually loading.
+     * It's effect can be applied in that very short window of time between
+     * "onLoadStarted" and "onLoadFinished".
+     *
+     * @brief stop
+     */
+    void stop();
 
 signals:
     void initialized();

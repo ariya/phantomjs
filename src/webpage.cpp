@@ -44,6 +44,7 @@
 #include <QNetworkRequest>
 #include <QPainter>
 #include <QPrinter>
+#include <QWebHistory>
 #include <QWebElement>
 #include <QWebFrame>
 #include <QWebPage>
@@ -395,6 +396,44 @@ QString WebPage::url() const
 QString WebPage::frameUrl() const
 {
     return m_currentFrame->url().toString();
+}
+
+bool WebPage::canGoBack()
+{
+    return m_customWebPage->history()->canGoBack();
+}
+
+bool WebPage::back()
+{
+    if (canGoBack()) {
+        m_customWebPage->triggerAction(QWebPage::Back);
+        return true;
+    }
+    return false;
+}
+
+bool WebPage::canGoForward()
+{
+    return m_customWebPage->history()->canGoForward();
+}
+
+bool WebPage::forward()
+{
+    if (canGoForward()) {
+        m_customWebPage->triggerAction(QWebPage::Forward);
+        return true;
+    }
+    return false;
+}
+
+void WebPage::reload()
+{
+    m_customWebPage->triggerAction(QWebPage::Reload);
+}
+
+void WebPage::stop()
+{
+    m_customWebPage->triggerAction(QWebPage::Stop);
 }
 
 QString WebPage::plainText() const
