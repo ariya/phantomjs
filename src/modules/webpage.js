@@ -162,24 +162,34 @@ function decorateNewPage(opts, page) {
 
     definePageSignalSetter(page, handlers, "onClosing", "closing");
 
+    // Private callback for "page.open()"
+    definePageSignalSetter(page, handlers, "_onPageOpenFinished", "loadFinished");
+
     phantom.__defineErrorSetter__(page, page);
 
     page.onError = phantom.defaultErrorHandler;
 
     page.open = function (url, arg1, arg2, arg3, arg4) {
+        var thisPage = this;
+
         if (arguments.length === 1) {
             this.openUrl(url, 'get', this.settings);
             return;
-        }
-        if (arguments.length === 2 && typeof arg1 === 'function') {
-            this.onLoadFinished = arg1;
+        } else if (arguments.length === 2 && typeof arg1 === 'function') {
+            this._onPageOpenFinished = function() {
+                thisPage._onPageOpenFinished = null; //< Disconnect callback (should fire only once)
+                arg1.apply(thisPage, arguments);     //< Invoke the actual callback
+            }
             this.openUrl(url, 'get', this.settings);
             return;
         } else if (arguments.length === 2) {
             this.openUrl(url, arg1, this.settings);
             return;
         } else if (arguments.length === 3 && typeof arg2 === 'function') {
-            this.onLoadFinished = arg2;
+            this._onPageOpenFinished = function() {
+                thisPage._onPageOpenFinished = null; //< Disconnect callback (should fire only once)
+                arg2.apply(thisPage, arguments);     //< Invoke the actual callback
+            }
             this.openUrl(url, arg1, this.settings);
             return;
         } else if (arguments.length === 3) {
@@ -189,14 +199,20 @@ function decorateNewPage(opts, page) {
             }, this.settings);
             return;
         } else if (arguments.length === 4) {
-            this.onLoadFinished = arg3;
+            this._onPageOpenFinished = function() {
+                thisPage._onPageOpenFinished = null; //< Disconnect callback (should fire only once)
+                arg3.apply(thisPage, arguments);     //< Invoke the actual callback
+            }
             this.openUrl(url, {
                 operation: arg1,
                 data: arg2
             }, this.settings);
             return;
         } else if (arguments.length === 5) {
-            this.onLoadFinished = arg4;
+            this._onPageOpenFinished = function() {
+                thisPage._onPageOpenFinished = null; //< Disconnect callback (should fire only once)
+                arg4.apply(thisPage, arguments);     //< Invoke the actual callback
+            }
             this.openUrl(url, {
                 operation: arg1,
                 data: arg2,

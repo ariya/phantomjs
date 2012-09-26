@@ -417,7 +417,7 @@ signals:
 
 private slots:
     void finish(bool ok);
-    void handleJavaScriptWindowObjectCleared();
+    void setupFrame(QWebFrame *frame = NULL);
 
 private:
     QImage renderImage();
