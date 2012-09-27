@@ -297,8 +297,8 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
     // (no parameter == main frame) but we make sure to do the setup only once.
     //
     // @see WebPage::setupFrame(QWebFrame *) for details.
-    connect(m_customWebPage, SIGNAL(loadStarted()), this, SLOT(switchToMainFrame()), Qt::QueuedConnection);
-    connect(m_customWebPage, SIGNAL(loadFinished(bool)), this, SLOT(setupFrame()), Qt::QueuedConnection);
+    connect(m_mainFrame, SIGNAL(loadStarted()), this, SLOT(switchToMainFrame()), Qt::QueuedConnection);
+    connect(m_mainFrame, SIGNAL(loadFinished(bool)), this, SLOT(setupFrame()), Qt::QueuedConnection);
     connect(m_customWebPage, SIGNAL(frameCreated(QWebFrame*)), this, SLOT(setupFrame(QWebFrame*)), Qt::QueuedConnection);
     connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(setupFrame()));
     connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()), SIGNAL(initialized()));
@@ -1277,8 +1277,10 @@ QStringList WebPage::childFramesName() const //< deprecated
 
 void WebPage::changeCurrentFrame(QWebFrame * const frame)
 {
-    qDebug() << "WebPage - changeCurrentFrame" << "from" << m_currentFrame->frameName() << "to" << frame->frameName();
-    m_currentFrame = frame;
+    if (frame != m_currentFrame) {
+        qDebug() << "WebPage - changeCurrentFrame" << "from" << m_currentFrame->frameName() << "to" << frame->frameName();
+        m_currentFrame = frame;
+    }
 }
 
 bool WebPage::switchToFrame(const QString &frameName)
@@ -1315,7 +1317,9 @@ bool WebPage::switchToChildFrame(const int framePosition) //< deprecated
 
 void WebPage::switchToMainFrame()
 {
-    this->changeCurrentFrame(m_mainFrame);
+    if (m_currentFrame != m_mainFrame) {
+        this->changeCurrentFrame(m_mainFrame);
+    }
 }
 
 bool WebPage::switchToParentFrame()
