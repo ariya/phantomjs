@@ -91,36 +91,52 @@ function copyInto(target, source) {
 function definePageSignalSetter(page, handlers, handlerName, signalName) {
     page.__defineSetter__(handlerName, function (f) {
         // Disconnect previous handler (if any)
-        if (handlers && typeof handlers[signalName] === 'function') {
+        if (handlers && typeof(handlers[signalName]) === "function") {
             try {
                 this[signalName].disconnect(handlers[signalName]);
             } catch (e) {}
         }
 
-        // Store the new handler for reference
-        handlers[signalName] = f;
+        // Delete the previous handler
+        delete handlers[signalName];
 
-        // Connect the new handler
-        if (typeof f === 'function') {
+        // Connect the new handler iff it's a function
+        if (typeof(f) === "function") {
+            // Store the new handler for reference
+            handlers[signalName] = f;
             this[signalName].connect(f);
         }
     });
 }
 
-function definePageCallbackSetter(page, handlerName, callbackConstructor) {
+function definePageCallbackSetter(page, handlers, handlerName, callbackConstructor) {
     page.__defineSetter__(handlerName, function(f) {
+        // Fetch the right callback object
         var callbackObj = page[callbackConstructor]();
 
         // Disconnect previous handler (if any)
-        try {
-            callbackObj.called.disconnect();
-        } catch (e) {}
+        if (handlers && typeof(handlers[callbackConstructor]) === "function") {
+            try {
+                callbackObj.called.disconnect(handlers[callbackConstructor]);
+            } catch (e) {
+                console.log(e);
+            }
+        }
 
-        // Connect a new handler
-        callbackObj.called.connect(function() {
-            // Callback will receive a "deserialized", normal "arguments" array
-            callbackObj.returnValue = f.apply(this, arguments[0]);
-        });
+        // Delete the previous handler
+        delete handlers[callbackConstructor];
+
+        // Connect the new handler iff it's a function
+        if (typeof(f) === "function") {
+            // Store the new handler for reference
+            handlers[callbackConstructor] = function() {
+                // Callback will receive a "deserialized", normal "arguments" array
+                callbackObj.returnValue = f.apply(this, arguments[0]);
+            };
+
+            // Connect a new handler
+            callbackObj.called.connect(handlers[callbackConstructor]);
+        }
     });
 }
 
@@ -341,15 +357,15 @@ function decorateNewPage(opts, page) {
     }
 
     // Calls from within the page to "phantomCallback()" arrive to this handler
-    definePageCallbackSetter(page, "onCallback", "_getGenericCallback");
+    definePageCallbackSetter(page, handlers, "onCallback", "_getGenericCallback");
 
     // Calls from within the page to "window.confirm(message)" arrive to this handler
     // @see https://developer.mozilla.org/en/DOM/window.confirm
-    definePageCallbackSetter(page, "onConfirm", "_getJsConfirmCallback");
+    definePageCallbackSetter(page, handlers, "onConfirm", "_getJsConfirmCallback");
 
     // Calls from within the page to "window.prompt(message, defaultValue)" arrive to this handler
     // @see https://developer.mozilla.org/en/DOM/window.prompt
-    definePageCallbackSetter(page, "onPrompt", "_getJsPromptCallback");
+    definePageCallbackSetter(page, handlers, "onPrompt", "_getJsPromptCallback");
 
     page.event = {};
     page.event.key = {
