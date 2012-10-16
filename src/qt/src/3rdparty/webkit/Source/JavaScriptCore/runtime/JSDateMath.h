@@ -2,6 +2,7 @@
  * Copyright (C) 1999-2000 Harri Porten (porten@kde.org)
  * Copyright (C) 2006, 2007 Apple Inc. All rights reserved.
  * Copyright (C) 2009 Google Inc. All rights reserved.
+ * Copyright (C) 2010 Research In Motion Limited. All rights reserved.
  *
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
@@ -39,24 +40,19 @@
  *
  */
 
-#ifndef DateConversion_h
-#define DateConversion_h
+#ifndef JSDateMath_h
+#define JSDateMath_h
 
 #include "UString.h"
+#include <wtf/DateMath.h>
 
 namespace JSC {
 
 class ExecState;
-struct GregorianDateTime;
 
-static const unsigned DateConversionBufferSize = 100;
-typedef char DateConversionBuffer[DateConversionBufferSize];
-
-void formatDate(const GregorianDateTime&, DateConversionBuffer&);
-void formatDateUTCVariant(const GregorianDateTime&, DateConversionBuffer&);
-void formatTime(const GregorianDateTime&, DateConversionBuffer&);
-void formatTimeUTC(const GregorianDateTime&, DateConversionBuffer&);
+double parseDateFromNullTerminatedCharacters(ExecState*, const char* dateString);
+double parseDate(ExecState*, const UString&);
 
 } // namespace JSC
 
-#endif // DateConversion_h
+#endif // JSDateMath_h
