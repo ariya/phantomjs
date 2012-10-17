@@ -57,6 +57,7 @@ class Config: QObject
     Q_PROPERTY(bool printDebugMessages READ printDebugMessages WRITE setPrintDebugMessages)
     Q_PROPERTY(bool javascriptCanOpenWindows READ javascriptCanOpenWindows WRITE setJavascriptCanOpenWindows)
     Q_PROPERTY(bool javascriptCanCloseWindows READ javascriptCanCloseWindows WRITE setJavascriptCanCloseWindows)
+    Q_PROPERTY(QString sslProtocol READ sslProtocol WRITE setSslProtocol)
 
 public:
     Config(QObject *parent = 0);
@@ -148,6 +149,9 @@ public:
     void setJavascriptCanCloseWindows(const bool value);
     bool javascriptCanCloseWindows() const;
 
+    void setSslProtocol(const QString& sslProtocolName);
+    QString sslProtocol() const;
+
 public slots:
     void handleSwitch(const QString &sw);
     void handleOption(const QString &option, const QVariant &value);
@@ -191,6 +195,7 @@ private:
     bool m_printDebugMessages;
     bool m_javascriptCanOpenWindows;
     bool m_javascriptCanCloseWindows;
+    QString m_sslProtocol;
 };
 
 #endif // CONFIG_H

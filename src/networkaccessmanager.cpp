@@ -75,6 +75,7 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
     , m_maxAuthAttempts(3)
     , m_idCounter(0)
     , m_networkDiskCache(0)
+    , m_sslConfiguration(QSslConfiguration::defaultConfiguration())
 {
     setCookieJar(CookieJar::instance());
 
@@ -84,6 +85,17 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
         if (config->maxDiskCacheSize() >= 0)
             m_networkDiskCache->setMaximumCacheSize(config->maxDiskCacheSize() * 1024);
         setCache(m_networkDiskCache);
+    }
+
+    if (QSslSocket::supportsSsl()) {
+        m_sslConfiguration = QSslConfiguration::defaultConfiguration();
+        if (config->sslProtocol() == "sslv3") {
+            m_sslConfiguration.setProtocol(QSsl::SslV3);
+        } else if (config->sslProtocol() == "sslv2") {
+            m_sslConfiguration.setProtocol(QSsl::SslV2);
+        } else if (config->sslProtocol() == "tlsv1") {
+            m_sslConfiguration.setProtocol(QSsl::TlsV1);
+        }
     }
 
     connect(this, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)), SLOT(provideAuthentication(QNetworkReply*,QAuthenticator*)));
@@ -133,6 +145,8 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     if (!QSslSocket::supportsSsl()) {
         if (req.url().scheme().toLower() == QLatin1String("https"))
             qWarning() << "Request using https scheme without SSL support";
+    } else {
+        req.setSslConfiguration(m_sslConfiguration);
     }
 
     // Get the URL string before calling the superclass. Seems to work around
@@ -156,9 +170,6 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
 
     // Pass duty to the superclass - Nothing special to do here (yet?)
     QNetworkReply *reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
-    if(m_ignoreSslErrors) {
-        reply->ignoreSslErrors();
-    }
 
     QVariantList headers;
     foreach (QByteArray headerName, req.rawHeaderList()) {
@@ -179,6 +190,7 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     data["time"] = QDateTime::currentDateTime();
 
     connect(reply, SIGNAL(readyRead()), this, SLOT(handleStarted()));
+    connect(reply, SIGNAL(sslErrors(const QList<QSslError> &)), this, SLOT(handleSslErrors(const QList<QSslError> &)));
 
     emit resourceRequested(data);
     return reply;
@@ -268,4 +280,15 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply, const QVariant &
     m_started.remove(reply);
 
     emit resourceReceived(data);
+}
+
+void NetworkAccessManager::handleSslErrors(const QList<QSslError> &errors)
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+    foreach (QSslError e, errors) {
+        qDebug()<<"Network - SSL Error:" << e;
+    }
+
+    if (m_ignoreSslErrors)
+        reply->ignoreSslErrors();
 }

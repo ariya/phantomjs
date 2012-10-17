@@ -62,6 +62,7 @@ static const struct QCommandLineConfigEntry flags[] =
     { QCommandLine::Option, '\0', "proxy-type", "Specifies the proxy type, 'http' (default), 'none' (disable completely), or 'socks5'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "script-encoding", "Sets the encoding used for the starting script, default is 'utf8'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "web-security", "Enables web security, 'yes' (default) or 'no'", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "ssl-protocol", "Sets the SSL protocol (supported protocols: 'SSLv3', 'SSLv2', 'TLSv1', 'TlsV1SslV3' (default))", QCommandLine::Optional },
     { QCommandLine::Param, '\0', "script", "Script", QCommandLine::Flags(QCommandLine::Optional|QCommandLine::ParameterFence)},
     { QCommandLine::Param, '\0', "argument", "Script argument", QCommandLine::OptionalMultiple },
     { QCommandLine::Switch, 'h', "help", "Shows this message and quits", QCommandLine::Optional },
@@ -593,6 +594,9 @@ void Config::handleOption(const QString &option, const QVariant &value)
     if (option == "web-security") {
         setWebSecurityEnabled(boolValue);
     }
+    if (option == "ssl-protocol") {
+        setSslProtocol(value.toString().toLower());
+    }
 }
 
 void Config::handleParam(const QString& param, const QVariant &value)
@@ -610,3 +614,12 @@ void Config::handleError(const QString &error)
     setUnknownOption(QString("Error: %1").arg(error));
 }
 
+QString Config::sslProtocol() const
+{
+    return m_sslProtocol;
+}
+
+void Config::setSslProtocol(const QString& sslProtocolName)
+{
+    m_sslProtocol = sslProtocolName;
+}

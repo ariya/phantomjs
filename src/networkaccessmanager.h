@@ -36,9 +36,11 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QSet>
+#include <QSslConfiguration>
 
 class Config;
 class QNetworkDiskCache;
+class QSslConfiguration;
 
 class NetworkAccessManager : public QNetworkAccessManager
 {
@@ -70,6 +72,7 @@ private slots:
     void handleStarted();
     void handleFinished(QNetworkReply *reply);
     void provideAuthentication(QNetworkReply *reply, QAuthenticator *authenticator);
+    void handleSslErrors(const QList<QSslError> &errors);
 
 private:
     QHash<QNetworkReply*, int> m_ids;
@@ -77,6 +80,7 @@ private:
     int m_idCounter;
     QNetworkDiskCache* m_networkDiskCache;
     QVariantMap m_customHeaders;
+    QSslConfiguration m_sslConfiguration;
 };
 
 #endif // NETWORKACCESSMANAGER_H
