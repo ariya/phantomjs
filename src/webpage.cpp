@@ -434,6 +434,9 @@ void WebPage::applySettings(const QVariantMap &def)
 
     if (def.contains(PAGE_SETTINGS_PASSWORD))
         m_networkAccessManager->setPassword(def[PAGE_SETTINGS_PASSWORD].toString());
+
+    if (def.contains(PAGE_SETTINGS_MAX_AUTH_ATTEMPTS))
+        m_networkAccessManager->setMaxAuthAttempts(def[PAGE_SETTINGS_MAX_AUTH_ATTEMPTS].toInt());
 }
 
 QString WebPage::userAgent() const
