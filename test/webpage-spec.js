@@ -599,6 +599,39 @@ describe("WebPage object", function() {
 
     });
 
+    it("should return properly from a 401 status", function() {
+        var server = require('webserver').create();
+        server.listen(12345, function(request, response) {
+            response.statusCode = 401;
+            response.setHeader('WWW-Authenticate', 'Basic realm="PhantomJS test"');
+            response.write('Authentication Required');
+            response.close();
+        });
+
+        var url = "http://localhost:12345/foo";
+        var handled = 0;
+        runs(function() {
+            expect(handled).toEqual(0);
+            page.onResourceReceived = function(resource) {
+                expect(resource.status).toEqual(401);
+                handled++;
+            };
+            page.open(url, function(status) {
+                expect(status).toEqual('fail');
+                handled++;
+            });
+        });
+
+        waits(50);
+
+        runs(function() {
+            expect(handled).toEqual(2);
+            page.onResourceReceived = null;
+            server.close();
+        });
+
+    });
+
     it("should set valid cookie properly, then remove it", function() {
         var server = require('webserver').create();
         server.listen(12345, function(request, response) {
