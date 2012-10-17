@@ -71,6 +71,8 @@ static const char *toString(QNetworkAccessManager::Operation op)
 NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config)
     : QNetworkAccessManager(parent)
     , m_ignoreSslErrors(config->ignoreSslErrors())
+    , m_authAttempts(0)
+    , m_maxAuthAttempts(3)
     , m_idCounter(0)
     , m_networkDiskCache(0)
 {
@@ -96,6 +98,11 @@ void NetworkAccessManager::setUserName(const QString &userName)
 void NetworkAccessManager::setPassword(const QString &password)
 {
     m_password = password;
+}
+
+void NetworkAccessManager::setMaxAuthAttempts(int maxAttempts)
+{
+    m_maxAuthAttempts = maxAttempts;
 }
 
 void NetworkAccessManager::setCustomHeaders(const QVariantMap &headers)
@@ -212,6 +219,32 @@ void NetworkAccessManager::handleStarted()
 
 void NetworkAccessManager::handleFinished(QNetworkReply *reply)
 {
+    if (!m_ids.contains(reply))
+        return;
+
+    QVariant status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+    QVariant statusText = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
+
+    this->handleFinished(reply, status, statusText);
+}
+
+void NetworkAccessManager::provideAuthentication(QNetworkReply *reply, QAuthenticator *authenticator)
+{
+    if (m_authAttempts++ < m_maxAuthAttempts)
+    {
+        authenticator->setUser(m_userName);
+        authenticator->setPassword(m_password);       
+    }
+    else
+    {
+        m_authAttempts = 0;
+        this->handleFinished(reply, 401, "Authorization Required");
+        reply->close();
+    }
+}
+
+void NetworkAccessManager::handleFinished(QNetworkReply *reply, const QVariant &status, const QVariant &statusText)
+{
     QVariantList headers;
     foreach (QByteArray headerName, reply->rawHeaderList()) {
         QVariantMap header;
@@ -224,8 +257,8 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply)
     data["stage"] = "end";
     data["id"] = m_ids.value(reply);
     data["url"] = reply->url().toEncoded().data();
-    data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
-    data["statusText"] = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
+    data["status"] = status;
+    data["statusText"] = statusText;
     data["contentType"] = reply->header(QNetworkRequest::ContentTypeHeader);
     data["redirectURL"] = reply->header(QNetworkRequest::LocationHeader);
     data["headers"] = headers;
@@ -235,11 +268,4 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply)
     m_started.remove(reply);
 
     emit resourceReceived(data);
-}
-
-void NetworkAccessManager::provideAuthentication(QNetworkReply *reply, QAuthenticator *authenticator)
-{
-    Q_UNUSED(reply);
-    authenticator->setUser(m_userName);
-    authenticator->setPassword(m_password);
 }
