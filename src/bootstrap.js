@@ -303,6 +303,8 @@ window.detectType = function (value) {
                 s = 'array';
             } else if (value instanceof RegExp) {
                 s = 'regexp';
+            } else if (value instanceof Date) {
+                s = 'date';
             }
         } else {
             s = 'null';
