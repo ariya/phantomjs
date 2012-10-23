@@ -1012,8 +1012,9 @@ QObject *WebPage::_getJsPromptCallback() {
     return m_callbacks->getJsPromptCallback();
 }
 
-void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVariant &arg2, const QString &mouseButton)
+void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVariant &arg2, const QString &mouseButton, const QVariant &modifierArg)
 {
+    Qt::KeyboardModifiers keyboardModifiers(modifierArg.toInt());
     // Normalize the event "type" to lowercase
     const QString eventType = type.toLower();
 
@@ -1031,18 +1032,18 @@ void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVarian
         if (arg1.type() == QVariant::Char) {
             // a single char was given
             text = arg1.toChar();
-            key = text.at(0).toAscii();
+            key = text.at(0).unicode();
         } else if (arg1.type() == QVariant::String) {
             // javascript invokation of a single char
             text = arg1.toString();
             if (!text.isEmpty()) {
-                key = text.at(0).toAscii();
+                key = text.at(0).unicode();
             }
         } else {
             // assume a raw integer char code was given
             key = arg1.toInt();
         }
-        QKeyEvent *keyEvent = new QKeyEvent(keyEventType, key, Qt::NoModifier, text);
+        QKeyEvent *keyEvent = new QKeyEvent(keyEventType, key, keyboardModifiers, text);
         QApplication::postEvent(m_customWebPage, keyEvent);
         QApplication::processEvents();
         return;
@@ -1053,14 +1054,14 @@ void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVarian
         if (arg1.type() == QVariant::String) {
             // this is the case for e.g. sendEvent("...", 'A')
             // but also works with sendEvent("...", "ABCD")
-            foreach(QChar typeChar, arg1.toString()) {
-                sendEvent("keydown", typeChar);
-                sendEvent("keyup", typeChar);
+            foreach(const QChar typeChar, arg1.toString()) {
+                sendEvent("keydown", typeChar, NULL, NULL, modifierArg);
+                sendEvent("keyup", typeChar, NULL, NULL, modifierArg);
             }
         } else {
             // otherwise we assume a raw integer char-code was given
-            sendEvent("keydown", arg1.toInt());
-            sendEvent("keyup", arg1.toInt());
+            sendEvent("keydown", arg1.toInt(), NULL, NULL, modifierArg);
+            sendEvent("keyup", arg1.toInt(), NULL, NULL, modifierArg);
         }
         return;
     }
@@ -1103,9 +1104,9 @@ void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVarian
             m_mousePos.setY(arg2.toInt());
         }
 
-        // Prepare the Mouse event (no modifiers or other buttons are supported for now)
+        // Prepare the Mouse event
         qDebug() << "Mouse Event:" << eventType << "(" << mouseEventType << ")" << m_mousePos << ")" << button << buttons;
-        QMouseEvent *event = new QMouseEvent(mouseEventType, m_mousePos, button, buttons, Qt::NoModifier);
+        QMouseEvent *event = new QMouseEvent(mouseEventType, m_mousePos, button, buttons, keyboardModifiers);
 
         // Post and process events
         QApplication::postEvent(m_customWebPage, event);
