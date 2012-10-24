@@ -264,6 +264,23 @@ describe("WebPage object", function() {
                 document.querySelector('input').focus();
             });
             page.sendEvent('keypress', "ABCD");
+            // 0x02000000 is the Shift modifier.
+            page.sendEvent('keypress', page.event.key.Home, null, null,  0x02000000);
+            page.sendEvent('keypress', page.event.key.Delete);
+            var text = page.evaluate(function() {
+                return document.querySelector('input').value;
+            });
+            expect(text).toEqual("");
+        });
+    });
+
+    it("should handle key events with modifier keys", function() {
+        runs(function() {
+            page.content = '<input type="text">';
+            page.evaluate(function() {
+                document.querySelector('input').focus();
+            });
+            page.sendEvent('keypress', "ABCD");
             var text = page.evaluate(function() {
                 return document.querySelector('input').value;
             });
