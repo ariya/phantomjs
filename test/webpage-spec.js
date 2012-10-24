@@ -1,4 +1,4 @@
-function checkClipRect(page, clipRect) {
+﻿function checkClipRect(page, clipRect) {
     expectHasProperty(page, 'clipRect');
     it("should have clipRect with height "+clipRect.height, function () {
         expect(page.clipRect.height).toEqual(clipRect.height);
@@ -258,6 +258,23 @@ describe("WebPage object", function() {
     });
 
     it("should handle keypress event of string with inputs", function() {
+        runs(function() {
+            page.content = '<input type="text">';
+            page.evaluate(function() {
+                document.querySelector('input').focus();
+            });
+            page.sendEvent('keypress', "ABCD");
+            // 0x02000000 is the Shift modifier.
+            page.sendEvent('keypress', page.event.key.Home, null, null,  0x02000000);
+            page.sendEvent('keypress', page.event.key.Delete);
+            var text = page.evaluate(function() {
+                return document.querySelector('input').value;
+            });
+            expect(text).toEqual("");
+        });
+    });
+
+    it("should handle key events with modifier keys", function() {
         runs(function() {
             page.content = '<input type="text">';
             page.evaluate(function() {
