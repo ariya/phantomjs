@@ -140,6 +140,64 @@ function definePageCallbackSetter(page, handlers, handlerName, callbackConstruct
     });
 }
 
+// Inspired by Douglas Crockford's remedies: proper String quoting.
+// @see http://javascript.crockford.com/remedial.html
+function quoteString(str) {
+    var c, i, l = str.length, o = '"';
+    for (i = 0; i < l; i += 1) {
+        c = str.charAt(i);
+        if (c >= ' ') {
+            if (c === '\\' || c === '"') {
+                o += '\\';
+            }
+            o += c;
+        } else {
+            switch (c) {
+            case '\b':
+                o += '\\b';
+                break;
+            case '\f':
+                o += '\\f';
+                break;
+            case '\n':
+                o += '\\n';
+                break;
+            case '\r':
+                o += '\\r';
+                break;
+            case '\t':
+                o += '\\t';
+                break;
+            default:
+                c = c.charCodeAt();
+                o += '\\u00' + Math.floor(c / 16).toString(16) +
+                    (c % 16).toString(16);
+            }
+        }
+    }
+    return o + '"';
+}
+
+// Inspired by Douglas Crockford's remedies: a better Type Detection.
+// @see http://javascript.crockford.com/remedial.html
+function detectType(value) {
+    var s = typeof value;
+    if (s === 'object') {
+        if (value) {
+            if (value instanceof Array) {
+                s = 'array';
+            } else if (value instanceof RegExp) {
+                s = 'regexp';
+            } else if (value instanceof Date) {
+                s = 'date';
+            }
+        } else {
+            s = 'null';
+        }
+    }
+    return s;
+}
+
 function decorateNewPage(opts, page) {
     var handlers = {};
 
@@ -286,7 +344,7 @@ function decorateNewPage(opts, page) {
                 str += "JSON.parse(" + JSON.stringify(JSON.stringify(arg)) + "),"
                 break;
             case "string":      //< for type "string"
-                str += arg.quote() + ',';
+                str += quoteString(arg) + ',';
                 break;
             default:            // for types: "null", "number", "function", "regexp", "undefined"
                 str += arg + ',';

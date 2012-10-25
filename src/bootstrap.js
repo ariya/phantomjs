@@ -106,10 +106,10 @@ phantom.onError = phantom.defaultErrorHandler;
             module.exports = JSON.parse(fs.read(filename));
         }
     };
-    
+
     function loadFs() {
         var file, code, module, filename = ':/modules/fs.js';
-        
+
         module = new Module(filename);
         cache[filename] = module;
         module.exports = nativeExports.fs;
@@ -291,72 +291,3 @@ phantom.onError = phantom.defaultErrorHandler;
 
 // Legacy way to use WebPage
 window.WebPage = require('webpage').create;
-
-// Remedy to fauly "typeof" by Douglas Crockford.
-// NOTE: Renamed to "detectType" and added support for RegExp
-// @see http://javascript.crockford.com/remedial.html
-window.detectType = function (value) {
-    var s = typeof value;
-    if (s === 'object') {
-        if (value) {
-            if (value instanceof Array) {
-                s = 'array';
-            } else if (value instanceof RegExp) {
-                s = 'regexp';
-            } else if (value instanceof Date) {
-                s = 'date';
-            }
-        } else {
-            s = 'null';
-        }
-    }
-    return s;
-};
-
-// Remedy to absent "quote" method bu Douglas Crockford.
-// @see http://javascript.crockford.com/remedial.html
-if (!String.prototype.quote) {
-    String.prototype.quote = function () {
-        var c, i, l = this.length, o = '"';
-        for (i = 0; i < l; i += 1) {
-            c = this.charAt(i);
-            if (c >= ' ') {
-                if (c === '\\' || c === '"') {
-                    o += '\\';
-                }
-                o += c;
-            } else {
-                switch (c) {
-                case '\b':
-                    o += '\\b';
-                    break;
-                case '\f':
-                    o += '\\f';
-                    break;
-                case '\n':
-                    o += '\\n';
-                    break;
-                case '\r':
-                    o += '\\r';
-                    break;
-                case '\t':
-                    o += '\\t';
-                    break;
-                default:
-                    c = c.charCodeAt();
-                    o += '\\u00' + Math.floor(c / 16).toString(16) +
-                        (c % 16).toString(16);
-                }
-            }
-        }
-        return o + '"';
-    };
-}
-
-// Remedy to absent "trim" method bu Douglas Crockford.
-// @see http://javascript.crockford.com/remedial.html
-if (!String.prototype.trim) {
-    String.prototype.trim = function () {
-        return this.replace(/^\s*(\S*(?:\s+\S+)*)\s*$/, "$1");
-    };
-}
