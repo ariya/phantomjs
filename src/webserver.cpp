@@ -406,27 +406,18 @@ void WebServerResponse::write(const QString &body)
         writeHead(m_statusCode, m_headers);
     }
 	
-    QTextCodec *codec = QTextCodec::codecForName( "Latin-1" );
-	Q_ASSERT( codec );
-	
 	QByteArray data;
-	if(codec->canEncode(body)){
-		data = codec->fromUnicode( body );
-	}else{
-		qDebug() << "WebServerResponse::write using codec Latin-1 fail, lets try UTF-8";
-		
-		QTextCodec *codec_uni = QTextCodec::codecForName( "UTF-8" );
-		Q_ASSERT( codec_uni );
-		
-		if(codec_uni->canEncode(body)){
-			data = codec_uni->fromUnicode( body );
-		}else{
-			qDebug() << "WebServerResponse::write using codec UTF-8 fail";
-			data = "";
-		}
-		
-	}
 	
+	QTextCodec *codec_uni = QTextCodec::codecForName( "UTF-8" );
+	Q_ASSERT( codec_uni );
+	
+	if(codec_uni->canEncode(body)){
+		data = codec_uni->fromUnicode( body );
+	}else{
+		qDebug() << "WebServerResponse::write using codec UTF-8 fail";
+		data = "";
+	}
+
     mg_write(m_conn, data.constData(), data.size());
 }
 
