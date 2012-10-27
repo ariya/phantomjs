@@ -62,7 +62,7 @@ static const struct QCommandLineConfigEntry flags[] =
     { QCommandLine::Option, '\0', "proxy-type", "Specifies the proxy type, 'http' (default), 'none' (disable completely), or 'socks5'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "script-encoding", "Sets the encoding used for the starting script, default is 'utf8'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "web-security", "Enables web security, 'yes' (default) or 'no'", QCommandLine::Optional },
-    { QCommandLine::Option, '\0', "ssl-protocol", "Sets the SSL protocol (supported protocols: 'SSLv3', 'SSLv2', 'TLSv1', 'TlsV1SslV3' (default))", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "ssl-protocol", "Sets the SSL protocol (supported protocols: 'SSLv3' (default), 'SSLv2', 'TLSv1', 'any')", QCommandLine::Optional },
     { QCommandLine::Param, '\0', "script", "Script", QCommandLine::Flags(QCommandLine::Optional|QCommandLine::ParameterFence)},
     { QCommandLine::Param, '\0', "argument", "Script argument", QCommandLine::OptionalMultiple },
     { QCommandLine::Switch, 'h', "help", "Shows this message and quits", QCommandLine::Optional },
@@ -454,6 +454,7 @@ void Config::resetToDefaults()
     m_javascriptCanCloseWindows = true;
     m_helpFlag = false;
     m_printDebugMessages = false;
+    m_sslProtocol = "sslv3";
 }
 
 void Config::setProxyAuthPass(const QString &value)
@@ -595,7 +596,7 @@ void Config::handleOption(const QString &option, const QVariant &value)
         setWebSecurityEnabled(boolValue);
     }
     if (option == "ssl-protocol") {
-        setSslProtocol(value.toString().toLower());
+        setSslProtocol(value.toString());
     }
 }
 
@@ -621,5 +622,5 @@ QString Config::sslProtocol() const
 
 void Config::setSslProtocol(const QString& sslProtocolName)
 {
-    m_sslProtocol = sslProtocolName;
+    m_sslProtocol = sslProtocolName.toLower();
 }

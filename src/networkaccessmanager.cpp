@@ -89,12 +89,16 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
 
     if (QSslSocket::supportsSsl()) {
         m_sslConfiguration = QSslConfiguration::defaultConfiguration();
-        if (config->sslProtocol() == "sslv3") {
-            m_sslConfiguration.setProtocol(QSsl::SslV3);
-        } else if (config->sslProtocol() == "sslv2") {
+
+        // set the SSL protocol to SSLv3 by the default
+        m_sslConfiguration.setProtocol(QSsl::SslV3);
+
+        if (config->sslProtocol() == "sslv2") {
             m_sslConfiguration.setProtocol(QSsl::SslV2);
         } else if (config->sslProtocol() == "tlsv1") {
             m_sslConfiguration.setProtocol(QSsl::TlsV1);
+        } else if (config->sslProtocol() == "any") {
+            m_sslConfiguration.setProtocol(QSsl::AnyProtocol);
         }
     }
 
@@ -286,7 +290,7 @@ void NetworkAccessManager::handleSslErrors(const QList<QSslError> &errors)
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
     foreach (QSslError e, errors) {
-        qDebug()<<"Network - SSL Error:" << e;
+        qDebug() << "Network - SSL Error:" << e;
     }
 
     if (m_ignoreSslErrors)
