@@ -399,13 +399,11 @@ void WebServerResponse::writeHead(int statusCode, const QVariantMap &headers)
     mg_write(m_conn, "\r\n", 2);
 }
 
-void WebServerResponse::write(const QString &body)
+void WebServerResponse::write(const QByteArray &data)
 {
     if (!m_headersSent) {
         writeHead(m_statusCode, m_headers);
     }
-    ///TODO: encoding?!
-    const QByteArray data = body.toLocal8Bit();
     mg_write(m_conn, data.constData(), data.size());
 }
 

@@ -112,7 +112,7 @@ public slots:
     /// send @p headers to client with status code @p statusCode
     void writeHead(int statusCode, const QVariantMap &headers);
     /// sends @p data to client and makes sure the headers are send beforehand
-    void write(const QString &data);
+    void write(const QByteArray &data);
 
     /**
      * Closes the request once all data has been written to the client.
