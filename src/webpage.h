@@ -252,6 +252,7 @@ public slots:
     bool injectJs(const QString &jsFilePath);
     void _appendScriptElement(const QString &scriptUrl);
     QObject *_getGenericCallback();
+    QObject *_getFilePickerCallback();
     QObject *_getJsConfirmCallback();
     QObject *_getJsPromptCallback();
     void uploadFile(const QString &selector, const QString &fileName);
@@ -475,6 +476,7 @@ private:
      */
     void changeCurrentFrame(QWebFrame * const frame);
 
+    QString filePicker(const QString &oldFile);
     bool javaScriptConfirm(const QString &msg);
     bool javaScriptPrompt(const QString &msg, const QString &defaultValue, QString *result);
 

@@ -112,8 +112,13 @@ protected:
 
     QString chooseFile(QWebFrame *originatingFrame, const QString &oldFile) {
         Q_UNUSED(originatingFrame);
-        Q_UNUSED(oldFile);
-        return m_uploadFile;
+
+        QString filePath = m_webPage->filePicker(oldFile);
+        QString choosenFile = !filePath.isNull() ? filePath : m_uploadFile;
+
+        // Return the value coming from the "filePicker" callback, IFF not null.
+        qDebug() << "CustomPage - file choosen for upload:" << choosenFile;
+        return choosenFile;
     }
 
     void javaScriptAlert(QWebFrame *originatingFrame, const QString &msg) {
@@ -227,19 +232,33 @@ public:
     WebpageCallbacks(QObject *parent = 0)
         : QObject(parent)
         , m_genericCallback(NULL)
+        , m_filePickerCallback(NULL)
         , m_jsConfirmCallback(NULL)
         , m_jsPromptCallback(NULL)
     {
     }
 
     QObject *getGenericCallback() {
+        qDebug() << "WebpageCallbacks - getGenericCallback";
+
         if (!m_genericCallback) {
             m_genericCallback = new Callback(this);
         }
         return m_genericCallback;
     }
 
+    QObject *getFilePickerCallback() {
+        qDebug() << "WebpageCallbacks - getFilePickerCallback";
+
+        if (!m_filePickerCallback) {
+            m_filePickerCallback = new Callback(this);
+        }
+        return m_filePickerCallback;
+    }
+
     QObject *getJsConfirmCallback() {
+        qDebug() << "WebpageCallbacks - getJsConfirmCallback";
+
         if (!m_jsConfirmCallback) {
             m_jsConfirmCallback = new Callback(this);
         }
@@ -247,6 +266,8 @@ public:
     }
 
     QObject *getJsPromptCallback() {
+        qDebug() << "WebpageCallbacks - getJsConfirmCallback";
+
         if (!m_jsPromptCallback) {
             m_jsPromptCallback = new Callback(this);
         }
@@ -263,6 +284,7 @@ public slots:
 
 private:
     Callback *m_genericCallback;
+    Callback *m_filePickerCallback;
     Callback *m_jsConfirmCallback;
     Callback *m_jsPromptCallback;
 
@@ -598,6 +620,25 @@ QVariant WebPage::evaluateJavaScript(const QString &code)
     qDebug() << "WebPage - evaluateJavaScript result" << evalResult;
 
     return evalResult;
+}
+
+QString WebPage::filePicker(const QString &oldFile)
+{
+    qDebug() << "WebPage - filePicker" << "- old file:" << oldFile;
+
+    if (m_callbacks->m_filePickerCallback) {
+        QVariant res = m_callbacks->m_filePickerCallback->call(QVariantList() << oldFile);
+
+        if (res.canConvert<QString>()) {
+            QString filePath = res.toString();
+            qDebug() << "WebPage - filePicker" << "- new file:" << filePath;
+            // Return this value only if the file actually exists
+            if (QFile::exists(filePath)) {
+                return filePath;
+            }
+        }
+    }
+    return QString();
 }
 
 bool WebPage::javaScriptConfirm(const QString &msg)
@@ -1072,7 +1113,17 @@ QObject *WebPage::_getGenericCallback() {
     return m_callbacks->getGenericCallback();
 }
 
-QObject *WebPage::_getJsConfirmCallback() {
+QObject *WebPage::_getFilePickerCallback()
+{
+    if (!m_callbacks) {
+        m_callbacks = new WebpageCallbacks(this);
+    }
+
+    return m_callbacks->getFilePickerCallback();
+}
+
+QObject *WebPage::_getJsConfirmCallback()
+{
     if (!m_callbacks) {
         m_callbacks = new WebpageCallbacks(this);
     }
@@ -1080,7 +1131,8 @@ QObject *WebPage::_getJsConfirmCallback() {
     return m_callbacks->getJsConfirmCallback();
 }
 
-QObject *WebPage::_getJsPromptCallback() {
+QObject *WebPage::_getJsPromptCallback()
+{
     if (!m_callbacks) {
         m_callbacks = new WebpageCallbacks(this);
     }
@@ -1409,6 +1461,7 @@ void WebPage::initCompletions()
     addCompletion("onCallback");
     addCompletion("onPrompt");
     addCompletion("onConfirm");
+    addCompletion("onFilePicker");
     addCompletion("onConsoleMessage");
     addCompletion("onInitialized");
     addCompletion("onLoadStarted");

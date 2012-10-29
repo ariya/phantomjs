@@ -418,6 +418,9 @@ function decorateNewPage(opts, page) {
     // Calls from within the page to "phantomCallback()" arrive to this handler
     definePageCallbackSetter(page, handlers, "onCallback", "_getGenericCallback");
 
+    // Calls arrive to this handler when the user is asked to pick a file
+    definePageCallbackSetter(page, handlers, "onFilePicker", "_getFilePickerCallback");
+
     // Calls from within the page to "window.confirm(message)" arrive to this handler
     // @see https://developer.mozilla.org/en/DOM/window.confirm
     definePageCallbackSetter(page, handlers, "onConfirm", "_getJsConfirmCallback");
