@@ -1,4 +1,4 @@
-function checkClipRect(page, clipRect) {
+﻿function checkClipRect(page, clipRect) {
     expectHasProperty(page, 'clipRect');
     it("should have clipRect with height "+clipRect.height, function () {
         expect(page.clipRect.height).toEqual(clipRect.height);
