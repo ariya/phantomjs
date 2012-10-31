@@ -1058,13 +1058,13 @@ void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVarian
             // this is the case for e.g. sendEvent("...", 'A')
             // but also works with sendEvent("...", "ABCD")
             foreach(const QChar typeChar, arg1.toString()) {
-                sendEvent("keydown", typeChar, NULL, NULL, modifierArg);
-                sendEvent("keyup", typeChar, NULL, NULL, modifierArg);
+                sendEvent("keydown", typeChar, QVariant(), QString(), modifierArg);
+                sendEvent("keyup", typeChar, QVariant(), QString(), modifierArg);
             }
         } else {
             // otherwise we assume a raw integer char-code was given
-            sendEvent("keydown", arg1.toInt(), NULL, NULL, modifierArg);
-            sendEvent("keyup", arg1.toInt(), NULL, NULL, modifierArg);
+            sendEvent("keydown", arg1.toInt(), QVariant(), QString(), modifierArg);
+            sendEvent("keyup", arg1.toInt(), QVariant(), QString(), modifierArg);
         }
         return;
     }
