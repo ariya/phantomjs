@@ -313,8 +313,6 @@ describe("WebPage object", function() {
             page.sendEvent('mousedown', 42, 217);
         });
 
-        waits(50);
-
         runs(function() {
             var event = page.evaluate(function() {
                 return window.loggedEvent.mousedown;
@@ -397,6 +395,26 @@ describe("WebPage object", function() {
         });
     });
 
+    it("should handle doubleclick event", function () {
+        runs(function () {
+            page.content = '<input id="doubleClickField" type="text" onclick="document.getElementById(\'doubleClickField\').value=\'clicked\';" ondblclick="document.getElementById(\'doubleClickField\').value=\'doubleclicked\';" oncontextmenu="document.getElementById(\'doubleClickField\').value=\'rightclicked\'; return false;" value="hello"/>';
+            var point = page.evaluate(function () {
+                var el = document.querySelector('input');
+                var rect = el.getBoundingClientRect();
+                return { x: rect.left + Math.floor(rect.width / 2), y: rect.top + (rect.height / 2) };
+            });
+            page.sendEvent('doubleclick', point.x, point.y);
+        });
+
+        waits(50);
+
+        runs(function () {
+            var text = page.evaluate(function () {
+                return document.querySelector('input').value;
+            });
+            expect(text).toEqual("doubleclicked");
+        });
+    });
 
     it("should handle file uploads", function() {
         runs(function() {
