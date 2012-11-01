@@ -1069,7 +1069,7 @@ void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVarian
     if (eventType == "mousedown" ||
             eventType == "mouseup" ||
             eventType == "mousemove" ||
-            eventType == "doubleclick") {
+            eventType == "mousedoubleclick") {
         QMouseEvent::Type mouseEventType = QEvent::None;
 
         // Which mouse button (if it's a click)
@@ -1088,7 +1088,7 @@ void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVarian
             mouseEventType = QEvent::MouseButtonPress;
         } else if (eventType == "mouseup") {
             mouseEventType = QEvent::MouseButtonRelease;
-        } else if (eventType == "doubleclick") {
+        } else if (eventType == "mousedoubleclick") {
             mouseEventType = QEvent::MouseButtonDblClick;
         } else if (eventType == "mousemove") {
             mouseEventType = QEvent::MouseMove;
@@ -1115,9 +1115,16 @@ void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVarian
 
     // mouse click events: Qt doesn't provide this as a separate events,
     // so we compose it with a mousedown/mouseup sequence
-    if (type == "click") {
+    // mouse doubleclick events: It is not enough to simply send a
+    // MouseButtonDblClick event by itself; it must be accompanied
+    // by a preceding press-release, and a following release.
+    if (type == "click" || type == "doubleclick") {
         sendEvent("mousedown", arg1, arg2, mouseButton);
         sendEvent("mouseup", arg1, arg2, mouseButton);
+        if (type == "doubleclick") {
+            sendEvent("mousedoubleclick", arg1, arg2, mouseButton);
+            sendEvent("mouseup", arg1, arg2, mouseButton);
+        }
         return;
     }
 }
