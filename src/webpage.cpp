@@ -1035,12 +1035,12 @@ void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVarian
         if (arg1.type() == QVariant::Char) {
             // a single char was given
             text = arg1.toChar();
-            key = text.at(0).unicode();
+            key = text.at(0).toUpper().unicode();
         } else if (arg1.type() == QVariant::String) {
             // javascript invokation of a single char
             text = arg1.toString();
             if (!text.isEmpty()) {
-                key = text.at(0).unicode();
+                key = text.at(0).toUpper().unicode();
             }
         } else {
             // assume a raw integer char code was given
