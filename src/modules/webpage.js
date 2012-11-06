@@ -8,6 +8,7 @@
   Copyright (C) 2011 Ivan De Marino <ivan.de.marino@gmail.com>
   Copyright (C) 2011 James Roe <roejames12@hotmail.com>
   Copyright (C) 2011 execjosh, http://execjosh.blogspot.com
+  Copyright (C) 2012 James M. Greene <james.m.greene@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -117,10 +118,12 @@ function definePageCallbackSetter(page, handlerName, callbackConstructor) {
         } catch (e) {}
 
         // Connect a new handler
-        callbackObj.called.connect(function() {
-            // Callback will receive a "deserialized", normal "arguments" array
-            callbackObj.returnValue = f.apply(this, arguments[0]);
-        });
+        if (typeof f === 'function') {
+            callbackObj.called.connect(function() {
+                // Callback will receive a "deserialized", normal "arguments" array
+                callbackObj.returnValue = f.apply(this, arguments[0]);
+            });
+        }
     });
 }
 
