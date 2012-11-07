@@ -44,6 +44,7 @@
 #include <QNetworkRequest>
 #include <QPainter>
 #include <QPrinter>
+#include <QWebHistory>
 #include <QWebElement>
 #include <QWebFrame>
 #include <QWebPage>
@@ -68,6 +69,7 @@
 #define CALLBACKS_OBJECT_NAME           "_phantom"
 #define INPAGE_CALL_NAME                "window.callPhantom"
 #define CALLBACKS_OBJECT_INJECTION      INPAGE_CALL_NAME" = function() { return window."CALLBACKS_OBJECT_NAME".call.call(_phantom, Array.prototype.splice.call(arguments, 0)); };"
+#define CALLBACKS_OBJECT_PRESENT        "typeof(window."CALLBACKS_OBJECT_NAME") !== \"undefined\";"
 
 
 /**
@@ -110,8 +112,13 @@ protected:
 
     QString chooseFile(QWebFrame *originatingFrame, const QString &oldFile) {
         Q_UNUSED(originatingFrame);
-        Q_UNUSED(oldFile);
-        return m_uploadFile;
+
+        QString filePath = m_webPage->filePicker(oldFile);
+        QString choosenFile = !filePath.isNull() ? filePath : m_uploadFile;
+
+        // Return the value coming from the "filePicker" callback, IFF not null.
+        qDebug() << "CustomPage - file choosen for upload:" << choosenFile;
+        return choosenFile;
     }
 
     void javaScriptAlert(QWebFrame *originatingFrame, const QString &msg) {
@@ -225,19 +232,33 @@ public:
     WebpageCallbacks(QObject *parent = 0)
         : QObject(parent)
         , m_genericCallback(NULL)
+        , m_filePickerCallback(NULL)
         , m_jsConfirmCallback(NULL)
         , m_jsPromptCallback(NULL)
     {
     }
 
     QObject *getGenericCallback() {
+        qDebug() << "WebpageCallbacks - getGenericCallback";
+
         if (!m_genericCallback) {
             m_genericCallback = new Callback(this);
         }
         return m_genericCallback;
     }
 
+    QObject *getFilePickerCallback() {
+        qDebug() << "WebpageCallbacks - getFilePickerCallback";
+
+        if (!m_filePickerCallback) {
+            m_filePickerCallback = new Callback(this);
+        }
+        return m_filePickerCallback;
+    }
+
     QObject *getJsConfirmCallback() {
+        qDebug() << "WebpageCallbacks - getJsConfirmCallback";
+
         if (!m_jsConfirmCallback) {
             m_jsConfirmCallback = new Callback(this);
         }
@@ -245,6 +266,8 @@ public:
     }
 
     QObject *getJsPromptCallback() {
+        qDebug() << "WebpageCallbacks - getJsConfirmCallback";
+
         if (!m_jsPromptCallback) {
             m_jsPromptCallback = new Callback(this);
         }
@@ -261,6 +284,7 @@ public slots:
 
 private:
     Callback *m_genericCallback;
+    Callback *m_filePickerCallback;
     Callback *m_jsConfirmCallback;
     Callback *m_jsPromptCallback;
 
@@ -270,25 +294,40 @@ private:
 
 WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
     : REPLCompletable(parent)
-    , m_callbacks(NULL)
     , m_navigationLocked(false)
     , m_mousePos(QPoint(0, 0))
     , m_ownsPages(true)
 {
     setObjectName("WebPage");
+    m_callbacks = new WebpageCallbacks(this);
     m_customWebPage = new CustomPage(this);
     m_mainFrame = m_customWebPage->mainFrame();
+    m_currentFrame = m_mainFrame;
     m_mainFrame->setHtml(BLANK_HTML, baseUrl);
-    changeCurrentFrame(m_mainFrame);
 
     Config *phantomCfg = Phantom::instance()->config();
 
-    connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(handleJavaScriptWindowObjectCleared()));
+    // NOTE: below you can see that between all the event handlers
+    // we listen for, "SLOT(setupFrame())" is connected to 2 signals:
+    //   1. page.loadFinished
+    //   2. mainFrame.javaScriptWindowObjectCleared
+    // We have found out that, despite our understanding, the event #1 above
+    // fires BEFORE the event #2 when loading a url.
+    // But, if no page load is requested, #2 is the only one to fire.
+    //
+    // So, we call the slot twice to setup the main frame
+    // (no parameter == main frame) but we make sure to do the setup only once.
+    //
+    // @see WebPage::setupFrame(QWebFrame *) for details.
+    connect(m_mainFrame, SIGNAL(loadStarted()), this, SLOT(switchToMainFrame()), Qt::QueuedConnection);
+    connect(m_mainFrame, SIGNAL(loadFinished(bool)), this, SLOT(setupFrame()), Qt::QueuedConnection);
+    connect(m_customWebPage, SIGNAL(frameCreated(QWebFrame*)), this, SLOT(setupFrame(QWebFrame*)), Qt::QueuedConnection);
+    connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(setupFrame()));
     connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()), SIGNAL(initialized()));
     connect(m_mainFrame, SIGNAL(urlChanged(QUrl)), SIGNAL(urlChanged(QUrl)));
     connect(m_customWebPage, SIGNAL(loadStarted()), SIGNAL(loadStarted()), Qt::QueuedConnection);
     connect(m_customWebPage, SIGNAL(loadFinished(bool)), SLOT(finish(bool)), Qt::QueuedConnection);
-    connect(m_customWebPage, SIGNAL(windowCloseRequested()), this, SLOT(close()));
+    connect(m_customWebPage, SIGNAL(windowCloseRequested()), this, SLOT(close()), Qt::QueuedConnection);
 
     // Start with transparent background.
     QPalette palette = m_customWebPage->palette();
@@ -361,6 +400,16 @@ void WebPage::setFrameContent(const QString &content)
     m_currentFrame->setHtml(content);
 }
 
+QString WebPage::title() const
+{
+    return m_mainFrame->title();
+}
+
+QString WebPage::frameTitle() const
+{
+    return m_currentFrame->title();
+}
+
 QString WebPage::url() const
 {
     return m_mainFrame->url().toString();
@@ -369,6 +418,44 @@ QString WebPage::url() const
 QString WebPage::frameUrl() const
 {
     return m_currentFrame->url().toString();
+}
+
+bool WebPage::canGoBack()
+{
+    return m_customWebPage->history()->canGoBack();
+}
+
+bool WebPage::back()
+{
+    if (canGoBack()) {
+        m_customWebPage->triggerAction(QWebPage::Back);
+        return true;
+    }
+    return false;
+}
+
+bool WebPage::canGoForward()
+{
+    return m_customWebPage->history()->canGoForward();
+}
+
+bool WebPage::forward()
+{
+    if (canGoForward()) {
+        m_customWebPage->triggerAction(QWebPage::Forward);
+        return true;
+    }
+    return false;
+}
+
+void WebPage::reload()
+{
+    m_customWebPage->triggerAction(QWebPage::Reload);
+}
+
+void WebPage::stop()
+{
+    m_customWebPage->triggerAction(QWebPage::Stop);
 }
 
 QString WebPage::plainText() const
@@ -521,10 +608,37 @@ QVariantMap WebPage::paperSize() const
 
 QVariant WebPage::evaluateJavaScript(const QString &code)
 {
+    QVariant evalResult;
     QString function = "(" + code + ")()";
-    return m_currentFrame->evaluateJavaScript(
-                function,
-                QString("phantomjs://webpage.evaluate()"));
+
+    qDebug() << "WebPage - evaluateJavaScript" << function;
+
+    evalResult = m_currentFrame->evaluateJavaScript(
+                function,                                   //< function evaluated
+                QString("phantomjs://webpage.evaluate()")); //< reference source file
+
+    qDebug() << "WebPage - evaluateJavaScript result" << evalResult;
+
+    return evalResult;
+}
+
+QString WebPage::filePicker(const QString &oldFile)
+{
+    qDebug() << "WebPage - filePicker" << "- old file:" << oldFile;
+
+    if (m_callbacks->m_filePickerCallback) {
+        QVariant res = m_callbacks->m_filePickerCallback->call(QVariantList() << oldFile);
+
+        if (res.canConvert<QString>()) {
+            QString filePath = res.toString();
+            qDebug() << "WebPage - filePicker" << "- new file:" << filePath;
+            // Return this value only if the file actually exists
+            if (QFile::exists(filePath)) {
+                return filePath;
+            }
+        }
+    }
+    return QString();
 }
 
 bool WebPage::javaScriptConfirm(const QString &msg)
@@ -999,7 +1113,17 @@ QObject *WebPage::_getGenericCallback() {
     return m_callbacks->getGenericCallback();
 }
 
-QObject *WebPage::_getJsConfirmCallback() {
+QObject *WebPage::_getFilePickerCallback()
+{
+    if (!m_callbacks) {
+        m_callbacks = new WebpageCallbacks(this);
+    }
+
+    return m_callbacks->getFilePickerCallback();
+}
+
+QObject *WebPage::_getJsConfirmCallback()
+{
     if (!m_callbacks) {
         m_callbacks = new WebpageCallbacks(this);
     }
@@ -1007,7 +1131,8 @@ QObject *WebPage::_getJsConfirmCallback() {
     return m_callbacks->getJsConfirmCallback();
 }
 
-QObject *WebPage::_getJsPromptCallback() {
+QObject *WebPage::_getJsPromptCallback()
+{
     if (!m_callbacks) {
         m_callbacks = new WebpageCallbacks(this);
     }
@@ -1137,8 +1262,9 @@ QObjectList WebPage::pages() const
 {
     QObjectList pages;
 
-    foreach(QObject *p, this->findChildren<WebPage *>()) {
-        pages << p;
+    QList<WebPage *> childPages = this->findChildren<WebPage *>();
+    for (int i = childPages.length() -1; i >= 0; --i) {
+        pages << childPages.at(i);
     }
 
     return pages;
@@ -1148,7 +1274,7 @@ QStringList WebPage::pagesWindowName() const
 {
     QStringList pagesWindowName;
 
-    foreach (WebPage *p, this->findChildren<WebPage *>()) {
+    foreach (const WebPage *p, this->findChildren<WebPage *>()) {
         pagesWindowName << p->windowName();
     }
 
@@ -1157,9 +1283,10 @@ QStringList WebPage::pagesWindowName() const
 
 QObject *WebPage::getPage(const QString &windowName) const
 {
-    foreach (WebPage *p, this->findChildren<WebPage *>()) {
-        if (p->windowName() == windowName) {
-            return p;
+    QList<WebPage *> childPages = this->findChildren<WebPage *>();
+    for (int i = childPages.length() -1; i >= 0; --i) {
+        if (childPages.at(i)->windowName() == windowName) {
+            return childPages.at(i);
         }
     }
     return NULL;
@@ -1189,7 +1316,7 @@ QStringList WebPage::framesName() const
 {
     QStringList framesName;
 
-    foreach(QWebFrame *f, m_currentFrame->childFrames()) {
+    foreach(const QWebFrame *f, m_currentFrame->childFrames()) {
         framesName << f->frameName();
     }
     return framesName;
@@ -1202,14 +1329,18 @@ QStringList WebPage::childFramesName() const //< deprecated
 
 void WebPage::changeCurrentFrame(QWebFrame * const frame)
 {
-  m_currentFrame = frame;
+    if (frame != m_currentFrame) {
+        qDebug() << "WebPage - changeCurrentFrame" << "from" << m_currentFrame->frameName() << "to" << frame->frameName();
+        m_currentFrame = frame;
+    }
 }
 
 bool WebPage::switchToFrame(const QString &frameName)
 {
-    foreach(QWebFrame * f, m_currentFrame->childFrames()) {
-        if (f->frameName() == frameName) {
-            this->changeCurrentFrame(f);
+    QList<QWebFrame *> childFrames = m_currentFrame->childFrames();
+    for (int i = childFrames.length() -1; i >= 0; --i) {
+        if (childFrames.at(i)->frameName() == frameName) {
+            this->changeCurrentFrame(childFrames.at(i));
             return true;
         }
     }
@@ -1238,7 +1369,9 @@ bool WebPage::switchToChildFrame(const int framePosition) //< deprecated
 
 void WebPage::switchToMainFrame()
 {
-    this->changeCurrentFrame(m_mainFrame);
+    if (m_currentFrame != m_mainFrame) {
+        this->changeCurrentFrame(m_mainFrame);
+    }
 }
 
 bool WebPage::switchToParentFrame()
@@ -1270,30 +1403,22 @@ QString WebPage::focusedFrameName() const
     return m_customWebPage->currentFrame()->frameName();
 }
 
-static void injectCallbacksObjIntoFrames(QWebFrame *frame, WebpageCallbacks *callbacksObject)
+static void injectCallbacksObjIntoFrame(QWebFrame *frame, WebpageCallbacks *callbacksObject)
 {
-    // Decorate the window object in this frame
-    frame->addToJavaScriptWindowObject(CALLBACKS_OBJECT_NAME, callbacksObject, QScriptEngine::QtOwnership);
-    frame->evaluateJavaScript(CALLBACKS_OBJECT_INJECTION);
-
-    // Decorate the window object in the child frames (recursively)
-    foreach (QWebFrame *childFrame, frame->childFrames()) {
-        injectCallbacksObjIntoFrames(childFrame, callbacksObject);
+    // Inject object only if it's not already present
+    if (frame->evaluateJavaScript(CALLBACKS_OBJECT_PRESENT).toBool() == false) {
+        // Decorate the window object in this frame (object ownership left to the creator/parent)
+        frame->addToJavaScriptWindowObject(CALLBACKS_OBJECT_NAME, callbacksObject, QScriptEngine::QtOwnership);
+        frame->evaluateJavaScript(CALLBACKS_OBJECT_INJECTION);
     }
 }
 
-void WebPage::handleJavaScriptWindowObjectCleared()
+void WebPage::setupFrame(QWebFrame *frame)
 {
-    // Create Callbacks Holder object, if not already present for this page
-    if (!m_callbacks) {
-        m_callbacks = new WebpageCallbacks(this);
-    }
+    qDebug() << "WebPage - setupFrame" << (frame == NULL ? "" : frame->frameName());
 
-    // Reset focus on the Main Frame
-    m_mainFrame->setFocus();
-
-    // Inject the Callbacks object in the frame and child-frames (recursively)
-    injectCallbacksObjIntoFrames(m_mainFrame, m_callbacks);
+    // Inject the Callbacks object in the main frame
+    injectCallbacksObjIntoFrame(frame == NULL ? m_mainFrame : frame, m_callbacks);
 }
 
 void WebPage::initCompletions()
@@ -1336,6 +1461,7 @@ void WebPage::initCompletions()
     addCompletion("onCallback");
     addCompletion("onPrompt");
     addCompletion("onConfirm");
+    addCompletion("onFilePicker");
     addCompletion("onConsoleMessage");
     addCompletion("onInitialized");
     addCompletion("onLoadStarted");

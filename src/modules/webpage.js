@@ -91,37 +91,111 @@ function copyInto(target, source) {
 function definePageSignalSetter(page, handlers, handlerName, signalName) {
     page.__defineSetter__(handlerName, function (f) {
         // Disconnect previous handler (if any)
-        if (handlers && typeof handlers[signalName] === 'function') {
+        if (handlers && typeof(handlers[signalName]) === "function") {
             try {
                 this[signalName].disconnect(handlers[signalName]);
             } catch (e) {}
         }
 
-        // Store the new handler for reference
-        handlers[signalName] = f;
+        // Delete the previous handler
+        delete handlers[signalName];
 
-        // Connect the new handler
-        if (typeof f === 'function') {
+        // Connect the new handler iff it's a function
+        if (typeof(f) === "function") {
+            // Store the new handler for reference
+            handlers[signalName] = f;
             this[signalName].connect(f);
         }
     });
 }
 
-function definePageCallbackSetter(page, handlerName, callbackConstructor) {
+function definePageCallbackSetter(page, handlers, handlerName, callbackConstructor) {
     page.__defineSetter__(handlerName, function(f) {
+        // Fetch the right callback object
         var callbackObj = page[callbackConstructor]();
 
         // Disconnect previous handler (if any)
-        try {
-            callbackObj.called.disconnect();
-        } catch (e) {}
+        if (handlers && typeof(handlers[callbackConstructor]) === "function") {
+            try {
+                callbackObj.called.disconnect(handlers[callbackConstructor]);
+            } catch (e) {
+                console.log(e);
+            }
+        }
 
-        // Connect a new handler
-        callbackObj.called.connect(function() {
-            // Callback will receive a "deserialized", normal "arguments" array
-            callbackObj.returnValue = f.apply(this, arguments[0]);
-        });
+        // Delete the previous handler
+        delete handlers[callbackConstructor];
+
+        // Connect the new handler iff it's a function
+        if (typeof(f) === "function") {
+            // Store the new handler for reference
+            handlers[callbackConstructor] = function() {
+                // Callback will receive a "deserialized", normal "arguments" array
+                callbackObj.returnValue = f.apply(this, arguments[0]);
+            };
+
+            // Connect a new handler
+            callbackObj.called.connect(handlers[callbackConstructor]);
+        }
     });
+}
+
+// Inspired by Douglas Crockford's remedies: proper String quoting.
+// @see http://javascript.crockford.com/remedial.html
+function quoteString(str) {
+    var c, i, l = str.length, o = '"';
+    for (i = 0; i < l; i += 1) {
+        c = str.charAt(i);
+        if (c >= ' ') {
+            if (c === '\\' || c === '"') {
+                o += '\\';
+            }
+            o += c;
+        } else {
+            switch (c) {
+            case '\b':
+                o += '\\b';
+                break;
+            case '\f':
+                o += '\\f';
+                break;
+            case '\n':
+                o += '\\n';
+                break;
+            case '\r':
+                o += '\\r';
+                break;
+            case '\t':
+                o += '\\t';
+                break;
+            default:
+                c = c.charCodeAt();
+                o += '\\u00' + Math.floor(c / 16).toString(16) +
+                    (c % 16).toString(16);
+            }
+        }
+    }
+    return o + '"';
+}
+
+// Inspired by Douglas Crockford's remedies: a better Type Detection.
+// @see http://javascript.crockford.com/remedial.html
+function detectType(value) {
+    var s = typeof value;
+    if (s === 'object') {
+        if (value) {
+            if (value instanceof Array) {
+                s = 'array';
+            } else if (value instanceof RegExp) {
+                s = 'regexp';
+            } else if (value instanceof Date) {
+                s = 'date';
+            }
+        } else {
+            s = 'null';
+        }
+    }
+    return s;
 }
 
 function decorateNewPage(opts, page) {
@@ -162,24 +236,34 @@ function decorateNewPage(opts, page) {
 
     definePageSignalSetter(page, handlers, "onClosing", "closing");
 
+    // Private callback for "page.open()"
+    definePageSignalSetter(page, handlers, "_onPageOpenFinished", "loadFinished");
+
     phantom.__defineErrorSetter__(page, page);
 
     page.onError = phantom.defaultErrorHandler;
 
     page.open = function (url, arg1, arg2, arg3, arg4) {
+        var thisPage = this;
+
         if (arguments.length === 1) {
             this.openUrl(url, 'get', this.settings);
             return;
-        }
-        if (arguments.length === 2 && typeof arg1 === 'function') {
-            this.onLoadFinished = arg1;
+        } else if (arguments.length === 2 && typeof arg1 === 'function') {
+            this._onPageOpenFinished = function() {
+                thisPage._onPageOpenFinished = null; //< Disconnect callback (should fire only once)
+                arg1.apply(thisPage, arguments);     //< Invoke the actual callback
+            }
             this.openUrl(url, 'get', this.settings);
             return;
         } else if (arguments.length === 2) {
             this.openUrl(url, arg1, this.settings);
             return;
         } else if (arguments.length === 3 && typeof arg2 === 'function') {
-            this.onLoadFinished = arg2;
+            this._onPageOpenFinished = function() {
+                thisPage._onPageOpenFinished = null; //< Disconnect callback (should fire only once)
+                arg2.apply(thisPage, arguments);     //< Invoke the actual callback
+            }
             this.openUrl(url, arg1, this.settings);
             return;
         } else if (arguments.length === 3) {
@@ -189,14 +273,20 @@ function decorateNewPage(opts, page) {
             }, this.settings);
             return;
         } else if (arguments.length === 4) {
-            this.onLoadFinished = arg3;
+            this._onPageOpenFinished = function() {
+                thisPage._onPageOpenFinished = null; //< Disconnect callback (should fire only once)
+                arg3.apply(thisPage, arguments);     //< Invoke the actual callback
+            }
             this.openUrl(url, {
                 operation: arg1,
                 data: arg2
             }, this.settings);
             return;
         } else if (arguments.length === 5) {
-            this.onLoadFinished = arg4;
+            this._onPageOpenFinished = function() {
+                thisPage._onPageOpenFinished = null; //< Disconnect callback (should fire only once)
+                arg4.apply(thisPage, arguments);     //< Invoke the actual callback
+            }
             this.openUrl(url, {
                 operation: arg1,
                 data: arg2,
@@ -238,17 +328,27 @@ function decorateNewPage(opts, page) {
      * @return  {*}                 the function call result
      */
     page.evaluate = function (func, args) {
-        var str, arg, i, l;
+        var str, arg, argType, i, l;
         if (!(func instanceof Function || typeof func === 'string' || func instanceof String)) {
             throw "Wrong use of WebPage#evaluate";
         }
         str = 'function() { return (' + func.toString() + ')(';
         for (i = 1, l = arguments.length; i < l; i++) {
             arg = arguments[i];
-            if (/object|string/.test(typeof arg) && !(arg instanceof RegExp)) {
-                str += 'JSON.parse(' + JSON.stringify(JSON.stringify(arg)) + '),';
-            } else {
+            argType = detectType(arg);
+
+            switch (argType) {
+            case "object":      //< for type "object"
+            case "array":       //< for type "array"
+            case "date":        //< for type "date"
+                str += "JSON.parse(" + JSON.stringify(JSON.stringify(arg)) + "),"
+                break;
+            case "string":      //< for type "string"
+                str += quoteString(arg) + ',';
+                break;
+            default:            // for types: "null", "number", "function", "regexp", "undefined"
                 str += arg + ',';
+                break;
             }
         }
         str = str.replace(/,$/, '') + '); }';
@@ -264,7 +364,8 @@ function decorateNewPage(opts, page) {
      * @param   {...}       args    function arguments
      */
     page.evaluateAsync = function (func, timeMs, args) {
-        var args = Array.prototype.splice.call(arguments, 2), //< remove the first 2 arguments because we are going to consume them
+        // Remove the first 2 arguments because we are going to consume them
+        var args = Array.prototype.slice.call(arguments, 2),
             numArgsToAppend = args.length,
             funcTimeoutWrapper;
 
@@ -315,15 +416,18 @@ function decorateNewPage(opts, page) {
     }
 
     // Calls from within the page to "phantomCallback()" arrive to this handler
-    definePageCallbackSetter(page, "onCallback", "_getGenericCallback");
+    definePageCallbackSetter(page, handlers, "onCallback", "_getGenericCallback");
+
+    // Calls arrive to this handler when the user is asked to pick a file
+    definePageCallbackSetter(page, handlers, "onFilePicker", "_getFilePickerCallback");
 
     // Calls from within the page to "window.confirm(message)" arrive to this handler
     // @see https://developer.mozilla.org/en/DOM/window.confirm
-    definePageCallbackSetter(page, "onConfirm", "_getJsConfirmCallback");
+    definePageCallbackSetter(page, handlers, "onConfirm", "_getJsConfirmCallback");
 
     // Calls from within the page to "window.prompt(message, defaultValue)" arrive to this handler
     // @see https://developer.mozilla.org/en/DOM/window.prompt
-    definePageCallbackSetter(page, "onPrompt", "_getJsPromptCallback");
+    definePageCallbackSetter(page, handlers, "onPrompt", "_getJsPromptCallback");
 
     page.event = {};
     page.event.key = {

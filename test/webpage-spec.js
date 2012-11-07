@@ -1456,3 +1456,58 @@ describe("WebPage closing notification/alerting: closing propagation control", f
         });
     });
 });
+
+describe("WebPage 'onFilePicker'", function() {
+    it("should be able to set the file to upload when the File Picker is invoked (i.e. clicking on a 'input[type=file]')", function() {
+        var system = require('system'),
+            fileToUpload = system.os.name === "windows" ? "C:\\Windows\\System32\\drivers\\etc\\hosts" : "/etc/hosts",
+            server = require("webserver").create(),
+            page = require("webpage").create();
+
+        // Create a webserver that returns a page with an "input type=file" element
+        server.listen(12345, function(request, response) {
+            response.statusCode = 200;
+            response.write('<html><body><input type="file" id="fileup" /></body></html>');
+            response.close();
+        });
+
+        // Register "onFilePicker" handler
+        page.onFilePicker = function(oldFile) {
+            return fileToUpload;
+        };
+
+        runs(function() {
+            page.open("http://localhost:12345", function() {
+                // Before clicking on the file selector element
+                expect(page.evaluate(function() {
+                    var fileUp = document.querySelector("#fileup");
+                    return fileUp.files.length;
+                })).toBe(0);
+
+                // Click on file selector element, so the "onFilePicker" is invoked
+                page.evaluate(function() {
+                    var fileUp = document.querySelector("#fileup");
+                    var ev = document.createEvent("MouseEvents");
+                    ev.initEvent("click", true, true);
+                    fileUp.dispatchEvent(ev);
+                });
+
+                // After clicking on the file selector element
+                expect(page.evaluate(function() {
+                    var fileUp = document.querySelector("#fileup");
+                    return fileUp.files.length;
+                })).toBe(1);
+                expect(page.evaluate(function() {
+                    var fileUp = document.querySelector("#fileup");
+                    return fileUp.files[0].name;
+                })).toContain("hosts");
+            });
+        });
+
+        waits(100);
+
+        runs(function() {
+            server.close();
+        });
+    });
+});
