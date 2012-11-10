@@ -271,6 +271,29 @@ describe("WebPage object", function() {
         });
     });
 
+    it("should send proper key codes for text", function () {
+        runs(function() {
+            page.content = '<input type="text">';
+            page.evaluate(function() {
+                document.querySelector('input').focus();
+            });
+            page.sendEvent('keypress', "ABCD");
+            // 0x02000000 is the Shift modifier.
+            page.sendEvent('keypress', page.event.key.Home, null, null,  0x02000000);
+            // 0x04000000 is the Control modifier.
+            page.sendEvent('keypress', 'x', null, null, 0x04000000);
+            var text = page.evaluate(function() {
+                return document.querySelector('input').value;
+            });
+            expect(text).toEqual("");
+            page.sendEvent('keypress', 'v', null, null, 0x04000000);
+            text = page.evaluate(function() {
+                return document.querySelector('input').value;
+            });
+            expect(text).toEqual("ABCD");
+        });
+    });
+
     it("should handle keypress event of umlaut char with inputs", function() {
         runs(function() {
             page.content = '<input type="text">';
