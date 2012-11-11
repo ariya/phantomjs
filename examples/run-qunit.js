@@ -65,6 +65,11 @@ page.open(system.args[1], function(status){
             var failedNum = page.evaluate(function(){
                 var el = document.getElementById('qunit-testresult');
                 console.log(el.innerText);
+                failed = document.getElementsByClassName('fail');
+                for (_i = 0, _len = failed.length; _i < _len; _i++) {
+                    fail = failed[_i];
+                    console.log(fail.innerHTML + "\n---------------\n");
+                }
                 try {
                     return el.getElementsByClassName('failed')[0].innerHTML;
                 } catch (e) { }

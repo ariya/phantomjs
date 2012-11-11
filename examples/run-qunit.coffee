@@ -56,6 +56,8 @@ page.open system.args[1], (status) ->
             failedNum = page.evaluate ->
                 el = document.getElementById 'qunit-testresult'
                 console.log el.innerText
+                failed = document.getElementsByClassName 'fail'
+                console.log fail.innerHTML+"\n---------------\n" for fail in failed
                 try
                     return el.getElementsByClassName('failed')[0].innerHTML
                 catch e
