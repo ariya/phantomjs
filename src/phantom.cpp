@@ -34,8 +34,6 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFile>
-// note: QMetaObject apparently does not define QMetaEnum...
-#include <qmetaobject.h>
 #include <QWebPage>
 
 #include "consts.h"
@@ -63,16 +61,8 @@ Phantom::Phantom(QObject *parent)
     // Prepare the configuration object based on the command line arguments.
     // Because this object will be used by other classes, it needs to be ready ASAP.
     m_config.init(&args);
-
-    // initialize key map
-    QMetaEnum keys = staticQtMetaObject.enumerator( staticQtMetaObject.indexOfEnumerator("Key") );
-    for(int i = 0; i < keys.keyCount(); ++i) {
-        QString name = keys.key(i);
-        if (name.startsWith("Key_")) {
-            name.remove(0, 4);
-        }
-        m_keyMap[name] = keys.value(i);
-    }
+    // Apply debug configuration as early as possible
+    Utils::printDebugMessages = m_config.printDebugMessages();
 }
 
 void Phantom::init()
@@ -257,11 +247,6 @@ bool Phantom::printDebugMessages() const
     return m_config.printDebugMessages();
 }
 
-QVariantMap Phantom::keys() const
-{
-    return m_keyMap;
-}
-
 bool Phantom::areCookiesEnabled() const
 {
     return CookieJar::instance()->isEnabled();
@@ -330,6 +315,9 @@ QObject* Phantom::createCallback()
 
 void Phantom::loadModule(const QString &moduleSource, const QString &filename)
 {
+    if (m_terminated)
+        return;
+
    QString scriptSource =
       "(function(require, exports, module) {" +
       moduleSource +
@@ -343,6 +331,9 @@ void Phantom::loadModule(const QString &moduleSource, const QString &filename)
 
 bool Phantom::injectJs(const QString &jsFilePath)
 {
+    if (m_terminated)
+        return false;
+
     return Utils::injectJsInFrame(jsFilePath, libraryPath(), m_page->mainFrame());
 }
 
@@ -378,6 +369,39 @@ void Phantom::onInitialized()
                 );
 }
 
+bool Phantom::setCookies(const QVariantList &cookies)
+{
+    // Delete all the cookies from the CookieJar
+    CookieJar::instance()->clearCookies();
+    // Add a new set of cookies
+    return CookieJar::instance()->addCookiesFromMap(cookies);
+}
+
+QVariantList Phantom::cookies() const
+{
+    // Return all the Cookies in the CookieJar, as a list of Maps (aka JSON in JS space)
+    return CookieJar::instance()->cookiesToMap();
+}
+
+bool Phantom::addCookie(const QVariantMap &cookie)
+{
+    return CookieJar::instance()->addCookieFromMap(cookie);
+}
+
+bool Phantom::deleteCookie(const QString &cookieName)
+{
+    if (!cookieName.isEmpty()) {
+        return CookieJar::instance()->deleteCookie(cookieName);
+    }
+    return false;
+}
+
+void Phantom::clearCookies()
+{
+    CookieJar::instance()->clearCookies();
+}
+
+
 // private:
 void Phantom::doExit(int code)
 {
@@ -405,9 +429,13 @@ void Phantom::initCompletions()
     addCompletion("outputEncoding");
     addCompletion("scriptName");
     addCompletion("version");
-    addCompletion("keys");
     addCompletion("cookiesEnabled");
+    addCompletion("cookies");
     // functions
     addCompletion("exit");
+    addCompletion("debugExit");
     addCompletion("injectJs");
+    addCompletion("addCookie");
+    addCompletion("deleteCookie");
+    addCompletion("clearCookies");
 }

@@ -50,10 +50,10 @@ public:
     bool setCookiesFromUrl(const QList<QNetworkCookie> &cookieList, const QUrl & url);
     QList<QNetworkCookie> cookiesForUrl (const QUrl & url) const;
 
-    void addCookie(const QNetworkCookie &cookie, const QString &url = QString());
-    void addCookieFromMap(const QVariantMap &cookie, const QString &url = QString());
-    void addCookies(const QList<QNetworkCookie> &cookiesList, const QString &url = QString());
-    void addCookiesFromMap(const QVariantList &cookiesList, const QString &url = QString());
+    bool addCookie(const QNetworkCookie &cookie, const QString &url = QString());
+    bool addCookieFromMap(const QVariantMap &cookie, const QString &url = QString());
+    bool addCookies(const QList<QNetworkCookie> &cookiesList, const QString &url = QString());
+    bool addCookiesFromMap(const QVariantList &cookiesList, const QString &url = QString());
 
     QList<QNetworkCookie> cookies(const QString &url = QString()) const;
     QVariantList cookiesToMap(const QString &url = QString()) const;
@@ -61,8 +61,8 @@ public:
     QNetworkCookie cookie(const QString &name, const QString &url = QString()) const;
     QVariantMap cookieToMap(const QString &name, const QString &url = QString()) const;
 
-    void deleteCookie(const QString &name, const QString &url = QString());
-    void deleteCookies(const QString &url = QString());
+    bool deleteCookie(const QString &name, const QString &url = QString());
+    bool deleteCookies(const QString &url = QString());
     void clearCookies();
 
     void enable();
@@ -70,10 +70,13 @@ public:
     bool isEnabled() const;
 
 private slots:
-    void save();
-    void load();
     bool purgeExpiredCookies();
     bool purgeSessionCookies();
+    void save();
+    void load();
+
+private:
+    bool contains(const QNetworkCookie &cookie) const;
 
 private:
     QSettings *m_cookieStorage;

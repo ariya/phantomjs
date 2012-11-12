@@ -47,37 +47,11 @@ static google_breakpad::ExceptionHandler* eh;
 #if !defined(QT_SHARED) && !defined(QT_DLL)
 #include <QtPlugin>
 
-// HACK: When linking a static PhantomJS + MSVC agains the
-// static Qt included in PhantomJS, we get linker errors.
-// This noop function can cure them.
-#include <QUuid>
-#include <QPainter>
-#include <QXmlStreamAttributes>
-#include <QFileDialog>
-#include <QPainter>
-#include <QToolTip>
-#include <QStandardItem>
-void makeLinkerHappy()
-{
-    QWidget().colorCount();
-    QUuid().createUuid();
-    QPainter().drawImage(QPointF(), QImage(), QRect());
-    const QXmlStreamAttributes foo;
-    foo[0];
-    QFileDialog().getOpenFileName();
-    QPainter::staticMetaObject.indexOfMethod(0);
-    QToolTip::hideText();
-    QStandardItem standardItem;
-    standardItem.setForeground(QBrush());
-    standardItem.setBackground(QBrush());
-    standardItem.setToolTip(QString());
-}
-// End of linker hack.
-
 Q_IMPORT_PLUGIN(qcncodecs)
 Q_IMPORT_PLUGIN(qjpcodecs)
 Q_IMPORT_PLUGIN(qkrcodecs)
 Q_IMPORT_PLUGIN(qtwcodecs)
+Q_IMPORT_PLUGIN(qico)
 #endif
 #endif
 
@@ -103,9 +77,9 @@ int main(int argc, char** argv, const char** envp)
 
     if (cbBuffer == 0) {
         eh = new ExceptionHandler(TEXT("."), NULL, Utils::exceptionHandler, NULL, ExceptionHandler::HANDLER_ALL);
-	} else {
+    } else {
         LPWSTR szBuffer = reinterpret_cast<LPWSTR>(malloc(sizeof(TCHAR) * (cbBuffer + 1)));
-        
+
         if (ExpandEnvironmentStrings(TEXT("%TEMP%"), szBuffer, cbBuffer + 1) > 0) {
             wstring lpDumpPath(szBuffer);
             eh = new ExceptionHandler(lpDumpPath, NULL, Utils::exceptionHandler, NULL, ExceptionHandler::HANDLER_ALL);
@@ -113,7 +87,7 @@ int main(int argc, char** argv, const char** envp)
         free(szBuffer);
     }
 #endif
-   
+
     QApplication app(argc, argv);
 
     app.setWindowIcon(QIcon(":/phantomjs-icon.png"));
@@ -125,12 +99,11 @@ int main(int argc, char** argv, const char** envp)
     // Prepare the "env" singleton using the environment variables
     Env::instance()->parse(envp);
 
+    // Registering an alternative Message Handler
+    qInstallMsgHandler(Utils::messageHandler);
+
     // Get the Phantom singleton
     Phantom *phantom = Phantom::instance();
-
-    // Registering an alternative Message Handler
-    Utils::printDebugMessages = phantom->printDebugMessages();
-    qInstallMsgHandler(Utils::messageHandler);
 
     // Start script execution
     if (phantom->execute()) {

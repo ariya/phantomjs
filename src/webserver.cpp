@@ -165,6 +165,11 @@ bool WebServer::handleRequest(mg_event event, mg_connection *conn, const mg_requ
 
     ///TODO: encoding?!
 
+    qDebug() << "HTTP Request - URI" << request->uri;
+    qDebug() << "HTTP Request - Method" << request->request_method;
+    qDebug() << "HTTP Request - HTTP Version" << request->http_version;
+    qDebug() << "HTTP Request - Query String" << request->query_string;
+
     if (request->request_method)
         requestObject["method"] = QString::fromLocal8Bit(request->request_method);
     if (request->http_version)
@@ -216,9 +221,9 @@ bool WebServer::handleRequest(mg_event event, mg_connection *conn, const mg_requ
             // Check if the 'Content-Type' requires decoding
             if (headersObject["Content-Type"] == "application/x-www-form-urlencoded") {
                 requestObject["post"] = UrlEncodedParser::parse(QByteArray(data, read));
-                requestObject["postRaw"] = QString::fromLocal8Bit(data, read);
+                requestObject["postRaw"] = QString::fromUtf8(data, read);
             } else {
-                requestObject["post"] = QString::fromLocal8Bit(data, read);
+                requestObject["post"] = QString::fromUtf8(data, read);
             }
             delete[] data;
         } else {
@@ -384,6 +389,7 @@ void WebServerResponse::writeHead(int statusCode, const QVariantMap &headers)
     m_headersSent = true;
     m_statusCode = statusCode;
     mg_printf(m_conn, "HTTP/1.1 %d %s\r\n", m_statusCode, responseCodeString(m_statusCode));
+    qDebug() << "HTTP Response - Status Code" << m_statusCode << responseCodeString(m_statusCode);
     QVariantMap::const_iterator it = headers.constBegin();
     while(it != headers.constEnd()) {
         qDebug() << "HTTP Response - Sending Header" << it.key() << "=" << it.value().toString();
@@ -399,7 +405,7 @@ void WebServerResponse::write(const QString &body)
         writeHead(m_statusCode, m_headers);
     }
     ///TODO: encoding?!
-    const QByteArray data = body.toLocal8Bit();
+    const QByteArray data = body.toUtf8();
     mg_write(m_conn, data.constData(), data.size());
 }
 

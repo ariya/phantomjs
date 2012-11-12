@@ -48,10 +48,14 @@ class Phantom;
 class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
 {
     Q_OBJECT
+    Q_PROPERTY(QString title READ title)
+    Q_PROPERTY(QString frameTitle READ frameTitle)
     Q_PROPERTY(QString content READ content WRITE setContent)
     Q_PROPERTY(QString frameContent READ frameContent WRITE setFrameContent)
     Q_PROPERTY(QString url READ url)
     Q_PROPERTY(QString frameUrl READ frameUrl)
+    Q_PROPERTY(bool canGoBack READ canGoBack)
+    Q_PROPERTY(bool canGoForward READ canGoForward)
     Q_PROPERTY(QString plainText READ plainText)
     Q_PROPERTY(QString framePlainText READ framePlainText)
     Q_PROPERTY(QString libraryPath READ libraryPath WRITE setLibraryPath)
@@ -72,6 +76,7 @@ class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
     Q_PROPERTY(QStringList framesName READ framesName)
     Q_PROPERTY(QString frameName READ frameName)
     Q_PROPERTY(int framesCount READ framesCount)
+    Q_PROPERTY(QString focusedFrameName READ focusedFrameName)
 
 public:
     WebPage(QObject *parent, const QUrl &baseUrl = QUrl());
@@ -83,6 +88,9 @@ public:
     QString frameContent() const;
     void setContent(const QString &content);
     void setFrameContent(const QString &content);
+
+    QString title() const;
+    QString frameTitle() const;
 
     QString url() const;
     QString frameUrl() const;
@@ -213,6 +221,13 @@ public:
      * @return Name of the Current Frame
      */
     QString frameName() const;
+    /**
+     * Returns the currently focused Frame's name.
+     *
+     * @brief focusedFrameName
+     * @return Frame
+     */
+    QString focusedFrameName() const;
 
 public slots:
     void openUrl(const QString &address, const QVariant &op, const QVariantMap &settings);
@@ -238,10 +253,11 @@ public slots:
     bool injectJs(const QString &jsFilePath);
     void _appendScriptElement(const QString &scriptUrl);
     QObject *_getGenericCallback();
+    QObject *_getFilePickerCallback();
     QObject *_getJsConfirmCallback();
     QObject *_getJsPromptCallback();
     void uploadFile(const QString &selector, const QString &fileName);
-    void sendEvent(const QString &type, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant(), const QString &mouseButton = QString());
+    void sendEvent(const QString &type, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant(), const QString &mouseButton = QString(), const QVariant &modifierArg = QVariant());
 
     /**
      * Returns a Child Page that matches the given <code>"window.name"</code>.
@@ -322,6 +338,13 @@ public slots:
      */
     bool switchToParentFrame();
     /**
+     * Switches to the currently focused frame, as per QWebPage.  This is the frame whose
+     * window element was last focus()ed, and is currently the target of key events.
+     *
+     * @brief switchToFocusedFrame
+     */
+    void switchToFocusedFrame();
+    /**
      * Returns the name of the Current Frame (if it has one)
      *
      * @deprecated
@@ -349,8 +372,9 @@ public slots:
      * </pre>
      * @brief setCookies
      * @param cookies Expects a QList of QVariantMaps
+     * @return Boolean "true" if at least 1 cookie was set
      */
-    void setCookies(const QVariantList &cookies);
+    bool setCookies(const QVariantList &cookies);
     /**
      * Cookies visible by this Page, at the current URL.
      *
@@ -364,19 +388,62 @@ public slots:
      * @see WebPage::setCookies for details on the format
      * @brief addCookie
      * @param cookie Cookie in QVariantMap format
+     * @return Boolean "true" if cookie was added
      */
-    void addCookie(const QVariantMap &cookie);
+    bool addCookie(const QVariantMap &cookie);
     /**
      * Delete cookie by name from the ones visible by this Page, at the current URL
      * @brief deleteCookie
      * @param cookieName Name of the Cookie to delete
+     * @return Boolean "true" if cookie was deleted
      */
-    void deleteCookie(const QString &cookieName);
+    bool deleteCookie(const QString &cookieName);
     /**
      * Delete All Cookies visible by this Page, at the current URL
      * @brief clearCookies
+     * @return Boolean "true" if cookies were deleted
      */
-    void clearCookies();
+    bool clearCookies();
+
+    /**
+     * Checks if this Page can go back in the Navigation History
+     * @brief canGoBack
+     * @return "true" if it can, "false" otherwise
+     */
+    bool canGoBack();
+    /**
+     * Goes back in the Navigation History
+     * @brief back
+     * @return "true" if it does go back in the Navigation History, "false" otherwise
+     */
+    bool back();
+    /**
+     * Checks if this Page can go forward in the Navigation History (i.e. next URL)
+     * @brief canGoForward
+     * @return "true" if it can, "false" otherwise
+     */
+    bool canGoForward();
+    /**
+     * Goes forward in the Navigation History
+     * @brief forward
+     * @return "true" if it does go forward in the Navigation History, "false" otherwise
+     */
+    bool forward();
+    /**
+     * Reload current page
+     * @brief reload
+     */
+    void reload();
+    /**
+     * Stop loading page (if the page is loading)
+     *
+     * NOTE: This method does nothing when page is not actually loading.
+     * It's effect can be applied in that very short window of time between
+     * "onLoadStarted" and "onLoadFinished".
+     *
+     * @brief stop
+     */
+    void stop();
 
 signals:
     void initialized();
@@ -394,7 +461,7 @@ signals:
 
 private slots:
     void finish(bool ok);
-    void handleJavaScriptWindowObjectCleared();
+    void setupFrame(QWebFrame *frame = NULL);
 
 private:
     QImage renderImage();
@@ -402,6 +469,15 @@ private:
     void applySettings(const QVariantMap &defaultSettings);
     QString userAgent() const;
 
+    /**
+     * Switches focus from the Current Frame to the Child Frame, identified by `frame`.
+     *
+     * @brief changeCurrentFrame
+     * @param frame The Child frame
+     */
+    void changeCurrentFrame(QWebFrame * const frame);
+
+    QString filePicker(const QString &oldFile);
     bool javaScriptConfirm(const QString &msg);
     bool javaScriptPrompt(const QString &msg, const QString &defaultValue, QString *result);
 
@@ -411,6 +487,7 @@ private:
     CustomPage *m_customWebPage;
     NetworkAccessManager *m_networkAccessManager;
     QWebFrame *m_mainFrame;
+    QWebFrame *m_currentFrame;
     QRect m_clipRect;
     QPoint m_scrollPosition;
     QVariantMap m_paperSize; // For PDF output via render()

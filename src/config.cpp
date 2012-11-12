@@ -62,7 +62,8 @@ static const struct QCommandLineConfigEntry flags[] =
     { QCommandLine::Option, '\0', "proxy-type", "Specifies the proxy type, 'http' (default), 'none' (disable completely), or 'socks5'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "script-encoding", "Sets the encoding used for the starting script, default is 'utf8'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "web-security", "Enables web security, 'yes' (default) or 'no'", QCommandLine::Optional },
-    { QCommandLine::Param, '\0', "script", "Script", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "ssl-protocol", "Sets the SSL protocol (supported protocols: 'SSLv3' (default), 'SSLv2', 'TLSv1', 'any')", QCommandLine::Optional },
+    { QCommandLine::Param, '\0', "script", "Script", QCommandLine::Flags(QCommandLine::Optional|QCommandLine::ParameterFence)},
     { QCommandLine::Param, '\0', "argument", "Script argument", QCommandLine::OptionalMultiple },
     { QCommandLine::Switch, 'h', "help", "Shows this message and quits", QCommandLine::Optional },
     { QCommandLine::Switch, 'v', "version", "Prints out PhantomJS version", QCommandLine::Optional },
@@ -73,6 +74,11 @@ Config::Config(QObject *parent)
     : QObject(parent)
 {
     m_cmdLine = new QCommandLine;
+
+    // We will handle --help and --version ourselves in phantom.cpp
+    m_cmdLine->enableHelp(false);
+    m_cmdLine->enableVersion(false);
+
     resetToDefaults();
 }
 
@@ -448,6 +454,7 @@ void Config::resetToDefaults()
     m_javascriptCanCloseWindows = true;
     m_helpFlag = false;
     m_printDebugMessages = false;
+    m_sslProtocol = "sslv3";
 }
 
 void Config::setProxyAuthPass(const QString &value)
@@ -588,6 +595,9 @@ void Config::handleOption(const QString &option, const QVariant &value)
     if (option == "web-security") {
         setWebSecurityEnabled(boolValue);
     }
+    if (option == "ssl-protocol") {
+        setSslProtocol(value.toString());
+    }
 }
 
 void Config::handleParam(const QString& param, const QVariant &value)
@@ -605,3 +615,12 @@ void Config::handleError(const QString &error)
     setUnknownOption(QString("Error: %1").arg(error));
 }
 
+QString Config::sslProtocol() const
+{
+    return m_sslProtocol;
+}
+
+void Config::setSslProtocol(const QString& sslProtocolName)
+{
+    m_sslProtocol = sslProtocolName.toLower();
+}

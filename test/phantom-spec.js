@@ -51,8 +51,8 @@ describe("phantom global object", function() {
         expect(phantom.version.major).toEqual(1);
     });
 
-    it("should return 7 as the minor version", function() {
-        expect(phantom.version.minor).toEqual(7);
+    it("should return 8 as the minor version", function() {
+        expect(phantom.version.minor).toEqual(8);
     });
 
     it("should return 0 as the patch version", function() {
@@ -65,10 +65,6 @@ describe("phantom global object", function() {
 
     it("should have 'exit' function", function() {
         expect(typeof phantom.exit).toEqual("function");
-    });
-
-    it("should have 'keys' property", function() {
-        expect(phantom.hasOwnProperty('keys')).toBeTruthy();
     });
 
     it("should have 'cookiesEnabled' property, and should be 'true' by default", function() {

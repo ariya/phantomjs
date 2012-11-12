@@ -66,8 +66,8 @@ phantom.defaultErrorHandler = function(message, stack) {
 
     stack.forEach(function(item) {
         var message = item.file + ":" + item.line;
-        if (item.function)
-            message += " in " + item.function;
+        if (item["function"])
+            message += " in " + item["function"];
         console.log("  " + message);
     });
 };
@@ -106,10 +106,10 @@ phantom.onError = phantom.defaultErrorHandler;
             module.exports = JSON.parse(fs.read(filename));
         }
     };
-    
+
     function loadFs() {
         var file, code, module, filename = ':/modules/fs.js';
-        
+
         module = new Module(filename);
         cache[filename] = module;
         module.exports = nativeExports.fs;

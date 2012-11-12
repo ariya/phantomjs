@@ -55,18 +55,6 @@ using namespace WTF;
 
 namespace JSC {
 
-double parseDate(ExecState* exec, const UString &date)
-{
-    if (date == exec->globalData().cachedDateString)
-        return exec->globalData().cachedDateStringValue;
-    double value = parseES5DateFromNullTerminatedCharacters(date.utf8().data());
-    if (isnan(value))
-        value = parseDateFromNullTerminatedCharacters(exec, date.utf8().data());
-    exec->globalData().cachedDateString = date;
-    exec->globalData().cachedDateStringValue = value;
-    return value;
-}
-
 void formatDate(const GregorianDateTime &t, DateConversionBuffer& buffer)
 {
     snprintf(buffer, DateConversionBufferSize, "%s %s %02d %04d",

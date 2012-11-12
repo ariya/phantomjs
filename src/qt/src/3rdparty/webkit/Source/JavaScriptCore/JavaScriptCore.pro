@@ -152,6 +152,7 @@ SOURCES += \
     runtime/JSArray.cpp \
     runtime/JSByteArray.cpp \
     runtime/JSCell.cpp \
+    runtime/JSDateMath.cpp \
     runtime/JSFunction.cpp \
     runtime/JSGlobalData.cpp \
     runtime/JSGlobalObject.cpp \

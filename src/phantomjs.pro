@@ -119,6 +119,7 @@ win32-msvc* {
             qcncodecs \
             qjpcodecs \
             qkrcodecs \
-            qtwcodecs
+            qtwcodecs \
+            qico
     }
 }

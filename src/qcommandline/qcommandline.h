@@ -83,6 +83,7 @@ public:
 	Mandatory = 0x01, /**< mandatory argument, will produce a parse error if not present */
 	Optional = 0x02, /**< optional argument */
 	Multiple = 0x04, /**< argument can be used multiple time and will produce multiple signals. */
+	ParameterFence = 0x08, //**< all arguments after this point are considered parameters, not options.  */
 	MandatoryMultiple = Mandatory|Multiple,
 	OptionalMultiple = Optional|Multiple,
     } Flags;

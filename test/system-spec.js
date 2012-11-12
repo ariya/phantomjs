@@ -6,6 +6,22 @@ describe("System object", function() {
         expect(system).toNotEqual(null);
     });
 
+    it("should have pid property", function() {
+        expect(system.hasOwnProperty('pid')).toBeTruthy();
+    });
+
+    it("should have pid as a number", function() {
+        expect(typeof system.pid).toEqual('number');
+    });
+
+    it("should have pid that is an integer", function() {
+        expect(system.pid).toMatch(/^\d+$/);
+    });
+
+    it("should have pid greater than 0", function() {
+        expect(system.pid).toBeGreaterThan(0);
+    });
+
     it("should have platform as string", function() {
         expect(typeof system.platform).toEqual('string');
     });
