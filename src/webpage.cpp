@@ -395,6 +395,15 @@ void WebPage::setContent(const QString &content)
     m_mainFrame->setHtml(content);
 }
 
+void WebPage::setContent(const QString &content, const QString &baseUrl)
+{
+    if (baseUrl == "about:blank") {
+        m_mainFrame->setHtml(BLANK_HTML);
+    } else {
+        m_mainFrame->setHtml(content, QUrl(baseUrl));
+    }
+}
+
 void WebPage::setFrameContent(const QString &content)
 {
     m_currentFrame->setHtml(content);
@@ -456,16 +465,6 @@ void WebPage::reload()
 void WebPage::stop()
 {
     m_customWebPage->triggerAction(QWebPage::Stop);
-}
-
-void WebPage::setContentAndLocation(const QString &content, const QString &baseUrl)
-{
-    if (baseUrl == "about:blank") {
-        m_mainFrame->setHtml(BLANK_HTML);
-    } else {
-        QUrl url = QUrl::fromEncoded(QByteArray(baseUrl.toAscii()));
-        m_mainFrame->setHtml(content, url);
-    }
 }
 
 QString WebPage::plainText() const

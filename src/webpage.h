@@ -87,6 +87,7 @@ public:
     QString content() const;
     QString frameContent() const;
     void setContent(const QString &content);
+    void setContent(const QString &content, const QString &baseUrl);
     void setFrameContent(const QString &content);
 
     QString title() const;
@@ -231,7 +232,6 @@ public:
 
 public slots:
     void openUrl(const QString &address, const QVariant &op, const QVariantMap &settings);
-    void setContentAndLocation(const QString &content, const QString &baseUrl);
     void release();
     void close();
 
