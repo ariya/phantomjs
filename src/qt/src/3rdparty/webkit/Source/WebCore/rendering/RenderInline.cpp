@@ -99,7 +99,8 @@ void RenderInline::destroy()
                 for (InlineFlowBox* box = firstLineBox(); box; box = box->nextLineBox())
                     box->remove();
             }
-        }
+        } else if (parent())
+            parent()->dirtyLinesFromChangedChild(this);
     }
 
     m_lineBoxes.deleteLineBoxes(renderArena());
