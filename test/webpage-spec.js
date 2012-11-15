@@ -264,7 +264,47 @@ describe("WebPage object", function() {
                 document.querySelector('input').focus();
             });
             page.sendEvent('keypress', "ABCD");
+            // 0x02000000 is the Shift modifier.
+            page.sendEvent('keypress', page.event.key.Home, null, null,  0x02000000);
+            page.sendEvent('keypress', page.event.key.Delete);
             var text = page.evaluate(function() {
+                return document.querySelector('input').value;
+            });
+            expect(text).toEqual("");
+        });
+    });
+
+    it("should handle key events with modifier keys", function() {
+        runs(function() {
+            page.content = '<input type="text">';
+            page.evaluate(function() {
+                document.querySelector('input').focus();
+            });
+            page.sendEvent('keypress', "ABCD");
+            var text = page.evaluate(function() {
+                return document.querySelector('input').value;
+            });
+            expect(text).toEqual("ABCD");
+        });
+    });
+
+    it("should send proper key codes for text", function () {
+        runs(function() {
+            page.content = '<input type="text">';
+            page.evaluate(function() {
+                document.querySelector('input').focus();
+            });
+            page.sendEvent('keypress', "ABCD");
+            // 0x02000000 is the Shift modifier.
+            page.sendEvent('keypress', page.event.key.Home, null, null,  0x02000000);
+            // 0x04000000 is the Control modifier.
+            page.sendEvent('keypress', 'x', null, null, 0x04000000);
+            var text = page.evaluate(function() {
+                return document.querySelector('input').value;
+            });
+            expect(text).toEqual("");
+            page.sendEvent('keypress', 'v', null, null, 0x04000000);
+            text = page.evaluate(function() {
                 return document.querySelector('input').value;
             });
             expect(text).toEqual("ABCD");
@@ -295,8 +335,6 @@ describe("WebPage object", function() {
             });
             page.sendEvent('mousedown', 42, 217);
         });
-
-        waits(50);
 
         runs(function() {
             var event = page.evaluate(function() {
@@ -380,6 +418,26 @@ describe("WebPage object", function() {
         });
     });
 
+    it("should handle doubleclick event", function () {
+        runs(function () {
+            page.content = '<input id="doubleClickField" type="text" onclick="document.getElementById(\'doubleClickField\').value=\'clicked\';" ondblclick="document.getElementById(\'doubleClickField\').value=\'doubleclicked\';" oncontextmenu="document.getElementById(\'doubleClickField\').value=\'rightclicked\'; return false;" value="hello"/>';
+            var point = page.evaluate(function () {
+                var el = document.querySelector('input');
+                var rect = el.getBoundingClientRect();
+                return { x: rect.left + Math.floor(rect.width / 2), y: rect.top + (rect.height / 2) };
+            });
+            page.sendEvent('doubleclick', point.x, point.y);
+        });
+
+        waits(50);
+
+        runs(function () {
+            var text = page.evaluate(function () {
+                return document.querySelector('input').value;
+            });
+            expect(text).toEqual("doubleclicked");
+        });
+    });
 
     it("should handle file uploads", function() {
         runs(function() {
@@ -594,6 +652,39 @@ describe("WebPage object", function() {
 
         runs(function() {
             expect(handled).toEqual(true);
+            server.close();
+        });
+
+    });
+
+    it("should return properly from a 401 status", function() {
+        var server = require('webserver').create();
+        server.listen(12345, function(request, response) {
+            response.statusCode = 401;
+            response.setHeader('WWW-Authenticate', 'Basic realm="PhantomJS test"');
+            response.write('Authentication Required');
+            response.close();
+        });
+
+        var url = "http://localhost:12345/foo";
+        var handled = 0;
+        runs(function() {
+            expect(handled).toEqual(0);
+            page.onResourceReceived = function(resource) {
+                expect(resource.status).toEqual(401);
+                handled++;
+            };
+            page.open(url, function(status) {
+                expect(status).toEqual('fail');
+                handled++;
+            });
+        });
+
+        waits(50);
+
+        runs(function() {
+            expect(handled).toEqual(2);
+            page.onResourceReceived = null;
             server.close();
         });
 
@@ -1362,6 +1453,61 @@ describe("WebPage closing notification/alerting: closing propagation control", f
 
         runs(function() {
             expect(openPagesCount).toBe(0);
+        });
+    });
+});
+
+describe("WebPage 'onFilePicker'", function() {
+    it("should be able to set the file to upload when the File Picker is invoked (i.e. clicking on a 'input[type=file]')", function() {
+        var system = require('system'),
+            fileToUpload = system.os.name === "windows" ? "C:\\Windows\\System32\\drivers\\etc\\hosts" : "/etc/hosts",
+            server = require("webserver").create(),
+            page = require("webpage").create();
+
+        // Create a webserver that returns a page with an "input type=file" element
+        server.listen(12345, function(request, response) {
+            response.statusCode = 200;
+            response.write('<html><body><input type="file" id="fileup" /></body></html>');
+            response.close();
+        });
+
+        // Register "onFilePicker" handler
+        page.onFilePicker = function(oldFile) {
+            return fileToUpload;
+        };
+
+        runs(function() {
+            page.open("http://localhost:12345", function() {
+                // Before clicking on the file selector element
+                expect(page.evaluate(function() {
+                    var fileUp = document.querySelector("#fileup");
+                    return fileUp.files.length;
+                })).toBe(0);
+
+                // Click on file selector element, so the "onFilePicker" is invoked
+                page.evaluate(function() {
+                    var fileUp = document.querySelector("#fileup");
+                    var ev = document.createEvent("MouseEvents");
+                    ev.initEvent("click", true, true);
+                    fileUp.dispatchEvent(ev);
+                });
+
+                // After clicking on the file selector element
+                expect(page.evaluate(function() {
+                    var fileUp = document.querySelector("#fileup");
+                    return fileUp.files.length;
+                })).toBe(1);
+                expect(page.evaluate(function() {
+                    var fileUp = document.querySelector("#fileup");
+                    return fileUp.files[0].name;
+                })).toContain("hosts");
+            });
+        });
+
+        waits(100);
+
+        runs(function() {
+            server.close();
         });
     });
 });
