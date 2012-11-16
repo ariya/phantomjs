@@ -1,0 +1,7 @@
+2012-11-18 00:51:11
+
+commit 7c23d7684929bf26deb5be901ba1e5bc51f3e48a
+Author: Ivan De Marino <ivan.de.marino@gmail.com>
+Date:   Sun Nov 18 00:42:32 2012 +0000
+
+    Avoid listing directories into `ghostdriver.qrc`

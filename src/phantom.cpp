@@ -331,6 +331,8 @@ void Phantom::loadModule(const QString &moduleSource, const QString &filename)
 
 bool Phantom::injectJs(const QString &jsFilePath)
 {
+    qDebug() << "Phantom - injectJs:" << jsFilePath;
+
     if (m_terminated)
         return false;
 
