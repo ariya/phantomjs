@@ -1,7 +1,10 @@
-2012-11-18 00:51:11
+2012-11-25 20:54:35
 
-commit 7c23d7684929bf26deb5be901ba1e5bc51f3e48a
+commit 54876580d0a3886e42850804b03184adbd899d65 (HEAD, tag: refs/tags/1.0.0, refs/remotes/origin/master, refs/remotes/origin/HEAD, refs/heads/master)
 Author: Ivan De Marino <ivan.de.marino@gmail.com>
-Date:   Sun Nov 18 00:42:32 2012 +0000
+Date:   Sun Nov 25 19:05:15 2012 +0000
 
-    Avoid listing directories into `ghostdriver.qrc`
+    Updated export script.
+    
+    1. Creates the `README.md` to inform PhantomJS developers that the code is automatically exported from GhostDriver
+    2. Adds `--decorate=full` to the line where we populate the `lastupdate` file

@@ -1,7 +1,7 @@
 /*
-This file is part of the GhostDriver project from Neustar inc.
+This file is part of the GhostDriver by Ivan De Marino <http://ivandemarino.me>.
 
-Copyright (c) 2012, Ivan De Marino <ivan.de.marino@gmail.com / detronizator@gmail.com>
+Copyright (c) 2012, Ivan De Marino <http://ivandemarino.me>
 Copyright (c) 2011, Steven Levithan <stevenlevithan.com>
 All rights reserved.
 

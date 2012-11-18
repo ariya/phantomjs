@@ -1,7 +1,7 @@
 /*
-This file is part of the GhostDriver project from Neustar inc.
+This file is part of the GhostDriver by Ivan De Marino <http://ivandemarino.me>.
 
-Copyright (c) 2012, Ivan De Marino <ivan.de.marino@gmail.com / detronizator@gmail.com>
+Copyright (c) 2012, Ivan De Marino <http://ivandemarino.me>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -28,8 +28,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* generate node configuration for this node */
 var nodeconf = function(ip, port, hub) {
     var ref$, hubHost, hubPort;
-    ref$ = hub.match(/([\w\d\.]+):(\d+)/), hubHost = ref$[1], hubPort = ref$[2];
-    hubPort = +hubPort;
+
+    ref$ = hub.match(/([\w\d\.]+):(\d+)/);
+    hubHost = ref$[1];
+    hubPort = +ref$[2]; //< ensure it's of type "number"
+
     return {
         capabilities: [{
             browserName: "phantomjs",
@@ -56,29 +59,33 @@ var nodeconf = function(ip, port, hub) {
 
 module.exports = {
     register: function(ip, port, hub) {
-        var page = require('webpage').create();
-        port = +port;
-        if(!hub.match(/\/$/)) {
-            hub += '/';
-        }
+        try {
+            var page = require('webpage').create();
+            port = +port; //< ensure it's of type "number"
+            if(!hub.match(/\/$/)) {
+                hub += '/';
+            }
 
-        /* Register with selenium grid server */
-        page.open(hub + 'grid/register', {
-            operation: 'post',
-            data: JSON.stringify(nodeconf(ip, port, hub)),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }, function(status) {
-            if(status !== 'success') {
-                console.error("Unable to contact grid " + hub + ": " + status);
-                phantom.exit(1);
-            }
-            if(page.framePlainText !== "ok") {
-                console.error("Problem registering with grid " + hub + ": " + page.content);
-                phantom.exit(1);
-            }
-            console.log("Registered with grid hub: " + hub + " (" + page.framePlainText + ")");
-        });
+            /* Register with selenium grid server */
+            page.open(hub + 'grid/register', {
+                operation: 'post',
+                data: JSON.stringify(nodeconf(ip, port, hub)),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }, function(status) {
+                if(status !== 'success') {
+                    console.error("Unable to contact grid " + hub + ": " + status);
+                    phantom.exit(1);
+                }
+                if(page.framePlainText !== "ok") {
+                    console.error("Problem registering with grid " + hub + ": " + page.content);
+                    phantom.exit(1);
+                }
+                console.log("Registered with grid hub: " + hub + " (" + page.framePlainText + ")");
+            });
+        } catch (e) {
+            throw new Error("Could not register to Selenium Grid Hub: " + hub);
+        }
     }
 };
