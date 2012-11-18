@@ -1,7 +1,7 @@
 /*
-This file is part of the GhostDriver project from Neustar inc.
+This file is part of the GhostDriver by Ivan De Marino <http://ivandemarino.me>.
 
-Copyright (c) 2012, Ivan De Marino <ivan.de.marino@gmail.com / detronizator@gmail.com>
+Copyright (c) 2012, Ivan De Marino <http://ivandemarino.me>
 Copyright (c) 2012, Alex Anderson <@alxndrsn>
 All rights reserved.
 
@@ -317,7 +317,7 @@ ghostdriver.SessionReqHand = function(session) {
 
         if (currWindow.canGoBack) {
             currWindow.execFuncAndWaitForLoad(
-                function() { currWindow.back(); },
+                function() { currWindow.goBack(); },
                 successHand,
                 successHand); //< We don't care if 'back' fails
         } else {
@@ -332,7 +332,7 @@ ghostdriver.SessionReqHand = function(session) {
 
         if (currWindow.canGoForward) {
             currWindow.execFuncAndWaitForLoad(
-                function() { currWindow.forward(); },
+                function() { currWindow.goForward(); },
                 successHand,
                 successHand); //< We don't care if 'back' fails
         } else {

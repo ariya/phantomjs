@@ -1,7 +1,7 @@
 /*
-This file is part of the GhostDriver project from Neustar inc.
+This file is part of the GhostDriver by Ivan De Marino <http://ivandemarino.me>.
 
-Copyright (c) 2012, Ivan De Marino <ivan.de.marino@gmail.com / detronizator@gmail.com>
+Copyright (c) 2012, Ivan De Marino <http://ivandemarino.me>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -32,7 +32,9 @@ ghostdriver.Session = function(desiredCapabilities) {
     var
     _defaultCapabilities = {    // TODO - Actually try to match the "desiredCapabilities" instead of ignoring them
         "browserName" : "phantomjs",
-        "version" : phantom.version.major + '.' + phantom.version.minor + '.' + phantom.version.patch,
+        "version" :
+            "phantomjs-" + phantom.version.major + '.' + phantom.version.minor + '.' + phantom.version.patch + '+' +
+            "ghostdriver-" + ghostdriver.version,
         "platform" : ghostdriver.system.os.name + '-' + ghostdriver.system.os.version + '-' + ghostdriver.system.os.architecture,
         "javascriptEnabled" : true,
         "takesScreenshot" : true,
