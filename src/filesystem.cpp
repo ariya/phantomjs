@@ -354,7 +354,7 @@ bool FileSystem::changeWorkingDirectory(const QString &path) const
 
 QString FileSystem::absolute(const QString &relativePath) const
 {
-   return QFileInfo(relativePath).absoluteFilePath();
+    return QFileInfo(relativePath).absoluteFilePath();
 }
 
 // Files
