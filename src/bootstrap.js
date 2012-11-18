@@ -193,7 +193,7 @@ phantom.onError = phantom.defaultErrorHandler;
         var paths = [], dir;
 
         if (request[0] === '.') {
-            paths.push(fs.absolute(joinPath(this.dirname, request)));
+            paths.push(fs.absolute(joinPath(phantom.webdriverMode ? ":/ghostdriver" : this.dirname, request)));
         } else if (request[0] === '/') {
             paths.push(fs.absolute(request));
         } else {
@@ -284,8 +284,11 @@ phantom.onError = phantom.defaultErrorHandler;
         cwd = fs.absolute(phantom.libraryPath);
         mainFilename = joinPath(cwd, basename(require('system').args[0]) || 'repl');
         mainModule._setFilename(mainFilename);
-        // include CoffeeScript which takes care of adding .coffee extension
-        require('_coffee-script');
+
+        // include CoffeeScript which takes care of adding .coffee extension (only if not in Webdriver mode)
+        if (!phantom.webdriverMode) {
+            require('_coffee-script');
+        }
     }());
 }());
 
