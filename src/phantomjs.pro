@@ -4,6 +4,10 @@ QT += network webkit
 CONFIG += console
 
 DESTDIR = ../bin
+OBJECTS_DIR = ../bin/.obj
+MOC_DIR = ../bin/.moc
+RCC_DIR = ../bin/.rcc
+UI_DIR = ../bin/.ui
 
 RESOURCES = phantomjs.qrc \
     qt/src/3rdparty/webkit/Source/WebCore/inspector/front-end/WebKit.qrc \
