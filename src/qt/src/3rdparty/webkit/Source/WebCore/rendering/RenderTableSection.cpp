@@ -414,7 +414,7 @@ void RenderTableSection::layout()
     setNeedsLayout(false);
 }
 
-int RenderTableSection::layoutRows(int toAdd)
+int RenderTableSection::layoutRows(int toAdd, int headHeight, int footHeight)
 {
 #ifndef NDEBUG
     setNeedsLayoutIsForbidden(true);
@@ -506,13 +506,13 @@ int RenderTableSection::layoutRows(int toAdd)
             logicalHeightsForPrinting[r] = childLogicalHeight;
             LayoutState* layoutState = view()->layoutState();
             const int pageLogicalHeight = layoutState->m_pageLogicalHeight;
-            if (childLogicalHeight < pageLogicalHeight) {
+            if (childLogicalHeight < pageLogicalHeight - footHeight) {
                 const IntSize delta = layoutState->m_layoutOffset - layoutState->m_pageOffset;
                 const int logicalOffset = m_rowPos[r] + pageOffset;
                 const int offset = isHorizontalWritingMode() ? delta.height() : delta.width();
                 const int remainingLogicalHeight = (pageLogicalHeight - (offset + logicalOffset) % pageLogicalHeight) % pageLogicalHeight;
-                if (remainingLogicalHeight < childLogicalHeight) {
-                    pageOffset += remainingLogicalHeight;
+                if (remainingLogicalHeight - footHeight < childLogicalHeight) {
+                    pageOffset += remainingLogicalHeight + headHeight;
                 }
             }
             m_rowPos[r] += pageOffset;
