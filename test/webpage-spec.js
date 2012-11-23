@@ -941,6 +941,26 @@ describe("WebPage object", function() {
             expect(message).toEqual("PASS");
         });
     });
+    
+    it('should open url using secure connection', function() {
+        var page = require('webpage').create();
+        var url = 'https://en.wikipedia.org';
+      
+        var handled = false;
+      
+        runs(function() {
+            page.open(url, function(status) {
+                expect(status == 'success').toEqual(true);
+                handled = true;
+            });
+        });
+          
+        waits(3000);
+        
+        runs(function() {
+            expect(handled).toEqual(true);
+        });
+    });
 });
 
 describe("WebPage construction with options", function () {
