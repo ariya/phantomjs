@@ -74,7 +74,7 @@ HeaderFooter::HeaderFooter(const QWebFrame* frame, QPrinter* printer, QWebFrame:
             // find existing margins
             printer->getPageMargins(&marginLeft, &marginTop, &marginRight, &marginBottom, QPrinter::DevicePixel);
             const qreal oldMarginTop = marginTop;
-            const qreal oldMarginBottom = marginTop;
+            const qreal oldMarginBottom = marginBottom;
 
             printer->getPageMargins(&marginLeft, &marginTop, &marginRight, &marginBottom, QPrinter::Point);
             // increase margins to hold header+footer
