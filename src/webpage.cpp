@@ -1465,6 +1465,7 @@ void WebPage::initCompletions()
     addCompletion("addCookie");
     addCompletion("deleteCookie");
     addCompletion("clearCookies");
+    addCompletion("setContent");
     // callbacks
     addCompletion("onAlert");
     addCompletion("onCallback");
