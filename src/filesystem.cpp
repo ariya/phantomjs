@@ -354,12 +354,14 @@ bool FileSystem::changeWorkingDirectory(const QString &path) const
 
 QString FileSystem::absolute(const QString &relativePath) const
 {
-   return QFileInfo(relativePath).absoluteFilePath();
+    return QFileInfo(relativePath).absoluteFilePath();
 }
 
 // Files
 QObject *FileSystem::_open(const QString &path, const QVariantMap &opts) const
 {
+    qDebug() << "FileSystem - _open:" << path << opts;
+
     const QVariant modeVar = opts["mode"];
     // Ensure only strings
     if (modeVar.type() != QVariant::String) {

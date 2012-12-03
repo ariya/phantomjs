@@ -63,6 +63,8 @@ static const struct QCommandLineConfigEntry flags[] =
     { QCommandLine::Option, '\0', "script-encoding", "Sets the encoding used for the starting script, default is 'utf8'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "web-security", "Enables web security, 'yes' (default) or 'no'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-protocol", "Sets the SSL protocol (supported protocols: 'SSLv3' (default), 'SSLv2', 'TLSv1', 'any')", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "webdriver", "Starts in 'Remote WebDriver mode' (embedded GhostDriver): '[[<IP>:]<PORT>]' (default '127.0.0.1:8910') ", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "webdriver-selenium-grid-hub", "URL to the Selenium Grid HUB: 'URL_TO_HUB' (default 'none') (NOTE: works only together with '--webdriver') ", QCommandLine::Optional },
     { QCommandLine::Param, '\0', "script", "Script", QCommandLine::Flags(QCommandLine::Optional|QCommandLine::ParameterFence)},
     { QCommandLine::Param, '\0', "argument", "Script argument", QCommandLine::OptionalMultiple },
     { QCommandLine::Switch, 'h', "help", "Shows this message and quits", QCommandLine::Optional },
@@ -99,6 +101,20 @@ void Config::processArgs(const QStringList &args)
     m_cmdLine->setArguments(args);
     m_cmdLine->setConfig(flags);
     m_cmdLine->parse();
+
+    // Inject command line parameters to be picked up by GhostDriver
+    if (isWebdriverMode()) {
+        QStringList argsForGhostDriver;
+
+        m_scriptFile = "main.js";                       //< launch script
+        argsForGhostDriver << m_webdriver;              //< ip:port
+        if (!m_seleniumGridHub.isEmpty()) {
+            argsForGhostDriver << m_seleniumGridHub;    //< selenium grid url
+        }
+
+        // Clear current args and override with those
+        setScriptArgs(argsForGhostDriver);
+    }
 }
 
 void Config::loadJsonFile(const QString &filePath)
@@ -424,6 +440,48 @@ bool Config::javascriptCanCloseWindows() const
     return m_javascriptCanCloseWindows;
 }
 
+void Config::setWebdriver(const QString &webdriverConfig)
+{
+    // This option can be provided empty: in that case we should use the default IP:PORT configuration
+    QString ip      = "127.0.0.1";
+    QString port    = "8910";
+
+    // Parse and validate the configuration
+    bool isValidPort;
+    QStringList wdCfg = webdriverConfig.split(':');
+    if (wdCfg.length() == 1 && wdCfg[0].toInt(&isValidPort) && isValidPort) {
+        // Only a PORT was provided
+        port = wdCfg[0];
+    } else if(wdCfg.length() == 2 && !wdCfg[0].isEmpty() && wdCfg[1].toInt(&isValidPort) && isValidPort) {
+        // Both IP and PORT provided
+        ip = wdCfg[0];
+        port = wdCfg[1];
+    }
+
+    // Setting the "webdriver" configuration
+    m_webdriver = QString("%1:%2").arg(ip).arg(port);
+}
+
+QString Config::webdriver() const
+{
+    return m_webdriver;
+}
+
+bool Config::isWebdriverMode() const
+{
+    return !m_webdriver.isEmpty();
+}
+
+void Config::setSeleniumGridHub(const QString &hubUrl)
+{
+    m_seleniumGridHub = hubUrl;
+}
+
+QString Config::seleniumGridHub() const
+{
+    return m_seleniumGridHub;
+}
+
 // private:
 void Config::resetToDefaults()
 {
@@ -455,6 +513,8 @@ void Config::resetToDefaults()
     m_helpFlag = false;
     m_printDebugMessages = false;
     m_sslProtocol = "sslv3";
+    m_webdriver = QString();
+    m_seleniumGridHub = QString();
 }
 
 void Config::setProxyAuthPass(const QString &value)
@@ -597,6 +657,12 @@ void Config::handleOption(const QString &option, const QVariant &value)
     }
     if (option == "ssl-protocol") {
         setSslProtocol(value.toString());
+    }
+    if (option == "webdriver") {
+        setWebdriver(value.toString());
+    }
+    if (option == "selenium-grid-hub") {
+        setSeleniumGridHub(value.toString());
     }
 }
 

@@ -38,7 +38,7 @@
 
 class QCommandLine;
 
-class Config: QObject
+class Config: public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString cookiesFile READ cookiesFile WRITE setCookiesFile)
@@ -58,6 +58,8 @@ class Config: QObject
     Q_PROPERTY(bool javascriptCanOpenWindows READ javascriptCanOpenWindows WRITE setJavascriptCanOpenWindows)
     Q_PROPERTY(bool javascriptCanCloseWindows READ javascriptCanCloseWindows WRITE setJavascriptCanCloseWindows)
     Q_PROPERTY(QString sslProtocol READ sslProtocol WRITE setSslProtocol)
+    Q_PROPERTY(QString webdriver READ webdriver WRITE setWebdriver)
+    Q_PROPERTY(QString seleniumGridHub READ seleniumGridHub WRITE setSeleniumGridHub)
 
 public:
     Config(QObject *parent = 0);
@@ -152,6 +154,13 @@ public:
     void setSslProtocol(const QString& sslProtocolName);
     QString sslProtocol() const;
 
+    void setWebdriver(const QString& webdriverConfig);
+    QString webdriver() const;
+    bool isWebdriverMode() const;
+
+    void setSeleniumGridHub(const QString& hubUrl);
+    QString seleniumGridHub() const;
+
 public slots:
     void handleSwitch(const QString &sw);
     void handleOption(const QString &option, const QVariant &value);
@@ -196,6 +205,8 @@ private:
     bool m_javascriptCanOpenWindows;
     bool m_javascriptCanCloseWindows;
     QString m_sslProtocol;
+    QString m_webdriver;
+    QString m_seleniumGridHub;
 };
 
 #endif // CONFIG_H

@@ -415,10 +415,10 @@ public slots:
     bool canGoBack();
     /**
      * Goes back in the Navigation History
-     * @brief back
+     * @brief goBack
      * @return "true" if it does go back in the Navigation History, "false" otherwise
      */
-    bool back();
+    bool goBack();
     /**
      * Checks if this Page can go forward in the Navigation History (i.e. next URL)
      * @brief canGoForward
@@ -427,10 +427,21 @@ public slots:
     bool canGoForward();
     /**
      * Goes forward in the Navigation History
-     * @brief forward
+     * @brief goForward
      * @return "true" if it does go forward in the Navigation History, "false" otherwise
      */
-    bool forward();
+    bool goForward();
+    /**
+     * Go to the page identified by its relative location to the current page.
+     * For example '-1' for the previous page or 1 for the next page.
+     *
+     * Modelled after JavaScript "window.go(num)" method:
+     * {@see https://developer.mozilla.org/en-US/docs/DOM/window.history#Syntax}.
+     * @brief go
+     * @param historyRelativeIndex
+     * @return "true" if it does go forward/backgward in the Navigation History, "false" otherwise
+     */
+    bool go(int historyRelativeIndex);
     /**
      * Reload current page
      * @brief reload

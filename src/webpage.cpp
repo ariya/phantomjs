@@ -45,6 +45,7 @@
 #include <QPainter>
 #include <QPrinter>
 #include <QWebHistory>
+#include <QWebHistoryItem>
 #include <QWebElement>
 #include <QWebFrame>
 #include <QWebPage>
@@ -434,10 +435,10 @@ bool WebPage::canGoBack()
     return m_customWebPage->history()->canGoBack();
 }
 
-bool WebPage::back()
+bool WebPage::goBack()
 {
     if (canGoBack()) {
-        m_customWebPage->triggerAction(QWebPage::Back);
+        m_customWebPage->history()->back();
         return true;
     }
     return false;
@@ -448,12 +449,29 @@ bool WebPage::canGoForward()
     return m_customWebPage->history()->canGoForward();
 }
 
-bool WebPage::forward()
+bool WebPage::goForward()
 {
     if (canGoForward()) {
-        m_customWebPage->triggerAction(QWebPage::Forward);
+        m_customWebPage->history()->forward();
         return true;
     }
+    return false;
+}
+
+bool WebPage::go(int historyItemRelativeIndex)
+{
+    // Convert the relative index to absolute
+    int historyItemIndex = m_customWebPage->history()->currentItemIndex() + historyItemRelativeIndex;
+
+    // Fetch the right item from the history
+    QWebHistoryItem historyItem = m_customWebPage->history()->itemAt(historyItemIndex);
+
+    // Go to the history item, if it's valid
+    if (historyItem.isValid()) {
+        m_customWebPage->history()->goToItem(historyItem);
+        return true;
+    }
+
     return false;
 }
 
