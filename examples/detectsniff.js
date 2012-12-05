@@ -41,6 +41,7 @@ if (system.args.length === 1) {
     page.open(address, function (status) {
         if (status !== 'success') {
             console.log('FAIL to load the address');
+            phantom.exit();
         } else {
             window.setTimeout(function () {
                 sniffed = page.evaluate(function () {
