@@ -1,5 +1,5 @@
 // The purpose of this is to show how and when events fire, considering 5 steps
-// appening as follows:
+// happening as follows:
 //
 //      1. Load URL
 //      2. Load same URL, but adding an internal FRAGMENT to it

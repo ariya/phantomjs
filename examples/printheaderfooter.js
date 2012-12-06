@@ -2,7 +2,7 @@ var page = require('webpage').create(),
     system = require('system');
 
 function someCallback(pageNum, numPages) {
-    return "<h1> somCallback: " + pageNum + " / " + numPages + "</h1>";
+    return "<h1> someCallback: " + pageNum + " / " + numPages + "</h1>";
 }
 
 if (system.args.length < 3) {
