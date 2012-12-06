@@ -8,6 +8,7 @@
   Copyright (C) 2011 Ivan De Marino <ivan.de.marino@gmail.com>
   Copyright (C) 2011 James Roe <roejames12@hotmail.com>
   Copyright (C) 2011 execjosh, http://execjosh.blogspot.com
+  Copyright (C) 2012 James M. Greene <james.m.greene@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -88,55 +89,76 @@ function copyInto(target, source) {
     return target;
 }
 
-function definePageSignalSetter(page, handlers, handlerName, signalName) {
+function definePageSignalHandler(page, handlers, handlerName, signalName) {
     page.__defineSetter__(handlerName, function (f) {
         // Disconnect previous handler (if any)
-        if (handlers && typeof(handlers[signalName]) === "function") {
+        if (!!handlers[handlerName] && typeof handlers[handlerName].callback === "function") {
             try {
-                this[signalName].disconnect(handlers[signalName]);
+                this[signalName].disconnect(handlers[handlerName].callback);
             } catch (e) {}
         }
 
         // Delete the previous handler
-        delete handlers[signalName];
+        delete handlers[handlerName];
 
         // Connect the new handler iff it's a function
-        if (typeof(f) === "function") {
+        if (typeof f === "function") {
             // Store the new handler for reference
-            handlers[signalName] = f;
+            handlers[handlerName] = {
+                callback: f
+            }
             this[signalName].connect(f);
         }
     });
+    
+    page.__defineGetter__(handlerName, function() {
+        return !!handlers[handlerName] && typeof handlers[handlerName].callback === "function" ?
+            handlers[handlerName].callback :
+            undefined;
+    });
 }
 
-function definePageCallbackSetter(page, handlers, handlerName, callbackConstructor) {
+function definePageCallbackHandler(page, handlers, handlerName, callbackConstructor) {
     page.__defineSetter__(handlerName, function(f) {
         // Fetch the right callback object
         var callbackObj = page[callbackConstructor]();
 
         // Disconnect previous handler (if any)
-        if (handlers && typeof(handlers[callbackConstructor]) === "function") {
+        var handlerObj = handlers[handlerName];
+        if (!!handlerObj && typeof handlerObj.callback === "function" && typeof handlerObj.connector === "function") {
             try {
-                callbackObj.called.disconnect(handlers[callbackConstructor]);
+                callbackObj.called.disconnect(handlerObj.connector);
             } catch (e) {
                 console.log(e);
             }
         }
 
         // Delete the previous handler
-        delete handlers[callbackConstructor];
+        delete handlers[handlerName];
 
         // Connect the new handler iff it's a function
-        if (typeof(f) === "function") {
+        if (typeof f === "function") {
             // Store the new handler for reference
-            handlers[callbackConstructor] = function() {
+            var connector = function() {
                 // Callback will receive a "deserialized", normal "arguments" array
                 callbackObj.returnValue = f.apply(this, arguments[0]);
             };
+            
+            handlers[handlerName] = {
+                callback: f,
+                connector: connector
+            };
 
             // Connect a new handler
-            callbackObj.called.connect(handlers[callbackConstructor]);
+            callbackObj.called.connect(connector);
         }
+    });
+    
+    page.__defineGetter__(handlerName, function() {
+        var handlerObj = handlers[handlerName];
+        return (!!handlerObj && typeof handlerObj.callback === "function" && typeof handlerObj.connector === "function") ?
+            handlers[handlerName].callback :
+            undefined;
     });
 }
 
@@ -216,28 +238,28 @@ function decorateNewPage(opts, page) {
     // deep copy
     page.settings = JSON.parse(JSON.stringify(phantom.defaultPageSettings));
 
-    definePageSignalSetter(page, handlers, "onInitialized", "initialized");
+    definePageSignalHandler(page, handlers, "onInitialized", "initialized");
 
-    definePageSignalSetter(page, handlers, "onLoadStarted", "loadStarted");
+    definePageSignalHandler(page, handlers, "onLoadStarted", "loadStarted");
 
-    definePageSignalSetter(page, handlers, "onLoadFinished", "loadFinished");
+    definePageSignalHandler(page, handlers, "onLoadFinished", "loadFinished");
 
-    definePageSignalSetter(page, handlers, "onUrlChanged", "urlChanged");
+    definePageSignalHandler(page, handlers, "onUrlChanged", "urlChanged");
 
-    definePageSignalSetter(page, handlers, "onNavigationRequested", "navigationRequested");
+    definePageSignalHandler(page, handlers, "onNavigationRequested", "navigationRequested");
 
-    definePageSignalSetter(page, handlers, "onResourceRequested", "resourceRequested");
+    definePageSignalHandler(page, handlers, "onResourceRequested", "resourceRequested");
 
-    definePageSignalSetter(page, handlers, "onResourceReceived", "resourceReceived");
+    definePageSignalHandler(page, handlers, "onResourceReceived", "resourceReceived");
 
-    definePageSignalSetter(page, handlers, "onAlert", "javaScriptAlertSent");
+    definePageSignalHandler(page, handlers, "onAlert", "javaScriptAlertSent");
 
-    definePageSignalSetter(page, handlers, "onConsoleMessage", "javaScriptConsoleMessageSent");
+    definePageSignalHandler(page, handlers, "onConsoleMessage", "javaScriptConsoleMessageSent");
 
-    definePageSignalSetter(page, handlers, "onClosing", "closing");
+    definePageSignalHandler(page, handlers, "onClosing", "closing");
 
     // Private callback for "page.open()"
-    definePageSignalSetter(page, handlers, "_onPageOpenFinished", "loadFinished");
+    definePageSignalHandler(page, handlers, "_onPageOpenFinished", "loadFinished");
 
     phantom.__defineErrorSetter__(page, page);
 
@@ -416,18 +438,18 @@ function decorateNewPage(opts, page) {
     }
 
     // Calls from within the page to "phantomCallback()" arrive to this handler
-    definePageCallbackSetter(page, handlers, "onCallback", "_getGenericCallback");
+    definePageCallbackHandler(page, handlers, "onCallback", "_getGenericCallback");
 
     // Calls arrive to this handler when the user is asked to pick a file
-    definePageCallbackSetter(page, handlers, "onFilePicker", "_getFilePickerCallback");
+    definePageCallbackHandler(page, handlers, "onFilePicker", "_getFilePickerCallback");
 
     // Calls from within the page to "window.confirm(message)" arrive to this handler
     // @see https://developer.mozilla.org/en/DOM/window.confirm
-    definePageCallbackSetter(page, handlers, "onConfirm", "_getJsConfirmCallback");
+    definePageCallbackHandler(page, handlers, "onConfirm", "_getJsConfirmCallback");
 
     // Calls from within the page to "window.prompt(message, defaultValue)" arrive to this handler
     // @see https://developer.mozilla.org/en/DOM/window.prompt
-    definePageCallbackSetter(page, handlers, "onPrompt", "_getJsPromptCallback");
+    definePageCallbackHandler(page, handlers, "onPrompt", "_getJsPromptCallback");
 
     page.event = {};
     page.event.key = {

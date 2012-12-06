@@ -102,10 +102,44 @@ describe("WebPage object", function() {
         expect(page).toNotEqual(null);
     });
 
+    it("should be able to get any signal handler that are currently set on it", function() {
+        page.onInitialized = undefined;
+        expect(page.onInitialized).toBeUndefined();
+        var onInitialized1 = function() { var x = "x"; };
+        page.onInitialized = onInitialized1;
+        expect(page.onInitialized).toEqual(onInitialized1);
+        var onInitialized2 = function() { var y = "y"; };
+        page.onInitialized = onInitialized2;
+        expect(page.onInitialized).toEqual(onInitialized2);
+        expect(page.onInitialized).toNotEqual(onInitialized1);
+        page.onInitialized = null;
+        // Will only allow setting to a function value, so setting it to `null` returns `undefined`
+        expect(page.onInitialized).toBeUndefined();
+        page.onInitialized = undefined;
+        expect(page.onInitialized).toBeUndefined();
+    });
+
+    it("should be able to get any callback handler that are currently set on it", function() {
+        page.onConfirm = undefined;
+        expect(page.onConfirm).toBeUndefined();
+        var onConfirmFunc1 = function() { return !"x"; };
+        page.onConfirm = onConfirmFunc1;
+        expect(page.onConfirm).toEqual(onConfirmFunc1);
+        var onConfirmFunc2 = function() { return !!"y"; };
+        page.onConfirm = onConfirmFunc2;
+        expect(page.onConfirm).toEqual(onConfirmFunc2);
+        expect(page.onConfirm).toNotEqual(onConfirmFunc1);
+        page.onConfirm = null;
+        // Will only allow setting to a function value, so setting it to `null` returns `undefined`
+        expect(page.onConfirm).toBeUndefined();
+        page.onConfirm = undefined;
+        expect(page.onConfirm).toBeUndefined();
+    });
+
     checkPageCallback(page);
     checkPageConfirm(page);
     checkPagePrompt(page);
-
+    
     checkClipRect(page, {height:0,left:0,top:0,width:0});
 
     expectHasPropertyString(page, 'content');
@@ -121,7 +155,7 @@ describe("WebPage object", function() {
 
     expectHasProperty(page, 'paperSize');
     it("should have paperSize as an empty object", function() {
-            expect(page.paperSize).toEqual({});
+        expect(page.paperSize).toEqual({});
     });
 
     checkScrollPosition(page, {left:0,top:0});
@@ -134,12 +168,12 @@ describe("WebPage object", function() {
 
     expectHasProperty(page, 'customHeaders');
     it("should have customHeaders as an empty object", function() {
-            expect(page.customHeaders).toEqual({});
+        expect(page.customHeaders).toEqual({});
     });
 
     expectHasProperty(page, 'zoomFactor');
     it("should have zoomFactor of 1", function() {
-            expect(page.zoomFactor).toEqual(1.0);
+        expect(page.zoomFactor).toEqual(1.0);
     });
 
     expectHasProperty(page, 'event');
