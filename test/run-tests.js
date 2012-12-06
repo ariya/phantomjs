@@ -62,7 +62,6 @@ fs.changeWorkingDirectory(phantom.libraryPath);
 
 // Load specs
 phantom.injectJs("./phantom-spec.js");
-phantom.injectJs("./module-spec.js");
 phantom.injectJs("./webpage-spec.js");
 phantom.injectJs("./webserver-spec.js");
 phantom.injectJs("./fs-spec-01.js"); //< Filesystem Specs 01 (Basic)
