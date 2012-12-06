@@ -7,7 +7,8 @@ if (system.args.length < 3) {
     phantom.exit(1);
 } else {
     var content = '',
-        f = null;
+        f = null,
+        i;
     for ( i= 2; i < system.args.length; ++i ) {
         content += system.args[i] + (i === system.args.length-1 ? '' : ' ');
     }

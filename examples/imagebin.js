@@ -2,7 +2,7 @@
 
 var page = require('webpage').create(),
     system = require('system'),
-	fname;
+    fname;
 
 if (system.args.length !== 2) {
     console.log('Usage: imagebin.js filename');
