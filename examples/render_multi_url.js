@@ -28,7 +28,7 @@ function renderUrlToFile(url, file, callback) {
        } else {
            page.render(file);
        }
-       delete page;
+       page.close();
        callback(url, file);
     });
 }
