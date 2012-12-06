@@ -4,7 +4,8 @@ var users = ['ariyahidayat',
         'detronizator',
         'KDABQt',
         'lfranchi',
-        'jonleighton'];
+        'jonleighton',
+        '_jamesgreene'];
 
 function follow(user, callback) {
     var page = require('webpage').create();
@@ -17,6 +18,7 @@ function follow(user, callback) {
             });
             console.log(user + ': ' + data);
         }
+        page.close();
         callback.apply();
     });
 }
