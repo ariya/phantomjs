@@ -242,6 +242,7 @@ public slots:
     void uploadFile(const QString &selector, const QString &fileName);
     void sendEvent(const QString &type, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant(), const QString &mouseButton = QString());
 
+    void setContent(const QString &content, const QString &baseUrl);
     /**
      * Returns a Child Page that matches the given <code>"window.name"</code>.
      * This utility method is faster than accessing the
