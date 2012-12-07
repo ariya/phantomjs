@@ -45,7 +45,7 @@
 // for now, use this hackish solution for setting the internal attribute.
 const QNetworkRequest::Attribute gSynchronousNetworkRequestAttribute = static_cast<QNetworkRequest::Attribute>(QNetworkRequest::HttpPipeliningWasUsedAttribute + 7);
 
-static const int gMaxRedirections = 10;
+static const int gMaxRedirections = 20;
 
 namespace WebCore {
 
