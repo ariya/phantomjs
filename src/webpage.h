@@ -87,6 +87,7 @@ public:
     QString content() const;
     QString frameContent() const;
     void setContent(const QString &content);
+    // void setContent(const QString &content, const QString &baseUrl);
     void setFrameContent(const QString &content);
 
     QString title() const;
@@ -257,6 +258,8 @@ public slots:
     QObject *_getJsPromptCallback();
     void uploadFile(const QString &selector, const QString &fileName);
     void sendEvent(const QString &type, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant(), const QString &mouseButton = QString(), const QVariant &modifierArg = QVariant());
+
+    void setContent(const QString &content, const QString &baseUrl);
 
     /**
      * Returns a Child Page that matches the given <code>"window.name"</code>.

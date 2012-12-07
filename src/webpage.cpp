@@ -396,6 +396,15 @@ void WebPage::setContent(const QString &content)
     m_mainFrame->setHtml(content);
 }
 
+void WebPage::setContent(const QString &content, const QString &baseUrl)
+{
+    if (baseUrl == "about:blank") {
+        m_mainFrame->setHtml(BLANK_HTML);
+    } else {
+        m_mainFrame->setHtml(content, QUrl(baseUrl));
+    }
+}
+
 void WebPage::setFrameContent(const QString &content)
 {
     m_currentFrame->setHtml(content);
@@ -1474,6 +1483,7 @@ void WebPage::initCompletions()
     addCompletion("addCookie");
     addCompletion("deleteCookie");
     addCompletion("clearCookies");
+    addCompletion("setContent");
     // callbacks
     addCompletion("onAlert");
     addCompletion("onCallback");
