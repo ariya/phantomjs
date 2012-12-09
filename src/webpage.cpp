@@ -93,7 +93,7 @@ public:
         Q_UNUSED(option);
 
         if (extension == ChooseMultipleFilesExtension) {
-            static_cast<ChooseMultipleFilesExtensionReturn*>(output)->fileNames = QStringList(m_uploadFile);
+            static_cast<ChooseMultipleFilesExtensionReturn*>(output)->fileNames = m_uploadFiles;
             return true;
         } else {
             return false;
@@ -115,7 +115,7 @@ protected:
         Q_UNUSED(originatingFrame);
 
         QString filePath = m_webPage->filePicker(oldFile);
-        QString choosenFile = !filePath.isNull() ? filePath : m_uploadFile;
+        QString choosenFile = !filePath.isNull() ? filePath : m_uploadFiles.first();
 
         // Return the value coming from the "filePicker" callback, IFF not null.
         qDebug() << "CustomPage - file choosen for upload:" << choosenFile;
@@ -213,7 +213,7 @@ protected:
 private:
     WebPage *m_webPage;
     QString m_userAgent;
-    QString m_uploadFile;
+    QStringList m_uploadFiles;
     friend class WebPage;
 };
 
@@ -1105,13 +1105,13 @@ QString WebPage::footer(int page, int numPages)
     return getHeaderFooter(m_paperSize, "footer", m_mainFrame, page, numPages);
 }
 
-void WebPage::uploadFile(const QString &selector, const QString &fileName)
+void WebPage::_uploadFile(const QString &selector, const QStringList &fileNames)
 {
     QWebElement el = m_currentFrame->findFirstElement(selector);
     if (el.isNull())
         return;
 
-    m_customWebPage->m_uploadFile = fileName;
+    m_customWebPage->m_uploadFiles = fileNames;
     el.evaluateJavaScript(JS_ELEMENT_CLICK);
 }
 
