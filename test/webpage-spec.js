@@ -476,9 +476,11 @@ describe("WebPage object", function() {
     it("should handle file uploads", function() {
         runs(function() {
             page.content = '<input type="file" id="file">\n' +
-                           '<input type="file" id="file2" multiple>';
+                           '<input type="file" id="file2" multiple>\n' +
+                           '<input type="file" id="file3" multiple>';
             page.uploadFile("#file", 'README.md');
             page.uploadFile("#file2", 'README.md');
+            page.uploadFile("#file3", ['README.md', 'LICENSE.BSD']);
         });
 
         waits(50);
@@ -495,6 +497,17 @@ describe("WebPage object", function() {
                 return document.getElementById('file2').files[0].fileName;
             });
             expect(fileName).toEqual('README.md');
+
+            var files = page.evaluate(function() {
+                var files = document.getElementById('file3').files;
+                return {
+                    length: files.length,
+                    fileNames: [files[0].fileName, files[1].fileName]
+                }
+            });
+            expect(files.length).toEqual(2)
+            expect(files.fileNames[0]).toEqual('README.md');
+            expect(files.fileNames[1]).toEqual('LICENSE.BSD');
         });
     });
 
