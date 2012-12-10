@@ -167,9 +167,9 @@ bool QWEBKIT_EXPORT qtwebkit_webframe_scrollOverflow(QWebFrame* qFrame, int dx, 
 
 /*!
   \internal
-  Scrolls nested frames starting at this frame, \a dx pixels to the right 
+  Scrolls nested frames starting at this frame, \a dx pixels to the right
   and \a dy pixels downward. Both \a dx and \a dy may be negative. First attempts
-  to scroll elements with CSS overflow at position pos, followed by this frame. If this 
+  to scroll elements with CSS overflow at position pos, followed by this frame. If this
   frame doesn't scroll, attempts to scroll the parent
 */
 void QWEBKIT_EXPORT qtwebkit_webframe_scrollRecursively(QWebFrame* qFrame, int dx, int dy, const QPoint& pos)
@@ -295,7 +295,7 @@ void QWebFramePrivate::renderFromTiledBackingStore(GraphicsContext* context, con
     QPainter* painter = context->platformContext();
 
     WebCore::FrameView* view = frame->view();
-    
+
     int scrollX = view->scrollX();
     int scrollY = view->scrollY();
     context->translate(-scrollX, -scrollY);
@@ -304,7 +304,7 @@ void QWebFramePrivate::renderFromTiledBackingStore(GraphicsContext* context, con
         const QRect& clipRect = vector.at(i);
 
         painter->save();
-        
+
         QRect rect = clipRect.translated(scrollX, scrollY);
         painter->setClipRect(rect, Qt::IntersectClip);
 
@@ -535,6 +535,8 @@ void QWebFramePrivate::_q_orientationChanged()
 QWebFrame::QWebFrame(QWebPage *parent, QWebFrameData *frameData)
     : QObject(parent)
     , d(new QWebFramePrivate)
+	, headerFooterLoaded(false)
+
 {
     d->page = parent;
     d->init(this, frameData);
@@ -552,6 +554,7 @@ QWebFrame::QWebFrame(QWebPage *parent, QWebFrameData *frameData)
 QWebFrame::QWebFrame(QWebFrame *parent, QWebFrameData *frameData)
     : QObject(parent)
     , d(new QWebFramePrivate)
+	, headerFooterLoaded(false)
 {
     d->page = parent->d->page;
     d->init(this, frameData);
@@ -769,14 +772,14 @@ static inline QUrl ensureAbsoluteUrl(const QUrl &url)
     if (!url.isValid() || !url.isRelative())
         return url;
 
-    // This contains the URL with absolute path but without 
+    // This contains the URL with absolute path but without
     // the query and the fragment part.
-    QUrl baseUrl = QUrl::fromLocalFile(QFileInfo(url.toLocalFile()).absoluteFilePath()); 
+    QUrl baseUrl = QUrl::fromLocalFile(QFileInfo(url.toLocalFile()).absoluteFilePath());
 
     // The path is removed so the query and the fragment parts are there.
     QString pathRemoved = url.toString(QUrl::RemovePath);
     QUrl toResolve(pathRemoved);
-    
+
     return baseUrl.resolved(toResolve);
 }
 
@@ -1538,6 +1541,12 @@ void QWebFrame::print(QPrinter *printer, PrintCallback *callback) const
 
     printContext.end();
 }
+
+void QWebFrame::waitForHeaderFooterLoad()
+{
+    headerFooterLoaded = true;
+}
+
 #endif // QT_NO_PRINTER
 
 /*!

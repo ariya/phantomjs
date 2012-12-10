@@ -122,6 +122,7 @@ private:
 
 public:
     QWebPage *page() const;
+	bool headerFooterLoaded;
 
     void load(const QUrl &url);
     void load(const QNetworkRequest &request,
@@ -217,6 +218,7 @@ public Q_SLOTS:
 #ifndef QT_NO_PRINTER
     void print(QPrinter *printer) const;
     void print(QPrinter *printer, PrintCallback *callback) const;
+	void waitForHeaderFooterLoad();
 #endif
 
 Q_SIGNALS:

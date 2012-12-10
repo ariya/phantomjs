@@ -26,6 +26,10 @@
 #include <qprinter.h>
 #include <qstring.h>
 
+#include <qcoreapplication.h>
+#include <qeventloop.h>
+#include <qobject.h>
+
 #include "GraphicsContext.h"
 #include "PrintContext.h"
 
@@ -131,7 +135,22 @@ void HeaderFooter::paintFooter(WebCore::GraphicsContext& ctx, const WebCore::Int
 
 void HeaderFooter::paint(WebCore::GraphicsContext& ctx, const WebCore::IntRect& pageRect, const QString& contents, int height)
 {
+	// Setup
+	page.mainFrame()->headerFooterLoaded = false;
+
+	QObject::connect(page.mainFrame(), SIGNAL(loadFinished(bool)),
+                      page.mainFrame(), SLOT(waitForHeaderFooterLoad()));
+
     page.mainFrame()->setHtml(contents);
+
+	while (!page.mainFrame()->headerFooterLoaded)
+	{
+		// Process Async events for a maximum of 500 seconds
+		QCoreApplication::processEvents(QEventLoop::WaitForMoreEvents | QEventLoop::AllEvents, 500);
+	} // end while
+
+	QObject::disconnect(page.mainFrame(), SIGNAL(loadFinished(bool)),
+                      page.mainFrame(), SLOT(waitForHeaderFooterLoad()));
 
     printCtx->begin(pageRect.width(), height);
     float tempHeight;
