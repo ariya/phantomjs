@@ -8,7 +8,7 @@ page.open(url, function (status) {
         console.log('Unable to access network');
     } else {
         var results = page.evaluate(function() {
-            var list = document.querySelectorAll('span.address'), pizza = [], i;
+            var list = document.querySelectorAll('address'), pizza = [], i;
             for (i = 0; i < list.length; i++) {
                 pizza.push(list[i].innerText);
             }
