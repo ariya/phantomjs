@@ -8,6 +8,7 @@
   Copyright (C) 2011 Ivan De Marino <ivan.de.marino@gmail.com>
   Copyright (C) 2011 James Roe <roejames12@hotmail.com>
   Copyright (C) 2011 execjosh, http://execjosh.blogspot.com
+  Copyright (C) 2012 James M. Greene <james.m.greene@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -33,32 +34,52 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-phantom.__defineErrorSetter__ = function(obj, page) {
-    var handler;
+phantom.__defineErrorSignalHandler__ = function(obj, page, handlers) {
     var signal = page.javaScriptErrorSent;
+    var handlerName = 'onError';
 
-    obj.__defineSetter__('onError', function(f) {
-        if (handler && typeof handler === 'function') {
-            try { signal.disconnect(handler); }
+    obj.__defineSetter__(handlerName, function(f) {
+        // Disconnect previous handler (if any)
+        var handlerObj = handlers[handlerName];
+        if (!!handlerObj && typeof handlerObj.callback === "function" && typeof handlerObj.connector === "function") {
+            try { signal.disconnect(handlerObj.connector); }
             catch (e) {}
         }
+        
+        // Delete the previous handler
+        delete handlers[handlerName];
 
         if (typeof f === 'function') {
-            handler = function(message, stack) {
-              stack = JSON.parse(stack).map(function(item) {
-                  return { file: item.url, line: item.lineNumber, function: item.functionName }
-              });
+            var connector = function(message, stack) {
+                var revisedStack = JSON.parse(stack).map(function(item) {
+                    return { file: item.url, line: item.lineNumber, function: item.functionName }
+                });
 
-              f(message, stack);
+                f(message, revisedStack);
             };
-            signal.connect(handler);
-        } else {
-            handler = null;
+            
+            // Store the new handler for reference
+            handlers[handlerName] = {
+                callback: f,
+                connector: connector
+            };
+            
+            signal.connect(connector);
         }
+    });
+    
+    obj.__defineGetter__(handlerName, function() {
+        var handlerObj = handlers[handlerName];
+        return (!!handlerObj && typeof handlerObj.callback === "function" && typeof handlerObj.connector === "function") ?
+            handlers[handlerName].callback :
+            undefined;
     });
 };
 
-phantom.__defineErrorSetter__(phantom, phantom.page);
+(function() {
+    var handlers = {};
+    phantom.__defineErrorSignalHandler__(phantom, phantom.page, handlers);
+})();
 
 // TODO: Make this output to STDERR
 phantom.defaultErrorHandler = function(message, stack) {
@@ -72,6 +93,8 @@ phantom.defaultErrorHandler = function(message, stack) {
     });
 };
 
+phantom.onError = phantom.defaultErrorHandler;
+
 phantom.callback = function(callback) {
     var ret = phantom.createCallback();
     ret.called.connect(function(args) {
@@ -80,8 +103,6 @@ phantom.callback = function(callback) {
     });
     return ret;
 };
-
-phantom.onError = phantom.defaultErrorHandler;
 
 (function() {
     // CommonJS module implementation follows

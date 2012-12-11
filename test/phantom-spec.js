@@ -71,4 +71,21 @@ describe("phantom global object", function() {
         expect(phantom.hasOwnProperty('cookiesEnabled')).toBeTruthy();
         expect(phantom.cookiesEnabled).toBeTruthy();
     });
+    
+    it("should be able to get the error signal handler that is currently set on it", function() {
+        phantom.onError = undefined;
+        expect(phantom.onError).toBeUndefined();
+        var onErrorFunc1 = function() { return !"x"; };
+        phantom.onError = onErrorFunc1;
+        expect(phantom.onError).toEqual(onErrorFunc1);
+        var onErrorFunc2 = function() { return !!"y"; };
+        phantom.onError = onErrorFunc2;
+        expect(phantom.onError).toEqual(onErrorFunc2);
+        expect(phantom.onError).toNotEqual(onErrorFunc1);
+        phantom.onError = null;
+        // Will only allow setting to a function value, so setting it to `null` returns `undefined`
+        expect(phantom.onError).toBeUndefined();
+        phantom.onError = undefined;
+        expect(phantom.onError).toBeUndefined();
+    });
 });
