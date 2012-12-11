@@ -287,6 +287,7 @@ WebServerResponse::WebServerResponse(mg_connection* conn, QSemaphore* close)
     , m_conn(conn)
     , m_statusCode(200)
     , m_headersSent(false)
+    , m_isBinary(false)
     , m_close(close)
 {
 }
@@ -399,14 +400,24 @@ void WebServerResponse::writeHead(int statusCode, const QVariantMap &headers)
     mg_write(m_conn, "\r\n", 2);
 }
 
-void WebServerResponse::write(const QString &body)
+void WebServerResponse::write(const QVariant &body)
 {
     if (!m_headersSent) {
         writeHead(m_statusCode, m_headers);
     }
-    ///TODO: encoding?!
-    const QByteArray data = body.toUtf8();
+
+    QByteArray data = m_isBinary ? body.toByteArray() : body.toString().toUtf8();
+
     mg_write(m_conn, data.constData(), data.size());
+}
+
+void WebServerResponse::setEncoding(const QString &encoding)
+{
+    if (encoding.toLower()=="binary") {
+        m_isBinary = true;
+    } else {
+        m_isBinary = false;
+    }
 }
 
 void WebServerResponse::close()
