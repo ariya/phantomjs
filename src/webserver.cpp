@@ -406,7 +406,7 @@ void WebServerResponse::write(const QVariant &body)
         writeHead(m_statusCode, m_headers);
     }
 
-    QByteArray data = m_isBinary ? body.toByteArray() : body.toString().toLocal8Bit();
+    QByteArray data = m_isBinary ? body.toByteArray() : body.toString().toUtf8();
 
     mg_write(m_conn, data.constData(), data.size());
 }
