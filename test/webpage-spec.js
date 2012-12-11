@@ -135,6 +135,23 @@ describe("WebPage object", function() {
         page.onConfirm = undefined;
         expect(page.onConfirm).toBeUndefined();
     });
+    
+    it("should be able to get the error signal handler that is currently set on it (currently a special 1-off case)", function() {
+        page.onError = undefined;
+        expect(page.onError).toBeUndefined();
+        var onErrorFunc1 = function() { return !"x"; };
+        page.onError = onErrorFunc1;
+        expect(page.onError).toEqual(onErrorFunc1);
+        var onErrorFunc2 = function() { return !!"y"; };
+        page.onError = onErrorFunc2;
+        expect(page.onError).toEqual(onErrorFunc2);
+        expect(page.onError).toNotEqual(onErrorFunc1);
+        page.onError = null;
+        // Will only allow setting to a function value, so setting it to `null` returns `undefined`
+        expect(page.onError).toBeUndefined();
+        page.onError = undefined;
+        expect(page.onError).toBeUndefined();
+    });
 
     checkPageCallback(page);
     checkPageConfirm(page);

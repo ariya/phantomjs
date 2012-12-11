@@ -138,12 +138,12 @@ function definePageCallbackHandler(page, handlers, handlerName, callbackConstruc
 
         // Connect the new handler iff it's a function
         if (typeof f === "function") {
-            // Store the new handler for reference
             var connector = function() {
                 // Callback will receive a "deserialized", normal "arguments" array
                 callbackObj.returnValue = f.apply(this, arguments[0]);
             };
             
+            // Store the new handler for reference
             handlers[handlerName] = {
                 callback: f,
                 connector: connector
@@ -261,7 +261,7 @@ function decorateNewPage(opts, page) {
     // Private callback for "page.open()"
     definePageSignalHandler(page, handlers, "_onPageOpenFinished", "loadFinished");
 
-    phantom.__defineErrorSetter__(page, page);
+    phantom.__defineErrorSignalHandler__(page, page, handlers);
 
     page.onError = phantom.defaultErrorHandler;
 
