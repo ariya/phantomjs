@@ -178,14 +178,15 @@ protected:
             navigationType = "Other";
             break;
         }
-
+        bool isNavigationLocked = m_webPage->navigationLocked();
+        
         emit m_webPage->navigationRequested(
                     request.url(),                   //< Requested URL
                     navigationType,                  //< Navigation Type
-                    !m_webPage->navigationLocked(),  //< Is navigation locked?
+                    !isNavigationLocked,             //< Is navigation locked?
                     isMainFrame);                    //< Is main frame?
 
-        return !m_webPage->navigationLocked();
+        return !isNavigationLocked;
     }
 
     QWebPage *createWindow (WebWindowType type) {
@@ -551,7 +552,7 @@ QString WebPage::userAgent() const
 
 void WebPage::setNavigationLocked(bool lock)
 {
-    m_navigationLocked = lock;;
+    m_navigationLocked = lock;
 }
 
 bool WebPage::navigationLocked()
