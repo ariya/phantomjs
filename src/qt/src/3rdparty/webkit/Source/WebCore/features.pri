@@ -45,6 +45,8 @@ contains(DEFINES, ENABLE_SINGLE_THREADED=1) {
 !contains(DEFINES, ENABLE_DIRECTORY_UPLOAD=.): DEFINES += ENABLE_DIRECTORY_UPLOAD=0
 !contains(DEFINES, ENABLE_FILE_SYSTEM=.): DEFINES += ENABLE_FILE_SYSTEM=0
 !contains(DEFINES, ENABLE_QUOTA=.): DEFINES += ENABLE_QUOTA=0 
+# enable zlib support for WOFF fonts
+!contains(DEFINES, ENABLE_ZLIB=.): DEFINES += ENABLE_ZLIB=1 
 
 # turn on SQLITE support if any of the dependent features are turned on
 !contains(DEFINES, ENABLE_SQLITE=.) {

@@ -18,6 +18,7 @@ set QT_CFG=%QT_CFG% -no-declarative
 set QT_CFG=%QT_CFG% -no-script
 set QT_CFG=%QT_CFG% -no-multimedia
 
+set QT_CFG=%QT_CFG% -qt-zlib
 set QT_CFG=%QT_CFG% -qt-libpng
 set QT_CFG=%QT_CFG% -qt-libjpeg
 set QT_CFG=%QT_CFG% -no-libmng
