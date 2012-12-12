@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -488,7 +488,7 @@ int QGIFFormat::decode(QImage *image, const uchar *buffer, int length,
                 } else {
                     if (needfirst) {
                         firstcode=oldcode=code;
-                        if (!out_of_bounds && image->height() > y && firstcode!=trans_index)
+                        if (!out_of_bounds && image->height() > y && ((frame == 0) || (firstcode != trans_index)))
                             ((QRgb*)FAST_SCAN_LINE(bits, bpl, y))[x] = color(firstcode);
                         x++;
                         if (x>=swidth) out_of_bounds = true;
@@ -540,17 +540,13 @@ int QGIFFormat::decode(QImage *image, const uchar *buffer, int length,
                         }
                         oldcode=incode;
                         const int h = image->height();
-                        const QRgb *map = lcmap ? localcmap : globalcmap;
                         QRgb *line = 0;
                         if (!out_of_bounds && h > y)
                             line = (QRgb*)FAST_SCAN_LINE(bits, bpl, y);
                         while (sp>stack) {
                             const uchar index = *(--sp);
-                            if (!out_of_bounds && h > y && index!=trans_index) {
-                                if (index > ncols)
-                                    line[x] = Q_TRANSPARENT;
-                                else
-                                    line[x] = map ? map[index] : 0;
+                            if (!out_of_bounds && h > y && ((frame == 0) || (index != trans_index))) {
+                                line[x] = color(index);
                             }
                             x++;
                             if (x>=swidth) out_of_bounds = true;
@@ -1031,11 +1027,12 @@ void QGIFFormat::nextY(unsigned char *bits, int bpl)
 
 inline QRgb QGIFFormat::color(uchar index) const
 {
-    if (index == trans_index || index > ncols)
+    if (index > ncols)
         return Q_TRANSPARENT;
 
     QRgb *map = lcmap ? localcmap : globalcmap;
-    return map ? map[index] : 0;
+    QRgb col = map ? map[index] : 0;
+    return index == trans_index ? col & Q_TRANSPARENT : col;
 }
 
 //-------------------------------------------------------------------------

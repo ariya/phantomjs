@@ -92,6 +92,11 @@ win32 {
             SOURCES += io/qsettings_mac.cpp io/qfilesystemwatcher_fsevents.cpp
         }
 
+        qnx:contains(QT_CONFIG, inotify) {
+            SOURCES += io/qfilesystemwatcher_inotify.cpp
+            HEADERS += io/qfilesystemwatcher_inotify_p.h
+        }
+
         linux-*:!symbian {
             SOURCES += \
                     io/qfilesystemwatcher_inotify.cpp \

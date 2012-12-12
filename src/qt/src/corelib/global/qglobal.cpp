@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -74,9 +74,14 @@
 #  include <envLib.h>
 #endif
 
-#if defined(Q_OS_MACX) && !defined(QT_NO_CORESERVICES)
+#if defined(Q_OS_MACX) && !defined(Q_OS_IOS)
 #include <CoreServices/CoreServices.h>
 #endif
+
+#ifdef QT_USE_SLOG2
+#include <slog2.h>
+#endif
+
 
 #if defined(Q_OS_SYMBIAN)
 #include <e32def.h>
@@ -496,7 +501,7 @@ QT_BEGIN_NAMESPACE
     the application is compiled using Forte Developer, or Sun Studio
     C++.  The header file also declares a range of macros (Q_OS_*)
     that are defined for the specified platforms. For example,
-    Q_OS_X11 which is defined for the X Window System.
+    Q_OS_WIN32 which is defined for Microsoft Windows.
 
     The purpose of these macros is to enable programmers to add
     compiler or platform specific code to their application.
@@ -1663,7 +1668,7 @@ QT_END_INCLUDE_NAMESPACE
 
 static QSysInfo::MacVersion macVersion()
 {
-#ifndef QT_NO_CORESERVICES
+#if !defined(Q_OS_IOS)
     SInt32 gestalt_version;
     if (Gestalt(gestaltSystemVersion, &gestalt_version) == noErr) {
         return QSysInfo::MacVersion(((gestalt_version & 0x00F0) >> 4) + 2);
@@ -2078,6 +2083,56 @@ static void mac_default_handler(const char *msg)
 }
 #endif // Q_CC_MWERKS && Q_OS_MACX
 
+#if defined(QT_USE_SLOG2)
+#ifndef QT_LOG_CODE
+#define QT_LOG_CODE 9000
+#endif
+
+extern char *__progname;
+
+static void slog2_default_handler(QtMsgType msgType, const char *message)
+{
+    if (slog2_set_default_buffer((slog2_buffer_t)-1) == 0) {
+        slog2_buffer_set_config_t buffer_config;
+        slog2_buffer_t buffer_handle;
+
+        buffer_config.buffer_set_name = __progname;
+        buffer_config.num_buffers = 1;
+        buffer_config.verbosity_level = SLOG2_INFO;
+        buffer_config.buffer_config[0].buffer_name = "default";
+        buffer_config.buffer_config[0].num_pages = 8;
+
+        if (slog2_register(&buffer_config, &buffer_handle, 0) == -1) {
+            fprintf(stderr, "Error registering slogger2 buffer!\n");
+            fprintf(stderr, "%s", message);
+            fflush(stderr);
+            return;
+        }
+
+        // Set as the default buffer
+        slog2_set_default_buffer(buffer_handle);
+    }
+    int severity;
+    //Determines the severity level
+    switch (msgType) {
+    case QtDebugMsg:
+        severity = SLOG2_INFO;
+        break;
+    case QtWarningMsg:
+        severity = SLOG2_NOTICE;
+        break;
+    case QtCriticalMsg:
+        severity = SLOG2_WARNING;
+        break;
+    case QtFatalMsg:
+        severity = SLOG2_ERROR;
+        break;
+    }
+    //writes to the slog2 buffer
+    slog2c(NULL, QT_LOG_CODE, severity, message);
+}
+#endif // QT_USE_SLOG2
+
 #if !defined(Q_OS_WIN) && !defined(QT_NO_THREAD) && !defined(Q_OS_INTEGRITY) && !defined(Q_OS_QNX) && \
     defined(_POSIX_THREAD_SAFE_FUNCTIONS) && _POSIX_VERSION >= 200112L
 namespace {
@@ -2217,6 +2272,8 @@ void qt_message_output(QtMsgType msgType, const char *buf)
     } else {
 #if defined(Q_CC_MWERKS) && defined(Q_OS_MACX)
         mac_default_handler(buf);
+#elif defined(QT_USE_SLOG2)
+        slog2_default_handler(msgType, buf);
 #elif defined(Q_OS_WINCE)
         QString fstr = QString::fromLatin1(buf);
         fstr += QLatin1Char('\n');

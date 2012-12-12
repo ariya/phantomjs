@@ -6,6 +6,7 @@ contains(TEMPLATE, "vc.*") {
     win32-msvc2*|wince*msvc*: EOC = $$escape_expand(\\r\\h)
 
     for(xge, INCREDIBUILD_XGE) {
-        $${xge}.commands = Rem IncrediBuild_AllowRemote $$EOC Rem IncrediBuild_OutputFile $$replace($${xge}.output,/,\\) $$EOC $$eval($${xge}.commands)
+        xgevar = $${xge}.commands
+        $$xgevar = Rem IncrediBuild_AllowRemote $$EOC Rem IncrediBuild_OutputFile $$replace($${xge}.output,/,\\) $$EOC $$eval($${xge}.commands)
     }
 }

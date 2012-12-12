@@ -438,7 +438,6 @@ javascriptcore_sources += \
 	Source/JavaScriptCore/wtf/gobject/GRefPtr.h \
 	Source/JavaScriptCore/wtf/gobject/GTypedefs.h \
 	Source/JavaScriptCore/wtf/gtk/MainThreadGtk.cpp \
-	Source/JavaScriptCore/wtf/gtk/ThreadingGtk.cpp \
 	Source/JavaScriptCore/wtf/HashCountedSet.h \
 	Source/JavaScriptCore/wtf/HashFunctions.h \
 	Source/JavaScriptCore/wtf/HashIterators.h \

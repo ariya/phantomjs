@@ -41,9 +41,10 @@ void JSString::resolveRope(ExecState* exec) const
     ASSERT(isRope());
 
     UChar* buffer;
-    if (PassRefPtr<StringImpl> newImpl = StringImpl::tryCreateUninitialized(m_length, buffer))
+    if (PassRefPtr<StringImpl> newImpl = StringImpl::tryCreateUninitialized(m_length, buffer)) {
+        Heap::heap(this)->reportExtraMemoryCost(newImpl->cost());
         m_value = newImpl;
-    else {
+    } else {
         outOfMemory(exec);
         return;
     }

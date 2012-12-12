@@ -3,11 +3,13 @@
 
 exists($$_QMAKE_CACHE_):QMAKE_QT_CONFIG = $$fromfile($$_QMAKE_CACHE_, QMAKE_QT_CONFIG)
 isEmpty(QMAKE_QT_CONFIG)|!exists($$QMAKE_QT_CONFIG) {
-   !isEmpty(QT_BUILD_TREE):QMAKE_QT_CONFIG = $$QT_BUILD_TREE/mkspecs/qconfig.pri
-   else:exists($$_QMAKE_CACHE_):infile($$_QMAKE_CACHE_, QT_BUILD_TREE):QMAKE_QT_CONFIG = $$fromfile($$_QMAKE_CACHE_, QT_BUILD_TREE)/mkspecs/qconfig.pri
-   else:exists($$[QT_INSTALL_DATA]/mkspecs/qconfig.pri):QMAKE_QT_CONFIG = $$[QT_INSTALL_DATA]/mkspecs/qconfig.pri
+   qdd = $$QT_BUILD_TREE
+   isEmpty(qdd):exists($$_QMAKE_CACHE_): qdd = $$fromfile($$_QMAKE_CACHE_, QT_BUILD_TREE)
+   isEmpty(qdd): qdd = $$[QT_INSTALL_DATA]
+   QMAKE_QT_CONFIG = $$qdd/mkspecs/qconfig.pri
+   unset(qdd)
 }
-!exists($$QMAKE_QT_CONFIG)|!include($$QMAKE_QT_CONFIG, "", true) {
+!include($$QMAKE_QT_CONFIG, "", true) {
    debug(1, "Cannot load qconfig.pri!")
 } else {
    debug(1, "Loaded .qconfig.pri from ($$QMAKE_QT_CONFIG)")

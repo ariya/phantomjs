@@ -44,8 +44,6 @@
 
 #if USE(PTHREADS)
 #include <pthread.h>
-#elif PLATFORM(GTK)
-#include "GOwnPtr.h"
 #endif
 
 #if PLATFORM(QT)
@@ -66,10 +64,6 @@ typedef pthread_rwlock_t PlatformReadWriteLock;
 typedef void* PlatformReadWriteLock;
 #endif
 typedef pthread_cond_t PlatformCondition;
-#elif PLATFORM(GTK)
-typedef GOwnPtr<GMutex> PlatformMutex;
-typedef void* PlatformReadWriteLock; // FIXME: Implement.
-typedef GOwnPtr<GCond> PlatformCondition;
 #elif PLATFORM(QT)
 typedef QT_PREPEND_NAMESPACE(QMutex)* PlatformMutex;
 typedef void* PlatformReadWriteLock; // FIXME: Implement.

@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -483,6 +483,7 @@ static void* qt_load_library_runtime(const char *library, int vernum,
     Q_FOREACH(int version, versions) {
         QLatin1String libName(library);
         QLibrary xfixesLib(libName, version);
+        xfixesLib.setLoadHints(QLibrary::ImprovedSearchHeuristics);
         void *ptr = xfixesLib.resolve(symbol);
         if (ptr)
             return ptr;
@@ -601,6 +602,7 @@ public:
 
         // static gravity!
         XSizeHints sh;
+        memset(&sh, 0, sizeof(sh));
         long unused;
         XGetWMNormalHints(X11->display, internalWinId(), &sh, &unused);
         sh.flags |= USPosition | PPosition | USSize | PSize | PWinGravity;
@@ -1628,6 +1630,30 @@ static void getXDefault(const char *group, const char *key, bool *val)
 }
 #endif
 
+#if defined(QT_DEBUG) && defined(Q_OS_LINUX)
+// Find out if our parent process is gdb by looking at the 'exe' symlink under /proc,.
+// or, for older Linuxes, read out 'cmdline'.
+bool runningUnderDebugger()
+{
+    const QString parentProc = QLatin1String("/proc/") + QString::number(getppid());
+    const QFileInfo parentProcExe(parentProc + QLatin1String("/exe"));
+    if (parentProcExe.isSymLink())
+        return parentProcExe.symLinkTarget().endsWith(QLatin1String("/gdb"));
+    QFile f(parentProc + QLatin1String("/cmdline"));
+    if (!f.open(QIODevice::ReadOnly))
+        return false;
+    QByteArray s;
+    char c;
+    while (f.getChar(&c) && c) {
+        if (c == '/')
+            s.clear();
+        else
+            s += c;
+    }
+    return s == "gdb";
+}
+#endif
+
 // ### This should be static but it isn't because of the friend declaration
 // ### in qpaintdevice.h which then should have a static too but can't have
 // ### it because "storage class specifiers invalid in friend function
@@ -1852,26 +1878,10 @@ void qt_init(QApplicationPrivate *priv, int,
     priv->argc = j;
 
 #if defined(QT_DEBUG) && defined(Q_OS_LINUX)
-    if (!appNoGrab && !appDoGrab) {
-        QString s;
-        s.sprintf("/proc/%d/cmdline", getppid());
-        QFile f(s);
-        if (f.open(QIODevice::ReadOnly)) {
-            s.clear();
-            char c;
-            while (f.getChar(&c) && c) {
-                if (c == '/')
-                    s.clear();
-                else
-                    s += QLatin1Char(c);
-            }
-            if (s == QLatin1String("gdb")) {
-                appNoGrab = true;
-                qDebug("Qt: gdb: -nograb added to command-line options.\n"
-                       "\t Use the -dograb option to enforce grabbing.");
-            }
-            f.close();
-        }
+    if (!appNoGrab && !appDoGrab && runningUnderDebugger()) {
+        appNoGrab = true;
+        qDebug("Qt: gdb: -nograb added to command-line options.\n"
+               "\t Use the -dograb option to enforce grabbing.");
     }
 #endif
 
@@ -2011,6 +2021,7 @@ void qt_init(QApplicationPrivate *priv, int,
             X11->ptrXRRRootToScreen = 0;
             X11->ptrXRRQueryExtension = 0;
             QLibrary xrandrLib(QLatin1String("Xrandr"), 2);
+            xrandrLib.setLoadHints(QLibrary::ImprovedSearchHeuristics);
             if (!xrandrLib.load()) { // try without the version number
                 xrandrLib.setFileName(QLatin1String("Xrandr"));
                 xrandrLib.load();
@@ -2091,6 +2102,7 @@ void qt_init(QApplicationPrivate *priv, int,
 #ifdef QT_RUNTIME_XCURSOR
         X11->ptrXcursorLibraryLoadCursor = 0;
         QLibrary xcursorLib(QLatin1String("Xcursor"), 1);
+        xcursorLib.setLoadHints(QLibrary::ImprovedSearchHeuristics);
         bool xcursorFound = xcursorLib.load();
         if (!xcursorFound) { //try without the version number
             xcursorLib.setFileName(QLatin1String("Xcursor"));
@@ -2118,6 +2130,7 @@ void qt_init(QApplicationPrivate *priv, int,
         X11->ptrXineramaIsActive = 0;
         X11->ptrXineramaQueryScreens = 0;
         QLibrary xineramaLib(QLatin1String("Xinerama"), 1);
+        xineramaLib.setLoadHints(QLibrary::ImprovedSearchHeuristics);
         bool xineramaFound = xineramaLib.load();
         if (!xineramaFound) { //try without the version number
             xineramaLib.setFileName(QLatin1String("Xinerama"));
@@ -2631,6 +2644,7 @@ void qt_init(QApplicationPrivate *priv, int,
 
 #if !defined (Q_OS_IRIX) && !defined (QT_NO_TABLET)
     QLibrary wacom(QString::fromLatin1("wacomcfg"), 0); // version 0 is the latest release at time of writing this.
+    wacom.setLoadHints(QLibrary::ImprovedSearchHeuristics);
     // NOTE: C casts instead of reinterpret_cast for GCC 3.3.x
     ptrWacomConfigInit = (PtrWacomConfigInit)wacom.resolve("WacomConfigInit");
     ptrWacomConfigOpenDevice = (PtrWacomConfigOpenDevice)wacom.resolve("WacomConfigOpenDevice");

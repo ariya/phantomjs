@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the qmake application of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -296,6 +296,7 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
           << "\t\t\t" << writeSettings("children", grp_it.value(), SettingsAsList, 4) << ";" << "\n"
           << "\t\t\t" << writeSettings("name", escapeFilePath(grp_it.key().section(Option::dir_sep, -1))) << ";" << "\n"
           << "\t\t\t" << writeSettings("refType", "4", SettingsNoQuote) << ";" << "\n"
+          << "\t\t\t" << writeSettings("sourceTree", "<Group>") << ";" << "\n"
           << "\t\t" << "};" << "\n";
     }
 
@@ -645,7 +646,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
               << "\t\t\t" << writeSettings("isa", "PBXFileReference", SettingsNoQuote) << ";" << "\n"
               << "\t\t\t" << writeSettings("name", escapeFilePath(name)) << ";" << "\n"
               << "\t\t\t" << writeSettings("path", escapeFilePath(file)) << ";" << "\n"
-              << "\t\t\t" << writeSettings("refType", QString::number(reftypeForFile(file)), SettingsNoQuote) << ";" << "\n";
+              << "\t\t\t" << writeSettings("refType", QString::number(reftypeForFile(file)), SettingsNoQuote) << ";" << "\n"
+              << "\t\t\t" << writeSettings("sourceTree", sourceTreeForFile(file)) << ";" << "\n";
             if(pbVersion >= 38) {
                 QString filetype;
                 for(QStringList::Iterator cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit) {
@@ -689,6 +691,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
           << "\t\t\t" << writeSettings("children", grp_it.value(), SettingsAsList, 4) << ";" << "\n"
           << "\t\t\t" << writeSettings("name", escapeFilePath(grp_it.key().section(Option::dir_sep, -1))) << ";" << "\n"
           << "\t\t\t" << writeSettings("refType", "4", SettingsNoQuote) << ";" << "\n"
+          << "\t\t\t" << writeSettings("sourceTree", "<Group>") << ";" << "\n"
           << "\t\t" << "};" << "\n";
     }
 
@@ -921,6 +924,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                       << "\t\t\t" << writeSettings("name", escapeFilePath(name)) << ";" << "\n"
                       << "\t\t\t" << writeSettings("path", escapeFilePath(library)) << ";" << "\n"
                       << "\t\t\t" << writeSettings("refType", QString::number(reftypeForFile(library)), SettingsNoQuote) << ";" << "\n"
+                      << "\t\t\t" << writeSettings("sourceTree", sourceTreeForFile(library)) << ";" << "\n"
                       << "\t\t" << "};" << "\n";
                     project->values("QMAKE_PBX_LIBRARIES").append(key);
                     QString build_key = keyFor(library + ".BUILDABLE");
@@ -989,6 +993,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
               << "\t\t\t" << writeSettings("name", escapeFilePath(grp)) << ";" << "\n"
               << "\t\t\t" << writeSettings("path", QStringList()) << ";" << "\n"
               << "\t\t\t" << writeSettings("refType", "4", SettingsNoQuote) << ";" << "\n"
+              << "\t\t\t" << writeSettings("sourceTree", "<Group>") << ";" << "\n"
               << "\t\t" << "};" << "\n";
         }
     }
@@ -1089,6 +1094,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
           << "\t\t\t" << writeSettings("name", "Source [bundle data]") << ";" << "\n"
           << "\t\t\t" << writeSettings("path", QStringList()) << ";" << "\n"
           << "\t\t\t" << writeSettings("refType", "4", SettingsNoQuote) << ";" << "\n"
+          << "\t\t\t" << writeSettings("sourceTree", "<Group>") << ";" << "\n"
           << "\t\t" << "};" << "\n";
     }
 
@@ -1136,6 +1142,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t" << writeSettings("name", escapeFilePath(project->first("QMAKE_ORIG_TARGET"))) << ";" << "\n"
       << "\t\t\t" << writeSettings("path", QStringList()) << ";" << "\n"
       << "\t\t\t" << writeSettings("refType", "4", SettingsNoQuote) << ";" << "\n"
+      << "\t\t\t" << writeSettings("sourceTree", "<Group>") << ";" << "\n"
       << "\t\t" << "};" << "\n";
     //REFERENCE
     project->values("QMAKE_PBX_PRODUCTS").append(keyFor(pbx_dir + "QMAKE_PBX_REFERENCE"));
@@ -1882,6 +1889,14 @@ ProjectBuilderMakefileGenerator::reftypeForFile(const QString &where)
     int ret = 0; //absolute is the default..
     if(QDir::isRelativePath(unescapeFilePath(where)))
         ret = 4; //relative
+    return ret;
+}
+
+QString ProjectBuilderMakefileGenerator::sourceTreeForFile(const QString &where)
+{
+    QString ret = "<absolute>";
+    if (QDir::isRelativePath(unescapeFilePath(where)))
+        ret = "SOURCE_ROOT"; //relative
     return ret;
 }
 

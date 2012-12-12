@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -1656,12 +1656,19 @@ int QTextEngine::findItem(int strPos) const
 {
     itemize();
 
-    int item;
-    for (item = layoutData->items.size()-1; item > 0; --item) {
-        if (layoutData->items[item].position <= strPos)
-            break;
+    int left = 1;
+    int right = layoutData->items.size()-1;
+    while (left <= right) {
+        int middle = ((right-left)/2)+left;
+        if (strPos > layoutData->items[middle].position)
+            left = middle+1;
+        else if (strPos < layoutData->items[middle].position)
+            right = middle-1;
+        else {
+            return middle;
+        }
     }
-    return item;
+    return right;
 }
 
 QFixed QTextEngine::width(int from, int len) const
@@ -2643,20 +2650,28 @@ QString QTextEngine::elidedText(Qt::TextElideMode mode, const QFixed &width, int
     return layoutData->string;
 }
 
+namespace {
+struct QScriptItemComparator {
+    bool operator()(const QScriptItem &a, const QScriptItem &b) { return a.position < b.position; }
+    bool operator()(int p, const QScriptItem &b) { return p < b.position; }
+    //bool operator()(const QScriptItem &a, int p) { return a.position < p; }
+};
+}
+
 void QTextEngine::setBoundary(int strPos) const
 {
     if (strPos <= 0 || strPos >= layoutData->string.length())
         return;
 
-    int itemToSplit = 0;
-    while (itemToSplit < layoutData->items.size() && layoutData->items.at(itemToSplit).position <= strPos)
-        itemToSplit++;
-    itemToSplit--;
-    if (layoutData->items.at(itemToSplit).position == strPos) {
+    const QScriptItem* it = qUpperBound(layoutData->items.constBegin(), layoutData->items.constEnd(),
+                                        strPos, QScriptItemComparator());
+    Q_ASSERT(it > layoutData->items.constBegin());
+    --it;
+    if (it->position == strPos) {
         // already a split at the requested position
         return;
     }
-    splitItem(itemToSplit, strPos - layoutData->items.at(itemToSplit).position);
+    splitItem(it - layoutData->items.constBegin(), strPos - it->position);
 }
 
 void QTextEngine::splitItem(int item, int pos) const

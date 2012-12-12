@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -58,6 +58,7 @@
 #include "qhash.h"
 #include "qtranslator_p.h"
 #include "qlocale.h"
+#include "qresource.h"
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_SYMBIAN) && !defined(Q_OS_INTEGRITY)
 #define QT_USE_MMAP
@@ -224,7 +225,7 @@ public:
     enum { Contexts = 0x2f, Hashes = 0x42, Messages = 0x69, NumerusRules = 0x88 };
 
     QTranslatorPrivate()
-        : used_mmap(0), unmapPointer(0), unmapLength(0),
+        : used_mmap(0), unmapPointer(0), unmapLength(0), resource(0),
           messageArray(0), offsetArray(0), contextArray(0), numerusRulesArray(0),
           messageLength(0), offsetLength(0), contextLength(0), numerusRulesLength(0) {}
 
@@ -232,6 +233,9 @@ public:
     bool used_mmap : 1;
     char *unmapPointer;
     unsigned int unmapLength;
+
+    // The resource object in case we loaded the translations from a resource
+    QResource *resource;
 
     // for squeezed but non-file data, this is what needs to be deleted
     const uchar *messageArray;
@@ -499,6 +503,23 @@ bool QTranslatorPrivate::do_load(const QString &realname)
     QTranslatorPrivate *d = this;
     bool ok = false;
 
+    const bool isResourceFile = realname.startsWith(QLatin1Char(':'));
+    if (isResourceFile) {
+        // If the translation is in a non-compressed resource file, the data is already in
+        // memory, so no need to use QFile to copy it again.
+        Q_ASSERT(!d->resource);
+        d->resource = new QResource(realname);
+        if (d->resource->isValid() && !d->resource->isCompressed()) {
+            d->unmapLength = d->resource->size();
+            d->unmapPointer = reinterpret_cast<char *>(const_cast<uchar *>(d->resource->data()));
+            d->used_mmap = false;
+            ok = true;
+        } else {
+            delete d->resource;
+            d->resource = 0;
+        }
+    }
+
 #ifdef QT_USE_MMAP
 
 #ifndef MAP_FILE
@@ -508,32 +529,33 @@ bool QTranslatorPrivate::do_load(const QString &realname)
 #define MAP_FAILED -1
 #endif
 
-    int fd = -1;
-    if (!realname.startsWith(QLatin1Char(':')))
-        fd = QT_OPEN(QFile::encodeName(realname), O_RDONLY,
+    else {
+        int fd = QT_OPEN(QFile::encodeName(realname), O_RDONLY,
 #if defined(Q_OS_WIN)
                      _S_IREAD | _S_IWRITE
 #else
                      0666
 #endif
             );
-    if (fd >= 0) {
-        QT_STATBUF st;
-        if (!QT_FSTAT(fd, &st)) {
-            char *ptr;
-            ptr = reinterpret_cast<char *>(
-                mmap(0, st.st_size,             // any address, whole file
-                     PROT_READ,                 // read-only memory
-                     MAP_FILE | MAP_PRIVATE,    // swap-backed map from file
-                     fd, 0));                   // from offset 0 of fd
-            if (ptr && ptr != reinterpret_cast<char *>(MAP_FAILED)) {
-                d->used_mmap = true;
-                d->unmapPointer = ptr;
-                d->unmapLength = st.st_size;
-                ok = true;
+
+        if (fd >= 0) {
+            QT_STATBUF st;
+            if (!QT_FSTAT(fd, &st)) {
+                char *ptr;
+                ptr = reinterpret_cast<char *>(
+                    mmap(0, st.st_size,             // any address, whole file
+                         PROT_READ,                 // read-only memory
+                         MAP_FILE | MAP_PRIVATE,    // swap-backed map from file
+                         fd, 0));                   // from offset 0 of fd
+                if (ptr && ptr != reinterpret_cast<char *>(MAP_FAILED)) {
+                    d->used_mmap = true;
+                    d->unmapPointer = ptr;
+                    d->unmapLength = st.st_size;
+                    ok = true;
+                }
             }
+            ::close(fd);
         }
-        ::close(fd);
     }
 #endif // QT_USE_MMAP
 
@@ -947,9 +969,12 @@ void QTranslatorPrivate::clear()
             munmap(unmapPointer, unmapLength);
         else
 #endif
+        if (!resource)
             delete [] unmapPointer;
     }
 
+    delete resource;
+    resource = 0;
     unmapPointer = 0;
     unmapLength = 0;
     messageArray = 0;

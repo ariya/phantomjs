@@ -262,6 +262,13 @@ qpa {
             LIBS_PRIVATE +=$$QT_LIBS_GLIB
 	}
 
+        blackberry {
+            SOURCES += \
+                kernel/qeventdispatcher_blackberry_qpa.cpp
+            HEADERS += \
+                kernel/qeventdispatcher_blackberry_qpa_p.h
+        }
+
 	HEADERS += kernel/qminimalintegration.h
 	HEADERS += kernel/qminimalwindowsurface.h
 	SOURCES += kernel/qminimalintegration.cpp

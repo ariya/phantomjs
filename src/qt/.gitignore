@@ -6,6 +6,7 @@ config.tests
 /mkspecs/default
 /mkspecs/modules/qt_webkit_version.pri
 /mkspecs/qconfig.pri
+/mkspecs/qdevice.pri
 /src/3rdparty/webkit/Source/JavaScriptCore/debug/
 /src/3rdparty/webkit/Source/JavaScriptCore/release/
 /src/3rdparty/webkit/Source/WebCore/debug/

@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -43,8 +43,8 @@
 
 #include <qfile.h>
 #include "qlibrary_p.h"
-#include <qfileinfo.h>
 #include <qcoreapplication.h>
+#include <private/qfilesystementry_p.h>
 
 #ifndef QT_NO_LIBRARY
 
@@ -84,28 +84,28 @@ bool QLibraryPrivate::load_sys()
 {
     QString attempt;
 #if !defined(QT_NO_DYNAMIC_LIBRARY)
-    QFileInfo fi(fileName);
+    QFileSystemEntry fsEntry(fileName);
 
 #if defined(Q_OS_SYMBIAN)
     QString path; // In Symbian, always resolve with just the filename
     QString name;
 
     // Replace possible ".qtplugin" suffix with ".dll"
-    if (fi.suffix() == QLatin1String("qtplugin"))
-        name = fi.completeBaseName() + QLatin1String(".dll");
+    if (fsEntry.suffix() == QLatin1String("qtplugin"))
+        name = fsEntry.completeBaseName() + QLatin1String(".dll");
     else
-        name = fi.fileName();
+        name = fsEntry.fileName();
 #else
-    QString path = fi.path();
-    QString name = fi.fileName();
+    QString path = fsEntry.path();
+    QString name = fsEntry.fileName();
     if (path == QLatin1String(".") && !fileName.startsWith(path))
         path.clear();
     else
         path += QLatin1Char('/');
 #endif
-    // The first filename we want to attempt to load is the filename as the callee specified.
-    // Thus, the first attempt we do must be with an empty prefix and empty suffix.
-    QStringList suffixes(QLatin1String("")), prefixes(QLatin1String(""));
+
+    QStringList suffixes;
+    QStringList prefixes;
     if (pluginState != IsAPlugin) {
 #if !defined(Q_OS_SYMBIAN)
         prefixes << QLatin1String("lib");
@@ -187,6 +187,23 @@ bool QLibraryPrivate::load_sys()
     }
 #endif
 #endif // QT_HPUX_LD
+    // If using the new search heuristics we do:
+    //
+    //   If the filename is an absolute path then we want to try that first as it is most likely
+    //   what the callee wants. If we have been given a non-absolute path then lets try the
+    //   native library name first to avoid unnecessary calls to dlopen().
+    //
+    // otherwise:
+    //
+    //   We use the old behaviour which is to always try the specified filename first
+    if ((loadHints & QLibrary::ImprovedSearchHeuristics) && !fsEntry.isAbsolute()) {
+        suffixes.append(QLatin1String(""));
+        prefixes.append(QLatin1String(""));
+    } else {
+        suffixes.prepend(QLatin1String(""));
+        prefixes.prepend(QLatin1String(""));
+    }
+
     bool retry = true;
     for(int prefix = 0; retry && !pHnd && prefix < prefixes.size(); prefix++) {
         for(int suffix = 0; retry && !pHnd && suffix < suffixes.size(); suffix++) {

@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -1422,23 +1422,24 @@ void QDragManager::cancel(bool deleteSource)
     global_accepted_action = Qt::IgnoreAction;
 }
 
+#ifndef QT_NO_SHAPE
 static
 bool windowInteractsWithPosition(const QPoint & pos, Window w, int shapeType)
 {
     int nrectanglesRet, dummyOrdering;
     XRectangle *rectangles = XShapeGetRectangles(QX11Info::display(), w, shapeType, &nrectanglesRet, &dummyOrdering);
-    bool interacts = true;
+    bool interacts = false;
     if (rectangles) {
-        interacts = false;
         for (int i = 0; !interacts && i < nrectanglesRet; ++i)
             interacts = QRect(rectangles[i].x, rectangles[i].y, rectangles[i].width, rectangles[i].height).contains(pos);
         XFree(rectangles);
     }
     return interacts;
 }
+#endif
 
 static
-Window findRealWindow(const QPoint & pos, Window w, int md)
+Window findRealWindow(const QPoint & pos, Window w, int md, bool ignoreNonXdndAwareWindows)
 {
     if (xdnd_data.deco && w == xdnd_data.deco->effectiveWinId())
         return 0;
@@ -1452,7 +1453,7 @@ Window findRealWindow(const QPoint & pos, Window w, int md)
 
         if (attr.map_state == IsViewable
             && QRect(attr.x,attr.y,attr.width,attr.height).contains(pos)) {
-            bool windowContainsMouse = true;
+            bool windowContainsMouse = !ignoreNonXdndAwareWindows;
             {
                 Atom   type = XNone;
                 int f;
@@ -1463,13 +1464,22 @@ Window findRealWindow(const QPoint & pos, Window w, int md)
                                    AnyPropertyType, &type, &f,&n,&a,&data);
                 if (data) XFree(data);
                 if (type) {
+#ifdef QT_NO_SHAPE
+                    return w;
+#else // !QT_NO_SHAPE
+                    const QPoint relPos = pos - QPoint(attr.x,attr.y);
                     // When ShapeInput and ShapeBounding are not set they return a single rectangle with the geometry of the window, this is why we
                     // need an && here so that in the case one is set and the other is not we still get the correct result.
-#if !defined(Q_OS_SOLARIS)
-                    windowContainsMouse = windowInteractsWithPosition(pos, w, ShapeInput) && windowInteractsWithPosition(pos, w, ShapeBounding);
+#if defined(ShapeInput) && defined(ShapeBounding)
+                    windowContainsMouse = windowInteractsWithPosition(relPos, w, ShapeInput) && windowInteractsWithPosition(relPos, w, ShapeBounding);
+#elif defined(ShapeBounding)
+                    windowContainsMouse = windowInteractsWithPosition(relPos, w, ShapeBounding);
+#else
+                    windowContainsMouse = true;
 #endif
                     if (windowContainsMouse)
                         return w;
+#endif // QT_NO_SHAPE
                 }
             }
 
@@ -1480,7 +1490,7 @@ Window findRealWindow(const QPoint & pos, Window w, int md)
                 r=0;
                 for (uint i=nc; !r && i--;) {
                     r = findRealWindow(pos-QPoint(attr.x,attr.y),
-                                        c[i], md-1);
+                                        c[i], md-1, ignoreNonXdndAwareWindows);
                 }
                 XFree(c);
                 if (r)
@@ -1577,7 +1587,9 @@ void QDragManager::move(const QPoint & globalPos)
         }
         if (xdnd_data.deco && (!target || target == xdnd_data.deco->effectiveWinId())) {
             DNDDEBUG << "need to find real window";
-            target = findRealWindow(globalPos, rootwin, 6);
+            target = findRealWindow(globalPos, rootwin, 6, true);
+            if (target == 0)
+                target = findRealWindow(globalPos, rootwin, 6, false);
             DNDDEBUG << "real window found" << QWidget::find(target) << target;
         }
     }
@@ -1776,7 +1788,7 @@ bool QX11Data::xdndHandleBadwindow()
             qt_xdnd_current_proxy_target = 0;
             manager->object->deleteLater();
             manager->object = 0;
-            delete xdnd_data.deco;
+            xdnd_data.deco->deleteLater(); //delay freeing to avoid crash QTBUG-19363
             xdnd_data.deco = 0;
             return true;
         }

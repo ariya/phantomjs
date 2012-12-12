@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -478,7 +478,7 @@ void QPlainTextEditControl::insertFromMimeData(const QMimeData *source) {
         ed->insertFromMimeData(source);
 }
 
-int QPlainTextEditPrivate::verticalOffset(int topBlock, int topLine) const
+qreal QPlainTextEditPrivate::verticalOffset(int topBlock, int topLine) const
 {
     qreal offset = 0;
     QTextDocument *doc = control->document();
@@ -498,12 +498,12 @@ int QPlainTextEditPrivate::verticalOffset(int topBlock, int topLine) const
     }
     if (topBlock == 0 && topLine == 0)
         offset -= doc->documentMargin(); // top margin
-    return (int)offset;
+    return offset;
 }
 
 
-int QPlainTextEditPrivate::verticalOffset() const {
-    return verticalOffset(control->topBlock, topLine);
+qreal QPlainTextEditPrivate::verticalOffset() const {
+    return verticalOffset(control->topBlock, topLine) + topLineFracture;
 }
 
 
@@ -649,8 +649,10 @@ void QPlainTextEditPrivate::setTopBlock(int blockNumber, int lineNumber, int dx)
     if (viewport->updatesEnabled() && viewport->isVisible()) {
         int dy = 0;
         if (doc->findBlockByNumber(control->topBlock).isValid()) {
-            dy = (int)(-q->blockBoundingGeometry(block).y())
-                 + verticalOffset() - verticalOffset(blockNumber, lineNumber);
+            qreal realdy = -q->blockBoundingGeometry(block).y()
+                    + verticalOffset() - verticalOffset(blockNumber, lineNumber);
+            dy = (int)realdy;
+            topLineFracture = realdy - dy;
         }
         control->topBlock = blockNumber;
         topLine = lineNumber;
@@ -659,14 +661,17 @@ void QPlainTextEditPrivate::setTopBlock(int blockNumber, int lineNumber, int dx)
         vbar->setValue(block.firstLineNumber() + lineNumber);
         vbar->blockSignals(vbarSignalsBlocked);
 
-        if (dx || dy)
+        if (dx || dy) {
             viewport->scroll(q->isRightToLeft() ? -dx : dx, dy);
-        else
+        } else {
             viewport->update();
+            topLineFracture = 0;
+        }
         emit q->updateRequest(viewport->rect(), dy);
     } else {
         control->topBlock = blockNumber;
         topLine = lineNumber;
+        topLineFracture = 0;
     }
 
 }
@@ -706,7 +711,7 @@ void QPlainTextEditPrivate::ensureVisible(int position, bool center, bool forceC
 
         int l = 0;
         int lineCount = block.layout()->lineCount();
-        int voffset = verticalOffset(block.blockNumber(), 0);
+        qreal voffset = verticalOffset(block.blockNumber(), 0);
         while (l < lineCount) {
             QRectF lineRect = block.layout()->lineAt(l).naturalTextRect();
             if (h - voffset - lineRect.top() <= height)
@@ -738,7 +743,7 @@ QPlainTextEditPrivate::QPlainTextEditPrivate()
       tabChangesFocus(false),
       lineWrap(QPlainTextEdit::WidgetWidth),
       wordWrap(QTextOption::WrapAtWordBoundaryOrAnywhere),
-      clickCausedFocus(0),topLine(0), 
+      clickCausedFocus(0),topLine(0),topLineFracture(0),
       pageUpDownLastCursorYIsValid(false)
 {
     showCursorOnInitialShow = true;
@@ -815,7 +820,7 @@ void QPlainTextEditPrivate::_q_repaintContents(const QRectF &contentsRect)
         return;
     }
     const int xOffset = horizontalOffset();
-    const int yOffset = verticalOffset();
+    const int yOffset = (int)verticalOffset();
     const QRect visibleRect(xOffset, yOffset, viewport->width(), viewport->height());
 
     QRect r = contentsRect.adjusted(-1, -1, 1, 1).intersected(visibleRect).toAlignedRect();
@@ -1340,7 +1345,7 @@ QTextCursor QPlainTextEdit::textCursor() const
 QString QPlainTextEdit::anchorAt(const QPoint &pos) const
 {
     Q_D(const QPlainTextEdit);
-    int cursorPos = d->control->hitTest(pos + QPoint(d->horizontalOffset(),
+    int cursorPos = d->control->hitTest(pos + QPointF(d->horizontalOffset(),
                                                      d->verticalOffset()),
                                         Qt::ExactHit);
     if (cursorPos < 0)
@@ -1443,7 +1448,7 @@ void QPlainTextEdit::clear()
 {
     Q_D(QPlainTextEdit);
     // clears and sets empty content
-    d->control->topBlock = d->topLine = 0;
+    d->control->topBlock = d->topLine = d->topLineFracture = 0;
     d->control->clear();
 }
 
@@ -2238,7 +2243,7 @@ QRect QPlainTextEdit::cursorRect(const QTextCursor &cursor) const
         return QRect();
 
     QRect r = d->control->cursorRect(cursor).toRect();
-    r.translate(-d->horizontalOffset(),-d->verticalOffset());
+    r.translate(-d->horizontalOffset(),-(int)d->verticalOffset());
     return r;
 }
 
@@ -2250,7 +2255,7 @@ QRect QPlainTextEdit::cursorRect() const
 {
     Q_D(const QPlainTextEdit);
     QRect r = d->control->cursorRect().toRect();
-    r.translate(-d->horizontalOffset(),-d->verticalOffset());
+    r.translate(-d->horizontalOffset(),-(int)d->verticalOffset());
     return r;
 }
 

@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -161,6 +161,18 @@ void QNetworkAccessBackend::downstreamReadyWrite()
 void QNetworkAccessBackend::setDownstreamLimited(bool b)
 {
     Q_UNUSED(b);
+    // do nothing
+}
+
+void QNetworkAccessBackend::setReadBufferSize(qint64 size)
+{
+    Q_UNUSED(size);
+    // do nothing
+}
+
+void QNetworkAccessBackend::emitReadBufferFreed(qint64 size)
+{
+    Q_UNUSED(size);
     // do nothing
 }
 
@@ -358,13 +370,14 @@ bool QNetworkAccessBackend::start()
 {
 #ifndef QT_NO_BEARERMANAGEMENT
     // For bearer, check if session start is required
-    if (manager->networkSession) {
+    QSharedPointer<QNetworkSession> networkSession(manager->getNetworkSession());
+    if (networkSession) {
         // session required
-        if (manager->networkSession->isOpen() &&
-            manager->networkSession->state() == QNetworkSession::Connected) {
+        if (networkSession->isOpen() &&
+            networkSession->state() == QNetworkSession::Connected) {
             // Session is already open and ready to use.
             // copy network session down to the backend
-            setProperty("_q_networksession", QVariant::fromValue(manager->networkSession));
+            setProperty("_q_networksession", QVariant::fromValue(networkSession));
         } else {
             // Session not ready, but can skip for loopback connections
 
@@ -387,7 +400,7 @@ bool QNetworkAccessBackend::start()
 #ifndef QT_NO_BEARERMANAGEMENT
     // Get the proxy settings from the network session (in the case of service networks,
     // the proxy settings change depending which AP was activated)
-    QNetworkSession *session = manager->networkSession.data();
+    QNetworkSession *session = networkSession.data();
     QNetworkConfiguration config;
     if (session) {
         QNetworkConfigurationManager configManager;

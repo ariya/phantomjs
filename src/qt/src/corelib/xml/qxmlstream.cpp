@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -2986,6 +2986,7 @@ public:
     uint wroteSomething :1;
     uint hasError :1;
     uint autoFormatting :1;
+    uint isCodecASCIICompatible :1;
     QByteArray autoFormattingIndent;
     NamespaceDeclaration emptyNamespace;
     int lastNamespaceDeclaration;
@@ -2994,6 +2995,7 @@ public:
     QTextCodec *codec;
     QTextEncoder *encoder;
 #endif
+    void checkIfASCIICompatibleCodec();
 
     NamespaceDeclaration &findNamespace(const QString &namespaceUri, bool writeDeclaration = false, bool noDefault = false);
     void writeNamespaceDeclaration(const NamespaceDeclaration &namespaceDeclaration);
@@ -3015,6 +3017,7 @@ QXmlStreamWriterPrivate::QXmlStreamWriterPrivate(QXmlStreamWriter *q)
     codec = QTextCodec::codecForMib(106); // utf8
     encoder = codec->makeEncoder(QTextCodec::IgnoreHeader); // no byte order mark for utf8
 #endif
+    checkIfASCIICompatibleCodec();
     inStartElement = inEmptyElement = false;
     wroteSomething = false;
     hasError = false;
@@ -3022,6 +3025,18 @@ QXmlStreamWriterPrivate::QXmlStreamWriterPrivate(QXmlStreamWriter *q)
     lastNamespaceDeclaration = 1;
     autoFormatting = false;
     namespacePrefixCount = 0;
+}
+
+void QXmlStreamWriterPrivate::checkIfASCIICompatibleCodec()
+{
+#ifndef QT_NO_TEXTCODEC
+    Q_ASSERT(encoder);
+    // assumes ASCII-compatibility for all 8-bit encodings
+    const QByteArray bytes = encoder->fromUnicode(QLatin1String(" "));
+    isCodecASCIICompatible = (bytes.count() == 1);
+#else
+    isCodecASCIICompatible = true;
+#endif
 }
 
 void QXmlStreamWriterPrivate::write(const QStringRef &s)
@@ -3092,18 +3107,20 @@ void QXmlStreamWriterPrivate::writeEscaped(const QString &s, bool escapeWhitespa
     write(escaped);
 }
 
-// ASCII only!
+// Converts from ASCII to output encoding
 void QXmlStreamWriterPrivate::write(const char *s, int len)
 {
     if (device) {
         if (hasError)
             return;
-        if (device->write(s, len) != len)
-            hasError = true;
-    } else if (stringDevice) {
-        stringDevice->append(QString::fromLatin1(s, len));
-    } else
-        qWarning("QXmlStreamWriter: No device");
+        if (isCodecASCIICompatible) {
+            if (device->write(s, len) != len)
+                hasError = true;
+            return;
+        }
+    }
+
+    write(QString::fromLatin1(s, len));
 }
 
 void QXmlStreamWriterPrivate::writeNamespaceDeclaration(const NamespaceDeclaration &namespaceDeclaration) {
@@ -3285,6 +3302,7 @@ void QXmlStreamWriter::setCodec(QTextCodec *codec)
         d->codec = codec;
         delete d->encoder;
         d->encoder = codec->makeEncoder(QTextCodec::IgnoreHeader); // no byte order mark for utf8
+        d->checkIfASCIICompatibleCodec();
     }
 }
 

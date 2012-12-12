@@ -1,10 +1,8 @@
+/* A Bison parser, made by GNU Bison 2.5.  */
 
-/* A Bison parser, made by GNU Bison 2.4.1.  */
-
-/* Skeleton implementation for Bison's Yacc-like parsers in C
+/* Bison implementation for Yacc-like parsers in C
    
-      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
-   Free Software Foundation, Inc.
+      Copyright (C) 1984, 1989-1990, 2000-2011 Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -46,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "2.4.1"
+#define YYBISON_VERSION "2.5"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -75,7 +73,7 @@
 
 /* Copy the first part of user declarations.  */
 
-/* Line 189 of yacc.c  */
+/* Line 268 of yacc.c  */
 #line 1 "../Source/WebCore/css/CSSGrammar.y"
 
 
@@ -137,8 +135,8 @@ using namespace HTMLNames;
 
 
 
-/* Line 189 of yacc.c  */
-#line 142 "/Source/WebCore/generated/CSSGrammar.tab.c"
+/* Line 268 of yacc.c  */
+#line 140 "/Source/WebCore/generated/CSSGrammar.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -254,7 +252,7 @@ using namespace HTMLNames;
 typedef union YYSTYPE
 {
 
-/* Line 214 of yacc.c  */
+/* Line 293 of yacc.c  */
 #line 63 "../Source/WebCore/css/CSSGrammar.y"
 
     bool boolean;
@@ -282,8 +280,8 @@ typedef union YYSTYPE
 
 
 
-/* Line 214 of yacc.c  */
-#line 287 "/Source/WebCore/generated/CSSGrammar.tab.c"
+/* Line 293 of yacc.c  */
+#line 285 "/Source/WebCore/generated/CSSGrammar.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -293,7 +291,7 @@ typedef union YYSTYPE
 
 /* Copy the second part of user declarations.  */
 
-/* Line 264 of yacc.c  */
+/* Line 343 of yacc.c  */
 #line 88 "../Source/WebCore/css/CSSGrammar.y"
 
 
@@ -309,8 +307,8 @@ static int cssyylex(YYSTYPE* yylval, void* parser)
 
 
 
-/* Line 264 of yacc.c  */
-#line 314 "/Source/WebCore/generated/CSSGrammar.tab.c"
+/* Line 343 of yacc.c  */
+#line 312 "/Source/WebCore/generated/CSSGrammar.tab.c"
 
 #ifdef short
 # undef short
@@ -360,7 +358,7 @@ typedef short int yytype_int16;
 #define YYSIZE_MAXIMUM ((YYSIZE_T) -1)
 
 #ifndef YY_
-# if YYENABLE_NLS
+# if defined YYENABLE_NLS && YYENABLE_NLS
 #  if ENABLE_NLS
 #   include <libintl.h> /* INFRINGES ON USER NAME SPACE */
 #   define YY_(msgid) dgettext ("bison-runtime", msgid)
@@ -413,11 +411,11 @@ YYID (yyi)
 #    define alloca _alloca
 #   else
 #    define YYSTACK_ALLOC alloca
-#    if ! defined _ALLOCA_H && ! defined _STDLIB_H && (defined __STDC__ || defined __C99__FUNC__ \
+#    if ! defined _ALLOCA_H && ! defined EXIT_SUCCESS && (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 #     include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
-#     ifndef _STDLIB_H
-#      define _STDLIB_H 1
+#     ifndef EXIT_SUCCESS
+#      define EXIT_SUCCESS 0
 #     endif
 #    endif
 #   endif
@@ -440,24 +438,24 @@ YYID (yyi)
 #  ifndef YYSTACK_ALLOC_MAXIMUM
 #   define YYSTACK_ALLOC_MAXIMUM YYSIZE_MAXIMUM
 #  endif
-#  if (defined __cplusplus && ! defined _STDLIB_H \
+#  if (defined __cplusplus && ! defined EXIT_SUCCESS \
        && ! ((defined YYMALLOC || defined malloc) \
 	     && (defined YYFREE || defined free)))
 #   include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
-#   ifndef _STDLIB_H
-#    define _STDLIB_H 1
+#   ifndef EXIT_SUCCESS
+#    define EXIT_SUCCESS 0
 #   endif
 #  endif
 #  ifndef YYMALLOC
 #   define YYMALLOC malloc
-#   if ! defined malloc && ! defined _STDLIB_H && (defined __STDC__ || defined __C99__FUNC__ \
+#   if ! defined malloc && ! defined EXIT_SUCCESS && (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 void *malloc (YYSIZE_T); /* INFRINGES ON USER NAME SPACE */
 #   endif
 #  endif
 #  ifndef YYFREE
 #   define YYFREE free
-#   if ! defined free && ! defined _STDLIB_H && (defined __STDC__ || defined __C99__FUNC__ \
+#   if ! defined free && ! defined EXIT_SUCCESS && (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 void free (void *); /* INFRINGES ON USER NAME SPACE */
 #   endif
@@ -486,23 +484,7 @@ union yyalloc
      ((N) * (sizeof (yytype_int16) + sizeof (YYSTYPE)) \
       + YYSTACK_GAP_MAXIMUM)
 
-/* Copy COUNT objects from FROM to TO.  The source and destination do
-   not overlap.  */
-# ifndef YYCOPY
-#  if defined __GNUC__ && 1 < __GNUC__
-#   define YYCOPY(To, From, Count) \
-      __builtin_memcpy (To, From, (Count) * sizeof (*(From)))
-#  else
-#   define YYCOPY(To, From, Count)		\
-      do					\
-	{					\
-	  YYSIZE_T yyi;				\
-	  for (yyi = 0; yyi < (Count); yyi++)	\
-	    (To)[yyi] = (From)[yyi];		\
-	}					\
-      while (YYID (0))
-#  endif
-# endif
+# define YYCOPY_NEEDED 1
 
 /* Relocate STACK from its old location to the new one.  The
    local variables YYSIZE and YYSTACKSIZE give the old and new number of
@@ -521,6 +503,26 @@ union yyalloc
     while (YYID (0))
 
 #endif
+
+#if defined YYCOPY_NEEDED && YYCOPY_NEEDED
+/* Copy COUNT objects from FROM to TO.  The source and destination do
+   not overlap.  */
+# ifndef YYCOPY
+#  if defined __GNUC__ && 1 < __GNUC__
+#   define YYCOPY(To, From, Count) \
+      __builtin_memcpy (To, From, (Count) * sizeof (*(From)))
+#  else
+#   define YYCOPY(To, From, Count)		\
+      do					\
+	{					\
+	  YYSIZE_T yyi;				\
+	  for (yyi = 0; yyi < (Count); yyi++)	\
+	    (To)[yyi] = (From)[yyi];		\
+	}					\
+      while (YYID (0))
+#  endif
+# endif
+#endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  21
@@ -896,8 +898,8 @@ static const yytype_uint8 yyr2[] =
        3
 };
 
-/* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
-   STATE-NUM when YYTABLE doesn't specify something else to do.  Zero
+/* YYDEFACT[STATE-NAME] -- Default reduction number in state STATE-NUM.
+   Performed when YYTABLE doesn't specify something else to do.  Zero
    means the default is an error.  */
 static const yytype_uint16 yydefact[] =
 {
@@ -1052,8 +1054,7 @@ static const yytype_int16 yypgoto[] =
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
    positive, shift that token.  If negative, reduce the rule which
-   number is the opposite.  If zero, do what YYDEFACT says.
-   If YYTABLE_NINF, syntax error.  */
+   number is the opposite.  If YYTABLE_NINF, syntax error.  */
 #define YYTABLE_NINF -276
 static const yytype_int16 yytable[] =
 {
@@ -1226,6 +1227,12 @@ static const yytype_int16 yytable[] =
       77,    78,    79,    80,    81,    82,    83,    84,    85,    86,
       87,    88,     0,     0,    90,    91,    92
 };
+
+#define yypact_value_is_default(yystate) \
+  ((yystate) == (-305))
+
+#define yytable_value_is_error(yytable_value) \
+  YYID (0)
 
 static const yytype_int16 yycheck[] =
 {
@@ -1472,9 +1479,18 @@ static const yytype_uint8 yystos[] =
 
 /* Like YYERROR except do call yyerror.  This remains here temporarily
    to ease the transition to the new meaning of YYERROR, for GCC.
-   Once GCC version 2 has supplanted version 1, this can go.  */
+   Once GCC version 2 has supplanted version 1, this can go.  However,
+   YYFAIL appears to be in use.  Nevertheless, it is formally deprecated
+   in Bison 2.4.2's NEWS entry, where a plan to phase it out is
+   discussed.  */
 
 #define YYFAIL		goto yyerrlab
+#if defined YYFAIL
+  /* This is here to suppress warnings from the GCC cpp's
+     -Wunused-macros.  Normally we don't worry about that warning, but
+     some users do, and we want to make it easy for users to remove
+     YYFAIL uses, which will produce warnings from Bison 2.5.  */
+#endif
 
 #define YYRECOVERING()  (!!yyerrstatus)
 
@@ -1484,7 +1500,6 @@ do								\
     {								\
       yychar = (Token);						\
       yylval = (Value);						\
-      yytoken = YYTRANSLATE (yychar);				\
       YYPOPSTACK (1);						\
       goto yybackup;						\
     }								\
@@ -1526,19 +1541,10 @@ while (YYID (0))
 #endif
 
 
-/* YY_LOCATION_PRINT -- Print the location on the stream.
-   This macro was not mandated originally: define only if we know
-   we won't break user code: when these are the locations we know.  */
+/* This macro is provided for backward compatibility. */
 
 #ifndef YY_LOCATION_PRINT
-# if YYLTYPE_IS_TRIVIAL
-#  define YY_LOCATION_PRINT(File, Loc)			\
-     fprintf (File, "%d.%d-%d.%d",			\
-	      (Loc).first_line, (Loc).first_column,	\
-	      (Loc).last_line,  (Loc).last_column)
-# else
-#  define YY_LOCATION_PRINT(File, Loc) ((void) 0)
-# endif
+# define YY_LOCATION_PRINT(File, Loc) ((void) 0)
 #endif
 
 
@@ -1730,7 +1736,6 @@ int yydebug;
 # define YYMAXDEPTH 10000
 #endif
 
-
 
 #if YYERROR_VERBOSE
 
@@ -1833,115 +1838,142 @@ yytnamerr (char *yyres, const char *yystr)
 }
 # endif
 
-/* Copy into YYRESULT an error message about the unexpected token
-   YYCHAR while in state YYSTATE.  Return the number of bytes copied,
-   including the terminating null byte.  If YYRESULT is null, do not
-   copy anything; just return the number of bytes that would be
-   copied.  As a special case, return 0 if an ordinary "syntax error"
-   message will do.  Return YYSIZE_MAXIMUM if overflow occurs during
-   size calculation.  */
-static YYSIZE_T
-yysyntax_error (char *yyresult, int yystate, int yychar)
+/* Copy into *YYMSG, which is of size *YYMSG_ALLOC, an error message
+   about the unexpected token YYTOKEN for the state stack whose top is
+   YYSSP.
+
+   Return 0 if *YYMSG was successfully written.  Return 1 if *YYMSG is
+   not large enough to hold the message.  In that case, also set
+   *YYMSG_ALLOC to the required number of bytes.  Return 2 if the
+   required number of bytes is too large to store.  */
+static int
+yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
+                yytype_int16 *yyssp, int yytoken)
 {
-  int yyn = yypact[yystate];
+  YYSIZE_T yysize0 = yytnamerr (0, yytname[yytoken]);
+  YYSIZE_T yysize = yysize0;
+  YYSIZE_T yysize1;
+  enum { YYERROR_VERBOSE_ARGS_MAXIMUM = 5 };
+  /* Internationalized format string. */
+  const char *yyformat = 0;
+  /* Arguments of yyformat. */
+  char const *yyarg[YYERROR_VERBOSE_ARGS_MAXIMUM];
+  /* Number of reported tokens (one for the "unexpected", one per
+     "expected"). */
+  int yycount = 0;
 
-  if (! (YYPACT_NINF < yyn && yyn <= YYLAST))
-    return 0;
-  else
+  /* There are many possibilities here to consider:
+     - Assume YYFAIL is not used.  It's too flawed to consider.  See
+       <http://lists.gnu.org/archive/html/bison-patches/2009-12/msg00024.html>
+       for details.  YYERROR is fine as it does not invoke this
+       function.
+     - If this state is a consistent state with a default action, then
+       the only way this function was invoked is if the default action
+       is an error action.  In that case, don't check for expected
+       tokens because there are none.
+     - The only way there can be no lookahead present (in yychar) is if
+       this state is a consistent state with a default action.  Thus,
+       detecting the absence of a lookahead is sufficient to determine
+       that there is no unexpected or expected token to report.  In that
+       case, just report a simple "syntax error".
+     - Don't assume there isn't a lookahead just because this state is a
+       consistent state with a default action.  There might have been a
+       previous inconsistent state, consistent state with a non-default
+       action, or user semantic action that manipulated yychar.
+     - Of course, the expected token list depends on states to have
+       correct lookahead information, and it depends on the parser not
+       to perform extra reductions after fetching a lookahead from the
+       scanner and before detecting a syntax error.  Thus, state merging
+       (from LALR or IELR) and default reductions corrupt the expected
+       token list.  However, the list is correct for canonical LR with
+       one exception: it will still contain any token that will not be
+       accepted due to an error action in a later state.
+  */
+  if (yytoken != YYEMPTY)
     {
-      int yytype = YYTRANSLATE (yychar);
-      YYSIZE_T yysize0 = yytnamerr (0, yytname[yytype]);
-      YYSIZE_T yysize = yysize0;
-      YYSIZE_T yysize1;
-      int yysize_overflow = 0;
-      enum { YYERROR_VERBOSE_ARGS_MAXIMUM = 5 };
-      char const *yyarg[YYERROR_VERBOSE_ARGS_MAXIMUM];
-      int yyx;
+      int yyn = yypact[*yyssp];
+      yyarg[yycount++] = yytname[yytoken];
+      if (!yypact_value_is_default (yyn))
+        {
+          /* Start YYX at -YYN if negative to avoid negative indexes in
+             YYCHECK.  In other words, skip the first -YYN actions for
+             this state because they are default actions.  */
+          int yyxbegin = yyn < 0 ? -yyn : 0;
+          /* Stay within bounds of both yycheck and yytname.  */
+          int yychecklim = YYLAST - yyn + 1;
+          int yyxend = yychecklim < YYNTOKENS ? yychecklim : YYNTOKENS;
+          int yyx;
 
-# if 0
-      /* This is so xgettext sees the translatable formats that are
-	 constructed on the fly.  */
-      YY_("syntax error, unexpected %s");
-      YY_("syntax error, unexpected %s, expecting %s");
-      YY_("syntax error, unexpected %s, expecting %s or %s");
-      YY_("syntax error, unexpected %s, expecting %s or %s or %s");
-      YY_("syntax error, unexpected %s, expecting %s or %s or %s or %s");
-# endif
-      char *yyfmt;
-      char const *yyf;
-      static char const yyunexpected[] = "syntax error, unexpected %s";
-      static char const yyexpecting[] = ", expecting %s";
-      static char const yyor[] = " or %s";
-      char yyformat[sizeof yyunexpected
-		    + sizeof yyexpecting - 1
-		    + ((YYERROR_VERBOSE_ARGS_MAXIMUM - 2)
-		       * (sizeof yyor - 1))];
-      char const *yyprefix = yyexpecting;
-
-      /* Start YYX at -YYN if negative to avoid negative indexes in
-	 YYCHECK.  */
-      int yyxbegin = yyn < 0 ? -yyn : 0;
-
-      /* Stay within bounds of both yycheck and yytname.  */
-      int yychecklim = YYLAST - yyn + 1;
-      int yyxend = yychecklim < YYNTOKENS ? yychecklim : YYNTOKENS;
-      int yycount = 1;
-
-      yyarg[0] = yytname[yytype];
-      yyfmt = yystpcpy (yyformat, yyunexpected);
-
-      for (yyx = yyxbegin; yyx < yyxend; ++yyx)
-	if (yycheck[yyx + yyn] == yyx && yyx != YYTERROR)
-	  {
-	    if (yycount == YYERROR_VERBOSE_ARGS_MAXIMUM)
-	      {
-		yycount = 1;
-		yysize = yysize0;
-		yyformat[sizeof yyunexpected - 1] = '\0';
-		break;
-	      }
-	    yyarg[yycount++] = yytname[yyx];
-	    yysize1 = yysize + yytnamerr (0, yytname[yyx]);
-	    yysize_overflow |= (yysize1 < yysize);
-	    yysize = yysize1;
-	    yyfmt = yystpcpy (yyfmt, yyprefix);
-	    yyprefix = yyor;
-	  }
-
-      yyf = YY_(yyformat);
-      yysize1 = yysize + yystrlen (yyf);
-      yysize_overflow |= (yysize1 < yysize);
-      yysize = yysize1;
-
-      if (yysize_overflow)
-	return YYSIZE_MAXIMUM;
-
-      if (yyresult)
-	{
-	  /* Avoid sprintf, as that infringes on the user's name space.
-	     Don't have undefined behavior even if the translation
-	     produced a string with the wrong number of "%s"s.  */
-	  char *yyp = yyresult;
-	  int yyi = 0;
-	  while ((*yyp = *yyf) != '\0')
-	    {
-	      if (*yyp == '%' && yyf[1] == 's' && yyi < yycount)
-		{
-		  yyp += yytnamerr (yyp, yyarg[yyi++]);
-		  yyf += 2;
-		}
-	      else
-		{
-		  yyp++;
-		  yyf++;
-		}
-	    }
-	}
-      return yysize;
+          for (yyx = yyxbegin; yyx < yyxend; ++yyx)
+            if (yycheck[yyx + yyn] == yyx && yyx != YYTERROR
+                && !yytable_value_is_error (yytable[yyx + yyn]))
+              {
+                if (yycount == YYERROR_VERBOSE_ARGS_MAXIMUM)
+                  {
+                    yycount = 1;
+                    yysize = yysize0;
+                    break;
+                  }
+                yyarg[yycount++] = yytname[yyx];
+                yysize1 = yysize + yytnamerr (0, yytname[yyx]);
+                if (! (yysize <= yysize1
+                       && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+                  return 2;
+                yysize = yysize1;
+              }
+        }
     }
+
+  switch (yycount)
+    {
+# define YYCASE_(N, S)                      \
+      case N:                               \
+        yyformat = S;                       \
+      break
+      YYCASE_(0, YY_("syntax error"));
+      YYCASE_(1, YY_("syntax error, unexpected %s"));
+      YYCASE_(2, YY_("syntax error, unexpected %s, expecting %s"));
+      YYCASE_(3, YY_("syntax error, unexpected %s, expecting %s or %s"));
+      YYCASE_(4, YY_("syntax error, unexpected %s, expecting %s or %s or %s"));
+      YYCASE_(5, YY_("syntax error, unexpected %s, expecting %s or %s or %s or %s"));
+# undef YYCASE_
+    }
+
+  yysize1 = yysize + yystrlen (yyformat);
+  if (! (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+    return 2;
+  yysize = yysize1;
+
+  if (*yymsg_alloc < yysize)
+    {
+      *yymsg_alloc = 2 * yysize;
+      if (! (yysize <= *yymsg_alloc
+             && *yymsg_alloc <= YYSTACK_ALLOC_MAXIMUM))
+        *yymsg_alloc = YYSTACK_ALLOC_MAXIMUM;
+      return 1;
+    }
+
+  /* Avoid sprintf, as that infringes on the user's name space.
+     Don't have undefined behavior even if the translation
+     produced a string with the wrong number of "%s"s.  */
+  {
+    char *yyp = *yymsg;
+    int yyi = 0;
+    while ((*yyp = *yyformat) != '\0')
+      if (*yyp == '%' && yyformat[1] == 's' && yyi < yycount)
+        {
+          yyp += yytnamerr (yyp, yyarg[yyi++]);
+          yyformat += 2;
+        }
+      else
+        {
+          yyp++;
+          yyformat++;
+        }
+  }
+  return 0;
 }
 #endif /* YYERROR_VERBOSE */
-
 
 /*-----------------------------------------------.
 | Release the memory associated to this symbol.  |
@@ -1974,6 +2006,7 @@ yydestruct (yymsg, yytype, yyvaluep)
     }
 }
 
+
 /* Prevent warnings from -Wmissing-prototypes.  */
 #ifdef YYPARSE_PARAM
 #if defined __STDC__ || defined __cplusplus
@@ -1990,12 +2023,9 @@ int yyparse ();
 #endif /* ! YYPARSE_PARAM */
 
 
-
-
-
-/*-------------------------.
-| yyparse or yypush_parse.  |
-`-------------------------*/
+/*----------.
+| yyparse.  |
+`----------*/
 
 #ifdef YYPARSE_PARAM
 #if (defined __STDC__ || defined __C99__FUNC__ \
@@ -2182,7 +2212,7 @@ yybackup:
 
   /* First try to decide what to do without reference to lookahead token.  */
   yyn = yypact[yystate];
-  if (yyn == YYPACT_NINF)
+  if (yypact_value_is_default (yyn))
     goto yydefault;
 
   /* Not known => get a lookahead token if don't already have one.  */
@@ -2213,8 +2243,8 @@ yybackup:
   yyn = yytable[yyn];
   if (yyn <= 0)
     {
-      if (yyn == 0 || yyn == YYTABLE_NINF)
-	goto yyerrlab;
+      if (yytable_value_is_error (yyn))
+        goto yyerrlab;
       yyn = -yyn;
       goto yyreduce;
     }
@@ -2269,34 +2299,34 @@ yyreduce:
     {
         case 9:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 303 "../Source/WebCore/css/CSSGrammar.y"
     {
         static_cast<CSSParser*>(parser)->m_rule = (yyvsp[(4) - (6)].rule);
-    ;}
+    }
     break;
 
   case 10:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 309 "../Source/WebCore/css/CSSGrammar.y"
     {
         static_cast<CSSParser*>(parser)->m_keyframe = (yyvsp[(4) - (6)].keyframeRule);
-    ;}
+    }
     break;
 
   case 11:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 315 "../Source/WebCore/css/CSSGrammar.y"
     {
         /* can be empty */
-    ;}
+    }
     break;
 
   case 12:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 321 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
@@ -2308,22 +2338,22 @@ yyreduce:
             delete p->m_valueList;
             p->m_valueList = 0;
         }
-    ;}
+    }
     break;
 
   case 13:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 335 "../Source/WebCore/css/CSSGrammar.y"
     {
          CSSParser* p = static_cast<CSSParser*>(parser);
          p->m_mediaQuery = p->sinkFloatingMediaQuery((yyvsp[(4) - (5)].mediaQuery));
-     ;}
+     }
     break;
 
   case 14:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 342 "../Source/WebCore/css/CSSGrammar.y"
     {
         if ((yyvsp[(4) - (5)].selectorList)) {
@@ -2331,94 +2361,94 @@ yyreduce:
             if (p->m_selectorListForParseSelector)
                 p->m_selectorListForParseSelector->adoptSelectorVector(*(yyvsp[(4) - (5)].selectorList));
         }
-    ;}
+    }
     break;
 
   case 21:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 364 "../Source/WebCore/css/CSSGrammar.y"
     {
-  ;}
+  }
     break;
 
   case 24:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 374 "../Source/WebCore/css/CSSGrammar.y"
     {
      CSSParser* p = static_cast<CSSParser*>(parser);
      (yyval.rule) = static_cast<CSSParser*>(parser)->createCharsetRule((yyvsp[(3) - (5)].string));
      if ((yyval.rule) && p->m_styleSheet)
          p->m_styleSheet->append((yyval.rule));
-  ;}
+  }
     break;
 
   case 25:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 380 "../Source/WebCore/css/CSSGrammar.y"
     {
-  ;}
+  }
     break;
 
   case 26:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 382 "../Source/WebCore/css/CSSGrammar.y"
     {
-  ;}
+  }
     break;
 
   case 27:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 387 "../Source/WebCore/css/CSSGrammar.y"
     {
         // Ignore any @charset rule not at the beginning of the style sheet.
         (yyval.rule) = 0;
-    ;}
+    }
     break;
 
   case 29:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 395 "../Source/WebCore/css/CSSGrammar.y"
     {
      CSSParser* p = static_cast<CSSParser*>(parser);
      if ((yyvsp[(2) - (3)].rule) && p->m_styleSheet)
          p->m_styleSheet->append((yyvsp[(2) - (3)].rule));
- ;}
+ }
     break;
 
   case 30:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 403 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.rule) = (yyvsp[(2) - (2)].rule);
-    ;}
+    }
     break;
 
   case 37:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 415 "../Source/WebCore/css/CSSGrammar.y"
     {
         static_cast<CSSParser*>(parser)->m_hadSyntacticallyValidCSSRule = true;
-    ;}
+    }
     break;
 
   case 41:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 424 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.ruleList) = 0; ;}
+    { (yyval.ruleList) = 0; }
     break;
 
   case 42:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 425 "../Source/WebCore/css/CSSGrammar.y"
     {
       (yyval.ruleList) = (yyvsp[(1) - (3)].ruleList);
@@ -2427,357 +2457,357 @@ yyreduce:
               (yyval.ruleList) = static_cast<CSSParser*>(parser)->createRuleList();
           (yyval.ruleList)->append((yyvsp[(2) - (3)].rule));
       }
-  ;}
+  }
     break;
 
   case 53:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 453 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.rule) = static_cast<CSSParser*>(parser)->createImportRule((yyvsp[(3) - (6)].string), (yyvsp[(5) - (6)].mediaList));
-    ;}
+    }
     break;
 
   case 54:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 456 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.rule) = 0;
-    ;}
+    }
     break;
 
   case 55:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 459 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.rule) = 0;
-    ;}
+    }
     break;
 
   case 56:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 462 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.rule) = 0;
-    ;}
+    }
     break;
 
   case 57:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 468 "../Source/WebCore/css/CSSGrammar.y"
     {
     static_cast<CSSParser*>(parser)->addNamespace((yyvsp[(3) - (6)].string), (yyvsp[(4) - (6)].string));
     (yyval.rule) = 0;
-;}
+}
     break;
 
   case 58:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 472 "../Source/WebCore/css/CSSGrammar.y"
     {
     (yyval.rule) = 0;
-;}
+}
     break;
 
   case 59:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 475 "../Source/WebCore/css/CSSGrammar.y"
     {
     (yyval.rule) = 0;
-;}
+}
     break;
 
   case 60:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 478 "../Source/WebCore/css/CSSGrammar.y"
     {
     (yyval.rule) = 0;
-;}
+}
     break;
 
   case 61:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 484 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.string).characters = 0; ;}
+    { (yyval.string).characters = 0; }
     break;
 
   case 62:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 485 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.string) = (yyvsp[(1) - (2)].string); ;}
+    { (yyval.string) = (yyvsp[(1) - (2)].string); }
     break;
 
   case 65:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 494 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.string) = (yyvsp[(1) - (2)].string);
-    ;}
+    }
     break;
 
   case 66:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 500 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.valueList) = 0;
-    ;}
+    }
     break;
 
   case 67:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 503 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.valueList) = (yyvsp[(3) - (4)].valueList);
-    ;}
+    }
     break;
 
   case 68:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 509 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyvsp[(3) - (7)].string).lower();
         (yyval.mediaQueryExp) = static_cast<CSSParser*>(parser)->createFloatingMediaQueryExp((yyvsp[(3) - (7)].string), (yyvsp[(5) - (7)].valueList));
-    ;}
+    }
     break;
 
   case 69:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 516 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
         (yyval.mediaQueryExpList) = p->createFloatingMediaQueryExpList();
         (yyval.mediaQueryExpList)->append(p->sinkFloatingMediaQueryExp((yyvsp[(1) - (1)].mediaQueryExp)));
-    ;}
+    }
     break;
 
   case 70:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 521 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.mediaQueryExpList) = (yyvsp[(1) - (5)].mediaQueryExpList);
         (yyval.mediaQueryExpList)->append(static_cast<CSSParser*>(parser)->sinkFloatingMediaQueryExp((yyvsp[(5) - (5)].mediaQueryExp)));
-    ;}
+    }
     break;
 
   case 71:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 528 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.mediaQueryExpList) = static_cast<CSSParser*>(parser)->createFloatingMediaQueryExpList();
-    ;}
+    }
     break;
 
   case 72:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 531 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.mediaQueryExpList) = (yyvsp[(3) - (3)].mediaQueryExpList);
-    ;}
+    }
     break;
 
   case 73:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 537 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.mediaQueryRestrictor) = MediaQuery::None;
-    ;}
+    }
     break;
 
   case 74:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 540 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.mediaQueryRestrictor) = MediaQuery::Only;
-    ;}
+    }
     break;
 
   case 75:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 543 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.mediaQueryRestrictor) = MediaQuery::Not;
-    ;}
+    }
     break;
 
   case 76:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 549 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
         (yyval.mediaQuery) = p->createFloatingMediaQuery(p->sinkFloatingMediaQueryExpList((yyvsp[(1) - (1)].mediaQueryExpList)));
-    ;}
+    }
     break;
 
   case 77:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 554 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
         (yyvsp[(3) - (4)].string).lower();
         (yyval.mediaQuery) = p->createFloatingMediaQuery((yyvsp[(1) - (4)].mediaQueryRestrictor), (yyvsp[(3) - (4)].string), p->sinkFloatingMediaQueryExpList((yyvsp[(4) - (4)].mediaQueryExpList)));
-    ;}
+    }
     break;
 
   case 78:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 562 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.mediaList) = static_cast<CSSParser*>(parser)->createMediaList();
-     ;}
+     }
     break;
 
   case 80:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 569 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
         (yyval.mediaList) = p->createMediaList();
         (yyval.mediaList)->appendMediaQuery(p->sinkFloatingMediaQuery((yyvsp[(1) - (1)].mediaQuery)));
-    ;}
+    }
     break;
 
   case 81:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 574 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.mediaList) = (yyvsp[(1) - (4)].mediaList);
         if ((yyval.mediaList))
             (yyval.mediaList)->appendMediaQuery(static_cast<CSSParser*>(parser)->sinkFloatingMediaQuery((yyvsp[(4) - (4)].mediaQuery)));
-    ;}
+    }
     break;
 
   case 82:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 579 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.mediaList) = 0;
-    ;}
+    }
     break;
 
   case 83:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 585 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.rule) = static_cast<CSSParser*>(parser)->createMediaRule((yyvsp[(3) - (7)].mediaList), (yyvsp[(6) - (7)].ruleList));
-    ;}
+    }
     break;
 
   case 84:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 588 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.rule) = static_cast<CSSParser*>(parser)->createMediaRule(0, (yyvsp[(5) - (6)].ruleList));
-    ;}
+    }
     break;
 
   case 85:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 594 "../Source/WebCore/css/CSSGrammar.y"
     {
       (yyval.string) = (yyvsp[(1) - (2)].string);
-  ;}
+  }
     break;
 
   case 86:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 600 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.rule) = (yyvsp[(7) - (8)].keyframesRule);
         (yyvsp[(7) - (8)].keyframesRule)->setNameInternal((yyvsp[(3) - (8)].string));
-    ;}
+    }
     break;
 
   case 89:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 612 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.keyframesRule) = static_cast<CSSParser*>(parser)->createKeyframesRule(); ;}
+    { (yyval.keyframesRule) = static_cast<CSSParser*>(parser)->createKeyframesRule(); }
     break;
 
   case 90:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 613 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.keyframesRule) = (yyvsp[(1) - (3)].keyframesRule);
         if ((yyvsp[(2) - (3)].keyframeRule))
             (yyval.keyframesRule)->append((yyvsp[(2) - (3)].keyframeRule));
-    ;}
+    }
     break;
 
   case 91:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 621 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.keyframeRule) = static_cast<CSSParser*>(parser)->createKeyframeRule((yyvsp[(1) - (6)].valueList));
-    ;}
+    }
     break;
 
   case 92:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 627 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
         (yyval.valueList) = p->createFloatingValueList();
         (yyval.valueList)->addValue(p->sinkFloatingValue((yyvsp[(1) - (1)].value)));
-    ;}
+    }
     break;
 
   case 93:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 632 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
         (yyval.valueList) = (yyvsp[(1) - (5)].valueList);
         if ((yyval.valueList))
             (yyval.valueList)->addValue(p->sinkFloatingValue((yyvsp[(5) - (5)].value)));
-    ;}
+    }
     break;
 
   case 94:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 641 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).isInt = false; (yyval.value).fValue = (yyvsp[(1) - (1)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_NUMBER; ;}
+    { (yyval.value).id = 0; (yyval.value).isInt = false; (yyval.value).fValue = (yyvsp[(1) - (1)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_NUMBER; }
     break;
 
   case 95:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 642 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.value).id = 0; (yyval.value).isInt = false; (yyval.value).unit = CSSPrimitiveValue::CSS_NUMBER;
@@ -2788,12 +2818,12 @@ yyreduce:
             (yyval.value).fValue = 100;
         else
             YYERROR;
-    ;}
+    }
     break;
 
   case 96:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 656 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
@@ -2805,42 +2835,42 @@ yyreduce:
             // Also clear margin at-rules here once we fully implement margin at-rules parsing.
             (yyval.rule) = 0;
         }
-    ;}
+    }
     break;
 
   case 97:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 667 "../Source/WebCore/css/CSSGrammar.y"
     {
       (yyval.rule) = 0;
-    ;}
+    }
     break;
 
   case 98:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 670 "../Source/WebCore/css/CSSGrammar.y"
     {
       (yyval.rule) = 0;
-    ;}
+    }
     break;
 
   case 99:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 676 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
         (yyval.selector) = p->createFloatingSelector();
         (yyval.selector)->setTag(QualifiedName(nullAtom, (yyvsp[(1) - (1)].string), p->m_defaultNamespace));
         (yyval.selector)->setForPage();
-    ;}
+    }
     break;
 
   case 100:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 682 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
@@ -2849,312 +2879,312 @@ yyreduce:
             (yyval.selector)->setTag(QualifiedName(nullAtom, (yyvsp[(1) - (2)].string), p->m_defaultNamespace));
             (yyval.selector)->setForPage();
         }
-    ;}
+    }
     break;
 
   case 101:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 690 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.selector) = (yyvsp[(1) - (1)].selector);
         if ((yyval.selector))
             (yyval.selector)->setForPage();
-    ;}
+    }
     break;
 
   case 102:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 695 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
         (yyval.selector) = p->createFloatingSelector();
         (yyval.selector)->setForPage();
-    ;}
+    }
     break;
 
   case 105:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 708 "../Source/WebCore/css/CSSGrammar.y"
     {
         static_cast<CSSParser*>(parser)->startDeclarationsForMarginBox();
-    ;}
+    }
     break;
 
   case 106:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 710 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.rule) = static_cast<CSSParser*>(parser)->createMarginAtRule((yyvsp[(1) - (7)].marginBox));
-    ;}
+    }
     break;
 
   case 107:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 716 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.marginBox) = CSSSelector::TopLeftCornerMarginBox;
-    ;}
+    }
     break;
 
   case 108:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 719 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.marginBox) = CSSSelector::TopLeftMarginBox;
-    ;}
+    }
     break;
 
   case 109:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 722 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.marginBox) = CSSSelector::TopCenterMarginBox;
-    ;}
+    }
     break;
 
   case 110:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 725 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.marginBox) = CSSSelector::TopRightMarginBox;
-    ;}
+    }
     break;
 
   case 111:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 728 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.marginBox) = CSSSelector::TopRightCornerMarginBox;
-    ;}
+    }
     break;
 
   case 112:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 731 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.marginBox) = CSSSelector::BottomLeftCornerMarginBox;
-    ;}
+    }
     break;
 
   case 113:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 734 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.marginBox) = CSSSelector::BottomLeftMarginBox;
-    ;}
+    }
     break;
 
   case 114:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 737 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.marginBox) = CSSSelector::BottomCenterMarginBox;
-    ;}
+    }
     break;
 
   case 115:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 740 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.marginBox) = CSSSelector::BottomRightMarginBox;
-    ;}
+    }
     break;
 
   case 116:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 743 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.marginBox) = CSSSelector::BottomRightCornerMarginBox;
-    ;}
+    }
     break;
 
   case 117:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 746 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.marginBox) = CSSSelector::LeftTopMarginBox;
-    ;}
+    }
     break;
 
   case 118:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 749 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.marginBox) = CSSSelector::LeftMiddleMarginBox;
-    ;}
+    }
     break;
 
   case 119:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 752 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.marginBox) = CSSSelector::LeftBottomMarginBox;
-    ;}
+    }
     break;
 
   case 120:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 755 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.marginBox) = CSSSelector::RightTopMarginBox;
-    ;}
+    }
     break;
 
   case 121:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 758 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.marginBox) = CSSSelector::RightMiddleMarginBox;
-    ;}
+    }
     break;
 
   case 122:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 761 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.marginBox) = CSSSelector::RightBottomMarginBox;
-    ;}
+    }
     break;
 
   case 123:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 768 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.rule) = static_cast<CSSParser*>(parser)->createFontFaceRule();
-    ;}
+    }
     break;
 
   case 124:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 771 "../Source/WebCore/css/CSSGrammar.y"
     {
       (yyval.rule) = 0;
-    ;}
+    }
     break;
 
   case 125:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 774 "../Source/WebCore/css/CSSGrammar.y"
     {
       (yyval.rule) = 0;
-    ;}
+    }
     break;
 
   case 126:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 780 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.relation) = CSSSelector::DirectAdjacent; ;}
+    { (yyval.relation) = CSSSelector::DirectAdjacent; }
     break;
 
   case 127:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 781 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.relation) = CSSSelector::IndirectAdjacent; ;}
+    { (yyval.relation) = CSSSelector::IndirectAdjacent; }
     break;
 
   case 128:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 782 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.relation) = CSSSelector::Child; ;}
+    { (yyval.relation) = CSSSelector::Child; }
     break;
 
   case 129:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 786 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.integer) = (yyvsp[(1) - (1)].integer); ;}
+    { (yyval.integer) = (yyvsp[(1) - (1)].integer); }
     break;
 
   case 130:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 787 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.integer) = 1; ;}
+    { (yyval.integer) = 1; }
     break;
 
   case 131:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 791 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.integer) = -1; ;}
+    { (yyval.integer) = -1; }
     break;
 
   case 132:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 792 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.integer) = 1; ;}
+    { (yyval.integer) = 1; }
     break;
 
   case 133:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 796 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
         p->markPropertyStart();
-    ;}
+    }
     break;
 
   case 134:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 803 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
         p->markSelectorListStart();
-    ;}
+    }
     break;
 
   case 135:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 810 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
         p->markSelectorListEnd();
-    ;}
+    }
     break;
 
   case 136:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 817 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
         (yyval.rule) = p->createStyleRule((yyvsp[(1) - (6)].selectorList));
-    ;}
+    }
     break;
 
   case 137:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 824 "../Source/WebCore/css/CSSGrammar.y"
     {
         if ((yyvsp[(1) - (1)].selector)) {
@@ -3164,12 +3194,12 @@ yyreduce:
             (yyval.selectorList)->append(p->sinkFloatingSelector((yyvsp[(1) - (1)].selector)));
             p->updateLastSelectorLineAndPosition();
         }
-    ;}
+    }
     break;
 
   case 138:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 833 "../Source/WebCore/css/CSSGrammar.y"
     {
         if ((yyvsp[(1) - (4)].selectorList) && (yyvsp[(4) - (4)].selector)) {
@@ -3179,48 +3209,48 @@ yyreduce:
             p->updateLastSelectorLineAndPosition();
         } else
             (yyval.selectorList) = 0;
-    ;}
+    }
     break;
 
   case 139:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 842 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.selectorList) = 0;
-    ;}
+    }
     break;
 
   case 140:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 848 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.selector) = (yyvsp[(1) - (2)].selector);
-    ;}
+    }
     break;
 
   case 141:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 854 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.selector) = (yyvsp[(1) - (1)].selector);
-    ;}
+    }
     break;
 
   case 142:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 858 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.selector) = (yyvsp[(1) - (1)].selector);
-    ;}
+    }
     break;
 
   case 143:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 862 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.selector) = (yyvsp[(2) - (2)].selector);
@@ -3234,12 +3264,12 @@ yyreduce:
             end->setRelation(CSSSelector::Descendant);
             end->setTagHistory(p->sinkFloatingSelector((yyvsp[(1) - (2)].selector)));
         }
-    ;}
+    }
     break;
 
   case 144:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 875 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.selector) = (yyvsp[(3) - (3)].selector);
@@ -3253,75 +3283,75 @@ yyreduce:
             end->setRelation((yyvsp[(2) - (3)].relation));
             end->setTagHistory(p->sinkFloatingSelector((yyvsp[(1) - (3)].selector)));
         }
-    ;}
+    }
     break;
 
   case 145:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 888 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.selector) = 0;
-    ;}
+    }
     break;
 
   case 146:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 894 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.string).characters = 0; (yyval.string).length = 0; ;}
+    { (yyval.string).characters = 0; (yyval.string).length = 0; }
     break;
 
   case 147:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 895 "../Source/WebCore/css/CSSGrammar.y"
-    { static UChar star = '*'; (yyval.string).characters = &star; (yyval.string).length = 1; ;}
+    { static UChar star = '*'; (yyval.string).characters = &star; (yyval.string).length = 1; }
     break;
 
   case 148:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 896 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.string) = (yyvsp[(1) - (2)].string); ;}
+    { (yyval.string) = (yyvsp[(1) - (2)].string); }
     break;
 
   case 149:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 900 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
         (yyval.selector) = p->createFloatingSelector();
         (yyval.selector)->setTag(QualifiedName(nullAtom, (yyvsp[(1) - (1)].string), p->m_defaultNamespace));
-    ;}
+    }
     break;
 
   case 150:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 905 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.selector) = (yyvsp[(2) - (2)].selector);
         if ((yyval.selector))
             static_cast<CSSParser*>(parser)->updateSpecifiersWithElementName(nullAtom, (yyvsp[(1) - (2)].string), (yyval.selector));
-    ;}
+    }
     break;
 
   case 151:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 910 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.selector) = (yyvsp[(1) - (1)].selector);
         if ((yyval.selector))
             static_cast<CSSParser*>(parser)->updateSpecifiersWithElementName(nullAtom, starAtom, (yyval.selector));
-    ;}
+    }
     break;
 
   case 152:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 915 "../Source/WebCore/css/CSSGrammar.y"
     {
         AtomicString namespacePrefix = (yyvsp[(1) - (2)].string);
@@ -3332,34 +3362,34 @@ yyreduce:
                                       p->m_styleSheet->determineNamespace(namespacePrefix)));
         else // FIXME: Shouldn't this case be an error?
             (yyval.selector)->setTag(QualifiedName(nullAtom, (yyvsp[(2) - (2)].string), p->m_defaultNamespace));
-    ;}
+    }
     break;
 
   case 153:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 925 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.selector) = (yyvsp[(3) - (3)].selector);
         if ((yyval.selector))
             static_cast<CSSParser*>(parser)->updateSpecifiersWithElementName((yyvsp[(1) - (3)].string), (yyvsp[(2) - (3)].string), (yyval.selector));
-    ;}
+    }
     break;
 
   case 154:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 930 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.selector) = (yyvsp[(2) - (2)].selector);
         if ((yyval.selector))
             static_cast<CSSParser*>(parser)->updateSpecifiersWithElementName((yyvsp[(1) - (2)].string), starAtom, (yyval.selector));
-    ;}
+    }
     break;
 
   case 155:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 938 "../Source/WebCore/css/CSSGrammar.y"
     {
         if ((yyvsp[(1) - (1)].selector)) {
@@ -3373,7 +3403,7 @@ yyreduce:
 
   case 156:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 946 "../Source/WebCore/css/CSSGrammar.y"
     {
         if ((yyvsp[(1) - (5)].selectorList) && (yyvsp[(5) - (5)].selector)) {
@@ -3382,21 +3412,21 @@ yyreduce:
             (yyval.selectorList)->append(p->sinkFloatingSelector((yyvsp[(5) - (5)].selector)));
         } else
             (yyval.selectorList) = 0;
-    ;}
+    }
     break;
 
   case 157:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 954 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.selectorList) = 0;
-    ;}
+    }
     break;
 
   case 158:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 960 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParserString& str = (yyvsp[(1) - (1)].string);
@@ -3405,53 +3435,53 @@ yyreduce:
         if (doc && doc->isHTMLDocument())
             str.lower();
         (yyval.string) = str;
-    ;}
+    }
     break;
 
   case 159:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 968 "../Source/WebCore/css/CSSGrammar.y"
     {
         static UChar star = '*';
         (yyval.string).characters = &star;
         (yyval.string).length = 1;
-    ;}
+    }
     break;
 
   case 160:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 976 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.selector) = (yyvsp[(1) - (1)].selector);
-    ;}
+    }
     break;
 
   case 161:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 979 "../Source/WebCore/css/CSSGrammar.y"
     {
         if (!(yyvsp[(2) - (2)].selector))
             (yyval.selector) = 0;
         else if ((yyvsp[(1) - (2)].selector))
             (yyval.selector) = static_cast<CSSParser*>(parser)->updateSpecifiers((yyvsp[(1) - (2)].selector), (yyvsp[(2) - (2)].selector));
-    ;}
+    }
     break;
 
   case 162:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 985 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.selector) = 0;
-    ;}
+    }
     break;
 
   case 163:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 991 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
@@ -3460,12 +3490,12 @@ yyreduce:
         if (!p->m_strict)
             (yyvsp[(1) - (1)].string).lower();
         (yyval.selector)->setValue((yyvsp[(1) - (1)].string));
-    ;}
+    }
     break;
 
   case 164:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 999 "../Source/WebCore/css/CSSGrammar.y"
     {
         if ((yyvsp[(1) - (1)].string).characters[0] >= '0' && (yyvsp[(1) - (1)].string).characters[0] <= '9') {
@@ -3478,12 +3508,12 @@ yyreduce:
                 (yyvsp[(1) - (1)].string).lower();
             (yyval.selector)->setValue((yyvsp[(1) - (1)].string));
         }
-    ;}
+    }
     break;
 
   case 168:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1017 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
@@ -3492,12 +3522,12 @@ yyreduce:
         if (!p->m_strict)
             (yyvsp[(2) - (2)].string).lower();
         (yyval.selector)->setValue((yyvsp[(2) - (2)].string));
-    ;}
+    }
     break;
 
   case 169:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1028 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParserString& str = (yyvsp[(1) - (2)].string);
@@ -3506,35 +3536,35 @@ yyreduce:
         if (doc && doc->isHTMLDocument())
             str.lower();
         (yyval.string) = str;
-    ;}
+    }
     break;
 
   case 170:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1039 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.selector) = static_cast<CSSParser*>(parser)->createFloatingSelector();
         (yyval.selector)->setAttribute(QualifiedName(nullAtom, (yyvsp[(3) - (4)].string), nullAtom));
         (yyval.selector)->setMatch(CSSSelector::Set);
-    ;}
+    }
     break;
 
   case 171:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1044 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.selector) = static_cast<CSSParser*>(parser)->createFloatingSelector();
         (yyval.selector)->setAttribute(QualifiedName(nullAtom, (yyvsp[(3) - (8)].string), nullAtom));
         (yyval.selector)->setMatch((CSSSelector::Match)(yyvsp[(4) - (8)].integer));
         (yyval.selector)->setValue((yyvsp[(6) - (8)].string));
-    ;}
+    }
     break;
 
   case 172:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1050 "../Source/WebCore/css/CSSGrammar.y"
     {
         AtomicString namespacePrefix = (yyvsp[(3) - (5)].string);
@@ -3543,12 +3573,12 @@ yyreduce:
         (yyval.selector)->setAttribute(QualifiedName(namespacePrefix, (yyvsp[(4) - (5)].string),
                                    p->m_styleSheet->determineNamespace(namespacePrefix)));
         (yyval.selector)->setMatch(CSSSelector::Set);
-    ;}
+    }
     break;
 
   case 173:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1058 "../Source/WebCore/css/CSSGrammar.y"
     {
         AtomicString namespacePrefix = (yyvsp[(3) - (9)].string);
@@ -3558,66 +3588,66 @@ yyreduce:
                                    p->m_styleSheet->determineNamespace(namespacePrefix)));
         (yyval.selector)->setMatch((CSSSelector::Match)(yyvsp[(5) - (9)].integer));
         (yyval.selector)->setValue((yyvsp[(7) - (9)].string));
-    ;}
+    }
     break;
 
   case 174:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1070 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.integer) = CSSSelector::Exact;
-    ;}
+    }
     break;
 
   case 175:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1073 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.integer) = CSSSelector::List;
-    ;}
+    }
     break;
 
   case 176:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1076 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.integer) = CSSSelector::Hyphen;
-    ;}
+    }
     break;
 
   case 177:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1079 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.integer) = CSSSelector::Begin;
-    ;}
+    }
     break;
 
   case 178:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1082 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.integer) = CSSSelector::End;
-    ;}
+    }
     break;
 
   case 179:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1085 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.integer) = CSSSelector::Contain;
-    ;}
+    }
     break;
 
   case 182:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1096 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.selector) = static_cast<CSSParser*>(parser)->createFloatingSelector();
@@ -3627,12 +3657,12 @@ yyreduce:
         CSSSelector::PseudoType type = (yyval.selector)->pseudoType();
         if (type == CSSSelector::PseudoUnknown)
             (yyval.selector) = 0;
-    ;}
+    }
     break;
 
   case 183:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1107 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.selector) = static_cast<CSSParser*>(parser)->createFloatingSelector();
@@ -3642,12 +3672,12 @@ yyreduce:
         CSSSelector::PseudoType type = (yyval.selector)->pseudoType();
         if (type == CSSSelector::PseudoUnknown)
             (yyval.selector) = 0;
-    ;}
+    }
     break;
 
   case 184:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1116 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.selector) = static_cast<CSSParser*>(parser)->createFloatingSelector();
@@ -3656,12 +3686,12 @@ yyreduce:
         (yyval.selector)->setValue((yyvsp[(3) - (3)].string));
         // FIXME: This call is needed to force selector to compute the pseudoType early enough.
         (yyval.selector)->pseudoType();
-    ;}
+    }
     break;
 
   case 185:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1129 "../Source/WebCore/css/CSSGrammar.y"
     {
         if ((yyvsp[(4) - (6)].selectorList)) {
@@ -3676,12 +3706,12 @@ yyreduce:
                 (yyval.selector) = 0;
         } else
             (yyval.selector) = 0;
-    ;}
+    }
     break;
 
   case 186:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1144 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser *p = static_cast<CSSParser*>(parser);
@@ -3692,12 +3722,12 @@ yyreduce:
         CSSSelector::PseudoType type = (yyval.selector)->pseudoType();
         if (type == CSSSelector::PseudoUnknown)
             (yyval.selector) = 0;
-    ;}
+    }
     break;
 
   case 187:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1155 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser *p = static_cast<CSSParser*>(parser);
@@ -3708,12 +3738,12 @@ yyreduce:
         CSSSelector::PseudoType type = (yyval.selector)->pseudoType();
         if (type == CSSSelector::PseudoUnknown)
             (yyval.selector) = 0;
-    ;}
+    }
     break;
 
   case 188:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1166 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser *p = static_cast<CSSParser*>(parser);
@@ -3732,12 +3762,12 @@ yyreduce:
             if (!isValidNthToken((yyvsp[(4) - (6)].string)))
                 (yyval.selector) = 0;
         }
-    ;}
+    }
     break;
 
   case 189:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1185 "../Source/WebCore/css/CSSGrammar.y"
     {
         if (!(yyvsp[(4) - (6)].selector) || !(yyvsp[(4) - (6)].selector)->isSimple())
@@ -3754,126 +3784,126 @@ yyreduce:
             (yyvsp[(2) - (6)].string).lower();
             (yyval.selector)->setValue((yyvsp[(2) - (6)].string));
         }
-    ;}
+    }
     break;
 
   case 190:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1204 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.boolean) = (yyvsp[(1) - (1)].boolean);
-    ;}
+    }
     break;
 
   case 191:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1207 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.boolean) = (yyvsp[(1) - (2)].boolean);
         if ( (yyvsp[(2) - (2)].boolean) )
             (yyval.boolean) = (yyvsp[(2) - (2)].boolean);
-    ;}
+    }
     break;
 
   case 192:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1212 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.boolean) = (yyvsp[(1) - (1)].boolean);
-    ;}
+    }
     break;
 
   case 193:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1215 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.boolean) = false;
-    ;}
+    }
     break;
 
   case 194:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1218 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.boolean) = false;
-    ;}
+    }
     break;
 
   case 195:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1221 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.boolean) = (yyvsp[(1) - (2)].boolean);
-    ;}
+    }
     break;
 
   case 196:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1224 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.boolean) = (yyvsp[(1) - (2)].boolean);
-    ;}
+    }
     break;
 
   case 197:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1230 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
         p->markPropertyStart();
         (yyval.boolean) = (yyvsp[(1) - (3)].boolean);
-    ;}
+    }
     break;
 
   case 198:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1235 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.boolean) = false;
-    ;}
+    }
     break;
 
   case 199:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1238 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.boolean) = false;
-    ;}
+    }
     break;
 
   case 200:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1241 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
         p->markPropertyStart();
         (yyval.boolean) = false;
-    ;}
+    }
     break;
 
   case 201:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1246 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.boolean) = false;
-    ;}
+    }
     break;
 
   case 202:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1249 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
@@ -3881,34 +3911,34 @@ yyreduce:
         (yyval.boolean) = (yyvsp[(1) - (4)].boolean);
         if ((yyvsp[(2) - (4)].boolean))
             (yyval.boolean) = (yyvsp[(2) - (4)].boolean);
-    ;}
+    }
     break;
 
   case 203:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1256 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
         p->markPropertyStart();
         (yyval.boolean) = (yyvsp[(1) - (4)].boolean);
-    ;}
+    }
     break;
 
   case 204:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1261 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
         p->markPropertyStart();
         (yyval.boolean) = (yyvsp[(1) - (6)].boolean);
-    ;}
+    }
     break;
 
   case 205:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1269 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.boolean) = false;
@@ -3926,21 +3956,21 @@ yyreduce:
             p->m_valueList = 0;
         }
         p->markPropertyEnd((yyvsp[(5) - (5)].boolean), isPropertyParsed);
-    ;}
+    }
     break;
 
   case 206:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1287 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.boolean) = false;
-    ;}
+    }
     break;
 
   case 207:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1291 "../Source/WebCore/css/CSSGrammar.y"
     {
         /* The default movable type template has letter-spacing: .none;  Handle this by looking for
@@ -3949,102 +3979,102 @@ yyreduce:
         CSSParser* p = static_cast<CSSParser*>(parser);
         p->markPropertyEnd(false, false);
         (yyval.boolean) = false;
-    ;}
+    }
     break;
 
   case 208:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1300 "../Source/WebCore/css/CSSGrammar.y"
     {
         /* When we encounter something like p {color: red !important fail;} we should drop the declaration */
         CSSParser* p = static_cast<CSSParser*>(parser);
         p->markPropertyEnd(false, false);
         (yyval.boolean) = false;
-    ;}
+    }
     break;
 
   case 209:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1307 "../Source/WebCore/css/CSSGrammar.y"
     {
         /* Handle this case: div { text-align: center; !important } Just reduce away the stray !important. */
         (yyval.boolean) = false;
-    ;}
+    }
     break;
 
   case 210:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1312 "../Source/WebCore/css/CSSGrammar.y"
     {
         /* div { font-family: } Just reduce away this property with no value. */
         CSSParser* p = static_cast<CSSParser*>(parser);
         p->markPropertyEnd(false, false);
         (yyval.boolean) = false;
-    ;}
+    }
     break;
 
   case 211:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1319 "../Source/WebCore/css/CSSGrammar.y"
     {
         /* if we come across rules with invalid values like this case: p { weight: *; }, just discard the rule */
         CSSParser* p = static_cast<CSSParser*>(parser);
         p->markPropertyEnd(false, false);
         (yyval.boolean) = false;
-    ;}
+    }
     break;
 
   case 212:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1326 "../Source/WebCore/css/CSSGrammar.y"
     {
         /* if we come across: div { color{;color:maroon} }, ignore everything within curly brackets */
         (yyval.boolean) = false;
-    ;}
+    }
     break;
 
   case 213:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1333 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.integer) = cssPropertyID((yyvsp[(1) - (2)].string));
-    ;}
+    }
     break;
 
   case 214:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1339 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.boolean) = true; ;}
+    { (yyval.boolean) = true; }
     break;
 
   case 215:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1340 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.boolean) = false; ;}
+    { (yyval.boolean) = false; }
     break;
 
   case 216:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1344 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
         (yyval.valueList) = p->createFloatingValueList();
         (yyval.valueList)->addValue(p->sinkFloatingValue((yyvsp[(1) - (1)].value)));
-    ;}
+    }
     break;
 
   case 217:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1349 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
@@ -4059,316 +4089,316 @@ yyreduce:
             }
             (yyval.valueList)->addValue(p->sinkFloatingValue((yyvsp[(3) - (3)].value)));
         }
-    ;}
+    }
     break;
 
   case 218:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1363 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.valueList) = 0;
-    ;}
+    }
     break;
 
   case 219:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1366 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.valueList) = 0;
-    ;}
+    }
     break;
 
   case 220:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1369 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.valueList) = 0;
-    ;}
+    }
     break;
 
   case 221:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1375 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.character) = '/';
-    ;}
+    }
     break;
 
   case 222:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1378 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.character) = ',';
-    ;}
+    }
     break;
 
   case 223:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1381 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.character) = 0;
-  ;}
+  }
     break;
 
   case 224:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1387 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value) = (yyvsp[(1) - (1)].value); ;}
+    { (yyval.value) = (yyvsp[(1) - (1)].value); }
     break;
 
   case 225:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1388 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value) = (yyvsp[(2) - (2)].value); (yyval.value).fValue *= (yyvsp[(1) - (2)].integer); ;}
+    { (yyval.value) = (yyvsp[(2) - (2)].value); (yyval.value).fValue *= (yyvsp[(1) - (2)].integer); }
     break;
 
   case 226:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1389 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).string = (yyvsp[(1) - (2)].string); (yyval.value).unit = CSSPrimitiveValue::CSS_STRING; ;}
+    { (yyval.value).id = 0; (yyval.value).string = (yyvsp[(1) - (2)].string); (yyval.value).unit = CSSPrimitiveValue::CSS_STRING; }
     break;
 
   case 227:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1390 "../Source/WebCore/css/CSSGrammar.y"
     {
       (yyval.value).id = cssValueKeywordID((yyvsp[(1) - (2)].string));
       (yyval.value).unit = CSSPrimitiveValue::CSS_IDENT;
       (yyval.value).string = (yyvsp[(1) - (2)].string);
-  ;}
+  }
     break;
 
   case 228:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1396 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).string = (yyvsp[(1) - (2)].string); (yyval.value).unit = CSSPrimitiveValue::CSS_DIMENSION; ;}
+    { (yyval.value).id = 0; (yyval.value).string = (yyvsp[(1) - (2)].string); (yyval.value).unit = CSSPrimitiveValue::CSS_DIMENSION; }
     break;
 
   case 229:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1397 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).string = (yyvsp[(2) - (3)].string); (yyval.value).unit = CSSPrimitiveValue::CSS_DIMENSION; ;}
+    { (yyval.value).id = 0; (yyval.value).string = (yyvsp[(2) - (3)].string); (yyval.value).unit = CSSPrimitiveValue::CSS_DIMENSION; }
     break;
 
   case 230:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1398 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).string = (yyvsp[(1) - (2)].string); (yyval.value).unit = CSSPrimitiveValue::CSS_URI; ;}
+    { (yyval.value).id = 0; (yyval.value).string = (yyvsp[(1) - (2)].string); (yyval.value).unit = CSSPrimitiveValue::CSS_URI; }
     break;
 
   case 231:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1399 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).string = (yyvsp[(1) - (2)].string); (yyval.value).unit = CSSPrimitiveValue::CSS_UNICODE_RANGE; ;}
+    { (yyval.value).id = 0; (yyval.value).string = (yyvsp[(1) - (2)].string); (yyval.value).unit = CSSPrimitiveValue::CSS_UNICODE_RANGE; }
     break;
 
   case 232:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1400 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).string = (yyvsp[(1) - (2)].string); (yyval.value).unit = CSSPrimitiveValue::CSS_PARSER_HEXCOLOR; ;}
+    { (yyval.value).id = 0; (yyval.value).string = (yyvsp[(1) - (2)].string); (yyval.value).unit = CSSPrimitiveValue::CSS_PARSER_HEXCOLOR; }
     break;
 
   case 233:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1401 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).string = CSSParserString(); (yyval.value).unit = CSSPrimitiveValue::CSS_PARSER_HEXCOLOR; ;}
+    { (yyval.value).id = 0; (yyval.value).string = CSSParserString(); (yyval.value).unit = CSSPrimitiveValue::CSS_PARSER_HEXCOLOR; }
     break;
 
   case 234:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1403 "../Source/WebCore/css/CSSGrammar.y"
     {
       (yyval.value) = (yyvsp[(1) - (1)].value);
-  ;}
+  }
     break;
 
   case 235:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1406 "../Source/WebCore/css/CSSGrammar.y"
     {
       (yyval.value) = (yyvsp[(1) - (1)].value);
-  ;}
+  }
     break;
 
   case 236:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1409 "../Source/WebCore/css/CSSGrammar.y"
     {
       (yyval.value) = (yyvsp[(1) - (1)].value);
-  ;}
+  }
     break;
 
   case 237:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1412 "../Source/WebCore/css/CSSGrammar.y"
     { /* Handle width: %; */
       (yyval.value).id = 0; (yyval.value).unit = 0;
-  ;}
+  }
     break;
 
   case 238:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1418 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).isInt = true; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_NUMBER; ;}
+    { (yyval.value).id = 0; (yyval.value).isInt = true; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_NUMBER; }
     break;
 
   case 239:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1419 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).isInt = false; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_NUMBER; ;}
+    { (yyval.value).id = 0; (yyval.value).isInt = false; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_NUMBER; }
     break;
 
   case 240:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1420 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_PERCENTAGE; ;}
+    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_PERCENTAGE; }
     break;
 
   case 241:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1421 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_PX; ;}
+    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_PX; }
     break;
 
   case 242:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1422 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_CM; ;}
+    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_CM; }
     break;
 
   case 243:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1423 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_MM; ;}
+    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_MM; }
     break;
 
   case 244:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1424 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_IN; ;}
+    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_IN; }
     break;
 
   case 245:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1425 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_PT; ;}
+    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_PT; }
     break;
 
   case 246:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1426 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_PC; ;}
+    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_PC; }
     break;
 
   case 247:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1427 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_DEG; ;}
+    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_DEG; }
     break;
 
   case 248:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1428 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_RAD; ;}
+    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_RAD; }
     break;
 
   case 249:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1429 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_GRAD; ;}
+    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_GRAD; }
     break;
 
   case 250:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1430 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_TURN; ;}
+    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_TURN; }
     break;
 
   case 251:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1431 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_MS; ;}
+    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_MS; }
     break;
 
   case 252:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1432 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_S; ;}
+    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_S; }
     break;
 
   case 253:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1433 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_HZ; ;}
+    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_HZ; }
     break;
 
   case 254:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1434 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_KHZ; ;}
+    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_KHZ; }
     break;
 
   case 255:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1435 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_EMS; ;}
+    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_EMS; }
     break;
 
   case 256:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1436 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSParserValue::Q_EMS; ;}
+    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSParserValue::Q_EMS; }
     break;
 
   case 257:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1437 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_EXS; ;}
+    { (yyval.value).id = 0; (yyval.value).fValue = (yyvsp[(1) - (2)].number); (yyval.value).unit = CSSPrimitiveValue::CSS_EXS; }
     break;
 
   case 258:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1438 "../Source/WebCore/css/CSSGrammar.y"
     {
       (yyval.value).id = 0;
@@ -4377,12 +4407,12 @@ yyreduce:
       CSSParser* p = static_cast<CSSParser*>(parser);
       if (Document* doc = p->document())
           doc->setUsesRemUnits(true);
-  ;}
+  }
     break;
 
   case 259:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1449 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
@@ -4392,12 +4422,12 @@ yyreduce:
         (yyval.value).id = 0;
         (yyval.value).unit = CSSParserValue::Function;
         (yyval.value).function = f;
-    ;}
+    }
     break;
 
   case 260:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1458 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
@@ -4407,74 +4437,74 @@ yyreduce:
         (yyval.value).id = 0;
         (yyval.value).unit = CSSParserValue::Function;
         (yyval.value).function = f;
-  ;}
+  }
     break;
 
   case 261:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1470 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value) = (yyvsp[(1) - (1)].value); ;}
+    { (yyval.value) = (yyvsp[(1) - (1)].value); }
     break;
 
   case 262:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1471 "../Source/WebCore/css/CSSGrammar.y"
-    { (yyval.value) = (yyvsp[(2) - (2)].value); (yyval.value).fValue *= (yyvsp[(1) - (2)].integer); ;}
+    { (yyval.value) = (yyvsp[(2) - (2)].value); (yyval.value).fValue *= (yyvsp[(1) - (2)].integer); }
     break;
 
   case 263:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1475 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.character) = '+';
-    ;}
+    }
     break;
 
   case 264:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1478 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.character) = '-';
-    ;}
+    }
     break;
 
   case 265:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1481 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.character) = '*';
-    ;}
+    }
     break;
 
   case 266:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1484 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.character) = '/';
-    ;}
+    }
     break;
 
   case 267:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1487 "../Source/WebCore/css/CSSGrammar.y"
     {
         if (equalIgnoringCase("mod", (yyvsp[(1) - (2)].string).characters, (yyvsp[(1) - (2)].string).length))
             (yyval.character) = '%';
         else
             (yyval.character) = 0;
-    ;}
+    }
     break;
 
   case 268:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1496 "../Source/WebCore/css/CSSGrammar.y"
     {
         if ((yyvsp[(3) - (6)].valueList)) {
@@ -4488,23 +4518,23 @@ yyreduce:
             (yyval.valueList)->addValue(v);
         } else
             (yyval.valueList) = 0;
-    ;}
+    }
     break;
 
   case 269:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1511 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
         (yyval.valueList) = p->createFloatingValueList();
         (yyval.valueList)->addValue(p->sinkFloatingValue((yyvsp[(1) - (2)].value)));
-    ;}
+    }
     break;
 
   case 270:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1516 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
@@ -4519,12 +4549,12 @@ yyreduce:
         } else
             (yyval.valueList) = 0;
 
-    ;}
+    }
     break;
 
   case 271:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1530 "../Source/WebCore/css/CSSGrammar.y"
     {
         if ((yyvsp[(1) - (3)].valueList) && (yyvsp[(2) - (3)].character) && (yyvsp[(3) - (3)].valueList)) {
@@ -4537,30 +4567,30 @@ yyreduce:
             (yyval.valueList)->extend(*((yyvsp[(3) - (3)].valueList)));
         } else 
             (yyval.valueList) = 0;
-    ;}
+    }
     break;
 
   case 273:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1543 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.valueList) = 0;
-    ;}
+    }
     break;
 
   case 274:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1549 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.valueList) = (yyvsp[(1) - (1)].valueList);
-    ;}
+    }
     break;
 
   case 275:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1552 "../Source/WebCore/css/CSSGrammar.y"
     {
         if ((yyvsp[(1) - (4)].valueList) && (yyvsp[(4) - (4)].valueList)) {
@@ -4573,12 +4603,12 @@ yyreduce:
             (yyval.valueList)->extend(*((yyvsp[(4) - (4)].valueList)));
         } else
             (yyval.valueList) = 0;
-    ;}
+    }
     break;
 
   case 276:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1567 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
@@ -4588,39 +4618,39 @@ yyreduce:
         (yyval.value).id = 0;
         (yyval.value).unit = CSSParserValue::Function;
         (yyval.value).function = f;
-    ;}
+    }
     break;
 
   case 277:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1576 "../Source/WebCore/css/CSSGrammar.y"
     {
         YYERROR;
-    ;}
+    }
     break;
 
   case 278:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1583 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.string) = (yyvsp[(1) - (1)].string);
-    ;}
+    }
     break;
 
   case 279:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1586 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.string) = (yyvsp[(1) - (1)].string);
-    ;}
+    }
     break;
 
   case 280:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1592 "../Source/WebCore/css/CSSGrammar.y"
     {
         CSSParser* p = static_cast<CSSParser*>(parser);
@@ -4630,87 +4660,98 @@ yyreduce:
         (yyval.value).id = 0;
         (yyval.value).unit = CSSParserValue::Function;
         (yyval.value).function = f;
-    ;}
+    }
     break;
 
   case 281:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1601 "../Source/WebCore/css/CSSGrammar.y"
     {
         YYERROR;
-    ;}
+    }
     break;
 
   case 282:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1609 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.rule) = 0;
-    ;}
+    }
     break;
 
   case 283:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1612 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.rule) = 0;
-    ;}
+    }
     break;
 
   case 284:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1618 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.rule) = 0;
-    ;}
+    }
     break;
 
   case 285:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1621 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.rule) = 0;
-    ;}
+    }
     break;
 
   case 286:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1627 "../Source/WebCore/css/CSSGrammar.y"
     {
         (yyval.rule) = 0;
-    ;}
+    }
     break;
 
   case 287:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1645 "../Source/WebCore/css/CSSGrammar.y"
     {
         static_cast<CSSParser*>(parser)->invalidBlockHit();
-    ;}
+    }
     break;
 
   case 288:
 
-/* Line 1455 of yacc.c  */
+/* Line 1806 of yacc.c  */
 #line 1648 "../Source/WebCore/css/CSSGrammar.y"
     {
         static_cast<CSSParser*>(parser)->invalidBlockHit();
-    ;}
+    }
     break;
 
 
 
-/* Line 1455 of yacc.c  */
-#line 4712 "/Source/WebCore/generated/CSSGrammar.tab.c"
+/* Line 1806 of yacc.c  */
+#line 4742 "/Source/WebCore/generated/CSSGrammar.tab.c"
       default: break;
     }
+  /* User semantic actions sometimes alter yychar, and that requires
+     that yytoken be updated with the new translation.  We take the
+     approach of translating immediately before every use of yytoken.
+     One alternative is translating here after every semantic action,
+     but that translation would be missed if the semantic action invokes
+     YYABORT, YYACCEPT, or YYERROR immediately after altering yychar or
+     if it invokes YYBACKUP.  In the case of YYABORT or YYACCEPT, an
+     incorrect destructor might then be invoked immediately.  In the
+     case of YYERROR or YYBACKUP, subsequent parser actions might lead
+     to an incorrect destructor call or verbose syntax error message
+     before the lookahead is translated.  */
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
 
   YYPOPSTACK (yylen);
@@ -4738,6 +4779,10 @@ yyreduce:
 | yyerrlab -- here on detecting error |
 `------------------------------------*/
 yyerrlab:
+  /* Make sure we have latest lookahead translation.  See comments at
+     user semantic actions for why this is necessary.  */
+  yytoken = yychar == YYEMPTY ? YYEMPTY : YYTRANSLATE (yychar);
+
   /* If not already recovering from an error, report this error.  */
   if (!yyerrstatus)
     {
@@ -4745,37 +4790,36 @@ yyerrlab:
 #if ! YYERROR_VERBOSE
       yyerror (YY_("syntax error"));
 #else
+# define YYSYNTAX_ERROR yysyntax_error (&yymsg_alloc, &yymsg, \
+                                        yyssp, yytoken)
       {
-	YYSIZE_T yysize = yysyntax_error (0, yystate, yychar);
-	if (yymsg_alloc < yysize && yymsg_alloc < YYSTACK_ALLOC_MAXIMUM)
-	  {
-	    YYSIZE_T yyalloc = 2 * yysize;
-	    if (! (yysize <= yyalloc && yyalloc <= YYSTACK_ALLOC_MAXIMUM))
-	      yyalloc = YYSTACK_ALLOC_MAXIMUM;
-	    if (yymsg != yymsgbuf)
-	      YYSTACK_FREE (yymsg);
-	    yymsg = (char *) YYSTACK_ALLOC (yyalloc);
-	    if (yymsg)
-	      yymsg_alloc = yyalloc;
-	    else
-	      {
-		yymsg = yymsgbuf;
-		yymsg_alloc = sizeof yymsgbuf;
-	      }
-	  }
-
-	if (0 < yysize && yysize <= yymsg_alloc)
-	  {
-	    (void) yysyntax_error (yymsg, yystate, yychar);
-	    yyerror (yymsg);
-	  }
-	else
-	  {
-	    yyerror (YY_("syntax error"));
-	    if (yysize != 0)
-	      goto yyexhaustedlab;
-	  }
+        char const *yymsgp = YY_("syntax error");
+        int yysyntax_error_status;
+        yysyntax_error_status = YYSYNTAX_ERROR;
+        if (yysyntax_error_status == 0)
+          yymsgp = yymsg;
+        else if (yysyntax_error_status == 1)
+          {
+            if (yymsg != yymsgbuf)
+              YYSTACK_FREE (yymsg);
+            yymsg = (char *) YYSTACK_ALLOC (yymsg_alloc);
+            if (!yymsg)
+              {
+                yymsg = yymsgbuf;
+                yymsg_alloc = sizeof yymsgbuf;
+                yysyntax_error_status = 2;
+              }
+            else
+              {
+                yysyntax_error_status = YYSYNTAX_ERROR;
+                yymsgp = yymsg;
+              }
+          }
+        yyerror (yymsgp);
+        if (yysyntax_error_status == 2)
+          goto yyexhaustedlab;
       }
+# undef YYSYNTAX_ERROR
 #endif
     }
 
@@ -4834,7 +4878,7 @@ yyerrlab1:
   for (;;)
     {
       yyn = yypact[yystate];
-      if (yyn != YYPACT_NINF)
+      if (!yypact_value_is_default (yyn))
 	{
 	  yyn += YYTERROR;
 	  if (0 <= yyn && yyn <= YYLAST && yycheck[yyn] == YYTERROR)
@@ -4893,8 +4937,13 @@ yyexhaustedlab:
 
 yyreturn:
   if (yychar != YYEMPTY)
-     yydestruct ("Cleanup: discarding lookahead",
-		 yytoken, &yylval);
+    {
+      /* Make sure we have latest lookahead translation.  See comments at
+         user semantic actions for why this is necessary.  */
+      yytoken = YYTRANSLATE (yychar);
+      yydestruct ("Cleanup: discarding lookahead",
+                  yytoken, &yylval);
+    }
   /* Do not reclaim the symbols of the rule which action triggered
      this YYABORT or YYACCEPT.  */
   YYPOPSTACK (yylen);
@@ -4919,7 +4968,7 @@ yyreturn:
 
 
 
-/* Line 1675 of yacc.c  */
+/* Line 2067 of yacc.c  */
 #line 1658 "../Source/WebCore/css/CSSGrammar.y"
 
 

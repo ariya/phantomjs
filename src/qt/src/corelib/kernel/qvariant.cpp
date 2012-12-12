@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -136,9 +136,11 @@ static void construct(QVariant::Private *x, const void *copy)
         v_construct<QPointF>(x, copy);
         break;
 #endif
+#ifndef QT_BOOTSTRAPPED
     case QVariant::Url:
         v_construct<QUrl>(x, copy);
         break;
+#endif
     case QVariant::Locale:
         v_construct<QLocale>(x, copy);
         break;
@@ -254,9 +256,11 @@ static void clear(QVariant::Private *d)
         v_clear<QRectF>(d);
         break;
 #endif
+#ifndef QT_BOOTSTRAPPED
     case QVariant::Url:
         v_clear<QUrl>(d);
         break;
+#endif
     case QVariant::Locale:
         v_clear<QLocale>(d);
         break;
@@ -330,8 +334,8 @@ static bool isNull(const QVariant::Private *d)
 #endif
 #ifndef QT_BOOTSTRAPPED
     case QVariant::EasingCurve:
-#endif
     case QVariant::Url:
+#endif
     case QVariant::Locale:
     case QVariant::RegExp:
     case QVariant::StringList:
@@ -419,8 +423,10 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
     case QVariant::PointF:
         return *v_cast<QPointF>(a) == *v_cast<QPointF>(b);
 #endif
+#ifndef QT_BOOTSTRAPPED
     case QVariant::Url:
         return *v_cast<QUrl>(a) == *v_cast<QUrl>(b);
+#endif
     case QVariant::Locale:
         return *v_cast<QLocale>(a) == *v_cast<QLocale>(b);
 #ifndef QT_NO_REGEXP
@@ -625,6 +631,7 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
         ok = &dummy;
 
     switch (uint(t)) {
+#ifndef QT_BOOTSTRAPPED
     case QVariant::Url:
         switch (d->type) {
         case QVariant::String:
@@ -634,6 +641,7 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
             return false;
         }
         break;
+#endif
     case QVariant::String: {
         QString *str = static_cast<QString *>(result);
         switch (d->type) {
@@ -683,9 +691,11 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
             if (v_cast<QStringList>(d)->count() == 1)
                 *str = v_cast<QStringList>(d)->at(0);
             break;
+#ifndef QT_BOOTSTRAPPED
         case QVariant::Url:
             *str = v_cast<QUrl>(d)->toString();
             break;
+#endif
         default:
             return false;
         }
@@ -1119,9 +1129,11 @@ static void streamDebug(QDebug dbg, const QVariant &v)
     case QVariant::ByteArray:
         dbg.nospace() << v.toByteArray();
         break;
+#ifndef QT_BOOTSTRAPPED
     case QVariant::Url:
         dbg.nospace() << v.toUrl();
         break;
+#endif
 #ifndef QT_NO_GEOM_VARIANT
     case QVariant::Point:
         dbg.nospace() << v.toPoint();
@@ -1728,7 +1740,9 @@ QVariant::QVariant(const QRect &r) { d.is_null = false; d.type = Rect; v_constru
 QVariant::QVariant(const QSize &s) { d.is_null = false; d.type = Size; v_construct<QSize>(&d, s); }
 QVariant::QVariant(const QSizeF &s) { d.is_null = false; d.type = SizeF; v_construct<QSizeF>(&d, s); }
 #endif
+#ifndef QT_BOOTSTRAPPED
 QVariant::QVariant(const QUrl &u) { d.is_null = false; d.type = Url; v_construct<QUrl>(&d, u); }
+#endif
 QVariant::QVariant(const QLocale &l) { d.is_null = false; d.type = Locale; v_construct<QLocale>(&d, l); }
 #ifndef QT_NO_REGEXP
 QVariant::QVariant(const QRegExp &regExp) { d.is_null = false; d.type = RegExp; v_construct<QRegExp>(&d, regExp); }
@@ -2341,6 +2355,7 @@ QPointF QVariant::toPointF() const
 
 #endif // QT_NO_GEOM_VARIANT
 
+#ifndef QT_BOOTSTRAPPED
 /*!
     \fn QUrl QVariant::toUrl() const
 
@@ -2353,6 +2368,7 @@ QUrl QVariant::toUrl() const
 {
     return qVariantToHelper<QUrl>(d, Url, handler);
 }
+#endif
 
 /*!
     \fn QLocale QVariant::toLocale() const

@@ -1,12 +1,12 @@
-This is Qt version 4.8.2.
+This is Qt version 4.8.4.
 
 Qt is a comprehensive cross-platform C++ application framework. Qt 4
 introduces new features and many improvements over the 3.x series. See
-http://qt.nokia.com/doc/latest/qt4-intro.html for details.
+http://qt-project.org/doc/qt-4.8/qt4-intro.html for details.
 
 The Qt 4.x series is not binary compatible or source compatible with
 the 3.x series. For more information on porting from Qt 3 to Qt 4, see
-http://qt.nokia.com/doc/latest/porting4.html.
+http://qt-project.org/doc/qt-4.8/porting4.html.
 
 
 INSTALLING Qt
@@ -28,7 +28,7 @@ on Mac OS X 10.5 and above.
 
 If you want to install the precompiled binary package for Symbian,
 follow these instructions:
-http://qt.nokia.com/doc/4.8/install-symbian-installer.html
+http://qt-project.org/doc/qt-4.8/install-symbian-installer.html
 
 
 DEMOS AND EXAMPLES
@@ -50,13 +50,13 @@ The Qt reference documentation is available locally in Qt's doc/html
 directory. You can use Qt Assistant to view it; to launch Assistant,
 type 'assistant' on the command line or use the Start menu. On Mac OS
 X, you can find it in /Developer/Applications/Qt.  The latest
-documentation is available at http://qt.nokia.com/doc/.
+documentation is available at http://qt-project.org/doc/.
 
 
 SUPPORTED PLATFORMS
 
 For a complete list of supported platforms, see
-http://qt.nokia.com/doc/4.8/supported-platforms.html.
+http://qt-project.org/doc/qt-4.8/supported-platforms.html.
 
 
 COMMERCIAL EDITIONS
@@ -69,17 +69,17 @@ the QtCore, QtGui (except QGraphicsView), QtTest, QtDBus and
 Qt3Support modules.
 
 For a full listing of the contents of each module, please refer to 
-http://qt.nokia.com/doc/4.8/modules.html
+http://qt-project.org/doc/qt-4.8/modules.html
 
 
 HOW TO REPORT A BUG
 
 If you think you have found a bug in Qt, we would like to hear about
 it so that we can fix it.  The Qt bug tracking system is open to the
-public at http://bugreports.qt.nokia.com/.
+public at http://bugreports.qt-project.org/.
 
 Before reporting a bug, please use the bug-tracker's search functions
-and consult http://qt.nokia.com/developer/faqs/ to see if the issue is
+and consult http://qt-project.org/faq to see if the issue is
 already known.
 
 Always include the following information in your bug report: the name
@@ -94,4 +94,4 @@ example programs in Qt's examples directory, or to the autotests that
 are available in the public source repository on http://qt.gitorious.org/.
 
 
-Qt is a trademark of Nokia Corporation and/or its subsidiary(-ies).
+Qt is a trademark of Digia Plc and/or its subsidiary(-ies).

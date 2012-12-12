@@ -89,7 +89,6 @@ QTOBJS= \
 	qtextstream.o \
 	quuid.o \
 	qvector.o \
-	qurl.o \
 	qsettings.o \
 	qsettings_win.o \
 	qvariant.o \
@@ -129,9 +128,6 @@ qsettings.o: $(SOURCE_PATH)/src/corelib/io/qsettings.cpp
 
 qvariant.o: $(SOURCE_PATH)/src/corelib/kernel/qvariant.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/kernel/qvariant.cpp
-
-qurl.o: $(SOURCE_PATH)/src/corelib/io/qurl.cpp
-	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qurl.cpp
 
 qtextstream.o: $(SOURCE_PATH)/src/corelib/io/qtextstream.cpp
 	$(CXX) $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qtextstream.cpp

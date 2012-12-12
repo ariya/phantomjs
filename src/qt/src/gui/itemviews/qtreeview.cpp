@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -1343,44 +1343,21 @@ void QTreeViewPrivate::_q_modelDestroyed()
 QItemViewPaintPairs QTreeViewPrivate::draggablePaintPairs(const QModelIndexList &indexes, QRect *r) const
 {
     Q_ASSERT(r);
-    return QAbstractItemViewPrivate::draggablePaintPairs(indexes, r);
     Q_Q(const QTreeView);
-    QRect &rect = *r;
-    const QRect viewportRect = viewport->rect();
-    int itemOffset = 0;
-    int row = firstVisibleItem(&itemOffset);
-    QPair<int, int> startEnd = startAndEndColumns(viewportRect);
-    QVector<int> columns;
-    for (int i = startEnd.first; i <= startEnd.second; ++i) {
-        int logical = header->logicalIndex(i);
-        if (!header->isSectionHidden(logical))
-            columns += logical;
+    if (spanningIndexes.isEmpty())
+        return QAbstractItemViewPrivate::draggablePaintPairs(indexes, r);
+    QModelIndexList list;
+    foreach (const QModelIndex &idx, indexes) {
+        if (idx.column() > 0 && q->isFirstColumnSpanned(idx.row(), idx.parent()))
+            continue;
+        list << idx;
     }
-    QSet<QModelIndex> visibleIndexes;
-    for (; itemOffset < viewportRect.bottom() && row < viewItems.count(); ++row) {
-        const QModelIndex &index = viewItems.at(row).index;
-        for (int colIndex = 0; colIndex < columns.count(); ++colIndex)
-            visibleIndexes += index.sibling(index.row(), columns.at(colIndex));
-        itemOffset += itemHeight(row);
-    }
-
-    //now that we have the visible indexes, we can try to find those which are selected
-    QItemViewPaintPairs ret;
-    for (int i = 0; i < indexes.count(); ++i) {
-        const QModelIndex &index = indexes.at(i);
-        if (visibleIndexes.contains(index)) {
-            const QRect current = q->visualRect(index);
-            ret += qMakePair(current, index);
-            rect |= current;
-        }
-    }
-    rect &= viewportRect;
-    return ret;
+    return QAbstractItemViewPrivate::draggablePaintPairs(list, r);
 }
 
 void QTreeViewPrivate::adjustViewOptionsForIndex(QStyleOptionViewItemV4 *option, const QModelIndex &current) const
 {
-    const int row = current.row();
+    const int row = viewIndex(current); // get the index in viewItems[]
     option->state = option->state | (viewItems.at(row).expanded ? QStyle::State_Open : QStyle::State_None)
                                   | (viewItems.at(row).hasChildren ? QStyle::State_Children : QStyle::State_None)
                                   | (viewItems.at(row).hasMoreSiblings ? QStyle::State_Sibling : QStyle::State_None);
@@ -2907,7 +2884,9 @@ void QTreeViewPrivate::expand(int item, bool emitSignal)
     if (emitSignal && animationsEnabled)
         prepareAnimatedOperation(item, QVariantAnimation::Forward);
 #endif //QT_NO_ANIMATION
-    stateBeforeAnimation = state;
+     //if already animating, stateBeforeAnimation is set to the correct value
+    if (state != QAbstractItemView::AnimatingState)
+        stateBeforeAnimation = state;
     q->setState(QAbstractItemView::ExpandingState);
     const QModelIndex index = viewItems.at(item).index;
     storeExpanded(index);
@@ -2998,7 +2977,9 @@ void QTreeViewPrivate::collapse(int item, bool emitSignal)
         prepareAnimatedOperation(item, QVariantAnimation::Backward);
 #endif //QT_NO_ANIMATION
 
-    stateBeforeAnimation = state;
+    //if already animating, stateBeforeAnimation is set to the correct value
+    if (state != QAbstractItemView::AnimatingState)
+        stateBeforeAnimation = state;
     q->setState(QAbstractItemView::CollapsingState);
     expandedIndexes.erase(it);
     viewItems[item].expanded = false;

@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -690,6 +690,7 @@ void QDockWidgetPrivate::initDrag(const QPoint &pos, bool nca)
     if (state != 0)
         return;
 
+    Q_Q(QDockWidget);
     QMainWindow *win = qobject_cast<QMainWindow*>(parent);
     Q_ASSERT(win != 0);
     QMainWindowLayout *layout = qt_mainwindow_layout(win);
@@ -698,12 +699,23 @@ void QDockWidgetPrivate::initDrag(const QPoint &pos, bool nca)
         return;
 
     state = new QDockWidgetPrivate::DragState;
-    state->pressPos = pos;
     state->dragging = false;
     state->widgetItem = 0;
     state->ownWidgetItem = false;
     state->nca = nca;
     state->ctrlDrag = false;
+
+    if (!q->isFloating()) {
+        // When dragging the widget out of the docking area,
+        // use the middle of title area as pressPos
+        QDockWidgetLayout *dwlayout = qobject_cast<QDockWidgetLayout*>(q->layout());
+        Q_ASSERT(dwlayout != 0);
+        int width = undockedGeometry.isNull() ? q->width() : undockedGeometry.width();
+        state->pressPos.setY(dwlayout->titleArea().height() / 2);
+        state->pressPos.setX(width / 2);
+    } else {
+        state->pressPos = pos;
+    }
 }
 
 void QDockWidgetPrivate::startDrag()
@@ -987,11 +999,17 @@ void QDockWidgetPrivate::moveEvent(QMoveEvent *event)
 void QDockWidgetPrivate::unplug(const QRect &rect)
 {
     Q_Q(QDockWidget);
-    QRect r = rect;
-    r.moveTopLeft(q->mapToGlobal(QPoint(0, 0)));
-    QDockWidgetLayout *dwLayout = qobject_cast<QDockWidgetLayout*>(layout);
-    if (dwLayout->nativeWindowDeco(true))
-        r.adjust(0, dwLayout->titleHeight(), 0, 0);
+    QRect r;
+    if (!undockedGeometry.isNull()) {
+        r = undockedGeometry;
+    } else {
+        r = rect;
+        r.moveTopLeft(q->mapToGlobal(QPoint(0, 0)));
+        QDockWidgetLayout *dwLayout = qobject_cast<QDockWidgetLayout*>(layout);
+        if (dwLayout->nativeWindowDeco(true))
+            r.adjust(0, dwLayout->titleHeight(), 0, 0);
+    }
+
     setWindowState(true, true, r);
 }
 
