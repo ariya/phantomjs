@@ -432,6 +432,19 @@ function decorateNewPage(opts, page) {
         this.setCookies(cookies);
     });
 
+    /**
+     * upload a file
+     * @param {string}       selector  css selector for the file input element
+     * @param {string,array} fileNames the name(s) of the file(s) to upload
+     */
+    page.uploadFile = function(selector, fileNames) {
+        if (typeof fileNames == "string") {
+            fileNames = [fileNames];
+        }
+
+        this._uploadFile(selector, fileNames);
+    };
+
     // Copy options into page
     if (opts) {
         page = copyInto(page, opts);
