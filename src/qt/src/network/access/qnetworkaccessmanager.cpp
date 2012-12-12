@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -772,8 +772,9 @@ QNetworkConfiguration QNetworkAccessManager::configuration() const
 {
     Q_D(const QNetworkAccessManager);
 
-    if (d->networkSession)
-        return d->networkSession->configuration();
+    QSharedPointer<QNetworkSession> session(d->getNetworkSession());
+    if (session)
+        return session->configuration();
     else
         return QNetworkConfiguration();
 }
@@ -797,11 +798,12 @@ QNetworkConfiguration QNetworkAccessManager::activeConfiguration() const
 {
     Q_D(const QNetworkAccessManager);
 
-    if (d->networkSession) {
+    QSharedPointer<QNetworkSession> networkSession(d->getNetworkSession());
+    if (networkSession) {
         QNetworkConfigurationManager manager;
 
         return manager.configurationFromIdentifier(
-            d->networkSession->sessionProperty(QLatin1String("ActiveConfiguration")).toString());
+            networkSession->sessionProperty(QLatin1String("ActiveConfiguration")).toString());
     } else {
         return QNetworkConfiguration();
     }
@@ -836,7 +838,8 @@ QNetworkAccessManager::NetworkAccessibility QNetworkAccessManager::networkAccess
 {
     Q_D(const QNetworkAccessManager);
 
-    if (d->networkSession) {
+    QSharedPointer<QNetworkSession> networkSession(d->getNetworkSession());
+    if (networkSession) {
         // d->online holds online/offline state of this network session.
         if (d->online)
             return d->networkAccessible;
@@ -846,6 +849,13 @@ QNetworkAccessManager::NetworkAccessibility QNetworkAccessManager::networkAccess
         // Network accessibility is either disabled or unknown.
         return (d->networkAccessible == NotAccessible) ? NotAccessible : UnknownAccessibility;
     }
+}
+
+QSharedPointer<QNetworkSession> QNetworkAccessManagerPrivate::getNetworkSession() const
+{
+    if (networkSessionStrongRef)
+        return networkSessionStrongRef;
+    return networkSessionWeakRef.toStrongRef();
 }
 
 #endif // QT_NO_BEARERMANAGEMENT
@@ -937,7 +947,7 @@ QNetworkReply *QNetworkAccessManager::createRequest(QNetworkAccessManager::Opera
         return new QDisabledNetworkReply(this, req, op);
     }
 
-    if (!d->networkSession && (d->initializeSession || !d->networkConfiguration.isEmpty())) {
+    if (!d->networkSessionStrongRef && (d->initializeSession || !d->networkConfiguration.isEmpty())) {
         QNetworkConfigurationManager manager;
         if (!d->networkConfiguration.isEmpty()) {
             d->createSession(manager.configurationFromIdentifier(d->networkConfiguration));
@@ -948,9 +958,6 @@ QNetworkReply *QNetworkAccessManager::createRequest(QNetworkAccessManager::Opera
                 d->initializeSession = false;
         }
     }
-
-    if (d->networkSession)
-        d->networkSession->setSessionProperty(QLatin1String("AutoCloseSessionTimeout"), -1);
 #endif
 
     QNetworkRequest request = req;
@@ -1014,8 +1021,12 @@ void QNetworkAccessManagerPrivate::_q_replyFinished()
         emit q->finished(reply);
 
 #ifndef QT_NO_BEARERMANAGEMENT
-    if (networkSession && q->findChildren<QNetworkReply *>().count() == 1)
-        networkSession->setSessionProperty(QLatin1String("AutoCloseSessionTimeout"), 120000);
+    // If there are no active requests, release our reference to the network session.
+    // It will not be destroyed immediately, but rather when the connection cache is flushed
+    // after 2 minutes.
+    activeReplyCount--;
+    if (networkSessionStrongRef && activeReplyCount == 0)
+        networkSessionStrongRef.clear();
 #endif
 }
 
@@ -1040,6 +1051,9 @@ QNetworkReply *QNetworkAccessManagerPrivate::postProcess(QNetworkReply *reply)
     /* In case we're compiled without SSL support, we don't have this signal and we need to
      * avoid getting a connection error. */
     q->connect(reply, SIGNAL(sslErrors(QList<QSslError>)), SLOT(_q_replySslErrors(QList<QSslError>)));
+#endif
+#ifndef QT_NO_BEARERMANAGEMENT
+    activeReplyCount++;
 #endif
 
     return reply;
@@ -1174,25 +1188,29 @@ void QNetworkAccessManagerPrivate::createSession(const QNetworkConfiguration &co
 
     initializeSession = false;
 
+    //resurrect weak ref if possible
+    networkSessionStrongRef = networkSessionWeakRef.toStrongRef();
+
     QSharedPointer<QNetworkSession> newSession;
     if (config.isValid())
         newSession = QSharedNetworkSessionManager::getSession(config);
 
-    if (networkSession) {
+    if (networkSessionStrongRef) {
         //do nothing if new and old session are the same
-        if (networkSession == newSession)
+        if (networkSessionStrongRef == newSession)
             return;
         //disconnect from old session
-        QObject::disconnect(networkSession.data(), SIGNAL(opened()), q, SIGNAL(networkSessionConnected()));
-        QObject::disconnect(networkSession.data(), SIGNAL(closed()), q, SLOT(_q_networkSessionClosed()));
-        QObject::disconnect(networkSession.data(), SIGNAL(stateChanged(QNetworkSession::State)),
+        QObject::disconnect(networkSessionStrongRef.data(), SIGNAL(opened()), q, SIGNAL(networkSessionConnected()));
+        QObject::disconnect(networkSessionStrongRef.data(), SIGNAL(closed()), q, SLOT(_q_networkSessionClosed()));
+        QObject::disconnect(networkSessionStrongRef.data(), SIGNAL(stateChanged(QNetworkSession::State)),
             q, SLOT(_q_networkSessionStateChanged(QNetworkSession::State)));
     }
 
     //switch to new session (null if config was invalid)
-    networkSession = newSession;
+    networkSessionStrongRef = newSession;
+    networkSessionWeakRef = networkSessionStrongRef.toWeakRef();
 
-    if (!networkSession) {
+    if (!networkSessionStrongRef) {
         online = false;
 
         if (networkAccessible == QNetworkAccessManager::NotAccessible)
@@ -1204,18 +1222,19 @@ void QNetworkAccessManagerPrivate::createSession(const QNetworkConfiguration &co
     }
 
     //connect to new session
-    QObject::connect(networkSession.data(), SIGNAL(opened()), q, SIGNAL(networkSessionConnected()), Qt::QueuedConnection);
+    QObject::connect(networkSessionStrongRef.data(), SIGNAL(opened()), q, SIGNAL(networkSessionConnected()), Qt::QueuedConnection);
     //QueuedConnection is used to avoid deleting the networkSession inside its closed signal
-    QObject::connect(networkSession.data(), SIGNAL(closed()), q, SLOT(_q_networkSessionClosed()), Qt::QueuedConnection);
-    QObject::connect(networkSession.data(), SIGNAL(stateChanged(QNetworkSession::State)),
+    QObject::connect(networkSessionStrongRef.data(), SIGNAL(closed()), q, SLOT(_q_networkSessionClosed()), Qt::QueuedConnection);
+    QObject::connect(networkSessionStrongRef.data(), SIGNAL(stateChanged(QNetworkSession::State)),
                      q, SLOT(_q_networkSessionStateChanged(QNetworkSession::State)), Qt::QueuedConnection);
 
-    _q_networkSessionStateChanged(networkSession->state());
+    _q_networkSessionStateChanged(networkSessionStrongRef->state());
 }
 
 void QNetworkAccessManagerPrivate::_q_networkSessionClosed()
 {
     Q_Q(QNetworkAccessManager);
+    QSharedPointer<QNetworkSession> networkSession(getNetworkSession());
     if (networkSession) {
         networkConfiguration = networkSession->configuration().identifier();
 
@@ -1224,7 +1243,8 @@ void QNetworkAccessManagerPrivate::_q_networkSessionClosed()
         QObject::disconnect(networkSession.data(), SIGNAL(closed()), q, SLOT(_q_networkSessionClosed()));
         QObject::disconnect(networkSession.data(), SIGNAL(stateChanged(QNetworkSession::State)),
             q, SLOT(_q_networkSessionStateChanged(QNetworkSession::State)));
-        networkSession.clear();
+        networkSessionStrongRef.clear();
+        networkSessionWeakRef.clear();
     }
 }
 

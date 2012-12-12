@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -112,7 +112,7 @@ QEventDispatcherUNIXPrivate::QEventDispatcherUNIXPrivate()
     bool pipefail = false;
 
     // initialize the common parts of the event loop
-#if defined(Q_OS_NACL)
+#if defined(Q_OS_NACL) || defined (Q_OS_BLACKBERRY)
    // do nothing.
 #elif defined(Q_OS_INTEGRITY)
     // INTEGRITY doesn't like a "select" on pipes, so use socketpair instead
@@ -159,7 +159,7 @@ QEventDispatcherUNIXPrivate::QEventDispatcherUNIXPrivate()
 
 QEventDispatcherUNIXPrivate::~QEventDispatcherUNIXPrivate()
 {
-#if defined(Q_OS_NACL)
+#if defined(Q_OS_NACL) || defined (Q_OS_BLACKBERRY)
    // do nothing.
 #elif defined(Q_OS_VXWORKS)
     close(thread_pipe[0]);
@@ -213,8 +213,8 @@ int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, 
             FD_ZERO(&sn_vec[2].select_fds);
         }
 
-        FD_SET(thread_pipe[0], &sn_vec[0].select_fds);
-        highest = qMax(highest, thread_pipe[0]);
+        int wakeUpFd = initThreadWakeUp();
+        highest = qMax(highest, wakeUpFd);
 
         nsel = q->select(highest + 1,
                          &sn_vec[0].select_fds,
@@ -273,25 +273,7 @@ int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, 
         }
     }
 
-    // some other thread woke us up... consume the data on the thread pipe so that
-    // select doesn't immediately return next time
-    int nevents = 0;
-    if (nsel > 0 && FD_ISSET(thread_pipe[0], &sn_vec[0].select_fds)) {
-#if defined(Q_OS_VXWORKS)
-        char c[16];
-        ::read(thread_pipe[0], c, sizeof(c));
-        ::ioctl(thread_pipe[0], FIOFLUSH, 0);
-#else
-        char c[16];
-        while (::read(thread_pipe[0], c, sizeof(c)) > 0)
-            ;
-#endif
-        if (!wakeUps.testAndSetRelease(1, 0)) {
-            // hopefully, this is dead code
-            qWarning("QEventDispatcherUNIX: internal error, wakeUps.testAndSetRelease(1, 0) failed!");
-        }
-        ++nevents;
-    }
+    int nevents = processThreadWakeUp(nsel);
 
     // activate socket notifiers
     if (! (flags & QEventLoop::ExcludeSocketNotifiers) && nsel > 0 && sn_highest >= 0) {
@@ -307,6 +289,35 @@ int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, 
         }
     }
     return (nevents + q->activateSocketNotifiers());
+}
+
+int QEventDispatcherUNIXPrivate::initThreadWakeUp()
+{
+    FD_SET(thread_pipe[0], &sn_vec[0].select_fds);
+    return thread_pipe[0];
+}
+
+int QEventDispatcherUNIXPrivate::processThreadWakeUp(int nsel)
+{
+    if (nsel > 0 && FD_ISSET(thread_pipe[0], &sn_vec[0].select_fds)) {
+        // some other thread woke us up... consume the data on the thread pipe so that
+        // select doesn't immediately return next time
+#if defined(Q_OS_VXWORKS)
+        char c[16];
+        ::read(thread_pipe[0], c, sizeof(c));
+        ::ioctl(thread_pipe[0], FIOFLUSH, 0);
+#else
+        char c[16];
+        while (::read(thread_pipe[0], c, sizeof(c)) > 0)
+            ;
+#endif
+        if (!wakeUps.testAndSetRelease(1, 0)) {
+            // hopefully, this is dead code
+            qWarning("QEventDispatcherUNIX: internal error, wakeUps.testAndSetRelease(1, 0) failed!");
+        }
+        return 1;
+    }
+    return 0;
 }
 
 /*

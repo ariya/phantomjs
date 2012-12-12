@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -76,6 +76,8 @@
 #elif defined(Q_OS_UNIX)
 #  if defined(Q_OS_BLACKBERRY)
 #    include "qeventdispatcher_blackberry_p.h"
+#    include <process.h>
+#    include <unistd.h>
 #  else
 #    if !defined(QT_NO_GLIB)
 #      include "qeventdispatcher_glib_p.h"
@@ -376,6 +378,35 @@ struct QCoreApplicationData {
            data->deref(); // deletes the data and the adopted thread
        }
     }
+
+#ifdef Q_OS_BLACKBERRY
+    //The QCoreApplicationData struct is only populated on demand, because it is rarely needed and would
+    //affect startup time
+    void loadManifest() {
+        static bool manifestLoadAttempt = false;
+        if (manifestLoadAttempt)
+            return;
+
+        manifestLoadAttempt = true;
+
+        QFile metafile(QLatin1String("app/META-INF/MANIFEST.MF"));
+        if (!metafile.open(QIODevice::ReadOnly)) {
+            qWarning() << Q_FUNC_INFO << "Could not open application metafile for reading";
+        } else {
+            while (!metafile.atEnd() && (application.isEmpty() || applicationVersion.isEmpty() || orgName.isEmpty())) {
+                QByteArray line = metafile.readLine();
+                if (line.startsWith("Application-Name:"))
+                    application = QString::fromUtf8(line.mid(18).trimmed());
+                else if (line.startsWith("Application-Version:"))
+                    applicationVersion = QString::fromUtf8(line.mid(21).trimmed());
+                else if (line.startsWith("Package-Author:"))
+                    orgName = QString::fromUtf8(line.mid(16).trimmed());
+            }
+            metafile.close();
+        }
+    }
+#endif
+
     QString orgName, orgDomain, application;
     QString applicationVersion;
 
@@ -2067,6 +2098,36 @@ QString QCoreApplication::applicationFilePath()
 #if defined(Q_WS_WIN)
     d->cachedApplicationFilePath = QFileInfo(qAppFileName()).filePath();
     return d->cachedApplicationFilePath;
+#elif defined(Q_OS_BLACKBERRY)
+    if (!arguments().isEmpty()) { // args is never empty, but the navigator can change behaviour some day
+        QFileInfo fileInfo(arguments().at(0));
+        const bool zygotized = fileInfo.exists();
+        if (zygotized) {
+            // Handle the zygotized case:
+            d->cachedApplicationFilePath = QDir::cleanPath(fileInfo.absoluteFilePath());
+            return d->cachedApplicationFilePath;
+        }
+    }
+
+    // Handle the non-zygotized case:
+    const size_t maximum_path = static_cast<size_t>(pathconf("/",_PC_PATH_MAX));
+    char buff[maximum_path+1];
+    if (_cmdname(buff)) {
+        d->cachedApplicationFilePath = QDir::cleanPath(QString::fromLocal8Bit(buff));
+        return d->cachedApplicationFilePath;
+    } else {
+        qWarning("QCoreApplication::applicationFilePath: _cmdname() failed");
+        // _cmdname() won't fail, but just in case, fallback to the old method
+        QDir dir(QLatin1String("./app/native/"));
+        QStringList executables = dir.entryList(QDir::Executable | QDir::Files);
+        if (!executables.empty()) {
+            //We assume that there is only one executable in the folder
+            d->cachedApplicationFilePath = dir.absoluteFilePath(executables.first());
+            return d->cachedApplicationFilePath;
+        } else {
+            return QString();
+        }
+    }
 #elif defined(Q_WS_MAC)
     QString qAppFileName_str = qAppFileName();
     if(!qAppFileName_str.isEmpty()) {
@@ -2301,6 +2362,9 @@ void QCoreApplication::setOrganizationName(const QString &orgName)
 
 QString QCoreApplication::organizationName()
 {
+#ifdef Q_OS_BLACKBERRY
+    coreappdata()->loadManifest();
+#endif
     return coreappdata()->orgName;
 }
 
@@ -2346,6 +2410,9 @@ void QCoreApplication::setApplicationName(const QString &application)
 
 QString QCoreApplication::applicationName()
 {
+#ifdef Q_OS_BLACKBERRY
+    coreappdata()->loadManifest();
+#endif
     return coreappdata()->application;
 }
 
@@ -2363,6 +2430,9 @@ void QCoreApplication::setApplicationVersion(const QString &version)
 
 QString QCoreApplication::applicationVersion()
 {
+#ifdef Q_OS_BLACKBERRY
+    coreappdata()->loadManifest();
+#endif
     return coreappdata()->applicationVersion;
 }
 

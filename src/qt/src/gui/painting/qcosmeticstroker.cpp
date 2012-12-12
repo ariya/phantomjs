@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -356,6 +356,11 @@ bool QCosmeticStroker::clipLine(qreal &x1, qreal &y1, qreal &x2, qreal &y2)
 
 void QCosmeticStroker::drawLine(const QPointF &p1, const QPointF &p2)
 {
+    if (p1 == p2) {
+        drawPoints(&p1, 1);
+        return;
+    }
+
     QPointF start = p1 * state->matrix;
     QPointF end = p2 * state->matrix;
 
@@ -409,7 +414,7 @@ void QCosmeticStroker::calculateLastPoint(qreal rx1, qreal ry1, qreal rx2, qreal
     if (clipLine(rx1, ry1, rx2, ry2))
         return;
 
-    const int half = 32;
+    const int half = 31;
     int x1 = toF26Dot6(rx1) + half;
     int y1 = toF26Dot6(ry1) + half;
     int x2 = toF26Dot6(rx2) + half;
@@ -429,8 +434,8 @@ void QCosmeticStroker::calculateLastPoint(qreal rx1, qreal ry1, qreal rx2, qreal
         int xinc = F16Dot16FixedDiv(x2 - x1, y2 - y1);
         int x = x1 << 10;
 
-        int y = y1 >> 6;
-        int ys = y2 >> 6;
+        int y = (y1 + 32) >> 6;
+        int ys = (y2 + 32) >> 6;
 
         if (y != ys) {
             x += ( ((((y << 6) + 32 - y1)))  * xinc ) >> 6;
@@ -460,8 +465,8 @@ void QCosmeticStroker::calculateLastPoint(qreal rx1, qreal ry1, qreal rx2, qreal
         int yinc = F16Dot16FixedDiv(y2 - y1, x2 - x1);
         int y = y1 << 10;
 
-        int x = x1 >> 6;
-        int xs = x2 >> 6;
+        int x = (x1 + 32) >> 6;
+        int xs = (x2 + 32) >> 6;
 
         if (x != xs) {
             y += ( ((((x << 6) + 32 - x1)))  * yinc ) >> 6;
@@ -518,7 +523,6 @@ void QCosmeticStroker::drawPath(const QVectorPath &path)
             Q_ASSERT(type == path.elements() || *type == QPainterPath::MoveToElement);
 
             QPointF p = QPointF(points[0], points[1]) * state->matrix;
-            QPointF movedTo = p;
             patternOffset = state->lastPen.dashOffset()*64;
             lastPixel.x = -1;
 
@@ -703,7 +707,7 @@ static void drawLine(QCosmeticStroker *stroker, qreal rx1, qreal ry1, qreal rx2,
     if (stroker->clipLine(rx1, ry1, rx2, ry2))
         return;
 
-    static const int half = 32;
+    static const int half = 31;
     int x1 = toF26Dot6(rx1) + half;
     int y1 = toF26Dot6(ry1) + half;
     int x2 = toF26Dot6(rx2) + half;
@@ -736,8 +740,8 @@ static void drawLine(QCosmeticStroker *stroker, qreal rx1, qreal ry1, qreal rx2,
 
         capAdjust(caps, y1, y2, x, xinc);
 
-        int y = y1 >> 6;
-        int ys = y2 >> 6;
+        int y = (y1 + 32) >> 6;
+        int ys = (y2 + 32) >> 6;
 
         if (y != ys) {
             x += ( ((((y << 6) + 32 - y1)))  * xinc ) >> 6;
@@ -811,8 +815,8 @@ static void drawLine(QCosmeticStroker *stroker, qreal rx1, qreal ry1, qreal rx2,
 
         capAdjust(caps, x1, x2, y, yinc);
 
-        int x = x1 >> 6;
-        int xs = x2 >> 6;
+        int x = (x1 + 32) >> 6;
+        int xs = (x2 + 32) >> 6;
 
         if (x != xs) {
             y += ( ((((x << 6) + 32 - x1)))  * yinc ) >> 6;

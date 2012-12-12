@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -201,11 +201,29 @@ QByteArray QHttpNetworkReply::readAll()
     return d->responseData.readAll();
 }
 
+QByteArray QHttpNetworkReply::read(qint64 amount)
+{
+    Q_D(QHttpNetworkReply);
+    return d->responseData.read(amount);
+}
+
+qint64 QHttpNetworkReply::sizeNextBlock()
+{
+    Q_D(QHttpNetworkReply);
+    return d->responseData.sizeNextBlock();
+}
+
 void QHttpNetworkReply::setDownstreamLimited(bool dsl)
 {
     Q_D(QHttpNetworkReply);
     d->downstreamLimited = dsl;
     d->connection->d_func()->readMoreLater(this);
+}
+
+void QHttpNetworkReply::setReadBufferSize(qint64 size)
+{
+    Q_D(QHttpNetworkReply);
+    d->readBufferMaxSize = size;
 }
 
 bool QHttpNetworkReply::supportsUserProvidedDownloadBuffer()
@@ -253,7 +271,7 @@ QHttpNetworkReplyPrivate::QHttpNetworkReplyPrivate(const QUrl &newUrl)
       connectionCloseEnabled(true),
       forceConnectionCloseEnabled(false),
       lastChunkRead(false),
-      currentChunkSize(0), currentChunkRead(0), connection(0), initInflate(false),
+      currentChunkSize(0), currentChunkRead(0), readBufferMaxSize(0), connection(0), initInflate(false),
       autoDecompress(false), responseData(), requestIsPrepared(false)
       ,pipeliningUsed(false), downstreamLimited(false)
       ,userProvidedDownloadBuffer(0)
@@ -499,7 +517,7 @@ qint64 QHttpNetworkReplyPrivate::readStatus(QAbstractSocket *socket)
             return -1; // unexpected EOF
         else if (haveRead == 0)
             break; // read more later
-        else if (haveRead == 1 && bytes == 0 && (c == 11 || c == '\n' || c == '\r' || c == ' ' || c == 31))
+        else if (haveRead == 1 && fragment.size() == 0 && (c == 11 || c == '\n' || c == '\r' || c == ' ' || c == 31))
             continue; // Ignore all whitespace that was trailing froma previous request on that socket
 
         bytes++;
@@ -625,7 +643,8 @@ qint64 QHttpNetworkReplyPrivate::readHeader(QAbstractSocket *socket)
         // check for explicit indication of close or the implicit connection close of HTTP/1.0
         connectionCloseEnabled = (connectionHeaderField.toLower().contains("close") ||
             headerField("proxy-connection").toLower().contains("close")) ||
-            (majorVersion == 1 && minorVersion == 0 && connectionHeaderField.isEmpty());
+            (majorVersion == 1 && minorVersion == 0 &&
+            (connectionHeaderField.isEmpty() && !headerField("proxy-connection").toLower().contains("keep-alive")));
     }
     return bytes;
 }
@@ -699,6 +718,8 @@ qint64 QHttpNetworkReplyPrivate::readBodyFast(QAbstractSocket *socket, QByteData
 {
 
     qint64 toBeRead = qMin(socket->bytesAvailable(), bodyLength - contentRead);
+    if (readBufferMaxSize)
+        toBeRead = qMin(toBeRead, readBufferMaxSize);
     QByteArray bd;
     bd.resize(toBeRead);
     qint64 haveRead = socket->read(bd.data(), toBeRead);
@@ -746,6 +767,8 @@ qint64 QHttpNetworkReplyPrivate::readReplyBodyRaw(QAbstractSocket *socket, QByte
     Q_ASSERT(out);
 
     int toBeRead = qMin<qint64>(128*1024, qMin<qint64>(size, socket->bytesAvailable()));
+    if (readBufferMaxSize)
+        toBeRead = qMin<qint64>(toBeRead, readBufferMaxSize);
 
     while (toBeRead > 0) {
         QByteArray byteData;
@@ -772,6 +795,10 @@ qint64 QHttpNetworkReplyPrivate::readReplyBodyChunked(QAbstractSocket *socket, Q
 {
     qint64 bytes = 0;
     while (socket->bytesAvailable()) {
+
+        if (readBufferMaxSize && (bytes > readBufferMaxSize))
+            break;
+
         if (!lastChunkRead && currentChunkRead >= currentChunkSize) {
             // For the first chunk and when we're done with a chunk
             currentChunkSize = 0;

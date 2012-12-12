@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -197,58 +197,99 @@ QThreadPrivate::~QThreadPrivate()
 
 /*!
     \class QThread
-    \brief The QThread class provides platform-independent threads.
+    \brief The QThread class provides a platform-independent way to
+    manage threads.
 
     \ingroup thread
 
-    A QThread represents a separate thread of control within the
-    program; it shares data with all the other threads within the
-    process but executes independently in the way that a separate
-    program does on a multitasking operating system. Instead of
-    starting in \c main(), QThreads begin executing in run().  By
-    default, run() starts the event loop by calling exec() (see
-    below). To create your own threads, subclass QThread and
-    reimplement run(). For example:
+    A QThread object manages one thread of control within the
+    program. To make code run in a separate thread, simply create a
+    QThread, change the thread affinity of the QObject(s) that
+    contain the code, and start() the new event loop. For example:
 
     \snippet doc/src/snippets/code/src_corelib_thread_qthread.cpp 0
 
-    This will create a QTcpSocket in the thread and then execute the
-    thread's event loop. Use the start() method to begin execution.
-    Execution ends when you return from run(), just as an application
-    does when it leaves main(). QThread will notifiy you via a signal
+    The code inside the Worker's slot would then execute in a
+    separate thread. In this example, the QThread triggers the
+    Worker's doWork() slot upon starting, and frees the Worker's
+    memory upon terminating. However, you are free to connect the
+    Worker's slots to any signal, from any object, in any thread. It
+    is safe to connect signals and slots across different threads,
+    thanks to a mechanism called \l{Qt::QueuedConnection}{queued
+    connections}.
+
+    \note If you interact with an object, using any technique other
+    than queued signal/slot connections (e.g. direct function calls),
+    then the usual multithreading precautions need to be taken.
+
+    \note It is not possible to change the thread affinity of GUI
+    objects; they must remain in the main thread.
+
+
+    \section1 Managing threads
+
+    QThread will notifiy you via a signal
     when the thread is started(), finished(), and terminated(), or
     you can use isFinished() and isRunning() to query the state of
-    the thread. Use wait() to block until the thread has finished
-    execution.
+    the thread.
 
-    Each thread gets its own stack from the operating system. The
-    operating system also determines the default size of the stack.
-    You can use setStackSize() to set a custom stack size.
+    You can stop the thread by calling exit() or quit(). In extreme
+    cases, you may want to forcibly terminate() an executing thread.
+    However, doing so is dangerous and discouraged. Please read the
+    documentation for terminate() and setTerminationEnabled() for
+    detailed information.
 
-    Each QThread can have its own event loop. You can start the event
-    loop by calling exec(); you can stop it by calling exit() or
-    quit(). Having an event loop in a thread makes it possible to
-    connect signals from other threads to slots in this thread, using
-    a mechanism called \l{Qt::QueuedConnection}{queued
-    connections}. It also makes it possible to use classes that
-    require the event loop, such as QTimer and QTcpSocket, in the
-    thread. Note, however, that it is not possible to use any widget
-    classes in the thread.
+    From Qt 4.8 onwards, it is possible to deallocate objects that
+    live in a thread that has just ended, by connecting the
+    finished() signal to QObject::deleteLater().
 
-    In extreme cases, you may want to forcibly terminate() an
-    executing thread. However, doing so is dangerous and discouraged.
-    Please read the documentation for terminate() and
-    setTerminationEnabled() for detailed information.
+    Use wait() to block the calling thread, until the other thread
+    has finished execution (or until a specified time has passed).
 
     The static functions currentThreadId() and currentThread() return
     identifiers for the currently executing thread. The former
     returns a platform specific ID for the thread; the latter returns
     a QThread pointer.
 
-    QThread also provides platform independent sleep functions in
-    varying resolutions. Use sleep() for full second resolution,
-    msleep() for millisecond resolution, and usleep() for microsecond
-    resolution.
+
+    \section1 Subclassing QThread
+
+    Subclassing QThread is unnecessary for most purposes, since
+    QThread provides fully-functional thread management capabilities.
+    Nonetheless, QThread can be subclassed if you wish to implement
+    advanced thread management. This is done by adding new member
+    functions to the subclass, and/or by reimplementing run().
+    QThread's run() function is analogous to an application's main()
+    function -- it is executed when the thread is started, and the
+    thread will end when it returns.
+
+    \note Prior to Qt 4.4, the only way to use QThread for parallel
+    processing was to subclass it and implement the processing code
+    inside run(). This approach is now considered \b {bad practice};
+    a QThread should only manage a thread, not process data.
+
+    If you require event handling and signal/slot connections to
+    work in your thread, and if you reimplement run(), you must
+    explicitly call exec() at the end of your reimplementation:
+
+    \snippet doc/src/snippets/code/src_corelib_thread_qthread.cpp 1
+
+    QThread also provides static, platform independent sleep
+    functions: sleep(), msleep(), and usleep() allow full second,
+    millisecond, and microsecond resolution respectively.
+
+    \note wait() and the sleep() functions should be unnecessary in
+    general, since Qt is an event-driven framework. Instead of
+    wait(), consider listening for the finished() signal. Instead of
+    the sleep() functions, consider using QTimer.
+
+    It is important to remember that a QThread object usually lives
+    in the thread where it was created, not in the thread that it
+    manages. This oft-overlooked detail means that a QThread's slots
+    will be executed in the context of its home thread, not in the
+    context of the thread it is managing. For this reason,
+    implementing new slots in a QThread subclass is error-prone and
+    discouraged.
 
     \sa {Thread Support in Qt}, QThreadStorage, QMutex, QSemaphore, QWaitCondition,
         {Mandelbrot Example}, {Semaphores Example}, {Wait Conditions Example}
@@ -289,8 +330,7 @@ QThreadPrivate::~QThreadPrivate()
 /*!
     \fn void QThread::start(Priority priority)
 
-    Begins execution of the thread by calling run(), which should be
-    reimplemented in a QThread subclass to contain your code. The
+    Begins execution of the thread by calling run(). The
     operating system will schedule the thread according to the \a
     priority parameter. If the thread is already running, this
     function does nothing.
@@ -353,7 +393,7 @@ QThreadPrivate::~QThreadPrivate()
 */
 
 /*!
-    Returns a pointer to a QThread which represents the currently
+    Returns a pointer to a QThread which manages the currently
     executing thread.
 */
 QThread *QThread::currentThread()
@@ -364,8 +404,9 @@ QThread *QThread::currentThread()
 }
 
 /*!
-    Constructs a new thread with the given \a parent. The thread does
-    not begin executing until start() is called.
+    Constructs a new QThread to manage a new thread. The \a parent
+    takes ownership of the QThread. The thread does not begin
+    executing until start() is called.
 
     \sa start()
 */
@@ -388,13 +429,13 @@ QThread::QThread(QThreadPrivate &dd, QObject *parent)
 }
 
 /*!
-    Destroys the thread.
+    Destroys the QThread.
 
     Note that deleting a QThread object will not stop the execution
-    of the thread it represents. Deleting a running QThread (i.e.
+    of the thread it manages. Deleting a running QThread (i.e.
     isFinished() returns false) will probably result in a program
-    crash. You can wait() on a thread to make sure that it has
-    finished.
+    crash. Wait for the finished() signal before deleting the
+    QThread.
 */
 QThread::~QThread()
 {
@@ -557,9 +598,9 @@ void QThread::quit()
     newly created thread calls this function. The default
     implementation simply calls exec().
 
-    You can reimplemented this function to do other useful
-    work. Returning from this method will end the execution of the
-    thread.
+    You can reimplement this function to facilitate advanced thread
+    management. Returning from this method will end the execution of
+    the thread.
 
     \sa start() wait()
 */
@@ -655,7 +696,7 @@ QThread::Priority QThread::priority() const
 /*!
     \fn void QThread::msleep(unsigned long msecs)
 
-    Causes the current thread to sleep for \a msecs milliseconds.
+    Forces the current thread to sleep for \a msecs milliseconds.
 
     \sa sleep(), usleep()
 */
@@ -663,7 +704,7 @@ QThread::Priority QThread::priority() const
 /*!
     \fn void QThread::usleep(unsigned long usecs)
 
-    Causes the current thread to sleep for \a usecs microseconds.
+    Forces the current thread to sleep for \a usecs microseconds.
 
     \sa sleep(), msleep()
 */
@@ -672,9 +713,9 @@ QThread::Priority QThread::priority() const
     \fn void QThread::terminate()
 
     Terminates the execution of the thread. The thread may or may not
-    be terminated immediately, depending on the operating systems
-    scheduling policies. Use QThread::wait() after terminate() for
-    synchronous termination.
+    be terminated immediately, depending on the operating system's
+    scheduling policies. Listen for the terminated() signal, or use
+    QThread::wait() after terminate(), to be sure.
 
     When the thread is terminated, all threads waiting for the thread
     to finish will be woken up.

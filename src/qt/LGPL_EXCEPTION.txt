@@ -1,4 +1,4 @@
-Nokia Qt LGPL Exception version 1.1
+Digia Qt LGPL Exception version 1.1
 
 As an additional permission to the GNU Lesser General Public License version
 2.1, the object code form of a "work that uses the Library" may incorporate

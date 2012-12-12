@@ -27,7 +27,7 @@ EOF
     rm -f header.pchi header.o source.o
     ;;
 
-*g++*|c++)
+*g++*|c++|*qcc*)
     case `"$COMPILER" -dumpversion 2>/dev/null` in
     3.*)
         ;;

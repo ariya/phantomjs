@@ -25,16 +25,16 @@ __global void blah();
 EOF
 
     if [ "$VERBOSE" = "yes" ] ; then
-        "$COMPILER" -c $CMDLINE fvisibility.c && FVISIBILITY_SUPPORT=yes
+        $COMPILER -c $CMDLINE fvisibility.c && FVISIBILITY_SUPPORT=yes
     else
-        "$COMPILER" -c $CMDLINE fvisibility.c >/dev/null 2>&1 && FVISIBILITY_SUPPORT=yes
+        $COMPILER -c $CMDLINE fvisibility.c >/dev/null 2>&1 && FVISIBILITY_SUPPORT=yes
     fi
     rm -f fvisibility.c fvisibility.o
 }
 
 
 case "$COMPILER" in
-*g++*|*c++*)
+*g++*|*c++*|*qcc*)
     CMDLINE="-fvisibility=hidden"
     RunCompileTest
    ;;

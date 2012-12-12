@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -1433,6 +1433,7 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
         } else {
             [item setSubmenu:subMenu];
         }
+        [item setAction:nil];
 #endif
     } else { //respect some other items
 #ifndef QT_MAC_USE_COCOA
@@ -1447,6 +1448,8 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
         }
 #else
         [item setSubmenu:0];
+        if ([item action] == nil)
+            [item setAction:@selector(qtDispatcherToQAction:)];
         // No key equivalent set for multiple key QKeySequence.
         if (accel.count() == 1) {
             [item setKeyEquivalent:keySequenceToKeyEqivalent(accel)];
@@ -1504,6 +1507,16 @@ QMenuPrivate::QMacMenuPrivate::removeAction(QMacMenuAction *action)
                 && action->menuItem != [loader preferencesMenuItem]) {
                 [[action->menuItem menu] removeItem:action->menuItem];
             }
+            if (QMenuMergeList *list = mergeMenuItemsHash.value(action->menu)) {
+                int i = 0;
+                while (i < list->size()) {
+                    const QMenuMergeItem &item = list->at(i);
+                    if (item.action == action)
+                        list->removeAt(i);
+                    else
+                        ++i;
+                }
+            }
         }
     } else {
         [[action->menuItem menu] removeItem:action->menuItem];
@@ -1554,6 +1567,7 @@ QMenuPrivate::syncSeparatorsCollapsible(bool collapse)
 
 
 
+#ifndef QT_MAC_USE_COCOA
 /*!
   \internal
 */
@@ -1567,26 +1581,16 @@ void QMenuPrivate::setMacMenuEnabled(bool enable)
         for (int i = 0; i < mac_menu->actionItems.count(); ++i) {
             QMacMenuAction *menuItem = mac_menu->actionItems.at(i);
             if (menuItem && menuItem->action && menuItem->action->isEnabled()) {
-#ifndef QT_MAC_USE_COCOA
                 // Only enable those items which contains an enabled QAction.
                 // i == 0 -> the menu itself, hence i + 1 for items.
                 EnableMenuItem(mac_menu->menu, i + 1);
-#else
-                [menuItem->menuItem setEnabled:true];
-#endif
             }
         }
     } else {
-#ifndef QT_MAC_USE_COCOA
         DisableAllMenuItems(mac_menu->menu);
-#else
-        NSMenu *menu = mac_menu->menu;
-        for (NSMenuItem *item in [menu itemArray]) {
-            [item setEnabled:false];
-        }
-#endif
     }
 }
+#endif
 
 /*!
     \internal
@@ -1744,6 +1748,7 @@ QMenuBarPrivate::QMacMenuBarPrivate::syncAction(QMacMenuAction *action)
         [item setSubmenu: submenu];
         [submenu setTitle:qt_mac_QStringToNSString(qt_mac_removeMnemonics(action->action->text()))];
         syncNSMenuItemVisiblity(item, visible);
+        syncNSMenuItemEnabled(item, action->action->isEnabled());
 #endif
         if (release_submenu) { //no pointers to it
 #ifndef QT_MAC_USE_COCOA
@@ -1846,6 +1851,9 @@ OSMenuRef QMenuBarPrivate::macMenu()
         return 0;
     } else if (!mac_menubar->menu) {
         mac_menubar->menu = qt_mac_create_menu(q);
+#ifdef QT_MAC_USE_COCOA
+        [mac_menubar->menu setAutoenablesItems:NO];
+#endif
         ProcessSerialNumber mine, front;
         if (GetCurrentProcess(&mine) == noErr && GetFrontProcess(&front) == noErr) {
             if (!qt_mac_no_menubar_merge && !mac_menubar->apple_menu) {

@@ -141,7 +141,7 @@ CONFIG -= qt
 
 #qmake
 qmake.path=$$[QT_INSTALL_BINS]
-win32 {
+equals(QMAKE_HOST.os, Windows) {
    qmake.files=$$QT_BUILD_TREE/bin/qmake.exe
 } else {
    qmake.files=$$QT_BUILD_TREE/bin/qmake
@@ -155,7 +155,11 @@ mkspecs.files -= $$QT_SOURCE_TREE/mkspecs/modules
 unix { 
    DEFAULT_QMAKESPEC = $$QMAKESPEC
    DEFAULT_QMAKESPEC ~= s,^.*mkspecs/,,g
-   mkspecs.commands += $(DEL_FILE) $(INSTALL_ROOT)$$mkspecs.path/default; $(SYMLINK) $$DEFAULT_QMAKESPEC $(INSTALL_ROOT)$$mkspecs.path/default
+
+   # When cross-compiling on a Unix-like environment in a Windows host
+   # we let the default mkspecs be copied to the target directory, instead
+   # of being symlinked.
+   !contains(QMAKE_HOST.os, Windows): mkspecs.commands += $(DEL_FILE) $(INSTALL_ROOT)$$mkspecs.path/default; $(SYMLINK) $$DEFAULT_QMAKESPEC $(INSTALL_ROOT)$$mkspecs.path/default
    mkspecs.files -= $$QT_SOURCE_TREE/mkspecs/default
 }
 win32:!equals(QT_BUILD_TREE, $$QT_SOURCE_TREE) {

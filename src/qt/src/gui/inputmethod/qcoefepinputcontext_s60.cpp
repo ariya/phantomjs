@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -63,6 +63,7 @@
 #include <coeinput.h>
 #include <w32std.h>
 #include <akndiscreetpopup.h>
+#include <aknextendedinputcapabilities.h>
 
 #include <qtextedit.h>
 #include <qplaintextedit.h>
@@ -100,6 +101,49 @@
 #endif
 
 _LIT(KAvkonResourceFile, "z:\\resource\\avkon.rsc" );
+
+// Vietnamese tone tables
+const int VietToneMarks = 5;
+
+const QChar VietToneList[VietToneMarks] = {
+        0x0301, 0x0300, 0x0309, 0x0303, 0x0323
+};
+
+const QChar VietVowelList[] = {
+        0x0041, 0x0061, 0x0102, 0x0103, 0x00c2,
+        0x00e2, 0x0045, 0x0065, 0x00ca, 0x00ea,
+        0x0049, 0x0069, 0x004f, 0x006f, 0x00d4,
+        0x00f4, 0x01a0, 0x01a1, 0x0055, 0x0075,
+        0x01af, 0x01b0, 0x0059, 0x0079
+};
+
+const QChar VietToneMatrix[][VietToneMarks] = {
+        // Matrix for each vowel (row) after applying certain tone mark (column)
+        0x00c1, 0x00c0, 0x1ea2, 0x00c3, 0x1ea0,
+        0x00e1, 0x00e0, 0x1ea3, 0x00e3, 0x1ea1,
+        0x1eae, 0x1eb0, 0x1eb2, 0x1eb4, 0x1eb6,
+        0x1eaf, 0x1eb1, 0x1eb3, 0x1eb5, 0x1eb7,
+        0x1ea4, 0x1ea6, 0x1ea8, 0x1eaa, 0x1eac,
+        0x1ea5, 0x1ea7, 0x1ea9, 0x1eab, 0x1ead,
+        0x00c9, 0x00c8, 0x1eba, 0x1ebc, 0x1eb8,
+        0x00e9, 0x00e8, 0x1ebb, 0x1ebd, 0x1eb9,
+        0x1ebe, 0x1ec0, 0x1ec2, 0x1ec4, 0x1ec6,
+        0x1ebf, 0x1ec1, 0x1ec3, 0x1ec5, 0x1ec7,
+        0x00cd, 0x00cc, 0x1ec8, 0x0128, 0x1eca,
+        0x00ed, 0x00ec, 0x1ec9, 0x0129, 0x1ecb,
+        0x00d3, 0x00d2, 0x1ece, 0x00d5, 0x1ecc,
+        0x00f3, 0x00f2, 0x1ecf, 0x00f5, 0x1ecd,
+        0x1ed0, 0x1ed2, 0x1ed4, 0x1ed6, 0x1ed8,
+        0x1ed1, 0x1ed3, 0x1ed5, 0x1ed7, 0x1ed9,
+        0x1eda, 0x1edc, 0x1ede, 0x1ee0, 0x1ee2,
+        0x1edb, 0x1edd, 0x1edf, 0x1ee1, 0x1ee3,
+        0x00da, 0x00d9, 0x1ee6, 0x0168, 0x1ee4,
+        0x00fa, 0x00f9, 0x1ee7, 0x0169, 0x1ee5,
+        0x1ee8, 0x1eea, 0x1eec, 0x1eee, 0x1ef0,
+        0x1ee9, 0x1eeb, 0x1eed, 0x1eef, 0x1ef1,
+        0x00dd, 0x1ef2, 0x1ef6, 0x1ef8, 0x1ef4,
+        0x00fd, 0x1ef3, 0x1ef7, 0x1ef9, 0x1ef5
+};
 
 QT_BEGIN_NAMESPACE
 
@@ -389,7 +433,10 @@ QCoeFepInputContext::QCoeFepInputContext(QObject *parent)
       m_splitViewResizeBy(0),
       m_splitViewPreviousWindowStates(Qt::WindowNoState),
       m_splitViewPreviousFocusItem(0),
-      m_ccpu(0)
+      m_ccpu(0),
+      m_extendedInputCapabilities(0),
+      m_formAccessor(0),
+      m_dummyEditor(0)
 {
     m_fepState->SetObjectProvider(this);
     int defaultFlags = EAknEditorFlagDefault;
@@ -421,6 +468,8 @@ QCoeFepInputContext::QCoeFepInputContext(QObject *parent)
             pasteLabel = qt_TDesC2QString(*pasteBuf);
             CleanupStack::PopAndDestroy(pasteBuf);
         }
+
+        m_extendedInputCapabilities = CAknExtendedInputCapabilities::NewL();
     )
 
     m_copyAction = new QAction(copyLabel, QApplication::desktop());
@@ -429,6 +478,14 @@ QCoeFepInputContext::QCoeFepInputContext(QObject *parent)
     m_pasteAction->setSoftKeyRole(QAction::NegativeSoftKey);
     connect(m_copyAction, SIGNAL(triggered()), this, SLOT(copy()));
     connect(m_pasteAction, SIGNAL(triggered()), this, SLOT(paste()));
+
+    // Use dummy editor to enable smiley support by default
+    m_dummyEditor.reset(new CEikEdwin());
+    TRAPD(err, m_dummyEditor->ConstructL(CEikEdwin::EAvkonEnableSmileySupport));
+    if (!err) {
+        m_formAccessor.reset(new CAknEdwinFormAccessor(m_dummyEditor.data()));
+        m_fepState->SetFormAccessor(m_formAccessor.data());
+    }
 }
 
 QCoeFepInputContext::~QCoeFepInputContext()
@@ -443,6 +500,7 @@ QCoeFepInputContext::~QCoeFepInputContext()
 
     delete m_fepState;
     delete m_ccpu;
+    delete m_extendedInputCapabilities;
 }
 
 void QCoeFepInputContext::reset()
@@ -572,10 +630,75 @@ bool QCoeFepInputContext::needsInputPanel()
     }
 }
 
+bool QCoeFepInputContext::vietCharConversion(const QEvent *event)
+{
+    const QKeyEvent *keyEvent = static_cast<const QKeyEvent *>(event);
+    const uint VietVowelListCount = sizeof(VietVowelList)/sizeof(VietVowelList[0]);
+    for (int tone = 0; tone < VietToneMarks; tone++) {
+        if (keyEvent->key() == VietToneList[tone]) {
+            // Vietnamese vowel tone mark pressed, check previous character
+            const int cursor = focusWidget()->inputMethodQuery(Qt::ImCursorPosition).toInt();
+            if (cursor > 0) {
+                QString widgetText = focusWidget()->inputMethodQuery(Qt::ImSurroundingText).toString();
+                for (int vowel = 0; vowel < VietVowelListCount; vowel++) {
+                    if (widgetText[cursor-1].unicode() == VietVowelList[vowel]) {
+                        // Previous character is Vietnamese vowel, replace it from matrix
+                        QList<QInputMethodEvent::Attribute> attributes;
+                        if (event->type() == QEvent::KeyPress) {
+                            QInputMethodEvent imEvent(QString(VietToneMatrix[vowel][tone]), attributes);
+                            sendEvent(imEvent);
+                        } else {
+                            // event->type() == QEvent::KeyRelease
+                            QInputMethodEvent imEvent(QLatin1String(""), attributes);
+                            imEvent.setCommitString(QString(VietToneMatrix[vowel][tone]), -1, 1);
+                            sendEvent(imEvent);
+                        }
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+    }
+    if (keyEvent->key() == Qt::Key_Backspace) {
+        // Backspace pressed, check previous character
+        const int cursor = focusWidget()->inputMethodQuery(Qt::ImCursorPosition).toInt();
+        if (cursor > 0) {
+            QString widgetText = focusWidget()->inputMethodQuery(Qt::ImSurroundingText).toString();
+            for (int vowel = 0; vowel < VietVowelListCount; vowel++) {
+                for (int tone = 0; tone < VietToneMarks; tone++) {
+                    if (widgetText[cursor-1].unicode() == VietToneMatrix[vowel][tone]) {
+                        // Previous character is Vietnamese vowel with tone, replace it with plain vowel
+                        QList<QInputMethodEvent::Attribute> attributes;
+                        if (event->type() == QEvent::KeyPress) {
+                            QInputMethodEvent imEvent(QString(VietVowelList[vowel]), attributes);
+                            sendEvent(imEvent);
+                        } else {
+                            // event->type() == QEvent::KeyRelease
+                            QInputMethodEvent imEvent(QLatin1String(""), attributes);
+                            imEvent.setCommitString(QString(VietVowelList[vowel]), -1, 1);
+                            sendEvent(imEvent);
+                        }
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
 bool QCoeFepInputContext::filterEvent(const QEvent *event)
 {
     if (!focusWidget())
         return false;
+
+    if ((event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) &&
+            QApplication::keyboardInputLocale().language() == QLocale::Vietnamese) {
+        // Vietnamese character conversions
+        if (vietCharConversion(event))
+            return true;
+    }
 
     switch (event->type()) {
     case QEvent::KeyPress:
@@ -620,7 +743,8 @@ bool QCoeFepInputContext::filterEvent(const QEvent *event)
 
         if (keyEvent->type() == QEvent::KeyPress
             && currentHints & Qt::ImhHiddenText
-            && !keyEvent->text().isEmpty()) {
+            && !keyEvent->text().isEmpty()
+            && keyEvent->key() != Qt::Key_Enter) {
             // Send some temporary preedit text in order to make text visible for a moment.
             m_preeditString = keyEvent->text();
             QList<QInputMethodEvent::Attribute> attributes;
@@ -799,7 +923,22 @@ void QCoeFepInputContext::mouseHandler(int x, QMouseEvent *event)
             && (x > 0 && x < m_preeditString.length())) {
             m_pointerHandler->HandlePointerEventInInlineTextL(TPointerEvent::EButton1Up, 0, 0);
         } else {
-            commitCurrentString(true);
+            // Notify FEP about pointer event via CAknExtendedInputCapabilities::ReporEventL().
+            // FEP will then commit the string and cancel inline edit state properly.
+            // FEP does not really use the pointer event parameter, so it is ok to pass NULL.
+            if (m_extendedInputCapabilities) {
+                TRAP_IGNORE(
+                    m_extendedInputCapabilities->ReportEventL(
+                       CAknExtendedInputCapabilities::MAknEventObserver::EPointerEventReceived,
+                       NULL));
+            } else {
+                // In practice m_extendedInputCapabilities should always exist.
+                // If it does not, commit current string directly here.
+                // This will cancel inline edit in FEP but VKB might still think that
+                // inline edit is ongoing.
+                commitCurrentString(true);
+            }
+
             int pos = focusWidget()->inputMethodQuery(Qt::ImCursorPosition).toInt();
 
             QList<QInputMethodEvent::Attribute> attributes;
@@ -816,7 +955,9 @@ TCoeInputCapabilities QCoeFepInputContext::inputCapabilities()
         return TCoeInputCapabilities(TCoeInputCapabilities::ENone, 0, 0);
     }
 
-    return TCoeInputCapabilities(m_textCapabilities, this, 0);
+    TCoeInputCapabilities inputCapabilities(m_textCapabilities, this, 0);
+    inputCapabilities.SetObjectProvider(this);
+    return inputCapabilities;
 }
 
 void QCoeFepInputContext::resetSplitViewWidget(bool keepInputWidget)
@@ -1200,14 +1341,18 @@ void QCoeFepInputContext::applyHints(Qt::InputMethodHints hints)
 
     if (hints & ImhUrlCharactersOnly) {
         // URL characters is everything except space, so a superset of the other restrictions
-        m_fepState->SetSpecialCharacterTableResourceId(R_AVKON_URL_SPECIAL_CHARACTER_TABLE_DIALOG);
+        m_fepState->SetExtensionFlags(EAknEditorExtFlagKeyboardUrl);
     } else if (hints & ImhEmailCharactersOnly) {
-        m_fepState->SetSpecialCharacterTableResourceId(R_AVKON_EMAIL_ADDR_SPECIAL_CHARACTER_TABLE_DIALOG);
-    } else if (needsCharMap) {
-        m_fepState->SetSpecialCharacterTableResourceId(R_AVKON_SPECIAL_CHARACTER_TABLE_DIALOG);
+        m_fepState->SetExtensionFlags(EAknEditorExtFlagKeyboardEmail);
     } else {
-        m_fepState->SetSpecialCharacterTableResourceId(0);
+        m_fepState->SetExtensionFlags(0);
     }
+
+    bool enableSmileys = needsCharMap && !(hints & (ImhHiddenText | ImhUrlCharactersOnly | ImhEmailCharactersOnly));
+    if (enableSmileys)
+        m_dummyEditor->AddFlagToUserFlags(CEikEdwin::EAvkonEnableSmileySupport);
+    else
+        m_dummyEditor->RemoveFlagFromUserFlags(CEikEdwin::EAvkonEnableSmileySupport);
 
     if (hints & ImhHiddenText) {
         m_textCapabilities = TCoeInputCapabilities::EAllText | TCoeInputCapabilities::ESecretText;
@@ -2007,8 +2152,12 @@ void QCoeFepInputContext::paste()
     QT_TRAP_THROWING(CcpuPasteL());
 }
 
-TTypeUid::Ptr QCoeFepInputContext::MopSupplyObject(TTypeUid /*id*/)
+TTypeUid::Ptr QCoeFepInputContext::MopSupplyObject(TTypeUid id)
 {
+    if (m_extendedInputCapabilities
+        && id.iUid == CAknExtendedInputCapabilities::ETypeId)
+        return id.MakePtr(m_extendedInputCapabilities);
+
     return TTypeUid::Null();
 }
 

@@ -32,5 +32,18 @@ symbian {
                ssl/qsslsocket_openssl_symbols.cpp
 
     # Add optional SSL libs
+    # Static linking of OpenSSL with msvc:
+    #   - Binaries http://slproweb.com/products/Win32OpenSSL.html
+    #   - also needs -lUser32 -lAdvapi32 -lGdi32 -lCrypt32
+    #   - libs in <OPENSSL_DIR>\lib\VC\static
+    #   - configure: -openssl -openssl-linked -I <OPENSSL_DIR>\include -L <OPENSSL_DIR>\lib\VC\static OPENSSL_LIBS="-lUser32 -lAdvapi32 -lGdi32 -lCrypt32" OPENSSL_LIBS_DEBUG="-lssleay32MDd -llibeay32MDd" OPENSSL_LIBS_RELEASE="-lssleay32MD -llibeay32MD"
+
+    CONFIG(debug, debug|release) {
+        LIBS_PRIVATE += $$OPENSSL_LIBS_DEBUG
+    } else {
+        LIBS_PRIVATE += $$OPENSSL_LIBS_RELEASE
+    }
+
     LIBS_PRIVATE += $$OPENSSL_LIBS
+
 }

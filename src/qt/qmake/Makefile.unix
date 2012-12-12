@@ -21,7 +21,7 @@ QOBJS=qtextcodec.o qutfcodec.o qstring.o qtextstream.o qiodevice.o qmalloc.o qgl
       qfsfileengine_iterator.o qregexp.o qvector.o qbitarray.o qdir.o qdiriterator.o quuid.o qhash.o \
       qfileinfo.o qdatetime.o qstringlist.o qabstractfileengine.o qtemporaryfile.o \
       qmap.o qmetatype.o qsettings.o qsystemerror.o qlibraryinfo.o qvariant.o qvsnprintf.o \
-      qlocale.o qlocale_tools.o qlocale_unix.o qlinkedlist.o qurl.o qnumeric.o qcryptographichash.o \
+      qlocale.o qlocale_tools.o qlocale_unix.o qlinkedlist.o qnumeric.o qcryptographichash.o \
       qxmlstream.o qxmlutils.o \
       $(QTOBJS)
 
@@ -58,7 +58,7 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp generators/makefile.cpp ge
 	   $(SOURCE_PATH)/src/corelib/io/qdir.cpp $(SOURCE_PATH)/src/corelib/plugin/quuid.cpp \
 	   $(SOURCE_PATH)/src/corelib/io/qfileinfo.cpp $(SOURCE_PATH)/src/corelib/tools/qdatetime.cpp \
 	   $(SOURCE_PATH)/src/corelib/tools/qstringlist.cpp $(SOURCE_PATH)/src/corelib/tools/qmap.cpp \
-	   $(SOURCE_PATH)/src/corelib/global/qconfig.cpp $(SOURCE_PATH)/src/corelib/io/qurl.cpp \
+	   $(SOURCE_PATH)/src/corelib/global/qconfig.cpp \
 	   $(SOURCE_PATH)/src/corelib/tools/qlocale.cpp \
 	   $(SOURCE_PATH)/src/corelib/tools/qlocale_tools.cpp \
 	   $(SOURCE_PATH)/src/corelib/tools/qlocale_unix.cpp \
@@ -146,9 +146,6 @@ qmetatype.o: $(SOURCE_PATH)/src/corelib/kernel/qmetatype.cpp
 
 qcore_mac.o: $(SOURCE_PATH)/src/corelib/kernel/qcore_mac.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/kernel/qcore_mac.cpp
-
-qurl.o: $(SOURCE_PATH)/src/corelib/io/qurl.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qurl.cpp
 
 qutfcodec.o: $(SOURCE_PATH)/src/corelib/codecs/qutfcodec.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/codecs/qutfcodec.cpp

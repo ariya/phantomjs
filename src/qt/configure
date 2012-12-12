@@ -1,39 +1,39 @@
 #!/bin/sh
 #############################################################################
 ##
-## Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-## All rights reserved.
-## Contact: Nokia Corporation (qt-info@nokia.com)
+## Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+## Contact: http://www.qt-project.org/legal
 ##
 ## This file is the build configuration utility of the Qt Toolkit.
 ##
 ## $QT_BEGIN_LICENSE:LGPL$
-## GNU Lesser General Public License Usage
-## This file may be used under the terms of the GNU Lesser General Public
-## License version 2.1 as published by the Free Software Foundation and
-## appearing in the file LICENSE.LGPL included in the packaging of this
-## file. Please review the following information to ensure the GNU Lesser
-## General Public License version 2.1 requirements will be met:
-## http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+## Commercial License Usage
+## Licensees holding valid commercial Qt licenses may use this file in
+## accordance with the commercial license agreement provided with the
+## Software or, alternatively, in accordance with the terms contained in
+## a written agreement between you and Digia.  For licensing terms and
+## conditions see http://qt.digia.com/licensing.  For further information
+## use the contact form at http://qt.digia.com/contact-us.
 ##
-## In addition, as a special exception, Nokia gives you certain additional
-## rights. These rights are described in the Nokia Qt LGPL Exception
+## GNU Lesser General Public License Usage
+## Alternatively, this file may be used under the terms of the GNU Lesser
+## General Public License version 2.1 as published by the Free Software
+## Foundation and appearing in the file LICENSE.LGPL included in the
+## packaging of this file.  Please review the following information to
+## ensure the GNU Lesser General Public License version 2.1 requirements
+## will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+##
+## In addition, as a special exception, Digia gives you certain additional
+## rights.  These rights are described in the Digia Qt LGPL Exception
 ## version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 ##
 ## GNU General Public License Usage
-## Alternatively, this file may be used under the terms of the GNU General
-## Public License version 3.0 as published by the Free Software Foundation
-## and appearing in the file LICENSE.GPL included in the packaging of this
-## file. Please review the following information to ensure the GNU General
-## Public License version 3.0 requirements will be met:
-## http://www.gnu.org/copyleft/gpl.html.
-##
-## Other Usage
-## Alternatively, this file may be used in accordance with the terms and
-## conditions contained in a signed written agreement between you and Nokia.
-##
-##
-##
+## Alternatively, this file may be used under the terms of the GNU
+## General Public License version 3.0 as published by the Free Software
+## Foundation and appearing in the file LICENSE.GPL included in the
+## packaging of this file.  Please review the following information to
+## ensure the GNU General Public License version 3.0 requirements will be
+## met: http://www.gnu.org/copyleft/gpl.html.
 ##
 ##
 ## $QT_END_LICENSE$
@@ -71,8 +71,10 @@ QTCONFIG_CONFIG=
 QT_CONFIG=
 SUPPORTED=
 QMAKE_VARS_FILE=.qmake.vars
+DEVICE_VARS_FILE=.device.vars
 
 :> "$QMAKE_VARS_FILE"
+:> "$DEVICE_VARS_FILE"
 
 #-------------------------------------------------------------------------------
 # utility functions
@@ -153,7 +155,7 @@ BEGIN {
         ovalue = ovalue substr(value, 1, RSTART - 1)
         var = substr(value, RSTART + 2, RLENGTH - 2)
         value = substr(value, RSTART + RLENGTH)
-        if (var ~ /^{/) {
+        if (var ~ /^\{/) {
             var = substr(var, 2, length(var) - 2)
         }
         ovalue = ovalue values[var]
@@ -199,28 +201,45 @@ getXQMakeConf()
     getQMakeConf3 "$1" "$xspecvals"
 }
 
-# relies on $TEST_COMPILER being set correctly
 compilerSupportsFlag()
 {
     cat >conftest.cpp <<EOF
 int main() { return 0; }
 EOF
-    "$TEST_COMPILER" "$@" -o conftest.o conftest.cpp
+    "$@" -o conftest-out.o conftest.cpp
     ret=$?
-    rm -f conftest.cpp conftest.o
+    rm -f conftest.cpp conftest-out.o
     return $ret
 }
 
-# relies on $TEST_COMPILER being set correctly
 linkerSupportsFlag()
 {
+    compiler=$1
+    shift
     lflags=-Wl
     for flag
     do
 	safe_flag=`shellEscape "$flag"`
 	lflags=$lflags,$safe_flag
     done
-    compilerSupportsFlag "$lflags" >/dev/null 2>&1
+    compilerSupportsFlag $compiler $lflags >/dev/null 2>&1
+}
+
+#-------------------------------------------------------------------------------
+# device options
+#-------------------------------------------------------------------------------
+DeviceVar()
+{
+    case "$1" in
+        set)
+            eq="="
+            ;;
+        *)
+            echo >&2 "BUG: wrong command to QMakeVar: $1"
+            ;;
+    esac
+
+    echo "$2" "$eq" "$3" >> "$DEVICE_VARS_FILE"
 }
 
 #-------------------------------------------------------------------------------
@@ -473,7 +492,7 @@ elif [ $COMMERCIAL_USER = "yes" ]; then
             echo
             echo "You are using an old license file."
             echo
-            echo "Please install the license file supplied by Nokia,"
+            echo "Please install the license file supplied by Digia,"
             echo "or install the Qt Open Source Edition if you intend to"
             echo "develop free software."
             exit 1
@@ -581,7 +600,7 @@ elif [ $COMMERCIAL_USER = "yes" ]; then
             echo
             echo "You are not licensed for the $Platform platform."
             echo
-            echo "Please contact qt-info@nokia.com to upgrade your license to"
+            echo "Please use contact form at http://qt.digia.com/contact-us to upgrade your license to"
             echo "include the $Platform platform, or install the Qt Open Source Edition"
             echo "if you intend to develop free software."
             exit 1
@@ -772,6 +791,7 @@ CFG_DECLARATIVE=auto
 CFG_DECLARATIVE_DEBUG=yes
 CFG_WEBKIT=auto # (yes|no|auto|debug)
 CFG_JAVASCRIPTCORE_JIT=auto
+CFG_STACK_PROTECTOR_STRONG=auto
 
 CFG_GFX_AVAILABLE="linuxfb transformed qvfb vnc multiscreen directfb"
 CFG_GFX_ON="linuxfb multiscreen"
@@ -879,6 +899,7 @@ XPLATFORM_MINGW=no      # Whether target platform is MinGW (win32-g++*)
 XPLATFORM_INTEGRITY=no  # Whether target platform is INTEGRITY (*integrity*)
 XPLATFORM_SYMBIAN=no    # Whether target platform is SYMBIAN (*symbian*)
 XPLATFORM_SYMBIAN_SBSV2=no # Whether target platform is SYMBIAN_SBSV2 (symbian-sbsv2)
+XPLATFORM_QNX=no
 PLATFORM=$QMAKESPEC
 QT_CROSS_COMPILE=no
 OPT_CONFIRM_LICENSE=no
@@ -895,6 +916,8 @@ CFG_COREWLAN=auto
 CFG_ICD=auto
 CFG_NOPROCESS=no
 CFG_ICU=auto
+CFG_SYSTEM_PROXIES=no
+CFG_SLOG2=auto
 
 # initalize variables used for installation
 QT_INSTALL_PREFIX=
@@ -933,6 +956,9 @@ QT_LIBS_GLIB=
 # flags for GStreamer (X11 only)
 QT_CFLAGS_GSTREAMER=
 QT_LIBS_GSTREAMER=
+
+# default qpa platform
+QT_QPA_DEFAULT_PLATFORM=
 
 #flag for Symbian fpu settings
 QT_CFLAGS_FPU=
@@ -1079,6 +1105,14 @@ while [ "$#" -gt 0 ]; do
         VAR=`echo $1 | sed "s,^--\(.*\),\1,"`
         VAL=yes
         ;;
+    -system-proxies)
+        VAR=system-proxies
+        VAL=yes
+        ;;
+    -no-system-proxies)
+        VAR=system-proxies
+        VAL=no
+        ;;
     #Qt plugin options
     -no-*-*|-plugin-*-*|-qt-*-*)
         VAR=`echo $1 | sed "s,^-[^-]*-\(.*\),\1,"`
@@ -1119,7 +1153,7 @@ while [ "$#" -gt 0 ]; do
         shift
         VAL=$1
         ;;
-    -prefix|-docdir|-headerdir|-plugindir|-importdir|-datadir|-libdir|-bindir|-translationdir|-sysconfdir|-examplesdir|-demosdir|-depths|-make|-nomake|-platform|-xplatform|-buildkey|-sdk|-arch|-host-arch|-mysql_config|-sysroot)
+    -prefix|-docdir|-headerdir|-plugindir|-importdir|-datadir|-libdir|-bindir|-translationdir|-sysconfdir|-examplesdir|-demosdir|-depths|-make|-nomake|-platform|-xplatform|-device-option|-buildkey|-sdk|-arch|-host-arch|-mysql_config|-sysroot)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         shift
         VAL="$1"
@@ -1404,6 +1438,9 @@ while [ "$#" -gt 0 ]; do
         PLATFORM_MAC=no
         PLATFORM_QWS=no
         PLATFORM_QPA=yes
+        if [ "$VAL" != "auto" ]; then
+            QT_QPA_DEFAULT_PLATFORM="$VAL"
+        fi
         ;;
     nacl)
         ;;
@@ -1656,10 +1693,21 @@ while [ "$#" -gt 0 ]; do
         ;;
     xplatform)
         XPLATFORM="$VAL"
-        case `basename "$XPLATFORM"` in win32-g++*) XPLATFORM_MINGW=yes;; esac
+        case `basename "$XPLATFORM"` in win32-g++*)
+            XPLATFORM_MINGW=yes
+            CFG_RPATH=no
+            CFG_REDUCE_EXPORTS=no
+            ;;
+        esac
         case "$XPLATFORM" in *integrity*) XPLATFORM_INTEGRITY=yes;; esac
         case "$XPLATFORM" in *symbian*) XPLATFORM_SYMBIAN=yes;; esac
         case "$XPLATFORM" in symbian-sbsv2) XPLATFORM_SYMBIAN_SBSV2=yes;; esac
+        case "$XPLATFORM" in *qnx-*|*blackberry-*) XPLATFORM_QNX=yes;; esac
+        ;;
+    device-option)
+        DEV_VAR=`echo $VAL | sed "s,^\(.*\)=.*,\1,"`
+        DEV_VAL=`echo $VAL | sed "s,^.*=\(.*\),\1,"`
+        DeviceVar set $DEV_VAR $DEV_VAL
         ;;
     debug-and-release)
         if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
@@ -2049,6 +2097,13 @@ while [ "$#" -gt 0 ]; do
     glib)
         if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
             CFG_GLIB="$VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
+        ;;
+    slog2)
+        if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+            CFG_SLOG2="$VAL"
         else
             UNKNOWN_OPT=yes
         fi
@@ -2454,6 +2509,13 @@ while [ "$#" -gt 0 ]; do
             UNKNOWN_OPT=yes
         fi
         ;;
+    system-proxies)
+        if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+            CFG_SYSTEM_PROXIES="$VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
+        ;;
     *)
         UNKNOWN_OPT=yes
         ;;
@@ -2767,10 +2829,10 @@ if [ "$CFG_EMBEDDED" != "no" ]; then
         fi
         ;;
     QNX:*)
-        [ -z "$PLATFORM" ] && PLATFORM=unsupported/qws/qnx-generic-g++
+        [ -z "$PLATFORM" ] && PLATFORM=qws/qnx-generic-g++
         if [ -z "$XPLATFORM" ]; then
             [ "$CFG_EMBEDDED" = "auto" ] && CFG_EMBEDDED=generic
-            XPLATFORM="unsupported/qws/qnx-$CFG_EMBEDDED-g++"
+            XPLATFORM="qws/qnx-$CFG_EMBEDDED-g++"
         fi
         ;;
     CYGWIN*:*)
@@ -2964,6 +3026,7 @@ case `basename "$XPLATFORM"` in win32-g++*) XPLATFORM_MINGW=yes;; esac
 case "$XPLATFORM" in *integrity*) XPLATFORM_INTEGRITY=yes;; esac
 case "$XPLATFORM" in *symbian*) XPLATFORM_SYMBIAN=yes;; esac
 case "$XPLATFORM" in symbian-sbsv2) XPLATFORM_SYMBIAN_SBSV2=yes;; esac
+case "$XPLATFORM" in *qnx-*|*blackberry-*) XPLATFORM_QNX=yes;; esac
 
 if [ -d "$PLATFORM" ]; then
   QMAKESPEC="$PLATFORM"
@@ -2978,6 +3041,7 @@ fi
 if [ "$PLATFORM" != "$XPLATFORM" ]; then
     QT_CROSS_COMPILE=yes
     QMAKE_CONFIG="$QMAKE_CONFIG cross_compile"
+    QTCONFIG_CONFIG="$QTCONFIG_CONFIG cross_compile"
 fi
 
 if [ "$PLATFORM_MAC" = "yes" ]; then
@@ -3294,50 +3358,6 @@ fi
 # tests that don't need qmake (must be run before displaying help)
 #-------------------------------------------------------------------------------
 
-if [ -z "$PKG_CONFIG" ]; then
-    # See if PKG_CONFIG is set in the mkspec:
-    PKG_CONFIG=`getXQMakeConf PKG_CONFIG`
-fi
-if [ -z "$PKG_CONFIG" ]; then
-    PKG_CONFIG=`"$WHICH" pkg-config 2>/dev/null`
-fi
-
-# Work out if we can use pkg-config
-if [ "$QT_CROSS_COMPILE" = "yes" ]; then
-    if [ "$QT_FORCE_PKGCONFIG" = "yes" ]; then
-        echo >&2 ""
-        echo >&2 "You have asked to use pkg-config and are cross-compiling."
-        echo >&2 "Please make sure you have a correctly set-up pkg-config"
-        echo >&2 "environment!"
-        echo >&2 ""
-        if [ -z "$PKG_CONFIG_PATH" ]; then
-            echo >&2 ""
-            echo >&2 "Warning: PKG_CONFIG_PATH has not been set.  This could mean"
-            echo >&2 "the host compiler's .pc files will be used. This is probably"
-            echo >&2 "not what you want."
-            echo >&2 ""
-        elif [ -z "$PKG_CONFIG_SYSROOT" ] && [ -z "$PKG_CONFIG_SYSROOT_DIR" ]; then
-            echo >&2 ""
-            echo >&2 "Warning: PKG_CONFIG_SYSROOT/PKG_CONFIG_SYSROOT_DIR has not"
-            echo >&2 "been set. This means your toolchain's .pc files must contain"
-            echo >&2 "the paths to the toolchain's libraries & headers. If configure"
-            echo >&2 "tests are failing, please check these files."
-            echo >&2 ""
-        fi
-    else
-        echo >&2 ""
-        echo >&2 "You have not explicitly asked to use pkg-config and are cross-compiling."
-        echo >&2 "pkg-config will not be used to automatically query cflag/lib parameters for"
-        echo >&2 "dependencies"
-        echo >&2 ""
-        PKG_CONFIG=""
-    fi
-fi
-
-if [ ! -n "$PKG_CONFIG" ]; then
-    QT_CONFIG="$QT_CONFIG no-pkg-config"
-fi
-
 # process CFG_MAC_ARCHS
 if [ "$PLATFORM_MAC" = "yes" ]; then
 #   check -arch arguments for validity.
@@ -3400,7 +3420,7 @@ fi
 
 SYSROOT_FLAG=
 if [ -n "$CFG_SYSROOT" ]; then
-    if compilerSupportsFlag --sysroot="$CFG_SYSROOT"; then
+    if compilerSupportsFlag $TEST_COMPILER -c --sysroot="$CFG_SYSROOT"; then
 	[ "$OPT_VERBOSE" = "yes" ] && echo "Setting sysroot to: $CFG_SYSROOT"
 	SYSROOT_FLAG="--sysroot=$CFG_SYSROOT"
     else
@@ -3424,6 +3444,11 @@ elif [ "$CFG_PRECOMPILE" = "yes" ] && [ `echo "$CFG_MAC_ARCHS" | wc -w` -gt 1 ];
     echo "WARNING: Using universal binaries disables precompiled headers."
     echo
     CFG_PRECOMPILE=no
+fi
+
+if [ "$XPLATFORM_MINGW" = "yes" ]; then
+    CFG_MAC_DWARF2=no
+    CFG_MAC_XARCH=no
 fi
 
 #auto-detect DWARF2 on the mac
@@ -3479,6 +3504,17 @@ if [ "$CFG_REDUCE_EXPORTS" = "auto" ]; then
     else
        CFG_REDUCE_EXPORTS=yes
     fi
+fi
+
+# auto-detect -fstack-protector-strong support (for QNX only currently)
+if [ "$XPLATFORM_QNX" = "yes" ]; then
+    if compilerSupportsFlag $TEST_COMPILER -fstack-protector-strong; then
+       CFG_STACK_PROTECTOR_STRONG=yes
+    else
+       CFG_STACK_PROTECTOR_STRONG=no
+    fi
+else
+   CFG_STACK_PROTECTOR_STRONG=no
 fi
 
 # detect the availability of the -Bsymbolic-functions linker optimization
@@ -3641,7 +3677,7 @@ else
         if [ "$CFG_PREFIX_INSTALL" = "no" ]; then
 	    if [ "$PLATFORM_MAC" = "yes" ]; then
 	        if [ "$CFG_FRAMEWORK" = "yes" ]; then
-		    QT_INSTALL_LIBS="/Libraries/Frameworks"
+                   QT_INSTALL_LIBS="/Library/Frameworks"
                 fi
             fi
         fi
@@ -3814,8 +3850,9 @@ Usage:  $relconf [-h] [-prefix <dir>] [-prefix-install] [-bindir <dir>] [-libdir
 
 Installation options:
 
-    -qpa ................ This will enable the QPA build.
+    -qpa [name] ......... This will enable the QPA build.
                           QPA is a window system agnostic implementation of Qt.
+                          If [name] is given, sets the default QPA platform (e.g xcb, cocoa).
 
  These are optional, but you may specify install directories.
 
@@ -3836,9 +3873,8 @@ cat <<EOF
                          Qt. This will install into
                          $QT_INSTALL_PREFIX, if this option is
                          disabled then some platforms will attempt a
-                         "system" install by placing default values to
-                         be placed in a system location other than
-                         PREFIX.
+                         "system" install by placing default values
+                         in a system location other than PREFIX.
 
  You may use these to separate different parts of the install:
 
@@ -3899,6 +3935,9 @@ Configure options:
 
     -no-largefile ...... Disables large file support.
  +  -largefile ......... Enables Qt to access files larger than 4 GB.
+
+ *  -no-system-proxies . Do not use system network proxies by default.
+    -system-proxies .... Use system network proxies by default.
 
 EOF
 if [ "$PLATFORM_QWS" = "yes" -o "$PLATFORM_QPA" = "yes" ]; then
@@ -4126,7 +4165,7 @@ if [ "$PLATFORM_X11" = "yes" -o "$PLATFORM_QWS" = "yes" -o "$PLATFORM_QPA" = "ye
     cat << EOF
 
  $SBN  -no-separate-debug-info . Do not store debug information in a separate file.
- $SBY  -separate-debug-info .... Strip debug information into a separate .debug file.
+ $SBY  -separate-debug-info .... Strip debug information into a separate file.
 
 EOF
 
@@ -4318,6 +4357,16 @@ Qt/X11 only:
 EOF
 fi
 
+if [ "$XPLATFORM_QNX" = "yes" ]; then
+    cat << EOF
+
+    -no-slog2 .......... Do not compile with slog2 support.
+    -slog2 ............. Compile with slog2 support.
+
+EOF
+
+fi
+
 if [ "$PLATFORM_MAC" = "yes" ]; then
     cat << EOF
 
@@ -4376,6 +4425,9 @@ if [ "$PLATFORM_QWS" = "yes" -o "$PLATFORM_QPA" = "yes" ]; then
     cat << EOF
 
     -xplatform target ... The target platform when cross-compiling.
+
+    -device-option <key=value> ... Add device specific options for the device mkspec
+                                   (experimental)
 
     -no-feature-<feature> Do not compile in <feature>.
     -feature-<feature> .. Compile in <feature>. The available features
@@ -5004,6 +5056,65 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 fi # Build qmake
 
 #-------------------------------------------------------------------------------
+# write out device config before we run the test.
+#-------------------------------------------------------------------------------
+DEVICE_VARS_OUTFILE="$outpath/mkspecs/qdevice.pri"
+if cmp -s "$DEVICE_VARS_FILE" "$DEVICE_VARS_OUTFILE"; then
+    rm -f "$DEVICE_VARS_FILE"
+else
+    mv -f $DEVICE_VARS_FILE "$DEVICE_VARS_OUTFILE"
+    DEVICE_VARS_FILE="$DEVICE_VARS_OUTFILE"
+fi
+
+if [ -z "$PKG_CONFIG" ]; then
+    # See if PKG_CONFIG is set in the mkspec or device options
+    (echo TEMPLATE = subdirs
+     echo 'message($$PKG_CONFIG)') > "$outpath/dummy.pro"
+    echo "QT_BUILD_TREE = $outpath" > "$outpath/.qmake.cache.pkgconfig"
+    PKG_CONFIG=`"$outpath/bin/qmake" -cache "$outpath/.qmake.cache.pkgconfig" -spec "$XQMAKESPEC" "$outpath/dummy.pro" -o /dev/null 2>&1 > /dev/null | sed -n -e 's,Project MESSAGE: \(.*\),\1,p'`
+    rm "$outpath/.qmake.cache.pkgconfig" "$outpath/dummy.pro"
+fi
+if [ -z "$PKG_CONFIG" ]; then
+    PKG_CONFIG=`"$WHICH" pkg-config 2>/dev/null`
+fi
+
+# Work out if we can use pkg-config
+if [ "$QT_CROSS_COMPILE" = "yes" ]; then
+    if [ "$QT_FORCE_PKGCONFIG" = "yes" ]; then
+        echo >&2 ""
+        echo >&2 "You have asked to use pkg-config and are cross-compiling."
+        echo >&2 "Please make sure you have a correctly set-up pkg-config"
+        echo >&2 "environment!"
+        echo >&2 ""
+        if [ -z "$PKG_CONFIG_PATH" ]; then
+            echo >&2 ""
+            echo >&2 "Warning: PKG_CONFIG_PATH has not been set.  This could mean"
+            echo >&2 "the host compiler's .pc files will be used. This is probably"
+            echo >&2 "not what you want."
+            echo >&2 ""
+        elif [ -z "$PKG_CONFIG_SYSROOT" ] && [ -z "$PKG_CONFIG_SYSROOT_DIR" ]; then
+            echo >&2 ""
+            echo >&2 "Warning: PKG_CONFIG_SYSROOT/PKG_CONFIG_SYSROOT_DIR has not"
+            echo >&2 "been set. This means your toolchain's .pc files must contain"
+            echo >&2 "the paths to the toolchain's libraries & headers. If configure"
+            echo >&2 "tests are failing, please check these files."
+            echo >&2 ""
+        fi
+    else
+        echo >&2 ""
+        echo >&2 "You have not explicitly asked to use pkg-config and are cross-compiling."
+        echo >&2 "pkg-config will not be used to automatically query cflag/lib parameters for"
+        echo >&2 "dependencies"
+        echo >&2 ""
+        PKG_CONFIG=""
+    fi
+fi
+
+if [ ! -n "$PKG_CONFIG" ]; then
+    QT_CONFIG="$QT_CONFIG no-pkg-config"
+fi
+
+#-------------------------------------------------------------------------------
 # tests that need qmake
 #-------------------------------------------------------------------------------
 
@@ -5218,6 +5329,17 @@ if [ "$CFG_ZLIB" = "auto" ]; then
        CFG_ZLIB=system
     else
        CFG_ZLIB=yes
+    fi
+fi
+
+if [ "$XPLATFORM_QNX" = "yes" ]; then
+    if [ "$CFG_SLOG2" != "no" ]; then
+        if "$unixtests/compile.test" "$XQMAKESPEC" "$QMAKE_CONFIG" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/slog2 "slog2" $L_FLAGS $I_FLAGS $l_FLAGS $MAC_CONFIG_TEST_COMMANDLINE; then
+            CFG_SLOG2=yes
+            QMAKE_CONFIG="$QMAKE_CONFIG slog2"
+        else
+            CFG_SLOG2=no
+        fi
     fi
 fi
 
@@ -5555,6 +5677,9 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
                     if [ -n "$PKG_CONFIG" ]; then
                         QT_CFLAGS_SQLITE=`$PKG_CONFIG --cflags sqlite3 2>/dev/null`
                         QT_LFLAGS_SQLITE=`$PKG_CONFIG --libs sqlite3 2>/dev/null`
+                    else
+                        QT_CFLAGS_SQLITE=
+                        QT_LFLAGS_SQLITE="-lsqlite3 -lz"
                     fi
                     if "$unixtests/compile.test" "$XQMAKESPEC" "$QMAKE_CONFIG" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/sqlite "SQLite" $QT_LFLAGS_SQLITE $L_FLAGS $QT_CFLAGS_SQLITE $I_FLAGS $l_FLAGS $MAC_CONFIG_TEST_COMMANDLINE; then
                         if [ "$CFG_SQL_sqlite" = "auto" ]; then
@@ -6367,12 +6492,6 @@ if [ "$PLATFORM_QPA" = "yes" ]; then
         QT_CONFIG="$QT_CONFIG wayland"
     fi
 
-    if "$unixtests/compile.test" "$XQMAKESPEC" "$QMAKE_CONFIG" $OPT_VERBOSE "$relpath" "$outpath" config.tests/mac/coreservices "CoreServices" $L_FLAGS $I_FLAGS $l_FLAGS $MAC_CONFIG_TEST_COMMANDLINE; then
-        QT_CONFIG="$QT_CONFIG coreservices"
-    else
-        QMakeVar add DEFINES QT_NO_CORESERVICES
-    fi
-
 fi
 
 
@@ -6573,7 +6692,7 @@ if [ "$CFG_ENDIAN" = "auto" ]; then
     elif [ "$PLATFORM_MAC" = "yes" ] && [ "$XPLATFORM_SYMBIAN" = "no" ]; then
         true #leave as auto
     else
-        "$unixtests/endian.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath"
+        "$unixtests/endian.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" "$SYSROOT_FLAG"
 	F="$?"
         if [ "$F" -eq 0 ]; then
             CFG_ENDIAN="Q_LITTLE_ENDIAN"
@@ -7218,6 +7337,7 @@ if [ "$CFG_USE_GNUMAKE" = "yes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG GNUmake"
 fi
 [ "$CFG_REDUCE_EXPORTS" = "yes" ] && QT_CONFIG="$QT_CONFIG reduce_exports"
+[ "$CFG_STACK_PROTECTOR_STRONG" = "yes" ] && QT_CONFIG="$QT_CONFIG stack-protector-strong"
 [ "$CFG_REDUCE_RELOCATIONS" = "yes" ] && QT_CONFIG="$QT_CONFIG reduce_relocations"
 [ "$CFG_PRECOMPILE" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG precompile_header"
 if [ "$CFG_SEPARATE_DEBUG_INFO" = "yes" ]; then
@@ -7240,6 +7360,7 @@ fi
 [ "$CFG_IWMMXT" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG iwmmxt"
 [ "$CFG_NEON" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG neon"
 [ "$PLATFORM_MAC" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG $CFG_MAC_ARCHS"
+[ "$CFG_SYSTEM_PROXIES" = "yes" ] && QT_CONFIG="$QT_CONFIG system-proxies"
 if [ "$CFG_IPV6" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG ipv6"
 fi
@@ -7506,12 +7627,14 @@ fi
 #
 canBuildQtXmlPatterns="yes"
 canBuildWebKit="$HAVE_STL"
+canBuildQtScript="$HAVE_STL"
 canBuildQtConcurrent="yes"
 
-# WebKit requires stdint.h
+# WebKit and QtScript require stdint.h
 "$unixtests/compile.test" "$XQMAKESPEC" "$QMAKE_CONFIG" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/stdint "Stdint" $L_FLAGS $I_FLAGS $l_FLAGS
 if [ $? != "0" ]; then
     canBuildWebKit="no"
+    canBuildQtScript="no"
 fi
 
 case "$XPLATFORM" in
@@ -7690,8 +7813,13 @@ else
     QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_WEBKIT"
 fi
 
+if [ "$CFG_SCRIPT" = "yes" -a "$canBuildQtScript" = "no" ]; then
+    echo "Error: QtScript was requested, but it can't be built on this platform."
+    exit 1
+fi
+
 if [ "$CFG_SCRIPT" = "auto" ]; then
-    CFG_SCRIPT="yes"
+    CFG_SCRIPT="$canBuildQtScript"
 fi
 
 if [ "$CFG_SCRIPT" = "yes" ]; then
@@ -8276,6 +8404,11 @@ if [ "$PLATFORM_QWS" != "yes" -a "$PLATFORM_QPA" != "yes" ]; then
     [ "$CFG_GRAPHICS_SYSTEM" = "runtime" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_GRAPHICSSYSTEM_RUNTIME"
 fi
 
+# On Windows codec plugins are used (hardcoded in .pro files)
+if [ "$XPLATFORM_MINGW" = "yes" ]; then
+    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_CODEC_PLUGINS"
+fi
+
 # X11/Unix/Mac only configs
 [ "$CFG_ICONV" = "no" ]      && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_ICONV"
 [ "$CFG_GLIB" != "yes" ]     && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_GLIB"
@@ -8350,6 +8483,12 @@ cat >>"$outpath/src/corelib/global/qconfig.h.new" << EOF
 #ifndef QT_BOOTSTRAPPED
 
 EOF
+    # default QPA platform specified?
+    if [ -n "$QT_QPA_DEFAULT_PLATFORM" ] && [ "$QT_QPA_DEFAULT_PLATFORM" != "auto" ]; then
+        echo "#define QT_QPA_DEFAULT_PLATFORM_NAME \"$QT_QPA_DEFAULT_PLATFORM\"" >>"$outpath/src/corelib/global/qconfig.h.new"
+        echo >>"$outpath/src/corelib/global/qconfig.h.new"
+    fi
+
     for cfg in $QCONFIG_FLAGS; do
         cfgd=`echo $cfg | sed 's/=.*$//'` # trim pushed 'Foo=Bar' defines
         cfg=`echo $cfg | sed 's/=/ /'`    # turn first '=' into a space
@@ -8548,7 +8687,8 @@ QMAKE_LIBDIR_QT  = \$\$QT_BUILD_TREE/lib
 EOF
 
 # Ensure we can link to uninistalled libraries
-if [ "$XPLATFORM_MINGW" != "yes" ] && [ "$CFG_EMBEDDED" != "nacl" ] && linkerSupportsFlag -rpath-link "$outpath/lib"; then
+QMAKE_COMPILER="`getQMakeConf QMAKE_CXX`"
+if [ "$XPLATFORM_MINGW" != "yes" ] && [ "$CFG_EMBEDDED" != "nacl" ] && linkerSupportsFlag "$QMAKE_COMPILER" -rpath-link "$outpath/lib"; then
     echo "QMAKE_LFLAGS    = -Wl,-rpath-link,\$\$QT_BUILD_TREE/lib \$\$QMAKE_LFLAGS" >> "$CACHEFILE.tmp"
 fi
 if [ -n "$QT_CFLAGS_PSQL" ]; then
@@ -8812,6 +8952,9 @@ if [ "$CFG_MNG" = "no" ]; then
 else
     echo "MNG support ............ $CFG_MNG ($CFG_LIBMNG)"
 fi
+if [ "$XPLATFORM_QNX" = "yes" ]; then
+    echo "SLOG2 support .......... $CFG_SLOG2"
+fi
 echo "zlib support ........... $CFG_ZLIB"
 echo "Session management ..... $CFG_SM"
 if [ "$PLATFORM_QWS" = "yes" ]; then
@@ -8902,6 +9045,7 @@ if [ "$PLATFORM_MAC" = "yes" ]; then
 fi
 echo "ICD support ............ $CFG_ICD"
 echo "libICU support ......... $CFG_ICU"
+echo "Use system proxies ..... $CFG_SYSTEM_PROXIES"
 echo
 
 [ "$CFG_PTMALLOC" != "no" ] && echo "Use ptmalloc ........... $CFG_PTMALLOC"

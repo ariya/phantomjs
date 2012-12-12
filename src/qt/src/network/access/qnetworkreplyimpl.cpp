@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -97,13 +97,13 @@ void QNetworkReplyImplPrivate::_q_startOperation()
         // state changes.
         state = WaitingForSession;
 
-        QNetworkSession *session = manager->d_func()->networkSession.data();
+        QSharedPointer<QNetworkSession> session(manager->d_func()->getNetworkSession());
 
         if (session) {
             Q_Q(QNetworkReplyImpl);
 
-            QObject::connect(session, SIGNAL(error(QNetworkSession::SessionError)),
-                             q, SLOT(_q_networkSessionFailed()));
+            QObject::connect(session.data(), SIGNAL(error(QNetworkSession::SessionError)),
+                             q, SLOT(_q_networkSessionFailed()), Qt::QueuedConnection);
 
             if (!session->isOpen())
                 session->open();
@@ -268,7 +268,7 @@ void QNetworkReplyImplPrivate::_q_networkSessionConnected()
     if (manager.isNull())
         return;
 
-    QNetworkSession *session = manager->d_func()->networkSession.data();
+    QSharedPointer<QNetworkSession> session = manager->d_func()->getNetworkSession();
     if (!session)
         return;
 
@@ -746,7 +746,7 @@ void QNetworkReplyImplPrivate::finished()
 
     if (!manager.isNull()) {
 #ifndef QT_NO_BEARERMANAGEMENT
-        QNetworkSession *session = manager->d_func()->networkSession.data();
+        QSharedPointer<QNetworkSession> session (manager->d_func()->getNetworkSession());
         if (session && session->state() == QNetworkSession::Roaming &&
             state == Working && errorCode != QNetworkReply::OperationCanceledError) {
             // only content with a known size will fail with a temporary network failure error
@@ -946,8 +946,10 @@ void QNetworkReplyImpl::setReadBufferSize(qint64 size)
 
     QNetworkReply::setReadBufferSize(size);
 
-    if (d->backend)
+    if (d->backend) {
         d->backend->setDownstreamLimited(d->readBufferMaxSize > 0);
+        d->backend->setReadBufferSize(size);
+    }
 }
 
 #ifndef QT_NO_OPENSSL
@@ -1009,11 +1011,16 @@ qint64 QNetworkReplyImpl::readData(char *data, qint64 maxlen)
     if (maxlen == 1) {
         // optimization for getChar()
         *data = d->readBuffer.getChar();
+        if (d->backend && readBufferSize())
+            d->backend->emitReadBufferFreed(1);
         return 1;
     }
 
     maxlen = qMin<qint64>(maxlen, d->readBuffer.byteAmount());
-    return d->readBuffer.read(data, maxlen);
+    qint64 bytesRead = d->readBuffer.read(data, maxlen);
+    if (d->backend && readBufferSize())
+        d->backend->emitReadBufferFreed(bytesRead);
+    return bytesRead;
 }
 
 /*!

@@ -1,7 +1,7 @@
                     GNU GENERAL PUBLIC LICENSE
 
- The Qt GUI Toolkit is Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
- Contact: Nokia Corporation (qt-info@nokia.com)
+ The Qt GUI Toolkit is Copyright (C) 2012 Digia Plc.
+ For any questions to Digia, please use contact form at http://qt.digia.com/
 
  You may use, distribute and copy the Qt GUI Toolkit under the terms of
  GNU General Public License version 3, which is displayed below.
@@ -685,7 +685,7 @@ Public License instead of this License.  But first, please read
 
 -------------------------------------------------------------------------
 
-In addition, as a special exception, Nokia gives permission to link the
+In addition, as a special exception, Digia gives permission to link the
 code of its release of Qt with the OpenSSL project's "OpenSSL" library (or
 modified versions of it that use the same license as the "OpenSSL"
 library), and distribute the linked executables.  You must comply with the

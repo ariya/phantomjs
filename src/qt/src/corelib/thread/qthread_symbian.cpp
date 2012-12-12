@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -264,19 +264,49 @@ private:
 QMutex QCAddAdoptedThread::adoptedThreadMonitorMutex;
 QCAddAdoptedThread* QCAddAdoptedThread::adoptedThreadAdder = 0;
 
-void QCAdoptedThreadMonitor::RunL()
+static void finishAdoptedThread(QThreadData* data, bool closeNativeHandle)
 {
     if (data->isAdopted) {
         QThread *thread = data->thread;
         Q_ASSERT(thread);
         QThreadPrivate *thread_p = static_cast<QThreadPrivate *>(QObjectPrivate::get(thread));
-        Q_ASSERT(!thread_p->finished);
-        thread_p->finish(thread);
+        if (!thread_p->finished)
+            thread_p->finish(thread, true, closeNativeHandle);
+        else if (closeNativeHandle && data->symbian_thread_handle.Handle())
+            data->symbian_thread_handle.Close();
     }
+}
+
+void QCAdoptedThreadMonitor::RunL()
+{
+    // clean up the thread, or close the handle if that's all that's left
+    finishAdoptedThread(data, true);
     data->deref();
     QCAddAdoptedThread::threadDied();
     delete this;
 }
+
+static pthread_once_t current_thread_data_once = PTHREAD_ONCE_INIT;
+static pthread_key_t current_thread_data_key;
+
+static void pthread_in_thread_cleanup(void *p)
+{
+    QThreadData *data = static_cast<QThreadData *>(p);
+    // clean up the thread, but leave the handle for adoptedThreadMonitor
+    finishAdoptedThread(data, false);
+}
+
+static void create_current_thread_data_key()
+{
+    pthread_key_create(&current_thread_data_key, pthread_in_thread_cleanup);
+}
+
+static void destroy_current_thread_data_key()
+{
+    pthread_once(&current_thread_data_once, create_current_thread_data_key);
+    pthread_key_delete(current_thread_data_key);
+}
+Q_DESTRUCTOR_FUNCTION(destroy_current_thread_data_key)
 
 void QAdoptedThread::init()
 {
@@ -284,6 +314,8 @@ void QAdoptedThread::init()
     d->thread_id = RThread().Id();  // type operator to TUint
     init_symbian_thread_handle(d->data->symbian_thread_handle);
     QCAddAdoptedThread::add(this);
+    pthread_once(&current_thread_data_once, create_current_thread_data_key);
+    pthread_setspecific(current_thread_data_key, get_thread_data());
 }
 
 /*

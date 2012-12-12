@@ -1,6 +1,12 @@
 #ifndef QT_QTNETWORK_MODULE_H
 #define QT_QTNETWORK_MODULE_H
 #include <QtCore/QtCore>
+#include "qabstractsocket.h"
+#include "qlocalserver.h"
+#include "qlocalsocket.h"
+#include "qtcpserver.h"
+#include "qtcpsocket.h"
+#include "qudpsocket.h"
 #include "qssl.h"
 #include "qsslcertificate.h"
 #include "qsslcipher.h"
@@ -8,12 +14,9 @@
 #include "qsslerror.h"
 #include "qsslkey.h"
 #include "qsslsocket.h"
-#include "qabstractsocket.h"
-#include "qlocalserver.h"
-#include "qlocalsocket.h"
-#include "qtcpserver.h"
-#include "qtcpsocket.h"
-#include "qudpsocket.h"
+#include "qnetworkconfigmanager.h"
+#include "qnetworkconfiguration.h"
+#include "qnetworksession.h"
 #include "qabstractnetworkcache.h"
 #include "qftp.h"
 #include "qhttp.h"
@@ -30,7 +33,4 @@
 #include "qnetworkinterface.h"
 #include "qnetworkproxy.h"
 #include "qurlinfo.h"
-#include "qnetworkconfigmanager.h"
-#include "qnetworkconfiguration.h"
-#include "qnetworksession.h"
 #endif

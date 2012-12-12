@@ -31,4 +31,9 @@ symbian {
                S60_VERSION_$$upper($$replace(S60_VERSION,\\.,_))
 }
 
+slog2 {
+    LIBS_PRIVATE += -lslog2
+    DEFINES += QT_USE_SLOG2
+}
+
 include(../../../tools/shared/symbian/epocroot.pri)

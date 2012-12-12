@@ -37,18 +37,6 @@ template <> void freeOwnedGPtr<GList>(GList* ptr)
     g_list_free(ptr);
 }
 
-template <> void freeOwnedGPtr<GCond>(GCond* ptr)
-{
-    if (ptr)
-        g_cond_free(ptr);
-}
-
-template <> void freeOwnedGPtr<GMutex>(GMutex* ptr)
-{
-    if (ptr)
-        g_mutex_free(ptr);
-}
-
 template <> void freeOwnedGPtr<GPatternSpec>(GPatternSpec* ptr)
 {
     if (ptr)

@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -466,13 +466,22 @@ void QFtpDTP::abortConnection()
         socket->abort();
 }
 
-static void _q_fixupDateTime(QDateTime *dateTime)
+static void _q_fixupDateTime(QDateTime *dateTime, bool leapYear = false)
 {
     // Adjust for future tolerance.
     const int futureTolerance = 86400;
     if (dateTime->secsTo(QDateTime::currentDateTime()) < -futureTolerance) {
         QDate d = dateTime->date();
-        d.setYMD(d.year() - 1, d.month(), d.day());
+        if (leapYear) {
+            int prevLeapYear = d.year() - 1;
+
+            while (!QDate::isLeapYear(prevLeapYear))
+               prevLeapYear--;
+
+            d.setYMD(prevLeapYear, d.month(), d.day());
+        } else {
+            d.setYMD(d.year() - 1, d.month(), d.day());
+        }
         dateTime->setDate(d);
     }
 }
@@ -542,6 +551,30 @@ static void _q_parseUnixDir(const QStringList &tokens, const QString &userName, 
     }
     if (dateTime.isValid())
         info->setLastModified(dateTime);
+    else if (dateString.startsWith(QLatin1String("Feb 29"))) {
+
+       // When the current year on the FTP server is a leap year and a
+       // file's last modified date is Feb 29th, and the current day on
+       // the FTP server is also Feb 29th, then the date can be in
+       // formats n==2 or n==4. toDateTime in that case defaults to 1900
+       // for the missing year. Feb 29 1900 is an invalid date and so
+       // wont be parsed. This adds an exception that handles it.
+
+       int recentLeapYear;
+       QString timeString = dateString.mid(7);
+
+       dateTime = QLocale::c().toDateTime(timeString, QLatin1String("hh:mm"));
+
+       recentLeapYear = QDate::currentDate().year();
+
+       while (!QDate::isLeapYear(recentLeapYear))
+           recentLeapYear--;
+
+       dateTime.setDate(QDate(recentLeapYear, 2, 29));
+
+       _q_fixupDateTime(&dateTime, true);
+       info->setLastModified(dateTime);
+    }
 
     // Resolve permissions
     int permissions = 0;
@@ -665,7 +698,7 @@ void QFtpDTP::socketReadyRead()
         return;
     }
 
-    if (pi->abortState == QFtpPI::AbortStarted) {
+    if (pi->abortState != QFtpPI::None) {
         // discard data
         socket->readAll();
         return;
@@ -863,14 +896,25 @@ void QFtpPI::abort()
         // ABOR already sent
         return;
 
-    abortState = AbortStarted;
-#if defined(QFTPPI_DEBUG)
-    qDebug("QFtpPI send: ABOR");
-#endif
-    commandSocket.write("ABOR\r\n", 6);
+    if (currentCmd.isEmpty())
+        return; //no command in progress
 
-    if (currentCmd.startsWith(QLatin1String("STOR ")))
+    if (currentCmd.startsWith(QLatin1String("STOR "))) {
+        abortState = AbortStarted;
+#if defined(QFTPPI_DEBUG)
+        qDebug("QFtpPI send: ABOR");
+#endif
+        commandSocket.write("ABOR\r\n", 6);
+
         dtp.abortConnection();
+    } else {
+        //Deviation from RFC 959:
+        //Most FTP servers do not support ABOR, or require the telnet
+        //IP & synch sequence (TCP urgent data) which is not supported by QTcpSocket.
+        //Following what most FTP clients do, just reset the data connection and wait for 426
+        abortState = WaitForAbortToFinish;
+        dtp.abortConnection();
+    }
 }
 
 void QFtpPI::hostFound()

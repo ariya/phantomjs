@@ -1,38 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
-** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
-** GNU Lesser General Public License Usage
-** This file may be used under the terms of the GNU Lesser General Public
-** License version 2.1 as published by the Free Software Foundation and
-** appearing in the file LICENSE.LGPL included in the packaging of this
-** file. Please review the following information to ensure the GNU Lesser
-** General Public License version 2.1 requirements will be met:
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
 **
-** In addition, as a special exception, Nokia gives you certain additional
-** rights. These rights are described in the Nokia Qt LGPL Exception
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU General
-** Public License version 3.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of this
-** file. Please review the following information to ensure the GNU General
-** Public License version 3.0 requirements will be met:
-** http://www.gnu.org/copyleft/gpl.html.
-**
-** Other Usage
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.
-**
-**
-**
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
 **
 **
 ** $QT_END_LICENSE$
@@ -42,10 +42,14 @@
 #include "qapplication_p.h"
 #include "qcolormap.h"
 #include "qpixmapcache.h"
+#if defined(Q_OS_BLACKBERRY)
+#include "qeventdispatcher_blackberry_qpa_p.h"
+#else
 #if !defined(QT_NO_GLIB)
 #include "qeventdispatcher_glib_qpa_p.h"
 #endif
 #include "qeventdispatcher_qpa_p.h"
+#endif
 #ifndef QT_NO_CURSOR
 #include "private/qcursor_p.h"
 #endif
@@ -135,6 +139,10 @@ void QApplicationPrivate::processWindowSystemEvent(QWindowSystemInterfacePrivate
     case QWindowSystemInterfacePrivate::LocaleChange:
         QApplicationPrivate::reportLocaleChange();
         break;
+    case QWindowSystemInterfacePrivate::PlatformPanel:
+        QApplicationPrivate::processPlatformPanelEvent(
+                static_cast<QWindowSystemInterfacePrivate::PlatformPanelEvent *>(e));
+        break;
     default:
         qWarning() << "Unknown user input event type:" << e->type;
         break;
@@ -149,12 +157,16 @@ QString QApplicationPrivate::appName() const
 void QApplicationPrivate::createEventDispatcher()
 {
     Q_Q(QApplication);
+#if defined(Q_OS_BLACKBERRY)
+    eventDispatcher = new QEventDispatcherBlackberryQPA(q);
+#else
 #if !defined(QT_NO_GLIB)
     if (qgetenv("QT_NO_GLIB").isEmpty() && QEventDispatcherGlib::versionSupported())
         eventDispatcher = new QPAEventDispatcherGlib(q);
     else
 #endif
     eventDispatcher = new QEventDispatcherQPA(q);
+#endif
 }
 
 static bool qt_try_modal(QWidget *widget, QEvent::Type type)
@@ -179,6 +191,7 @@ static bool qt_try_modal(QWidget *widget, QEvent::Type type)
     case QEvent::MouseMove:
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
+    case QEvent::PlatformPanel:
         block_event         = true;
         break;
     default:
@@ -609,10 +622,6 @@ void QApplication::setMainWidget(QWidget *mainWidget)
 
 void QApplicationPrivate::processMouseEvent(QWindowSystemInterfacePrivate::MouseEvent *e)
 {
-    if (!e->widget)
-       return;
-
-    // qDebug() << "handleMouseEvent" << tlw << ev.pos() << ev.globalPos() << hex << ev.buttons();
     static QWeakPointer<QWidget> implicit_mouse_grabber;
 
     QEvent::Type type;
@@ -742,7 +751,6 @@ void QApplicationPrivate::processMouseEvent(QWindowSystemInterfacePrivate::Mouse
     // Remember, we might enter a modal event loop when sending the event,
     // so think carefully before adding code below this point.
 
-    // qDebug() << "sending mouse ev." << ev.type() << localPoint << globalPoint << ev.button() << ev.buttons() << mouseWidget << "mouse grabber" << implicit_mouse_grabber;
 
     QMouseEvent ev(type, localPoint, globalPoint, button, buttons, QApplication::keyboardModifiers());
 
@@ -751,6 +759,8 @@ void QApplicationPrivate::processMouseEvent(QWindowSystemInterfacePrivate::Mouse
         if (cursor)
             cursor.data()->pointerEvent(ev);
     }
+
+    // qDebug() << "sending mouse event" << ev.type() << localPoint << globalPoint << ev.button() << ev.buttons() << mouseWidget << "mouse grabber" << implicit_mouse_grabber;
 
     int oldOpenPopupCount = openPopupCount;
     QApplication::sendSpontaneousEvent(mouseWidget, &ev);
@@ -763,6 +773,19 @@ void QApplicationPrivate::processMouseEvent(QWindowSystemInterfacePrivate::Mouse
 #endif // QT_NO_CONTEXTMENU
 }
 
+void QApplicationPrivate::processPlatformPanelEvent(QWindowSystemInterfacePrivate::PlatformPanelEvent *e)
+{
+    if (!e->widget)
+        return;
+
+    if (app_do_modal && !qt_try_modal(e->widget.data(), QEvent::PlatformPanel)) {
+        // a modal window is blocking this window, don't allow events through
+        return;
+    }
+
+    QEvent ev(QEvent::PlatformPanel);
+    QApplication::sendSpontaneousEvent(e->widget.data(), &ev);
+}
 
 //### there's a lot of duplicated logic here -- refactoring required!
 
@@ -868,9 +891,6 @@ void QApplicationPrivate::processLeaveEvent(QWindowSystemInterfacePrivate::Leave
 
 void QApplicationPrivate::processActivatedEvent(QWindowSystemInterfacePrivate::ActivatedWindowEvent *e)
 {
-    if (!e->activated)
-        return;
-
     QApplication::setActiveWindow(e->activated.data());
 }
 
