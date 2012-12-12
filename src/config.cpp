@@ -108,8 +108,8 @@ void Config::processArgs(const QStringList &args)
 
         m_scriptFile = "main.js";                       //< launch script
         argsForGhostDriver << m_webdriver;              //< ip:port
-        if (!m_seleniumGridHub.isEmpty()) {
-            argsForGhostDriver << m_seleniumGridHub;    //< selenium grid url
+        if (!m_webdriverSeleniumGridHub.isEmpty()) {
+            argsForGhostDriver << m_webdriverSeleniumGridHub;    //< selenium grid url
         }
 
         // Clear current args and override with those
@@ -472,14 +472,14 @@ bool Config::isWebdriverMode() const
     return !m_webdriver.isEmpty();
 }
 
-void Config::setSeleniumGridHub(const QString &hubUrl)
+void Config::setWebdriverSeleniumGridHub(const QString &hubUrl)
 {
-    m_seleniumGridHub = hubUrl;
+    m_webdriverSeleniumGridHub = hubUrl;
 }
 
-QString Config::seleniumGridHub() const
+QString Config::webdriverSeleniumGridHub() const
 {
-    return m_seleniumGridHub;
+    return m_webdriverSeleniumGridHub;
 }
 
 // private:
@@ -514,7 +514,7 @@ void Config::resetToDefaults()
     m_printDebugMessages = false;
     m_sslProtocol = "sslv3";
     m_webdriver = QString();
-    m_seleniumGridHub = QString();
+    m_webdriverSeleniumGridHub = QString();
 }
 
 void Config::setProxyAuthPass(const QString &value)
@@ -661,8 +661,8 @@ void Config::handleOption(const QString &option, const QVariant &value)
     if (option == "webdriver") {
         setWebdriver(value.toString());
     }
-    if (option == "selenium-grid-hub") {
-        setSeleniumGridHub(value.toString());
+    if (option == "webdriver-selenium-grid-hub") {
+        setWebdriverSeleniumGridHub(value.toString());
     }
 }
 
