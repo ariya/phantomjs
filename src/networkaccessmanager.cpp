@@ -90,11 +90,6 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
     if (QSslSocket::supportsSsl()) {
         m_sslConfiguration = QSslConfiguration::defaultConfiguration();
 
-#if QT_VERSION >= QT_VERSION_CHECK(4,8,0) && defined(Q_OS_LINUX)
-        // Don't perform on-demand loading of root certificates on Linux
-        QSslSocket::addDefaultCaCertificates(QSslSocket::systemCaCertificates());
-#endif
-
         // set the SSL protocol to SSLv3 by the default
         m_sslConfiguration.setProtocol(QSsl::SslV3);
 
