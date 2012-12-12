@@ -54,6 +54,9 @@
 #include <QBuffer>
 #include <QDebug>
 #include <QImageWriter>
+#include <QThread>
+#include <QElapsedTimer>
+ 
 
 #include <gifwriter.h>
 
@@ -72,6 +75,19 @@
 #define CALLBACKS_OBJECT_INJECTION      INPAGE_CALL_NAME" = function() { return window."CALLBACKS_OBJECT_NAME".call.call(_phantom, Array.prototype.splice.call(arguments, 0)); };"
 #define CALLBACKS_OBJECT_PRESENT        "typeof(window."CALLBACKS_OBJECT_NAME") !== \"undefined\";"
 
+class Delayer : public QThread
+{
+  public:
+    static void sleep(unsigned long secs) {
+      QThread::sleep(secs);
+    }
+    static void msleep(unsigned long msecs) {
+      QThread::msleep(msecs);
+    }
+    static void usleep(unsigned long usecs) {
+      QThread::usleep(usecs);
+    }
+};
 
 /**
   * @class CustomPage
@@ -1158,6 +1174,33 @@ QObject *WebPage::_getJsPromptCallback()
     return m_callbacks->getJsPromptCallback();
 }
 
+void WebPage::_delay(const QString &type, const QString &size)
+{
+  bool ok;
+  int time = type.toLong(&ok, 10);
+  if (!ok) time = 250;
+  int delayLength =  size.toLong(&ok, 10);
+  if (!ok) delayLength = 1;
+  
+  this->_processDelay(time, delayLength);
+}
+
+void WebPage::_processDelay(long time) {
+  this->_processDelay(time, 1);
+}
+
+void WebPage::_processDelay(long time, long size)
+{
+  if (time < 1) time = 250;
+  QElapsedTimer timer;
+  timer.start();  
+  while (timer.elapsed() < time) {
+    QApplication::processEvents();
+    Delayer::msleep(size);
+  }
+  QApplication::processEvents();
+}
+
 void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVariant &arg2, const QString &mouseButton, const QVariant &modifierArg)
 {
     Qt::KeyboardModifiers keyboardModifiers(modifierArg.toInt());
@@ -1191,7 +1234,7 @@ void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVarian
         }
         QKeyEvent *keyEvent = new QKeyEvent(keyEventType, key, keyboardModifiers, text);
         QApplication::postEvent(m_customWebPage, keyEvent);
-        QApplication::processEvents();
+        _processDelay(50);
         return;
     }
 
@@ -1256,7 +1299,7 @@ void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVarian
 
         // Post and process events
         QApplication::postEvent(m_customWebPage, event);
-        QApplication::processEvents();
+        _processDelay(50);
         return;
     }
 
@@ -1474,6 +1517,7 @@ void WebPage::initCompletions()
     addCompletion("addCookie");
     addCompletion("deleteCookie");
     addCompletion("clearCookies");
+	addCompletion("delay");
     // callbacks
     addCompletion("onAlert");
     addCompletion("onCallback");

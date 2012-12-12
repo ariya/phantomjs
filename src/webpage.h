@@ -257,6 +257,9 @@ public slots:
     QObject *_getJsPromptCallback();
     void _uploadFile(const QString &selector, const QStringList &fileNames);
     void sendEvent(const QString &type, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant(), const QString &mouseButton = QString(), const QVariant &modifierArg = QVariant());
+	void _delay(const QString &type, const QString &size);
+    void _processDelay(const long delaytime);
+    void _processDelay(const long delaytime, const long delaylength);	
 
     /**
      * Returns a Child Page that matches the given <code>"window.name"</code>.

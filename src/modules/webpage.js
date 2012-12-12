@@ -264,6 +264,18 @@ function decorateNewPage(opts, page) {
     phantom.__defineErrorSetter__(page, page);
 
     page.onError = phantom.defaultErrorHandler;
+	
+    page.delay = function(time, size) {
+	  var len = arguments.length;
+      if (len >= 2) {
+        this._delay(time, size);
+      } else if (len === 1) {
+	    this._delay(time, 1);
+	  } else {
+        this._delay(250, 1);
+      }
+    };	
+	
 
     page.open = function (url, arg1, arg2, arg3, arg4) {
         var thisPage = this;
