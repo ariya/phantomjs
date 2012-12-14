@@ -1595,3 +1595,39 @@ describe("WebPage 'onFilePicker'", function() {
         });
     });
 });
+
+describe('WebPage navigation events', function() {
+    it('should navigate to relative url using window.location', function () {
+        var page = require("webpage").create();
+        var base = 'https://github.com';
+        var path = '/n1k0';
+        var expected = 'https://github.com/n1k0';
+        var isHandled = false;
+
+        runs(function() {
+            page.onNavigationRequested = function(url, navigationType, navigationLocked, isMainFrame) {
+                if (!page.testStarted) {
+                    return;
+                }
+
+                if (url === expected) {
+                    isHandled = true;
+                }
+            };
+
+            page.open(base, function(status) {
+                page.testStarted = true;
+
+                page.evaluate(function(path) {
+                    window.location = path;
+                }, path);
+            });
+        });
+
+        waits(10000);
+
+        runs(function() {
+            expect(isHandled).toEqual(true);
+        });
+    });
+});

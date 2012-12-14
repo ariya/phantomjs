@@ -59,7 +59,7 @@ class Config: public QObject
     Q_PROPERTY(bool javascriptCanCloseWindows READ javascriptCanCloseWindows WRITE setJavascriptCanCloseWindows)
     Q_PROPERTY(QString sslProtocol READ sslProtocol WRITE setSslProtocol)
     Q_PROPERTY(QString webdriver READ webdriver WRITE setWebdriver)
-    Q_PROPERTY(QString seleniumGridHub READ seleniumGridHub WRITE setSeleniumGridHub)
+    Q_PROPERTY(QString webdriverSeleniumGridHub READ webdriverSeleniumGridHub WRITE setWebdriverSeleniumGridHub)
 
 public:
     Config(QObject *parent = 0);
@@ -158,8 +158,8 @@ public:
     QString webdriver() const;
     bool isWebdriverMode() const;
 
-    void setSeleniumGridHub(const QString& hubUrl);
-    QString seleniumGridHub() const;
+    void setWebdriverSeleniumGridHub(const QString& hubUrl);
+    QString webdriverSeleniumGridHub() const;
 
 public slots:
     void handleSwitch(const QString &sw);
@@ -206,7 +206,7 @@ private:
     bool m_javascriptCanCloseWindows;
     QString m_sslProtocol;
     QString m_webdriver;
-    QString m_seleniumGridHub;
+    QString m_webdriverSeleniumGridHub;
 };
 
 #endif // CONFIG_H

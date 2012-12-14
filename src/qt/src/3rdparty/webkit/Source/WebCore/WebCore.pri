@@ -170,6 +170,10 @@ contains(DEFINES, ENABLE_XSLT=1) {
     QT *= xmlpatterns
 }
 
+contains(DEFINES, ENABLE_ZLIB=1) {
+    include($$QT_SOURCE_TREE/src/3rdparty/zlib_dependency.pri)
+}
+
 contains(DEFINES, ENABLE_SQLITE=1) {
     !system-sqlite:exists( $${SQLITE3SRCDIR}/sqlite3.c ) {
             INCLUDEPATH += $${SQLITE3SRCDIR}

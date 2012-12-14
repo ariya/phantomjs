@@ -988,6 +988,7 @@ SOURCES += \
     platform/graphics/PathTraversalState.cpp \
     platform/graphics/Pattern.cpp \
     platform/graphics/RoundedIntRect.cpp \
+    platform/graphics/WOFFFileFormat.cpp \
     platform/graphics/SegmentedFontData.cpp \
     platform/graphics/ShadowBlur.cpp \
     platform/graphics/SVGGlyph.cpp \
@@ -1958,6 +1959,7 @@ HEADERS += \
     platform/graphics/PathTraversalState.h \
     platform/graphics/Pattern.h \
     platform/graphics/RoundedIntRect.h \
+    platform/graphics/WOFFFileFormat.h \
     platform/graphics/qt/FontCustomPlatformData.h \
     platform/graphics/qt/ImageDecoderQt.h \
     platform/graphics/qt/StillImageQt.h \
