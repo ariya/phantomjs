@@ -345,7 +345,7 @@ ghostdriver.SessionReqHand = function(session) {
         var postObj = JSON.parse(req.post),
             result,
             timer,
-            scriptTimeout = _session.getTimeout(_session.timeoutNames().SCRIPT),
+            scriptTimeout = _session.getScriptTimeout(),
             timedOut = false;
 
         if (typeof(postObj) === "object" && postObj.script && postObj.args) {
@@ -355,7 +355,7 @@ ghostdriver.SessionReqHand = function(session) {
                 timedOut = true;
                 _errors.handleFailedCommandEH(
                     _errors.FAILED_CMD_STATUS.TIMEOUT,
-                    "Script didn't return within "+scriptTimeout+"ms",
+                    "Script didn't return within " + scriptTimeout + "ms",
                     req,
                     res,
                     _session,
@@ -399,14 +399,21 @@ ghostdriver.SessionReqHand = function(session) {
                 "}",
                 postObj.script,
                 postObj.args,
-                _session.getTimeout(_session.timeoutNames().ASYNC_SCRIPT));
+                _session.getAsyncScriptTimeout());
         } else {
             throw _errors.createInvalidReqMissingCommandParameterEH(req);
         }
     },
 
     _getWindowHandle = function (req, res) {
-        var handle = _session.getCurrentWindowHandle();
+        var handle;
+
+        // Initialize the Current Window (we need at least that)
+        _session.initCurrentWindowIfNull();
+
+        // Get current window handle
+        handle = _session.getCurrentWindowHandle();
+
         if (handle !== null) {
             res.success(_session.getId(), handle);
         } else {
@@ -420,6 +427,8 @@ ghostdriver.SessionReqHand = function(session) {
     },
 
     _getWindowHandles = function(req, res) {
+        // Initialize the Current Window (we need at least that)
+        _session.initCurrentWindowIfNull();
         res.success(_session.getId(), _session.getWindowHandles());
     },
 
@@ -460,9 +469,7 @@ ghostdriver.SessionReqHand = function(session) {
                     // Request timed out
                     _errors.handleFailedCommandEH(
                             _errors.FAILED_CMD_STATUS.TIMEOUT,
-                            "URL '" + postObj.url + "' didn't load within " +
-                                _session.getTimeout(_session.timeoutNames().PAGE_LOAD) +
-                                "ms",
+                            "URL '" + postObj.url + "' didn't load within " + _session.getPageLoadTimeout() + "ms",
                             req,
                             res,
                             _session,
@@ -478,13 +485,28 @@ ghostdriver.SessionReqHand = function(session) {
 
         // Normalize the call: the "type" is read from the URL, not a POST parameter
         if (req.urlParsed.file === _const.IMPLICIT_WAIT) {
-            postObj["type"] = _session.timeoutNames().IMPLICIT;
+            postObj["type"] = _session.timeoutNames.IMPLICIT;
         } else if (req.urlParsed.file === _const.ASYNC_SCRIPT) {
-            postObj["type"] = _session.timeoutNames().ASYNC_SCRIPT;
+            postObj["type"] = _session.timeoutNames.ASYNC_SCRIPT;
         }
 
         if (typeof(postObj["type"]) !== "undefined" && typeof(postObj["ms"]) !== "undefined") {
-            _session.setTimeout(postObj["type"], postObj["ms"]);
+            // Set the right timeout on the Session
+            switch(postObj["type"]) {
+                case _session.timeoutNames.SCRIPT:
+                    _session.setScriptTimeout(postObj["ms"]);
+                    break;
+                case _session.timeoutNames.ASYNC_SCRIPT:
+                    _session.setAsyncScriptTimeout(postObj["ms"]);
+                    break;
+                case _session.timeoutNames.IMPLICIT:
+                    _session.setImplicitTimeout(postObj["ms"]);
+                    break;
+                case _session.timeoutNames.PAGE_LOAD:
+                    _session.setPageLoadTimeout(postObj["ms"]);
+                    break;
+            }
+
             res.success(_session.getId());
         } else {
             throw _errors.createInvalidReqMissingCommandParameterEH(req);
