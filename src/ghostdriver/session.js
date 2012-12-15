@@ -76,11 +76,15 @@ ghostdriver.Session = function(desiredCapabilities) {
             _defaultCapabilities.proxy :
             desiredCapabilities.proxy
     },
+    // NOTE: This value is needed for Timeouts Upper-bound limit.
+    // "setTimeout/setInterval" accept only 32 bit integers, even though Number are all Doubles (go figure!)
+    // Interesting details here: {@link http://stackoverflow.com/a/4995054}.
+    _max32bitInt = Math.pow(2, 31) -1,      //< Max 32bit Int
     _timeouts = {
-        "script"            : 500,          //< 0.5s
-        "async script"      : 5000,         //< 5s
+        "script"            : _max32bitInt,
+        "async script"      : _max32bitInt,
         "implicit"          : 0,            //< 0s
-        "page load"         : 10000         //< 10s
+        "page load"         : _max32bitInt,
     },
     _const = {
         TIMEOUT_NAMES : {
@@ -95,7 +99,23 @@ ghostdriver.Session = function(desiredCapabilities) {
     _currentWindowHandle = null,
     _id = require("./third_party/uuid.js").v1(),
     _inputs = ghostdriver.Inputs(),
+    _capsPageSettingsPref = "phantomjs.page.settings.",
+    _pageSettings = {},
+    k, settingKey;
 
+    // Searching for `phantomjs.settings.*` in the Desired Capabilities and merging with the Negotiated Capabilities
+    // Possible values: @see https://github.com/ariya/phantomjs/wiki/API-Reference#wiki-webpage-settings.
+    for (k in desiredCapabilities) {
+        if (k.indexOf(_capsPageSettingsPref) === 0) {
+            settingKey = k.substring(_capsPageSettingsPref.length);
+            if (settingKey.length > 0) {
+                _negotiatedCapabilities[k] = desiredCapabilities[k];
+                _pageSettings[settingKey] = desiredCapabilities[k];
+            }
+        }
+    }
+
+    var
     /**
      * Executes a function and waits for Load to happen.
      *
@@ -110,6 +130,7 @@ ghostdriver.Session = function(desiredCapabilities) {
         var args = Array.prototype.splice.call(arguments, 0),
             timer,
             loadingNewPage = false,
+            pageLoadNotTriggered = true,
             thisPage = this;
 
         // Normalize "execTypeOpt" value
@@ -139,10 +160,12 @@ ghostdriver.Session = function(desiredCapabilities) {
         // callback.
         this.setOneShotCallback("onLoadStarted", function () {
             // console.log("onLoadStarted");
+            pageLoadNotTriggered = false;
             loadingNewPage = true;
         });
         this.setOneShotCallback("onUrlChanged", function () {
             // console.log("onUrlChanged");
+            pageLoadNotTriggered = false;
 
             // If "not loading a new page" it's just a fragment change
             // and we should call "onLoadFunc()"
@@ -168,6 +191,7 @@ ghostdriver.Session = function(desiredCapabilities) {
             //         message += " in " + item["function"];
             //     console.log("  " + message);
             // });
+            pageLoadNotTriggered = false;
 
             thisPage.stop(); //< stop the page from loading
             clearTimeout(timer);
@@ -177,12 +201,13 @@ ghostdriver.Session = function(desiredCapabilities) {
         });
 
         // Starting timer
+        // console.log("Setting timer to: " + _getPageLoadTimeout());
         timer = setTimeout(function() {
             thisPage.stop(); //< stop the page from loading
             thisPage.resetOneShotCallbacks();
 
             onErrorFunc.apply(thisPage, arguments);
-        }, _getTimeout(_const.TIMEOUT_NAMES.PAGE_LOAD));
+        }, _getPageLoadTimeout());
 
         // We are ready to execute
         if (execTypeOpt === "eval") {
@@ -192,6 +217,15 @@ ghostdriver.Session = function(desiredCapabilities) {
             // "Apply" the provided function
             func.apply(this, args);
         }
+
+        // In case a Page Load is not triggered at all (within 0.5s), we assume it's done and move on
+        setTimeout(function() {
+            if (pageLoadNotTriggered) {
+                clearTimeout(timer);
+                thisPage.resetOneShotCallbacks();
+                onLoadFunc.call(thisPage, "success");
+            }
+        }, 500);
     },
 
     _oneShotCallbackFactory = function(page, callbackName) {
@@ -239,6 +273,8 @@ ghostdriver.Session = function(desiredCapabilities) {
     },
 
     _decorateNewWindow = function(page) {
+        var k;
+
         // Decorating:
         // 0. Pages lifetime will be managed by Driver, not the pages
         page.ownsPages = false;
@@ -258,8 +294,16 @@ ghostdriver.Session = function(desiredCapabilities) {
         page.onPageCreated = _addNewPage;
         // 5. Remove every closing page
         page.onClosing = _deleteClosingPage;
+        // 6. Applying Page settings received via capabilities
+        for (k in _pageSettings) {
+            // Apply setting only if really supported by PhantomJS
+            if (p.settings.hasOwnProperty(k)) {
+                page.settings[k] = _pageSettings[k];
+            }
+        }
 
         // page.onConsoleMessage = function(msg) { console.log(msg); };
+        // console.log("New Window/Page settings: " + JSON.stringify(page.settings, null, "  "));
 
         return page;
     },
@@ -284,14 +328,21 @@ ghostdriver.Session = function(desiredCapabilities) {
         return page;
     },
 
-    _getCurrentWindow = function() {
-        var page = null;
+    _initCurrentWindowIfNull = function() {
+        // Ensure a Current Window is available, if it's found to be `null`
         if (_currentWindowHandle === null) {
             // First call to get the current window: need to create one
             page = _decorateNewWindow(require("webpage").create());
             _currentWindowHandle = page.windowHandle;
             _windows[_currentWindowHandle] = page;
-        } else if (_windows.hasOwnProperty(_currentWindowHandle)) {
+        }
+    },
+
+    _getCurrentWindow = function() {
+        var page = null;
+
+        _initCurrentWindowIfNull();
+        if (_windows.hasOwnProperty(_currentWindowHandle)) {
             page = _windows[_currentWindowHandle];
         }
 
@@ -306,6 +357,8 @@ ghostdriver.Session = function(desiredCapabilities) {
         if (page !== null) {
             // Switch current window and return "true"
             _currentWindowHandle = page.windowHandle;
+            // Switch to the Main Frame of that window
+            page.switchToMainFrame();
             return true;
         }
 
@@ -353,15 +406,48 @@ ghostdriver.Session = function(desiredCapabilities) {
     },
 
     _setTimeout = function(type, ms) {
-        _timeouts[type] = ms;
+        // In case the chosen timeout is less than 0, we reset it to `_max32bitInt`
+        if (ms < 0) {
+            _timeouts[type] = _max32bitInt;
+        } else {
+            _timeouts[type] = ms;
+        }
     },
 
     _getTimeout = function(type) {
         return _timeouts[type];
     },
 
-    _timeoutNames = function() {
-        return _const.TIMEOUT_NAMES;
+    _getScriptTimeout = function() {
+        return _getTimeout(_const.TIMEOUT_NAMES.SCRIPT);
+    },
+
+    _getAsyncScriptTimeout = function() {
+        return _getTimeout(_const.TIMEOUT_NAMES.ASYNC_SCRIPT);
+    },
+
+    _getImplicitTimeout = function() {
+        return _getTimeout(_const.TIMEOUT_NAMES.IMPLICIT);
+    },
+
+    _getPageLoadTimeout = function() {
+        return _getTimeout(_const.TIMEOUT_NAMES.PAGE_LOAD);
+    },
+
+    _setScriptTimeout = function(ms) {
+        _setTimeout(_const.TIMEOUT_NAMES.SCRIPT, ms);
+    },
+
+    _setAsyncScriptTimeout = function(ms) {
+        _setTimeout(_const.TIMEOUT_NAMES.ASYNC_SCRIPT, ms);
+    },
+
+    _setImplicitTimeout = function(ms) {
+        _setTimeout(_const.TIMEOUT_NAMES.IMPLICIT, ms);
+    },
+
+    _setPageLoadTimeout = function(ms) {
+        _setTimeout(_const.TIMEOUT_NAMES.PAGE_LOAD, ms);
     },
 
     _aboutToDelete = function() {
@@ -389,14 +475,21 @@ ghostdriver.Session = function(desiredCapabilities) {
         getWindow : _getWindow,
         closeWindow : _closeWindow,
         getWindowsCount : _getWindowsCount,
+        initCurrentWindowIfNull : _initCurrentWindowIfNull,
         getCurrentWindowHandle : _getCurrentWindowHandle,
-        getWindowHandles: _getWindowHandles,
-        isValidWindowHandle: _isValidWindowHandle,
+        getWindowHandles : _getWindowHandles,
+        isValidWindowHandle : _isValidWindowHandle,
         aboutToDelete : _aboutToDelete,
-        setTimeout : _setTimeout,
-        getTimeout : _getTimeout,
-        timeoutNames : _timeoutNames,
-        inputs: _inputs
+        inputs : _inputs,
+        setScriptTimeout : _setScriptTimeout,
+        setAsyncScriptTimeout : _setAsyncScriptTimeout,
+        setImplicitTimeout : _setImplicitTimeout,
+        setPageLoadTimeout : _setPageLoadTimeout,
+        getScriptTimeout : _getScriptTimeout,
+        getAsyncScriptTimeout : _getAsyncScriptTimeout,
+        getImplicitTimeout : _getImplicitTimeout,
+        getPageLoadTimeout : _getPageLoadTimeout,
+        timeoutNames : _const.TIMEOUT_NAMES
     };
 };
 

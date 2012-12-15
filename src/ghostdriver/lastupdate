@@ -1,10 +1,7 @@
-2012-11-25 20:54:35
+2012-12-15 18:59:39
 
-commit 54876580d0a3886e42850804b03184adbd899d65 (HEAD, tag: refs/tags/1.0.0, refs/remotes/origin/master, refs/remotes/origin/HEAD, refs/heads/master)
+commit 2676fd4e6410202ec439a235316451ea2c633681 (HEAD, tag: refs/tags/1.0.1, refs/heads/master)
 Author: Ivan De Marino <ivan.de.marino@gmail.com>
-Date:   Sun Nov 25 19:05:15 2012 +0000
+Date:   Sat Dec 15 18:58:34 2012 +0000
 
-    Updated export script.
-    
-    1. Creates the `README.md` to inform PhantomJS developers that the code is automatically exported from GhostDriver
-    2. Adds `--decorate=full` to the line where we populate the `lastupdate` file
+    Preparing GhostDriver version `1.0.1`.

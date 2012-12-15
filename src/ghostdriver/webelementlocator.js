@@ -207,7 +207,7 @@ ghostdriver.WebElementLocator = function(session) {
             elementOrElements.hasOwnProperty("value")) {
 
             // return if elements found OR we passed the "stopSearchByTime"
-            stopSearchByTime = searchStartTime + _session.getTimeout(_session.timeoutNames().IMPLICIT);
+            stopSearchByTime = searchStartTime + _session.getImplicitTimeout();
             if (elementOrElements.value.length !== 0 || new Date().getTime() > stopSearchByTime) {
                 res.success(_session.getId(), elementOrElements.value);
                 return;
@@ -215,7 +215,7 @@ ghostdriver.WebElementLocator = function(session) {
         }
 
         // retry if we haven't passed "stopSearchByTime"
-        stopSearchByTime = searchStartTime + _session.getTimeout(_session.timeoutNames().IMPLICIT);
+        stopSearchByTime = searchStartTime + _session.getImplicitTimeout();
         if (stopSearchByTime >= new Date().getTime()) {
             // Recursive call in 50ms
             setTimeout(function(){
