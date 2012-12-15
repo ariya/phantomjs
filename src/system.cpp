@@ -120,6 +120,11 @@ System::System(QObject *parent) :
     m_os.insert("name", "unknown");
     m_os.insert("version", "unknown");
 #endif
+
+    // Initialize standard streams
+    m_stdout = (File *)NULL;
+    m_stderr = (File *)NULL;
+    m_stdin = (File *)NULL;
 }
 
 qint64 System::pid() const
@@ -150,6 +155,36 @@ QVariant System::os() const
 bool System::isSSLSupported() const
 {
     return QSslSocket::supportsSsl();
+}
+
+QObject *System::_stdout() {
+    if ((File *)NULL == m_stdout) {
+        QFile *f = new QFile();
+        f->open(stdout, QIODevice::WriteOnly | QIODevice::Unbuffered);
+        m_stdout = new File(f, (QTextCodec *)NULL, this);
+    }
+
+    return m_stdout;
+}
+
+QObject *System::_stderr() {
+    if ((File *)NULL == m_stderr) {
+        QFile *f = new QFile();
+        f->open(stderr, QIODevice::WriteOnly | QIODevice::Unbuffered);
+        m_stderr = new File(f, (QTextCodec *)NULL, this);
+    }
+
+    return m_stderr;
+}
+
+QObject *System::_stdin() {
+    if ((File *)NULL == m_stdin) {
+        QFile *f = new QFile();
+        f->open(stdin, QIODevice::ReadOnly | QIODevice::Unbuffered);
+        m_stdin = new File(f, (QTextCodec *)NULL, this);
+    }
+
+    return m_stdin;
 }
 
 void System::initCompletions()
