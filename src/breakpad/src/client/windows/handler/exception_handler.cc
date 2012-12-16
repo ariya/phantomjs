@@ -467,6 +467,8 @@ LONG ExceptionHandler::HandleException(EXCEPTION_POINTERS* exinfo) {
 }
 
 #if _MSC_VER >= 1400  // MSVC 2005/8
+#ifndef STATUS_INVALID_PARAMETER
+#define STATUS_INVALID_PARAMETER ((DWORD )0xC000000DL)
 // static
 void ExceptionHandler::HandleInvalidParameter(const wchar_t* expression,
                                               const wchar_t* function,
