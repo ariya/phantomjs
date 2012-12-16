@@ -4,11 +4,23 @@ Please see also http://phantomjs.org/releases.html.
 
     New features
 
-      * To be written
+      * Integrated GhostDriver as the WebDriver implementation (issue 39)
+      * Added an option to specify the SSL protocol (issue 174)
+      * Added process ID (PID) to the System module (issue 769)
+      * Added properties to obtain page and frame title (issue 799)
+      * Added page navigation methods (issue 808)
+      * Added support for modifier keys in keyboard events (issue 835)
+      * Added onFilePicker callback for more generic file upload API (issue 843)
 
     Improvements
 
-      * To be written
+      * Fixed date parsing in ISO8601 format (issue 187, 267)
+      * Deregistered multiple callback handler (issue 807)
+      * Fixed sending of double-click events (issue 848)
+      * Fixed keycodes sent for lowercase characters (issue 852)
+      * Fixed a regression in table row page break (issue 880)
+      * Completed the CoffeeScript version of the examples (issue 907)
+      * Updated Qt to version 4.8.4 (issue 918)
 
 2012-09-22: Version 1.7.0
 
