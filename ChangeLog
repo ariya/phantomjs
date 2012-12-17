@@ -11,16 +11,19 @@ Please see also http://phantomjs.org/releases.html.
       * Added page navigation methods (issue 808)
       * Added support for modifier keys in keyboard events (issue 835)
       * Added onFilePicker callback for more generic file upload API (issue 843)
+      * Added the ability to set the page content and location (issue 909)
 
     Improvements
 
       * Fixed date parsing in ISO8601 format (issue 187, 267)
       * Deregistered multiple callback handler (issue 807)
       * Fixed sending of double-click events (issue 848)
+      * Increases maximum number of redirects (issue 849)
       * Fixed keycodes sent for lowercase characters (issue 852)
       * Fixed a regression in table row page break (issue 880)
       * Completed the CoffeeScript version of the examples (issue 907)
       * Updated Qt to version 4.8.4 (issue 918)
+      * Fixed potential hang in some example scripts (issue 922)
 
 2012-09-22: Version 1.7.0
 
