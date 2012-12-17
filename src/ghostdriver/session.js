@@ -297,7 +297,7 @@ ghostdriver.Session = function(desiredCapabilities) {
         // 6. Applying Page settings received via capabilities
         for (k in _pageSettings) {
             // Apply setting only if really supported by PhantomJS
-            if (p.settings.hasOwnProperty(k)) {
+            if (page.settings.hasOwnProperty(k)) {
                 page.settings[k] = _pageSettings[k];
             }
         }
