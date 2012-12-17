@@ -1,7 +1,9 @@
-2012-12-15 18:59:39
+2012-12-17 17:37:17
 
-commit 2676fd4e6410202ec439a235316451ea2c633681 (HEAD, tag: refs/tags/1.0.1, refs/heads/master)
+commit 7407396688de041790cff1ea3c959eb581665628 (HEAD, tag: refs/tags/1.0.1, refs/remotes/origin/master, refs/remotes/origin/HEAD, refs/heads/master)
 Author: Ivan De Marino <ivan.de.marino@gmail.com>
-Date:   Sat Dec 15 18:58:34 2012 +0000
+Date:   Mon Dec 17 17:25:15 2012 +0000
 
-    Preparing GhostDriver version `1.0.1`.
+    Fixing stupid typo.
+    
+    Fixes #135.
