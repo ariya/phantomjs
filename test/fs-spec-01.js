@@ -37,6 +37,17 @@ describe("Basic Files API (read, write, remove, ...)", function() {
         expect(content).toEqual("hello\nworld\n");
     });
 
+    it("should be able to read specific number of bytes from a specific position in a file", function() {
+        var content = "";
+        try{
+            var f = fs.open(FILENAME, "r");
+            f.seek(3);
+            content = f.read(5);
+            f.close();
+        } catch (e) { }
+        expect(content).toEqual("lo\nwo");
+    });
+
     it("should be able to read/write/append content from a file", function() {
         var content = "";
         try{

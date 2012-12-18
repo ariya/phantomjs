@@ -36,6 +36,7 @@
 #include <QMap>
 #include <QVariant>
 
+#include "filesystem.h"
 #include "replcompletable.h"
 
 // This class implements the CommonJS System/1.0 spec.
@@ -48,6 +49,9 @@ class System : public REPLCompletable
     Q_PROPERTY(QVariant env READ env)
     Q_PROPERTY(QVariant os READ os)
     Q_PROPERTY(bool isSSLSupported READ isSSLSupported)
+    Q_PROPERTY(QObject *stdout READ _stdout)
+    Q_PROPERTY(QObject *stderr READ _stderr)
+    Q_PROPERTY(QObject *stdin READ _stdin)
 
 public:
     explicit System(QObject *parent = 0);
@@ -63,11 +67,23 @@ public:
 
     bool isSSLSupported() const;
 
+    // system.stdout
+    QObject *_stdout();
+
+    // system.stderr
+    QObject *_stderr();
+
+    // system.stdin
+    QObject *_stdin();
+
 private:
     QStringList m_args;
     QVariant m_env;
     QMap<QString, QVariant> m_os;
     virtual void initCompletions();
+    File *m_stdout;
+    File *m_stderr;
+    File *m_stdin;
 };
 
 #endif // SYSTEM_H

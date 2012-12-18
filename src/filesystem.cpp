@@ -61,6 +61,25 @@ File::~File()
 // public slots:
 QString File::read()
 {
+    return read(0, true);
+}
+
+// See: http://wiki.commonjs.org/wiki/IO/A#Instance_Methods
+QString File::read(const QVariant &n)
+{
+    // Default to 1024 (used when "null" or value unconvertable to int was passed)
+    int bytesToRead = 1024;
+
+    // If parameter can be converted to an int, do so and use that value instead
+    if (n.canConvert(QVariant::Int)) {
+        bytesToRead = n.toInt();
+    }
+
+    return read(bytesToRead, false);
+}
+
+QString File::read(const int bytesToRead, const bool isReadAll)
+{
     if ( !m_file->isReadable() ) {
         qDebug() << "File::read - " << "Couldn't read:" << m_file->fileName();
         return QString();
@@ -71,17 +90,31 @@ QString File::read()
     }
     if ( m_fileStream ) {
         // text file
-        const qint64 pos = m_fileStream->pos();
-        m_fileStream->seek(0);
-        const QString ret = m_fileStream->readAll();
-        m_fileStream->seek(pos);
+        QString ret;
+        if (isReadAll) {
+            // This code, for some reason, reads the whole file from 0 to EOF,
+            // and then resets to the position the file was at prior to reading
+            const qint64 pos = m_fileStream->pos();
+            m_fileStream->seek(0);
+            ret = m_fileStream->readAll();
+            m_fileStream->seek(pos);
+        } else {
+            ret = m_fileStream->read(bytesToRead);
+        }
         return ret;
     } else {
         // binary file
-        const qint64 pos = m_file->pos();
-        m_file->seek(0);
-        const QByteArray data = m_file->readAll();
-        m_file->seek(pos);
+        QByteArray data;
+        if (isReadAll) {
+            // This code, for some reason, reads the whole file from 0 to EOF,
+            // and then resets to the position the file was at prior to reading
+            const qint64 pos = m_file->pos();
+            m_file->seek(0);
+            data = m_file->readAll();
+            m_file->seek(pos);
+        } else {
+            data = m_file->read(bytesToRead);
+        }
         QString ret(data.size());
         for(int i = 0; i < data.size(); ++i) {
             ret[i] = data.at(i);
@@ -107,6 +140,15 @@ bool File::write(const QString &data)
             bytes[i] = data.at(i).toAscii();
         }
         return m_file->write(bytes);
+    }
+}
+
+bool File::seek(const qint64 pos)
+{
+    if (m_fileStream) {
+        return m_fileStream->seek(pos);
+    } else {
+        return m_file->seek(pos);
     }
 }
 
