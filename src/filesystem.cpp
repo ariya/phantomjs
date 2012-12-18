@@ -110,6 +110,15 @@ bool File::write(const QString &data)
     }
 }
 
+bool File::seek(const qint64 pos)
+{
+    if (m_fileStream) {
+        return m_fileStream->seek(pos);
+    } else {
+        return m_file->seek(pos);
+    }
+}
+
 QString File::readLine()
 {
     if ( !m_file->isReadable() ) {
