@@ -34,10 +34,10 @@ ghostdriver.ShutdownReqHand = function() {
     _protoParent = ghostdriver.ShutdownReqHand.prototype,
 
     _handle = function(req, res) {
-       _protoParent.handle.call(this, req, res);
+        _protoParent.handle.call(this, req, res);
 
-        if (req.method === "GET" && req.urlParsed.file === "shutdown") {
-            //res.success(null, null);
+        // Any HTTP Request Method will be accepted for this command. Some drivers like HEAD for example...
+        if (req.urlParsed.file === "shutdown") {
             res.statusCode = 200;
             res.setHeader("Content-Type", "text/html;charset=UTF-8");
             res.setHeader("Content-Length", 36);

@@ -10,7 +10,7 @@ page.open url,
     else
       results = page.evaluate ->
         pizza = []
-        list = document.querySelectorAll 'span.address'
+        list = document.querySelectorAll 'address'
         for item in list
           pizza.push(item.innerText)
         return pizza

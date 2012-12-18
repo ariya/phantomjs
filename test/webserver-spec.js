@@ -9,7 +9,7 @@ describe("WebServer constructor", function() {
     });
 });
 
-var expectedPostData = false;
+var expectedPostData = false, expectedBinaryData = false;
 
 function checkRequest(request, response) {
     expect(typeof request).toEqual('object');
@@ -47,7 +47,13 @@ function checkRequest(request, response) {
         expectedPostData = false;
     }
 
-    response.write("request handled");
+    if (expectedBinaryData !== false) {
+        response.setEncoding('binary');
+        response.write(expectedBinaryData);
+        expectedBinaryData = false;
+    } else {
+        response.write("request handled");
+    }
     response.close();
 }
 
@@ -156,4 +162,31 @@ describe("WebServer object", function() {
             expect(handled).toEqual(true);
         });
     });
+
+    it("should handle binary data", function() {
+        var page = require('webpage').create();
+        var url = "http://localhost:12345/";
+        var fs = require('fs');
+        expectedBinaryData = fs.read('phantomjs.png', 'b');
+        var handled = false;
+        runs(function() {
+            expect(handled).toEqual(false);
+            page.open(url, 'get', function(status) {
+                expect(status == 'success').toEqual(true);
+                function checkImg() {
+                    var img = document.querySelector('img');
+                    return (img) && (img.width == 200) && (img.height == 200);
+                }
+                expect(page.evaluate(checkImg)).toEqual(true);
+                handled = true;
+            });
+        });
+
+        waits(50);
+
+        runs(function() {
+            expect(handled).toEqual(true);
+        });
+    });
+
 });

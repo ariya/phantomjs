@@ -31,6 +31,7 @@
 
 #include "webserver.h"
 
+#include "encoding.h"
 #include "mongoose/mongoose.h"
 
 #include <QByteArray>
@@ -399,14 +400,29 @@ void WebServerResponse::writeHead(int statusCode, const QVariantMap &headers)
     mg_write(m_conn, "\r\n", 2);
 }
 
-void WebServerResponse::write(const QString &body)
+void WebServerResponse::write(const QVariant &body)
 {
     if (!m_headersSent) {
         writeHead(m_statusCode, m_headers);
     }
-    ///TODO: encoding?!
-    const QByteArray data = body.toUtf8();
+
+    QByteArray data;
+    if (m_encoding.isEmpty()) {
+        data = body.toString().toUtf8();
+    } else if (m_encoding.toLower() == "binary") {
+        data = body.toByteArray();
+    } else {
+        Encoding encoding;
+        encoding.setEncoding(m_encoding);
+        data = encoding.encode(body.toString());
+    }
+
     mg_write(m_conn, data.constData(), data.size());
+}
+
+void WebServerResponse::setEncoding(const QString &encoding)
+{
+    m_encoding = encoding;
 }
 
 void WebServerResponse::close()
