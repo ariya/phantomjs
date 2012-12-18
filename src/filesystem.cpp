@@ -59,8 +59,18 @@ File::~File()
 //      encounters \0 or similar
 
 // public slots:
-QString File::read()
+QString File::read(const QVariant &n)
 {
+    // Default to 1024 (used when n is "null")
+    qint64 bytesToRead = 1024;
+
+    // If parameter can be converted to a qint64, do so and use that value instead
+    if (n.canConvert(QVariant::LongLong)) {
+        bytesToRead = n.toLongLong();
+    }
+
+    const bool isReadAll = 0 > bytesToRead;
+
     if ( !m_file->isReadable() ) {
         qDebug() << "File::read - " << "Couldn't read:" << m_file->fileName();
         return QString();
@@ -71,17 +81,31 @@ QString File::read()
     }
     if ( m_fileStream ) {
         // text file
-        const qint64 pos = m_fileStream->pos();
-        m_fileStream->seek(0);
-        const QString ret = m_fileStream->readAll();
-        m_fileStream->seek(pos);
+        QString ret;
+        if (isReadAll) {
+            // This code, for some reason, reads the whole file from 0 to EOF,
+            // and then resets to the position the file was at prior to reading
+            const qint64 pos = m_fileStream->pos();
+            m_fileStream->seek(0);
+            ret = m_fileStream->readAll();
+            m_fileStream->seek(pos);
+        } else {
+            ret = m_fileStream->read(bytesToRead);
+        }
         return ret;
     } else {
         // binary file
-        const qint64 pos = m_file->pos();
-        m_file->seek(0);
-        const QByteArray data = m_file->readAll();
-        m_file->seek(pos);
+        QByteArray data;
+        if (isReadAll) {
+            // This code, for some reason, reads the whole file from 0 to EOF,
+            // and then resets to the position the file was at prior to reading
+            const qint64 pos = m_file->pos();
+            m_file->seek(0);
+            data = m_file->readAll();
+            m_file->seek(pos);
+        } else {
+            data = m_file->read(bytesToRead);
+        }
         QString ret(data.size());
         for(int i = 0; i < data.size(); ++i) {
             ret[i] = data.at(i);

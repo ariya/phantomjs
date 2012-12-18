@@ -11,8 +11,8 @@ var line = system.stdin.readLine();
 system.stdout.writeLine(JSON.stringify(line));
 
 // This is essentially a `readAll`
-system.stdout.writeLine('system.stdin.read(): (ctrl+D to end)');
-var input = system.stdin.read();
+system.stdout.writeLine('system.stdin.read(5): (ctrl+D to end)');
+var input = system.stdin.read(5);
 system.stdout.writeLine(JSON.stringify(input));
 
 phantom.exit(0);
