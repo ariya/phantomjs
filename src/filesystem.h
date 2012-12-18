@@ -52,6 +52,8 @@ public slots:
     QString read();
     bool write(const QString &data);
 
+    bool seek(const qint64 pos);
+
     QString readLine();
     bool writeLine(const QString &data);
 
