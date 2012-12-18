@@ -31,6 +31,7 @@
 
 #include "webserver.h"
 
+#include "encoding.h"
 #include "mongoose/mongoose.h"
 
 #include <QByteArray>
@@ -287,7 +288,6 @@ WebServerResponse::WebServerResponse(mg_connection* conn, QSemaphore* close)
     , m_conn(conn)
     , m_statusCode(200)
     , m_headersSent(false)
-    , m_isBinary(false)
     , m_close(close)
 {
 }
@@ -406,18 +406,23 @@ void WebServerResponse::write(const QVariant &body)
         writeHead(m_statusCode, m_headers);
     }
 
-    QByteArray data = m_isBinary ? body.toByteArray() : body.toString().toUtf8();
+    QByteArray data;
+    if (m_encoding.isEmpty()) {
+        data = body.toString().toUtf8();
+    } else if (m_encoding.toLower() == "binary") {
+        data = body.toByteArray();
+    } else {
+        Encoding encoding;
+        encoding.setEncoding(m_encoding);
+        data = encoding.encode(body.toString());
+    }
 
     mg_write(m_conn, data.constData(), data.size());
 }
 
 void WebServerResponse::setEncoding(const QString &encoding)
 {
-    if (encoding.toLower()=="binary") {
-        m_isBinary = true;
-    } else {
-        m_isBinary = false;
-    }
+    m_encoding = encoding;
 }
 
 void WebServerResponse::close()

@@ -154,7 +154,7 @@ private:
     int m_statusCode;
     QVariantMap m_headers;
     bool m_headersSent;
-    bool m_isBinary;
+    QString m_encoding;
     QSemaphore* m_close;
 };
 
