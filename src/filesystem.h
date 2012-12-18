@@ -50,6 +50,8 @@ public:
 
 public slots:
     QString read();
+    // See: http://wiki.commonjs.org/wiki/IO/A#Instance_Methods
+    QString read(const QVariant &n);
     bool write(const QString &data);
 
     bool seek(const qint64 pos);
@@ -63,6 +65,7 @@ public slots:
 
 private:
     virtual void initCompletions();
+    QString read(const int bytesToRead, const bool isReadAll);
 
 private:
     QFile *m_file;
