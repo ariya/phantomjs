@@ -102,7 +102,7 @@ echo "done"
 echo
 
 echo -n "compressing binary..."
-if [[ ! -z upx ]]; then
+if upx --version >/dev/null 2>&1; then
     upx -qqq -9 $phantomjs
     echo "done"
 else
