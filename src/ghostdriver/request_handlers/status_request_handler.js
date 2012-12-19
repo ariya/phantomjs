@@ -33,9 +33,7 @@ ghostdriver.StatusReqHand = function() {
     _protoParent = ghostdriver.StatusReqHand.prototype,
     _statusObj = {
         "build" : {
-            "version"   : "1.0-dev",
-            "revision"  : "unknown",
-            "time"      : "unknown"
+            "version"   : ghostdriver.version
         },
         "os" : {
             "name"      : ghostdriver.system.os.name,
