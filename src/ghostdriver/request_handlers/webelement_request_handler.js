@@ -404,15 +404,19 @@ ghostdriver.WebElementReqHand = function(idOrElement, session) {
 
     _canCausePageLoadOnClick = function(currWindow) {
         var tagName = _getTagName(currWindow).toLowerCase(),
-            href = _getAttribute(currWindow, "href"),
-            type = _getAttribute(currWindow, "type").toLowerCase();
+            href = (_getAttribute(currWindow, "href") || ""),
+            type = (_getAttribute(currWindow, "type") || "").toLowerCase();
 
-        // Return "true" if it's an element that "can cause a page load if clicked"
-        if (tagName === "a" && !!href && href.length > 0) {
+        // Return "true" if it's an element that "could cause a page load when clicked"
+        // 1. "A" tag with "HREF" set
+        if (tagName === "a" && href.length > 0) {
             return true;
         }
-        if (tagName === "input" && type === "submit") {
-            return true;
+        // 2. "INPUT/BUTTON" tag with "TYPE" set to "SUBMIT/IMAGE"
+        if (tagName === "input" || tagName === "button") {
+            if (type === "submit" || type === "image") {
+                return true;
+            }
         }
         return false;
     },
@@ -435,7 +439,9 @@ ghostdriver.WebElementReqHand = function(idOrElement, session) {
                     res.respondBasedOnResult(_session, req, clickRes);
                 }
             }, function(status) {                   //< onLoadFinished
-                // Report about the Load, only if it was not already handled
+                // console.log("click: onLoadFinished: "+status);
+
+                // Report Load Finished, only if callbacks were not "aborted"
                 if (!abortCallback) {
                     if (status === "success") {
                         res.success(_session.getId());
@@ -450,17 +456,22 @@ ghostdriver.WebElementReqHand = function(idOrElement, session) {
                     }
                 }
             }, function() {
-                if (arguments.length === 0) {       //< onTimeout
-                    // onclick didn't bubble up, but we should still return success
-                    res.success(_session.getId());
-                } else {                            //< onError
-                    _errors.handleFailedCommandEH(
-                        _errors.FAILED_CMD_STATUS.UNKNOWN_ERROR,
-                        "Click failed: " + arguments[0],
-                        req,
-                        res,
-                        _session,
-                        "WebElementReqHand");
+                // console.log("click: onLoadError");
+
+                // Report Load Erro, only if callbacks were not "aborted"
+                if (!abortCallback) {
+                    if (arguments.length === 0) {       //< onTimeout
+                        // onclick didn't bubble up, but we should still return success
+                        res.success(_session.getId());
+                    } else {                            //< onError
+                        _errors.handleFailedCommandEH(
+                            _errors.FAILED_CMD_STATUS.UNKNOWN_ERROR,
+                            "Click failed: " + arguments[0],
+                            req,
+                            res,
+                            _session,
+                            "WebElementReqHand");
+                    }
                 }
             });
         } else {
