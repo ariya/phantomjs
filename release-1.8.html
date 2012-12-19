@@ -78,19 +78,41 @@
 
 <p>PhantomJS 1.8, <a href="release-names.html">Blue Winter Rose</a>, is still in the development. It is scheduled to be released on December 21, 2012.</p>
 
+
 <p><strong>New features</strong></p>
 
 <ul>
-    <li>Added an option to set the SSL protocol (issue <a href="http://code.google.com/p/phantomjs/issues/details?id=174">174</a>)
-    <li>Added support for modifier keys for the key event (issue <a href="http://code.google.com/p/phantomjs/issues/details?id=835">835</a>)
+    <li>Integrated GhostDriver as the WebDriver implementation (issue 39)
+    <li>Added an option to specify the SSL protocol (issue 174)
+    <li>Added encoding support for WebServer's response (issue 505)
+    <li>Added process ID (PID) to the System module (issue 769)
+    <li>Added properties to obtain page and frame title (issue 799)
+    <li>Added page navigation methods (issue 808)
     <li>Added a limit for authentication attempts (issue <a href="http://code.google.com/p/phantomjs/issues/details?id=826">826</a>)
+    <li>Added support for modifier keys in keyboard events (issue 835)
+    <li>Added onFilePicker callback for more generic file upload API (issue 843)
+    <li>Added the ability to set the page content and location (issue 909)
 </ul>
 
 <p><strong>Improvements</strong></p>
 
 <ul>
     <li>Fixed date parsing in ISO8601 format (issue <a href="http://code.google.com/p/phantomjs/issues/details?id=187">187</a> ,<a href="http://code.google.com/p/phantomjs/issues/details?id=267">267</a>)
-    <li>Fixed mouse double-click event (issue <a href="http://code.google.com/p/phantomjs/issues/details?id=848">848</a>)
+    <li>Deregistered multiple callback handler (issue 807)
+    <li>Fixed sending of double-click events (issue 848)
+    <li>Increases maximum number of redirects (issue 849)
+    <li>Fixed keycodes sent for lowercase characters (issue 852)
+    <li>Fixed a regression in table row page break (issue 880)
+    <li>Completed the CoffeeScript version of the examples (issue 907)
+    <li>Updated Qt to version 4.8.4 (issue 918)
+    <li>Fixed potential hang in some example scripts (issue 922)
+</ul>
+
+<p><strong>Known Issues on Microsoft Windows</strong></p>
+
+<ul>
+    <li>Very slow network performance. The workaround is to set <a href="https://github.com/ariya/phantomjs/wiki/API-Reference#wiki-command-line-options">proxy type</a> to &quot;<tt>none</tt>&quot; (issue <a href="http://code.google.com/p/phantomjs/issues/detail?id=580">580</a>)
+    <li>Some graphics drivers may cause mysterious crash (issue <a href="http://code.google.com/p/phantomjs/issues/detail?id=845">845</a>)
 </ul>
 
 <p>Back to <a href="releases.html">all releases</a>.</p>
