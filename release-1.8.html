@@ -78,11 +78,31 @@
 
 <p>PhantomJS 1.8, <a href="release-names.html">Blue Winter Rose</a>, is still in the development. It is scheduled to be released on December 21, 2012.</p>
 
+<p><strong>WebDriver support via Ghost Driver integration</strong></p>
+
+<p><a href="https://github.com/detro/ghostdriver">Ghost Driver</a>, a project from <a href="http://blog.ivandemarino.me/2012/12/04/Finally-GhostDriver-1-0-0">Ivan de Marino</a>, is an implementation of <a href="http://code.google.com/p/selenium/wiki/JsonWireProtocol">WebDriver Wire Protocol</a>. In this PhantomJS release, Ghost Driver functionalities have been fully integrated. To launch PhantomJS in Remote WebDriver mode at the intended port number:</p>
+
+<pre class="prettyprint lang-bash">phantomjs --webdriver=PORT</pre>
+
+<p>As an example, assuming PhantomJS WebDriver is set to port 9134, then the following Ruby script will display the page title of the Google search with the specified keyword:</p>
+
+<pre class="prettyprint lang-ruby">
+require "selenium-webdriver"
+driver = Selenium::WebDriver.for(:remote, :url => "http://localhost:9134")
+driver.navigate.to "http://google.com"
+element = driver.find_element(:name, 'q')
+element.send_keys "PhantomJS"
+element.submit
+puts driver.title
+driver.quit
+</pre>
+
+<p>Thanks to the various language bindings, WebDriver can be used with many major programming environment, from Java to Ruby. Make sure you check the documentation of <a href="http://seleniumhq.org/docs/03_webdriver.jsp">Selenium WebDriver</a>.</p>
 
 <p><strong>New features</strong></p>
 
 <ul>
-    <li>Integrated GhostDriver as the WebDriver implementation (issue <a href="http://code.google.com/p/phantomjs/issues/detail?id=39">39</a>)
+    <li>Integrated GhostDriver as the WebDriver implementation (issue <a href="http://code.google.com/p/phantomjs/issues/detail?id=49">49</a>)
     <li>Added an option to specify the SSL protocol (issue <a href="http://code.google.com/p/phantomjs/issues/detail?id=174">174</a>)
     <li>Added encoding support for WebServer's response (issue <a href="http://code.google.com/p/phantomjs/issues/detail?id=505">505</a>)
     <li>Added process ID (PID) to the System module (issue <a href="http://code.google.com/p/phantomjs/issues/detail?id=769">769</a>)
