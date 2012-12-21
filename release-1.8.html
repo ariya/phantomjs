@@ -49,6 +49,17 @@
 #description li {
     margin-left: 1em;
 }
+
+table {
+    margin: 10px;
+}
+table th{
+    font-weight: bold;
+    background-color: #eee;
+}
+table td,table th {
+    padding: 10px;
+}
 </style>
 </head>
 
@@ -82,13 +93,22 @@
 
 <p><strong>WebDriver support via Ghost Driver integration</strong></p>
 
-<p><a href="https://github.com/detro/ghostdriver">Ghost Driver</a>, a project from <a href="http://blog.ivandemarino.me/2012/12/04/Finally-GhostDriver-1-0-0">Ivan de Marino</a>, is an implementation of <a href="http://code.google.com/p/selenium/wiki/JsonWireProtocol">WebDriver Wire Protocol</a>. In this PhantomJS release, Ghost Driver functionalities have been fully integrated. To launch PhantomJS in Remote WebDriver mode at the intended port number:</p>
+<p>
+    <a href="https://github.com/detro/ghostdriver">Ghost Driver</a>, a project by
+    <a href="http://blog.ivandemarino.me/2012/12/04/Finally-GhostDriver-1-0-0">Ivan De Marino</a>, is an implementation
+    of <a href="http://code.google.com/p/selenium/wiki/JsonWireProtocol">WebDriver Wire Protocol</a>.
+    In this PhantomJS release, Ghost Driver functionalities have been fully integrated.
+</p>
+<p>
+    To launch PhantomJS in <emp>Remote WebDriver mode</emp> at the intended <code>PORT</code> number:
+    <pre class="prettyprint lang-bash">phantomjs --webdriver=PORT</pre>
+</p>
 
-<pre class="prettyprint lang-bash">phantomjs --webdriver=PORT</pre>
-
-<p>As an example, assuming PhantomJS WebDriver is set to port 9134, then the following Ruby script will display the page title of the Google search with the specified keyword:</p>
-
-<pre class="prettyprint lang-ruby">
+<p>
+    The following example, written in Ruby, assumes PhantomJS WebDriver is running on port <code>9134</code>.
+    The script will load Google, submit a search for the term <emp>"PhantomJS"</emp> and print the page title
+    os the search result page:
+    <pre class="prettyprint lang-ruby">
 require "selenium-webdriver"
 driver = Selenium::WebDriver.for(:remote, :url => "http://localhost:9134")
 driver.navigate.to "http://google.com"
@@ -96,10 +116,56 @@ element = driver.find_element(:name, 'q')
 element.send_keys "PhantomJS"
 element.submit
 puts driver.title
-driver.quit
-</pre>
+driver.quit</pre>
+</p>
 
-<p>Thanks to the various language bindings, WebDriver can be used with many major programming environment, from Java to Ruby. Make sure you check the documentation of <a href="http://seleniumhq.org/docs/03_webdriver.jsp">Selenium WebDriver</a>.</p>
+<p>
+    Bindings for your favourite programming language have being provided, and can be found in
+    <a href="https://code.google.com/p/selenium/downloads/list">releases of Selenium >= 2.27</a>:
+    <table>
+    <thead>
+        <tr>
+            <th>Language Binding</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Java</td>
+            <td>Available</td>
+        </tr>
+        <tr>
+            <td>C#/.Net</td>
+            <td>Available</td>
+        </tr>
+        <tr>
+            <td>Python</td>
+            <td>Available</td>
+        </tr>
+        <tr>
+            <td>Ruby</td>
+            <td>Available</td>
+        </tr>
+        <tr>
+            <td>PHP</td>
+            <td>Work in progress</td>
+        </tr>
+    </tbody>
+    </table>
+
+    <strong>NOTICE:</strong> Language bindings are provided by kind members of the Selenium community.
+    Issues related to those should be
+    <a href="https://code.google.com/p/selenium/issues/list">reported to Selenium project</a>.
+    PhantomJS <strong>solely</strong> implements the Wire Protocol, and it is not responsible for any/possible
+    binding malfunctions.
+</p>
+<p>
+    More details can be found in
+    <a href="http://blog.ivandemarino.me/2012/12/04/Finally-GhostDriver-1-0-0">this blogpost</a>.
+</p>
+<p>
+    Also, make sure you check the documentation of <a href="http://seleniumhq.org/docs/03_webdriver.jsp">Selenium WebDriver</a>.
+</p>
 
 <p><strong>New features</strong></p>
 
