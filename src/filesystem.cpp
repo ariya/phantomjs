@@ -357,6 +357,16 @@ QString FileSystem::absolute(const QString &relativePath) const
     return QFileInfo(relativePath).absoluteFilePath();
 }
 
+QString FileSystem::fromNativeSeparators(const QString &path) const
+{
+    return QDir::fromNativeSeparators(path);
+}
+
+QString FileSystem::toNativeSeparators(const QString &path) const
+{
+    return QDir::toNativeSeparators(path);
+}
+
 // Files
 QObject *FileSystem::_open(const QString &path, const QVariantMap &opts) const
 {
@@ -477,4 +487,6 @@ void FileSystem::initCompletions()
     addCompletion("copy");
     addCompletion("move");
     addCompletion("touch");
+    addCompletion("join");
+    addCompletion("split");
 }

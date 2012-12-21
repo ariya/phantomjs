@@ -115,6 +115,10 @@ public slots:
     QString workingDirectory() const;
     bool changeWorkingDirectory(const QString &path) const;
     QString absolute(const QString &relativePath) const;
+    // 'join(...)' implemented in "fs.js"
+    // 'split(path)' implemented in "fs.js"
+    QString fromNativeSeparators(const QString &path) const;
+    QString toNativeSeparators(const QString &path) const;
 
     // Links
     QString readLink(const QString &path) const;
