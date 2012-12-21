@@ -1,0 +1,21 @@
+.DS_Store
+*.xcodeproj
+Makefile*
+*~
+.idea
+*.iml
+target/
+chromedriver.log
+build
+*.log
+.gradle
+*.ipr
+*.iws
+*.class
+*.orig
+*.pyc
+src/
+bin/
+
+# vim temp files
+*.swp
