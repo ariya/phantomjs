@@ -4,7 +4,7 @@ Please see also http://phantomjs.org/releases.html.
 
     New features
 
-      * Integrated GhostDriver as the WebDriver implementation (issue 39)
+      * Integrated GhostDriver as the WebDriver implementation (issue 49)
       * Added an option to specify the SSL protocol (issue 174)
       * Added encoding support for WebServer's response (issue 505)
       * Added process ID (PID) to the System module (issue 769)
