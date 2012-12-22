@@ -100,14 +100,14 @@ table td,table th {
     In this PhantomJS release, Ghost Driver functionalities have been fully integrated.
 </p>
 <p>
-    To launch PhantomJS in <emp>Remote WebDriver mode</emp> at the intended <code>PORT</code> number:
+    To launch PhantomJS in <em>Remote WebDriver mode</em> at the intended <code>PORT</code> number:
     <pre class="prettyprint lang-bash">phantomjs --webdriver=PORT</pre>
 </p>
 
 <p>
     The following example, written in Ruby, assumes PhantomJS WebDriver is running on port <code>9134</code>.
-    The script will load Google, submit a search for the term <emp>"PhantomJS"</emp> and print the page title
-    os the search result page:
+    The script will load Google, submit a search for the term <em>"PhantomJS"</em> and print the page title
+    of the search result page:
     <pre class="prettyprint lang-ruby">
 require "selenium-webdriver"
 driver = Selenium::WebDriver.for(:remote, :url => "http://localhost:9134")
@@ -155,14 +155,12 @@ driver.quit</pre>
     <strong>NOTICE:</strong> Language bindings are provided by kind members of the Selenium community.
     Issues related to those should be
     <a href="https://code.google.com/p/selenium/issues/list">reported to Selenium project</a>.
-    PhantomJS <strong>solely</strong> implements the Wire Protocol, and it is not responsible for any/possible
+    PhantomJS <strong>solely</strong> implements the Wire Protocol and it is not responsible for any/possible
     binding malfunctions.
 </p>
 <p>
     More details can be found in
-    <a href="http://blog.ivandemarino.me/2012/12/04/Finally-GhostDriver-1-0-0">this blogpost</a>.
-</p>
-<p>
+    <a href="http://blog.ivandemarino.me/2012/12/04/Finally-GhostDriver-1-0-0">this blog post</a>.
     Also, make sure you check the documentation of <a href="http://seleniumhq.org/docs/03_webdriver.jsp">Selenium WebDriver</a>.
 </p>
 
