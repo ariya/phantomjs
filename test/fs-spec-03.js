@@ -10,7 +10,7 @@ describe("Files and Directories API", function() {
 
 	it("should create a file in the Current Working Directory and check it's absolute path", function() {
 		fs.write(TEST_FILE, TEST_FILE, "w");
-		var suffix = fs.separator + TEST_DIR + fs.separator +  TEST_FILE,
+		var suffix = fs.join("", TEST_DIR, TEST_FILE),
 			abs = fs.absolute(".." + suffix),
 			lastIndex = abs.lastIndexOf(suffix);
 		expect(lastIndex).toNotEqual(-1);
