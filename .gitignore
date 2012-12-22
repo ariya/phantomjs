@@ -24,3 +24,34 @@ src/qt/qtc-debugging-helper
 # ignore ctags
 /tags
 tools/dump_syms.app/
+
+# Ignore Visual Studio temporary files, build results, etc
+*.suo
+*.user
+*.sln.docstates
+*_i.c
+*_p.c
+*.ilk
+*.meta
+*.obj
+*.pch
+*.pdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.log
+*.sdf
+*.vcxproj
+*.vcxproj.filters
+*.lib
+*.prl
+*.intermediate.manifest
+
+# Build results
+[Dd]ebug*/
+[Rr]elease/
