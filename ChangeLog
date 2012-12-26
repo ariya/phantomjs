@@ -17,6 +17,7 @@ Please see also http://phantomjs.org/releases.html.
     Improvements
 
       * Fixed date parsing in ISO8601 format (issue 187, 267)
+      * Fixed window.location (issue 530, 632)
       * Deregistered multiple callback handler (issue 807)
       * Fixed sending of double-click events (issue 848)
       * Increases maximum number of redirects (issue 849)
