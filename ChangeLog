@@ -1,5 +1,17 @@
 Please see also http://phantomjs.org/releases.html.
 
+2013-03-20: Version 1.9.0
+
+    New features
+
+      * Added system access to stdin, stdout, and stderr (issue 333)
+      * Added seek function to the File stream (issue 937)
+      * Implemented file read for a specified number of bytes (issue 938)
+
+    Improvements
+
+      * Ensured a consistent 72 dpi for Linux headless rendering (issue 659)
+
 2012-12-21: Version 1.8.0
 
     New features
