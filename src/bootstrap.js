@@ -115,6 +115,7 @@ phantom.callback = function(callback) {
     // (for future, now both fs and system are loaded anyway)
     var nativeExports = {
         get fs() { return phantom.createFilesystem(); },
+        get child_process() { return phantom._createChildProcess(); },
         get system() { return phantom.createSystem(); }
     };
     var extensions = {
