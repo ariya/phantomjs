@@ -32,7 +32,11 @@ namespace WebCore {
 
 FontCustomPlatformData::~FontCustomPlatformData()
 {
+#if !defined(Q_OS_MAC)
+    // On Mac OS X, do not remove the font because it may crash.
+    // For details, see issue 690 (http://code.google.com/p/phantomjs/issues/detail?id=690).
     QFontDatabase::removeApplicationFont(m_handle);
+#endif
 }
 
 FontPlatformData FontCustomPlatformData::fontPlatformData(int size, bool bold, bool italic, FontOrientation, TextOrientation, FontWidthVariant, FontRenderingMode)
