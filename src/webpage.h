@@ -36,8 +36,6 @@
 #include <QWebPage>
 #include <QWebFrame>
 
-#include "replcompletable.h"
-
 class Config;
 class CustomPage;
 class WebpageCallbacks;
@@ -45,7 +43,7 @@ class NetworkAccessManager;
 class QWebInspector;
 class Phantom;
 
-class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
+class WebPage : public QObject, public QWebFrame::PrintCallback
 {
     Q_OBJECT
     Q_PROPERTY(QString title READ title)
@@ -491,8 +489,6 @@ private:
     QString filePicker(const QString &oldFile);
     bool javaScriptConfirm(const QString &msg);
     bool javaScriptPrompt(const QString &msg, const QString &defaultValue, QString *result);
-
-    virtual void initCompletions();
 
 private:
     CustomPage *m_customWebPage;
