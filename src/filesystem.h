@@ -36,9 +36,7 @@
 #include <QTextStream>
 #include <QVariant>
 
-#include "replcompletable.h"
-
-class File : public REPLCompletable
+class File : public QObject
 {
     Q_OBJECT
 
@@ -67,15 +65,12 @@ public slots:
     void close();
 
 private:
-    virtual void initCompletions();
-
-private:
     QFile *m_file;
     QTextStream *m_fileStream;
 };
 
 
-class FileSystem : public REPLCompletable
+class FileSystem : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString workingDirectory READ workingDirectory)
@@ -139,9 +134,6 @@ public slots:
     bool isReadable(const QString &path) const;
     bool isWritable(const QString &path) const;
     bool isLink(const QString &path) const;
-
-private:
-    virtual void initCompletions();
 };
 
 #endif // FILESYSTEM_H

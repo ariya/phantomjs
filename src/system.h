@@ -37,11 +37,10 @@
 #include <QVariant>
 
 #include "filesystem.h"
-#include "replcompletable.h"
 
 // This class implements the CommonJS System/1.0 spec.
 // See: http://wiki.commonjs.org/wiki/System/1.0
-class System : public REPLCompletable
+class System : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(qint64 pid READ pid)
@@ -81,7 +80,6 @@ private:
     QStringList m_args;
     QVariant m_env;
     QMap<QString, QVariant> m_os;
-    virtual void initCompletions();
     File *m_stdout;
     File *m_stderr;
     File *m_stdin;

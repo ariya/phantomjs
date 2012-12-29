@@ -295,7 +295,7 @@ private:
 
 
 WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
-    : REPLCompletable(parent)
+    : QObject(parent)
     , m_navigationLocked(false)
     , m_mousePos(QPoint(0, 0))
     , m_ownsPages(true)
@@ -1449,61 +1449,6 @@ void WebPage::setupFrame(QWebFrame *frame)
 
     // Inject the Callbacks object in the main frame
     injectCallbacksObjIntoFrame(frame == NULL ? m_mainFrame : frame, m_callbacks);
-}
-
-void WebPage::initCompletions()
-{
-    // Add completion for the Dynamic Properties of the 'webpage' object
-    // properties
-    addCompletion("clipRect");
-    addCompletion("content");
-    addCompletion("libraryPath");
-    addCompletion("settings");
-    addCompletion("viewportSize");
-    addCompletion("ownsPages");
-    addCompletion("windowName");
-    addCompletion("pages");
-    addCompletion("pagesWindowName");
-    addCompletion("frameName");
-    addCompletion("framesName");
-    addCompletion("framesCount");
-    addCompletion("cookies");
-    // functions
-    addCompletion("evaluate");
-    addCompletion("includeJs");
-    addCompletion("injectJs");
-    addCompletion("open");
-    addCompletion("release");
-    addCompletion("render");
-    addCompletion("renderBase64");
-    addCompletion("sendEvent");
-    addCompletion("uploadFile");
-    addCompletion("getPage");
-    addCompletion("switchToFrame");
-    addCompletion("switchToMainFrame");
-    addCompletion("switchToParentFrame");
-    addCompletion("switchToFocusedFrame");
-    addCompletion("addCookie");
-    addCompletion("deleteCookie");
-    addCompletion("clearCookies");
-    addCompletion("setContent");
-    // callbacks
-    addCompletion("onAlert");
-    addCompletion("onCallback");
-    addCompletion("onPrompt");
-    addCompletion("onConfirm");
-    addCompletion("onFilePicker");
-    addCompletion("onConsoleMessage");
-    addCompletion("onInitialized");
-    addCompletion("onLoadStarted");
-    addCompletion("onLoadFinished");
-    addCompletion("onResourceRequested");
-    addCompletion("onResourceReceived");
-    addCompletion("onUrlChanged");
-    addCompletion("onNavigationRequested");
-    addCompletion("onError");
-    addCompletion("onPageCreated");
-    addCompletion("onClosing");
 }
 
 #include "webpage.moc"
