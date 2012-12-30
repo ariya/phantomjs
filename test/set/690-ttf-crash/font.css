@@ -1,0 +1,9 @@
+@font-face {
+  font-family: 'WindsongRegular';
+  src: url("https://github.com/fukawi2/.fonts/raw/master/Windsong.ttf") format("truetype");
+}
+
+h1 {
+  font: 90px/98px "WindsongRegular", Arial, sans-serif;
+}
+
