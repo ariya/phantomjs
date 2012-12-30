@@ -25,8 +25,7 @@ HEADERS += csconverter.h \
     terminal.h \
     encoding.h \
     config.h \
-    repl.h \
-    replcompletable.h
+    repl.h
 
 SOURCES += phantom.cpp \
     callback.cpp \
@@ -43,8 +42,7 @@ SOURCES += phantom.cpp \
     terminal.cpp \
     encoding.cpp \
     config.cpp \
-    repl.cpp \
-    replcompletable.cpp
+    repl.cpp
 
 OTHER_FILES += \
     bootstrap.js \

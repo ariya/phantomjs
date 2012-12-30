@@ -31,6 +31,13 @@
 
 var REPL = REPL || {};
 
+(function () {
+
+/**
+ * Cache to hold completions
+ */
+var _cache = {};
+
 /**
  * Return the Completions of the Object, applying the prefix
  *
@@ -40,15 +47,44 @@ var REPL = REPL || {};
 REPL._getCompletions = function (obj, prefix) {
     var completions = [];
 
-    // If the given object is "(REPL)Completable", just return it's completions
-    if (obj._isCompletable && obj._isCompletable() === true) {
-        completions = obj._getCompletions(prefix || "");
+    if (typeof prefix !== "string") {
+        prefix = "";
     } else {
-        // It's a JS Native Object: build the list of completions manually
-        for (k in obj) {
-            if (obj.hasOwnProperty(k) && k.indexOf(prefix || "") === 0) {
-                completions.push(k);
+        prefix = prefix.trim();
+    }
+
+    try {
+        // Try to get `QObject` inherited class's name (throws exception if not
+        // inherited from `QObject`)
+        var className = _repl._getClassName(obj);
+
+        // Initialize completions for this class as needed
+        if (null == _cache[className]) {
+            _cache[className] = _repl._enumerateCompletions(obj);
+        }
+
+        var key = className;
+        if ("" !== prefix) {
+            key = "-" + prefix;
+            if (null == _cache[key]) {
+                // Filter out completions
+                var regexp = new RegExp("^" + prefix);
+                _cache[key] = _cache[className].filter(function (elm) {
+                    return regexp.test(elm);
+                });
             }
+        }
+        completions = _cache[key];
+    } catch (e) {
+        try {
+            Object.keys(obj).forEach(function (k) {
+                if (obj.hasOwnProperty(k) && k.indexOf(prefix) === 0) {
+                    completions.push(k);
+                }
+            });
+            completions.sort();
+        } catch (e) {
+            // Ignore...
         }
     }
 
@@ -67,14 +103,12 @@ REPL._expResStringifyReplacer = function (k, v) {
         mock = {},
         funcToStr = "[Function]";
 
-    // If the result of the last evaluated expression is a REPLCompletable object
+    // If the result of the last evaluated expression is an object
     if (k === ""                        //< only first level of recursive calls
-            && REPL._lastEval
-            && REPL._lastEval._isCompletable
-            && REPL._lastEval._isCompletable() === true) {
+        && REPL._lastEval) {
 
-        // Get all the completions for the REPLCompletable object we are going to pretty-print
-        iarr = REPL._lastEval._getCompletions("");
+        // Get all the completions for the object we are going to pretty-print
+        iarr = REPL._getCompletions(REPL._lastEval);
         for (i in iarr) {
             if (typeof(v[iarr[i]]) !== "undefined") {
                 // add a reference to this "real" property into the mock object
@@ -96,3 +130,5 @@ REPL._expResStringifyReplacer = function (k, v) {
 
     return v;
 };
+
+})();

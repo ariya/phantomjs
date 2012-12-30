@@ -38,7 +38,7 @@
 #include "../env.h"
 
 System::System(QObject *parent) :
-    REPLCompletable(parent)
+    QObject(parent)
   , m_stdout((File *)NULL)
   , m_stderr((File *)NULL)
   , m_stdin((File *)NULL)
@@ -200,17 +200,4 @@ QObject *System::_stdin() {
     }
 
     return m_stdin;
-}
-
-void System::initCompletions()
-{
-    addCompletion("pid");
-    addCompletion("args");
-    addCompletion("env");
-    addCompletion("platform");
-    addCompletion("os");
-    addCompletion("isSSLSupported");
-    addCompletion("stdin");
-    addCompletion("stdout");
-    addCompletion("stderr");
 }

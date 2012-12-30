@@ -53,7 +53,7 @@ static Phantom *phantomInstance = NULL;
 
 // private:
 Phantom::Phantom(QObject *parent)
-    : REPLCompletable(parent)
+    : QObject(parent)
     , m_terminated(false)
     , m_returnValue(0)
     , m_filesystem(0)
@@ -459,25 +459,4 @@ void Phantom::doExit(int code)
     m_pages.clear();
     m_page = 0;
     QApplication::instance()->exit(code);
-}
-
-void Phantom::initCompletions()
-{
-    // Add completion for the Dynamic Properties of the 'phantom' object
-    // properties
-    addCompletion("args");
-    addCompletion("defaultPageSettings");
-    addCompletion("libraryPath");
-    addCompletion("outputEncoding");
-    addCompletion("scriptName");
-    addCompletion("version");
-    addCompletion("cookiesEnabled");
-    addCompletion("cookies");
-    // functions
-    addCompletion("exit");
-    addCompletion("debugExit");
-    addCompletion("injectJs");
-    addCompletion("addCookie");
-    addCompletion("deleteCookie");
-    addCompletion("clearCookies");
 }
