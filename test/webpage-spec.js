@@ -213,6 +213,7 @@ describe("WebPage object", function() {
     expectHasFunction(page, 'render');
     expectHasFunction(page, 'resourceReceived');
     expectHasFunction(page, 'resourceRequested');
+    expectHasFunction(page, 'resourceError');
     expectHasFunction(page, 'uploadFile');
     expectHasFunction(page, 'sendEvent');
     expectHasFunction(page, 'childFramesCount');
@@ -1037,6 +1038,43 @@ describe("WebPage object", function() {
         });
           
         waits(3000);
+        
+        runs(function() {
+            expect(handled).toEqual(true);
+        });
+    });
+    
+    it('should handle resource request errors', function() {
+        var server = require('webserver').create();
+        var page = require('webpage').create();
+        
+        server.listen(12345, function(request, response) {
+            if (request.url == '/notExistResource.png') {
+                response.statusCode = 404;
+                response.write('Not found!');
+                response.close();
+            } else {
+                response.statusCode = 200;
+                response.write('<html><body><img src="notExistResource.png"/></body></html>');
+                response.close();
+            }
+        });
+        
+        var handled = false;
+        
+        runs(function() {
+            page.onResourceError = function(errorCode, errorString) {
+                expect(errorCode).toEqual(203);
+                expect(errorString).toContain('notExistResource.png - server replied: Not Found');
+                handled = true;
+            };
+
+            page.open('http://localhost:12345', function(status) {
+                expect(status).toEqual('success');
+            });
+        });
+        
+        waits(5000);
         
         runs(function() {
             expect(handled).toEqual(true);
