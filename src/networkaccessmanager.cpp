@@ -195,6 +195,7 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
 
     connect(reply, SIGNAL(readyRead()), this, SLOT(handleStarted()));
     connect(reply, SIGNAL(sslErrors(const QList<QSslError> &)), this, SLOT(handleSslErrors(const QList<QSslError> &)));
+    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(handleNetworkError()));
 
     emit resourceRequested(data);
     return reply;
@@ -295,4 +296,20 @@ void NetworkAccessManager::handleSslErrors(const QList<QSslError> &errors)
 
     if (m_ignoreSslErrors)
         reply->ignoreSslErrors();
+}
+
+void NetworkAccessManager::handleNetworkError()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+    qDebug() << "Network - Resource request error:"
+             << reply->error()
+             << "(" << reply->errorString() << ")";
+
+    m_ids.remove(reply);
+
+    if (m_started.contains(reply))
+        m_started.remove(reply);
+
+    emit resourceError(reply->error(), reply->errorString());
+    reply->deleteLater();
 }
