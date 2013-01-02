@@ -1043,7 +1043,7 @@ describe("WebPage object", function() {
             expect(handled).toEqual(true);
         });
     });
-    
+
     it('should handle resource request errors', function() {
         var server = require('webserver').create();
         var page = require('webpage').create();
@@ -1075,6 +1075,36 @@ describe("WebPage object", function() {
         });
         
         waits(5000);
+        
+        runs(function() {
+            expect(handled).toEqual(true);
+        });
+    });
+    
+
+    it('should able to abort a network request', function() {
+        var page = require('webpage').create();
+        var url = 'http://phantomjs.org';
+        var urlToBlock = 'http://phantomjs.org/images/phantomjs-logo.png';
+        
+        var handled = false;
+        
+        runs(function() {
+            page.onResourceRequested = function(requestData, request) {
+                if (requestData['url'] == urlToBlock) {
+                    expect(typeof request).toEqual('object');
+                    expect(typeof request.abort).toEqual('function');
+                    request.abort();
+                    handled = true;
+                }
+            };
+            
+            page.open(url, function(status) {
+                expect(status).toEqual('success');
+            });
+        });
+        
+        waits(3000);
         
         runs(function() {
             expect(handled).toEqual(true);

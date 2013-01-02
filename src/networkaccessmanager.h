@@ -42,6 +42,18 @@ class Config;
 class QNetworkDiskCache;
 class QSslConfiguration;
 
+class JsNetworkRequest : public QObject
+{
+    Q_OBJECT
+
+public:
+    JsNetworkRequest(QNetworkReply* reply);
+    Q_INVOKABLE void abort();
+
+private:
+    QNetworkReply* m_networkReply;
+};
+
 class NetworkAccessManager : public QNetworkAccessManager
 {
     Q_OBJECT
@@ -65,7 +77,7 @@ protected:
     void handleFinished(QNetworkReply *reply, const QVariant &status, const QVariant &statusText);
 
 signals:
-    void resourceRequested(const QVariant& data);
+    void resourceRequested(const QVariant& data, QObject *);
     void resourceReceived(const QVariant& data);
     void resourceError(const QVariant& errorCode, const QVariant& errorString);
 
