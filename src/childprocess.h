@@ -2,7 +2,6 @@
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2012 execjosh, http://execjosh.blogspot.com
-  Copyright (C) 2012 James M. Greene <james.m.greene@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -28,63 +27,67 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef SYSTEM_H
-#define SYSTEM_H
+#ifndef CHILDPROCESS_H
+#define CHILDPROCESS_H
 
 #include <QObject>
-#include <QStringList>
-#include <QMap>
-#include <QVariant>
+#include <QProcess>
 
-#include "filesystem.h"
-#include "replcompletable.h"
+#include "encoding.h"
 
-// This class implements the CommonJS System/1.0 spec.
-// See: http://wiki.commonjs.org/wiki/System/1.0
-class System : public REPLCompletable
+/**
+ * This class wraps a QProcess and facilitates emulation of node.js's ChildProcess
+ */
+class ChildProcessContext : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(qint64 pid READ pid)
-    Q_PROPERTY(QStringList args READ args)
-    Q_PROPERTY(QVariant env READ env)
-    Q_PROPERTY(QVariant os READ os)
-    Q_PROPERTY(bool isSSLSupported READ isSSLSupported)
-    Q_PROPERTY(QObject *stdout READ _stdout)
-    Q_PROPERTY(QObject *stderr READ _stderr)
-    Q_PROPERTY(QObject *stdin READ _stdin)
 
 public:
-    explicit System(QObject *parent = 0);
-    virtual ~System();
+    explicit ChildProcessContext(QObject *parent = 0);
+    virtual ~ChildProcessContext();
 
     qint64 pid() const;
+    Q_INVOKABLE void kill(const QString &signal = "SIGTERM");
 
-    void setArgs(const QStringList& args);
-    QStringList args() const;
+    Q_INVOKABLE void _setEncoding(const QString &encoding);
+    Q_INVOKABLE bool _start(const QString &cmd, const QStringList &args);
 
-    QVariant env() const;
+signals:
+    void exit(const int code) const;
 
-    QVariant os() const;
+    /**
+     * For emulating `child.stdout.on("data", function (data) {})`
+     */
+    void stdoutData(const QString &data) const;
+    /**
+     * For emulating `child.stderr.on("data", function (data) {})`
+     */
+    void stderrData(const QString &data) const;
 
-    bool isSSLSupported() const;
-
-    // system.stdout
-    QObject *_stdout();
-
-    // system.stderr
-    QObject *_stderr();
-
-    // system.stdin
-    QObject *_stdin();
+private slots:
+    void _readyReadStandardOutput();
+    void _readyReadStandardError();
+    void _error(const QProcess::ProcessError error);
+    void _finished(const int exitCode, const QProcess::ExitStatus exitStatus);
 
 private:
-    QStringList m_args;
-    QVariant m_env;
-    QMap<QString, QVariant> m_os;
-    virtual void initCompletions();
-    File *m_stdout;
-    File *m_stderr;
-    File *m_stdin;
+    QProcess m_proc;
+    Encoding m_encoding;
 };
 
-#endif // SYSTEM_H
+/**
+ * Helper class for child_process module
+ */
+class ChildProcess : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit ChildProcess(QObject *parent = 0);
+    virtual ~ChildProcess();
+
+    Q_INVOKABLE QObject *_createChildProcessContext();
+};
+
+#endif // CHILDPROCESS_H

@@ -2,7 +2,7 @@
 
 PhantomJS ([www.phantomjs.org](http://phantomjs.org)) is a headless WebKit scriptable with JavaScript or CoffeeScript. It is used by hundreds of [developers](https://github.com/ariya/phantomjs/wiki/Buzz) and dozens of [organizations](https://github.com/ariya/phantomjs/wiki/Users) for web-related development workflow.
 
-The latest [stable release](http://phantomjs.org/release-1.7.html) is version 1.7 (codenamed <a href="http://phantomjs.org/release-names.html">"Blazing Star"</a>). Follow the official Twitter stream [@PhantomJS](http://twitter.com/PhantomJS) to get the frequent development updates.
+The latest [stable release](http://phantomjs.org/release-1.8.html) is version 1.8 (codenamed <a href="http://phantomjs.org/release-names.html">"Blue Winter Rose"</a>). Follow the official Twitter stream [@PhantomJS](http://twitter.com/PhantomJS) to get the frequent development updates.
 
 **Note**: Please **do not** create a GitHub pull request **without** reading the [Contribution Guide](https://github.com/ariya/phantomjs/blob/master/CONTRIBUTING.md) first. Failure to do so may result in the rejection of the pull request.
 
@@ -29,6 +29,7 @@ PhantomJS needs not be used only as a stand-alone tool. Check also some excellen
 - [Guard::Jasmine](https://github.com/netzpirat/guard-jasmine) automatically tests Jasmine specs on Rails when files are modified.
 - [GhostDriver](http://github.com/detro/ghostdriver/) complements Selenium tests with a PhantomJS WebDriver implementation.
 - [PhantomRobot](https://github.com/datakurre/phantomrobot) runs Robot Framework acceptance tests in the background via PhantomJS.
+- [Mocha-PhantomJS](https://github.com/metaskills/mocha-phantomjs) run Mocha tests using PhantomJS.
 
 and many others [related projects](https://github.com/ariya/phantomjs/wiki/Related-Projects).
 

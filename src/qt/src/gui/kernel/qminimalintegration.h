@@ -54,6 +54,7 @@ public:
         : mDepth(32), mFormat(QImage::Format_ARGB32_Premultiplied) {}
 
     QRect geometry() const { return mGeometry; }
+    QSize physicalSize() const { return mPhysicalSize; }
     int depth() const { return mDepth; }
     QImage::Format format() const { return mFormat; }
 

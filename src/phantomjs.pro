@@ -25,6 +25,7 @@ HEADERS += csconverter.h \
     terminal.h \
     encoding.h \
     config.h \
+    childprocess.h \
     repl.h \
     replcompletable.h
 
@@ -43,6 +44,7 @@ SOURCES += phantom.cpp \
     terminal.cpp \
     encoding.cpp \
     config.cpp \
+    childprocess.cpp \
     repl.cpp \
     replcompletable.cpp
 
@@ -52,6 +54,7 @@ OTHER_FILES += \
     modules/fs.js \
     modules/webpage.js \
     modules/webserver.js \
+    modules/child_process.js \
     repl.js
 
 include(gif/gif.pri)

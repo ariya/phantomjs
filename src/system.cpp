@@ -39,6 +39,9 @@
 
 System::System(QObject *parent) :
     REPLCompletable(parent)
+  , m_stdout((File *)NULL)
+  , m_stderr((File *)NULL)
+  , m_stdin((File *)NULL)
 {
     // Populate "env"
     m_env = Env::instance()->asVariantMap();
@@ -127,6 +130,23 @@ System::System(QObject *parent) :
     m_stdin = (File *)NULL;
 }
 
+System::~System()
+{
+    // Clean-up standard streams
+    if ((File *)NULL != m_stdout) {
+        delete m_stdout;
+        m_stdout = (File *)NULL;
+    }
+    if ((File *)NULL != m_stderr) {
+        delete m_stderr;
+        m_stderr = (File *)NULL;
+    }
+    if ((File *)NULL != m_stdin) {
+        delete m_stdin;
+        m_stdin = (File *)NULL;
+    }
+}
+
 qint64 System::pid() const
 {
     return QApplication::applicationPid();
@@ -195,4 +215,7 @@ void System::initCompletions()
     addCompletion("platform");
     addCompletion("os");
     addCompletion("isSSLSupported");
+    addCompletion("stdin");
+    addCompletion("stdout");
+    addCompletion("stderr");
 }

@@ -59,27 +59,18 @@ File::~File()
 //      encounters \0 or similar
 
 // public slots:
-QString File::read()
-{
-    return read(0, true);
-}
-
-// See: http://wiki.commonjs.org/wiki/IO/A#Instance_Methods
 QString File::read(const QVariant &n)
 {
-    // Default to 1024 (used when "null" or value unconvertable to int was passed)
-    int bytesToRead = 1024;
+    // Default to 1024 (used when n is "null")
+    qint64 bytesToRead = 1024;
 
-    // If parameter can be converted to an int, do so and use that value instead
-    if (n.canConvert(QVariant::Int)) {
-        bytesToRead = n.toInt();
+    // If parameter can be converted to a qint64, do so and use that value instead
+    if (n.canConvert(QVariant::LongLong)) {
+        bytesToRead = n.toLongLong();
     }
 
-    return read(bytesToRead, false);
-}
+    const bool isReadAll = 0 > bytesToRead;
 
-QString File::read(const int bytesToRead, const bool isReadAll)
-{
     if ( !m_file->isReadable() ) {
         qDebug() << "File::read - " << "Couldn't read:" << m_file->fileName();
         return QString();
@@ -399,6 +390,16 @@ QString FileSystem::absolute(const QString &relativePath) const
     return QFileInfo(relativePath).absoluteFilePath();
 }
 
+QString FileSystem::fromNativeSeparators(const QString &path) const
+{
+    return QDir::fromNativeSeparators(path);
+}
+
+QString FileSystem::toNativeSeparators(const QString &path) const
+{
+    return QDir::toNativeSeparators(path);
+}
+
 // Files
 QObject *FileSystem::_open(const QString &path, const QVariantMap &opts) const
 {
@@ -519,4 +520,6 @@ void FileSystem::initCompletions()
     addCompletion("copy");
     addCompletion("move");
     addCompletion("touch");
+    addCompletion("join");
+    addCompletion("split");
 }

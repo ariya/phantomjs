@@ -48,6 +48,7 @@
 #include "system.h"
 #include "callback.h"
 #include "cookiejar.h"
+#include "childprocess.h"
 
 static Phantom *phantomInstance = NULL;
 
@@ -58,6 +59,7 @@ Phantom::Phantom(QObject *parent)
     , m_returnValue(0)
     , m_filesystem(0)
     , m_system(0)
+    , m_childprocess(0)
 {
     QStringList args = QApplication::arguments();
 
@@ -339,6 +341,15 @@ QObject *Phantom::createSystem()
     }
 
     return m_system;
+}
+
+QObject *Phantom::_createChildProcess()
+{
+    if (!m_childprocess) {
+        m_childprocess = new ChildProcess(this);
+    }
+
+    return m_childprocess;
 }
 
 QObject* Phantom::createCallback()

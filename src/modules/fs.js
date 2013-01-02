@@ -223,3 +223,46 @@ exports.removeTree = function (path) {
 exports.touch = function (path) {
     exports.write(path, "", 'a');
 };
+
+// Path stuff
+
+exports.join = function() {
+    var args = [];
+
+    if (0 < arguments.length) {
+        args = args.slice.call(arguments, 0)
+            // Make sure each part is a string and remove empty parts (except at begining)
+            .map(function (part, idx) {
+                if (null != part) {
+                    var str = part.toString();
+                    if ("" === str) {
+                        return 0 === idx ? "" : null;
+                    } else {
+                        return str;
+                    }
+                }
+            })
+            // Remove empty parts
+            .filter(function (part) {
+                return null != part;
+            });
+    }
+
+    var ret = args.join("/");
+
+    return 0 < ret.length ? ret : ".";
+};
+
+exports.split = function (path) {
+    if (typeof path !== "string") {
+        return [];
+    }
+
+    return exports.fromNativeSeparators(path)
+        // Collapse redundant separators
+        .replace(/\/+/g, "/")
+        // Remove separator at end
+        .replace(/\/$/, "")
+        // And split
+        .split("/")
+};

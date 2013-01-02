@@ -51,8 +51,14 @@ QMinimalIntegration::QMinimalIntegration()
 {
     QMinimalScreen *mPrimaryScreen = new QMinimalScreen();
 
-    // Simulate typical desktop screen.
-    mPrimaryScreen->mGeometry = QRect(0, 0, 1024, 768);
+    // Simulate typical desktop screen
+    int width = 1024;
+    int height = 768;
+    int dpi = 72;
+    int physicalWidth = qRound(width * 25.4 / dpi);
+    int physicalHeight = qRound(height * 25.4 / dpi);
+    mPrimaryScreen->mGeometry = QRect(0, 0, width, height);
+    mPrimaryScreen->mPhysicalSize = QSize(physicalWidth, physicalHeight);
 
     mPrimaryScreen->mDepth = 32;
     mPrimaryScreen->mFormat = QImage::Format_ARGB32_Premultiplied;

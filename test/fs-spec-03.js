@@ -10,7 +10,7 @@ describe("Files and Directories API", function() {
 
 	it("should create a file in the Current Working Directory and check it's absolute path", function() {
 		fs.write(TEST_FILE, TEST_FILE, "w");
-		var suffix = fs.separator + TEST_DIR + fs.separator +  TEST_FILE,
+		var suffix = fs.join("", TEST_DIR, TEST_FILE),
 			abs = fs.absolute(".." + suffix),
 			lastIndex = abs.lastIndexOf(suffix);
 		expect(lastIndex).toNotEqual(-1);
@@ -35,4 +35,103 @@ describe("Files and Directories API", function() {
     });
 
     fs.removeTree(TEST_DIR);
+
+    describe("fs.join(...)", function() {
+      var parts, expected, actual;
+
+      it("empty parts", function() {
+        parts = [];
+        expected = ".";
+        actual = fs.join.apply(null, parts);
+        expect(actual).toEqual(expected);
+      });
+
+      it("one part (empty string)", function() {
+        parts = [""];
+        expected = ".";
+        actual = fs.join.apply(null, parts);
+        expect(actual).toEqual(expected);
+      });
+
+      it("one part (array)", function() {
+        parts = [[], null];
+        expected = ".";
+        actual = fs.join.apply(null, parts);
+        expect(actual).toEqual(expected);
+      });
+
+      it("empty string and one part", function() {
+        parts = ["", "a"];
+        expected = "/a";
+        actual = fs.join.apply(null, parts);
+        expect(actual).toEqual(expected);
+      });
+
+      it("empty string and multiple parts", function() {
+        parts = ["", "a", "b", "c"];
+        expected = "/a/b/c";
+        actual = fs.join.apply(null, parts);
+        expect(actual).toEqual(expected);
+      });
+
+      it("empty string and multiple parts with empty strings", function() {
+        parts = ["", "a", "", "b", "", "c"];
+        expected = "/a/b/c";
+        actual = fs.join.apply(null, parts);
+        expect(actual).toEqual(expected);
+      });
+
+      it("multiple parts", function() {
+        parts = ["a", "b", "c"];
+        expected = "a/b/c";
+        actual = fs.join.apply(null, parts);
+        expect(actual).toEqual(expected);
+      });
+
+      it("multiple parts with empty strings", function() {
+        parts = ["a", "", "b", "", "c"];
+        expected = "a/b/c";
+        actual = fs.join.apply(null, parts);
+        expect(actual).toEqual(expected);
+      });
+    });
+
+    describe("fs.split(path)", function() {
+      var path, expected, actual;
+
+      it("should split absolute path with trailing separator", function() {
+        path = fs.separator + "a" + fs.separator + "b" + fs.separator + "c" + fs.separator + "d" + fs.separator;
+        actual = fs.split(path);
+        expected = ["", "a", "b", "c", "d"];
+        expect(actual).toEqual(expected);
+      });
+
+      it("should split absolute path without trailing separator", function() {
+        path = fs.separator + "a" + fs.separator + "b" + fs.separator + "c" + fs.separator + "d";
+        actual = fs.split(path);
+        expected = ["", "a", "b", "c", "d"];
+        expect(actual).toEqual(expected);
+      });
+
+      it("should split non-absolute path with trailing separator", function() {
+        path = "a" + fs.separator + "b" + fs.separator + "c" + fs.separator + "d" + fs.separator;
+        actual = fs.split(path);
+        expected = ["a", "b", "c", "d"];
+        expect(actual).toEqual(expected);
+      });
+
+      it("should split non-absolute path without trailing separator", function() {
+        path = "a" + fs.separator + "b" + fs.separator + "c" + fs.separator + "d";
+        actual = fs.split(path);
+        expected = ["a", "b", "c", "d"];
+        expect(actual).toEqual(expected);
+      });
+
+      it("should split path with consecutive separators", function() {
+        path = "a" + fs.separator + fs.separator + fs.separator + "b" + fs.separator + "c" + fs.separator + fs.separator + "d" + fs.separator + fs.separator + fs.separator;
+        expected = ["a", "b", "c", "d"];
+        actual = fs.split(path);
+        expect(actual).toEqual(expected);
+      });
+    });
 });

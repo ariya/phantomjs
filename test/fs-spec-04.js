@@ -3,7 +3,7 @@ describe("Tests Files API", function() {
 		ABSENT_FILE = "absentfile04",
 		TEST_DIR = "testdir04",
 		TEST_FILE = "testfile04",
-		TEST_FILE_PATH = TEST_DIR + fs.separator + TEST_FILE,
+		TEST_FILE_PATH = fs.join(TEST_DIR, TEST_FILE),
 		TEST_CONTENT = "test content",
 		START_CWD = null;
 	

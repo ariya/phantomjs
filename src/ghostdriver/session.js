@@ -128,7 +128,7 @@ ghostdriver.Session = function(desiredCapabilities) {
     _execFuncAndWaitForLoadDecorator = function(func, onLoadFunc, onErrorFunc, execTypeOpt) {
         // convert 'arguments' to a real Array
         var args = Array.prototype.splice.call(arguments, 0),
-            timer,
+            loadingTimer,
             loadingNewPage = false,
             pageLoadNotTriggered = true,
             thisPage = this;
@@ -160,27 +160,27 @@ ghostdriver.Session = function(desiredCapabilities) {
         // callback.
         this.setOneShotCallback("onLoadStarted", function () {
             // console.log("onLoadStarted");
+
             pageLoadNotTriggered = false;
             loadingNewPage = true;
         });
         this.setOneShotCallback("onUrlChanged", function () {
             // console.log("onUrlChanged");
-            pageLoadNotTriggered = false;
 
+            pageLoadNotTriggered = false;
             // If "not loading a new page" it's just a fragment change
             // and we should call "onLoadFunc()"
             if (!loadingNewPage) {
-                clearTimeout(timer);
+                clearTimeout(loadingTimer);
                 thisPage.resetOneShotCallbacks();
-
-                onLoadFunc.apply(thisPage, arguments);
+                onLoadFunc.call(thisPage, "success");
             }
         });
         this.setOneShotCallback("onLoadFinished", function () {
             // console.log("onLoadFinished");
-            clearTimeout(timer);
-            thisPage.resetOneShotCallbacks();
 
+            clearTimeout(loadingTimer);
+            thisPage.resetOneShotCallbacks();
             onLoadFunc.apply(thisPage, arguments);
         });
         this.setOneShotCallback("onError", function(message, stack) {
@@ -191,23 +191,34 @@ ghostdriver.Session = function(desiredCapabilities) {
             //         message += " in " + item["function"];
             //     console.log("  " + message);
             // });
+
             pageLoadNotTriggered = false;
-
             thisPage.stop(); //< stop the page from loading
-            clearTimeout(timer);
+            clearTimeout(loadingTimer);
             thisPage.resetOneShotCallbacks();
-
             onErrorFunc.apply(thisPage, arguments);
         });
 
-        // Starting timer
-        // console.log("Setting timer to: " + _getPageLoadTimeout());
-        timer = setTimeout(function() {
-            thisPage.stop(); //< stop the page from loading
-            thisPage.resetOneShotCallbacks();
+        // Starting loadingTimer
+        // console.log("Setting 'loadingTimer' to: " + _getPageLoadTimeout());
+        loadingTimer = setTimeout(function() {
+            // console.log("loadingTimer: pageLoadTimeout");
 
+            thisPage.stop();                    //< stop the page from loading
+            thisPage.resetOneShotCallbacks();
             onErrorFunc.apply(thisPage, arguments);
         }, _getPageLoadTimeout());
+
+        // In case a Page Load is not triggered at all (within 0.5s), we assume it's done and move on
+        setTimeout(function() {
+            if (pageLoadNotTriggered === true) {
+                // console.log("pageLoadNotTriggered");
+
+                clearTimeout(loadingTimer);
+                thisPage.resetOneShotCallbacks();
+                onLoadFunc.call(thisPage, "success");
+            }
+        }, 500);
 
         // We are ready to execute
         if (execTypeOpt === "eval") {
@@ -217,15 +228,6 @@ ghostdriver.Session = function(desiredCapabilities) {
             // "Apply" the provided function
             func.apply(this, args);
         }
-
-        // In case a Page Load is not triggered at all (within 0.5s), we assume it's done and move on
-        setTimeout(function() {
-            if (pageLoadNotTriggered) {
-                clearTimeout(timer);
-                thisPage.resetOneShotCallbacks();
-                onLoadFunc.call(thisPage, "success");
-            }
-        }, 500);
     },
 
     _oneShotCallbackFactory = function(page, callbackName) {
