@@ -463,7 +463,7 @@ signals:
     void javaScriptAlertSent(const QString &msg);
     void javaScriptConsoleMessageSent(const QString &message);
     void javaScriptErrorSent(const QString &msg, const QString &stack);
-    void resourceRequested(const QVariant &req);
+    void resourceRequested(const QVariant &requestData, QObject *request);
     void resourceReceived(const QVariant &resource);
     void urlChanged(const QUrl &url);
     void navigationRequested(const QUrl &url, const QString &navigationType, bool navigationLocked, bool isMainFrame);
