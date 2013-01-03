@@ -368,6 +368,8 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
             SIGNAL(resourceRequested(QVariant)));
     connect(m_networkAccessManager, SIGNAL(resourceReceived(QVariant)),
             SIGNAL(resourceReceived(QVariant)));
+    connect(m_networkAccessManager, SIGNAL(resourceError(QVariant, QVariant)),
+            SIGNAL(resourceError(QVariant, QVariant)));
 
     m_customWebPage->setViewportSize(QSize(400, 300));
 }

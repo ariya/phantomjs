@@ -465,6 +465,7 @@ signals:
     void javaScriptErrorSent(const QString &msg, const QString &stack);
     void resourceRequested(const QVariant &req);
     void resourceReceived(const QVariant &resource);
+    void resourceError(const QVariant &errorCode, const QVariant &errorString);
     void urlChanged(const QUrl &url);
     void navigationRequested(const QUrl &url, const QString &navigationType, bool navigationLocked, bool isMainFrame);
     void rawPageCreated(QObject *page);

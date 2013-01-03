@@ -67,12 +67,14 @@ protected:
 signals:
     void resourceRequested(const QVariant& data);
     void resourceReceived(const QVariant& data);
+    void resourceError(const QVariant& errorCode, const QVariant& errorString);
 
 private slots:
     void handleStarted();
     void handleFinished(QNetworkReply *reply);
     void provideAuthentication(QNetworkReply *reply, QAuthenticator *authenticator);
     void handleSslErrors(const QList<QSslError> &errors);
+    void handleNetworkError();
 
 private:
     QHash<QNetworkReply*, int> m_ids;
