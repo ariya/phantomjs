@@ -3,5 +3,5 @@ INCLUDEPATH += $$PWD
 
 SOURCES += mongoose.c
 HEADERS += mongoose.h
-unix:LIBS += -ldl
+linux*:LIBS += -ldl
 win32:LIBS += -lWs2_32
