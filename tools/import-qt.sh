@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 QT_FOLDER=$PWD/../src/qt
 
