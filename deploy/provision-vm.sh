@@ -20,6 +20,7 @@ if type yum >/dev/null 2>&1; then
         tar -xzvf git-1.8.0.3.tar.gz
         cd git-1.8.0.3
         ./configure --prefix=$HOME/git && make -j2 && make install
+        cd ..
         sleep 3
     fi
 fi
