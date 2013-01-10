@@ -54,6 +54,7 @@
 #include <QBuffer>
 #include <QDebug>
 #include <QImageWriter>
+#include <QUuid>
 
 #include <gifwriter.h>
 
@@ -64,6 +65,12 @@
 #include "consts.h"
 #include "callback.h"
 #include "cookiejar.h"
+#include "system.h"
+
+#ifdef Q_OS_WIN32
+#include <io.h>
+#include <fcntl.h>
+#endif
 
 // Ensure we have at least head and body.
 #define BLANK_HTML                      "<html><head></head><body></body></html>"
@@ -71,6 +78,9 @@
 #define INPAGE_CALL_NAME                "window.callPhantom"
 #define CALLBACKS_OBJECT_INJECTION      INPAGE_CALL_NAME" = function() { return window."CALLBACKS_OBJECT_NAME".call.call(_phantom, Array.prototype.splice.call(arguments, 0)); };"
 #define CALLBACKS_OBJECT_PRESENT        "typeof(window."CALLBACKS_OBJECT_NAME") !== \"undefined\";"
+
+#define STDOUT_FILENAME "/dev/stdout"
+#define STDERR_FILENAME "/dev/stderr"
 
 
 /**
@@ -819,24 +829,102 @@ void WebPage::close() {
     deleteLater();
 }
 
-bool WebPage::render(const QString &fileName)
+bool WebPage::render(const QString &fileName, const QVariantMap &option)
 {
     if (m_mainFrame->contentsSize().isEmpty())
         return false;
 
-    QFileInfo fileInfo(fileName);
-    QDir dir;
-    dir.mkpath(fileInfo.absolutePath());
+    QString outFileName = fileName;
+    QString tempFileName = "";
 
-    if (fileName.endsWith(".pdf", Qt::CaseInsensitive))
-        return renderPdf(fileName);
+    QString format = "";
+    int quality = -1; // QImage#save default
 
-    QImage buffer = renderImage();
-    if (fileName.toLower().endsWith(".gif")) {
-        return exportGif(buffer, fileName);
+    if( fileName == STDOUT_FILENAME || fileName == STDERR_FILENAME ){
+        if( !QFile::exists(fileName) ){
+            // create temporary file for OS that have no /dev/stdout or /dev/stderr. (ex. windows)
+            tempFileName = QDir::tempPath() + "/phantomjstemp" + QUuid::createUuid().toString();
+            outFileName = tempFileName;
+        }
+
+        format = "png"; // default format for stdout and stderr
+    }
+    else{
+        QFileInfo fileInfo(outFileName);
+        QDir dir;
+        dir.mkpath(fileInfo.absolutePath());
     }
 
-    return buffer.save(fileName);
+    if( option.contains("format") ){
+        format = option.value("format").toString();
+    }
+    else if (fileName.endsWith(".pdf", Qt::CaseInsensitive) ){
+        format = "pdf";
+    }
+    else if (fileName.endsWith(".gif", Qt::CaseInsensitive) ){
+        format = "gif";
+    }
+
+    if( option.contains("quality") ){
+        quality = option.value("quality").toInt();
+    }
+
+    bool retval = true;
+    if ( format == "pdf" ){
+        retval = renderPdf(outFileName);
+    }
+    else if ( format == "gif" ) {
+        QImage rawPageRendering = renderImage();
+        retval = exportGif(rawPageRendering, outFileName);
+    }
+    else{
+        QImage rawPageRendering = renderImage();
+
+        const char *f = 0; // 0 is QImage#save default
+        if( format != "" ){
+            f = format.toUtf8().constData();
+        }
+
+        retval = rawPageRendering.save(outFileName, f, quality);
+    }
+
+    if( tempFileName != "" ){
+        // cleanup temporary file and render to stdout or stderr 
+        QFile i(tempFileName);
+        i.open(QIODevice::ReadOnly);
+        
+        QByteArray ba = i.readAll();
+        
+        System *system = (System*)Phantom::instance()->createSystem();
+        if( fileName == STDOUT_FILENAME ){
+#ifdef Q_OS_WIN32
+            _setmode(_fileno(stdout), O_BINARY);
+#endif
+
+            ((File *)system->_stdout())->write(QString::fromAscii(ba.constData(), ba.size()));
+
+#ifdef Q_OS_WIN32
+            _setmode(_fileno(stdout), O_TEXT);
+#endif          
+        }
+        else if( fileName == STDERR_FILENAME ){
+#ifdef Q_OS_WIN32
+            _setmode(_fileno(stderr), O_BINARY);
+#endif
+
+            ((File *)system->_stderr())->write(QString::fromAscii(ba.constData(), ba.size()));
+
+#ifdef Q_OS_WIN32
+            _setmode(_fileno(stderr), O_TEXT);
+#endif          
+        }
+
+        i.close();
+
+        QFile::remove(tempFileName);
+    }
+
+    return retval;
 }
 
 QString WebPage::renderBase64(const QByteArray &format)
