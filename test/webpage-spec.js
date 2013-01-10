@@ -1716,3 +1716,85 @@ describe('WebPage navigation events', function() {
         });
     });
 });
+
+describe("WebPage render image", function(){
+    var TEST_FILE_DIR = "webpage-spec-renders/";
+    
+    var p = require("webpage").create();
+    p.paperSize = { width: '300px', height: '300px', border: '0px' };
+    p.clipRect = { top: 0, left: 0, width: 300, height: 300};
+    p.viewportSize = { width: 300, height: 300}; 
+   
+    p.open( TEST_FILE_DIR + "index.html");
+    waits(50);
+    
+    function render_test( format, option ){
+         var opt = option || {};
+         var content, expect_content;
+         try {
+            var FILE_EXTENSION = format;
+            var FILE_NAME = "test";
+            var EXPECT_FILE;
+            if( opt.quality ){
+                EXPECT_FILE = TEST_FILE_DIR + FILE_NAME + opt.quality + "." + FILE_EXTENSION;
+            }
+            else{
+                EXPECT_FILE = TEST_FILE_DIR + FILE_NAME + "." + FILE_EXTENSION;
+            }
+            
+            var TEST_FILE;
+            if( opt.format ){
+                TEST_FILE = TEST_FILE_DIR + "temp_" + FILE_NAME;
+            }
+            else{
+                TEST_FILE = TEST_FILE_DIR + "temp_" + FILE_NAME + "." + FILE_EXTENSION;
+            }
+            
+            p.render(TEST_FILE, opt);
+            
+            expect_content = fs.read(EXPECT_FILE, "b");
+            content = fs.read(TEST_FILE, "b");
+
+            fs.remove(TEST_FILE);
+        } catch (e) { console.log(e) }
+        
+        // for PDF test
+        content = content.replace(/CreationDate \(D:\d+\)Z\)/,'');
+        expect_content = expect_content.replace(/CreationDate \(D:\d+\)Z\)/,'');
+        
+        expect(content).toEqual(expect_content);
+    }
+    
+    it("should render PDF file", function(){
+        render_test("pdf"); 
+    });
+
+    it("should render PDF file with format option", function(){
+        render_test("pdf", { format: "pdf" }); 
+    });
+
+    it("should render GIF file", function(){
+        render_test("gif"); 
+    });
+
+    it("should render GIF file with format option", function(){
+        render_test("gif", { format: "gif" }); 
+    });
+
+    it("should render PNG file", function(){
+        render_test("png"); 
+    });
+
+    it("should render PNG file with format option", function(){
+        render_test("png", { format: "png" }); 
+    });
+
+    it("should render JPEG file with quality option", function(){
+        render_test("jpg", { quality: 50 }); 
+    });
+
+    it("should render JPEG file with format and quality option", function(){
+        render_test("jpg", { format: 'jpg', quality: 50 }); 
+    });
+
+});
