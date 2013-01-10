@@ -183,7 +183,7 @@ protected:
         emit m_webPage->navigationRequested(
                     request.url(),                   //< Requested URL
                     navigationType,                  //< Navigation Type
-                    !isNavigationLocked,             //< Is navigation locked?
+                    !isNavigationLocked,             //< Will navigate (not locked)?
                     isMainFrame);                    //< Is main frame?
 
         return !isNavigationLocked;
