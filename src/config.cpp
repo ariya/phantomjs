@@ -47,7 +47,7 @@ static const struct QCommandLineConfigEntry flags[] =
     { QCommandLine::Option, '\0', "cookies-file", "Sets the file name to store the persistent cookies", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "config", "Specifies JSON-formatted configuration file", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "debug", "Prints additional warning and debug message: 'yes' or 'no' (default)", QCommandLine::Optional },
-    { QCommandLine::Option, '\0', "disk-cache", "Enables disk cache: 'yes' (default) or 'no'", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "disk-cache", "Enables disk cache: 'yes' or 'no' (default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ignore-ssl-errors", "Ignores SSL errors (expired/self-signed certificate errors): 'yes' or 'no' (default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "load-images", "Loads all inlined images: 'yes' (default) or 'no'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "local-storage-path", "Specifies the location for offline local storage", QCommandLine::Optional },
