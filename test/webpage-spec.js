@@ -135,7 +135,7 @@ describe("WebPage object", function() {
         page.onConfirm = undefined;
         expect(page.onConfirm).toBeUndefined();
     });
-    
+
     it("should be able to get the error signal handler that is currently set on it (currently a special 1-off case)", function() {
         page.onError = undefined;
         expect(page.onError).toBeUndefined();
@@ -156,7 +156,7 @@ describe("WebPage object", function() {
     checkPageCallback(page);
     checkPageConfirm(page);
     checkPagePrompt(page);
-    
+
     checkClipRect(page, {height:0,left:0,top:0,width:0});
 
     expectHasPropertyString(page, 'content');
@@ -513,9 +513,9 @@ describe("WebPage object", function() {
             page.content = '<input type="file" id="file">\n' +
                            '<input type="file" id="file2" multiple>\n' +
                            '<input type="file" id="file3" multiple>';
-            page.uploadFile("#file", 'README.md');
-            page.uploadFile("#file2", 'README.md');
-            page.uploadFile("#file3", ['README.md', 'LICENSE.BSD']);
+            page.uploadFile("#file", "run-tests.js");
+            page.uploadFile("#file2", "run-tests.js");
+            page.uploadFile("#file3", ["run-tests.js", "webpage-spec.js"]);
         });
 
         waits(50);
@@ -526,12 +526,12 @@ describe("WebPage object", function() {
             fileName = page.evaluate(function() {
                 return document.getElementById('file').files[0].fileName;
             });
-            expect(fileName).toEqual('README.md');
+            expect(fileName).toEqual("run-tests.js");
 
             fileName = page.evaluate(function() {
                 return document.getElementById('file2').files[0].fileName;
             });
-            expect(fileName).toEqual('README.md');
+            expect(fileName).toEqual("run-tests.js");
 
             var files = page.evaluate(function() {
                 var files = document.getElementById('file3').files;
@@ -541,8 +541,8 @@ describe("WebPage object", function() {
                 }
             });
             expect(files.length).toEqual(2)
-            expect(files.fileNames[0]).toEqual('README.md');
-            expect(files.fileNames[1]).toEqual('LICENSE.BSD');
+            expect(files.fileNames[0]).toEqual("run-tests.js");
+            expect(files.fileNames[1]).toEqual("webpage-spec.js");
         });
     });
 
@@ -1023,22 +1023,22 @@ describe("WebPage object", function() {
             expect(message).toEqual("PASS");
         });
     });
-    
+
     it('should open url using secure connection', function() {
         var page = require('webpage').create();
         var url = 'https://en.wikipedia.org';
-      
+
         var handled = false;
-      
+
         runs(function() {
             page.open(url, function(status) {
                 expect(status == 'success').toEqual(true);
                 handled = true;
             });
         });
-          
+
         waits(3000);
-        
+
         runs(function() {
             expect(handled).toEqual(true);
         });
@@ -1047,7 +1047,7 @@ describe("WebPage object", function() {
     it('should handle resource request errors', function() {
         var server = require('webserver').create();
         var page = require('webpage').create();
-        
+
         server.listen(12345, function(request, response) {
             if (request.url == '/notExistResource.png') {
                 response.statusCode = 404;
@@ -1059,9 +1059,9 @@ describe("WebPage object", function() {
                 response.close();
             }
         });
-        
+
         var handled = false;
-        
+
         runs(function() {
             page.onResourceError = function(errorCode, errorString) {
                 expect(errorCode).toEqual(203);
@@ -1073,22 +1073,23 @@ describe("WebPage object", function() {
                 expect(status).toEqual('success');
             });
         });
-        
+
         waits(5000);
-        
+
         runs(function() {
             expect(handled).toEqual(true);
+            server.close();
         });
     });
-    
+
 
     it('should able to abort a network request', function() {
         var page = require('webpage').create();
         var url = 'http://phantomjs.org';
         var urlToBlock = 'http://phantomjs.org/images/phantomjs-logo.png';
-        
+
         var handled = false;
-        
+
         runs(function() {
             page.onResourceRequested = function(requestData, request) {
                 if (requestData['url'] == urlToBlock) {
@@ -1098,14 +1099,14 @@ describe("WebPage object", function() {
                     handled = true;
                 }
             };
-            
+
             page.open(url, function(status) {
                 expect(status).toEqual('success');
             });
         });
-        
+
         waits(3000);
-        
+
         runs(function() {
             expect(handled).toEqual(true);
         });
