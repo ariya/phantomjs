@@ -71,7 +71,7 @@ describe("phantom global object", function() {
         expect(phantom.hasOwnProperty('cookiesEnabled')).toBeTruthy();
         expect(phantom.cookiesEnabled).toBeTruthy();
     });
-    
+
     it("should be able to get the error signal handler that is currently set on it", function() {
         phantom.onError = undefined;
         expect(phantom.onError).toBeUndefined();
