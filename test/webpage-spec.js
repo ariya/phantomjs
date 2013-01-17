@@ -513,9 +513,9 @@ describe("WebPage object", function() {
             page.content = '<input type="file" id="file">\n' +
                            '<input type="file" id="file2" multiple>\n' +
                            '<input type="file" id="file3" multiple>';
-            page.uploadFile("#file", 'README.md');
-            page.uploadFile("#file2", 'README.md');
-            page.uploadFile("#file3", ['README.md', 'LICENSE.BSD']);
+            page.uploadFile("#file", "run-tests.js");
+            page.uploadFile("#file2", "run-tests.js");
+            page.uploadFile("#file3", ["run-tests.js", "webpage-spec.js"]);
         });
 
         waits(50);
@@ -526,12 +526,12 @@ describe("WebPage object", function() {
             fileName = page.evaluate(function() {
                 return document.getElementById('file').files[0].fileName;
             });
-            expect(fileName).toEqual('README.md');
+            expect(fileName).toEqual("run-tests.js");
 
             fileName = page.evaluate(function() {
                 return document.getElementById('file2').files[0].fileName;
             });
-            expect(fileName).toEqual('README.md');
+            expect(fileName).toEqual("run-tests.js");
 
             var files = page.evaluate(function() {
                 var files = document.getElementById('file3').files;
@@ -541,8 +541,8 @@ describe("WebPage object", function() {
                 }
             });
             expect(files.length).toEqual(2)
-            expect(files.fileNames[0]).toEqual('README.md');
-            expect(files.fileNames[1]).toEqual('LICENSE.BSD');
+            expect(files.fileNames[0]).toEqual("run-tests.js");
+            expect(files.fileNames[1]).toEqual("webpage-spec.js");
         });
     });
 

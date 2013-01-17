@@ -114,12 +114,16 @@ protected:
     QString chooseFile(QWebFrame *originatingFrame, const QString &oldFile) {
         Q_UNUSED(originatingFrame);
 
-        QString filePath = m_webPage->filePicker(oldFile);
-        QString choosenFile = !filePath.isNull() ? filePath : m_uploadFiles.first();
+        // Check if User set a file via File Picker
+        QString chosenFile = m_webPage->filePicker(oldFile);
+        if (chosenFile == QString::null && m_uploadFiles.count() > 0) {
+            // Check if instead User set a file via uploadFile API
+            chosenFile = m_uploadFiles.first();
+        }
 
         // Return the value coming from the "filePicker" callback, IFF not null.
-        qDebug() << "CustomPage - file choosen for upload:" << choosenFile;
-        return choosenFile;
+        qDebug() << "CustomPage - file chosen for upload:" << chosenFile;
+        return chosenFile;
     }
 
     void javaScriptAlert(QWebFrame *originatingFrame, const QString &msg) {
@@ -670,7 +674,7 @@ QString WebPage::filePicker(const QString &oldFile)
             }
         }
     }
-    return QString();
+    return QString::null;
 }
 
 bool WebPage::javaScriptConfirm(const QString &msg)
@@ -1125,7 +1129,14 @@ void WebPage::_uploadFile(const QString &selector, const QStringList &fileNames)
     if (el.isNull())
         return;
 
-    m_customWebPage->m_uploadFiles = fileNames;
+    // Filter out "fileNames" that don't actually exist
+    m_customWebPage->m_uploadFiles.clear();
+    for (int i = 0, ilen = fileNames.length(); i < ilen; ++i) {
+        if (QFile::exists(fileNames[i])) {
+            m_customWebPage->m_uploadFiles.append(fileNames[i]);
+        }
+    }
+
     el.evaluateJavaScript(JS_ELEMENT_CLICK);
 }
 
