@@ -1078,6 +1078,7 @@ describe("WebPage object", function() {
         
         runs(function() {
             expect(handled).toEqual(true);
+            server.close();
         });
     });
     
