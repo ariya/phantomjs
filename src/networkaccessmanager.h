@@ -79,7 +79,7 @@ protected:
 signals:
     void resourceRequested(const QVariant& data, QObject *);
     void resourceReceived(const QVariant& data);
-    void resourceError(const QVariant& errorCode, const QVariant& errorString);
+    void resourceError(const QVariant& data);
 
 private slots:
     void handleStarted();

@@ -1063,9 +1063,10 @@ describe("WebPage object", function() {
         var handled = false;
 
         runs(function() {
-            page.onResourceError = function(errorCode, errorString) {
-                expect(errorCode).toEqual(203);
-                expect(errorString).toContain('notExistResource.png - server replied: Not Found');
+            page.onResourceError = function(errorData) {
+                expect(errorData['url']).toEqual('http://localhost:12345/notExistResource.png');
+                expect(errorData['errorCode']).toEqual(203);
+                expect(errorData['errorString']).toContain('notExistResource.png - server replied: Not Found');
                 handled = true;
             };
 

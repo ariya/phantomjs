@@ -318,13 +318,20 @@ void NetworkAccessManager::handleNetworkError()
     QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
     qDebug() << "Network - Resource request error:"
              << reply->error()
-             << "(" << reply->errorString() << ")";
+             << "(" << reply->errorString() << ")"
+             << "URL:" << reply->url().toString();
 
     m_ids.remove(reply);
 
     if (m_started.contains(reply))
         m_started.remove(reply);
 
-    emit resourceError(reply->error(), reply->errorString());
+    QVariantMap data;
+    data["url"] = reply->url().toString();
+    data["errorCode"] = reply->error();
+    data["errorString"] = reply->errorString();
+
+    emit resourceError(data);
+
     reply->deleteLater();
 }
