@@ -44,6 +44,10 @@
 #include "SVGURIReference.h"
 #endif
 
+#if PLATFORM(QT)
+#include <QFontInfo>
+#endif
+
 namespace WebCore {
 
 CSSFontFaceSource::CSSFontFaceSource(const String& str, CachedFont* font)

@@ -43,9 +43,11 @@ public:
 
     // for use with QFontDatabase::addApplicationFont/removeApplicationFont
     int m_handle;
+    bool m_italic;
+    bool m_bold;
 
-    FontPlatformData fontPlatformData(int size, bool bold, bool italic, FontOrientation = Horizontal, TextOrientation = TextOrientationVerticalRight,
-                                      FontWidthVariant = RegularWidth, FontRenderingMode = NormalRenderingMode);
+    FontPlatformData fontPlatformData(int size, bool syntheticBold, bool syntheticItalic, FontOrientation = Horizontal, 
+        TextOrientation = TextOrientationVerticalRight, FontWidthVariant = RegularWidth, FontRenderingMode = NormalRenderingMode);
 
     static bool supportsFormat(const String&);
 };

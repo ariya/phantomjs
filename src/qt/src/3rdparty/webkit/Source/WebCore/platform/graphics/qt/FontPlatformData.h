@@ -36,6 +36,27 @@
 
 namespace WebCore {
 
+static inline QFont::Weight toQFontWeight(FontWeight fontWeight)
+{
+    switch (fontWeight) {
+    case FontWeight100:
+    case FontWeight200:
+        return QFont::Light; // QFont::Light == Weight of 25
+    case FontWeight600:
+        return QFont::DemiBold; // QFont::DemiBold == Weight of 63
+    case FontWeight700:
+    case FontWeight800:
+        return QFont::Bold; // QFont::Bold == Weight of 75
+    case FontWeight900:
+        return QFont::Black; // QFont::Black == Weight of 87
+    case FontWeight300:
+    case FontWeight400:
+    case FontWeight500:
+    default:
+        return QFont::Normal; // QFont::Normal == Weight of 50
+    }
+}
+
 class FontPlatformDataPrivate : public RefCounted<FontPlatformDataPrivate> {
     WTF_MAKE_NONCOPYABLE(FontPlatformDataPrivate); WTF_MAKE_FAST_ALLOCATED;
 public:
