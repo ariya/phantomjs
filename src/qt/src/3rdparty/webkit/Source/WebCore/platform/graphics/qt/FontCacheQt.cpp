@@ -35,6 +35,7 @@
 #include <wtf/text/StringHash.h>
 
 #include <QFont>
+#include <QFontDatabase>
 #if HAVE(QRAWFONT)
 #include <QTextLayout>
 #endif
@@ -106,6 +107,10 @@ void FontCache::getTraitsInFamily(const AtomicString&, Vector<unsigned>&)
 
 FontPlatformData* FontCache::createFontPlatformData(const FontDescription& fontDescription, const AtomicString& familyName)
 {
+    QFontDatabase db;
+    if (!db.hasFamily(familyName))
+        return 0;
+
     return new FontPlatformData(fontDescription, familyName);
 }
 
