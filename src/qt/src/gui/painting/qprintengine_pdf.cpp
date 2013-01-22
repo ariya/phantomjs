@@ -1186,10 +1186,10 @@ void QPdfEnginePrivate::writeInfo()
     printString(creator);
     xprintf("\n/Producer ");
     printString(QString::fromLatin1("Qt " QT_VERSION_STR " (C) 2011 Nokia Corporation and/or its subsidiary(-ies)"));
-    QDateTime now = QDateTime::currentDateTime().toUTC();
+    QDateTime now = QDateTime::currentDateTime();
     QTime t = now.time();
     QDate d = now.date();
-    xprintf("\n/CreationDate (D:%d%02d%02d%02d%02d%02d)",
+    xprintf("\n/CreationDate (D:%d%02d%02d%02d%02d%02d",
             d.year(),
             d.month(),
             d.day(),
