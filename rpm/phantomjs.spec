@@ -1,5 +1,5 @@
 %define name	phantomjs
-%define version	1.7
+%define version	1.8
 %define release 1
 %define prefix	/usr
 
@@ -10,7 +10,7 @@ Name:		%{name}
 Version:	%{version}
 License:	BSD
 Release:	%{release}
-Packager:	Jan Schaumann <jschauma@etsy.com>
+Packager:	Matthew Barr <mbarr@snap-interactive.com>
 Group:		Utilities/Misc
 Source:		%{name}-%{version}.tar.gz
 BuildRoot:	/tmp/%{name}-%{version}-root
@@ -122,7 +122,22 @@ cp README.md %{mybuilddir}%{prefix}/share/%{name}/
 %{prefix}/share/%{name}/examples/waitfor.js
 %{prefix}/share/%{name}/examples/walk_through_frames.coffee
 %{prefix}/share/%{name}/examples/walk_through_frames.js
+%{prefix}/share/%{name}/examples/features.coffee
+%{prefix}/share/%{name}/examples/module.coffee
+%{prefix}/share/%{name}/examples/page_events.coffee
+%{prefix}/share/%{name}/examples/page_events.js
+%{prefix}/share/%{name}/examples/pagecallback.coffee
+%{prefix}/share/%{name}/examples/pagecallback.js
+%{prefix}/share/%{name}/examples/postserver.coffee
+%{prefix}/share/%{name}/examples/printenv.coffee
+%{prefix}/share/%{name}/examples/printheaderfooter.coffee
+%{prefix}/share/%{name}/examples/printmargins.coffee
+%{prefix}/share/%{name}/examples/server.coffee
+%{prefix}/share/%{name}/examples/serverkeepalive.coffee
 
 %changelog
+* Thu Jan 24 2013 Matthew Barr <mbarr@snap-interactive.com>
+- updated to version 1.8
+
 * Thu Nov 15 2012 Jan Schaumann <jschauma@etsy.com>
 - first rpm version
