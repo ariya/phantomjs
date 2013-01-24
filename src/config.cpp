@@ -1,4 +1,4 @@
-/*o
+/*
   This file is part of the PhantomJS project from Ofi Labs.
 
   Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
