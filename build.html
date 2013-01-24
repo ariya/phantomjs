@@ -92,7 +92,7 @@ git checkout 1.8
 </pre>
 
         <p>For Amazon EC2 AMI (tested on AMI release 2011.09 and 2012.03):</p>
-
+        <p> * will also work on Centos & RHEL 6, tested on Centos 6.3 </p>
 <pre>
 sudo yum install gcc gcc-c++ make git openssl-devel freetype-devel fontconfig-devel
 git clone git://github.com/ariya/phantomjs.git
@@ -104,6 +104,13 @@ git checkout 1.8
         <p><strong>Note 1</strong>: <code>build.sh</code> by default will launch parallel compile jobs depending on the available CPU cores, e.g. 4 jobs on a modern hyperthreaded dual-core processor. If necessary, e.g. when building on a virtual machine/server or other limited environment, reduce the jobs by passing a number, e.g <code>./build.sh --jobs 1</code> to set only one compile job at a time.</p>
 
         <p><strong>Note 2</strong>: After finishing the build, run <code>deploy/package.sh</code> which creates PhantomJS binary tarball that can be moved around and/or extracted to a different location. This is the correct way to install the built binary into an arbitrary directory, i.e. do not simply copy the executable as it won't work.</p>
+
+        <p> If you'd like to make an RPM:</p>
+<pre>
+    (Follow the Amazon / Centos /RHEL instructions to build first.  Then:)
+cd rpm
+./mkrpm.sh phantomjs 
+</pre>
 
         <h2 id="windows">Windows</h2>
 
