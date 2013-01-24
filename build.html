@@ -105,6 +105,13 @@ git checkout 1.8
 
         <p><strong>Note 2</strong>: After finishing the build, run <code>deploy/package.sh</code> which creates PhantomJS binary tarball that can be moved around and/or extracted to a different location. This is the correct way to install the built binary into an arbitrary directory, i.e. do not simply copy the executable as it won't work.</p>
 
+        <p> If you'd like to make an RPM:</p>
+<pre>
+    (Follow the Amazon / Centos /RHEL instructions to build first.  Then:)
+cd rpm
+./mkrpm.sh phantomjs 
+</pre>
+
         <h2 id="windows">Windows</h2>
 
         <p>Install <a href="http://www.microsoft.com/visualstudio/">Microsoft Visual C++</a>, either version 2010 or 2008 (the <a href="http://www.microsoft.com/visualstudio/en-us/products/2010-editions/express">Express edition</a> should work just fine).</p>
