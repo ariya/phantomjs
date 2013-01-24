@@ -81,9 +81,6 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
 {
     setCookieJar(CookieJar::instance());
 
-    QList<QSslCertificate> caCerts = QSslCertificate::fromPath(
-        config->sslCertStore(), QSsl::Pem, QRegExp::Wildcard);
-
     if (config->diskCacheEnabled()) {
         m_networkDiskCache = new QNetworkDiskCache(this);
         m_networkDiskCache->setCacheDirectory(QDesktopServices::storageLocation(QDesktopServices::CacheLocation));
@@ -107,6 +104,9 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
         }
 
         if (config->sslCertStore() != "") {
+          QList<QSslCertificate> caCerts = QSslCertificate::fromPath(
+              config->sslCertStore(), QSsl::Pem, QRegExp::Wildcard);
+
             m_sslConfiguration.setCaCertificates(caCerts);
         }
     }
