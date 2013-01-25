@@ -929,6 +929,9 @@ QList<QSslCertificate> QSslSocketPrivate::systemCaCertificates()
     QStringList nameFilters;
     nameFilters << QLatin1String("*.pem") << QLatin1String("*.crt");
     currentDir.setNameFilters(nameFilters);
+    QByteArray envSslCertDir = qgetenv("SSL_CERT_DIR");
+    if(envSslCertDir != "")
+      directories << envSslCertDir;
     for (int a = 0; a < directories.count(); a++) {
         currentDir.setPath(QLatin1String(directories.at(a)));
         QDirIterator it(currentDir);
