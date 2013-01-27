@@ -1,12 +1,9 @@
 # Render Multiple URLs to file
-# FIXME: For now it is fine with pure domain names: don't think it would work with paths and stuff like that
+# FIXME: For now it is fine with pure domain names: don't think it would work
+# with paths and stuff like that
 
 system = require 'system'
-
-# Extend the Array Prototype with a 'foreach'
-Array.prototype.forEach = (action) ->
-  for i, j in this
-    action j, i, _len
+worker = 0
 
 # Render a given url to a given file
 # @param url URL to render
@@ -20,15 +17,18 @@ renderUrlToFile = (url, file, callback) ->
   page.open url, (status) ->
     if status isnt 'success'
       console.log "Unable to render '#{url}'"
+      page.close()
+      callback url, file
     else
-      page.render file
-
-    page.close()
-    callback url, file
+      window.setTimeout ->
+        page.render file
+        page.close()
+        callback url, file
+      , 200
 
 # Read the passed args
 if system.args.length > 1
-  arrayOfUrls = Array.prototype.slice.call system.args, 1
+  arrayOfUrls = system.args[1..]
 else
   # Default (no args passed)
   console.log 'Usage: phantomjs render_multi_url.coffee [domain.name1, domain.name2, ...]'
@@ -38,13 +38,16 @@ else
     'www.phantomjs.org'
   ]
 
+worker += arrayOfUrls.length
+
 # For each URL
-arrayOfUrls.forEach (pos, url, total) ->
+for url in arrayOfUrls
   file_name = "./#{url}.png"
 
   # Render to a file
   renderUrlToFile "http://#{url}", file_name, (url, file) ->
     console.log "Rendered '#{url}' at '#{file}'"
-    if pos is total - 1
+    worker--
+    if worker is 0
       # Close Phantom if it's the last URL
       phantom.exit()
