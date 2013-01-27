@@ -135,7 +135,7 @@ describe("WebPage object", function() {
         page.onConfirm = undefined;
         expect(page.onConfirm).toBeUndefined();
     });
-    
+
     it("should be able to get the error signal handler that is currently set on it (currently a special 1-off case)", function() {
         page.onError = undefined;
         expect(page.onError).toBeUndefined();
@@ -156,7 +156,7 @@ describe("WebPage object", function() {
     checkPageCallback(page);
     checkPageConfirm(page);
     checkPagePrompt(page);
-    
+
     checkClipRect(page, {height:0,left:0,top:0,width:0});
 
     expectHasPropertyString(page, 'content');
@@ -213,6 +213,7 @@ describe("WebPage object", function() {
     expectHasFunction(page, 'render');
     expectHasFunction(page, 'resourceReceived');
     expectHasFunction(page, 'resourceRequested');
+    expectHasFunction(page, 'resourceError');
     expectHasFunction(page, 'uploadFile');
     expectHasFunction(page, 'sendEvent');
     expectHasFunction(page, 'childFramesCount');
@@ -512,9 +513,9 @@ describe("WebPage object", function() {
             page.content = '<input type="file" id="file">\n' +
                            '<input type="file" id="file2" multiple>\n' +
                            '<input type="file" id="file3" multiple>';
-            page.uploadFile("#file", 'README.md');
-            page.uploadFile("#file2", 'README.md');
-            page.uploadFile("#file3", ['README.md', 'LICENSE.BSD']);
+            page.uploadFile("#file", "run-tests.js");
+            page.uploadFile("#file2", "run-tests.js");
+            page.uploadFile("#file3", ["run-tests.js", "webpage-spec.js"]);
         });
 
         waits(50);
@@ -525,12 +526,12 @@ describe("WebPage object", function() {
             fileName = page.evaluate(function() {
                 return document.getElementById('file').files[0].fileName;
             });
-            expect(fileName).toEqual('README.md');
+            expect(fileName).toEqual("run-tests.js");
 
             fileName = page.evaluate(function() {
                 return document.getElementById('file2').files[0].fileName;
             });
-            expect(fileName).toEqual('README.md');
+            expect(fileName).toEqual("run-tests.js");
 
             var files = page.evaluate(function() {
                 var files = document.getElementById('file3').files;
@@ -540,8 +541,8 @@ describe("WebPage object", function() {
                 }
             });
             expect(files.length).toEqual(2)
-            expect(files.fileNames[0]).toEqual('README.md');
-            expect(files.fileNames[1]).toEqual('LICENSE.BSD');
+            expect(files.fileNames[0]).toEqual("run-tests.js");
+            expect(files.fileNames[1]).toEqual("webpage-spec.js");
         });
     });
 
@@ -1022,22 +1023,91 @@ describe("WebPage object", function() {
             expect(message).toEqual("PASS");
         });
     });
-    
+
     it('should open url using secure connection', function() {
         var page = require('webpage').create();
         var url = 'https://en.wikipedia.org';
-      
+
         var handled = false;
-      
+
         runs(function() {
             page.open(url, function(status) {
                 expect(status == 'success').toEqual(true);
                 handled = true;
             });
         });
-          
+
         waits(3000);
-        
+
+        runs(function() {
+            expect(handled).toEqual(true);
+        });
+    });
+
+    it('should handle resource request errors', function() {
+        var server = require('webserver').create();
+        var page = require('webpage').create();
+
+        server.listen(12345, function(request, response) {
+            if (request.url == '/notExistResource.png') {
+                response.statusCode = 404;
+                response.write('Not found!');
+                response.close();
+            } else {
+                response.statusCode = 200;
+                response.write('<html><body><img src="notExistResource.png"/></body></html>');
+                response.close();
+            }
+        });
+
+        var handled = false;
+
+        runs(function() {
+            page.onResourceError = function(errorData) {
+                expect(errorData['url']).toEqual('http://localhost:12345/notExistResource.png');
+                expect(errorData['errorCode']).toEqual(203);
+                expect(errorData['errorString']).toContain('notExistResource.png - server replied: Not Found');
+                handled = true;
+            };
+
+            page.open('http://localhost:12345', function(status) {
+                expect(status).toEqual('success');
+            });
+        });
+
+        waits(5000);
+
+        runs(function() {
+            expect(handled).toEqual(true);
+            server.close();
+        });
+    });
+
+
+    it('should able to abort a network request', function() {
+        var page = require('webpage').create();
+        var url = 'http://phantomjs.org';
+        var urlToBlock = 'http://phantomjs.org/images/phantomjs-logo.png';
+
+        var handled = false;
+
+        runs(function() {
+            page.onResourceRequested = function(requestData, request) {
+                if (requestData['url'] == urlToBlock) {
+                    expect(typeof request).toEqual('object');
+                    expect(typeof request.abort).toEqual('function');
+                    request.abort();
+                    handled = true;
+                }
+            };
+
+            page.open(url, function(status) {
+                expect(status).toEqual('success');
+            });
+        });
+
+        waits(3000);
+
         runs(function() {
             expect(handled).toEqual(true);
         });
@@ -1647,4 +1717,86 @@ describe('WebPage navigation events', function() {
             expect(isHandled).toEqual(true);
         });
     });
+});
+
+describe("WebPage render image", function(){
+    var TEST_FILE_DIR = "webpage-spec-renders/";
+    
+    var p = require("webpage").create();
+    p.paperSize = { width: '300px', height: '300px', border: '0px' };
+    p.clipRect = { top: 0, left: 0, width: 300, height: 300};
+    p.viewportSize = { width: 300, height: 300}; 
+   
+    p.open( TEST_FILE_DIR + "index.html");
+    waits(50);
+    
+    function render_test( format, option ){
+         var opt = option || {};
+         var content, expect_content;
+         try {
+            var FILE_EXTENSION = format;
+            var FILE_NAME = "test";
+            var EXPECT_FILE;
+            if( opt.quality ){
+                EXPECT_FILE = TEST_FILE_DIR + FILE_NAME + opt.quality + "." + FILE_EXTENSION;
+            }
+            else{
+                EXPECT_FILE = TEST_FILE_DIR + FILE_NAME + "." + FILE_EXTENSION;
+            }
+            
+            var TEST_FILE;
+            if( opt.format ){
+                TEST_FILE = TEST_FILE_DIR + "temp_" + FILE_NAME;
+            }
+            else{
+                TEST_FILE = TEST_FILE_DIR + "temp_" + FILE_NAME + "." + FILE_EXTENSION;
+            }
+            
+            p.render(TEST_FILE, opt);
+            
+            expect_content = fs.read(EXPECT_FILE, "b");
+            content = fs.read(TEST_FILE, "b");
+
+            fs.remove(TEST_FILE);
+        } catch (e) { console.log(e) }
+        
+        // for PDF test
+        content = content.replace(/CreationDate \(D:\d+\)Z\)/,'');
+        expect_content = expect_content.replace(/CreationDate \(D:\d+\)Z\)/,'');
+        
+        expect(content).toEqual(expect_content);
+    }
+    
+    it("should render PDF file", function(){
+        render_test("pdf"); 
+    });
+
+    it("should render PDF file with format option", function(){
+        render_test("pdf", { format: "pdf" }); 
+    });
+
+    it("should render GIF file", function(){
+        render_test("gif"); 
+    });
+
+    it("should render GIF file with format option", function(){
+        render_test("gif", { format: "gif" }); 
+    });
+
+    it("should render PNG file", function(){
+        render_test("png"); 
+    });
+
+    it("should render PNG file with format option", function(){
+        render_test("png", { format: "png" }); 
+    });
+
+    it("should render JPEG file with quality option", function(){
+        render_test("jpg", { quality: 50 }); 
+    });
+
+    it("should render JPEG file with format and quality option", function(){
+        render_test("jpg", { format: 'jpg', quality: 50 }); 
+    });
+
 });

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
 
@@ -19,15 +19,18 @@ elif [[ $OSTYPE = darwin* ]]; then
    # We only support modern Mac machines, they are at least using
    # hyperthreaded dual-core CPU.
    COMPILE_JOBS=4
+elif [[ $OSTYPE == freebsd* ]]; then
+   COMPILE_JOBS=`sysctl -n hw.ncpu`
 else
    CPU_CORES=`grep -c ^processor /proc/cpuinfo`
    if [[ "$CPU_CORES" -gt 1 ]]; then
        COMPILE_JOBS=$CPU_CORES
-       if [[ "$COMPILE_JOBS" -gt 8 ]]; then
-           # Safety net.
-           COMPILE_JOBS=8
-       fi
    fi
+fi
+
+if [[ "$COMPILE_JOBS" -gt 8 ]]; then
+   # Safety net.
+   COMPILE_JOBS=8
 fi
 
 until [ -z "$1" ]; do

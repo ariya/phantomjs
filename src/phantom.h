@@ -37,7 +37,6 @@
 #include "filesystem.h"
 #include "encoding.h"
 #include "config.h"
-#include "replcompletable.h"
 #include "system.h"
 #include "childprocess.h"
 
@@ -45,7 +44,7 @@ class WebPage;
 class CustomPage;
 class WebServer;
 
-class Phantom: public REPLCompletable
+class Phantom : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QStringList args READ args)
@@ -181,7 +180,6 @@ private slots:
 
 private:
     void doExit(int code);
-    virtual void initCompletions();
 
     Encoding m_scriptFileEnc;
     WebPage *m_page;

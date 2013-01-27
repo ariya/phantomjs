@@ -36,8 +36,6 @@
 #include <QWebPage>
 #include <QWebFrame>
 
-#include "replcompletable.h"
-
 class Config;
 class CustomPage;
 class WebpageCallbacks;
@@ -45,7 +43,7 @@ class NetworkAccessManager;
 class QWebInspector;
 class Phantom;
 
-class WebPage: public REPLCompletable, public QWebFrame::PrintCallback
+class WebPage : public QObject, public QWebFrame::PrintCallback
 {
     Q_OBJECT
     Q_PROPERTY(QString title READ title)
@@ -235,7 +233,7 @@ public slots:
     void close();
 
     QVariant evaluateJavaScript(const QString &code);
-    bool render(const QString &fileName);
+    bool render(const QString &fileName, const QVariantMap &map = QVariantMap());
     /**
      * Render the page as base-64 encoded string.
      * Default image format is "png".
@@ -463,8 +461,9 @@ signals:
     void javaScriptAlertSent(const QString &msg);
     void javaScriptConsoleMessageSent(const QString &message);
     void javaScriptErrorSent(const QString &msg, const QString &stack);
-    void resourceRequested(const QVariant &req);
+    void resourceRequested(const QVariant &requestData, QObject *request);
     void resourceReceived(const QVariant &resource);
+    void resourceError(const QVariant &errorData);
     void urlChanged(const QUrl &url);
     void navigationRequested(const QUrl &url, const QString &navigationType, bool navigationLocked, bool isMainFrame);
     void rawPageCreated(QObject *page);
@@ -491,8 +490,6 @@ private:
     QString filePicker(const QString &oldFile);
     bool javaScriptConfirm(const QString &msg);
     bool javaScriptPrompt(const QString &msg, const QString &defaultValue, QString *result);
-
-    virtual void initCompletions();
 
 private:
     CustomPage *m_customWebPage;

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 LINENOISE_PATH="$PWD/../src/linenoise"
 LINENOISE_SRC_PATH="$LINENOISE_PATH/src"

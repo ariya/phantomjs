@@ -67,6 +67,21 @@ static const char *toString(QNetworkAccessManager::Operation op)
     return str;
 }
 
+JsNetworkRequest::JsNetworkRequest(QNetworkReply* reply)
+{
+    setParent(reply);
+
+    m_networkReply = reply;
+}
+
+
+void JsNetworkRequest::abort()
+{
+    if (m_networkReply->isRunning() || !m_networkReply->isFinished()) {
+        m_networkReply->abort();
+    }
+}
+
 // public:
 NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config)
     : QNetworkAccessManager(parent)
@@ -192,11 +207,11 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     data["method"] = toString(op);
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
-
+    
     connect(reply, SIGNAL(readyRead()), this, SLOT(handleStarted()));
     connect(reply, SIGNAL(sslErrors(const QList<QSslError> &)), this, SLOT(handleSslErrors(const QList<QSslError> &)));
+    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(handleNetworkError()));
 
-    emit resourceRequested(data);
     return reply;
 }
 
@@ -209,7 +224,7 @@ void NetworkAccessManager::handleStarted()
         return;
 
     m_started += reply;
-
+    
     QVariantList headers;
     foreach (QByteArray headerName, reply->rawHeaderList()) {
         QVariantMap header;
@@ -230,7 +245,8 @@ void NetworkAccessManager::handleStarted()
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
 
-    emit resourceReceived(data);
+    JsNetworkRequest* jsNetworkRequest = new JsNetworkRequest(reply);
+    emit resourceRequested(data, jsNetworkRequest);
 }
 
 void NetworkAccessManager::handleFinished(QNetworkReply *reply)
@@ -249,7 +265,7 @@ void NetworkAccessManager::provideAuthentication(QNetworkReply *reply, QAuthenti
     if (m_authAttempts++ < m_maxAuthAttempts)
     {
         authenticator->setUser(m_userName);
-        authenticator->setPassword(m_password);       
+        authenticator->setPassword(m_password);
     }
     else
     {
@@ -295,4 +311,27 @@ void NetworkAccessManager::handleSslErrors(const QList<QSslError> &errors)
 
     if (m_ignoreSslErrors)
         reply->ignoreSslErrors();
+}
+
+void NetworkAccessManager::handleNetworkError()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+    qDebug() << "Network - Resource request error:"
+             << reply->error()
+             << "(" << reply->errorString() << ")"
+             << "URL:" << reply->url().toString();
+
+    m_ids.remove(reply);
+
+    if (m_started.contains(reply))
+        m_started.remove(reply);
+
+    QVariantMap data;
+    data["url"] = reply->url().toString();
+    data["errorCode"] = reply->error();
+    data["errorString"] = reply->errorString();
+
+    emit resourceError(data);
+
+    reply->deleteLater();
 }

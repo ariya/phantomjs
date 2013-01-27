@@ -33,6 +33,10 @@
 #include <QObject>
 #include <QProcess>
 
+#ifdef Q_OS_WIN32
+#include <QtCore/qt_windows.h>
+#endif
+
 #include "encoding.h"
 
 /**

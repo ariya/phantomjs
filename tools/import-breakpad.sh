@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 svn export http://google-breakpad.googlecode.com/svn/trunk/ src/breakpad
 

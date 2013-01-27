@@ -9,11 +9,23 @@ end
 
 Vagrant::Config.run do |config|
   config.vm.define :i686 do |c|
+    c.vm.box_url = "https://opscode-vm.s3.amazonaws.com/vagrant/boxes/opscode-centos-5.8-i386.box"
+    c.vm.box     = "centos_58_32bit"
+    c.vm.customize ["modifyvm", :id, "--ostype", "RedHat"]
+  end
+
+  config.vm.define :x86_64 do |c|
+    c.vm.box_url = "https://opscode-vm.s3.amazonaws.com/vagrant/boxes/opscode-centos-5.8.box"
+    c.vm.box     = "centos_58_64bit"
+    c.vm.customize ["modifyvm", :id, "--ostype", "RedHat_64"]
+  end
+
+  config.vm.define :lucid32 do |c|
     c.vm.box_url = "http://files.vagrantup.com/lucid32.box"
     c.vm.box     = "lucid32"
   end
 
-  config.vm.define :x86_64 do |c|
+  config.vm.define :lucid64 do |c|
     c.vm.box_url = "http://files.vagrantup.com/lucid64.box"
     c.vm.box     = "lucid64"
   end

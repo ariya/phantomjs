@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Generates debugging symbols for breakpad. qt and phantomjs must have
 # been compiled in debug mode. So do:
