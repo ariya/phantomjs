@@ -123,6 +123,11 @@ System::System(QObject *parent) :
     m_os.insert("name", "unknown");
     m_os.insert("version", "unknown");
 #endif
+
+    // Initialize standard streams
+    m_stdout = (File *)NULL;
+    m_stderr = (File *)NULL;
+    m_stdin = (File *)NULL;
 }
 
 System::~System()
