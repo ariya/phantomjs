@@ -25,14 +25,14 @@ var sys = require("system"),
     step1url = "http://en.wikipedia.org/wiki/DOM_events",
     step2url = "http://en.wikipedia.org/wiki/DOM_events#Event_flow";
 
-if (sys.args > 1 && sys.args[1] === "-v") {
+if (sys.args.length > 1 && sys.args[1] === "-v") {
     logResources = true;
 }
 
 function printArgs() {
     var i, ilen;
     for (i = 0, ilen = arguments.length; i < ilen; ++i) {
-        console.log("    arguments[" + i + "] = " + arguments[i]);
+        console.log("    arguments[" + i + "] = " + JSON.stringify(arguments[i]));
     }
     console.log("");
 }
@@ -109,7 +109,7 @@ setTimeout(function() {
 setTimeout(function() {
     console.log("");
     console.log("### STEP 2: Load '" + step2url + "' (load same URL plus FRAGMENT)");
-    page.open(step1url);
+    page.open(step2url);
 }, 5000);
 
 setTimeout(function() {

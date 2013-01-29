@@ -25,7 +25,7 @@ printArgs = ->
   ilen = arguments_.length
 
   while i < ilen
-    console.log "    arguments[" + i + "] = " + arguments_[i]
+    console.log "    arguments[" + i + "] = " + JSON.stringify(arguments_[i])
     ++i
   console.log ""
 sys = require("system")
@@ -33,7 +33,7 @@ page = require("webpage").create()
 logResources = false
 step1url = "http://en.wikipedia.org/wiki/DOM_events"
 step2url = "http://en.wikipedia.org/wiki/DOM_events#Event_flow"
-logResources = true  if sys.args > 1 and sys.args[1] is "-v"
+logResources = true  if sys.args.length > 1 and sys.args[1] is "-v"
 
 #//////////////////////////////////////////////////////////////////////////////
 page.onInitialized = ->
@@ -102,7 +102,7 @@ setTimeout (->
 setTimeout (->
   console.log ""
   console.log "### STEP 2: Load '" + step2url + "' (load same URL plus FRAGMENT)"
-  page.open step1url
+  page.open step2url
 ), 5000
 setTimeout (->
   console.log ""
