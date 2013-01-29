@@ -109,7 +109,7 @@ int main(int argc, char** argv, const char** envp)
         QByteArray envSslCertDir = qgetenv("SSL_CERT_DIR");
         if (envSslCertDir != "") {
             QList<QSslCertificate> caCerts = QSslCertificate::fromPath(envSslCertDir, QSsl::Pem, QRegExp::Wildcard);
-            QSslSocket::setCaCertificates(caCerts);
+            QSslSocket::addDefaultCaCertificates(caCerts);
         } else {
             QSslSocket::addDefaultCaCertificates(QSslSocket::systemCaCertificates());
         }
