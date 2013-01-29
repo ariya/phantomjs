@@ -337,7 +337,7 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
     // @see WebPage::setupFrame(QWebFrame *) for details.
     connect(m_mainFrame, SIGNAL(loadStarted()), this, SLOT(switchToMainFrame()), Qt::QueuedConnection);
     connect(m_mainFrame, SIGNAL(loadFinished(bool)), this, SLOT(setupFrame()), Qt::QueuedConnection);
-    connect(m_customWebPage, SIGNAL(frameCreated(QWebFrame*)), this, SLOT(setupFrame(QWebFrame*)), Qt::QueuedConnection);
+    connect(m_customWebPage, SIGNAL(frameCreated(QWebFrame*)), this, SLOT(setupFrame(QWebFrame*)), Qt::DirectConnection);
     connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(setupFrame()));
     connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()), SIGNAL(initialized()));
     connect(m_mainFrame, SIGNAL(urlChanged(QUrl)), SIGNAL(urlChanged(QUrl)));
