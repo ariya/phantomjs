@@ -74,6 +74,8 @@ void Phantom::init()
 {
     if (m_config.helpFlag()) {
         Terminal::instance()->cout(QString("%1").arg(m_config.helpText()));
+        Terminal::instance()->cout("Any of the options that accept boolean values ('true'/'false') can also accept 'yes'/'no'.")
+        Terminal::instance()->cout("");
         Terminal::instance()->cout("Without any argument, PhantomJS will launch in interactive mode (REPL).");
         Terminal::instance()->cout("");
         Terminal::instance()->cout("Documentation can be found at the web site, http://phantomjs.org.");
