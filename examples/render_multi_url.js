@@ -1,39 +1,48 @@
 // Render Multiple URLs to file
-// FIXME: For now it is fine with pure domain names: don't think it would work with paths and stuff like that
 
 var system = require('system');
 
-// Extend the Array Prototype with a 'foreach'
-Array.prototype.forEach = function (action) {
-    var i, len;
-    for ( i = 0, len = this.length; i < len; ++i ) {
-        action(i, this[i], len);
-    }
-};
-
 /**
- * Render a given url to a given file
- * @param url URL to render
- * @param file File to render to
- * @param callback Callback function
+ * Render given urls
+ * @param array of URLs to render
+ * @param callbackPerUrl Function called after finishing each URL, including the last URL
+ * @param callbackFinal Function called after finishing everything
  */
-function renderUrlToFile(url, file, callback) {
-    var page = require('webpage').create();
-    page.viewportSize = { width: 800, height : 600 };
-    page.settings.userAgent = "Phantom.js bot";
-
-    page.open(url, function(status){
-       if ( status !== "success") {
-           console.log("Unable to render '"+url+"'");
-       } else {
-           page.render(file);
-       }
-       page.close();
-       callback(url, file);
-    });
+function RenderUrlsToFile(urls, callbackPerUrl, callbackFinal) {
+	var urlIndex = 0, /* only for easy file naming */
+    	webpage = require('webpage'),
+		page;
+	var getFilename = function() { return 'rendermulti-' + urlIndex + '.png'; }
+	var next = function(status, url, file) {
+		page.close();
+		callbackPerUrl(status, url, file);
+		retrieve();
+	}
+	var retrieve = function() {
+		if (urls.length > 0) {
+			url = urls.shift();
+			urlIndex++;
+			page = webpage.create();
+			page.viewportSize = { width: 800, height : 600 };
+			page.settings.userAgent = "Phantom.js bot";
+			page.open('http://' + url, function(status) {
+				var file = getFilename();
+				if ( status === "success") {
+					window.setTimeout(function() {
+						page.render(file);
+						next(status, url, file);
+				   }, 200);
+				} else {
+					next(status, url, file);
+				}
+			});
+		} else {
+			callbackFinal();
+		}
+	}
+	retrieve();
 }
 
-// Read the passed args
 var arrayOfUrls;
 if ( system.args.length > 1 ) {
     arrayOfUrls = Array.prototype.slice.call(system.args, 1);
@@ -47,16 +56,13 @@ if ( system.args.length > 1 ) {
     ];
 }
 
-// For each URL
-arrayOfUrls.forEach(function(pos, url, total){
-    var file_name = "./" + url + ".png";
 
-    // Render to a file
-    renderUrlToFile("http://"+url, file_name, function(url, file){
-        console.log("Rendered '"+url+"' at '"+file+"'");
-        if ( pos === total-1 ) {
-            // Close Phantom if it's the last URL
-            phantom.exit();
-        }
-    });
+RenderUrlsToFile(arrayOfUrls, function(status, url, file){
+	if ( status !== "success") {
+		console.log("Unable to render '" + url + "'");
+	} else {
+		console.log("Rendered '" + url + "' at '" + file + "'");
+	}
+}, function() {
+	phantom.exit();
 });
