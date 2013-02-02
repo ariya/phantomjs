@@ -90,6 +90,10 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
     if (QSslSocket::supportsSsl()) {
         m_sslConfiguration = QSslConfiguration::defaultConfiguration();
 
+        if (config->ignoreSslErrors()) {
+            m_sslConfiguration.setPeerVerifyMode(QSslSocket::VerifyNone);
+        }
+
         // set the SSL protocol to SSLv3 by the default
         m_sslConfiguration.setProtocol(QSsl::SslV3);
 
