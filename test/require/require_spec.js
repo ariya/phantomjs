@@ -86,6 +86,23 @@ describe("require()", function() {
                 require('stubbed');
             }).should.Throw("Cannot find module 'stubbed'");
         });
+
+        describe("when invoked with a factory function", function() {
+            var count = 0;
+            require.stub('lazily_stubbed', function() {
+                ++count;
+                return 'lazily stubbed module';
+            });
+
+            it("initializes the module lazily", function() {
+                require('lazily_stubbed').should.equal('lazily stubbed module');
+            });
+
+            it("doesn't reinitialize the module each time it's required", function() {
+                require('lazily_stubbed');
+                count.should.equal(1);
+            });
+        });
     });
 
     describe("when the path is relative", function() {
