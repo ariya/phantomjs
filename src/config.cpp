@@ -45,14 +45,20 @@
 
 static const struct QCommandLineConfigEntry flags[] =
 {
+    { QCommandLine::Option, '\0', "appcache", "Enables application cache: 'true' (default) or 'false'", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "appcache-path", "Specifies the location for application cache", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "appcache-quota", "Sets the maximum size of the application cache (in KB)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "cookies-file", "Sets the file name to store the persistent cookies", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "config", "Specifies JSON-formatted configuration file", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "debug", "Prints additional warning and debug message: 'true' or 'false' (default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "disk-cache", "Enables disk cache: 'true' or 'false' (default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ignore-ssl-errors", "Ignores SSL errors (expired/self-signed certificate errors): 'true' or 'false' (default)", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "indexed-db", "Enables IndexedDB: 'true' (default) or 'false'", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "indexed-db-path", "Specifies the location for indexed db storage", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "indexed-db-quota", "Sets the maximum size of the indexed db quota (in KB)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "load-images", "Loads all inlined images: 'true' (default) or 'false'", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "local-storage", "Enables local storage: 'true' (default) or 'false'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "local-storage-path", "Specifies the location for offline local storage", QCommandLine::Optional },
-    { QCommandLine::Option, '\0', "local-storage-quota", "Sets the maximum size of the offline local storage (in KB)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "local-to-remote-url-access", "Allows local content to access remote URL: 'true' or 'false' (default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "max-disk-cache-size", "Limits the size of the disk cache (in KB)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "output-encoding", "Sets the encoding for the terminal output, default is 'utf8'", QCommandLine::Optional },
@@ -175,25 +181,87 @@ void Config::setCookiesFile(const QString &value)
     m_cookiesFile = value;
 }
 
-QString Config::offlineStoragePath() const
+bool Config::appCacheEnabled() const
 {
-    return m_offlineStoragePath;
+    return m_appCacheEnabled;
 }
 
-void Config::setOfflineStoragePath(const QString &value)
+void Config::setAppCacheEnabled(const bool value)
+{
+    m_appCacheEnabled = value;
+}
+
+QString Config::appCachePath() const
+{
+    return m_appCachePath;
+}
+
+void Config::setAppCachePath(const QString &value)
 {
     QDir dir(value);
-    m_offlineStoragePath = dir.absolutePath();
+    m_appCachePath = dir.absolutePath();
 }
 
-int Config::offlineStorageDefaultQuota() const
+int Config::appCacheDefaultQuota() const
 {
-    return m_offlineStorageDefaultQuota;
+    return m_appCacheDefaultQuota;
 }
 
-void Config::setOfflineStorageDefaultQuota(int offlineStorageDefaultQuota)
+void Config::setAppCacheDefaultQuota(int appCacheDefaultQuota)
 {
-    m_offlineStorageDefaultQuota = offlineStorageDefaultQuota * 1024;
+    m_appCacheDefaultQuota = appCacheDefaultQuota * 1024;
+}
+
+bool Config::indexedDbEnabled() const
+{
+    return m_indexedDbEnabled;
+}
+
+void Config::setIndexedDbEnabled(const bool value)
+{
+    m_indexedDbEnabled = value;
+}
+
+QString Config::indexedDbPath() const
+{
+    return m_indexedDbPath;
+}
+
+void Config::setIndexedDbPath(const QString &value)
+{
+    QDir dir(value);
+    m_indexedDbPath = dir.absolutePath();
+}
+
+int Config::indexedDbDefaultQuota() const
+{
+    return m_indexedDbDefaultQuota;
+}
+
+void Config::setIndexedDbDefaultQuota(int indexedDbDefaultQuota)
+{
+    m_indexedDbDefaultQuota = indexedDbDefaultQuota * 1024;
+}
+
+bool Config::localStorageEnabled() const
+{
+    return m_localStorageEnabled;
+}
+
+void Config::setLocalStorageEnabled(const bool value)
+{
+    m_localStorageEnabled = value;
+}
+
+QString Config::localStoragePath() const
+{
+    return m_localStoragePath;
+}
+
+void Config::setLocalStoragePath(const QString &value)
+{
+    QDir dir(value);
+    m_localStoragePath = dir.absolutePath();
 }
 
 bool Config::diskCacheEnabled() const
@@ -488,8 +556,14 @@ void Config::resetToDefaults()
 {
     m_autoLoadImages = true;
     m_cookiesFile = QString();
-    m_offlineStoragePath = QString();
-    m_offlineStorageDefaultQuota = -1;
+    m_appCacheEnabled = true;
+    m_appCachePath = QString();
+    m_appCacheDefaultQuota = -1;
+    m_indexedDbEnabled = true;
+    m_indexedDbPath = QString();
+    m_indexedDbDefaultQuota = -1;
+    m_localStorageEnabled = true;
+    m_localStoragePath = QString();
     m_diskCacheEnabled = false;
     m_maxDiskCacheSize = -1;
     m_ignoreSslErrors = false;
@@ -596,6 +670,18 @@ void Config::handleOption(const QString &option, const QVariant &value)
         setPrintDebugMessages(boolValue);
     }
 
+    if (option == "appcache") {
+        setAppCacheEnabled(boolValue);
+    }
+
+    if (option == "appcache-path") {
+        setAppCachePath(value.toString());
+    }
+
+    if (option == "appcache-quota") {
+        setAppCacheDefaultQuota(value.toInt());
+    }
+
     if (option == "disk-cache") {
         setDiskCacheEnabled(boolValue);
     }
@@ -604,16 +690,28 @@ void Config::handleOption(const QString &option, const QVariant &value)
         setIgnoreSslErrors(boolValue);
     }
 
+    if (option == "indexed-db") {
+        setIndexedDbEnabled(boolValue);
+    }
+
+    if (option == "indexed-db-path") {
+        setIndexedDbPath(value.toString());
+    }
+
+    if (option == "indexed-db-quota") {
+        setIndexedDbDefaultQuota(value.toInt());
+    }
+
     if (option == "load-images") {
         setAutoLoadImages(boolValue);
     }
 
-    if (option == "local-storage-path") {
-        setOfflineStoragePath(value.toString());
+    if (option == "local-storage") {
+        setLocalStorageEnabled(boolValue);
     }
 
-    if (option == "local-storage-quota") {
-        setOfflineStorageDefaultQuota(value.toInt());
+    if (option == "local-storage-path") {
+        setLocalStoragePath(value.toString());
     }
 
     if (option == "local-to-remote-url-access") {

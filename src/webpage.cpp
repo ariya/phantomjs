@@ -357,23 +357,40 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
     m_mainFrame->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     m_mainFrame->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
-    m_customWebPage->settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
-    if (phantomCfg->offlineStoragePath().isEmpty()) {
-        m_customWebPage->settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-    } else {
-        m_customWebPage->settings()->setOfflineStoragePath(phantomCfg->offlineStoragePath());
-    }
-    if (phantomCfg->offlineStorageDefaultQuota() > 0) {
-        m_customWebPage->settings()->setOfflineStorageDefaultQuota(phantomCfg->offlineStorageDefaultQuota());
+    m_customWebPage->settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, phantomCfg->indexedDbEnabled());
+    if (phantomCfg->indexedDbEnabled()) {
+        if (phantomCfg->indexedDbPath().isEmpty()) {
+            m_customWebPage->settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+        } else {
+            m_customWebPage->settings()->setOfflineStoragePath(phantomCfg->indexedDbPath());
+        }
+        if (phantomCfg->indexedDbDefaultQuota() > 0) {
+            m_customWebPage->settings()->setOfflineStorageDefaultQuota(phantomCfg->indexedDbDefaultQuota());
+        }
     }
 
-    m_customWebPage->settings()->setAttribute(QWebSettings::OfflineWebApplicationCacheEnabled, true);
-    m_customWebPage->settings()->setOfflineWebApplicationCachePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+    m_customWebPage->settings()->setAttribute(QWebSettings::LocalStorageEnabled, phantomCfg->localStorageEnabled());
+    if (phantomCfg->localStorageEnabled()) {
+        if (phantomCfg->localStoragePath().isEmpty()) {
+            m_customWebPage->settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+        } else {
+	    m_customWebPage->settings()->setLocalStoragePath(phantomCfg->localStoragePath());
+        }
+    }
+
+    m_customWebPage->settings()->setAttribute(QWebSettings::OfflineWebApplicationCacheEnabled, phantomCfg->appCacheEnabled());
+    if (phantomCfg->appCacheEnabled()) {
+        if (phantomCfg->appCachePath().isEmpty()) {
+            m_customWebPage->settings()->setOfflineWebApplicationCachePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+        } else {
+            m_customWebPage->settings()->setOfflineWebApplicationCachePath(phantomCfg->appCachePath());
+        }
+	if (phantomCfg->appCacheDefaultQuota()) {
+	  m_customWebPage->settings()->setOfflineWebApplicationCacheQuota(phantomCfg->appCacheDefaultQuota());
+        }
+    }
 
     m_customWebPage->settings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
-
-    m_customWebPage->settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
-    m_customWebPage->settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
 
     // Custom network access manager to allow traffic monitoring.
     m_networkAccessManager = new NetworkAccessManager(this, phantomCfg);
