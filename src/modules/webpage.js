@@ -467,6 +467,14 @@ function decorateNewPage(opts, page) {
     definePageCallbackHandler(page, handlers, "onPrompt", "_getJsPromptCallback");
 
     page.event = {};
+    page.event.modifier = {
+        shift:  0x02000000,
+        ctrl:   0x04000000,
+        alt:    0x08000000,
+        meta:   0x10000000,
+        keypad: 0x20000000
+    };
+
     page.event.key = {
         '0': 48,
         '1': 49,
