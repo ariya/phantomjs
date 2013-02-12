@@ -67,18 +67,24 @@ static const char *toString(QNetworkAccessManager::Operation op)
     return str;
 }
 
-JsNetworkRequest::JsNetworkRequest(QNetworkReply* reply)
+JsNetworkRequest::JsNetworkRequest(QNetworkRequest* request, QObject* parent)
+    : QObject(parent)
 {
-    setParent(reply);
-
-    m_networkReply = reply;
+    m_networkRequest = request;
 }
-
 
 void JsNetworkRequest::abort()
 {
-    if (m_networkReply->isRunning() || !m_networkReply->isFinished()) {
-        m_networkReply->abort();
+    if (m_networkRequest) {
+        m_networkRequest->setUrl(QUrl());
+    }
+}
+
+
+void JsNetworkRequest::changeUrl(const QString& url)
+{
+    if (m_networkRequest) {
+        m_networkRequest->setUrl(QUrl(url));
     }
 }
 
@@ -191,8 +197,7 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
         ++i;
     }
 
-    // Pass duty to the superclass - Nothing special to do here (yet?)
-    QNetworkReply *reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
+    m_idCounter++;
 
     QVariantList headers;
     foreach (QByteArray headerName, req.rawHeaderList()) {
@@ -202,16 +207,24 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
         headers += header;
     }
 
-    m_idCounter++;
-    m_ids[reply] = m_idCounter;
-
     QVariantMap data;
     data["id"] = m_idCounter;
     data["url"] = url.data();
     data["method"] = toString(op);
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
-    
+
+    JsNetworkRequest* jsNetworkRequest = new JsNetworkRequest(&req, this);
+    emit resourceRequested(data, jsNetworkRequest);
+
+    // Pass duty to the superclass - Nothing special to do here (yet?)
+    QNetworkReply *reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
+
+    // reparent jsNetworkRequest to make sure that it will be destroyed with QNetworkReply
+    jsNetworkRequest->setParent(reply);
+
+    m_ids[reply] = m_idCounter;
+
     connect(reply, SIGNAL(readyRead()), this, SLOT(handleStarted()));
     connect(reply, SIGNAL(sslErrors(const QList<QSslError> &)), this, SLOT(handleSslErrors(const QList<QSslError> &)));
     connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(handleNetworkError()));
@@ -249,8 +262,7 @@ void NetworkAccessManager::handleStarted()
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
 
-    JsNetworkRequest* jsNetworkRequest = new JsNetworkRequest(reply);
-    emit resourceRequested(data, jsNetworkRequest);
+    emit resourceReceived(data);
 }
 
 void NetworkAccessManager::handleFinished(QNetworkReply *reply)
