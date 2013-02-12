@@ -1112,6 +1112,41 @@ describe("WebPage object", function() {
             expect(handled).toEqual(true);
         });
     });
+    
+    it('should change the url of the request', function() {
+        var page = require('webpage').create();
+        var url = 'http://phantomjs.org';
+        var urlToChange = 'http://phantomjs.org/images/phantomjs-logo.png';
+        var fakeImageUrl = 'http://phantomjs.org/images/icon-release.png';
+
+        var handled = false;
+
+        runs(function() {
+            page.onResourceRequested = function(requestData, request) {
+                if (requestData['url'] == urlToChange) {
+                    expect(typeof request).toEqual('object');
+                    expect(typeof request.changeUrl).toEqual('function');
+                    request.changeUrl(fakeImageUrl);
+                }
+            };
+
+            page.onResourceReceived = function(data) {
+                if (data['stage'] === 'end' && data['url'] == fakeImageUrl) {
+                    handled = true;
+                }
+            };
+
+            page.open(url, function(status) {
+                expect(status).toEqual('success');
+            });
+        });
+        
+        waits(3000);
+        
+        runs(function() {
+            expect(handled).toBe(true);
+        });
+    });
 });
 
 describe("WebPage construction with options", function () {
