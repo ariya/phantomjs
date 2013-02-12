@@ -1241,7 +1241,9 @@ bool CSSParser::parseValue(int propId, bool important)
         break;
 
     case CSSPropertyFontStyle:           // normal | italic | oblique | inherit
-        return parseFontStyle(important);
+        if (id == CSSValueNormal || id == CSSValueItalic || id == CSSValueOblique)
+            validPrimitive = true;
+        break;
 
     case CSSPropertyFontVariant:         // normal | small-caps | inherit
         return parseFontVariant(important);
@@ -3760,53 +3762,6 @@ PassRefPtr<CSSValueList> CSSParser::parseFontFamily()
     return list.release();
 }
 
-bool CSSParser::parseFontStyle(bool important)
-{
-    RefPtr<CSSValueList> values;
-    if (m_valueList->size() > 1)
-        values = CSSValueList::createCommaSeparated();
-    CSSParserValue* val;
-    bool expectComma = false;
-    while ((val = m_valueList->current())) {
-        RefPtr<CSSPrimitiveValue> parsedValue;
-        if (!expectComma) {
-            expectComma = true;
-            if (val->id == CSSValueNormal || val->id == CSSValueItalic || val->id == CSSValueOblique)
-                parsedValue = primitiveValueCache()->createIdentifierValue(val->id);
-            else if (val->id == CSSValueAll && !values) {
-                // 'all' is only allowed in @font-face and with no other values. Make a value list to
-                // indicate that we are in the @font-face case.
-                values = CSSValueList::createCommaSeparated();
-                parsedValue = primitiveValueCache()->createIdentifierValue(val->id);
-            }
-        } else if (val->unit == CSSParserValue::Operator && val->iValue == ',') {
-            expectComma = false;
-            m_valueList->next();
-            continue;
-        }
-
-        if (!parsedValue)
-            return false;
-
-        m_valueList->next();
-
-        if (values)
-            values->append(parsedValue.release());
-        else {
-            addProperty(CSSPropertyFontStyle, parsedValue.release(), important);
-            return true;
-        }
-    }
-
-    if (values && values->length()) {
-        m_hasFontFaceOnlyValues = true;
-        addProperty(CSSPropertyFontStyle, values.release(), important);
-        return true;
-    }
-
-    return false;
-}
-
 bool CSSParser::parseFontVariant(bool important)
 {
     RefPtr<CSSValueList> values;
@@ -3856,51 +3811,19 @@ bool CSSParser::parseFontVariant(bool important)
 
 bool CSSParser::parseFontWeight(bool important)
 {
-    RefPtr<CSSValueList> values;
-    if (m_valueList->size() > 1)
-        values = CSSValueList::createCommaSeparated();
-    CSSParserValue* val;
-    bool expectComma = false;
-    while ((val = m_valueList->current())) {
-        RefPtr<CSSPrimitiveValue> parsedValue;
-        if (!expectComma) {
-            expectComma = true;
-            if (val->unit == CSSPrimitiveValue::CSS_IDENT) {
-                if (val->id >= CSSValueNormal && val->id <= CSSValue900)
-                    parsedValue = primitiveValueCache()->createIdentifierValue(val->id);
-                else if (val->id == CSSValueAll && !values) {
-                    // 'all' is only allowed in @font-face and with no other values. Make a value list to
-                    // indicate that we are in the @font-face case.
-                    values = CSSValueList::createCommaSeparated();
-                    parsedValue = primitiveValueCache()->createIdentifierValue(val->id);
-                }
-            } else if (validUnit(val, FInteger | FNonNeg, false)) {
-                int weight = static_cast<int>(val->fValue);
-                if (!(weight % 100) && weight >= 100 && weight <= 900)
-                    parsedValue = primitiveValueCache()->createIdentifierValue(CSSValue100 + weight / 100 - 1);
-            }
-        } else if (val->unit == CSSParserValue::Operator && val->iValue == ',') {
-            expectComma = false;
-            m_valueList->next();
-            continue;
-        }
+    if (m_valueList->size() != 1)
+        return false;
 
-        if (!parsedValue)
-            return false;
-
-        m_valueList->next();
-
-        if (values)
-            values->append(parsedValue.release());
-        else {
-            addProperty(CSSPropertyFontWeight, parsedValue.release(), important);
-            return true;
-        }
+    CSSParserValue* value = m_valueList->current();
+    if ((value->id >= CSSValueNormal) && (value->id <= CSSValue900)) {
+        addProperty(CSSPropertyFontWeight, primitiveValueCache()->createIdentifierValue(value->id), important);
+        return true;
     }
 
-    if (values && values->length()) {
-        m_hasFontFaceOnlyValues = true;
-        addProperty(CSSPropertyFontWeight, values.release(), important);
+    if (validUnit(value, FInteger | FNonNeg, false)) {
+        int weight = static_cast<int>(value->fValue);
+            if (!(weight % 100) && weight >= 100 && weight <= 900)
+                addProperty(CSSPropertyFontWeight, primitiveValueCache()->createIdentifierValue(CSSValue100 + weight / 100 - 1), important);
         return true;
     }
 
@@ -6339,7 +6262,7 @@ CSSRule* CSSParser::createFontFaceRule()
     for (unsigned i = 0; i < m_numParsedProperties; ++i) {
         CSSProperty* property = m_parsedProperties[i];
         int id = property->id();
-        if ((id == CSSPropertyFontWeight || id == CSSPropertyFontStyle || id == CSSPropertyFontVariant) && property->value()->isPrimitiveValue()) {
+        if (id == CSSPropertyFontVariant && property->value()->isPrimitiveValue()) {
             RefPtr<CSSValue> value = property->m_value.release();
             property->m_value = CSSValueList::createCommaSeparated();
             static_cast<CSSValueList*>(property->value())->append(value.release());
@@ -6466,7 +6389,7 @@ void CSSParser::deleteFontFaceOnlyValues()
     for (unsigned i = 0; i < m_numParsedProperties; ++i) {
         CSSProperty* property = m_parsedProperties[i];
         int id = property->id();
-        if ((id == CSSPropertyFontWeight || id == CSSPropertyFontStyle || id == CSSPropertyFontVariant) && property->value()->isValueList()) {
+        if (id == CSSPropertyFontVariant && property->value()->isValueList()) {
             delete property;
             deletedProperties++;
         } else if (deletedProperties)
