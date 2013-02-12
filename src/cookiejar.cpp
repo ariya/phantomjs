@@ -493,7 +493,7 @@ bool CookieJar::contains(const QNetworkCookie &cookie) const
             (cookie.path().isEmpty() || cookiesList.at(i).path() == cookie.path()) &&
             cookie.isSecure() == cookiesList.at(i).isSecure() &&
             cookie.isHttpOnly() == cookiesList.at(i).isHttpOnly() &&
-            cookie.expirationDate().toMSecsSinceEpoch() == cookie.expirationDate().toMSecsSinceEpoch()
+            cookie.expirationDate().toMSecsSinceEpoch() == cookiesList.at(i).expirationDate().toMSecsSinceEpoch()
             ) {
             return true;
         }
