@@ -13,8 +13,7 @@ else
     content += system.args[i] + (if i == system.args.length - 1 then "" else " ")
     ++i
   try
-    f = fs.open(system.args[1], "w")
-    f.writeLine content
+    fs.write system.args[1], content, "w"
   catch e
     console.log e
   phantom.exit()
