@@ -53,7 +53,9 @@ public:
     void setLocation(JSC::ExecState*, JSC::JSValue);
 
     // Custom functions
+#if ENABLE(TOUCH_EVENTS)
     JSC::JSValue createTouchList(JSC::ExecState*);
+#endif
     Document* impl() const
     {
         return static_cast<Document*>(Base::impl());
@@ -130,8 +132,10 @@ JSC::EncodedJSValue JSC_HOST_CALL jsDocumentPrototypeFunctionGetCSSCanvasContext
 JSC::EncodedJSValue JSC_HOST_CALL jsDocumentPrototypeFunctionGetElementsByClassName(JSC::ExecState*);
 JSC::EncodedJSValue JSC_HOST_CALL jsDocumentPrototypeFunctionQuerySelector(JSC::ExecState*);
 JSC::EncodedJSValue JSC_HOST_CALL jsDocumentPrototypeFunctionQuerySelectorAll(JSC::ExecState*);
+#if ENABLE(TOUCH_EVENTS)
 JSC::EncodedJSValue JSC_HOST_CALL jsDocumentPrototypeFunctionCreateTouch(JSC::ExecState*);
 JSC::EncodedJSValue JSC_HOST_CALL jsDocumentPrototypeFunctionCreateTouchList(JSC::ExecState*);
+#endif
 // Attributes
 
 JSC::JSValue jsDocumentDoctype(JSC::ExecState*, JSC::JSValue, const JSC::Identifier&);
@@ -257,6 +261,7 @@ JSC::JSValue jsDocumentOnselectstart(JSC::ExecState*, JSC::JSValue, const JSC::I
 void setJSDocumentOnselectstart(JSC::ExecState*, JSC::JSObject*, JSC::JSValue);
 JSC::JSValue jsDocumentOnselectionchange(JSC::ExecState*, JSC::JSValue, const JSC::Identifier&);
 void setJSDocumentOnselectionchange(JSC::ExecState*, JSC::JSObject*, JSC::JSValue);
+#if ENABLE(TOUCH_EVENTS)
 JSC::JSValue jsDocumentOntouchstart(JSC::ExecState*, JSC::JSValue, const JSC::Identifier&);
 void setJSDocumentOntouchstart(JSC::ExecState*, JSC::JSObject*, JSC::JSValue);
 JSC::JSValue jsDocumentOntouchmove(JSC::ExecState*, JSC::JSValue, const JSC::Identifier&);
@@ -265,6 +270,7 @@ JSC::JSValue jsDocumentOntouchend(JSC::ExecState*, JSC::JSValue, const JSC::Iden
 void setJSDocumentOntouchend(JSC::ExecState*, JSC::JSObject*, JSC::JSValue);
 JSC::JSValue jsDocumentOntouchcancel(JSC::ExecState*, JSC::JSValue, const JSC::Identifier&);
 void setJSDocumentOntouchcancel(JSC::ExecState*, JSC::JSObject*, JSC::JSValue);
+#endif
 JSC::JSValue jsDocumentOnwebkitfullscreenchange(JSC::ExecState*, JSC::JSValue, const JSC::Identifier&);
 void setJSDocumentOnwebkitfullscreenchange(JSC::ExecState*, JSC::JSObject*, JSC::JSValue);
 JSC::JSValue jsDocumentConstructor(JSC::ExecState*, JSC::JSValue, const JSC::Identifier&);
