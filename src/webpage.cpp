@@ -313,6 +313,7 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
     , m_navigationLocked(false)
     , m_mousePos(QPoint(0, 0))
     , m_ownsPages(true)
+    , m_loadingProgress(0)
 {
     setObjectName("WebPage");
     m_callbacks = new WebpageCallbacks(this);
@@ -344,6 +345,7 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
     connect(m_customWebPage, SIGNAL(loadStarted()), SIGNAL(loadStarted()), Qt::QueuedConnection);
     connect(m_customWebPage, SIGNAL(loadFinished(bool)), SLOT(finish(bool)), Qt::QueuedConnection);
     connect(m_customWebPage, SIGNAL(windowCloseRequested()), this, SLOT(close()), Qt::QueuedConnection);
+    connect(m_customWebPage, SIGNAL(loadProgress(int)), this, SLOT(updateLoadingProgress(int)));
 
     // Start with transparent background.
     QPalette palette = m_customWebPage->palette();
@@ -446,6 +448,17 @@ QString WebPage::url() const
 QString WebPage::frameUrl() const
 {
     return m_currentFrame->url().toString();
+}
+
+bool WebPage::loading() const
+{
+    // Return "true" if Load Progress is "]0, 100["
+    return (0 < m_loadingProgress && m_loadingProgress < 100);
+}
+
+int WebPage::loadingProgress() const
+{
+    return m_loadingProgress;
 }
 
 bool WebPage::canGoBack()
@@ -1550,6 +1563,12 @@ void WebPage::setupFrame(QWebFrame *frame)
 
     // Inject the Callbacks object in the main frame
     injectCallbacksObjIntoFrame(frame == NULL ? m_mainFrame : frame, m_callbacks);
+}
+
+void WebPage::updateLoadingProgress(int progress)
+{
+    qDebug() << "WebPage - updateLoadingProgress:" << progress;
+    m_loadingProgress = progress;
 }
 
 #include "webpage.moc"
