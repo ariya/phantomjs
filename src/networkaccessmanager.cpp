@@ -214,14 +214,14 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
 
-    JsNetworkRequest* jsNetworkRequest = new JsNetworkRequest(&req, this);
-    emit resourceRequested(data, jsNetworkRequest);
+    JsNetworkRequest jsNetworkRequest(&req, this);
+    emit resourceRequested(data, &jsNetworkRequest);
 
     // Pass duty to the superclass - Nothing special to do here (yet?)
     QNetworkReply *reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
 
     // reparent jsNetworkRequest to make sure that it will be destroyed with QNetworkReply
-    jsNetworkRequest->setParent(reply);
+    jsNetworkRequest.setParent(reply);
 
     m_ids[reply] = m_idCounter;
 
