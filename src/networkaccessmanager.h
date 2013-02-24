@@ -47,11 +47,11 @@ class JsNetworkRequest : public QObject
     Q_OBJECT
 
 public:
-    JsNetworkRequest(QNetworkReply* reply);
+    JsNetworkRequest(QNetworkRequest* request, QObject* parent = 0);
     Q_INVOKABLE void abort();
-
+    Q_INVOKABLE void changeUrl(const QString& url);
 private:
-    QNetworkReply* m_networkReply;
+    QNetworkRequest* m_networkRequest;
 };
 
 class NetworkAccessManager : public QNetworkAccessManager
