@@ -106,7 +106,13 @@ int main(int argc, char** argv, const char** envp)
 #if defined(Q_OS_LINUX)
     if (QSslSocket::supportsSsl()) {
         // Don't perform on-demand loading of root certificates on Linux
-        QSslSocket::addDefaultCaCertificates(QSslSocket::systemCaCertificates());
+        QByteArray envSslCertDir = qgetenv("SSL_CERT_DIR");
+        if (envSslCertDir != "") {
+            QList<QSslCertificate> caCerts = QSslCertificate::fromPath(envSslCertDir, QSsl::Pem, QRegExp::Wildcard);
+            QSslSocket::addDefaultCaCertificates(caCerts);
+        } else {
+            QSslSocket::addDefaultCaCertificates(QSslSocket::systemCaCertificates());
+        }
     }
 #endif
 

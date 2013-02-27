@@ -58,6 +58,7 @@ class Config: public QObject
     Q_PROPERTY(bool javascriptCanOpenWindows READ javascriptCanOpenWindows WRITE setJavascriptCanOpenWindows)
     Q_PROPERTY(bool javascriptCanCloseWindows READ javascriptCanCloseWindows WRITE setJavascriptCanCloseWindows)
     Q_PROPERTY(QString sslProtocol READ sslProtocol WRITE setSslProtocol)
+    Q_PROPERTY(QString sslCertStore READ sslCertStore WRITE setSslCertStore)
     Q_PROPERTY(QString webdriver READ webdriver WRITE setWebdriver)
     Q_PROPERTY(QString webdriverSeleniumGridHub READ webdriverSeleniumGridHub WRITE setWebdriverSeleniumGridHub)
 
@@ -154,6 +155,9 @@ public:
     void setSslProtocol(const QString& sslProtocolName);
     QString sslProtocol() const;
 
+    void setSslCertStore (const QString& sslCertStore);
+    QString sslCertStore () const;
+
     void setWebdriver(const QString& webdriverConfig);
     QString webdriver() const;
     bool isWebdriverMode() const;
@@ -205,6 +209,7 @@ private:
     bool m_javascriptCanOpenWindows;
     bool m_javascriptCanCloseWindows;
     QString m_sslProtocol;
+    QString m_sslCertStore;
     QString m_webdriver;
     QString m_webdriverSeleniumGridHub;
 };

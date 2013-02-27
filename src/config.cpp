@@ -64,6 +64,7 @@ static const struct QCommandLineConfigEntry flags[] =
     { QCommandLine::Option, '\0', "script-encoding", "Sets the encoding used for the starting script, default is 'utf8'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "web-security", "Enables web security, 'true' (default) or 'false'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-protocol", "Sets the SSL protocol (supported protocols: 'SSLv3' (default), 'SSLv2', 'TLSv1', 'any')", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "ssl-certstore", "Sets the certificate store directory (if none set, uses system default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "webdriver", "Starts in 'Remote WebDriver mode' (embedded GhostDriver): '[[<IP>:]<PORT>]' (default '127.0.0.1:8910') ", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "webdriver-selenium-grid-hub", "URL to the Selenium Grid HUB: 'URL_TO_HUB' (default 'none') (NOTE: works only together with '--webdriver') ", QCommandLine::Optional },
     { QCommandLine::Param, '\0', "script", "Script", QCommandLine::Flags(QCommandLine::Optional|QCommandLine::ParameterFence)},
@@ -514,6 +515,7 @@ void Config::resetToDefaults()
     m_helpFlag = false;
     m_printDebugMessages = false;
     m_sslProtocol = "sslv3";
+    m_sslCertStore.clear();
     m_webdriver = QString();
     m_webdriverSeleniumGridHub = QString();
 }
@@ -659,6 +661,9 @@ void Config::handleOption(const QString &option, const QVariant &value)
     if (option == "ssl-protocol") {
         setSslProtocol(value.toString());
     }
+    if (option == "ssl-certstore") {
+        setSslCertStore(value.toString());
+    }
     if (option == "webdriver") {
         setWebdriver(value.toString());
     }
@@ -690,4 +695,14 @@ QString Config::sslProtocol() const
 void Config::setSslProtocol(const QString& sslProtocolName)
 {
     m_sslProtocol = sslProtocolName.toLower();
+}
+
+QString Config::sslCertStore() const
+{
+    return m_sslCertStore;
+}
+
+void Config::setSslCertStore(const QString& sslCertStorePath)
+{
+    m_sslCertStore = sslCertStorePath;
 }
