@@ -33,6 +33,7 @@
 #include "config.h"
 
 #include <QDir>
+#include <QFileInfo>
 #include <QWebPage>
 #include <QWebFrame>
 #include <QNetworkProxy>
@@ -66,6 +67,7 @@ static const struct QCommandLineConfigEntry flags[] =
     { QCommandLine::Option, '\0', "script-encoding", "Sets the encoding used for the starting script, default is 'utf8'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "web-security", "Enables web security, 'true' (default) or 'false'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-protocol", "Sets the SSL protocol (supported protocols: 'SSLv3' (default), 'SSLv2', 'TLSv1', 'any')", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "ssl-certificates-path", "Sets the location for custom CA certificates (if none set, uses system default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "webdriver", "Starts in 'Remote WebDriver mode' (embedded GhostDriver): '[[<IP>:]<PORT>]' (default '127.0.0.1:8910') ", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "webdriver-logfile", "File where to write the WebDriver's Log (default 'none') (NOTE: needs '--webdriver') ", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "webdriver-loglevel", "WebDriver Logging Level: (supported: 'ERROR', 'WARN', 'INFO', 'DEBUG') (default 'INFO') (NOTE: needs '--webdriver') ", QCommandLine::Optional },
@@ -93,6 +95,10 @@ Config::Config(QObject *parent)
 void Config::init(const QStringList *const args)
 {
     resetToDefaults();
+
+    QByteArray envSslCertDir = qgetenv("SSL_CERT_DIR");
+    if (!envSslCertDir.isEmpty())
+        setSslCertificatesPath(envSslCertDir);
 
     processArgs(*args);
 }
@@ -542,6 +548,7 @@ void Config::resetToDefaults()
     m_helpFlag = false;
     m_printDebugMessages = false;
     m_sslProtocol = "sslv3";
+    m_sslCertificatesPath.clear();
     m_webdriverIp = QString();
     m_webdriverPort = QString();
     m_webdriverLogFile = QString();
@@ -694,6 +701,9 @@ void Config::handleOption(const QString &option, const QVariant &value)
     if (option == "ssl-protocol") {
         setSslProtocol(value.toString());
     }
+    if (option == "ssl-certificates-path") {
+        setSslCertificatesPath(value.toString());
+    }
     if (option == "webdriver") {
         setWebdriver(value.toString().length() > 0 ? value.toString() : DEFAULT_WEBDRIVER_CONFIG);
     }
@@ -731,4 +741,22 @@ QString Config::sslProtocol() const
 void Config::setSslProtocol(const QString& sslProtocolName)
 {
     m_sslProtocol = sslProtocolName.toLower();
+}
+
+QString Config::sslCertificatesPath() const
+{
+    return m_sslCertificatesPath;
+}
+
+void Config::setSslCertificatesPath(const QString& sslCertificatesPath)
+{
+    QFileInfo sslPathInfo = QFileInfo(sslCertificatesPath);
+    if (sslPathInfo.isDir()) {
+        if (sslCertificatesPath.endsWith('/'))
+            m_sslCertificatesPath = sslCertificatesPath + "*";
+        else
+            m_sslCertificatesPath = sslCertificatesPath + "/*";
+    } else {
+        m_sslCertificatesPath = sslCertificatesPath;
+    }
 }

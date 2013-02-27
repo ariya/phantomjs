@@ -35,6 +35,8 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QSslSocket>
+#include <QSslCertificate>
+#include <QRegExp>
 
 #include "phantom.h"
 #include "config.h"
@@ -131,6 +133,13 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
             m_sslConfiguration.setProtocol(QSsl::TlsV1);
         } else if (config->sslProtocol() == "any") {
             m_sslConfiguration.setProtocol(QSsl::AnyProtocol);
+        }
+
+        if (!config->sslCertificatesPath().isEmpty()) {
+          QList<QSslCertificate> caCerts = QSslCertificate::fromPath(
+              config->sslCertificatesPath(), QSsl::Pem, QRegExp::Wildcard);
+
+            m_sslConfiguration.setCaCertificates(caCerts);
         }
     }
 

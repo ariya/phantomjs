@@ -58,6 +58,7 @@ class Config: public QObject
     Q_PROPERTY(bool javascriptCanOpenWindows READ javascriptCanOpenWindows WRITE setJavascriptCanOpenWindows)
     Q_PROPERTY(bool javascriptCanCloseWindows READ javascriptCanCloseWindows WRITE setJavascriptCanCloseWindows)
     Q_PROPERTY(QString sslProtocol READ sslProtocol WRITE setSslProtocol)
+    Q_PROPERTY(QString sslCertificatesPath READ sslCertificatesPath WRITE setSslCertificatesPath)
     Q_PROPERTY(QString webdriver READ webdriver WRITE setWebdriver)
     Q_PROPERTY(QString webdriverLogFile READ webdriverLogFile WRITE setWebdriverLogFile)
     Q_PROPERTY(QString webdriverLogLevel READ webdriverLogLevel WRITE setWebdriverLogLevel)
@@ -156,6 +157,9 @@ public:
     void setSslProtocol(const QString& sslProtocolName);
     QString sslProtocol() const;
 
+    void setSslCertificatesPath(const QString& sslCertificatesPath);
+    QString sslCertificatesPath() const;
+
     void setWebdriver(const QString& webdriverConfig);
     QString webdriver() const;
     bool isWebdriverMode() const;
@@ -213,6 +217,7 @@ private:
     bool m_javascriptCanOpenWindows;
     bool m_javascriptCanCloseWindows;
     QString m_sslProtocol;
+    QString m_sslCertificatesPath;
     QString m_webdriverIp;
     QString m_webdriverPort;
     QString m_webdriverLogFile;
