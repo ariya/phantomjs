@@ -1025,6 +1025,29 @@ describe("WebPage object", function() {
             expect(handled).toEqual(true);
         });
     });
+
+    it('should fail on secure connection to url with bad cert', function() {
+        var page = require('webpage').create();
+        var url = 'https://tv.eurosport.com/';
+        /* example from:
+         * https://onlinessl.netlock.hu/en/test-center/bad-ssl-certificate-usage.html
+         */
+      
+        var handled = false;
+      
+        runs(function() {
+            page.open(url, function(status) {
+                expect(status == 'success').toEqual(false);
+                handled = true;
+            });
+        });
+          
+        waits(3000);
+        
+        runs(function() {
+            expect(handled).toEqual(true);
+        });
+    });
 });
 
 describe("WebPage construction with options", function () {
