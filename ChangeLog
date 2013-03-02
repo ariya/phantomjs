@@ -6,6 +6,7 @@ Please see also http://phantomjs.org/releases.html.
 
       * Fixed possible PDF error due to invalid CreationDate field (issue 663)
       * Fixed crash when uploading non existing files (issue 941)
+      * Fixed possible crash when accessing inline frames (issue 947)
       * Extended SSL ignore setting to synchronous XHR (issue 985)
       * Fixed incorrect date handling in the cookies (issue 1068)
 
