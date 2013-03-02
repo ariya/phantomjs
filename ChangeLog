@@ -1,5 +1,14 @@
 Please see also http://phantomjs.org/releases.html.
 
+2013-03-02: Version 1.8.2
+
+    Critical bug fixes:
+
+      * Fixed possible PDF error due to invalid CreationDate field (issue 663)
+      * Fixed crash when uploading non existing files (issue 941)
+      * Extended SSL ignore setting to synchronous XHR (issue 985)
+      * Fixed incorrect date handling in the cookies (issue 1068)
+
 2013-01-06: Version 1.8.1
 
     Critical bug fix:
