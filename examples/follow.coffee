@@ -1,12 +1,14 @@
 # List following and followers from several accounts
 
 users = [
+  'PhantomJS'
   'ariyahidayat'
   'detronizator'
   'KDABQt'
   'lfranchi'
   'jonleighton'
-  '_jamesgreene'
+  '_jamesmgreene'
+  'Vitalliumm'
   ]
 
 follow = (user, callback) ->
