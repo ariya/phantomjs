@@ -19,6 +19,7 @@ Please see also http://phantomjs.org/releases.html.
       * Fixed possible PDF error due to invalid CreationDate field (issue 663)
       * Fixed crash when uploading non existing files (issue 941)
       * Improved the autocomplete internal of the interactive/REPL mode (issue 943)
+      * Fixed possible crash when accessing inline frames (issue 947)
       * Changed Linux binary package setup to be built on CentOS 5 (issue 963)
       * Extended SSL ignore setting to synchronous XHR (issue 985)
       * Fixed incorrect date handling in the cookies (issue 1068)
@@ -29,6 +30,22 @@ Please see also http://phantomjs.org/releases.html.
       * Fixed rendering issues in render_multi_url (issue 1021)
       * Fixed proper event sequence in page_events example (issue 1028)
       * Miscellanous tweaks (issue 1082)
+
+2013-03-02: Version 1.8.2
+
+    Critical bug fixes:
+
+      * Fixed possible PDF error due to invalid CreationDate field (issue 663)
+      * Fixed crash when uploading non existing files (issue 941)
+      * Fixed possible crash when accessing inline frames (issue 947)
+      * Extended SSL ignore setting to synchronous XHR (issue 985)
+      * Fixed incorrect date handling in the cookies (issue 1068)
+
+2013-01-06: Version 1.8.1
+
+    Critical bug fix:
+
+      * Mac OS X: Fix possible crash when using some TrueType fonts (issue 690)
 
 2012-12-21: Version 1.8.0
 
