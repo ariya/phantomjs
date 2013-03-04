@@ -102,9 +102,7 @@ git checkout 1.8
 
         <p><strong>Note 1</strong>: <code>build.sh</code> by default will launch parallel compile jobs depending on the available CPU cores, e.g. 4 jobs on a modern hyperthreaded dual-core processor. If necessary, e.g. when building on a virtual machine/server or other limited environment, reduce the jobs by passing a number, e.g <code>./build.sh --jobs 1</code> to set only one compile job at a time.</p>
 
-        <p><strong>Note 2</strong>: After finishing the build, run <code>deploy/package.sh</code> which creates PhantomJS binary tarball that can be moved around and/or extracted to a different location. This is the correct way to install the built binary into an arbitrary directory, i.e. do not simply copy the executable as it won't work.</p>
-
-        <p>For creating RPM package (EC2 AMI, CentOS, or RHEL), after building it then run:</p>
+        <p><strong>Note 2</strong>: To create an RPM package (EC2 AMI, CentOS, or RHEL), run the following <em>after</em> a successful build:</p>
 <pre>
 cd rpm
 ./mkrpm.sh phantomjs 
