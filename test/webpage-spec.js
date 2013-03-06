@@ -1112,7 +1112,7 @@ describe("WebPage object", function() {
             expect(handled).toEqual(true);
         });
     });
-    
+
     it('should change the url of the request', function() {
         var page = require('webpage').create();
         var url = 'http://phantomjs.org';
@@ -1140,9 +1140,9 @@ describe("WebPage object", function() {
                 expect(status).toEqual('success');
             });
         });
-        
+
         waits(3000);
-        
+
         runs(function() {
             expect(handled).toBe(true);
         });
@@ -1756,15 +1756,15 @@ describe('WebPage navigation events', function() {
 
 describe("WebPage render image", function(){
     var TEST_FILE_DIR = "webpage-spec-renders/";
-    
+
     var p = require("webpage").create();
     p.paperSize = { width: '300px', height: '300px', border: '0px' };
     p.clipRect = { top: 0, left: 0, width: 300, height: 300};
-    p.viewportSize = { width: 300, height: 300}; 
-   
+    p.viewportSize = { width: 300, height: 300};
+
     p.open( TEST_FILE_DIR + "index.html");
     waits(50);
-    
+
     function render_test( format, option ){
          var opt = option || {};
          var content, expect_content;
@@ -1778,7 +1778,7 @@ describe("WebPage render image", function(){
             else{
                 EXPECT_FILE = TEST_FILE_DIR + FILE_NAME + "." + FILE_EXTENSION;
             }
-            
+
             var TEST_FILE;
             if( opt.format ){
                 TEST_FILE = TEST_FILE_DIR + "temp_" + FILE_NAME;
@@ -1786,52 +1786,87 @@ describe("WebPage render image", function(){
             else{
                 TEST_FILE = TEST_FILE_DIR + "temp_" + FILE_NAME + "." + FILE_EXTENSION;
             }
-            
+
             p.render(TEST_FILE, opt);
-            
+
             expect_content = fs.read(EXPECT_FILE, "b");
             content = fs.read(TEST_FILE, "b");
 
             fs.remove(TEST_FILE);
         } catch (e) { console.log(e) }
-        
+
         // for PDF test
         content = content.replace(/CreationDate \(D:\d+\)Z\)/,'');
         expect_content = expect_content.replace(/CreationDate \(D:\d+\)Z\)/,'');
-        
+
         expect(content).toEqual(expect_content);
     }
-    
+
     it("should render PDF file", function(){
-        render_test("pdf"); 
+        render_test("pdf");
     });
 
     it("should render PDF file with format option", function(){
-        render_test("pdf", { format: "pdf" }); 
+        render_test("pdf", { format: "pdf" });
     });
 
     it("should render GIF file", function(){
-        render_test("gif"); 
+        render_test("gif");
     });
 
     it("should render GIF file with format option", function(){
-        render_test("gif", { format: "gif" }); 
+        render_test("gif", { format: "gif" });
     });
 
     it("should render PNG file", function(){
-        render_test("png"); 
+        render_test("png");
     });
 
     it("should render PNG file with format option", function(){
-        render_test("png", { format: "png" }); 
+        render_test("png", { format: "png" });
     });
 
     it("should render JPEG file with quality option", function(){
-        render_test("jpg", { quality: 50 }); 
+        render_test("jpg", { quality: 50 });
     });
 
     it("should render JPEG file with format and quality option", function(){
-        render_test("jpg", { format: 'jpg', quality: 50 }); 
+        render_test("jpg", { format: 'jpg', quality: 50 });
     });
 
+});
+
+describe("WebPage loading/loadingProgress properties", function() {
+    var p = require("webpage").create();
+
+    it("should not be loading when page has just been created", function() {
+        expect(p.loading).toBeFalsy();
+        expect(p.loadingProgress).toEqual(0);
+    });
+
+    it("should be loading when 'page.open' is invoked", function() {
+        var s = require("webserver").create();
+
+        s.listen(12345, function(request, response) {
+            setTimeout(function() {
+                response.statusCode = 200;
+                response.write('<html><body>Loaded!</body></html>');
+                response.close();
+            }, 500);
+        });
+
+        p.onLoadFinished = function(status) {
+            expect(p.loading).toBeFalsy();
+            expect(p.loadingProgress).toEqual(0);
+        };
+        p.open("http://localhost:12345");
+        expect(p.loading).toBeTruthy();
+        expect(p.loadingProgress).toBeGreaterThan(0);
+
+        waits(500);
+
+        runs(function() {
+            s.close();
+        });
+    });
 });
