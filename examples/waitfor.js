@@ -1,6 +1,7 @@
 /**
  * Wait until the test condition is true or a timeout occurs. Useful for waiting
- * on a server response or for a ui change (fadeIn, etc.) to occur.
+ * on a server response or for a ui change (fadeIn, etc.) to occur. 
+ * Code to execute on timeout can also be specified 
  *
  * @param testFx javascript condition that evaluates to a boolean,
  * it can be passed in as a string (e.g.: "1 == 1" or "$('#bar').is(':visible')" or
@@ -8,9 +9,10 @@
  * @param onReady what to do when testFx condition is fulfilled,
  * it can be passed in as a string (e.g.: "1 == 1" or "$('#bar').is(':visible')" or
  * as a callback function.
+ * @param onTimeOut what to do when its timeout
  * @param timeOutMillis the max amount of time to wait. If not specified, 3 sec is used.
  */
-function waitFor(testFx, onReady, timeOutMillis) {
+function waitFor(testFx, onReady, onTimeOut, timeOutMillis) {
     var maxtimeOutMillis = timeOutMillis ? timeOutMillis : 3000, //< Default Max Timout is 3s
         start = new Date().getTime(),
         condition = false,
@@ -19,15 +21,21 @@ function waitFor(testFx, onReady, timeOutMillis) {
                 // If not time-out yet and condition not yet fulfilled
                 condition = (typeof(testFx) === "string" ? eval(testFx) : testFx()); //< defensive code
             } else {
+                clearInterval(interval); //< Stop this interval                
                 if(!condition) {
                     // If condition still not fulfilled (timeout but condition is 'false')
-                    console.log("'waitFor()' timeout");
-                    phantom.exit(1);
+                    //Check if the onTimeOut exists
+                    if(onTimeOut) {
+                        console.log("'waitFor()' timeout but onTimeOut function specified. Executing onTimeOut");
+                        typeof(onTimeOut) === "string" ? eval(onTimeOut) : onTimeOut();
+                    } else {
+                        console.log("'waitFor()' timeout and nothing specified on timeout. Exiting...");
+                        phantom.exit(1);
+                    }    
                 } else {
                     // Condition fulfilled (timeout and/or condition is 'true')
                     console.log("'waitFor()' finished in " + (new Date().getTime() - start) + "ms.");
                     typeof(onReady) === "string" ? eval(onReady) : onReady(); //< Do what it's supposed to do once the condition is fulfilled
-                    clearInterval(interval); //< Stop this interval
                 }
             }
         }, 250); //< repeat check every 250ms
@@ -51,6 +59,10 @@ page.open("http://twitter.com/#!/sencha", function (status) {
         }, function() {
            console.log("The sign-in dialog should be visible now.");
            phantom.exit();
+        }, 5000,
+        function() {
+            console.log("The code to execute if timeout occured");
+            phantom.exit();
         });        
     }
 });
