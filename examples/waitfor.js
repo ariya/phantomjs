@@ -57,13 +57,12 @@ page.open("http://twitter.com/#!/sencha", function (status) {
                 return $("#signin-dropdown").is(":visible");
             });
         }, function() {
-           console.log("The sign-in dialog should be visible now.");
-           phantom.exit();
-        }, 5000,
-        function() {
+            console.log("The sign-in dialog should be visible now.");
+            phantom.exit();
+        }, function() {
             console.log("The code to execute if timeout occured");
             phantom.exit();
-        });        
+        }, 5000);        
     }
 });
 
