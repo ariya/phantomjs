@@ -771,10 +771,13 @@ void WebPage::openUrl(const QString &address, const QVariant &op, const QVariant
         operation = op.toString();
 
     if (op.type() == QVariant::Map) {
-        operation = op.toMap().value("operation").toString();
-        body = op.toMap().value("data").toByteArray();
-        if (op.toMap().contains("headers")) {
-            QMapIterator<QString, QVariant> i(op.toMap().value("headers").toMap());
+        QVariantMap settingsMap = op.toMap();
+        operation = settingsMap.value("operation").toString();
+        QString bodyString = settingsMap.value("data").toString();
+        QString encoding = settingsMap.value("encoding").toString().toLower();
+        body = encoding == "utf-8" || encoding == "utf8" ? bodyString.toUtf8() : bodyString.toAscii();
+        if (settingsMap.contains("headers")) {
+            QMapIterator<QString, QVariant> i(settingsMap.value("headers").toMap());
             while (i.hasNext()) {
                 i.next();
                 request.setRawHeader(i.key().toUtf8(), i.value().toString().toUtf8());
