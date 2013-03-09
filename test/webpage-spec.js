@@ -739,6 +739,49 @@ describe("WebPage object", function() {
 
     });
 
+    it("should process request body properly for POST", function() {
+        var server = require('webserver').create();
+        server.listen(12345, function(request, response) {
+            // echo received request body in response body;
+            response.setHeader('Content-Type', 'text/html; charset=utf-8');
+            response.write(Object.keys(request.post)[0]);
+            response.close();
+        });
+
+        var url = "http://localhost:12345/foo/body";
+
+        var handled = false;
+        runs(function() {
+            expect(handled).toEqual(false);
+            var utfString = '안녕';
+            var openOptions = {
+                operation: 'POST',
+                data:       utfString,
+                encoding:  'utf8'
+            };
+            var pageOptions = {
+                onLoadFinished: function(status) {
+                    expect(status == 'success').toEqual(true);
+                    handled = true;
+
+                    expect(page.plainText).toEqual(utfString);
+                }
+            };
+
+            var page = new WebPage(pageOptions);
+
+            page.openUrl(url, openOptions, {});
+        });
+
+        waits(50);
+
+        runs(function() {
+            expect(handled).toEqual(true);
+            server.close();
+        });
+
+    });
+
     it("should return properly from a 401 status", function() {
         var server = require('webserver').create();
         server.listen(12345, function(request, response) {
