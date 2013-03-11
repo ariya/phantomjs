@@ -80,6 +80,15 @@ void JsNetworkRequest::abort()
     }
 }
 
+bool JsNetworkRequest::setHeader(const QString& name, const QVariant& value)
+{
+    if (!m_networkRequest)
+        return false;
+
+    // Pass `null` as the second argument to remove a HTTP header
+    m_networkRequest->setRawHeader(name.toAscii(), value.toByteArray());
+    return true;
+}
 
 void JsNetworkRequest::changeUrl(const QString& url)
 {
