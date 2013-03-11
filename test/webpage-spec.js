@@ -2040,3 +2040,103 @@ describe("WebPage loading/loadingProgress properties", function() {
         });
     });
 });
+
+describe("WebPage network request headers handling", function() {
+    it("should add HTTP header to a network request", function() {
+        var page = require("webpage").create();
+        var server = require("webserver").create();
+        var isCustomHeaderPresented = false;
+
+        server.listen(12345, function(response) {
+            if (response.headers["CustomHeader"] && response.headers["CustomHeader"] === "CustomValue") {
+                isCustomHeaderPresented = true;
+            }
+        });
+
+        page.onResourceRequested = function(requestData, request) {
+            expect(typeof request.setHeader).toEqual("function");
+            request.setHeader("CustomHeader", "CustomValue");
+        };
+
+        runs(function() {
+            page.open("http://localhost:12345", function() {
+                expect(status).toEqual("success");
+            });
+        });
+
+        waits(3000);
+
+        runs(function() {
+            expect(isCustomHeaderPresented).toBeTruthy();
+            page.close();
+            server.close();
+        });
+    });
+
+    it("should remove HTTP header from a network request", function() {
+        var page = require("webpage").create();
+        page.customHeaders = {"CustomHeader": "CustomValue"};
+        
+        var server = require("webserver").create();
+        var handled = false;
+
+        server.listen(12345, function(request) {
+            if (request.headers["CustomHeader"] == null) {
+                handled = true;
+            }
+        });
+
+        page.onResourceRequested = function(requestData, request) {
+            expect(typeof request.setHeader).toEqual("function");
+            request.setHeader("CustomHeader", null);
+        };
+
+        runs(function() {
+            page.open("http://localhost:12345", function() {
+                expect(status).toEqual("success");
+            });
+        });
+
+        waits(3000);
+
+        runs(function() {
+            expect(handled).toBeTruthy();
+            page.close();
+            server.close();
+        });
+    });
+
+    it("should set HTTP header value for a network request", function() {
+        var page = require("webpage").create();
+        page.customHeaders = {"CustomHeader": "CustomValue"};
+        
+        var server = require("webserver").create();
+        var handled = false;
+
+        server.listen(12345, function(request) {
+            if (request.headers["CustomHeader"] && 
+                request.headers["CustomHeader"] === "ChangedCustomValue") {
+                handled = true;
+            }
+        });
+
+        page.onResourceRequested = function(requestData, request) {
+            expect(typeof request.setHeader).toEqual("function");
+            request.setHeader("CustomHeader", "ChangedCustomValue");
+        };
+
+        runs(function() {
+            page.open("http://localhost:12345", function() {
+                expect(status).toEqual("success");
+            });
+        });
+
+        waits(3000);
+
+        runs(function() {
+            expect(handled).toBeTruthy();
+            page.close();
+            server.close();
+        });
+    });
+});
