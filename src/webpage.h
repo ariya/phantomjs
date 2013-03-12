@@ -464,6 +464,7 @@ signals:
     void resourceRequested(const QVariant &requestData, QObject *request);
     void resourceReceived(const QVariant &resource);
     void resourceError(const QVariant &errorData);
+    void timeoutError(const QVariant &errorData);
     void urlChanged(const QUrl &url);
     void navigationRequested(const QUrl &url, const QString &navigationType, bool navigationLocked, bool isMainFrame);
     void rawPageCreated(QObject *page);

@@ -384,6 +384,8 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
             SIGNAL(resourceReceived(QVariant)));
     connect(m_networkAccessManager, SIGNAL(resourceError(QVariant)),
             SIGNAL(resourceError(QVariant)));
+    connect(m_networkAccessManager, SIGNAL(timeoutError(QVariant)),
+            SIGNAL(timeoutError(QVariant)));
 
     m_customWebPage->setViewportSize(QSize(400, 300));
 }
@@ -570,6 +572,10 @@ void WebPage::applySettings(const QVariantMap &def)
 
     if (def.contains(PAGE_SETTINGS_MAX_AUTH_ATTEMPTS))
         m_networkAccessManager->setMaxAuthAttempts(def[PAGE_SETTINGS_MAX_AUTH_ATTEMPTS].toInt());
+
+    if (def.contains(PAGE_SETTINGS_MAX_TIMEOUT))
+        m_networkAccessManager->setMaxTimeout(def[PAGE_SETTINGS_MAX_TIMEOUT].toInt());
+
 }
 
 QString WebPage::userAgent() const
