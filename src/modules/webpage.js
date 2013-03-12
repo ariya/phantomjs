@@ -254,6 +254,8 @@ function decorateNewPage(opts, page) {
     
     definePageSignalHandler(page, handlers, "onResourceError", "resourceError");
 
+    definePageSignalHandler(page, handlers, "onResourceTimeout", "resourceTimeout");
+
     definePageSignalHandler(page, handlers, "onAlert", "javaScriptAlertSent");
 
     definePageSignalHandler(page, handlers, "onConsoleMessage", "javaScriptConsoleMessageSent");
