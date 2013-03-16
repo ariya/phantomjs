@@ -10,7 +10,7 @@ Please do **not** create a pull request without reading this guide first. Failur
 If your changes need to be modified due to some reviews, it is less clutter to tweak an isolated feature branch and push it again.
 
 **Create a ticket in the issue tracker**.
-This serves as a placeholder for important feedback, review, or any future updates. Using GitHub commenting system is not optimal because it is *not searchable* and therefore impossible to locate again.
+This serves as a placeholder for important feedback, review, or any future updates.
 
 In the commit message:
 
@@ -22,11 +22,11 @@ In the commit message:
 
 *Second opinion is always important.*
 
-**Bug fixing**. If you have a fix for a bug, please attach your patch in the corresponding issue in the [issue tracker](http://issues.phantomjs.org/). If there is no entry for the bug yet, then please create a new one. If you are convenient working with Git, see the Get Ready section below on how to submit your change.
+**Bug fixing**. If you have a fix for a bug, please attach your patch in the corresponding issue in the [issue tracker](https://github.com/ariya/phantomjs/issues). If there is no entry for the bug yet, then please create a new one. If you are convenient working with Git, see the Get Ready section below on how to submit your change.
 
 **Improvement and feature request**. If you have an improvement idea, please send an email to the [mailing list](http://groups.google.com/group/phantomjs) (preferable than contacting the developers directly) so that other people can give their insights and opinions. This is also important to avoid duplicate work.
 
-**Task management**. Once the feature idea is agreed upon and translated into concrete actions and tasks, please use the [issue tracker](http://issues.phantomjs.org/) to create an issue for each individual task. Further technical discussion about the task and the implementation details should be carried out in the issue tracker.
+**Task management**. Once the feature idea is agreed upon and translated into concrete actions and tasks, please use the [issue tracker](https://github.com/ariya/phantomjs/issues) to create an issue for each individual task. Further technical discussion about the task and the implementation details should be carried out in the issue tracker.
 
 **Extending with new API**. Whenever you want to introduce a new API, please send an email to the mailing list along with the link to the issue. Consider good API name for the object or function, read the [API Design Principle](http://developer.qt.nokia.com/wiki/API_Design_Principles) article. It may require few iterations to agree on the final API and hence it is important to engage all interested parties as early as possible.
 
@@ -43,7 +43,7 @@ The commit message needs to link to the issue. This cross-reference is [very imp
 
 First, the commit log is frozen and can not be changed. If it contains a mistake or outdated information, the log can not be amended. However, further updates can be still posted to the linked issue, which can be followed from the commit log itself.
 
-Second, it provides a placeholder for code review and other feedback. Reviewing the change using GitHub commenting system is not encouraged because it is [not searchable](http://ariya.ofilabs.com/2012/08/github-and-lack-of-searchability.html) at all (if there is a future need to refer the previous discussion again, the comment is almost impossible to locate)
+Second, it provides a placeholder for code review and other feedback.
 
 An example of a bad commit log:
 
@@ -55,7 +55,7 @@ The above log is too short and useless in the long run. A better version (and no
 
     require('system').os.version should give "10.8 (Mountain Lion)".
 
-    http://code.google.com/p/phantomjs/issues/detail?id=688
+    https://github.com/ariya/phantomjs/issues/10688
 
 ### Use Feature Branch
 
