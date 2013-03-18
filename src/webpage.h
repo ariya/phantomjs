@@ -52,6 +52,8 @@ class WebPage : public QObject, public QWebFrame::PrintCallback
     Q_PROPERTY(QString frameContent READ frameContent WRITE setFrameContent)
     Q_PROPERTY(QString url READ url)
     Q_PROPERTY(QString frameUrl READ frameUrl)
+    Q_PROPERTY(bool loading READ loading)
+    Q_PROPERTY(int loadingProgress READ loadingProgress)
     Q_PROPERTY(bool canGoBack READ canGoBack)
     Q_PROPERTY(bool canGoForward READ canGoForward)
     Q_PROPERTY(QString plainText READ plainText)
@@ -92,6 +94,9 @@ public:
 
     QString url() const;
     QString frameUrl() const;
+
+    bool loading() const;
+    int loadingProgress() const;
 
     QString plainText() const;
     QString framePlainText() const;
@@ -472,6 +477,7 @@ signals:
 private slots:
     void finish(bool ok);
     void setupFrame(QWebFrame *frame = NULL);
+    void updateLoadingProgress(int progress);
 
 private:
     QImage renderImage();
@@ -505,6 +511,7 @@ private:
     bool m_navigationLocked;
     QPoint m_mousePos;
     bool m_ownsPages;
+    int m_loadingProgress;
 
     friend class Phantom;
     friend class CustomPage;

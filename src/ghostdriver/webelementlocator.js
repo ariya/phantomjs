@@ -29,7 +29,7 @@ var ghostdriver = ghostdriver || {};
 
 ghostdriver.WebElementLocator = function(session) {
     // private:
-    var
+    const
     _supportedStrategies = [
         "class name", "className",              //< Returns an element whose class name contains the search value; compound class names are not permitted.
         "css", "css selector",                  //< Returns an element matching a CSS selector.
@@ -39,9 +39,12 @@ ghostdriver.WebElementLocator = function(session) {
         "partial link text", "partialLinkText", //< Returns an anchor element whose visible text partially matches the search value.
         "tag name", "tagName",                  //< Returns an element whose tag name matches the search value.
         "xpath"                                 //< Returns an element matching an XPath expression.
-    ],
+    ];
+
+    var
     _session = session,
     _errors = require("./errors.js"),
+    _log = ghostdriver.logger.create("WebElementLocator"),
 
     _find = function(what, locator, rootElement) {
         var currWindow = _session.getCurrentWindow(),
@@ -56,7 +59,7 @@ ghostdriver.WebElementLocator = function(session) {
             locator.using && locator.value &&         //< if well-formed input
             _supportedStrategies.indexOf(locator.using) >= 0) {  //< and if strategy is recognized
 
-            // console.log("Find element using Locator: " + JSON.stringify(locator));
+            _log.debug("_find", "Find element using Locator: " + JSON.stringify(locator));
 
             // Ensure "rootElement" is valid, otherwise undefine-it
             if (!rootElement || typeof(rootElement) !== "object" || !rootElement["ELEMENT"]) {
@@ -75,7 +78,7 @@ ghostdriver.WebElementLocator = function(session) {
                 return JSON.parse(findRes);
             } catch (e) {
                 errorMsg = "Invalid locator received: "+JSON.stringify(locator);
-                console.error(errorMsg);
+                _log.error("_find", errorMsg);
                 return {
                     "status"    : _errors.FAILED_CMD_STATUS_CODES[_errors.FAILED_CMD_STATUS.UNKNOWN_COMMAND],
                     "value"     : errorMsg
@@ -93,8 +96,8 @@ ghostdriver.WebElementLocator = function(session) {
     _locateElement = function(locator, rootElement) {
         var findElementRes = _find("element", locator, rootElement);
 
-        // console.log("Locator: "+JSON.stringify(locator));
-        // console.log("Find Element Result: "+JSON.stringify(findElementRes));
+        _log.debug("_locateElement", "Locator: "+JSON.stringify(locator));
+        _log.debug("_locateElement", "Find Element Result: "+JSON.stringify(findElementRes));
 
         // If found
         if (findElementRes !== null &&
@@ -126,8 +129,8 @@ ghostdriver.WebElementLocator = function(session) {
             elements = [],
             i, ilen;
 
-        // console.log("Locator: "+JSON.stringify(locator));
-        // console.log("Find Element(s) Result: "+JSON.stringify(findElementsRes));
+        _log.debug("_locateElements", "Locator: "+JSON.stringify(locator));
+        _log.debug("_locateElements", "Find Element(s) Result: "+JSON.stringify(findElementsRes));
 
         // If something was found
         if (findElementsRes !== null &&
@@ -198,8 +201,8 @@ ghostdriver.WebElementLocator = function(session) {
         // Try to find the element
         elementOrElements = locatorMethod(request, rootElement);
 
-        // console.log("Element or Elements: "+JSON.stringify(elementOrElements));
-        // console.log("Root Element: " + (typeof(rootElement) !== "undefined" ? JSON.stringify(rootElement) : "BODY"));
+        _log.debug("_handleLocateCommand", "Element or Elements: "+JSON.stringify(elementOrElements));
+        _log.debug("_handleLocateCommand", "Root Element: " + (typeof(rootElement) !== "undefined" ? JSON.stringify(rootElement) : "BODY"));
 
         if (elementOrElements &&
             elementOrElements.hasOwnProperty("status") &&

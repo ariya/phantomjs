@@ -62,4 +62,6 @@
 #define PAGE_SETTINGS_JS_CAN_OPEN_WINDOWS   "javascriptCanOpenWindows"
 #define PAGE_SETTINGS_JS_CAN_CLOSE_WINDOWS  "javascriptCanCloseWindows"
 
+#define DEFAULT_WEBDRIVER_CONFIG            "127.0.0.1:8910"
+
 #endif // CONSTS_H
