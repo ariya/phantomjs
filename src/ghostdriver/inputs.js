@@ -29,9 +29,7 @@ var ghostdriver = ghostdriver || {};
 
 ghostdriver.Inputs = function () {
     // private:
-    var
-    _mousePos = { x: 0, y: 0 },
-    _keyboardState = {},
+    const
     _specialKeys = {
         '\uE000': "Escape",        // NULL
         '\uE001': "Cancel",        // Cancel
@@ -40,7 +38,7 @@ ghostdriver.Inputs = function () {
         '\uE004': "Tab",           // Tab
         '\uE005': "Clear",         // Clear
         '\uE006': "\n",
-        '\uE007': "\n",
+        '\uE007': "Enter",
         '\uE008': "Shift",         // Shift
         '\uE009': "Control",       // Control
         '\uE00A': "Alt",           // Alt
@@ -196,8 +194,11 @@ ghostdriver.Inputs = function () {
         "ALT": 0x08000000,     // An Alt key on the keyboard is pressed.
         "META": 0x10000000,    // A Meta key on the keyboard is pressed.
         "NUMPAD": 0x20000000   // Keypad key.
-    },
+    };
 
+    var
+    _mousePos = { x: 0, y: 0 },
+    _keyboardState = {},
     _currentModifierKeys = 0,
 
     _isModifierKey = function (key) {
@@ -261,12 +262,13 @@ ghostdriver.Inputs = function () {
     },
 
     _translateKey = function (session, key) {
-        var actualKey = key;
-        var phantomjskeys = session.getCurrentWindow().event.key;
+        var
+            actualKey = key,
+            phantomjskeys = session.getCurrentWindow().event.key;
         if (_specialKeys.hasOwnProperty(key)) {
             actualKey = _specialKeys[key];
-            if (session.getCurrentWindow().event.key.hasOwnProperty(actualKey)) {
-                actualKey = session.getCurrentWindow().event.key[actualKey];
+            if (phantomjskeys.hasOwnProperty(actualKey)) {
+                actualKey = phantomjskeys[actualKey];
             }
         }
         return actualKey;
