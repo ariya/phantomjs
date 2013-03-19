@@ -67,6 +67,13 @@ static const char *toString(QNetworkAccessManager::Operation op)
     return str;
 }
 
+TimeoutTimer::TimeoutTimer(QObject* parent)
+    : QTimer(parent)
+{
+    // QTimer(parent);
+}
+
+
 JsNetworkRequest::JsNetworkRequest(QNetworkRequest* request, QObject* parent)
     : QObject(parent)
 {
@@ -97,6 +104,7 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
     , m_idCounter(0)
     , m_networkDiskCache(0)
     , m_sslConfiguration(QSslConfiguration::defaultConfiguration())
+    , m_resourceTimeout(0)
 {
     setCookieJar(CookieJar::instance());
 
@@ -139,6 +147,11 @@ void NetworkAccessManager::setUserName(const QString &userName)
 void NetworkAccessManager::setPassword(const QString &password)
 {
     m_password = password;
+}
+
+void NetworkAccessManager::setResourceTimeout(int resourceTimeout)
+{
+    m_resourceTimeout = resourceTimeout;
 }
 
 void NetworkAccessManager::setMaxAuthAttempts(int maxAttempts)
@@ -222,7 +235,20 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
 
     // reparent jsNetworkRequest to make sure that it will be destroyed with QNetworkReply
     jsNetworkRequest.setParent(reply);
+    
+    // If there is a timeout set, create a TimeoutTimer
+    if(m_resourceTimeout > 0){
 
+        TimeoutTimer *nt = new TimeoutTimer(reply);
+        nt->reply = reply; // We need the reply object in order to abort it later on.
+        nt->data = data;
+        nt->setInterval(m_resourceTimeout);
+        nt->setSingleShot(true);
+        nt->start();
+
+        connect(nt, SIGNAL(timeout()), this, SLOT(handleTimeout()));
+    }
+    
     m_ids[reply] = m_idCounter;
 
     connect(reply, SIGNAL(readyRead()), this, SLOT(handleStarted()));
@@ -230,6 +256,23 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(handleNetworkError()));
 
     return reply;
+}
+
+void NetworkAccessManager::handleTimeout()
+{
+
+    TimeoutTimer *nt = qobject_cast<TimeoutTimer*>(sender());
+    
+    if(!nt->reply)
+        return;
+
+    nt->data["errorCode"] = 408;
+    nt->data["errorString"] = "Network timeout on resource.";
+    
+    emit resourceTimeout(nt->data);
+
+    // Abort the reply that we attached to the Network Timeout
+    nt->reply->abort();
 }
 
 void NetworkAccessManager::handleStarted()

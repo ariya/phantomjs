@@ -1280,6 +1280,18 @@ describe("WebPage construction with options", function () {
         checkScrollPosition(new WebPage(opts), opts.scrollPosition);
     });
 
+    describe("specifying timeout", function () {
+        var opts = {
+            settings: {
+                timeout: 100 // time in ms
+            }
+        };
+        var page = new WebPage(opts);
+        it("should have timeout as "+opts.settings.timeout,function () {
+            expect(page.settings.timeout).toEqual(opts.settings.timeout);
+        });
+    });
+
     describe("specifying userAgent", function () {
         var opts = {
             settings: {
@@ -1581,6 +1593,34 @@ describe("WebPage opening and closing of windows/child-pages", function(){
             expect(p.pagesWindowName).toEqual(["bing"]);
             p.close();
         });
+    });
+});
+
+describe("WebPage timeout handling", function(){
+    it("should call 'onResourceTimeout' on timeout", function(){
+        var p = require("webpage").create(),
+            spy;
+
+        // assume that requesting a web page will take longer than a millisecond
+        p.settings.resourceTimeout = 1;
+
+        spy = jasmine.createSpy("onResourceTimeout spy");
+        p.onResourceTimeout = spy;
+
+        expect(spy.calls.length).toEqual(0);
+
+        p.open("http://www.google.com:81/");
+
+        waitsFor(function() {
+            return spy.calls.length==1;
+        }, "after 1+ milliseconds 'onResourceTimeout' should have been invoked", 10);
+
+        runs(function() {
+            expect(spy).toHaveBeenCalled();         //< called
+            expect(spy.calls.length).toEqual(1);    //< only once
+            expect(1).toEqual(1);
+        });
+
     });
 });
 
