@@ -25,6 +25,11 @@ function createHAR(address, title, startTime, resources)
             return;
         }
 
+		// fix issue with Data URI reported in HAR file
+		if (request.url.match(/(^data:image\/.*)/i)) {
+			return;
+		}
+
         entries.push({
             startedDateTime: request.time.toISOString(),
             time: endReply.time - request.time,
