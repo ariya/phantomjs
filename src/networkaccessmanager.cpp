@@ -67,7 +67,7 @@ static const char *toString(QNetworkAccessManager::Operation op)
     return str;
 }
 
-NetworkTimeout::NetworkTimeout(QObject* parent)
+TimeoutTimer::TimeoutTimer(QObject* parent)
     : QTimer(parent)
 {
     // QTimer(parent);
@@ -104,7 +104,7 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
     , m_idCounter(0)
     , m_networkDiskCache(0)
     , m_sslConfiguration(QSslConfiguration::defaultConfiguration())
-    , m_maxTimeout(0)
+    , m_resourceTimeout(0)
 {
     setCookieJar(CookieJar::instance());
 
@@ -149,9 +149,9 @@ void NetworkAccessManager::setPassword(const QString &password)
     m_password = password;
 }
 
-void NetworkAccessManager::setMaxTimeout(int maxTimeout)
+void NetworkAccessManager::setResourceTimeout(int resourceTimeout)
 {
-    m_maxTimeout = maxTimeout;
+    m_resourceTimeout = resourceTimeout;
 }
 
 void NetworkAccessManager::setMaxAuthAttempts(int maxAttempts)
@@ -236,12 +236,13 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     // reparent jsNetworkRequest to make sure that it will be destroyed with QNetworkReply
     jsNetworkRequest.setParent(reply);
     
-    // If there is a timeout set, create a NetworkTimeout
-    if(m_maxTimeout > 0){
+    // If there is a timeout set, create a TimeoutTimer
+    if(m_resourceTimeout > 0){
 
-        NetworkTimeout *nt = new NetworkTimeout(reply);
+        TimeoutTimer *nt = new TimeoutTimer(reply);
         nt->reply = reply; // We need the reply object in order to abort it later on.
-        nt->setInterval(m_maxTimeout);
+        nt->data = data;
+        nt->setInterval(m_resourceTimeout);
         nt->setSingleShot(true);
         nt->start();
 
@@ -260,17 +261,15 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
 void NetworkAccessManager::handleTimeout()
 {
 
-    NetworkTimeout *nt = qobject_cast<NetworkTimeout*>(sender());
+    TimeoutTimer *nt = qobject_cast<TimeoutTimer*>(sender());
     
     if(!nt->reply)
         return;
 
-    QVariantMap data;
-    data["url"] = nt->reply->url().toString();
-    data["errorCode"] = 408;
-    data["errorString"] = "Network timeout.";
-
-    emit timeoutError(data);
+    nt->data["errorCode"] = 408;
+    nt->data["errorString"] = "Network timeout on resource.";
+    
+    emit resourceTimeout(nt->data);
 
     // Abort the reply that we attached to the Network Timeout
     nt->reply->abort();

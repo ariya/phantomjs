@@ -43,13 +43,14 @@ class Config;
 class QNetworkDiskCache;
 class QSslConfiguration;
 
-class NetworkTimeout : public QTimer
+class TimeoutTimer : public QTimer
 {
     Q_OBJECT
 
 public:
-  NetworkTimeout(QObject *parent = 0);
+  TimeoutTimer(QObject *parent = 0);
   QNetworkReply *reply;
+  QVariantMap data;
 };
 
 class JsNetworkRequest : public QObject
@@ -72,7 +73,7 @@ public:
     void setUserName(const QString &userName);
     void setPassword(const QString &password);
     void setMaxAuthAttempts(int maxAttempts);
-    void setMaxTimeout(int maxTimeout);
+    void setResourceTimeout(int resourceTimeout);
     void setCustomHeaders(const QVariantMap &headers);
     QVariantMap customHeaders() const;
 
@@ -82,7 +83,7 @@ protected:
     bool m_ignoreSslErrors;
     int m_authAttempts;
     int m_maxAuthAttempts;
-    int m_maxTimeout;
+    int m_resourceTimeout;
     QString m_userName;
     QString m_password;
     QNetworkReply *createRequest(Operation op, const QNetworkRequest & req, QIODevice * outgoingData = 0);
@@ -92,7 +93,7 @@ signals:
     void resourceRequested(const QVariant& data, QObject *);
     void resourceReceived(const QVariant& data);
     void resourceError(const QVariant& data);
-    void timeoutError(const QVariant& data);
+    void resourceTimeout(const QVariant& data);
 
 private slots:
     void handleStarted();

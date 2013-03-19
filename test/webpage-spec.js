@@ -1554,15 +1554,15 @@ describe("WebPage opening and closing of windows/child-pages", function(){
 });
 
 describe("WebPage timeout handling", function(){
-    it("should call 'onTimeoutError' on timeout", function(){
+    it("should call 'onResourceTimeout' on timeout", function(){
         var p = require("webpage").create(),
             spy;
 
         // assume that requesting a web page will take longer than a millisecond
-        p.settings.maxTimeout = 1;
+        p.settings.resourceTimeout = 1;
 
-        spy = jasmine.createSpy("onTimeoutError spy");
-        p.onTimeoutError = spy;
+        spy = jasmine.createSpy("onResourceTimeout spy");
+        p.onResourceTimeout = spy;
 
         expect(spy.calls.length).toEqual(0);
 
@@ -1570,7 +1570,7 @@ describe("WebPage timeout handling", function(){
 
         waitsFor(function() {
             return spy.calls.length==1;
-        }, "after 1+ milliseconds 'onTimeoutError' should have been invoked", 10);
+        }, "after 1+ milliseconds 'onResourceTimeout' should have been invoked", 10);
 
         runs(function() {
             expect(spy).toHaveBeenCalled();         //< called
