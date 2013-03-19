@@ -159,7 +159,8 @@ symbian|maemo5|maemo6 {
     }
 }
 
-!contains(DEFINES, ENABLE_TOUCH_EVENTS=.): DEFINES += ENABLE_TOUCH_EVENTS=1
+# If not requested, do not enable touch events
+!contains(DEFINES, ENABLE_TOUCH_EVENTS=.): DEFINES += ENABLE_TOUCH_EVENTS=0
 
 # HTML5 Media Support
 # We require QtMultimedia
