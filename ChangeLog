@@ -1,6 +1,6 @@
 Please see also http://phantomjs.org/releases.html.
 
-2013-03-20: Version 1.9.0
+2013-03-20: Version 1.9.0 "Sakura"
 
     New features
 
@@ -54,7 +54,7 @@ Please see also http://phantomjs.org/releases.html.
 
       * Mac OS X: Fix possible crash when using some TrueType fonts (issue 690)
 
-2012-12-21: Version 1.8.0
+2012-12-21: Version 1.8.0 "Blue Winter Rose"
 
     New features
 
@@ -81,7 +81,7 @@ Please see also http://phantomjs.org/releases.html.
       * Updated Qt to version 4.8.4 (issue 918)
       * Fixed potential hang in some example scripts (issue 922)
 
-2012-09-22: Version 1.7.0
+2012-09-22: Version 1.7.0 "Blazing Star"
 
     New features
 
