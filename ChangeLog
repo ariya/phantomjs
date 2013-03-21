@@ -7,10 +7,14 @@ Please see also http://phantomjs.org/releases.html.
       * Added spawn and execFile to execute external programs (issue 10219)
       * Added the ability to abort network requests (issue 10230)
       * Added system access to stdin, stdout, and stderr (issue 10333)
+      * Added support for custom CA certificates location (issue 10916)
       * Added seek function to the File stream (issue 10937)
       * Implemented file read for a specified number of bytes (issue 10938)
       * Added a callback to handle network error (issue 10954, 10997)
+      * Added custom encoding support when opening a page (issue 11043)
       * Implemented require.stub() support for a factory function (issue 11044)
+      * Added page loading indicator and progress (issue 11091)
+      * Added a timeout option for network requests (issue 11129)
 
     Improvements
 
@@ -22,10 +26,13 @@ Please see also http://phantomjs.org/releases.html.
       * Fixed possible crash when accessing inline frames (issue 10947)
       * Changed Linux binary package setup to be built on CentOS 5 (issue 10963)
       * Extended SSL ignore setting to synchronous XHR (issue 10985)
+      * Added convenient constants for modifier keys (issue 11056)
       * Fixed incorrect date handling in the cookies (issue 11068)
+      * Updated GhostDriver to version 1.0.3 (issue 11146)
 
     Examples
 
+      * Fixed invalid data URI in the netsniff example (issue 10740)
       * Implemented a new weather example (issue 10794)
       * Fixed rendering issues in render_multi_url (issue 11021)
       * Fixed proper event sequence in page_events example (issue 11028)
