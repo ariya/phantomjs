@@ -98,7 +98,7 @@ sudo yum install gcc gcc-c++ make git openssl-devel freetype-devel fontconfig-de
 git clone git://github.com/ariya/phantomjs.git
 cd phantomjs
 git checkout 1.8
-./build.sh --jobs 1
+./build.sh
 </pre>
 
         <p><strong>Note 1</strong>: <code>build.sh</code> by default will launch parallel compile jobs depending on the available CPU cores, e.g. 4 jobs on a modern hyperthreaded dual-core processor. If necessary, e.g. when building on a virtual machine/server or other limited environment, reduce the jobs by passing a number, e.g <code>./build.sh --jobs 1</code> to set only one compile job at a time.</p>
