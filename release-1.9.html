@@ -94,20 +94,50 @@ table td,table th {
 <p><strong>New features</strong></p>
 
 <ul>
-    <li>To be written
+    <li>Added spawn and execFile to execute external programs (issue 10219)</li>
+    <li>Added the ability to abort network requests (issue 10230)</li>
+    <li>Added system access to stdin, stdout, and stderr (issue 10333)</li>
+    <li>Added support for custom CA certificates location (issue 10916)</li>
+    <li>Added seek function to the File stream (issue 10937)</li>
+    <li>Implemented file read for a specified number of bytes (issue 10938)</li>
+    <li>Added a callback to handle network error (issue 10954, issue 10997)</li>
+    <li>Added custom encoding support when opening a page (issue 11043)</li>
+    <li>Implemented require.stub() support for a factory function (issue 11044)</li>
+    <li>Added page loading indicator and progress (issue 11091)</li>
+    <li>Added a timeout option for network requests (issue 11129)</li>
 </ul>
 
 <p><strong>Improvements</strong></p>
 
 <ul>
-    <li>To be written
+    <li>Fixed the build on FreeBSD (issue 10597)</li>
+    <li>Ensured a consistent 72 dpi for Linux headless rendering (issue 10659)</li>
+    <li>Fixed possible PDF error due to invalid CreationDate field (issue 10663)</li>
+    <li>Fixed crash when uploading non existing files (issue 10941)</li>
+    <li>Improved the autocomplete internal of the interactive/REPL mode (issue 10943)</li>
+    <li>Fixed possible crash when accessing inline frames (issue 10947)</li>
+    <li>Changed Linux binary package setup to be built on CentOS 5 (issue 10963)</li>
+    <li>Extended SSL ignore setting to synchronous XHR (issue 10985)</li>
+    <li>Added convenient constants for modifier keys (issue 11056)</li>
+    <li>Fixed incorrect date handling in the cookies (issue 11068)</li>
+    <li>Updated GhostDriver to version 1.0.3 (issue 11146)</li>
+</ul>
+
+<p><strong>Examples</strong></p>
+
+<ul>
+    <li>Fixed invalid data URI in the netsniff example (issue 10740)</li>
+    <li>Implemented a new weather example (issue 10794)</li>
+    <li>Fixed rendering issues in render_multi_url (issue 11021)</li>
+    <li>Fixed proper event sequence in page_events example (issue 11028)</li>
+    <li>Miscellanous tweaks (issue 11082)</li>
 </ul>
 
 <p><strong>Known Issues on Microsoft Windows</strong></p>
 
 <ul>
-    <li>Very slow network performance. The workaround is to set <a href="https://github.com/ariya/phantomjs/wiki/API-Reference#wiki-command-line-options">proxy type</a> to &quot;<tt>none</tt>&quot; (issue <a href="http://code.google.com/p/phantomjs/issues/detail?id=580">580</a>)
-    <li>Some graphics drivers may cause mysterious crash (issue <a href="http://code.google.com/p/phantomjs/issues/detail?id=845">845</a>)
+    <li>Very slow network performance. The workaround is to set <a href="https://github.com/ariya/phantomjs/wiki/API-Reference#wiki-command-line-options">proxy type</a> to &quot;<tt>none</tt>&quot; (issue 10580)</li>
+    <li>Some graphics drivers may cause mysterious crash (issue 10845)</li>
 </ul>
 
 <p>Back to <a href="releases.html">all releases</a>.</p>
