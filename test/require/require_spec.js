@@ -154,4 +154,10 @@ describe("require()", function() {
             });
         });
     });
+    
+    describe("when path is absolute", function() {
+        it("loads modules from the absolute path", function() {
+            require(fs.absolute('dummy')).should.equal('spec/dummy');
+        });
+    });
 });
