@@ -54,9 +54,33 @@ QString Terminal::getEncoding() const
     return m_encoding.getName();
 }
 
-void Terminal::setEncoding(const QString &encoding)
+bool Terminal::setEncoding(const QString &encoding)
 {
+    // Since there can be multiple names for the same codec (i.e., "utf8" and
+    // "utf-8"), we need to get the codec in the system first and use its
+    // canonical name
+    QTextCodec *codec = QTextCodec::codecForName(encoding.toAscii());
+    if ((QTextCodec *)NULL == codec) {
+      return false;
+    }
+
+    // Check whether encoding actually needs to be changed
+    const QString encodingBeforeUpdate(m_encoding.getName());
+    if (0 == encodingBeforeUpdate.compare(QString(codec->name()), Qt::CaseInsensitive)) {
+        return false;
+    }
+
     m_encoding.setEncoding(encoding);
+
+    // Emit the signal only if the encoding actually was changed
+    const QString encodingAfterUpdate(m_encoding.getName());
+    if (0 == encodingBeforeUpdate.compare(encodingAfterUpdate, Qt::CaseInsensitive)) {
+        return false;
+    }
+
+    emit encodingChanged(encoding);
+
+    return true;
 }
 
 void Terminal::cout(const QString &string, const bool newline) const
