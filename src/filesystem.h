@@ -65,6 +65,8 @@ public slots:
     void close();
 
 private:
+    bool _isUnbuffered() const;
+
     QFile *m_file;
     QTextStream *m_fileStream;
 };
