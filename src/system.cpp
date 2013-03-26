@@ -37,6 +37,7 @@
 #include <QTextCodec>
 
 #include "../env.h"
+#include "terminal.h"
 
 System::System(QObject *parent) :
     QObject(parent)
@@ -124,6 +125,8 @@ System::System(QObject *parent) :
     m_os.insert("name", "unknown");
     m_os.insert("version", "unknown");
 #endif
+
+    connect(Terminal::instance(), SIGNAL(encodingChanged(QString)), this, SLOT(_onTerminalEncodingChanged(QString)));
 }
 
 System::~System()
@@ -203,10 +206,29 @@ QObject *System::_stdin() {
     return m_stdin;
 }
 
+// private slots:
+
+void System::_onTerminalEncodingChanged(const QString &encoding)
+{
+    if ((File *)NULL != m_stdin) {
+        m_stdin->setEncoding(encoding);
+    }
+
+    if ((File *)NULL != m_stdout) {
+        m_stdout->setEncoding(encoding);
+    }
+
+    if ((File *)NULL != m_stderr) {
+        m_stderr->setEncoding(encoding);
+    }
+}
+
 // private:
 
 File *System::createFileInstance(QFile *f)
 {
-    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
+    // Get the Encoding used by the Terminal at this point in time
+    Encoding e(Terminal::instance()->getEncoding());
+    QTextCodec *codec = e.getCodec();
     return new File(f, codec, this);
 }

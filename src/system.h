@@ -76,6 +76,9 @@ public:
     // system.stdin
     QObject *_stdin();
 
+private slots:
+    void _onTerminalEncodingChanged(const QString &encoding);
+
 private:
     File *createFileInstance(QFile *f);
 
