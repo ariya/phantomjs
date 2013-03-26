@@ -123,6 +123,9 @@ bool File::write(const QString &data)
     if ( m_fileStream ) {
         // text file
         (*m_fileStream) << data;
+        if (_isUnbuffered()) {
+            m_fileStream->flush();
+        }
         return true;
     } else {
         // binary file
@@ -211,6 +214,13 @@ void File::close()
         m_file = NULL;
     }
     deleteLater();
+}
+
+// private:
+
+bool File::_isUnbuffered() const
+{
+    return m_file->openMode() & QIODevice::Unbuffered;
 }
 
 
