@@ -46,11 +46,11 @@ public:
     QString getName() const;
     void setEncoding(const QString &encoding);
 
+    QTextCodec *getCodec() const;
+
     static const Encoding UTF8;
 
 private:
-    QTextCodec *getCodec() const;
-
     QTextCodec *m_codec;
     static const QByteArray DEFAULT_CODEC_NAME;
 };
