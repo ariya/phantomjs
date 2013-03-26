@@ -216,6 +216,49 @@ void File::close()
     deleteLater();
 }
 
+bool File::setEncoding(const QString &encoding) {
+    if (encoding.isEmpty() || encoding.isNull()) {
+        return false;
+    }
+
+    // "Binary" mode doesn't use/need text codecs
+    if ((QTextStream *)NULL == m_fileStream) {
+        // TODO: Should we switch to "text" mode?
+        return false;
+    }
+
+    // Since there can be multiple names for the same codec (i.e., "utf8" and
+    // "utf-8"), we need to get the codec in the system first and use its
+    // canonical name
+    QTextCodec *codec = QTextCodec::codecForName(encoding.toAscii());
+    if ((QTextCodec *)NULL == codec) {
+      return false;
+    }
+
+    // Check whether encoding actually needs to be changed
+    const QString encodingBeforeUpdate(m_fileStream->codec()->name());
+    if (0 == encodingBeforeUpdate.compare(QString(codec->name()), Qt::CaseInsensitive)) {
+        return false;
+    }
+
+    m_fileStream->setCodec(codec);
+
+    // Return whether update was successful
+    const QString encodingAfterUpdate(m_fileStream->codec()->name());
+    return 0 != encodingBeforeUpdate.compare(encodingAfterUpdate, Qt::CaseInsensitive);
+}
+
+QString File::getEncoding() const
+{
+    QString encoding;
+
+    if ((QTextStream *)NULL != m_fileStream) {
+        encoding = QString(m_fileStream->codec()->name());
+    }
+
+    return encoding;
+}
+
 // private:
 
 bool File::_isUnbuffered() const

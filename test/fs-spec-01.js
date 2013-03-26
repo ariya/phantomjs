@@ -59,6 +59,74 @@ describe("Basic Files API (read, write, remove, ...)", function() {
         expect(content).toEqual("hello\nworld\nasdf\n");
     });
 
+    it("should be able to get the encoding (default: UTF-8)", function() {
+        var encoding = "";
+        try {
+            var f = fs.open(FILENAME, "r");
+            encoding = f.getEncoding();
+            f.close();
+        } catch (e) {
+            console.log(e);
+        }
+        expect(encoding).toEqual("UTF-8");
+    });
+
+    it("should be able to set the encoding via options", function() {
+        var encoding = "";
+        try {
+            var f = fs.open(FILENAME, {
+              charset: "UTF-8"
+            , mode: "r"
+            });
+            encoding = f.getEncoding();
+            f.close();
+        } catch (e) {
+            console.log(e);
+        }
+        expect(encoding).toEqual("UTF-8");
+
+        try {
+            var f = fs.open(FILENAME, {
+              charset: "SJIS"
+            , mode: "r"
+            });
+            encoding = f.getEncoding();
+            f.close();
+        } catch (e) {
+            console.log(e);
+        }
+        expect(encoding).toEqual("Shift_JIS");
+    });
+
+    it("should be able to change the encoding", function() {
+        var encoding = "";
+        try {
+            var f = fs.open(FILENAME, {
+              charset: "UTF-8"
+            , mode: "r"
+            });
+            f.setEncoding("utf8");
+            encoding = f.getEncoding();
+            f.close();
+        } catch (e) {
+            console.log(e);
+        }
+        expect(encoding).toEqual("UTF-8");
+
+        try {
+            var f = fs.open(FILENAME, {
+              charset: "SJIS"
+            , mode: "r"
+            });
+            f.setEncoding("eucjp");
+            encoding = f.getEncoding();
+            f.close();
+        } catch (e) {
+            console.log(e);
+        }
+        expect(encoding).toEqual("EUC-JP");
+    });
+
     it("should be able to copy a file", function() {
         expect(fs.exists(FILENAME_COPY)).toBeFalsy();
         fs.copy(FILENAME, FILENAME_COPY);
