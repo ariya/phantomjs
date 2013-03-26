@@ -108,3 +108,8 @@ export MAKEFLAGS=-j$COMPILE_JOBS
 
 ./configure -prefix $PWD $QT_CFG
 make -j$COMPILE_JOBS
+
+# Build text codecs
+pushd src/plugins/codecs/
+make -j$COMPILE_JOBS
+popd
