@@ -64,6 +64,9 @@ public slots:
     void flush();
     void close();
 
+    QString getEncoding() const;
+    bool setEncoding(const QString &encoding);
+
 private:
     bool _isUnbuffered() const;
 
