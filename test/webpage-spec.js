@@ -782,6 +782,30 @@ describe("WebPage object", function() {
 
     });
 
+    it("should include post data to request object", function() {
+      var server = require('webserver').create();
+      server.listen(12345, function(request, response) {
+          response.write(JSON.stringify(request.headers));
+          response.close();
+      });
+
+      runs(function() {
+          var pageOptions = {
+            onResourceRequested: function (request) {
+              expect(request.postData).toEqual("ab=cd");
+            }
+          };
+          var page = new WebPage(pageOptions);
+          page.open("http://localhost:12345/", 'post', "ab=cd");
+      });
+
+      waits(50);
+
+      runs(function() {
+          server.close();
+      });
+    });
+
     it("should return properly from a 401 status", function() {
         var server = require('webserver').create();
         server.listen(12345, function(request, response) {

@@ -37,6 +37,7 @@
 #include <QSslSocket>
 #include <QSslCertificate>
 #include <QRegExp>
+#include <limits>
 
 #include "phantom.h"
 #include "config.h"
@@ -202,9 +203,11 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     // Get the URL string before calling the superclass. Seems to work around
     // segfaults in Qt 4.8: https://gist.github.com/1430393
     QByteArray url = req.url().toEncoded();
+    QByteArray postData;
 
     // http://code.google.com/p/phantomjs/issues/detail?id=337
     if (op == QNetworkAccessManager::PostOperation) {
+        if (outgoingData) postData = outgoingData->peek(std::numeric_limits < qint64 >::max());
         QString contentType = req.header(QNetworkRequest::ContentTypeHeader).toString();
         if (contentType.isEmpty()) {
             req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
@@ -233,6 +236,7 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     data["url"] = url.data();
     data["method"] = toString(op);
     data["headers"] = headers;
+    if (op == QNetworkAccessManager::PostOperation) data["postData"] = postData.data();
     data["time"] = QDateTime::currentDateTime();
 
     JsNetworkRequest jsNetworkRequest(&req, this);
