@@ -32,8 +32,11 @@ ghostdriver.ShutdownReqHand = function() {
     // private:
     var
     _protoParent = ghostdriver.ShutdownReqHand.prototype,
+    _log = ghostdriver.logger.create("ShutdownReqHand"),
 
     _handle = function(req, res) {
+        _log.info("_handle", "About to shutdown");
+
         _protoParent.handle.call(this, req, res);
 
         // Any HTTP Request Method will be accepted for this command. Some drivers like HEAD for example...

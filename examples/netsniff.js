@@ -25,6 +25,12 @@ function createHAR(address, title, startTime, resources)
             return;
         }
 
+        // Exclude Data URI from HAR file because
+        // they aren't included in specification
+        if (request.url.match(/(^data:image\/.*)/i)) {
+            return;
+	}
+
         entries.push({
             startedDateTime: request.time.toISOString(),
             time: endReply.time - request.time,

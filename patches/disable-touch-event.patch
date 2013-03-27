@@ -1,0 +1,141 @@
+From 837407c2b8279d9b30e75470218b3ada9b12208c Mon Sep 17 00:00:00 2001
+From: Julian Szulc <julian.szulc@allegro.pl>
+Date: Tue, 19 Feb 2013 18:09:15 +0100
+Subject: [PATCH] Fixed issue with phantomjs reporting touch support
+
+Fix compilation of webkit without the TOUCH_EVENTS
+
+Added missing #if ENABLE(TOUCH_EVENTS)
+for generated/JSDocument.* files
+
+Disabled webkit touch events compilation by default
+
+issue: http://code.google.com/p/phantomjs/issues/detail?id=375
+---
+ src/qt/src/3rdparty/webkit/Source/WebCore/features.pri      |  3 ++-
+ .../3rdparty/webkit/Source/WebCore/generated/JSDocument.cpp | 13 ++++++++++---
+ .../3rdparty/webkit/Source/WebCore/generated/JSDocument.h   |  6 ++++++
+ 3 files changed, 18 insertions(+), 4 deletions(-)
+
+diff --git a/src/qt/src/3rdparty/webkit/Source/WebCore/features.pri b/src/qt/src/3rdparty/webkit/Source/WebCore/features.pri
+index 2b8b281..14e9479 100644
+--- a/src/qt/src/3rdparty/webkit/Source/WebCore/features.pri
++++ b/src/qt/src/3rdparty/webkit/Source/WebCore/features.pri
+@@ -159,7 +159,8 @@ symbian|maemo5|maemo6 {
+     }
+ }
+ 
+-!contains(DEFINES, ENABLE_TOUCH_EVENTS=.): DEFINES += ENABLE_TOUCH_EVENTS=1
++# If not requested, do not enable touch events
++!contains(DEFINES, ENABLE_TOUCH_EVENTS=.): DEFINES += ENABLE_TOUCH_EVENTS=0
+ 
+ # HTML5 Media Support
+ # We require QtMultimedia
+diff --git a/src/qt/src/3rdparty/webkit/Source/WebCore/generated/JSDocument.cpp b/src/qt/src/3rdparty/webkit/Source/WebCore/generated/JSDocument.cpp
+index 7bc127c..972c592 100644
+--- a/src/qt/src/3rdparty/webkit/Source/WebCore/generated/JSDocument.cpp
++++ b/src/qt/src/3rdparty/webkit/Source/WebCore/generated/JSDocument.cpp
+@@ -68,7 +68,9 @@
+ #include "JSRange.h"
+ #include "JSStyleSheetList.h"
+ #include "JSText.h"
++#if ENABLE(TOUCH_EVENTS)
+ #include "JSTouch.h"
++#endif
+ #include "JSTreeWalker.h"
+ #include "JSXPathExpression.h"
+ #include "JSXPathNSResolver.h"
+@@ -84,8 +86,10 @@
+ #include "Range.h"
+ #include "StyleSheetList.h"
+ #include "Text.h"
++#if ENABLE(TOUCH_EVENTS)
+ #include "Touch.h"
+ #include "TouchList.h"
++#endif
+ #include "TreeWalker.h"
+ #include "XPathExpression.h"
+ #include "XPathNSResolver.h"
+@@ -296,8 +300,10 @@ bool JSDocumentConstructor::getOwnPropertyDescriptor(ExecState* exec, const Iden
+     { "getElementsByClassName", DontDelete | Function, (intptr_t)static_cast<NativeFunction>(jsDocumentPrototypeFunctionGetElementsByClassName), (intptr_t)1 THUNK_GENERATOR(0) },
+     { "querySelector", DontDelete | Function, (intptr_t)static_cast<NativeFunction>(jsDocumentPrototypeFunctionQuerySelector), (intptr_t)1 THUNK_GENERATOR(0) },
+     { "querySelectorAll", DontDelete | Function, (intptr_t)static_cast<NativeFunction>(jsDocumentPrototypeFunctionQuerySelectorAll), (intptr_t)1 THUNK_GENERATOR(0) },
++#if ENABLE(TOUCH_EVENTS)
+     { "createTouch", DontDelete | Function, (intptr_t)static_cast<NativeFunction>(jsDocumentPrototypeFunctionCreateTouch), (intptr_t)7 THUNK_GENERATOR(0) },
+     { "createTouchList", DontDelete | Function, (intptr_t)static_cast<NativeFunction>(jsDocumentPrototypeFunctionCreateTouchList), (intptr_t)0 THUNK_GENERATOR(0) },
++#endif
+     { 0, 0, 0, 0 THUNK_GENERATOR(0) }
+ };
+ 
+@@ -2569,7 +2575,7 @@ EncodedJSValue JSC_HOST_CALL jsDocumentPrototypeFunctionQuerySelectorAll(ExecSta
+     setDOMException(exec, ec);
+     return JSValue::encode(result);
+ }
+-
++#if ENABLE(TOUCH_EVENTS)
+ EncodedJSValue JSC_HOST_CALL jsDocumentPrototypeFunctionCreateTouch(ExecState* exec)
+ {
+     JSValue thisValue = exec->hostThisValue();
+@@ -2605,7 +2611,8 @@ EncodedJSValue JSC_HOST_CALL jsDocumentPrototypeFunctionCreateTouch(ExecState* e
+     setDOMException(exec, ec);
+     return JSValue::encode(result);
+ }
+-
++#endif
++#if ENABLE(TOUCH_EVENTS)
+ EncodedJSValue JSC_HOST_CALL jsDocumentPrototypeFunctionCreateTouchList(ExecState* exec)
+ {
+     JSValue thisValue = exec->hostThisValue();
+@@ -2614,7 +2621,7 @@ EncodedJSValue JSC_HOST_CALL jsDocumentPrototypeFunctionCreateTouchList(ExecStat
+     JSDocument* castedThis = static_cast<JSDocument*>(asObject(thisValue));
+     return JSValue::encode(castedThis->createTouchList(exec));
+ }
+-
++#endif
+ Document* toDocument(JSC::JSValue value)
+ {
+     return value.inherits(&JSDocument::s_info) ? static_cast<JSDocument*>(asObject(value))->impl() : 0;
+diff --git a/src/qt/src/3rdparty/webkit/Source/WebCore/generated/JSDocument.h b/src/qt/src/3rdparty/webkit/Source/WebCore/generated/JSDocument.h
+index 69d7fb5..ba5c736 100644
+--- a/src/qt/src/3rdparty/webkit/Source/WebCore/generated/JSDocument.h
++++ b/src/qt/src/3rdparty/webkit/Source/WebCore/generated/JSDocument.h
+@@ -53,7 +53,9 @@ class JSDocument : public JSNode {
+     void setLocation(JSC::ExecState*, JSC::JSValue);
+ 
+     // Custom functions
++#if ENABLE(TOUCH_EVENTS)
+     JSC::JSValue createTouchList(JSC::ExecState*);
++#endif
+     Document* impl() const
+     {
+         return static_cast<Document*>(Base::impl());
+@@ -130,8 +132,10 @@ class JSDocumentPrototype : public JSC::JSObjectWithGlobalObject {
+ JSC::EncodedJSValue JSC_HOST_CALL jsDocumentPrototypeFunctionGetElementsByClassName(JSC::ExecState*);
+ JSC::EncodedJSValue JSC_HOST_CALL jsDocumentPrototypeFunctionQuerySelector(JSC::ExecState*);
+ JSC::EncodedJSValue JSC_HOST_CALL jsDocumentPrototypeFunctionQuerySelectorAll(JSC::ExecState*);
++#if ENABLE(TOUCH_EVENTS)
+ JSC::EncodedJSValue JSC_HOST_CALL jsDocumentPrototypeFunctionCreateTouch(JSC::ExecState*);
+ JSC::EncodedJSValue JSC_HOST_CALL jsDocumentPrototypeFunctionCreateTouchList(JSC::ExecState*);
++#endif
+ // Attributes
+ 
+ JSC::JSValue jsDocumentDoctype(JSC::ExecState*, JSC::JSValue, const JSC::Identifier&);
+@@ -257,6 +261,7 @@ class JSDocumentPrototype : public JSC::JSObjectWithGlobalObject {
+ void setJSDocumentOnselectstart(JSC::ExecState*, JSC::JSObject*, JSC::JSValue);
+ JSC::JSValue jsDocumentOnselectionchange(JSC::ExecState*, JSC::JSValue, const JSC::Identifier&);
+ void setJSDocumentOnselectionchange(JSC::ExecState*, JSC::JSObject*, JSC::JSValue);
++#if ENABLE(TOUCH_EVENTS)
+ JSC::JSValue jsDocumentOntouchstart(JSC::ExecState*, JSC::JSValue, const JSC::Identifier&);
+ void setJSDocumentOntouchstart(JSC::ExecState*, JSC::JSObject*, JSC::JSValue);
+ JSC::JSValue jsDocumentOntouchmove(JSC::ExecState*, JSC::JSValue, const JSC::Identifier&);
+@@ -265,6 +270,7 @@ class JSDocumentPrototype : public JSC::JSObjectWithGlobalObject {
+ void setJSDocumentOntouchend(JSC::ExecState*, JSC::JSObject*, JSC::JSValue);
+ JSC::JSValue jsDocumentOntouchcancel(JSC::ExecState*, JSC::JSValue, const JSC::Identifier&);
+ void setJSDocumentOntouchcancel(JSC::ExecState*, JSC::JSObject*, JSC::JSValue);
++#endif
+ JSC::JSValue jsDocumentOnwebkitfullscreenchange(JSC::ExecState*, JSC::JSValue, const JSC::Identifier&);
+ void setJSDocumentOnwebkitfullscreenchange(JSC::ExecState*, JSC::JSObject*, JSC::JSValue);
+ JSC::JSValue jsDocumentConstructor(JSC::ExecState*, JSC::JSValue, const JSC::Identifier&);
+-- 
+1.8.1.5
+

@@ -1,36 +1,60 @@
 Please see also http://phantomjs.org/releases.html.
 
-2013-03-20: Version 1.9.0
+2013-03-20: Version 1.9.0 "Sakura"
 
     New features
 
-      * Added spawn and execFile to execute external programs (issue 219)
-      * Added the ability to abort network requests (issue 230)
-      * Added system access to stdin, stdout, and stderr (issue 333)
-      * Added seek function to the File stream (issue 937)
-      * Implemented file read for a specified number of bytes (issue 938)
-      * Added a callback to handle network error (issue 954, 997)
-      * Implemented require.stub() support for a factory function (issue 1044)
+      * Added spawn and execFile to execute external programs (issue 10219)
+      * Added the ability to abort network requests (issue 10230)
+      * Added system access to stdin, stdout, and stderr (issue 10333)
+      * Added support for custom CA certificates location (issue 10916)
+      * Added seek function to the File stream (issue 10937)
+      * Implemented file read for a specified number of bytes (issue 10938)
+      * Added a callback to handle network error (issue 10954, 10997)
+      * Added custom encoding support when opening a page (issue 11043)
+      * Implemented require.stub() support for a factory function (issue 11044)
+      * Added page loading indicator and progress (issue 11091)
+      * Added a timeout option for network requests (issue 11129)
 
     Improvements
 
-      * Fixed the build on FreeBSD (issue 597)
-      * Ensured a consistent 72 dpi for Linux headless rendering (issue 659)
-      * Fixed possible PDF error due to invalid CreationDate field (issue 663)
-      * Fixed crash when uploading non existing files (issue 941)
-      * Improved the autocomplete internal of the interactive/REPL mode (issue 943)
-      * Changed Linux binary package setup to be built on CentOS 5 (issue 963)
-      * Extended SSL ignore setting to synchronous XHR (issue 985)
-      * Fixed incorrect date handling in the cookies (issue 1068)
+      * Fixed the build on FreeBSD (issue 10597)
+      * Ensured a consistent 72 dpi for Linux headless rendering (issue 10659)
+      * Fixed possible PDF error due to invalid CreationDate field (issue 10663)
+      * Fixed crash when uploading non existing files (issue 10941)
+      * Improved the autocomplete internal of the interactive/REPL mode (issue 10943)
+      * Fixed possible crash when accessing inline frames (issue 10947)
+      * Changed Linux binary package setup to be built on CentOS 5 (issue 10963)
+      * Extended SSL ignore setting to synchronous XHR (issue 10985)
+      * Added convenient constants for modifier keys (issue 11056)
+      * Fixed incorrect date handling in the cookies (issue 11068)
+      * Updated GhostDriver to version 1.0.3 (issue 11146)
 
     Examples
 
-      * Implemented a new weather example (issue 794)
-      * Fixed rendering issues in render_multi_url (issue 1021)
-      * Fixed proper event sequence in page_events example (issue 1028)
-      * Miscellanous tweaks (issue 1082)
+      * Fixed invalid data URI in the netsniff example (issue 10740)
+      * Implemented a new weather example (issue 10794)
+      * Fixed rendering issues in render_multi_url (issue 11021)
+      * Fixed proper event sequence in page_events example (issue 11028)
+      * Miscellanous tweaks (issue 11082)
 
-2012-12-21: Version 1.8.0
+2013-03-02: Version 1.8.2
+
+    Critical bug fixes:
+
+      * Fixed possible PDF error due to invalid CreationDate field (issue 663)
+      * Fixed crash when uploading non existing files (issue 941)
+      * Fixed possible crash when accessing inline frames (issue 947)
+      * Extended SSL ignore setting to synchronous XHR (issue 985)
+      * Fixed incorrect date handling in the cookies (issue 1068)
+
+2013-01-06: Version 1.8.1
+
+    Critical bug fix:
+
+      * Mac OS X: Fix possible crash when using some TrueType fonts (issue 690)
+
+2012-12-21: Version 1.8.0 "Blue Winter Rose"
 
     New features
 
@@ -57,7 +81,7 @@ Please see also http://phantomjs.org/releases.html.
       * Updated Qt to version 4.8.4 (issue 918)
       * Fixed potential hang in some example scripts (issue 922)
 
-2012-09-22: Version 1.7.0
+2012-09-22: Version 1.7.0 "Blazing Star"
 
     New features
 

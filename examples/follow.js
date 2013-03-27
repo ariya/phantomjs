@@ -1,11 +1,13 @@
 // List following and followers from several accounts
 
-var users = ['ariyahidayat',
+var users = ['PhantomJS',
+        'ariyahidayat',
         'detronizator',
         'KDABQt',
         'lfranchi',
         'jonleighton',
-        '_jamesgreene'];
+        '_jamesmgreene',
+        'Vitalliumm'];
 
 function follow(user, callback) {
     var page = require('webpage').create();

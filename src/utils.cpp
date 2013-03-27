@@ -76,7 +76,7 @@ bool Utils::exceptionHandler(const TCHAR* dump_path, const TCHAR* minidump_id,
   
     fprintf(stderr, "PhantomJS has crashed. Please read the crash reporting guide at " \
                     "https://github.com/ariya/phantomjs/wiki/Crash-Reporting and file a " \
-                    "bug report at https://code.google.com/p/phantomjs/issues/entry with the " \
+                    "bug report at https://github.com/ariya/phantomjs/issues/new with the " \
                     "crash dump file attached: %ls\\%ls.dmp\n",
                     dump_path, minidump_id);
     return succeeded;
@@ -87,7 +87,7 @@ bool Utils::exceptionHandler(const char* dump_path, const char* minidump_id, voi
     Q_UNUSED(context);
     fprintf(stderr, "PhantomJS has crashed. Please read the crash reporting guide at " \
                     "https://github.com/ariya/phantomjs/wiki/Crash-Reporting and file a " \
-                    "bug report at https://code.google.com/p/phantomjs/issues/entry with the " \
+                    "bug report at https://github.com/ariya/phantomjs/issues/new with the " \
                     "crash dump file attached: %s/%s.dmp\n",
                     dump_path, minidump_id);
     return succeeded;

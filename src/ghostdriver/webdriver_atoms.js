@@ -36,7 +36,7 @@ exports.get = function(atomName) {
         try {
             atomsCache[atomName] = fs.read(atomFileName);
         } catch (e) {
-            throw "Unable to load Atom '"+atomName+"' from file '"+atomFileName+"'";
+            throw new Error("Unable to load Atom '"+atomName+"' from file '"+atomFileName+"'");
         }
     }
 

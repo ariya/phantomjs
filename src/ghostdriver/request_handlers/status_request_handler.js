@@ -29,8 +29,7 @@ var ghostdriver = ghostdriver || {};
 
 ghostdriver.StatusReqHand = function() {
     // private:
-    var
-    _protoParent = ghostdriver.StatusReqHand.prototype,
+    const
     _statusObj = {
         "build" : {
             "version"   : ghostdriver.version
@@ -40,7 +39,10 @@ ghostdriver.StatusReqHand = function() {
             "version"   : ghostdriver.system.os.version,
             "arch"      : ghostdriver.system.os.architecture
         }
-    },
+    };
+
+    var
+    _protoParent = ghostdriver.StatusReqHand.prototype,
 
     _handle = function(req, res) {
         _protoParent.handle.call(this, req, res);

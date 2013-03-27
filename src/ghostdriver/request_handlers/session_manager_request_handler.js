@@ -34,7 +34,8 @@ ghostdriver.SessionManagerReqHand = function() {
     _sessions = {}, //< will store key/value pairs like 'SESSION_ID : SESSION_OBJECT'
     _sessionRHs = {},
     _errors = _protoParent.errors,
-    _CLEANUP_WINDOWLESS_SESSIONS_TIMEOUT = 60000,
+    _CLEANUP_WINDOWLESS_SESSIONS_TIMEOUT = 300000, // 5 minutes
+    _log = ghostdriver.logger.create("SessionManagerReqHand"),
 
     _handle = function(req, res) {
         _protoParent.handle.call(this, req, res);
@@ -59,14 +60,21 @@ ghostdriver.SessionManagerReqHand = function() {
 
     _postNewSessionCommand = function(req, res) {
         var newSession,
-            postObj = JSON.parse(req.post);
+            postObj;
 
-        if (typeof(postObj) === "object") {
+        try {
+            postObj = JSON.parse(req.post);
+        } catch (e) {
+            // If the parsing has failed, the error is reported at the end
+        }
+
+        if (typeof(postObj) === "object" &&
+            typeof(postObj.desiredCapabilities) === "object") {
             // Create and store a new Session
             newSession = new ghostdriver.Session(postObj.desiredCapabilities);
             _sessions[newSession.getId()] = newSession;
 
-            // console.log("New Session Created: " + newSession.getId());
+            _log.info("_postNewSessionCommand", "New Session Created: " + newSession.getId());
 
             // Redirect to the newly created Session
             res.statusCode = 303; //< "303 See Other"
@@ -155,19 +163,18 @@ ghostdriver.SessionManagerReqHand = function() {
 
         // Do this cleanup only if there are sessions
         if (Object.keys(_sessions).length > 0) {
-            console.log("Asynchronous Sessions cleanup phase starting NOW");
+            _log.info("_cleanupWindowlessSessions", "Asynchronous Sessions clean-up phase starting NOW");
             for (sId in _sessions) {
                 if (_sessions[sId].getWindowsCount() === 0) {
-                    console.log("About to delete Session '"+sId+"', because windowless...");
                     _deleteSession(sId);
-                    console.log("... deleted!");
+                    _log.info("_cleanupWindowlessSessions", "Deleted Session '"+sId+"', because windowless");
                 }
             }
         }
     };
 
     // Regularly cleanup un-used sessions
-    setInterval(_cleanupWindowlessSessions, _CLEANUP_WINDOWLESS_SESSIONS_TIMEOUT); //< every 60s
+    setInterval(_cleanupWindowlessSessions, _CLEANUP_WINDOWLESS_SESSIONS_TIMEOUT);
 
     // public:
     return {
