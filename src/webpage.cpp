@@ -360,22 +360,22 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
     m_mainFrame->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
     m_customWebPage->settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
+    m_customWebPage->settings()->setAttribute(QWebSettings::OfflineWebApplicationCacheEnabled, true);
+    m_customWebPage->settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
     if (phantomCfg->offlineStoragePath().isEmpty()) {
         m_customWebPage->settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+        m_customWebPage->settings()->setOfflineWebApplicationCachePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+        m_customWebPage->settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
     } else {
         m_customWebPage->settings()->setOfflineStoragePath(phantomCfg->offlineStoragePath());
+        m_customWebPage->settings()->setOfflineWebApplicationCachePath(phantomCfg->offlineStoragePath());
+        m_customWebPage->settings()->setLocalStoragePath(phantomCfg->offlineStoragePath());
     }
     if (phantomCfg->offlineStorageDefaultQuota() > 0) {
         m_customWebPage->settings()->setOfflineStorageDefaultQuota(phantomCfg->offlineStorageDefaultQuota());
     }
 
-    m_customWebPage->settings()->setAttribute(QWebSettings::OfflineWebApplicationCacheEnabled, true);
-    m_customWebPage->settings()->setOfflineWebApplicationCachePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-
     m_customWebPage->settings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
-
-    m_customWebPage->settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
-    m_customWebPage->settings()->setLocalStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
 
     // Custom network access manager to allow traffic monitoring.
     m_networkAccessManager = new NetworkAccessManager(this, phantomCfg);
