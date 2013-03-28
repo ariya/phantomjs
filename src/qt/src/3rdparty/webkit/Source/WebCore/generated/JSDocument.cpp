@@ -68,7 +68,9 @@
 #include "JSRange.h"
 #include "JSStyleSheetList.h"
 #include "JSText.h"
+#if ENABLE(TOUCH_EVENTS)
 #include "JSTouch.h"
+#endif
 #include "JSTreeWalker.h"
 #include "JSXPathExpression.h"
 #include "JSXPathNSResolver.h"
@@ -84,8 +86,10 @@
 #include "Range.h"
 #include "StyleSheetList.h"
 #include "Text.h"
+#if ENABLE(TOUCH_EVENTS)
 #include "Touch.h"
 #include "TouchList.h"
+#endif
 #include "TreeWalker.h"
 #include "XPathExpression.h"
 #include "XPathNSResolver.h"
@@ -296,8 +300,10 @@ static const HashTableValue JSDocumentPrototypeTableValues[40] =
     { "getElementsByClassName", DontDelete | Function, (intptr_t)static_cast<NativeFunction>(jsDocumentPrototypeFunctionGetElementsByClassName), (intptr_t)1 THUNK_GENERATOR(0) },
     { "querySelector", DontDelete | Function, (intptr_t)static_cast<NativeFunction>(jsDocumentPrototypeFunctionQuerySelector), (intptr_t)1 THUNK_GENERATOR(0) },
     { "querySelectorAll", DontDelete | Function, (intptr_t)static_cast<NativeFunction>(jsDocumentPrototypeFunctionQuerySelectorAll), (intptr_t)1 THUNK_GENERATOR(0) },
+#if ENABLE(TOUCH_EVENTS)
     { "createTouch", DontDelete | Function, (intptr_t)static_cast<NativeFunction>(jsDocumentPrototypeFunctionCreateTouch), (intptr_t)7 THUNK_GENERATOR(0) },
     { "createTouchList", DontDelete | Function, (intptr_t)static_cast<NativeFunction>(jsDocumentPrototypeFunctionCreateTouchList), (intptr_t)0 THUNK_GENERATOR(0) },
+#endif
     { 0, 0, 0, 0 THUNK_GENERATOR(0) }
 };
 
@@ -2569,7 +2575,7 @@ EncodedJSValue JSC_HOST_CALL jsDocumentPrototypeFunctionQuerySelectorAll(ExecSta
     setDOMException(exec, ec);
     return JSValue::encode(result);
 }
-
+#if ENABLE(TOUCH_EVENTS)
 EncodedJSValue JSC_HOST_CALL jsDocumentPrototypeFunctionCreateTouch(ExecState* exec)
 {
     JSValue thisValue = exec->hostThisValue();
@@ -2605,7 +2611,8 @@ EncodedJSValue JSC_HOST_CALL jsDocumentPrototypeFunctionCreateTouch(ExecState* e
     setDOMException(exec, ec);
     return JSValue::encode(result);
 }
-
+#endif
+#if ENABLE(TOUCH_EVENTS)
 EncodedJSValue JSC_HOST_CALL jsDocumentPrototypeFunctionCreateTouchList(ExecState* exec)
 {
     JSValue thisValue = exec->hostThisValue();
@@ -2614,7 +2621,7 @@ EncodedJSValue JSC_HOST_CALL jsDocumentPrototypeFunctionCreateTouchList(ExecStat
     JSDocument* castedThis = static_cast<JSDocument*>(asObject(thisValue));
     return JSValue::encode(castedThis->createTouchList(exec));
 }
-
+#endif
 Document* toDocument(JSC::JSValue value)
 {
     return value.inherits(&JSDocument::s_info) ? static_cast<JSDocument*>(asObject(value))->impl() : 0;
