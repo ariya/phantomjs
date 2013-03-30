@@ -366,6 +366,8 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply, const QVariant &
     m_started.remove(reply);
 
     emit resourceReceived(data);
+
+    reply->deleteLater();
 }
 
 void NetworkAccessManager::handleSslErrors(const QList<QSslError> &errors)
@@ -387,17 +389,11 @@ void NetworkAccessManager::handleNetworkError()
              << "(" << reply->errorString() << ")"
              << "URL:" << reply->url().toString();
 
-    m_ids.remove(reply);
-
-    if (m_started.contains(reply))
-        m_started.remove(reply);
-
     QVariantMap data;
+    data["id"] = m_ids.value(reply);
     data["url"] = reply->url().toString();
     data["errorCode"] = reply->error();
     data["errorString"] = reply->errorString();
 
     emit resourceError(data);
-
-    reply->deleteLater();
 }
