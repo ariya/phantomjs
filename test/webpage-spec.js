@@ -1122,10 +1122,10 @@ describe("WebPage object", function() {
 
         runs(function() {
             expect(handled).toEqual(true);
+            page.close();
             server.close();
         });
     });
-
 
     it('should able to abort a network request', function() {
         var page = require('webpage').create();
@@ -1147,6 +1147,13 @@ describe("WebPage object", function() {
             page.open(url, function(status) {
                 expect(status).toEqual('success');
             });
+        });
+        
+        waits(5000);
+        
+        runs(function() {
+            page.close();
+            expect(handled).toBeTruthy();
         });
     });
 
@@ -1205,6 +1212,35 @@ describe("WebPage object", function() {
 
         runs(function() {
             expect(handled).toBe(true);
+        });
+    });
+    
+    it('should fire `onResourceReceived` callback when the resource error occured', function() {
+        var page = require('webpage').create();
+        var server = require('webserver').create();
+        var service = server.listen(12345, function (request, response) {
+            var code = parseInt(/^\/(\d+)$/.exec(request.url)[1], 10);
+            response.statusCode = code;
+            response.write("how");
+            response.close();
+        });
+        var handled = 0;
+
+        runs(function() {
+            page.onResourceReceived = function(res) {
+                handled++;
+            };
+
+            page.open('http://localhost:12345/400', function() {
+                server.close();
+            });
+        });
+
+        waits(5000);
+
+        runs(function() {
+            expect(handled).toEqual(2);
+            page.close();
         });
     });
 });
