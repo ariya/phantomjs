@@ -1,5 +1,15 @@
 Please see also http://phantomjs.org/releases.html.
 
+Some future version:
+
+    New features
+
+      * Added POST data in the resource request (issue 10158)
+
+    Improvements
+
+      * Ensured onResourceReceived is still fired on an error (issue 11163)
+
 2013-03-20: Version 1.9.0 "Sakura"
 
     New features
