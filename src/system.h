@@ -77,6 +77,8 @@ public:
     QObject *_stdin();
 
 private:
+    File *createFileInstance(QFile *f);
+
     QStringList m_args;
     QVariant m_env;
     QMap<QString, QVariant> m_os;
