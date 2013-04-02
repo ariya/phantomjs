@@ -34,6 +34,7 @@
 #include <QSslSocket>
 #include <QSysInfo>
 #include <QVariantMap>
+#include <QTextCodec>
 
 #include "../env.h"
 
@@ -176,7 +177,7 @@ QObject *System::_stdout() {
     if ((File *)NULL == m_stdout) {
         QFile *f = new QFile();
         f->open(stdout, QIODevice::WriteOnly | QIODevice::Unbuffered);
-        m_stdout = new File(f, (QTextCodec *)NULL, this);
+        m_stdout = createFileInstance(f);
     }
 
     return m_stdout;
@@ -186,7 +187,7 @@ QObject *System::_stderr() {
     if ((File *)NULL == m_stderr) {
         QFile *f = new QFile();
         f->open(stderr, QIODevice::WriteOnly | QIODevice::Unbuffered);
-        m_stderr = new File(f, (QTextCodec *)NULL, this);
+        m_stderr = createFileInstance(f);
     }
 
     return m_stderr;
@@ -196,8 +197,16 @@ QObject *System::_stdin() {
     if ((File *)NULL == m_stdin) {
         QFile *f = new QFile();
         f->open(stdin, QIODevice::ReadOnly | QIODevice::Unbuffered);
-        m_stdin = new File(f, (QTextCodec *)NULL, this);
+        m_stdin = createFileInstance(f);
     }
 
     return m_stdin;
+}
+
+// private:
+
+File *System::createFileInstance(QFile *f)
+{
+    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
+    return new File(f, codec, this);
 }
