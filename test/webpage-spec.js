@@ -1307,6 +1307,18 @@ describe("WebPage object", function() {
             server.close();
         });
     });
+
+    it("should interrupt a long-running JavaScript code", function() {
+        var page = new WebPage();
+        
+        page.onLongRunningScript = function() {
+            page.stopJavaScript();
+        };
+        
+        page.open('../test/webpage-spec-frames/forever.html', function(status) {
+            expect(status).toEqual('success');
+        });
+    });
 });
 
 describe("WebPage construction with options", function () {

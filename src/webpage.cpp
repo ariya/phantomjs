@@ -112,7 +112,14 @@ public:
 
 public slots:
     bool shouldInterruptJavaScript() {
-        QApplication::processEvents(QEventLoop::AllEvents, 42);
+        m_webPage->javascriptInterrupt();
+
+        if (m_webPage->m_shouldInterruptJs) {
+
+            // reset our flag
+            m_webPage->m_shouldInterruptJs = false;
+            return true;
+        }
         return false;
     }
 
@@ -251,6 +258,7 @@ public:
         , m_filePickerCallback(NULL)
         , m_jsConfirmCallback(NULL)
         , m_jsPromptCallback(NULL)
+        , m_jsInterruptCallback(NULL)
     {
     }
 
@@ -289,6 +297,15 @@ public:
         }
         return m_jsPromptCallback;
     }
+    
+    QObject *getJsInterruptCallback() {
+        qDebug() << "WebpageCallbacks - getJsInterruptCallback";
+
+        if (!m_jsInterruptCallback) {
+            m_jsInterruptCallback = new Callback(this);
+        }
+        return m_jsInterruptCallback;
+    }
 
 public slots:
     QVariant call(const QVariantList &arguments) {
@@ -303,6 +320,7 @@ private:
     Callback *m_filePickerCallback;
     Callback *m_jsConfirmCallback;
     Callback *m_jsPromptCallback;
+    Callback *m_jsInterruptCallback;
 
     friend class WebPage;
 };
@@ -314,6 +332,7 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
     , m_mousePos(QPoint(0, 0))
     , m_ownsPages(true)
     , m_loadingProgress(0)
+    , m_shouldInterruptJs(false)
 {
     setObjectName("WebPage");
     m_callbacks = new WebpageCallbacks(this);
@@ -727,6 +746,17 @@ bool WebPage::javaScriptPrompt(const QString &msg, const QString &defaultValue, 
         }
     }
     return false;
+}
+
+void WebPage::javascriptInterrupt()
+{
+    if (m_callbacks->m_jsInterruptCallback) {
+        QVariant res = m_callbacks->m_jsInterruptCallback->call(QVariantList());
+
+        if (res.canConvert<bool>()) {
+            m_shouldInterruptJs = res.toBool();
+        }
+    }
 }
 
 void WebPage::finish(bool ok)
@@ -1293,6 +1323,15 @@ QObject *WebPage::_getJsPromptCallback()
     return m_callbacks->getJsPromptCallback();
 }
 
+QObject *WebPage::_getJsInterruptCallback()
+{
+    if (!m_callbacks) {
+        m_callbacks = new WebpageCallbacks(this);
+    }
+
+    return m_callbacks->getJsInterruptCallback();
+}
+
 void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVariant &arg2, const QString &mouseButton, const QVariant &modifierArg)
 {
     Qt::KeyboardModifiers keyboardModifiers(modifierArg.toInt());
@@ -1578,6 +1617,11 @@ void WebPage::updateLoadingProgress(int progress)
 {
     qDebug() << "WebPage - updateLoadingProgress:" << progress;
     m_loadingProgress = progress;
+}
+
+void WebPage::stopJavaScript()
+{
+    m_shouldInterruptJs = true;
 }
 
 #include "webpage.moc"

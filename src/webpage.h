@@ -258,6 +258,7 @@ public slots:
     QObject *_getFilePickerCallback();
     QObject *_getJsConfirmCallback();
     QObject *_getJsPromptCallback();
+    QObject *_getJsInterruptCallback();
     void _uploadFile(const QString &selector, const QStringList &fileNames);
     void sendEvent(const QString &type, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant(), const QString &mouseButton = QString(), const QVariant &modifierArg = QVariant());
 
@@ -459,6 +460,8 @@ public slots:
      */
     void stop();
 
+    void stopJavaScript();
+
 signals:
     void initialized();
     void loadStarted();
@@ -497,6 +500,7 @@ private:
     QString filePicker(const QString &oldFile);
     bool javaScriptConfirm(const QString &msg);
     bool javaScriptPrompt(const QString &msg, const QString &defaultValue, QString *result);
+    void javascriptInterrupt();
 
 private:
     CustomPage *m_customWebPage;
@@ -513,6 +517,7 @@ private:
     QPoint m_mousePos;
     bool m_ownsPages;
     int m_loadingProgress;
+    bool m_shouldInterruptJs;
 
     friend class Phantom;
     friend class CustomPage;
