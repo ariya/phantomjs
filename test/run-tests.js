@@ -72,6 +72,7 @@ phantom.injectJs("./system-spec.js");
 phantom.injectJs("./webkit-spec.js");
 require("./module_spec.js");
 require("./require/require_spec.js");
+require("./cjk-text-codecs.js");
 
 // Launch tests
 var jasmineEnv = jasmine.getEnv();
