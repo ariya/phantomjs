@@ -662,7 +662,7 @@ void Config::handleOption(const QString &option, const QVariant &value)
         setLocalToRemoteUrlAccessEnabled(boolValue);
     }
 
-    if (option == "max-disk-cache") {
+    if (option == "max-disk-cache-size") {
         setMaxDiskCacheSize(value.toInt());
     }
 
