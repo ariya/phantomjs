@@ -318,11 +318,18 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
     setObjectName("WebPage");
     m_callbacks = new WebpageCallbacks(this);
     m_customWebPage = new CustomPage(this);
+    Config *phantomCfg = Phantom::instance()->config();
+
+    // To grant universal access to a web page
+    // attribute "WebSecurityEnabled" must be applied during the initializing
+    // security context for Document instance. Setting up it later will not cause any effect
+    // see <qt\src\3rdparty\webkit\Source\WebCore\dom\Document.cpp:4468>
+    QWebSettings* settings = m_customWebPage->settings();
+    settings->setAttribute(QWebSettings::WebSecurityEnabled, phantomCfg->webSecurityEnabled());
+
     m_mainFrame = m_customWebPage->mainFrame();
     m_currentFrame = m_mainFrame;
     m_mainFrame->setHtml(BLANK_HTML, baseUrl);
-
-    Config *phantomCfg = Phantom::instance()->config();
 
     // NOTE: below you can see that between all the event handlers
     // we listen for, "SLOT(setupFrame())" is connected to 2 signals:
@@ -358,7 +365,7 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
     // Page size does not need to take scrollbars into account.
     m_mainFrame->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     m_mainFrame->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
-
+    
     m_customWebPage->settings()->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
     if (phantomCfg->offlineStoragePath().isEmpty()) {
         m_customWebPage->settings()->setOfflineStoragePath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
