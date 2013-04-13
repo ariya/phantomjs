@@ -207,7 +207,7 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
 
     // http://code.google.com/p/phantomjs/issues/detail?id=337
     if (op == QNetworkAccessManager::PostOperation) {
-        if (outgoingData) postData = outgoingData->peek(std::numeric_limits < qint64 >::max());
+        if (outgoingData) postData = outgoingData->peek((std::numeric_limits<qint64>::max)());
         QString contentType = req.header(QNetworkRequest::ContentTypeHeader).toString();
         if (contentType.isEmpty()) {
             req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
