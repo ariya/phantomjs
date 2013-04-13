@@ -289,8 +289,13 @@ QString Config::proxy() const
 void Config::setProxy(const QString &value)
 {
     QUrl proxyUrl(value);
+
+    if (proxyUrl.host().length() == 0) {
+        proxyUrl = QUrl("http://" + value);
+    }
+
     setProxyHost(proxyUrl.host());
-    setProxyPort(proxyUrl.port());
+    setProxyPort(proxyUrl.port(1080));
 }
 
 void Config::setProxyAuth(const QString &value)
