@@ -89,10 +89,11 @@ void JsNetworkRequest::abort()
 }
 
 
-void JsNetworkRequest::changeUrl(const QString& url)
+void JsNetworkRequest::changeUrl(const QString& address)
 {
     if (m_networkRequest) {
-        m_networkRequest->setUrl(QUrl(url));
+        QUrl url = QUrl::fromEncoded(QByteArray(address.toAscii()));
+        m_networkRequest->setUrl(url);
     }
 }
 
