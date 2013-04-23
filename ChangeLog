@@ -9,6 +9,7 @@ Some future version:
     Improvements
 
       * Ensured onResourceReceived is still fired on an error (issue 11163)
+      * Fixed rendering of CJK text by always linking the codecs (issue 10249)
 
 2013-03-20: Version 1.9.0 "Sakura"
 
