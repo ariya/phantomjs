@@ -1,5 +1,5 @@
 %define name	phantomjs
-%define version	1.8
+%define version	1.9
 %define release 1
 %define prefix	/usr
 
@@ -23,11 +23,9 @@ Canvas, and SVG. PhantomJS is created by Ariya Hidayat.
 %prep
 %setup -q
 
-%setup
+%install
 mkdir -p %{mybuilddir}%{prefix}/bin
 mkdir -p %{mybuilddir}%{prefix}/share/%{name}/examples
-
-%install
 cp bin/%{name} %{mybuilddir}%{prefix}/bin/%{name}
 cp examples/* %{mybuilddir}%{prefix}/share/%{name}/examples/
 cp CONTRIBUTING.md %{mybuilddir}%{prefix}/share/%{name}/
@@ -134,8 +132,19 @@ cp README.md %{mybuilddir}%{prefix}/share/%{name}/
 %{prefix}/share/%{name}/examples/printmargins.coffee
 %{prefix}/share/%{name}/examples/server.coffee
 %{prefix}/share/%{name}/examples/serverkeepalive.coffee
+%{prefix}/share/%{name}/examples/child_process-examples.coffee
+%{prefix}/share/%{name}/examples/child_process-examples.js
+%{prefix}/share/%{name}/examples/loadurlwithoutcss.coffee
+%{prefix}/share/%{name}/examples/loadurlwithoutcss.js
+%{prefix}/share/%{name}/examples/stdin-stdout-stderr.coffee
+%{prefix}/share/%{name}/examples/stdin-stdout-stderr.js
+%{prefix}/share/%{name}/examples/weather.coffee
+%{prefix}/share/%{name}/examples/weather.js
 
 %changelog
+* Wed Apr 24 2012 Robin Helgelin <lobbin@gmail.com>
+- updated to version 1.9
+
 * Thu Jan 24 2013 Matthew Barr <mbarr@snap-interactive.com>
 - updated to version 1.8
 
