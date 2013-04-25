@@ -44,6 +44,8 @@ cp README.md %{mybuilddir}%{prefix}/share/%{name}/
 %{prefix}/share/%{name}/README.md
 %{prefix}/share/%{name}/examples/arguments.coffee
 %{prefix}/share/%{name}/examples/arguments.js
+%{prefix}/share/%{name}/examples/child_process-examples.coffee
+%{prefix}/share/%{name}/examples/child_process-examples.js
 %{prefix}/share/%{name}/examples/colorwheel.coffee
 %{prefix}/share/%{name}/examples/colorwheel.js
 %{prefix}/share/%{name}/examples/countdown.coffee
@@ -69,6 +71,8 @@ cp README.md %{mybuilddir}%{prefix}/share/%{name}/
 %{prefix}/share/%{name}/examples/ipgeocode.js
 %{prefix}/share/%{name}/examples/loadspeed.coffee
 %{prefix}/share/%{name}/examples/loadspeed.js
+%{prefix}/share/%{name}/examples/loadurlwithoutcss.coffee
+%{prefix}/share/%{name}/examples/loadurlwithoutcss.js
 %{prefix}/share/%{name}/examples/modernizr.js
 %{prefix}/share/%{name}/examples/module.js
 %{prefix}/share/%{name}/examples/movies.coffee
@@ -107,6 +111,8 @@ cp README.md %{mybuilddir}%{prefix}/share/%{name}/
 %{prefix}/share/%{name}/examples/simpleserver.js
 %{prefix}/share/%{name}/examples/sleepsort.coffee
 %{prefix}/share/%{name}/examples/sleepsort.js
+%{prefix}/share/%{name}/examples/stdin-stdout-stderr.coffee
+%{prefix}/share/%{name}/examples/stdin-stdout-stderr.js
 %{prefix}/share/%{name}/examples/technews.coffee
 %{prefix}/share/%{name}/examples/technews.js
 %{prefix}/share/%{name}/examples/tweets.coffee
@@ -122,6 +128,8 @@ cp README.md %{mybuilddir}%{prefix}/share/%{name}/
 %{prefix}/share/%{name}/examples/waitfor.js
 %{prefix}/share/%{name}/examples/walk_through_frames.coffee
 %{prefix}/share/%{name}/examples/walk_through_frames.js
+%{prefix}/share/%{name}/examples/weather.coffee
+%{prefix}/share/%{name}/examples/weather.js
 %{prefix}/share/%{name}/examples/features.coffee
 %{prefix}/share/%{name}/examples/module.coffee
 %{prefix}/share/%{name}/examples/page_events.coffee
