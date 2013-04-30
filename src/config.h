@@ -61,6 +61,9 @@ class Config: public QObject
     Q_PROPERTY(QString sslProtocol READ sslProtocol WRITE setSslProtocol)
     Q_PROPERTY(QString sslCiphers READ sslCiphers WRITE setSslCiphers)
     Q_PROPERTY(QString sslCertificatesPath READ sslCertificatesPath WRITE setSslCertificatesPath)
+    Q_PROPERTY(QString sslClientCertificateFile READ sslClientCertificateFile WRITE setSslClientCertificateFile)
+    Q_PROPERTY(QString sslClientKeyFile READ sslClientKeyFile WRITE setSslClientKeyFile)
+    Q_PROPERTY(QByteArray sslClientKeyPassphrase READ sslClientKeyPassphrase WRITE setSslClientKeyPassphrase)
     Q_PROPERTY(QString webdriver READ webdriver WRITE setWebdriver)
     Q_PROPERTY(QString webdriverLogFile READ webdriverLogFile WRITE setWebdriverLogFile)
     Q_PROPERTY(QString webdriverLogLevel READ webdriverLogLevel WRITE setWebdriverLogLevel)
@@ -171,6 +174,15 @@ public:
     void setSslCertificatesPath(const QString& sslCertificatesPath);
     QString sslCertificatesPath() const;
 
+    void setSslClientCertificateFile(const QString& sslClientCertificateFile);
+    QString sslClientCertificateFile() const;
+
+    void setSslClientKeyFile(const QString& sslClientKeyFile);
+    QString sslClientKeyFile() const;
+
+    void setSslClientKeyPassphrase(const QByteArray& sslClientKeyPassphrase);
+    QByteArray sslClientKeyPassphrase() const;
+
     void setWebdriver(const QString& webdriverConfig);
     QString webdriver() const;
     bool isWebdriverMode() const;
@@ -232,6 +244,9 @@ private:
     QString m_sslProtocol;
     QString m_sslCiphers;
     QString m_sslCertificatesPath;
+    QString m_sslClientCertificateFile;
+    QString m_sslClientKeyFile;
+    QByteArray m_sslClientKeyPassphrase;
     QString m_webdriverIp;
     QString m_webdriverPort;
     QString m_webdriverLogFile;

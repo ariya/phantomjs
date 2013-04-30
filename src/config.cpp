@@ -70,6 +70,9 @@ static const struct QCommandLineConfigEntry flags[] = {
     { QCommandLine::Option, '\0', "ssl-protocol", "Selects a specific SSL protocol version to offer. Values (case insensitive): TLSv1.2, TLSv1.1, TLSv1.0, TLSv1 (same as v1.0), SSLv3, or ANY. Default is to offer all that Qt thinks are secure (SSLv3 and up). Not all values may be supported, depending on the system OpenSSL library.", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-ciphers", "Sets supported TLS/SSL ciphers. Argument is a colon-separated list of OpenSSL cipher names (macros like ALL, kRSA, etc. may not be used). Default matches modern browsers.", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-certificates-path", "Sets the location for custom CA certificates (if none set, uses system default)", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "ssl-client-certificate-file", "Sets the location of a client certificate", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "ssl-client-key-file", "Sets the location of a clients' private key", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "ssl-client-key-passphrase", "Sets the passphrase for the clients' private key", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "webdriver", "Starts in 'Remote WebDriver mode' (embedded GhostDriver): '[[<IP>:]<PORT>]' (default '127.0.0.1:8910') ", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "webdriver-logfile", "File where to write the WebDriver's Log (default 'none') (NOTE: needs '--webdriver') ", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "webdriver-loglevel", "WebDriver Logging Level: (supported: 'ERROR', 'WARN', 'INFO', 'DEBUG') (default 'INFO') (NOTE: needs '--webdriver') ", QCommandLine::Optional },
@@ -589,6 +592,9 @@ void Config::resetToDefaults()
                     ":RC4-SHA"
                     ":RC4-MD5");
     m_sslCertificatesPath.clear();
+    m_sslClientCertificateFile.clear();
+    m_sslClientKeyFile.clear();
+    m_sslClientKeyPassphrase.clear();
     m_webdriverIp = QString();
     m_webdriverPort = QString();
     m_webdriverLogFile = QString();
@@ -756,6 +762,15 @@ void Config::handleOption(const QString& option, const QVariant& value)
     if (option == "ssl-certificates-path") {
         setSslCertificatesPath(value.toString());
     }
+    if (option == "ssl-client-certificate-file") {
+        setSslClientCertificateFile(value.toString());
+    }
+    if (option == "ssl-client-key-file") {
+        setSslClientKeyFile(value.toString());
+    }
+    if (option == "ssl-client-key-passphrase") {
+        setSslClientKeyPassphrase(value.toByteArray());
+    }
     if (option == "webdriver") {
         setWebdriver(value.toString().length() > 0 ? value.toString() : DEFAULT_WEBDRIVER_CONFIG);
     }
@@ -825,3 +840,34 @@ void Config::setSslCertificatesPath(const QString& sslCertificatesPath)
         m_sslCertificatesPath = sslCertificatesPath;
     }
 }
+
+QString Config::sslClientCertificateFile() const
+{
+    return m_sslClientCertificateFile;
+}
+
+void Config::setSslClientCertificateFile(const QString& sslClientCertificateFile)
+{
+    m_sslClientCertificateFile = sslClientCertificateFile;
+}
+
+QString Config::sslClientKeyFile() const
+{
+    return m_sslClientKeyFile;
+}
+
+void Config::setSslClientKeyFile(const QString& sslClientKeyFile)
+{
+    m_sslClientKeyFile = sslClientKeyFile;
+}
+
+QByteArray Config::sslClientKeyPassphrase() const
+{
+    return m_sslClientKeyPassphrase;
+}
+
+void Config::setSslClientKeyPassphrase(const QByteArray& sslClientKeyPassphrase)
+{
+    m_sslClientKeyPassphrase = sslClientKeyPassphrase;
+}
+
