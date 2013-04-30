@@ -142,7 +142,10 @@ cp README.md %{mybuilddir}%{prefix}/share/%{name}/
 %{prefix}/share/%{name}/examples/weather.js
 
 %changelog
-* Wed Apr 24 2012 Robin Helgelin <lobbin@gmail.com>
+* Tue Apr 30 2013 Eric Heydenberk <heydenberk@gmail.com>
+- add missing filenames for examples to files section
+
+* Wed Apr 24 2013 Robin Helgelin <lobbin@gmail.com>
 - updated to version 1.9
 
 * Thu Jan 24 2013 Matthew Barr <mbarr@snap-interactive.com>
