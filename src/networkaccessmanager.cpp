@@ -36,6 +36,7 @@
 #include <QNetworkRequest>
 #include <QSslSocket>
 #include <QSslCertificate>
+#include <QSslKey>
 #include <QRegExp>
 #include <limits>
 
@@ -142,6 +143,33 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
               config->sslCertificatesPath(), QSsl::Pem, QRegExp::Wildcard);
 
             m_sslConfiguration.setCaCertificates(caCerts);
+        }
+
+        if (!config->sslClientCertificateFile().isEmpty()) {
+            QList<QSslCertificate> clientCerts = QSslCertificate::fromPath(
+                config->sslClientCertificateFile(), QSsl::Pem, QRegExp::Wildcard);
+
+            if (!clientCerts.isEmpty()) {
+                QSslCertificate clientCert = clientCerts.first();
+
+                QList<QSslCertificate> caCerts = m_sslConfiguration.caCertificates();
+                caCerts.append(clientCert);
+                m_sslConfiguration.setCaCertificates(caCerts);
+                m_sslConfiguration.setLocalCertificate(clientCert);
+
+                QFile *keyFile = NULL;
+                if (config->sslClientKeyFile().isEmpty()) {
+                    keyFile = new QFile(config->sslClientCertificateFile());
+                } else {
+                    keyFile = new QFile(config->sslClientKeyFile());
+                }
+
+                if (keyFile->open(QIODevice::ReadOnly | QIODevice::Text)) {
+                    QSslKey key(keyFile->readAll(), QSsl::Rsa, QSsl::Pem, QSsl::PrivateKey, config->sslClientKeyPassphrase());
+
+                    m_sslConfiguration.setPrivateKey(key);
+                }
+            }
         }
     }
 
