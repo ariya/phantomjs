@@ -104,10 +104,10 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
     , m_ignoreSslErrors(config->ignoreSslErrors())
     , m_authAttempts(0)
     , m_maxAuthAttempts(3)
+    , m_resourceTimeout(0)
     , m_idCounter(0)
     , m_networkDiskCache(0)
     , m_sslConfiguration(QSslConfiguration::defaultConfiguration())
-    , m_resourceTimeout(0)
 {
     setCookieJar(CookieJar::instance());
 
