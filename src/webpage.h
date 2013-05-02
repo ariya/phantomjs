@@ -258,6 +258,7 @@ public slots:
     QObject *_getFilePickerCallback();
     QObject *_getJsConfirmCallback();
     QObject *_getJsPromptCallback();
+    QObject *_getFileDownloadCallback();
     void _uploadFile(const QString &selector, const QStringList &fileNames);
     void sendEvent(const QString &type, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant(), const QString &mouseButton = QString(), const QVariant &modifierArg = QVariant());
 
@@ -474,11 +475,16 @@ signals:
     void navigationRequested(const QUrl &url, const QString &navigationType, bool navigationLocked, bool isMainFrame);
     void rawPageCreated(QObject *page);
     void closing(QObject *page);
+    void fileDownloadRequested(const QUrl &url, const QVariantMap& responseData);
+    void fileDownloadFinished();
+    void fileDownloadError(const QString &error);
 
 private slots:
     void finish(bool ok);
     void setupFrame(QWebFrame *frame = NULL);
     void updateLoadingProgress(int progress);
+    void downloadRequested(QNetworkReply* networkReply);
+    void downloadFinished();
 
 private:
     QImage renderImage();
@@ -497,6 +503,7 @@ private:
     QString filePicker(const QString &oldFile);
     bool javaScriptConfirm(const QString &msg);
     bool javaScriptPrompt(const QString &msg, const QString &defaultValue, QString *result);
+    QString fileDownloadPrompt(const QUrl& url, const QVariantMap& responseData);
 
 private:
     CustomPage *m_customWebPage;
@@ -513,6 +520,7 @@ private:
     QPoint m_mousePos;
     bool m_ownsPages;
     int m_loadingProgress;
+    QMap<QNetworkReply*, QString> m_downloadingFiles;
 
     friend class Phantom;
     friend class CustomPage;
