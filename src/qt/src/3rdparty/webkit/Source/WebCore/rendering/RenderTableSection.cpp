@@ -496,23 +496,34 @@ int RenderTableSection::layoutRows(int toAdd, int headHeight, int footHeight)
 
     LayoutStateMaintainer statePusher(view(), this, IntSize(x(), y()), style()->isFlippedBlocksWritingMode());
 
-    WTF::Vector<int> logicalHeightsForPrinting;
-    // make sure that rows do not overlap a page break
+    // Calculate logical row heights
+    Vector<int> logicalRowHeights;
+    logicalRowHeights.resize(totalRows);
+    for (int r = 0; r < totalRows; r++) {
+        logicalRowHeights[r] = m_rowPos[r + 1] - m_rowPos[r] - vspacing;
+    }
+
+    // Make sure that cell contents do not overlap a page break
     if (view()->layoutState()->pageLogicalHeight()) {
-        logicalHeightsForPrinting.resize(totalRows);
+        LayoutState* layoutState = view()->layoutState();
+        int pageLogicalHeight = layoutState->m_pageLogicalHeight;
         int pageOffset = 0;
-        for(int r = 0; r < totalRows; ++r) {
-            const int childLogicalHeight = m_rowPos[r + 1] - m_rowPos[r] - (m_grid[r].rowRenderer ? vspacing : 0);
-            logicalHeightsForPrinting[r] = childLogicalHeight;
-            LayoutState* layoutState = view()->layoutState();
-            const int pageLogicalHeight = layoutState->m_pageLogicalHeight;
-            if (childLogicalHeight < pageLogicalHeight - footHeight) {
-                const IntSize delta = layoutState->m_layoutOffset - layoutState->m_pageOffset;
-                const int logicalOffset = m_rowPos[r] + pageOffset;
-                const int offset = isHorizontalWritingMode() ? delta.height() : delta.width();
-                const int remainingLogicalHeight = (pageLogicalHeight - (offset + logicalOffset) % pageLogicalHeight) % pageLogicalHeight;
-                if (remainingLogicalHeight - footHeight < childLogicalHeight) {
+
+        for (int r = 0; r < totalRows; ++r) {
+            int rowLogicalOffset = m_rowPos[r] + pageOffset;
+            int remainingLogicalHeight = pageLogicalHeight - layoutState->pageLogicalOffset(rowLogicalOffset) % pageLogicalHeight;
+
+            for (int c = 0; c < nEffCols; c++) {
+                CellStruct& cs = cellAt(r, c);
+                RenderTableCell* cell = cs.primaryCell();
+
+                if (!cell || cs.inColSpan || cell->row() != r)
+                    continue;
+
+                int cellRequiredHeight = cell->contentLogicalHeight() + cell->paddingTop(false) + cell->paddingBottom(false);
+                if (max(logicalRowHeights[r], cellRequiredHeight) > remainingLogicalHeight - footHeight - vspacing) {
                     pageOffset += remainingLogicalHeight + headHeight;
+                    break;
                 }
             }
             m_rowPos[r] += pageOffset;
@@ -525,11 +536,7 @@ int RenderTableSection::layoutRows(int toAdd, int headHeight, int footHeight)
         if (RenderTableRow* rowRenderer = m_grid[r].rowRenderer) {
             rowRenderer->setLocation(0, m_rowPos[r]);
             rowRenderer->setLogicalWidth(logicalWidth());
-            if (view()->layoutState()->pageLogicalHeight()) {
-                rowRenderer->setLogicalHeight(logicalHeightsForPrinting[r]);
-            } else {
-                rowRenderer->setLogicalHeight(m_rowPos[r + 1] - m_rowPos[r] - vspacing);
-            }
+            rowRenderer->setLogicalHeight(logicalRowHeights[r]);
             rowRenderer->updateLayerTransform();
         }
 
@@ -541,8 +548,8 @@ int RenderTableSection::layoutRows(int toAdd, int headHeight, int footHeight)
                 continue;
 
             rindx = cell->row();
-            if (view()->layoutState()->pageLogicalHeight() && cell->rowSpan() == 1) {
-                rHeight = logicalHeightsForPrinting[rindx];
+            if (cell->rowSpan() == 1) {
+                rHeight = logicalRowHeights[rindx];
             } else {
                 rHeight = m_rowPos[rindx + cell->rowSpan()] - m_rowPos[rindx] - vspacing;
             }
