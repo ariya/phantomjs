@@ -37,12 +37,14 @@
 #include <QSslSocket>
 #include <QSslCertificate>
 #include <QRegExp>
-#include <limits>
 
 #include "phantom.h"
 #include "config.h"
 #include "cookiejar.h"
 #include "networkaccessmanager.h"
+
+// 10 MB
+const qint64 MAX_REQUEST_POST_BODY_SIZE = 10 * 1000 * 1000;
 
 static const char *toString(QNetworkAccessManager::Operation op)
 {
@@ -208,7 +210,7 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
 
     // http://code.google.com/p/phantomjs/issues/detail?id=337
     if (op == QNetworkAccessManager::PostOperation) {
-        if (outgoingData) postData = outgoingData->peek((std::numeric_limits<qint64>::max)());
+        if (outgoingData) postData = outgoingData->peek(MAX_REQUEST_POST_BODY_SIZE);
         QString contentType = req.header(QNetworkRequest::ContentTypeHeader).toString();
         if (contentType.isEmpty()) {
             req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
