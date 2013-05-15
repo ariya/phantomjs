@@ -5,6 +5,7 @@ Some future version:
     New features
 
       * Added POST data in the resource request (issue 10158)
+      * Added support for HTTP header change for every request (issue 11299)
 
     Improvements
 
