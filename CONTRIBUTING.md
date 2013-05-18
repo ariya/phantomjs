@@ -24,7 +24,7 @@ In the commit message:
 
 **Bug fixing**. If you have a fix for a bug, please attach your patch in the corresponding issue in the [issue tracker](https://github.com/ariya/phantomjs/issues). If there is no entry for the bug yet, then please create a new one. If you are convenient working with Git, see the Get Ready section below on how to submit your change.
 
-**Improvement and feature request**. If you have an improvement idea, please send an email to the [mailing list](http://groups.google.com/group/phantomjs) (preferable than contacting the developers directly) so that other people can give their insights and opinions. This is also important to avoid duplicate work.
+**Improvement and feature request**. If you have an improvement idea, please send an email to the [mailing list](http://groups.google.com/group/phantomjs) (rather than contacting the developers directly) so that other people can give their insights and opinions. This is also important to avoid duplicate work.
 
 **Task management**. Once the feature idea is agreed upon and translated into concrete actions and tasks, please use the [issue tracker](https://github.com/ariya/phantomjs/issues) to create an issue for each individual task. Further technical discussion about the task and the implementation details should be carried out in the issue tracker.
 
