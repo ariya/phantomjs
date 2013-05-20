@@ -9,8 +9,13 @@ Some future version:
 
     Improvements
 
-      * Ensured onResourceReceived is still fired on an error (issue 11163)
       * Fixed rendering of CJK text by always linking the codecs (issue 10249)
+      * Ensured onResourceReceived is still fired on an error (issue 11163)
+      * Fixed possible crash in handling network requests (issue 11252)
+
+    Examples
+
+      * Netsniff example should exit when fails to load (issue 11333)
 
 2013-03-20: Version 1.9.0 "Sakura"
 
