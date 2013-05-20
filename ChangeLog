@@ -8,6 +8,7 @@ Version 1.9.1
       * Ensured that onResourceReceived will be always invoked (issue 11163)
       * Fixed module loading from an absolute path on Windows (issue 11165)
       * Fixed typo in the command-line option for setting the cache size (11219)
+      * Fixed possible crash when handling network requests (issue 11252, 11388)
 
 2013-03-20: Version 1.9.0 "Sakura"
 
