@@ -23,6 +23,10 @@ Breakpad - http://code.google.com/p/google-breakpad/
 License: BSD.
 Reference: http://code.google.com/p/google-breakpad/source/browse/trunk/COPYING.
 
+OpenSSL - http://www.openssl.org/
+License: OpenSSL License, SSLeay License.
+Reference: http://www.openssl.org/source/license.html.
+
 Linenoise - https://github.com/tadmarshall/linenoise
 License: BSD.
 Reference: https://github.com/tadmarshall/linenoise/blob/master/linenoise.h.
