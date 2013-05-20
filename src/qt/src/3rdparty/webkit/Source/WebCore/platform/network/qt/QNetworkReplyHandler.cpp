@@ -178,10 +178,13 @@ void QNetworkReplyHandlerCallQueue::unlock()
     flush();
 }
 
-void QNetworkReplyHandlerCallQueue::setDeferSignals(bool defer)
+void QNetworkReplyHandlerCallQueue::setDeferSignals(bool defer, bool sync)
 {
     m_deferSignals = defer;
-    flush();
+    if (sync)
+        flush();
+    else
+        QMetaObject::invokeMethod(this, "flush",  Qt::QueuedConnection);
 }
 
 void QNetworkReplyHandlerCallQueue::flush()
@@ -238,7 +241,6 @@ QNetworkReply* QNetworkReplyWrapper::release()
     m_reply = 0;
     m_sniffer = 0;
 
-    reply->setParent(0);
     return reply;
 }
 
