@@ -114,10 +114,10 @@ void Phantom::init()
             }
 
             if(!m_config.proxyAuthUser().isEmpty() && !m_config.proxyAuthPass().isEmpty()) {
-                QNetworkProxy proxy(networkProxyType, m_config.proxyHost(), m_config.proxyPort(), m_config.proxyAuthUser(), m_config.proxyAuthPass());
+                QNetworkProxy proxy(networkProxyType, qPrintable(m_config.proxyHost()), m_config.proxyPort(), m_config.proxyAuthUser(), m_config.proxyAuthPass());
                 QNetworkProxy::setApplicationProxy(proxy);
             } else {
-                QNetworkProxy proxy(networkProxyType, m_config.proxyHost(), m_config.proxyPort());
+                QNetworkProxy proxy(networkProxyType, qPrintable(m_config.proxyHost()), m_config.proxyPort());
                 QNetworkProxy::setApplicationProxy(proxy);
             }
         }
