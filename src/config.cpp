@@ -288,20 +288,14 @@ QString Config::proxy() const
 
 void Config::setProxy(const QString &value)
 {
-    QString proxyHost = value;
-    int proxyPort = 1080;
+    QUrl proxyUrl(value);
 
-    if (proxyHost.lastIndexOf(':') > 0) {
-        bool ok = true;
-        int port = proxyHost.mid(proxyHost.lastIndexOf(':') + 1).toInt(&ok);
-        if (ok) {
-            proxyHost = proxyHost.left(proxyHost.lastIndexOf(':')).trimmed();
-            proxyPort = port;
-        }
+    if (proxyUrl.host().length() == 0) {
+        proxyUrl = QUrl("http://" + value);
     }
 
-    setProxyHost(proxyHost);
-    setProxyPort(proxyPort);
+    setProxyHost(proxyUrl.host());
+    setProxyPort(proxyUrl.port(1080));
 }
 
 void Config::setProxyAuth(const QString &value)
