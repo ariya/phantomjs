@@ -283,25 +283,17 @@ void Config::setProxyType(const QString value)
 
 QString Config::proxy() const
 {
-    return proxyHost() + ":" + proxyPort();
+    return m_proxyHost + ":" + QString::number(m_proxyPort);
 }
 
 void Config::setProxy(const QString &value)
 {
-    QString proxyHost = value;
-    int proxyPort = 1080;
+    QUrl proxyUrl = QUrl::fromUserInput(value);
 
-    if (proxyHost.lastIndexOf(':') > 0) {
-        bool ok = true;
-        int port = proxyHost.mid(proxyHost.lastIndexOf(':') + 1).toInt(&ok);
-        if (ok) {
-            proxyHost = proxyHost.left(proxyHost.lastIndexOf(':')).trimmed();
-            proxyPort = port;
-        }
+    if (proxyUrl.isValid()) {
+        setProxyHost(proxyUrl.host());
+        setProxyPort(proxyUrl.port(1080));
     }
-
-    setProxyHost(proxyHost);
-    setProxyPort(proxyPort);
 }
 
 void Config::setProxyAuth(const QString &value)
