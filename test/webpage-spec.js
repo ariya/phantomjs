@@ -1071,16 +1071,19 @@ describe("WebPage object", function() {
         var page = require('webpage').create();
         var url = 'https://www.google.com/m';
 
-        var handled = false;
+        var loaded = false, handled = false;
 
         runs(function() {
             page.open(url, function(status) {
+                loaded = true;
                 expect(status == 'success').toEqual(true);
                 handled = true;
             });
         });
 
-        waits(3000);
+        waitsFor(function () {
+            return loaded;
+        }, 'Can not load ' + url, 3000);
 
         runs(function() {
             expect(handled).toEqual(true);
