@@ -1093,7 +1093,7 @@ describe("WebPage object", function() {
 
     it('should open url using secure connection', function() {
         var page = require('webpage').create();
-        var url = 'https://en.wikipedia.org';
+        var url = 'https://www.google.com/m';
 
         var handled = false;
 
