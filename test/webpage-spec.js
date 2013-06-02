@@ -1180,8 +1180,9 @@ describe("WebPage object", function() {
 
            page.open(url, function (status) {
                 expect(status == 'success').toEqual(true);
-                    handled = true;
-                });
+                handled = true;
+                server.close();
+            });
         });
     });
 
@@ -1300,6 +1301,7 @@ describe("WebPage object", function() {
         runs(function() {
             expect(handled).toEqual(2);
             page.close();
+            server.close();
         });
     });
 });
