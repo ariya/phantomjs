@@ -37,6 +37,7 @@
 #include <QSslSocket>
 #include <QSslCertificate>
 #include <QRegExp>
+#include <QWebFrame>
 
 #include "phantom.h"
 #include "config.h"
@@ -251,6 +252,9 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     if (op == QNetworkAccessManager::PostOperation) data["postData"] = postData.data();
     data["time"] = QDateTime::currentDateTime();
 
+    QWebFrame *frame = qobject_cast<QWebFrame *>(request.originatingObject());
+    data["frameName"] = frame->frameName();
+
     JsNetworkRequest jsNetworkRequest(&req, this);
     emit resourceRequested(data, &jsNetworkRequest);
 
@@ -307,7 +311,7 @@ void NetworkAccessManager::handleStarted()
         return;
 
     m_started += reply;
-    
+
     QVariantList headers;
     foreach (QByteArray headerName, reply->rawHeaderList()) {
         QVariantMap header;
@@ -327,6 +331,9 @@ void NetworkAccessManager::handleStarted()
     data["redirectURL"] = reply->header(QNetworkRequest::LocationHeader);
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
+
+    QWebFrame *frame = qobject_cast<QWebFrame *>(reply->request().originatingObject());
+    data["frameName"] = frame->frameName();
 
     emit resourceReceived(data);
 }
@@ -378,6 +385,9 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply, const QVariant &
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
 
+    QWebFrame *frame = qobject_cast<QWebFrame *>(reply->request().originatingObject());
+    data["frameName"] = frame->frameName();
+
     m_ids.remove(reply);
     m_started.remove(reply);
 
@@ -408,6 +418,9 @@ void NetworkAccessManager::handleNetworkError()
     data["url"] = reply->url().toString();
     data["errorCode"] = reply->error();
     data["errorString"] = reply->errorString();
+
+    QWebFrame *frame = qobject_cast<QWebFrame *>(reply->request().originatingObject());
+    data["frameName"] = frame->frameName();
 
     emit resourceError(data);
 }
