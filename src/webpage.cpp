@@ -170,6 +170,7 @@ protected:
 
     bool acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, QWebPage::NavigationType type) {
         bool isMainFrame = (frame == m_webPage->m_mainFrame);
+        const QString frameName = frame->frameName();
 
         QString navigationType = "Undefined";
         switch (type) {
@@ -193,12 +194,13 @@ protected:
             break;
         }
         bool isNavigationLocked = m_webPage->navigationLocked();
-        
+
         emit m_webPage->navigationRequested(
                     request.url(),                   //< Requested URL
                     navigationType,                  //< Navigation Type
                     !isNavigationLocked,             //< Will navigate (not locked)?
-                    isMainFrame);                    //< Is main frame?
+                    isMainFrame,                     //< Is main frame?
+                    frameName);                      //< Frame that originated request
 
         return !isNavigationLocked;
     }

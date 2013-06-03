@@ -1897,7 +1897,7 @@ describe('WebPage navigation events', function() {
         var isHandled = false;
 
         runs(function() {
-            page.onNavigationRequested = function(url, navigationType, navigationLocked, isMainFrame) {
+            page.onNavigationRequested = function(url, navigationType, navigationLocked, isMainFrame, frameName) {
                 if (!page.testStarted) {
                     return;
                 }
