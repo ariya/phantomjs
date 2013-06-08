@@ -17,6 +17,17 @@ Some future version:
 
       * Netsniff example should exit when fails to load (issue 11333)
 
+2013-06-04: Version 1.9.1
+
+    Critical bug fixes:
+
+      * Fixed problems with specifying proxy server (issue 10811, 11117)
+      * Fixed UTF-8 encoding with system.stdout and system.stderr (issue 11162)
+      * Ensured that onResourceReceived will be always invoked (issue 11163)
+      * Fixed module loading from an absolute path on Windows (issue 11165)
+      * Fixed typo in the command-line option for setting the cache size (11219)
+      * Fixed possible crash when handling network requests (issue 11252, 11338)
+
 2013-03-20: Version 1.9.0 "Sakura"
 
     New features
