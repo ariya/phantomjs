@@ -329,6 +329,28 @@ void RenderTable::layout()
     if (m_caption)
         m_caption->layoutIfNeeded();
 
+    // Bump table to next page if we can't fit the caption, thead and first body cell
+    setPaginationStrut(0);
+    if (view()->layoutState()->pageLogicalHeight()) {
+        LayoutState* layoutState = view()->layoutState();
+        const int pageLogicalHeight = layoutState->m_pageLogicalHeight;
+        const int remainingLogicalHeight = pageLogicalHeight - layoutState->pageLogicalOffset(0) % pageLogicalHeight;
+        if (remainingLogicalHeight > 0) {
+            int requiredHeight = headHeight;
+            if (m_caption && m_caption->style()->captionSide() != CAPBOTTOM) {
+                requiredHeight += m_caption->logicalHeight() + m_caption->marginBefore() + m_caption->marginAfter();
+            }
+            if (m_firstBody) {
+                // FIXME: Calculate maximum required height across all cells in first body row
+                RenderTableCell* firstCell = m_firstBody->primaryCellAt(0, 0);
+                requiredHeight += firstCell->contentLogicalHeight() + firstCell->paddingTop(false) + firstCell->paddingBottom(false) + vBorderSpacing();
+            }
+            if (requiredHeight > remainingLogicalHeight) {
+                setPaginationStrut(remainingLogicalHeight);
+            }
+        }
+    }
+
     // If any table section moved vertically, we will just repaint everything from that
     // section down (it is quite unlikely that any of the following sections
     // did not shift).
@@ -361,12 +383,6 @@ void RenderTable::layout()
         computedLogicalHeight = computePercentageLogicalHeight(logicalHeightLength);
     computedLogicalHeight = max(0, computedLogicalHeight);
 
-    for (RenderObject* child = firstChild(); child; child = child->nextSibling()) {
-        if (child->isTableSection())
-            // FIXME: Distribute extra height between all table body sections instead of giving it all to the first one.
-            toRenderTableSection(child)->layoutRows(child == m_firstBody ? max(0, computedLogicalHeight - totalSectionLogicalHeight) : 0, headHeight, footHeight);
-    }
-
     if (!m_firstBody && computedLogicalHeight > totalSectionLogicalHeight && !document()->inQuirksMode()) {
         // Completely empty tables (with no sections or anything) should at least honor specified height
         // in strict mode.
@@ -385,6 +401,9 @@ void RenderTable::layout()
             movedSectionLogicalTop = min(logicalHeight(), section->logicalTop()) + (style()->isHorizontalWritingMode() ? section->minYVisualOverflow() : section->minXVisualOverflow());
         }
         section->setLogicalLocation(sectionLogicalLeft, logicalHeight());
+
+        // FIXME: Distribute extra height between all table body sections instead of giving it all to the first one.
+        section->layoutRows(section == m_firstBody ? max(0, computedLogicalHeight - totalSectionLogicalHeight) : 0, section == m_head ? 0 : headHeight, section == m_foot ? 0 : footHeight);
 
         setLogicalHeight(logicalHeight() + section->logicalHeight());
         section = sectionBelow(section);
@@ -521,7 +540,7 @@ void RenderTable::paintObject(PaintInfo& paintInfo, int tx, int ty)
         // re-paint header/footer if table is split over multiple pages
         if (m_head) {
             IntPoint childPoint = flipForWritingMode(m_head, IntPoint(tx, ty), ParentToChildFlippingAdjustment);
-            if (!info.rect.contains(childPoint.x() + m_head->x(), childPoint.y() + m_head->y())) {
+            if (info.rect.y() > childPoint.y() + m_head->y()) {
                 repaintedHeadPoint = IntPoint(childPoint.x(), info.rect.y() - m_head->y());
                 repaintedHead = true;
                 dynamic_cast<RenderObject*>(m_head)->paint(info, repaintedHeadPoint.x(), repaintedHeadPoint.y());
@@ -529,7 +548,7 @@ void RenderTable::paintObject(PaintInfo& paintInfo, int tx, int ty)
         }
         if (m_foot) {
             IntPoint childPoint = flipForWritingMode(m_foot, IntPoint(tx, ty), ParentToChildFlippingAdjustment);
-            if (!info.rect.contains(childPoint.x() + m_foot->x(), childPoint.y() + m_foot->y())) {
+            if (info.rect.y() + info.rect.height() < childPoint.y() + m_foot->y()) {
                 // find actual end of table on current page
                 int dy = 0;
                 const int max_dy = info.rect.y() + info.rect.height();
