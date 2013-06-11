@@ -39,6 +39,7 @@
 #include <QRegExp>
 #include <QString>
 #include <QByteArray>
+#include <QTemporaryFile>
 
 #include "phantom.h"
 #include "config.h"
@@ -312,14 +313,17 @@ void NetworkAccessManager::handleStarted()
         QByteArray pathBytes = qgetenv("PHANTOMJS_SAVE_UNSUPPORTED_FILES_DIR");
         if (pathBytes.size() > 0) {
           QString path = QString(pathBytes);
-          path.append("/");
+          path.append("/XXXXXX.");
           path.append(fn);
-
           qDebug() << "saving to: " << path;
-          QFile file(path);
-          file.open(QIODevice::WriteOnly);
-          file.write(reply->peek(reply->size()));
-          file.close();
+          QTemporaryFile *file = new QTemporaryFile(path);
+          if (!file->open()) {
+            qCritical() << "Filed to write file to " << path;
+          }
+          // file.open(QIODevice::WriteOnly);
+          file->write(reply->peek(reply->size()));
+          qDebug() << "---- writing data to: " << file->fileName();
+          file->close();
         }
       }
     }
