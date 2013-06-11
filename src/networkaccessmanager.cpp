@@ -37,6 +37,8 @@
 #include <QSslSocket>
 #include <QSslCertificate>
 #include <QRegExp>
+#include <QString>
+#include <QByteArray>
 
 #include "phantom.h"
 #include "config.h"
@@ -299,6 +301,27 @@ void NetworkAccessManager::handleStarted()
         header["name"] = QString::fromUtf8(headerName);
         header["value"] = QString::fromUtf8(reply->rawHeader(headerName));
         headers += header;
+    }
+
+    if (reply->rawHeader("content-disposition").size() > 0) {
+      QString disPos = QString(reply->rawHeader("content-disposition"));
+      if (disPos.indexOf("attachment") >= 0) {
+        int firstQuoteIdx = disPos.indexOf("\"");
+        int lastQuoteIdx =  disPos.indexOf("\"", firstQuoteIdx + 1);
+        QString fn = disPos.mid(firstQuoteIdx + 1, lastQuoteIdx - firstQuoteIdx - 1);
+        QByteArray pathBytes = qgetenv("PHANTOMJS_SAVE_UNSUPPORTED_FILES_DIR");
+        if (pathBytes.size() > 0) {
+          QString path = QString(pathBytes);
+          path.append("/");
+          path.append(fn);
+
+          qDebug() << "saving to: " << path;
+          QFile file(path);
+          file.open(QIODevice::WriteOnly);
+          file.write(reply->peek(reply->size()));
+          file.close();
+        }
+      }
     }
 
     QVariantMap data;
