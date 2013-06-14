@@ -170,7 +170,13 @@ protected:
 
     bool acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, QWebPage::NavigationType type) {
         bool isMainFrame = (frame == m_webPage->m_mainFrame);
-        const QString frameName = frame->frameName();
+
+        QString frameName = "";
+
+        // only use frameName() on non-null frame
+        if (frame) {
+            frameName = frame->frameName();
+        }
 
         QString navigationType = "Undefined";
         switch (type) {
