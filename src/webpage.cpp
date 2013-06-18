@@ -110,6 +110,10 @@ public:
         }
     }
 
+    void setCookieJar(CookieJar *cookieJar) {
+        m_cookieJar = cookieJar;
+    }
+
 public slots:
     bool shouldInterruptJavaScript() {
         m_webPage->javascriptInterrupt();
@@ -219,6 +223,7 @@ protected:
             newPage = new WebPage(Phantom::instance());
             Phantom::instance()->m_pages.append(newPage);
         }
+        newPage->setCookieJar(m_cookieJar);
 
         // Apply default settings
         newPage->applySettings(Phantom::instance()->defaultPageSettings());
@@ -235,6 +240,7 @@ private:
     QString m_userAgent;
     QStringList m_uploadFiles;
     friend class WebPage;
+    CookieJar *m_cookieJar;
 };
 
 
@@ -775,36 +781,51 @@ QVariantMap WebPage::customHeaders() const
     return m_networkAccessManager->customHeaders();
 }
 
+void WebPage::setCookieJar(CookieJar *cookieJar) {
+    m_cookieJar = cookieJar;
+    m_customWebPage->setCookieJar(m_cookieJar);
+    m_networkAccessManager->setCookieJar(m_cookieJar);
+}
+
+void WebPage::setCookieJarFromQObject(QObject *cookieJar) {
+    setCookieJar(qobject_cast<CookieJar *>(cookieJar));
+}
+
+CookieJar *WebPage::cookieJar()
+{
+    return m_cookieJar;
+}
+
 bool WebPage::setCookies(const QVariantList &cookies)
 {
     // Delete all the cookies for this URL
-    CookieJar::instance()->deleteCookies(this->url());
+    m_cookieJar->deleteCookies(this->url());
     // Add a new set of cookies foor this URL
-    return CookieJar::instance()->addCookiesFromMap(cookies, this->url());
+    return m_cookieJar->addCookiesFromMap(cookies, this->url());
 }
 
 QVariantList WebPage::cookies() const
 {
     // Return all the Cookies visible to this Page, as a list of Maps (aka JSON in JS space)
-    return CookieJar::instance()->cookiesToMap(this->url());
+    return m_cookieJar->cookiesToMap(this->url());
 }
 
 bool WebPage::addCookie(const QVariantMap &cookie)
 {
-    return CookieJar::instance()->addCookieFromMap(cookie, this->url());
+    return m_cookieJar->addCookieFromMap(cookie, this->url());
 }
 
 bool WebPage::deleteCookie(const QString &cookieName)
 {
     if (!cookieName.isEmpty()) {
-        return CookieJar::instance()->deleteCookie(cookieName, this->url());
+        return m_cookieJar->deleteCookie(cookieName, this->url());
     }
     return false;
 }
 
 bool WebPage::clearCookies()
 {
-    return CookieJar::instance()->deleteCookies(this->url());
+    return m_cookieJar->deleteCookies(this->url());
 }
 
 void WebPage::openUrl(const QString &address, const QVariant &op, const QVariantMap &settings)

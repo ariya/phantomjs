@@ -415,6 +415,20 @@ function decorateNewPage(opts, page) {
     };
 
     /**
+     * get cookie jar for the page
+     */
+    page.__defineGetter__("cookieJar", function() {
+        return require("cookiejar").decorate(this.cookieJar());
+    });
+
+    /**
+     * set cookie jar for the page
+     */
+    page.__defineSetter__("cookieJar", function(cookieJar) {
+        this.setCookieJarFromQObject(cookieJar);
+    });
+
+    /**
      * get cookies of the page
      */
     page.__defineGetter__("cookies", function() {

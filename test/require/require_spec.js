@@ -11,6 +11,10 @@ describe("require()", function() {
         should.exist(require('webserver').create);
     });
 
+    it("loads 'cookiejar' native module", function() {
+        should.exist(require('cookiejar').create);
+    });
+
     it("loads 'system' native module", function() {
         require('system').platform.should.equal('phantomjs');
     });
