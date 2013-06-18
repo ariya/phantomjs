@@ -53,6 +53,7 @@ OTHER_FILES += \
     modules/webpage.js \
     modules/webserver.js \
     modules/child_process.js \
+    modules/cookiejar.js \
     repl.js
 
 include(gif/gif.pri)

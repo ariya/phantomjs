@@ -97,9 +97,10 @@ void Phantom::init()
     }
 
     // Initialize the CookieJar
-    CookieJar::instance(m_config.cookiesFile());
+    m_defaultCookieJar = new CookieJar(m_config.cookiesFile());
 
     m_page = new WebPage(this, QUrl::fromLocalFile(m_config.scriptFile()));
+    m_page->setCookieJar(m_defaultCookieJar);
     m_pages.append(m_page);
 
     QString proxyType = m_config.proxyType();
@@ -290,15 +291,15 @@ bool Phantom::printDebugMessages() const
 
 bool Phantom::areCookiesEnabled() const
 {
-    return CookieJar::instance()->isEnabled();
+    return m_defaultCookieJar->isEnabled();
 }
 
 void Phantom::setCookiesEnabled(const bool value)
 {
     if (value) {
-        CookieJar::instance()->enable();
+        m_defaultCookieJar->enable();
     } else {
-        CookieJar::instance()->disable();
+        m_defaultCookieJar->disable();
     }
 }
 
@@ -308,9 +309,14 @@ bool Phantom::webdriverMode() const
 }
 
 // public slots:
+QObject *Phantom::createCookieJar(const QString& filePath) {
+    return new CookieJar(filePath, this);
+}
+
 QObject *Phantom::createWebPage()
 {
     WebPage *page = new WebPage(this);
+    page->setCookieJar(m_defaultCookieJar);
 
     // Store pointer to the page for later cleanup
     m_pages.append(page);
@@ -436,33 +442,33 @@ void Phantom::onInitialized()
 bool Phantom::setCookies(const QVariantList &cookies)
 {
     // Delete all the cookies from the CookieJar
-    CookieJar::instance()->clearCookies();
+    m_defaultCookieJar->clearCookies();
     // Add a new set of cookies
-    return CookieJar::instance()->addCookiesFromMap(cookies);
+    return m_defaultCookieJar->addCookiesFromMap(cookies);
 }
 
 QVariantList Phantom::cookies() const
 {
     // Return all the Cookies in the CookieJar, as a list of Maps (aka JSON in JS space)
-    return CookieJar::instance()->cookiesToMap();
+    return m_defaultCookieJar->cookiesToMap();
 }
 
 bool Phantom::addCookie(const QVariantMap &cookie)
 {
-    return CookieJar::instance()->addCookieFromMap(cookie);
+    return m_defaultCookieJar->addCookieFromMap(cookie);
 }
 
 bool Phantom::deleteCookie(const QString &cookieName)
 {
     if (!cookieName.isEmpty()) {
-        return CookieJar::instance()->deleteCookie(cookieName);
+        return m_defaultCookieJar->deleteCookie(cookieName);
     }
     return false;
 }
 
 void Phantom::clearCookies()
 {
-    CookieJar::instance()->clearCookies();
+    m_defaultCookieJar->clearCookies();
 }
 
 
