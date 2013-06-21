@@ -304,29 +304,29 @@ void NetworkAccessManager::handleStarted()
         headers += header;
     }
 
-    if (reply->rawHeader("content-disposition").size() > 0) {
-      QString disPos = QString(reply->rawHeader("content-disposition"));
-      if (disPos.indexOf("attachment") >= 0) {
-        int firstQuoteIdx = disPos.indexOf("\"");
-        int lastQuoteIdx =  disPos.indexOf("\"", firstQuoteIdx + 1);
-        QString fn = disPos.mid(firstQuoteIdx + 1, lastQuoteIdx - firstQuoteIdx - 1);
-        QByteArray pathBytes = qgetenv("PHANTOMJS_SAVE_UNSUPPORTED_FILES_DIR");
-        if (pathBytes.size() > 0) {
-          QString path = QString(pathBytes);
-          path.append("/XXXXXX.");
-          path.append(fn);
-          qDebug() << "saving to: " << path;
-          QTemporaryFile *file = new QTemporaryFile(path);
-          if (!file->open()) {
-            qCritical() << "Filed to write file to " << path;
-          }
-          // file.open(QIODevice::WriteOnly);
-          file->write(reply->peek(reply->size()));
-          qDebug() << "---- writing data to: " << file->fileName();
-          file->close();
-        }
-      }
-    }
+//     if (reply->rawHeader("content-disposition").size() > 0) {
+//       QString disPos = QString(reply->rawHeader("content-disposition"));
+//       if (disPos.indexOf("attachment") >= 0) {
+//         int firstQuoteIdx = disPos.indexOf("\"");
+//         int lastQuoteIdx =  disPos.indexOf("\"", firstQuoteIdx + 1);
+//         QString fn = disPos.mid(firstQuoteIdx + 1, lastQuoteIdx - firstQuoteIdx - 1);
+//         QByteArray pathBytes = qgetenv("PHANTOMJS_SAVE_UNSUPPORTED_FILES_DIR");
+//         if (pathBytes.size() > 0) {
+//           QString path = QString(pathBytes);
+//           path.append("/XXXXXX.");
+//           path.append(fn);
+//           qDebug() << "saving to: " << path;
+//           QTemporaryFile *file = new QTemporaryFile(path);
+//           if (!file->open()) {
+//             qCritical() << "Failed to write file to " << path;
+//           }
+//           // file.open(QIODevice::WriteOnly);
+//           file->write(reply->peek(reply->size()));
+//           qDebug() << "---- writing data to: " << file->fileName();
+//           file->close();
+//         }
+//       }
+//     }
 
     QVariantMap data;
     data["stage"] = "start";
@@ -379,6 +379,29 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply, const QVariant &
         headers += header;
     }
 
+    if (reply->rawHeader("content-disposition").size() > 0) {
+      QString disPos = QString(reply->rawHeader("content-disposition"));
+      if (disPos.indexOf("attachment") >= 0) {
+        int firstQuoteIdx = disPos.indexOf("\"");
+        int lastQuoteIdx =  disPos.indexOf("\"", firstQuoteIdx + 1);
+        QString fn = disPos.mid(firstQuoteIdx + 1, lastQuoteIdx - firstQuoteIdx - 1);
+        QByteArray pathBytes = qgetenv("PHANTOMJS_SAVE_UNSUPPORTED_FILES_DIR");
+        if (pathBytes.size() > 0) {
+          QString path = QString(pathBytes);
+          path.append("/XXXXXX.");
+          path.append(fn);
+          qDebug() << "saving to: " << path;
+          QTemporaryFile *file = new QTemporaryFile(path);
+          if (!file->open()) {
+            qCritical() << "Failed to write file to " << path;
+          }
+          // file.open(QIODevice::WriteOnly);
+          file->write(reply->peek(reply->size()));
+          qDebug() << "---- writing data to: " << file->fileName();
+          file->close();
+        }
+      }
+    }
     QVariantMap data;
     data["stage"] = "end";
     data["id"] = m_ids.value(reply);
