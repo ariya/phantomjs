@@ -1211,9 +1211,9 @@ describe("WebPage object", function() {
                 expect(status).toEqual('success');
             });
         });
-        
+
         waits(5000);
-        
+
         runs(function() {
             page.close();
             expect(handled).toBeTruthy();
@@ -1277,7 +1277,7 @@ describe("WebPage object", function() {
             expect(handled).toBe(true);
         });
     });
-    
+
     it('should fire `onResourceReceived` callback when the resource error occured', function() {
         var page = require('webpage').create();
         var server = require('webserver').create();
@@ -2113,7 +2113,7 @@ describe("WebPage network request headers handling", function() {
         };
 
         runs(function() {
-            page.open("http://localhost:12345", function() {
+            page.open("http://localhost:12345", function(status) {
                 expect(status).toEqual("success");
             });
         });
@@ -2130,7 +2130,7 @@ describe("WebPage network request headers handling", function() {
     it("should remove HTTP header from a network request", function() {
         var page = require("webpage").create();
         page.customHeaders = {"CustomHeader": "CustomValue"};
-        
+
         var server = require("webserver").create();
         var handled = false;
 
@@ -2146,7 +2146,7 @@ describe("WebPage network request headers handling", function() {
         };
 
         runs(function() {
-            page.open("http://localhost:12345", function() {
+            page.open("http://localhost:12345", function(status) {
                 expect(status).toEqual("success");
             });
         });
@@ -2163,12 +2163,12 @@ describe("WebPage network request headers handling", function() {
     it("should set HTTP header value for a network request", function() {
         var page = require("webpage").create();
         page.customHeaders = {"CustomHeader": "CustomValue"};
-        
+
         var server = require("webserver").create();
         var handled = false;
 
         server.listen(12345, function(request) {
-            if (request.headers["CustomHeader"] && 
+            if (request.headers["CustomHeader"] &&
                 request.headers["CustomHeader"] === "ChangedCustomValue") {
                 handled = true;
             }
@@ -2180,7 +2180,7 @@ describe("WebPage network request headers handling", function() {
         };
 
         runs(function() {
-            page.open("http://localhost:12345", function() {
+            page.open("http://localhost:12345", function(status) {
                 expect(status).toEqual("success");
             });
         });
