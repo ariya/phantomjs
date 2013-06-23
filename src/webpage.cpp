@@ -1644,18 +1644,20 @@ void WebPage::downloadRequested(QNetworkReply* networkReply)
         QString downloadingFilename = QFileInfo(downloadUrl.toString()).fileName();
         QFileInfo fileInfo(filename);
 
-        if (!fileInfo.isWritable()) {
-            emit fileDownloadError("Requested path is not writable");
-            networkReply->abort();
-            return;
-        }
-
         if (fileInfo.isRelative()) {
             fileInfo.makeAbsolute();
         }
 
-        if (fileInfo.isDir())
+        if (fileInfo.isDir()) {
+            // check if the target directory is writable
+            if (!fileInfo.isWritable()) {
+                emit fileDownloadError("Requested path is not writable");
+                networkReply->abort();
+                return;
+            }
+
             m_downloadingFiles[networkReply] = fileInfo.path() + downloadingFilename;
+        }
         else
             m_downloadingFiles[networkReply]  = fileInfo.filePath();
 
@@ -1683,6 +1685,7 @@ void WebPage::downloadFinished()
         }
 
         m_downloadingFiles.remove(reply);
+
         // We can safely mark this QNetworkReply for deleting later since Webkit will not handle it
         reply->deleteLater();
     }
