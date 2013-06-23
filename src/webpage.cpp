@@ -990,7 +990,7 @@ QImage WebPage::renderImage()
 #endif
 
     QImage buffer(frameRect.size(), format);
-    buffer.fill(qRgba(255, 255, 255, 0));
+    buffer.fill(Qt::transparent);
 
     QPainter painter;
 
@@ -1004,7 +1004,7 @@ QImage WebPage::renderImage()
         for (int y = 0; y < vtiles; ++y) {
 
             QImage tileBuffer(tileSize, tileSize, format);
-            tileBuffer.fill(qRgba(255, 255, 255, 0));
+            tileBuffer.fill(Qt::transparent);
 
             // Render the web page onto the small tile first
             painter.begin(&tileBuffer);
