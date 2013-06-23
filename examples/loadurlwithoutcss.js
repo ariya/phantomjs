@@ -9,7 +9,7 @@ if (system.args.length < 2) {
 var address = system.args[1];
 
 page.onResourceRequested = function(requestData, request) {
-    if ((/http:\/\/.+?\.css/gi).test(requestData['url']) || requestData['Content-Type'] == 'text/css') {
+    if ((/http:\/\/.+?\.css/gi).test(requestData['url']) || requestData.headers['Content-Type'] == 'text/css') {
         console.log('The url of the request is matching. Aborting: ' + requestData['url']);
         request.abort();
     }
