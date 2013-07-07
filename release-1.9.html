@@ -87,14 +87,33 @@ table td,table th {
 
 <div class="grid_10">
 
-<p><strong>Note:</strong> The release notes are still being worked on, more information may become available in the next few days. Please bear with us!</p>
-
 <p>PhantomJS 1.9, <em><a href="release-names.html">Sakura</a></em>, was released on March 20, 2013. It came with an updated GhostDriver,
 an improved resource loading control, as well as other incremental improvements.</p>
 
 <p><strong>Note:</strong> PhantomJS 1.9 is the last release in the 1.x series. For the next 2.x series, the core implementation will be
 ported to <a href="http://qt-project.org/doc/qt-5.0/qtdoc/qt5-intro.html">Qt 5</a> to get a more modern base platform,
 as well as to have an updated WebKit module.</p>
+
+<p><strong>Network requests control</strong></p>
+
+<p>A new functionality is provided so that every network request can be aborted. This is quite similar to the existing
+support for intercepting those requests (for monitoring purposes), except now any unwanted requests could be blocked as well.
+The following code fragment demonstrate the use:</p>
+
+<pre class="prettyprint lang-js">
+page.onResourceRequested = function(requestData, request) {
+  if ((/http:\/\/.+?\.css$/gi).test(requestData['url'])) {
+    request.abort();
+  }
+};
+</pre>
+
+<p>If a request has an associated URL ending with <code>.css</code>, it will not be routed to the server. Effectively,
+this means that the page is loaded <a href="http://ariya.ofilabs.com/2013/06/capturing-web-page-without-stylesheets.html">without any stylesheets</a>
+(often useful to check for connection failures). Matching the URL with the main resource URL can also be used to
+<a href="http://ariya.ofilabs.com/2013/06/web-page-without-external-resources.html">exclude third-party assets</a>.</p>
+
+<p>Of course, the URL matching can be more complicated than these simple examples.</p>
 
 <p><strong>New features</strong></p>
 
@@ -105,7 +124,7 @@ as well as to have an updated WebKit module.</p>
     <li>Added support for custom CA certificates location (issue <a href="https://github.com/ariya/phantomjs/issues/10916">10916</a>)</li>
     <li>Added seek function to the File stream (issue <a href="https://github.com/ariya/phantomjs/issues/10937">10937</a>)</li>
     <li>Implemented file read for a specified number of bytes (issue <a href="https://github.com/ariya/phantomjs/issues/10938">10938</a>)</li>
-    <li>Added a callback to handle network error (issue <a href="https://github.com/ariya/phantomjs/issues/10954">10954</a>,  <a href="https://github.com/ariya/phantomjs/issues/10997">1issue 10997</a>)</li>
+    <li>Added a callback to handle network error (issue <a href="https://github.com/ariya/phantomjs/issues/10954">10954</a>,  <a href="https://github.com/ariya/phantomjs/issues/10997">issue 10997</a>)</li>
     <li>Added custom encoding support when opening a page (issue <a href="https://github.com/ariya/phantomjs/issues/11043">11043</a>)</li>
     <li>Implemented require.stub() support for a factory function (issue <a href="https://github.com/ariya/phantomjs/issues/11044">11044</a>)</li>
     <li>Added page loading indicator and progress (issue <a href="https://github.com/ariya/phantomjs/issues/11091">11091</a>)</li>
