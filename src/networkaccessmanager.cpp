@@ -40,6 +40,7 @@
 #include <QString>
 #include <QByteArray>
 #include <QTemporaryFile>
+#include <QFile>
 
 #include "phantom.h"
 #include "config.h"
@@ -304,6 +305,68 @@ void NetworkAccessManager::handleStarted()
         headers += header;
     }
 
+/**
+
+     if (reply->rawHeader("content-disposition").size() > 0) {
+       QString disPos = QString(reply->rawHeader("content-disposition"));
+       if (disPos.indexOf("attachment") >= 0) {
+         int firstQuoteIdx = disPos.indexOf("\"");
+         //if(disPos.indexOf("=") > firstQuoteIdx) firstQuoteIdx = disPos.indexOf("=");
+         int lastQuoteIdx =  disPos.indexOf("\"", firstQuoteIdx + 1);
+         QString fn = disPos.mid(firstQuoteIdx + 1 + 20, lastQuoteIdx - firstQuoteIdx - 1);
+         QByteArray pathBytes = qgetenv("PHANTOMJS_SAVE_UNSUPPORTED_FILES_DIR");
+         if (pathBytes.size() > 0) {
+           QString path = QString(pathBytes);
+           path.append("/XXXXXX.");
+           path.append(fn);
+          
+           if(disPos.indexOf("attachment") >= 0) {
+         //    int startNameIdx = path.lastIndexOf("/");
+             int startNameIdx = disPos.indexOf("\"");
+             int endNameIdx = path.indexOf("=");
+             QString newPath = path.left(startNameIdx);
+             QString trailing = path.right(endNameIdx);
+             newPath.append(trailing);
+             path.replace(oldDir, newPath.length(), newPath);
+             //path = newPath;
+             //QString keywords = hrefame.mid(startNameIdx);
+             //file->setFileTemplate(keywords); 
+           }
+          
+
+           qDebug() << "saving to: " << path;
+           QTemporaryFile *file = new QTemporaryFile(path);
+           //file->setFileTemplate("namehere");
+           //QString url = replay->url().toEncoded().data();
+
+           int lastSlash = path.lastIndexOf("=");
+           //QString newPath = path.left(lastSlash);
+           QString filename = path.right(lastSlash + 1);
+
+           
+           //QFileInfo info(path);
+           //QString name = info.filename();
+
+
+
+           if (!file->open()) {
+             qCritical() << "Failed to write file to " << path;
+           }
+           // file.open(QIODevice::WriteOnly);
+           file->write(reply->peek(reply->size()));
+           qDebug() << "---- writing data to: " << file->fileName();
+           file->close();
+         
+           QObject fi;
+           QFile newFile(fi);
+           newFile.rename(filename);
+           //file.remove();
+
+         }
+       }
+     }
+*/
+
 //     if (reply->rawHeader("content-disposition").size() > 0) {
 //       QString disPos = QString(reply->rawHeader("content-disposition"));
 //       if (disPos.indexOf("attachment") >= 0) {
@@ -385,6 +448,16 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply, const QVariant &
         int firstQuoteIdx = disPos.indexOf("\"");
         int lastQuoteIdx =  disPos.indexOf("\"", firstQuoteIdx + 1);
         QString fn = disPos.mid(firstQuoteIdx + 1, lastQuoteIdx - firstQuoteIdx - 1);
+        
+        int equalsIndex = fn.indexOf("=");
+        if( equalsIndex >= 0){ 
+          fn = fn.mid(equalsIndex+1);
+        } else {
+          QString url = reply->url().toEncoded().data(); 
+          if(url.indexOf("20") >= 0) fn = "Euro-InsideIndex-Data" + fn.mid(fn.lastIndexOf("."));
+          else fn = "US-InsideIndex-Data" + fn.mid(fn.lastIndexOf("."));
+        }
+
         QByteArray pathBytes = qgetenv("PHANTOMJS_SAVE_UNSUPPORTED_FILES_DIR");
         if (pathBytes.size() > 0) {
           QString path = QString(pathBytes);
