@@ -346,6 +346,7 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
     connect(m_customWebPage, SIGNAL(loadFinished(bool)), SLOT(finish(bool)), Qt::QueuedConnection);
     connect(m_customWebPage, SIGNAL(windowCloseRequested()), this, SLOT(close()), Qt::QueuedConnection);
     connect(m_customWebPage, SIGNAL(loadProgress(int)), this, SLOT(updateLoadingProgress(int)));
+  
 
     // Start with transparent background.
     QPalette palette = m_customWebPage->palette();
@@ -390,6 +391,7 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
             SIGNAL(resourceTimeout(QVariant)));
 
     m_customWebPage->setViewportSize(QSize(400, 300));
+
 }
 
 WebPage::~WebPage()

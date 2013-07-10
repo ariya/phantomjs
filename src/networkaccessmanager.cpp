@@ -37,6 +37,8 @@
 #include <QSslSocket>
 #include <QSslCertificate>
 #include <QRegExp>
+#include <QDate>
+#include <QTime>
 #include <QString>
 #include <QByteArray>
 #include <QTemporaryFile>
@@ -305,68 +307,6 @@ void NetworkAccessManager::handleStarted()
         headers += header;
     }
 
-/**
-
-     if (reply->rawHeader("content-disposition").size() > 0) {
-       QString disPos = QString(reply->rawHeader("content-disposition"));
-       if (disPos.indexOf("attachment") >= 0) {
-         int firstQuoteIdx = disPos.indexOf("\"");
-         //if(disPos.indexOf("=") > firstQuoteIdx) firstQuoteIdx = disPos.indexOf("=");
-         int lastQuoteIdx =  disPos.indexOf("\"", firstQuoteIdx + 1);
-         QString fn = disPos.mid(firstQuoteIdx + 1 + 20, lastQuoteIdx - firstQuoteIdx - 1);
-         QByteArray pathBytes = qgetenv("PHANTOMJS_SAVE_UNSUPPORTED_FILES_DIR");
-         if (pathBytes.size() > 0) {
-           QString path = QString(pathBytes);
-           path.append("/XXXXXX.");
-           path.append(fn);
-          
-           if(disPos.indexOf("attachment") >= 0) {
-         //    int startNameIdx = path.lastIndexOf("/");
-             int startNameIdx = disPos.indexOf("\"");
-             int endNameIdx = path.indexOf("=");
-             QString newPath = path.left(startNameIdx);
-             QString trailing = path.right(endNameIdx);
-             newPath.append(trailing);
-             path.replace(oldDir, newPath.length(), newPath);
-             //path = newPath;
-             //QString keywords = hrefame.mid(startNameIdx);
-             //file->setFileTemplate(keywords); 
-           }
-          
-
-           qDebug() << "saving to: " << path;
-           QTemporaryFile *file = new QTemporaryFile(path);
-           //file->setFileTemplate("namehere");
-           //QString url = replay->url().toEncoded().data();
-
-           int lastSlash = path.lastIndexOf("=");
-           //QString newPath = path.left(lastSlash);
-           QString filename = path.right(lastSlash + 1);
-
-           
-           //QFileInfo info(path);
-           //QString name = info.filename();
-
-
-
-           if (!file->open()) {
-             qCritical() << "Failed to write file to " << path;
-           }
-           // file.open(QIODevice::WriteOnly);
-           file->write(reply->peek(reply->size()));
-           qDebug() << "---- writing data to: " << file->fileName();
-           file->close();
-         
-           QObject fi;
-           QFile newFile(fi);
-           newFile.rename(filename);
-           //file.remove();
-
-         }
-       }
-     }
-*/
-
 //     if (reply->rawHeader("content-disposition").size() > 0) {
 //       QString disPos = QString(reply->rawHeader("content-disposition"));
 //       if (disPos.indexOf("attachment") >= 0) {
@@ -448,30 +388,45 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply, const QVariant &
         int firstQuoteIdx = disPos.indexOf("\"");
         int lastQuoteIdx =  disPos.indexOf("\"", firstQuoteIdx + 1);
         QString fn = disPos.mid(firstQuoteIdx + 1, lastQuoteIdx - firstQuoteIdx - 1);
-        
+
         int equalsIndex = fn.indexOf("=");
+        int suffixIdx = fn.lastIndexOf(".");
+        QString suffix = fn.mid(suffixIdx);
+        
         if( equalsIndex >= 0){ 
-          fn = fn.mid(equalsIndex+1);
+          fn = fn.mid(equalsIndex+1, suffixIdx-equalsIndex-1);
+          while(fn.indexOf(".") > 0) fn.remove(fn.indexOf("."), 1); //Removes any extra dots in the filename
         } else {
           QString url = reply->url().toEncoded().data(); 
+          //The param country is either 10 or 20 for US or Europe respectively
           if(url.indexOf("20") >= 0) fn = "Euro-InsideIndex-Data" + fn.mid(fn.lastIndexOf("."));
           else fn = "US-InsideIndex-Data" + fn.mid(fn.lastIndexOf("."));
         }
 
+
+        QDate date = QDate::currentDate();
+        QTime time = QTime::currentTime();
+        QString timestamp = QString(".%1-%2-%3_%4-%5-%6")
+          .arg(date.year()).arg(date.month()).arg(date.day())
+            .arg(time.hour()).arg(time.minute()).arg(time.second());
+        fn += timestamp + suffix;
+        
         QByteArray pathBytes = qgetenv("PHANTOMJS_SAVE_UNSUPPORTED_FILES_DIR");
         if (pathBytes.size() > 0) {
           QString path = QString(pathBytes);
-          path.append("/XXXXXX.");
-          path.append(fn);
+          
+          path.append("/" + fn);
           qDebug() << "saving to: " << path;
-          QTemporaryFile *file = new QTemporaryFile(path);
-          if (!file->open()) {
-            qCritical() << "Failed to write file to " << path;
-          }
-          // file.open(QIODevice::WriteOnly);
-          file->write(reply->peek(reply->size()));
-          qDebug() << "---- writing data to: " << file->fileName();
-          file->close();
+          
+         if(!QFile::exists(path)){  
+            QFile file(path);
+            if (!file.open(QIODevice::ReadWrite)) {
+              qCritical() << "Failed to write file to " << path;
+            }
+            file.write(reply->peek(reply->size()));
+            qDebug() << "---- writing data to: " << path.mid(path.lastIndexOf("/")+1);
+            file.close();
+         }
         }
       }
     }
@@ -489,7 +444,12 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply, const QVariant &
     m_ids.remove(reply);
     m_started.remove(reply);
 
-    emit resourceReceived(data);
+    reply->abort();
+    //QList<QSslError> error;
+    //if(errors > 1) reply->ignoreSslErrors(error);
+    //reply->finished();
+    //reply->close();
+    //emit resourceReceived(data);
 }
 
 void NetworkAccessManager::handleSslErrors(const QList<QSslError> &errors)
