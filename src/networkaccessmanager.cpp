@@ -194,7 +194,7 @@ void NetworkAccessManager::setCookieJar(QNetworkCookieJar *cookieJar)
     cookieJar->setParent(Phantom::instance());
 }
 
-// protected:
+//protected:
 QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkRequest & request, QIODevice * outgoingData)
 {
     QNetworkRequest req(request);
@@ -384,49 +384,46 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply, const QVariant &
 
     if (reply->rawHeader("content-disposition").size() > 0) {
       QString disPos = QString(reply->rawHeader("content-disposition"));
-      if (disPos.indexOf("attachment") >= 0) {
+      QString fn, suffix;
+      int equalsIndex, suffixIdx;
+      
         int firstQuoteIdx = disPos.indexOf("\"");
         int lastQuoteIdx =  disPos.indexOf("\"", firstQuoteIdx + 1);
-        QString fn = disPos.mid(firstQuoteIdx + 1, lastQuoteIdx - firstQuoteIdx - 1);
+        fn = disPos.mid(firstQuoteIdx + 1, lastQuoteIdx - firstQuoteIdx - 1);
+        equalsIndex = fn.indexOf("=");
+        suffixIdx = fn.lastIndexOf(".");
+        suffix = fn.mid(suffixIdx);
+      if( equalsIndex >= 0){ 
+        //fn = fn.mid(equalsIndex+1, suffixIdx-equalsIndex-1);
+        while(fn.indexOf(".") > 0) fn.remove(fn.indexOf("."), 1); //Removes any extra dots in the filename
+      } else {          
+        QString url = reply->url().toEncoded().data(); 
+        //The param country is either 10 or 20 for US or Europe respectively
+        if(url.indexOf("20") >= 0) fn = "Euro-InsideIndex-Data";
+        else fn = "US-InsideIndex-Data";
+      }
 
-        int equalsIndex = fn.indexOf("=");
-        int suffixIdx = fn.lastIndexOf(".");
-        QString suffix = fn.mid(suffixIdx);
+      QDate date = QDate::currentDate();
+      QTime time = QTime::currentTime();
+      QString timestamp = QString(".%1-%2-%3_%4-%5-%6")
+        .arg(date.year()).arg(date.month()).arg(date.day())
+          .arg(time.hour()).arg(time.minute()).arg(time.second());
+      fn += timestamp + suffix;
         
-        if( equalsIndex >= 0){ 
-          fn = fn.mid(equalsIndex+1, suffixIdx-equalsIndex-1);
-          while(fn.indexOf(".") > 0) fn.remove(fn.indexOf("."), 1); //Removes any extra dots in the filename
-        } else {
-          QString url = reply->url().toEncoded().data(); 
-          //The param country is either 10 or 20 for US or Europe respectively
-          if(url.indexOf("20") >= 0) fn = "Euro-InsideIndex-Data" + fn.mid(fn.lastIndexOf("."));
-          else fn = "US-InsideIndex-Data" + fn.mid(fn.lastIndexOf("."));
-        }
-
-
-        QDate date = QDate::currentDate();
-        QTime time = QTime::currentTime();
-        QString timestamp = QString(".%1-%2-%3_%4-%5-%6")
-          .arg(date.year()).arg(date.month()).arg(date.day())
-            .arg(time.hour()).arg(time.minute()).arg(time.second());
-        fn += timestamp + suffix;
-        
-        QByteArray pathBytes = qgetenv("PHANTOMJS_SAVE_UNSUPPORTED_FILES_DIR");
-        if (pathBytes.size() > 0) {
-          QString path = QString(pathBytes);
+      QByteArray pathBytes = qgetenv("PHANTOMJS_SAVE_UNSUPPORTED_FILES_DIR");
+      if (pathBytes.size() > 0) {
+        QString path = QString(pathBytes);      
+        path.append("/" + fn);
+        qDebug() << "saving to: " << path;
           
-          path.append("/" + fn);
-          qDebug() << "saving to: " << path;
-          
-         if(!QFile::exists(path)){  
-            QFile file(path);
-            if (!file.open(QIODevice::ReadWrite)) {
-              qCritical() << "Failed to write file to " << path;
-            }
-            file.write(reply->peek(reply->size()));
-            qDebug() << "---- writing data to: " << path.mid(path.lastIndexOf("/")+1);
-            file.close();
-         }
+        if(!QFile::exists(path)){  
+          QFile file(path);
+          if (!file.open(QIODevice::ReadWrite)) {
+            qCritical() << "Failed to write file to " << path;
+          }
+          file.write(reply->peek(reply->size()));
+          qDebug() << "---- writing data to: " << path.mid(path.lastIndexOf("/")+1);
+          file.close();
         }
       }
     }
@@ -444,12 +441,7 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply, const QVariant &
     m_ids.remove(reply);
     m_started.remove(reply);
 
-    reply->abort();
-    //QList<QSslError> error;
-    //if(errors > 1) reply->ignoreSslErrors(error);
-    //reply->finished();
-    //reply->close();
-    //emit resourceReceived(data);
+    emit resourceReceived(data);
 }
 
 void NetworkAccessManager::handleSslErrors(const QList<QSslError> &errors)
