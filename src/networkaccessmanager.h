@@ -32,12 +32,12 @@
 #define NETWORKACCESSMANAGER_H
 
 #include <QAuthenticator>
-#include <QHash>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QSet>
 #include <QSslConfiguration>
 #include <QTimer>
+
+#include "networkreplytracker.h"
 
 class Config;
 class QNetworkDiskCache;
@@ -102,7 +102,6 @@ protected:
     QString m_userName;
     QString m_password;
     QNetworkReply *createRequest(Operation op, const QNetworkRequest & req, QIODevice * outgoingData = 0);
-    void handleFinished(QNetworkReply *reply, const QVariant &status, const QVariant &statusText);
 
 signals:
     void resourceRequested(const QVariant& data, QObject *);
@@ -111,20 +110,20 @@ signals:
     void resourceTimeout(const QVariant& data);
 
 private slots:
-    void handleStarted();
-    void handleFinished(QNetworkReply *reply);
+    void handleStarted(QNetworkReply* reply, int requestId);
+    void handleFinished(QNetworkReply *reply, int requestId, int status, const QString& statusText, const QString& body);
     void provideAuthentication(QNetworkReply *reply, QAuthenticator *authenticator);
-    void handleSslErrors(const QList<QSslError> &errors);
-    void handleNetworkError();
+    void handleSslErrors(QNetworkReply* reply, const QList<QSslError> &errors);
+    void handleNetworkError(QNetworkReply* reply, int requestId);
     void handleTimeout();
 
 private:
-    QHash<QNetworkReply*, int> m_ids;
-    QSet<QNetworkReply*> m_started;
     int m_idCounter;
     QNetworkDiskCache* m_networkDiskCache;
     QVariantMap m_customHeaders;
     QSslConfiguration m_sslConfiguration;
+
+    NetworkReplyTracker m_replyTracker;
 };
 
 #endif // NETWORKACCESSMANAGER_H

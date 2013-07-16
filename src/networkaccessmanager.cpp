@@ -43,6 +43,7 @@
 #include "config.h"
 #include "cookiejar.h"
 #include "networkaccessmanager.h"
+#include "networkreplyproxy.h"
 
 // 10 MB
 const qint64 MAX_REQUEST_POST_BODY_SIZE = 10 * 1000 * 1000;
@@ -160,6 +161,7 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
     , m_idCounter(0)
     , m_networkDiskCache(0)
     , m_sslConfiguration(QSslConfiguration::defaultConfiguration())
+    , m_replyTracker(this)
 {
     if (config->diskCacheEnabled()) {
         m_networkDiskCache = new QNetworkDiskCache(this);
@@ -215,7 +217,6 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
     }
 
     connect(this, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)), SLOT(provideAuthentication(QNetworkReply*,QAuthenticator*)));
-    connect(this, SIGNAL(finished(QNetworkReply*)), SLOT(handleFinished(QNetworkReply*)));
 }
 
 void NetworkAccessManager::setUserName(const QString &userName)
@@ -315,24 +316,17 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     JsNetworkRequest jsNetworkRequest(&req, this);
     emit resourceRequested(data, &jsNetworkRequest);
 
-    // Pass duty to the superclass - special case: file:/// may be disabled.
-    // This conditional must match QNetworkAccessManager's own idea of what a
-    // local file URL is.
-    QNetworkReply *reply;
-    if (!m_localUrlAccessEnabled && (isLocalFile || scheme == QLatin1String("qrc"))) {
-      reply = new NoFileAccessReply(this, req, op);
-    } else {
-      reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
-    }
+    QNetworkReply *nested_reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
+    QNetworkReply *tracked_reply = m_replyTracker.trackReply(nested_reply, m_idCounter);
 
     // reparent jsNetworkRequest to make sure that it will be destroyed with QNetworkReply
-    jsNetworkRequest.setParent(reply);
+    jsNetworkRequest.setParent(tracked_reply);
 
     // If there is a timeout set, create a TimeoutTimer
     if(m_resourceTimeout > 0){
 
-        TimeoutTimer *nt = new TimeoutTimer(reply);
-        nt->reply = reply; // We need the reply object in order to abort it later on.
+        TimeoutTimer *nt = new TimeoutTimer(tracked_reply);
+        nt->reply = tracked_reply; // We need the reply object in order to abort it later on.
         nt->data = data;
         nt->setInterval(m_resourceTimeout);
         nt->setSingleShot(true);
@@ -341,13 +335,13 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
         connect(nt, SIGNAL(timeout()), this, SLOT(handleTimeout()));
     }
 
-    m_ids[reply] = m_idCounter;
 
-    connect(reply, SIGNAL(readyRead()), this, SLOT(handleStarted()));
-    connect(reply, SIGNAL(sslErrors(const QList<QSslError> &)), this, SLOT(handleSslErrors(const QList<QSslError> &)));
-    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(handleNetworkError()));
+    connect(&m_replyTracker, SIGNAL(started(QNetworkReply*, int)), this,  SLOT(handleStarted(QNetworkReply*, int)));
+    connect(&m_replyTracker, SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError> &)), this, SLOT(handleSslErrors(QNetworkReply*, const QList<QSslError> &)));
+    connect(&m_replyTracker, SIGNAL(error(QNetworkReply*, int, QNetworkReply::NetworkError)), this, SLOT(handleNetworkError(QNetworkReply*, int)));
+    connect(&m_replyTracker, SIGNAL(finished(QNetworkReply *, int, int, const QString&, const QString&)), SLOT(handleFinished(QNetworkReply *, int, int, const QString&, const QString&)));
 
-    return reply;
+    return tracked_reply;
 }
 
 void NetworkAccessManager::handleTimeout()
@@ -366,16 +360,8 @@ void NetworkAccessManager::handleTimeout()
     nt->reply->abort();
 }
 
-void NetworkAccessManager::handleStarted()
+void NetworkAccessManager::handleStarted(QNetworkReply* reply, int requestId)
 {
-    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
-    if (!reply)
-        return;
-    if (m_started.contains(reply))
-        return;
-
-    m_started += reply;
-    
     QVariantList headers;
     foreach (QByteArray headerName, reply->rawHeaderList()) {
         QVariantMap header;
@@ -386,7 +372,7 @@ void NetworkAccessManager::handleStarted()
 
     QVariantMap data;
     data["stage"] = "start";
-    data["id"] = m_ids.value(reply);
+    data["id"] = requestId;
     data["url"] = reply->url().toEncoded().data();
     data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
     data["statusText"] = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
@@ -395,19 +381,9 @@ void NetworkAccessManager::handleStarted()
     data["redirectURL"] = reply->header(QNetworkRequest::LocationHeader);
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
+    data["body"] = "";
 
     emit resourceReceived(data);
-}
-
-void NetworkAccessManager::handleFinished(QNetworkReply *reply)
-{
-    if (!m_ids.contains(reply))
-        return;
-
-    QVariant status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
-    QVariant statusText = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
-
-    this->handleFinished(reply, status, statusText);
 }
 
 void NetworkAccessManager::provideAuthentication(QNetworkReply *reply, QAuthenticator *authenticator)
@@ -420,12 +396,11 @@ void NetworkAccessManager::provideAuthentication(QNetworkReply *reply, QAuthenti
     else
     {
         m_authAttempts = 0;
-        this->handleFinished(reply, 401, "Authorization Required");
-        reply->close();
+        m_replyTracker.abort(reply, 401, "Authorization Required");
     }
 }
 
-void NetworkAccessManager::handleFinished(QNetworkReply *reply, const QVariant &status, const QVariant &statusText)
+void NetworkAccessManager::handleFinished(QNetworkReply *reply, int requestId, int status, const QString &statusText, const QString& body)
 {
     QVariantList headers;
     foreach (QByteArray headerName, reply->rawHeaderList()) {
@@ -437,7 +412,7 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply, const QVariant &
 
     QVariantMap data;
     data["stage"] = "end";
-    data["id"] = m_ids.value(reply);
+    data["id"] = requestId;
     data["url"] = reply->url().toEncoded().data();
     data["status"] = status;
     data["statusText"] = statusText;
@@ -445,16 +420,14 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply, const QVariant &
     data["redirectURL"] = reply->header(QNetworkRequest::LocationHeader);
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
+    data["body"] = body;
 
-    m_ids.remove(reply);
-    m_started.remove(reply);
 
     emit resourceReceived(data);
 }
 
-void NetworkAccessManager::handleSslErrors(const QList<QSslError> &errors)
+void NetworkAccessManager::handleSslErrors(QNetworkReply* reply, const QList<QSslError> &errors)
 {
-    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
     foreach (QSslError e, errors) {
         qDebug() << "Network - SSL Error:" << e;
     }
@@ -463,16 +436,15 @@ void NetworkAccessManager::handleSslErrors(const QList<QSslError> &errors)
         reply->ignoreSslErrors();
 }
 
-void NetworkAccessManager::handleNetworkError()
+void NetworkAccessManager::handleNetworkError(QNetworkReply* reply, int requestId)
 {
-    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
     qDebug() << "Network - Resource request error:"
              << reply->error()
              << "(" << reply->errorString() << ")"
              << "URL:" << reply->url().toString();
 
     QVariantMap data;
-    data["id"] = m_ids.value(reply);
+    data["id"] = requestId;
     data["url"] = reply->url().toString();
     data["errorCode"] = reply->error();
     data["errorString"] = reply->errorString();

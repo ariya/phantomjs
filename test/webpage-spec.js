@@ -146,7 +146,8 @@ describe("WebPage object", function() {
       });
     });
 
-    xit("should return properly from a 401 status", function() {
+    it("should return properly from a 401 status", function() {
+        var page = require('webpage').create();
         var server = require('webserver').create();
         server.listen(12345, function(request, response) {
             response.statusCode = 401;
@@ -179,7 +180,36 @@ describe("WebPage object", function() {
 
     });
 
-    xit("should set valid cookie properly, then remove it", function() {
+    it("should contain resource body when last chunk of resource received", function() {
+        var page = require('webpage').create();
+        var server = require('webserver').create();
+        server.listen(12345, function(request, response) {
+            response.statusCode = 200;
+            response.write('resource body');
+            response.close();
+        });
+
+        var url = "http://localhost:12345/foo";
+        var lastChunk = "";
+        runs(function() {
+            page.onResourceReceived = function(resource) {
+                lastChunk = resource.body;
+            };
+            page.open(url, function(status) {
+            });
+        });
+
+        waits(50);
+
+        runs(function() {
+            expect(lastChunk).toEqual('resource body');
+            page.onResourceReceived = null;
+            server.close();
+        });
+
+    });
+
+    it("should set valid cookie properly, then remove it", function() {
         var server = require('webserver').create();
         server.listen(12345, function(request, response) {
             // echo received request headers in response body
