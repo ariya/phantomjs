@@ -1,7 +1,7 @@
-From d78182d3a6451522f239ee1ecbb71863eb053792 Mon Sep 17 00:00:00 2001
-From: Artem Baranovskiy <likejavascript@gmail.com>
-Date: Mon, 6 May 2013 08:01:01 +0400
-Subject: [PATCH] Table page-break improvements
+From ae97d8d765a925e62b5397ecc6524b3e8cc5d9ac Mon Sep 17 00:00:00 2001
+From: Trevor North <trevor@blubolt.com>
+Date: Thu, 18 Jul 2013 12:46:20 +0100
+Subject: [PATCH] Table page break improvements
 
 Bump tables to the next page if we cannot fit the caption, thead
 and first cell on the current page. Ideally this should be checking
@@ -25,15 +25,15 @@ are always bumped to the next page even if their content doesn't
 fit on a full page so as to avoid daft situtations like having the
 first 1px on the preceeding page.
 ---
- .../Source/WebCore/rendering/RenderTable.cpp       |   37 +++++++++++----
- .../WebCore/rendering/RenderTableSection.cpp       |   51 +++++++++++--------
- 2 files changed, 57 insertions(+), 31 deletions(-)
+ .../Source/WebCore/rendering/RenderTable.cpp       |   39 +++++++++++---
+ .../WebCore/rendering/RenderTableSection.cpp       |   55 ++++++++++++--------
+ 2 files changed, 64 insertions(+), 30 deletions(-)
 
 diff --git a/src/qt/src/3rdparty/webkit/Source/WebCore/rendering/RenderTable.cpp b/src/qt/src/3rdparty/webkit/Source/WebCore/rendering/RenderTable.cpp
-index 94ca61a..bbc9a1c 100644
+index 94ca61a..d26c612 100644
 --- a/src/qt/src/3rdparty/webkit/Source/WebCore/rendering/RenderTable.cpp
 +++ b/src/qt/src/3rdparty/webkit/Source/WebCore/rendering/RenderTable.cpp
-@@ -329,6 +329,28 @@ void RenderTable::layout()
+@@ -329,6 +329,32 @@ void RenderTable::layout()
      if (m_caption)
          m_caption->layoutIfNeeded();
  
@@ -50,8 +50,12 @@ index 94ca61a..bbc9a1c 100644
 +            }
 +            if (m_firstBody) {
 +                // FIXME: Calculate maximum required height across all cells in first body row
-+                RenderTableCell* firstCell = m_firstBody->primaryCellAt(0, 0);
-+                requiredHeight += firstCell->contentLogicalHeight() + firstCell->paddingTop(false) + firstCell->paddingBottom(false) + vBorderSpacing();
++                if (m_firstBody->numRows() > 0 && m_firstBody->numColumns() > 0) {
++                    RenderTableCell* firstCell = m_firstBody->primaryCellAt(0, 0);
++                    if (firstCell) {
++                        requiredHeight += firstCell->contentLogicalHeight() + firstCell->paddingTop(false) + firstCell->paddingBottom(false) + vBorderSpacing();
++                    }
++                }
 +            }
 +            if (requiredHeight > remainingLogicalHeight) {
 +                setPaginationStrut(remainingLogicalHeight);
@@ -62,7 +66,7 @@ index 94ca61a..bbc9a1c 100644
      // If any table section moved vertically, we will just repaint everything from that
      // section down (it is quite unlikely that any of the following sections
      // did not shift).
-@@ -361,12 +383,6 @@ void RenderTable::layout()
+@@ -361,12 +387,6 @@ void RenderTable::layout()
          computedLogicalHeight = computePercentageLogicalHeight(logicalHeightLength);
      computedLogicalHeight = max(0, computedLogicalHeight);
  
@@ -75,7 +79,7 @@ index 94ca61a..bbc9a1c 100644
      if (!m_firstBody && computedLogicalHeight > totalSectionLogicalHeight && !document()->inQuirksMode()) {
          // Completely empty tables (with no sections or anything) should at least honor specified height
          // in strict mode.
-@@ -386,6 +402,9 @@ void RenderTable::layout()
+@@ -386,6 +406,9 @@ void RenderTable::layout()
          }
          section->setLogicalLocation(sectionLogicalLeft, logicalHeight());
  
@@ -85,7 +89,7 @@ index 94ca61a..bbc9a1c 100644
          setLogicalHeight(logicalHeight() + section->logicalHeight());
          section = sectionBelow(section);
      }
-@@ -521,7 +540,7 @@ void RenderTable::paintObject(PaintInfo& paintInfo, int tx, int ty)
+@@ -521,7 +544,7 @@ void RenderTable::paintObject(PaintInfo& paintInfo, int tx, int ty)
          // re-paint header/footer if table is split over multiple pages
          if (m_head) {
              IntPoint childPoint = flipForWritingMode(m_head, IntPoint(tx, ty), ParentToChildFlippingAdjustment);
@@ -94,7 +98,7 @@ index 94ca61a..bbc9a1c 100644
                  repaintedHeadPoint = IntPoint(childPoint.x(), info.rect.y() - m_head->y());
                  repaintedHead = true;
                  dynamic_cast<RenderObject*>(m_head)->paint(info, repaintedHeadPoint.x(), repaintedHeadPoint.y());
-@@ -529,7 +548,7 @@ void RenderTable::paintObject(PaintInfo& paintInfo, int tx, int ty)
+@@ -529,7 +552,7 @@ void RenderTable::paintObject(PaintInfo& paintInfo, int tx, int ty)
          }
          if (m_foot) {
              IntPoint childPoint = flipForWritingMode(m_foot, IntPoint(tx, ty), ParentToChildFlippingAdjustment);
@@ -103,18 +107,11 @@ index 94ca61a..bbc9a1c 100644
                  // find actual end of table on current page
                  int dy = 0;
                  const int max_dy = info.rect.y() + info.rect.height();
-@@ -1291,4 +1310,4 @@ bool RenderTable::nodeAtPoint(const HitTestRequest& request, HitTestResult& resu
-     return false;
- }
- 
--}
-+}
-\ No newline at end of file
 diff --git a/src/qt/src/3rdparty/webkit/Source/WebCore/rendering/RenderTableSection.cpp b/src/qt/src/3rdparty/webkit/Source/WebCore/rendering/RenderTableSection.cpp
-index 1e90ac6..b41db29 100644
+index 1e90ac6..611d209 100644
 --- a/src/qt/src/3rdparty/webkit/Source/WebCore/rendering/RenderTableSection.cpp
 +++ b/src/qt/src/3rdparty/webkit/Source/WebCore/rendering/RenderTableSection.cpp
-@@ -496,23 +496,34 @@ int RenderTableSection::layoutRows(int toAdd, int headHeight, int footHeight)
+@@ -496,26 +496,41 @@ int RenderTableSection::layoutRows(int toAdd, int headHeight, int footHeight)
  
      LayoutStateMaintainer statePusher(view(), this, IntSize(x(), y()), style()->isFlippedBlocksWritingMode());
  
@@ -146,8 +143,9 @@ index 1e90ac6..b41db29 100644
 -                if (remainingLogicalHeight - footHeight < childLogicalHeight) {
 +
 +        for (int r = 0; r < totalRows; ++r) {
-+            int rowLogicalOffset = m_rowPos[r] + pageOffset;
-+            int remainingLogicalHeight = pageLogicalHeight - layoutState->pageLogicalOffset(rowLogicalOffset) % pageLogicalHeight;
++            m_rowPos[r] += pageOffset;
++            int remainingLogicalHeight = pageLogicalHeight - layoutState->pageLogicalOffset(m_rowPos[r]) % pageLogicalHeight;
++            int availableHeight = remainingLogicalHeight - footHeight - vspacing;
 +
 +            for (int c = 0; c < nEffCols; c++) {
 +                CellStruct& cs = cellAt(r, c);
@@ -157,13 +155,20 @@ index 1e90ac6..b41db29 100644
 +                    continue;
 +
 +                int cellRequiredHeight = cell->contentLogicalHeight() + cell->paddingTop(false) + cell->paddingBottom(false);
-+                if (max(logicalRowHeights[r], cellRequiredHeight) > remainingLogicalHeight - footHeight - vspacing) {
++                int requiredHeight = max(logicalRowHeights[r], cellRequiredHeight);
++                if (requiredHeight >= availableHeight) {
                      pageOffset += remainingLogicalHeight + headHeight;
++                    if (requiredHeight > availableHeight) {
++                        m_rowPos[r] += remainingLogicalHeight + headHeight;
++                    }
 +                    break;
                  }
              }
-             m_rowPos[r] += pageOffset;
-@@ -525,11 +536,7 @@ int RenderTableSection::layoutRows(int toAdd, int headHeight, int footHeight)
+-            m_rowPos[r] += pageOffset;
+         }
+         m_rowPos[totalRows] += pageOffset;
+     }
+@@ -525,11 +540,7 @@ int RenderTableSection::layoutRows(int toAdd, int headHeight, int footHeight)
          if (RenderTableRow* rowRenderer = m_grid[r].rowRenderer) {
              rowRenderer->setLocation(0, m_rowPos[r]);
              rowRenderer->setLogicalWidth(logicalWidth());
@@ -176,7 +181,7 @@ index 1e90ac6..b41db29 100644
              rowRenderer->updateLayerTransform();
          }
  
-@@ -541,8 +548,8 @@ int RenderTableSection::layoutRows(int toAdd, int headHeight, int footHeight)
+@@ -541,8 +552,8 @@ int RenderTableSection::layoutRows(int toAdd, int headHeight, int footHeight)
                  continue;
  
              rindx = cell->row();
@@ -187,13 +192,6 @@ index 1e90ac6..b41db29 100644
              } else {
                  rHeight = m_rowPos[rindx + cell->rowSpan()] - m_rowPos[rindx] - vspacing;
              }
-@@ -1253,4 +1260,4 @@ bool RenderTableSection::nodeAtPoint(const HitTestRequest& request, HitTestResul
- 
- }
- 
--} // namespace WebCore
-+} // namespace WebCore
-\ No newline at end of file
 -- 
-1.7.6.1
+1.7.10
 
