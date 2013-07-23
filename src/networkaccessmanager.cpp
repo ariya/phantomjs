@@ -382,32 +382,31 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply, const QVariant &
         headers += header;
     }
 
+
+    QVariantMap data;
+    data["status"] = status;
+    data["statusText"] = statusText;
+    
     if (reply->rawHeader("content-disposition").size() > 0) {
       QString disPos = QString(reply->rawHeader("content-disposition"));
-      QString fn, suffix;
-      int equalsIndex, suffixIdx;
+      int equalsIndex, suffixIdx;    
+      int firstQuoteIdx = disPos.indexOf("\"");
+      int lastQuoteIdx =  disPos.indexOf("\"", firstQuoteIdx + 1);
       
-        int firstQuoteIdx = disPos.indexOf("\"");
-        int lastQuoteIdx =  disPos.indexOf("\"", firstQuoteIdx + 1);
-        fn = disPos.mid(firstQuoteIdx + 1, lastQuoteIdx - firstQuoteIdx - 1);
-        equalsIndex = fn.indexOf("=");
-        suffixIdx = fn.lastIndexOf(".");
-        suffix = fn.mid(suffixIdx);
-      if( equalsIndex >= 0){ 
-        //fn = fn.mid(equalsIndex+1, suffixIdx-equalsIndex-1);
-        while(fn.indexOf(".") > 0) fn.remove(fn.indexOf("."), 1); //Removes any extra dots in the filename
-      } else {          
-        QString url = reply->url().toEncoded().data(); 
-        //The param country is either 10 or 20 for US or Europe respectively
-        if(url.indexOf("20") >= 0) fn = "Euro-InsideIndex-Data";
-        else fn = "US-InsideIndex-Data";
-      }
+      QString fn = disPos.mid(firstQuoteIdx + 1, lastQuoteIdx - firstQuoteIdx - 1);
+      equalsIndex = fn.indexOf("=");
+      suffixIdx = fn.lastIndexOf(".");
+      QString suffix = fn.mid(suffixIdx);
+      
+      if( equalsIndex >= 0) { fn = fn.mid(equalsIndex+1, suffixIdx-equalsIndex-1);}
+      //Removes any extra dots in the filename
+      while(fn.indexOf(".") > 0) fn.remove(fn.indexOf("."), 1); 
 
       QDate date = QDate::currentDate();
       QTime time = QTime::currentTime();
-      QString timestamp = QString(".%1-%2-%3_%4-%5-%6")
+      QString timestamp = QString(".%1-%2-%3_%4-%5-%6-%7")
         .arg(date.year()).arg(date.month()).arg(date.day())
-          .arg(time.hour()).arg(time.minute()).arg(time.second());
+          .arg(time.hour()).arg(time.minute()).arg(time.second()).arg(time.msec());
       fn += timestamp + suffix;
         
       QByteArray pathBytes = qgetenv("PHANTOMJS_SAVE_UNSUPPORTED_FILES_DIR");
@@ -421,18 +420,18 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply, const QVariant &
           if (!file.open(QIODevice::ReadWrite)) {
             qCritical() << "Failed to write file to " << path;
           }
+          
           file.write(reply->peek(reply->size()));
           qDebug() << "---- writing data to: " << path.mid(path.lastIndexOf("/")+1);
+          data["status"] = QVariant(245);
+          data["statusText"] = QVariant(fn);
           file.close();
         }
       }
     }
-    QVariantMap data;
     data["stage"] = "end";
     data["id"] = m_ids.value(reply);
     data["url"] = reply->url().toEncoded().data();
-    data["status"] = status;
-    data["statusText"] = statusText;
     data["contentType"] = reply->header(QNetworkRequest::ContentTypeHeader);
     data["redirectURL"] = reply->header(QNetworkRequest::LocationHeader);
     data["headers"] = headers;
