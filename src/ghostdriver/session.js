@@ -96,7 +96,7 @@ ghostdriver.Session = function(desiredCapabilities) {
     _timeouts = {
         "script"            : _max32bitInt,
         "async script"      : _max32bitInt,
-        "implicit"          : 5,            //< 5ms
+        "implicit"          : 50,               //< 50ms
         "page load"         : _max32bitInt,
     },
     _windows = {},  //< NOTE: windows are "webpage" in Phantom-dialect
@@ -104,18 +104,28 @@ ghostdriver.Session = function(desiredCapabilities) {
     _id = require("./third_party/uuid.js").v1(),
     _inputs = ghostdriver.Inputs(),
     _capsPageSettingsPref = "phantomjs.page.settings.",
+    _capsPageCustomHeadersPref = "phantomjs.page.customHeaders.",
     _pageSettings = {},
+    _pageCustomHeaders = {},
     _log = ghostdriver.logger.create("Session [" + _id + "]"),
-    k, settingKey;
+    k, settingKey, headerKey;
 
-    // Searching for `phantomjs.settings.*` in the Desired Capabilities and merging with the Negotiated Capabilities
-    // Possible values: @see https://github.com/ariya/phantomjs/wiki/API-Reference#wiki-webpage-settings.
+    // Searching for `phantomjs.settings.* and phantomjs.customHeaders.*` in the Desired Capabilities and merging with the Negotiated Capabilities
+    // Possible values for settings: @see https://github.com/ariya/phantomjs/wiki/API-Reference#wiki-webpage-settings.
+    // Possible values for customHeaders: @see https://github.com/ariya/phantomjs/wiki/API-Reference-WebPage#wiki-webpage-customHeaders.
     for (k in desiredCapabilities) {
         if (k.indexOf(_capsPageSettingsPref) === 0) {
             settingKey = k.substring(_capsPageSettingsPref.length);
             if (settingKey.length > 0) {
                 _negotiatedCapabilities[k] = desiredCapabilities[k];
                 _pageSettings[settingKey] = desiredCapabilities[k];
+            }
+        }
+        if (k.indexOf(_capsPageCustomHeadersPref) === 0) {
+            headerKey = k.substring(_capsPageCustomHeadersPref.length);
+            if (headerKey.length > 0) {
+                _negotiatedCapabilities[k] = desiredCapabilities[k];
+                _pageCustomHeaders[headerKey] = desiredCapabilities[k];
             }
         }
     }
@@ -144,28 +154,11 @@ ghostdriver.Session = function(desiredCapabilities) {
             execTypeOpt = "apply";
         }
 
-        // Our callbacks assume that the only thing affecting the page state
-        // is the function we execute. Therefore we need to kill any
-        // pre-existing activity (such as part of the page being loaded in
-        // the background), otherwise it's events might interleave with the
-        // events from the current function.
-        this.stop();
-
         // Register Callbacks to grab any async event we are interested in
         this.setOneShotCallback("onLoadFinished", function (status) {
             _log.debug("_execFuncAndWaitForLoadDecorator", "onLoadFinished: " + status);
 
             onLoadFinishedArgs = Array.prototype.slice.call(arguments);
-        });
-        this.setOneShotCallback("onError", function(message, stack) {
-            _log.debug("_execFuncAndWaitForLoadDecorator", "onError: "+message+"\n");
-            stack.forEach(function(item) {
-                var msg = item.file + ":" + item.line;
-                msg += item["function"] ? " in " + item["function"] : "";
-                _log.debug("_execFuncAndWaitForLoadDecorator", "  " + msg);
-            });
-
-            onErrorArgs = Array.prototype.slice.call(arguments);
         });
 
         // Execute "code"
@@ -194,14 +187,21 @@ ghostdriver.Session = function(desiredCapabilities) {
                 if (!_isLoading()) {               //< page finished loading
                     _log.debug("_execFuncAndWaitForLoadDecorator", "Page Loading in Session: false");
 
-                    thisPage.resetOneShotCallbacks();
+                    try {
+                        // In case this command closed the window, "thisPage"
+                        // might now be invalid/deleted and calls to methods
+                        // attached to it will throw exceptions.
+                        // So, we just need to wrap it and move on.
+                        thisPage.resetOneShotCallbacks();
+                    } catch (e) {
+                        // swallow the exception: once this call is done
+                        // the window would have become invalid and any attempt
+                        // to access it will correctly throw a "NoWindow" Exception.
+                    }
 
                     if (onLoadFinishedArgs !== null) {
                         // Report the result of the "Load Finished" event
                         onLoadFunc.apply(thisPage, onLoadFinishedArgs);
-                    } else if (onErrorArgs !== null) {
-                        // Report the "Error" event
-                        onErrorFunc.apply(thisPage, onErrorArgs);
                     } else {
                         // No page load was caused: just report "success"
                         onLoadFunc.call(thisPage, "success");
@@ -225,7 +225,7 @@ ghostdriver.Session = function(desiredCapabilities) {
                 setTimeout(checkLoadingFinished, 100);
             };
             checkLoadingFinished();
-        }, 10);
+        }, 10);     //< 10ms
     },
 
     _oneShotCallbackFactory = function(page, callbackName) {
@@ -243,11 +243,7 @@ ghostdriver.Session = function(desiredCapabilities) {
     },
 
     _setOneShotCallbackDecorator = function(callbackName, handlerFunc) {
-        if (callbackName === "onError") {
-            this["onError"] = handlerFunc;
-        } else {
-            this[callbackName + _const.ONE_SHOT_POSTFIX] = handlerFunc;
-        }
+        this[callbackName + _const.ONE_SHOT_POSTFIX] = handlerFunc;
     },
 
     _resetOneShotCallbacksDecorator = function() {
@@ -256,7 +252,6 @@ ghostdriver.Session = function(desiredCapabilities) {
         this["onLoadStarted" + _const.ONE_SHOT_POSTFIX] = null;
         this["onLoadFinished" + _const.ONE_SHOT_POSTFIX] = null;
         this["onUrlChanged" + _const.ONE_SHOT_POSTFIX] = null;
-        this["onError"] = phantom.defaultErrorHandler;
     },
 
     // Add any new page to the "_windows" container of this session
@@ -306,10 +301,18 @@ ghostdriver.Session = function(desiredCapabilities) {
                 page.settings[k] = _pageSettings[k];
             }
         }
+        // 7. Applying Page custom headers received via capabilities
+        page.customHeaders = _pageCustomHeaders;
+        // 8. Log Page internal errors
+        page["onError"] = function(errorMsg, errorStack) {
+            _log.error("Page at '"+page.url+"'", "Console Error (msg): " + errorMsg);
+            _log.error("Page at '"+page.url+"'", "Console Error (stack): " + JSON.stringify(errorStack, null, "  "));
+        };
 
         page.onConsoleMessage = function(msg) { _log.debug("page.onConsoleMessage", msg); };
 
-        _log.debug("_decorateNewWindow", "page.settings: " + JSON.stringify(page.settings));
+        _log.info("_decorateNewWindow", "page.settings: " + JSON.stringify(page.settings));
+        _log.info("page.customHeaders: ", JSON.stringify(page.customHeaders));
 
         return page;
     },

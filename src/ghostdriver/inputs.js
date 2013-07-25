@@ -312,11 +312,11 @@ ghostdriver.Inputs = function () {
     },
 
     _mouseButtonDown = function (session, button) {
-        _mouseButtonClick(session, "mousedown", button);
+        _mouseButtonEvent(session, "mousedown", button);
     },
 
     _mouseButtonUp = function (session, button) {
-        _mouseButtonClick(session, "mouseUp", button);
+        _mouseButtonEvent(session, "mouseUp", button);
     },
 
     _keyEvent = function (session, eventType, keyCode) {
