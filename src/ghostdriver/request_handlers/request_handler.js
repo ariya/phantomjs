@@ -62,6 +62,9 @@ ghostdriver.RequestHandler = function() {
     },
 
     _decorateRequest = function(request) {
+        // Normalize URL first
+        request.url = request.url.replace(/^\/wd\/hub/, '');
+        // Then parse it
         request.urlParsed = require("./third_party/parseuri.js").parse(request.url);
     },
 

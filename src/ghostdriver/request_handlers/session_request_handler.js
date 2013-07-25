@@ -456,31 +456,23 @@ ghostdriver.SessionReqHand = function(session) {
             currWindow.switchToMainFrame();
 
             // Load URL and wait for load to finish (or timeout)
-            currWindow.execFuncAndWaitForLoad(
-                function() {
-                    currWindow.open(postObj.url);
+            currWindow.execFuncAndWaitForLoad(function() {
+                    currWindow.open(postObj.url.trim());
                 },
-                _createOnSuccessHandler(res),           //< success
-                function(errMsg) {                      //< failure/timeout
-                    if (errMsg === "timeout") {
-                        // Request timed out
-                        _errors.handleFailedCommandEH(
-                            _errors.FAILED_CMD_STATUS.TIMEOUT,
-                            "URL '" + postObj.url + "' didn't load within the 'Page Load Timeout'",
-                            req,
-                            res,
-                            _session,
-                            "SessionReqHand");
-                    } else {
-                        // Unknown error
-                        _errors.handleFailedCommandEH(
-                            _errors.FAILED_CMD_STATUS.UNKNOWN_ERROR,
-                            "URL '" + postObj.url + "' didn't load. Error: '" + errMsg + "'",
-                            req,
-                            res,
-                            _session,
-                            "SessionReqHand");
-                    }
+                _createOnSuccessHandler(res),               //< success
+                function(errMsg) {                          //< failure/timeout
+                    var errCode = errMsg === "timeout"
+                        ? _errors.FAILED_CMD_STATUS.TIMEOUT
+                        : _errors.FAILED_CMD_STATUS.UNKNOWN_ERROR;
+
+                    // Report error
+                    _errors.handleFailedCommandEH(
+                        errCode,
+                        "URL '" + postObj.url + "' didn't load. Error: '" + errMsg + "'",
+                        req,
+                        res,
+                        _session,
+                        "SessionReqHand");
                 });
         } else {
             throw _errors.createInvalidReqMissingCommandParameterEH(req);
@@ -498,6 +490,9 @@ ghostdriver.SessionReqHand = function(session) {
         }
 
         if (typeof(postObj["type"]) !== "undefined" && typeof(postObj["ms"]) !== "undefined") {
+
+            _log.debug("_postTimeout", JSON.stringify(postObj));
+
             // Set the right timeout on the Session
             switch(postObj["type"]) {
                 case _session.timeoutNames.SCRIPT:
@@ -820,7 +815,7 @@ ghostdriver.SessionReqHand = function(session) {
     _postWindowCommand = function(req, res) {
         var params = JSON.parse(req.post);
 
-        if (typeof(params) === "object" && params.name) {
+        if (typeof(params) === "object" && typeof(params.name) === "string") {
             // Report a success if we manage to switch the current window,
             // otherwise throw a Failed Command Error
             if (_session.switchToWindow(params.name)) {
