@@ -1558,7 +1558,7 @@ goog.require('wgxpath.Node');
  * @constructor
  */
 wgxpath.BinaryExpr = function(op, left, right) {
-  var opCast = /** @type {!wgxpath.BinaryExpr.Op_} */ op;
+  var opCast = /** @type {!wgxpath.BinaryExpr.Op_} */ (op);
   wgxpath.Expr.call(this, opCast.dataType_);
 
   /**
@@ -2316,7 +2316,7 @@ goog.inherits(wgxpath.FunctionCall, wgxpath.Expr);
 wgxpath.FunctionCall.prototype.evaluate = function(ctx) {
   var result = this.func_.evaluate_.apply(null,
       goog.array.concat(ctx, this.args_));
-  return /** @type {!(string|boolean|number|wgxpath.NodeSet)} */ result;
+  return /** @type {!(string|boolean|number|wgxpath.NodeSet)} */ (result);
 };
 
 
@@ -4090,7 +4090,7 @@ wgxpath.Parser.prototype.parseExpr = function() {
     expr = new wgxpath.BinaryExpr(stack.pop(), stack.pop(),
         /** @type {!wgxpath.Expr} */ (expr));
   }
-  return /** @type {!wgxpath.Expr} */ expr;
+  return /** @type {!wgxpath.Expr} */ (expr);
 };
 
 
@@ -4647,7 +4647,7 @@ wgxpath.PathExpr.prototype.evaluate = function(ctx) {
       }
     }
   }
-  return /** @type {!wgxpath.NodeSet} */ nodeset;
+  return /** @type {!wgxpath.NodeSet} */ (nodeset);
 };
 
 
@@ -4832,7 +4832,7 @@ goog.require('wgxpath.userAgent');
  *     this step ('//' vs '/').
  */
 wgxpath.Step = function(axis, test, opt_predicates, opt_descendants) {
-  var axisCast = /** @type {!wgxpath.Step.Axis_} */ axis;
+  var axisCast = /** @type {!wgxpath.Step.Axis_} */ (axis);
   wgxpath.Expr.call(this, wgxpath.DataType.NODESET);
 
   /**
@@ -5233,7 +5233,7 @@ wgxpath.Step.Axis = {
           nodeset.add(node.ownerElement);
           return nodeset;
         }
-        var parent = /** @type {!Node} */ node.parentNode;
+        var parent = /** @type {!Node} */ (node.parentNode);
         if (test.matches(parent)) {
           nodeset.add(parent);
         }
@@ -5830,6 +5830,26 @@ bot.action.type = function(
     }
   }
 
+  // mobile safari (iPhone / iPad). one cannot 'type' in a date field
+  // chrome implements this, but desktop Safari doesn't, what's webkit again?
+  if ((!(goog.userAgent.product.SAFARI && !goog.userAgent.MOBILE)) &&
+      goog.userAgent.WEBKIT && element.type == 'date') {
+    var val = goog.isArray(values)? values = values.join("") : values;
+    var datePattern = /\d{4}-\d{2}-\d{2}/;
+    if (val.match(datePattern)) {
+      // The following events get fired on iOS first
+      if (goog.userAgent.MOBILE && goog.userAgent.product.SAFARI) {
+        bot.events.fire(element, bot.events.EventType.TOUCHSTART);
+        bot.events.fire(element, bot.events.EventType.TOUCHEND);
+      }
+      bot.events.fire(element, bot.events.EventType.FOCUS);
+      element.value = val.match(datePattern)[0];
+      bot.events.fire(element, bot.events.EventType.CHANGE);
+      bot.events.fire(element, bot.events.EventType.BLUR);
+      return;
+    }
+  }
+
   if (goog.isArray(values)) {
     goog.array.forEach(values, typeValue);
   } else {
@@ -5859,7 +5879,7 @@ bot.action.type = function(
 bot.action.submit = function(element) {
   var form = bot.action.LegacyDevice_.findAncestorForm(element);
   if (!form) {
-    throw new bot.Error(bot.ErrorCode.INVALID_ELEMENT_STATE,
+    throw new bot.Error(bot.ErrorCode.NO_SUCH_ELEMENT,
                         'Element was not in a form, so could not submit.');
   }
   bot.action.LegacyDevice_.submitForm(element, form);
@@ -6275,8 +6295,12 @@ bot.action.LegacyDevice_.findAncestorForm = function(element) {
  * @return {boolean} Whether the element is in view after scrolling.
  */
 bot.action.scrollIntoView = function(element, opt_coords) {
-  if (!bot.dom.isScrolledIntoView(element, opt_coords)) {
-    element.scrollIntoView();
+  if (!bot.dom.isScrolledIntoView(element, opt_coords) && !bot.dom.isInParentOverflow(element, opt_coords)) {
+    // Some elements may not have a scrollIntoView function - for example,
+    // elements under an SVG element. Call those only if they exist.
+    if (typeof element.scrollIntoView == 'function') {
+      element.scrollIntoView();
+    }
     // In Opera 10, scrollIntoView only scrolls the element into the viewport of
     // its immediate parent window, so we explicitly scroll the ancestor frames
     // into view of their respective windows. Note that scrolling the top frame
@@ -6344,8 +6368,7 @@ goog.provide('bot');
  * being used for command execution. Note that "window" may not always be
  * defined (for example in firefox extensions)
  *
- * @type {!Window}
- * @private
+ * @private {!Window}
  */
 bot.window_;
 
@@ -6501,7 +6524,7 @@ bot.color.isConvertibleColor = function(str) {
  *
  * Used by bot.color.isColorProperty()
  * @const
- * @private
+ * @private {!Array.<string>}
  */
 bot.color.COLOR_PROPERTIES_ = [
   'background-color',
@@ -6526,8 +6549,7 @@ bot.color.isColorProperty = function(str) {
 
 /**
  * Regular expression for extracting the digits in a hex color triplet.
- * @type {!RegExp}
- * @private
+ * @private {!RegExp}
  * @const
  */
 bot.color.HEX_TRIPLET_RE_ = /#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])/;
@@ -6567,8 +6589,7 @@ bot.color.hexToRgb = function(hexColor) {
 
 /**
  * Helper for isValidHexColor_.
- * @type {!RegExp}
- * @private
+ * @private {!RegExp}
  * @const
  */
 bot.color.VALID_HEX_COLOR_RE_ = /^#(?:[0-9a-f]{3}){1,2}$/i;
@@ -6588,8 +6609,7 @@ bot.color.isValidHexColor_ = function(str) {
 
 /**
  * Helper for isNormalizedHexColor_.
- * @type {!RegExp}
- * @private
+ * @private {!RegExp}
  * @const
  */
 bot.color.NORMALIZED_HEX_COLOR_RE_ = /^#[0-9a-f]{6}$/;
@@ -6611,8 +6631,7 @@ bot.color.isNormalizedHexColor_ = function(str) {
 /**
  * Regular expression for matching and capturing RGBA style strings.
  * Helper for parseRgbaColor.
- * @type {!RegExp}
- * @private
+ * @private {!RegExp}
  * @const
  */
 bot.color.RGBA_COLOR_RE_ =
@@ -6651,8 +6670,7 @@ bot.color.parseRgbaColor = function(str) {
 /**
  * Regular expression for matching and capturing RGB style strings. Helper for
  * parseRgbColor_.
- * @type {!RegExp}
- * @private
+ * @private {!RegExp}
  * @const
  */
 bot.color.RGB_COLOR_RE_ =
@@ -6770,15 +6788,13 @@ goog.require('goog.userAgent.product');
 bot.Device = function(opt_modifiersState) {
   /**
    * Element being interacted with.
-   * @type {!Element}
-   * @private
+   * @private {!Element}
    */
   this.element_ = bot.getDocument().documentElement;
 
   /**
    * If the element is an option, this is its parent select element.
-   * @type {Element}
-   * @private
+   * @private {Element}
    */
   this.select_ = null;
 
@@ -7210,8 +7226,7 @@ bot.Device.prototype.focusOnElement = function() {
  * Whether links must be manually followed when clicking (because firing click
  * events doesn't follow them).
  *
- * @type {boolean}
- * @private
+ * @private {boolean}
  * @const
  */
 bot.Device.ALWAYS_FOLLOWS_LINKS_ON_CLICK_ =
@@ -7383,7 +7398,7 @@ bot.Device.isForm_ = function(node) {
 bot.Device.prototype.submitForm = function(form) {
   if (!bot.Device.isForm_(form)) {
     throw new bot.Error(bot.ErrorCode.INVALID_ELEMENT_STATE,
-                        'Element was not in a form, so could not submit.');
+                        'Element is not a form, so could not submit.');
   }
   if (bot.events.fire(form, bot.events.EventType.SUBMIT)) {
     // When a form has an element with an id or name exactly equal to "submit"
@@ -7399,7 +7414,7 @@ bot.Device.prototype.submitForm = function(form) {
     if (!bot.dom.isElement(form.submit)) {
       form.submit();
     } else if (!goog.userAgent.IE || bot.userAgent.isEngineVersion(8)) {
-      (/** @type {Function} */ form.constructor.prototype.submit).call(form);
+      /** @type {!Object} */ (form.constructor.prototype).submit.call(form);
     } else {
       var idMasks = bot.locators.findElements({'id': 'submit'}, form);
       var nameMasks = bot.locators.findElements({'name': 'submit'}, form);
@@ -7424,8 +7439,7 @@ bot.Device.prototype.submitForm = function(form) {
 
 /**
  * Regular expression for splitting up a URL into components.
- * @type {!RegExp}
- * @private
+ * @private {!RegExp}
  * @const
  */
 bot.Device.URL_REGEXP_ = new RegExp(
@@ -7489,8 +7503,7 @@ bot.Device.resolveUrl_ = function(base, rel) {
 bot.Device.ModifiersState = function() {
   /**
    * State of the modifier keys.
-   * @type {number}
-   * @private
+   * @private {number}
    */
   this.pressedModifiers_ = 0;
 };
@@ -7705,9 +7718,8 @@ bot.dom.isSelected = function(element) {
 /**
  * List of the focusable fields, according to
  * http://www.w3.org/TR/html401/interact/scripts.html#adef-onfocus
- * @type {!Array.<!goog.dom.TagName>}
  * @const
- * @private
+ * @private {!Array.<!goog.dom.TagName>}
  */
 bot.dom.FOCUSABLE_FORM_FIELDS_ = [
   goog.dom.TagName.A,
@@ -7760,9 +7772,8 @@ bot.dom.getProperty = function(element, propertyName) {
  * Helper for {@link bot.dom.standardizeStyleAttribute_}.
  * If the style attribute ends with a semicolon this will include an empty
  * string at the end of the array
- * @type {!RegExp}
  * @const
- * @private
+ * @private {!RegExp}
  */
 bot.dom.SPLIT_STYLE_ATTRIBUTE_ON_SEMICOLONS_REGEXP_ =
     new RegExp('[;]+' +
@@ -7859,9 +7870,8 @@ bot.dom.getAttribute = function(element, attributeName) {
 /**
  * List of elements that support the "disabled" attribute, as defined by the
  * HTML 4.01 specification.
- * @type {!Array.<goog.dom.TagName>}
  * @const
- * @private
+ * @private {!Array.<goog.dom.TagName>}
  * @see http://www.w3.org/TR/html401/interact/forms.html#h-17.12.1
  */
 bot.dom.DISABLED_ATTRIBUTE_SUPPORTED_ = [
@@ -7898,15 +7908,43 @@ bot.dom.isEnabled = function(el) {
       goog.dom.TagName.OPTION == tagName) {
     return bot.dom.isEnabled((/**@type{!Element}*/el.parentNode));
   }
+
+  // Is there an ancestor of the current element that is a disabled fieldset
+  // and whose child is also an ancestor-or-self of the current element but is
+  // not the first legend child of the fieldset. If so then the element is
+  // disabled.
+  if (goog.dom.getAncestor(el, function (e) {
+    var parent = e.parentNode;
+
+    if (parent &&
+        bot.dom.isElement(parent, goog.dom.TagName.FIELDSET) &&
+        bot.dom.getProperty(/** @type {!Element} */ (parent), 'disabled')) {
+      if (!bot.dom.isElement(e, goog.dom.TagName.LEGEND)) {
+        return true;
+      }
+
+      var sibling = e;
+      // Are there any previous legend siblings? If so then we are not the
+      // first and the element is disabled
+      while (sibling = goog.dom.getPreviousElementSibling(sibling)) {
+        if (bot.dom.isElement(sibling, goog.dom.TagName.LEGEND)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }, true)) {
+    return false;
+  }
+
   return true;
 };
 
 
 /**
  * List of input types that create text fields.
- * @type {!Array.<String>}
  * @const
- * @private
+ * @private {!Array.<String>}
  * @see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-input-element.html#attr-input-type
  */
 bot.dom.TEXTUAL_INPUT_TYPES_ = [
@@ -8113,7 +8151,7 @@ bot.dom.isBodyScrollBarShown_ = function(bodyElement) {
  * @return {!goog.math.Size} The dimensions of the element.
  */
 bot.dom.getElementSize = function(element) {
-  if (goog.isFunction(element['getBBox'])) {
+  if (goog.isFunction(element['getBBox']) && !bot.dom.isElement(element, goog.dom.TagName.SVG)) {
     try {
       var bb = element['getBBox']();
       if (bb) {
@@ -8268,36 +8306,33 @@ bot.dom.isShown = function(elem, opt_ignoreOpacity) {
   // Elements should be hidden if their parent has a fixed size AND has the
   // style overflow:hidden AND the element's location is not within the fixed
   // size of the parent
-  function isOverflowHiding(e) {
-    var parent = goog.style.getOffsetParent(e);
-    var parentNode = goog.userAgent.GECKO || goog.userAgent.IE ||
-        goog.userAgent.OPERA ? bot.dom.getParentElement(e) : parent;
-
-    // Gecko will skip the BODY tag when calling getOffsetParent. However, the
-    // combination of the overflow values on the BODY _and_ HTML tags determine
-    // whether scroll bars are shown, so we need to guarantee that both values
-    // are checked.
-    if ((goog.userAgent.GECKO || goog.userAgent.IE || goog.userAgent.OPERA) &&
-        bot.dom.isElement(parentNode, goog.dom.TagName.BODY)) {
-      parent = parentNode;
+  function isOverflowHiding(e, block) {
+    var parent;
+    if (block == null) {
+      parent = goog.dom.getParentElement(e);
+    } else {
+      parent = goog.dom.getParentElement(block);
     }
 
-    if (parent && bot.dom.getEffectiveStyle(parent, 'overflow') == 'hidden') {
+    if (parent && (bot.dom.getEffectiveStyle(parent, 'overflow-x') == 'hidden' ||
+        bot.dom.getEffectiveStyle(parent, 'overflow-y') == 'hidden')) {
       var sizeOfParent = bot.dom.getElementSize(parent);
       var locOfParent = goog.style.getClientPosition(parent);
       var locOfElement = goog.style.getClientPosition(e);
-      if (locOfParent.x + sizeOfParent.width <= locOfElement.x) {
+      if (locOfParent.x + sizeOfParent.width <= locOfElement.x &&
+          bot.dom.getEffectiveStyle(parent, 'overflow-x') == 'hidden') {
         return false;
       }
-      if (locOfParent.y + sizeOfParent.height <= locOfElement.y) {
+      if (locOfParent.y + sizeOfParent.height <= locOfElement.y &&
+          bot.dom.getEffectiveStyle(parent, 'overflow-y') == 'hidden') {
         return false;
       }
-      return isOverflowHiding(parent);
+      return true;
     }
-    return true;
+    return !parent || isOverflowHiding(e, parent);
   }
 
-  if (!isOverflowHiding(elem)) {
+  if (!isOverflowHiding(elem, null)) {
     return false;
   }
 
@@ -8505,8 +8540,7 @@ bot.dom.appendVisibleTextLinesFromElement_ = function(elem, lines) {
 /**
  * Elements with one of these effective "display" styles are treated as inline
  * display boxes and have their visible text appended to the current line.
- * @type {!Array.<string>}
- * @private
+ * @private {!Array.<string>}
  * @const
  */
 bot.dom.INLINE_DISPLAY_BOXES_ = [
@@ -8810,8 +8844,8 @@ bot.dom.scrollElementRegionIntoClientView = function(elem, elemRegion) {
   var viewportSize = goog.dom.getDomHelper(doc).getViewportSize();
 
   var region = new goog.math.Rect(
-      elemPageOffset.x + elemRegion.left - doc.body.scrollLeft,
-      elemPageOffset.y + elemRegion.top - doc.body.scrollTop,
+      elemPageOffset.x + elemRegion.left - (doc.body ? doc.body.scrollLeft : 0),
+      elemPageOffset.y + elemRegion.top - (doc.body ? doc.body.scrollTop : 0),
       viewportSize.width - elemRegion.width,
       viewportSize.height - elemRegion.height);
 
@@ -8928,8 +8962,6 @@ bot.dom.isScrolledIntoView = function(element, opt_coords) {
 goog.provide('bot.Error');
 goog.provide('bot.ErrorCode');
 
-goog.require('goog.object');
-
 
 /**
  * Error codes from the WebDriver wire protocol:
@@ -8964,7 +8996,11 @@ bot.ErrorCode = {
   INVALID_SELECTOR_ERROR: 32,
   SESSION_NOT_CREATED: 33,
   MOVE_TARGET_OUT_OF_BOUNDS: 34,
-  SQL_DATABASE_ERROR: 35
+  SQL_DATABASE_ERROR: 35,
+  INVALID_XPATH_SELECTOR: 51,
+  INVALID_XPATH_SELECTOR_RETURN_TYPE: 52,
+  // The following error codes are derived straight from HTTP return codes.
+  METHOD_NOT_ALLOWED: 405
 };
 
 
@@ -8987,12 +9023,26 @@ bot.Error = function(code, opt_message) {
    */
   this.code = code;
 
+  /** @type {string} */
+  this.state =
+      bot.Error.CODE_TO_STATE_[code] || bot.Error.State.UNKNOWN_ERROR;
+
   /** @override */
   this.message = opt_message || '';
 
+  var name = this.state.replace(/((?:^|\s+)[a-z])/g, function(str) {
+    // IE<9 does not support String#trim(). Also, IE does not include 0xa0
+    // (the non-breaking-space) in the \s character class, so we have to
+    // explicitly include it.
+    return str.toUpperCase().replace(/^[\s\xa0]+/g, '');
+  });
+  var l = name.length - 'Error'.length;
+  if (l < 0 || name.indexOf('Error', l) != l) {
+    name += 'Error';
+  }
+
   /** @override */
-  this.name = (/**@type {string}*/ bot.Error.NAMES_[code] ||
-      bot.Error.NAMES_[bot.ErrorCode.UNKNOWN_ERROR]);
+  this.name = name;
 
   // Generate a stacktrace for our custom error; ensure the error has our
   // custom name and message so the stack prints correctly in all browsers.
@@ -9006,30 +9056,76 @@ goog.inherits(bot.Error, Error);
 
 
 /**
- * A map of error codes to error names.
- * @type {!Object.<string>}
- * @const
- * @private
+ * Status strings enumerated in the W3C WebDriver working draft.
+ * @enum {string}
+ * @see http://www.w3.org/TR/webdriver/#status-codes
  */
-bot.Error.NAMES_ = goog.object.create(
-    bot.ErrorCode.NO_SUCH_ELEMENT, 'NoSuchElementError',
-    bot.ErrorCode.NO_SUCH_FRAME, 'NoSuchFrameError',
-    bot.ErrorCode.UNKNOWN_COMMAND, 'UnknownCommandError',
-    bot.ErrorCode.STALE_ELEMENT_REFERENCE, 'StaleElementReferenceError',
-    bot.ErrorCode.ELEMENT_NOT_VISIBLE, 'ElementNotVisibleError',
-    bot.ErrorCode.INVALID_ELEMENT_STATE, 'InvalidElementStateError',
-    bot.ErrorCode.UNKNOWN_ERROR, 'UnknownError',
-    bot.ErrorCode.ELEMENT_NOT_SELECTABLE, 'ElementNotSelectableError',
-    bot.ErrorCode.XPATH_LOOKUP_ERROR, 'XPathLookupError',
-    bot.ErrorCode.NO_SUCH_WINDOW, 'NoSuchWindowError',
-    bot.ErrorCode.INVALID_COOKIE_DOMAIN, 'InvalidCookieDomainError',
-    bot.ErrorCode.UNABLE_TO_SET_COOKIE, 'UnableToSetCookieError',
-    bot.ErrorCode.MODAL_DIALOG_OPENED, 'ModalDialogOpenedError',
-    bot.ErrorCode.NO_MODAL_DIALOG_OPEN, 'NoModalDialogOpenError',
-    bot.ErrorCode.SCRIPT_TIMEOUT, 'ScriptTimeoutError',
-    bot.ErrorCode.INVALID_SELECTOR_ERROR, 'InvalidSelectorError',
-    bot.ErrorCode.SQL_DATABASE_ERROR, 'SqlDatabaseError',
-    bot.ErrorCode.MOVE_TARGET_OUT_OF_BOUNDS, 'MoveTargetOutOfBoundsError');
+bot.Error.State = {
+  ELEMENT_NOT_SELECTABLE: 'element not selectable',
+  ELEMENT_NOT_VISIBLE: 'element not visible',
+  IME_ENGINE_ACTIVATION_FAILED: 'ime engine activation failed',
+  IME_NOT_AVAILABLE: 'ime not available',
+  INVALID_COOKIE_DOMAIN: 'invalid cookie domain',
+  INVALID_ELEMENT_COORDINATES: 'invalid element coordinates',
+  INVALID_ELEMENT_STATE: 'invalid element state',
+  INVALID_SELECTOR: 'invalid selector',
+  JAVASCRIPT_ERROR: 'javascript error',
+  MOVE_TARGET_OUT_OF_BOUNDS: 'move target out of bounds',
+  NO_SUCH_ALERT: 'no such alert',
+  NO_SUCH_DOM: 'no such dom',
+  NO_SUCH_ELEMENT: 'no such element',
+  NO_SUCH_FRAME: 'no such frame',
+  NO_SUCH_WINDOW: 'no such window',
+  SCRIPT_TIMEOUT: 'script timeout',
+  SESSION_NOT_CREATED: 'session not created',
+  STALE_ELEMENT_REFERENCE: 'stale element reference',
+  SUCCESS: 'success',
+  TIMEOUT: 'timeout',
+  UNABLE_TO_SET_COOKIE: 'unable to set cookie',
+  UNEXPECTED_ALERT_OPEN: 'unexpected alert open',
+  UNKNOWN_COMMAND: 'unknown command',
+  UNKNOWN_ERROR: 'unknown error',
+  UNSUPPORTED_OPERATION: 'unsupported operation'
+};
+
+
+/**
+ * A map of error codes to state string.
+ * @private {!Object.<bot.ErrorCode, bot.Error.State>}
+ */
+bot.Error.CODE_TO_STATE_ = {};
+goog.scope(function() {
+  var map = bot.Error.CODE_TO_STATE_;
+  var code = bot.ErrorCode;
+  var state = bot.Error.State;
+
+  map[code.ELEMENT_NOT_SELECTABLE] = state.ELEMENT_NOT_SELECTABLE;
+  map[code.ELEMENT_NOT_VISIBLE] = state.ELEMENT_NOT_VISIBLE;
+  map[code.IME_ENGINE_ACTIVATION_FAILED] = state.IME_ENGINE_ACTIVATION_FAILED;
+  map[code.IME_NOT_AVAILABLE] = state.IME_NOT_AVAILABLE;
+  map[code.INVALID_COOKIE_DOMAIN] = state.INVALID_COOKIE_DOMAIN;
+  map[code.INVALID_ELEMENT_COORDINATES] = state.INVALID_ELEMENT_COORDINATES;
+  map[code.INVALID_ELEMENT_STATE] = state.INVALID_ELEMENT_STATE;
+  map[code.INVALID_SELECTOR_ERROR] = state.INVALID_SELECTOR;
+  map[code.INVALID_XPATH_SELECTOR] = state.INVALID_SELECTOR;
+  map[code.INVALID_XPATH_SELECTOR_RETURN_TYPE] = state.INVALID_SELECTOR;
+  map[code.JAVASCRIPT_ERROR] = state.JAVASCRIPT_ERROR;
+  map[code.METHOD_NOT_ALLOWED] = state.UNSUPPORTED_OPERATION;
+  map[code.MOVE_TARGET_OUT_OF_BOUNDS] = state.MOVE_TARGET_OUT_OF_BOUNDS;
+  map[code.NO_MODAL_DIALOG_OPEN] = state.NO_SUCH_ALERT;
+  map[code.NO_SUCH_ELEMENT] = state.NO_SUCH_ELEMENT;
+  map[code.NO_SUCH_FRAME] = state.NO_SUCH_FRAME;
+  map[code.NO_SUCH_WINDOW] = state.NO_SUCH_WINDOW;
+  map[code.SCRIPT_TIMEOUT] = state.SCRIPT_TIMEOUT;
+  map[code.SESSION_NOT_CREATED] = state.SESSION_NOT_CREATED;
+  map[code.STALE_ELEMENT_REFERENCE] = state.STALE_ELEMENT_REFERENCE;
+  map[code.SUCCESS] = state.SUCCESS;
+  map[code.TIMEOUT] = state.TIMEOUT;
+  map[code.UNABLE_TO_SET_COOKIE] = state.UNABLE_TO_SET_COOKIE;
+  map[code.MODAL_DIALOG_OPENED] = state.UNEXPECTED_ALERT_OPEN;
+  map[code.UNKNOWN_ERROR] = state.UNKNOWN_ERROR;
+  map[code.UNSUPPORTED_OPERATION] = state.UNKNOWN_COMMAND;
+});  // goog.scope
 
 
 /**
@@ -9103,8 +9199,7 @@ bot.events.SUPPORTS_TOUCH_EVENTS = !(goog.userAgent.IE &&
  * Whether the browser supports a native touch api.
  *
  * @const
- * @type {boolean}
- * @private
+ * @private {boolean}
  */
 bot.events.BROKEN_TOUCH_API_ = (function() {
   if (goog.userAgent.product.ANDROID) {
@@ -9247,22 +9342,13 @@ bot.events.MSPointerArgs;
  * @private
  */
 bot.events.EventFactory_ = function(type, bubbles, cancelable) {
-  /**
-   * @type {string}
-   * @private
-   */
+  /** @private {string} */
   this.type_ = type;
 
-  /**
-   * @type {boolean}
-   * @private
-   */
+  /** @private {boolean} */
   this.bubbles_ = bubbles;
 
-  /**
-   * @type {boolean}
-   * @private
-   */
+  /** @private {boolean} */
   this.cancelable_ = cancelable;
 };
 
@@ -9350,13 +9436,13 @@ bot.events.MouseEventFactory_.prototype.create = function(target, opt_args) {
 
     // Sets a property of the event object using Object.defineProperty.
     // Some readonly properties of the IE event object can only be set this way.
-    function setEventProperty(prop, value) {
+    var setEventProperty = function(prop, value) {
       Object.defineProperty(event, prop, {
         get: function() {
           return value;
         }
       });
-    }
+    };
 
     // IE has fromElement and toElement properties, no relatedTarget property.
     // IE does not allow fromElement and toElement to be set directly, but
@@ -9864,7 +9950,7 @@ bot.frame.activeElement = function() {
  */
 bot.frame.getFrameWindow = function(element) {
   if (bot.frame.isFrame_(element)) {
-    var frame = /** @type {HTMLFrameElement|HTMLIFrameElement} */ element;
+    var frame = /** @type {HTMLFrameElement|HTMLIFrameElement} */ (element);
     return goog.dom.getFrameContentWindow(frame);
   }
   throw new bot.Error(bot.ErrorCode.NO_SUCH_FRAME,
@@ -10282,7 +10368,7 @@ bot.inject.executeAsyncScript = function(fn, args, timeout, onDone,
 
   fn = bot.inject.recompileFunction_(fn, win);
 
-  args = /** @type {Array.<*>} */bot.inject.unwrapValue_(args, win.document);
+  args = /** @type {Array.<*>} */ (bot.inject.unwrapValue_(args, win.document));
   args.push(goog.partial(sendResponse, bot.ErrorCode.SUCCESS));
 
   if (win.addEventListener) {
@@ -10356,9 +10442,8 @@ bot.inject.wrapError = function(err) {
  * when it is injected into the page. Since compiling each browser atom results
  * in a different symbol table, we must use this known key to access the cache.
  * This ensures the same object is used between injections of different atoms.
- * @type {string}
  * @const
- * @private
+ * @private {string}
  */
 bot.inject.cache.CACHE_KEY_ = '$wdc_';
 
@@ -10504,10 +10589,9 @@ bot.json.NATIVE_JSON = true;
 
 /**
  * Whether the current browser supports the native JSON interface.
- * @type {boolean}
  * @const
  * @see http://caniuse.com/#search=JSON
- * @private
+ * @private {boolean}
  */
 bot.json.SUPPORTS_NATIVE_JSON_ =
     // List WebKit and Opera first since every supported version of these
@@ -10588,22 +10672,13 @@ goog.require('goog.userAgent');
 bot.Keyboard = function(opt_state) {
   goog.base(this);
 
-  /**
-   * @type {boolean}
-   * @private
-   */
+  /** @private {boolean} */
   this.editable_ = bot.dom.isEditable(this.getElement());
 
-  /**
-   * @type {number}
-   * @private
-   */
+  /** @private {number} */
   this.currentPos_ = 0;
 
-  /**
-   * @type {!goog.structs.Set.<!bot.Keyboard.Key>}
-   * @private
-   */
+  /** @private {!goog.structs.Set.<!bot.Keyboard.Key>} */
   this.pressed_ = new goog.structs.Set();
 
   if (opt_state) {
@@ -10623,9 +10698,8 @@ goog.inherits(bot.Keyboard, bot.Device);
  * Maps characters to (key,boolean) pairs, where the key generates the
  * character and the boolean is true when the shift must be pressed.
  *
- * @type {!Object.<string, {key: !bot.Keyboard.Key, shift: boolean}>}
+ * @private {!Object.<string, {key: !bot.Keyboard.Key, shift: boolean}>}
  * @const
- * @private
  */
 bot.Keyboard.CHAR_TO_KEY_ = {};
 
@@ -10880,8 +10954,7 @@ bot.Keyboard.MODIFIERS = [
 
 /**
  * Map of modifier to key.
- * @type {!goog.structs.Map.<!bot.Device.Modifier, !bot.Keyboard.Key>}
- * @private
+ * @private {!goog.structs.Map.<!bot.Device.Modifier, !bot.Keyboard.Key>}
  */
 bot.Keyboard.MODIFIER_TO_KEY_MAP_ = (function() {
   var modifiersMap = new goog.structs.Map();
@@ -10900,8 +10973,7 @@ bot.Keyboard.MODIFIER_TO_KEY_MAP_ = (function() {
 
 /**
  * The reverse map - key to modifier.
- * @type {!goog.structs.Map.<number, !bot.Device.Modifier>}
- * @private
+ * @private {!goog.structs.Map.<number, !bot.Device.Modifier>}
  */
 bot.Keyboard.KEY_TO_MODIFIER_ = (function(modifiersMap) {
   var keyToModifierMap = new goog.structs.Map();
@@ -10939,8 +11011,7 @@ bot.Keyboard.prototype.setKeyPressed_ = function(key, isPressed) {
  * The value used for newlines in the current browser/OS combination. Although
  * the line endings look platform dependent, they are browser dependent. In
  * particular, Opera uses \r\n on all platforms.
- * @type {string}
- * @private
+ * @private {string}
  * @const
  */
 bot.Keyboard.NEW_LINE_ =
@@ -11133,8 +11204,7 @@ bot.Keyboard.prototype.getChar_ = function(key) {
  * additional logic to surgically apply the edit.
  *
  * @const
- * @type {boolean}
- * @private
+ * @private {boolean}
  */
 bot.Keyboard.KEYPRESS_EDITS_TEXT_ = goog.userAgent.GECKO &&
     !bot.userAgent.isEngineVersion(12);
@@ -11163,9 +11233,7 @@ bot.Keyboard.prototype.updateOnCharacter_ = function(key) {
 };
 
 
-/**
- * @private
- */
+/** @private */
 bot.Keyboard.prototype.updateOnEnter_ = function() {
   if (bot.Keyboard.KEYPRESS_EDITS_TEXT_) {
     return;
@@ -11475,35 +11543,22 @@ goog.require('goog.userAgent');
 bot.Mouse = function(opt_state, opt_modifiersState) {
   goog.base(this, opt_modifiersState);
 
-  /**
-   * @type {?bot.Mouse.Button}
-   * @private
-   */
+  /** @private {?bot.Mouse.Button} */
   this.buttonPressed_ = null;
 
-  /**
-   * @type {Element}
-   * @private
-   */
+  /** @private {Element} */
   this.elementPressed_ = null;
 
-  /**
-   * @type {!goog.math.Coordinate}
-   * @private
-   */
+  /** @private {!goog.math.Coordinate} */
   this.clientXY_ = new goog.math.Coordinate(0, 0);
 
-  /**
-   * @type {boolean}
-   * @private
-   */
+  /** @private {boolean} */
   this.nextClickIsDoubleClick_ = false;
 
   /**
    * Whether this Mouse has ever explicitly interacted with any element.
    *
-   * @type {boolean}
-   * @private
+   * @private {boolean}
    */
   this.hasEverInteracted_ = false;
 
@@ -11560,8 +11615,7 @@ bot.Mouse.Button = {
 /**
  * Index to indicate no button pressed in bot.Mouse.MOUSE_BUTTON_VALUE_MAP_.
  *
- * @type {number}
- * @private
+ * @private {number}
  * @const
  */
 bot.Mouse.NO_BUTTON_VALUE_INDEX_ = 3;
@@ -11577,8 +11631,7 @@ bot.Mouse.NO_BUTTON_VALUE_INDEX_ = 3;
  * WEBKIT/IE9    0 1 2 X   0 1 2 X    0 1 2 0    0 1 2 0    X X 2 X
  * GECKO/OPERA   0 1 2 X   0 1 2 X    0 0 0 0    0 0 0 0    X X 2 X
  *
- * @type {!Object.<bot.events.EventType, !Array.<?number>>}
- * @private
+ * @private {!Object.<bot.events.EventType, !Array.<?number>>}
  * @const
  */
 bot.Mouse.MOUSE_BUTTON_VALUE_MAP_ = (function() {
@@ -11629,8 +11682,7 @@ bot.Mouse.MOUSE_BUTTON_VALUE_MAP_ = (function() {
 
 /**
  * Maps mouse events to corresponding MSPointer event.
- * @type {!Object.<bot.events.EventType, bot.events.EventType>}
- * @private
+ * @private {!Object.<bot.events.EventType, bot.events.EventType>}
  */
 bot.Mouse.MOUSE_EVENT_MAP_ = {
   mousedown: bot.events.EventType.MSPOINTERDOWN,
@@ -12058,46 +12110,28 @@ goog.require('goog.style');
 bot.Touchscreen = function() {
   goog.base(this);
 
-  /**
-   * @type {!goog.math.Coordinate}
-   * @private
-   */
+  /** @private {!goog.math.Coordinate} */
   this.clientXY_ = new goog.math.Coordinate(0, 0);
 
-  /**
-   * @type {!goog.math.Coordinate}
-   * @private
-   */
+  /** @private {!goog.math.Coordinate} */
   this.clientXY2_ = new goog.math.Coordinate(0, 0);
 };
 goog.inherits(bot.Touchscreen, bot.Device);
 
 
-/**
- * @type {boolean}
- * @private
- */
+/** @private {boolean} */
 bot.Touchscreen.prototype.hasMovedAfterPress_ = false;
 
 
-/**
- * @type {number}
- * @private
- */
+/** @private {number} */
 bot.Touchscreen.prototype.touchIdentifier_ = 0;
 
 
-/**
- * @type {number}
- * @private
- */
+/** @private {number} */
 bot.Touchscreen.prototype.touchIdentifier2_ = 0;
 
 
-/**
- * @type {number}
- * @private
- */
+/** @private {number} */
 bot.Touchscreen.prototype.touchCounter_ = 1;
 
 
@@ -12421,8 +12455,7 @@ bot.userAgent.isProductVersion = function(version) {
  * and returns whether the version of Gecko we are on is the same or higher
  * than the given version. When we are not in a Firefox extension, this is null.
  *
- * @type {(undefined|function((string|number)): boolean)}
- * @private
+ * @private {(undefined|function((string|number)): boolean)}
  */
 bot.userAgent.FIREFOX_EXTENSION_IS_ENGINE_VERSION_;
 
@@ -12432,9 +12465,7 @@ bot.userAgent.FIREFOX_EXTENSION_IS_ENGINE_VERSION_;
  * and returns whether the version of Firefox we are on is the same or higher
  * than the given version. When we are not in a Firefox extension, this is null.
  *
- * @type {(undefined|function((string|number)): boolean)}
- *
- * @private
+ * @private {(undefined|function((string|number)): boolean)}
  */
 bot.userAgent.FIREFOX_EXTENSION_IS_PRODUCT_VERSION_;
 
@@ -12508,8 +12539,7 @@ bot.userAgent.MOBILE = bot.userAgent.IOS || goog.userAgent.product.ANDROID;
  * Android Operating System Version.
  *
  * @const
- * @type {string}
- * @private
+ * @private {string}
  */
 bot.userAgent.ANDROID_VERSION_ = (function() {
   if (goog.userAgent.product.ANDROID) {
@@ -12609,8 +12639,7 @@ goog.require('goog.userAgent');
  * minus 1, but becomes the total number of pages on a subsequent back() call.
  *
  * @const
- * @type {boolean}
- * @private
+ * @private {boolean}
  */
 bot.window.HISTORY_LENGTH_INCLUDES_NEW_PAGE_ = !goog.userAgent.IE &&
     !goog.userAgent.OPERA;
@@ -12623,8 +12652,7 @@ bot.window.HISTORY_LENGTH_INCLUDES_NEW_PAGE_ = !goog.userAgent.IE &&
  * https://bugs.webkit.org/show_bug.cgi?id=24472
  *
  * @const
- * @type {boolean}
- * @private
+ * @private {boolean}
  */
 bot.window.HISTORY_LENGTH_INCLUDES_FORWARD_PAGES_ = !goog.userAgent.OPERA &&
     (!goog.userAgent.WEBKIT || bot.userAgent.isEngineVersion('533'));
@@ -13201,9 +13229,8 @@ bot.locators.strategy;
  * and are specified at:
  * https://code.google.com/p/selenium/wiki/JsonWireProtocol
  *
- * @private
  * @const
- * @type {Object.<string,bot.locators.strategy>}
+ * @private {Object.<string,bot.locators.strategy>}
  */
 bot.locators.STRATEGIES_ = {
   'className': bot.locators.className,
@@ -13900,8 +13927,7 @@ bot.html5.API = {
 /**
  * True if the current browser is IE8.
  *
- * @private
- * @type {boolean}
+ * @private {boolean}
  * @const
  */
 bot.html5.IS_IE8_ = goog.userAgent.IE &&
@@ -13911,8 +13937,7 @@ bot.html5.IS_IE8_ = goog.userAgent.IE &&
 /**
  * True if the current browser is Safari 4.
  *
- * @private
- * @type {boolean}
+ * @private {boolean}
  * @const
  */
 bot.html5.IS_SAFARI4_ = goog.userAgent.product.SAFARI &&
@@ -13922,8 +13947,7 @@ bot.html5.IS_SAFARI4_ = goog.userAgent.product.SAFARI &&
 /**
  * True if the browser is Android 2.2 (Froyo).
  *
- * @private
- * @type {boolean}
+ * @private {boolean}
  * @const
  */
 bot.html5.IS_ANDROID_FROYO_ = goog.userAgent.product.ANDROID &&
@@ -13933,8 +13957,7 @@ bot.html5.IS_ANDROID_FROYO_ = goog.userAgent.product.ANDROID &&
 /**
  * True if the current browser is Safari 5 on Windows.
  *
- * @private
- * @type {boolean}
+ * @private {boolean}
  * @const
  */
 bot.html5.IS_SAFARI_WINDOWS_ = goog.userAgent.WINDOWS &&
@@ -14042,11 +14065,11 @@ goog.require('bot.html5');
  * @type {GeolocationPositionOptions}
  * @see http://dev.w3.org/geo/api/spec-source.html#position-options
  */
-bot.geolocation.DEFAULT_OPTIONS = /** @type {GeolocationPositionOptions} */ {
+bot.geolocation.DEFAULT_OPTIONS = /** @type {GeolocationPositionOptions} */ ({
   enableHighAccuracy: true,
   maximumAge: Infinity,
   timeout: 5000
-};
+});
 
 
 /**
@@ -14164,8 +14187,7 @@ bot.storage.getSessionStorage = function(opt_window) {
 bot.storage.Storage = function(storageMap) {
   /**
    * Member variable to access the assigned HTML5 storage object.
-   * @type {Storage}
-   * @private
+   * @private {Storage}
    */
   this.storageMap_ = storageMap;
 };
@@ -14201,7 +14223,7 @@ bot.storage.Storage.prototype.setItem = function(key, value) {
  */
 bot.storage.Storage.prototype.getItem = function(key) {
   var value = this.storageMap_.getItem(key);
-  return  /** @type {?string} */ value;
+  return  /** @type {?string} */ (value);
 };
 
 
@@ -14413,7 +14435,7 @@ webdriver.atoms.element.isSelected = function(element) {
  * property name.
  *
  * @const
- * @private
+ * @private {!Object.<string, string>}
  */
 webdriver.atoms.element.PROPERTY_ALIASES_ = {
   'class': 'className',
@@ -14430,7 +14452,7 @@ webdriver.atoms.element.PROPERTY_ALIASES_ = {
  * These must all be lower-case.
  *
  * @const
- * @private
+ * @private {!Array.<string>}
  */
 webdriver.atoms.element.BOOLEAN_PROPERTIES_ = [
   'async',
@@ -14491,7 +14513,7 @@ webdriver.atoms.element.getAttribute = function(element, attribute) {
   var value = null;
   var name = attribute.toLowerCase();
 
-  if ('style' == attribute.toLowerCase()) {
+  if ('style' == name) {
     value = element.style;
 
     if (value && !goog.isString(value)) {
@@ -14600,15 +14622,6 @@ webdriver.atoms.element.isInHead_ = function(element) {
  * @return {string} The visible text or an empty string.
  */
 webdriver.atoms.element.getText = function(element) {
-  if (webdriver.atoms.element.isInHead_(element)) {
-    var doc = goog.dom.getOwnerDocument(element);
-    if (element.tagName.toUpperCase() == goog.dom.TagName.TITLE &&
-        goog.dom.getWindow(doc) == bot.getWindow().top) {
-      return goog.string.trim((/** @type {string} */doc.title));
-    }
-    return '';
-  }
-
   return bot.dom.getVisibleText(element);
 };
 
@@ -14702,9 +14715,8 @@ webdriver.atoms.element.type = function(
 
 /**
  * Maps JSON wire protocol values to their {@link bot.Keyboard.Key} counterpart.
- * @type {!Object.<bot.Keyboard.Key>}
+ * @private {!Object.<bot.Keyboard.Key>}
  * @const
- * @private
  */
 webdriver.atoms.element.type.JSON_TO_KEY_MAP_ = {};
 goog.scope(function() {
@@ -15004,6 +15016,7 @@ webdriver.atoms.inject.action.type = function(element, keys) {
  *
  * @param {!{bot.inject.ELEMENT_KEY:string}} element The element to submit.
  * @return {string} A stringified {@link bot.response.ResponseObject}.
+ * @deprecated Click on a submit button or type ENTER in a text box instead.
  */
 webdriver.atoms.inject.action.submit = function(element) {
   return webdriver.atoms.inject.executeScript(bot.action.submit, [element]);
@@ -15230,16 +15243,17 @@ webdriver.atoms.inject.executeScript = function(fn, args, opt_window) {
  * @param {!(string|Function)} fn The function to execute.
  * @param {Array.<*>} args Array of arguments to pass to fn.
  * @param {number} timeout The timeout to wait up to in millis.
+ * @param {function(string)|function(!bot.response.ResponseObject)} onDone
+ *     The function to call when the given {@code fn} invokes its callback,
+ *     or when an exception or timeout occurs. This will always be called.
  * @param {{bot.inject.WINDOW_KEY:string}=} opt_window The serialized window
  *     object to be read from the cache.
- * @return {string} The response object, serialized and returned in string
- *     format.
  */
 webdriver.atoms.inject.executeAsyncScript =
     function(fn, args, timeout, onDone, opt_window) {
-  return /** @type {string} */(bot.inject.executeAsyncScript(
+  bot.inject.executeAsyncScript(
       fn, args, timeout, onDone, true,
-      webdriver.atoms.inject.getWindow_(opt_window)));
+      webdriver.atoms.inject.getWindow_(opt_window));
 };
 
 
@@ -15259,8 +15273,7 @@ webdriver.atoms.inject.getWindow_ = function(opt_window) {
     win = window;
   }
   return /**@type {!Window}*/(win);
-};
-// Copyright 2011 WebDriver committers
+};// Copyright 2011 WebDriver committers
 // Copyright 2011 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15919,7 +15932,7 @@ goog.require('webdriver.atoms.element');
  * Focuses on the given element if it is not already the active element.
  *
  * @param {!{bot.inject.ELEMENT_KEY:string}} element The element to focus on.
- * @return {string} A stringified {@link bot.response.ResponseObject}.
+ * @return {(string|{status: bot.ErrorCode.<number>, value: *})} A stringified {@link bot.response.ResponseObject}.
  * @see bot.action.focusOnElement
  */
 phantomjs.atoms.inject.action.focusOnElement = function(element) {
@@ -15931,7 +15944,7 @@ phantomjs.atoms.inject.action.focusOnElement = function(element) {
  *
  * @param {!{bot.inject.ELEMENT_KEY:string}} element The element to move to.
  * @param {!{x:number,y:number}} opt_coords Mouse position relative to the element (optional).
- * @return {string} A stringified {@link bot.response.ResponseObject}.
+ * @return {(string|{status: bot.ErrorCode.<number>, value: *})} A stringified {@link bot.response.ResponseObject}.
  */
 phantomjs.atoms.inject.action.moveMouse = function(element, opt_coords) {
     return bot.inject.executeScript(bot.action.moveMouse, [element, opt_coords], true);
@@ -15942,7 +15955,7 @@ phantomjs.atoms.inject.action.moveMouse = function(element, opt_coords) {
  *
  * @param {!{bot.inject.ELEMENT_KEY:string}} element The element to right-click.
  * @param {!{x:number,y:number}} opt_coords Mouse position relative to the element (optional).
- * @return {string} A stringified {@link bot.response.ResponseObject}.
+ * @return {(string|{status: bot.ErrorCode.<number>, value: *})} A stringified {@link bot.response.ResponseObject}.
  */
 phantomjs.atoms.inject.action.rightClick = function(element, opt_coords) {
     return bot.inject.executeScript(bot.action.rightClick, [element, opt_coords], true);
@@ -15951,9 +15964,9 @@ phantomjs.atoms.inject.action.rightClick = function(element, opt_coords) {
 /**
  * Double-clicks on the given {@code element} with a virtual mouse.
  *
- * @param {!{bot.inject.ELEMENT_KEY:string} element The element to double-click.
+ * @param {!{bot.inject.ELEMENT_KEY:string}} element The element to double-click.
  * @param {!{x:number,y:number}} opt_coords Mouse position relative to the element (optional).
- * @return {string} A stringified {@link bot.response.ResponseObject}.
+ * @return {(string|{status: bot.ErrorCode.<number>, value: *})} A stringified {@link bot.response.ResponseObject}.
  */
 phantomjs.atoms.inject.action.doubleClick = function(element, opt_coords) {
     return bot.inject.executeScript(bot.action.doubleClick, [element, opt_coords], true);
@@ -15962,11 +15975,11 @@ phantomjs.atoms.inject.action.doubleClick = function(element, opt_coords) {
 /**
  * Scrolls the mouse wheel on the given {@code element} with a virtual mouse.
  *
- * @param {!{bot.inject.ELEMENT_KEY:string} element The element to scroll the mouse wheel on.
+ * @param {!{bot.inject.ELEMENT_KEY:string}} element The element to scroll the mouse wheel on.
  * @param {number} ticks Number of ticks to scroll the mouse wheel;
  *   a positive number scrolls down and a negative scrolls up.
  * @param {!{x:number,y:number}} opt_coords Mouse position relative to the element (optional).
- * @return {string} A stringified {@link bot.response.ResponseObject}.
+ * @return {(string|{status: bot.ErrorCode.<number>, value: *})} A stringified {@link bot.response.ResponseObject}.
  */
 phantomjs.atoms.inject.action.scrollMouse = function(element, ticks, opt_coords) {
     return bot.inject.executeScript(bot.action.scrollMouse, [element, ticks, opt_coords], true);
@@ -15975,11 +15988,11 @@ phantomjs.atoms.inject.action.scrollMouse = function(element, ticks, opt_coords)
 /**
  * Drags the given {@code element} by (dx, dy) with a virtual mouse.
  *
- * @param {!{bot.inject.ELEMENT_KEY:string} element The element to drag.
+ * @param {!{bot.inject.ELEMENT_KEY:string}} element The element to drag.
  * @param {number} dx Increment in x coordinate.
  * @param {number} dy Increment in y coordinate.
  * @param {!{x:number,y:number}} opt_coords Drag start position relative to the element.
- * @return {string} A stringified {@link bot.response.ResponseObject}.
+ * @return {(string|{status: bot.ErrorCode.<number>, value: *})} A stringified {@link bot.response.ResponseObject}.
  */
 phantomjs.atoms.inject.action.drag = function(element, dx, dy, opt_coords) {
     return bot.inject.executeScript(bot.action.drag, [element, dx, dy, opt_coords], true);
@@ -15989,10 +16002,10 @@ phantomjs.atoms.inject.action.drag = function(element, dx, dy, opt_coords) {
  * Scrolls the given {@code element} in to the current viewport. Aims to do the
  * minimum scrolling necessary, but prefers too much scrolling to too little.
  *
- * @param {!{bot.inject.ELEMENT_KEY:string} element The element to scroll into view.
+ * @param {!{bot.inject.ELEMENT_KEY:string}} element The element to scroll into view.
  * @param {!{x:number,y:number}} opt_coords Offset relative to the top-left
  *     corner of the element, to ensure is scrolled in to view.
- * @return {string} A stringified {@link bot.response.ResponseObject};
+ * @return {(string|{status: bot.ErrorCode.<number>, value: *})} A stringified {@link bot.response.ResponseObject};
  *     whether the element is in view after scrolling.
  */
 phantomjs.atoms.inject.action.scrollIntoView = function(element, opt_coords) {
@@ -16002,9 +16015,9 @@ phantomjs.atoms.inject.action.scrollIntoView = function(element, opt_coords) {
 /**
  * Taps on the given {@code element} with a virtual touch screen.
  *
- * @param {!{bot.inject.ELEMENT_KEY:string} element The element to tap.
+ * @param {!{bot.inject.ELEMENT_KEY:string}} element The element to tap.
  * @param {!{x:number,y:number}} opt_coords Finger position relative to the target.
- * @return {string} A stringified {@link bot.response.ResponseObject}.
+ * @return {(string|{status: bot.ErrorCode.<number>, value: *})} A stringified {@link bot.response.ResponseObject}.
  */
 phantomjs.atoms.inject.action.tap = function(element, opt_coords) {
     return bot.inject.executeScript(bot.action.tap, [element, opt_coords], true);
@@ -16013,11 +16026,11 @@ phantomjs.atoms.inject.action.tap = function(element, opt_coords) {
 /**
  * Swipes the given {@code element} by (dx, dy) with a virtual touch screen.
  *
- * @param {!{bot.inject.ELEMENT_KEY:string} element The element to swipe.
+ * @param {!{bot.inject.ELEMENT_KEY:string}} element The element to swipe.
  * @param {number} dx Increment in x coordinate.
  * @param {number} dy Increment in y coordinate.
  * @param {!{x:number,y:number}} opt_coords Swipe start position relative to the element.
- * @return {string} A stringified {@link bot.response.ResponseObject}.
+ * @return {(string|{status: bot.ErrorCode.<number>, value: *})} A stringified {@link bot.response.ResponseObject}.
  */
 phantomjs.atoms.inject.action.swipe = function(element, dx, dy, opt_coords) {
     return bot.inject.executeScript(bot.action.swipe, [element, dx, dy, opt_coords], true);
@@ -16030,10 +16043,10 @@ phantomjs.atoms.inject.action.swipe = function(element, dx, dy, opt_coords) {
  * the fingers move towards (for positive distances) or away from (for negative
  * distances); and if not provided, defaults to the center of the element.
  *
- * @param {!{bot.inject.ELEMENT_KEY:string} element The element to pinch.
+ * @param {!{bot.inject.ELEMENT_KEY:string}} element The element to pinch.
  * @param {number} distance The distance by which to pinch the element.
  * @param {!{x:number,y:number}} opt_coords Position relative to the element at the center of the pinch.
- * @return {string} A stringified {@link bot.response.ResponseObject}.
+ * @return {(string|{status: bot.ErrorCode.<number>, value: *})} A stringified {@link bot.response.ResponseObject}.
  */
 phantomjs.atoms.inject.action.pinch = function(element, distance, opt_coords) {
     return bot.inject.executeScript(bot.action.pinch, [element, distance, opt_coords], true);
@@ -16045,10 +16058,10 @@ phantomjs.atoms.inject.action.pinch = function(element, distance, opt_coords) {
  * moves them counter-clockwise. The optional coordinate is the point to
  * rotate around; and if not provided, defaults to the center of the element.
  *
- * @param {!{bot.inject.ELEMENT_KEY:string} element The element to rotate.
+ * @param {!{bot.inject.ELEMENT_KEY:string}} element The element to rotate.
  * @param {number} angle The angle by which to rotate the element.
  * @param {!{x:number,y:number}} opt_coords Position relative to the element at the center of the rotation.
- * @return {string} A stringified {@link bot.response.ResponseObject}.
+ * @return {(string|{status: bot.ErrorCode.<number>, value: *})} A stringified {@link bot.response.ResponseObject}.
  */
 phantomjs.atoms.inject.action.rotate = function(element, angle, opt_coords) {
     return bot.inject.executeScript(bot.action.rotate, [element, angle, opt_coords], true);
