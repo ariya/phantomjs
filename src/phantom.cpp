@@ -135,6 +135,7 @@ void Phantom::init()
             SLOT(onInitialized()));
 
     m_defaultPageSettings[PAGE_SETTINGS_LOAD_IMAGES] = QVariant::fromValue(m_config.autoLoadImages());
+    m_defaultPageSettings[PAGE_SETTINGS_CLEAR_MEMORY_CACHES] = QVariant::fromValue(false);
     m_defaultPageSettings[PAGE_SETTINGS_JS_ENABLED] = QVariant::fromValue(true);
     m_defaultPageSettings[PAGE_SETTINGS_XSS_AUDITING] = QVariant::fromValue(false);
     m_defaultPageSettings[PAGE_SETTINGS_USER_AGENT] = QVariant::fromValue(m_page->userAgent());
