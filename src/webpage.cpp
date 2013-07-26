@@ -1067,6 +1067,14 @@ bool WebPage::renderPdf(const QString &fileName)
     QPrinter printer;
     printer.setOutputFormat(QPrinter::PdfFormat);
     printer.setOutputFileName(fileName);
+
+    // Fix for PDF prints on Mac OSX. Produces selectable text
+    #ifdef Q_WS_MACX
+        if(fileName.endsWith(".pdf")) {
+            printer.setOutputFormat(QPrinter::NativeFormat);
+        }
+    #endif
+
     printer.setResolution(PHANTOMJS_PDF_DPI);
     QVariantMap paperSize = m_paperSize;
 
