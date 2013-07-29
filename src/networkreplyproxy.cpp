@@ -57,7 +57,14 @@ NetworkReplyProxy::NetworkReplyProxy(QObject* parent, QNetworkReply* reply)
 
 QString NetworkReplyProxy::body() 
 {
-    return m_data.toBase64().data();
+    //converting data to QString in a special way(without charset encoding), 
+    //similar to File::read method in 'filesystem' module.
+    QString ret(m_data.size());
+    for(int i = 0; i < m_data.size(); ++i) {
+        ret[i] = m_data.at(i);
+    }
+
+    return ret;
 }
 
 void NetworkReplyProxy::abort() 
