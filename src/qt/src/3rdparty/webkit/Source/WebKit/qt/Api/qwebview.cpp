@@ -227,10 +227,6 @@ protected:
     It can be used in various applications to display web content live from the
     Internet.
 
-    The image below shows QWebView previewed in \QD with a Nokia website.
-
-    \image qwebview-url.png
-
     A web site can be loaded onto QWebView with the load() function. Like all
     Qt widgets, the show() function must be invoked in order to display
     QWebView. The snippet below illustrates this:

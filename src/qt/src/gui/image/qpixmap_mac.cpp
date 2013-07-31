@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -528,7 +528,7 @@ QMacPixmapData::~QMacPixmapData()
     if (cg_data) {
         CGImageRelease(cg_data);
     }
-    if (pixels && (pixels != pixelsToFree))
+    else if (pixels && (pixels != pixelsToFree))
         free(pixels);
     if (pixelsToFree)
         free(pixelsToFree);
@@ -890,9 +890,12 @@ static QPixmap qt_mac_grabScreenRect_10_6(const QRect &rect)
     const CGRect cgRect = CGRectMake(rect.x(), rect.y(), rect.width(), rect.height());
     const CGDisplayErr err = CGGetDisplaysWithRect(cgRect, maxDisplays, displays, &displayCount);
 
+    extern CGFloat qt_mac_get_scalefactor();
+    QRect scaledRect = QRect(rect.topLeft(), rect.size() * qt_mac_get_scalefactor());
+
     if (err && displayCount == 0)
         return QPixmap();
-    QPixmap windowPixmap(rect.size());
+    QPixmap windowPixmap(scaledRect.size());
     for (uint i = 0; i < displayCount; ++i) {
         const CGRect bounds = CGDisplayBounds(displays[i]);
         // Translate to display-local coordinates

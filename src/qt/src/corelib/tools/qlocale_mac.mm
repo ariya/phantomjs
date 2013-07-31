@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -403,7 +403,9 @@ QVariant QSystemLocale::query(QueryType type, QVariant in = QVariant()) const
         return macDayName(in.toInt(), (type == DayNameShort));
     case MonthNameLong:
     case MonthNameShort:
-        return macMonthName(in.toInt(), (type == MonthNameShort));
+    case StandaloneMonthNameLong:
+    case StandaloneMonthNameShort:
+        return macMonthName(in.toInt(), (type == MonthNameShort || type == StandaloneMonthNameShort));
     case DateToStringShort:
     case DateToStringLong:
         return macDateToString(in.toDate(), (type == DateToStringShort));

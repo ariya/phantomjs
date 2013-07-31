@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -263,6 +263,7 @@ mng_bool QMngHandlerPrivate::processHeader(mng_uint32 iWidth, mng_uint32 iHeight
 bool QMngHandlerPrivate::getNextImage(QImage *result)
 {
     mng_retcode ret;
+    const bool savedHaveReadAll = haveReadAll;
     if (haveReadNone) {
         haveReadNone = false;
         ret = mng_readdisplay(hMNG);
@@ -271,6 +272,13 @@ bool QMngHandlerPrivate::getNextImage(QImage *result)
     }
     if ((MNG_NOERROR == ret) || (MNG_NEEDTIMERWAIT == ret)) {
         *result = image;
+
+        // QTBUG-28894 -- libmng produces an extra frame at the end
+        //                of the animation on the first loop only.
+        if (nextDelay == 1 && (!savedHaveReadAll && haveReadAll)) {
+            ret = mng_display_resume(hMNG);
+        }
+
         frameIndex = nextIndex++;
         if (haveReadAll && (frameCount == 0))
             frameCount = nextIndex;

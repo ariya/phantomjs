@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -118,7 +118,7 @@ public:
         inline bool isFile() const { if (info) return info->isFile(); return true; }
         inline bool isSystem() const { if (info) return info->isSystem(); return true; }
         inline bool isHidden() const { if (info) return info->isHidden(); return false; }
-        inline bool isSymLink() const { if (info) return info->isSymLink(); return false; }
+        inline bool isSymLink(bool ignoreNtfsSymLinks = false) const { return info && info->isSymLink(ignoreNtfsSymLinks); }
         inline bool caseSensitive() const { if (info) return info->isCaseSensitive(); return false; }
         inline QIcon icon() const { if (info) return info->icon; return QIcon(); }
 

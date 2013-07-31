@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -38,7 +38,7 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-
+#include <qconfig.h>
 #import <private/qcocoaview_mac_p.h>
 #ifdef QT_MAC_USE_COCOA
 
@@ -1027,8 +1027,10 @@ static int qCocoaViewCount = 0;
         QWidget *widgetToGetKey = 0;
         if (!composing || qApp->focusWidget())
             widgetToGetKey = qt_mac_getTargetForKeyEvent(qwidget);
+#ifndef QT_NO_IM
         else if (QMacInputContext *mic = qobject_cast<QMacInputContext *>(qApp->inputContext()))
             widgetToGetKey = mic->lastFocusWidget();
+#endif
         if (widgetToGetKey)
             qt_sendSpontaneousEvent(widgetToGetKey, &e);
         composing = false;
@@ -1221,6 +1223,7 @@ static int qCocoaViewCount = 0;
 @end
 
 QT_BEGIN_NAMESPACE
+#ifndef QT_NO_IM
 void QMacInputContext::reset()
 {
     QWidget *w = QInputContext::focusWidget();
@@ -1249,6 +1252,7 @@ bool QMacInputContext::isComposing() const
     }
     return false;
 }
+#endif // QT_NO_IM
 
 extern bool qt_mac_in_drag;
 void * /*NSImage */qt_mac_create_nsimage(const QPixmap &pm);

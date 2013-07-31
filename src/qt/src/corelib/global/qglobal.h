@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -44,19 +44,19 @@
 
 #include <stddef.h>
 
-#define QT_VERSION_STR "4.8.4"
+#define QT_VERSION_STR "4.8.5"
 /*
    QT_VERSION is (major << 16) + (minor << 8) + patch.
 */
-#define QT_VERSION 0x040804
+#define QT_VERSION 0x040805
 /*
    can be used like #if (QT_VERSION >= QT_VERSION_CHECK(4, 4, 0))
 */
 #define QT_VERSION_CHECK(major, minor, patch) ((major<<16)|(minor<<8)|(patch))
 
-#define QT_PACKAGEDATE_STR "2012-11-23"
+#define QT_PACKAGEDATE_STR "2013-06-07"
 
-#define QT_PACKAGE_TAG "169ba759c536fcd807ee061e1831e4502a5f1416"
+#define QT_PACKAGE_TAG "0529dc9b2542dcb46c2e2cc1a3422fc83c6ae6ef"
 
 #if !defined(QT_BUILD_MOC)
 #include <QtCore/qconfig.h>
@@ -427,6 +427,7 @@ namespace QT_NAMESPACE {}
 
 #if defined(Q_CC_MSVC) && _MSC_VER >= 1600
 #      define Q_COMPILER_RVALUE_REFS
+#      define Q_COMPILER_AUTO_FUNCTION
 #      define Q_COMPILER_AUTO_TYPE
 #      define Q_COMPILER_LAMBDA
 #      define Q_COMPILER_DECLTYPE
@@ -528,6 +529,7 @@ namespace QT_NAMESPACE {}
 #    if (__GNUC__ * 100 + __GNUC_MINOR__) >= 404
        /* C++0x features supported in GCC 4.4: */
 #      define Q_COMPILER_VARIADIC_TEMPLATES
+#      define Q_COMPILER_AUTO_FUNCTION
 #      define Q_COMPILER_AUTO_TYPE
 #      define Q_COMPILER_EXTERN_TEMPLATES
 #      define Q_COMPILER_DEFAULT_DELETE_MEMBERS

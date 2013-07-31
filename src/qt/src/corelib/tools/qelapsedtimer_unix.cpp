@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -40,8 +40,12 @@
 ****************************************************************************/
 
 #include "qelapsedtimer.h"
+#ifdef Q_OS_VXWORKS
+#include "qfunctions_vxworks.h"
+#else
 #include <sys/time.h>
 #include <time.h>
+#endif
 #include <unistd.h>
 
 #if defined(QT_NO_CLOCK_MONOTONIC) || defined(QT_BOOTSTRAPPED)
@@ -127,7 +131,7 @@ static inline void do_gettime(qint64 *sec, qint64 *frac)
     }
 #endif
     // use gettimeofday
-    timeval tv;
+    struct timeval tv;
     ::gettimeofday(&tv, 0);
     *sec = tv.tv_sec;
     *frac = tv.tv_usec;

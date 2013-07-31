@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -1170,7 +1170,7 @@ QFile::Permissions QZipWriter::creationPermissions() const
 */
 void QZipWriter::addFile(const QString &fileName, const QByteArray &data)
 {
-    d->addEntry(QZipWriterPrivate::File, fileName, data);
+    d->addEntry(QZipWriterPrivate::File, QDir::fromNativeSeparators(fileName), data);
 }
 
 /*!
@@ -1192,7 +1192,7 @@ void QZipWriter::addFile(const QString &fileName, QIODevice *device)
             return;
         }
     }
-    d->addEntry(QZipWriterPrivate::File, fileName, device->readAll());
+    d->addEntry(QZipWriterPrivate::File, QDir::fromNativeSeparators(fileName), device->readAll());
     if (opened)
         device->close();
 }
@@ -1203,10 +1203,10 @@ void QZipWriter::addFile(const QString &fileName, QIODevice *device)
 */
 void QZipWriter::addDirectory(const QString &dirName)
 {
-    QString name = dirName;
+    QString name(QDir::fromNativeSeparators(dirName));
     // separator is mandatory
-    if (!name.endsWith(QDir::separator()))
-        name.append(QDir::separator());
+    if (!name.endsWith(QLatin1Char('/')))
+        name.append(QLatin1Char('/'));
     d->addEntry(QZipWriterPrivate::Directory, name, QByteArray());
 }
 
@@ -1217,7 +1217,7 @@ void QZipWriter::addDirectory(const QString &dirName)
 */
 void QZipWriter::addSymLink(const QString &fileName, const QString &destination)
 {
-    d->addEntry(QZipWriterPrivate::Symlink, fileName, QFile::encodeName(destination));
+    d->addEntry(QZipWriterPrivate::Symlink, QDir::fromNativeSeparators(fileName), QFile::encodeName(destination));
 }
 
 /*!

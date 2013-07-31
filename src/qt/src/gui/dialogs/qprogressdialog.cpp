@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -693,6 +693,7 @@ void QProgressDialog::setValue(int progress)
                     int estimate;
                     int totalSteps = maximum() - minimum();
                     int myprogress = progress - minimum();
+                    if (myprogress == 0) myprogress = 1;
                     if ((totalSteps - myprogress) >= INT_MAX / elapsed)
                         estimate = (totalSteps - myprogress) / myprogress * elapsed;
                     else

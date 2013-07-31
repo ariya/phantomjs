@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -61,7 +61,7 @@ QT_USE_NAMESPACE
 {
     self = [self initWithContentRect:rect styleMask:mask backing:NSBackingStoreBuffered defer:YES];
     if (self) {
-        [[QT_MANGLE_NAMESPACE(QCocoaWindowDelegate) sharedDelegate] becomeDelegteForWindow:self widget:widget];
+        [[QT_MANGLE_NAMESPACE(QCocoaWindowDelegate) sharedDelegate] becomeDelegateForWindow:self widget:widget];
         [self setReleasedWhenClosed:NO];
     }
     return self;

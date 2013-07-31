@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the qmake application of the Qt Toolkit.
@@ -270,6 +270,11 @@ void NmakeMakefileGenerator::init()
         project->values("QMAKE_CLEAN").append(project->first("DESTDIR") + project->first("TARGET") + version + ".ilk");
         project->values("QMAKE_CLEAN").append("vc*.pdb");
         project->values("QMAKE_CLEAN").append("vc*.idb");
+        project->values("DEFINES").removeAll("NDEBUG");
+    } else {
+        QStringList &defines = project->values("DEFINES");
+        if (!defines.contains("NDEBUG"))
+            defines.append("NDEBUG");
     }
 }
 

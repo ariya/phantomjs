@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -513,8 +513,10 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     QT_NC_WIDGET_CREATE
 #endif
 
+#ifndef QT_NO_IM
     if (q->hasFocus() && q->testAttribute(Qt::WA_InputMethodEnabled))
         q->inputContext()->setFocusWidget(q);
+#endif
 
     if (destroyw) {
         DestroyWindow(destroyw);

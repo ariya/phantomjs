@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the qmake application of the Qt Toolkit.
@@ -444,6 +444,7 @@ Option::init(int argc, char **argv)
             QDir currentDir = QDir::current();
 #ifdef Q_OS_WIN
             QStringList paths = QString::fromLocal8Bit(pEnv).split(QLatin1String(";"));
+            paths.prepend(QLatin1String("."));
 #else
             QStringList paths = QString::fromLocal8Bit(pEnv).split(QLatin1String(":"));
 #endif

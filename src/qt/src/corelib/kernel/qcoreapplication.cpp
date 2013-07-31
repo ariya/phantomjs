@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -236,6 +236,9 @@ void QCoreApplicationPrivate::processCommandLineArguments()
         QByteArray arg = argv[i];
         if (arg.startsWith("-qmljsdebugger=")) {
             *qmljs_debug_arguments() = QString::fromLocal8Bit(arg.right(arg.length() - 15));
+        } else if (arg == "-qmljsdebugger" && i < argc - 1) {
+            ++i;
+            *qmljs_debug_arguments() = QString::fromLocal8Bit(argv[i]);
         } else {
             argv[j++] = argv[i];
         }
@@ -2319,6 +2322,7 @@ QStringList QCoreApplication::arguments()
                      l1arg.startsWith("-qmljsdebugger="))
                 ;
             else if (l1arg == "-style" ||
+                     l1arg == "-qmljsdebugger" ||
                      l1arg == "-session" ||
                      l1arg == "-graphicssystem" ||
                      l1arg == "-testability")

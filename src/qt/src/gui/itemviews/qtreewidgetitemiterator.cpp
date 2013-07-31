@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -99,7 +99,7 @@ QTreeWidgetItemIterator::QTreeWidgetItemIterator(QTreeWidget *widget, IteratorFl
     Q_ASSERT(model);
     d_ptr.reset(new QTreeWidgetItemIteratorPrivate(this, model));
     model->iterators.append(this);
-    if (!model->rootItem->children.isEmpty()) current = model->rootItem->children.first();
+    if (!model->rootItem->children.isEmpty()) current = model->rootItem->child(0);
     if (current && !matchesFlags(current))
         ++(*this);
 }
@@ -128,14 +128,13 @@ QTreeWidgetItemIterator::QTreeWidgetItemIterator(QTreeWidgetItem *item, Iterator
     // the beginning.
     QTreeWidgetItem *parent = item;
     parent = parent->parent();
-    QList<QTreeWidgetItem *> children = parent ? parent->children : d->m_model->rootItem->children;
-    d->m_currentIndex = children.indexOf(item);
+    QTreeWidgetItem *root = d->m_model->rootItem;
+    d->m_currentIndex = (parent ? parent : root)->indexOfChild(item);
 
     while (parent) {
         QTreeWidgetItem *itm = parent;
         parent = parent->parent();
-        QList<QTreeWidgetItem *> children = parent ? parent->children : d->m_model->rootItem->children;
-        int index = children.indexOf(itm);
+        const int index = (parent ? parent : root)->indexOfChild(itm);
         d->m_parentIndex.prepend(index);
     }
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
@@ -188,6 +188,8 @@ static inline int qt_safe_sendto(int sockfd, const void *buf, size_t len, int fl
 {
 #ifdef MSG_NOSIGNAL
     flags |= MSG_NOSIGNAL;
+#else
+    qt_ignore_sigpipe();
 #endif
 
     register int ret;

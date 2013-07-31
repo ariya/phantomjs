@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -60,9 +60,7 @@
 #include "private/qpodlist_p.h"
 #include "QtCore/qvarlengtharray.h"
 
-#if defined(Q_OS_VXWORKS)
-#  include <sys/times.h>
-#else
+#if !defined(Q_OS_VXWORKS)
 #  include <sys/time.h>
 #  if (!defined(Q_OS_HPUX) || defined(__ia64)) && !defined(Q_OS_NACL)
 #    include <sys/select.h>

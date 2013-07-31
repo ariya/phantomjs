@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -135,8 +135,11 @@ void QPropertyAnimationPrivate::updateProperty(const QVariant &newValue)
 
     if (newValue.userType() == propertyType) {
         //no conversion is needed, we directly call the QMetaObject::metacall
-        void *data = const_cast<void*>(newValue.constData());
-        QMetaObject::metacall(targetValue, QMetaObject::WriteProperty, propertyIndex, &data);
+        //check QMetaProperty::write for an explanation of these
+        int status = -1;
+        int flags = 0;
+        void *argv[] = { const_cast<void *>(newValue.constData()), const_cast<QVariant *>(&newValue), &status, &flags };
+        QMetaObject::metacall(targetValue, QMetaObject::WriteProperty, propertyIndex, argv);
     } else {
         targetValue->setProperty(propertyName.constData(), newValue);
     }

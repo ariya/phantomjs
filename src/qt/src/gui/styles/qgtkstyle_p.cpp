@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -507,10 +507,7 @@ void QGtkStylePrivate::initGtkWidgets() const
     if (!gtkWidgetMap()->contains("GtkWindow") && themeName.isEmpty()) {
         themeName = getThemeName();
 
-        if (themeName.isEmpty()) {
-            qWarning("QGtkStyle was unable to detect the current GTK+ theme.");
-            return;
-        } else if (themeName == QLS("Qt") || themeName == QLS("Qt4")) {
+        if (themeName == QLS("Qt") || themeName == QLS("Qt4")) {
             // Due to namespace conflicts with Qt3 and obvious recursion with Qt4,
             // we cannot support the GTK_Qt Gtk engine
             qWarning("QGtkStyle cannot be used together with the GTK_Qt engine.");

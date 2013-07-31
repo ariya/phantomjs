@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -160,6 +160,7 @@
 #include <QMainWindow>
 #include <QScrollBar>
 #include <QDebug>
+#include <QScopedValueRollback>
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
 #include <QMacStyle>
 #endif
@@ -2795,6 +2796,10 @@ bool QMdiSubWindow::event(QEvent *event)
         bool wasShaded = isShaded();
         bool wasMinimized = isMinimized();
         bool wasMaximized = isMaximized();
+        // Don't emit subWindowActivated, the app doesn't have to know about our hacks
+        const QScopedValueRollback<bool> activationEnabledSaver(d->activationEnabled);
+        d->activationEnabled = false;
+
         ensurePolished();
         setContentsMargins(0, 0, 0, 0);
         if (wasMinimized || wasMaximized || wasShaded)
@@ -3014,7 +3019,8 @@ void QMdiSubWindow::changeEvent(QEvent *changeEvent)
 
     if (d->isActive)
         d->ensureWindowState(Qt::WindowActive);
-    emit windowStateChanged(oldState, windowState());
+    if (d->activationEnabled)
+        emit windowStateChanged(oldState, windowState());
 }
 
 /*!

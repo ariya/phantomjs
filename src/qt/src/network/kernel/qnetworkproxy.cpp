@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
@@ -1420,7 +1420,7 @@ void QNetworkProxyFactory::setApplicationProxyFactory(QNetworkProxyFactory *fact
     \o On Windows platforms, this function may take several seconds to
     execute depending on the configuration of the user's system.
 
-    \li On BlackBerry, only UrlRequest queries are supported. SOCKS is
+    \li On BlackBerry, only UrlRequest and TcpSocket queries are supported. SOCKS is
     not supported. The proxy credentials are only retrieved for the
     default configuration.
     \endlist

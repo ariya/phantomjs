@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -95,6 +95,7 @@ public:
     static void handleEnterEvent(QWidget *w);
     static void handleLeaveEvent(QWidget *w);
     static void handleWindowActivated(QWidget *w);
+    static void handleWindowStateChanged(QWidget *w, Qt::WindowState newState);
 
     // Changes to the screen
     static void handleScreenGeometryChange(int screenIndex);

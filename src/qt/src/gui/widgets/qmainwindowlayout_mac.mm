@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -48,6 +48,7 @@
 #ifndef QT_MAC_USE_COCOA
 #include <Carbon/Carbon.h>
 #else
+#include <quuid.h>
 #include <private/qcocoatoolbardelegate_mac_p.h>
 #import  <private/qcocoawindowdelegate_mac_p.h>
 #endif
@@ -444,7 +445,7 @@ void QMainWindowLayout::insertIntoMacToolbar(QToolBar *before, QToolBar *toolbar
     QMacCocoaAutoReleasePool pool;
     NSToolbar *macToolbar = [window toolbar];
     if (macToolbar == nil) {
-        macToolbar = [[NSToolbar alloc] initWithIdentifier:(NSString *)kQMainWindowMacToolbarID];
+        macToolbar = [[NSToolbar alloc] initWithIdentifier:qt_mac_QStringToNSString(QUuid::createUuid().toString())];
         [macToolbar setDisplayMode:NSToolbarDisplayModeIconOnly];
         [macToolbar setSizeMode:NSToolbarSizeModeRegular];
         [macToolbar setDelegate:[[QT_MANGLE_NAMESPACE(QCocoaToolBarDelegate) alloc] initWithMainWindowLayout:this]];
