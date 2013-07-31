@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the qmake application of the Qt Toolkit.
@@ -697,7 +697,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
         int fd;
 #if defined(_MSC_VER) && _MSC_VER >= 1400
         if (_sopen_s(&fd, fixPathForFile(file->file, true).local().toLocal8Bit().constData(),
-            _O_RDONLY, _SH_DENYRW, _S_IREAD) != 0)
+            _O_RDONLY, _SH_DENYNO, _S_IREAD) != 0)
             fd = -1;
 #else
         fd = open(fixPathForFile(file->file, true).local().toLocal8Bit().constData(), O_RDONLY);

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -520,7 +520,7 @@ extern "C" void qt_core_boilerplate();
 void qt_core_boilerplate()
 {
     printf("This is the QtCore library version " QT_VERSION_STR "\n"
-           "Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).\n"
+           "Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).\n"
            "Contact: http://www.qt-project.org/legal\n"
            "\n"
            "Build key:           " QT_BUILD_KEY "\n"

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -1754,8 +1754,8 @@ bool QPdfBaseEnginePrivate::openPrintDevice()
                 for (i = 0; i < lphack.size(); ++i)
                     lpargs[i+1] = (char *)lphack.at(i).constData();
 #ifndef Q_OS_OSF
+                char dash_o[] = "-o";
                 if (QPdf::paperSizeToString(paperSize)) {
-                    char dash_o[] = "-o";
                     lpargs[++i] = dash_o;
                     lpargs[++i] = const_cast<char *>(QPdf::paperSizeToString(paperSize));
                     lpargs[++i] = dash_o;

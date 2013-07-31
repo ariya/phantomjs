@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -203,20 +203,37 @@ QThreadPrivate::~QThreadPrivate()
     \ingroup thread
 
     A QThread object manages one thread of control within the
-    program. To make code run in a separate thread, simply create a
-    QThread, change the thread affinity of the QObject(s) that
-    contain the code, and start() the new event loop. For example:
+    program. QThreads begin executing in run(). By default, run() starts the
+    event loop by calling exec() and runs a Qt event loop inside the thread.
 
-    \snippet doc/src/snippets/code/src_corelib_thread_qthread.cpp 0
+    You can use worker objects by moving them to the thread using
+    QObject::moveToThread().
+
+    \snippet doc/src/snippets/code/src_corelib_thread_qthread.cpp worker
 
     The code inside the Worker's slot would then execute in a
-    separate thread. In this example, the QThread triggers the
-    Worker's doWork() slot upon starting, and frees the Worker's
-    memory upon terminating. However, you are free to connect the
+    separate thread. However, you are free to connect the
     Worker's slots to any signal, from any object, in any thread. It
     is safe to connect signals and slots across different threads,
     thanks to a mechanism called \l{Qt::QueuedConnection}{queued
     connections}.
+
+    Another way to make code run in a separate thread, is to subclass QThread
+    and reimplement run(). For example:
+
+    \snippet code/src_corelib_thread_qthread.cpp reimpl-run
+
+    In that example, the thread will exit after the run function has returned.
+    There will not be any event loop running in the thread unless you call
+    exec().
+
+    It is important to remember that a QThread object usually lives
+    in the thread where it was created, not in the thread that it
+    manages. This oft-overlooked detail means that a QThread's slots
+    will be executed in the context of its home thread, not in the
+    context of the thread it is managing. For this reason,
+    implementing new slots in a QThread subclass is error-prone and
+    discouraged.
 
     \note If you interact with an object, using any technique other
     than queued signal/slot connections (e.g. direct function calls),
@@ -224,7 +241,6 @@ QThreadPrivate::~QThreadPrivate()
 
     \note It is not possible to change the thread affinity of GUI
     objects; they must remain in the main thread.
-
 
     \section1 Managing threads
 
@@ -251,28 +267,14 @@ QThreadPrivate::~QThreadPrivate()
     returns a platform specific ID for the thread; the latter returns
     a QThread pointer.
 
-
-    \section1 Subclassing QThread
-
-    Subclassing QThread is unnecessary for most purposes, since
-    QThread provides fully-functional thread management capabilities.
-    Nonetheless, QThread can be subclassed if you wish to implement
-    advanced thread management. This is done by adding new member
-    functions to the subclass, and/or by reimplementing run().
-    QThread's run() function is analogous to an application's main()
-    function -- it is executed when the thread is started, and the
-    thread will end when it returns.
-
-    \note Prior to Qt 4.4, the only way to use QThread for parallel
-    processing was to subclass it and implement the processing code
-    inside run(). This approach is now considered \b {bad practice};
-    a QThread should only manage a thread, not process data.
-
-    If you require event handling and signal/slot connections to
-    work in your thread, and if you reimplement run(), you must
-    explicitly call exec() at the end of your reimplementation:
-
-    \snippet doc/src/snippets/code/src_corelib_thread_qthread.cpp 1
+    To choose the name that your thread will be given (as identified
+    by the command \c{ps -L} on Linux, for example), you can call
+    \l{QObject::setObjectName()}{setObjectName()} before starting the thread.
+    If you don't call \l{QObject::setObjectName()}{setObjectName()},
+    the name given to your thread will be the class name of the runtime
+    type of your thread object (for example, \c "RenderThread" in the case of the
+    \l{Mandelbrot Example}, as that is the name of the QThread subclass).
+    Note that this is currently not available with release builds on Windows.
 
     QThread also provides static, platform independent sleep
     functions: sleep(), msleep(), and usleep() allow full second,
@@ -282,14 +284,6 @@ QThreadPrivate::~QThreadPrivate()
     general, since Qt is an event-driven framework. Instead of
     wait(), consider listening for the finished() signal. Instead of
     the sleep() functions, consider using QTimer.
-
-    It is important to remember that a QThread object usually lives
-    in the thread where it was created, not in the thread that it
-    manages. This oft-overlooked detail means that a QThread's slots
-    will be executed in the context of its home thread, not in the
-    context of the thread it is managing. For this reason,
-    implementing new slots in a QThread subclass is error-prone and
-    discouraged.
 
     \sa {Thread Support in Qt}, QThreadStorage, QMutex, QSemaphore, QWaitCondition,
         {Mandelbrot Example}, {Semaphores Example}, {Wait Conditions Example}
@@ -463,7 +457,7 @@ bool QThread::isFinished() const
 {
     Q_D(const QThread);
     QMutexLocker locker(&d->mutex);
-    return d->finished;
+    return d->finished || d->isInFinish;
 }
 
 /*!
@@ -481,7 +475,7 @@ bool QThread::isRunning() const
     if (d->data->symbian_thread_handle.Handle() && d->data->symbian_thread_handle.ExitType() != EExitPending)
         return false;
 #endif
-    return d->running;
+    return d->running && !d->isInFinish;
 }
 
 /*!

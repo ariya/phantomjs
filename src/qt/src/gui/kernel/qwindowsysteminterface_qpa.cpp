@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -86,6 +86,13 @@ void QWindowSystemInterface::handleLeaveEvent(QWidget *tlw)
 void QWindowSystemInterface::handleWindowActivated(QWidget *tlw)
 {
     QWindowSystemInterfacePrivate::ActivatedWindowEvent *e = new QWindowSystemInterfacePrivate::ActivatedWindowEvent(tlw);
+    QWindowSystemInterfacePrivate::queueWindowSystemEvent(e);
+}
+
+void QWindowSystemInterface::handleWindowStateChanged(QWidget *tlw, Qt::WindowState newState)
+{
+    QWindowSystemInterfacePrivate::WindowStateChangedEvent *e =
+        new QWindowSystemInterfacePrivate::WindowStateChangedEvent(tlw, newState);
     QWindowSystemInterfacePrivate::queueWindowSystemEvent(e);
 }
 

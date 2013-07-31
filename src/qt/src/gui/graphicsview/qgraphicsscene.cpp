@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -5943,7 +5943,6 @@ bool QGraphicsScenePrivate::sendTouchBeginEvent(QGraphicsItem *origin, QTouchEve
                                                 firstTouchPoint.scenePos(),
                                                 touchEvent->widget());
     }
-    Q_ASSERT(cachedItemsUnderMouse.first() == origin);
 
     // Set focus on the topmost enabled item that can take focus.
     bool setFocus = false;

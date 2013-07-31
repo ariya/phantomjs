@@ -3809,7 +3809,7 @@ QString QWebPage::userAgentForUrl(const QUrl&) const
 #elif defined Q_OS_WIN32
         firstPartTemp += windowsVersionForUAString();
 #elif defined Q_OS_DARWIN
-#ifdef __i386__ || __x86_64__
+#if CPU(X86) || CPU(X86_64)
         firstPartTemp += QString::fromLatin1("Intel Mac OS X");
 #else
         firstPartTemp += QString::fromLatin1("PPC Mac OS X");

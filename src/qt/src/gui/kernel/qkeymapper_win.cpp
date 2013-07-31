@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -73,6 +73,9 @@ extern Q_CORE_EXPORT QLocale qt_localeFromLCID(LCID id);
 #endif
 #ifndef VK_OEM_3
 #define VK_OEM_3 0xC0
+#endif
+#ifndef MAPVK_VK_TO_CHAR
+#define MAPVK_VK_TO_CHAR (2)
 #endif
 
 #if defined(Q_OS_WINCE)
@@ -925,9 +928,15 @@ bool QKeyMapperPrivate::translateKeyEvent(QWidget *widget, const MSG &msg, bool 
         if (isNumpad && (nModifiers & AltAny)) {
             code = winceKeyBend(msg.wParam);
         } else if (!isDeadKey) {
-            unsigned char kbdBuffer[256]; // Will hold the complete keyboard state
-            GetKeyboardState(kbdBuffer);
-            code = toKeyOrUnicode(msg.wParam, scancode, kbdBuffer);
+            // QTBUG-8764, QTBUG-10032
+            // Can't call toKeyOrUnicode because that would call ToUnicode, and, if a dead key
+            // is pressed at the moment, Windows would NOT use it to compose a character for the next
+            // WM_CHAR event.
+
+            // Instead, use MapVirtualKey, which will provide adequate values.
+            code = MapVirtualKey(msg.wParam, MAPVK_VK_TO_CHAR);
+            if (code < 0x20 || code == 0x7f) // The same logic as in toKeyOrUnicode()
+                code = winceKeyBend(msg.wParam);
         }
 
         // Invert state logic:

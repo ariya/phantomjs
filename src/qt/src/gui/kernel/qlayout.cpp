@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -59,12 +59,10 @@ static int menuBarHeightForWidth(QWidget *menubar, int w)
 {
     if (menubar && !menubar->isHidden() && !menubar->isWindow()) {
         int result = menubar->heightForWidth(qMax(w, menubar->minimumWidth()));
-        if (result != -1)
-            return result;
-        result = menubar->sizeHint()
-            .expandedTo(menubar->minimumSize())
-            .expandedTo(menubar->minimumSizeHint())
-            .boundedTo(menubar->maximumSize()).height();
+        if (result == -1)
+            result = menubar->sizeHint().height();
+        const int min = qSmartMinSize(menubar).height();
+        result = qBound(min, result, menubar->maximumSize().height());
         if (result != -1)
             return result;
     }
@@ -933,6 +931,16 @@ void QLayout::addChildLayout(QLayout *l)
         l->d_func()->reparentChildWidgets(mw);
     }
 
+}
+
+/*!
+   \internal
+ */
+bool QLayout::adoptLayout(QLayout *layout)
+{
+    const bool ok = !layout->parent();
+    addChildLayout(layout);
+    return ok;
 }
 
 #ifdef QT_DEBUG

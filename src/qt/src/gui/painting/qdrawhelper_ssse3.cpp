@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -60,7 +60,7 @@ inline static void blend_pixel(quint32 &dst, const quint32 src)
    shift (4, 8, 12). Checking the alignment inside the loop is unfortunatelly way too slow.
  */
 #define BLENDING_LOOP(palignrOffset, length)\
-    for (; x < length-3; x += 4) { \
+    for (; x-minusOffsetToAlignSrcOn16Bytes < length-7; x += 4) { \
         const __m128i srcVectorLastLoaded = _mm_load_si128((__m128i *)&src[x - minusOffsetToAlignSrcOn16Bytes + 4]);\
         const __m128i srcVector = _mm_alignr_epi8(srcVectorLastLoaded, srcVectorPrevLoaded, palignrOffset); \
         const __m128i srcVectorAlpha = _mm_and_si128(srcVector, alphaMask); \

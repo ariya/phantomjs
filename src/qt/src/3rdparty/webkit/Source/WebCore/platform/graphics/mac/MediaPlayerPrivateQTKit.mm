@@ -47,6 +47,15 @@
 #import "SoftLinking.h"
 #import "TimeRanges.h"
 #import "WebCoreSystemInterface.h"
+
+#if PLATFORM(QT)
+// Avoid clash with slots member in CALayer.h
+#include <qobjectdefs.h>
+#if defined(slots)
+#undef slots
+#endif
+#endif
+
 #import <QTKit/QTKit.h>
 #import <objc/objc-runtime.h>
 #import <wtf/UnusedParam.h>

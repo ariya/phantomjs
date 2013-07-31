@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
@@ -479,6 +479,7 @@ bool QHttpMultiPartIODevice::reset()
     for (int a = 0; a < multiPart->parts.count(); a++)
         if (!multiPart->parts[a].d->reset())
             return false;
+    readPointer = 0;
     return true;
 }
 qint64 QHttpMultiPartIODevice::readData(char *data, qint64 maxSize)

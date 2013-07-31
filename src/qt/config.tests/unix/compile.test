@@ -19,6 +19,10 @@ MAC_ARCH_LFLAGS=""
 while [ "$#" -gt 0 ]; do
     PARAM=$1
     case $PARAM in
+    -config)
+        QMAKE_CONFIG="$QMAKE_CONFIG $2"
+        shift
+        ;;
     -framework)
         LFLAGS="$LFLAGS -framework \"$2\""
         shift

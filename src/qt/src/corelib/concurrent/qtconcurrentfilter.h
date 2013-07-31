@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -105,7 +105,6 @@ namespace QtConcurrent {
 template <typename Sequence, typename KeepFunctor, typename ReduceFunctor>
 ThreadEngineStarter<void> filterInternal(Sequence &sequence, KeepFunctor keep, ReduceFunctor reduce)
 {
-    typedef typename Sequence::const_iterator Iterator;
     typedef FilterKernel<Sequence, KeepFunctor, ReduceFunctor> KernelType;
     return startThreadEngine(new KernelType(sequence, keep, reduce));
 }

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -563,16 +563,13 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
             else if (state & State_HasFocus)
                 stateId = ETS_SELECTED;
             XPThemeData theme(widget, painter, QLatin1String("EDIT"), EP_EDITBORDER_HVSCROLL, stateId, option->rect);
-            uint resolve_mask = option->palette.resolve();
-            if (resolve_mask & (1 << QPalette::Base)) {
-                // Since EP_EDITBORDER_HVSCROLL does not us borderfill, theme.noContent cannot be used for clipping
-                int borderSize = 1;
-                pGetThemeInt(theme.handle(), theme.partId, theme.stateId, TMT_BORDERSIZE, &borderSize);
-                QRegion clipRegion = option->rect;
-                QRegion content = option->rect.adjusted(borderSize, borderSize, -borderSize, -borderSize);
-                clipRegion ^= content;
-                painter->setClipRegion(clipRegion);
-            }
+            // Since EP_EDITBORDER_HVSCROLL does not us borderfill, theme.noContent cannot be used for clipping
+            int borderSize = 1;
+            pGetThemeInt(theme.handle(), theme.partId, theme.stateId, TMT_BORDERSIZE, &borderSize);
+            QRegion clipRegion = option->rect;
+            QRegion content = option->rect.adjusted(borderSize, borderSize, -borderSize, -borderSize);
+            clipRegion ^= content;
+            painter->setClipRegion(clipRegion);
             d->drawBackground(theme);
             painter->restore();
         } else
@@ -1298,7 +1295,7 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
                                           menuitem->rect.y(), checkcol - 6, menuitem->rect.height()));
 
             if (act) {
-                stateId = MBI_HOT;
+                stateId = dis ? MBI_DISABLED : MBI_HOT;
                 XPThemeData theme2(widget, painter, QLatin1String("MENU"), MENU_POPUPITEM, stateId, option->rect);
                 d->drawBackground(theme2);
             }

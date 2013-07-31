@@ -4,7 +4,7 @@ INCLUDEPATH *= $$QMAKE_INCDIR_QT/$$TARGET #just for today to have some compat
 isEmpty(QT_ARCH):!isEmpty(ARCH):QT_ARCH=$$ARCH #another compat that will rot for change #215700
 TEMPLATE	= lib
 isEmpty(QT_MAJOR_VERSION) {
-   VERSION=4.8.4
+   VERSION=4.8.5
 } else {
    VERSION=$${QT_MAJOR_VERSION}.$${QT_MINOR_VERSION}.$${QT_PATCH_VERSION}
 }
@@ -166,23 +166,25 @@ DEFINES *= QT_USE_QSTRINGBUILDER
 
 TARGET = $$qtLibraryTarget($$TARGET$$QT_LIBINFIX) #do this towards the end
 
-qtPrepareTool(QMAKE_LUPDATE, lupdate)
-qtPrepareTool(QMAKE_LRELEASE, lrelease)
-
+QMAKE_MOC_PC = $$[QT_INSTALL_BINS]/moc
 moc_dir.name = moc_location
-moc_dir.variable = QMAKE_MOC
+moc_dir.variable = QMAKE_MOC_PC
 
+QMAKE_UIC_PC = $$[QT_INSTALL_BINS]/uic
 uic_dir.name = uic_location
-uic_dir.variable = QMAKE_UIC
+uic_dir.variable = QMAKE_UIC_PC
 
+QMAKE_RCC_PC = $$[QT_INSTALL_BINS]/rcc
 rcc_dir.name = rcc_location
-rcc_dir.variable = QMAKE_RCC
+rcc_dir.variable = QMAKE_RCC_PC
 
+QMAKE_LUPDATE_PC = $$[QT_INSTALL_BINS]/lupdate
 lupdate_dir.name = lupdate_location
-lupdate_dir.variable = QMAKE_LUPDATE
+lupdate_dir.variable = QMAKE_LUPDATE_PC
 
+QMAKE_LRELEASE_PC = $$[QT_INSTALL_BINS]/lrelease
 lrelease_dir.name = lrelease_location
-lrelease_dir.variable = QMAKE_LRELEASE
+lrelease_dir.variable = QMAKE_LRELEASE_PC
 
 QMAKE_PKGCONFIG_VARIABLES += moc_dir uic_dir rcc_dir lupdate_dir lrelease_dir
 

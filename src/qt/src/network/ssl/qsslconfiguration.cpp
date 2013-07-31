@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
@@ -168,6 +168,7 @@ bool QSslConfiguration::operator==(const QSslConfiguration &other) const
         d->protocol == other.d->protocol &&
         d->peerVerifyMode == other.d->peerVerifyMode &&
         d->peerVerifyDepth == other.d->peerVerifyDepth &&
+        d->allowRootCertOnDemandLoading == other.d->allowRootCertOnDemandLoading &&
         d->sslOptions == other.d->sslOptions;
 }
 
@@ -195,6 +196,7 @@ bool QSslConfiguration::isNull() const
     return (d->protocol == QSsl::SecureProtocols &&
             d->peerVerifyMode == QSslSocket::AutoVerifyPeer &&
             d->peerVerifyDepth == 0 &&
+            d->allowRootCertOnDemandLoading == true &&
             d->caCertificates.count() == 0 &&
             d->ciphers.count() == 0 &&
             d->localCertificate.isNull() &&
@@ -508,6 +510,7 @@ QList<QSslCertificate> QSslConfiguration::caCertificates() const
 void QSslConfiguration::setCaCertificates(const QList<QSslCertificate> &certificates)
 {
     d->caCertificates = certificates;
+    d->allowRootCertOnDemandLoading = false;
 }
 
 /*!

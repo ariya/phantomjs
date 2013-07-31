@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -50,6 +50,7 @@
 #include <qdebug.h>
 #include <qmime.h>
 #include <qdrag.h>
+#include <qconfig.h>
 #include <qclipboard.h>
 #include <qmenu.h>
 #include <qstyle.h>
@@ -1980,6 +1981,12 @@ void QTextControlPrivate::inputMethodEvent(QInputMethodEvent *e)
         } else if (a.type == QInputMethodEvent::TextFormat) {
             QTextCharFormat f = qvariant_cast<QTextFormat>(a.value).toCharFormat();
             if (f.isValid()) {
+                if (f.background().color().alphaF() == 1 && f.background().style() == Qt::SolidPattern) {
+                    f.setForeground(f.background().color());
+                    f.setBackground(Qt::transparent);
+                    f.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+                    f.setFontUnderline(true);
+                }
                 QTextLayout::FormatRange o;
                 o.start = a.start + cursor.position() - block.position();
                 o.length = a.length;
@@ -3049,6 +3056,7 @@ void QTextControlPrivate::_q_copyLink()
 #endif
 }
 
+#ifndef QT_NO_IM
 QInputContext *QTextControlPrivate::inputContext()
 {
     QInputContext *ctx = contextWidget->inputContext();
@@ -3056,6 +3064,7 @@ QInputContext *QTextControlPrivate::inputContext()
         ctx = contextWidget->parentWidget()->inputContext();
     return ctx;
 }
+#endif
 
 int QTextControl::hitTest(const QPointF &point, Qt::HitTestAccuracy accuracy) const
 {

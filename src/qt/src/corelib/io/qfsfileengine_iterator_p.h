@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -58,6 +58,7 @@
 #include "qdir.h"
 
 #ifndef QT_NO_FSFILEENGINE
+#ifndef QT_NO_FILESYSTEMITERATOR
 
 QT_BEGIN_NAMESPACE
 
@@ -86,6 +87,7 @@ private:
 
 QT_END_NAMESPACE
 
+#endif // QT_NO_FILESYSTEMITERATOR
 #endif // QT_NO_FSFILEENGINE
 
 #endif // QFSFILEENGINE_ITERATOR_P_H

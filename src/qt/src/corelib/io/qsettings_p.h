@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -243,11 +243,16 @@ public:
     because their values are respectively 1 and 2.
     */
     enum {
-       F_Application = 0x0,
-       F_Organization = 0x1,
-       F_User = 0x0,
-       F_System = 0x2,
-       NumConfFiles = 4
+#if !defined(Q_OS_BLACKBERRY)
+        F_Application = 0x0,
+        F_Organization = 0x1,
+        F_User = 0x0,
+        F_System = 0x2,
+        NumConfFiles = 4
+#else
+        SandboxConfFile = 0,
+        NumConfFiles = 1
+#endif
     };
 
     QSettings::Format format;

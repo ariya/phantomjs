@@ -79,7 +79,7 @@ win32:!contains(QT_CONFIG, directwrite) {
     DEFINES += QT_NO_DIRECTWRITE
 }
 
-contains(QMAKE_MAC_XARCH, no) {
+mac:contains(QMAKE_MAC_XARCH, no) {
     DEFINES += QT_NO_MAC_XARCH
 } else {
     win32-g++*|!win32:!win32-icc*:!macx-icc* {

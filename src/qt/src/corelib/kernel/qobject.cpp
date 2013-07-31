@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -2065,7 +2065,11 @@ void QObject::removeEventFilter(QObject *obj)
     loop. If the event loop is not running when this function is
     called (e.g. deleteLater() is called on an object before
     QCoreApplication::exec()), the object will be deleted once the
-    event loop is started.
+    event loop is started. If deleteLater() is called after the main event loop
+    has stopped, the object will not be deleted.
+    Since Qt 4.8, if deleteLater() is called on an object that lives in a
+    thread with no running event loop, the object will be destroyed when the
+    thread finishes.
 
     Note that entering and leaving a new event loop (e.g., by opening a modal
     dialog) will \e not perform the deferred deletion; for the object to be
@@ -3536,8 +3540,23 @@ void QMetaObject::activate(QObject *sender, const QMetaObject *m, int local_sign
                 if (qt_signal_spy_callback_set.slot_begin_callback != 0)
                     qt_signal_spy_callback_set.slot_begin_callback(receiver, c->method(), argv ? argv : empty_argv);
 
+#if defined(QT_NO_EXCEPTIONS)
                 callFunction(receiver, QMetaObject::InvokeMetaMethod, method_relative, argv ? argv : empty_argv);
+#else
+                QT_TRY {
+                    callFunction(receiver, QMetaObject::InvokeMetaMethod, method_relative, argv ? argv : empty_argv);
+                } QT_CATCH(...) {
+                    locker.relock();
+                    if (receiverInSameThread)
+                        QObjectPrivate::resetCurrentSender(receiver, &currentSender, previousSender);
 
+                    --connectionLists->inUse;
+                    Q_ASSERT(connectionLists->inUse >= 0);
+                    if (connectionLists->orphaned && !connectionLists->inUse)
+                        delete connectionLists;
+                    QT_RETHROW;
+                }
+#endif
                 if (qt_signal_spy_callback_set.slot_end_callback != 0)
                     qt_signal_spy_callback_set.slot_end_callback(receiver, c->method());
                 locker.relock();

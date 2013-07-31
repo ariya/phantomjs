@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -41,6 +41,7 @@
 
 #include "qwininputcontext_p.h"
 #include "qinputcontext_p.h"
+#ifndef QT_NO_IM
 
 #include "qfont.h"
 #include "qwidget.h"
@@ -181,7 +182,7 @@ static IActiveIMMApp *aimm = 0;
 static IActiveIMMMessagePumpOwner *aimmpump = 0;
 static QString *imeComposition = 0;
 static int        imePosition    = -1;
-bool qt_use_rtl_extensions = false;
+extern bool qt_use_rtl_extensions;
 static bool haveCaret = false;
 
 #ifndef LGRPID_INSTALLED
@@ -845,3 +846,4 @@ int QWinInputContext::reconvertString(RECONVERTSTRING *reconv)
 }
 
 QT_END_NAMESPACE
+#endif // QT_NO_IM

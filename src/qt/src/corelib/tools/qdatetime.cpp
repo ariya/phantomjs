@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -544,8 +544,8 @@ int QDate::weekNumber(int *yearNumber) const
     \i 12 = "Dec"
     \endlist
 
-    The month names will be localized according to the system's locale
-    settings.
+    The month names will be localized according to the system's default
+    locale settings.
 
     \sa toString(), longMonthName(), shortDayName(), longDayName()
 */
@@ -601,8 +601,8 @@ QString QDate::shortMonthName(int month)
     \i 12 = "December"
     \endlist
 
-    The month names will be localized according to the system's locale
-    settings.
+    The month names will be localized according to the system's default
+    locale settings.
 
     \sa toString(), shortMonthName(), shortDayName(), longDayName()
 */
@@ -656,8 +656,8 @@ QString QDate::longMonthName(int month)
     \i 7 = "Sun"
     \endlist
 
-    The day names will be localized according to the system's locale
-    settings.
+    The day names will be localized according to the system's default
+    locale settings.
 
     \sa toString(), shortMonthName(), longMonthName(), longDayName()
 */
@@ -711,8 +711,8 @@ QString QDate::shortDayName(int weekday)
     \i 7 = "Sunday"
     \endlist
 
-    The day names will be localized according to the system's locale
-    settings.
+    The day names will be localized according to the system's default
+    locale settings.
 
     \sa toString(), shortDayName(), shortMonthName(), longMonthName()
 */
@@ -762,8 +762,8 @@ QString QDate::longDayName(int weekday)
     If the \a format is Qt::TextDate, the string is formatted in
     the default way. QDate::shortDayName() and QDate::shortMonthName()
     are used to generate the string, so the day and month names will
-    be localized names. An example of this formatting is
-    "Sat May 20 1995".
+    be localized names using the default locale from the system. An
+    example of this formatting is "Sat May 20 1995".
 
     If the \a format is Qt::ISODate, the string format corresponds
     to the ISO 8601 extended specification for representations of
@@ -4116,6 +4116,16 @@ static void localToUtc(QDate &date, QTime &time, int isdst)
     _tzset();
 #endif
     time_t secsSince1Jan1970UTC = mktime(&localTM);
+#ifdef Q_OS_QNX
+    //mktime sometimes fails on QNX. Following workaround converts the date and time then manually
+    if (secsSince1Jan1970UTC == (time_t)-1) {
+        QDateTime tempTime = QDateTime(date, time, Qt::UTC);;
+        tempTime = tempTime.addMSecs(timezone * 1000);
+        date = tempTime.date();
+        time = tempTime.time();
+        return;
+    }
+#endif
 #endif
     tm *brokenDown = 0;
 #if defined(Q_OS_WINCE)

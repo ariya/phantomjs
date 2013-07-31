@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -45,10 +45,6 @@
 #include "qdatetime.h"
 #include "qstringlist.h"
 #include "qvariant.h"
-
-#if defined(Q_OS_QNX)
-#include <unistd.h>
-#endif
 
 QT_BEGIN_NAMESPACE
 
@@ -125,7 +121,7 @@ QLocale QSystemLocale::fallbackLocale() const
     QByteArray lang = getSystemLocale();
 
     if (lang.isEmpty())
-        lang = qgetenv("LC_NUMERIC");
+        lang = qgetenv("LC_MESSAGES");
     if (lang.isEmpty())
         lang = qgetenv("LANG");
     return QLocale(QLatin1String(lang));
@@ -164,6 +160,10 @@ QVariant QSystemLocale::query(QueryType type, QVariant in) const
         return lc_time.monthName(in.toInt(), QLocale::LongFormat);
     case MonthNameShort:
         return lc_time.monthName(in.toInt(), QLocale::ShortFormat);
+    case StandaloneMonthNameLong:
+         return lc_time.standaloneMonthName(in.toInt(), QLocale::LongFormat);
+    case StandaloneMonthNameShort:
+         return lc_time.standaloneMonthName(in.toInt(), QLocale::ShortFormat);
     case DateToStringLong:
         return lc_time.toString(in.toDate(), QLocale::LongFormat);
     case DateToStringShort:

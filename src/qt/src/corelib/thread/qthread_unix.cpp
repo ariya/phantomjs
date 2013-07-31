@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -427,7 +427,13 @@ int QThread::idealThreadCount()
     // IRIX
     cores = (int)sysconf(_SC_NPROC_ONLN);
 #elif defined(Q_OS_INTEGRITY)
-    // as of aug 2008 Integrity only supports one single core CPU
+#if (__INTEGRITY_MAJOR_VERSION >= 10)
+    // Integrity V10+ does support multicore CPUs
+    Value processorCount;
+    if (GetProcessorCount(CurrentTask(), &processorCount) == 0)
+        cores = processorCount;
+    else
+#endif
     cores = 1;
 #elif defined(Q_OS_VXWORKS)
     // VxWorks
@@ -536,8 +542,20 @@ static bool calculateUnixPriority(int priority, int *sched_policy, int *sched_pr
 #endif
     const int highestPriority = QThread::TimeCriticalPriority;
 
-    int prio_min = sched_get_priority_min(*sched_policy);
-    int prio_max = sched_get_priority_max(*sched_policy);
+    int prio_min;
+    int prio_max;
+#if defined(Q_OS_VXWORKS) && defined(VXWORKS_DKM)
+    // for other scheduling policies than SCHED_RR or SCHED_FIFO
+    prio_min = SCHED_FIFO_LOW_PRI;
+    prio_max = SCHED_FIFO_HIGH_PRI;
+
+    if ((*sched_policy == SCHED_RR) || (*sched_policy == SCHED_FIFO))
+#endif
+    {
+    prio_min = sched_get_priority_min(*sched_policy);
+    prio_max = sched_get_priority_max(*sched_policy);
+    }
+
     if (prio_min == -1 || prio_max == -1)
         return false;
 

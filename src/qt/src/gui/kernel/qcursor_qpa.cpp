@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -41,6 +41,7 @@
 
 #include <qcursor.h>
 #include <private/qcursor_p.h>
+#include <qplatformcursor_qpa.h>
 #include <qbitmap.h>
 
 QT_BEGIN_NAMESPACE
@@ -111,17 +112,34 @@ extern int qt_last_x,qt_last_y;
 
 QPoint QCursor::pos()
 {
+    QList<QWeakPointer<QPlatformCursor> > cursors = QPlatformCursorPrivate::getInstances();
+    int cursorCount = cursors.count();
+    for (int i = 0; i < cursorCount; ++i) {
+        const QWeakPointer<QPlatformCursor> &cursor(cursors.at(i));
+        if (cursor)
+            return cursor.data()->pos();
+    }
     return QPoint(qt_last_x, qt_last_y);
 }
 
 void QCursor::setPos(int x, int y)
 {
+    QPoint target(x, y);
+
     // Need to check, since some X servers generate null mouse move
     // events, causing looping in applications which call setPos() on
     // every mouse move event.
     //
-    if (pos() == QPoint(x, y))
+    if (pos() == target)
         return;
+
+    QList<QWeakPointer<QPlatformCursor> > cursors = QPlatformCursorPrivate::getInstances();
+    int cursorCount = cursors.count();
+    for (int i = 0; i < cursorCount; ++i) {
+        const QWeakPointer<QPlatformCursor> &cursor(cursors.at(i));
+        if (cursor)
+            cursor.data()->setPos(target);
+    }
 }
 
 QT_END_NAMESPACE

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -299,7 +299,9 @@ void QStackedLayout::setCurrentIndex(int index)
         parent->setUpdatesEnabled(false);
     }
 
-    QWidget *fw = parent ? parent->window()->focusWidget() : 0;
+    QPointer<QWidget> fw = parent ? parent->window()->focusWidget() : 0;
+    const bool focusWasOnOldPage = fw && (prev && prev->isAncestorOf(fw));
+
     if (prev) {
         prev->clearFocus();
         if (d->stackingMode == StackOne)
@@ -314,24 +316,25 @@ void QStackedLayout::setCurrentIndex(int index)
     // was somewhere on the outgoing widget.
 
     if (parent) {
-        if (fw && (prev && prev->isAncestorOf(fw))) { // focus was on old page
+        if (focusWasOnOldPage) {
             // look for the best focus widget we can find
             if (QWidget *nfw = next->focusWidget())
                 nfw->setFocus();
             else {
                 // second best: first child widget in the focus chain
-                QWidget *i = fw;
-                while ((i = i->nextInFocusChain()) != fw) {
-                    if (((i->focusPolicy() & Qt::TabFocus) == Qt::TabFocus)
-                        && !i->focusProxy() && i->isVisibleTo(next) && i->isEnabled()
-                        && next->isAncestorOf(i)) {
-                        i->setFocus();
-                        break;
+                if (QWidget *i = fw) {
+                    while ((i = i->nextInFocusChain()) != fw) {
+                        if (((i->focusPolicy() & Qt::TabFocus) == Qt::TabFocus)
+                            && !i->focusProxy() && i->isVisibleTo(next) && i->isEnabled()
+                            && next->isAncestorOf(i)) {
+                            i->setFocus();
+                            break;
+                        }
                     }
+                    // third best: incoming widget
+                    if (i == fw )
+                        next->setFocus();
                 }
-                // third best: incoming widget
-                if (i == fw )
-                    next->setFocus();
             }
         }
     }

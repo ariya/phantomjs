@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -1782,9 +1782,9 @@
     if ( raster->worker )
       raster->worker->skip_spans = params->skip_spans;
 
-    // If raster object and raster buffer are allocated, but
-    // raster size isn't of the minimum size, indicate out of
-    // memory.
+    /* If raster object and raster buffer are allocated, but  */
+    /* raster size isn't of the minimum size, indicate out of */
+    /* memory.                                                */
     if (raster->buffer_allocated_size < MINIMUM_POOL_SIZE )
       return ErrRaster_OutOfMemory;
 
@@ -1912,8 +1912,8 @@
                                      ( sizeof ( TCell ) * 8 ) );
       }
       else if ( pool_base)
-      { // Case when there is a raster pool allocated, but it
-        // doesn't have the minimum size (and so memory will be reallocated)
+      { /* Case when there is a raster pool allocated, but it                */
+        /* doesn't have the minimum size (and so memory will be reallocated) */
           rast->buffer = pool_base;
           rast->worker = NULL;
           rast->buffer_size = pool_size;

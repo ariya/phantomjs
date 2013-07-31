@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -290,11 +290,14 @@ void QCosmeticStroker::setup()
         ppl = buffer->bytesPerLine()>>2;
     }
 
+    // line drawing produces different results with different clips, so
+    // we need to clip consistently when painting to the same device
+
     // setup FP clip bounds
-    xmin = clip.left() - 1;
-    xmax = clip.right() + 2;
-    ymin = clip.top() - 1;
-    ymax = clip.bottom() + 2;
+    xmin = deviceRect.left() - 1;
+    xmax = deviceRect.right() + 2;
+    ymin = deviceRect.top() - 1;
+    ymax = deviceRect.bottom() + 2;
 
     lastPixel.x = -1;
 }
@@ -580,6 +583,7 @@ void QCosmeticStroker::drawPath(const QVectorPath &path)
         patternOffset = state->lastPen.dashOffset()*64;
         lastPixel.x = -1;
 
+        const qreal *begin = points;
         const qreal *end = points + 2*path.elementCount();
         // handle closed path case
         bool closed = path.hasImplicitClose() || (points[0] == end[-2] && points[1] == end[-1]);
@@ -589,6 +593,7 @@ void QCosmeticStroker::drawPath(const QVectorPath &path)
             calculateLastPoint(p2.x(), p2.y(), p.x(), p.y());
         }
 
+        bool fastPenAliased = (state->flags.fast_pen && !state->flags.antialiased);
         points += 2;
         while (points < end) {
             QPointF p2 = QPointF(points[0], points[1]) * state->matrix;
@@ -596,9 +601,22 @@ void QCosmeticStroker::drawPath(const QVectorPath &path)
             if (!closed && drawCaps && points == end - 2)
                 caps |= CapEnd;
 
+            QCosmeticStroker::Point last = this->lastPixel;
             stroke(this, p.x(), p.y(), p2.x(), p2.y(), caps);
 
-            p = p2;
+            /* fix for gaps in polylines with fastpen and aliased in a sequence
+               of points with small distances: if current point p2 has been dropped
+               out, keep last non dropped point p. */
+            if (fastPenAliased) {
+                if (last.x != lastPixel.x || last.y != lastPixel.y ||
+                    points == begin + 2 || points == end - 2 ) {
+                    {
+                        p = p2;
+                    }
+                }
+            } else {
+                p = p2;
+            }
             points += 2;
             caps = NoCaps;
         }
