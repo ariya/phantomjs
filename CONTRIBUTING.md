@@ -22,7 +22,7 @@ In the commit message:
 
 *Second opinion is always important.*
 
-**Bug fixing**. If you have a fix for a bug, please attach your patch in the corresponding issue in the [issue tracker](https://github.com/ariya/phantomjs/issues). If there is no entry for the bug yet, then please create a new one. If you are convenient working with Git, see the Get Ready section below on how to submit your change.
+**Bug fixing**. If you have a fix for a bug, please attach your patch in the corresponding issue in the [issue tracker](https://github.com/ariya/phantomjs/issues). If there is no entry for the bug yet, then please create a new one. If you are confident working with Git, see the Get Ready section below on how to submit your change.
 
 **Improvement and feature request**. If you have an improvement idea, please send an email to the [mailing list](http://groups.google.com/group/phantomjs) (rather than contacting the developers directly) so that other people can give their insights and opinions. This is also important to avoid duplicate work.
 
