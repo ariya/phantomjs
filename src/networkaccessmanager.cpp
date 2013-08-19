@@ -159,6 +159,11 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
     }
 
     connect(this, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)), SLOT(provideAuthentication(QNetworkReply*,QAuthenticator*)));
+
+    connect(&m_replyTracker, SIGNAL(started(QNetworkReply*, int)), this,  SLOT(handleStarted(QNetworkReply*, int)));
+    connect(&m_replyTracker, SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError> &)), this, SLOT(handleSslErrors(QNetworkReply*, const QList<QSslError> &)));
+    connect(&m_replyTracker, SIGNAL(error(QNetworkReply*, int, QNetworkReply::NetworkError)), this, SLOT(handleNetworkError(QNetworkReply*, int)));
+    connect(&m_replyTracker, SIGNAL(finished(QNetworkReply *, int, int, const QString&, const QString&)), SLOT(handleFinished(QNetworkReply *, int, int, const QString&, const QString&)));
 }
 
 void NetworkAccessManager::setUserName(const QString &userName)
@@ -273,12 +278,6 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
 
         connect(nt, SIGNAL(timeout()), this, SLOT(handleTimeout()));
     }
-
-
-    connect(&m_replyTracker, SIGNAL(started(QNetworkReply*, int)), this,  SLOT(handleStarted(QNetworkReply*, int)));
-    connect(&m_replyTracker, SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError> &)), this, SLOT(handleSslErrors(QNetworkReply*, const QList<QSslError> &)));
-    connect(&m_replyTracker, SIGNAL(error(QNetworkReply*, int, QNetworkReply::NetworkError)), this, SLOT(handleNetworkError(QNetworkReply*, int)));
-    connect(&m_replyTracker, SIGNAL(finished(QNetworkReply *, int, int, const QString&, const QString&)), SLOT(handleFinished(QNetworkReply *, int, int, const QString&, const QString&)));
             
     return tracked_reply;
 }
