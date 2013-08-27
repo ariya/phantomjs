@@ -154,10 +154,33 @@ describe("require()", function() {
             });
         });
     });
-    
+
     describe("when path is absolute", function() {
         it("loads modules from the absolute path", function() {
             require(fs.absolute('dummy')).should.equal('spec/dummy');
         });
+    });
+
+    describe("push dir/subdir", function() {
+        require.paths.push('./require/dir/subdir');
+
+        it("loads 'loader' module in dir/subdir", function() {
+            require('loader').dummyFile2.should.equal('spec/node_modules/dummy_file2');
+        });
+
+        it("loads 'loader' module in dir/subdir2 relative to require.paths", function() {
+            require('../subdir2/loader').should.equal('require/subdir2/loader');
+        });
+
+        it("loads 'dummy' module from the path that takes precedence", function() {
+            require('../dummy').should.equal('spec/dummy');
+        });
+
+        it("doesn't load 'loader' module in dir/subdir", function() {
+            (function() {
+                require.paths.pop();
+                require('loader');
+            }).should.Throw("Cannot find module 'loader'");
+        })
     });
 });
