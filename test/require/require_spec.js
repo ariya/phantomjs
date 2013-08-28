@@ -206,7 +206,6 @@ describe("require()", function() {
                     require('loader');
                 }).should.Throw("Cannot find module 'loader'");
             })
-        }
-
+        });
     });
 });
