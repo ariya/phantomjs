@@ -233,7 +233,11 @@ phantom.callback = function(callback) {
         }
 
         for (var i=0; i<paths.length; ++i) {
-            _paths.push(fs.absolute(joinPath(paths[i], request)));
+            if(fs.isAbsolute(paths[i])) {
+                _paths.push(fs.absolute(joinPath(paths[i], request)));
+            } else {
+                _paths.push(fs.absolute(joinPath(this.dirname, paths[i], request)));
+            }
         }
 
         return _paths;
