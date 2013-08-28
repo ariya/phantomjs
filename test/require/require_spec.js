@@ -163,7 +163,9 @@ describe("require()", function() {
 
     describe("with require.paths", function() {
         describe("when require.paths.push(relative)", function() {
-            require.paths.push('./dir/subdir');
+            it("add relative path to paths", function() {
+                require.paths.push('./dir/subdir');
+            });
 
             it("loads 'loader' module in dir/subdir", function() {
                 require('loader').dummyFile2.should.equal('spec/node_modules/dummy_file2');
@@ -182,11 +184,13 @@ describe("require()", function() {
                     require.paths.pop();
                     require('loader');
                 }).should.Throw("Cannot find module 'loader'");
-            })
+            });
         });
 
         describe("when require.paths.push(absolute)", function() {
-            require.paths.push(fs.absolute('require/dir/subdir'));
+            it("adds absolute path to paths", function() {
+                require.paths.push(fs.absolute('require/dir/subdir'));
+            });
 
             it("loads 'loader' module in dir/subdir", function() {
                 require('loader').dummyFile2.should.equal('spec/node_modules/dummy_file2');
@@ -205,7 +209,7 @@ describe("require()", function() {
                     require.paths.pop();
                     require('loader');
                 }).should.Throw("Cannot find module 'loader'");
-            })
+            });
         });
     });
 });
