@@ -191,9 +191,11 @@ describe("WebPage object", function() {
 
         var url = "http://localhost:12345/foo";
         var lastChunk = "";
+        var bodySize = 0;
         runs(function() {
             page.onResourceReceived = function(resource) {
                 lastChunk = resource.body;
+                bodySize = resource.bodySize;
             };
             page.open(url, function(status) {
             });
@@ -203,6 +205,7 @@ describe("WebPage object", function() {
 
         runs(function() {
             expect(lastChunk).toEqual('resource body');
+            expect(bodySize).toEqual(lastChunk.length);
             page.onResourceReceived = null;
             server.close();
         });
