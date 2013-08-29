@@ -359,6 +359,7 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply, int requestId, i
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
     data["body"] = body;
+    data["bodySize"] = body.length();
 
 
     emit resourceReceived(data);
