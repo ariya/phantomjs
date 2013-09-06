@@ -55,8 +55,8 @@ describe("phantom global object", function() {
         expect(phantom.version.minor).toEqual(9);
     });
 
-    it("should return 1 as the patch version", function() {
-        expect(phantom.version.patch).toEqual(1);
+    it("should return 2 as the patch version", function() {
+        expect(phantom.version.patch).toEqual(2);
     });
 
     it("should have 'injectJs' function", function() {
