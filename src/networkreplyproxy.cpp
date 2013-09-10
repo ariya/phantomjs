@@ -59,7 +59,7 @@ QString NetworkReplyProxy::body()
 {
     //converting data to QString in a special way(without charset encoding), 
     //similar to File::read method in 'filesystem' module.
-    QString ret(m_data.size());
+    QString ret(m_data.size(), ' ');
     for(int i = 0; i < m_data.size(); ++i) {
         ret[i] = m_data.at(i);
     }
