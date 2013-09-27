@@ -230,6 +230,14 @@ phantom.callback = function(callback) {
                     dir = dirname(dir);
                 }
             }
+            // then look in bare directories
+            if (!this._isNative()) {
+                dir = this.dirname;
+                while (dir) {
+                    _paths.push(joinPath(dir, request));
+                    dir = dirname(dir);
+                }
+            }
         }
 
         for (var i=0; i<paths.length; ++i) {
