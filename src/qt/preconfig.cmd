@@ -38,7 +38,7 @@ set QT_CFG=%QT_CFG% -nomake examples
 set QT_CFG=%QT_CFG% -nomake tools
 set QT_CFG=%QT_CFG% -nomake translations
 
-set OPEN_SSL_DIR=d:\ownprojects\OpenSSL
+set OPEN_SSL_DIR=c:\OpenSSL
 
 set QT_CFG=%QT_CFG% -openssl-linked
 set QT_CFG=%QT_CFG% -I %OPEN_SSL_DIR%\include
