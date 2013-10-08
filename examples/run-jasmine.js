@@ -60,24 +60,28 @@ page.open(system.args[1], function(status){
         }, function(){
             var exitCode = page.evaluate(function(){
                 console.log('');
-                console.log(document.body.querySelector('.description').innerText);
-                var list = document.body.querySelectorAll('.results > #details > .specDetail.failed');
-                if (list && list.length > 0) {
-                  console.log('');
-                  console.log(list.length + ' test(s) FAILED:');
-                  for (i = 0; i < list.length; ++i) {
-                      var el = list[i],
-                          desc = el.querySelector('.description'),
-                          msg = el.querySelector('.resultMessage.fail');
-                      console.log('');
-                      console.log(desc.innerText);
-                      console.log(msg.innerText);
-                      console.log('');
-                  }
-                  return 1;
+                var list_of_errors = document.body.querySelectorAll('.results > #details > .specDetail.failed');
+                var list_of_successes = document.body.querySelectorAll('.alert > .passingAlert.bar');
+                if (list_of_errors && list_of_errors.length > 0) {
+                    console.log(document.body.querySelector('.description').innerText);
+                    console.log('');
+                    console.log(list_of_errors.length + ' test(s) FAILED:');
+                    for (i = 0; i < list_of_errors.length; ++i) {
+                        var el = list[i],
+                            desc = el.querySelector('.description'),
+                            msg = el.querySelector('.resultMessage.fail');
+                        console.log('');
+                        console.log(desc.innerText);
+                        console.log(msg.innerText);
+                        console.log('');
+                    }
+                    return 1;
+                } else if(list_of_successes && list_of_successes.length > 0) {
+                    console.log(list_of_successes[0].innerText)
+                    return 0;
                 } else {
-                  console.log(document.body.querySelector('.alert > .passingAlert.bar').innerText);
-                  return 0;
+                    console.log('No tests were found in this url!');
+                    return 1;
                 }
             });
             phantom.exit(exitCode);
