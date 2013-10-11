@@ -697,8 +697,9 @@ static QFontEngine *loadEngine(int script, const QFontDef &request,
 
 
 #if !defined(QT_NO_DIRECTWRITE)
-    bool useDirectWrite = (request.hintingPreference == QFont::PreferNoHinting)
-                       || (request.hintingPreference == QFont::PreferVerticalHinting);
+    //bool useDirectWrite = (request.hintingPreference == QFont::PreferNoHinting)
+    //                   || (request.hintingPreference == QFont::PreferVerticalHinting);
+    bool useDirectWrite = true;
     IDWriteFont *directWriteFont = 0;
 #else
     bool useDirectWrite = false;
@@ -901,7 +902,7 @@ static QFontEngine *loadEngine(int script, const QFontDef &request,
                                   lf.lfFaceName, hr);
 #endif
                 } else {
-                    DeleteObject(hfont);
+                    //DeleteObject(hfont);
                     useDirectWrite = true;
                 }
             }
@@ -940,13 +941,24 @@ static QFontEngine *loadEngine(int script, const QFontDef &request,
         IDWriteFontFace *directWriteFontFace = NULL;
         HRESULT hr = directWriteFont->CreateFontFace(&directWriteFontFace);
         if (SUCCEEDED(hr)) {
-            QFontEngineDirectWrite *fedw = new QFontEngineDirectWrite(db->directWriteFactory,
-                                                                      directWriteFontFace,
-                                                                      request.pixelSize);
+            QFontEngineWin *few = new QFontEngineWin(font_name, hfont, stockFont, lf, directWriteFontFace, request.pixelSize);
 
-            initFontInfo(fedw, request, dpi, directWriteFont);
+            //initFontInfo(fedw, request, dpi, directWriteFont);
+            // Also check for OpenType tables when using complex scripts
+            // ### TODO: This only works for scripts that require OpenType. More generally
+            // for scripts that do not require OpenType we should just look at the list of
+            // supported writing systems in the font's OS/2 table.
+            if (scriptRequiresOpenType(script)) {
+                HB_Face hbFace = few->harfbuzzFace();
+                if (!hbFace || !hbFace->supported_scripts[script]) {
+                    FM_DEBUG("  OpenType support missing for script\n");
+                    delete few;
+                    return 0;
+                }
+            }
 
-            fe = fedw;
+            initFontInfo(few, request, fontHdc, dpi);
+            fe = few;
         } else {
             qErrnoWarning(hr, "QFontEngine::loadEngine: CreateFontFace failed");
         }

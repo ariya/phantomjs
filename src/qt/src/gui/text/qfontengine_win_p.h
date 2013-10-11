@@ -55,6 +55,8 @@
 
 #include <QtCore/qconfig.h>
 
+struct IDWriteFontFace;
+
 QT_BEGIN_NAMESPACE
 
 class QNativeImage;
@@ -63,6 +65,7 @@ class QFontEngineWin : public QFontEngine
 {
 public:
     QFontEngineWin(const QString &name, HFONT, bool, LOGFONT);
+    QFontEngineWin(const QString &name, HFONT, bool, LOGFONT, IDWriteFontFace *directWriteFontFace, qreal pixelSize);
     ~QFontEngineWin();
 
     virtual QFixed lineThickness() const;
@@ -143,11 +146,15 @@ public:
     mutable uint widthCacheSize;
     mutable QFixed *designAdvances;
     mutable int designAdvancesSize;
+    IDWriteFontFace * m_directWriteFontFace;
+    int m_unitsPerEm;
 
 private:
     QNativeImage *drawGDIGlyph(HFONT font, glyph_t, int margin, const QTransform &xform,
                                QImage::Format mask_format);
     void recalcAdvancesFloat(const QChar *str, int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const;
+    void init( const QString & name, HFONT _hfont, bool stockFont, LOGFONT lf );
+    void collectMetrics();
 
 };
 

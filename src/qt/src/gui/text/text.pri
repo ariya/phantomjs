@@ -83,10 +83,7 @@ win32 {
                 text/qfontengine_win.cpp \
                 text/qrawfont_win.cpp
 	HEADERS += text/qfontengine_win_p.h
-}
-
-contains(QT_CONFIG, directwrite) {
-    LIBS_PRIVATE += -ldwrite
+	LIBS_PRIVATE += -ldwrite
     HEADERS += text/qfontenginedirectwrite_p.h
     SOURCES += text/qfontenginedirectwrite.cpp
 }
