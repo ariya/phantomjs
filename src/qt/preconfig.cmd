@@ -5,7 +5,7 @@ set QT_CFG=
 set QT_CFG=%QT_CFG% -opensource
 set QT_CFG=%QT_CFG% -confirm-license
 
-set QT_CFG=%QT_CFG% -release
+set QT_CFG=%QT_CFG% -debug
 set QT_CFG=%QT_CFG% -static
 
 set QT_CFG=%QT_CFG% -no-exceptions
@@ -37,6 +37,8 @@ set QT_CFG=%QT_CFG% -nomake demos
 set QT_CFG=%QT_CFG% -nomake examples
 set QT_CFG=%QT_CFG% -nomake tools
 set QT_CFG=%QT_CFG% -nomake translations
+
+set QT_CFG=%QT_CFG% -platform win32-msvc2010
 
 set OPEN_SSL_DIR=c:\OpenSSL
 

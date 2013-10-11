@@ -134,6 +134,10 @@ typedef BOOL (WINAPI *PtrGetCharWidthI)(HDC, UINT, UINT, LPWORD, LPINT);
 static PtrGetCharWidthI ptrGetCharWidthI = 0;
 static bool resolvedGetCharWidthI = false;
 
+typedef BOOL (WINAPI *PtrGetCharWidthFloat)(HDC, UINT, UINT, PFLOAT);
+static PtrGetCharWidthFloat ptrGetCharWidthFloat = 0;
+static bool resolvedGetCharWidthFloat = false;
+
 static void resolveGetCharWidthI()
 {
     if (resolvedGetCharWidthI)
@@ -143,6 +147,17 @@ static void resolveGetCharWidthI()
     ptrGetCharWidthI = (PtrGetCharWidthI)gdi32.resolve("GetCharWidthI");
 
     resolvedGetCharWidthI = true;
+}
+
+static void resolveGetCharWidthFloat()
+{
+    if (resolvedGetCharWidthFloat)
+        return;
+
+    QSystemLibrary gdi32(QLatin1String("gdi32"));
+    ptrGetCharWidthFloat = (PtrGetCharWidthFloat)gdi32.resolve("GetCharWidthFloatW");
+
+    resolvedGetCharWidthFloat = true;
 }
 #endif // !defined(Q_WS_WINCE)
 
@@ -349,6 +364,8 @@ QFontEngineWin::QFontEngineWin(const QString &name, HFONT _hfont, bool stockFont
 #ifndef Q_WS_WINCE
     if (!resolvedGetCharWidthI)
         resolveGetCharWidthI();
+    if (!resolvedGetCharWidthFloat)
+        resolveGetCharWidthFloat();
 #endif
 }
 
@@ -389,7 +406,8 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
     if (flags & QTextEngine::GlyphIndicesOnly)
         return true;
 
-    recalcAdvances(glyphs, flags);
+    //recalcAdvances(glyphs, flags);
+    recalcAdvancesFloat(str, len, glyphs, flags);
     return true;
 }
 
@@ -401,6 +419,15 @@ inline void calculateTTFGlyphWidth(HDC hdc, UINT glyph, int &width)
     if (ptrGetCharWidthI)
         ptrGetCharWidthI(hdc, glyph, 1, 0, &width);
 #endif
+}
+
+inline void calculateTTFGlyphWidthFloat(HDC hdc, UINT codePoint, float &width)
+{
+    if (ptrGetCharWidthFloat)
+    {
+        ptrGetCharWidthFloat(hdc, codePoint, codePoint, &width);
+        width *= 16; // the return value is always 1/16 of the integer.
+    }
 }
 
 void QFontEngineWin::recalcAdvances(QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const
@@ -477,6 +504,85 @@ void QFontEngineWin::recalcAdvances(QGlyphLayout *glyphs, QTextEngine::ShaperFla
     }
 }
 
+void QFontEngineWin::recalcAdvancesFloat( const QChar *str, int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags ) const
+{
+    HGDIOBJ oldFont = 0;
+    HDC hdc = shared_dc();
+    QVarLengthArray<UINT32> codePoints(len);
+    for (int i=0; i<len; ++i) {
+        codePoints[i] = getChar(str, i, len);
+        if (flags & QTextEngine::RightToLeft)
+            codePoints[i] = QChar::mirroredChar(codePoints[i]);
+    }
+    if (ttf && (flags & QTextEngine::DesignMetrics)) {
+        for(int i = 0; i < glyphs->numGlyphs; i++) {
+            unsigned int glyph = glyphs->glyphs[i];
+            if(int(glyph) >= designAdvancesSize) {
+                int newSize = (glyph + 256) >> 8 << 8;
+                designAdvances = q_check_ptr((QFixed *)realloc(designAdvances,
+                            newSize*sizeof(QFixed)));
+                for(int i = designAdvancesSize; i < newSize; ++i)
+                    designAdvances[i] = -1000000;
+                designAdvancesSize = newSize;
+            }
+            if (designAdvances[glyph] < -999999) {
+                if (!oldFont)
+                    oldFont = selectDesignFont();
+
+                float width = 0;
+                calculateTTFGlyphWidthFloat(hdc, codePoints[i], width);
+                designAdvances[glyph] = QFixed::fromReal(width) / designToDevice;
+            }
+            glyphs->advances_x[i] = designAdvances[glyph];
+            glyphs->advances_y[i] = 0;
+        }
+        if(oldFont)
+            DeleteObject(SelectObject(hdc, oldFont));
+    } else {
+        for(int i = 0; i < glyphs->numGlyphs; i++) {
+            unsigned int glyph = glyphs->glyphs[i];
+
+            glyphs->advances_y[i] = 0;
+
+            if (glyph >= widthCacheSize) {
+                int newSize = (glyph + 256) >> 8 << 8;
+                widthCache = q_check_ptr((unsigned char *)realloc(widthCache,
+                            newSize*sizeof(QFixed)));
+                memset(widthCache + widthCacheSize, 0, newSize - widthCacheSize);
+                widthCacheSize = newSize;
+            }
+            glyphs->advances_x[i] = widthCache[glyph];
+            // font-width cache failed
+            if (glyphs->advances_x[i] == 0) {
+                float width = 0;
+                if (!oldFont)
+                    oldFont = SelectObject(hdc, hfont);
+
+                if (!ttf) {
+                    QChar ch[2] = { ushort(glyph), 0 };
+                    int chrLen = 1;
+                    if (glyph > 0xffff) {
+                        ch[0] = QChar::highSurrogate(glyph);
+                        ch[1] = QChar::lowSurrogate(glyph);
+                        ++chrLen;
+                    }
+                    SIZE size = {0, 0};
+                    GetTextExtentPoint32(hdc, (wchar_t *)ch, chrLen, &size);
+                    width = size.cx;
+                } else {
+                    calculateTTFGlyphWidthFloat(hdc, codePoints[i], width);
+                }
+                glyphs->advances_x[i] = QFixed::fromReal(width);
+                // if glyph's within cache range, store it for later
+                if (width > 0 && width < 0x100)
+                    widthCache[glyph] = width;
+            }
+        }
+
+        if (oldFont)
+            SelectObject(hdc, oldFont);
+    }
+}
 glyph_metrics_t QFontEngineWin::boundingBox(const QGlyphLayout &glyphs)
 {
     if (glyphs.numGlyphs == 0)

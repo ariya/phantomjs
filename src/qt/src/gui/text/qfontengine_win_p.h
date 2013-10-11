@@ -147,6 +147,7 @@ public:
 private:
     QNativeImage *drawGDIGlyph(HFONT font, glyph_t, int margin, const QTransform &xform,
                                QImage::Format mask_format);
+    void recalcAdvancesFloat(const QChar *str, int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const;
 
 };
 
