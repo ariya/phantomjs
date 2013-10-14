@@ -1073,7 +1073,7 @@ QFontEngine::Properties QFontEngineWin::properties() const
 void QFontEngineWin::getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics)
 {
     LOGFONT lf = logfont;
-    lf.lfHeight = unitsPerEm;
+    lf.lfHeight = -unitsPerEm; // should include the internalLeading.
     int flags = synthesized();
     if(flags & SynthesizedItalic)
         lf.lfItalic = false;

@@ -1936,12 +1936,12 @@ void QPdfBaseEnginePrivate::drawTextItem(const QPointF &p, const QTextItemInt &t
         currentPage->fonts.append(font->object_id);
 
     qreal size = ti.fontEngine->fontDef.pixelSize;
-#ifdef Q_WS_WIN
-    if (ti.fontEngine->type() == QFontEngine::Win) {
-        QFontEngineWin *fe = static_cast<QFontEngineWin *>(ti.fontEngine);
-        size = fe->tm.tmHeight;
-    }
-#endif
+//#ifdef Q_WS_WIN
+//    if (ti.fontEngine->type() == QFontEngine::Win) {
+//        QFontEngineWin *fe = static_cast<QFontEngineWin *>(ti.fontEngine);
+//        size = fe->tm.tmHeight; // this is not the point size, this is the point size + internal leading
+//    }
+//#endif
 
     QVarLengthArray<glyph_t> glyphs;
     QVarLengthArray<QFixedPoint> positions;
