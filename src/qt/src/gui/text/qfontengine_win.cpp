@@ -313,6 +313,7 @@ int QFontEngineWin::getGlyphIndexes(const QChar *str, int numChars, QGlyphLayout
 
 
 QFontEngineWin::QFontEngineWin(const QString &name, HFONT _hfont, bool stockFont, LOGFONT lf)
+    : m_directWriteFontFace(0)
 {
     init(name, _hfont, stockFont, lf);
 }
@@ -330,7 +331,7 @@ QFontEngineWin::QFontEngineWin(const QString &name, HFONT _hfont, bool stockFont
 
 void QFontEngineWin::collectMetrics()
 {
-    if (m_directWriteFontFace != 0) {
+    if (m_directWriteFontFace) {
         DWRITE_FONT_METRICS metrics;
 
         m_directWriteFontFace->GetMetrics(&metrics);
@@ -340,7 +341,8 @@ void QFontEngineWin::collectMetrics()
 
 QFontEngineWin::~QFontEngineWin()
 {
-    m_directWriteFontFace->Release();
+    if (m_directWriteFontFace)
+        m_directWriteFontFace->Release();
 
     if (designAdvances)
         free(designAdvances);
@@ -377,8 +379,10 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
     if (flags & QTextEngine::GlyphIndicesOnly)
         return true;
 
-    //recalcAdvances(glyphs, flags);
-    recalcAdvancesFloat(str, len, glyphs, flags);
+    if(m_directWriteFontFace == 0)
+        recalcAdvances(glyphs, flags);
+    else
+        recalcAdvancesFloat(str, len, glyphs, flags);
     return true;
 }
 
