@@ -93,7 +93,7 @@ CookieJar *CookieJar::instance(QString cookiesFile)
     static CookieJar *singleton = NULL;
     if (!singleton) {
         if (cookiesFile.isEmpty()) {
-            qDebug() << "CookieJar - Created but will not store cookies (use option '--cookies-file=<filename>' to enable persisten cookie storage)";
+            qDebug() << "CookieJar - Created but will not store cookies (use option '--cookies-file=<filename>' to enable persistent cookie storage)";
         } else {
             qDebug() << "CookieJar - Created and will store cookies in:" << cookiesFile;
         }
