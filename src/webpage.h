@@ -513,6 +513,7 @@ private:
     QPoint m_mousePos;
     bool m_ownsPages;
     int m_loadingProgress;
+    int m_dpi;
 
     friend class Phantom;
     friend class CustomPage;
