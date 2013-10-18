@@ -2531,30 +2531,30 @@ void FrameView::forceLayoutForPagination(const FloatSize& pageSize, float maximu
         root->setNeedsLayoutAndPrefWidthsRecalc();
         forceLayout();
         
-        // If we don't fit in the given page width, we'll lay out again. If we don't fit in the
-        // page width when shrunk, we will lay out at maximum shrink and clip extra content.
-        // FIXME: We are assuming a shrink-to-fit printing implementation.  A cropping
-        // implementation should not do this!
-        int docLogicalWidth = root->style()->isHorizontalWritingMode() ? root->docWidth() : root->docHeight();
-        if (docLogicalWidth > pageLogicalWidth) {
-            flooredPageLogicalWidth = std::min<int>(docLogicalWidth, pageLogicalWidth * maximumShrinkFactor);
-            if (pageLogicalHeight)
-                root->setPageLogicalHeight(flooredPageLogicalWidth / pageSize.width() * pageSize.height());
-            root->setLogicalWidth(flooredPageLogicalWidth);
-            root->setNeedsLayoutAndPrefWidthsRecalc();
-            forceLayout();
-            int docLogicalHeight = root->style()->isHorizontalWritingMode() ? root->docHeight() : root->docWidth();
-            int docLogicalTop = root->style()->isHorizontalWritingMode() ? root->docTop() : root->docLeft();
-            int docLogicalRight = root->style()->isHorizontalWritingMode() ? root->docRight() : root->docBottom();
-            int clippedLogicalLeft = 0;
-            if (!root->style()->isLeftToRightDirection())
-                clippedLogicalLeft = docLogicalRight - flooredPageLogicalWidth;
-            IntRect overflow(clippedLogicalLeft, docLogicalTop, flooredPageLogicalWidth, docLogicalHeight);
-            if (!root->style()->isHorizontalWritingMode())
-                overflow = overflow.transposedRect();
-            root->clearLayoutOverflow();
-            root->addLayoutOverflow(overflow); // This is how we clip in case we overflow again.
-        }
+        //// If we don't fit in the given page width, we'll lay out again. If we don't fit in the
+        //// page width when shrunk, we will lay out at maximum shrink and clip extra content.
+        //// FIXME: We are assuming a shrink-to-fit printing implementation.  A cropping
+        //// implementation should not do this!
+        //int docLogicalWidth = root->style()->isHorizontalWritingMode() ? root->docWidth() : root->docHeight();
+        //if (docLogicalWidth > pageLogicalWidth) {
+        //    flooredPageLogicalWidth = std::min<int>(docLogicalWidth, pageLogicalWidth * maximumShrinkFactor);
+        //    if (pageLogicalHeight)
+        //        root->setPageLogicalHeight(flooredPageLogicalWidth / pageSize.width() * pageSize.height());
+        //    root->setLogicalWidth(flooredPageLogicalWidth);
+        //    root->setNeedsLayoutAndPrefWidthsRecalc();
+        //    forceLayout();
+        //    int docLogicalHeight = root->style()->isHorizontalWritingMode() ? root->docHeight() : root->docWidth();
+        //    int docLogicalTop = root->style()->isHorizontalWritingMode() ? root->docTop() : root->docLeft();
+        //    int docLogicalRight = root->style()->isHorizontalWritingMode() ? root->docRight() : root->docBottom();
+        //    int clippedLogicalLeft = 0;
+        //    if (!root->style()->isLeftToRightDirection())
+        //        clippedLogicalLeft = docLogicalRight - flooredPageLogicalWidth;
+        //    IntRect overflow(clippedLogicalLeft, docLogicalTop, flooredPageLogicalWidth, docLogicalHeight);
+        //    if (!root->style()->isHorizontalWritingMode())
+        //        overflow = overflow.transposedRect();
+        //    root->clearLayoutOverflow();
+        //    root->addLayoutOverflow(overflow); // This is how we clip in case we overflow again.
+        //}
     }
 
     if (shouldAdjustViewSize)
