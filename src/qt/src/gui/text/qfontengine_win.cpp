@@ -379,10 +379,7 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
     if (flags & QTextEngine::GlyphIndicesOnly)
         return true;
 
-    if(m_directWriteFontFace == 0)
-        recalcAdvances(glyphs, flags);
-    else
-        recalcAdvancesFloat(str, len, glyphs, flags);
+    recalcAdvances(glyphs, flags);
     return true;
 }
 
@@ -398,6 +395,12 @@ inline void calculateTTFGlyphWidth(HDC hdc, UINT glyph, int &width)
 
 void QFontEngineWin::recalcAdvances(QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const
 {
+    if(m_directWriteFontFace)
+    {
+        recalcAdvancesFloat(glyphs, flags);
+        return;
+    }
+    
     HGDIOBJ oldFont = 0;
     HDC hdc = shared_dc();
     if (ttf && (flags & QTextEngine::DesignMetrics)) {
@@ -473,7 +476,7 @@ void QFontEngineWin::recalcAdvances(QGlyphLayout *glyphs, QTextEngine::ShaperFla
 #define DESIGN_TO_LOGICAL(DESIGN_UNIT_VALUE) \
     QFixed::fromReal((qreal(DESIGN_UNIT_VALUE) / qreal(m_unitsPerEm)) * fontDef.pixelSize)
 
-void QFontEngineWin::recalcAdvancesFloat( const QChar *str, int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags ) const
+void QFontEngineWin::recalcAdvancesFloat( QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags ) const
 {
     if (m_directWriteFontFace == 0)
         return;
@@ -496,7 +499,7 @@ void QFontEngineWin::recalcAdvancesFloat( const QChar *str, int len, QGlyphLayou
             glyphs->advances_y[i] = 0;
         }
     } else {
-        qErrnoWarning("QFontEngineDirectWrite::recalcAdvances: GetDesignGlyphMetrics failed");
+        qErrnoWarning("QFontEngineDirectWrite::recalcAdvancesFloat: GetDesignGlyphMetrics failed");
     }
 }
 glyph_metrics_t QFontEngineWin::boundingBox(const QGlyphLayout &glyphs)

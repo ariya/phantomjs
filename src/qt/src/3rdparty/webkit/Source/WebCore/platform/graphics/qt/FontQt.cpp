@@ -411,7 +411,7 @@ float Font::floatWidthForSimpleText(const TextRun& run, GlyphBuffer* glyphBuffer
     String sanitized = Font::normalizeSpaces(run.characters(), run.length());
     QString string = fromRawDataWithoutRef(sanitized);
 
-    int w = QFontMetrics(font()).width(string, -1, Qt::TextBypassShaping);
+    float w = QFontMetricsF(font()).width(string);
 
     // WebKit expects us to ignore word spacing on the first character (as opposed to what Qt does)
     if (treatAsSpace(run[0]))
