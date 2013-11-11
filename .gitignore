@@ -1,21 +1,11 @@
 .DS_Store
-*.xcodeproj
-Makefile*
-*~
-.idea
-*.iml
-target/
-chromedriver.log
-build
-*.log
-.gradle
-*.ipr
-*.iws
-*.class
-*.orig
-*.pyc
-src/
-bin/
 
 # vim temp files
 *.swp
+
+# jekyll docs site
+_site
+
+/.sass-cache/
+/phantomjs.sublime-project
+/phantomjs.sublime-workspace

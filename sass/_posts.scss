@@ -1,0 +1,47 @@
+.post {
+
+  line-height: 1.5em;
+
+  h1,h2,h3,h4 {
+  margin-bottom: 1em;
+  }
+
+  p,ul,pre {
+  margin-bottom:1.5em;
+  }
+
+  h1 {
+  color:#C00;
+  font-size:2.25em;
+  font-weight:700;
+  text-align:center
+  }
+
+  h2 {
+  font-size:150%
+  }
+
+  p {
+  line-height:125%;
+  }
+
+  ul {
+  line-height:125%;
+  list-style-type:disc;
+  margin-left:1em;
+  }
+
+  li {
+  margin-left:1em;
+  list-style-position: inside;
+  }
+
+}
+
+.col-4 {
+  -moz-column-count: 4;
+  -webkit-column-count: 4;
+  column-count: 4; }
+
+.col-3 > li {
+  display: block; }

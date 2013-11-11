@@ -1,0 +1,48 @@
+.community {
+background:#e1e0dc;
+color:#43413e;
+text-align:center;
+font-size:1.125em;
+padding:1.5em 0
+}
+
+.community h2 {
+font-weight:700;
+display:inline-block
+}
+
+.community ul {
+display:inline
+}
+
+.community li {
+list-style:none;
+display:inline-block
+}
+
+.community a {
+margin:0 1.5em;
+color:#43413e;
+text-decoration:none
+}
+
+.community a:hover {
+color:#000;
+text-decoration:underline
+}
+
+.link-release,.link-ml,.link-bugs {
+display:inline-block;
+padding-left:44px;
+height:36px;
+line-height:36px;
+background:url(../img/icon-release.png) no-repeat 0 50%
+}
+
+.link-ml {
+background:url(../img/icon-ml.png) no-repeat 0 50%
+}
+
+.link-bugs {
+background:url(../img/icon-bugs.png) no-repeat 0 50%
+}
