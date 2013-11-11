@@ -1,0 +1,49 @@
+.nav-title,
+.nav-up,
+.nav-group,
+.nav-group-label {
+  margin-bottom:1em;
+}
+
+.nav-group {
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.nav-item-label {
+  border:1px solid #DDD;
+  display: inline-block;
+  font-size:10px;
+  text-align: center;
+  width: 2em;
+  border-radius:10px;
+}
+
+.nav-item-property > .nav-item-label {
+  background-color:#43413E;
+  color:#2ECBD6;
+}
+
+.nav-item-method > .nav-item-label {
+  background-color:#2ECBD6;
+  color:#000;
+}
+
+.nav-item-handler > .nav-item-label {
+  background:#E1E0DC;
+  color:#43413E;
+}
+
+.nav-item-name {
+  color:#000;
+}
+
+.nav-title,
+.current > .nav-item-name {
+  font-weight:bold;
+  color:#C00
+}
+
+.nav-group-end {
+  margin-bottom: 0.5em;
+}

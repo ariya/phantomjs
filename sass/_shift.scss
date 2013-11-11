@@ -1,0 +1,11 @@
+.shift {
+  display: table;
+  width: 100%; }
+
+/* Will display at the bottom. */
+.shift__down {
+  display: table-footer-group; }
+
+/* Will display at the top. */
+.shife__up {
+  display: table-header-group; }
