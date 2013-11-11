@@ -1,0 +1,14 @@
+name: PhantomJS
+markdown: redcarpet
+redcarpet:
+  extensions: ["tables"]
+pygments: true
+
+# root URL for editing pages on GitHub (remember trailing slash)
+githubEdit: https://github.com/ariya/phantomjs/edit/gh-pages/
+
+# When pushing to GitHub
+url: http://ariya.github.io/phantomjs
+
+# When Developing Locally
+# url: http://localhost:4000
