@@ -1,0 +1,66 @@
+{% if page.title == 'API' %}
+
+  <h2 class="nav-title">API</h2>
+
+  <ul>
+    <li><a href="{{ site.url }}/api/command-line.html">Command Line Interface</a></li>
+    <li><a href="{{ site.url }}/api/phantom/">phantom Object</a></li>
+    <li><a href="{{ site.url }}/api/webpage/">Web Page Module</a></li>
+    <li><a href="{{ site.url }}/api/child_process/">Child Process Module</a></li>
+    <li><a href="{{ site.url }}/api/fs/">File System Module</a></li>
+    <li><a href="{{ site.url }}/api/system/">System Module</a></li>
+    <li><a href="{{ site.url }}/api/webserver/">Web Server Module</a></li>
+  </ul>
+
+{% else %}
+
+  {% assign category_name = 'phantom' %}
+  {% assign category_label = 'phantom Object' %}
+  {% assign category_properties = site.categories.phantom-property %}
+  {% assign category_methods = site.categories.phantom-method %}
+  {% assign category_handlers = site.categories.phantom-handler %}
+  {% include nav-module.html %}
+
+  {% assign category_name = 'webpage' %}
+  {% assign category_label = 'Web Page Module' %}
+  {% assign category_properties = site.categories.webpage-property %}
+  {% assign category_methods = site.categories.webpage-method %}
+  {% assign category_handlers = site.categories.webpage-handler %}
+  {% include nav-module.html %}
+
+  {% assign category_name = 'child_process' %}
+  {% assign category_label = 'Child Process Module' %}
+  {% assign category_properties = site.categories.child_process-property %}
+  {% assign category_methods = site.categories.child_process-method %}
+  {% assign category_handlers = site.categories.child_process-handler %}
+  {% include nav-module.html %}
+
+  {% assign category_name = 'fs' %}
+  {% assign category_label = 'File System Module' %}
+  {% assign category_properties = site.categories.fs-property %}
+  {% assign category_methods = site.categories.fs-method %}
+  {% assign category_handlers = site.categories.fs-handler %}
+  {% include nav-module.html %}
+
+  {% assign category_name = 'stream' %}
+  {% assign category_label = 'Stream Objects' %}
+  {% assign category_properties = site.categories.stream-property %}
+  {% assign category_methods = site.categories.stream-method %}
+  {% assign category_handlers = site.categories.stream-handler %}
+  {% include nav-module.html %}
+
+  {% assign category_name = 'system' %}
+  {% assign category_label = 'System Module' %}
+  {% assign category_properties = site.categories.system-property %}
+  {% assign category_methods = site.categories.system-method %}
+  {% assign category_handlers = site.categories.system-handler %}
+  {% include nav-module.html %}
+
+  {% assign category_name = 'webserver' %}
+  {% assign category_label = 'Web Server Module' %}
+  {% assign category_properties = site.categories.webserver-property %}
+  {% assign category_methods = site.categories.webserver-method %}
+  {% assign category_handlers = site.categories.webserver-handler %}
+  {% include nav-module.html %}
+
+{% endif %}
