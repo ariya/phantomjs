@@ -1,0 +1,40 @@
+@import '_base.scss';
+@import '_grid.scss';
+
+body {
+font-family:'Droid Sans','Lucida Grande',sans-serif;
+line-height:1.125em;
+color:#444;
+}
+
+@import '_masthead.scss';
+@import '_community.scss';
+@import 'home/_index.scss';
+@import '_shift.scss';
+@import '_posts.scss';
+@import '_nav-list.scss';
+@import '_solarized-light.scss';
+
+.navigator {
+  margin-top:2em;
+  margin-bottom:2em;
+}
+
+.island{
+  padding:20px;
+  margin-bottom:20px;
+}
+  .island > :last-child{
+    margin-bottom:0; /* Remove the margin from the last child of a boxed off area so that we don’t end up with compounded margin/padding spacings. */
+  }
+
+.promo{
+  border:1px solid #ff8;
+  background-color:#ffc;
+  color:#333;
+}
+
+// specific improve this post promo
+.improve {
+  text-align: center;
+}
