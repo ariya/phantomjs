@@ -1,150 +1,63 @@
-<!doctype html>
-<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en"> <![endif]-->
-<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en"> <![endif]-->
-<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
-<head>
-    <meta charset="utf-8"> 
-    <title>PhantomJS: Headless WebKit with JavaScript API</title>
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="screen.min.css">
-    <script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-21665893-1']);
-    _gaq.push(['_trackPageview']);
-    (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
-    </script>
-</head>
+---
+layout: default
+title: PhantomJS
+---
 
-<body>
-<div id="intro">
-    <div id="header" class="container_12">
-        <a href="http://www.phantomjs.org/" class="grid_4 alpha"><img src="images/phantomjs-logo.png" alt="PhantomJS" id="logo" width="240" height="80"></a>
-        <ul id="nav" class="grid_8 omega">
-            <li><a href="https://github.com/ariya/phantomjs">Source Code</a></li>
-            <li><a href="https://github.com/ariya/phantomjs/wiki">Documentation</a></li>
-            <li><a href="https://github.com/ariya/phantomjs/wiki/API-Reference">API</a></li>
-            <li><a href="https://github.com/ariya/phantomjs/wiki/Examples">Examples</a></li>
-            <li><a href="faq.html">FAQ</a></li>
-        </ul>
-    </div>
-    
-    <div id="introduction" class="container_12">
-        <div class="grid_7 alpha">
-            <h1>
-                Full web stack<br>
-                No browser required
-            </h1>
-            <p class="explanation">
-                PhantomJS is a headless WebKit scriptable with a JavaScript API.
-                It has <strong>fast</strong> and <strong>native</strong> support for various web standards: 
-                DOM handling, CSS selector, JSON, Canvas, and SVG.<br></a>
-            </p>
-            <p class="action">
-                <a href="download.html" id="download">Download <span class="version">v1.9</span></a>
-                <a href="https://github.com/ariya/phantomjs/wiki/Quick-Start">Get started</a>
-            </p>
-        </div>
-        <div id="intro-example" class="grid_5 omega">
-            <pre class="solarized">
-<strong>Simple Javascript example</strong>
+<h2>PhantomJS is an optimal solution for</h2>
 
-<span class="object">console</span>.<span class="function">log</span>(<span class="literal">'Loading a web page'</span>);
-var <span class="object">page</span> = require(<span class="literal">'webpage'</span>).<span class="function">create</span>();
-var <span class="object">url</span> = <span class="literal">'http://www.phantomjs.org/'</span>;
-<span class="object">page</span>.<span class="function">open</span>(url, <span class="function">function</span> (status) {
-    <span class="comment">//Page is loaded!</span>
-    <span class="object">phantom</span>.<span class="function">exit</span>();
-});</pre>
-        </div>
-    </div>
+<div id="feature-01" class="feature grid_3 alpha">
+  <h3>Headless Website Testing</h3>
+  <div>
+    <p>
+      Run functional tests with frameworks such as Jasmine, QUnit, Mocha, Capybara, WebDriver, and many others.
+      <a href="https://github.com/ariya/phantomjs/wiki/Headless-Testing">Learn more</a>
+    </p>
+  </div>
 </div>
 
-<div id="community">
-    <h2>Community:</h2>
-    <ul>
-        <li>
-            <a href="release-1.9.html" id="link-release">Read the release notes</a>
-        </li>
-        <li>
-            <a href="https://groups.google.com/forum/#!forum/phantomjs" id="link-ml">Join the mailing list</a>
-        </li>
-        <li>
-            <a href="https://github.com/ariya/phantomjs/issues" id="link-bugs">Report bugs</a>
-        </li>
-    </ul>
+<div id="feature-02" class="feature grid_3">
+  <h3>Screen Capture</h3>
+  <div>
+    <p>
+      Programmatically capture web contents, including SVG and Canvas.
+      Create web site screenshots with thumbnail preview.
+      <a href="https://github.com/ariya/phantomjs/wiki/Screen-Capture">Learn more</a>
+    </p>
+  </div>
 </div>
 
-<div id="description" class="container_12">
-    <h2>PhantomJS is an optimal solution for</h2>
-    <div id="feature-01" class="feature grid_3 alpha">
-        <h3>Headless Website Testing</h3>
-        <div>
-            <p>
-                Run functional tests with frameworks such as Jasmine, QUnit, Mocha, Capybara, WebDriver, and many others.
-                <a href="https://github.com/ariya/phantomjs/wiki/Headless-Testing">Learn more</a>
-            </p>
-        </div>
-    </div>
-    <div id="feature-02" class="feature grid_3">
-        <h3>Screen Capture</h3>
-        <div>
-            <p>
-                Programmatically capture web contents, including SVG and Canvas.
-                Create web site screenshots with thumbnail preview.
-                <a href="https://github.com/ariya/phantomjs/wiki/Screen-Capture">Learn more</a>
-            </p>
-        </div>
-    </div>
-    <div id="feature-03" class="feature grid_3">
-        <h3>Page Automation</h3>
-        <div>
-            <p>
-                Access and manipulate webpages
-                with the standard DOM API, or with
-                usual libraries like jQuery.
-                <br>
-                <a href="https://github.com/ariya/phantomjs/wiki/Page-Automation">Learn more</a>
-            </p>
-        </div>
-    </div>
-    <div id="feature-04" class="feature grid_3 omega">
-        <h3>Network Monitoring</h3>
-        <div>
-            <p>
-                Monitor page loading and export as standard HAR files. Automate performance analysis using YSlow and Jenkins.
-                <a href="https://github.com/ariya/phantomjs/wiki/Network-Monitoring">Learn more</a>
-            </p>
-        </div>
-    </div>
-    <div id="feature-end" class="grid_12">
-        <p>
-        PhantomJS is used in the test workflow of various open-source projects:<br/>
-        <a href="http://twitter.github.com/bootstrap/">Bootstrap</a>,
-        <a href="http://codemirror.net/">CodeMirror</a>,
-        <a href="http://emberjs.com/">Ember.js</a>,
-        <a href="http://lesscss.org/">Less.js</a>,
-        <a href="http://modernizr.com/">Modernizr</a>,
-        <a href="http://yuilibrary.com/projects/yui3/">YUI3</a>,
-        and <a href="https://github.com/ariya/phantomjs/wiki/Users">many more</a>.
-        </p>
-    </div>
+<div id="feature-03" class="feature grid_3">
+  <h3>Page Automation</h3>
+  <div>
+    <p>
+      Access and manipulate webpages
+      with the standard DOM API, or with
+      usual libraries like jQuery.
+      <br>
+      <a href="https://github.com/ariya/phantomjs/wiki/Page-Automation">Learn more</a>
+    </p>
+  </div>
 </div>
 
-<div id="footer">
-    <div id="footer-content" class="container_12">
-        <p>
-            &copy; Copyright 2010-2013 <a href="http://twitter.com/AriyaHidayat">Ariya Hidayat</a> &mdash; Website design by <a href="http://svay.com/">Maurice Svay</a>
-        </p>
-    </div>
+<div id="feature-04" class="feature grid_3 omega">
+  <h3>Network Monitoring</h3>
+  <div>
+    <p>
+      Monitor page loading and export as standard HAR files. Automate performance analysis using YSlow and Jenkins.
+      <a href="https://github.com/ariya/phantomjs/wiki/Network-Monitoring">Learn more</a>
+    </p>
+  </div>
 </div>
-<a href="https://github.com/ariya/phantomjs/"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>
-</body>
-</html>
+
+<div id="feature-end" class="grid_12">
+  <p>
+  PhantomJS is used in the test workflow of various open-source projects:<br/>
+  <a href="http://twitter.github.com/bootstrap/">Bootstrap</a>,
+  <a href="http://codemirror.net/">CodeMirror</a>,
+  <a href="http://emberjs.com/">Ember.js</a>,
+  <a href="http://lesscss.org/">Less.js</a>,
+  <a href="http://modernizr.com/">Modernizr</a>,
+  <a href="http://yuilibrary.com/projects/yui3/">YUI3</a>,
+  and <a href="https://github.com/ariya/phantomjs/wiki/Users">many more</a>.
+  </p>
+</div>
