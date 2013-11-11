@@ -1,0 +1,47 @@
+---
+layout: document
+---
+
+<div class="masthead">
+  {% include header.html %}
+</div>
+
+<div class="shift">
+
+  <div class="shift__down">
+
+    <div class="grid navigator">
+
+      <div class="grid_9 push_3">
+        <div class="post">
+
+          <h1>{{ page.title }}</h1>
+
+          {{ content }}
+
+        </div>
+      </div>
+
+      <div class="grid_3 pull_9">
+
+        {% if page.categories contains 'api' %}
+          {% include nav-api.html %}
+        {% endif %}
+
+        {% if page.categories contains 'docs' %}
+          {% include nav-docs.html %}
+        {% endif %}
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="shift__up island promo improve">
+    Please take a moment to <a href="{{ site.githubEdit }}{{ page.path }}">improve this document</a> with anything that could be useful to other developers, we'd love to see it.
+  </div>
+
+</div>
+
+{% include community.html %}
