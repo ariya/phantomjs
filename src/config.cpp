@@ -65,6 +65,7 @@ static const struct QCommandLineConfigEntry flags[] =
     { QCommandLine::Option, '\0', "proxy-auth", "Provides authentication information for the proxy, e.g. ''-proxy-auth=username:password'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "proxy-type", "Specifies the proxy type, 'http' (default), 'none' (disable completely), or 'socks5'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "script-encoding", "Sets the encoding used for the starting script, default is 'utf8'", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "script-language", "Sets the script language instead of detecting it: 'javascript', 'coffeescript'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "web-security", "Enables web security, 'true' (default) or 'false'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-protocol", "Sets the SSL protocol (supported protocols: 'SSLv3' (default), 'SSLv2', 'TLSv1', 'any')", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-certificates-path", "Sets the location for custom CA certificates (if none set, uses system default)", QCommandLine::Optional },
@@ -364,6 +365,20 @@ void Config::setScriptEncoding(const QString &value)
     m_scriptEncoding = value;
 }
 
+QString Config::scriptLanguage() const
+{
+    return m_scriptLanguage;
+}
+
+void Config::setScriptLanguage(const QString &value)
+{
+    if (value.isEmpty()) {
+        return;
+    }
+
+    m_scriptLanguage = value;
+}
+
 QString Config::scriptFile() const
 {
     return m_scriptFile;
@@ -528,6 +543,7 @@ void Config::resetToDefaults()
     m_proxyAuthPass.clear();
     m_scriptArgs.clear();
     m_scriptEncoding = "UTF-8";
+    m_scriptLanguage.clear();
     m_scriptFile.clear();
     m_unknownOption.clear();
     m_versionFlag = false;
@@ -685,6 +701,10 @@ void Config::handleOption(const QString &option, const QVariant &value)
 
     if (option == "script-encoding") {
         setScriptEncoding(value.toString());
+    }
+
+    if (option == "script-language") {
+        setScriptLanguage(value.toString());
     }
 
     if (option == "web-security") {

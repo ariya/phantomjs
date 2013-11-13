@@ -101,14 +101,14 @@ QVariant Utils::coffee2js(const QString &script)
 
 bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript)
 {
-    return injectJsInFrame(jsFilePath, Encoding::UTF8, libraryPath, targetFrame, startingScript);
+    return injectJsInFrame(jsFilePath, QString(), Encoding::UTF8, libraryPath, targetFrame, startingScript);
 }
 
-bool Utils::injectJsInFrame(const QString &jsFilePath, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript)
+bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &jsFileLanguage, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript)
 {
     // Don't do anything if an empty string is passed
     QString scriptPath = findScript(jsFilePath, libraryPath);
-    QString scriptBody = jsFromScriptFile(scriptPath, jsFileEnc);
+    QString scriptBody = jsFromScriptFile(scriptPath, jsFileLanguage, jsFileEnc);
     if (scriptBody.isEmpty())
     {
         if (startingScript) {
@@ -131,7 +131,7 @@ bool Utils::loadJSForDebug(const QString& jsFilePath, const QString& libraryPath
 bool Utils::loadJSForDebug(const QString& jsFilePath, const Encoding& jsFileEnc, const QString& libraryPath, QWebFrame* targetFrame, const bool autorun)
 {
     QString scriptPath = findScript(jsFilePath, libraryPath);
-    QString scriptBody = jsFromScriptFile(scriptPath, jsFileEnc);
+    QString scriptBody = jsFromScriptFile(scriptPath, QString(), jsFileEnc);
 
     QString remoteDebuggerHarnessSrc =  Utils::readResourceFileUtf8(":/remote_debugger_harness.html");
     remoteDebuggerHarnessSrc = remoteDebuggerHarnessSrc.arg(scriptBody);
@@ -162,17 +162,22 @@ QString Utils::findScript(const QString& jsFilePath, const QString &libraryPath)
     return QString();
 }
 
-QString Utils::jsFromScriptFile(const QString& scriptPath, const Encoding& enc)
+QString Utils::jsFromScriptFile(const QString& scriptPath, const QString& scriptLanguage, const Encoding& enc)
 {
     QFile jsFile(scriptPath);
     if (jsFile.exists() && jsFile.open(QFile::ReadOnly)) {
         QString scriptBody = enc.decode(jsFile.readAll());
+
         // Remove CLI script heading
-        if (scriptBody.startsWith("#!") && !jsFile.fileName().endsWith(COFFEE_SCRIPT_EXTENSION)) {
-            scriptBody.prepend("//");
+        if (scriptBody.startsWith("#!")) {
+            int len = scriptBody.indexOf(QRegExp("[\r\n]"));
+            if (len == -1) len = scriptBody.length();
+            scriptBody.remove(0, len);
         }
 
-        if (jsFile.fileName().endsWith(COFFEE_SCRIPT_EXTENSION)) {
+        // If the language is set to coffeescript, or the language is not set and the file ends in .coffee, make coffee.
+        if (scriptLanguage == "coffeescript" ||
+           (scriptLanguage.isNull() && jsFile.fileName().endsWith(COFFEE_SCRIPT_EXTENSION))) {
             QVariant result = Utils::coffee2js(scriptBody);
             if (result.toStringList().at(0) == "false") {
                 return QString();
@@ -180,6 +185,7 @@ QString Utils::jsFromScriptFile(const QString& scriptPath, const Encoding& enc)
                 scriptBody = result.toStringList().at(1);
             }
         }
+
         jsFile.close();
 
         return scriptBody;
