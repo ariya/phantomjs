@@ -167,6 +167,8 @@ QString Utils::jsFromScriptFile(const QString& scriptPath, const QString& script
     QFile jsFile(scriptPath);
     if (jsFile.exists() && jsFile.open(QFile::ReadOnly)) {
         QString scriptBody = enc.decode(jsFile.readAll());
+        bool hasCoffeeExtension = jsFile.fileName().endsWith(COFFEE_SCRIPT_EXTENSION);
+        jsFile.close();
 
         // Remove CLI script heading
         if (scriptBody.startsWith("#!")) {
@@ -176,17 +178,22 @@ QString Utils::jsFromScriptFile(const QString& scriptPath, const QString& script
         }
 
         // If the language is set to coffeescript, or the language is not set and the file ends in .coffee, make coffee.
-        if (scriptLanguage == "coffeescript" ||
-           (scriptLanguage.isNull() && jsFile.fileName().endsWith(COFFEE_SCRIPT_EXTENSION))) {
+        if (scriptLanguage == "coffeescript" || (scriptLanguage.isNull() && hasCoffeeExtension)) {
             QVariant result = Utils::coffee2js(scriptBody);
             if (result.toStringList().at(0) == "false") {
                 return QString();
             } else {
-                scriptBody = result.toStringList().at(1);
+                return result.toStringList().at(1);
             }
         }
 
-        jsFile.close();
+        // If a language is specified and is not "coffeescript" or "javascript", reject it.
+        if (scriptLanguage != "javascript" && !scriptLanguage.isNull()) {
+            QString errMessage = QString("Unsupported language: %1").arg(scriptLanguage);
+            Terminal::instance()->cerr(errMessage);
+            qWarning("%s", qPrintable(errMessage));
+            return QString();
+        }
 
         return scriptBody;
     } else {
