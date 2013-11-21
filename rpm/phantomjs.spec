@@ -1,6 +1,6 @@
 %define name	phantomjs
-%define version	1.9
-%define release 2
+%define version	1.9.2
+%define release 1
 %define prefix	/usr
 
 %define mybuilddir %{_builddir}/%{name}-%{version}-root
