@@ -158,9 +158,7 @@ protected:
     }
 
     void javaScriptError(const QString &message, int lineNumber, const QString &sourceID, const QString &stack) {
-        Q_UNUSED(lineNumber);
-        Q_UNUSED(sourceID);
-        emit m_webPage->javaScriptErrorSent(message, stack);
+        emit m_webPage->javaScriptErrorSent(message, lineNumber, sourceID, stack);
     }
 
     QString userAgentForUrl(const QUrl &url) const {
