@@ -1976,98 +1976,94 @@ describe("WebPage render image", function(){
     p.clipRect = { top: 0, left: 0, width: 300, height: 300};
     p.viewportSize = { width: 300, height: 300};
 
-    function render_test( format, option ){
-         var opt = option || {};
-         var content, expect_content;
-         try {
-            var FILE_EXTENSION = format;
-            var FILE_NAME = "test";
-            var EXPECT_FILE;
-            if( opt.quality ){
-                EXPECT_FILE = TEST_FILE_DIR + FILE_NAME + opt.quality + "." + FILE_EXTENSION;
+    function render_test(format, option) {
+        var opt = option || {};
+        var rendered = false;
+
+        p.open(TEST_FILE_DIR + "index.html", function() {
+            var content, expect_content;
+            try {
+                var FILE_EXTENSION = format;
+                var FILE_NAME = "test";
+                var EXPECT_FILE;
+                if( opt.quality ){
+                    EXPECT_FILE = TEST_FILE_DIR + FILE_NAME + opt.quality + "." + FILE_EXTENSION;
+                }
+                else{
+                    EXPECT_FILE = TEST_FILE_DIR + FILE_NAME + "." + FILE_EXTENSION;
+                }
+
+                var TEST_FILE;
+                if( opt.format ){
+                    TEST_FILE = TEST_FILE_DIR + "temp_" + FILE_NAME;
+                }
+                else{
+                    TEST_FILE = TEST_FILE_DIR + "temp_" + FILE_NAME + "." + FILE_EXTENSION;
+                }
+
+                p.render(TEST_FILE, opt);
+
+                expect_content = fs.read(EXPECT_FILE, "b");
+                content = fs.read(TEST_FILE, "b");
+
+                fs.remove(TEST_FILE);
+            } catch (e) { console.log(e) }
+
+            // for PDF test
+            if (format === "pdf") {
+                content = content.replace(/CreationDate \(D:\d+\)Z\)/,'');
+                expect_content = expect_content.replace(/CreationDate \(D:\d+\)Z\)/,'');
             }
-            else{
-                EXPECT_FILE = TEST_FILE_DIR + FILE_NAME + "." + FILE_EXTENSION;
+
+            // Files may not be exact, compare rought size (KB) only.
+            expect(content.length >> 10).toEqual(expect_content.length >> 10);
+
+            // Content comparison works for PNG and JPEG.
+            if (format === "png" || format === "jpg") {
+                expect(content).toEqual(expect_content);
             }
 
-            var TEST_FILE;
-            if( opt.format ){
-                TEST_FILE = TEST_FILE_DIR + "temp_" + FILE_NAME;
-            }
-            else{
-                TEST_FILE = TEST_FILE_DIR + "temp_" + FILE_NAME + "." + FILE_EXTENSION;
-            }
+            rendered = true;
+        });
 
-            p.render(TEST_FILE, opt);
-
-            expect_content = fs.read(EXPECT_FILE, "b");
-            content = fs.read(TEST_FILE, "b");
-
-            fs.remove(TEST_FILE);
-        } catch (e) { console.log(e) }
-
-        // for PDF test
-        if (format === "pdf") {
-            content = content.replace(/CreationDate \(D:\d+\)Z\)/,'');
-            expect_content = expect_content.replace(/CreationDate \(D:\d+\)Z\)/,'');
-        }
-
-        // Files may not be exact, compare rought size (KB) only.
-        expect(content.length >> 10).toEqual(expect_content.length >> 10);
-
-        // Content comparison works for PNG and JPEG.
-        if (format === "png" || format === "jpg") {
-            expect(content).toEqual(expect_content);
-        }
+        waitsFor(function() {
+            return rendered;
+        }, "page to be rendered", 3000);
     }
 
     it("should render PDF file", function(){
-        p.open( TEST_FILE_DIR + "index.html", function () {
-            render_test("pdf");
-        });
+        render_test("pdf");
     });
 
     it("should render PDF file with format option", function(){
-        p.open( TEST_FILE_DIR + "index.html", function () {
-            render_test("pdf", { format: "pdf" });
-        });
+        render_test("pdf", { format: "pdf" });
     });
 
     it("should render GIF file", function(){
-        p.open( TEST_FILE_DIR + "index.html", function () {
-            render_test("gif");
-        });
+        render_test("gif");
     });
 
     it("should render GIF file with format option", function(){
-        p.open( TEST_FILE_DIR + "index.html", function () {
-            render_test("gif", { format: "gif" });
-        });
+        render_test("gif", { format: "gif" });
     });
 
     it("should render PNG file", function(){
-        p.open( TEST_FILE_DIR + "index.html", function () {
-            render_test("png");
-        });
+        render_test("png");
     });
 
     it("should render PNG file with format option", function(){
-        p.open( TEST_FILE_DIR + "index.html", function () {
-            render_test("png", { format: "png" });
-        });
+        render_test("png", { format: "png" });
     });
 
     it("should render JPEG file with quality option", function(){
-        p.open( TEST_FILE_DIR + "index.html", function () {
-            render_test("jpg", { quality: 50 });
-        });
+        render_test("jpg", { quality: 50 });
     });
 
     it("should render JPEG file with format and quality option", function(){
-        p.open( TEST_FILE_DIR + "index.html", function () {
-            render_test("jpg", { format: 'jpg', quality: 50 });
-        });
+        render_test("jpg", { format: 'jpg', quality: 50 });
     });
 
+    runs(function() {
+        p.close();
+    });
 });
-
