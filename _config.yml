@@ -8,7 +8,7 @@ pygments: true
 githubEdit: https://github.com/ariya/phantomjs/edit/gh-pages/
 
 # When pushing to GitHub
-url: http://ariya.github.io/phantomjs
+url: http://phantomjs.org
 
 # When Developing Locally
 # url: http://localhost:4000
