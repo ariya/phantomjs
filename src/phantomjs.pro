@@ -60,7 +60,7 @@ include(mongoose/mongoose.pri)
 include(linenoise/linenoise.pri)
 include(qcommandline/qcommandline.pri)
 
-linux*|mac {
+linux*|mac|openbsd* {
     INCLUDEPATH += breakpad/src
 
     SOURCES += breakpad/src/client/minidump_file_writer.cc \
@@ -131,3 +131,8 @@ win32-msvc* {
             qico
     }
 }
+
+openbsd* {
+    LIBS += -L/usr/X11R6/lib
+}
+
