@@ -1941,6 +1941,31 @@ describe('WebPage navigation events', function() {
     });
 });
 
+
+describe('WebPage repaint events', function() {
+    it('should redraw screen and', function () {
+        var page = require("webpage").create();
+        var base = 'https://github.com';
+        var isHandled = false;
+
+        runs(function() {	
+            page.onRepaint = function(time, x, y, width, height) {
+                    isHandled = true;
+            };
+	
+            page.open(base, function(status) {
+				page.testStarted = true;
+            });
+        });
+
+        waits(10000);
+
+        runs(function() {
+            expect(isHandled).toEqual(true);
+        });
+    });
+});
+
 describe("WebPage loading/loadingProgress properties", function() {
     var p = require("webpage").create();
 

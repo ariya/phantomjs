@@ -365,6 +365,8 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
     connect(m_customWebPage, SIGNAL(loadFinished(bool)), SLOT(finish(bool)), Qt::QueuedConnection);
     connect(m_customWebPage, SIGNAL(windowCloseRequested()), this, SLOT(close()), Qt::QueuedConnection);
     connect(m_customWebPage, SIGNAL(loadProgress(int)), this, SLOT(updateLoadingProgress(int)));
+    connect(m_customWebPage, SIGNAL(repaintRequested(QRect)),this,SLOT(repaintRequest(QRect)),Qt::DirectConnection);
+   
 
     // Start with transparent background.
     QPalette palette = m_customWebPage->palette();
@@ -1603,7 +1605,7 @@ static void injectCallbacksObjIntoFrame(QWebFrame *frame, WebpageCallbacks *call
         frame->addToJavaScriptWindowObject(CALLBACKS_OBJECT_NAME, callbacksObject, QScriptEngine::QtOwnership);
         frame->evaluateJavaScript(CALLBACKS_OBJECT_INJECTION);
     }
-}
+}    
 
 void WebPage::setupFrame(QWebFrame *frame)
 {
@@ -1618,6 +1620,12 @@ void WebPage::updateLoadingProgress(int progress)
     qDebug() << "WebPage - updateLoadingProgress:" << progress;
     m_loadingProgress = progress;
 }
+
+void WebPage::repaintRequest(const QRect &dirtyRect)
+{   
+    emit repainting(QDateTime::currentDateTime(), dirtyRect.x(),dirtyRect.y(),dirtyRect.width(),dirtyRect.height());
+}
+
 
 void WebPage::stopJavaScript()
 {

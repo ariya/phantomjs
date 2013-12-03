@@ -477,11 +477,13 @@ signals:
     void navigationRequested(const QUrl &url, const QString &navigationType, bool navigationLocked, bool isMainFrame);
     void rawPageCreated(QObject *page);
     void closing(QObject *page);
+    void repainting(const QDateTime & time, int x, int y, int width, int height);
 
 private slots:
     void finish(bool ok);
     void setupFrame(QWebFrame *frame = NULL);
     void updateLoadingProgress(int progress);
+    void repaintRequest(const QRect &dirtyRect);
 
 private:
     QImage renderImage();

@@ -248,6 +248,8 @@ function decorateNewPage(opts, page) {
 
     definePageSignalHandler(page, handlers, "onNavigationRequested", "navigationRequested");
 
+    definePageSignalHandler(page, handlers, "onRepaint", "repainting");
+
     definePageSignalHandler(page, handlers, "onResourceRequested", "resourceRequested");
 
     definePageSignalHandler(page, handlers, "onResourceReceived", "resourceReceived");
