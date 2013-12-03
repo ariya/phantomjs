@@ -198,7 +198,7 @@ protected:
             break;
         }
         bool isNavigationLocked = m_webPage->navigationLocked();
-        
+
         emit m_webPage->navigationRequested(
                     request.url(),                   //< Requested URL
                     navigationType,                  //< Navigation Type
@@ -295,7 +295,7 @@ public:
         }
         return m_jsPromptCallback;
     }
-    
+
     QObject *getJsInterruptCallback() {
         qDebug() << "WebpageCallbacks - getJsInterruptCallback";
 
@@ -363,6 +363,8 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
     connect(m_customWebPage, SIGNAL(loadFinished(bool)), SLOT(finish(bool)), Qt::QueuedConnection);
     connect(m_customWebPage, SIGNAL(windowCloseRequested()), this, SLOT(close()), Qt::QueuedConnection);
     connect(m_customWebPage, SIGNAL(loadProgress(int)), this, SLOT(updateLoadingProgress(int)));
+    connect(m_customWebPage, SIGNAL(repaintRequested(QRect)), this, SLOT(handleRepaintRequested(QRect)), Qt::QueuedConnection);
+
 
     // Start with transparent background.
     QPalette palette = m_customWebPage->palette();
@@ -939,12 +941,12 @@ bool WebPage::render(const QString &fileName, const QVariantMap &option)
     }
 
     if( tempFileName != "" ){
-        // cleanup temporary file and render to stdout or stderr 
+        // cleanup temporary file and render to stdout or stderr
         QFile i(tempFileName);
         i.open(QIODevice::ReadOnly);
-        
+
         QByteArray ba = i.readAll();
-        
+
         System *system = (System*)Phantom::instance()->createSystem();
         if( fileName == STDOUT_FILENAME ){
 #ifdef Q_OS_WIN32
@@ -955,7 +957,7 @@ bool WebPage::render(const QString &fileName, const QVariantMap &option)
 
 #ifdef Q_OS_WIN32
             _setmode(_fileno(stdout), O_TEXT);
-#endif          
+#endif
         }
         else if( fileName == STDERR_FILENAME ){
 #ifdef Q_OS_WIN32
@@ -966,7 +968,7 @@ bool WebPage::render(const QString &fileName, const QVariantMap &option)
 
 #ifdef Q_OS_WIN32
             _setmode(_fileno(stderr), O_TEXT);
-#endif          
+#endif
         }
 
         i.close();
@@ -1616,6 +1618,12 @@ void WebPage::updateLoadingProgress(int progress)
     qDebug() << "WebPage - updateLoadingProgress:" << progress;
     m_loadingProgress = progress;
 }
+
+void WebPage::handleRepaintRequested(const QRect &dirtyRect)
+{
+    emit repaintRequested(dirtyRect.x(), dirtyRect.y(), dirtyRect.width(), dirtyRect.height());
+}
+
 
 void WebPage::stopJavaScript()
 {

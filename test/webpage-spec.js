@@ -1394,11 +1394,11 @@ describe("WebPage object", function() {
 
     it("should interrupt a long-running JavaScript code", function() {
         var page = new WebPage();
-        
+
         page.onLongRunningScript = function() {
             page.stopJavaScript();
         };
-        
+
         page.open('../test/webpage-spec-frames/forever.html', function(status) {
             expect(status).toEqual('success');
         });
@@ -2018,6 +2018,29 @@ describe('WebPage navigation events', function() {
         });
 
         waits(10000);
+
+        runs(function() {
+            expect(isHandled).toEqual(true);
+        });
+    });
+});
+
+
+describe('WebPage repaint requests', function() {
+    it('should report when a repaint is requested, together with the area being repainted', function () {
+        var page = require("webpage").create();
+        var base = "https://github.com";
+        var isHandled = false;
+
+        runs(function() {
+            page.onRepaintRequested = function(x, y, width, height) {
+                isHandled = true;
+            };
+
+            page.open(base);
+        });
+
+        waits(3000);
 
         runs(function() {
             expect(isHandled).toEqual(true);
