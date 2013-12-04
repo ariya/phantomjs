@@ -17,7 +17,7 @@ http://www.webkit.org/coding/bsd-license.html.
 
 Mongoose - https://github.com/valenok/mongoose
 License: MIT
-Reference: https://github.com/valenok/mongoose/blob/master/LICENSE
+Reference: https://github.com/cesanta/mongoose/commit/abbf27338ef554cce0281ac157aa71a9c1b82a55
 
 Breakpad - http://code.google.com/p/google-breakpad/
 License: BSD.
