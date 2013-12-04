@@ -15,9 +15,9 @@ License: GNU Lesser General Public License (LGPL) version 2.1 and BSD.
 Reference: http://www.webkit.org/coding/lgpl-license.html and
 http://www.webkit.org/coding/bsd-license.html.
 
-Mongoose - https://github.com/valenok/mongoose
+Mongoose - https://github.com/cesanta/mongoose
 License: MIT
-Reference: https://github.com/valenok/mongoose/blob/master/LICENSE
+Reference: https://github.com/cesanta/mongoose/commit/abbf27338ef554cce0281ac157aa71a9c1b82a55
 
 Breakpad - http://code.google.com/p/google-breakpad/
 License: BSD.
