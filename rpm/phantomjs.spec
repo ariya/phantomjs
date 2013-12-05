@@ -1,5 +1,5 @@
 %define name	phantomjs
-%define version	1.9
+%define version	1.9.2
 %define release 1
 %define prefix	/usr
 
