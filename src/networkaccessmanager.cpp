@@ -316,6 +316,14 @@ void NetworkAccessManager::handleStarted()
         headers += header;
     }
 
+    QVariantList requestHeaders;
+    foreach (QByteArray headerName, reply->request().rawHeaderList()) {
+        QVariantMap header;
+        header["name"] = QString::fromUtf8(headerName);
+        header["value"] = QString::fromUtf8(reply->request().rawHeader(headerName));
+        requestHeaders += header;
+    }
+
     QVariantMap data;
     data["stage"] = "start";
     data["id"] = m_ids.value(reply);
@@ -326,6 +334,7 @@ void NetworkAccessManager::handleStarted()
     data["bodySize"] = reply->size();
     data["redirectURL"] = reply->header(QNetworkRequest::LocationHeader);
     data["headers"] = headers;
+    data["requestHeaders"] = requestHeaders;
     data["time"] = QDateTime::currentDateTime();
 
     emit resourceReceived(data);
