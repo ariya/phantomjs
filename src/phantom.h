@@ -168,6 +168,15 @@ public slots:
      */
     void clearCookies();
 
+    /**
+     * Set the application proxy
+     * @brief setProxy
+     * @param ip The proxy ip
+     * @param port The proxy port
+     * @param proxyType The type of this proxy
+     */
+    void setProxy(const QString &ip, const qint64 &port = 80, const QString &proxyType = "http", const QString &user = NULL, const QString &password = NULL);
+
     // exit() will not exit in debug mode. debugExit() will always exit.
     void exit(int code = 0);
     void debugExit(int code = 0);
