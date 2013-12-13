@@ -125,13 +125,13 @@ bool Utils::injectJsInFrame(const QString &jsFilePath, const QString &jsFileLang
 
 bool Utils::loadJSForDebug(const QString& jsFilePath, const QString& libraryPath, QWebFrame* targetFrame, const bool autorun)
 {
-    return loadJSForDebug(jsFilePath, Encoding::UTF8, libraryPath, targetFrame, autorun);
+    return loadJSForDebug(jsFilePath, QString(), Encoding::UTF8, libraryPath, targetFrame, autorun);
 }
 
-bool Utils::loadJSForDebug(const QString& jsFilePath, const Encoding& jsFileEnc, const QString& libraryPath, QWebFrame* targetFrame, const bool autorun)
+bool Utils::loadJSForDebug(const QString& jsFilePath, const QString &jsFileLanguage, const Encoding& jsFileEnc, const QString& libraryPath, QWebFrame* targetFrame, const bool autorun)
 {
     QString scriptPath = findScript(jsFilePath, libraryPath);
-    QString scriptBody = jsFromScriptFile(scriptPath, QString(), jsFileEnc);
+    QString scriptBody = jsFromScriptFile(scriptPath, jsFileLanguage, jsFileEnc);
 
     QString remoteDebuggerHarnessSrc =  Utils::readResourceFileUtf8(":/remote_debugger_harness.html");
     remoteDebuggerHarnessSrc = remoteDebuggerHarnessSrc.arg(scriptBody);

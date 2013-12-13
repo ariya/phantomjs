@@ -228,7 +228,7 @@ bool Phantom::execute()
 
         if (m_config.debug()) {
             // Debug enabled
-            if (!Utils::loadJSForDebug(m_config.scriptFile(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), m_config.remoteDebugAutorun())) {
+            if (!Utils::loadJSForDebug(m_config.scriptFile(), m_config.scriptLanguage(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), m_config.remoteDebugAutorun())) {
                 m_returnValue = -1;
                 return false;
             }
