@@ -34,6 +34,12 @@
 #include <QImage>
 #include <QFile>
 
+#if defined GIFLIB_MAJOR && GIFLIB_MAJOR >=5
+#define EGifOpenFileName(a, b) EGifOpenFileName(a, b, NULL)
+#define EGifOpen(a, b) EGifOpen(a, b, NULL)
+#define QuantizeBuffer GifQuantizeBuffer
+#endif
+
 static int saveGifBlock(GifFileType *gif, const GifByteType *data, int i)
 {
     QFile *file = (QFile*)(gif->UserData);
@@ -100,9 +106,14 @@ bool exportGif(const QImage &img, const QString &fileName)
         if (qAlpha(colorTable[c]) == 0)
             bgcolor = c;
     }
-    EGifSetGifVersion("87a");
 
+#if defined GIFLIB_MAJOR && GIFLIB_MAJOR >= 5
     GifFileType *gif = EGifOpen(&file, saveGifBlock);
+    EGifSetGifVersion(gif, false);
+#else
+    EGifSetGifVersion("87a");
+    GifFileType *gif = EGifOpen(&file, saveGifBlock);
+#endif
     gif->ImageCount = 1;
     EGifPutScreenDesc(gif, image.width(), image.height(), 256, 0, &cmap);
     if (bgcolor >= 0) {
