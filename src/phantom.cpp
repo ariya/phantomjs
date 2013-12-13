@@ -212,6 +212,15 @@ bool Phantom::execute()
     } else if (m_config.scriptFile().isEmpty()) {                       // REPL mode requested
         qDebug() << "Phantom - execute: Starting REPL mode";
 
+        // REPL is only valid for javascript
+        const QString &scriptLanguage = m_config.scriptLanguage();
+        if (scriptLanguage != "javascript" && !scriptLanguage.isNull()) {
+            QString errMessage = QString("Unsupported language: %1").arg(scriptLanguage);
+            Terminal::instance()->cerr(errMessage);
+            qWarning("%s", qPrintable(errMessage));
+            return false;
+        }
+
         // Create the REPL: it will launch itself, no need to store this variable.
         REPL::getInstance(m_page->mainFrame(), this);
     } else {                                                            // Load the User Script
