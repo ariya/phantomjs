@@ -1143,13 +1143,15 @@ void QPdfBaseEngine::updateState(const QPaintEngineState &state)
     if (flags & DirtyTransform)
         d->stroker.matrix = state.transform();
 
-    if (flags & DirtyPen) {
+    if (flags & DirtyOpacity)
+        d->opacity = state.opacity();
+    if (flags & (DirtyPen|DirtyOpacity)) {
         d->pen = state.pen();
         d->hasPen = d->pen.style() != Qt::NoPen;
         d->stroker.setPen(d->pen);
         QBrush penBrush = d->pen.brush();
         bool oldSimple = d->simplePen;
-        d->simplePen = (d->hasPen && (penBrush.style() == Qt::SolidPattern) && penBrush.isOpaque());
+        d->simplePen = (d->hasPen && (penBrush.style() == Qt::SolidPattern) && penBrush.isOpaque() && d->opacity == 1.0);
         if (oldSimple != d->simplePen)
             flags |= DirtyTransform;
     }
@@ -1163,8 +1165,6 @@ void QPdfBaseEngine::updateState(const QPaintEngineState &state)
         d->brushOrigin = state.brushOrigin();
         flags |= DirtyBrush;
     }
-    if (flags & DirtyOpacity)
-        d->opacity = state.opacity();
 
     bool ce = d->clipEnabled;
     if (flags & DirtyClipPath) {
