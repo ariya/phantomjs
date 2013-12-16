@@ -17,7 +17,7 @@ Add a Cookie to the page. If the domains do not match, the Cookie will be ignore
 var webPage = require('webpage');
 var page = webPage.create();
 
-page.addCookie({
+phantom.addCookie({
   'name'     : 'Valid-Cookie-Name',   /* required property */
   'value'    : 'Valid-Cookie-Value',  /* required property */
   'domain'   : 'localhost',           /* required property */
