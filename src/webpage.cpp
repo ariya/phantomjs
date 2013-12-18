@@ -1058,35 +1058,44 @@ QImage WebPage::renderImage()
     return buffer;
 }
 
-#define PHANTOMJS_PDF_DPI 72            // Different defaults. OSX: 72, X11: 75(?), Windows: 96
+#define PHANTOMJS_PDF_DEFAULT_DPI 72            // Different defaults. OSX: 72, X11: 75(?), Windows: 96
 
-qreal stringToPointSize(const QString &string)
+uint getPrintDpi(const QVariantMap &map)
 {
-    static const struct {
-        QString unit;
-        qreal factor;
-    } units[] = {
-        { "mm", 72 / 25.4 },
-        { "cm", 72 / 2.54 },
-        { "in", 72 },
-        { "px", 72.0 / PHANTOMJS_PDF_DPI / 2.54 },
-        { "", 72.0 / PHANTOMJS_PDF_DPI / 2.54 }
-    };
-    for (uint i = 0; i < sizeof(units) / sizeof(units[0]); ++i) {
-        if (string.endsWith(units[i].unit)) {
-            QString value = string;
-            value.chop(units[i].unit.length());
-            return value.toDouble() * units[i].factor;
-        }
+    if (map.contains("dpi")) {
+        return map.value("dpi").toInt();
+    } else {
+        return PHANTOMJS_PDF_DEFAULT_DPI;
     }
-    return 0;
+}
+
+qreal stringToPointSize(const QVariantMap &map, const QString &string)
+{
+    const QString format = string.right(2);
+    QString value = string;
+
+    if (format == "mm") {
+        value.chop(2);
+        return value.toDouble() * 72.0 / 25.4;
+    } else if (format == "cm") {
+        value.chop(2);
+        return value.toDouble() * 72.0 / 2.54;
+    } else if (format == "in") {
+        value.chop(2);
+        return value.toDouble() * 72.0;
+    } else if (format == "px") {
+        value.chop(2);
+        return value.toDouble() * 72.0 / getPrintDpi(map) / 2.54;
+    }
+
+    return value.toDouble() * 72.0 / getPrintDpi(map) / 2.54;
 }
 
 qreal printMargin(const QVariantMap &map, const QString &key)
 {
     const QVariant margin = map.value(key);
     if (margin.isValid() && margin.canConvert(QVariant::String)) {
-        return stringToPointSize(margin.toString());
+        return stringToPointSize(map, margin.toString());
     } else {
         return 0;
     }
@@ -1097,7 +1106,6 @@ bool WebPage::renderPdf(const QString &fileName)
     QPrinter printer;
     printer.setOutputFormat(QPrinter::PdfFormat);
     printer.setOutputFileName(fileName);
-    printer.setResolution(PHANTOMJS_PDF_DPI);
     QVariantMap paperSize = m_paperSize;
 
     if (paperSize.isEmpty()) {
@@ -1107,9 +1115,11 @@ bool WebPage::renderPdf(const QString &fileName)
         paperSize.insert("margin", "0px");
     }
 
+    printer.setResolution(getPrintDpi(paperSize));
+
     if (paperSize.contains("width") && paperSize.contains("height")) {
-        const QSizeF sizePt(ceil(stringToPointSize(paperSize.value("width").toString())),
-                            ceil(stringToPointSize(paperSize.value("height").toString())));
+        const QSizeF sizePt(ceil(stringToPointSize(paperSize, paperSize.value("width").toString())),
+                            ceil(stringToPointSize(paperSize, paperSize.value("height").toString())));
         printer.setPaperSize(sizePt, QPrinter::Point);
     } else if (paperSize.contains("format")) {
         const QPrinter::Orientation orientation = paperSize.contains("orientation")
@@ -1181,7 +1191,7 @@ bool WebPage::renderPdf(const QString &fileName)
             marginRight = printMargin(map, "right");
             marginBottom = printMargin(map, "bottom");
         } else if (margins.canConvert(QVariant::String)) {
-            const qreal margin = stringToPointSize(margins.toString());
+            const qreal margin = stringToPointSize(paperSize, margins.toString());
             marginLeft = margin;
             marginTop = margin;
             marginRight = margin;
@@ -1220,7 +1230,7 @@ qreal getHeight(const QVariantMap &map, const QString &key)
     if (!height.canConvert(QVariant::String)) {
         return 0;
     }
-    return stringToPointSize(height.toString());
+    return stringToPointSize(map, height.toString());
 }
 
 qreal WebPage::footerHeight() const
