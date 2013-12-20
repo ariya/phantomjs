@@ -6054,7 +6054,8 @@ int RenderBlock::applyAfterBreak(RenderBox* child, int logicalOffset, MarginInfo
 
 int RenderBlock::adjustForUnsplittableChild(RenderBox* child, int logicalOffset, bool includeMargins)
 {
-    bool isUnsplittable = child->isReplaced() || child->scrollsOverflow();
+    bool isUnsplittable = child->isReplaced() || child->scrollsOverflow() ||
+                          child->style()->pageBreakInside() == PBAVOID;
     if (!isUnsplittable)
         return logicalOffset;
     int childLogicalHeight = logicalHeightForChild(child) + (includeMargins ? marginBeforeForChild(child) + marginAfterForChild(child) : 0);
