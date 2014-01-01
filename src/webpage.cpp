@@ -1440,11 +1440,11 @@ void WebPage::sendEvent(const QString &type, const QVariant &arg1, const QVarian
     // MouseButtonDblClick event by itself; it must be accompanied
     // by a preceding press-release, and a following release.
     if (type == "click" || type == "doubleclick") {
-        sendEvent("mousedown", arg1, arg2, mouseButton);
-        sendEvent("mouseup", arg1, arg2, mouseButton);
+        sendEvent("mousedown", arg1, arg2, mouseButton, modifierArg);
+        sendEvent("mouseup", arg1, arg2, mouseButton, modifierArg);
         if (type == "doubleclick") {
-            sendEvent("mousedoubleclick", arg1, arg2, mouseButton);
-            sendEvent("mouseup", arg1, arg2, mouseButton);
+            sendEvent("mousedoubleclick", arg1, arg2, mouseButton, modifierArg);
+            sendEvent("mouseup", arg1, arg2, mouseButton, modifierArg);
         }
         return;
     }
