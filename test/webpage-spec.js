@@ -508,6 +508,90 @@ describe("WebPage object", function() {
         });
     });
 
+    it("should handle mousedown with modifier keys", function() {
+        runs(function() {
+            page.evaluate(function() {
+                window.addEventListener('mousedown', function(event) {
+                    window.loggedEvent = window.loggedEvent || {};
+                    window.loggedEvent.mousedown = event;
+                }, false);
+            });
+            page.sendEvent('mousedown', 100, 100, 'left', page.event.modifier.shift);
+        });
+
+        waits(50);
+
+        runs(function() {
+            var event = page.evaluate(function() {
+                return window.loggedEvent.mousedown;
+            });
+            expect(event.shiftKey).toEqual(true);
+        });
+    });
+
+    it("should handle mouseup with modifier keys", function() {
+        runs(function() {
+            page.evaluate(function() {
+                window.addEventListener('mouseup', function(event) {
+                    window.loggedEvent = window.loggedEvent || {};
+                    window.loggedEvent.mouseup = event;
+                }, false);
+            });
+            page.sendEvent('mouseup', 100, 100, 'left', page.event.modifier.shift);
+        });
+
+        waits(50);
+
+        runs(function() {
+            var event = page.evaluate(function() {
+                return window.loggedEvent.mouseup;
+            });
+            expect(event.shiftKey).toEqual(true);
+        });
+    });
+
+    it("should handle click with modifier keys", function() {
+        runs(function() {
+            page.evaluate(function() {
+                window.addEventListener('click', function(event) {
+                    window.loggedEvent = window.loggedEvent || {};
+                    window.loggedEvent.click = event;
+                }, false);
+            });
+            page.sendEvent('click', 100, 100, 'left', page.event.modifier.shift);
+        });
+
+        waits(50);
+
+        runs(function() {
+            var event = page.evaluate(function() {
+                return window.loggedEvent.click;
+            });
+            expect(event.shiftKey).toEqual(true);
+        });
+    });
+
+    it("should handle doubleclick with modifier keys", function() {
+        runs(function() {
+            page.evaluate(function() {
+                window.addEventListener('dblclick', function(event) {
+                    window.loggedEvent = window.loggedEvent || {};
+                    window.loggedEvent.dblclick = event;
+                }, false);
+            });
+            page.sendEvent('doubleclick', 100, 100, 'left', page.event.modifier.shift);
+        });
+
+        waits(50);
+
+        runs(function() {
+            var event = page.evaluate(function() {
+                return window.loggedEvent.dblclick;
+            });
+            expect(event.shiftKey).toEqual(true);
+        });
+    });
+
     it("should handle file uploads", function() {
         runs(function() {
             page.content = '<input type="file" id="file">\n' +
