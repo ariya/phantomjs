@@ -325,9 +325,15 @@ static QFontEngine *loadFromDatabase(QFontDef &req, const QFontPrivate *d)
     for (int i = 0; i < family_list.size(); ++i) {
         for (int k = 0; k < db->count; ++k) {
             if (db->families[k]->name.compare(family_list.at(i), Qt::CaseInsensitive) == 0) {
-                QByteArray family_name = db->families[k]->name.toUtf8();
 #if defined(QT_MAC_USE_COCOA)
-                QCFType<CTFontRef> ctFont = CTFontCreateWithName(QCFString(db->families[k]->name), 12, NULL);
+                CFStringRef familyName = QCFString::toCFStringRef(db->families[k]->name);
+                QCFType<CTFontDescriptorRef> descriptor = CTFontDescriptorCreateWithAttributes(
+                                    QCFType<CFDictionaryRef>(CFDictionaryCreate(kCFAllocatorDefault,
+                                        (const void**)&kCTFontFamilyNameAttribute,
+                                        (const void**)&familyName, 1,
+                                        &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks)));
+                CFRelease(familyName);
+                QCFType<CTFontRef> ctFont = CTFontCreateWithFontDescriptor(descriptor, 0, NULL);
                 if (ctFont) {
                     fontName = CTFontCopyFullName(ctFont);
                     goto found;

@@ -1968,6 +1968,8 @@ static void initFontSubst()
         "times new roman", "times",
         "courier new",  "courier",
         "sans serif",   "helvetica",
+#elif defined(Q_WS_MAC)
+        ".lucida grande ui", "lucida grande",
 #elif defined(Q_WS_WIN)
         "times",        "times new roman",
         "courier",      "courier new",
