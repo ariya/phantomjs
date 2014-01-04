@@ -1,7 +1,7 @@
 /*
 This file is part of the GhostDriver by Ivan De Marino <http://ivandemarino.me>.
 
-Copyright (c) 2012, Ivan De Marino <http://ivandemarino.me>
+Copyright (c) 2014, Ivan De Marino <http://ivandemarino.me>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -61,7 +61,7 @@ exports.createInvalidReqEH = function(errorName, req) {
     var e = new Error();
 
     e.name = errorName;
-    e.message = "Request => " + JSON.stringify(req);
+    e.message = JSON.stringify(req);
     e.handle = _invalidReqHandle;
 
     return e;
@@ -216,7 +216,7 @@ exports.createFailedCommandEH = function(errorName, errorMsg, req, session, clas
     var e = new Error();
 
     e.name = errorName;
-    e.message = "Error Message => '" + errorMsg + "'\n" + " caused by Request => " + JSON.stringify(req);
+    e.message = JSON.stringify({ "errorMessage" : errorMsg, "request" : req });
     e.errorStatusCode = exports.FAILED_CMD_STATUS_CODES[errorName] || 13; //< '13' Unkown Error
     e.errorSessionId = session.getId() || null;
     e.errorClassName = className || "unknown";
