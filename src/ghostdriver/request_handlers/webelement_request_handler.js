@@ -1,8 +1,8 @@
 /*
 This file is part of the GhostDriver by Ivan De Marino <http://ivandemarino.me>.
 
-Copyright (c) 2012, Ivan De Marino <http://ivandemarino.me>
-Copyright (c) 2012, Alex Anderson <@alxndrsn>
+Copyright (c) 2014, Ivan De Marino <http://ivandemarino.me>
+Copyright (c) 2014, Alex Anderson <@alxndrsn>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -293,8 +293,10 @@ ghostdriver.WebElementReqHand = function(idOrElement, session) {
                     _session.inputs.clearModifierKeys(_session);
                 }
 
-                // Return the result of this typing
-                res.respondBasedOnResult(_session, req, typeRes);
+                currWindow.waitIfLoading(function() {
+                    // Return the result of this typing
+                    res.respondBasedOnResult(_session, req, typeRes);
+                });
             }
             return;
         }

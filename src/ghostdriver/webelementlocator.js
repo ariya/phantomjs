@@ -1,7 +1,7 @@
 /*
 This file is part of the GhostDriver by Ivan De Marino <http://ivandemarino.me>.
 
-Copyright (c) 2012, Ivan De Marino <http://ivandemarino.me>
+Copyright (c) 2014, Ivan De Marino <http://ivandemarino.me>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -59,7 +59,7 @@ ghostdriver.WebElementLocator = function(session) {
             locator.using && locator.value &&         //< if well-formed input
             _supportedStrategies.indexOf(locator.using) >= 0) {  //< and if strategy is recognized
 
-            _log.debug("_find", "Find element using Locator: " + JSON.stringify(locator));
+            _log.debug("_find.locator", JSON.stringify(locator));
 
             // Ensure "rootElement" is valid, otherwise undefine-it
             if (!rootElement || typeof(rootElement) !== "object" || !rootElement["ELEMENT"]) {
@@ -77,8 +77,8 @@ ghostdriver.WebElementLocator = function(session) {
             try {
                 return JSON.parse(findRes);
             } catch (e) {
-                errorMsg = "Invalid locator received: "+JSON.stringify(locator);
-                _log.error("_find", errorMsg);
+                errorMsg = JSON.stringify(locator);
+                _log.error("_find.locator.error", errorMsg);
                 return {
                     "status"    : _errors.FAILED_CMD_STATUS_CODES[_errors.FAILED_CMD_STATUS.UNKNOWN_COMMAND],
                     "value"     : errorMsg
@@ -96,8 +96,8 @@ ghostdriver.WebElementLocator = function(session) {
     _locateElement = function(locator, rootElement) {
         var findElementRes = _find("element", locator, rootElement);
 
-        _log.debug("_locateElement", "Locator: "+JSON.stringify(locator));
-        _log.debug("_locateElement", "Find Element Result: "+JSON.stringify(findElementRes));
+        _log.debug("_locateElement.locator", JSON.stringify(locator));
+        _log.debug("_locateElement.findElementResult", JSON.stringify(findElementRes));
 
         // To check if element was found, the following must happen:
         // 1. "findElementRes" result object must be valid
@@ -130,8 +130,8 @@ ghostdriver.WebElementLocator = function(session) {
             elements = [],
             i, ilen;
 
-        _log.debug("_locateElements", "Locator: "+JSON.stringify(locator));
-        _log.debug("_locateElements", "Find Element(s) Result: "+JSON.stringify(findElementsRes));
+        _log.debug("_locateElements.locator", JSON.stringify(locator));
+        _log.debug("_locateElements.findElementsResult", JSON.stringify(findElementsRes));
 
         // To check if something was found, the following must happen:
         // 1. "findElementsRes" result object must be valid
@@ -203,8 +203,8 @@ ghostdriver.WebElementLocator = function(session) {
         // Try to find the element
         elementOrElements = locatorMethod(request, rootElement);
 
-        _log.debug("_handleLocateCommand", "Element(s): " + JSON.stringify(elementOrElements));
-        _log.debug("_handleLocateCommand", "Root Element: " + (typeof(rootElement) !== "undefined" ? JSON.stringify(rootElement) : "BODY"));
+        _log.debug("_handleLocateCommand.elements", JSON.stringify(elementOrElements));
+        _log.debug("_handleLocateCommand.rootElement", (typeof(rootElement) !== "undefined" ? JSON.stringify(rootElement) : "BODY"));
 
         if (elementOrElements &&
             elementOrElements.hasOwnProperty("status") &&
