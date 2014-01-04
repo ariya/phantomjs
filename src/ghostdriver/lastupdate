@@ -1,7 +1,7 @@
-2013-07-25 23:22:39
+2014-01-04 16:44:10
 
-commit e3c255e66f99fd34fbf03269b8dc44bafdda940a (HEAD, refs/remotes/origin/master, refs/remotes/origin/HEAD, refs/heads/master)
+commit 491a60b0adf78e6d7a4eff980de81bb3eb8c764d (HEAD, refs/remotes/origin/master, refs/remotes/origin/HEAD, refs/heads/master)
 Author: Ivan De Marino <detronizator@gmail.com>
-Date:   Thu Jul 25 00:21:44 2013 +0100
+Date:   Thu Jan 2 23:02:21 2014 +0000
 
-    Log "page.onError".
+    Updated CHANGELOG to mention upgraded Atoms in 1.1.0

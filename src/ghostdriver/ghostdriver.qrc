@@ -15,6 +15,7 @@
         <file>request_handlers/webelement_request_handler.js</file>
         <file>session.js</file>
         <file>third_party/console++.js</file>
+        <file>third_party/har.js</file>
         <file>third_party/parseuri.js</file>
         <file>third_party/uuid.js</file>
         <file>third_party/webdriver-atoms/active_element.js</file>
@@ -22,8 +23,6 @@
         <file>third_party/webdriver-atoms/clear_local_storage.js</file>
         <file>third_party/webdriver-atoms/clear_session_storage.js</file>
         <file>third_party/webdriver-atoms/click.js</file>
-        <file>third_party/webdriver-atoms/default_content.js</file>
-        <file>third_party/webdriver-atoms/deps.js</file>
         <file>third_party/webdriver-atoms/double_click.js</file>
         <file>third_party/webdriver-atoms/drag.js</file>
         <file>third_party/webdriver-atoms/execute_async_script.js</file>
@@ -32,15 +31,10 @@
         <file>third_party/webdriver-atoms/find_element.js</file>
         <file>third_party/webdriver-atoms/find_elements.js</file>
         <file>third_party/webdriver-atoms/focus_on_element.js</file>
-        <file>third_party/webdriver-atoms/frame_by_id_or_name.js</file>
-        <file>third_party/webdriver-atoms/frame_by_index.js</file>
         <file>third_party/webdriver-atoms/get_appcache_status.js</file>
         <file>third_party/webdriver-atoms/get_attribute.js</file>
         <file>third_party/webdriver-atoms/get_attribute_value.js</file>
         <file>third_party/webdriver-atoms/get_current_position.js</file>
-        <file>third_party/webdriver-atoms/get_element_from_cache.js</file>
-        <file>third_party/webdriver-atoms/get_frame_window.js</file>
-        <file>third_party/webdriver-atoms/get_in_view_location.js</file>
         <file>third_party/webdriver-atoms/get_local_storage_item.js</file>
         <file>third_party/webdriver-atoms/get_local_storage_keys.js</file>
         <file>third_party/webdriver-atoms/get_local_storage_size.js</file>
@@ -51,10 +45,7 @@
         <file>third_party/webdriver-atoms/get_session_storage_size.js</file>
         <file>third_party/webdriver-atoms/get_size.js</file>
         <file>third_party/webdriver-atoms/get_text.js</file>
-        <file>third_party/webdriver-atoms/get_top_left_coordinates.js</file>
         <file>third_party/webdriver-atoms/get_value_of_css_property.js</file>
-        <file>third_party/webdriver-atoms/get_window_position.js</file>
-        <file>third_party/webdriver-atoms/get_window_size.js</file>
         <file>third_party/webdriver-atoms/is_displayed.js</file>
         <file>third_party/webdriver-atoms/is_enabled.js</file>
         <file>third_party/webdriver-atoms/is_online.js</file>
@@ -70,8 +61,6 @@
         <file>third_party/webdriver-atoms/scroll_mouse.js</file>
         <file>third_party/webdriver-atoms/set_local_storage_item.js</file>
         <file>third_party/webdriver-atoms/set_session_storage_item.js</file>
-        <file>third_party/webdriver-atoms/set_window_position.js</file>
-        <file>third_party/webdriver-atoms/set_window_size.js</file>
         <file>third_party/webdriver-atoms/submit.js</file>
         <file>third_party/webdriver-atoms/swipe.js</file>
         <file>third_party/webdriver-atoms/tap.js</file>
