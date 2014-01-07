@@ -3,5 +3,5 @@ compiler:
   - gcc
 cache: apt
 before_script:
-  - apt-get -y install build-essential chrpath git-core libssl-dev libfontconfig1-dev
+  - sudo apt-get -y install build-essential chrpath git-core libssl-dev libfontconfig1-dev
 script: ./build.sh --confirm
