@@ -611,6 +611,8 @@ public:
                 }
             }
         }
+#else
+        Q_UNUSED(widget);
 #endif
         return screen;
     }
