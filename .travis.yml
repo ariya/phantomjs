@@ -2,6 +2,6 @@ language: cpp
 compiler:
   - gcc
 cache: apt
-before_install:
+before_script:
   - apt-get -y install build-essential chrpath git-core libssl-dev libfontconfig1-dev
-script: ./build.s --confirm
+script: ./build.sh --confirm
