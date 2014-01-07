@@ -5,4 +5,4 @@ cache: apt
 before_script:
   - sudo apt-get -y install build-essential chrpath git-core libssl-dev libfontconfig1-dev
   - chmod +x ./build.sh
-script: ./build.sh --confirm
+script: ./build.sh --confirm --silent
