@@ -46,6 +46,7 @@
 #include "webserver.h"
 #include "repl.h"
 #include "system.h"
+#include "systemlibs.h"
 #include "callback.h"
 #include "cookiejar.h"
 #include "childprocess.h"
@@ -59,6 +60,7 @@ Phantom::Phantom(QObject *parent)
     , m_returnValue(0)
     , m_filesystem(0)
     , m_system(0)
+    , m_system_libs(0)
     , m_childprocess(0)
 {
     QStringList args = QApplication::arguments();
@@ -329,6 +331,14 @@ QObject *Phantom::createFilesystem()
         m_filesystem = new FileSystem(this);
 
     return m_filesystem;
+}
+
+QObject *Phantom::createSystemLibs()
+{
+    if (!m_system_libs)
+        m_system_libs = new SystemLibs(this);
+
+    return m_system_libs;
 }
 
 QObject *Phantom::createSystem()

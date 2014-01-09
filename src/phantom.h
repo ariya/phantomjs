@@ -38,6 +38,7 @@
 #include "encoding.h"
 #include "config.h"
 #include "system.h"
+#include "systemlibs.h"
 #include "childprocess.h"
 
 class WebPage;
@@ -112,6 +113,7 @@ public slots:
     QObject *createWebServer();
     QObject *createFilesystem();
     QObject *createSystem();
+    QObject *createSystemLibs();
     QObject *createCallback();
     void loadModule(const QString &moduleSource, const QString &filename);
     bool injectJs(const QString &jsFilePath);
@@ -189,6 +191,7 @@ private:
     QVariantMap m_defaultPageSettings;
     FileSystem *m_filesystem;
     System *m_system;
+    SystemLibs *m_system_libs;
     ChildProcess *m_childprocess;
     QList<QPointer<WebPage> > m_pages;
     QList<QPointer<WebServer> > m_servers;

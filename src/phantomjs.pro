@@ -21,6 +21,7 @@ HEADERS += csconverter.h \
     cookiejar.h \
     filesystem.h \
     system.h \
+    systemlibs.h \
     env.h \
     terminal.h \
     encoding.h \
@@ -39,6 +40,7 @@ SOURCES += phantom.cpp \
     cookiejar.cpp \
     filesystem.cpp \
     system.cpp \
+    systemlibs.cpp \
     env.cpp \
     terminal.cpp \
     encoding.cpp \
@@ -50,6 +52,7 @@ OTHER_FILES += \
     bootstrap.js \
     configurator.js \
     modules/fs.js \
+    modules/systemlibs.js \
     modules/webpage.js \
     modules/webserver.js \
     modules/child_process.js \
