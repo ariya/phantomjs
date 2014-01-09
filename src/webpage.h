@@ -512,6 +512,7 @@ private:
     QRect m_clipRect;
     QPoint m_scrollPosition;
     QVariantMap m_paperSize; // For PDF output via render()
+    QVariantMap m_settings; // For retention of parent page settings
     QString m_libraryPath;
     QWebInspector* m_inspector;
     WebpageCallbacks *m_callbacks;
