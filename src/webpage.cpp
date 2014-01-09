@@ -225,8 +225,8 @@ protected:
         }
         newPage->setCookieJar(m_cookieJar);
 
-        // Apply default settings
-        newPage->applySettings(Phantom::instance()->defaultPageSettings());
+        // Apply default/existing settings
+        newPage->applySettings(m_webPage->m_settings);
 
         // Signal JS shim to catch, decorate and store this new child page
         emit m_webPage->rawPageCreated(newPage);
@@ -343,6 +343,7 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
     m_customWebPage = new CustomPage(this);
     m_mainFrame = m_customWebPage->mainFrame();
     m_currentFrame = m_mainFrame;
+    m_settings = Phantom::instance()->defaultPageSettings();
     m_mainFrame->setHtml(BLANK_HTML, baseUrl);
 
     Config *phantomCfg = Phantom::instance()->config();
@@ -589,6 +590,8 @@ void WebPage::showInspector(const int port)
 
 void WebPage::applySettings(const QVariantMap &def)
 {
+    m_settings = def;
+
     QWebSettings *opt = m_customWebPage->settings();
 
     opt->setAttribute(QWebSettings::AutoLoadImages, def[PAGE_SETTINGS_LOAD_IMAGES].toBool());
