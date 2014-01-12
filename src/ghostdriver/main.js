@@ -35,7 +35,7 @@ ghostdriver = {
     hub     : require("./hub_register.js"),
     logger  : require("./logger.js"),
     config  : null,                         //< this will be set below
-    version : "1.1.0"
+    version : "1.1.1"
 };
 
 // create logger
