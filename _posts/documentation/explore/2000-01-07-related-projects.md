@@ -25,7 +25,6 @@ Several page capture projects utilizing PhantomJS:
 
 * [capturejs](https://github.com/superbrothers/capturejs), a command-line tool using Node.js
 * [captureweb](http://darul-demo.herokuapp.com/captureweb), online web screenshoter made with Node.js
-* [ChromaNope](http://chromanope.com/), a web tool for simulating what a website looks like to users with varying types of color blindness.
 * [django-screamshot](https://github.com/makinacorpus/django-screamshot) (uses Django and CasperJS).
 * [grabshot](https://github.com/bjeanes/grabshot), a simple Sinatra-based API to take screenshots and respond asynchronously to a provided callback URL.
 * [node-webshot](https://github.com/brenden/node-webshot) (uses Node.js).
