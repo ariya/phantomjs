@@ -21,6 +21,6 @@ else
   page.open address, (status) ->
     if status isnt 'success'
       console.log 'Unable to load the address!'
-      phantom.exit()
+      phantom.exit(1)
     else
       window.setTimeout (-> page.render output; phantom.exit()), 200
