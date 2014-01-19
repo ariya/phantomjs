@@ -1,5 +1,9 @@
 Please see also http://phantomjs.org/releases.html.
 
+2014-01-20: Version 1.9.6
+
+      * Updated GhostDriver to version 1.1.1 (issue 11877, 11893)
+
 2014-01-19: Version 1.9.3
 
       * Fixed CoreText performance note on OS X 10.9 (issue 11418)
