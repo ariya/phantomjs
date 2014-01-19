@@ -15,6 +15,9 @@ else
       page.paperSize = { width: size[0], height: size[1], border: '0px' }
     else
       page.paperSize = { format: system.args[3], orientation: 'portrait', border: '1cm' }
+  page.onResourceError = (resourceError) ->
+    console.log resourceError.errorString
+    phantom.exit(1)
   page.open address, (status) ->
     if status isnt 'success'
       console.log 'Unable to load the address!'

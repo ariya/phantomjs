@@ -34,6 +34,10 @@ if (system.args.length < 3 || system.args.length > 5) {
     if (system.args.length > 4) {
         page.zoomFactor = system.args[4];
     }
+    page.onResourceError = function(resourceError) {
+        console.log(resourceError.errorString);
+        phantom.exit(1);
+    }
     page.open(address, function (status) {
         if (status !== 'success') {
             console.log('Unable to load the address!');
