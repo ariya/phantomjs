@@ -1,5 +1,10 @@
 Please see also http://phantomjs.org/releases.html.
 
+2014-01-19: Version 1.9.3
+
+      * Fixed CoreText performance note on OS X 10.9 (issue 11418)
+      * Fixed warning of obsolete userSpaceScaleFactor on OS X 10.9 (issue 11612)
+
 2013-09-06: Version 1.9.2
 
       * Fixed graphical artifacts with transparent background on Windows (issue 11276, 11007, 11366)
