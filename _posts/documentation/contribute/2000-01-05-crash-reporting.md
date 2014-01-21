@@ -12,13 +12,13 @@ You will have seen a message like this:
 > PhantomJS has crashed. Please file a bug report at https://github.com/ariya/phantomjs/issues/new
 > and attach the crash dump file: /tmp/598e080c-58dd-e183-12fb7ba8-29a93fff.dmp"
 
-## If you're using an official binary ([downloaded](https://code.google.com/p/phantomjs/downloads/list) or installed via Homebrew)
+## If you're using an official binary ([downloaded](https://bitbucket.org/ariya/phantomjs/downloads) or installed via Homebrew)
 
 You can post the crash dump to an issue, but it will help us solve your problem more quickly if you convert the crash dump to a stack trace. Here's how.
 
 ### Linux
 
-1. Obtain the appropriate symbol files from the [downloads page](https://code.google.com/p/phantomjs/downloads/list). Make sure to get the correct tarball which matches the binary you are running.
+1. Obtain the appropriate symbol files from the [downloads page](https://bitbucket.org/ariya/phantomjs/downloads). Make sure to get the correct tarball which matches the binary you are running.
 
 2. Extract the tarball and cd into the directory. (`tar -xjvf phantomjs-[version]-symbols.tar.bz2`)
 
@@ -61,7 +61,7 @@ In the mean time, the following steps can be used to obtain a somewhat useful tr
 
 **You only need to do steps 1 - 6 the first time you get a stack trace. After that, you can skip to step 7**
 
-1. Obtain the macosx symbol files from the [downloads page](https://code.google.com/p/phantomjs/downloads/list). Also download the equivalent linux symbol files, as you will need to copy the minidump_stackwalk program from here.
+1. Obtain the macosx symbol files from the [downloads page](https://bitbucket.org/ariya/phantomjs/downloads). Also download the equivalent linux symbol files, as you will need to copy the minidump_stackwalk program from here.
 
 2. Extract both tarballs and cd into the macosx symbols directory.
 
