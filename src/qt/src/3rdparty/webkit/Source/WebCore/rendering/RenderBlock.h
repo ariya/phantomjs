@@ -169,7 +169,12 @@ public:
 
     int paginationStrut() const { return m_rareData ? m_rareData->m_paginationStrut : 0; }
     void setPaginationStrut(int);
-    
+
+    bool shouldBreakAtLineToAvoidWidow() const { return m_rareData && m_rareData->m_shouldBreakAtLineToAvoidWidow; }
+    void clearShouldBreakAtLineToAvoidWidow() const;
+    RootInlineBox* lineBreakToAvoidWidow() const { return m_rareData ? m_rareData->m_lineBreakToAvoidWidow : 0; }
+    void setBreakAtLineToAvoidWidow(RootInlineBox*);
+
     // The page logical offset is the object's offset from the top of the page in the page progression
     // direction (so an x-offset in vertical text and a y-offset for horizontal text).
     int pageLogicalOffset() const { return m_rareData ? m_rareData->m_pageLogicalOffset : 0; }
@@ -785,6 +790,8 @@ private:
             : m_margins(positiveMarginBeforeDefault(block), negativeMarginBeforeDefault(block), positiveMarginAfterDefault(block), negativeMarginAfterDefault(block))
             , m_paginationStrut(0)
             , m_pageLogicalOffset(0)
+            , m_shouldBreakAtLineToAvoidWidow(false)
+            , m_lineBreakToAvoidWidow(0)
         { 
         }
 
@@ -809,6 +816,9 @@ private:
         MarginValues m_margins;
         int m_paginationStrut;
         int m_pageLogicalOffset;
+
+        bool m_shouldBreakAtLineToAvoidWidow;
+        RootInlineBox* m_lineBreakToAvoidWidow;
      };
 
     OwnPtr<RenderBlockRareData> m_rareData;

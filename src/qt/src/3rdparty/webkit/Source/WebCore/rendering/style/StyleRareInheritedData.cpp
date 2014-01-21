@@ -36,6 +36,8 @@ StyleRareInheritedData::StyleRareInheritedData()
     , m_effectiveZoom(RenderStyle::initialZoom())
     , widows(RenderStyle::initialWidows())
     , orphans(RenderStyle::initialOrphans())
+    , m_hasAutoWidows(true)
+    , m_hasAutoOrphans(true)
     , textSecurity(RenderStyle::initialTextSecurity())
     , userModify(READ_ONLY)
     , wordBreak(RenderStyle::initialWordBreak())
@@ -70,6 +72,8 @@ StyleRareInheritedData::StyleRareInheritedData(const StyleRareInheritedData& o)
     , m_effectiveZoom(o.m_effectiveZoom)
     , widows(o.widows)
     , orphans(o.orphans)
+    , m_hasAutoWidows(o.m_hasAutoWidows)
+    , m_hasAutoOrphans(o.m_hasAutoOrphans)
     , textSecurity(o.textSecurity)
     , userModify(o.userModify)
     , wordBreak(o.wordBreak)
@@ -120,6 +124,8 @@ bool StyleRareInheritedData::operator==(const StyleRareInheritedData& o) const
         && m_effectiveZoom == o.m_effectiveZoom
         && widows == o.widows
         && orphans == o.orphans
+        && m_hasAutoWidows == o.m_hasAutoWidows
+        && m_hasAutoOrphans == o.m_hasAutoOrphans
         && textSecurity == o.textSecurity
         && userModify == o.userModify
         && wordBreak == o.wordBreak

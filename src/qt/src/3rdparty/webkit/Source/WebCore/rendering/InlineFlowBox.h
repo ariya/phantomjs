@@ -46,6 +46,7 @@ public:
         , m_includeLogicalLeftEdge(false)
         , m_includeLogicalRightEdge(false)
         , m_descendantsHaveSameLineHeightAndBaseline(true)
+        , m_isFirstAfterPageBreak(false)
 #ifndef NDEBUG
         , m_hasBadChildList(false)
 #endif
@@ -293,6 +294,7 @@ protected:
     bool m_hasTextChildren : 1;
     bool m_hasTextDescendants : 1;
     bool m_descendantsHaveSameLineHeightAndBaseline : 1;
+    bool m_isFirstAfterPageBreak : 1;
 
 #ifndef NDEBUG
     bool m_hasBadChildList;

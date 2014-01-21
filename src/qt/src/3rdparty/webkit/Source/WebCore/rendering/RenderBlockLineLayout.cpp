@@ -1014,6 +1014,63 @@ void RenderBlock::layoutRunsAndFloats(bool fullLayout, bool hasInlineChild, Vect
         resolver.setPosition(end);
     }
 
+    if (paginated && !style()->hasAutoWidows()) {
+        // Check the line boxes to make sure we didn't create unacceptable widows.
+        // However, we'll prioritize orphans - so nothing we do here should create
+        // a new orphan.
+
+        RootInlineBox* lineBox = lastRootBox();
+
+        // Count from the end of the block backwards, to see how many hanging
+        // lines we have.
+        RootInlineBox* firstLineInBlock = firstRootBox();
+        int numLinesHanging = 1;
+        while (lineBox && lineBox != firstLineInBlock && !lineBox->isFirstAfterPageBreak()) {
+            ++numLinesHanging;
+            lineBox = lineBox->prevRootBox();
+        }
+
+        // If there were no breaks in the block, we didn't create any widows.
+        if (!lineBox || !lineBox->isFirstAfterPageBreak() || lineBox == firstLineInBlock)
+            return;
+
+        if (numLinesHanging < style()->widows()) {
+            // We have detected a widow. Now we need to work out how many
+            // lines there are on the previous page, and how many we need
+            // to steal.
+            int numLinesNeeded = style()->widows() - numLinesHanging;
+            RootInlineBox* currentFirstLineOfNewPage = lineBox;
+
+            // Count the number of lines in the previous page.
+            lineBox = lineBox->prevRootBox();
+            int numLinesInPreviousPage = 1;
+            while (lineBox && lineBox != firstLineInBlock && !lineBox->isFirstAfterPageBreak()) {
+                ++numLinesInPreviousPage;
+                lineBox = lineBox->prevRootBox();
+            }
+
+            // If there was an explicit value for orphans, respect that. If not, we still
+            // shouldn't create a situation where we make an orphan bigger than the initial value.
+            // This means that setting widows implies we also care about orphans, but given
+            // the specification says the initial orphan value is non-zero, this is ok. The
+            // author is always free to set orphans explicitly as well.
+            int orphans = style()->hasAutoOrphans() ? style()->initialOrphans() : style()->orphans();
+            int numLinesAvailable = numLinesInPreviousPage - orphans;
+            if (numLinesAvailable <= 0)
+                return;
+
+            int numLinesToTake = min(numLinesAvailable, numLinesNeeded);
+            // Wind back from our first widowed line.
+            lineBox = currentFirstLineOfNewPage;
+            for (int i = 0; i < numLinesToTake; ++i)
+                lineBox = lineBox->prevRootBox();
+
+            // We now want to break at this line. Remember for next layout and trigger relayout.
+            setBreakAtLineToAvoidWidow(lineBox);
+            markLinesDirtyInBlockRange(lastRootBox()->lineBottom(), lineBox->lineBottom(), lineBox);
+        }
+    }
+
     if (endLine) {
         if (endLineMatched) {
             // Attach all the remaining lines, and then adjust their y-positions as needed.
