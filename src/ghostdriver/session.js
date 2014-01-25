@@ -101,7 +101,6 @@ ghostdriver.Session = function(desiredCapabilities) {
     },
     _windows = {},  //< NOTE: windows are "webpage" in Phantom-dialect
     _currentWindowHandle = null,
-    _cookieJar = require('cookiejar').create(),
     _id = require("./third_party/uuid.js").v1(),
     _inputs = ghostdriver.Inputs(),
     _capsPageSettingsPref = "phantomjs.page.settings.",
@@ -285,12 +284,8 @@ ghostdriver.Session = function(desiredCapabilities) {
     _addNewPage = function(newPage) {
         _log.debug("_addNewPage");
 
-        // decorate the new Window/Page
-        newPage = _decorateNewWindow(newPage);
-        // set session-specific CookieJar
-        newPage.cookieJar = _cookieJar;
-        // store the Window/Page by WindowHandle
-        _windows[newPage.windowHandle] = newPage;
+        _decorateNewWindow(newPage);                //< decorate the new page
+        _windows[newPage.windowHandle] = newPage;   //< store the page/window
     },
 
     // Delete any closing page from the "_windows" container of this session
@@ -492,15 +487,9 @@ ghostdriver.Session = function(desiredCapabilities) {
 
         // Ensure a Current Window is available, if it's found to be `null`
         if (_currentWindowHandle === null) {
-            // Create the first Window/Page
-            page = require("webpage").create();
-            // Decorate it with listeners and helpers
-            page = _decorateNewWindow(page);
-            // set session-specific CookieJar
-            page.cookieJar = _cookieJar;
-            // Make the new Window, the Current Window
+            // First call to get the current window: need to create one
+            page = _decorateNewWindow(require("webpage").create());
             _currentWindowHandle = page.windowHandle;
-            // Store by WindowHandle
             _windows[_currentWindowHandle] = page;
         }
     },
@@ -627,9 +616,6 @@ ghostdriver.Session = function(desiredCapabilities) {
         for (k in _windows) {
             _closeWindow(k);
         }
-
-        // Release CookieJar resources
-        _cookieJar.close();
     },
 
     _getLog = function (type) {

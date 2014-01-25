@@ -1,7 +1,7 @@
-2014-01-12 21:02:05
+2014-01-04 16:44:10
 
-commit 24452f72b6daa0a8ba14822172012d781c89fbcb (HEAD, tag: refs/tags/1.1.1, refs/heads/master)
+commit 491a60b0adf78e6d7a4eff980de81bb3eb8c764d (HEAD, refs/remotes/origin/master, refs/remotes/origin/HEAD, refs/heads/master)
 Author: Ivan De Marino <detronizator@gmail.com>
-Date:   Sun Jan 12 20:37:01 2014 +0000
+Date:   Thu Jan 2 23:02:21 2014 +0000
 
-    Changing only the Driver (no need for the Java Bindings) to 1.1.1
+    Updated CHANGELOG to mention upgraded Atoms in 1.1.0
