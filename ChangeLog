@@ -1,5 +1,10 @@
 Please see also http://phantomjs.org/releases.html.
 
+2014-01-25: Version 1.9.7
+
+      * Reverted to GhostDriver 1.1.0 instead of 1.1.1 (issue 11915)
+      * Fixed another warning of obsolete userSpaceScaleFactor on OS X 10.9 (issue 11612)
+
 2014-01-20: Version 1.9.6
 
       * Updated GhostDriver to version 1.1.1 (issue 11877, 11893)
