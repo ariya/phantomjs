@@ -3,10 +3,10 @@ compiler:
   - gcc
 cache: apt
 before_install:
-  - sudo apt-get -yqq update
-  - sudo apt-get -fyq install
+  - sudo apt-get -yqq update    #< Suggested by the Travis CI doc
+  - sudo apt-get -fyq install   #< Fixes inconsistency of packages installed previously
 install:
-  - sudo apt-get -yq install build-essential chrpath libssl-dev libfontconfig1-dev
+  - sudo apt-get -yq install build-essential chrpath libssl-dev libfontconfig1-dev  #< Build Dependencies
 before_script:
   - chmod +x ./build.sh
 script:
