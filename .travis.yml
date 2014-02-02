@@ -2,7 +2,12 @@ language: cpp
 compiler:
   - gcc
 cache: apt
+before_install:
+  - sudo apt-get -yqq update
+  - sudo apt-get -fyq install
+install:
+  - sudo apt-get -yq install build-essential chrpath libssl-dev libfontconfig1-dev
 before_script:
-  - sudo apt-get -y install build-essential chrpath git-core libssl-dev libfontconfig1-dev
   - chmod +x ./build.sh
-script: ./build.sh --confirm --silent
+script:
+  - ./build.sh --confirm --silent
