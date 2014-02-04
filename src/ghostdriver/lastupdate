@@ -1,7 +1,10 @@
-2014-01-12 21:02:05
+2014-02-04 23:18:11
 
-commit 24452f72b6daa0a8ba14822172012d781c89fbcb (HEAD, tag: refs/tags/1.1.1, refs/heads/master)
+commit c85f27f06cf23d8ef783c6c9afe54b2975f59249 (HEAD, refs/heads/master)
 Author: Ivan De Marino <detronizator@gmail.com>
-Date:   Sun Jan 12 20:37:01 2014 +0000
+Date:   Tue Feb 4 22:27:45 2014 +0000
 
-    Changing only the Driver (no need for the Java Bindings) to 1.1.1
+    Moving "test fixtures" into "fixtures" directory.
+    
+    Also, removing Python tests: never used and extremely limited.
+    The Selenium PhantomJSDriver maintainer for Python has its own tests.
