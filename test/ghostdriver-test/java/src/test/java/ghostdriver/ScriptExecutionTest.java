@@ -89,6 +89,7 @@ public class ScriptExecutionTest extends BaseTest {
         assertEquals("abc", stringResult);
     }
 
+    @Ignore("Known issue #140 - see https://github.com/detro/ghostdriver/issues/140)")
     @Test
     public void shouldBeAbleToExecuteMultipleAsyncScriptsSequentiallyWithNavigation() {
         // NOTE: This test is supposed to fail!

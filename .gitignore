@@ -57,3 +57,4 @@ tools/dump_syms.app/
 bin/
 *.class
 build/
+.gradle/

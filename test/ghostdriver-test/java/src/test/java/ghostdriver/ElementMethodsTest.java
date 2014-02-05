@@ -38,7 +38,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -240,25 +239,5 @@ public class ElementMethodsTest extends BaseTestWithServer {
         textInput.sendKeys(inputString + "\n");
 
         assertTrue(d.getTitle().contains(inputString));
-    }
-
-    @Test
-    public void shouldUsePageTimeoutToWaitForPageLoadOnInput_negativeCase() throws InterruptedException {
-        WebDriver d = getDriver();
-        String inputString = "clicking";
-
-        d.get("http://www.duckduckgo.com");
-        WebElement textInput = d.findElement(By.cssSelector("#search_form_input_homepage"));
-
-        assertFalse(d.getTitle().contains(inputString));
-        textInput.click();
-        assertFalse(d.getTitle().contains(inputString));
-
-        // Set Implicit Timeout to 0: this will force Driver to NOT wait
-        d.manage().timeouts().pageLoadTimeout(0, TimeUnit.MILLISECONDS);
-        // This input will ALSO submit the search form, causing a Page Load
-        textInput.sendKeys(inputString + "\n");
-
-        assertFalse(d.getTitle().contains(inputString));
     }
 }

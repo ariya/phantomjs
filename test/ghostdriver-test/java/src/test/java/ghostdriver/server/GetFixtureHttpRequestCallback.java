@@ -7,35 +7,38 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.util.logging.Logger;
 
 public class GetFixtureHttpRequestCallback implements HttpRequestCallback {
 
-    private static final String FIXTURE_PATH = "fixtures";
+    private static final Logger LOG = Logger.getLogger(GetFixtureHttpRequestCallback.class.getName());
+
+    private static final String FIXTURE_PATH = "../fixtures";
 
     @Override
     public void call(HttpServletRequest req, HttpServletResponse res) throws IOException {
-        String path = req.getPathInfo();
+        // Construct path to the file
+        Path filePath = FileSystems.getDefault().getPath(FIXTURE_PATH, req.getPathInfo());
 
-        if (null != path) {
+        // If the file exists
+        if (filePath.toFile().exists()) {
             try {
-                // Construct path to the file
-                Path filePath = FileSystems.getDefault().getPath(FIXTURE_PATH, path);
                 // Set Content Type
                 res.setContentType(filePathToMimeType(filePath.toString()));
                 // Read and write to response
                 Files.copy(filePath, res.getOutputStream());
 
                 return;
-            } catch (RuntimeException re) {
-                // Not Found. Handled below.
             } catch (NoSuchFileException nsfe) {
-                // Not Found. Handled below.
+                LOG.warning(nsfe.getClass().getName());
             } catch (IOException ioe) {
-                // Not Found. Handled below.
+                LOG.warning(ioe.getClass().getName());
+            } catch (RuntimeException re) {
+                LOG.warning(re.getClass().getName());
             }
         }
 
-        System.out.println("Fixture NOT FOUND");
+        LOG.warning("Fixture NOT FOUND: "+filePath);
         res.sendError(404); //< Not Found
     }
 

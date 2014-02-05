@@ -7,7 +7,11 @@ pushd ./test/ghostdriver-test/java
 chmod +x ./gradlew
 
 # Run tests
-./gradlew test
+./gradlew test -q
+# Grab exit status
+TEST_EXIT_STATUS=$?
 
 # Return to starting directory
 popd
+
+exit $TEST_EXIT_STATUS

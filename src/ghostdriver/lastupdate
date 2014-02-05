@@ -1,10 +1,7 @@
-2014-02-04 23:18:11
+2014-02-12 23:42:59
 
-commit c85f27f06cf23d8ef783c6c9afe54b2975f59249 (HEAD, refs/heads/master)
+commit 2af7099a9f5cf683ff565617be38b70318c9203f (HEAD, refs/remotes/origin/master, refs/remotes/origin/HEAD, refs/heads/master)
 Author: Ivan De Marino <detronizator@gmail.com>
-Date:   Tue Feb 4 22:27:45 2014 +0000
+Date:   Wed Feb 12 23:42:43 2014 +0000
 
-    Moving "test fixtures" into "fixtures" directory.
-    
-    Also, removing Python tests: never used and extremely limited.
-    The Selenium PhantomJSDriver maintainer for Python has its own tests.
+    Removing flaky (and pointless) test

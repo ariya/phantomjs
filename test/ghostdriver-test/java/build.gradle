@@ -35,8 +35,9 @@ tasks.withType(JavaExec) {
 }
 
 test {
-    // Listening to test execution events
-    beforeTest { descriptor ->
-        logger.lifecycle("Running " + descriptor)
+    maxParallelForks = 3
+
+    afterTest { descriptor, result ->
+        logger.quiet(result.toString() + " for " + descriptor + " in " + descriptor.getParent())
     }
 }
