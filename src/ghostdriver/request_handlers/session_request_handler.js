@@ -59,6 +59,7 @@ ghostdriver.SessionReqHand = function(session) {
         SOURCE          : "source",
         COOKIE          : "cookie",
         KEYS            : "keys",
+        FILE            : "file",
         MOVE_TO         : "moveto",
         CLICK           : "click",
         BUTTON_DOWN     : "buttondown",
@@ -193,10 +194,23 @@ ghostdriver.SessionReqHand = function(session) {
             return;
         } else if (req.urlParsed.chunks[0] === _const.LOG && _session.getLogTypes().indexOf(req.urlParsed.chunks[1]) >= 0 && req.method === "GET") {  //< ".../log/LOG_TYPE"
             _getLog(req, res, req.urlParsed.chunks[1]);
+        } else if (req.urlParsed.file == _const.FILE && req.method === "POST") {
+            _postUploadFileCommand(req, res);
             return;
         }
 
         throw _errors.createInvalidReqInvalidCommandMethodEH(req);
+    },
+
+    _postUploadFileCommand = function(req, res) {
+        var postObj = JSON.parse(req.post),
+            currWindow = _protoParent.getSessionCurrWindow.call(this, _session, req),
+            inputFileSelector = postObj.selector,
+            filePath = postObj.filepath;
+
+        _log.debug("_postUploadFileCommand about to upload file", inputFileSelector, filePath)
+        currWindow.uploadFile(inputFileSelector, filePath);
+        res.success(_session.getId())
     },
 
     _createOnSuccessHandler = function(res) {
