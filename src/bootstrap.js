@@ -266,9 +266,9 @@ phantom.callback = function(callback) {
         require.cache = cache;
         require.extensions = extensions;
         require.paths = paths;
-		require.resolve = function (request) {
-			return self._getFilename(request);
-		};
+        require.resolve = function (request) {
+            return self._getFilename(request);
+        };
         require.stub = function(request, exports) {
             self.stubs[request] = { exports: exports };
         };
