@@ -73,6 +73,7 @@ static const struct QCommandLineConfigEntry flags[] =
     { QCommandLine::Option, '\0', "webdriver-logfile", "File where to write the WebDriver's Log (default 'none') (NOTE: needs '--webdriver') ", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "webdriver-loglevel", "WebDriver Logging Level: (supported: 'ERROR', 'WARN', 'INFO', 'DEBUG') (default 'INFO') (NOTE: needs '--webdriver') ", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "webdriver-selenium-grid-hub", "URL to the Selenium Grid HUB: 'URL_TO_HUB' (default 'none') (NOTE: needs '--webdriver') ", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "webdriver-selenium-grid-remote-proxy-class", "Sets the remote proxy class used by the hub for the node, e.g. '--webdriver-selenium-grid-remote-proxy-class=org.openqa.grid.selenium.proxy.DefaultRemoteProxy'", QCommandLine::Optional },
     { QCommandLine::Param, '\0', "script", "Script", QCommandLine::Flags(QCommandLine::Optional|QCommandLine::ParameterFence)},
     { QCommandLine::Param, '\0', "argument", "Script argument", QCommandLine::OptionalMultiple },
     { QCommandLine::Switch, 'w', "wd", "Equivalent to '--webdriver' option above", QCommandLine::Optional },
@@ -123,6 +124,8 @@ void Config::processArgs(const QStringList &args)
 
         argsForGhostDriver << QString("--ip=%1").arg(m_webdriverIp);        //< "--ip=IP"
         argsForGhostDriver << QString("--port=%1").arg(m_webdriverPort);    //< "--port=PORT"
+        argsForGhostDriver << QString("--proxy=%1").arg(m_webdriverSeleniumGridRemoteProxyClass);    //< "--proxy=FQCN"
+        argsForGhostDriver << QString("--version=%1").arg(PHANTOMJS_VERSION_STRING);
 
         if (!m_webdriverSeleniumGridHub.isEmpty()) {
             argsForGhostDriver << QString("--hub=%1").arg(m_webdriverSeleniumGridHub);  //< "--hub=SELENIUM_GRID_HUB_URL"
@@ -562,6 +565,7 @@ void Config::resetToDefaults()
     m_webdriverLogFile = QString();
     m_webdriverLogLevel = "INFO";
     m_webdriverSeleniumGridHub = QString();
+    m_webdriverSeleniumGridRemoteProxyClass = QString();
 }
 
 void Config::setProxyAuthPass(const QString &value)
@@ -728,6 +732,9 @@ void Config::handleOption(const QString &option, const QVariant &value)
     if (option == "webdriver-selenium-grid-hub") {
         setWebdriverSeleniumGridHub(value.toString());
     }
+    if (option == "webdriver-selenium-grid-remote-proxy-class") {
+        setWebdriverSeleniumGridRemoteProxyClass(value.toString());
+    }
 }
 
 void Config::handleParam(const QString& param, const QVariant &value)
@@ -771,4 +778,14 @@ void Config::setSslCertificatesPath(const QString& sslCertificatesPath)
     } else {
         m_sslCertificatesPath = sslCertificatesPath;
     }
+}
+
+void Config::setWebdriverSeleniumGridRemoteProxyClass(const QString& webdriverSeleniumGridRemoteProxyClass)
+{
+    m_webdriverSeleniumGridRemoteProxyClass = webdriverSeleniumGridRemoteProxyClass;
+}
+
+QString Config::webdriverSeleniumGridRemoteProxyClass() const
+{
+    return m_webdriverSeleniumGridRemoteProxyClass;
 }
