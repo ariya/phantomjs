@@ -1543,7 +1543,7 @@ QStringList WebPage::childFramesName() const //< deprecated
 void WebPage::changeCurrentFrame(QWebFrame * const frame)
 {
     if (frame != m_currentFrame) {
-        qDebug() << "WebPage - changeCurrentFrame" << "from" << m_currentFrame->frameName() << "to" << frame->frameName();
+        qDebug() << "WebPage - changeCurrentFrame" << "from" << (m_currentFrame == NULL ? "Undefined" : m_currentFrame->frameName()) << "to" << frame->frameName();
         m_currentFrame = frame;
     }
 }
