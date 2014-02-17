@@ -17,4 +17,4 @@ page.evaluate(function() {
 });
 ```
 
-Make sure this is executed before caling render() function of the web page.
+Make sure this is executed before calling render() function of the web page.
