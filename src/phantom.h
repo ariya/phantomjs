@@ -197,6 +197,7 @@ private:
     QList<QPointer<WebServer> > m_servers;
     Config m_config;
     CookieJar *m_defaultCookieJar;
+    QList<QPointer<QObject> > m_nativeModules;
 
     friend class CustomPage;
 };

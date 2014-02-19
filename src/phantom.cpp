@@ -410,7 +410,10 @@ QObject* Phantom::loadNativeModule(const QString &modulePath)
         return 0;
     }
 
-    return (*createExtension)();
+    QObject* extensionObject = (*createExtension)();
+    m_nativeModules.append(extensionObject);
+
+    return extensionObject;
 }
 
 bool Phantom::injectJs(const QString &jsFilePath)
@@ -509,5 +512,7 @@ void Phantom::doExit(int code)
     qDeleteAll(m_pages);
     m_pages.clear();
     m_page = 0;
+    qDeleteAll(m_nativeModules);
+    m_nativeModules.clear();
     QApplication::instance()->exit(code);
 }
