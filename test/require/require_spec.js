@@ -216,4 +216,25 @@ describe("require()", function() {
             });
         });
     });
+
+
+    it("can load native modules", function() {
+        require("fs").changeWorkingDirectory(phantom.libraryPath + "/require/test_native_module");
+
+        // first build native module
+        var buildFinished = false;
+        require("child_process").execFile("sh", ["build.sh"], null, function (err, stdout, stderr) {
+            buildFinished = true;
+        });
+
+        waitsFor(function() {
+          return buildFinished;
+        }, "the module to build", 1000);
+
+        runs(function () {
+            var nativeMod = require('./test_native_module/libmodule.phantom');
+            nativeMod.testProperty.should.equal("testPropertyValue");
+            nativeMod.testFunction().should.equal("testFunctionResult");
+        });
+    });
 });
