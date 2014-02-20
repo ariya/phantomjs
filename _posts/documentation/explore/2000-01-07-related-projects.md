@@ -50,6 +50,7 @@ Several page capture projects utilizing PhantomJS:
 * [phantomas](https://github.com/macbre/phantomas) is a web-performance metrics and hints generation tool.
 * [PhantomCSS](https://github.com/Huddle/PhantomCSS) enables automated visual regression testing.
 * [PhantomFlow](https://github.com/Huddle/PhantomFlow) provides a syntax for describing user flows as tests which can then be visualized as an interactive tree graph. Built on CasperJS, integrates with PhantomCSS and uses D3.js for visualization.
+* [phantomjs-installer](https://github.com/jakoch/phantomjs-installer) provides a PHP [Composer](http://getcomposer.org/) package which installs the PhantomJS binary (Linux, Windows, Mac) into the /bin folder of your project.
 * [phantomjs-node](https://github.com/sgentle/phantomjs-node) provides PhantomJS bridge for Node.js applications.
 * [PhantomLint](https://github.com/arthurakay/LintRoller/tree/v1.3.0) uses PhantomJS to run JSLint on JavaScript application code.
 * [PhantomXHR](https://github.com/Huddle/PhantomXHR) isolates UI from server API for fast automated UI testing.
