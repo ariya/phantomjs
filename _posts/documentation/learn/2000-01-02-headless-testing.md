@@ -37,7 +37,7 @@ PhantomJS includes [run-qunit](https://github.com/ariya/phantomjs/blob/master/ex
 
 ## PhantomJS tailored testing
 
-In addition, there are [[projects|Related Projects]] which are built on top of PhantomJS to provide convenient high-level functionality for testing purposes:
+In addition, there are [Related Projects]({{ site.url }}/related-projects.html) which are built on top of PhantomJS to provide convenient high-level functionality for testing purposes:
 
 * [Casper.js](http://casperjs.org) is useful to build scripted navigation and testing
 * [Lotte](https://github.com/StanAngeloff/lotte) adds jQuery-like methods, chaining, and more assertion logic
