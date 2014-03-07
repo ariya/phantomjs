@@ -54,6 +54,8 @@ class Config: public QObject
     Q_PROPERTY(QString scriptEncoding READ scriptEncoding WRITE setScriptEncoding)
     Q_PROPERTY(bool webSecurityEnabled READ webSecurityEnabled WRITE setWebSecurityEnabled)
     Q_PROPERTY(QString offlineStoragePath READ offlineStoragePath WRITE setOfflineStoragePath)
+    Q_PROPERTY(QString localStoragePath READ localStoragePath WRITE setLocalStoragePath)
+    Q_PROPERTY(int localStorageDefaultQuota READ localStorageDefaultQuota WRITE setLocalStorageDefaultQuota)
     Q_PROPERTY(int offlineStorageDefaultQuota READ offlineStorageDefaultQuota WRITE setOfflineStorageDefaultQuota)
     Q_PROPERTY(bool printDebugMessages READ printDebugMessages WRITE setPrintDebugMessages)
     Q_PROPERTY(bool javascriptCanOpenWindows READ javascriptCanOpenWindows WRITE setJavascriptCanOpenWindows)
@@ -89,6 +91,12 @@ public:
 
     int offlineStorageDefaultQuota() const;
     void setOfflineStorageDefaultQuota(int offlineStorageDefaultQuota);
+
+    QString localStoragePath() const;
+    void setLocalStoragePath(const QString &value);
+
+    int localStorageDefaultQuota() const;
+    void setLocalStorageDefaultQuota(int localStorageDefaultQuota);
 
     bool diskCacheEnabled() const;
     void setDiskCacheEnabled(const bool value);
@@ -214,6 +222,8 @@ private:
     QString m_cookiesFile;
     QString m_offlineStoragePath;
     int m_offlineStorageDefaultQuota;
+    QString m_localStoragePath;
+    int m_localStorageDefaultQuota;
     bool m_diskCacheEnabled;
     int m_maxDiskCacheSize;
     bool m_ignoreSslErrors;
