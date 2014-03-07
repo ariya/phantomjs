@@ -53,9 +53,11 @@ static const struct QCommandLineConfigEntry flags[] = {
     { QCommandLine::Option, '\0', "disk-cache", "Enables disk cache: 'true' or 'false' (default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ignore-ssl-errors", "Ignores SSL errors (expired/self-signed certificate errors): 'true' or 'false' (default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "load-images", "Loads all inlined images: 'true' (default) or 'false'", QCommandLine::Optional },
-    { QCommandLine::Option, '\0', "local-storage-path", "Specifies the location for offline local storage", QCommandLine::Optional },
-    { QCommandLine::Option, '\0', "local-storage-quota", "Sets the maximum size of the offline local storage (in KB)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "local-url-access", "Allows use of 'file:///' URLs: 'true' (default) or 'false'", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "local-storage-path", "Specifies the location for local storage", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "local-storage-quota", "Sets the maximum size of the local storage (in KB)", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "offline-storage-path", "Specifies the location for offline storage", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "offline-storage-quota", "Sets the maximum size of the offline storage (in KB)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "local-to-remote-url-access", "Allows local content to access remote URL: 'true' or 'false' (default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "max-disk-cache-size", "Limits the size of the disk cache (in KB)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "output-encoding", "Sets the encoding for the terminal output, default is 'utf8'", QCommandLine::Optional },
@@ -221,6 +223,28 @@ int Config::offlineStorageDefaultQuota() const
 void Config::setOfflineStorageDefaultQuota(int offlineStorageDefaultQuota)
 {
     m_offlineStorageDefaultQuota = offlineStorageDefaultQuota * 1024;
+}
+
+
+QString Config::localStoragePath() const
+{
+    return m_localStoragePath;
+}
+
+void Config::setLocalStoragePath(const QString &value)
+{
+    QDir dir(value);
+    m_localStoragePath = dir.absolutePath();
+}
+
+int Config::localStorageDefaultQuota() const
+{
+    return m_localStorageDefaultQuota;
+}
+
+void Config::setLocalStorageDefaultQuota(int localStorageDefaultQuota)
+{
+    m_localStorageDefaultQuota = localStorageDefaultQuota * 1024;
 }
 
 bool Config::diskCacheEnabled() const
@@ -546,6 +570,8 @@ void Config::resetToDefaults()
     m_cookiesFile = QString();
     m_offlineStoragePath = QString();
     m_offlineStorageDefaultQuota = -1;
+    m_localStoragePath = QString();
+    m_localStorageDefaultQuota = -1;
     m_diskCacheEnabled = false;
     m_maxDiskCacheSize = -1;
     m_ignoreSslErrors = false;
@@ -698,10 +724,18 @@ void Config::handleOption(const QString& option, const QVariant& value)
     }
 
     if (option == "local-storage-path") {
-        setOfflineStoragePath(value.toString());
+        setLocalStoragePath(value.toString());
     }
 
     if (option == "local-storage-quota") {
+        setLocalStorageDefaultQuota(value.toInt());
+    }
+
+    if (option == "offline-storage-path") {
+        setOfflineStoragePath(value.toString());
+    }
+
+    if (option == "offline-storage-quota") {
         setOfflineStorageDefaultQuota(value.toInt());
     }
 
