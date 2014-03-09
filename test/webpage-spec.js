@@ -1277,20 +1277,21 @@ describe("WebPage object", function() {
     it('should able to abort a network request', function() {
         var page = require('webpage').create();
         var url = 'http://phantomjs.org';
-        var urlToBlock = 'http://phantomjs.org/images/phantomjs-logo.png';
+        var urlToBlockRexExp = /phantomjs-logo\.png$/i;
 
         var handled = false;
 
-        runs(function() {
-            page.onResourceRequested = function(requestData, request) {
-                if (requestData['url'] == urlToBlock) {
-                    expect(typeof request).toEqual('object');
-                    expect(typeof request.abort).toEqual('function');
-                    request.abort();
-                    handled = true;
-                }
-            };
+        page.onResourceRequested = function(requestData, request) {
 
+            if (urlToBlockRexExp.test(requestData['url'])) {
+                expect(typeof request).toEqual('object');
+                expect(typeof request.abort).toEqual('function');
+                request.abort();
+                handled = true;
+            }
+        };
+
+        runs(function() {
             page.open(url, function(status) {
                 expect(status).toEqual('success');
             });
@@ -1330,8 +1331,8 @@ describe("WebPage object", function() {
     it('should change the url of the request', function() {
         var page = require('webpage').create();
         var url = 'http://phantomjs.org';
-        var urlToChange = 'http://phantomjs.org/images/phantomjs-logo.png';
-        var fakeImageUrl = 'http://phantomjs.org/images/icon-release.png';
+        var urlToChange = 'http://phantomjs.org/img/phantomjs-logo.png';
+        var alternativeUrl = 'http://phantomjs.org/img/icon-release.png';
 
         var handled = false;
 
@@ -1340,12 +1341,12 @@ describe("WebPage object", function() {
                 if (requestData['url'] == urlToChange) {
                     expect(typeof request).toEqual('object');
                     expect(typeof request.changeUrl).toEqual('function');
-                    request.changeUrl(fakeImageUrl);
+                    request.changeUrl(alternativeUrl);
                 }
             };
 
             page.onResourceReceived = function(data) {
-                if (data['stage'] === 'end' && data['url'] == fakeImageUrl) {
+                if (data['stage'] === 'end' && data['url'] == alternativeUrl) {
                     handled = true;
                 }
             };
