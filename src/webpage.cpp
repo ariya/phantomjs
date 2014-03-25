@@ -81,6 +81,7 @@
 
 #define STDOUT_FILENAME "/dev/stdout"
 #define STDERR_FILENAME "/dev/stderr"
+
 #define PHANTOMJS_PDF_DPI 72            // Different defaults. OSX: 72, X11: 75(?), Windows: 96
 
 
