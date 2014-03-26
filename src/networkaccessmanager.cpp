@@ -326,6 +326,7 @@ void NetworkAccessManager::handleStarted()
     data["redirectURL"] = reply->header(QNetworkRequest::LocationHeader);
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
+    data["fromCache"] = reply->attribute(QNetworkRequest::SourceIsFromCacheAttribute).toBool();
 
     emit resourceReceived(data);
 }
@@ -376,6 +377,7 @@ void NetworkAccessManager::handleFinished(QNetworkReply *reply, const QVariant &
     data["redirectURL"] = reply->header(QNetworkRequest::LocationHeader);
     data["headers"] = headers;
     data["time"] = QDateTime::currentDateTime();
+    data["fromCache"] = reply->attribute(QNetworkRequest::SourceIsFromCacheAttribute).toBool();
 
     m_ids.remove(reply);
     m_started.remove(reply);
