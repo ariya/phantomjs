@@ -256,6 +256,18 @@ QByteArray QEucJpCodec::_name()
 {
     return "EUC-JP";
 }
+
+/*!
+    Returns the codec's mime name.
+*/
+QList<QByteArray> QEucJpCodec::_aliases()
+{
+    QList<QByteArray> list;
+    list << "euc-jp"
+         << "x-euc-jp";
+    return list;
+}
+
 #endif // QT_NO_TEXTCODEC
 
 QT_END_NAMESPACE
