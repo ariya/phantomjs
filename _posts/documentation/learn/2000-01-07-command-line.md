@@ -68,11 +68,11 @@ The contents of `config.json` should be a standalone JavaScript object. Keys are
 
 There are some keys that do not translate directly:
 
-* --disk-cache => diskCacheEnabled
-* --load-images => autoLoadImages
-* --local-storage-path => offlineStoragePath
-* --local-storage-quota => offlineStorageDefaultQuota
-* --local-to-remote-url-access => localToRemoteUrlAccessEnabled
-* --web-security => webSecurityEnabled
+ * --disk-cache => diskCacheEnabled
+ * --load-images => autoLoadImages
+ * --local-storage-path => offlineStoragePath
+ * --local-storage-quota => offlineStorageDefaultQuota
+ * --local-to-remote-url-access => localToRemoteUrlAccessEnabled
+ * --web-security => webSecurityEnabled
 
 ```
