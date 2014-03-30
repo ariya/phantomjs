@@ -17,7 +17,7 @@ page.open('http://github.com/', function() {
 });
 ```
 
-To run this example create a new file called 'github.js' which is in the same directory as the phantomjs.exe file. Copy and paste the above code into the github.js file. Now at the command line, in the same directory as the phantomjs.exe and the new github.js file run the code below:
+To run this example create a new file called `github.js`. Copy and paste the above code into the `github.js` file. In the commandline, run this newly created script with PhantomJS:
 
 ```bash
 phantomjs github.js
@@ -52,4 +52,4 @@ Canvas can be easily constructed and converted to an image. The included example
 
 ![Color Wheel](https://lh3.googleusercontent.com/-xSIzxPtJULw/TVzeP4NPMDI/AAAAAAAAB10/k-c8jB6I5Cg/s288/colorwheel.png)
 
-It is possible to build a web screenshot service using PhantomJS. There are [[some projects|Related Projects]] which make it easy to create such a service. Examples of PhantomJS-based screenshot services are [Screener](http://screener.brachium-system.net).
+It is possible to build a web screenshot service using PhantomJS. Some [related projects]({{ site.url }}/related-projects.html) make it easy to create such a service.
