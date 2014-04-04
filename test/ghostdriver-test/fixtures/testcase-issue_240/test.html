@@ -1,0 +1,97 @@
+<html>
+<head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <title>test</title>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+</head>
+<body>
+  <a>1</a>
+  <a>2</a>
+  <a>3</a>
+  <a>4</a>
+  <a>5</a>
+  <a>6</a>
+  <a>1</a>
+  <a>2</a>
+  <a>3</a>
+  <a>4</a>
+  <a>5</a>
+  <a>6</a>
+  <a>1</a>
+  <a>2</a>
+  <a>3</a>
+  <a>4</a>
+  <a>5</a>
+  <a>6</a>
+  <a>1</a>
+  <a>2</a>
+  <a>3</a>
+  <a>4</a>
+  <a>5</a>
+  <a>6</a>
+    <a>1</a>
+  <a>2</a>
+  <a>3</a>
+  <a>4</a>
+  <a>5</a>
+  <a>6</a>
+  <a>1</a>
+  <a>2</a>
+  <a>3</a>
+  <a>4</a>
+  <a>5</a>
+  <a>6</a>
+  <a>1</a>
+  <a>2</a>
+  <a>3</a>
+  <a>4</a>
+  <a>5</a>
+  <a>6</a>
+  <a>1</a>
+  <a>2</a>
+  <a>3</a>
+  <a>4</a>
+  <a>5</a>
+  <a>6</a>
+    <a>1</a>
+  <a>2</a>
+  <a>3</a>
+  <a>4</a>
+  <a>5</a>
+  <a>6</a>
+  <a>1</a>
+  <a>2</a>
+  <a>3</a>
+  <a>4</a>
+  <a>5</a>
+  <a>6</a>
+  <a>1</a>
+  <a>2</a>
+  <a>3</a>
+  <a>4</a>
+  <a>5</a>
+  <a>6</a>
+  <a>1</a>
+  <a>2</a>
+  <a>3</a>
+  <a>4</a>
+  <a>5</a>
+  <a>6</a>
+
+  <script type="text/javascript" charset="utf-8">
+  results = [];
+
+  $("a").click(function ()
+  {
+    var url = "/" + $(this).text();
+    setTimeout(function ()
+    {
+      $.get(url)
+       .done(function () { console.log("Success for ", url); results.push("Success: " + url); })
+       .fail(function () { console.log("FAILED  for ", url); results.push("failed: " + url); });
+    }, 200);
+  })
+  </script>
+</body>
+
+</html>

@@ -99,7 +99,6 @@ describe("phantom global object", function() {
         waits(0);
 
         runs(function() {
-            console.log(stack);
             expect(stack[0].file).toEqual(helperFile);
             expect(stack[0].line).toEqual(2);
             phantom.onError = phantom.defaultErrorHandler;

@@ -123,11 +123,11 @@ jasmine.ConsoleReporter = function(print, doneCallback, showColors) {
     if (results.skipped) {
       yellowStar();
     } else {
-	  if (results.passed()) {
-		print('#' + spec.id + ' ' + spec.suite.description + ': ' + spec.description);
+      if (results.passed()) {
+        print('#' + spec.id + ' ' + spec.suite.description + ': ' + spec.description);
         greenPass();
       } else {
-		print(redStr('#' + spec.id + ' ' + spec.suite.description + ': ' + spec.description));
+        print(redStr('#' + spec.id + ' ' + spec.suite.description + ': ' + spec.description));
         redFail();
       }
     }

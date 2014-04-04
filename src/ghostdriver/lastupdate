@@ -1,7 +1,7 @@
-2014-01-12 21:02:05
+2014-02-12 23:42:59
 
-commit 24452f72b6daa0a8ba14822172012d781c89fbcb (HEAD, tag: refs/tags/1.1.1, refs/heads/master)
+commit 2af7099a9f5cf683ff565617be38b70318c9203f (HEAD, refs/remotes/origin/master, refs/remotes/origin/HEAD, refs/heads/master)
 Author: Ivan De Marino <detronizator@gmail.com>
-Date:   Sun Jan 12 20:37:01 2014 +0000
+Date:   Wed Feb 12 23:42:43 2014 +0000
 
-    Changing only the Driver (no need for the Java Bindings) to 1.1.1
+    Removing flaky (and pointless) test
