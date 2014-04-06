@@ -10,8 +10,8 @@ The latest [stable release](http://phantomjs.org/release-1.9.html) is version 1.
 
 | Branch   | Build Status    |
 |:--------:|:---------------:|
-| `master` | [![Build Status](https://travis-ci.org/ariya/phantomjs.png?branch=master)](https://travis-ci.org/ariya/phantomjs) |
-| `1.9`    | [![Build Status](https://travis-ci.org/ariya/phantomjs.png?branch=1.9)](https://travis-ci.org/ariya/phantomjs) |
+| `master` | [![Build Status](https://travis-ci.org/ariya/phantomjs.svg?branch=master)](https://travis-ci.org/ariya/phantomjs) |
+| `1.9`    | [![Build Status](https://travis-ci.org/ariya/phantomjs.svg?branch=1.9)](https://travis-ci.org/ariya/phantomjs) |
 
 ## Use Cases
 
