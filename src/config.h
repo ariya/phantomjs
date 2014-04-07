@@ -50,6 +50,7 @@ class Config: public QObject
     Q_PROPERTY(QString proxyType READ proxyType WRITE setProxyType)
     Q_PROPERTY(QString proxy READ proxy WRITE setProxy)
     Q_PROPERTY(QString proxyAuth READ proxyAuth WRITE setProxyAuth)
+    Q_PROPERTY(QString noProxy READ proxyExceptions WRITE setProxyExceptions)
     Q_PROPERTY(QString scriptEncoding READ scriptEncoding WRITE setScriptEncoding)
     Q_PROPERTY(bool webSecurityEnabled READ webSecurityEnabled WRITE setWebSecurityEnabled)
     Q_PROPERTY(QString offlineStoragePath READ offlineStoragePath WRITE setOfflineStoragePath)
@@ -114,6 +115,9 @@ public:
     QString proxyAuthPass() const;
     void setProxyAuthUser(const QString &value);
     void setProxyAuthPass(const QString &value);
+
+    QString proxyExceptions() const;
+    void setProxyExceptions(const QString &value);
 
     QStringList scriptArgs() const;
     void setScriptArgs(const QStringList &value);
@@ -204,6 +208,7 @@ private:
     int m_proxyPort;
     QString m_proxyAuthUser;
     QString m_proxyAuthPass;
+    QString m_proxyExceptions;
     QStringList m_scriptArgs;
     QString m_scriptEncoding;
     QString m_scriptLanguage;
