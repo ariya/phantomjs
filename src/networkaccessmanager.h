@@ -38,6 +38,10 @@
 #include <QSet>
 #include <QSslConfiguration>
 #include <QTimer>
+#include <QObject>
+#include <QNetworkAccessManager>
+#include <QtNetwork>
+#include <QUrl>
 
 class Config;
 class QNetworkDiskCache;
