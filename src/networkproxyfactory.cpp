@@ -114,21 +114,19 @@ QList<QNetworkProxy> NetworkProxyFactory::queryProxy(const QNetworkProxyQuery& q
 {
     QString protocol = query.protocolTag().toLower();
     bool localHost = false;
-    QList<QNetworkProxy> proxies;
-    proxies << QNetworkProxy::NoProxy;
+    QList<QNetworkProxy> noproxy;
+    noproxy << QNetworkProxy::NoProxy;
 
 	//Terminal::instance()->cout(query.peerHostName());
 	
     if (!query.peerHostName().compare(QLatin1String("localhost"), Qt::CaseInsensitive) || !query.peerHostName().compare(QLatin1String("127.0.0.1"), Qt::CaseInsensitive))
-        localHost = true;
+        return noproxy;
     if (ignoreProxyFor(query))
-        return proxies;
-    if (protocol == QLatin1String("http") && !localHost)
-        return m_httpProxy;
-        /*
+        return noproxy;
+
+    return m_httpProxy;
+/*
     if (protocol == QLatin1String("https") && !localHost)
         return m_httpsProxy;
-        */
-
-    return proxies;
+*/
 }
