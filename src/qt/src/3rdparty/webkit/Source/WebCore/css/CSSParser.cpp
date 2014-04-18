@@ -1291,10 +1291,12 @@ bool CSSParser::parseValue(int propId, bool important)
             break;
         }
         /* nobreak */
-    case CSSPropertyOrphans:              // <integer> | inherit
-    case CSSPropertyWidows:               // <integer> | inherit
-        // ### not supported later on
-        validPrimitive = (!id && validUnit(value, FInteger, false));
+    case CSSPropertyOrphans:              // <integer> | inherit | auto (We've added support for auto for backwards compatibility)
+    case CSSPropertyWidows:               // <integer> | inherit | auto (Ditto)
+        if (id == CSSValueAuto)
+            validPrimitive = true;
+        else
+            validPrimitive = (!id && validUnit(value, FInteger, false));
         break;
 
     case CSSPropertyLineHeight:          // normal | <number> | <length> | <percentage> | inherit

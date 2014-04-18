@@ -2057,7 +2057,7 @@ void RenderBlock::layoutBlockChild(RenderBox* child, MarginInfo& marginInfo, int
     setLogicalTopForChild(child, logicalTopAfterClear, ApplyLayoutDelta);
 
     // Now we have a final top position.  See if it really does end up being different from our estimate.
-    if (logicalTopAfterClear != logicalTopEstimate) {
+    if (logicalTopAfterClear != logicalTopEstimate || (paginated && childRenderBlock && childRenderBlock->shouldBreakAtLineToAvoidWidow())) {
         if (child->shrinkToAvoidFloats()) {
             // The child's width depends on the line width.
             // When the child shifts to clear an item, its width can
@@ -2244,7 +2244,7 @@ void RenderBlock::markForPaginationRelayoutIfNeeded()
     if (needsLayout())
         return;
 
-    if (view()->layoutState()->pageLogicalHeightChanged() || (view()->layoutState()->pageLogicalHeight() && view()->layoutState()->pageLogicalOffset(logicalTop()) != pageLogicalOffset()))
+    if (view()->layoutState()->pageLogicalHeightChanged() || (view()->layoutState()->pageLogicalHeight() && view()->layoutState()->pageLogicalOffset(logicalTop()) != pageLogicalOffset()) || shouldBreakAtLineToAvoidWidow())
         setChildNeedsLayout(true, false);
 }
 
@@ -4165,6 +4165,10 @@ VisiblePosition RenderBlock::positionForPointWithInlineChildren(const IntPoint& 
             continue;
         if (!firstRootBoxWithChildren)
             firstRootBoxWithChildren = root;
+
+        if (root->isFirstAfterPageBreak() && pointInLogicalContents.y() < root->logicalTop())
+            break;
+
         lastRootBoxWithChildren = root;
 
         // check if this root line box is located at this y coordinate
@@ -5726,6 +5730,23 @@ void RenderBlock::setPageLogicalOffset(int logicalOffset)
     m_rareData->m_pageLogicalOffset = logicalOffset;
 }
 
+void RenderBlock::setBreakAtLineToAvoidWidow(RootInlineBox* lineToBreak)
+{
+    ASSERT(lineToBreak);
+    if (!m_rareData)
+        m_rareData = adoptPtr(new RenderBlockRareData(this));
+    m_rareData->m_shouldBreakAtLineToAvoidWidow = true;
+    m_rareData->m_lineBreakToAvoidWidow = lineToBreak;
+}
+
+void RenderBlock::clearShouldBreakAtLineToAvoidWidow() const
+{
+    if (!m_rareData)
+        return;
+    m_rareData->m_shouldBreakAtLineToAvoidWidow = false;
+    m_rareData->m_lineBreakToAvoidWidow = 0;
+}
+
 void RenderBlock::absoluteRects(Vector<IntRect>& rects, int tx, int ty)
 {
     // For blocks inside inlines, we go ahead and include margins so that we run right up to the
@@ -6100,20 +6121,26 @@ void RenderBlock::adjustLinePositionForPagination(RootInlineBox* lineBox, int& d
         layoutState->m_columnInfo->updateMinimumColumnHeight(lineHeight);
     logicalOffset += delta;
     lineBox->setPaginationStrut(0);
+    lineBox->setIsFirstAfterPageBreak(false);
     if (!pageLogicalHeight || lineHeight > pageLogicalHeight)
         return;
     IntSize offsetDelta = layoutState->m_layoutOffset - layoutState->m_pageOffset;
     int offset = isHorizontalWritingMode() ? offsetDelta.height() : offsetDelta.width();
     int remainingLogicalHeight = pageLogicalHeight - (offset + logicalOffset) % pageLogicalHeight;
-    if (remainingLogicalHeight < lineHeight) {
+    if (remainingLogicalHeight < lineHeight || (shouldBreakAtLineToAvoidWidow() && lineBreakToAvoidWidow() == lineBox)) {
+        if (shouldBreakAtLineToAvoidWidow() && lineBreakToAvoidWidow() == lineBox)
+            clearShouldBreakAtLineToAvoidWidow();
         int totalLogicalHeight = lineHeight + max(0, logicalOffset);
-        if (lineBox == firstRootBox() && totalLogicalHeight < pageLogicalHeight && !isPositioned() && !isTableCell())
+        if (((lineBox == firstRootBox() && totalLogicalHeight < pageLogicalHeight) || (!style()->hasAutoOrphans() && style()->orphans() >= lineCount()))
+            && !isPositioned() && !isTableCell())
             setPaginationStrut(remainingLogicalHeight + max(0, logicalOffset));
         else {
             delta += remainingLogicalHeight;
             lineBox->setPaginationStrut(remainingLogicalHeight);
+            lineBox->setIsFirstAfterPageBreak(true);
         }
-    }  
+    } else if (remainingLogicalHeight == pageLogicalHeight && lineBox != firstRootBox())
+        lineBox->setIsFirstAfterPageBreak(true);
 }
 
 int RenderBlock::collapsedMarginBeforeForChild(RenderBox* child) const

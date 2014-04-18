@@ -68,6 +68,8 @@ public:
     // Paged media properties.
     short widows;
     short orphans;
+    unsigned m_hasAutoWidows : 1;
+    unsigned m_hasAutoOrphans : 1;
     
     unsigned textSecurity : 2; // ETextSecurity
     unsigned userModify : 2; // EUserModify (editing)

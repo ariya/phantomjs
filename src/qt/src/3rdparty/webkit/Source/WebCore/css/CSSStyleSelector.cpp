@@ -4123,19 +4123,32 @@ void CSSStyleSelector::applyProperty(int id, CSSValue *value)
     }
     case CSSPropertyWidows:
     {
-        HANDLE_INHERIT_AND_INITIAL(widows, Widows)
-        if (!primitiveValue || primitiveValue->primitiveType() != CSSPrimitiveValue::CSS_NUMBER)
+        if (isInherit) {
+            if (m_parentStyle->hasAutoWidows())
+                m_style->setHasAutoWidows();
+            else
+                m_style->setWidows(m_parentStyle->widows());
             return;
-        m_style->setWidows(primitiveValue->getIntValue());
+        } else if (isInitial || primitiveValue->getIdent() == CSSValueAuto) {
+            m_style->setHasAutoWidows();
+            return;
+        }
+        m_style->setWidows(static_cast<short>(primitiveValue->getIntValue()));
         return;
     }
-        
     case CSSPropertyOrphans:
     {
-        HANDLE_INHERIT_AND_INITIAL(orphans, Orphans)
-        if (!primitiveValue || primitiveValue->primitiveType() != CSSPrimitiveValue::CSS_NUMBER)
+        if (isInherit) {
+            if (m_parentStyle->hasAutoOrphans())
+                m_style->setHasAutoOrphans();
+            else
+                m_style->setOrphans(m_parentStyle->widows());
             return;
-        m_style->setOrphans(primitiveValue->getIntValue());
+        } else if (isInitial || primitiveValue->getIdent() == CSSValueAuto) {
+            m_style->setHasAutoOrphans();
+            return;
+        }
+        m_style->setOrphans(static_cast<short>(primitiveValue->getIntValue()));
         return;
     }        
 

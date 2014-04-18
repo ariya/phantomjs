@@ -53,6 +53,9 @@ public:
     int paginationStrut() const { return m_paginationStrut; }
     void setPaginationStrut(int s) { m_paginationStrut = s; }
 
+    bool isFirstAfterPageBreak() const { return m_isFirstAfterPageBreak; }
+    void setIsFirstAfterPageBreak(bool isFirstAfterPageBreak) { m_isFirstAfterPageBreak = isFirstAfterPageBreak; }
+
     int selectionTop() const;
     int selectionBottom() const;
     int selectionHeight() const { return max(0, selectionBottom() - selectionTop()); }
