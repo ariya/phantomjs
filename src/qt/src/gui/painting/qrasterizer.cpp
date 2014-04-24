@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -877,6 +877,8 @@ void QRasterizer::rasterizeLine(const QPointF &a, const QPointF &b, qreal width,
                 const Q16Dot16 rowHeight = qMin(yFP + Q16Dot16Factor, yPb)
                                            - qMax(yFP, yPa);
                 const int y = Q16Dot16ToInt(yFP);
+                if (y > d->clipRect.bottom())
+                    break;
                 for (int i = 0; i < n; ++i) {
                     buffer.addSpan(x[i], len[i], y,
                                    Q16Dot16ToInt(Q16Dot16Multiply(rowHeight, coverage[i])));

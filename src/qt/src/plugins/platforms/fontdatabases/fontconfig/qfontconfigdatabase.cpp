@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -314,7 +314,7 @@ void QFontconfigDatabase::populateFontDatabase()
         const char *properties [] = {
             FC_FAMILY, FC_WEIGHT, FC_SLANT,
             FC_SPACING, FC_FILE, FC_INDEX,
-            FC_LANG, FC_CHARSET, FC_FOUNDRY, FC_SCALABLE, FC_PIXEL_SIZE, FC_WEIGHT,
+            FC_LANG, FC_CHARSET, FC_FOUNDRY, FC_SCALABLE, FC_PIXEL_SIZE,
             FC_WIDTH,
 #if FC_VERSION >= 20297
             FC_CAPABILITY,
@@ -417,13 +417,26 @@ void QFontconfigDatabase::populateFontDatabase()
         QFont::Weight weight = QFont::Weight(getFCWeight(weight_value));
 
         double pixel_size = 0;
-        if (!scalable) {
-            int width = 100;
-            FcPatternGetInteger (fonts->fonts[i], FC_WIDTH, 0, &width);
+        if (!scalable)
             FcPatternGetDouble (fonts->fonts[i], FC_PIXEL_SIZE, 0, &pixel_size);
+
+        int width = FC_WIDTH_NORMAL;
+        FcPatternGetInteger(fonts->fonts[i], FC_WIDTH, 0, &width);
+
+        QFont::Stretch stretch;
+        switch (width) {
+        case FC_WIDTH_ULTRACONDENSED: stretch = QFont::UltraCondensed; break;
+        case FC_WIDTH_EXTRACONDENSED: stretch = QFont::ExtraCondensed; break;
+        case FC_WIDTH_CONDENSED:      stretch = QFont::Condensed;      break;
+        case FC_WIDTH_SEMICONDENSED:  stretch = QFont::SemiCondensed;  break;
+        case FC_WIDTH_NORMAL:         stretch = QFont::Unstretched;    break;
+        case FC_WIDTH_SEMIEXPANDED:   stretch = QFont::SemiExpanded;   break;
+        case FC_WIDTH_EXPANDED:       stretch = QFont::Expanded;       break;
+        case FC_WIDTH_EXTRAEXPANDED:  stretch = QFont::ExtraExpanded;  break;
+        case FC_WIDTH_ULTRAEXPANDED:  stretch = QFont::UltraExpanded;  break;
+        default:                      stretch = QFont::Unstretched;    break;
         }
 
-        QFont::Stretch stretch = QFont::Unstretched;
         QPlatformFontDatabase::registerFont(familyName,QLatin1String((const char *)foundry_value),weight,style,stretch,antialias,scalable,pixel_size,writingSystems,fontFile);
 //        qDebug() << familyName << (const char *)foundry_value << weight << style << &writingSystems << scalable << true << pixel_size;
     }
@@ -576,12 +589,13 @@ QStringList QFontconfigDatabase::fallbacksForFamily(const QString family, const 
     }
 
     FcConfigSubstitute(0, pattern, FcMatchPattern);
-    FcConfigSubstitute(0, pattern, FcMatchFont);
+    FcDefaultSubstitute(pattern);
 
     FcResult result = FcResultMatch;
     FcFontSet *fontSet = FcFontSort(0,pattern,FcFalse,0,&result);
+    FcPatternDestroy(pattern);
 
-    if (fontSet && result == FcResultMatch)
+    if (fontSet)
     {
         for (int i = 0; i < fontSet->nfont; i++) {
             FcChar8 *value = 0;
@@ -592,8 +606,8 @@ QStringList QFontconfigDatabase::fallbacksForFamily(const QString family, const 
             if (!fallbackFamilies.contains(familyName,Qt::CaseInsensitive)) {
                 fallbackFamilies << familyName;
             }
-
         }
+        FcFontSetDestroy(fontSet);
     }
 //    qDebug() << "fallbackFamilies for:" << family << fallbackFamilies;
 

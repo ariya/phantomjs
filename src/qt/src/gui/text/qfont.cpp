@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -1968,6 +1968,8 @@ static void initFontSubst()
         "times new roman", "times",
         "courier new",  "courier",
         "sans serif",   "helvetica",
+#elif defined(Q_WS_MAC)
+        ".lucida grande ui", "lucida grande",
 #elif defined(Q_WS_WIN)
         "times",        "times new roman",
         "courier",      "courier new",

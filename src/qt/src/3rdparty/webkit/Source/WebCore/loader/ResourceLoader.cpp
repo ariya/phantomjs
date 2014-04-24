@@ -339,8 +339,11 @@ void ResourceLoader::didFail(const ResourceError& error)
 
 void ResourceLoader::didCancel(const ResourceError& error)
 {
+    // If the load has already completed - succeeded, failed, or previously cancelled - do nothing.
+    if (m_reachedTerminalState)
+        return;
+
     ASSERT(!m_cancelled);
-    ASSERT(!m_reachedTerminalState);
 
     if (FormData* data = m_request.httpBody())
         data->removeGeneratedFilesIfNeeded();

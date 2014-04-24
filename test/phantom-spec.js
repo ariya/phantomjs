@@ -88,4 +88,20 @@ describe("phantom global object", function() {
         phantom.onError = undefined;
         expect(phantom.onError).toBeUndefined();
     });
+
+    it("reports parse time error source and line in stack", function() {
+        var stack;
+        phantom.onError = function(message, s) { stack = s; };
+
+        var helperFile = "./fixtures/parse-error-helper.js";
+        phantom.injectJs(helperFile);
+
+        waits(0);
+
+        runs(function() {
+            expect(stack[0].file).toEqual(helperFile);
+            expect(stack[0].line).toEqual(2);
+            phantom.onError = phantom.defaultErrorHandler;
+        });
+    });
 });

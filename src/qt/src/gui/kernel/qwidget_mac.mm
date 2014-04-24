@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -3556,10 +3556,12 @@ void QWidgetPrivate::show_sys()
         QPoint qlocal, qglobal;
         QWidget *widgetUnderMouse = 0;
         qt_mac_getTargetForMouseEvent(0, QEvent::Enter, qlocal, qglobal, 0, &widgetUnderMouse);
-        QApplicationPrivate::dispatchEnterLeave(widgetUnderMouse, qt_last_mouse_receiver);
-        qt_last_mouse_receiver = widgetUnderMouse;
-        qt_last_native_mouse_receiver = widgetUnderMouse ?
-            (widgetUnderMouse->internalWinId() ? widgetUnderMouse : widgetUnderMouse->nativeParentWidget()) : 0;
+        if (q == widgetUnderMouse) {
+            QApplicationPrivate::dispatchEnterLeave(widgetUnderMouse, qt_last_mouse_receiver);
+            qt_last_mouse_receiver = widgetUnderMouse;
+            qt_last_native_mouse_receiver = widgetUnderMouse ?
+                (widgetUnderMouse->internalWinId() ? widgetUnderMouse : widgetUnderMouse->nativeParentWidget()) : 0;
+        }
     }
 #endif
 
@@ -3612,6 +3614,10 @@ void QWidgetPrivate::hide_sys()
 #ifndef QT_MAC_USE_COCOA
             ShowHide(window, false);
 #else
+            // Only needed if it exists from 10.7 or later
+            if ((q->windowType() == Qt::Tool) && [window respondsToSelector: @selector(setAnimationBehavior:)])
+                [window setAnimationBehavior: 2]; // NSWindowAnimationBehaviorNone == 2
+
             [window orderOut:window];
             // Unfortunately it is not as easy as just hiding the window, we need
             // to find out if we were in full screen mode. If we were and this is
@@ -3712,10 +3718,12 @@ void QWidgetPrivate::hide_sys()
         QPoint qlocal, qglobal;
         QWidget *widgetUnderMouse = 0;
         qt_mac_getTargetForMouseEvent(0, QEvent::Leave, qlocal, qglobal, 0, &widgetUnderMouse);
-        QApplicationPrivate::dispatchEnterLeave(widgetUnderMouse, qt_last_native_mouse_receiver);
-        qt_last_mouse_receiver = widgetUnderMouse;
-        qt_last_native_mouse_receiver = widgetUnderMouse ?
-            (widgetUnderMouse->internalWinId() ? widgetUnderMouse : widgetUnderMouse->nativeParentWidget()) : 0;
+        if (q == widgetUnderMouse) {
+            QApplicationPrivate::dispatchEnterLeave(widgetUnderMouse, qt_last_native_mouse_receiver);
+            qt_last_mouse_receiver = widgetUnderMouse;
+            qt_last_native_mouse_receiver = widgetUnderMouse ?
+                (widgetUnderMouse->internalWinId() ? widgetUnderMouse : widgetUnderMouse->nativeParentWidget()) : 0;
+       }
      }
 #endif
 

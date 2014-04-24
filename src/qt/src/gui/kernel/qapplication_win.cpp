@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -260,6 +260,9 @@ static PtrWTGet ptrWTGet = 0;
 static PACKET localPacketBuf[QT_TABLET_NPACKETQSIZE];  // our own tablet packet queue.
 HCTX qt_tablet_context;  // the hardware context for the tablet (like a window handle)
 bool qt_tablet_tilt_support;
+
+// flags for extensions for special Languages, currently only for RTL languages
+bool qt_use_rtl_extensions = false;
 
 #ifndef QT_NO_TABLETEVENT
 static void tabletInit(const quint64 uniqueId, const UINT csr_type, HCTX hTab);
@@ -845,7 +848,10 @@ void qt_init(QApplicationPrivate *priv, int)
 #ifndef QT_NO_TABLETEVENT
     initWinTabFunctions();
 #endif // QT_NO_TABLETEVENT
+
+#ifndef QT_NO_IM
     QApplicationPrivate::inputContext = new QWinInputContext(0);
+#endif
 
     // Read the initial cleartype settings...
     qt_win_read_cleartype_settings();
@@ -917,8 +923,10 @@ void qt_cleanup()
         displayDC = 0;
     }
 
+#ifndef QT_NO_IM
     delete QApplicationPrivate::inputContext;
     QApplicationPrivate::inputContext = 0;
+#endif
 
 #ifndef Q_WS_WINCE
   // Deinitialize OLE/COM
@@ -1476,8 +1484,11 @@ extern "C" LRESULT QT_WIN_CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wPa
 
     long res = 0;
     if (!qApp)                                // unstable app state
+#ifndef QT_NO_IM
         RETURN(QWinInputContext::DefWindowProc(hwnd,message,wParam,lParam))
-
+#else
+        return res;
+#endif // QT_NO_IM
     QScopedLoopLevelCounter loopLevelCounter(QThreadData::get2(qApp->thread()));
 
 #if 0
@@ -2308,6 +2319,7 @@ extern "C" LRESULT QT_WIN_CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wPa
 #endif
 #endif
 
+#ifndef QT_NO_IM
         case WM_IME_STARTCOMPOSITION:
         case WM_IME_ENDCOMPOSITION:
         case WM_IME_COMPOSITION: {
@@ -2343,6 +2355,7 @@ extern "C" LRESULT QT_WIN_CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wPa
             }
             break;
         }
+#endif // QT_NO_IM
 #ifndef Q_WS_WINCE
         case WM_CHANGECBCHAIN:
         case WM_DRAWCLIPBOARD:
@@ -2677,7 +2690,11 @@ extern "C" LRESULT QT_WIN_CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wPa
         RETURN(false);
 
 do_default:
+#ifndef QT_NO_IM
     RETURN(QWinInputContext::DefWindowProc(hwnd,message,wParam,lParam))
+#else
+    RETURN(TRUE);
+#endif
 }
 
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -1559,9 +1559,14 @@ CGFloat qt_mac_get_scalefactor()
 {
 #ifndef QT_MAC_USE_COCOA
     return HIGetScaleFactor();
-#else
-    return [[NSScreen mainScreen] userSpaceScaleFactor];
 #endif
+
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7)
+    NSScreen *mainScreen = [NSScreen mainScreen];
+    if ([mainScreen respondsToSelector:@selector(backingScaleFactor)])
+        return [mainScreen backingScaleFactor];
+#endif
+    return 1.0;
 }
 
 QString qt_mac_get_pasteboardString(OSPasteboardRef paste)

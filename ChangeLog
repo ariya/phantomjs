@@ -17,6 +17,11 @@ Some future version:
 
       * Netsniff example should exit when fails to load (issue 11333)
 
+2013-09-06: Version 1.9.2
+
+      * Fixed graphical artifacts with transparent background on Windows (issue 11276, 11007, 11366)
+      * Updated GhostDriver to version 1.0.4 (issue 11452)
+
 2013-06-04: Version 1.9.1
 
     Critical bug fixes:

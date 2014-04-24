@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -55,6 +55,7 @@ public:
         Enter,
         Leave,
         ActivatedWindow,
+        WindowStateChanged,
         Mouse,
         Wheel,
         Key,
@@ -112,6 +113,16 @@ public:
             : WindowSystemEvent(ActivatedWindow), activated(activatedWindow)
         { }
         QWeakPointer<QWidget> activated;
+    };
+
+    class WindowStateChangedEvent : public WindowSystemEvent {
+    public:
+        WindowStateChangedEvent(QWidget *_tlw, Qt::WindowState _newState)
+            : WindowSystemEvent(WindowStateChanged), tlw(_tlw), newState(_newState)
+        { }
+
+        QWeakPointer<QWidget> tlw;
+        Qt::WindowState newState;
     };
 
     class UserEvent : public WindowSystemEvent {

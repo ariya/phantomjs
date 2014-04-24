@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtOpenVG module of the Qt Toolkit.
@@ -86,6 +86,8 @@ public:
     // input methods
     virtual void pointerEvent(const QMouseEvent & event) { Q_UNUSED(event); }
     virtual void changeCursor(QCursor * widgetCursor, QWidget * widget) = 0;
+    virtual QPoint pos() const;
+    virtual void setPos(const QPoint &pos);
 
 protected:
     QPlatformScreen* screen;  // Where to request an update

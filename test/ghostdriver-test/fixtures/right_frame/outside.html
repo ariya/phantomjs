@@ -1,0 +1,414 @@
+<!--?xml version="1.0" encoding="UTF-8" ?--><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                        <title>Editing testDotAtEndDoesNotDelete</title>
+                <link rel="shortcut icon" href="/xwiki/resources/icons/xwiki/favicon.ico">
+        <link rel="icon" href="/xwiki/resources/icons/xwiki/favicon16.png" type="image/png">
+        <link rel="icon" href="/xwiki/resources/icons/xwiki/favicon.svg" type="image/svg+xml">
+        <link rel="apple-touch-icon" href="/xwiki/resources/icons/xwiki/favicon144.png">
+                <meta http-equiv="Content-Script-Type" content="text/javascript">
+                        <meta http-equiv="imagetoolbar" content="no">
+                                <link rel="canonical" href="/xwiki/bin/view/EditWYSIWYGTest/testDotAtEndDoesNotDelete">
+                            <meta name="document" content="EditWYSIWYGTest.testDotAtEndDoesNotDelete">
+    <meta name="wiki" content="xwiki">
+    <meta name="space" content="EditWYSIWYGTest">
+    <meta name="page" content="testDotAtEndDoesNotDelete">
+    <meta name="version" content="1.1">
+    <meta name="restURL" content="/xwiki/rest/wikis/xwiki/spaces/EditWYSIWYGTest/pages/testDotAtEndDoesNotDelete">
+    <meta name="form_token" content="HEvN4F3WxoINdUyR6bxjCg">
+                <meta name="gwt:property" content="locale=en">
+                <meta name="revisit-after" content="7 days">
+<meta name="description" content="testDotAtEndDoesNotDelete">
+<meta name="keywords" content="wiki">
+<meta name="distribution" content="GLOBAL">
+<meta name="rating" content="General">
+<meta name="author" content="Unknown User">
+<meta http-equiv="reply-to" content="">
+<meta name="language" content="en">
+<link rel="alternate" type="application/rss+xml" title="Wiki Feed RSS" href="/xwiki/bin/view/Main/WebRss?xpage=rdf">
+<link rel="alternate" type="application/rss+xml" title="Blog RSS Feed" href="/xwiki/bin/view/Blog/GlobalBlogRss?xpage=plain">
+
+
+
+<link href="/xwiki/bin/skin/skins/colibri/style.css?colorTheme=ColorThemes.DefaultColorTheme" rel="stylesheet" type="text/css" media="all">
+<link href="/xwiki/bin/skin/skins/colibri/print.css?colorTheme=ColorThemes.DefaultColorTheme" rel="stylesheet" type="text/css" media="print">
+        <!--[if IE]>
+  <link href="/xwiki/bin/skin/skins/colibri/ie%2Dall.css?colorTheme=ColorThemes.DefaultColorTheme" rel="stylesheet" type="text/css" />
+<![endif]-->
+
+<link rel="stylesheet" type="text/css" href="/xwiki/bin/ssx/AnnotationCode/Style?language=en"><link rel="stylesheet" type="text/css" href="/xwiki/bin/ssx/AnnotationCode/Settings?language=en"><link rel="stylesheet" type="text/css" href="/xwiki/bin/ssx/Panels/DocumentInformation?language=en">
+<link rel="stylesheet" type="text/css" href="/xwiki/bin/skin/resources/css/xwiki%2Dmin.css?colorTheme=ColorThemes.DefaultColorTheme&amp;language=en"><link rel="stylesheet" type="text/css" href="/xwiki/bin/skin/resources/uicomponents/search/searchSuggest.css"><link rel="stylesheet" type="text/css" href="/xwiki/bin/skin/resources/uicomponents/widgets/validation/livevalidation.css"><link rel="stylesheet" type="text/css" href="/xwiki/bin/skin/resources/uicomponents/widgets/fullScreen.css"><link rel="stylesheet" type="text/css" href="/xwiki/bin/skin/resources/js/xwiki/actionbuttons/actionButtons.css">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" src="/xwiki/resources/js/amd/require.js"></script>
+<script type="text/javascript" src="/xwiki/resources/js/prototype/prototype.js"></script>
+<script type="text/javascript" src="/xwiki/bin/skin/resources/js/scriptaculous/effects.js" defer="defer"></script>
+<script type="text/javascript" src="/xwiki/bin/skin/resources/js/xwiki/xwiki%2Dmin.js?defer=false&amp;language=en"></script>
+<script type="text/javascript" src="/xwiki/bin/skin/resources/uicomponents/search/searchSuggest.js?h=1502503120" defer="defer"></script>
+<script type="text/javascript" src="/xwiki/resources/uicomponents/lock/lock.js" defer="defer"></script>
+<script type="text/javascript" src="/xwiki/resources/uicomponents/widgets/validation/livevalidation_prototype.js" defer="defer"></script>
+<script type="text/javascript" src="/xwiki/bin/skin/resources/uicomponents/widgets/fullScreen.js?language=en" defer="defer"></script>
+<script type="text/javascript" src="/xwiki/bin/skin/resources/js/smartclient/initsc.js?defer=false"></script>
+<script type="text/javascript" src="/xwiki/resources/js/smartclient/modules/ISC_Core.js"></script>
+<script type="text/javascript" src="/xwiki/resources/js/smartclient/overwritesc.js"></script>
+<script type="text/javascript" src="/xwiki/resources/js/smartclient/modules/ISC_Foundation.js"></script>
+<script type="text/javascript" src="/xwiki/resources/js/smartclient/modules/ISC_Containers.js"></script>
+<script type="text/javascript" src="/xwiki/resources/js/smartclient/modules/ISC_Grids.js"></script>
+<script type="text/javascript" src="/xwiki/resources/js/smartclient/modules/ISC_Forms.js"></script>
+<script type="text/javascript" src="/xwiki/resources/js/smartclient/modules/ISC_DataBinding.js"></script>
+<script type="text/javascript" src="/xwiki/resources/js/smartclient/skins/Enterprise/load_skin.js"></script><link rel="stylesheet" type="text/css" href="http://localhost:8080/xwiki/resources/js/smartclient/skins/Enterprise/skin_styles.css">
+<script type="text/javascript" src="/xwiki/bin/skin/resources/js/xwiki/xwikiexplorer/xwikiexplorer.js" defer="defer"></script>
+<script type="text/javascript" src="/xwiki/bin/skin/resources/js/xwiki/wysiwyg/xwe/XWikiWysiwyg.js?lazy=false" defer="defer"></script>
+<script type="text/javascript" src="/xwiki/bin/skin/resources/js/xwiki/actionbuttons/actionButtons.js" defer="defer"></script>
+
+<script type="text/javascript" src="/xwiki/bin/jsx/AnnotationCode/Script?language=en" defer="defer"></script>
+<script type="text/javascript" src="/xwiki/bin/jsx/AnnotationCode/Settings?language=en" defer="defer"></script>
+<script type="text/javascript" src="/xwiki/bin/jsx/Panels/DocumentInformation?language=en" defer="defer"></script>
+
+<script type="text/javascript" src="/xwiki/resources/js/xwiki/compatibility.js" defer="defer"></script>
+<script type="text/javascript" src="/xwiki/resources/js/xwiki/markerScript.js" defer="defer"></script>
+<script type="text/javascript">
+// <![CDATA[
+require.config({paths:{jquery: "/xwiki/bin/skin/skins/colibri/resources/js/amd/jquery%2D1.9.1"}, baseUrl: '/'});
+XWiki.webapppath = "xwiki/";
+XWiki.servletpath = "bin/";
+XWiki.contextPath = "/xwiki";
+XWiki.mainWiki = "xwiki";
+XWiki.currentWiki = "xwiki";
+XWiki.currentSpace = "EditWYSIWYGTest";
+XWiki.currentPage = "testDotAtEndDoesNotDelete";
+XWiki.editor = "wysiwyg";
+XWiki.viewer = "";
+XWiki.contextaction = "edit";
+XWiki.docisnew = true;
+XWiki.docsyntax = "xwiki/2.1";
+XWiki.docvariant = "";
+XWiki.blacklistedSpaces = [  ];
+XWiki.hasEdit = true;
+XWiki.hasProgramming = true;
+XWiki.hasBackupPackImportRights = true;
+XWiki.hasRenderer = true;
+window.docviewurl = "/xwiki/bin/view/EditWYSIWYGTest/testDotAtEndDoesNotDelete";
+window.docediturl = "/xwiki/bin/edit/EditWYSIWYGTest/testDotAtEndDoesNotDelete";
+window.docsaveurl = "/xwiki/bin/save/EditWYSIWYGTest/testDotAtEndDoesNotDelete";
+window.docgeturl = "/xwiki/bin/get/EditWYSIWYGTest/testDotAtEndDoesNotDelete";
+// ]]>
+</script>
+
+  <script type="text/javascript" src="/xwiki/resources/js/xwiki/wysiwyg/xwe/xwe.nocache.js"></script><script defer="defer">xwe.onInjectionDone('xwe')</script><link rel="stylesheet" href="http://localhost:8080/xwiki/resources/js/xwiki/wysiwyg/xwe/stylesheets/Wysiwyg.css"></head>
+  <body id="body" class="wiki-xwiki space-EditWYSIWYGTest editbody hideleft">
+<div id="xwikimaincontainer">
+<div id="xwikimaincontainerinner">
+
+  <div id="mainmenu" class="layoutsubsection actionmenu">
+<div class="gradientfilterIE"></div>
+<div class="componentcontainer">
+<strong id="xwikimenutitle" class="hidden">General Actions:</strong>
+<div class="rightmenu">
+      <div id="tmLogout" class="tmLogout topmenuentry ">
+   <a class="tme" href="/xwiki/bin/logout/XWiki/XWikiLogout?xredirect=%2Fxwiki%2Fbin%2Fedit%2FEditWYSIWYGTest%2FtestDotAtEndDoesNotDelete%3Fform_token%3DHEvN4F3WxoINdUyR6bxjCg%26editor%3Dwysiwyg"><strong>Log-out</strong></a>
+  </div>
+    <div id="tmUser" class="tmUser topmenuentry dropdownmenuentry  hasIcon" onmouseover="showsubmenu(this);" onmouseout="hidesubmenu(this);">
+<span class="tme-extensible">
+      <span class="tmetype">Profile: </span><a class="tme hastype" href="/xwiki/bin/view/XWiki/Admin"><strong>Administrator</strong></a>
+    <span class="menuarrow">▼</span><span class="hidden menucolon">: </span>
+</span><span class="submenu hidden">
+  <span class="submenuitem "><a href="/xwiki/bin/view/XWiki/Admin" id="tmProfile" class="tmProfile">Profile</a></span>
+  <span class="submenuitem "><a href="/xwiki/bin/view/XWiki/Admin?category=preferences" id="tmUserPreferences" class="tmUserPreferences">Preferences</a></span>
+      <span class="submenuitem "><a href="/xwiki/bin/view/XWiki/Admin?category=watchlist" id="tmWatchlistManager" class="tmWatchlistManager">Watchlist</a></span>
+    <span class="submenuitem "><a href="/xwiki/bin/view/XWiki/Admin?category=network" id="tmUserNetwork" class="tmUserNetwork">Network</a></span>
+      <span class="submenuitem "><a href="/xwiki/bin/view/XWiki/Admin?category=dashboard" id="tmUserDashboard" class="tmUserDashboard">My dashboard</a></span>
+  </span></div>
+</div>
+<div class="leftmenu">
+  <div id="tmCreate" class="tmCreate topmenuentry dropdownmenuentry dropdownnolink hasIcon" onmouseover="showsubmenu(this);" onmouseout="hidesubmenu(this);">
+<span class="tme-extensible">
+   <a class="tme"><strong>Add</strong></a>
+    <span class="menuarrow">▼</span><span class="hidden menucolon">: </span>
+</span><span class="submenu hidden">
+            <span class="submenuitem "><a href="/xwiki/bin/create/EditWYSIWYGTest/testDotAtEndDoesNotDelete?tocreate=space" id="tmCreateSpace" class="tmCreateSpace">Space</a></span>
+              <span class="submenuseparator">&nbsp;</span>
+        <span class="submenuitem "><a href="/xwiki/bin/create/EditWYSIWYGTest/testDotAtEndDoesNotDelete" id="tmCreatePage" class="tmCreatePage">Page</a></span>
+              <span class="submenuitem "><a href="/xwiki/bin/view/XWiki/OfficeImporter?&amp;parent=EditWYSIWYGTest.testDotAtEndDoesNotDelete" id="tmCreatePageFromOffice" class="tmCreatePageFromOffice">Page from Office</a></span>
+              </span></div>
+  <div id="tmWiki" class="tmWiki topmenuentry dropdownmenuentry  hasIcon" onmouseover="showsubmenu(this);" onmouseout="hidesubmenu(this);">
+<span class="tme-extensible">
+      <span class="tmetype">Wiki: </span><a class="tme hastype" href="/xwiki/bin/view/Main/WebHome"><strong>xwiki</strong></a>
+    <span class="menuarrow">▼</span><span class="hidden menucolon">: </span>
+</span><span class="submenu hidden">
+          <span class="submenuitem "><a href="/xwiki/bin/view/EditWYSIWYGTest/testDotAtEndDoesNotDelete?xpage=watch&amp;do=addwiki&amp;xredirect=%2Fxwiki%2Fbin%2Fview%2FEditWYSIWYGTest%2FtestDotAtEndDoesNotDelete" id="tmWatchWiki" class="tmWatchWiki">Watch Wiki</a></span>
+    <span class="submenuitem hidden"><a href="/xwiki/bin/view/EditWYSIWYGTest/testDotAtEndDoesNotDelete?xpage=watch&amp;do=removewiki&amp;xredirect=%2Fxwiki%2Fbin%2Fview%2FEditWYSIWYGTest%2FtestDotAtEndDoesNotDelete" id="tmUnwatchWiki" class="tmUnwatchWiki">Unwatch Wiki</a></span>
+              <span class="submenuitem "><a href="/xwiki/bin/admin/XWiki/XWikiPreferences" id="tmAdminWiki" class="tmAdminWiki">Administer Wiki</a></span>
+            <span class="submenuseparator">&nbsp;</span>
+          <span class="submenuitem "><a href="/xwiki/bin/view/Main/AllDocs" id="tmWikiDocumentIndex" class="tmWikiDocumentIndex">Document Index</a></span>
+      </span></div>
+<div class="topmenuentry"><span class="separator">»</span></div>
+  <div id="tmSpace" class="tmSpace topmenuentry dropdownmenuentry  hasIcon" onmouseover="showsubmenu(this);" onmouseout="hidesubmenu(this);">
+<span class="tme-extensible">
+      <span class="tmetype">Space: </span><a class="tme hastype" href="/xwiki/bin/view/EditWYSIWYGTest/WebHome"><strong>EditWYSIWYGTest</strong></a>
+    <span class="menuarrow">▼</span><span class="hidden menucolon">: </span>
+</span><span class="submenu hidden">
+          <span class="submenuitem "><a href="/xwiki/bin/view/EditWYSIWYGTest/testDotAtEndDoesNotDelete?xpage=watch&amp;do=addspace&amp;xredirect=%2Fxwiki%2Fbin%2Fview%2FEditWYSIWYGTest%2FtestDotAtEndDoesNotDelete" id="tmWatchSpace" class="tmWatchSpace">Watch Space</a></span>
+    <span class="submenuitem hidden"><a href="/xwiki/bin/view/EditWYSIWYGTest/testDotAtEndDoesNotDelete?xpage=watch&amp;do=removespace&amp;xredirect=%2Fxwiki%2Fbin%2Fview%2FEditWYSIWYGTest%2FtestDotAtEndDoesNotDelete" id="tmUnwatchSpace" class="tmUnwatchSpace">Unwatch Space</a></span>
+        <span class="submenuitem "><a href="/xwiki/bin/admin/EditWYSIWYGTest/WebPreferences" id="tmAdminSpace" class="tmAdminSpace">Administer Space</a></span>
+              <span class="submenuseparator">&nbsp;</span>
+        <span class="submenuitem "><a href="/xwiki/bin/view/Main/SpaceIndex?space=EditWYSIWYGTest" id="tmSpaceDocumentIndex" class="tmSpaceDocumentIndex">Document Index</a></span>
+              <span class="submenuseparator">&nbsp;</span>
+        <span class="submenuitem "><a href="/xwiki/bin/deletespace/EditWYSIWYGTest/WebHome" id="tmSpaceDelete" class="tmSpaceDelete">Delete</a></span>
+    </span></div>
+<div class="topmenuentry"><span class="separator">»</span></div>
+  <div id="tmPage" class="tmPage topmenuentry hasIcon">
+      <span class="tmetype">Page: </span><a class="tme hastype" href="/xwiki/bin/view/EditWYSIWYGTest/testDotAtEndDoesNotDelete"><strong>testDotAtEndDoesNotDelete</strong></a>
+  </div>
+</div>
+</div>
+</div>
+
+   <div id="headerglobal" class="layoutsection">
+<div class="minwidthd"></div>
+  <div id="company">
+  <div id="companylogo">
+    <a href="/xwiki/bin/view/Main/WebHome" title="Home" rel="home">
+    <img src="/xwiki/bin/download/ColorThemes/DefaultColorTheme/logo.png" alt="Wiki Logo">
+    </a>
+  </div>   </div>   <div id="globallinks">
+        <form action="/xwiki/bin/view/Main/Search">
+      <div class="globalsearch">
+        <label class="hidden" for="headerglobalsearchinput">Search</label><input class="globalsearchinput withTip" id="headerglobalsearchinput" type="text" name="text" value="search..." size="15" autocomplete="off" placeholder="search..."><input class="button" type="image" value="Go" alt="Go" src="/xwiki/resources/icons/xwiki/search.png">
+      </div>
+    </form>
+      </div>   <div class="clearfloats"></div>
+</div>
+
+      <form id="edit" method="post" action="/xwiki/bin/preview/EditWYSIWYGTest/testDotAtEndDoesNotDelete" class="withLock">
+    <div class="hidden">
+        <input type="hidden" name="form_token" value="HEvN4F3WxoINdUyR6bxjCg">
+                    <input type="hidden" name="x-maximized" value="">
+    </div>
+          <div id="xwikieditor" class="layoutsection">
+  <div id="xwikieditorinner">
+  <div class="leftsidecolumns">
+  <div id="editcolumn" class="editor editor-wysiwyg">
+  <div class="alleditcontent">
+  <div id="editmenu" class="actionmenu floating-menu" style="position: fixed; top: 0px; left: 20px; width: 725px; ">
+  <div class="gradientfilterIE"></div>
+<div class="componentcontainer">
+<strong id="xwikicontentmenutitle" class="hidden">Page Actions:</strong>
+<div id="contenteditmenu" class="leftmenu">
+                <div id="tmCurrentEditor" class="tmCurrentEditor topmenuentry dropdownmenuentry dropdownnolink tmEditWysiwyg hasIcon" onmouseover="showsubmenu(this);" onmouseout="hidesubmenu(this);">
+<span class="tme-extensible">
+      <span class="tmetype">Edit: </span><a class="tme hastype" href=""><strong> WYSIWYG</strong></a>
+    <span class="menuarrow">▼</span><span class="hidden menucolon">: </span>
+</span><span class="submenu hidden">
+    <span class="submenuitem "><a href="/xwiki/bin/edit/EditWYSIWYGTest/testDotAtEndDoesNotDelete?&amp;editor=wiki" id="tmEditWiki" class="tmEditWiki">Wiki</a></span>
+          <span class="submenuitem "><a href="/xwiki/bin/edit/EditWYSIWYGTest/testDotAtEndDoesNotDelete?&amp;editor=wysiwyg" id="tmEditWysiwyg" class="tmEditWysiwyg">WYSIWYG</a></span>
+        <span class="submenuitem "><a href="/xwiki/bin/edit/EditWYSIWYGTest/testDotAtEndDoesNotDelete?&amp;editor=inline" id="tmEditInline" class="tmEditInline">Inline form</a></span>
+    <span class="submenuseparator">&nbsp;</span>
+    <span class="submenuitem "><a href="/xwiki/bin/edit/EditWYSIWYGTest/testDotAtEndDoesNotDelete?editor=rights" id="tmEditRights" class="tmEditRights">Access Rights</a></span>
+    <span class="submenuitem "><a href="/xwiki/bin/edit/EditWYSIWYGTest/testDotAtEndDoesNotDelete?editor=object" id="tmEditObject" class="tmEditObject">Objects</a></span>
+    <span class="submenuitem "><a href="/xwiki/bin/edit/EditWYSIWYGTest/testDotAtEndDoesNotDelete?editor=class" id="tmEditClass" class="tmEditClass">Class</a></span>
+    </span></div>
+        <script type="text/javascript">
+    //<![CDATA[
+      shortcut.add("k",function() { location.href=$('tmEditWiki').href; }, { 'type':'keypress', 'propagate':false, 'disable_in_input':true });
+      shortcut.add("g",function() { location.href=$('tmEditWysiwyg').href; }, { 'type':'keypress', 'propagate':false, 'disable_in_input':true });
+      shortcut.add("f",function() { location.href=$('tmEditInline').href; }, { 'type':'keypress', 'propagate':false, 'disable_in_input':true });
+      shortcut.add("r",function() { location.href=$('tmEditRights').href; }, { 'type':'keypress', 'propagate':false, 'disable_in_input':true });
+      shortcut.add("o",function() { location.href=$('tmEditObject').href; }, { 'type':'keypress', 'propagate':false, 'disable_in_input':true });
+              shortcut.add("s",function() { location.href=$('tmEditClass').href; }, { 'type':'keypress', 'propagate':false, 'disable_in_input':true });
+          //]]>
+    </script>
+  </div>
+</div>
+  </div><div style="left: 20px; top: 99px; height: 23px; "></div>
+  <div id="mainEditArea">
+
+   <div id="hierarchy">
+                  <a href="/xwiki/bin/view/EditWYSIWYGTest/testDotAtEndDoesNotDelete">testDotAtEndDoesNotDelete</a>
+          </div>
+
+        <div class="edit-meta-tools"><a id="editParentTrigger" class="tool edit-parent" href="#mainEditArea" title="Edit parent">[(edit)]</a></div>
+  <div id="parentinput" class="">
+    <label for="xwikidocparentinput">Parent <a id="hideEditParentTrigger" href="#" style="display: none; ">(hide)</a>
+    <input type="text" id="xwikidocparentinput" name="parent" value="" size="30" class="suggestDocuments initialized" autocomplete="off"></label>
+  </div>
+    <div id="titleinput">
+    <label for="xwikidoctitleinput">Title
+    <input type="text" id="xwikidoctitleinput" name="title" value=""></label>
+  </div>
+
+
+
+
+<div>
+<div class="hidden">
+<input type="hidden" name="form_token" value="HEvN4F3WxoINdUyR6bxjCg">
+<input type="hidden" name="template" value="">
+<input type="hidden" name="xcontinue" value="/xwiki/bin/edit/EditWYSIWYGTest/testDotAtEndDoesNotDelete?editor=wysiwyg">
+<input type="hidden" name="xredirect" value="">
+<input type="hidden" name="language" value="en">
+</div>
+<div id="xwikitext">
+<div id="xwikieditcontent">
+<div id="content_container208"><table cellspacing="0" cellpadding="0" class="xRichTextEditorTabPanel"><tbody><tr><td align="left" style="vertical-align: top; "><table cellspacing="0" cellpadding="0" class="gwt-TabBar" role="tablist" style="width: 100%; "><tbody><tr><td align="left" style="vertical-align: bottom; " height="100%" class="gwt-TabBarFirst-wrapper"><div class="gwt-TabBarFirst" style="white-space: normal; height: 100%; ">&nbsp;</div></td><td align="left" style="vertical-align: bottom; " class="gwt-TabBarItem-wrapper gwt-TabBarItem-wrapper-selected"><div tabindex="0" class="gwt-TabBarItem gwt-TabBarItem-selected" role="tab"><input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow-x: hidden; overflow-y: hidden; position: absolute; "><div class="gwt-Label" style="white-space: nowrap; ">WYSIWYG</div></div></td><td align="left" style="vertical-align: bottom; " class="gwt-TabBarItem-wrapper"><div tabindex="0" class="gwt-TabBarItem" role="tab"><input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow-x: hidden; overflow-y: hidden; position: absolute; "><div class="gwt-Label" style="white-space: nowrap; ">Source</div></div></td><td align="left" style="vertical-align: bottom; " width="100%" class="gwt-TabBarRest-wrapper"><div class="gwt-TabBarRest" style="white-space: normal; height: 100%; ">&nbsp;</div></td></tr></tbody></table></td></tr><tr><td align="left" style="vertical-align: top; " height="100%"><div class="gwt-TabPanelBottom" role="tabpanel"><div style="width: 100%; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; height: 100%; " aria-hidden="false"><div class="xRichTextEditor" style="width: 100%; height: 100%; " aria-hidden="false"><div tabindex="0" role="menubar" class="gwt-MenuBar gwt-MenuBar-horizontal" style="outline-width: 0px; outline-style: initial; outline-color: initial; " hidefocus="true"><img class="fullScreenEditButton" title="Maximize" alt="Maximize" src="/xwiki/resources/icons/silk/arrow_out.png"><input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow-x: hidden; overflow-y: hidden; position: absolute; "><table><tbody><tr><td class="gwt-MenuItem" id="gwt-uid-7" role="menuitem" aria-haspopup="true"><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://localhost:8080/xwiki/resources/js/xwiki/wysiwyg/xwe/clear.cache.gif" style="width:20px;height:20px;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAABPklEQVR42u1RPUsDQRTMT/BnCP4CuxSijYVfXSq1kRhREQS/wEIrjcphQAych54xwSMshotnQvQI0SRw6oZIuM4tLa+0G2+fIAiXYO8NTLE7b2fe2xeJhPhnaHfeUahwpHOPSJ4XoRolPDReIbXnlov83Qtp+5qJ06wJy66jp1nutg0uPEh4nwBrCGwpGehGpat2Y5aDTWW6+PAofXA0gcnpTaRZDZrFoTEOZgvohRaGxuOYmF3B8VWJ7pc3DoMNU3qV0geiM3AcB/ny23c3PmVjXAC262Fh7YB0GSzPMjzQUDefwF1BhfO7KnXQ1z/mM/rD4dgiacqlBVl/pNmIxXeCDZu8Q4tg/ojcT7b9P9o+YTS6cnZNQUGaemF0X0ytzrGXylLhyNQSEusKMvkiPbivNn9pc6vJ3mYhQvwdX3RdJYf0NUc9AAAAAElFTkSuQmCC) no-repeat 0px 0px;" border="0" class="gwt-MenuItemIcon"><div class="gwt-MenuItemLabel">Link</div></td><td class="gwt-MenuItem" id="gwt-uid-12" role="menuitem" aria-haspopup="true"><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://localhost:8080/xwiki/resources/js/xwiki/wysiwyg/xwe/clear.cache.gif" style="width:20px;height:20px;background:url(data:image/gif;base64,R0lGODlhFAAUALMKAJw4KuDg4DMzM5mZmSVjAJzOFZzO9ACZAGaZAP///////wAAAAAAAAAAAAAAAAAAACH5BAEAAAoALAAAAAAUABQAAARvUMlJq734ps27r4khjuSYgCViIAN5UqGoFgViB+I7xQjtE6ocauUrEA4uVNBnOwphhoCtYDggrAhCQCfZ2G6HACBg3YC8CYAVYOucOwCBxwwr0gQAO1eR+NrYbH57CQdHhoWIR4NzjHsZj5CRkhIRADs=) no-repeat 0px 0px;" border="0" class="gwt-MenuItemIcon"><div class="gwt-MenuItemLabel">Image</div></td><td class="gwt-MenuItem" id="gwt-uid-21" role="menuitem" aria-haspopup="true"><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://localhost:8080/xwiki/resources/js/xwiki/wysiwyg/xwe/clear.cache.gif" style="width:20px;height:20px;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAABXElEQVR42t2UoU7EQBCG7xHuUU4ikchKZB9hJbLy5ErkOirHUQwZQsitHBCkcuXJlbhhZtor5a6UO1AwyZ802e3Xb2Y3XSz+bbUPdwyutLTxnn8Fe31+MlDyjumqg/7c7GXDCBVDQ0xrZzB/tjoE+jrzOJUm9JHn0GTGSAJznJPnFB1X68pgeBOmgQF5iG+66DNEZqLEUJcGI5Q2rwteLpe8ebydbnfSbmQGoTiAAeDXswsyk3GpkVbepkkYReTKhxkgTANDCIyNzIzcAEspMcp6UVZzQGRqu427pJQNqAW+NyOyNT3l88LNAGv8ZIi9oXOOi8tCXzSznJnTVsxFYHUxc//8PjCORvDGZr+D6bdUYB4YwOZmdw3lVPcjLYYGzUxh/hjguBSSxcyscteimlEr16jNJwIFpEY7mM2sxgEGJEDZ/y0QYxrasxYBP9K3aZG9RwF1w6n5ez/ed6+eZIDbt9B/AAAAAElFTkSuQmCC) no-repeat 0px 0px;" border="0" class="gwt-MenuItemIcon"><div class="gwt-MenuItemLabel">Table</div></td><td class="gwt-MenuItem" id="gwt-uid-27" role="menuitem" aria-haspopup="true"><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://localhost:8080/xwiki/resources/js/xwiki/wysiwyg/xwe/clear.cache.gif" style="width:20px;height:20px;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAACJUlEQVR42tWUS0tyURiF+4f9B0cqkYo6EYQQBMGBDpwZgoNMxIG3CEVFs7xkKnlD8QKaeUEkaOCFxPWxXgg+iCSadeBwOHuf/ez1rvXuc3Ly56/lcolWq4VGo4HpdIpfQbbbLfb7PXg9PT3h9fUVk8kE0WgUh8MBHx8feH9//xn85eUF1WoVtVoNu90OxWIRw+EQg8EA8Xgcm80GsVgMfr8fhULhOHQ+n6Pf72O1WqHX6+Hh4QHpdBrtdhvNZhOhUEjucrmM2WyG29vb41CWdn9/L1ACut2ugD+BfK/X6wKkcpPJJKqPqhyNRrKY3pVKJSQSCVxeXsLr9eLu7g75fB7ZbFbU8fktiCk+Pj6Kwk6ng0qlgmQyCY/HIyrpIX3L5XIC5rzL5ZLb7XZ/BRO0WCykPCpjMFdXVxLI5zdMOhgMyqZUTrXc6Ozs7Cswk8lgPB6LR/yQCsLhsIz93wFUSYUsmWv4vUKh+Aq8ubkR6T6fT1qGUPrIFqEyggmjb7SCYZyfn0OtVsNoNH7vJQNhu3Ahn2yLQCCA6+trGWMbcXOOsYKjCdM/KuRRI4zt8fz8LJ4STMUcT6VSMqfRaKSCo0mzHAZBsM1mg9VqlRDoG0s0GAwyR+8uLi4kpKMqI5EItFot9Hq9nFeHwyFqqFCn0+Ht7Q1KpRKnp6dwOp0/O888gjyz/BHY7XYpkRupVCoZW6/XYOK/+vMwbYvFArPZLHb8/R/yP4jjcF7l/urnAAAAAElFTkSuQmCC) no-repeat 0px 0px;" border="0" class="gwt-MenuItemIcon"><div class="gwt-MenuItemLabel">Macro</div></td><td class="gwt-MenuItem" id="gwt-uid-29" role="menuitem" aria-haspopup="true"><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://localhost:8080/xwiki/resources/js/xwiki/wysiwyg/xwe/clear.cache.gif" style="width:20px;height:20px;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAABh0lEQVR42tXUS0tCQRgGYH9XuxYtoo15yUCppCTQgqB/oARhBLqpDFJoEZEuXEgrV5qBKAUFbQUFxRve9XhU3ngHDCnzeFl54OUMDPPMN9/AqFRL9WUyGSSTScTj8YlJpVIYDAZQBIlJkoRer4d+vz82nI9EItOh3J1Ys9lEq9X6Sa1WQ6VSQT6fF2gul0M0GlVGCXJBp9NBt9sVf6bRaKBaraJQKIj5drstNo3FYgJVBIkNQ5BAvV5HsVj80wKuUQRHe8gx+zY8eqlUEpVms9npwd8ZRVkp+1kul+cHR1Eenz0lvBDIyLIs+kqUWRhklUfhPRw+m2AOGmB61MwOEhmGFVpCRjx83eH+0wOtd2N+kBiz49fB93EFz7sbRp8WgfDTfLfsfHHA7DfgNGTF9ZsL7oQTJ0ErVu0rOPZaMXMPJVmCzX8AW2Afrvg5nK92bN9qsO5Yg9yXx4OJRELc4qSLsfh2YfLqsXWjhuFSI16nf4+cTqdBVOn50l9sQnemFhjXLNcj/Q13xyBgTu9DmwAAAABJRU5ErkJggg==) no-repeat 0px 0px;" border="0" class="gwt-MenuItemIcon"><div class="gwt-MenuItemLabel">Import</div></td></tr></tbody></table></div><div class="xToolbar"><div tabindex="0" class="gwt-ToggleButton gwt-ToggleButton-up" role="button" title="Bold (Ctrl+B)" aria-pressed="false"><input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow-x: hidden; overflow-y: hidden; position: absolute; "><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://localhost:8080/xwiki/resources/js/xwiki/wysiwyg/xwe/clear.cache.gif" style="width:20px;height:20px;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAJElEQVR42mNgGAVDBvwngCk2FJ/YMDVwNAxJN5Am6XAUDBcAAEbIOsY2U3mTAAAAAElFTkSuQmCC) no-repeat 0px 0px;" border="0" class="gwt-Image"></div><div tabindex="0" class="gwt-ToggleButton gwt-ToggleButton-up" role="button" title="Italic (Ctrl+I)" aria-pressed="false"><input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow-x: hidden; overflow-y: hidden; position: absolute; "><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://localhost:8080/xwiki/resources/js/xwiki/wysiwyg/xwe/clear.cache.gif" style="width:20px;height:20px;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAMElEQVR42mNgGAVDFvzHgqljaEtLC+WGVVdXU9VlcNdBDR513QC57j+t0t4oGA4AAKUVKhOV88RGAAAAAElFTkSuQmCC) no-repeat 0px 0px;" border="0" class="gwt-Image"></div><div tabindex="0" class="gwt-ToggleButton gwt-ToggleButton-up" role="button" title="Underline (Ctrl+U)" aria-pressed="false"><input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow-x: hidden; overflow-y: hidden; position: absolute; "><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://localhost:8080/xwiki/resources/js/xwiki/wysiwyg/xwe/clear.cache.gif" style="width:20px;height:20px;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAM0lEQVR42mNgGAW0Av/RMC4xsgwlJDZq4JA3sLq6GmwAlKbIQGxp7/+gzSmD16WjgDAAAErVNq+bleVlAAAAAElFTkSuQmCC) no-repeat 0px 0px;" border="0" class="gwt-Image"></div><div tabindex="0" class="gwt-ToggleButton gwt-ToggleButton-up" role="button" title="Strikethrough" aria-pressed="false"><input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow-x: hidden; overflow-y: hidden; position: absolute; "><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://localhost:8080/xwiki/resources/js/xwiki/wysiwyg/xwe/clear.cache.gif" style="width:20px;height:20px;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAARElEQVR42mNgGAUjF/xHYyNjBhxyRBuIzQJcYjgN+49Hw39iDGEgwgX/SXEVtrAiFZMUdmR5Gd02YlxCdCyPglGABwAAo9A5x1Rj1uEAAAAASUVORK5CYII=) no-repeat 0px 0px;" border="0" class="gwt-Image"></div><div class="separator"></div><div tabindex="0" class="gwt-ToggleButton gwt-ToggleButton-up" role="button" title="Subscript" aria-pressed="false"><input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow-x: hidden; overflow-y: hidden; position: absolute; "><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://localhost:8080/xwiki/resources/js/xwiki/wysiwyg/xwe/clear.cache.gif" style="width:20px;height:20px;background:url(data:image/gif;base64,R0lGODlhFAAUAIAAAAAAAP///yH5BAEAAAEALAAAAAAUABQAAAInjI+py+0NwInP0HArllLP7IFaJD5UyVyoAqpranlIJ2O1Rd76zjsFADs=) no-repeat 0px 0px;" border="0" class="gwt-Image"></div><div tabindex="0" class="gwt-ToggleButton gwt-ToggleButton-up" role="button" title="Superscript" aria-pressed="false"><input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow-x: hidden; overflow-y: hidden; position: absolute; "><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://localhost:8080/xwiki/resources/js/xwiki/wysiwyg/xwe/clear.cache.gif" style="width:20px;height:20px;background:url(data:image/gif;base64,R0lGODlhFAAUAIAAAAAAAP///yH5BAEAAAEALAAAAAAUABQAAAInjI+py+2/gIQIGEtr1m1eK3mKJ0ITtoXbtwYhSp2wQ85MWbb6zj8FADs=) no-repeat 0px 0px;" border="0" class="gwt-Image"></div><div class="separator"></div><div tabindex="0" class="gwt-ToggleButton gwt-ToggleButton-down" role="button" title="Bullets On/Off" aria-pressed="true"><input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow-x: hidden; overflow-y: hidden; position: absolute; "><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://localhost:8080/xwiki/resources/js/xwiki/wysiwyg/xwe/clear.cache.gif" style="width:20px;height:20px;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAdklEQVR42mNgGAVUBdsP3vhf0HHgP4imioEgwwI6HvxXsGhANvA/AYwbbDtwDWzY5Dm7/o+QSNmy7wo4UkD04IyULXuvgA2bOGvHSImUVZsP/U+oWPAfRFPFQJBhAQUH/isYFFAnUpZv3A82rHviqv8Mo4BYAADeTGAS7UelJAAAAABJRU5ErkJggg==) no-repeat 0px 0px;" border="0" class="gwt-Image"></div><div tabindex="0" class="gwt-ToggleButton gwt-ToggleButton-up" role="button" title="Numbering On/Off" aria-pressed="false"><input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow-x: hidden; overflow-y: hidden; position: absolute; "><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://localhost:8080/xwiki/resources/js/xwiki/wysiwyg/xwe/clear.cache.gif" style="width:20px;height:20px;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAl0lEQVR42mNgGAVUBRdvvvwfUHHhP9UMDGh48D+g4AC6gf+JwNjBhWtP/jskbPi//cB16rjSIePAf4eICf8NAib8H5yRAg5DYKR0LThOPRduOHAHGI4L/lMlUnYef/TfIWPD/y17z1HHhaAk4xCxABgpDYM1UoARAsIgb1PV0KWbTlEnUkCgdcYJ6iVsWKSs3XT0P8OwBQC9321yghWadwAAAABJRU5ErkJggg==) no-repeat 0px 0px;" border="0" class="gwt-Image"></div><div class="separator"></div><div tabindex="0" class="gwt-PushButton gwt-PushButton-up" role="button" title="Decrease Indent" aria-pressed="false"><input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow-x: hidden; overflow-y: hidden; position: absolute; "><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://localhost:8080/xwiki/resources/js/xwiki/wysiwyg/xwe/clear.cache.gif" style="width:20px;height:20px;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAfUlEQVR42mNgGAU4wP9B5xpkjE3sPw51dAJTNj/+X9Z38j8eVxPnwikb3/xP6PjwP6Dhwv9rN+9TZmBAxwOgQUBcceG/Q8KG/w4RE/4bBEwgP2yu3bj/v2v+MaBhC8AGnTp3nRgXEge6pu39H5QziXoGjrx0iM+Fo6UNHQAAksZzzKbypGcAAAAASUVORK5CYII=) no-repeat 0px 0px;" border="0" class="gwt-Image"></div><div tabindex="0" class="gwt-PushButton gwt-PushButton-up-disabled" role="button" title="Increase Indent"><input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow-x: hidden; overflow-y: hidden; position: absolute; "><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://localhost:8080/xwiki/resources/js/xwiki/wysiwyg/xwe/clear.cache.gif" style="width:20px;height:20px;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAh0lEQVR42mNgGAU4wP9B5xpkjE3sPw51NAaRbQ/+h7Y++H/wwtP/BFxNnAtPXHzxP6DhwX+Higf/u5Ze+H/t5n3yvRzQ8eA/GIMMTNjw3yBiwn+DgAmUhc2pi7f+O0QsABvkljTr//pdJwm5ED+Ir9z5P7Z6yf9jZ64QG4aj6ZB0F46WNnQAABtcfCzme5pmAAAAAElFTkSuQmCC) no-repeat 0px 0px;" border="0" class="gwt-Image"></div><div class="separator"></div><div tabindex="0" class="gwt-PushButton gwt-PushButton-up" role="button" title="Undo (Ctrl+Z)" aria-pressed="false"><input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow-x: hidden; overflow-y: hidden; position: absolute; "><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://localhost:8080/xwiki/resources/js/xwiki/wysiwyg/xwe/clear.cache.gif" style="width:20px;height:20px;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAABR0lEQVR42u3UP0vDQBgG8H6k7F0yO2UR6lIyxi1jXUJwEBcxi1B1yVCsDaiB2KZQ2wYxFUnRYv+KiNHFpenlGzzmriUgHRqMbn3hnZL3d89djmQy6/r38l4ClNsElRaB5RF4gxl+jZXbM2hmiFOb4MCcN4NvSTJUOw/jF61OwDDpiICXe+AlE1nJwobio9QgsN0EqBqBl/cz1B6mDBM1P8KcCHOQ321iU6mBF3UI+yEqSUC56EMuhpD1RTLRZH188RgPZ8USS3lSD1aDNJGg0mRzdHvHwE1n/GOQpk0MCqoPTp6jNCld4Gn4tQRu7fnQG9PVIF/wFx/AARdtlctFLWjx4PPojT2jZ3h994nUd7La6oIuSo/kTy55XnFZulJ9kg7sj99xZk8YllN66dM13VeGCYUejGo3PXjlfODQ6GMwGmL9d1uqb3W1A5t3JSTGAAAAAElFTkSuQmCC) no-repeat 0px 0px;" border="0" class="gwt-Image"></div><div tabindex="0" class="gwt-PushButton gwt-PushButton-up-disabled" role="button" title="Redo (Ctrl+Y)"><input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow-x: hidden; overflow-y: hidden; position: absolute; "><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://localhost:8080/xwiki/resources/js/xwiki/wysiwyg/xwe/clear.cache.gif" style="width:20px;height:20px;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAABUUlEQVR42u2UP0vDUBTF+1H8CF2tSzb/TEEcDIIGFys4ZGunqEtxMBAQUXSJUoeoYLFoqyVSA7G1RbEKbkqVUjI0efkGx/cSLXaQVIxbD7zt8rvn3Pvei8UG+jfVnjo4rTnQDReVRxt/guVNAv2KQMm5UE5crNOTyRKU6+3fgwsWQbZEMCE3MZLMg0vmMJ4ykdwkSDHofasL5aSH8AY6BfJrHuLTGqbkc8yuGkgs5BEXcxBVD9Keg+JtC8dWhzYrhwN3LwJ3wzM73eKtozskxCzivIb5DQeSRsHbnt+kb+CkdNBTXLKesZjWfRhzyq8EKUKB+3SrQoZg9JvDL6nFwJkPk5rUsRoOLFTbnzPsjcMWwGbGYjJnDDY0pva3dRaJSzdRvG4gkkutG6++y7nlCiJ7KYLc8KGHpZfooEvKGwSFwKy/Rwe9rNo4u7Ex+N1+1Afvlur7wxZ9AgAAAABJRU5ErkJggg==) no-repeat 0px 0px;" border="0" class="gwt-Image"></div><div class="separator"></div><div><select class="gwt-ListBox" size="1" title="Apply Style"><option value="p">Plain text</option><option value="h1">Title 1</option><option value="h2">Title 2</option><option value="h3">Title 3</option><option value="h4">Title 4</option><option value="h5">Title 5</option><option value="h6">Title 6</option></select></div><div class="separator"></div><div tabindex="0" class="gwt-PushButton gwt-PushButton-up" role="button" title="Insert Horizontal Ruler" aria-pressed="false"><input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow-x: hidden; overflow-y: hidden; position: absolute; "><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://localhost:8080/xwiki/resources/js/xwiki/wysiwyg/xwe/clear.cache.gif" style="width:20px;height:20px;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAGUlEQVR42mNgGAWjYBSQBv5TiEfBKBi+AADZFQ/xs9j13gAAAABJRU5ErkJggg==) no-repeat 0px 0px;" border="0" class="gwt-Image"></div><div tabindex="0" class="gwt-PushButton gwt-PushButton-up" role="button" title="Insert Custom Character" aria-pressed="false"><input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow-x: hidden; overflow-y: hidden; position: absolute; "><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://localhost:8080/xwiki/resources/js/xwiki/wysiwyg/xwe/clear.cache.gif" style="width:20px;height:20px;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAABq0lEQVR42u2Uu0tbYRjG/UcC2eOQTXOyiGjUoZIL7dSUQEBFCTHQpnaoWjAdWrolFixWjSHaiphIEzH1lki8Vcs5mqY94iWDilptdpefh7oYCCcZdPOFb/qe5wfP+3x8FRUPcy8jH5wysnRBYO4vz6MXWMNX2Ccu6Y2c0f/tkHh6n7JhwYUTvGP/cL3K0OvbJPwlw1Q0y7v+Pzzz5TANXFLVd8ibj1uloWnpnMf+PE5nmuT876KGnsEsdd3bVNmW+Ty0rA7t+JTH+DJH4P26qvDphww6c5KWjqg6sCt0jLFNIjgolgX0vIipAxOrZzQ4dzBZE6pCXbeIrmmaULBEZHn/HJsnS2Vtisl48R2OxGS0XSLmJ19JLfwsXcziag6NQ8LauVFUbPFto3MkScxslv90XH4Zg2eHuUW5wDS7sofgFWl9PV8eTBPI8/3HEb92j6i0pGh3JwuMdqUMwS2SWskwFN5Aa46ogzVvlbhuCUPzDMbaEKZH4wUGwSshKHEFyzTammGlmFF1oMm1hqHhBqavHkavmG7f6x1L6Bsj/49gHqXeFubho7r7uQYa4gTfcD0w6gAAAABJRU5ErkJggg==) no-repeat 0px 0px;" border="0" class="gwt-Image"></div><div class="separator"></div><div tabindex="0" class="gwt-PushButton gwt-PushButton-up" role="button" title="Paste" aria-pressed="false"><input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow-x: hidden; overflow-y: hidden; position: absolute; "><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://localhost:8080/xwiki/resources/js/xwiki/wysiwyg/xwe/clear.cache.gif" style="width:20px;height:20px;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAACrUlEQVR42tWU7UtTURzH/VN6HdTbXvQqi14UiWDODKVAyh7EB1ApJHJoZhSK2nJoPgQt0HKapiFaUazSPajb1T1vzunck+7h3jbd3d39dnbWOze0lx74cA4czud+f/ccfnl5x26EPFbIK04cYLDqFP5LFHQx+NxdQQ+/bTgDMTwDztZMSa/fVJ+me/N9NXBoZw6XKxrPwrUoA+tWYn2gAKnQNCKrDZT02tl/GX5NB/y6HgzcO3m4MP11dmMC7i8P4ZBfgL2X8Oo8IR92WT5ssnNYHSzC9q9nNOmRhFHHKFyz9VifqYVjqgr2yftoHbdAqjTh8YcMtcNa1A3pUNk5hbp+Bvu8gJzCsFUB53QN7BN3YBm5SbgB6ZgJIgA/l0KA4GMFbIZ5eFke7XMB3H3JIL6fRFbhrnGQprKP34Z1NCNMJ9yNifjpFPDblcQPewKfmBi4hAiVm0fP9x1Uyw3ZhUGDHFblLViIzPyuHCZFGRVG4iJ0bgG6TQEL6zzmLXtw+GMIcjw4ku5qizq70K/roqnMinIYh6/DOFRKSjYjuifC4BGg3xKgdSehciQwZ4pjXM9hi5Rf+lSbXehdfE5TrQ2XgnldAqZPQi+C3QPWvCJF70lB7eKhciZoUi+bwrVcwm1VO03F9Eug7y2CXlZEhREqBIzeFFa3U1ghSTWb6f/Jw8eJKGnLIXR/a6Wp0rLl7kIsdxXi0YiRlAxY/IAtkJlNRG7wABo36J7kiSa7cGO2maZaIbKljgLoXlyhwlAsmVMYjichacmS8GN7Mcxj9XBMNsGufECeTQOsI/VEaIU3Gs4p9LFhSKRLB4Ubhq9433zpQJep7FzEDifAFyWPOcLDH00iwGYIEkJ/yKW0aI7eiWplDEpISRcbF1DQpCZo/s0ZiqVqlLXpcHwa9F/1Qsh1dZXZXwAAAABJRU5ErkJggg==) no-repeat 0px 0px;" border="0" class="gwt-Image"></div><div class="clearfloats"></div></div><iframe class="gwt-RichTextArea" style="height: 360px; " name="_random_name_id_1370503278568" id="_random_name_id_1370503278568" src="./0.html"></iframe><div><input type="hidden" name="content_syntax" value="xwiki/2.1"><input type="hidden" name="RequiresHTMLConversion" value="content"></div></div></div><div style="width: 100%; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; height: 100%; display: none; " aria-hidden="true"><div style="width: 100%; height: 100%; display: none; " aria-hidden="true"><textarea class="xPlainTextEditor" style="height: 360px; " disabled=""></textarea></div></div></div></td></tr></tbody></table></div><textarea name="content" id="content" rows="25" cols="80" style="visibility: hidden; display: none; "></textarea>
+    <script type="text/javascript">
+//<![CDATA[
+(function() {
+  var field = document.getElementById('content');
+  if (field) {
+    // Hide the element that will be wrapped by the WYSIWYG editor.
+    field.style.visibility = 'hidden';
+    // Show the loading animation.
+    var loading = document.createElement('span');
+    loading.className = 'loading';
+    loading.style.display = 'block';
+    loading.style.position = 'absolute';
+    loading.style.width = field.offsetWidth + 'px';
+    loading.style.height = field.offsetHeight + 'px';
+    field.parentNode.insertBefore(loading, field);
+    var removeLoadingAnimation = function() {
+      // Remove the loading animation after the WYSIWYG module has been loaded.
+      Wysiwyg.onModuleLoad(function() {
+        loading.parentNode.removeChild(loading);
+      });
+      return true;
+    };
+    (XWiki.domIsLoaded && removeLoadingAnimation()) || document.observe('xwiki:dom:loaded', removeLoadingAnimation);
+  }
+})(XWiki || {});
+//]]>
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<label for="wysiwygCacheSb1v" class="hidden"><input type="text" id="wysiwygCacheSb1v"></label>
+<script type="text/javascript">
+//<![CDATA[
+var wysiwygConfigdyTW = {
+  hookId: 'content'
+  ,syntax: 'xwiki\/2.1'
+  ,convertInput: 'true'
+  ,inputURL: '\/xwiki\/bin\/edit\/EditWYSIWYGTest\/testDotAtEndDoesNotDelete?xpage=wysiwyginput&token=HEvN4F3WxoINdUyR6bxjCg'
+  ,displayTabs: 'true'
+  ,defaultEditor: 'wysiwyg'
+  ,plugins: 'submit readonly line separator embed text valign list indent history format symbol link image table macro import'
+  ,menu: '[{\"feature\": \"link\", \"subMenu\":[\"linkEdit\", \"linkRemove\", \"linkWikiPage\", \"linkAttachment\", \"|\", \"linkWebPage\", \"linkEmail\"]}, {\"feature\":\"image\", \"subMenu\":[\"imageInsertAttached\", \"imageInsertURL\", \"imageEdit\", \"imageRemove\"]}, {\"feature\":\"table\", \"subMenu\":[\"inserttable\", \"insertcolbefore\", \"insertcolafter\", \"deletecol\", \"|\", \"insertrowbefore\", \"insertrowafter\", \"deleterow\", \"|\", \"deletetable\"]}, {\"feature\":\"macro\", \"subMenu\":[\"macroInsert\", \"macroEdit\", \"|\", \"macroRefresh\", \"|\", \"macroCollapse\", \"macroExpand\"]}, {\"feature\":\"import\", \"subMenu\":[\"importOffice\"]}]'
+  ,toolbar: 'bold italic underline strikethrough | subscript superscript | unorderedlist orderedlist | outdent indent | undo redo | format | hr symbol | paste'
+  ,allowExternalImages: 'true'
+  ,colors: '#000000, #444444, #666666, #999999, #CCCCCC, #EEEEEE, #F3F3F3, #FFFFFF,\n#FF0000, #FF9900, #FFFF00, #00FF00, #00FFFF, #0000FF, #9900FF, #FF00FF,\n#F4CCCC, #FCE5CD, #FFF2CC, #D9EAD3, #D0E0E3, #CFE2F3, #D9D2E9, #EAD1DC,\n#EA9999, #F9CB9C, #FFE599, #B6D7A8, #A2C4C9, #9FC5E8, #B4A7D6, #D5A6BD,\n#E06666, #F6B26B, #FFD966, #93C47D, #76A5AF, #6FA8DC, #8E7CC3, #C27BA0,\n#CC0000, #E69138, #F1C232, #6AA84F, #45818E, #3D85C6, #674EA7, #A64D79,\n#990000, #B45F06, #BF9000, #38761D, #134F5C, #0B5394, #351C75, #741B47,\n#660000, #783F04, #7F6000, #274E13, #0C343D, #073763, #20124D, #4C1130'
+  ,colorsPerRow: '8'
+  ,fontNames: 'Andale Mono, Arial, Arial Black, Book Antiqua, Comic Sans MS, Courier New, Georgia, Helvetica, Impact, Symbol, Tahoma, Terminal, Times New Roman, Trebuchet MS, Verdana, Webdings, Wingdings'
+  ,fontSizes: '8px 10px 12px 14px 18px 24px 36px'
+  ,styleNames: '[]'
+  ,wiki: 'xwiki'
+  ,space: 'EditWYSIWYGTest'
+  ,page: 'testDotAtEndDoesNotDelete'
+  ,cacheId: 'wysiwygCacheSb1v'
+};
+//]]>
+</script>
+<script type="text/javascript">
+//<![CDATA[
+(function() {
+  var init = function() {
+    Wysiwyg.onModuleLoad(function() {
+      new WysiwygEditor(wysiwygConfigdyTW);
+      wysiwygConfigdyTW = undefined;
+    });
+    return true;
+  };
+  (XWiki.domIsLoaded && init()) || document.observe('xwiki:dom:loaded', init);
+})(XWiki || {});
+//]]>
+</script>
+</div>
+</div>
+</div>
+<div class="bottombuttons">
+
+      <div class="meta-versionSummary metamodifs">
+  <input type="hidden" name="xeditaction" value="edit">
+              <label for="commentinput">Version summary <span>(Enter a brief description of your changes)</span>
+      <input type="text" name="comment" id="commentinput" value="" size="40" title="Enter a brief description of your changes">
+      </label>
+        </div>   <div class="buttons"><span class="buttonwrapper" style="display: none; "><input type="button" class="button" value="Exit full screen"></span>
+     <span class="buttonwrapper"><input class="button" type="submit" name="action_preview" value="Preview"></span>
+     <span class="buttonwrapper"><input class="button" type="submit" name="action_saveandcontinue" value="Save &amp; Continue"></span>
+    <span class="buttonwrapper"><input class="button" type="submit" name="action_save" value="Save &amp; View"></span>
+    <span class="buttonwrapper"><input class="button" type="submit" name="action_cancel" value="Cancel"></span>
+  </div>
+</div>
+
+
+    <script type="text/javascript">
+    //<![CDATA[
+    if ($('tmEditWysiwyg')) {
+      // Manage switch from wiki to wysiwyg, content must be preserved between those editors.
+      Event.observe($('tmEditWysiwyg'), "click", function(event) {
+                document.forms.edit.action='/xwiki/bin/edit/EditWYSIWYGTest/testDotAtEndDoesNotDelete?editor=wysiwyg';
+        document.forms.edit.submit();
+        Event.stop(event);
+      });
+
+      // Manage switch from wysiwyg to wiki, content must be preserved between those editors.
+      Event.observe($('tmEditWiki'), "click", function(event) {
+        document.forms.edit.action='/xwiki/bin/edit/EditWYSIWYGTest/testDotAtEndDoesNotDelete?editor=wiki';
+        document.forms.edit.submit();
+        Event.stop(event);
+      });
+    }
+    //]]>
+  </script>
+  </div>   </div>   </div>   <div class="clearfloats"></div>
+  </div>
+<div id="editPanels" class="panels editor">
+              <div class="large panel expanded DocumentInformation"><h1 class="xwikipaneltitle">Document information</h1><div class="xwikipanelcontents"><dl><dt><label for="xwikidocsyntaxinput2">Document syntax</label></dt><dd><select id="xwikidocsyntaxinput2" name="syntaxId">
+<option selected="selected" value="xwiki/2.1">XWiki 2.1</option>
+<option value="xwiki/2.0">XWiki 2.0</option>
+</select></dd></dl><p><input id="xhidden" name="xhidden" type="checkbox" value="1"><label for="xhidden">Hidden document</label>
+<input name="xhidden" type="hidden" value="0"></p></div></div>
+
+                    <div class="large panel expanded SyntaxHelp"><h1 class="xwikipaneltitle">XWiki Syntax Help</h1><div class="xwikipanelcontents"><p>Help on the <a href="/xwiki/bin/view/XWiki/XWikiSyntax?xpage=print" onclick="openURL('/xwiki/bin/view/XWiki/XWikiSyntax?xpage=print', '_blank'); return false;"><span class="nobr">XWiki Syntax</span></a></p></div></div>
+      </div>
+<script type="text/javascript">
+//<![CDATA[
+  if (browser.isIE || browser.isMozilla || browser.isGecko  || browser.isSafari) {
+    var panels = document.getElementById("editPanels");
+    if(document.getElementById("xwikisyntaxhelppanel"))
+        panels.removeChild(document.getElementById("xwikisyntaxhelppanel"));
+    if (document.getElementById("simpleedittoolbar"))
+        document.getElementById("simpleedittoolbar").style.display = "none";
+  }
+//]]>
+</script>
+
+  <div class="clearfloats"></div>
+  </div>   </div>             </form>
+    <div id="footerglobal" class="layoutsection">
+<div class="minwidth"></div>
+<hr>
+  <div id="xwikilicence">This wiki is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/2.0/">Creative Commons 2.0</a> license</div>
+          <div id="xwikiplatformversion">XWiki Enterprise 5.1-SNAPSHOT - <a onclick="openURL('http://enterprise.xwiki.org/xwiki/bin/view/Main/Documentation', '_blank'); return false;" href="http://www.xwiki.org/xwiki/bin/view/Main/Documentation">Documentation</a></div>
+<hr>
+</div>
+
+  </div></div>
+<div style="background-color: rgb(0, 0, 0); background-image: url(http://localhost:8080/xwiki/resources/icons/xwiki/ajax%2Dloader%2Dlarge.gif); opacity: 0.6; display: none; position: absolute; left: 48px; top: 211px; width: 505px; height: 360px; background-position: 50% 50%; background-repeat: no-repeat no-repeat; "></div><iframe src="./1.html" id="xwe" style="position: absolute; width: 0px; height: 0px; border-top-style: none; border-right-style: none; border-bottom-style: none; border-left-style: none; border-width: initial; border-color: initial; " tabindex="-1"></iframe></body></html>

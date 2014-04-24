@@ -37,7 +37,7 @@ static HB_Bool isLetter(HB_UChar16 ucs)
                      FLAG(HB_Letter_Titlecase) |
                      FLAG(HB_Letter_Modifier) |
                      FLAG(HB_Letter_Other);
-    return (FLAG(HB_GetUnicodeCharCategory(ucs)) &  test) != 0;
+    return !!(FLAG(HB_GetUnicodeCharCategory(ucs)) & test);
 }
 
 static HB_Bool isMark(HB_UChar16 ucs)
@@ -45,7 +45,7 @@ static HB_Bool isMark(HB_UChar16 ucs)
     const int test = FLAG(HB_Mark_NonSpacing) |
                      FLAG(HB_Mark_SpacingCombining) |
                      FLAG(HB_Mark_Enclosing);
-    return FLAG(HB_GetUnicodeCharCategory(ucs)) & test;
+    return !!(FLAG(HB_GetUnicodeCharCategory(ucs)) & test);
 }
 
 enum Form {
@@ -1683,6 +1683,7 @@ static bool indic_shape_syllable(HB_Bool openType, HB_ShaperItem *item, bool inv
                 }
                 item->glyphs[j] = item->glyphs[i];
                 item->attributes[j] = item->attributes[i];
+                item->offsets[j] = item->offsets[i];
                 item->advances[j] = item->advances[i];
                 ++i;
                 ++j;

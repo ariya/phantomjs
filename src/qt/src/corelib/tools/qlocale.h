@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -116,7 +116,9 @@ public:
         ListToSeparatedString, // QString
         LocaleChanged, // system locale changed
         NativeLanguageName, // QString
-        NativeCountryName // QString
+        NativeCountryName, // QString
+        StandaloneMonthNameLong, // QString, in: int
+        StandaloneMonthNameShort // QString, in: int
     };
     virtual QVariant query(QueryType type, QVariant in) const;
     virtual QLocale fallbackLocale() const;

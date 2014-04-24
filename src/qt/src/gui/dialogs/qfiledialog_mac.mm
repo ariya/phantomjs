@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -228,6 +228,8 @@ QT_USE_NAMESPACE
     *mCurrentSelection = QT_PREPEND_NAMESPACE(qt_mac_NSStringToQString)([mSavePanel filename]);
     if ([mSavePanel respondsToSelector:@selector(close)])
         [mSavePanel close];
+    if ([mSavePanel isSheet])
+        [NSApp endSheet: mSavePanel];
 }
 
 - (void)showModelessPanel
@@ -446,6 +448,8 @@ QT_USE_NAMESPACE
     if ([path isEqualToString:mCurrentDir])
         return;
 
+    if ([mSavePanel respondsToSelector:@selector(isVisible)] && ![mSavePanel isVisible])
+        return;
     [mCurrentDir release];
     mCurrentDir = [path retain];
     mPriv->QNSOpenSavePanelDelegate_directoryEntered(QT_PREPEND_NAMESPACE(qt_mac_NSStringToQString(mCurrentDir)));
@@ -505,14 +509,18 @@ QT_USE_NAMESPACE
     [mPopUpButton setTarget:self];
     [mPopUpButton setAction:@selector(filterChanged:)];
 
-    QStringList *filters = mNameFilterDropDownList;
-    if (filters->size() > 0){
+    if (mNameFilterDropDownList->size() > 0) {
+        int filterToUse = -1;
         for (int i=0; i<mNameFilterDropDownList->size(); ++i) {
-            QString filter = hideDetails ? [self removeExtensions:filters->at(i)] : filters->at(i);
+            QString currentFilter = mNameFilterDropDownList->at(i);
+            if (selectedFilter == currentFilter ||
+                (filterToUse == -1 && currentFilter.startsWith(selectedFilter)))
+                filterToUse = i;
+            QString filter = hideDetails ? [self removeExtensions:currentFilter] : currentFilter;
             [mPopUpButton addItemWithTitle:QT_PREPEND_NAMESPACE(qt_mac_QStringToNSString)(filter)];
-            if (filters->at(i).startsWith(selectedFilter))
-                [mPopUpButton selectItemAtIndex:i];
         }
+        if (filterToUse != -1)
+            [mPopUpButton selectItemAtIndex:filterToUse];
     }
 }
 

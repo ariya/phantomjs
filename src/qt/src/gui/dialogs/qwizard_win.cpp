@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -231,7 +231,11 @@ void QVistaBackButton::paintEvent(QPaintEvent *)
     else if (underMouse())
         state = WIZ_NAV_BB_HOT;
 
-   pDrawThemeBackground(theme, p.paintEngine()->getDC(), WIZ_NAV_BACKBUTTON, state, &clipRect, &clipRect); 
+    WIZ_NAVIGATIONPARTS buttonType = (layoutDirection() == Qt::LeftToRight
+                                      ? WIZ_NAV_BACKBUTTON
+                                      : WIZ_NAV_FORWARDBUTTON);
+
+   pDrawThemeBackground(theme, p.paintEngine()->getDC(), buttonType, state, &clipRect, &clipRect);
 }
 
 /******************************************************************************
@@ -285,6 +289,12 @@ QVistaHelper::VistaState QVistaHelper::vistaState()
         cachedVistaState =
             isCompositionEnabled() ? VistaAero : isThemeActive() ? VistaBasic : Classic;
     return cachedVistaState;
+}
+
+void QVistaHelper::disconnectBackButton()
+{
+    if (backButton_) // Leave QStyleSheetStyle's connections on destroyed() intact.
+        backButton_->disconnect(SIGNAL(clicked()));
 }
 
 QColor QVistaHelper::basicWindowFrameColor()
@@ -342,13 +352,21 @@ void QVistaHelper::drawTitleBar(QPainter *painter)
         glowOffset = glowSize();
     }
 
+    const int titleLeft = (wizard->layoutDirection() == Qt::LeftToRight
+                           ? titleOffset() - glowOffset
+                           : wizard->width() - titleOffset() - textWidth + glowOffset);
+
     drawTitleText(
         painter, text,
-        QRect(titleOffset() - glowOffset, verticalCenter - textHeight / 2, textWidth, textHeight),
+        QRect(titleLeft, verticalCenter - textHeight / 2, textWidth, textHeight),
         hdc);
 
     if (!wizard->windowIcon().isNull()) {
-        QRect rect(leftMargin(), verticalCenter - iconSize() / 2, iconSize(), iconSize());
+        const int iconLeft = (wizard->layoutDirection() == Qt::LeftToRight
+                              ? leftMargin()
+                              : wizard->width() - leftMargin() - iconSize());
+
+        QRect rect(iconLeft, verticalCenter - iconSize() / 2, iconSize(), iconSize());
         HICON hIcon = wizard->windowIcon().pixmap(iconSize()).toWinHICON();
         DrawIconEx(hdc, rect.left(), rect.top(), hIcon, 0, 0, 0, NULL, DI_NORMAL | DI_COMPAT);
         DestroyIcon(hIcon);
@@ -390,12 +408,15 @@ bool QVistaHelper::winEvent(MSG* msg, long* result)
         }
         break;
     }
-    case WM_NCCALCSIZE: {
-        NCCALCSIZE_PARAMS* lpncsp = (NCCALCSIZE_PARAMS*)msg->lParam;
-        *result = DefWindowProc(msg->hwnd, msg->message, msg->wParam, msg->lParam);
-        lpncsp->rgrc[0].top -= (vistaState() == VistaAero ? titleBarSize() : 0);
+    case WM_NCCALCSIZE:
+        if (QSysInfo::WindowsVersion < QSysInfo::WV_WINDOWS8 && vistaState() == VistaAero) {
+            NCCALCSIZE_PARAMS* lpncsp = (NCCALCSIZE_PARAMS*)msg->lParam;
+            *result = DefWindowProc(msg->hwnd, msg->message, msg->wParam, msg->lParam);
+            lpncsp->rgrc[0].top -= titleBarSize();
+        } else {
+            return false; // Negative margins no longer work on Windows 8.
+        }
         break;
-    }
     default:
         LRESULT lResult;
         // Pass to DWM to handle
@@ -765,6 +786,19 @@ int QVistaHelper::titleOffset()
 {
     int iconOffset = wizard ->windowIcon().isNull() ? 0 : iconSize() + textSpacing;
     return leftMargin() + iconOffset;
+}
+
+int QVistaHelper::topOffset()
+{
+    if (vistaState() != VistaAero)
+        return titleBarSize() + 3;
+    static const int aeroOffset =
+        QSysInfo::WindowsVersion == QSysInfo::WV_WINDOWS7 ?
+        QStyleHelper::dpiScaled(4) : QStyleHelper::dpiScaled(13);
+    int result = aeroOffset;
+    if (QSysInfo::WindowsVersion < QSysInfo::WV_WINDOWS8)
+        result += titleBarSize();
+    return result;
 }
 
 QT_END_NAMESPACE

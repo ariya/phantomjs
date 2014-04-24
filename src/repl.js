@@ -109,6 +109,11 @@ REPL._expResStringifyReplacer = function (k, v) {
 
         // Get all the completions for the object we are going to pretty-print
         iarr = REPL._getCompletions(REPL._lastEval);
+
+        // nothing to enumerate
+        if (iarr.length == 0)
+            return v;
+
         for (i in iarr) {
             if (typeof(v[iarr[i]]) !== "undefined") {
                 // add a reference to this "real" property into the mock object

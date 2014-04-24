@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -788,6 +788,12 @@ QLayoutItem *QBoxLayout::takeAt(int index)
     b->item = 0;
     delete b;
 
+    if (QLayout *l = item->layout()) {
+        // sanity check in case the user passed something weird to QObject::setParent()
+        if (l->parent() == this)
+            l->setParent(0);
+    }
+
     invalidate();
     return item;
 }
@@ -995,7 +1001,8 @@ void QBoxLayout::insertSpacerItem(int index, QSpacerItem *spacerItem)
 void QBoxLayout::insertLayout(int index, QLayout *layout, int stretch)
 {
     Q_D(QBoxLayout);
-    addChildLayout(layout);
+    if (!adoptLayout(layout))
+        return;
     if (index < 0)                                // append
         index = d->list.count();
     QBoxLayoutItem *it = new QBoxLayoutItem(layout, stretch);

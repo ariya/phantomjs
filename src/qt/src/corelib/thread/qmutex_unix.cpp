@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -56,7 +56,7 @@
 #if defined(Q_OS_MAC)
 # include <mach/mach.h>
 # include <mach/task.h>
-#elif defined(Q_OS_LINUX)
+#elif defined(Q_OS_LINUX) && !defined(QT_LINUXBASE)
 # include <linux/futex.h>
 # include <sys/syscall.h>
 # include <unistd.h>
@@ -65,7 +65,7 @@
 
 QT_BEGIN_NAMESPACE
 
-#if !defined(Q_OS_LINUX)
+#if !defined(Q_OS_LINUX) || defined(QT_LINUXBASE)
 static void report_error(int code, const char *where, const char *what)
 {
     if (code != 0)
@@ -77,7 +77,7 @@ static void report_error(int code, const char *where, const char *what)
 QMutexPrivate::QMutexPrivate(QMutex::RecursionMode mode)
     : QMutexData(mode), maximumSpinTime(MaximumSpinTimeThreshold), averageWaitTime(0), owner(0), count(0)
 {
-#if !defined(Q_OS_LINUX)
+#if !defined(Q_OS_LINUX) || defined(QT_LINUXBASE)
     wakeup = false;
     report_error(pthread_mutex_init(&mutex, NULL), "QMutex", "mutex init");
     report_error(pthread_cond_init(&cond, NULL), "QMutex", "cv init");
@@ -86,13 +86,13 @@ QMutexPrivate::QMutexPrivate(QMutex::RecursionMode mode)
 
 QMutexPrivate::~QMutexPrivate()
 {
-#if !defined(Q_OS_LINUX)
+#if !defined(Q_OS_LINUX) || defined(QT_LINUXBASE)
     report_error(pthread_cond_destroy(&cond), "QMutex", "cv destroy");
     report_error(pthread_mutex_destroy(&mutex), "QMutex", "mutex destroy");
 #endif
 }
 
-#if defined(Q_OS_LINUX)
+#if defined(Q_OS_LINUX) && !defined(QT_LINUXBASE)
 
 static inline int _q_futex(volatile int *addr, int op, int val, const struct timespec *timeout, int *addr2, int val2)
 {
@@ -136,7 +136,7 @@ void QMutexPrivate::wakeUp()
     (void) _q_futex(&contenders._q_value, FUTEX_WAKE, 1, 0, 0, 0);
 }
 
-#else // !Q_OS_LINUX
+#else // !Q_OS_LINUX || QT_LINUXBASE
 
 bool QMutexPrivate::wait(int timeout)
 {
@@ -183,7 +183,7 @@ void QMutexPrivate::wakeUp()
     report_error(pthread_mutex_unlock(&mutex), "QMutex::unlock", "mutex unlock");
 }
 
-#endif // !Q_OS_LINUX
+#endif // !Q_OS_LINUX || QT_LINUXBASE
 
 QT_END_NAMESPACE
 

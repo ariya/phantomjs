@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -52,13 +52,55 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
+#if defined(_WRS_KERNEL)
 #include <sys/times.h>
+#else
+#include <sys/time.h>
+#endif
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <netinet/in.h>
 #ifndef QT_NO_IPV6IFNAME
 #include <net/if.h>
+#endif
+
+// VxWorks has public header mbuf.h which defines following variables for DKM.
+// Let's undef those to because they overlap with Qt variable names-
+// File mbuf.h is included in headers <netinet/in.h> <net/if.h>, so make sure
+// that those are included before undef's.
+#if defined(mbuf)
+#  undef mbuf
+#endif
+#if defined(m_data)
+#  undef m_data
+#endif
+#if defined(m_type)
+#  undef m_type
+#endif
+#if defined(m_next)
+#  undef m_next
+#endif
+#if defined(m_len)
+#  undef m_len
+#endif
+#if defined(m_flags)
+#  undef m_flags
+#endif
+#if defined(m_hdr)
+#  undef m_hdr
+#endif
+#if defined(m_ext)
+#  undef m_ext
+#endif
+#if defined(m_act)
+#  undef m_act
+#endif
+#if defined(m_nextpkt)
+#  undef m_nextpkt
+#endif
+#if defined(m_pkthdr)
+#  undef m_pkthdr
 #endif
 
 QT_BEGIN_HEADER
@@ -101,12 +143,16 @@ int rand_r(unsigned int * /*seedp*/);
 // no usleep() support
 int usleep(unsigned int);
 
+#if defined(VXWORKS_DKM) || defined(VXWORKS_RTP)
+int gettimeofday(struct timeval *, void *);
+#else
 // gettimeofday() is declared, but is missing from the library.
 // It IS however defined in the Curtis-Wright X11 libraries, so
 // we have to make the symbol 'weak'
 int gettimeofday(struct timeval *tv, void /*struct timezone*/ *) __attribute__((weak));
+#endif
 
-// neither getpagesize() or sysconf(_SC_PAGESIZE) are available
+// getpagesize() not available
 int getpagesize();
 
 // symlinks are not supported (lstat is now just a call to stat - see qplatformdefs.h)

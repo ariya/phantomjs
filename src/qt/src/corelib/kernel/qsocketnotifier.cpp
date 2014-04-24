@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -171,18 +171,17 @@ QT_BEGIN_NAMESPACE
 QSocketNotifier::QSocketNotifier(int socket, Type type, QObject *parent)
     : QObject(parent)
 {
-    if (socket < 0)
-        qWarning("QSocketNotifier: Invalid socket specified");
     sockfd = socket;
     sntype = type;
     snenabled = true;
 
     Q_D(QObject);
-    if (!d->threadData->eventDispatcher) {
+    if (socket < 0)
+        qWarning("QSocketNotifier: Invalid socket specified");
+    else if (!d->threadData->eventDispatcher)
         qWarning("QSocketNotifier: Can only be used with threads started with QThread");
-    } else {
+    else
         d->threadData->eventDispatcher->registerSocketNotifier(this);
-    }
 }
 
 #ifdef QT3_SUPPORT

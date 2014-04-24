@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the qmake application of the Qt Toolkit.
@@ -465,10 +465,6 @@ void Win32MakefileGenerator::processRcFileVar()
         ts << "\t\t\tVALUE \"Translation\", "
            << QString("0x%1").arg(rcLang, 4, 16, QLatin1Char('0'))
            << ", " << QString("%1").arg(rcCodePage, 4) << endl;
-        ts << "\t\tEND" << endl;
-        ts << "\t\tBLOCK \"VarFileInfo\"" << endl;
-        ts << "\t\tBEGIN" << endl;
-        ts << "\t\t\tVALUE \"Translation\", 0x409, 1200" << endl;
         ts << "\t\tEND" << endl;
         ts << "\tEND" << endl;
         ts << "/* End of Version info */" << endl;

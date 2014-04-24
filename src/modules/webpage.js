@@ -110,7 +110,7 @@ function definePageSignalHandler(page, handlers, handlerName, signalName) {
             this[signalName].connect(f);
         }
     });
-    
+
     page.__defineGetter__(handlerName, function() {
         return !!handlers[handlerName] && typeof handlers[handlerName].callback === "function" ?
             handlers[handlerName].callback :
@@ -142,7 +142,7 @@ function definePageCallbackHandler(page, handlers, handlerName, callbackConstruc
                 // Callback will receive a "deserialized", normal "arguments" array
                 callbackObj.returnValue = f.apply(this, arguments[0]);
             };
-            
+
             // Store the new handler for reference
             handlers[handlerName] = {
                 callback: f,
@@ -153,7 +153,7 @@ function definePageCallbackHandler(page, handlers, handlerName, callbackConstruc
             callbackObj.called.connect(connector);
         }
     });
-    
+
     page.__defineGetter__(handlerName, function() {
         var handlerObj = handlers[handlerName];
         return (!!handlerObj && typeof handlerObj.callback === "function" && typeof handlerObj.connector === "function") ?
@@ -248,10 +248,12 @@ function decorateNewPage(opts, page) {
 
     definePageSignalHandler(page, handlers, "onNavigationRequested", "navigationRequested");
 
+    definePageSignalHandler(page, handlers, "onRepaintRequested", "repaintRequested");
+
     definePageSignalHandler(page, handlers, "onResourceRequested", "resourceRequested");
 
     definePageSignalHandler(page, handlers, "onResourceReceived", "resourceReceived");
-    
+
     definePageSignalHandler(page, handlers, "onResourceError", "resourceError");
 
     definePageSignalHandler(page, handlers, "onResourceTimeout", "resourceTimeout");
@@ -413,6 +415,20 @@ function decorateNewPage(opts, page) {
     };
 
     /**
+     * get cookie jar for the page
+     */
+    page.__defineGetter__("cookieJar", function() {
+        return require("cookiejar").decorate(this.cookieJar());
+    });
+
+    /**
+     * set cookie jar for the page
+     */
+    page.__defineSetter__("cookieJar", function(cookieJar) {
+        this.setCookieJarFromQObject(cookieJar);
+    });
+
+    /**
      * get cookies of the page
      */
     page.__defineGetter__("cookies", function() {
@@ -467,6 +483,9 @@ function decorateNewPage(opts, page) {
     // Calls from within the page to "window.prompt(message, defaultValue)" arrive to this handler
     // @see https://developer.mozilla.org/en/DOM/window.prompt
     definePageCallbackHandler(page, handlers, "onPrompt", "_getJsPromptCallback");
+
+    // Calls from within the page when some javascript code running to long
+    definePageCallbackHandler(page, handlers, "onLongRunningScript", "_getJsInterruptCallback");
 
     page.event = {};
     page.event.modifier = {

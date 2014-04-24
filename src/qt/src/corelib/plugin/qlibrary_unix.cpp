@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -56,7 +56,7 @@
 #include <string.h>
 #endif
 
-#if defined(Q_OS_VXWORKS) || defined (Q_OS_NACL)
+#if (defined(Q_OS_VXWORKS) && !defined(VXWORKS_RTP)) || defined (Q_OS_NACL)
 #define QT_NO_DYNAMIC_LIBRARY
 #endif
 

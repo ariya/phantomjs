@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -1047,6 +1047,7 @@ bool QApplicationPrivate::x11_apply_settings()
     qt_use_rtl_extensions =
         settings.value(QLatin1String("useRtlExtensions"), false).toBool();
 
+#ifndef QT_NO_IM
 #ifndef QT_NO_XIM
     if (qt_xim_preferred_style == 0) {
         QString ximInputStyle = settings.value(QLatin1String("XIMInputStyle"),
@@ -1060,7 +1061,7 @@ bool QApplicationPrivate::x11_apply_settings()
         else if (ximInputStyle == QLatin1String("root"))
             qt_xim_preferred_style = XIMPreeditNothing | XIMStatusNothing;
     }
-#endif
+#endif // QT_NO_XIM
     QStringList inputMethods = QInputContextFactory::keys();
     if (inputMethods.size() > 2 && inputMethods.contains(QLatin1String("imsw-multi"))) {
         X11->default_im = QLatin1String("imsw-multi");
@@ -1068,7 +1069,7 @@ bool QApplicationPrivate::x11_apply_settings()
         X11->default_im = settings.value(QLatin1String("DefaultInputMethod"),
                                          QLatin1String("xim")).toString();
     }
-
+#endif //QT_NO_IM
     settings.endGroup(); // Qt
 
     return true;
@@ -4834,15 +4835,21 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, QTabletDeviceData *tablet
     }
     XFreeDeviceState(s);
 #else
+    // We've been passed in data for a tablet device that handles this type
+    // of event, but it isn't necessarily the tablet device that originated
+    // the event.  Use the device id to find the originating device if we
+    // have it.
     QTabletDeviceDataList *tablet_list = qt_tablet_devices();
     for (int i = 0; i < tablet_list->size(); ++i) {
-        const QTabletDeviceData &t = tablet_list->at(i);
-        if (device_id == static_cast<XDevice *>(t.device)->device_id) {
-            deviceType = t.deviceType;
-            if (t.deviceType == QTabletEvent::XFreeEraser) {
+        QTabletDeviceData &tab = tablet_list->operator[](i);
+        if (device_id == static_cast<XDevice *>(tab.device)->device_id) {
+            // Replace the tablet passed in with this one.
+            tablet = &tab;
+            deviceType = tab.deviceType;
+            if (tab.deviceType == QTabletEvent::XFreeEraser) {
                 deviceType = QTabletEvent::Stylus;
                 pointerType = QTabletEvent::Eraser;
-            } else if (t.deviceType == QTabletEvent::Stylus) {
+            } else if (tab.deviceType == QTabletEvent::Stylus) {
                 pointerType = QTabletEvent::Pen;
             }
             break;

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -580,7 +580,7 @@ QString qt_win_CID_get_existing_directory(const QFileDialogArgs &args)
     if (SUCCEEDED(hr)) {
         qt_win_set_IFileDialogOptions(pfd, args.selection,
                                       args.directory, args.caption,
-                                      QStringList(), QFileDialog::ExistingFiles,
+                                      QStringList(), QFileDialog::ExistingFile,
                                       args.options);
 
         // Set the FOS_PICKFOLDERS flag

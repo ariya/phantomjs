@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the qmake application of the Qt Toolkit.
@@ -183,6 +183,7 @@ private:
     static void outputFileConfigs(VCProject &project, XmlOutput &xml, XmlOutput &xmlFilter, const VCFilterFile &info, const QString &filtername);
     static bool outputFileConfig(VCFilter &filter, XmlOutput &xml, XmlOutput &xmlFilter, const QString &filename, const QString &filtername, bool fileAllreadyAdded);
     static QString generateCondition(const VCConfiguration &config);
+    static QString platformToolSetVersion(const DotNET version);
 
     friend class XTreeNode;
     friend class XFlatNode;

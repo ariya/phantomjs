@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
@@ -59,6 +59,10 @@
 #include <QtCore/qmutex.h>
 #include <QtCore/qmap.h>
 
+#ifdef Q_OS_BLACKBERRY
+#include <bps/netstatus.h>
+#endif
+
 QT_BEGIN_NAMESPACE
 
 typedef QExplicitlySharedDataPointer<QNetworkConfigurationPrivate> QNetworkConfigurationPrivatePointer;
@@ -70,6 +74,9 @@ public:
         type(QNetworkConfiguration::Invalid),
         purpose(QNetworkConfiguration::UnknownPurpose),
         bearerType(QNetworkConfiguration::BearerUnknown),
+#ifdef Q_OS_BLACKBERRY
+        oldIpStatus(NETSTATUS_IP_STATUS_ERROR_UNKNOWN),
+#endif
         isValid(false), roamingSupported(false)
     {}
     virtual ~QNetworkConfigurationPrivate()
@@ -94,6 +101,10 @@ public:
     QNetworkConfiguration::Type type;
     QNetworkConfiguration::Purpose purpose;
     QNetworkConfiguration::BearerType bearerType;
+
+#ifdef Q_OS_BLACKBERRY
+    netstatus_ip_status_t oldIpStatus;
+#endif
 
     bool isValid;
     bool roamingSupported;

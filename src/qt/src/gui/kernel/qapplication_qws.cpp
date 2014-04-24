@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -102,11 +102,6 @@
 #include <locale.h>
 #include <errno.h>
 #include <fcntl.h>
-#ifdef Q_OS_VXWORKS
-#  include <sys/times.h>
-#else
-#  include <sys/time.h>
-#endif
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -258,8 +253,12 @@ void QApplicationPrivate::setMaxWindowRect(const QScreen *screen, int screenNo,
     for (int i = 0; i < l.size(); ++i) {
         QWidget *w = l.at(i);
         QScreen *s = w->d_func()->getScreen();
-        if (w->isMaximized() && s == screen)
-            w->d_func()->setMaxWindowState_helper();
+        if (s == screen) {
+            if (w->isMaximized())
+                w->d_func()->setMaxWindowState_helper();
+            else if (w->isFullScreen())
+                w->d_func()->setFullScreenSize_helper();
+        }
     }
 
     if ( qt_desktopWidget ) // XXX workaround crash

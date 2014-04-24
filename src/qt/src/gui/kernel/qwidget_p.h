@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -577,8 +577,10 @@ public:
     // sub-classes that their internals are about to be released.
     virtual void aboutToDestroy() {}
 
+#ifndef QT_NO_IM
     QInputContext *assignedInputContext() const;
     QInputContext *inputContext() const;
+#endif
     inline QWidget *effectiveFocusWidget() {
         QWidget *w = q_func();
         while (w->focusProxy())
@@ -609,6 +611,8 @@ public:
                 }
             }
         }
+#else
+        Q_UNUSED(widget);
 #endif
         return screen;
     }

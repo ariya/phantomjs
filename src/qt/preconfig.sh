@@ -78,6 +78,8 @@ QT_CFG+=' -D QT_NO_STYLE_CLEANLOOKS'
 QT_CFG+=' -D QT_NO_STYLE_MOTIF'
 QT_CFG+=' -D QT_NO_STYLE_PLASTIQUE'
 
+SILENT=''
+
 until [ -z "$1" ]; do
     case $1 in
         "--qt-config")
@@ -88,11 +90,16 @@ until [ -z "$1" ]; do
             shift
             COMPILE_JOBS=$1
             shift;;
+        "--silent")
+            SILENT='-s'
+            QT_CFG+=" -silent"
+            shift;;
         "--help")
             echo "Usage: $0 [--qt-config CONFIG] [--jobs NUM]"
             echo
             echo "  --qt-config CONFIG          Specify extra config options to be used when configuring Qt"
             echo "  --jobs NUM                  How many parallel compile jobs to use. Defaults to 4."
+            echo "  --silent                    Produce less verbose output."
             echo
             exit 0
             ;;
@@ -106,10 +113,18 @@ done
 # For parallelizing the bootstrapping process, e.g. qmake and friends.
 export MAKEFLAGS=-j$COMPILE_JOBS
 
-./configure -prefix $PWD $QT_CFG
-make -j$COMPILE_JOBS
+if [ -z "$SILENT" ]; then
+    ./configure -prefix $PWD $QT_CFG
+else
+    echo "Setting up Qt. Please wait..."
+    ./configure -prefix $PWD $QT_CFG &> /dev/null
+fi
+
+echo
+echo "Building Qt and WebKit. Please wait..."
+make -j$COMPILE_JOBS $SILENT
 
 # Build text codecs
 pushd src/plugins/codecs/
-make -j$COMPILE_JOBS
+make -j$COMPILE_JOBS $SILENT
 popd

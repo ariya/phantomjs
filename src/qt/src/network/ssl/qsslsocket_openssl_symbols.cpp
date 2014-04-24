@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
@@ -267,6 +267,10 @@ DEFINEFUNC2(int, X509_STORE_add_cert, X509_STORE *a, a, X509 *b, b, return 0, re
 DEFINEFUNC(void, X509_STORE_CTX_free, X509_STORE_CTX *a, a, return, DUMMYARG)
 DEFINEFUNC4(int, X509_STORE_CTX_init, X509_STORE_CTX *a, a, X509_STORE *b, b, X509 *c, c, STACK_OF(X509) *d, d, return -1, return)
 DEFINEFUNC2(int, X509_STORE_CTX_set_purpose, X509_STORE_CTX *a, a, int b, b, return -1, return)
+DEFINEFUNC(int, X509_STORE_CTX_get_error, X509_STORE_CTX *a, a, return -1, return)
+DEFINEFUNC(int, X509_STORE_CTX_get_error_depth, X509_STORE_CTX *a, a, return -1, return)
+DEFINEFUNC(X509 *, X509_STORE_CTX_get_current_cert, X509_STORE_CTX *a, a, return 0, return)
+DEFINEFUNC(STACK_OF(X509) *, X509_STORE_CTX_get_chain, X509_STORE_CTX *a, a, return 0, return)
 DEFINEFUNC(X509_STORE_CTX *, X509_STORE_CTX_new, DUMMYARG, DUMMYARG, return 0, return)
 #ifdef SSLEAY_MACROS
 DEFINEFUNC2(int, i2d_DSAPrivateKey, const DSA *a, a, unsigned char **b, b, return -1, return)
@@ -832,6 +836,10 @@ bool q_resolveOpenSslSymbols()
     RESOLVEFUNC(X509_STORE_CTX_init)
     RESOLVEFUNC(X509_STORE_CTX_new)
     RESOLVEFUNC(X509_STORE_CTX_set_purpose)
+    RESOLVEFUNC(X509_STORE_CTX_get_error)
+    RESOLVEFUNC(X509_STORE_CTX_get_error_depth)
+    RESOLVEFUNC(X509_STORE_CTX_get_current_cert)
+    RESOLVEFUNC(X509_STORE_CTX_get_chain)
     RESOLVEFUNC(X509_cmp)
 #ifndef SSLEAY_MACROS
     RESOLVEFUNC(X509_dup)

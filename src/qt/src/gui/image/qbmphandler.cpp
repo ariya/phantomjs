@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -143,7 +143,7 @@ static QDataStream &operator<<(QDataStream &s, const BMP_INFOHDR &bi)
     return s;
 }
 
-static int calc_shift(int mask)
+static int calc_shift(uint mask)
 {
     int result = 0;
     while (mask && !(mask & 1)) {
@@ -207,9 +207,9 @@ static bool read_dib_body(QDataStream &s, const BMP_INFOHDR &bi, int offset, int
 #endif
     int w = bi.biWidth,         h = bi.biHeight,  nbits = bi.biBitCount;
     int t = bi.biSize,         comp = bi.biCompression;
-    int red_mask = 0;
-    int green_mask = 0;
-    int blue_mask = 0;
+    uint red_mask = 0;
+    uint green_mask = 0;
+    uint blue_mask = 0;
     int red_shift = 0;
     int green_shift = 0;
     int blue_shift = 0;

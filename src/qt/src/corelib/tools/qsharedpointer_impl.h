@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -832,6 +832,8 @@ template <class X, class T>
 Q_INLINE_TEMPLATE QSharedPointer<X> qSharedPointerDynamicCast(const QSharedPointer<T> &src)
 {
     register X *ptr = dynamic_cast<X *>(src.data()); // if you get an error in this line, the cast is invalid
+    if (!ptr)
+        return QSharedPointer<X>();
     return QtSharedPointer::copyAndSetPointer(ptr, src);
 }
 template <class X, class T>

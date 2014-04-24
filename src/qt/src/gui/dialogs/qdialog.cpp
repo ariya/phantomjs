@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -69,6 +69,8 @@ extern bool qt_wince_is_smartphone(); //is defined in qguifunctions_wce.cpp
 #   include "qfontdialog.h"
 #   include "qwizard.h"
 #   include "private/qt_s60_p.h"
+#elif defined(Q_OS_BLACKBERRY)
+#   include "qmessagebox.h"
 #endif
 
 #if defined(Q_WS_S60)
@@ -97,7 +99,7 @@ QT_BEGIN_NAMESPACE
     buttons\endlink. QDialogs can also have a QSizeGrip in their
     lower-right corner, using setSizeGripEnabled().
 
-    Note that QDialog (an any other widget that has type Qt::Dialog) uses
+    Note that QDialog (and any other widget that has type \c Qt::Dialog) uses
     the parent widget slightly differently from other classes in Qt. A
     dialog is always a top-level widget, but if it has a parent, its
     default location is centered on top of the parent's top-level widget
@@ -531,12 +533,18 @@ int QDialog::exec()
 #endif //Q_WS_WINCE_WM
 
     bool showSystemDialogFullScreen = false;
+
 #ifdef Q_OS_SYMBIAN
     if (qobject_cast<QFileDialog *>(this) || qobject_cast<QFontDialog *>(this) ||
         qobject_cast<QWizard *>(this)) {
         showSystemDialogFullScreen = true;
     }
 #endif // Q_OS_SYMBIAN
+
+#ifdef Q_OS_BLACKBERRY
+    if (!qobject_cast<QMessageBox *>(this))
+        showSystemDialogFullScreen = true;
+#endif // Q_OS_BLACKBERRY
 
     if (showSystemDialogFullScreen) {
         setWindowFlags(windowFlags() | Qt::WindowSoftkeysVisibleHint);

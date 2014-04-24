@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -41,7 +41,8 @@
 
 #ifndef QMACINPUTCONTEXT_P_H
 #define QMACINPUTCONTEXT_P_H
-
+#include <qconfig.h>
+#ifndef QT_NO_IM
 //
 //  W A R N I N G
 //  -------------
@@ -94,5 +95,5 @@ private:
 };
 
 QT_END_NAMESPACE
-
+#endif // QT_NO_IM
 #endif // QMACINPUTCONTEXT_P_H

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -199,7 +199,7 @@ QT_BEGIN_HEADER
 #endif
 
 // 3D now intrinsics
-#if defined(QT_HAVE_3DNOW)
+#if defined(QT_HAVE_3DNOW) && (defined(__3dNOW__) || defined(Q_CC_MSVC))
 #include <mm3dnow.h>
 #endif
 

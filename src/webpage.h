@@ -36,6 +36,8 @@
 #include <QWebPage>
 #include <QWebFrame>
 
+#include "cookiejar.h"
+
 class Config;
 class CustomPage;
 class WebpageCallbacks;
@@ -258,6 +260,7 @@ public slots:
     QObject *_getFilePickerCallback();
     QObject *_getJsConfirmCallback();
     QObject *_getJsPromptCallback();
+    QObject *_getJsInterruptCallback();
     void _uploadFile(const QString &selector, const QStringList &fileNames);
     void sendEvent(const QString &type, const QVariant &arg1 = QVariant(), const QVariant &arg2 = QVariant(), const QString &mouseButton = QString(), const QVariant &modifierArg = QVariant());
 
@@ -355,6 +358,21 @@ public slots:
      * @return Name of the Current Frame
      */
     QString currentFrameName() const;
+
+    /**
+     * Allows to set cookie jar for this page.
+     */
+    void setCookieJar(CookieJar *cookieJar);
+
+    /**
+     * Allows to set cookie jar in through QtWebKit Bridge
+     */
+    void setCookieJarFromQObject(QObject *cookieJar);
+
+    /**
+     * Returns the CookieJar object
+     */
+    CookieJar *cookieJar();
 
     /**
      * Allows to set cookies by this Page, at the current URL.
@@ -459,13 +477,15 @@ public slots:
      */
     void stop();
 
+    void stopJavaScript();
+
 signals:
     void initialized();
     void loadStarted();
     void loadFinished(const QString &status);
     void javaScriptAlertSent(const QString &msg);
     void javaScriptConsoleMessageSent(const QString &message);
-    void javaScriptErrorSent(const QString &msg, const QString &stack);
+    void javaScriptErrorSent(const QString &msg, int lineNumber, const QString &sourceID, const QString &stack);
     void resourceRequested(const QVariant &requestData, QObject *request);
     void resourceReceived(const QVariant &resource);
     void resourceError(const QVariant &errorData);
@@ -474,11 +494,13 @@ signals:
     void navigationRequested(const QUrl &url, const QString &navigationType, bool navigationLocked, bool isMainFrame);
     void rawPageCreated(QObject *page);
     void closing(QObject *page);
+    void repaintRequested(const int x, const int y, const int width, const int height);
 
 private slots:
     void finish(bool ok);
     void setupFrame(QWebFrame *frame = NULL);
     void updateLoadingProgress(int progress);
+    void handleRepaintRequested(const QRect &dirtyRect);
 
 private:
     QImage renderImage();
@@ -497,6 +519,7 @@ private:
     QString filePicker(const QString &oldFile);
     bool javaScriptConfirm(const QString &msg);
     bool javaScriptPrompt(const QString &msg, const QString &defaultValue, QString *result);
+    void javascriptInterrupt();
 
 private:
     CustomPage *m_customWebPage;
@@ -513,6 +536,8 @@ private:
     QPoint m_mousePos;
     bool m_ownsPages;
     int m_loadingProgress;
+    bool m_shouldInterruptJs;
+    CookieJar *m_cookieJar;
 
     friend class Phantom;
     friend class CustomPage;

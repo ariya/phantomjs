@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
@@ -56,10 +56,13 @@ QT_BEGIN_NAMESPACE
 
 static QBasicAtomicPointer<QNetworkConfigurationManagerPrivate> connManager_ptr;
 Q_GLOBAL_STATIC(QMutex, connManager_mutex)
+static QBasicAtomicInt appShutdown;
 
 static void connManager_cleanup()
 {
     // this is not atomic or thread-safe!
+    int shutdown = appShutdown.fetchAndStoreAcquire(1);
+    Q_ASSERT(shutdown == 0);
     if(connManager_ptr)
         connManager_ptr->cleanup();
     connManager_ptr = 0;
@@ -73,7 +76,7 @@ void QNetworkConfigurationManagerPrivate::addPostRoutine()
 static QNetworkConfigurationManagerPrivate *connManager()
 {
     QNetworkConfigurationManagerPrivate *ptr = connManager_ptr.fetchAndAddAcquire(0);
-    if (!ptr) {
+    if (!ptr && !appShutdown) {
         QMutexLocker locker(connManager_mutex());
         if (!(ptr = connManager_ptr.fetchAndAddAcquire(0))) {
             ptr = new QNetworkConfigurationManagerPrivate;

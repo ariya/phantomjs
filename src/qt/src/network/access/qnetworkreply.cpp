@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
@@ -651,8 +651,13 @@ void QNetworkReply::ignoreSslErrors(const QList<QSslError> &errors)
     connection will be ignored, including certificate validation
     errors.
 
-    Note that calling this function without restraint may pose a
-    security risk for your application. Use it with care.
+    \warning Be sure to always let the user inspect the errors
+    reported by the sslErrors() signal, and only call this method
+    upon confirmation from the user that proceeding is ok.
+    If there are unexpected errors, the reply should be aborted.
+    Calling this method without inspecting the actual errors will
+    most likely pose a security risk for your application. Use it
+    with great care!
 
     This function can be called from the slot connected to the
     sslErrors() signal, which indicates which errors were

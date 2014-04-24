@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the qmake spec of the Qt Toolkit.
@@ -54,8 +54,13 @@ QT_BEGIN_HEADER
 #  include <vxWorksCommon.h>
 #  include <taskLib.h>
 #else
+#if defined(_WRS_KERNEL)
 extern "C" int taskLock();
 extern "C" int taskUnlock();
+#else
+inline int taskLock() { return 0; }
+inline int taskUnlock() { return 0; }
+#endif
 #endif
 
 

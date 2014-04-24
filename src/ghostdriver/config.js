@@ -1,7 +1,7 @@
 /*
 This file is part of the GhostDriver by Ivan De Marino <http://ivandemarino.me>.
 
-Copyright (c) 2012, Ivan De Marino <http://ivandemarino.me>
+Copyright (c) 2014, Ivan De Marino <http://ivandemarino.me>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -92,7 +92,7 @@ exports.init = function(cliArgs) {
     // Apply/Normalize the Configuration before returning
     apply();
 
-    _log.debug("init", "Configuration => " + JSON.stringify(config));
+    _log.debug("config.init", JSON.stringify(config));
 };
 
 exports.get = function() {

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -427,7 +427,6 @@ void QWidgetPrivate::hide_sys()
         if (p &&p->isVisible()) {
             invalidateBuffer(q->rect());
         }
-        return;
     }
     if (QPlatformWindow *window = q->platformWindow()) {
          window->setVisible(false);
@@ -461,7 +460,7 @@ void QWidgetPrivate::setFullScreenSize_helper()
 
     const QRect screen = qApp->desktop()->screenGeometry(qApp->desktop()->screenNumber(q));
     q->move(screen.topLeft());
-    q->resize(screen.size());
+    q->setFixedSize(screen.size());
 
     data.in_set_window_state = old_state;
 }

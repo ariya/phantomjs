@@ -78,32 +78,22 @@ QDataStream &operator>>(QDataStream &stream, QList<QNetworkCookie> &list)
 }
 QT_END_NAMESPACE
 
-// private:
+// public:
 CookieJar::CookieJar(QString cookiesFile, QObject *parent)
     : QNetworkCookieJar(parent)
-    , m_cookieStorage(new QSettings(cookiesFile, QSettings::IniFormat, this))
     , m_enabled(true)
 {
-    load();
-}
-
-// public:
-CookieJar *CookieJar::instance(QString cookiesFile)
-{
-    static CookieJar *singleton = NULL;
-    if (!singleton) {
-        if (cookiesFile.isEmpty()) {
-            qDebug() << "CookieJar - Created but will not store cookies (use option '--cookies-file=<filename>' to enable persisten cookie storage)";
-        } else {
-            qDebug() << "CookieJar - Created and will store cookies in:" << cookiesFile;
-        }
-        // Create singleton and assign ownershipt to the Phantom singleton object
-        // NOTE: First time this is done is when we set "once and for all" the Cookies' File
-        singleton = new CookieJar(cookiesFile, Phantom::instance());
+    if (cookiesFile == "") {
+        m_cookieStorage = 0;
+        qDebug() << "CookieJar - Created but will not store cookies (use option '--cookies-file=<filename>' to enable persistent cookie storage)";
+    } else {
+        m_cookieStorage = new QSettings(cookiesFile, QSettings::IniFormat, this);
+        load();
+        qDebug() << "CookieJar - Created and will store cookies in:" << cookiesFile;
     }
-    return singleton;
 }
 
+// private:
 CookieJar::~CookieJar()
 {
     // On destruction, before saving, clear all the session cookies
@@ -390,6 +380,11 @@ bool CookieJar::isEnabled() const
     return m_enabled;
 }
 
+void CookieJar::close()
+{
+    deleteLater();
+}
+
 // private:
 bool CookieJar::purgeExpiredCookies()
 {
@@ -457,7 +452,9 @@ void CookieJar::save()
 #endif
 
         // Store cookies
-        m_cookieStorage->setValue(QLatin1String("cookies"), QVariant::fromValue<QList<QNetworkCookie> >(allCookies()));
+        if (m_cookieStorage) {
+            m_cookieStorage->setValue(QLatin1String("cookies"), QVariant::fromValue<QList<QNetworkCookie> >(allCookies()));
+        }
     }
 }
 
@@ -468,7 +465,9 @@ void CookieJar::load()
         qRegisterMetaTypeStreamOperators<QList<QNetworkCookie> >("QList<QNetworkCookie>");
 
         // Load all the cookies
-        setAllCookies(qvariant_cast<QList<QNetworkCookie> >(m_cookieStorage->value(QLatin1String("cookies"))));
+        if (m_cookieStorage) {
+            setAllCookies(qvariant_cast<QList<QNetworkCookie> >(m_cookieStorage->value(QLatin1String("cookies"))));
+        }
 
         // If any cookie has expired since last execution, purge and save before going any further
         if (purgeExpiredCookies()) {

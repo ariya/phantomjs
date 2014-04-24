@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -228,13 +228,26 @@ QIcon QFileIconProvider::icon(IconType type) const
 }
 
 #ifdef Q_WS_WIN
+
+static bool isCacheable(const QFileInfo &fi)
+{
+    if (!fi.isFile())
+        return false;
+
+    // On windows it's faster to just look at the file extensions. QTBUG-13182
+    const QString fileExtension = fi.suffix();
+    return fileExtension.compare(QLatin1String("exe"), Qt::CaseInsensitive) &&
+           fileExtension.compare(QLatin1String("lnk"), Qt::CaseInsensitive) &&
+           fileExtension.compare(QLatin1String("ico"), Qt::CaseInsensitive);
+}
+
 QIcon QFileIconProviderPrivate::getWinIcon(const QFileInfo &fileInfo) const
 {
     QIcon retIcon;
     const QString fileExtension = QLatin1Char('.') + fileInfo.suffix().toUpper();
 
     QString key;
-    if (fileInfo.isFile() && !fileInfo.isExecutable() && !fileInfo.isSymLink() && fileExtension != QLatin1String(".ICO"))
+    if (isCacheable(fileInfo))
         key = QLatin1String("qt_") + fileExtension;
 
     QPixmap pixmap;

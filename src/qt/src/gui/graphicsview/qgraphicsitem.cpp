@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -3291,12 +3291,14 @@ void QGraphicsItemPrivate::setFocusHelper(Qt::FocusReason focusReason, bool clim
         if (p->flags() & QGraphicsItem::ItemIsFocusScope) {
             QGraphicsItem *oldFocusScopeItem = p->d_ptr->focusScopeItem;
             p->d_ptr->focusScopeItem = q_ptr;
+            if (oldFocusScopeItem)
+                oldFocusScopeItem->d_ptr->focusScopeItemChange(false);
+            focusScopeItemChange(true);
             if (!p->focusItem() && !focusFromHide) {
-                if (oldFocusScopeItem)
-                    oldFocusScopeItem->d_ptr->focusScopeItemChange(false);
-                focusScopeItemChange(true);
-                // If you call setFocus on a child of a focus scope that
-                // doesn't currently have a focus item, then stop.
+                // Calling setFocus() on a child of a focus scope that does
+                // not have focus changes only the focus scope pointer,
+                // so that focus is restored the next time the scope gains
+                // focus.
                 return;
             }
             break;
@@ -3349,6 +3351,12 @@ void QGraphicsItem::clearFocus()
 */
 void QGraphicsItemPrivate::clearFocusHelper(bool giveFocusToParent)
 {
+    QGraphicsItem *subFocusItem = q_ptr;
+    if (flags & QGraphicsItem::ItemIsFocusScope) {
+        while (subFocusItem->d_ptr->focusScopeItem)
+            subFocusItem = subFocusItem->d_ptr->focusScopeItem;
+    }
+
     if (giveFocusToParent) {
         // Pass focus to the closest parent focus scope
         if (!inDestructor) {
@@ -3357,10 +3365,10 @@ void QGraphicsItemPrivate::clearFocusHelper(bool giveFocusToParent)
                 if (p->flags() & QGraphicsItem::ItemIsFocusScope) {
                     if (p->d_ptr->focusScopeItem == q_ptr) {
                         p->d_ptr->focusScopeItem = 0;
-                        if (!q_ptr->hasFocus()) //if it has focus, focusScopeItemChange is called elsewhere
+                        if (!subFocusItem->hasFocus()) //if it has focus, focusScopeItemChange is called elsewhere
                             focusScopeItemChange(false);
                     }
-                    if (q_ptr->hasFocus())
+                    if (subFocusItem->hasFocus())
                         p->d_ptr->setFocusHelper(Qt::OtherFocusReason, /* climb = */ false,
                                                  /* focusFromHide = */ false);
                     return;
@@ -3370,7 +3378,7 @@ void QGraphicsItemPrivate::clearFocusHelper(bool giveFocusToParent)
         }
     }
 
-    if (q_ptr->hasFocus()) {
+    if (subFocusItem->hasFocus()) {
         // Invisible items with focus must explicitly clear subfocus.
         clearSubFocus(q_ptr);
 
@@ -7230,7 +7238,7 @@ void QGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 */
 void QGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (flags() & ItemIsSelectable) {
+    if (event->button() == Qt::LeftButton && (flags() & ItemIsSelectable)) {
         bool multiSelect = (event->modifiers() & Qt::ControlModifier) != 0;
         if (event->scenePos() == event->buttonDownScenePos(Qt::LeftButton)) {
             // The item didn't move

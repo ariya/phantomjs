@@ -79,6 +79,8 @@ cp README.md %{mybuilddir}%{prefix}/share/%{name}/
 %{prefix}/share/%{name}/examples/netlog.js
 %{prefix}/share/%{name}/examples/netsniff.coffee
 %{prefix}/share/%{name}/examples/netsniff.js
+%{prefix}/share/%{name}/examples/openurlwithproxy.coffee
+%{prefix}/share/%{name}/examples/openurlwithproxy.js
 %{prefix}/share/%{name}/examples/outputEncoding.coffee
 %{prefix}/share/%{name}/examples/outputEncoding.js
 %{prefix}/share/%{name}/examples/page_events.coffee
@@ -91,6 +93,8 @@ cp README.md %{mybuilddir}%{prefix}/share/%{name}/
 %{prefix}/share/%{name}/examples/pizza.js
 %{prefix}/share/%{name}/examples/post.coffee
 %{prefix}/share/%{name}/examples/post.js
+%{prefix}/share/%{name}/examples/postjson.coffee
+%{prefix}/share/%{name}/examples/postjson.js
 %{prefix}/share/%{name}/examples/postserver.coffee
 %{prefix}/share/%{name}/examples/postserver.js
 %{prefix}/share/%{name}/examples/printenv.coffee
@@ -105,6 +109,7 @@ cp README.md %{mybuilddir}%{prefix}/share/%{name}/
 %{prefix}/share/%{name}/examples/render_multi_url.js
 %{prefix}/share/%{name}/examples/run-jasmine.coffee
 %{prefix}/share/%{name}/examples/run-jasmine.js
+%{prefix}/share/%{name}/examples/run-jasmine2.js
 %{prefix}/share/%{name}/examples/run-qunit.coffee
 %{prefix}/share/%{name}/examples/run-qunit.js
 %{prefix}/share/%{name}/examples/scandir.coffee
@@ -142,6 +147,9 @@ cp README.md %{mybuilddir}%{prefix}/share/%{name}/
 %{prefix}/share/%{name}/README.md
 
 %changelog
+* Fri Apr 18 2014 Eric Heydenberk <heydenberk@gmail.com>
+- add missing filenames for examples to files section
+
 * Tue Apr 30 2013 Eric Heydenberk <heydenberk@gmail.com>
 - add missing filenames for examples to files section
 

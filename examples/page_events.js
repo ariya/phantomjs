@@ -59,6 +59,10 @@ page.onNavigationRequested = function() {
     console.log("page.onNavigationRequested");
     printArgs.apply(this, arguments);
 };
+page.onRepaintRequested = function() {
+    console.log("page.onRepaintRequested");
+    printArgs.apply(this, arguments);
+};
 
 if (logResources === true) {
     page.onResourceRequested = function() {

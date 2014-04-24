@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -463,8 +463,8 @@ void QAbstractEventDispatcher::closingDown()
     \snippet doc/src/snippets/code/src_corelib_kernel_qabstracteventdispatcher.cpp 0
 
     Note that the type of the \a message is platform dependent. The
-    following table shows the \a {message}'s type on Windows, Mac, and
-    X11. You can do a static cast to these types.
+    following table shows the \a {message}'s type on Windows, Mac, X11
+    and BlackBerry. You can do a static cast to these types.
 
     \table
         \header
@@ -479,6 +479,9 @@ void QAbstractEventDispatcher::closingDown()
         \row
             \o Mac
             \o NSEvent
+        \row
+            \o BlackBerry
+            \o bps_event_t
     \endtable
 
     

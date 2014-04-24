@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -887,7 +887,9 @@ Q_AUTOTEST_EXPORT QString qt_tildeExpansion(const QString &path, bool *expanded 
     } else {
         QString userName = tokens.first();
         userName.remove(0, 1);
-#if defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_OPENBSD)
+#if defined(Q_OS_VXWORKS)
+        const QString homePath = QDir::homePath();
+#elif defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_OPENBSD)
         passwd pw;
         passwd *tmpPw;
         char buf[200];
@@ -2999,7 +3001,11 @@ void QFileDialogPrivate::_q_enterDirectory(const QModelIndex &index)
             lineEdit()->clear();
         }
     } else {
-        q->accept();
+        // Do not accept when shift-clicking to multi-select a file in environments with single-click-activation (KDE)
+        if (!q->style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick)
+            || q->fileMode() != QFileDialog::ExistingFiles || !(QApplication::keyboardModifiers() & Qt::CTRL)) {
+            q->accept();
+        }
     }
 }
 

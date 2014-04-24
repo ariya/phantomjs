@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -80,7 +80,7 @@ QFileInfoGatherer::QFileInfoGatherer(QObject *parent)
 {
 #ifdef Q_OS_WIN
     m_resolveSymlinks = true;
-#elif !defined(Q_OS_INTEGRITY)
+#elif !defined(Q_OS_INTEGRITY) && !defined(Q_OS_VXWORKS)
     userId = getuid();
     groupId = getgid();
 #endif
@@ -248,7 +248,7 @@ QExtendedInformation QFileInfoGatherer::getInfo(const QFileInfo &fileInfo) const
     #endif
 #endif
 
-    if (fileInfo.isSymLink() && m_resolveSymlinks) {
+    if (m_resolveSymlinks && info.isSymLink(/* ignoreNtfsSymLinks = */ true)) {
         QFileInfo resolvedInfo(fileInfo.symLinkTarget());
         resolvedInfo = resolvedInfo.canonicalFilePath();
         if (resolvedInfo.exists()) {
