@@ -1,7 +1,7 @@
-2013-03-18 00:35:29
+2014-01-02 22:06:54
 
-commit 1bd294d185a80fa4206dfeab80ba773c04ac33c0 (HEAD, tag: refs/tags/selenium-2.31.0)
+commit 14fa800511cc5d66d426e08b0b2ab926c7ed7398 (HEAD, tag: refs/tags/selenium-2.39.0)
 Author: Jim Evans <james.h.evans.jr@gmail.com>
-Date:   Wed Feb 27 15:32:20 2013 -0500
+Date:   Mon Dec 16 11:26:02 2013 -0500
 
-    Bumping IEDriverServer.exe version number for impending 2.31.0 release
+    Updating .NET CHANGELOG for 2.39.0 release

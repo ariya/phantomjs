@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -240,7 +240,7 @@ void QSystemTrayIconSys::addToTray()
 
     // GNOME, NET WM Specification
     static Atom netwm_tray_atom = XInternAtom(display, "_NET_SYSTEM_TRAY_OPCODE", False);
-    long l[5] = { CurrentTime, SYSTEM_TRAY_REQUEST_DOCK, winId(), 0, 0 };
+    long l[5] = { CurrentTime, SYSTEM_TRAY_REQUEST_DOCK, static_cast<long>(winId()), 0, 0 };
     XEvent ev;
     memset(&ev, 0, sizeof(ev));
     ev.xclient.type = ClientMessage;

@@ -40,11 +40,12 @@ class ResourceRequest;
 class ResourceResponse;
 class QNetworkReplyHandler;
 
-class QNetworkReplyHandlerCallQueue {
+class QNetworkReplyHandlerCallQueue : public QObject {
+    Q_OBJECT
 public:
     QNetworkReplyHandlerCallQueue(QNetworkReplyHandler*, bool deferSignals);
     bool deferSignals() const { return m_deferSignals; }
-    void setDeferSignals(bool);
+    void setDeferSignals(bool, bool sync = false);
 
     typedef void (QNetworkReplyHandler::*EnqueuedCall)();
     void push(EnqueuedCall method);
@@ -59,7 +60,7 @@ private:
     bool m_flushing;
     QList<EnqueuedCall> m_enqueuedCalls;
 
-    void flush();
+    Q_INVOKABLE void flush();
 };
 
 class QNetworkReplyWrapper : public QObject {
@@ -90,9 +91,10 @@ private Q_SLOTS:
     void didReceiveReadyRead();
     void receiveSniffedMIMEType();
     void setFinished();
+    void replyDestroyed();
 
 private:
-    void resetConnections();
+    void stopForwarding();
     void emitMetaDataChanged();
 
     QNetworkReply* m_reply;
@@ -119,7 +121,7 @@ public:
     };
 
     QNetworkReplyHandler(ResourceHandle*, LoadType, bool deferred = false);
-    void setLoadingDeferred(bool deferred) { m_queue.setDeferSignals(deferred); }
+    void setLoadingDeferred(bool deferred) { m_queue.setDeferSignals(deferred, m_loadType == SynchronousLoad); }
 
     QNetworkReply* reply() const { return m_replyWrapper ? m_replyWrapper->reply() : 0; }
 

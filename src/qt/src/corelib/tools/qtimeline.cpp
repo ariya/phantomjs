@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -748,7 +748,10 @@ void QTimeLine::setPaused(bool paused)
         d->timerId = 0;
         d->setState(Paused);
     } else if (!paused && d->state == Paused) {
+        // Same as resume()
         d->timerId = startTimer(d->updateInterval);
+        d->startTime = d->currentTime;
+        d->timer.start();
         d->setState(Running);
     }
 }

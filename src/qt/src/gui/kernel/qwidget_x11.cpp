@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -910,13 +910,13 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     if (extra && !extra->mask.isEmpty() && q->internalWinId())
         XShapeCombineRegion(X11->display, q->internalWinId(), ShapeBounding, 0, 0,
                             extra->mask.handle(), ShapeSet);
-
+#ifndef QT_NO_IM
     if (q->hasFocus() && q->testAttribute(Qt::WA_InputMethodEnabled)) {
         QInputContext *inputContext = q->inputContext();
         if (inputContext)
             inputContext->setFocusWidget(q);
     }
-
+#endif
     if (destroyw) {
         qt_XDestroyWindow(q, dpy, destroyw);
         if (QTLWExtra *topData = maybeTopData()) {
@@ -1106,7 +1106,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
         extern void qPRCleanup(QWidget *widget); // from qapplication_x11.cpp
         if (testAttribute(Qt::WA_WState_Reparented))
             qPRCleanup(this);
-
+#ifndef QT_NO_IM
         if(d->ic) {
             delete d->ic;
         } else {
@@ -1116,6 +1116,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
             if (qic)
                 qic->widgetDestroyed(this);
         }
+#endif
     }
 }
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -153,10 +153,10 @@ key_t QSystemSemaphorePrivate::handle(QSystemSemaphore::AccessMode mode)
     }
 
     // Get semaphore
-    semaphore = semget(unix_key, 1, 0666 | IPC_CREAT | IPC_EXCL);
+    semaphore = semget(unix_key, 1, 0600 | IPC_CREAT | IPC_EXCL);
     if (-1 == semaphore) {
         if (errno == EEXIST)
-            semaphore = semget(unix_key, 1, 0666 | IPC_CREAT);
+            semaphore = semget(unix_key, 1, 0600 | IPC_CREAT);
         if (-1 == semaphore) {
             setErrorString(QLatin1String("QSystemSemaphore::handle"));
             cleanHandle();

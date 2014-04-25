@@ -55,3 +55,6 @@ tools/dump_syms.app/
 [Dd]ebug*/
 [Rr]elease/
 bin/
+*.class
+build/
+.gradle/

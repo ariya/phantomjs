@@ -1,7 +1,7 @@
 /*
 This file is part of the GhostDriver by Ivan De Marino <http://ivandemarino.me>.
 
-Copyright (c) 2012, Ivan De Marino <http://ivandemarino.me>
+Copyright (c) 2014, Ivan De Marino <http://ivandemarino.me>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -62,6 +62,9 @@ ghostdriver.RequestHandler = function() {
     },
 
     _decorateRequest = function(request) {
+        // Normalize URL first
+        request.url = request.url.replace(/^\/wd\/hub/, '');
+        // Then parse it
         request.urlParsed = require("./third_party/parseuri.js").parse(request.url);
     },
 
@@ -93,8 +96,6 @@ ghostdriver.RequestHandler = function() {
     },
 
     _respondBasedOnResultDecorator = function(session, req, result) {
-        //console.log("respondBasedOnResult => "+JSON.stringify(result));
-
         // Convert string to JSON
         if (typeof(result) === "string") {
             try {

@@ -508,6 +508,90 @@ describe("WebPage object", function() {
         });
     });
 
+    it("should handle mousedown with modifier keys", function() {
+        runs(function() {
+            page.evaluate(function() {
+                window.addEventListener('mousedown', function(event) {
+                    window.loggedEvent = window.loggedEvent || {};
+                    window.loggedEvent.mousedown = event;
+                }, false);
+            });
+            page.sendEvent('mousedown', 100, 100, 'left', page.event.modifier.shift);
+        });
+
+        waits(50);
+
+        runs(function() {
+            var event = page.evaluate(function() {
+                return window.loggedEvent.mousedown;
+            });
+            expect(event.shiftKey).toEqual(true);
+        });
+    });
+
+    it("should handle mouseup with modifier keys", function() {
+        runs(function() {
+            page.evaluate(function() {
+                window.addEventListener('mouseup', function(event) {
+                    window.loggedEvent = window.loggedEvent || {};
+                    window.loggedEvent.mouseup = event;
+                }, false);
+            });
+            page.sendEvent('mouseup', 100, 100, 'left', page.event.modifier.shift);
+        });
+
+        waits(50);
+
+        runs(function() {
+            var event = page.evaluate(function() {
+                return window.loggedEvent.mouseup;
+            });
+            expect(event.shiftKey).toEqual(true);
+        });
+    });
+
+    it("should handle click with modifier keys", function() {
+        runs(function() {
+            page.evaluate(function() {
+                window.addEventListener('click', function(event) {
+                    window.loggedEvent = window.loggedEvent || {};
+                    window.loggedEvent.click = event;
+                }, false);
+            });
+            page.sendEvent('click', 100, 100, 'left', page.event.modifier.shift);
+        });
+
+        waits(50);
+
+        runs(function() {
+            var event = page.evaluate(function() {
+                return window.loggedEvent.click;
+            });
+            expect(event.shiftKey).toEqual(true);
+        });
+    });
+
+    it("should handle doubleclick with modifier keys", function() {
+        runs(function() {
+            page.evaluate(function() {
+                window.addEventListener('dblclick', function(event) {
+                    window.loggedEvent = window.loggedEvent || {};
+                    window.loggedEvent.dblclick = event;
+                }, false);
+            });
+            page.sendEvent('doubleclick', 100, 100, 'left', page.event.modifier.shift);
+        });
+
+        waits(50);
+
+        runs(function() {
+            var event = page.evaluate(function() {
+                return window.loggedEvent.dblclick;
+            });
+            expect(event.shiftKey).toEqual(true);
+        });
+    });
+
     it("should handle file uploads", function() {
         runs(function() {
             page.content = '<input type="file" id="file">\n' +
@@ -1093,18 +1177,21 @@ describe("WebPage object", function() {
 
     it('should open url using secure connection', function() {
         var page = require('webpage').create();
-        var url = 'https://en.wikipedia.org';
+        var url = 'https://www.google.com/m';
 
-        var handled = false;
+        var loaded = false, handled = false;
 
         runs(function() {
             page.open(url, function(status) {
+                loaded = true;
                 expect(status == 'success').toEqual(true);
                 handled = true;
             });
         });
 
-        waits(3000);
+        waitsFor(function () {
+            return loaded;
+        }, 'Can not load ' + url, 3000);
 
         runs(function() {
             expect(handled).toEqual(true);
@@ -1180,8 +1267,9 @@ describe("WebPage object", function() {
 
            page.open(url, function (status) {
                 expect(status == 'success').toEqual(true);
-                    handled = true;
-                });
+                handled = true;
+                server.close();
+            });
         });
     });
 
@@ -1189,27 +1277,28 @@ describe("WebPage object", function() {
     it('should able to abort a network request', function() {
         var page = require('webpage').create();
         var url = 'http://phantomjs.org';
-        var urlToBlock = 'http://phantomjs.org/images/phantomjs-logo.png';
+        var urlToBlockRexExp = /phantomjs-logo\.png$/i;
 
         var handled = false;
 
-        runs(function() {
-            page.onResourceRequested = function(requestData, request) {
-                if (requestData['url'] == urlToBlock) {
-                    expect(typeof request).toEqual('object');
-                    expect(typeof request.abort).toEqual('function');
-                    request.abort();
-                    handled = true;
-                }
-            };
+        page.onResourceRequested = function(requestData, request) {
 
+            if (urlToBlockRexExp.test(requestData['url'])) {
+                expect(typeof request).toEqual('object');
+                expect(typeof request.abort).toEqual('function');
+                request.abort();
+                handled = true;
+            }
+        };
+
+        runs(function() {
             page.open(url, function(status) {
                 expect(status).toEqual('success');
             });
         });
-        
+
         waits(5000);
-        
+
         runs(function() {
             page.close();
             expect(handled).toBeTruthy();
@@ -1242,8 +1331,8 @@ describe("WebPage object", function() {
     it('should change the url of the request', function() {
         var page = require('webpage').create();
         var url = 'http://phantomjs.org';
-        var urlToChange = 'http://phantomjs.org/images/phantomjs-logo.png';
-        var fakeImageUrl = 'http://phantomjs.org/images/icon-release.png';
+        var urlToChange = 'http://phantomjs.org/img/phantomjs-logo.png';
+        var alternativeUrl = 'http://phantomjs.org/img/icon-release.png';
 
         var handled = false;
 
@@ -1252,12 +1341,12 @@ describe("WebPage object", function() {
                 if (requestData['url'] == urlToChange) {
                     expect(typeof request).toEqual('object');
                     expect(typeof request.changeUrl).toEqual('function');
-                    request.changeUrl(fakeImageUrl);
+                    request.changeUrl(alternativeUrl);
                 }
             };
 
             page.onResourceReceived = function(data) {
-                if (data['stage'] === 'end' && data['url'] == fakeImageUrl) {
+                if (data['stage'] === 'end' && data['url'] == alternativeUrl) {
                     handled = true;
                 }
             };
@@ -1273,7 +1362,7 @@ describe("WebPage object", function() {
             expect(handled).toBe(true);
         });
     });
-    
+
     it('should fire `onResourceReceived` callback when the resource error occured', function() {
         var page = require('webpage').create();
         var server = require('webserver').create();
@@ -1300,6 +1389,19 @@ describe("WebPage object", function() {
         runs(function() {
             expect(handled).toEqual(2);
             page.close();
+            server.close();
+        });
+    });
+
+    it("should interrupt a long-running JavaScript code", function() {
+        var page = new WebPage();
+
+        page.onLongRunningScript = function() {
+            page.stopJavaScript();
+        };
+
+        page.open('../test/webpage-spec-frames/forever.html', function(status) {
+            expect(status).toEqual('success');
         });
     });
 });
@@ -1924,6 +2026,92 @@ describe('WebPage navigation events', function() {
     });
 });
 
+
+describe('WebPage repaint requests', function() {
+    it('should report when a repaint is requested, together with the area being repainted', function () {
+        var page = require("webpage").create();
+        var base = "https://github.com";
+        var isHandled = false;
+
+        runs(function() {
+            page.onRepaintRequested = function(x, y, width, height) {
+                isHandled = true;
+            };
+
+            page.open(base);
+        });
+
+        waits(3000);
+
+        runs(function() {
+            expect(isHandled).toEqual(true);
+        });
+    });
+});
+
+describe("WebPage loading/loadingProgress properties", function() {
+    var p = require("webpage").create();
+
+    it("should not be loading when page has just been created", function() {
+        expect(p.loading).toBeFalsy();
+        expect(p.loadingProgress).toEqual(0);
+    });
+
+    it("should be loading when 'page.open' is invoked", function() {
+        var s = require("webserver").create();
+
+        s.listen(12345, function(request, response) {
+            setTimeout(function() {
+                response.statusCode = 200;
+                response.write('<html><body>Loaded!</body></html>');
+                response.close();
+            }, 200);
+        });
+
+        runs(function() {
+            p.open("http://localhost:12345");
+            expect(p.loading).toBeTruthy();
+            expect(p.loadingProgress).toBeGreaterThan(0);
+        });
+
+        waits(500);
+
+        runs(function() {
+            s.close();
+        });
+    });
+
+    it("should be completed when page is fully loaded", function() {
+        var s = require("webserver").create();
+
+        s.listen(12345, function(request, response) {
+            setTimeout(function() {
+                response.statusCode = 200;
+                response.write('<html><body>Loaded!</body></html>');
+                response.close();
+            }, 500);
+        });
+
+        var loaded = false;
+
+        runs(function() {
+            p.open("http://localhost:12345", function () {
+                loaded = true;
+            });
+        });
+
+        waitsFor(function () {
+            return loaded;
+        }, 'Can not test loading progress' , 3000);
+
+        runs(function() {
+            expect(p.loading).toBeFalsy();
+            expect(p.loadingProgress).toEqual(100);
+            s.close();
+        });
+    });
+});
+
 describe("WebPage render image", function(){
     var TEST_FILE_DIR = "webpage-spec-renders/";
 
@@ -1932,44 +2120,59 @@ describe("WebPage render image", function(){
     p.clipRect = { top: 0, left: 0, width: 300, height: 300};
     p.viewportSize = { width: 300, height: 300};
 
-    p.open( TEST_FILE_DIR + "index.html");
-    waits(50);
+    function render_test(format, option) {
+        var opt = option || {};
+        var rendered = false;
 
-    function render_test( format, option ){
-         var opt = option || {};
-         var content, expect_content;
-         try {
-            var FILE_EXTENSION = format;
-            var FILE_NAME = "test";
-            var EXPECT_FILE;
-            if( opt.quality ){
-                EXPECT_FILE = TEST_FILE_DIR + FILE_NAME + opt.quality + "." + FILE_EXTENSION;
+        p.open(TEST_FILE_DIR + "index.html", function() {
+            var content, expect_content;
+            try {
+                var FILE_EXTENSION = format;
+                var FILE_NAME = "test";
+                var EXPECT_FILE;
+                if( opt.quality ){
+                    EXPECT_FILE = TEST_FILE_DIR + FILE_NAME + opt.quality + "." + FILE_EXTENSION;
+                }
+                else{
+                    EXPECT_FILE = TEST_FILE_DIR + FILE_NAME + "." + FILE_EXTENSION;
+                }
+
+                var TEST_FILE;
+                if( opt.format ){
+                    TEST_FILE = TEST_FILE_DIR + "temp_" + FILE_NAME;
+                }
+                else{
+                    TEST_FILE = TEST_FILE_DIR + "temp_" + FILE_NAME + "." + FILE_EXTENSION;
+                }
+
+                p.render(TEST_FILE, opt);
+
+                expect_content = fs.read(EXPECT_FILE, "b");
+                content = fs.read(TEST_FILE, "b");
+
+                fs.remove(TEST_FILE);
+            } catch (e) { console.log(e) }
+
+            // for PDF test
+            if (format === "pdf") {
+                content = content.replace(/CreationDate \(D:\d+\)Z\)/,'');
+                expect_content = expect_content.replace(/CreationDate \(D:\d+\)Z\)/,'');
             }
-            else{
-                EXPECT_FILE = TEST_FILE_DIR + FILE_NAME + "." + FILE_EXTENSION;
+
+            // Files may not be exact, compare rought size (KB) only.
+            expect(content.length >> 10).toEqual(expect_content.length >> 10);
+
+            // Content comparison works for PNG and JPEG.
+            if (format === "png" || format === "jpg") {
+                expect(content).toEqual(expect_content);
             }
 
-            var TEST_FILE;
-            if( opt.format ){
-                TEST_FILE = TEST_FILE_DIR + "temp_" + FILE_NAME;
-            }
-            else{
-                TEST_FILE = TEST_FILE_DIR + "temp_" + FILE_NAME + "." + FILE_EXTENSION;
-            }
+            rendered = true;
+        });
 
-            p.render(TEST_FILE, opt);
-
-            expect_content = fs.read(EXPECT_FILE, "b");
-            content = fs.read(TEST_FILE, "b");
-
-            fs.remove(TEST_FILE);
-        } catch (e) { console.log(e) }
-
-        // for PDF test
-        content = content.replace(/CreationDate \(D:\d+\)Z\)/,'');
-        expect_content = expect_content.replace(/CreationDate \(D:\d+\)Z\)/,'');
-
-        expect(content).toEqual(expect_content);
+        waitsFor(function() {
+            return rendered;
+        }, "page to be rendered", 3000);
     }
 
     it("should render PDF file", function(){
@@ -2004,39 +2207,108 @@ describe("WebPage render image", function(){
         render_test("jpg", { format: 'jpg', quality: 50 });
     });
 
+    runs(function() {
+        p.close();
+    });
 });
 
-describe("WebPage loading/loadingProgress properties", function() {
-    var p = require("webpage").create();
+describe("WebPage network request headers handling", function() {
+    it("should add HTTP header to a network request", function() {
+        var page = require("webpage").create();
+        var server = require("webserver").create();
+        var isCustomHeaderPresented = false;
 
-    it("should not be loading when page has just been created", function() {
-        expect(p.loading).toBeFalsy();
-        expect(p.loadingProgress).toEqual(0);
-    });
-
-    it("should be loading when 'page.open' is invoked", function() {
-        var s = require("webserver").create();
-
-        s.listen(12345, function(request, response) {
-            setTimeout(function() {
-                response.statusCode = 200;
-                response.write('<html><body>Loaded!</body></html>');
-                response.close();
-            }, 500);
+        server.listen(12345, function(response) {
+            if (response.headers["CustomHeader"] && response.headers["CustomHeader"] === "CustomValue") {
+                isCustomHeaderPresented = true;
+            }
         });
 
-        p.onLoadFinished = function(status) {
-            expect(p.loading).toBeFalsy();
-            expect(p.loadingProgress).toEqual(0);
+        page.onResourceRequested = function(requestData, request) {
+            expect(typeof request.setHeader).toEqual("function");
+            request.setHeader("CustomHeader", "CustomValue");
         };
-        p.open("http://localhost:12345");
-        expect(p.loading).toBeTruthy();
-        expect(p.loadingProgress).toBeGreaterThan(0);
-
-        waits(500);
 
         runs(function() {
-            s.close();
+            page.open("http://localhost:12345", function(status) {
+                expect(status).toEqual("success");
+            });
+        });
+
+        waitsFor(function() {
+            return isCustomHeaderPresented;
+        }, "isCustomHeaderPresented should be received", 3000);
+
+        runs(function() {
+            page.close();
+            server.close();
+        });
+    });
+
+    it("should remove HTTP header from a network request", function() {
+        var page = require("webpage").create();
+        page.customHeaders = {"CustomHeader": "CustomValue"};
+
+        var server = require("webserver").create();
+        var handled = false;
+
+        server.listen(12345, function(request) {
+            if (request.headers["CustomHeader"] == null) {
+                handled = true;
+            }
+        });
+
+        page.onResourceRequested = function(requestData, request) {
+            expect(typeof request.setHeader).toEqual("function");
+            request.setHeader("CustomHeader", null);
+        };
+
+        runs(function() {
+            page.open("http://localhost:12345", function(status) {
+                expect(status).toEqual("success");
+            });
+        });
+
+        waits(3000);
+
+        runs(function() {
+            expect(handled).toBeTruthy();
+            page.close();
+            server.close();
+        });
+    });
+
+    it("should set HTTP header value for a network request", function() {
+        var page = require("webpage").create();
+        page.customHeaders = {"CustomHeader": "CustomValue"};
+
+        var server = require("webserver").create();
+        var handled = false;
+
+        server.listen(12345, function(request) {
+            if (request.headers["CustomHeader"] &&
+                request.headers["CustomHeader"] === "ChangedCustomValue") {
+                handled = true;
+            }
+        });
+
+        page.onResourceRequested = function(requestData, request) {
+            expect(typeof request.setHeader).toEqual("function");
+            request.setHeader("CustomHeader", "ChangedCustomValue");
+        };
+
+        runs(function() {
+            page.open("http://localhost:12345", function(status) {
+                expect(status).toEqual("success");
+            });
+        });
+
+        waits(3000);
+
+        runs(function() {
+            expect(handled).toBeTruthy();
+            page.close();
+            server.close();
         });
     });
 });

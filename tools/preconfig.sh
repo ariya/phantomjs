@@ -21,10 +21,10 @@ fi
 QT_CFG+=' -release'             # Build only for release (no debugging support)
 QT_CFG+=' -fast'                # Accelerate Makefiles generation
 QT_CFG+=' -nomake demos'        # Don't build with the demos
-QT_CFG+=' -nomake docs'         # Don't generate the documentatio
+QT_CFG+=' -nomake docs'         # Don't generate the documentation
 QT_CFG+=' -nomake examples'     # Don't build any examples
 QT_CFG+=' -nomake translations' # Ignore the translations
-QT_CFG+=' -nomake tools'        # Don't built the tools
+QT_CFG+=' -nomake tools'        # Don't build the tools
 
 QT_CFG+=' -no-exceptions'       # Don't use C++ exception
 QT_CFG+=' -no-stl'              # No need for STL compatibility

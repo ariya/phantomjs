@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the tools applications of the Qt Toolkit.
@@ -731,9 +731,7 @@ bool RCCResourceLibrary::writeHeader()
         writeString("/****************************************************************************\n");
         writeString("** Resource object code\n");
         writeString("**\n");
-        writeString("** Created: ");
-        writeByteArray(QDateTime::currentDateTime().toString().toLatin1());
-        writeString("\n**      by: The Resource Compiler for Qt version ");
+        writeString("** Created by: The Resource Compiler for Qt version ");
         writeByteArray(QT_VERSION_STR);
         writeString("\n**\n");
         writeString("** WARNING! All changes made in this file will be lost!\n");

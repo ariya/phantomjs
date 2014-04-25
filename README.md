@@ -6,6 +6,13 @@ The latest [stable release](http://phantomjs.org/release-1.9.html) is version 1.
 
 **Note**: Please **do not** create a GitHub pull request **without** reading the [Contribution Guide](https://github.com/ariya/phantomjs/blob/master/CONTRIBUTING.md) first. Failure to do so may result in the rejection of the pull request.
 
+## Travis CI
+
+| Branch   | Build Status    |
+|:--------:|:---------------:|
+| `master` | [![Build Status](https://travis-ci.org/ariya/phantomjs.svg?branch=master)](https://travis-ci.org/ariya/phantomjs) |
+| `1.9`    | [![Build Status](https://travis-ci.org/ariya/phantomjs.svg?branch=1.9)](https://travis-ci.org/ariya/phantomjs) |
+
 ## Use Cases
 
 - **Headless web testing**. Lightning-fast testing without the browser is now possible! Various [test frameworks](https://github.com/ariya/phantomjs/wiki/Headless-Testing) such as Jasmine, Capybara, QUnit, Mocha, WebDriver, YUI Test, BusterJS, FuncUnit, Robot Framework, and many others are supported.
@@ -15,9 +22,9 @@ The latest [stable release](http://phantomjs.org/release-1.9.html) is version 1.
 
 ## Features
 
-- **Multiplatform**, available on major operating systems: Windows, Mac OS X, Linux, other Unices.
-- **Fast and native implementation** of web standards: DOM, CSS, JavaScript, Canvas, SVG. No emulation!
-- **Pure headless (no X11) on Linux**, ideal for continuous integration systems. Also runs on Amazon EC2, Heroku, Iron.io.
+- **Multiplatform**, available on major operating systems: Windows, Mac OS X, Linux, and other Unices.
+- **Fast and native implementation** of web standards: DOM, CSS, JavaScript, Canvas, and SVG. No emulation!
+- **Pure headless (no X11) on Linux**, ideal for continuous integration systems. Also runs on Amazon EC2, Heroku, and Iron.io.
 - **Easy to install**: [Download](http://phantomjs.org/download.html), unpack, and start having fun in just 5 minutes.
 
 ## Ecosystem

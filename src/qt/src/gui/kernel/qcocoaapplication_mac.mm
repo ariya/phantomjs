@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -203,7 +203,7 @@ QT_BEGIN_NAMESPACE
 
 void qt_redirectNSApplicationSendEvent()
 {
-    if ([NSApp isMemberOfClass:[QNSApplication class]]) {
+    if ([NSApp isMemberOfClass:[QT_MANGLE_NAMESPACE(QNSApplication) class]]) {
         // No need to change implementation since Qt
         // already controls a subclass of NSApplication
         return;
@@ -216,7 +216,7 @@ void qt_redirectNSApplicationSendEvent()
     qt_cocoa_change_implementation(
             [NSApplication class],
             @selector(sendEvent:),
-            [QNSApplication class],
+            [QT_MANGLE_NAMESPACE(QNSApplication) class],
             @selector(QT_MANGLE_NAMESPACE(qt_sendEvent_replacement):),
             @selector(QT_MANGLE_NAMESPACE(qt_sendEvent_original):));
  }

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -221,6 +221,12 @@ public:
 
     void ref();
     void deref();
+
+    bool canWaitLocked()
+    {
+        QMutexLocker locker(&postEventList.mutex);
+        return canWait;
+    }
 
     QThread *thread;
     Qt::HANDLE threadId;

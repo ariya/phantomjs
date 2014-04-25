@@ -39,6 +39,7 @@
 #include "config.h"
 #include "system.h"
 #include "childprocess.h"
+#include "cookiejar.h"
 
 class WebPage;
 class CustomPage;
@@ -108,6 +109,7 @@ public:
     Q_INVOKABLE QObject *_createChildProcess();
 
 public slots:
+    QObject *createCookieJar(const QString &filePath);
     QObject *createWebPage();
     QObject *createWebServer();
     QObject *createFilesystem();
@@ -166,6 +168,15 @@ public slots:
      */
     void clearCookies();
 
+    /**
+     * Set the application proxy
+     * @brief setProxy
+     * @param ip The proxy ip
+     * @param port The proxy port
+     * @param proxyType The type of this proxy
+     */
+    void setProxy(const QString &ip, const qint64 &port = 80, const QString &proxyType = "http", const QString &user = NULL, const QString &password = NULL);
+
     // exit() will not exit in debug mode. debugExit() will always exit.
     void exit(int code = 0);
     void debugExit(int code = 0);
@@ -193,6 +204,7 @@ private:
     QList<QPointer<WebPage> > m_pages;
     QList<QPointer<WebServer> > m_servers;
     Config m_config;
+    CookieJar *m_defaultCookieJar;
 
     friend class CustomPage;
 };

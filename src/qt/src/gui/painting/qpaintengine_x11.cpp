@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -143,6 +143,11 @@ static inline int qpainterOpToXrender(QPainter::CompositionMode mode)
 {
     Q_ASSERT(mode <= QPainter::CompositionMode_Xor);
     return compositionModeToRenderOp[mode];
+}
+
+static inline bool complexPictOp(int op)
+{
+    return op != PictOpOver && op != PictOpSrc;
 }
 #endif
 
@@ -771,7 +776,11 @@ void QX11PaintEngine::drawRects(const QRectF *rects, int rectCount)
         || d->has_alpha_brush
         || d->has_complex_xform
         || d->has_custom_pen
-        || d->cbrush.style() != Qt::SolidPattern)
+        || d->cbrush.style() != Qt::SolidPattern
+#if !defined(QT_NO_XRENDER)
+        || complexPictOp(d->composition_mode)
+#endif
+       )
     {
         QPaintEngine::drawRects(rects, rectCount);
         return;
@@ -838,7 +847,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
     ::Picture pict = d->picture;
 
     if (X11->use_xrender && pict && d->has_brush && d->pdev_depth != 1
-        && (d->has_texture || d->has_alpha_brush))
+        && (d->has_texture || d->has_alpha_brush || complexPictOp(d->composition_mode)))
     {
         XRenderColor xc;
         if (!d->has_texture && !d->has_pattern)

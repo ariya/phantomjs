@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the qmake application of the Qt Toolkit.
@@ -2524,7 +2524,7 @@ QMakeProject::doProjectTest(QString func, QList<QStringList> args_list, QMap<QSt
         return false;
     case T_CONTAINS: {
         if(args.count() < 2 || args.count() > 3) {
-            fprintf(stderr, "%s:%d: contains(var, val) requires at lesat 2 arguments.\n",
+            fprintf(stderr, "%s:%d: contains(var, val) requires at least 2 arguments.\n",
                     parser.file.toLatin1().constData(), parser.line_no);
             return false;
         }

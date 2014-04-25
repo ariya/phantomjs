@@ -124,6 +124,9 @@ public:
     QString scriptEncoding() const;
     void setScriptEncoding(const QString &value);
 
+    QString scriptLanguage() const;
+    void setScriptLanguage(const QString &value);
+
     QString scriptFile() const;
     void setScriptFile(const QString &value);
 
@@ -215,6 +218,7 @@ private:
     QString m_proxyAuthPass;
     QStringList m_scriptArgs;
     QString m_scriptEncoding;
+    QString m_scriptLanguage;
     QString m_scriptFile;
     QString m_unknownOption;
     bool m_versionFlag;

@@ -419,6 +419,16 @@ static inline void addMacromediaPluginDirectories(Vector<String>& directories)
 #endif
 }
 
+#if PLATFORM(QT)
+static inline void addQtWebKitPluginPath(Vector<String>& directories)
+{
+    Vector<String> qtPaths;
+    String qtPath(qgetenv("QTWEBKIT_PLUGIN_PATH").constData());
+    qtPath.split(UChar(';'), false, qtPaths);
+    directories.append(qtPaths);
+}
+#endif
+
 Vector<String> PluginDatabase::defaultPluginDirectories()
 {
     Vector<String> directories;
@@ -433,6 +443,7 @@ Vector<String> PluginDatabase::defaultPluginDirectories()
     addMacromediaPluginDirectories(directories);
 #if PLATFORM(QT)
     addJavaPluginDirectory(directories);
+    addQtWebKitPluginPath(directories);
 #endif
 
     return directories;

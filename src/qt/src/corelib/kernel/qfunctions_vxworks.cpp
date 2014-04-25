@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -46,7 +46,9 @@
 #include "qplatformdefs.h"
 #include "qfunctions_vxworks.h"
 
+#if defined(_WRS_KERNEL)
 #include <vmLib.h>
+#endif
 #include <selectLib.h>
 #include <ioLib.h>
 
@@ -92,7 +94,7 @@ int usleep(unsigned int usec)
 // gettimeofday() is declared, but is missing from the library
 // It IS however defined in the Curtis-Wright X11 libraries, so
 // we have to make the symbol 'weak'
-#if defined(Q_CC_DIAB)
+#if defined(Q_CC_DIAB) && !defined(VXWORKS_DKM) && !defined(VXWORKS_RTP)
 #  pragma weak gettimeofday
 #endif
 int gettimeofday(struct timeval *tv, void /*struct timezone*/ *)
@@ -118,7 +120,11 @@ int gettimeofday(struct timeval *tv, void /*struct timezone*/ *)
 // neither getpagesize() or sysconf(_SC_PAGESIZE) are available
 int getpagesize()
 {
+#if defined(_WRS_KERNEL)
     return vmPageSizeGet();
+#else
+    return sysconf(_SC_PAGESIZE);
+#endif
 }
 
 // symlinks are not supported (lstat is now just a call to stat - see qplatformdefs.h)

@@ -59,10 +59,10 @@ public:
 #endif    
     static QVariant coffee2js(const QString &script);
     static bool injectJsInFrame(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
-    static bool injectJsInFrame(const QString &jsFilePath, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
+    static bool injectJsInFrame(const QString &jsFilePath, const QString &jsFileLanguage, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
     static QString readResourceFileUtf8(const QString &resourceFilePath);
 
-    static bool loadJSForDebug(const QString &jsFilePath, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool autorun = false);
+    static bool loadJSForDebug(const QString &jsFilePath, const QString &jsFileLanguage, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool autorun = false);
     static bool loadJSForDebug(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool autorun = false);
     static void cleanupFromDebug();
 
@@ -70,7 +70,7 @@ public:
 
 private:
     static QString findScript(const QString &jsFilePath, const QString& libraryPath);
-    static QString jsFromScriptFile(const QString& scriptPath, const Encoding& enc);
+    static QString jsFromScriptFile(const QString& scriptPath, const QString& lang, const Encoding& enc);
     Utils(); //< This class shouldn't be instantiated
 
     static QTemporaryFile* m_tempHarness; //< We want to make sure to clean up after ourselves

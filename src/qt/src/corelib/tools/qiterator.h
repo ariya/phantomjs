@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -47,10 +47,33 @@
 QT_BEGIN_HEADER
 
 #ifdef QT_NO_STL
+# include <new> // No-op, indirectly include additional configuration headers.
+# if defined(_LIBCPP_VERSION)
+// libc++ may declare these structs in an inline namespace. Forward-declare
+// these iterators in the same namespace so that we do not shadow the original
+// declarations.
+
+// Tell clang not to warn about the use of inline namespaces when not building
+// in C++11 mode.
+#  if defined(Q_CC_CLANG)
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wc++11-extensions"
+#  endif
+
+_LIBCPP_BEGIN_NAMESPACE_STD
+    struct bidirectional_iterator_tag;
+    struct random_access_iterator_tag;
+_LIBCPP_END_NAMESPACE_STD
+
+#  if defined(Q_CC_CLANG)
+#   pragma GCC diagnostic pop
+#  endif
+# else
 namespace std {
     struct bidirectional_iterator_tag;
     struct random_access_iterator_tag;
 }
+# endif
 #endif
 
 QT_BEGIN_NAMESPACE

@@ -1,7 +1,7 @@
 /*
 This file is part of the Console++ by Ivan De Marino <http://ivandemarino.me>.
 
-Copyright (c) 2012, Ivan De Marino <http://ivandemarino.me>
+Copyright (c) 2014, Ivan De Marino <http://ivandemarino.me>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -49,12 +49,14 @@ var _ANSICODES = {
         'white'     : '\033[37m'
     },
     _LEVELS     = {
-        ERROR       : 0,
-        WARN        : 1,
-        WARNING     : 1,    //< just to please my OCD
-        INFO        : 2,
-        INFORMATION : 2,    //< just to please my OCD
-        DEBUG       : 3
+        NONE        : 0,
+        OFF         : 0,    //< alias for "NONE"
+        ERROR       : 1,
+        WARN        : 2,
+        WARNING     : 2,    //< alias for "WARN"
+        INFO        : 3,
+        INFORMATION : 3,    //< alias for "INFO"
+        DEBUG       : 4
     },
     _LEVELS_COLOR = [   //< _LEVELS_COLOR position matches the _LEVELS values
         "red",
@@ -63,6 +65,7 @@ var _ANSICODES = {
         "green"
     ],
     _LEVELS_NAME = [    //< _LEVELS_NAME position matches the _LEVELS values
+        "NONE",
         "ERROR",
         "WARN ",
         "INFO ",

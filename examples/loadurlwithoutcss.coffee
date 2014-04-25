@@ -8,7 +8,7 @@ if system.args.length < 2
 address = system.args[1]
 
 page.onResourceRequested = (requestData, request) ->
-  if (/http:\/\/.+?\.css/g).test(requestData["url"]) or requestData["Content-Type"] is "text/css"
+  if (/http:\/\/.+?\.css/g).test(requestData["url"]) or requestData.headers["Content-Type"] is "text/css"
     console.log "The url of the request is matching. Aborting: " + requestData["url"]
     request.abort()
 

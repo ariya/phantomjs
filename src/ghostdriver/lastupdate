@@ -1,15 +1,7 @@
-2013-03-18 01:28:52
+2014-02-12 23:42:59
 
-commit 2792939c149829d03e7ed07cd6f03f5fd7e73ef4 (HEAD, tag: refs/tags/1.0.3, refs/remotes/origin/master, refs/remotes/origin/HEAD, refs/heads/master)
-Author: Ivan De Marino <ivan.de.marino@gmail.com>
-Date:   Mon Mar 18 01:27:12 2013 +0000
+commit 2af7099a9f5cf683ff565617be38b70318c9203f (HEAD, refs/remotes/origin/master, refs/remotes/origin/HEAD, refs/heads/master)
+Author: Ivan De Marino <detronizator@gmail.com>
+Date:   Wed Feb 12 23:42:43 2014 +0000
 
-    Java Binding JAR 1.0.3 now ready.
-    
-    Can be added to a Maven project with:
-    
-    <dependency>
-        <groupId>com.github.detro.ghostdriver</groupId>
-        <artifactId>phantomjsdriver</artifactId>
-        <version>1.0.3</version>
-    </dependency>
+    Removing flaky (and pointless) test

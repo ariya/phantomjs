@@ -41,8 +41,16 @@ for(QTLIB, $$list($$TMPLIBS)) {
    contains(QT, $$QTLIB): QT_ORDERED += $$QTLIB
 }
 
+# don't warn about Qt 5 modules that in Qt 4 were part of another module
+# (this allows easier writing of .pro files that work with both Qt 4 and 5):
+_QT5_MODULES_TO_IGNORE_ = \
+    widgets \
+    webkitwidgets \
+    printsupport \
+    concurrent
+
 QT_UNKNOWN = $$QT
-QT_UNKNOWN -= $$QT_ORDERED
+QT_UNKNOWN -= $$QT_ORDERED $$_QT5_MODULES_TO_IGNORE_
 QT = $$QT_ORDERED
 for(QTLIB, $$list($$QT_UNKNOWN)) {
    !contains(TMPLIBS, $$QTLIB):message("Warning: unknown QT: $$QTLIB")
@@ -182,6 +190,7 @@ for(QTLIB, $$list($$lower($$unique(QT)))) {
    } else:isEqual(QTLIB, declarative):qlib = QtDeclarative
    else:isEqual(QTLIB, multimedia):qlib = QtMultimedia
    else:isEqual(QTLIB, meegographicssystemhelper):qlib = QtMeeGoGraphicsSystemHelper
+   else:contains(_QT5_MODULES_TO_IGNORE_, $$QTLIB):qlib = # ignore Qt 5 libraries
    else:message("Unknown QT: $$QTLIB"):qlib =
    !isEmpty(qlib) {
       target_qt:isEqual(TARGET, qlib) {
@@ -213,6 +222,8 @@ wince*:static:gui {
 mac {
     !isEmpty(QT_NAMESPACE_MAC_CRC):DEFINES *= QT_NAMESPACE_MAC_CRC=$$QT_NAMESPACE_MAC_CRC
 }
+
+unset(_QT5_MODULES_TO_IGNORE_)
 
 #SIMD defines:
 mmx:DEFINES += QT_HAVE_MMX

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtOpenVG module of the Qt Toolkit.
@@ -98,6 +98,21 @@ QPlatformCursor::QPlatformCursor(QPlatformScreen *scr )
         : screen(scr)
 {
     QPlatformCursorPrivate::instances.append(this);
+}
+
+extern int qt_last_x;
+extern int qt_last_y;
+
+QPoint QPlatformCursor::pos() const
+{
+    // As a fallback return the last mouse position seen by QApplication.
+    return QPoint(qt_last_x, qt_last_y);
+}
+
+void QPlatformCursor::setPos(const QPoint &pos)
+{
+    Q_UNUSED(pos);
+    qWarning("This plugin does not support QCursor::setPos()");
 }
 
 // End of display and pointer event handling code

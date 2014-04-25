@@ -61,6 +61,8 @@ public:
     JsNetworkRequest(QNetworkRequest* request, QObject* parent = 0);
     Q_INVOKABLE void abort();
     Q_INVOKABLE void changeUrl(const QString& url);
+    Q_INVOKABLE bool setHeader(const QString& name, const QVariant& value);
+
 private:
     QNetworkRequest* m_networkRequest;
 };

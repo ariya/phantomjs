@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -856,6 +856,9 @@ void QToolButton::showMenu()
         d->menuButtonDown = false;
         return; // no menu to show
     }
+    // prevent recursions spinning another event loop
+    if (d->menuButtonDown)
+        return;
 
     d->menuButtonDown = true;
     repaint();

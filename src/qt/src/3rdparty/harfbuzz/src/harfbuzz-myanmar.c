@@ -359,7 +359,8 @@ static HB_Bool myanmar_shape_syllable(HB_Bool openType, HB_ShaperItem *item, HB_
         if (kinzi >= 0 && i > base && (cc & Mymr_CF_AFTER_KINZI)) {
             reordered[len] = Mymr_C_NGA;
             reordered[len+1] = Mymr_C_VIRAMA;
-            properties[len-1] = AboveForm;
+            if (len > 0)
+                properties[len-1] = AboveForm;
             properties[len] = AboveForm;
             len += 2;
             kinzi = -1;

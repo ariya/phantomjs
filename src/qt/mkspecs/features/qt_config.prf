@@ -1,7 +1,11 @@
 # This file is loaded by the mkspecs, before .qmake.cache has been loaded.
 # Consequently, we have to do some stunts to get values out of the cache.
 
-exists($$_QMAKE_CACHE_):QMAKE_QT_CONFIG = $$fromfile($$_QMAKE_CACHE_, QMAKE_QT_CONFIG)
+exists($$_QMAKE_CACHE_) {
+   qdd = $$fromfile($$_QMAKE_CACHE_, QMAKE_QT_CONFIG)
+   !isEmpty(qdd): QMAKE_QT_CONFIG = $$qdd
+   unset(qdd)
+}
 isEmpty(QMAKE_QT_CONFIG)|!exists($$QMAKE_QT_CONFIG) {
    qdd = $$QT_BUILD_TREE
    isEmpty(qdd):exists($$_QMAKE_CACHE_): qdd = $$fromfile($$_QMAKE_CACHE_, QT_BUILD_TREE)

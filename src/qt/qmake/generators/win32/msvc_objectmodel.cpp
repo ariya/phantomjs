@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the qmake application of the Qt Toolkit.
@@ -311,7 +311,7 @@ VCCLCompilerTool::VCCLCompilerTool()
     :        AssemblerOutput(asmListingNone),
         BasicRuntimeChecks(runtimeBasicCheckNone),
         BrowseInformation(brInfoNone),
-        BufferSecurityCheck(_False),
+        BufferSecurityCheck(unset),
         CallingConvention(callConventionDefault),
         CompileAs(compileAsDefault),
         CompileAsManaged(managedDefault),
@@ -603,9 +603,7 @@ bool VCCLCompilerTool::parseOption(const char* option)
             CallingConvention = callConventionFastCall;
             break;
         case 's':
-            // Warning: following [num] is not used,
-            // were should we put it?
-            BufferSecurityCheck = _True;
+            AdditionalOptions += option;
             break;
         case 'y':
             EnableFunctionLevelLinking = _True;
@@ -779,16 +777,14 @@ bool VCCLCompilerTool::parseOption(const char* option)
         found = false; break;
     case 'R':
         if(second == 'T' && third == 'C') {
-            if(fourth == '1')
-                BasicRuntimeChecks = runtimeBasicCheckAll;
-            else if(fourth == 'c')
-                SmallerTypeCheck = _True;
-            else if(fourth == 's')
-                BasicRuntimeChecks = runtimeCheckStackFrame;
-            else if(fourth == 'u')
-                BasicRuntimeChecks = runtimeCheckUninitVariables;
-            else
-                found = false; break;
+            int rtc = BasicRuntimeChecks;
+            for (size_t i = 4; option[i]; ++i) {
+                if (!parseRuntimeCheckOption(option[i], &rtc)) {
+                    found = false;
+                    break;
+                }
+            }
+            BasicRuntimeChecks = static_cast<basicRuntimeCheckOption>(rtc);
         }
         break;
     case 'T':
@@ -1080,11 +1076,20 @@ bool VCCLCompilerTool::parseOption(const char* option)
         }
         found = false; break;
     case 'o':
-        if (second == 'p' && third == 'e' && fourth == 'n') {
-            OpenMP = _True;
-            break;
+    {
+        const char *str = option + 2;
+        const size_t len = strlen(str);
+        if (len >= 5 && len <= 6 && strncmp(str, "penmp", 5) == 0) {
+            if (len == 5) {
+                OpenMP = _True;
+                break;
+            } else if (str[5] == '-') {
+                OpenMP = _False;
+                break;
+            }
         }
         found = false; break;
+    }
     case 's':
         if(second == 'h' && third == 'o' && fourth == 'w') {
             ShowIncludes = _True;
@@ -1108,6 +1113,12 @@ bool VCCLCompilerTool::parseOption(const char* option)
         case 'd':
             DisableSpecificWarnings += option+3;
             break;
+        case 'e':
+            if (config->CompilerVersion <= NET2008)
+                AdditionalOptions += option;
+            else
+                TreatSpecificWarningsAsErrors += option + 3;
+            break;
         default:
             AdditionalOptions += option;
         }
@@ -1120,6 +1131,21 @@ bool VCCLCompilerTool::parseOption(const char* option)
         warn_msg(WarnLogic, "Could not parse Compiler option: %s, added as AdditionalOption", option);
         AdditionalOptions += option;
     }
+    return true;
+}
+
+bool VCCLCompilerTool::parseRuntimeCheckOption(char c, int *rtc)
+{
+    if (c == '1')
+        *rtc = runtimeBasicCheckAll;
+    else if (c == 'c')
+        SmallerTypeCheck = _True;
+    else if (c == 's')
+        *rtc |= runtimeCheckStackFrame;
+    else if (c == 'u')
+        *rtc |= runtimeCheckUninitVariables;
+    else
+        return false;
     return true;
 }
 

@@ -1,7 +1,7 @@
 /*
 This file is part of the GhostDriver by Ivan De Marino <http://ivandemarino.me>.
 
-Copyright (c) 2012, Ivan De Marino <http://ivandemarino.me>
+Copyright (c) 2014, Ivan De Marino <http://ivandemarino.me>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -56,20 +56,16 @@ ghostdriver.RouterReqHand = function() {
         // Invoke parent implementation
         _protoParent.handle.call(this, req, res);
 
-        _log.debug("_handle", "Request => " + JSON.stringify(req, null, "  "));
+        _log.debug("_handle", JSON.stringify(req));
 
         try {
-            if (req.urlParsed.directory.match(/^\/wd\/hub/)) {
-                req.url = req.urlParsed.source.replace(/^\/wd\/hub/, '');
-                req.urlParsed = require("./third_party/parseuri.js").parse(req.url);
-            }
-            if (req.urlParsed.file === _const.STATUS) {                 // GET '/status'
+            if (req.urlParsed.chunks.length === 1 && req.urlParsed.file === _const.STATUS) {                 // GET '/status'
                 _statusRH.handle(req, res);
-            } else if (req.urlParsed.file === _const.SHUTDOWN) {        // GET '/shutdown'
+            } else if (req.urlParsed.chunks.length === 1 && req.urlParsed.file === _const.SHUTDOWN) {        // GET '/shutdown'
                 _shutdownRH.handle(req, res);
                 phantom.exit();
-            } else if (req.urlParsed.file === _const.SESSION ||         // POST '/session'
-                req.urlParsed.file === _const.SESSIONS ||               // GET '/sessions'
+            } else if ((req.urlParsed.chunks.length === 1 && req.urlParsed.file === _const.SESSION) ||         // POST '/session'
+                (req.urlParsed.chunks.length === 1 && req.urlParsed.file === _const.SESSIONS) ||               // GET '/sessions'
                 req.urlParsed.directory === _const.SESSION_DIR) {       // GET or DELETE '/session/:id'
                 _sessionManRH.handle(req, res);
             } else if (req.urlParsed.chunks[0] === _const.SESSION) {    // GET, POST or DELETE '/session/:id/...'
@@ -87,7 +83,7 @@ ghostdriver.RouterReqHand = function() {
                 throw _errors.createInvalidReqUnknownCommandEH(req);
             }
         } catch (e) {
-            _log.error("_handle", "Thrown => " + JSON.stringify(e, null, "  "));
+            _log.error("_handle.error", JSON.stringify(e));
 
             if (typeof(e.handle) === "function") {
                 e.handle(res);

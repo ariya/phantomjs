@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -2826,13 +2826,7 @@ QFixed QTextEngine::leadingSpaceWidth(const QScriptLine &line)
         || !isRightToLeft())
         return QFixed();
 
-    int pos = line.length;
-    const HB_CharAttributes *attributes = this->attributes();
-    if (!attributes)
-        return QFixed();
-    while (pos > 0 && attributes[line.from + pos - 1].whiteSpace)
-        --pos;
-    return width(line.from + pos, line.length - pos);
+    return width(line.from + line.length, line.trailingSpaces);
 }
 
 QFixed QTextEngine::alignLine(const QScriptLine &line)
@@ -2842,14 +2836,12 @@ QFixed QTextEngine::alignLine(const QScriptLine &line)
     // if width is QFIXED_MAX that means we used setNumColumns() and that implicitly makes this line left aligned.
     if (!line.justified && line.width != QFIXED_MAX) {
         int align = option.alignment();
-        if (align & Qt::AlignLeft)
-            x -= leadingSpaceWidth(line);
         if (align & Qt::AlignJustify && isRightToLeft())
             align = Qt::AlignRight;
         if (align & Qt::AlignRight)
-            x = line.width - (line.textAdvance + leadingSpaceWidth(line));
+            x = line.width - (line.textAdvance);
         else if (align & Qt::AlignHCenter)
-            x = (line.width - line.textAdvance)/2 - leadingSpaceWidth(line);
+            x = (line.width - line.textAdvance)/2;
     }
     return x;
 }

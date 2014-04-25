@@ -10,6 +10,7 @@
         <file>modules/system.js</file>
         <file>modules/child_process.js</file>
         <file>modules/_coffee-script.js</file>
+        <file>modules/cookiejar.js</file>
         <file>repl.js</file>
 
         <file>coffee-script/package.json</file>

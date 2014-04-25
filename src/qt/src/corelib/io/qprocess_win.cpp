@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -283,7 +283,8 @@ QProcessEnvironment QProcessEnvironment::systemEnvironment()
     if (wchar_t *envStrings = GetEnvironmentStringsW()) {
         for (const wchar_t *entry = envStrings; *entry; ) {
             int entryLen = wcslen(entry);
-            if (const wchar_t *equal = wcschr(entry, L'=')) {
+            // + 1 to permit magic cmd variable names starting with =
+            if (const wchar_t *equal = wcschr(entry + 1, L'=')) {
                 int nameLen = equal - entry;
                 QString name = QString::fromWCharArray(entry, nameLen);
                 QString value = QString::fromWCharArray(equal + 1, entryLen - nameLen - 1);

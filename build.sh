@@ -19,7 +19,7 @@ elif [[ $OSTYPE = darwin* ]]; then
    # We only support modern Mac machines, they are at least using
    # hyperthreaded dual-core CPU.
    COMPILE_JOBS=4
-elif [[ $OSTYPE == freebsd* ]]; then
+elif [[ $OSTYPE == freebsd* ]] || [[ $OSTYPE == openbsd* ]]; then
    COMPILE_JOBS=`sysctl -n hw.ncpu`
 else
    CPU_CORES=`grep -c ^processor /proc/cpuinfo`
@@ -32,6 +32,8 @@ if [[ "$COMPILE_JOBS" -gt 8 ]]; then
    # Safety net.
    COMPILE_JOBS=8
 fi
+
+SILENT=''
 
 until [ -z "$1" ]; do
     case $1 in
@@ -50,12 +52,17 @@ until [ -z "$1" ]; do
         "--confirm")
             BUILD_CONFIRM=1
             shift;;
+        "--silent")
+            SILENT='--silent'
+            QT_CFG+=" -silent"
+            shift;;
         "--help")
             echo "Usage: $0 [--qt-config CONFIG] [--jobs NUM]"
             echo
             echo "  --confirm                   Silently confirm the build."
             echo "  --qt-config CONFIG          Specify extra config options to be used when configuring Qt"
             echo "  --jobs NUM                  How many parallel compile jobs to use. Defaults to 4."
+            echo "  --silent                    Produce less verbose output."
             echo
             exit 0
             ;;
@@ -89,6 +96,20 @@ EOF
     echo
 fi
 
-cd src/qt && ./preconfig.sh --jobs $COMPILE_JOBS --qt-config "$QT_CFG" && cd ../..
+echo
+echo "Building PhantomJS. Please wait..."
+echo
+
+UNAME_SYSTEM=`(uname -s) 2>/dev/null`  || UNAME_SYSTEM=unknown
+UNAME_RELEASE=`(uname -r) 2>/dev/null` || UNAME_RELEASE=unknown
+UNAME_MACHINE=`(uname -m) 2>/dev/null` || UNAME_MACHINE=unknown
+
+echo "System architecture... ($UNAME_SYSTEM $UNAME_RELEASE $UNAME_MACHINE)"
+echo
+
+cd src/qt && ./preconfig.sh --jobs $COMPILE_JOBS --qt-config "$QT_CFG" $SILENT && cd ../..
+
+echo "Building main PhantomJS application. Please wait..."
+echo
 src/qt/bin/qmake $QMAKE_ARGS
 make -j$COMPILE_JOBS

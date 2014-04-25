@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
@@ -100,23 +100,6 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     return out;
 }
 #endif
-
-static void qt_ignore_sigpipe()
-{
-#ifndef Q_NO_POSIX_SIGNALS
-    // Set to ignore SIGPIPE once only.
-    static QBasicAtomicInt atom = Q_BASIC_ATOMIC_INITIALIZER(0);
-    if (atom.testAndSetRelaxed(0, 1)) {
-        struct sigaction noaction;
-        memset(&noaction, 0, sizeof(noaction));
-        noaction.sa_handler = SIG_IGN;
-        ::sigaction(SIGPIPE, &noaction, 0);
-    }
-#else
-    // Posix signals are not supported by the underlying platform
-    // so we don't need to ignore sigpipe signal explicitly
-#endif
-}
 
 /*
     Extracts the port and address from a sockaddr, and stores them in
@@ -899,8 +882,6 @@ qint64 QNativeSocketEnginePrivate::nativeSendDatagram(const char *data, qint64 l
         sockAddrPtr = (struct sockaddr *)&sockAddrIPv4;
     }
 
-    // ignore the SIGPIPE signal
-    qt_ignore_sigpipe();
     ssize_t sentBytes = qt_safe_sendto(socketDescriptor, data, len,
                                        0, sockAddrPtr, sockAddrSize);
 
@@ -1007,11 +988,8 @@ qint64 QNativeSocketEnginePrivate::nativeWrite(const char *data, qint64 len)
 {
     Q_Q(QNativeSocketEngine);
 
-    // ignore the SIGPIPE signal
-    qt_ignore_sigpipe();
-
     ssize_t writtenBytes;
-    writtenBytes = qt_safe_write(socketDescriptor, data, len);
+    writtenBytes = qt_safe_write_nosignal(socketDescriptor, data, len);
 
     if (writtenBytes < 0) {
         switch (errno) {

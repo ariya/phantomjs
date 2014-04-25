@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -515,6 +515,12 @@ void QLineControl::processInputMethodEvent(QInputMethodEvent *event)
         } else if (a.type == QInputMethodEvent::TextFormat) {
             QTextCharFormat f = qvariant_cast<QTextFormat>(a.value).toCharFormat();
             if (f.isValid()) {
+                if (f.background().color().alphaF() == 1 && f.background().style() == Qt::SolidPattern) {
+                    f.setForeground(f.background().color());
+                    f.setBackground(Qt::transparent);
+                    f.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+                    f.setFontUnderline(true);
+                }
                 QTextLayout::FormatRange o;
                 o.start = a.start + m_cursor;
                 o.length = a.length;
@@ -664,6 +670,8 @@ bool QLineControl::finishChange(int validateFromState, bool update, bool edited)
         m_selDirty = false;
         emit selectionChanged();
     }
+    if (m_cursor == m_lastCursorPos)
+        updateMicroFocus();
     emitCursorPositionChanged();
     return true;
 }

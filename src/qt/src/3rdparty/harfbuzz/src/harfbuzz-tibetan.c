@@ -90,7 +90,7 @@ static const unsigned char tibetanForm[0x80] = {
 
 
 #define tibetan_form(c) \
-    (TibetanForm)tibetanForm[c - 0x0f40]
+    ((c) >= 0x0f40 && (c) < 0x0fc0 ? (TibetanForm)tibetanForm[(c) - 0x0f40] : TibetanOther)
 
 static const HB_OpenTypeFeature tibetan_features[] = {
     { HB_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
@@ -113,6 +113,7 @@ static HB_Bool tibetan_shape_syllable(HB_Bool openType, HB_ShaperItem *item, HB_
 
     if (item->num_glyphs < item->item.length + 4) {
         item->num_glyphs = item->item.length + 4;
+        HB_FREE_STACKARRAY(reordered);
         return FALSE;
     }
 

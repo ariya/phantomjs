@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -295,11 +295,12 @@ bool QTiffHandler::read(QImage *image)
 
     float resX = 0;
     float resY = 0;
-    uint16 resUnit = RESUNIT_NONE;
-    if (TIFFGetField(tiff, TIFFTAG_RESOLUTIONUNIT, &resUnit)
-        && TIFFGetField(tiff, TIFFTAG_XRESOLUTION, &resX)
-        && TIFFGetField(tiff, TIFFTAG_YRESOLUTION, &resY)) {
+    uint16 resUnit;
+    if (!TIFFGetField(tiff, TIFFTAG_RESOLUTIONUNIT, &resUnit))
+        resUnit = RESUNIT_INCH;
 
+    if (TIFFGetField(tiff, TIFFTAG_XRESOLUTION, &resX)
+        && TIFFGetField(tiff, TIFFTAG_YRESOLUTION, &resY)) {
         switch(resUnit) {
         case RESUNIT_CENTIMETER:
             image->setDotsPerMeterX(qRound(resX * 100));

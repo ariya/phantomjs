@@ -6,10 +6,30 @@ COMPILER=$1
 VERBOSE=$2
 WORKDIR=$3
 
+shift 3
+
+LFLAGS=
+CXXFLAGS=
+while [ "$#" -gt 0 ]; do
+    case $1 in
+    -arch)
+        CXXFLAGS="$CXXFLAGS -arch $2"
+        shift
+        ;;
+    -sdk)
+        CXXFLAGS="$CXXFLAGS -isysroot $2"
+        LFLAGS="$LFLAGS -Wl,-syslibroot,$2"
+        shift
+        ;;
+    *)  ;;
+    esac
+    shift
+done
+
 touch dwarf2.c
 
-if "$COMPILER" -c dwarf2.c -Werror -gdwarf-2 2>/dev/null 1>&2; then
-    if "$COMPILER" -c dwarf2.c -Werror -gdwarf-2  2>&1 | grep "unsupported" >/dev/null ; then
+if "$COMPILER" -c dwarf2.c $CXXFLAGS -Werror -gdwarf-2 2>/dev/null 1>&2; then
+    if "$COMPILER" -c dwarf2.c $CXXFLAGS -Werror -gdwarf-2  2>&1 | grep "unsupported" >/dev/null ; then
         true
     else
         DWARF2_SUPPORT=yes
@@ -18,7 +38,7 @@ fi
 rm -f dwarf2.c dwarf2.o
 
 # Test for xcode 2.4.0, which has a broken implementation of DWARF
-"$COMPILER" $WORKDIR/xcodeversion.cpp -o xcodeversion -framework Carbon;
+"$COMPILER" $WORKDIR/xcodeversion.cpp $CXXFLAGS $LFLAGS -o xcodeversion -framework Carbon;
 ./xcodeversion
 
 if [ "$?" == "1" ]; then

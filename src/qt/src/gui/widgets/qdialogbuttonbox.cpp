@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -212,7 +212,7 @@ static QDialogButtonBox::ButtonRole roleFor(QDialogButtonBox::StandardButton but
     return QDialogButtonBox::InvalidRole;
 }
 
-static const int layouts[2][5][14] =
+static const uint layouts[2][5][14] =
 {
     // Qt::Horizontal
     {
@@ -407,7 +407,7 @@ void QDialogButtonBoxPrivate::layoutButtons()
             tmpPolicy = 4;  // Mac modeless
     }
 
-    const int *currentLayout = layouts[orientation == Qt::Vertical][tmpPolicy];
+    const uint *currentLayout = layouts[orientation == Qt::Vertical][tmpPolicy];
 
     if (center)
         buttonLayout->addStretch();

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -193,7 +193,7 @@ static bool qt_create_mitshm_buffer(const QPaintDevice* dev, int w, int h)
     bool ok;
     xshminfo.shmid = shmget(IPC_PRIVATE,
                              xshmimg->bytes_per_line * xshmimg->height,
-                             IPC_CREAT | 0777);
+                             IPC_CREAT | 0700);
     ok = xshminfo.shmid != -1;
     if (ok) {
         xshmimg->data = (char*)shmat(xshminfo.shmid, 0, 0);

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -282,9 +282,12 @@ QList<int> QKeyMapperPrivate::possibleKeysXKB(QKeyEvent *event)
 
     // first, translate key only using lock modifiers (there are no Qt equivalents for these, so we must
     // always use them when determining the baseKeySym)
+    // Note: the Xkb group to be used for the conversion keycode->keysym has to be given to
+    //       XkbLookupKeySym(). This information is contained in the bits 8 to 15 of xmodifiers.
+    //       See https://bugreports.qt-project.org/browse/QTBUG-15319 .
     KeySym baseKeySym;
     uint consumedModifiers;
-    if (!XkbLookupKeySym(X11->display, xkeycode, (xmodifiers & (LockMask | qt_num_lock_mask)),
+    if (!XkbLookupKeySym(X11->display, xkeycode, (xmodifiers & (0xff00 | LockMask | qt_num_lock_mask)),
                          &consumedModifiers, &baseKeySym))
         return QList<int>();
 

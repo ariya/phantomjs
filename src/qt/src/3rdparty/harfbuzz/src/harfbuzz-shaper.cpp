@@ -463,7 +463,7 @@ void HB_HeuristicSetGlyphAttributes(HB_ShaperItem *item)
 
     // ### zeroWidth and justification are missing here!!!!!
 
-    assert(item->num_glyphs <= length);
+    assert(length <= item->num_glyphs);
 
 //     qDebug("QScriptEngine::heuristicSetGlyphAttributes, num_glyphs=%d", item->num_glyphs);
     HB_GlyphAttributes *attributes = item->attributes;
@@ -481,7 +481,6 @@ void HB_HeuristicSetGlyphAttributes(HB_ShaperItem *item)
         }
         ++glyph_pos;
     }
-    assert(glyph_pos == item->num_glyphs);
 
     // first char in a run is never (treated as) a mark
     int cStart = 0;
@@ -1354,7 +1353,7 @@ HB_Bool HB_OpenTypePosition(HB_ShaperItem *item, int availableGlyphs, HB_Bool do
                 adjustment = HB_FIXED_ROUND(adjustment);
 
             if (positions[i].new_advance) {
-                advances[i] = adjustment;
+                ; //advances[i] = adjustment;
             } else {
                 advances[i] += adjustment;
             }
