@@ -36,6 +36,7 @@
 #include <QNetworkReply>
 #include <QSslConfiguration>
 #include <QTimer>
+#include <QStringList>
 
 #include "networkreplytracker.h"
 
@@ -90,6 +91,8 @@ public:
     void setResourceTimeout(int resourceTimeout);
     void setCustomHeaders(const QVariantMap &headers);
     QVariantMap customHeaders() const;
+    QStringList captureContent() const;
+    void setCaptureContent(const QStringList &patterns);
 
     void setCookieJar(QNetworkCookieJar *cookieJar);
 
@@ -118,9 +121,15 @@ private slots:
     void handleTimeout();
 
 private:
+
+    bool shouldCaptureResponse(const QString& url);
+    void compileCaptureContentPatterns();
+
     int m_idCounter;
     QNetworkDiskCache* m_networkDiskCache;
     QVariantMap m_customHeaders;
+    QStringList m_captureContentPatterns;
+    QList<QRegExp> m_compiledCaptureContentPatterns;
     QSslConfiguration m_sslConfiguration;
 
     NetworkReplyTracker m_replyTracker;

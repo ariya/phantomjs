@@ -254,6 +254,28 @@ QVariantMap NetworkAccessManager::customHeaders() const
     return m_customHeaders;
 }
 
+QStringList NetworkAccessManager::captureContent() const
+{
+    return m_captureContentPatterns;
+}
+
+void NetworkAccessManager::setCaptureContent(const QStringList &patterns)
+{
+    m_captureContentPatterns = patterns;
+
+    compileCaptureContentPatterns();
+}
+
+void NetworkAccessManager::compileCaptureContentPatterns()
+{
+    for(QStringList::const_iterator it = m_captureContentPatterns.constBegin();
+        it != m_captureContentPatterns.constEnd(); ++it) {
+
+        m_compiledCaptureContentPatterns.append(QRegExp(*it, Qt::CaseInsensitive));
+    }
+}
+
+
 void NetworkAccessManager::setCookieJar(QNetworkCookieJar *cookieJar)
 {
     QNetworkAccessManager::setCookieJar(cookieJar);
@@ -322,7 +344,9 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     emit resourceRequested(data, &jsNetworkRequest);
 
     QNetworkReply *nested_reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
-    QNetworkReply *tracked_reply = m_replyTracker.trackReply(nested_reply, m_idCounter);
+    QNetworkReply *tracked_reply = m_replyTracker.trackReply(nested_reply,
+                                                             m_idCounter,
+                                                             shouldCaptureResponse(req.url().toString()));
 
     // reparent jsNetworkRequest to make sure that it will be destroyed with QNetworkReply
     jsNetworkRequest.setParent(tracked_reply);
@@ -341,6 +365,19 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     }
 
     return tracked_reply;
+}
+
+bool NetworkAccessManager::shouldCaptureResponse(const QString& url)
+{
+    for(QList<QRegExp>::const_iterator it = m_compiledCaptureContentPatterns.constBegin();
+        it != m_compiledCaptureContentPatterns.constEnd(); ++it) {
+
+        if(-1 != it->indexIn(url)) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void NetworkAccessManager::handleTimeout()
