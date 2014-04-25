@@ -79,6 +79,7 @@ class WebPage : public QObject, public QWebFrame::PrintCallback
     Q_PROPERTY(QString frameName READ frameName)
     Q_PROPERTY(int framesCount READ framesCount)
     Q_PROPERTY(QString focusedFrameName READ focusedFrameName)
+    Q_PROPERTY(QStringList captureContent READ captureContent WRITE setCaptureContent)
 
 public:
     WebPage(QObject *parent, const QUrl &baseUrl = QUrl());
@@ -182,6 +183,25 @@ public:
      *         Pages that this page has currently open.
      */
     QStringList pagesWindowName() const;
+    /**
+     * Returns a list of URL patterns, for which response body
+     * will be captured and returned in onResourceReceived event
+     *
+     * @brief captureContent
+     * @return List (JS Array) containing currently set patterns
+     */
+    QStringList captureContent() const;
+
+    /**
+     * Allows to set a list of URL patterns, for which response body
+     * will be captured and returned in onResourceReceived event
+     *
+     * EXAMPLE: page.captureContent = ['/foo/', '\.jpg' ]
+     *
+     * @brief captureContent
+     * @param patterns Expects a QList of QString
+     */
+    void setCaptureContent(const QStringList &patterns);
 
     /**
      * Returns "true" if it owns the pages it creates (and keeps them in "pages[]").

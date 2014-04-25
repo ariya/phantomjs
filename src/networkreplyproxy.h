@@ -43,8 +43,11 @@ public:
 
     /*
       reply - reply to be proxied(nested reply)
+      shouldCaptureResponseBody - if true, response body will be collected and
+                                  available through body() method
      */
-    NetworkReplyProxy(QObject* parent, QNetworkReply* reply);
+    NetworkReplyProxy(QObject* parent, QNetworkReply* reply,
+                      bool shouldCaptureResponseBody);
 
 
     /*
@@ -88,6 +91,7 @@ private:
     QNetworkReply* m_reply;
     QByteArray m_data;
     QByteArray m_buffer;
+    bool m_shouldCaptureResponseBody;
 };
 
 #endif // NETWORKREPLYPROXY_H
