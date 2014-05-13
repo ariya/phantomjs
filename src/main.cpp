@@ -54,7 +54,7 @@ static google_breakpad::ExceptionHandler* eh;
 #error Something is wrong with the setup. Please report to the mailing list!
 #endif
 
-int main(int argc, char** argv, const char** envp)
+int main(int argc, char** argv)
 {
     // Setup Google Breakpad exception handler
 #ifdef Q_OS_LINUX
@@ -90,9 +90,6 @@ int main(int argc, char** argv, const char** envp)
     app.setOrganizationName("Ofi Labs");
     app.setOrganizationDomain("www.ofilabs.com");
     app.setApplicationVersion(PHANTOMJS_VERSION_STRING);
-
-    // Prepare the "env" singleton using the environment variables
-    Env::instance()->parse(envp);
 
     // Registering an alternative Message Handler
     qInstallMessageHandler(Utils::messageHandler);
