@@ -32,6 +32,7 @@
 #include <QCoreApplication>
 #include <QString>
 #include <QVariantMap>
+#include <QProcessEnvironment>
 
 static Env *env_instance = NULL;
 
@@ -46,34 +47,13 @@ Env *Env::instance()
 Env::Env()
     : QObject(QCoreApplication::instance())
 {
+    const QProcessEnvironment &env = QProcessEnvironment::systemEnvironment();
+    foreach(const QString &key, env.keys()) {
+        m_map[key] = env.value(key);
+    }
 }
 
 // public:
-
-void Env::parse(const char **envp)
-{
-    const char **env = (const char **)NULL;
-    QString envvar, name, value;
-    int indexOfEquals;
-    // Loop for each of the <NAME>=<VALUE> pairs and split them into a map
-    for (env = envp; *env != (const char *)NULL; env++) {
-        envvar = QString(*env);
-        indexOfEquals = envvar.indexOf('=');
-        if (0 >= indexOfEquals) {
-            // Should never happen because names cannot contain "=" and cannot
-            // be empty. If it does happen, then just ignore this record.
-            // See: http://pubs.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap08.html
-            continue;
-        }
-        // Extract name and value (if it exists) from envvar
-        // NOTE:
-        //  QString::mid() will gracefully return an empty QString when the
-        //  specified position index is >= the length() of the string
-        name = envvar.left(indexOfEquals);
-        value = envvar.mid(indexOfEquals + 1);
-        m_map.insert(name, value);
-    }
-}
 
 QVariantMap Env::asVariantMap() const
 {
