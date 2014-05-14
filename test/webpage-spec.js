@@ -1994,36 +1994,43 @@ xdescribe("WebPage 'onFilePicker'", function() {
 
 xdescribe('WebPage navigation events', function() {
     it('should navigate to relative url using window.location', function () {
-        var page = require("webpage").create();
-        var base = 'https://github.com';
-        var path = '/n1k0';
-        var expected = 'https://github.com/n1k0';
-        var isHandled = false;
-
-        runs(function() {
-            page.onNavigationRequested = function(url, navigationType, navigationLocked, isMainFrame) {
-                if (!page.testStarted) {
-                    return;
-                }
-
-                if (url === expected) {
-                    isHandled = true;
-                }
-            };
-
-            page.open(base, function(status) {
-                page.testStarted = true;
-
-                page.evaluate(function(path) {
-                    window.location = path;
-                }, path);
-            });
+        var server = require("webserver").create();
+        server.listen(12345, function(request, response) {
+            if (request.url === "/destination") {
+                response.statusCode = 200;
+                response.write("<html><body>SUCCESS</body></html>");
+            } else if (request.url === "/" || request.url === "") {
+                response.statusCode = 200;
+                response.write("<html><head><script>" +
+                               "setTimeout(function(){" +
+                               "document.body.innerHTML = 'FAIL';" +
+                               "}, 250);" +
+                               "</script></head><body>WAIT</body></html>");
+            } else {
+                response.statusCode = 404;
+                response.write("<html><body>ERROR</body></html>")
+            }
+            response.close();
         });
 
-        waits(10000);
+        var page = require("webpage").create();
+        runs(function() {
+             page.open("http://localhost:12345/", function(status) {
+                 page.evaluate(function() {
+                     window.location = "/destination";
+                 });
+             });
+        });
+
+        waits(1000);
 
         runs(function() {
-            expect(isHandled).toEqual(true);
+            var status = page.evaluate(function() {
+                return document.body.innerHTML;
+            });
+            expect(status).toEqual('SUCCESS');
+            expect(page.url).toEqual("http://localhost:12345/destination");
+            server.close();
         });
     });
 });
@@ -2031,8 +2038,15 @@ xdescribe('WebPage navigation events', function() {
 
 xdescribe('WebPage repaint requests', function() {
     it('should report when a repaint is requested, together with the area being repainted', function () {
+        var server = require("webserver").create();
+        server.listen(12345, function(request, response) {
+            response.status = 200;
+            response.write("<html><body><p>some text some text some text</p></body></html>");
+            response.close();
+        });
+
         var page = require("webpage").create();
-        var base = "https://github.com";
+        var base = "http://localhost:12345/";
         var isHandled = false;
 
         runs(function() {
@@ -2047,6 +2061,7 @@ xdescribe('WebPage repaint requests', function() {
 
         runs(function() {
             expect(isHandled).toEqual(true);
+            server.close();
         });
     });
 });
