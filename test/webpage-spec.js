@@ -1395,15 +1395,25 @@ describe("WebPage object", function() {
         });
     });
 
-    it("should interrupt a long-running JavaScript code", function() {
+    xit("should interrupt a long-running JavaScript code", function() {
         var page = new WebPage();
+        var longRunningScriptCalled = false;
+        var loadStatus;
 
         page.onLongRunningScript = function() {
             page.stopJavaScript();
+            longRunningScriptCalled = true;
         };
+        page.onError = function () {};
 
-        page.open('../test/webpage-spec-frames/forever.html', function(status) {
-            expect(status).toEqual('success');
+        runs(function() {
+            page.open('../test/webpage-spec-frames/forever.html',
+                      function(status) { loadStatus = status; });
+        });
+        waits(5000);
+        runs(function() {
+            expect(loadStatus).toEqual('success');
+            expect(longRunningScriptCalled).toBeTruthy();
         });
     });
 });
@@ -2168,7 +2178,7 @@ xdescribe("WebPage render image", function(){
                 content = fs.read(TEST_FILE, "b");
 
                 fs.remove(TEST_FILE);
-            } catch (e) { console.log(e) }
+            } catch (e) { jasmine.fail(e) }
 
             // for PDF test
             if (format === "pdf") {

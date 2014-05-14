@@ -31,9 +31,9 @@ function checkRequest(request, response) {
     if (expectedPostData !== false) {
         expect(request.method).toEqual("POST");
         expect(request.hasOwnProperty('post')).toBeTruthy();
-        console.log("request.post => " + JSON.stringify(request.post, null, 4));
-        console.log("expectedPostData => " + JSON.stringify(expectedPostData, null, 4));
-        console.log("request.headers => " + JSON.stringify(request.headers, null, 4));
+        jasmine.log("request.post => " + JSON.stringify(request.post, null, 4));
+        jasmine.log("expectedPostData => " + JSON.stringify(expectedPostData, null, 4));
+        jasmine.log("request.headers => " + JSON.stringify(request.headers, null, 4));
         if (request.headers["Content-Type"] && request.headers["Content-Type"] === "application/x-www-form-urlencoded") {
             expect(typeof request.post).toEqual('object');
             expect(request.post).toEqual(expectedPostData);
