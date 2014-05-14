@@ -28,6 +28,11 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Set the working directory to the "/test" directory if it's not
+// already there.
+var fs = require('fs');
+fs.changeWorkingDirectory(phantom.libraryPath);
+
 // Load Jasmine and the HTML reporter
 phantom.injectJs("./lib/jasmine.js");
 phantom.injectJs("./lib/jasmine-console.js");
@@ -56,10 +61,6 @@ function expectHasPropertyString(o, name) {
     });
 }
 
-// Set the working directory to the "/test" directory
-var fs = require('fs');
-fs.changeWorkingDirectory(phantom.libraryPath);
-
 // Load specs
 phantom.injectJs("./phantom-spec.js");
 phantom.injectJs("./webserver-spec.js");
@@ -75,12 +76,20 @@ require("./module_spec.js");
 require("./require/require_spec.js");
 require("./cjk-text-codecs.js");
 
-// Launch tests
+// Environment configuration
 var jasmineEnv = jasmine.getEnv();
+
+// If there are any command line arguments, filter tests based on them.
+var sys = require('system');
+if (sys.args.length > 1) {
+    var specFilterRe = new RegExp(sys.args.slice(1).join(" "));
+    jasmineEnv.specFilter = function (spec) {
+        return specFilterRe.test(spec.getFullName());
+    };
+}
 
 // Add a ConsoleReporter to 1) print with colors on the console
 // 2) exit when finished
-var sys = require('system');
 jasmineEnv.addReporter(new jasmine.ConsoleReporter(
     // Print messages straight to the console, and don't mess with the newlines
     sys.stdout.write.bind(sys.stdout),
