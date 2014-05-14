@@ -1,4 +1,4 @@
-jasmine.ConsoleReporter = function(print, doneCallback, showColors) {
+jasmine.ConsoleReporter = function(print, doneCallback, showColors, verbose) {
   //inspired by mhevery's jasmine-node reporter
   //https://github.com/mhevery/jasmine-node
 
@@ -129,12 +129,26 @@ jasmine.ConsoleReporter = function(print, doneCallback, showColors) {
 
   this.reportSpecResults = function(spec) {
     var results = spec.results();
-    if (results.skipped) {
-      yellowStar();
-    } else if (results.passed()) {
-      greenDot();
+    if (verbose) {
+      var msg;
+      if (results.skipped) {
+        msg = yellowStr("SKIP");
+      } else if (results.passed()) {
+        msg = greenStr("PASS");
+      } else {
+        msg = redStr("FAIL");
+      }
+      msg += " " + spec.getFullName();
+      print(msg);
+      newline();
     } else {
-      redF();
+      if (results.skipped) {
+        yellowStar();
+      } else if (results.passed()) {
+        greenDot();
+      } else {
+        redF();
+      }
     }
   };
 

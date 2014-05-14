@@ -79,13 +79,22 @@ require("./cjk-text-codecs.js");
 // Environment configuration
 var jasmineEnv = jasmine.getEnv();
 
-// If there are any command line arguments, filter tests based on them.
-var sys = require('system');
+// Command line arguments
+var sys = require("system");
+var verbose = false;
 if (sys.args.length > 1) {
-    var specFilterRe = new RegExp(sys.args.slice(1).join(" "));
-    jasmineEnv.specFilter = function (spec) {
-        return specFilterRe.test(spec.getFullName());
-    };
+    var rest = 1;
+    if (sys.args[1] == "-v" || sys.args[1] == "--verbose") {
+        verbose = true;
+        rest = 2;
+    }
+
+    if (sys.args.length > rest) {
+        var specFilterRe = new RegExp(sys.args.slice(rest).join(" "));
+        jasmineEnv.specFilter = function (spec) {
+            return specFilterRe.test(spec.getFullName());
+        };
+    }
 }
 
 // Add a ConsoleReporter to 1) print with colors on the console
@@ -98,7 +107,10 @@ jasmineEnv.addReporter(new jasmine.ConsoleReporter(
         phantom.exit(reporter.results().failedCount > 0 ? 1 : 0);
     },
     // Colorized
-    true));
+    true,
+    // Verbosity
+    verbose
+));
 
 // Launch tests
 jasmineEnv.updateInterval = 1000;
