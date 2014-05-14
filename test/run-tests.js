@@ -56,7 +56,7 @@ function expectHasPropertyString(o, name) {
     });
 }
 
-// Setting the "working directory" to the "/test" directory
+// Set the working directory to the "/test" directory
 var fs = require('fs');
 fs.changeWorkingDirectory(phantom.libraryPath);
 
@@ -78,14 +78,18 @@ require("./cjk-text-codecs.js");
 // Launch tests
 var jasmineEnv = jasmine.getEnv();
 
-// Add a ConsoleReporter to 1) print with colors on the console 2) exit when finished
-jasmineEnv.addReporter(new jasmine.ConsoleReporter(function(msg){
-    // Print messages straight to the console
-    console.log(msg.replace('\n', ''));
-}, function(reporter){
-    // On complete
-    phantom.exit(reporter.results().failedCount);
-}, true));
+// Add a ConsoleReporter to 1) print with colors on the console
+// 2) exit when finished
+var sys = require('system');
+jasmineEnv.addReporter(new jasmine.ConsoleReporter(
+    // Print messages straight to the console, and don't mess with the newlines
+    sys.stdout.write.bind(sys.stdout),
+    // On complete, exit unsuccessfully if any tests failed
+    function (reporter) {
+        phantom.exit(reporter.results().failedCount > 0 ? 1 : 0);
+    },
+    // Colorized
+    true));
 
 // Launch tests
 jasmineEnv.updateInterval = 1000;
