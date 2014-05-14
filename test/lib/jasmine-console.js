@@ -73,13 +73,18 @@ jasmine.ConsoleReporter = function(print, doneCallback, showColors) {
     return newArr.join("\n");
   }
 
-  function specFailureDetails(suiteDescription, specDescription, stackTraces) {
+  function specFailureDetails(suiteDescription, specDescription, items) {
     newline();
     print(suiteDescription + " " + specDescription);
     newline();
-    for (var i = 0; i < stackTraces.length; i++) {
-      print(indent(stackTraces[i], 2));
-      newline();
+    for (var i = 0; i < items.length; i++) {
+      if (!items[i].passed()) {
+        if (items[i].trace.stack)
+          print(indent(items[i].trace.stack, 2));
+        else
+          print(indent(items[i].toString(), 2));
+        newline();
+      }
     }
   }
 
@@ -153,19 +158,15 @@ jasmine.ConsoleReporter = function(print, doneCallback, showColors) {
       var suiteResult = suiteResults[i];
       for (var j = 0; j < suiteResult.failedSpecResults.length; j++) {
         var failedSpecResult = suiteResult.failedSpecResults[j];
-        var stackTraces = [];
-        for (var k = 0; k < failedSpecResult.items_.length; k++) stackTraces.push(failedSpecResult.items_[k].trace.stack);
-        callback(suiteResult.description, failedSpecResult.description, stackTraces);
+        callback(suiteResult.description, failedSpecResult.description,
+                 failedSpecResult.items_);
       }
     }
   }
 
   this.reportRunnerResults = function(runner) {
     newline();
-
-    eachSpecFailure(this.suiteResults, function(suiteDescription, specDescription, stackTraces) {
-      specFailureDetails(suiteDescription, specDescription, stackTraces);
-    });
+    eachSpecFailure(this.suiteResults, specFailureDetails);
 
     finished(this.now() - this.runnerStartTime);
 
