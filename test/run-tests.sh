@@ -1,6 +1,2 @@
-#!/usr/bin/env bash
-
-# Run tests
-bin/phantomjs test/run-tests.js
-
-exit $?
+#!/bin/sh
+exec "${0%/*}/../bin/phantomjs" "${0%/*}/run-tests.js" "$@"
