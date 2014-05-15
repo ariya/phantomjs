@@ -434,6 +434,19 @@ void Phantom::debugExit(int code)
     doExit(code);
 }
 
+QString Phantom::resolveRelativeUrl(QString url, QString base)
+{
+  QUrl u = QUrl::fromEncoded(url.toLatin1());
+  QUrl b = QUrl::fromEncoded(base.toLatin1());
+
+  return b.resolved(u).toEncoded();
+}
+
+QString Phantom::fullyDecodeUrl(QString url)
+{
+  return QUrl::fromEncoded(url.toLatin1()).toDisplayString();
+}
+
 // private slots:
 void Phantom::printConsoleMessage(const QString& message)
 {
