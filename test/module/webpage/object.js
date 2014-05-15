@@ -35,6 +35,7 @@ test(function () {
     assert_type_of(page.settings, 'object');
     assert_type_of(page.title, 'string');
     assert_type_of(page.url, 'string');
+    assert_type_of(page.frameUrl, 'string');
     assert_type_of(page.viewportSize, 'object');
     assert_type_of(page.windowName, 'string');
     assert_type_of(page.zoomFactor, 'number');

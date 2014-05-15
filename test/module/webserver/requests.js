@@ -57,6 +57,8 @@ function arm_check_request (test, expected_postdata, expected_bindata,
                 }
             }
 
+            response.setHeader("X-Request-URL", request.url);
+
             if (expected_bindata !== false) {
                 response.setEncoding("binary");
                 response.setHeader("Content-Type", expected_mimetype);
@@ -82,6 +84,33 @@ async_test(function () {
     }));
 
 }, "basic request handling");
+
+async_test(function () {
+    var page = require("webpage").create();
+    var url = "http://localhost:"+port+"/%95s%96%D1%82%C8%98_%91%88";
+    var already = false;
+
+    arm_check_request(this, false, false);
+    page.onResourceReceived = this.step_func(function (resp) {
+        if (already) return;
+        already = true;
+
+        var found = false;
+        resp.headers.forEach(function (hdr) {
+            if (hdr.name.toLowerCase() === "x-request-url") {
+                assert_equals(hdr.value, "/%95s%96%D1%82%C8%98_%91%88");
+                found = true;
+            }
+        });
+        assert_is_true(found);
+    });
+
+    page.open(url, this.step_func_done(function (status) {
+        assert_equals(status, "success");
+        assert_equals(page.plainText, "request handled");
+    }));
+
+}, "round-trip of URLs containing encoded non-Unicode text");
 
 async_test(function () {
     var page = require("webpage").create();

@@ -512,8 +512,8 @@ signals:
     void resourceReceived(const QVariant& resource);
     void resourceError(const QVariant& errorData);
     void resourceTimeout(const QVariant& errorData);
-    void urlChanged(const QUrl& url);
-    void navigationRequested(const QUrl& url, const QString& navigationType, bool navigationLocked, bool isMainFrame);
+    void urlChanged(const QString& url);
+    void navigationRequested(const QString& url, const QString& navigationType, bool navigationLocked, bool isMainFrame);
     void rawPageCreated(QObject* page);
     void closing(QObject* page);
     void repaintRequested(const int x, const int y, const int width, const int height);
@@ -523,6 +523,7 @@ private slots:
     void setupFrame(QWebFrame* frame = NULL);
     void updateLoadingProgress(int progress);
     void handleRepaintRequested(const QRect& dirtyRect);
+    void handleUrlChanged(const QUrl& url);
 
 private:
     QImage renderImage();

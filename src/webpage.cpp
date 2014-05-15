@@ -214,7 +214,7 @@ protected:
         bool isNavigationLocked = m_webPage->navigationLocked();
 
         emit m_webPage->navigationRequested(
-            request.url(),                   //< Requested URL
+            request.url().toEncoded(),       //< Requested URL
             navigationType,                  //< Navigation Type
             !isNavigationLocked,             //< Will navigate (not locked)?
             isMainFrame);                    //< Is main frame?
@@ -388,7 +388,7 @@ WebPage::WebPage(QObject* parent, const QUrl& baseUrl)
     connect(m_customWebPage, SIGNAL(frameCreated(QWebFrame*)), this, SLOT(setupFrame(QWebFrame*)), Qt::DirectConnection);
     connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(setupFrame()));
     connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()), SIGNAL(initialized()));
-    connect(m_mainFrame, SIGNAL(urlChanged(QUrl)), SIGNAL(urlChanged(QUrl)));
+    connect(m_mainFrame, SIGNAL(urlChanged(QUrl)), this, SLOT(handleUrlChanged(QUrl)));
     connect(m_customWebPage, SIGNAL(loadStarted()), SIGNAL(loadStarted()), Qt::QueuedConnection);
     connect(m_customWebPage, SIGNAL(loadFinished(bool)), SLOT(finish(bool)), Qt::QueuedConnection);
     connect(m_customWebPage, SIGNAL(windowCloseRequested()), this, SLOT(close()), Qt::QueuedConnection);
@@ -487,12 +487,16 @@ QString WebPage::frameTitle() const
 
 QString WebPage::url() const
 {
-    return m_mainFrame->url().toString();
+    return m_mainFrame->url().toEncoded();
 }
 
 QString WebPage::frameUrl() const
 {
-    return m_currentFrame->url().toString();
+    // Issue #11035: QWebFrame::url() is only set by QWebFrame::setUrl();
+    // it doesn't reflect a URL specified in a <frame> tag.
+    // QWebFrame::baseUrl() will be other than expected in the presence of
+    // <base href>, but it's less wrong.
+    return m_currentFrame->baseUrl().toEncoded();
 }
 
 bool WebPage::loading() const
@@ -1682,6 +1686,10 @@ void WebPage::handleRepaintRequested(const QRect& dirtyRect)
     emit repaintRequested(dirtyRect.x(), dirtyRect.y(), dirtyRect.width(), dirtyRect.height());
 }
 
+void WebPage::handleUrlChanged(const QUrl& url)
+{
+  emit urlChanged(url.toEncoded());
+}
 
 void WebPage::stopJavaScript()
 {

@@ -525,11 +525,11 @@ void NetworkAccessManager::handleNetworkError(QNetworkReply* reply, int requestI
     qDebug() << "Network - Resource request error:"
              << reply->error()
              << "(" << reply->errorString() << ")"
-             << "URL:" << reply->url().toString();
+             << "URL:" << reply->url().toEncoded();
 
     QVariantMap data;
     data["id"] = requestId;
-    data["url"] = reply->url().toString();
+    data["url"] = reply->url().toEncoded().data();
     data["errorCode"] = reply->error();
     data["errorString"] = reply->errorString();
     data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
