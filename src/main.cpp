@@ -34,51 +34,14 @@
 #include "utils.h"
 #include "env.h"
 #include "phantom.h"
-
-#ifdef Q_OS_LINUX
-#include "client/linux/handler/exception_handler.h"
-#endif
-#ifdef Q_OS_MAC
-#include "client/mac/handler/exception_handler.h"
-#endif
+#include "crashdump.h"
 
 #include <QApplication>
 #include <QSslSocket>
 
-#ifdef Q_OS_WIN32
-using namespace google_breakpad;
-static google_breakpad::ExceptionHandler* eh;
-#endif
-
 int main(int argc, char** argv)
 {
-    // Setup Google Breakpad exception handler
-#ifdef Q_OS_LINUX
-    google_breakpad::ExceptionHandler eh("/tmp", NULL, Utils::exceptionHandler, NULL, true);
-#endif
-#ifdef Q_OS_MAC
-    google_breakpad::ExceptionHandler eh("/tmp", NULL, Utils::exceptionHandler, NULL, true, NULL);
-#endif
-#ifdef Q_OS_WIN32
-    // This is needed for CRT to not show dialog for invalid param
-    // failures and instead let the code handle it.
-    _CrtSetReportMode(_CRT_ASSERT, 0);
-
-    DWORD cbBuffer = ExpandEnvironmentStrings(TEXT("%TEMP%"), NULL, 0);
-
-    if (cbBuffer == 0) {
-        eh = new ExceptionHandler(TEXT("."), NULL, Utils::exceptionHandler, NULL, ExceptionHandler::HANDLER_ALL);
-    } else {
-        LPWSTR szBuffer = reinterpret_cast<LPWSTR>(malloc(sizeof(TCHAR) * (cbBuffer + 1)));
-
-        if (ExpandEnvironmentStrings(TEXT("%TEMP%"), szBuffer, cbBuffer + 1) > 0) {
-            wstring lpDumpPath(szBuffer);
-            eh = new ExceptionHandler(lpDumpPath, NULL, Utils::exceptionHandler, NULL, ExceptionHandler::HANDLER_ALL);
-        }
-        free(szBuffer);
-    }
-#endif
-
+    CrashHandler crash_guard;
     QApplication app(argc, argv);
 
     app.setWindowIcon(QIcon(":/phantomjs-icon.png"));

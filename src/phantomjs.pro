@@ -33,7 +33,8 @@ HEADERS += \
     encoding.h \
     config.h \
     childprocess.h \
-    repl.h
+    repl.h \
+    crashdump.h
 
 SOURCES += phantom.cpp \
     callback.cpp \
@@ -50,7 +51,8 @@ SOURCES += phantom.cpp \
     encoding.cpp \
     config.cpp \
     childprocess.cpp \
-    repl.cpp
+    repl.cpp \
+    crashdump.cpp
 
 OTHER_FILES += \
     bootstrap.js \

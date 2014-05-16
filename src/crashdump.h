@@ -28,43 +28,21 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef CRASHDUMP_H
+#define CRASHDUMP_H
 
-#include <QtGlobal>
-#include <QtWebKitWidgets/QWebFrame>
-#include <QFile>
+namespace google_breakpad {
+    class ExceptionHandler;
+}
 
-#include "encoding.h"
-
-class QTemporaryFile;
-/**
- * Aggregate common utility functions.
- * Functions are static methods.
- * It's important to notice that, at the moment, this class can't be instantiated by design.
- */
-class Utils
+class CrashHandler
 {
 public:
-    static void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
-
-    static bool injectJsInFrame(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
-    static bool injectJsInFrame(const QString &jsFilePath, const QString &jsFileLanguage, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
-    static QString readResourceFileUtf8(const QString &resourceFilePath);
-
-    static bool loadJSForDebug(const QString &jsFilePath, const QString &jsFileLanguage, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool autorun = false);
-    static bool loadJSForDebug(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool autorun = false);
-    static void cleanupFromDebug();
-
-    static bool printDebugMessages;
+    CrashHandler();
+    ~CrashHandler();
 
 private:
-    static QString findScript(const QString &jsFilePath, const QString& libraryPath);
-    static QString jsFromScriptFile(const QString& scriptPath, const QString& lang, const Encoding& enc);
-    Utils(); //< This class shouldn't be instantiated
-
-    static QTemporaryFile* m_tempHarness; //< We want to make sure to clean up after ourselves
-    static QTemporaryFile* m_tempWrapper;
+    google_breakpad::ExceptionHandler *eh;
 };
 
-#endif // UTILS_H
+#endif // CRASHDUMP_H
