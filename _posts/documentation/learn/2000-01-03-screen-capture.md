@@ -28,7 +28,7 @@ Beside PNG format, PhantomJS supports JPEG, GIF, and PDF.
 In the `examples` subdirectory, there is a script [rasterize.js](https://github.com/ariya/phantomjs/blob/master/examples/rasterize.js) (30 lines) which demonstrates a more complete rendering feature of PhantomJS. An example to produce the rendering of the famous Tiger (from SVG):
 
 ```bash
-phantomjs rasterize.js http://ariya.github.com/svg/tiger.svg tiger.png
+phantomjs rasterize.js http://ariya.github.io/svg/tiger.svg tiger.png
 ```
 which gives the following `tiger.png`:
 
