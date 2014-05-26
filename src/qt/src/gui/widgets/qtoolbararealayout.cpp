@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -1106,16 +1106,19 @@ void QToolBarAreaLayout::clear()
     rect = QRect();
 }
 
-QToolBarAreaLayoutItem &QToolBarAreaLayout::item(const QList<int> &path)
+QToolBarAreaLayoutItem *QToolBarAreaLayout::item(const QList<int> &path)
 {
     Q_ASSERT(path.count() == 3);
 
-    Q_ASSERT(path.at(0) >= 0 && path.at(0) < QInternal::DockCount);
+    if (path.at(0) < 0 || path.at(0) >= QInternal::DockCount)
+        return 0;
     QToolBarAreaLayoutInfo &info = docks[path.at(0)];
-    Q_ASSERT(path.at(1) >= 0 && path.at(1) < info.lines.count());
+    if (path.at(1) < 0 || path.at(1) >= info.lines.count())
+        return 0;
     QToolBarAreaLayoutLine &line = info.lines[path.at(1)];
-    Q_ASSERT(path.at(2) >= 0 && path.at(2) < line.toolBarItems.count());
-    return line.toolBarItems[path.at(2)];
+    if (path.at(2) < 0 || path.at(2) >= line.toolBarItems.count())
+        return 0;
+    return &(line.toolBarItems[path.at(2)]);
 }
 
 QRect QToolBarAreaLayout::itemRect(const QList<int> &path) const
@@ -1131,23 +1134,28 @@ QRect QToolBarAreaLayout::itemRect(const QList<int> &path) const
 
 QLayoutItem *QToolBarAreaLayout::plug(const QList<int> &path)
 {
-    QToolBarAreaLayoutItem &item = this->item(path);
-    Q_ASSERT(item.gap);
-    Q_ASSERT(item.widgetItem != 0);
-    item.gap = false;
-    return item.widgetItem;
+    QToolBarAreaLayoutItem *item = this->item(path);
+    if (!item) {
+        qWarning() << Q_FUNC_INFO << "No item at" << path;
+        return 0;
+    }
+    Q_ASSERT(item->gap);
+    Q_ASSERT(item->widgetItem != 0);
+    item->gap = false;
+    return item->widgetItem;
 }
 
 QLayoutItem *QToolBarAreaLayout::unplug(const QList<int> &path, QToolBarAreaLayout *other)
 {
     //other needs to be update as well
     Q_ASSERT(path.count() == 3);
-    QToolBarAreaLayoutItem &item = this->item(path);
+    QToolBarAreaLayoutItem *item = this->item(path);
+    Q_ASSERT(item);
 
     //update the leading space here
     QToolBarAreaLayoutInfo &info = docks[path.at(0)];
     QToolBarAreaLayoutLine &line = info.lines[path.at(1)];
-    if (item.size != pick(line.o, item.realSizeHint())) {
+    if (item->size != pick(line.o, item->realSizeHint())) {
         //the item doesn't have its default size
         //so we'll give this to the next item
         int newExtraSpace = 0;
@@ -1184,9 +1192,9 @@ QLayoutItem *QToolBarAreaLayout::unplug(const QList<int> &path, QToolBarAreaLayo
         }
     }
 
-    Q_ASSERT(!item.gap);
-    item.gap = true;
-    return item.widgetItem;
+    Q_ASSERT(!item->gap);
+    item->gap = true;
+    return item->widgetItem;
 }
 
 static QRect unpackRect(uint geom0, uint geom1, bool *floating)

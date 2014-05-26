@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -566,13 +566,6 @@ void QMetaCallEvent::placeMetaCall(QObject *object)
     details. A convenience handler, childEvent(), can be reimplemented
     to catch child events.
 
-    Events are delivered in the thread in which the object was
-    created; see \l{Thread Support in Qt} and thread() for details.
-    Note that event processing is not done at all for QObjects with no
-    thread affinity (thread() returns zero). Use the moveToThread()
-    function to change the thread affinity for an object and its
-    children (the object cannot be moved if it has a parent).
-
     Last but not least, QObject provides the basic timer support in
     Qt; see QTimer for high-level support for timers.
 
@@ -592,6 +585,41 @@ void QMetaCallEvent::placeMetaCall(QObject *object)
 
     Some QObject functions, e.g. children(), return a QObjectList.
     QObjectList is a typedef for QList<QObject *>.
+
+    \section1 Thread Affinity
+
+    A QObject instance is said to have a \e{thread affinity}, or that
+    it \e{lives} in a certain thread. When a QObject receives a
+    \l{Qt::QueuedConnection}{queued signal} or a \l{The Event
+    System#Sending Events}{posted event}, the slot or event handler
+    will run in the thread that the object lives in.
+
+    \note If a QObject has no thread affinity (that is, if thread()
+    returns zero), or if it lives in a thread that has no running event
+    loop, then it cannot receive queued signals or posted events.
+
+    By default, a QObject lives in the thread in which it is created.
+    An object's thread affinity can be queried using thread() and
+    changed using moveToThread().
+
+    All QObjects must live in the same thread as their parent. Consequently:
+
+    \list
+    \li setParent() will fail if the two QObjects involved live in
+        different threads.
+    \li When a QObject is moved to another thread, all its children
+        will be automatically moved too.
+    \li moveToThread() will fail if the QObject has a parent.
+    \li If \l{QObject}s are created within QThread::run(), they cannot
+        become children of the QThread object because the QThread does
+        not live in the thread that calls QThread::run().
+    \endlist
+
+    \note A QObject's member variables \e{do not} automatically become
+    its children. The parent-child relationship must be set by either
+    passing a pointer to the child's \l{QObject()}{constructor}, or by
+    calling setParent(). Without this step, the object's member variables
+    will remain in the old thread when moveToThread() is called.
 
     \target No copy constructor
     \section1 No copy constructor or assignment operator
@@ -2159,14 +2187,9 @@ void QObject::deleteLater()
  *****************************************************************************/
 
 
-const int flagged_locations_count = 2;
-static const char* flagged_locations[flagged_locations_count] = {0};
-
 const char *qFlagLocation(const char *method)
 {
-    static int idx = 0;
-    flagged_locations[idx] = method;
-    idx = (idx+1) % flagged_locations_count;
+    QThreadData::current()->flaggedSignatures.store(method);
     return method;
 }
 
@@ -2178,14 +2201,11 @@ static int extract_code(const char *member)
 
 static const char * extract_location(const char *member)
 {
-    for (int i = 0; i < flagged_locations_count; ++i) {
-        if (member == flagged_locations[i]) {
-            // signature includes location information after the first null-terminator
-            const char *location = member + qstrlen(member) + 1;
-            if (*location != '\0')
-                return location;
-            return 0;
-        }
+    if (QThreadData::current()->flaggedSignatures.contains(member)) {
+        // signature includes location information after the first null-terminator
+        const char *location = member + qstrlen(member) + 1;
+        if (*location != '\0')
+            return location;
     }
     return 0;
 }

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
@@ -377,9 +377,6 @@ init_context:
             q_SSL_CTX_load_verify_locations(ctx, 0, unixDirs.at(a).constData());
     }
 
-    // Register a custom callback to get all verification errors.
-    X509_STORE_set_verify_cb_func(ctx->cert_store, q_X509Callback);
-
     if (!configuration.localCertificate.isNull()) {
         // Require a private key as well.
         if (configuration.privateKey.isNull()) {
@@ -614,6 +611,8 @@ void QSslSocketPrivate::ensureCiphersAndCertsLoaded()
     } else {
         qWarning("could not load crypt32 library"); // should never happen
     }
+#elif defined(Q_OS_QNX)
+    s_loadRootCertsOnDemand = true;
 #elif defined(Q_OS_UNIX) && !defined(Q_OS_SYMBIAN) && !defined(Q_OS_MAC)
     // check whether we can enable on-demand root-cert loading (i.e. check whether the sym links are there)
     QList<QByteArray> dirs = unixRootCertDirectories();

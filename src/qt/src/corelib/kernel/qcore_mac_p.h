@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -125,6 +125,7 @@ public:
 	return *this;
     }
     inline T *operator&() { return &type; }
+    template <typename X> X as() const { return reinterpret_cast<X>(type); }
     static QCFType constructFromGet(const T &t)
     {
         CFRetain(t);

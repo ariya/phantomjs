@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -225,6 +225,41 @@ extern void qt_mac_update_cursor(); // qcursor_mac.mm
 // Forward Decls
 void onApplicationWindowChangedActivation( QWidget*widget, bool activated );
 void onApplicationChangedActivation( bool activated );
+
+#ifdef QT_MAC_USE_COCOA
+void qt_mac_loadMenuNib(QT_MANGLE_NAMESPACE(QCocoaMenuLoader) *qtMenuLoader)
+{
+    // Create qt_menu.nib dir in temp.
+    QDir temp = QDir::temp();
+    temp.mkdir("qt_menu.nib");
+    QString nibDir = temp.canonicalPath() + QLatin1String("/") + QLatin1String("qt_menu.nib/");
+    if (!QDir(nibDir).exists()) {
+        qWarning("qt_mac_loadMenuNib: could not create nib directory in temp");
+        return;
+    }
+
+    // Copy nib files from resources to temp.
+    QDir nibResource(":/trolltech/mac/qt_menu.nib/");
+    if (!nibResource.exists()) {
+        qWarning("qt_mac_loadMenuNib: could not load nib from resources");
+        return;
+    }
+    foreach (const QFileInfo &file, nibResource.entryInfoList())
+        QFile::copy(file.absoluteFilePath(), nibDir + QLatin1String("/") + file.fileName());
+
+    // Load and instantiate nib file from temp
+    NSURL *nibUrl = [NSURL fileURLWithPath : const_cast<NSString *>(reinterpret_cast<const NSString *>(QCFString::toCFStringRef(nibDir)))];
+    NSNib *nib = [[NSNib alloc] initWithContentsOfURL : nibUrl];
+    [nib autorelease];
+    if (!nib) {
+        qWarning("qt_mac_loadMenuNib: could not load nib from temp");
+        return;
+    }
+    bool ok = [nib instantiateNibWithOwner : qtMenuLoader topLevelObjects : nil];
+    if (!ok)
+        qWarning("qt_mac_loadMenuNib: could not instantiate nib");
+}
+#endif
 
 static void qt_mac_read_fontsmoothing_settings()
 {
@@ -1257,19 +1292,11 @@ void qt_init(QApplicationPrivate *priv, int)
         [newDelegate setReflectionDelegate:oldDelegate];
         [cocoaApp setDelegate:newDelegate];
 
-// https://bugreports.qt.nokia.com/browse/QTBUG-5952
         QT_MANGLE_NAMESPACE(QCocoaMenuLoader) *qtMenuLoader = [[QT_MANGLE_NAMESPACE(QCocoaMenuLoader) alloc] init];
-        if ([NSBundle loadNibNamed:@"qt_menu" owner:qtMenuLoader] == false) {
-#if 0
-            qFatal("Qt internal error: qt_menu.nib could not be loaded. The .nib file"
-                   " should be placed in QtGui.framework/Versions/Current/Resources/ "
-                   " or in the resources directory of your application bundle.");
-#endif
-        }
+        qt_mac_loadMenuNib(qtMenuLoader);
 
         [cocoaApp setMenu:[qtMenuLoader menu]];
         [newDelegate setMenuLoader:qtMenuLoader];
-        [qtMenuLoader release];
     }
 #endif
     // Register for Carbon tablet proximity events on the event monitor target.

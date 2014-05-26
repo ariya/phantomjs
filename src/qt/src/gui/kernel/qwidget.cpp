@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -7139,12 +7139,25 @@ bool QWidget::restoreGeometry(const QByteArray &geometry)
     if (maximized || fullScreen) {
         // set geomerty before setting the window state to make
         // sure the window is maximized to the right screen.
-        // Skip on windows: the window is restored into a broken
-        // half-maximized state.
+        Qt::WindowStates ws = windowState();
 #ifndef Q_WS_WIN
         setGeometry(restoredNormalGeometry);
-#endif
-        Qt::WindowStates ws = windowState();
+#else
+        if (ws & Qt::WindowFullScreen) {
+            // Full screen is not a real window state on Windows.
+            move(availableGeometry.topLeft());
+        } else if (ws & Qt::WindowMaximized) {
+            // Setting a geometry on an already maximized window causes this to be
+            // restored into a broken, half-maximized state, non-resizable state (QTBUG-4397).
+            // Move the window in normal state if needed.
+            if (restoredScreenNumber != desktop->screenNumber(this)) {
+                setWindowState(Qt::WindowNoState);
+                setGeometry(restoredNormalGeometry);
+            }
+        } else {
+            setGeometry(restoredNormalGeometry);
+        }
+#endif // Q_WS_WIN
         if (maximized)
             ws |= Qt::WindowMaximized;
         if (fullScreen)

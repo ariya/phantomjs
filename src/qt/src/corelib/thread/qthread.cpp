@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -95,6 +95,7 @@ QThreadData::~QThreadData()
     // the problem...
     if (this->thread == QCoreApplicationPrivate::theMainThread) {
        QCoreApplicationPrivate::theMainThread = 0;
+       QThreadData::clearCurrentThreadData();
     }
 
     QThread *t = thread;
@@ -221,26 +222,26 @@ QThreadPrivate::~QThreadPrivate()
     Another way to make code run in a separate thread, is to subclass QThread
     and reimplement run(). For example:
 
-    \snippet code/src_corelib_thread_qthread.cpp reimpl-run
+    \snippet doc/src/snippets/code/src_corelib_thread_qthread.cpp reimpl-run
 
     In that example, the thread will exit after the run function has returned.
     There will not be any event loop running in the thread unless you call
     exec().
 
-    It is important to remember that a QThread object usually lives
-    in the thread where it was created, not in the thread that it
-    manages. This oft-overlooked detail means that a QThread's slots
-    will be executed in the context of its home thread, not in the
-    context of the thread it is managing. For this reason,
-    implementing new slots in a QThread subclass is error-prone and
-    discouraged.
+    It is important to remember that a QThread instance \l{QObject#Thread
+    Affinity}{lives in} the old thread that instantiated it, not in the
+    new thread that calls run(). This means that all of QThread's queued
+    slots will execute in the old thread. Thus, a developer who wishes to
+    invoke slots in the new thread must use the worker-object approach; new
+    slots should not be implemented directly into a subclassed QThread.
 
-    \note If you interact with an object, using any technique other
-    than queued signal/slot connections (e.g. direct function calls),
-    then the usual multithreading precautions need to be taken.
+    When subclassing QThread, keep in mind that the constructor executes in
+    the old thread while run() executes in the new thread. If a member
+    variable is accessed from both functions, then the variable is accessed
+    from two different threads. Check that it is safe to do so.
 
-    \note It is not possible to change the thread affinity of GUI
-    objects; they must remain in the main thread.
+    \note Care must be taken when interacting with objects across different
+    threads. See \l{Synchronizing Threads} for details.
 
     \section1 Managing threads
 
@@ -285,7 +286,7 @@ QThreadPrivate::~QThreadPrivate()
     wait(), consider listening for the finished() signal. Instead of
     the sleep() functions, consider using QTimer.
 
-    \sa {Thread Support in Qt}, QThreadStorage, QMutex, QSemaphore, QWaitCondition,
+    \sa {Thread Support in Qt}, QThreadStorage, {Synchronizing Threads}
         {Mandelbrot Example}, {Semaphores Example}, {Wait Conditions Example}
 */
 
@@ -517,7 +518,8 @@ uint QThread::stackSize() const
     that was passed to exit(). The value returned is 0 if exit() is called via
     quit().
 
-    It is necessary to call this function to start event handling.
+    This function is meant to be called from within run(). It is necessary to
+    call this function to start event handling.
 
     \sa quit(), exit()
 */

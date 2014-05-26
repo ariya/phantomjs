@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -2803,6 +2803,10 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
                 if (window)
                     qt_mac_destructWindow(window);
             }
+#ifdef QT_MAC_USE_COCOA
+            if (isWindow())
+                QCoreGraphicsPaintEngine::clearColorSpace(this);
+#endif
         }
         QT_TRY {
             d->setWinId(0);
@@ -3866,7 +3870,14 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
                     d->updateFrameStrut();  // In theory the dirty would work, but it's optimized out if the window is not visible :(
                 }
                 // Everything should be handled by Cocoa.
-                [window zoom:window];
+                if (!windowFlags() & Qt::FramelessWindowHint) {
+                    [window zoom:window];
+                } else {
+                    QDesktopWidget *dsk = QApplication::desktop();
+                    QRect avail = dsk->availableGeometry(dsk->screenNumber(this));
+                    setGeometry(avail);
+                }
+
 #endif
                 needSendStateChange = oldstate == windowState(); // Zoom didn't change flags.
             } else if(oldstate & Qt::WindowMaximized && !(oldstate & Qt::WindowFullScreen)) {
@@ -3905,7 +3916,7 @@ void QWidgetPrivate::setFocus_sys()
     if (q->testAttribute(Qt::WA_WState_Created)) {
 #ifdef QT_MAC_USE_COCOA
         QMacCocoaAutoReleasePool pool;
-        NSView *view = qt_mac_nativeview_for(q);
+        NSView *view = qt_mac_effectiveview_for(q);
         [[view window] makeFirstResponder:view];
 #else
         SetKeyboardFocus(qt_mac_window_for(q), qt_mac_nativeview_for(q), 1);
@@ -4716,14 +4727,12 @@ void QWidgetPrivate::scroll_sys(int dx, int dy, const QRect &qscrollRect)
 
     // Scroll the whole widget if qscrollRect is not valid:
     QRect validScrollRect = qscrollRect.isValid() ? qscrollRect : q->rect();
-    validScrollRect &= clipRect();
 
     // If q is overlapped by other widgets, we cannot just blit pixels since
     // this will move overlapping widgets as well. In case we just update:
     const bool overlapped = isOverlapped(validScrollRect.translated(data.crect.topLeft()));
     const bool accelerateScroll = accelEnv && isOpaque && !overlapped;
     const bool isAlien = (q->internalWinId() == 0);
-    const QPoint scrollDelta(dx, dy);
 
     // If qscrollRect is valid, we are _not_ supposed to scroll q's children (as documented).
     // But we do scroll children (and the whole of q) if qscrollRect is invalid. This case is
@@ -4745,7 +4754,6 @@ void QWidgetPrivate::scroll_sys(int dx, int dy, const QRect &qscrollRect)
         }else {
             update_sys(qscrollRect);
         }
-        return;
     }
 
 #ifdef QT_MAC_USE_COCOA
@@ -4762,6 +4770,7 @@ void QWidgetPrivate::scroll_sys(int dx, int dy, const QRect &qscrollRect)
     // moved when the parent is scrolled. All directly or indirectly moved
     // children will receive a move event before the function call returns.
     QWidgetList movedChildren;
+    const QPoint scrollDelta(dx, dy);
     if (scrollChildren) {
         QObjectList children = q->children();
 

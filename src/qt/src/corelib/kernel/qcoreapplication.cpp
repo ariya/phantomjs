@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -64,6 +64,7 @@
 #include <private/qfactoryloader_p.h>
 #include <private/qfunctions_p.h>
 #include <private/qlocale_p.h>
+#include <private/qmutexpool_p.h>
 
 #ifdef Q_OS_SYMBIAN
 #  include <exception>
@@ -203,15 +204,18 @@ QString QCoreApplicationPrivate::macMenuBarName()
 #endif
 QString QCoreApplicationPrivate::appName() const
 {
-    static QString applName;
+    QMutexLocker locker(QMutexPool::globalInstanceGet(&applicationName));
+
+    if (applicationName.isNull()) {
 #ifdef Q_OS_MAC
-    applName = macMenuBarName();
+        applicationName = macMenuBarName();
 #endif
-    if (applName.isEmpty() && argv[0]) {
-        char *p = strrchr(argv[0], '/');
-        applName = QString::fromLocal8Bit(p ? p + 1 : argv[0]);
+        if (applicationName.isEmpty() && argv[0]) {
+            char *p = strrchr(argv[0], '/');
+            applicationName = QString::fromLocal8Bit(p ? p + 1 : argv[0]);
+        }
     }
-    return applName;
+    return applicationName;
 }
 #endif
 
@@ -373,13 +377,13 @@ struct QCoreApplicationData {
 #ifndef QT_NO_LIBRARY
         delete app_libpaths;
 #endif
-
+#ifndef QT_NO_QOBJECT
         // cleanup the QAdoptedThread created for the main() thread
-       if (QCoreApplicationPrivate::theMainThread) {
-           QThreadData *data = QThreadData::get2(QCoreApplicationPrivate::theMainThread);
-           QCoreApplicationPrivate::theMainThread = 0;
-           data->deref(); // deletes the data and the adopted thread
-       }
+        if (QCoreApplicationPrivate::theMainThread) {
+            QThreadData *data = QThreadData::get2(QCoreApplicationPrivate::theMainThread);
+            data->deref(); // deletes the data and the adopted thread
+        }
+#endif
     }
 
 #ifdef Q_OS_BLACKBERRY
@@ -2356,6 +2360,9 @@ QStringList QCoreApplication::arguments()
     organizationName(). On all other platforms, QSettings uses
     organizationName() as the organization.
 
+    On BlackBerry this property is read-only. It is obtained from the
+    BAR application descriptor file.
+
     \sa organizationDomain applicationName
 */
 
@@ -2405,6 +2412,9 @@ QString QCoreApplication::organizationDomain()
     using the empty constructor. This saves having to repeat this
     information each time a QSettings object is created.
 
+    On BlackBerry this property is read-only. It is obtained from the
+    BAR application descriptor file.
+
     \sa organizationName organizationDomain applicationVersion
 */
 void QCoreApplication::setApplicationName(const QString &application)
@@ -2417,13 +2427,21 @@ QString QCoreApplication::applicationName()
 #ifdef Q_OS_BLACKBERRY
     coreappdata()->loadManifest();
 #endif
-    return coreappdata()->application;
+
+    QString appname = coreappdata() ? coreappdata()->application : QString();
+    if (appname.isEmpty() && QCoreApplication::self)
+        appname = QCoreApplication::self->d_func()->appName();
+
+    return appname;
 }
 
 /*!
     \property QCoreApplication::applicationVersion
     \since 4.4
     \brief the version of this application
+
+    On BlackBerry this property is read-only. It is obtained from the
+    BAR application descriptor file.
 
     \sa applicationName organizationName organizationDomain
 */

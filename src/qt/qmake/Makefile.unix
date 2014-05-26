@@ -48,7 +48,6 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp generators/makefile.cpp ge
 	   $(SOURCE_PATH)/src/corelib/tools/qbytearray.cpp $(SOURCE_PATH)/src/corelib/tools/qbytearraymatcher.cpp \
 	   $(SOURCE_PATH)/src/corelib/io/qdatastream.cpp $(SOURCE_PATH)/src/corelib/io/qbuffer.cpp \
 	   $(SOURCE_PATH)/src/corelib/io/qfilesystementry.cpp $(SOURCE_PATH)/src/corelib/io/qfilesystemengine_unix.cpp \
-	   $(SOURCE_PATH)/src/corelib/io/qfilesystemengine_mac.cpp \
 	   $(SOURCE_PATH)/src/corelib/io/qfilesystemengine.cpp $(SOURCE_PATH)/src/corelib/io/qfilesystemiterator_unix.cpp \
 	   $(SOURCE_PATH)/src/corelib/io/qfsfileengine_unix.cpp $(SOURCE_PATH)/src/corelib/io/qabstractfileengine.cpp \
 	   $(SOURCE_PATH)/src/corelib/io/qfsfileengine_iterator.cpp \
@@ -185,9 +184,6 @@ qfilesystemengine.o: $(SOURCE_PATH)/src/corelib/io/qfilesystemengine.cpp
 
 qfilesystemengine_unix.o: $(SOURCE_PATH)/src/corelib/io/qfilesystemengine_unix.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qfilesystemengine_unix.cpp
-
-qfilesystemengine_mac.o: $(SOURCE_PATH)/src/corelib/io/qfilesystemengine_mac.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qfilesystemengine_mac.cpp
 
 qfilesystemiterator_unix.o: $(SOURCE_PATH)/src/corelib/io/qfilesystemiterator_unix.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $(SOURCE_PATH)/src/corelib/io/qfilesystemiterator_unix.cpp

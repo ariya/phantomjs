@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -1550,8 +1550,8 @@ static void composeHelper(QString *str, QChar::UnicodeVersion version, int from)
         return;
 
     // the loop can partly ignore high Unicode as all ligatures are in the BMP
-    int starter = 0;
-    int lastCombining = 0;
+    int starter = -2; // to prevent starter == pos - 1
+    int lastCombining = 255; // to prevent combining > lastCombining
     int pos = from;
     while (pos < s.length()) {
         uint uc = s.at(pos).unicode();
@@ -1570,8 +1570,7 @@ static void composeHelper(QString *str, QChar::UnicodeVersion version, int from)
             continue;
         }
         int combining = p->combiningClass;
-        if (starter == pos - 1 || combining > lastCombining) {
-            Q_ASSERT(starter >= from);
+        if ((starter == pos - 1 || combining > lastCombining) && starter >= from) {
             // allowed to form ligature with S
             QChar ligature = ligatureHelper(s.at(starter).unicode(), uc);
             if (ligature.unicode()) {

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -2321,7 +2321,7 @@ static QPainterPath path_for_glyphs(const QVarLengthArray<glyph_t> &glyphs,
     ft->lockFace();
     int i = 0;
     while (i < glyphs.size()) {
-        QFontEngineFT::Glyph *glyph = ft->loadGlyph(glyphs[i], QFontEngineFT::Format_Mono);
+        QFontEngineFT::Glyph *glyph = ft->loadGlyph(glyphs[i], 0, QFontEngineFT::Format_Mono);
         // #### fix case where we don't get a glyph
         if (!glyph)
             break;

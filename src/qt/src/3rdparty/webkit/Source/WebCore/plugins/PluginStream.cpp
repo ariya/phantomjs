@@ -76,6 +76,7 @@ PluginStream::PluginStream(PluginStreamClient* client, Frame* frame, const Resou
     m_stream.end = 0;
     m_stream.notifyData = 0;
     m_stream.lastmodified = 0;
+    m_stream.headers = 0;
 
     streams().add(&m_stream, m_instance);
 }

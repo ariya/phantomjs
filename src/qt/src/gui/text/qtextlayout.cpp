@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -44,6 +44,7 @@
 
 #include <qfont.h>
 #include <qapplication.h>
+#include <qmath.h>
 #include <qpainter.h>
 #include <qvarlengtharray.h>
 #include <qtextformat.h>
@@ -979,15 +980,23 @@ static void addSelectedRegionsToPath(QTextEngine *eng, int lineNumber, const QPo
                 continue;
             }
 
-            if (lastSelectionWidth > 0)
-                region->addRect(boundingRect & QRectF(lastSelectionX.toReal(), selectionY, lastSelectionWidth.toReal(), lineHeight));
+            if (lastSelectionWidth > 0) {
+                QRectF rect = boundingRect & QRectF(lastSelectionX.toReal(), selectionY, lastSelectionWidth.toReal(), lineHeight);
+                rect.moveLeft(qFloor(rect.left()));
+                rect.moveTop(qFloor(rect.top()));
+                region->addRect(rect);
+            }
 
             lastSelectionX = selectionX;
             lastSelectionWidth = selectionWidth;
         }
     }
-    if (lastSelectionWidth > 0)
-        region->addRect(boundingRect & QRectF(lastSelectionX.toReal(), selectionY, lastSelectionWidth.toReal(), lineHeight));
+    if (lastSelectionWidth > 0) {
+        QRectF rect = boundingRect & QRectF(lastSelectionX.toReal(), selectionY, lastSelectionWidth.toReal(), lineHeight);
+        rect.moveLeft(qFloor(rect.left()));
+        rect.moveTop(qFloor(rect.top()));
+        region->addRect(rect);
+    }
 }
 
 static inline QRectF clipIfValid(const QRectF &rect, const QRectF &clip)
@@ -2081,7 +2090,7 @@ static void setPenAndDrawBackground(QPainter *p, const QPen &defaultPen, const Q
 
     QBrush bg = chf.background();
     if (bg.style() != Qt::NoBrush && !chf.property(SuppressBackground).toBool())
-        p->fillRect(r, bg);
+        p->fillRect(QRectF(qFloor(r.x()), qFloor(r.y()), r.width(), r.height()), bg);
     if (c.style() != Qt::NoBrush) {
         p->setPen(QPen(c, 0));
     }

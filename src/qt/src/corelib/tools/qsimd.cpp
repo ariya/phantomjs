@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -47,7 +47,7 @@
 #include <windows.h>
 #endif
 
-#if defined(Q_OS_WIN64) && !defined(Q_CC_GNU)
+#if defined(Q_OS_WIN64)
 #include <intrin.h>
 #endif
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -87,8 +87,8 @@ public:
     void stealRunnable(QRunnable *);
 
     mutable QMutex mutex;
-    QWaitCondition runnableReady;
     QSet<QThreadPoolThread *> allThreads;
+    QQueue<QThreadPoolThread *> waitingThreads;
     QQueue<QThreadPoolThread *> expiredThreads;
     QList<QPair<QRunnable *, int> > queue;
     QWaitCondition noActiveThreads;
@@ -97,7 +97,6 @@ public:
     int expiryTimeout;
     int maxThreadCount;
     int reservedThreads;
-    int waitingThreads;
     int activeThreads;
 };
 

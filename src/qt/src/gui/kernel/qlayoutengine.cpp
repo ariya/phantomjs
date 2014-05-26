@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -83,9 +83,7 @@ void qGeomCalc(QVector<QLayoutStruct> &chain, int start, int count,
     int cMax = 0;
     int sumStretch = 0;
     int sumSpacing = 0;
-
-    bool wannaGrow = false; // anyone who really wants to grow?
-    //    bool canShrink = false; // anyone who could be persuaded to shrink?
+    int expandingCount = 0;
 
     bool allEmptyNonstretch = true;
     int pendingSpacing = -1;
@@ -111,8 +109,9 @@ void qGeomCalc(QVector<QLayoutStruct> &chain, int start, int count,
             }
             pendingSpacing = data->effectiveSpacer(spacer);
         }
-        wannaGrow = wannaGrow || data->expansive || data->stretch > 0;
-        allEmptyNonstretch = allEmptyNonstretch && !wannaGrow && data->empty;
+        if (data->expansive)
+            expandingCount++;
+        allEmptyNonstretch = allEmptyNonstretch && data->empty && !data->expansive && data->stretch <= 0;
     }
 
     int extraspace = 0;
@@ -233,13 +232,14 @@ void qGeomCalc(QVector<QLayoutStruct> &chain, int start, int count,
             QLayoutStruct *data = &chain[i];
             if (!data->done
                 && (data->maximumSize <= data->smartSizeHint()
-                    || (wannaGrow && !data->expansive && data->stretch == 0)
                     || (!allEmptyNonstretch && data->empty &&
                         !data->expansive && data->stretch == 0))) {
                 data->size = data->smartSizeHint();
                 data->done = true;
                 space_left -= data->size;
                 sumStretch -= data->stretch;
+                 if (data->expansive)
+                     expandingCount--;
                 n--;
             }
         }
@@ -265,10 +265,13 @@ void qGeomCalc(QVector<QLayoutStruct> &chain, int start, int count,
                 if (data->done)
                     continue;
                 extraspace = 0;
-                if (sumStretch <= 0)
-                    fp_w += fp_space / n;
-                else
+                if (sumStretch > 0) {
                     fp_w += (fp_space * data->stretch) / sumStretch;
+                } else if (expandingCount > 0) {
+                    fp_w += (fp_space * (data->expansive ? 1 : 0)) / expandingCount;
+                } else {
+                    fp_w += fp_space * 1 / n;
+                }
                 int w = fRound(fp_w);
                 data->size = w;
                 fp_w -= toFixed(w); // give the difference to the next
@@ -287,6 +290,8 @@ void qGeomCalc(QVector<QLayoutStruct> &chain, int start, int count,
                         data->done = true;
                         space_left -= data->smartSizeHint();
                         sumStretch -= data->stretch;
+                        if (data->expansive)
+                            expandingCount--;
                         n--;
                     }
                 }
@@ -300,6 +305,8 @@ void qGeomCalc(QVector<QLayoutStruct> &chain, int start, int count,
                         data->done = true;
                         space_left -= data->maximumSize;
                         sumStretch -= data->stretch;
+                        if (data->expansive)
+                            expandingCount--;
                         n--;
                     }
                 }

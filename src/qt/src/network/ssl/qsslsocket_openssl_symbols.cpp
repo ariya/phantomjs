@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
@@ -502,7 +502,10 @@ static QPair<QLibrary*, QLibrary*> loadOpenSsl()
 #ifdef Q_OS_OPENBSD
     libcrypto->setLoadHints(QLibrary::ExportExternalSymbolsHint);
 #endif
-#ifdef SHLIB_VERSION_NUMBER
+#if defined(Q_OS_QNX) // on QNX, the libs are always libssl.so and libcrypto.so
+    libssl->setLoadHints(QLibrary::ImprovedSearchHeuristics);
+    libcrypto->setLoadHints(libcrypto->loadHints() | QLibrary::ImprovedSearchHeuristics);
+#elif defined(SHLIB_VERSION_NUMBER)
     // first attempt: the canonical name is libssl.so.<SHLIB_VERSION_NUMBER>
     libssl->setFileNameAndVersion(QLatin1String("ssl"), QLatin1String(SHLIB_VERSION_NUMBER));
     libssl->setLoadHints(QLibrary::ImprovedSearchHeuristics);

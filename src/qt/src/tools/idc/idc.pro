@@ -6,7 +6,7 @@ build_all:!build_pass {
     CONFIG += release
 }
 
-QT = core
+include(../bootstrap/bootstrap.pri)
 
 DESTDIR         = ../../../bin
 

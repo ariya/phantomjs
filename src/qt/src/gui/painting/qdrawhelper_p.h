@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -138,7 +138,7 @@ typedef void (*SrcOverBlendFunc)(uchar *destPixels, int dbpl,
                                  int const_alpha);
 
 typedef void (*SrcOverScaleFunc)(uchar *destPixels, int dbpl,
-                                 const uchar *src, int spbl,
+                                 const uchar *src, int spbl, int srch,
                                  const QRectF &targetRect,
                                  const QRectF &sourceRect,
                                  const QRect &clipRect,

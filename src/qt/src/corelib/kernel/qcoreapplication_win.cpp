@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -583,7 +583,7 @@ struct FLAG_STRING_STRUCT
     const char* str;
 };
 
-FLAG_STRING_STRUCT FLAG_STRING(int value = 0, const char *c = 0)
+FLAG_STRING_STRUCT FLAG_STRING(uint value = 0, const char *c = 0)
 {
     FLAG_STRING_STRUCT s = {value, c};
     return s;
@@ -875,6 +875,11 @@ QString decodeMSG(const MSG& msg)
             }
             break;
 #endif
+#ifdef WM_INPUTLANGCHANGE
+        case WM_INPUTLANGCHANGE:
+            parameters = QLatin1String("Keyboard layout changed");
+            break;
+#endif // WM_INPUTLANGCHANGE
 #ifdef WM_NCACTIVATE
         case WM_NCACTIVATE:
             {

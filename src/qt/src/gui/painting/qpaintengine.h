@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -46,7 +46,6 @@
 #include <QtCore/qobjectdefs.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtGui/qpainter.h>
-#include <QtCore/qurl.h>
 
 QT_BEGIN_HEADER
 
@@ -163,19 +162,6 @@ public:
     virtual void drawRects(const QRect *rects, int rectCount);
     virtual void drawRects(const QRectF *rects, int rectCount);
 
-    virtual void addHyperlink(const QRectF &r, const QUrl &url) {Q_UNUSED(r); Q_UNUSED(url);}
-    virtual void addAnchor(const QRectF &r, const QString &name) {Q_UNUSED(r); Q_UNUSED(name);}
-    virtual void addLink(const QRectF &r, const QString &anchor) {Q_UNUSED(r); Q_UNUSED(anchor);}
-    virtual void addTextField(const QRectF &r, const QString &text, const QString &name, bool multiLine, bool password, bool readOnly, int maxLength) {
-        Q_UNUSED(r); Q_UNUSED(text); Q_UNUSED(name); Q_UNUSED(multiLine); Q_UNUSED(password); Q_UNUSED(readOnly); Q_UNUSED(maxLength);
-    }
-    virtual void addCheckBox(const QRectF &r, bool checked, const QString &name, bool readOnly) {
-        Q_UNUSED(r); Q_UNUSED(checked); Q_UNUSED(name); Q_UNUSED(readOnly);
-    }
-    virtual void addRadioButton(const QRectF &r, const QString &group = QString(), bool checked = false, const QString &name = QString(), bool readOnly = false) {
-        Q_UNUSED(r); Q_UNUSED(checked); Q_UNUSED(name); Q_UNUSED(readOnly); Q_UNUSED(group);
-    }
-
     virtual void drawLines(const QLine *lines, int lineCount);
     virtual void drawLines(const QLineF *lines, int lineCount);
 
@@ -191,11 +177,6 @@ public:
     virtual void drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode);
 
     virtual void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr) = 0;
-    virtual void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, const QByteArray * data) {
-        Q_UNUSED(data);
-        drawPixmap(r,pm,sr);
-    }
-
     virtual void drawTextItem(const QPointF &p, const QTextItem &textItem);
     virtual void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s);
     virtual void drawImage(const QRectF &r, const QImage &pm, const QRectF &sr,

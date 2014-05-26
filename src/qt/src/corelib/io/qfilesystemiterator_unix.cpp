@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -105,8 +105,8 @@ bool QFileSystemIterator::advance(QFileSystemEntry &fileEntry, QFileSystemMetaDa
     if (!dir)
         return false;
 
-#if defined(Q_OS_QNX) && defined(__EXT_QNX__READDIR_R)
-    lastError = _readdir_r(dir, mt_file.data(), &dirEntry, direntSize);
+#if defined(Q_OS_QNX) && defined(QT_EXT_QNX_READDIR_R)
+    lastError = QT_EXT_QNX_READDIR_R(dir, mt_file.data(), &dirEntry, direntSize);
     if (lastError)
         return false;
 #elif defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_CYGWIN)

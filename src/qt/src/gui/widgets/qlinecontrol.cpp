@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -279,13 +279,13 @@ void QLineControl::setSelection(int start, int length)
     }
 
     if (length > 0) {
-        if (start == m_selstart && start + length == m_selend)
+        if (start == m_selstart && start + length == m_selend && m_cursor == m_selend)
             return;
         m_selstart = start;
         m_selend = qMin(start + length, (int)m_text.length());
         m_cursor = m_selend;
     } else if (length < 0){
-        if (start == m_selend && start + length == m_selstart)
+        if (start == m_selend && start + length == m_selstart && m_cursor == m_selstart)
             return;
         m_selstart = qMax(start + length, 0);
         m_selend = start;
@@ -451,6 +451,7 @@ void QLineControl::processInputMethodEvent(QInputMethodEvent *event)
             || event->preeditString() != preeditAreaText()
             || event->replacementLength() > 0;
     bool cursorPositionChanged = false;
+    bool selectionChange = false;
 
     if (isGettingInput) {
         // If any text is being input, remove selected text.
@@ -494,6 +495,7 @@ void QLineControl::processInputMethodEvent(QInputMethodEvent *event)
                 if (m_selend < m_selstart) {
                     qSwap(m_selstart, m_selend);
                 }
+                selectionChange = true;
             } else {
                 m_selstart = m_selend = 0;
             }
@@ -539,6 +541,8 @@ void QLineControl::processInputMethodEvent(QInputMethodEvent *event)
         emit updateMicroFocus();
     if (isGettingInput)
         finishChange(priorState);
+    if (selectionChange)
+        emit selectionChanged();
 }
 
 /*!
@@ -626,7 +630,7 @@ void QLineControl::selectWordAtPos(int cursor)
 bool QLineControl::finishChange(int validateFromState, bool update, bool edited)
 {
     Q_UNUSED(update)
-    bool lineDirty = m_selDirty;
+
     if (m_textDirty) {
         // do validation
         bool wasValidInput = m_validInput;
@@ -657,7 +661,7 @@ bool QLineControl::finishChange(int validateFromState, bool update, bool edited)
             m_textDirty = false;
         }
         updateDisplayText();
-        lineDirty |= m_textDirty;
+
         if (m_textDirty) {
             m_textDirty = false;
             QString actualText = text();

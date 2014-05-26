@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -539,7 +539,7 @@ Blend_on_RGB16_SourceAndConstAlpha_Neon_create(BlendFunc blender, int const_alph
 }
 
 void qt_scale_image_argb32_on_rgb16_neon(uchar *destPixels, int dbpl,
-                                         const uchar *srcPixels, int sbpl,
+                                         const uchar *srcPixels, int sbpl, int sh,
                                          const QRectF &targetRect,
                                          const QRectF &sourceRect,
                                          const QRect &clip,
@@ -548,19 +548,19 @@ void qt_scale_image_argb32_on_rgb16_neon(uchar *destPixels, int dbpl,
     if (const_alpha == 0)
         return;
 
-    qt_scale_image_16bit<quint32>(destPixels, dbpl, srcPixels, sbpl, targetRect, sourceRect, clip,
+    qt_scale_image_16bit<quint32>(destPixels, dbpl, srcPixels, sbpl, sh, targetRect, sourceRect, clip,
         Blend_on_RGB16_SourceAndConstAlpha_Neon_create<quint32>(blend_8_pixels_argb32_on_rgb16_neon, const_alpha));
 }
 
 void qt_scale_image_rgb16_on_rgb16(uchar *destPixels, int dbpl,
-                                   const uchar *srcPixels, int sbpl,
+                                   const uchar *srcPixels, int sbpl, int sh,
                                    const QRectF &targetRect,
                                    const QRectF &sourceRect,
                                    const QRect &clip,
                                    int const_alpha);
 
 void qt_scale_image_rgb16_on_rgb16_neon(uchar *destPixels, int dbpl,
-                                        const uchar *srcPixels, int sbpl,
+                                        const uchar *srcPixels, int sbpl, int sh,
                                         const QRectF &targetRect,
                                         const QRectF &sourceRect,
                                         const QRect &clip,
@@ -570,11 +570,11 @@ void qt_scale_image_rgb16_on_rgb16_neon(uchar *destPixels, int dbpl,
         return;
 
     if (const_alpha == 256) {
-        qt_scale_image_rgb16_on_rgb16(destPixels, dbpl, srcPixels, sbpl, targetRect, sourceRect, clip, const_alpha);
+        qt_scale_image_rgb16_on_rgb16(destPixels, dbpl, srcPixels, sbpl, sh, targetRect, sourceRect, clip, const_alpha);
         return;
     }
 
-    qt_scale_image_16bit<quint16>(destPixels, dbpl, srcPixels, sbpl, targetRect, sourceRect, clip,
+    qt_scale_image_16bit<quint16>(destPixels, dbpl, srcPixels, sbpl, sh, targetRect, sourceRect, clip,
         Blend_on_RGB16_SourceAndConstAlpha_Neon_create<quint16>(blend_8_pixels_rgb16_on_rgb16_neon, const_alpha));
 }
 

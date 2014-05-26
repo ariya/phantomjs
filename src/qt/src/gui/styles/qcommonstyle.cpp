@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -862,7 +862,10 @@ QSize QCommonStylePrivate::viewItemSize(const QStyleOptionViewItemV4 *option, in
                 break;
             case QStyleOptionViewItem::Top:
             case QStyleOptionViewItem::Bottom:
-                bounds.setWidth(wrapText ? option->decorationSize.width() : QFIXED_MAX);
+                if (wrapText)
+                    bounds.setWidth(bounds.isValid() ? bounds.width() - 2 * textMargin : option->decorationSize.width());
+                else
+                    bounds.setWidth(QFIXED_MAX);
                 break;
             default:
                 break;
@@ -4926,6 +4929,10 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
 
     case SH_Menu_SubMenuPopupDelay:
         ret = 256;
+        break;
+
+    case SH_Menu_SloppySubMenus:
+        ret = true;
         break;
 
     case SH_ProgressDialog_TextLabelAlignment:

@@ -62,7 +62,6 @@ symbian {
 neon:if(*-g++*|*-qcc*) {
     DEFINES += QT_HAVE_NEON
     HEADERS += $$NEON_HEADERS
-    SOURCES += $$NEON_ASM
 
     neon_compiler.commands = $$QMAKE_CXX -c
     neon_compiler.commands += $(CXXFLAGS) -mfpu=neon $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
@@ -72,7 +71,15 @@ neon:if(*-g++*|*-qcc*) {
     neon_compiler.variable_out = OBJECTS
     neon_compiler.name = compiling[neon] ${QMAKE_FILE_IN}
     silent:neon_compiler.commands = @echo compiling[neon] ${QMAKE_FILE_IN} && $$neon_compiler.commands
-    QMAKE_EXTRA_COMPILERS += neon_compiler
+    neon_assembler.commands = $$QMAKE_CC -c
+    neon_assembler.commands += $(CFLAGS) -mfpu=neon $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+    neon_assembler.dependency_type = TYPE_C
+    neon_assembler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+    neon_assembler.input = NEON_ASM
+    neon_assembler.variable_out = OBJECTS
+    neon_assembler.name = assembling[neon] ${QMAKE_FILE_IN}
+    silent:neon_assembler.commands = @echo assembling[neon] ${QMAKE_FILE_IN} && $$neon_assembler.commands
+    QMAKE_EXTRA_COMPILERS += neon_compiler neon_assembler
 }
 
 win32:!contains(QT_CONFIG, directwrite) {

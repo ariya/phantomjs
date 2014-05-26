@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
@@ -135,7 +135,7 @@ QNetworkConfigurationManagerPrivate *qNetworkConfigurationManagerPrivate()
     Some configuration updates may require some time to perform updates. A WLAN scan is
     such an example. Unless the platform performs internal updates it may be required to
     manually trigger configuration updates via QNetworkConfigurationManager::updateConfigurations().
-    The completion of the update process is indicted by emitting the updateCompleted()
+    The completion of the update process is indicated by emitting the updateCompleted()
     signal. The update process ensures that every existing QNetworkConfiguration instance
     is updated. There is no need to ask for a renewed configuration list via allConfigurations().
 

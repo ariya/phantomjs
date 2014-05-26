@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -69,6 +69,9 @@ int qFindByteArray(
 
 int qAllocMore(int alloc, int extra)
 {
+    Q_ASSERT(alloc >= 0 && extra >= 0);
+    Q_ASSERT_X(alloc < (1 << 30) - extra, "qAllocMore", "Requested size is too large!");
+
     if (alloc == 0 && extra == 0)
         return 0;
     const int page = 1 << 12;

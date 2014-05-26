@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -66,10 +66,8 @@ QGesture *QWinNativePanGestureRecognizer::create(QObject *target)
         return new QPanGesture; // a special case
     if (!target->isWidgetType())
         return 0;
-#ifndef QT_NO_GRAPHICSVIEW
     if (qobject_cast<QGraphicsObject *>(target))
         return 0;
-#endif // QT_NO_GRAPHICSVIEW
 
     QWidget *q = static_cast<QWidget *>(target);
     QWidgetPrivate *d = q->d_func();

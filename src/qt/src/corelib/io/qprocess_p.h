@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -59,6 +59,9 @@
 #include "QtCore/qshareddata.h"
 #include "private/qringbuffer_p.h"
 #include "private/qiodevice_p.h"
+#ifdef Q_OS_UNIX
+#include <QtCore/private/qorderedmutexlocker_p.h>
+#endif
 
 #ifdef Q_OS_WIN
 #include "QtCore/qt_windows.h"
@@ -150,6 +153,13 @@ public:
     inline QString nameToString(const Key &name) const { return name; }
     inline Value prepareValue(const QString &value) const { return value; }
     inline QString valueToString(const Value &value) const { return value; }
+    struct MutexLocker {
+        MutexLocker(const QProcessEnvironmentPrivate *) {}
+    };
+    struct OrderedMutexLocker {
+        OrderedMutexLocker(const QProcessEnvironmentPrivate *,
+                           const QProcessEnvironmentPrivate *) {}
+    };
 #else
     inline Key prepareName(const QString &name) const
     {
@@ -166,6 +176,37 @@ public:
     }
     inline Value prepareValue(const QString &value) const { return Value(value); }
     inline QString valueToString(const Value &value) const { return value.string(); }
+
+    struct MutexLocker : public QMutexLocker
+    {
+        MutexLocker(const QProcessEnvironmentPrivate *d) : QMutexLocker(&d->mutex) {}
+    };
+    struct OrderedMutexLocker : public QOrderedMutexLocker
+    {
+        OrderedMutexLocker(const QProcessEnvironmentPrivate *d1,
+                           const QProcessEnvironmentPrivate *d2) :
+            QOrderedMutexLocker(&d1->mutex, &d2->mutex)
+        {}
+    };
+
+    QProcessEnvironmentPrivate() : QSharedData() {}
+    QProcessEnvironmentPrivate(const QProcessEnvironmentPrivate &other) :
+        QSharedData()
+    {
+        // This being locked ensures that the functions that only assign
+        // d pointers don't need explicit locking.
+        // We don't need to lock our own mutex, as this object is new and
+        // consequently not shared. For the same reason, non-const methods
+        // do not need a lock, as they detach objects (however, we need to
+        // ensure that they really detach before using prepareName()).
+        MutexLocker locker(&other);
+        hash = other.hash;
+        nameMap = other.nameMap;
+        // We need to detach our members, so that our mutex can protect them.
+        // As we are being detached, they likely would be detached a moment later anyway.
+        hash.detach();
+        nameMap.detach();
+    }
 #endif
 
     typedef QHash<Key, Value> Hash;
@@ -174,6 +215,8 @@ public:
 #ifdef Q_OS_UNIX
     typedef QHash<QString, Key> NameHash;
     mutable NameHash nameMap;
+
+    mutable QMutex mutex;
 #endif
 
     static QProcessEnvironment fromList(const QStringList &list);

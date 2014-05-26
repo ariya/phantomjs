@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -720,6 +720,35 @@ static inline QPointF snapTo26Dot6Grid(const QPointF &p)
                    qFloorF(p.y() * 64) * (1 / qreal(64)));
 }
 
+/*
+   The rasterize line function relies on some div by zero which should
+   result in +/-inf values. However, when floating point exceptions are
+   enabled, this will cause crashes, so we return high numbers instead.
+   As the returned value is used in further arithmetic, returning
+   FLT_MAX/DBL_MAX will also cause values, so instead return a value
+   that is well outside the int-range.
+ */
+static inline qreal qSafeDivide(qreal x, qreal y)
+{
+    if (y == 0)
+        return x > 0 ? 1e20 : -1e20;
+    return x / y;
+}
+
+/* Conversion to int fails if the value is too large to fit into INT_MAX or
+   too small to fit into INT_MIN, so we need this slightly safer conversion
+   when floating point exceptions are enabled
+ */
+static inline int qSafeFloatToQ16Dot16(qreal x)
+{
+    qreal tmp = x * 65536.;
+    if (tmp > qreal(INT_MAX))
+        return INT_MAX;
+    else if (tmp < qreal(INT_MIN))
+        return -INT_MAX;
+    return int(tmp);
+}
+
 void QRasterizer::rasterizeLine(const QPointF &a, const QPointF &b, qreal width, bool squareCap)
 {
     if (a == b || width == 0 || d->clipRect.isEmpty())
@@ -932,23 +961,23 @@ void QRasterizer::rasterizeLine(const QPointF &a, const QPointF &b, qreal width,
         const QPointF bottomLeftEdge = bottom - left;
         const QPointF bottomRightEdge = bottom - right;
 
-        const qreal topLeftSlope = topLeftEdge.x() / topLeftEdge.y();
-        const qreal bottomLeftSlope = bottomLeftEdge.x() / bottomLeftEdge.y();
+        const qreal topLeftSlope = qSafeDivide(topLeftEdge.x(), topLeftEdge.y());
+        const qreal bottomLeftSlope = qSafeDivide(bottomLeftEdge.x(), bottomLeftEdge.y());
 
-        const qreal topRightSlope = topRightEdge.x() / topRightEdge.y();
-        const qreal bottomRightSlope = bottomRightEdge.x() / bottomRightEdge.y();
+        const qreal topRightSlope = qSafeDivide(topRightEdge.x(), topRightEdge.y());
+        const qreal bottomRightSlope = qSafeDivide(bottomRightEdge.x(), bottomRightEdge.y());
 
-        const Q16Dot16 topLeftSlopeFP = FloatToQ16Dot16(topLeftSlope);
-        const Q16Dot16 topRightSlopeFP = FloatToQ16Dot16(topRightSlope);
+        const Q16Dot16 topLeftSlopeFP = qSafeFloatToQ16Dot16(topLeftSlope);
+        const Q16Dot16 topRightSlopeFP = qSafeFloatToQ16Dot16(topRightSlope);
 
-        const Q16Dot16 bottomLeftSlopeFP = FloatToQ16Dot16(bottomLeftSlope);
-        const Q16Dot16 bottomRightSlopeFP = FloatToQ16Dot16(bottomRightSlope);
+        const Q16Dot16 bottomLeftSlopeFP = qSafeFloatToQ16Dot16(bottomLeftSlope);
+        const Q16Dot16 bottomRightSlopeFP = qSafeFloatToQ16Dot16(bottomRightSlope);
 
-        const Q16Dot16 invTopLeftSlopeFP = FloatToQ16Dot16(1 / topLeftSlope);
-        const Q16Dot16 invTopRightSlopeFP = FloatToQ16Dot16(1 / topRightSlope);
+        const Q16Dot16 invTopLeftSlopeFP = qSafeFloatToQ16Dot16(qSafeDivide(1, topLeftSlope));
+        const Q16Dot16 invTopRightSlopeFP = qSafeFloatToQ16Dot16(qSafeDivide(1, topRightSlope));
 
-        const Q16Dot16 invBottomLeftSlopeFP = FloatToQ16Dot16(1 / bottomLeftSlope);
-        const Q16Dot16 invBottomRightSlopeFP = FloatToQ16Dot16(1 / bottomRightSlope);
+        const Q16Dot16 invBottomLeftSlopeFP = qSafeFloatToQ16Dot16(qSafeDivide(1, bottomLeftSlope));
+        const Q16Dot16 invBottomRightSlopeFP = qSafeFloatToQ16Dot16(qSafeDivide(1, bottomRightSlope));
 
         if (d->antialiased) {
             const Q16Dot16 iTopFP = IntToQ16Dot16(int(topBound));
@@ -1123,10 +1152,10 @@ void QRasterizer::rasterizeLine(const QPointF &a, const QPointF &b, qreal width,
             int iBottom = bottom.y() < 0.5f? -1 : int(bottom.y() - 0.5f);
             int iMiddle = qMin(iLeft, iRight);
 
-            Q16Dot16 leftIntersectAf = FloatToQ16Dot16(top.x() + 0.5f + (iTop + 0.5f - top.y()) * topLeftSlope);
-            Q16Dot16 leftIntersectBf = FloatToQ16Dot16(left.x() + 0.5f + (iLeft + 1.5f - left.y()) * bottomLeftSlope);
-            Q16Dot16 rightIntersectAf = FloatToQ16Dot16(top.x() - 0.5f + (iTop + 0.5f - top.y()) * topRightSlope);
-            Q16Dot16 rightIntersectBf = FloatToQ16Dot16(right.x() - 0.5f + (iRight + 1.5f - right.y()) * bottomRightSlope);
+            Q16Dot16 leftIntersectAf = qSafeFloatToQ16Dot16(top.x() + 0.5f + (iTop + 0.5f - top.y()) * topLeftSlope);
+            Q16Dot16 leftIntersectBf = qSafeFloatToQ16Dot16(left.x() + 0.5f + (iLeft + 1.5f - left.y()) * bottomLeftSlope);
+            Q16Dot16 rightIntersectAf = qSafeFloatToQ16Dot16(top.x() - 0.5f + (iTop + 0.5f - top.y()) * topRightSlope);
+            Q16Dot16 rightIntersectBf = qSafeFloatToQ16Dot16(right.x() - 0.5f + (iRight + 1.5f - right.y()) * bottomRightSlope);
 
             int ny;
             int y = iTop;

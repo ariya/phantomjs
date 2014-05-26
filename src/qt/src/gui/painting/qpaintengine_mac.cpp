@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -289,7 +289,7 @@ static CGMutablePathRef qt_mac_compose_path(const QPainterPath &p, float off=0)
 }
 
 CGColorSpaceRef QCoreGraphicsPaintEngine::m_genericColorSpace = 0;
-QHash<CGDirectDisplayID, CGColorSpaceRef> QCoreGraphicsPaintEngine::m_displayColorSpaceHash;
+QHash<QWidget*, CGColorSpaceRef> QCoreGraphicsPaintEngine::m_displayColorSpaceHash; // window -> color space
 bool QCoreGraphicsPaintEngine::m_postRoutineRegistered = false;
 
 CGColorSpaceRef QCoreGraphicsPaintEngine::macGenericColorSpace()
@@ -316,45 +316,50 @@ CGColorSpaceRef QCoreGraphicsPaintEngine::macGenericColorSpace()
 #endif
 }
 
-/*
-    Ideally, we should pass the widget in here, and use CGGetDisplaysWithRect() etc.
-    to support multiple displays correctly.
-*/
 CGColorSpaceRef QCoreGraphicsPaintEngine::macDisplayColorSpace(const QWidget *widget)
 {
-    CGColorSpaceRef colorSpace;
+    // The color space depends on which screen the widget's window is on.
+    // widget == 0 is a spacial case where we use the main display.
+    QWidget *window = widget ? widget->window() : 0;
 
+    // Check for cached color space and return if found.
+    if (m_displayColorSpaceHash.contains(window))
+        return m_displayColorSpaceHash.value(window);
+
+    // Find which display the window is on.
     CGDirectDisplayID displayID;
-    CMProfileRef displayProfile = 0;
-    if (widget == 0) {
+    if (window == 0) {
         displayID = CGMainDisplayID();
     } else {
-        const QRect &qrect = widget->window()->geometry();
+        const QRect &qrect = window->geometry();
         CGRect rect = CGRectMake(qrect.x(), qrect.y(), qrect.width(), qrect.height());
         CGDisplayCount throwAway;
         CGDisplayErr dErr = CGGetDisplaysWithRect(rect, 1, &displayID, &throwAway);
         if (dErr != kCGErrorSuccess)
-            return macDisplayColorSpace(0); // fall back on main display
+            displayID = CGMainDisplayID();
     }
-    if ((colorSpace = m_displayColorSpaceHash.value(displayID)))
-        return colorSpace;
 
+    // Get the color space from the display profile.
+    CGColorSpaceRef colorSpace = 0;
+    CMProfileRef displayProfile = 0;
     CMError err = CMGetProfileByAVID((CMDisplayIDType)displayID, &displayProfile);
     if (err == noErr) {
         colorSpace = CGColorSpaceCreateWithPlatformColorSpace(displayProfile);
-    } else if (widget) {
-        return macDisplayColorSpace(0); // fall back on main display
+        CMCloseProfile(displayProfile);
     }
 
+    // Fallback: use generic DeviceRGB
     if (colorSpace == 0)
         colorSpace = CGColorSpaceCreateDeviceRGB();
 
-    m_displayColorSpaceHash.insert(displayID, colorSpace);
-    CMCloseProfile(displayProfile);
+    // Install cleanup routines
     if (!m_postRoutineRegistered) {
         m_postRoutineRegistered = true;
         qAddPostRoutine(QCoreGraphicsPaintEngine::cleanUpMacColorSpaces);
     }
+
+    // Cache and return.
+    m_displayColorSpaceHash.insert(window, colorSpace);
     return colorSpace;
 }
 
@@ -364,7 +369,7 @@ void QCoreGraphicsPaintEngine::cleanUpMacColorSpaces()
         CFRelease(m_genericColorSpace);
         m_genericColorSpace = 0;
     }
-    QHash<CGDirectDisplayID, CGColorSpaceRef>::const_iterator it = m_displayColorSpaceHash.constBegin();
+    QHash<QWidget*, CGColorSpaceRef>::const_iterator it = m_displayColorSpaceHash.constBegin();
     while (it != m_displayColorSpaceHash.constEnd()) {
         if (it.value())
             CFRelease(it.value());
@@ -1060,6 +1065,11 @@ void QCoreGraphicsPaintEngine::initialize()
 
 void QCoreGraphicsPaintEngine::cleanup()
 {
+}
+
+void QCoreGraphicsPaintEngine::clearColorSpace(QWidget* w)
+{
+    m_displayColorSpaceHash.remove(w);
 }
 
 CGContextRef

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -110,6 +110,7 @@ public:
 
     static void initialize();
     static void cleanup();
+    static void clearColorSpace(QWidget* w);
 
     QPainter::RenderHints supportedRenderHints() const;
 
@@ -134,7 +135,7 @@ protected:
 private:
     static bool m_postRoutineRegistered;
     static CGColorSpaceRef m_genericColorSpace;
-    static QHash<CGDirectDisplayID, CGColorSpaceRef> m_displayColorSpaceHash;
+    static QHash<QWidget*, CGColorSpaceRef> m_displayColorSpaceHash; // window -> color space
     static void cleanUpMacColorSpaces();
     Q_DISABLE_COPY(QCoreGraphicsPaintEngine)
 };

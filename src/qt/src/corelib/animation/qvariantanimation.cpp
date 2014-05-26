@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -99,6 +99,7 @@ QT_BEGIN_NAMESPACE
 
     \list
         \o \l{QMetaType::}{Int}
+        \o \l{QMetaType::}{UInt}
         \o \l{QMetaType::}{Double}
         \o \l{QMetaType::}{Float}
         \o \l{QMetaType::}{QLine}
@@ -467,6 +468,8 @@ QVariantAnimation::Interpolator QVariantAnimationPrivate::getInterpolator(int in
     {
     case QMetaType::Int:
         return castToInterpolator(_q_interpolateVariant<int>);
+    case QMetaType::UInt:
+        return castToInterpolator(_q_interpolateVariant<uint>);
     case QMetaType::Double:
         return castToInterpolator(_q_interpolateVariant<double>);
     case QMetaType::Float:

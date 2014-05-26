@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the qmake application of the Qt Toolkit.
@@ -60,7 +60,8 @@ enum DotNET {
     NET2005 = 0x80,
     NET2008 = 0x90,
     NET2010 = 0xa0,
-    NET2012 = 0xb0
+    NET2012 = 0xb0,
+    NET2013 = 0xc0
 };
 
 /*

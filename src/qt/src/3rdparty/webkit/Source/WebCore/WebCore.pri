@@ -249,14 +249,7 @@ contains(DEFINES, WTF_USE_QT_BEARER=1) {
 }
 
 contains(DEFINES, ENABLE_VIDEO=1) {
-    contains(DEFINES, WTF_USE_QTKIT=1) {
-        INCLUDEPATH += $$PWD/platform/graphics/mac
-
-        LIBS += -framework AppKit -framework AudioUnit \
-                -framework AudioToolbox -framework CoreAudio \
-                -framework QuartzCore -framework QTKit
-
-    } else:contains(DEFINES, WTF_USE_GSTREAMER=1) {
+    contains(DEFINES, WTF_USE_GSTREAMER=1) {
         DEFINES += ENABLE_GLIB_SUPPORT=1
 
         INCLUDEPATH += $$PWD/platform/graphics/gstreamer

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -146,9 +146,6 @@ public:
 #ifdef QT3_SUPPORT
     enum PrinterOption { PrintToFile, PrintSelection, PrintPageRange };
 #endif // QT3_SUPPORT
-
-    void beginSectionOutline(const QString &text, const QString &anchor);
-    void endSectionOutline();
 
     void setOutputFormat(OutputFormat format);
     OutputFormat outputFormat() const;

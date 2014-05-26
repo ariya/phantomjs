@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the tools applications of the Qt Toolkit.
@@ -40,8 +40,8 @@
 ****************************************************************************/
 
 #include <QFile>
-#include <QProcess>
-#include <QLibraryInfo>
+#include <QDir>
+#include <QScopedArrayPointer>
 #include <qt_windows.h>
 #include <io.h>
 
@@ -54,34 +54,84 @@ static QString quotePath(const QString &s)
     return s;
 }
 
+// Prepend the Qt binary directory to PATH.
+static bool prependPath()
+{
+    enum { maxEnvironmentSize = 32767 };
+    wchar_t buffer[maxEnvironmentSize];
+    if (!GetModuleFileName(NULL, buffer, maxEnvironmentSize))
+        return false;
+    wchar_t *ptr = wcsrchr(buffer, L'\\');
+    if (!ptr)
+        return false;
+    *ptr++ = L';';
+    const wchar_t pathVariable[] = L"PATH";
+    if (!GetEnvironmentVariable(pathVariable, ptr, maxEnvironmentSize - (ptr - buffer))
+        || !SetEnvironmentVariable(pathVariable, buffer)) {
+        return false;
+    }
+    return true;
+}
+
+static QString errorString(DWORD errorCode)
+{
+    wchar_t *resultW = 0;
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+                  NULL, errorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                  (LPWSTR)&resultW, 0, NULL);
+    const QString result = QString::fromWCharArray(resultW);
+    LocalFree((HLOCAL)resultW);
+    return result;
+}
 
 static bool runWithQtInEnvironment(const QString &cmd)
 {
-    QProcess proc;
-    
-    // prepend the qt binary directory to the path
-    QStringList env = QProcess::systemEnvironment();
-    for (int i=0; i<env.count(); ++i) {
-        QString var = env.at(i);
-        int setidx = var.indexOf(QLatin1Char('='));
-        if (setidx != -1) {
-            QString varname = var.left(setidx).trimmed().toUpper();
-            if (varname == QLatin1String("PATH")) {
-                var = var.mid(setidx + 1);
-                var = QLatin1String("PATH=") + 
-                    QLibraryInfo::location(QLibraryInfo::BinariesPath) +
-                    QLatin1Char(';') + var;
-                env[i] = var;
-                break;
-            }
-        }
+    enum { timeOutMs = 30000 };
+    static const bool pathSet = prependPath();
+    if (!pathSet)
+        return false;
+
+    STARTUPINFO si;
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+
+    STARTUPINFO myInfo;
+    GetStartupInfo(&myInfo);
+    si.hStdInput = myInfo.hStdInput;
+    si.hStdOutput = myInfo.hStdOutput;
+    si.hStdError = myInfo.hStdError;
+
+    PROCESS_INFORMATION pi;
+    ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
+
+    QScopedArrayPointer<wchar_t> commandLineW(new wchar_t[cmd.size() + 1]);
+    cmd.toWCharArray(commandLineW.data());
+    commandLineW[cmd.size()] = 0;
+    if (!CreateProcessW(0, commandLineW.data(), 0, 0, /* InheritHandles */ TRUE, 0, 0, 0, &si, &pi)) {
+        fprintf(stderr, "Unable to execute \"%s\": %s\n", qPrintable(cmd),
+                qPrintable(errorString(GetLastError())));
+        return false;
     }
 
-    proc.setEnvironment(env);
-    proc.start(cmd);
-    proc.waitForFinished(-1);
-    
-    return (proc.exitCode() == 0);
+    DWORD exitCode = 1;
+    switch (WaitForSingleObject(pi.hProcess, timeOutMs)) {
+    case WAIT_OBJECT_0:
+        GetExitCodeProcess(pi.hProcess, &exitCode);
+        break;
+    case WAIT_TIMEOUT:
+        fprintf(stderr, "Timed out after %d ms out waiting for \"%s\".\n",
+                int(timeOutMs), qPrintable(cmd));
+        TerminateProcess(pi.hProcess, 1);
+        break;
+    default:
+        fprintf(stderr, "Error waiting for \"%s\": %s\n",
+                qPrintable(cmd), qPrintable(errorString(GetLastError())));
+        TerminateProcess(pi.hProcess, 1);
+        break;
+    }
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+    return exitCode == 0;
 }
 
 static bool attachTypeLibrary(const QString &applicationName, int resource, const QByteArray &data, QString *errorMessage)

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -300,6 +300,24 @@ void QClipboard::clear(Mode mode)
 #endif
 }
 
+#if !defined(Q_OS_WINCE) && defined(Q_CC_MSVC)
+static bool isProcessBeingDebugged(HWND hwnd)
+{
+    DWORD pid = 0;
+    if (!GetWindowThreadProcessId(hwnd, &pid) || !pid)
+        return false;
+    const HANDLE processHandle = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid);
+    if (!processHandle)
+       return false;
+    BOOL debugged = FALSE;
+    CheckRemoteDebuggerPresent(processHandle, &debugged);
+    CloseHandle(processHandle);
+    return debugged != FALSE;
+}
+#else // !defined(Q_OS_WINCE) && defined(Q_CC_MSVC)
+static bool isProcessBeingDebugged(HWND) { return false; }
+#endif // defined(Q_OS_WINCE) || !defined(Q_CC_MSVC)
+
 bool QClipboard::event(QEvent *e)
 {
     if (e->type() != QEvent::Clipboard)
@@ -338,6 +356,10 @@ bool QClipboard::event(QEvent *e)
         }
         if (ptrIsHungAppWindow && ptrIsHungAppWindow(d->nextClipboardViewer)) {
             qWarning("%s: Cowardly refusing to send clipboard message to hung application...", Q_FUNC_INFO);
+        } else if (isProcessBeingDebugged(d->nextClipboardViewer)) {
+            // Also refuse if the process is being debugged, specifically, if it is
+            // displaying a runtime assert, which is not caught by isHungAppWindow().
+            qWarning("%s: Cowardly refusing to send clipboard message to application under debugger...", Q_FUNC_INFO);
         } else {
             SendMessage(d->nextClipboardViewer, m->message, m->wParam, m->lParam);
         }

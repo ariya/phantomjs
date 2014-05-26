@@ -9,4 +9,9 @@
 <qresource prefix="/trolltech/mac/style">
 <file>images/leopard-unified-toolbar-on.png</file>
 </qresource>
+<qresource prefix="/trolltech/mac/">
+<file>qt_menu.nib/classes.nib</file>
+<file>qt_menu.nib/info.nib</file>
+<file>qt_menu.nib/keyedobjects.nib</file>
+</qresource>
 </RCC>

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -128,17 +128,34 @@ static inline char *strdup(const char *data)
 
 static int qt_qprocess_deadChild_pipe[2];
 static struct sigaction qt_sa_old_sigchld_handler;
-static void qt_sa_sigchld_handler(int signum)
+static void qt_sa_sigchld_sigaction(int signum, siginfo_t *info, void *context)
 {
+    // *Never* use the info or contect variables in this function
+    // (except for passing them to the next signal in the chain).
+    // We cannot be sure if another library or if the application
+    // installed a signal handler for SIGCHLD without SA_SIGINFO
+    // and fails to pass the arguments to us. If they do that,
+    // these arguments contain garbage and we'd most likely crash.
+
     qt_safe_write(qt_qprocess_deadChild_pipe[1], "", 1);
 #if defined (QPROCESS_DEBUG)
     fprintf(stderr, "*** SIGCHLD\n");
 #endif
 
-    // load it as volatile
-    void (*oldAction)(int) = ((volatile struct sigaction *)&qt_sa_old_sigchld_handler)->sa_handler;
-    if (oldAction && oldAction != SIG_IGN)
-        oldAction(signum);
+    // load as volatile
+    volatile struct sigaction *vsa = &qt_sa_old_sigchld_handler;
+
+    if (qt_sa_old_sigchld_handler.sa_flags & SA_SIGINFO) {
+        void (*oldAction)(int, siginfo_t *, void *) = vsa->sa_sigaction;
+
+        if (oldAction)
+            oldAction(signum, info, context);
+    } else {
+        void (*oldAction)(int) = vsa->sa_handler;
+
+        if (oldAction && oldAction != SIG_IGN)
+            oldAction(signum);
+    }
 }
 
 static inline void add_fd(int &nfds, int fd, fd_set *fdset)
@@ -199,10 +216,16 @@ QProcessManager::QProcessManager()
 
     // set up the SIGCHLD handler, which writes a single byte to the dead
     // child pipe every time a child dies.
+
     struct sigaction action;
-    memset(&action, 0, sizeof(action));
-    action.sa_handler = qt_sa_sigchld_handler;
-    action.sa_flags = SA_NOCLDSTOP;
+    // use the old handler as template, i.e., preserve the signal mask
+    // otherwise the original signal handler might be interrupted although it
+    // was marked to never be interrupted
+    ::sigaction(SIGCHLD, NULL, &action);
+    action.sa_sigaction = qt_sa_sigchld_sigaction;
+    // set the SA_SIGINFO flag such that we can use the three argument handler
+    // function
+    action.sa_flags = SA_NOCLDSTOP | SA_SIGINFO;
     ::sigaction(SIGCHLD, &action, &qt_sa_old_sigchld_handler);
 }
 
@@ -225,7 +248,7 @@ QProcessManager::~QProcessManager()
 
     struct sigaction currentAction;
     ::sigaction(SIGCHLD, 0, &currentAction);
-    if (currentAction.sa_handler == qt_sa_sigchld_handler) {
+    if (currentAction.sa_sigaction == qt_sa_sigchld_sigaction) {
         ::sigaction(SIGCHLD, &qt_sa_old_sigchld_handler, 0);
     }
 }
@@ -619,8 +642,10 @@ void QProcessPrivate::startProcess()
     // Duplicate the environment.
     int envc = 0;
     char **envp = 0;
-    if (environment.d.constData())
+    if (environment.d.constData()) {
+        QProcessEnvironmentPrivate::MutexLocker locker(environment.d);
         envp = _q_dupEnvironment(environment.d.constData()->hash, &envc);
+    }
 
     // Encode the working directory if it's non-empty, otherwise just pass 0.
     const char *workingDirPtr = 0;
@@ -749,17 +774,17 @@ void QProcessPrivate::execChild(const char *workingDir, char **path, char **argv
     Q_Q(QProcess);
 
     // copy the stdin socket (without closing on exec)
-    qt_safe_dup2(stdinChannel.pipe[0], QT_FILENO(stdin), 0);
+    qt_safe_dup2(stdinChannel.pipe[0], STDIN_FILENO, 0);
 
     // copy the stdout and stderr if asked to
     if (processChannelMode != QProcess::ForwardedChannels) {
-        qt_safe_dup2(stdoutChannel.pipe[1], QT_FILENO(stdout), 0);
+        qt_safe_dup2(stdoutChannel.pipe[1], STDOUT_FILENO, 0);
 
         // merge stdout and stderr if asked to
         if (processChannelMode == QProcess::MergedChannels) {
-            qt_safe_dup2(QT_FILENO(stdout), QT_FILENO(stderr), 0);
+            qt_safe_dup2(STDOUT_FILENO, STDERR_FILENO, 0);
         } else {
-            qt_safe_dup2(stderrChannel.pipe[1], QT_FILENO(stderr), 0);
+            qt_safe_dup2(stderrChannel.pipe[1], STDERR_FILENO, 0);
         }
     }
 

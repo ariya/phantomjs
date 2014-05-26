@@ -1,0 +1,15 @@
+# Load generated qdevice.pri
+qdd = $$QT_BUILD_TREE
+isEmpty(qdd):exists($$_QMAKE_CACHE_): qdd = $$fromfile($$_QMAKE_CACHE_, QT_BUILD_TREE)
+isEmpty(qdd): qdd = $$[QT_INSTALL_DATA]
+DEVICE_PRI = $$qdd/mkspecs/qdevice.pri
+unset(qdd)
+
+exists($$DEVICE_PRI):include($$DEVICE_PRI)
+unset(DEVICE_PRI)
+
+isEmpty(CROSS_COMPILE) {
+    #this variable can be persisted via qmake -set CROSS_COMPILE /foo
+    CROSS_COMPILE = $$[CROSS_COMPILE]
+}
+

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -170,7 +170,7 @@ QT_USE_NAMESPACE
     mSelectedNameFilter = new QStringList([self findStrippedFilterWithVisualFilterName:selectedVisualNameFilter]);
 
     QFileInfo sel(selectFile);
-    if (sel.isDir()){
+    if (sel.isDir() && !sel.isBundle()){
         mCurrentDir = [qt_mac_QStringToNSString(sel.absoluteFilePath()) retain];
         mCurrentSelection = new QString;
     } else {
@@ -291,6 +291,28 @@ QT_USE_NAMESPACE
         contextInfo:nil];
 }
 
+- (BOOL)isHiddenFile:(NSString *)filename isDir:(BOOL)isDir
+{
+#ifdef QT_MAC_USE_COCOA
+    CFURLRef url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, (CFStringRef)filename, kCFURLPOSIXPathStyle, isDir);
+    CFBooleanRef isHidden;
+    Boolean errorOrHidden = false;
+    if (!CFURLCopyResourcePropertyForKey(url, kCFURLIsHiddenKey, &isHidden, NULL)) {
+        errorOrHidden = true;
+    } else {
+        if (CFBooleanGetValue(isHidden))
+            errorOrHidden = true;
+        CFRelease(isHidden);
+    }
+    CFRelease(url);
+    return errorOrHidden;
+#else
+    Q_UNUSED(filename);
+    Q_UNUSED(isDir);
+    return false;
+#endif
+}
+
 - (BOOL)panel:(id)sender shouldShowFilename:(NSString *)filename
 {
     Q_UNUSED(sender);
@@ -299,35 +321,50 @@ QT_USE_NAMESPACE
         return NO;
 
     // Always accept directories regardless of their names (unless it is a bundle):
-    BOOL isDir;
-    if ([[NSFileManager defaultManager] fileExistsAtPath:filename isDirectory:&isDir] && isDir) {
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSDictionary *fileAttrs = [fm attributesOfItemAtPath:filename error:nil];
+    if (!fileAttrs)
+        return NO; // Error accessing the file means 'no'.
+    NSString *fileType = [fileAttrs fileType];
+    bool isDir = [fileType isEqualToString:NSFileTypeDirectory];
+    if (isDir) {
         if ([mSavePanel treatsFilePackagesAsDirectories] == NO) {
             if ([[NSWorkspace sharedWorkspace] isFilePackageAtPath:filename] == NO)
                 return YES;
         }
     }
 
-    QString qtFileName = QT_PREPEND_NAMESPACE(qt_mac_NSStringToQString)(filename);
-    QFileInfo info(qtFileName.normalized(QT_PREPEND_NAMESPACE(QString::NormalizationForm_C)));
-    QString path = info.absolutePath();
-    QString name = info.fileName();
-    if (path != *mLastFilterCheckPath){
-        *mLastFilterCheckPath = path;
-        *mQDirFilterEntryList = info.dir().entryList(*mQDirFilter);
+    QString qtFileName
+        = QFileInfo(QT_PREPEND_NAMESPACE(qt_mac_NSStringToQString)(filename)).fileName();
+    // No filter means accept everything
+    bool nameMatches = mSelectedNameFilter->isEmpty();
+    // Check if the current file name filter accepts the file:
+    for (int i = 0; !nameMatches && i < mSelectedNameFilter->size(); ++i) {
+        if (QDir::match(mSelectedNameFilter->at(i), qtFileName))
+            nameMatches = true;
     }
-    // Check if the QDir filter accepts the file:
-    if (!mQDirFilterEntryList->contains(name))
+    if (!nameMatches)
         return NO;
 
-    // No filter means accept everything
-    if (mSelectedNameFilter->isEmpty())
-        return YES;
-    // Check if the current file name filter accepts the file:
-    for (int i=0; i<mSelectedNameFilter->size(); ++i) {
-        if (QDir::match(mSelectedNameFilter->at(i), name))
-            return YES;
+    QDir::Filters filter = *mQDirFilter;
+    if ((!(filter & (QDir::Dirs | QDir::AllDirs)) && isDir)
+        || (!(filter & QDir::Files) && [fileType isEqualToString:NSFileTypeRegular])
+        || ((filter & QDir::NoSymLinks) && [fileType isEqualToString:NSFileTypeSymbolicLink]))
+        return NO;
+
+    bool filterPermissions = ((filter & QDir::PermissionMask)
+                              && (filter & QDir::PermissionMask) != QDir::PermissionMask);
+    if (filterPermissions) {
+        if ((!(filter & QDir::Readable) && [fm isReadableFileAtPath:filename])
+            || (!(filter & QDir::Writable) && [fm isWritableFileAtPath:filename])
+            || (!(filter & QDir::Executable) && [fm isExecutableFileAtPath:filename]))
+            return NO;
     }
-    return NO;
+    if (!(filter & QDir::Hidden)
+        && (qtFileName.startsWith(QLatin1Char('.')) || [self isHiddenFile:filename isDir:isDir]))
+            return NO;
+
+    return YES;
 }
 
 - (NSString *)panel:(id)sender userEnteredFilename:(NSString *)filename confirmed:(BOOL)okFlag

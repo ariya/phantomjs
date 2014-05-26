@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
-** This file is part of the QtCore module of the Qt Toolkit.
+** This file is part of the QtGui module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
@@ -39,10 +39,53 @@
 **
 ****************************************************************************/
 
-#include "qfilesystemengine_p.h"
+#ifndef QFILEICONPROVIDER_P_H
+#define QFILEICONPROVIDER_P_H
+
+#include <QtCore/qstring.h>
+#include <QtGui/qicon.h>
+#include <QtGui/qstyle.h>
 
 QT_BEGIN_NAMESPACE
 
-// Mac-specific implementations only!
+class QFileInfo;
+class QFileIconProvider;
+
+class QFileIconProviderPrivate
+{
+    Q_DECLARE_PUBLIC(QFileIconProvider)
+
+public:
+    QFileIconProviderPrivate();
+    void setUseCustomDirectoryIcons(bool enable);
+    QIcon getIcon(QStyle::StandardPixmap name) const;
+#ifdef Q_WS_WIN
+    QIcon getWinIcon(const QFileInfo &fi) const;
+#elif defined(Q_WS_MAC)
+    QIcon getMacIcon(const QFileInfo &fi) const;
+#endif
+    QFileIconProvider * q_ptr;
+    const QString homePath;
+
+private:
+    bool useCustomDirectoryIcons;
+    mutable QIcon file;
+    mutable QIcon fileLink;
+    mutable QIcon directory;
+    mutable QIcon directoryLink;
+    mutable QIcon harddisk;
+    mutable QIcon floppy;
+    mutable QIcon cdrom;
+    mutable QIcon ram;
+    mutable QIcon network;
+    mutable QIcon computer;
+    mutable QIcon desktop;
+    mutable QIcon trashcan;
+    mutable QIcon generic;
+    mutable QIcon home;
+};
+
 
 QT_END_NAMESPACE
+
+#endif // QFILEICONPROVIDER_P_H

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -69,8 +69,6 @@
 #include <QPlatformIntegration>
 
 #include "qdesktopwidget_qpa_p.h"
-
-#include "qminimalintegration.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -490,7 +488,18 @@ QPlatformNativeInterface *QApplication::platformNativeInterface()
 
 static void init_platform(const QString &name, const QString &platformPluginPath)
 {
-    QApplicationPrivate::platform_integration = new QMinimalIntegration;
+    QApplicationPrivate::platform_integration = QPlatformIntegrationFactory::create(name, platformPluginPath);
+    if (!QApplicationPrivate::platform_integration) {
+        QStringList keys = QPlatformIntegrationFactory::keys(platformPluginPath);
+        QString fatalMessage =
+            QString::fromLatin1("Failed to load platform plugin \"%1\". Available platforms are: \n").arg(name);
+        foreach(QString key, keys) {
+            fatalMessage.append(key + QString::fromLatin1("\n"));
+        }
+        qFatal("%s", fatalMessage.toLocal8Bit().constData());
+
+    }
+
 }
 
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
@@ -155,6 +155,8 @@ void QNetworkReplyFileImpl::abort()
 qint64 QNetworkReplyFileImpl::bytesAvailable() const
 {
     Q_D(const QNetworkReplyFileImpl);
+    if (!d->realFile.isOpen())
+        return QNetworkReply::bytesAvailable();
     return QNetworkReply::bytesAvailable() + d->realFile.bytesAvailable();
 }
 
@@ -175,7 +177,11 @@ qint64 QNetworkReplyFileImpl::size() const
 qint64 QNetworkReplyFileImpl::readData(char *data, qint64 maxlen)
 {
     Q_D(QNetworkReplyFileImpl);
+    if (!d->realFile.isOpen())
+        return -1;
     qint64 ret = d->realFile.read(data, maxlen);
+    if (bytesAvailable() == 0 && d->realFile.isOpen())
+        d->realFile.close();
     if (ret == 0 && bytesAvailable() == 0)
         return -1;
     else

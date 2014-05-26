@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -1281,6 +1281,9 @@ void QDockWidget::setFloating(bool floating)
         d->endDrag(true);
 
     QRect r = d->undockedGeometry;
+    // Keep position when undocking for the first time.
+    if (floating && isVisible() && !r.isValid())
+        r = QRect(mapToGlobal(QPoint(0, 0)), size());
 
     d->setWindowState(floating, false, floating ? r : QRect());
 
@@ -1406,9 +1409,12 @@ bool QDockWidget::event(QEvent *event)
         d->toggleViewAction->setChecked(false);
         emit visibilityChanged(false);
         break;
-    case QEvent::Show:
+    case QEvent::Show: {
         d->toggleViewAction->setChecked(true);
-        emit visibilityChanged(geometry().right() >= 0 && geometry().bottom() >= 0);
+        const QPoint parentTopLeft = isWindow() ?
+            QApplication::desktop()->availableGeometry(this).topLeft() : QPoint(0, 0);
+        emit visibilityChanged(geometry().right() >= parentTopLeft.x() && geometry().bottom() >= parentTopLeft.y());
+}
         break;
 #endif
     case QEvent::ApplicationLayoutDirectionChange:

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -5393,7 +5393,7 @@ void QPainter::drawPixmap(const QPointF &p, const QPixmap &pm)
     }
 }
 
-void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, const QByteArray * data)
+void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 {
 #if defined QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
@@ -5518,7 +5518,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, 
             x += d->state->matrix.dx();
             y += d->state->matrix.dy();
         }
-        d->engine->drawPixmap(QRectF(x, y, w, h), pm, QRectF(sx, sy, sw, sh), data);
+        d->engine->drawPixmap(QRectF(x, y, w, h), pm, QRectF(sx, sy, sw, sh));
     }
 }
 
@@ -7253,200 +7253,6 @@ void QPainter::fillRect(const QRectF &r, const QColor &color)
 
     \since 4.5
 */
-
-
-/*!
-    \fn void QPainter::addAnchor(int x, int y, int w, int h, const QString &name);
-
-    \overload
-
-    Add an anchor to the current page at the rect specified by \a x, \a y, \a w and \a h  
-    named \a name.
-
-    Note that for output formats not supporting links, currently all other then PDF,
-    this call has no effect.
-
-    \sa addLink()
-
-    \since 4.7
-*/
-
-/*!
-    \fn void QPainter::addAnchor(const QRect &r, const QString &name);
-
-    \overload
-
-    Add an anchor to the current page at the rect specified by \a r named \a name.
-
-    Note that for output formats not supporting links, currently all other then PDF,
-    this call has no effect.
-
-    \sa addLink()
-
-    \since 4.7
-*/
-
-/*!
-    \fn void addAnchor(const QRectF &r, const QString &name);
-
-    \overload
-
-    Add an anchor to the current page at the rect specified by \a r named \a name.
-
-    Note that for output formats not supporting links, currently all other then PDF,
-    this call has no effect.
-
-    \sa addLink()
-
-    \since 4.7
-*/
-void QPainter::addAnchor(const QRectF &r, const QString &name)
-{
-    Q_D(QPainter);
-    if (!d->engine) {
-        qWarning("QPainter::addAnchor: Painter not active");
-        return;
-    }
-    d->engine->addAnchor(worldTransform().mapRect(r), name);
-}
-
-/*!
-    \fn void QPainter::addLink(int x, int y, int w, int h, const QString &anchor);
-
-    \overload
-
-    Add a link to the current page at the rect specified by \a x, \a y, \a w and \a h  
-    linking to the anchor named \a anchor.
-
-    Note that for output formats not supporting links, currently all other then PDF,
-    this call has no effect.
-
-    \sa addAnchor()
-
-    \since 4.7
-*/
-
-/*!
-    \fn void QPainter::addLink(const QRect &r, const QString &anchor);
-
-    \overload
-
-    Add a link to the current page at the rect specified by \a r  
-    linking to the anchor named \a anchor.
-
-    Note that for output formats not supporting links, currently all other then PDF,
-    this call has no effect.
-
-    \sa addAnchor()
-
-    \since 4.7
-*/
-
-/*!
-    \fn void QPainter::addLink(const QRectF &r, const QString &anchor);
-
-    \overload
-
-    Add a link to the current page at the rect specified by \a r  
-    linking to the anchor named \a anchor.
-
-    Note that for output formats not supporting links, currently all other then PDF,
-    this call has no effect.
-
-    \sa addAnchor()
-
-    \since 4.7
-*/
-void QPainter::addLink(const QRectF &r, const QString &anchor)
-{
-    Q_D(QPainter);
-    if (!d->engine) {
-        qWarning("QPainter::addLink: Painter not active");
-        return;
-    }
-    
-    d->engine->addLink(worldTransform().mapRect(r), anchor);
-}
-
-
-/*!
-    \fn void QPainter::addHyperlink(int x, int y, int w, int h, const QUrl &url);
-
-    \overload
-
-    Add a link to the current page at the rect specified by \a x, \a y, \a w and \a h  
-    linking to \a url.
-
-    Note that for output formats not supporting links, currently all other then PDF,
-    this call has no effect.
-
-    \since 4.7
-*/
-
-/*!
-    \fn void QPainter::addHyperlink(const QRect &r, const QUrl &url);
-
-    \overload
-
-    Add a link to the current page at the rect specified by \a r
-    linking to \a url.
-
-    Note that for output formats not supporting links, currently all other then PDF,
-    this call has no effect.
-
-    \since 4.7
-*/
-
-/*!
-    \fn void QPainter::addHyperlink(const QRectF &r, const QUrl &url);
-
-    \overload
-
-    Add a link to the current page at the rect specified by \a r
-    linking to \a url.
-
-    Note that for output formats not supporting links, currently all other then PDF,
-    this call has no effect.
-
-    \since 4.7
-*/
-void QPainter::addHyperlink(const QRectF &r, const QUrl &url)
-{
-    Q_D(QPainter);
-    if (!d->engine) {
-        qWarning("QPainter::addHyperlink: Painter not active");
-        return;
-    }
-    d->engine->addHyperlink(worldTransform().mapRect(r), url);
-}
-
-void QPainter::addTextField(const QRectF &r, const QString &text, const QString &name, bool multiLine, bool password, bool readOnly, int maxLength) {
-    Q_D(QPainter);
-    if (!d->engine) {
-        qWarning("QPainter::addTextField: Painter not active");
-        return;
-    }
-    d->engine->addTextField(worldTransform().mapRect(r), text, name, multiLine, password, readOnly, maxLength);
-}
-
-void QPainter::addCheckBox(const QRectF &r, bool checked, const QString &name, bool readOnly) {
-    Q_D(QPainter);
-    if (!d->engine) {
-        qWarning("QPainter::addCheckBox: Painter not active");
-        return;
-    }
-    d->engine->addCheckBox(worldTransform().mapRect(r), checked, name, readOnly);
-}
-
-
-void QPainter::addRadioButton(const QRectF &r, const QString & group, bool checked, const QString &name, bool readOnly) {
-    Q_D(QPainter);
-    if (!d->engine) {
-        qWarning("QPainter::addRadioButton: Painter not active");
-        return;
-    }
-    d->engine->addRadioButton(worldTransform().mapRect(r), group, checked, name, readOnly);
-}
 
 /*!
     Sets the given render \a hint on the painter if \a on is true;

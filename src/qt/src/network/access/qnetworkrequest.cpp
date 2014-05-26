@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
@@ -715,7 +715,8 @@ static QByteArray headerValue(QNetworkRequest::KnownHeaders header, const QVaria
 
 static QNetworkRequest::KnownHeaders parseHeaderName(const QByteArray &headerName)
 {
-    // headerName is not empty here
+    if (headerName.isEmpty())
+        return QNetworkRequest::KnownHeaders(-1);
 
     switch (tolower(headerName.at(0))) {
     case 'c':

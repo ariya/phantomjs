@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -370,7 +370,6 @@ void QAccessible::updateAccessibility(QObject *o, int who, Event reason)
             if (w->internalWinId())
                 break;
         }
-#ifndef QT_NO_GRAPHICSVIEW
         if (QGraphicsObject *gfxObj = qobject_cast<QGraphicsObject*>(p)) {
             QGraphicsItem *parentItem = gfxObj->parentItem();
             if (parentItem) {
@@ -386,9 +385,7 @@ void QAccessible::updateAccessibility(QObject *o, int who, Event reason)
                 }
                 p = view;
             }
-        } else
-#endif // QT_NO_GRAPHICSVIEW
-        {
+        } else {
             p = p->parent();
         }
 

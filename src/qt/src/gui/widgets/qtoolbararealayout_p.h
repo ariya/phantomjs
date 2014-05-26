@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -232,7 +232,7 @@ public:
     void remove(const QList<int> &path);
     void remove(QLayoutItem *item);
     void clear();
-    QToolBarAreaLayoutItem &item(const QList<int> &path);
+    QToolBarAreaLayoutItem *item(const QList<int> &path);
     QRect itemRect(const QList<int> &path) const;
     QLayoutItem *plug(const QList<int> &path);
     QLayoutItem *unplug(const QList<int> &path, QToolBarAreaLayout *other);

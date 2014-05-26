@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -313,7 +313,9 @@ void QPrintDialogPrivate::openCocoaPrintPanel(Qt::WindowModality modality)
 
     [printPanel setOptions:macOptions];
 
-    if (modality == Qt::ApplicationModal) {
+    if (modality == Qt::ApplicationModal || !q->parentWidget()) {
+        if (modality == Qt::NonModal)
+            qWarning("QPrintDialog is required to be modal on OS X");
         int rval = [printPanel runModalWithPrintInfo:ep->printInfo];
         [delegate printPanelDidEnd:printPanel returnCode:rval contextInfo:this];
     } else {

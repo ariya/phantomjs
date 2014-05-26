@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -326,6 +326,7 @@ static const char * x11_atomnames = {
     // Tablet
     "STYLUS\0"
     "ERASER\0"
+    "TABLET\0"
 };
 
 Q_GUI_EXPORT QX11Data *qt_x11Data = 0;
@@ -2462,7 +2463,8 @@ void qt_init(QApplicationPrivate *priv, int,
                     gotStylus = true;
                 }
 #else
-                if (devs->type == ATOM(XWacomStylus) || devs->type == ATOM(XTabletStylus)) {
+                // qDebug() << "found input device" << devs->name << "type" << devs->type << XGetAtomName(X11->display, devs->type);
+                if (devs->type == ATOM(XWacomStylus) || devs->type == ATOM(XTabletStylus) || devs->type == ATOM(XTablet)) {
                     deviceType = QTabletEvent::Stylus;
                     if (wacomDeviceName()->isEmpty())
                         wacomDeviceName()->append(devs->name);

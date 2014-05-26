@@ -73,9 +73,9 @@ NotificationWrapper::NotificationWrapper()
 #if ENABLE(NOTIFICATIONS)
 
 #ifndef QT_NO_SYSTEMTRAYICON
-    m_notificationIcon = 0;
+    m_notificationIcon = nullptr;
 #endif
-    m_presenter = 0;
+    m_presenter = nullptr;
 #endif
 }
 

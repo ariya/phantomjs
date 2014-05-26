@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -133,10 +133,15 @@ struct NoDasher {
 
 };
 
+/*
+ * The return value is the result of the clipLine() call performed at the start
+ * of each of the two functions, aka "false" means completely outside the devices
+ * rect.
+ */
 template<DrawPixel drawPixel, class Dasher>
-static void drawLine(QCosmeticStroker *stroker, qreal x1, qreal y1, qreal x2, qreal y2, int caps);
+static bool drawLine(QCosmeticStroker *stroker, qreal x1, qreal y1, qreal x2, qreal y2, int caps);
 template<DrawPixel drawPixel, class Dasher>
-static void drawLineAA(QCosmeticStroker *stroker, qreal x1, qreal y1, qreal x2, qreal y2, int caps);
+static bool drawLineAA(QCosmeticStroker *stroker, qreal x1, qreal y1, qreal x2, qreal y2, int caps);
 
 inline void drawPixel(QCosmeticStroker *stroker, int x, int y, int coverage)
 {
@@ -300,6 +305,7 @@ void QCosmeticStroker::setup()
     ymax = deviceRect.bottom() + 2;
 
     lastPixel.x = -1;
+    lastPixel.y = -1;
 }
 
 // returns true if the whole line gets clipped away
@@ -528,6 +534,7 @@ void QCosmeticStroker::drawPath(const QVectorPath &path)
             QPointF p = QPointF(points[0], points[1]) * state->matrix;
             patternOffset = state->lastPen.dashOffset()*64;
             lastPixel.x = -1;
+            lastPixel.y = -1;
 
             bool closed;
             const QPainterPath::ElementType *e = subPath(type, end, points, &closed);
@@ -582,6 +589,7 @@ void QCosmeticStroker::drawPath(const QVectorPath &path)
         QPointF movedTo = p;
         patternOffset = state->lastPen.dashOffset()*64;
         lastPixel.x = -1;
+        lastPixel.y = -1;
 
         const qreal *begin = points;
         const qreal *end = points + 2*path.elementCount();
@@ -602,17 +610,20 @@ void QCosmeticStroker::drawPath(const QVectorPath &path)
                 caps |= CapEnd;
 
             QCosmeticStroker::Point last = this->lastPixel;
-            stroke(this, p.x(), p.y(), p2.x(), p2.y(), caps);
+            bool unclipped = stroke(this, p.x(), p.y(), p2.x(), p2.y(), caps);
 
             /* fix for gaps in polylines with fastpen and aliased in a sequence
                of points with small distances: if current point p2 has been dropped
-               out, keep last non dropped point p. */
-            if (fastPenAliased) {
-                if (last.x != lastPixel.x || last.y != lastPixel.y ||
-                    points == begin + 2 || points == end - 2 ) {
-                    {
-                        p = p2;
-                    }
+               out, keep last non dropped point p.
+
+               However, if the line was completely outside the devicerect, we
+               still need to update p to avoid drawing the line after this one from
+               a bad starting position.
+            */
+            if (fastPenAliased && unclipped) {
+                if (last.x != lastPixel.x || last.y != lastPixel.y
+                    || points == begin + 2 || points == end - 2) {
+                    p = p2;
                 }
             } else {
                 p = p2;
@@ -720,10 +731,10 @@ static inline void capAdjust(int caps, int &x1, int &x2, int &y, int yinc)
   the drawing shifts from horizontal to vertical or back.
   */
 template<DrawPixel drawPixel, class Dasher>
-static void drawLine(QCosmeticStroker *stroker, qreal rx1, qreal ry1, qreal rx2, qreal ry2, int caps)
+static bool drawLine(QCosmeticStroker *stroker, qreal rx1, qreal ry1, qreal rx2, qreal ry2, int caps)
 {
     if (stroker->clipLine(rx1, ry1, rx2, ry2))
-        return;
+        return false;
 
     static const int half = 31;
     int x1 = toF26Dot6(rx1) + half;
@@ -813,7 +824,7 @@ static void drawLine(QCosmeticStroker *stroker, qreal rx1, qreal ry1, qreal rx2,
     } else {
         // horizontal
         if (!dx)
-            return;
+            return true;
 
         QCosmeticStroker::Direction dir = QCosmeticStroker::LeftToRight;
 
@@ -886,14 +897,15 @@ static void drawLine(QCosmeticStroker *stroker, qreal rx1, qreal ry1, qreal rx2,
         }
     }
     stroker->lastPixel = last;
+    return true;
 }
 
 
 template<DrawPixel drawPixel, class Dasher>
-static void drawLineAA(QCosmeticStroker *stroker, qreal rx1, qreal ry1, qreal rx2, qreal ry2, int caps)
+static bool drawLineAA(QCosmeticStroker *stroker, qreal rx1, qreal ry1, qreal rx2, qreal ry2, int caps)
 {
     if (stroker->clipLine(rx1, ry1, rx2, ry2))
-        return;
+        return false;
 
     int x1 = toF26Dot6(rx1);
     int y1 = toF26Dot6(ry1);
@@ -967,7 +979,7 @@ static void drawLineAA(QCosmeticStroker *stroker, qreal rx1, qreal ry1, qreal rx
     } else {
         // horizontal
         if (!dx)
-            return;
+            return true;
 
         int yinc = F16Dot16FixedDiv(dy, dx);
 
@@ -1029,6 +1041,7 @@ static void drawLineAA(QCosmeticStroker *stroker, qreal rx1, qreal ry1, qreal rx
             drawPixel(stroker, x, (y>>16) + 1, alpha * alphaEnd >> 6);
         }
     }
+    return true;
 }
 
 QT_END_NAMESPACE
