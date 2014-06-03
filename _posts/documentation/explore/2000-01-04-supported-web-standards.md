@@ -5,7 +5,7 @@ categories: docs docs-explore
 permalink: supported-web-standards.html
 ---
 
-PhantomJS uses [QtWebKit](http://qt.digia.com/Product/Library/Qt-WebKit/). It supports many features which are part of [http://trac.webkit.org/wiki/QtWebKitFeatures22](http://trac.webkit.org/wiki/QtWebKitFeatures22).
+PhantomJS uses [QtWebKit](https://trac.webkit.org/wiki/QtWebKit). It supports many features which are part of [http://trac.webkit.org/wiki/QtWebKitFeatures22](http://trac.webkit.org/wiki/QtWebKitFeatures22).
 
 ## Unsupported Features
 
