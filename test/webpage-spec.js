@@ -1221,6 +1221,8 @@ describe("WebPage object", function() {
                 expect(errorData['url']).toEqual('http://localhost:12345/notExistResource.png');
                 expect(errorData['errorCode']).toEqual(203);
                 expect(errorData['errorString']).toContain('notExistResource.png - server replied: Not Found');
+                expect(errorData['status']).toEqual(404);
+                expect(errorData['statusText']).toContain("Not Found");
                 handled = true;
             };
 

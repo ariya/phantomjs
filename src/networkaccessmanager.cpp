@@ -407,6 +407,8 @@ void NetworkAccessManager::handleNetworkError()
     data["url"] = reply->url().toString();
     data["errorCode"] = reply->error();
     data["errorString"] = reply->errorString();
+    data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+    data["statusText"] = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
 
     emit resourceError(data);
 }
