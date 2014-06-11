@@ -165,7 +165,7 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
         m_networkDiskCache = new QNetworkDiskCache(this);
         m_networkDiskCache->setCacheDirectory(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
         if (config->maxDiskCacheSize() >= 0)
-            m_networkDiskCache->setMaximumCacheSize(config->maxDiskCacheSize() * 1024);
+            m_networkDiskCache->setMaximumCacheSize(qint64(config->maxDiskCacheSize()) * 1024);
         setCache(m_networkDiskCache);
     }
 
