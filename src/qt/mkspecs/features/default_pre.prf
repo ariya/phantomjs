@@ -1,3 +1,12 @@
 load(exclusive_builds)
 ### Qt 5: remove "uic" and "resources" - or add "qt"
 CONFIG = lex yacc warn_on debug uic resources $$CONFIG
+
+# Variables QT_GCC_MAJOR_VERSION and QT_GCC_MINOR_VERSION are undefined for QPA,
+# therefore a few warning suppressions were not properly enabled.
+qpa {
+    QT_GCC_VERSION = $$system(gcc -dumpversion)
+    QT_GCC_VERSION = $$split(QT_GCC_VERSION, ".")
+    QT_GCC_MAJOR_VERSION = $$first(QT_GCC_VERSION)
+    QT_GCC_MINOR_VERSION = $$member(QT_GCC_VERSION, 1)
+}
