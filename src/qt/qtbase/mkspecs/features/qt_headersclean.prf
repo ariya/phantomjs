@@ -1,0 +1,52 @@
+# The headersclean test attempts to ensure all public Qt headers
+# abide by various rules.
+#
+# To use this test, create a project which contains nothing else than a
+# QT= line with the modules you want to test (no presence conditionals needed),
+# followed by load(qt_headersclean).
+
+*-g++*: QMAKE_CXXFLAGS += -W -Wall -Wextra -Werror
+
+# The flags here come from http://wiki.qt-project.org/Coding_Conventions#Conventions_for_public_header_files
+# -Wold-style-cast cannot be used, /usr/include/bits/byteswap.h defines the macro bswap_16 using C style casts :(
+# -Wfloat-equal cannot be used, qrect.h and qvector2d.h do exact comparisons in isNull and operator==. Would need #pragmas.
+*-g++*: QMAKE_CXXFLAGS += -Woverloaded-virtual -Wshadow -Wundef
+
+# Other nice flags
+*-g++*: QMAKE_CXXFLAGS += -Wnon-virtual-dtor -ansi -Wcast-align -Wchar-subscripts -Wpointer-arith -Wformat-security
+
+# Enable pedantic mode, but accept variadic macros and 'long long' usage.
+*-g++*: QMAKE_CXXFLAGS += -Wno-long-long -Wno-variadic-macros -pedantic-errors
+
+contains(QT_ARCH,arm)|contains(QT_ARCH,mips) {
+    # There are outstanding alignment issues in some container classes.
+    *-g++*:QMAKE_CXXFLAGS -= -Wcast-align
+}
+
+QMAKE_CXXFLAGS += -DQT_NO_CAST_TO_ASCII \
+                  -DQT_NO_CAST_FROM_ASCII \
+                  -DQT_STRICT_ITERATORS \
+                  -DQT_NO_URL_CAST_FROM_STRING \
+                  -DQT_NO_CAST_FROM_BYTEARRAY \
+                  -DQT_NO_KEYWORDS \
+                  -DQT_USE_FAST_CONCATENATION \
+                  -DQT_USE_FAST_OPERATOR_PLUS
+
+TARGET = tst_headersclean
+
+includes =
+for(q, QT) {
+    sq = $$replace(q, -private\$, )
+    qn = $$eval(QT.$${sq}.name)
+    isEmpty(qn): \
+        QT -= $$q
+    else: \
+        includes += "$${LITERAL_HASH}include <$$qn/$$qn>"
+}
+includes = $$join(includes, $$escape_expand(\\n))
+
+testfile.input = $$PWD/data/headersclean/tst_headersclean.cpp.in
+testfile.output = $$OUT_PWD/tst_headersclean.cpp
+QMAKE_SUBSTITUTES += testfile
+
+SOURCES += $$testfile.output

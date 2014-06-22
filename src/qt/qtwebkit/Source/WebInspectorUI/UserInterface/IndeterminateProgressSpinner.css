@@ -1,0 +1,93 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/* These keyframes try to reproduce the 12 discrete steps seen in a standard system progress indicator. */
+@-webkit-keyframes discrete-spinner {
+    0% {
+        background-image: url(Images/IndeterminateProgressSpinner1.pdf);
+    }
+
+    8.333% {
+        background-image: url(Images/IndeterminateProgressSpinner2.pdf);
+    }
+
+    16.666% {
+        background-image: url(Images/IndeterminateProgressSpinner3.pdf);
+    }
+
+    25.000% {
+        background-image: url(Images/IndeterminateProgressSpinner4.pdf);
+    }
+
+    33.333% {
+        background-image: url(Images/IndeterminateProgressSpinner5.pdf);
+    }
+
+    41.666% {
+        background-image: url(Images/IndeterminateProgressSpinner6.pdf);
+    }
+
+    50.000% {
+        background-image: url(Images/IndeterminateProgressSpinner7.pdf);
+    }
+
+    58.333% {
+        background-image: url(Images/IndeterminateProgressSpinner8.pdf);
+    }
+
+    66.666% {
+        background-image: url(Images/IndeterminateProgressSpinner9.pdf);
+    }
+
+    75.000% {
+        background-image: url(Images/IndeterminateProgressSpinner10.pdf);
+    }
+
+    83.333% {
+        background-image: url(Images/IndeterminateProgressSpinner11.pdf);
+    }
+
+    91.666% {
+        background-image: url(Images/IndeterminateProgressSpinner12.pdf);
+    }
+
+    100% {
+        background-image: url(Images/IndeterminateProgressSpinner1.pdf);
+    }
+}
+
+.indeterminate-progress-spinner {
+    background-image: url(Images/IndeterminateProgressSpinner1.pdf);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+
+    width: 16px;
+    height: 16px;
+
+    -webkit-animation-name: discrete-spinner;
+    -webkit-animation-duration: 1s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: step-start;
+}

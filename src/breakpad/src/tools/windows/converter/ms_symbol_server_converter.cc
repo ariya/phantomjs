@@ -113,10 +113,12 @@ MSSymbolServerConverter::MSSymbolServerConverter(
 
   assert(symbol_servers.size() > 0);
 
+#if !defined(NDEBUG)
   // These are characters that are interpreted as having special meanings in
   // symbol_path_.
-  const char *kInvalidCharacters = "*;";
+  const char kInvalidCharacters[] = "*;";
   assert(local_cache.find_first_of(kInvalidCharacters) == string::npos);
+#endif  // !defined(NDEBUG)
 
   for (vector<string>::const_iterator symbol_server = symbol_servers.begin();
        symbol_server != symbol_servers.end();
@@ -183,7 +185,7 @@ class AutoSymSrv {
 // are supported by calling Delete().
 class AutoDeleter {
  public:
-  AutoDeleter(const string &path) : path_(path) {}
+  explicit AutoDeleter(const string &path) : path_(path) {}
 
   ~AutoDeleter() {
     int error;
@@ -213,18 +215,20 @@ class AutoDeleter {
 };
 
 MSSymbolServerConverter::LocateResult
-MSSymbolServerConverter::LocateSymbolFile(const MissingSymbolInfo &missing,
-                                          string *symbol_file) {
-  assert(symbol_file);
-  symbol_file->clear();
+MSSymbolServerConverter::LocateFile(const string &debug_or_code_file,
+                                    const string &debug_or_code_id,
+                                    const string &version,
+                                    string *file_name) {
+  assert(file_name);
+  file_name->clear();
 
   GUIDOrSignatureIdentifier identifier;
-  if (!identifier.InitializeFromString(missing.debug_identifier)) {
+  if (!identifier.InitializeFromString(debug_or_code_id)) {
     fprintf(stderr,
-            "LocateSymbolFile: Unparseable debug_identifier for %s %s %s\n",
-            missing.debug_file.c_str(),
-            missing.debug_identifier.c_str(),
-            missing.version.c_str());
+            "LocateFile: Unparseable identifier for %s %s %s\n",
+            debug_or_code_file.c_str(),
+            debug_or_code_id.c_str(),
+            version.c_str());
     return LOCATE_FAILURE;
   }
 
@@ -233,22 +237,22 @@ MSSymbolServerConverter::LocateSymbolFile(const MissingSymbolInfo &missing,
   if (!symsrv.Initialize(process,
                          const_cast<char *>(symbol_path_.c_str()),
                          false)) {
-    fprintf(stderr, "LocateSymbolFile: SymInitialize: error %d for %s %s %s\n",
+    fprintf(stderr, "LocateFile: SymInitialize: error %d for %s %s %s\n",
             GetLastError(),
-            missing.debug_file.c_str(),
-            missing.debug_identifier.c_str(),
-            missing.version.c_str());
+            debug_or_code_file.c_str(),
+            debug_or_code_id.c_str(),
+            version.c_str());
     return LOCATE_FAILURE;
   }
 
   if (!SymRegisterCallback64(process, SymCallback,
                              reinterpret_cast<ULONG64>(this))) {
     fprintf(stderr,
-            "LocateSymbolFile: SymRegisterCallback64: error %d for %s %s %s\n",
+            "LocateFile: SymRegisterCallback64: error %d for %s %s %s\n",
             GetLastError(),
-            missing.debug_file.c_str(),
-            missing.debug_identifier.c_str(),
-            missing.version.c_str());
+            debug_or_code_file.c_str(),
+            debug_or_code_id.c_str(),
+            version.c_str());
     return LOCATE_FAILURE;
   }
 
@@ -267,7 +271,7 @@ MSSymbolServerConverter::LocateSymbolFile(const MissingSymbolInfo &missing,
   char path[MAX_PATH];
   if (!SymFindFileInPath(
           process, NULL,
-          const_cast<char *>(missing.debug_file.c_str()),
+          const_cast<char *>(debug_or_code_file.c_str()),
           const_cast<void *>(identifier.guid_or_signature_pointer()),
           identifier.age(), 0,
           identifier.type() == GUIDOrSignatureIdentifier::TYPE_GUID ?
@@ -286,11 +290,11 @@ MSSymbolServerConverter::LocateSymbolFile(const MissingSymbolInfo &missing,
       // This is an authoritiative file-not-found message.
       if (fail_not_found_) {
         fprintf(stderr,
-                "LocateSymbolFile: SymFindFileInPath: LOCATE_NOT_FOUND error "
+                "LocateFile: SymFindFileInPath: LOCATE_NOT_FOUND error "
                 "for %s %s %s\n",
-                missing.debug_file.c_str(),
-                missing.debug_identifier.c_str(),
-                missing.version.c_str());
+                debug_or_code_file.c_str(),
+                debug_or_code_id.c_str(),
+                version.c_str());
         return LOCATE_NOT_FOUND;
       }
 
@@ -299,13 +303,16 @@ MSSymbolServerConverter::LocateSymbolFile(const MissingSymbolInfo &missing,
     }
 
     fprintf(stderr,
-            "LocateSymbolFile: SymFindFileInPath: error %d for %s %s %s\n",
+            "LocateFile: SymFindFileInPath: error %d for %s %s %s\n",
             error,
-            missing.debug_file.c_str(),
-            missing.debug_identifier.c_str(),
-            missing.version.c_str());
+            debug_or_code_file.c_str(),
+            debug_or_code_id.c_str(),
+            version.c_str());
     return LOCATE_FAILURE;
   }
+
+  // Making sure path is null-terminated.
+  path[MAX_PATH - 1] = '\0';
 
   // The AutoDeleter ensures that the file is only kept when returning
   // LOCATE_SUCCESS.
@@ -314,19 +321,36 @@ MSSymbolServerConverter::LocateSymbolFile(const MissingSymbolInfo &missing,
   // Do the cleanup here even though it will happen when symsrv goes out of
   // scope, to allow it to influence the return value.
   if (!symsrv.Cleanup()) {
-    fprintf(stderr, "LocateSymbolFile: SymCleanup: error %d for %s %s %s\n",
+    fprintf(stderr, "LocateFile: SymCleanup: error %d for %s %s %s\n",
             GetLastError(),
-            missing.debug_file.c_str(),
-            missing.debug_identifier.c_str(),
-            missing.version.c_str());
+            debug_or_code_file.c_str(),
+            debug_or_code_id.c_str(),
+            version.c_str());
     return LOCATE_FAILURE;
   }
 
   deleter.Release();
 
-  *symbol_file = path;
+  printf("Downloaded: %s\n", path);
+  *file_name = path;
   return LOCATE_SUCCESS;
 }
+
+
+MSSymbolServerConverter::LocateResult
+MSSymbolServerConverter::LocatePEFile(const MissingSymbolInfo &missing,
+                                      string *pe_file) {
+  return LocateFile(missing.code_file, missing.code_identifier,
+                    missing.version, pe_file);
+}
+
+MSSymbolServerConverter::LocateResult
+MSSymbolServerConverter::LocateSymbolFile(const MissingSymbolInfo &missing,
+                                          string *symbol_file) {
+  return LocateFile(missing.debug_file, missing.debug_identifier,
+                    missing.version, symbol_file);
+}
+
 
 // static
 BOOL CALLBACK MSSymbolServerConverter::SymCallback(HANDLE process,
@@ -341,7 +365,7 @@ BOOL CALLBACK MSSymbolServerConverter::SymCallback(HANDLE process,
       IMAGEHLP_CBA_EVENT *cba_event =
           reinterpret_cast<IMAGEHLP_CBA_EVENT *>(data);
 
-      // Put the string into a string object to be able to use string::find 
+      // Put the string into a string object to be able to use string::find
       // for substring matching.  This is important because the not-found
       // message does not use the entire string but is appended to the URL
       // that SymSrv attempted to retrieve.
@@ -398,7 +422,7 @@ BOOL CALLBACK MSSymbolServerConverter::SymCallback(HANDLE process,
 
 // static
 BOOL CALLBACK MSSymbolServerConverter::SymFindFileInPathCallback(
-    char *filename, void *context) {
+    const char *filename, void *context) {
   // FALSE ends the search, indicating that the located symbol file is
   // satisfactory.
   return FALSE;
@@ -408,8 +432,10 @@ MSSymbolServerConverter::LocateResult
 MSSymbolServerConverter::LocateAndConvertSymbolFile(
     const MissingSymbolInfo &missing,
     bool keep_symbol_file,
+    bool keep_pe_file,
     string *converted_symbol_file,
-    string *symbol_file) {
+    string *symbol_file,
+    string *out_pe_file) {
   assert(converted_symbol_file);
   converted_symbol_file->clear();
   if (symbol_file) {
@@ -426,11 +452,26 @@ MSSymbolServerConverter::LocateAndConvertSymbolFile(
     *symbol_file = pdb_file;
   }
 
+  // The conversion of a symbol file for a Windows 64-bit module requires
+  // loading of the executable file.  If there is no executable file, convert
+  // using only the PDB file.  Without an executable file, the conversion will
+  // fail for 64-bit modules but it should succeed for 32-bit modules.
+  string pe_file;
+  result = LocatePEFile(missing, &pe_file);
+  if (result != LOCATE_SUCCESS) {
+    fprintf(stderr, "WARNING: Could not download: %s\n", pe_file.c_str());
+  }
+
+  if (out_pe_file && keep_pe_file) {
+    *out_pe_file = pe_file;
+  }
+
   // Conversion may fail because the file is corrupt.  If a broken file is
   // kept in the local cache, LocateSymbolFile will not hit the network again
   // to attempt to locate it.  To guard against problems like this, the
   // symbol file in the local cache will be removed if conversion fails.
   AutoDeleter pdb_deleter(pdb_file);
+  AutoDeleter pe_deleter(pe_file);
 
   // Be sure that it's a .pdb file, since we'll be replacing .pdb with .sym
   // for the converted file's name.
@@ -438,19 +479,7 @@ MSSymbolServerConverter::LocateAndConvertSymbolFile(
   // strcasecmp is called _stricmp here.
   if (_stricmp(pdb_extension.c_str(), ".pdb") != 0) {
     fprintf(stderr, "LocateAndConvertSymbolFile: "
-            "LocateSymbolFile: no .pdb extension for %s %s %s %s\n",
-            missing.debug_file.c_str(),
-            missing.debug_identifier.c_str(),
-            missing.version.c_str(),
-            pdb_file.c_str());
-    return LOCATE_FAILURE;
-  }
-
-  // PDBSourceLineWriter wants the filename as a wstring, so convert it.
-  wstring pdb_file_w;
-  if (!WindowsStringUtils::safe_mbstowcs(pdb_file, &pdb_file_w)) {
-    fprintf(stderr, "LocateAndConvertSymbolFile: "
-            "WindowsStringUtils::safe_mbstowcs failed for %s %s %s %s\n",
+            "no .pdb extension for %s %s %s %s\n",
             missing.debug_file.c_str(),
             missing.debug_identifier.c_str(),
             missing.version.c_str(),
@@ -459,13 +488,34 @@ MSSymbolServerConverter::LocateAndConvertSymbolFile(
   }
 
   PDBSourceLineWriter writer;
-  if (!writer.Open(pdb_file_w, PDBSourceLineWriter::PDB_FILE)) {
-    fprintf(stderr, "LocateAndConvertSymbolFile: "
-            "PDBSourceLineWriter::Open failed for %s %s %s %ws\n",
-            missing.debug_file.c_str(),
-            missing.debug_identifier.c_str(),
-            missing.version.c_str(),
+  wstring pe_file_w;
+  if (!WindowsStringUtils::safe_mbstowcs(pe_file, &pe_file_w)) {
+    fprintf(stderr,
+            "LocateAndConvertSymbolFile: "
+                "WindowsStringUtils::safe_mbstowcs failed for %s\n",
+            pe_file.c_str());
+    return LOCATE_FAILURE;
+  }
+  wstring pdb_file_w;
+  if (!WindowsStringUtils::safe_mbstowcs(pdb_file, &pdb_file_w)) {
+    fprintf(stderr,
+            "LocateAndConvertSymbolFile: "
+                "WindowsStringUtils::safe_mbstowcs failed for %s\n",
             pdb_file_w.c_str());
+    return LOCATE_FAILURE;
+  }
+  if (!writer.Open(pdb_file_w, PDBSourceLineWriter::PDB_FILE)) {
+    fprintf(stderr,
+            "ERROR: PDBSourceLineWriter::Open failed for %s %s %s %ws\n",
+            missing.debug_file.c_str(), missing.debug_identifier.c_str(),
+            missing.version.c_str(), pdb_file_w.c_str());
+    return LOCATE_FAILURE;
+  }
+  if (!writer.SetCodeFile(pe_file_w)) {
+    fprintf(stderr,
+            "ERROR: PDBSourceLineWriter::SetCodeFile failed for %s %s %s %ws\n",
+            missing.debug_file.c_str(), missing.debug_identifier.c_str(),
+            missing.version.c_str(), pe_file_w.c_str());
     return LOCATE_FAILURE;
   }
 
@@ -512,6 +562,10 @@ MSSymbolServerConverter::LocateAndConvertSymbolFile(
 
   if (keep_symbol_file) {
     pdb_deleter.Release();
+  }
+
+  if (keep_pe_file) {
+    pe_deleter.Release();
   }
 
   sym_deleter.Release();

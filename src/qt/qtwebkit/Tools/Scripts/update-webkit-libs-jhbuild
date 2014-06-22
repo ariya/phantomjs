@@ -1,0 +1,130 @@
+#!/usr/bin/perl -w
+# Copyright (C) 2011 Igalia S.L.
+# Copyright (C) 2012 Intel Corporation
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+use FindBin;
+use lib $FindBin::Bin;
+use webkitdirs;
+use Getopt::Long;
+
+my $platformEfl = 0;
+my $platformGtk = 0;
+
+my $getOptionsResult = GetOptions(
+    'efl' => \$platformEfl,
+    'gtk' => \$platformGtk
+    );
+
+my $platform = "";
+if (!$getOptionsResult) {
+    die "No platform specified for " . basename($0) .". Use --gtk or --efl.\n";
+} else {
+    if ($platformEfl) {
+        $platform = "efl";
+    }
+    if ($platformGtk) {
+        $platform = "gtk";
+    }
+}
+
+sub getMD5HashForFile($)
+{
+    my $file = shift;
+
+    open(FILE_CONTENTS, $file);
+
+    my $contents = "";
+    while (<FILE_CONTENTS>) {
+        $contents .= $_;
+    }
+
+    close(FILE_CONTENTS);
+
+    return md5_hex($contents);
+}
+
+sub jhbuildConfigurationChanged()
+{
+    foreach my $file (qw(jhbuildrc jhbuild.modules)) {
+        my $path = join('/', getJhbuildPath(), $file . '.md5sum');
+        if (! -e $path) {
+            return 1;
+        }
+
+        # Get the md5 sum of the file we're testing, look in the right platform directory.
+        my $actualFile = join('/', sourceDir(), 'Tools', $platform, $file);
+        my $currentSum = getMD5HashForFile($actualFile);
+
+        # Get our previous record.
+        open(PREVIOUS_MD5, $path);
+        chomp(my $previousSum = <PREVIOUS_MD5>);
+        close(PREVIOUS_MD5);
+
+        if ($previousSum ne $currentSum) {
+            return 1;
+        }
+    }
+}
+
+sub saveJhbuildMd5() {
+    # Save md5sum for jhbuild-related files.saveJhbuildMd5();
+    foreach my $file (qw(jhbuildrc jhbuild.modules)) {
+        my $source = join('/', sourceDir(), "Tools", $platform, $file);
+        my $destination = join('/', getJhbuildPath(), $file);
+        open(SUM, ">$destination" . ".md5sum");
+        print SUM getMD5HashForFile($source);
+        close(SUM);
+    }
+}
+
+sub runJhbuild
+{
+    my $command = shift;
+    my @jhbuildArgs = ("./jhbuild-wrapper", "--".$platform, $command);
+    push(@jhbuildArgs, @ARGV[2..-1]);
+    system(@jhbuildArgs) == 0 or die "Running jhbuild-wrapper " . $command . " failed.\n";
+}
+
+sub cleanJhbuild()
+{
+    # If the configuration changed, dependencies may have been removed.
+    # Since we lack a granular way of uninstalling those we wipe out the
+    # jhbuild root and start from scratch.
+    my $jhbuildPath = getJhbuildPath();
+    if (system("rm -rf $jhbuildPath/Root") ne 0) {
+        die "Cleaning jhbuild root failed!";
+    }
+
+    if (system("rm -rf $jhbuildPath/Source") ne 0) {
+        die "Cleaning jhbuild sources failed!";
+    }
+}
+
+delete $ENV{AR_FLAGS} if exists $ENV{AR_FLAGS};
+
+chdir(relativeScriptsDir() . "/../jhbuild") or die $!;
+
+my %prettyPlatform = ( "efl" => "EFL", "gtk" => "GTK+" );
+
+if (-e getJhbuildPath() && jhbuildConfigurationChanged()) {
+    cleanJhbuild();
+}
+
+saveJhbuildMd5();
+
+print "Updating " . $prettyPlatform{$platform} . " port dependencies using jhbuild...\n";
+runJhbuild("build");

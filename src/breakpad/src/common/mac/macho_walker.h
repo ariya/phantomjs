@@ -34,6 +34,7 @@
 #ifndef COMMON_MAC_MACHO_WALKER_H__
 #define COMMON_MAC_MACHO_WALKER_H__
 
+#include <mach/machine.h>
 #include <mach-o/loader.h>
 #include <sys/types.h>
 
@@ -56,16 +57,14 @@ class MachoWalker {
               void *context);
   ~MachoWalker();
 
-  // Begin walking the header for |cpu_type|.  If |cpu_type| is 0, then the
-  // native cpu type is used.  Otherwise, accepted values are listed in
-  // /usr/include/mach/machine.h (e.g., CPU_TYPE_X86 or CPU_TYPE_POWERPC).
-  // Returns false if opening the file failed or if the |cpu_type| is not
-  // present in the file.
-  bool WalkHeader(int cpu_type);
-
-  // Locate (if any) the header offset for |cpu_type| and return in |offset|.
-  // Return true if found, false otherwise.
-  bool FindHeader(int cpu_type, off_t &offset);
+  // Begin walking the header for |cpu_type| and |cpu_subtype|.  If |cpu_type|
+  // is 0, then the native cpu type is used. Otherwise, accepted values are
+  // listed in /usr/include/mach/machine.h (e.g., CPU_TYPE_X86 or
+  // CPU_TYPE_POWERPC). If |cpu_subtype| is CPU_SUBTYPE_MULTIPLE, the match is
+  // only done on |cpu_type|.
+  // Returns false if opening the file failed or if the |cpu_type|/|cpu_subtype|
+  // is not present in the file.
+  bool WalkHeader(cpu_type_t cpu_type, cpu_subtype_t cpu_subtype);
 
   // Read |size| bytes from the opened file at |offset| into |buffer|
   bool ReadBytes(void *buffer, size_t size, off_t offset);
@@ -74,8 +73,11 @@ class MachoWalker {
   bool CurrentHeader(struct mach_header_64 *header, off_t *offset);
 
  private:
-  // Validate the |cpu_type|
-  int ValidateCPUType(int cpu_type);
+  // Locate (if any) the header offset for |cpu_type| and return in |offset|.
+  // Return true if found, false otherwise.
+  bool FindHeader(cpu_type_t cpu_type,
+                  cpu_subtype_t cpu_subtype,
+                  off_t &offset);
 
   // Process an individual header starting at |offset| from the start of the
   // file.  Return true if successful, false otherwise.

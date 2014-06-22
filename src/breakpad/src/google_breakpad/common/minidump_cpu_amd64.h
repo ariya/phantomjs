@@ -67,7 +67,7 @@
  * equivalent types and values in the Windows Platform SDK are given in
  * comments.
  *
- * Author: Mark Mentovai 
+ * Author: Mark Mentovai
  * Change to split into its own file: Neal Sidhwaney */
 
 #ifndef GOOGLE_BREAKPAD_COMMON_MINIDUMP_CPU_AMD64_H__
@@ -79,22 +79,22 @@
  */
 
 typedef struct {
-  u_int16_t  control_word;
-  u_int16_t  status_word;
-  u_int8_t   tag_word;
-  u_int8_t   reserved1;
-  u_int16_t  error_opcode;
-  u_int32_t  error_offset;
-  u_int16_t  error_selector;
-  u_int16_t  reserved2;
-  u_int32_t  data_offset;
-  u_int16_t  data_selector;
-  u_int16_t  reserved3;
-  u_int32_t  mx_csr;
-  u_int32_t  mx_csr_mask;
-  u_int128_t float_registers[8];
-  u_int128_t xmm_registers[16];
-  u_int8_t   reserved4[96];
+  uint16_t       control_word;
+  uint16_t       status_word;
+  uint8_t        tag_word;
+  uint8_t        reserved1;
+  uint16_t       error_opcode;
+  uint32_t       error_offset;
+  uint16_t       error_selector;
+  uint16_t       reserved2;
+  uint32_t       data_offset;
+  uint16_t       data_selector;
+  uint16_t       reserved3;
+  uint32_t       mx_csr;
+  uint32_t       mx_csr_mask;
+  uint128_struct float_registers[8];
+  uint128_struct xmm_registers[16];
+  uint8_t        reserved4[96];
 } MDXmmSaveArea32AMD64;  /* XMM_SAVE_AREA32 */
 
 #define MD_CONTEXT_AMD64_VR_COUNT 26
@@ -103,63 +103,63 @@ typedef struct {
   /*
    * Register parameter home addresses.
    */
-  u_int64_t  p1_home;
-  u_int64_t  p2_home;
-  u_int64_t  p3_home;
-  u_int64_t  p4_home;
-  u_int64_t  p5_home;
-  u_int64_t  p6_home;
+  uint64_t  p1_home;
+  uint64_t  p2_home;
+  uint64_t  p3_home;
+  uint64_t  p4_home;
+  uint64_t  p5_home;
+  uint64_t  p6_home;
 
   /* The next field determines the layout of the structure, and which parts
    * of it are populated */
-  u_int32_t  context_flags;
-  u_int32_t  mx_csr;
+  uint32_t  context_flags;
+  uint32_t  mx_csr;
 
   /* The next register is included with MD_CONTEXT_AMD64_CONTROL */
-  u_int16_t  cs;
+  uint16_t  cs;
 
   /* The next 4 registers are included with MD_CONTEXT_AMD64_SEGMENTS */
-  u_int16_t  ds;
-  u_int16_t  es;
-  u_int16_t  fs;
-  u_int16_t  gs;
+  uint16_t  ds;
+  uint16_t  es;
+  uint16_t  fs;
+  uint16_t  gs;
 
   /* The next 2 registers are included with MD_CONTEXT_AMD64_CONTROL */
-  u_int16_t  ss;
-  u_int32_t  eflags;
-  
+  uint16_t  ss;
+  uint32_t  eflags;
+
   /* The next 6 registers are included with MD_CONTEXT_AMD64_DEBUG_REGISTERS */
-  u_int64_t  dr0;
-  u_int64_t  dr1;
-  u_int64_t  dr2;
-  u_int64_t  dr3;
-  u_int64_t  dr6;
-  u_int64_t  dr7;
+  uint64_t  dr0;
+  uint64_t  dr1;
+  uint64_t  dr2;
+  uint64_t  dr3;
+  uint64_t  dr6;
+  uint64_t  dr7;
 
   /* The next 4 registers are included with MD_CONTEXT_AMD64_INTEGER */
-  u_int64_t  rax;
-  u_int64_t  rcx;
-  u_int64_t  rdx;
-  u_int64_t  rbx;
+  uint64_t  rax;
+  uint64_t  rcx;
+  uint64_t  rdx;
+  uint64_t  rbx;
 
   /* The next register is included with MD_CONTEXT_AMD64_CONTROL */
-  u_int64_t  rsp;
+  uint64_t  rsp;
 
   /* The next 11 registers are included with MD_CONTEXT_AMD64_INTEGER */
-  u_int64_t  rbp;
-  u_int64_t  rsi;
-  u_int64_t  rdi;
-  u_int64_t  r8;
-  u_int64_t  r9;
-  u_int64_t  r10;
-  u_int64_t  r11;
-  u_int64_t  r12;
-  u_int64_t  r13;
-  u_int64_t  r14;
-  u_int64_t  r15;
+  uint64_t  rbp;
+  uint64_t  rsi;
+  uint64_t  rdi;
+  uint64_t  r8;
+  uint64_t  r9;
+  uint64_t  r10;
+  uint64_t  r11;
+  uint64_t  r12;
+  uint64_t  r13;
+  uint64_t  r14;
+  uint64_t  r15;
 
   /* The next register is included with MD_CONTEXT_AMD64_CONTROL */
-  u_int64_t  rip;
+  uint64_t  rip;
 
   /* The next set of registers are included with
    * MD_CONTEXT_AMD64_FLOATING_POINT
@@ -167,37 +167,37 @@ typedef struct {
   union {
     MDXmmSaveArea32AMD64 flt_save;
     struct {
-      u_int128_t header[2];
-      u_int128_t legacy[8];
-      u_int128_t xmm0;
-      u_int128_t xmm1;
-      u_int128_t xmm2;
-      u_int128_t xmm3;
-      u_int128_t xmm4;
-      u_int128_t xmm5;
-      u_int128_t xmm6;
-      u_int128_t xmm7;
-      u_int128_t xmm8;
-      u_int128_t xmm9;
-      u_int128_t xmm10;
-      u_int128_t xmm11;
-      u_int128_t xmm12;
-      u_int128_t xmm13;
-      u_int128_t xmm14;
-      u_int128_t xmm15;
+      uint128_struct header[2];
+      uint128_struct legacy[8];
+      uint128_struct xmm0;
+      uint128_struct xmm1;
+      uint128_struct xmm2;
+      uint128_struct xmm3;
+      uint128_struct xmm4;
+      uint128_struct xmm5;
+      uint128_struct xmm6;
+      uint128_struct xmm7;
+      uint128_struct xmm8;
+      uint128_struct xmm9;
+      uint128_struct xmm10;
+      uint128_struct xmm11;
+      uint128_struct xmm12;
+      uint128_struct xmm13;
+      uint128_struct xmm14;
+      uint128_struct xmm15;
     } sse_registers;
   };
 
-  u_int128_t vector_register[MD_CONTEXT_AMD64_VR_COUNT];
-  u_int64_t  vector_control;
+  uint128_struct vector_register[MD_CONTEXT_AMD64_VR_COUNT];
+  uint64_t       vector_control;
 
   /* The next 5 registers are included with MD_CONTEXT_AMD64_DEBUG_REGISTERS */
-  u_int64_t debug_control;
-  u_int64_t last_branch_to_rip;
-  u_int64_t last_branch_from_rip;
-  u_int64_t last_exception_to_rip;
-  u_int64_t last_exception_from_rip;
-  
+  uint64_t debug_control;
+  uint64_t last_branch_to_rip;
+  uint64_t last_branch_from_rip;
+  uint64_t last_exception_to_rip;
+  uint64_t last_exception_from_rip;
+
 } MDRawContextAMD64;  /* CONTEXT */
 
 /* For (MDRawContextAMD64).context_flags.  These values indicate the type of

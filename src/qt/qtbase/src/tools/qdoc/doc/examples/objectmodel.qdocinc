@@ -1,0 +1,11 @@
+\section1 Qt Object Model
+
+The standard C++ object model provides very efficient runtime support
+for the object paradigm. But its static nature is inflexibile in
+certain problem domains. Graphical user interface programming is a
+domain that requires both runtime efficiency and a high level of
+flexibility. Qt provides this, by combining the speed of C++ with the
+flexibility of the Qt Object Model.
+
+...
+

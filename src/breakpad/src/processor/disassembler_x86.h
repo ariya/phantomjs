@@ -37,6 +37,7 @@
 #define GOOGLE_BREAKPAD_PROCESSOR_DISASSEMBLER_X86_H_
 
 #include <stddef.h>
+#include <sys/types.h>
 
 #include "google_breakpad/common/breakpad_types.h"
 
@@ -62,7 +63,7 @@ class DisassemblerX86 {
     // TODO(cdn): Modify this class to take a MemoryRegion instead of just
     // a raw buffer. This will make it easier to use this on arbitrary
     // minidumps without first copying out the code segment.
-    DisassemblerX86(const u_int8_t *bytecode, u_int32_t, u_int32_t);
+    DisassemblerX86(const uint8_t *bytecode, uint32_t, uint32_t);
     ~DisassemblerX86();
 
     // This walks to the next instruction in the memory region and
@@ -70,7 +71,7 @@ class DisassemblerX86 {
     // including any registers marked as bad through setBadRead()
     // or setBadWrite(). This method can be called in a loop to
     // disassemble until the end of a region.
-    u_int32_t NextInstruction();
+    uint32_t NextInstruction();
 
     // Indicates whether the current disassembled instruction was valid.
     bool currentInstructionValid() { return instr_valid_; }
@@ -90,7 +91,7 @@ class DisassemblerX86 {
     bool endOfBlock() { return end_of_block_; }
 
     // The flags set so far for the disassembly.
-    u_int16_t flags() { return flags_; }
+    uint16_t flags() { return flags_; }
 
     // This sets an indicator that the register used to determine
     // src or dest for the current instruction is tainted. These can
@@ -101,11 +102,11 @@ class DisassemblerX86 {
     bool setBadWrite();
 
   protected:
-    const u_int8_t *bytecode_;
-    u_int32_t size_;
-    u_int32_t virtual_address_;
-    u_int32_t current_byte_offset_;
-    u_int32_t current_inst_offset_;
+    const uint8_t *bytecode_;
+    uint32_t size_;
+    uint32_t virtual_address_;
+    uint32_t current_byte_offset_;
+    uint32_t current_inst_offset_;
 
     bool instr_valid_;
     libdis::x86_insn_t current_instr_;
@@ -118,7 +119,7 @@ class DisassemblerX86 {
     bool pushed_bad_value_;
     bool end_of_block_;
 
-    u_int16_t flags_;
+    uint16_t flags_;
 };
 
 }  // namespace google_breakpad

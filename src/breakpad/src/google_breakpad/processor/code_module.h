@@ -36,22 +36,22 @@
 #define GOOGLE_BREAKPAD_PROCESSOR_CODE_MODULE_H__
 
 #include <string>
+
+#include "common/using_std_string.h"
 #include "google_breakpad/common/breakpad_types.h"
 
 namespace google_breakpad {
-
-using std::string;
 
 class CodeModule {
  public:
   virtual ~CodeModule() {}
 
   // The base address of this code module as it was loaded by the process.
-  // (u_int64_t)-1 on error.
-  virtual u_int64_t base_address() const = 0;
+  // (uint64_t)-1 on error.
+  virtual uint64_t base_address() const = 0;
 
   // The size of the code module.  0 on error.
-  virtual u_int64_t size() const = 0;
+  virtual uint64_t size() const = 0;
 
   // The path or file name that the code module was loaded from.  Empty on
   // error.

@@ -41,6 +41,7 @@
 
 #include "common/dwarf/dwarf2enums.h"
 #include "common/test_assembler.h"
+#include "common/using_std_string.h"
 #include "google_breakpad/common/breakpad_types.h"
 
 namespace google_breakpad {
@@ -49,7 +50,6 @@ using dwarf2reader::DwarfPointerEncoding;
 using google_breakpad::test_assembler::Endianness;
 using google_breakpad::test_assembler::Label;
 using google_breakpad::test_assembler::Section;
-using std::string;
 
 class CFISection: public Section {
  public:
@@ -80,14 +80,14 @@ class CFISection: public Section {
     // The starting address of this CFI section in memory, for
     // DW_EH_PE_pcrel. DW_EH_PE_pcrel pointers may only be used in data
     // that has is loaded into the program's address space.
-    u_int64_t cfi;
+    uint64_t cfi;
 
     // The starting address of this file's .text section, for DW_EH_PE_textrel.
-    u_int64_t text;
+    uint64_t text;
 
     // The starting address of this file's .got or .eh_frame_hdr section,
     // for DW_EH_PE_datarel.
-    u_int64_t data;
+    uint64_t data;
   };
 
   // Create a CFISection whose endianness is ENDIANNESS, and where
@@ -133,10 +133,10 @@ class CFISection: public Section {
   // Before calling this function, you will typically want to use Mark
   // or Here to make a label to pass to FDEHeader that refers to this
   // CIE's position in the section.
-  CFISection &CIEHeader(u_int64_t code_alignment_factor,
+  CFISection &CIEHeader(uint64_t code_alignment_factor,
                         int data_alignment_factor,
                         unsigned return_address_register,
-                        u_int8_t version = 3,
+                        uint8_t version = 3,
                         const string &augmentation = "",
                         bool dwarf64 = false);
 
@@ -151,8 +151,8 @@ class CFISection: public Section {
   // value.) Nor does it support .debug_frame sections longer than
   // 0xffffff00 bytes.
   CFISection &FDEHeader(Label cie_pointer,
-                        u_int64_t initial_location,
-                        u_int64_t address_range,
+                        uint64_t initial_location,
+                        uint64_t address_range,
                         bool dwarf64 = false);
 
   // Note the current position as the end of the last CIE or FDE we
@@ -171,7 +171,7 @@ class CFISection: public Section {
 
   // Append ADDRESS to this section, in the appropriate size and
   // endianness. Return a reference to this section.
-  CFISection &Address(u_int64_t address) {
+  CFISection &Address(uint64_t address) {
     Section::Append(endianness(), address_size_, address);
     return *this;
   }
@@ -189,26 +189,26 @@ class CFISection: public Section {
   // 
   // (C++ doesn't let me use default arguments here, because I want to
   // refer to members of *this in the default argument expression.)
-  CFISection &EncodedPointer(u_int64_t address) {
+  CFISection &EncodedPointer(uint64_t address) {
     return EncodedPointer(address, pointer_encoding_, encoded_pointer_bases_);
   }
-  CFISection &EncodedPointer(u_int64_t address, DwarfPointerEncoding encoding) {
+  CFISection &EncodedPointer(uint64_t address, DwarfPointerEncoding encoding) {
     return EncodedPointer(address, encoding, encoded_pointer_bases_);
   }
-  CFISection &EncodedPointer(u_int64_t address, DwarfPointerEncoding encoding,
+  CFISection &EncodedPointer(uint64_t address, DwarfPointerEncoding encoding,
                              const EncodedPointerBases &bases);
 
   // Restate some member functions, to keep chaining working nicely.
   CFISection &Mark(Label *label)   { Section::Mark(label); return *this; }
-  CFISection &D8(u_int8_t v)       { Section::D8(v);       return *this; }
-  CFISection &D16(u_int16_t v)     { Section::D16(v);      return *this; }
+  CFISection &D8(uint8_t v)       { Section::D8(v);       return *this; }
+  CFISection &D16(uint16_t v)     { Section::D16(v);      return *this; }
   CFISection &D16(Label v)         { Section::D16(v);      return *this; }
-  CFISection &D32(u_int32_t v)     { Section::D32(v);      return *this; }
+  CFISection &D32(uint32_t v)     { Section::D32(v);      return *this; }
   CFISection &D32(const Label &v)  { Section::D32(v);      return *this; }
-  CFISection &D64(u_int64_t v)     { Section::D64(v);      return *this; }
+  CFISection &D64(uint64_t v)     { Section::D64(v);      return *this; }
   CFISection &D64(const Label &v)  { Section::D64(v);      return *this; }
   CFISection &LEB128(long long v)  { Section::LEB128(v);   return *this; }
-  CFISection &ULEB128(u_int64_t v) { Section::ULEB128(v);  return *this; }
+  CFISection &ULEB128(uint64_t v) { Section::ULEB128(v);  return *this; }
 
  private:
   // A length value that we've appended to the section, but is not yet
@@ -224,13 +224,13 @@ class CFISection: public Section {
   // If the first four bytes of an "initial length" are this constant, then
   // the data uses the 64-bit DWARF format, and the length itself is the
   // subsequent eight bytes.
-  static const u_int32_t kDwarf64InitialLengthMarker = 0xffffffffU;
+  static const uint32_t kDwarf64InitialLengthMarker = 0xffffffffU;
 
   // The CIE identifier for 32- and 64-bit DWARF CFI and .eh_frame data.
-  static const u_int32_t kDwarf32CIEIdentifier = ~(u_int32_t)0;
-  static const u_int64_t kDwarf64CIEIdentifier = ~(u_int64_t)0;
-  static const u_int32_t kEHFrame32CIEIdentifier = 0;
-  static const u_int64_t kEHFrame64CIEIdentifier = 0;
+  static const uint32_t kDwarf32CIEIdentifier = ~(uint32_t)0;
+  static const uint64_t kDwarf64CIEIdentifier = ~(uint64_t)0;
+  static const uint32_t kEHFrame32CIEIdentifier = 0;
+  static const uint64_t kEHFrame64CIEIdentifier = 0;
 
   // The size of a machine address for the data in this section.
   size_t address_size_;
@@ -261,7 +261,7 @@ class CFISection: public Section {
 
   // If in_fde_ is true, this is its starting address. We use this for
   // emitting DW_EH_PE_funcrel pointers.
-  u_int64_t fde_start_address_;
+  uint64_t fde_start_address_;
 };
 
 }  // namespace google_breakpad

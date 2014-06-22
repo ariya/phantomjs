@@ -1,0 +1,43 @@
+/*
+ * Copyright (C) 2006, 2007 Apple Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+interface CharacterData : Node {
+
+    [TreatNullAs=NullString, SetterRaisesException] attribute DOMString data;
+
+    readonly attribute unsigned long length;
+    
+    [TreatReturnedNullStringAs=Null, ObjCLegacyUnnamedParameters, RaisesException] DOMString substringData([IsIndex, Default=Undefined] optional unsigned long offset, 
+                                                                     [IsIndex, Default=Undefined] optional unsigned long length);
+
+    [RaisesException] void appendData([Default=Undefined] optional DOMString data);
+
+    [ObjCLegacyUnnamedParameters, RaisesException] void insertData([IsIndex, Default=Undefined] optional unsigned long offset, 
+                                   [Default=Undefined] optional DOMString data);
+
+    [ObjCLegacyUnnamedParameters, RaisesException] void deleteData([IsIndex, Default=Undefined] optional unsigned long offset, 
+                                   [IsIndex, Default=Undefined] optional unsigned long length);
+
+    [ObjCLegacyUnnamedParameters, RaisesException] void replaceData([IsIndex, Default=Undefined] optional unsigned long offset, 
+                                    [IsIndex, Default=Undefined] optional unsigned long length,
+                                    [Default=Undefined] optional DOMString data);
+};
+
+CharacterData implements ChildNode;
+

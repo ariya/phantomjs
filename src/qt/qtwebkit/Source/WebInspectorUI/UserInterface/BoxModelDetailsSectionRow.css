@@ -1,0 +1,134 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.details-section .row.box-model {
+    padding: 6px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.details-section .row.box-model .label {
+    position: absolute;
+    color: black;
+    margin-left: 3px;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
+.details-section .row.box-model .position {
+    border: 1px rgb(66%, 66%, 66%) dotted;
+    background-color: rgb(231, 231, 231);
+    display: inline-block;
+    text-align: center;
+    padding: 3px;
+    margin: 3px;
+}
+
+.details-section .row.box-model .margin {
+    border: 1px dashed;
+    background-color: rgb(231, 231, 231);
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    padding: 3px;
+    margin: 3px;
+}
+
+.details-section .row.box-model .margin.active {
+    background-color: rgba(246, 178, 107, .66);
+}
+
+.details-section .row.box-model .border {
+    border: 1px black solid;
+    background-color: rgb(231, 231, 231);
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    padding: 3px;
+    margin: 3px;
+}
+
+.details-section .row.box-model .border.active {
+    background-color: rgba(255, 229, 153, .66);
+}
+
+.details-section .row.box-model .padding {
+    border: 1px grey dashed;
+    background-color: rgb(231, 231, 231);
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    padding: 3px;
+    margin: 3px;
+}
+
+.details-section .row.box-model .padding.active {
+    background-color: rgba(147, 196, 125, .55);
+}
+
+.details-section .row.box-model .content {
+    position: static;
+    border: 1px gray solid;
+    background-color: rgb(231, 231, 231);
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    padding: 3px;
+    margin: 3px;
+    min-width: 80px;
+    text-align: center;
+    overflow: visible;
+}
+
+.details-section .row.box-model .content.active {
+    background-color: rgba(111, 168, 220, .66);
+}
+
+.details-section .row.box-model .content span {
+    display: inline-block;
+}
+
+.details-section .row.box-model .editing {
+    position: relative;
+    z-index: 100;
+}
+
+.details-section .row.box-model .left {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.details-section .row.box-model .right {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.details-section .row.box-model .top {
+    display: inline-block;
+}
+
+.details-section .row.box-model .bottom {
+    display: inline-block;
+}

@@ -1,0 +1,232 @@
+
+src/dialogs/qfiledlg.cpp    2.67  aavit  +24 -1
+
+  Fixed non-modality bug in GetOpen/SaveFileName on Windows.
+
+
+src/dialogs/qprndlg.cpp    2.21  agulbra  +14 -11
+
+  avoid double-delete of invisible QButtonGroup objects
+
+
+src/dialogs/qprndlg.cpp    2.22  eiriken  +4 -3
+src/tools/qregexp.cpp    2.9  eiriken  +4 -3
+src/widgets/qheader.cpp    2.36  eiriken  +5 -3
+src/widgets/qmenubar.cpp    2.51  eiriken  +6 -4
+src/widgets/qwhatsthis.cpp    2.12  eiriken  +3 -3
+
+  More tests before delete [] to avoid purify warnings.
+
+
+src/kernel/qapp_win.cpp    2.86  agulbra  +10 -19
+src/kernel/qapp_x11.cpp    2.134  agulbra  +35 -44
+
+  move the pending-events iterator to the next event before dispatching
+  the current one.  prevents recursion if enter_loop() is called within
+  the event handler.
+
+
+src/kernel/qapp_x11.cpp    2.133  warwick  +12 -4
+src/kernel/qevent.h    2.16  warwick  +27 -1
+src/kernel/qwidget.cpp    2.103  warwick  +9 -2
+
+  Provide Event_Hide and Event_Show.
+
+
+src/kernel/qasyncimageio.cpp    1.31  warwick  +32 -16
+src/kernel/qasyncimageio.h    1.16  warwick  +7 -1
+src/kernel/qasyncio.cpp    1.8  warwick  +3 -2
+src/kernel/qimage.cpp    2.88  warwick  +11 -2
+src/kernel/qpainter.cpp    2.47  warwick  +10 -4
+
+  QAsyncImageIO classes are now public.
+
+
+src/kernel/qdragobject.cpp    2.12  agulbra  +10 -4
+
+  stop the drag when appropriate
+
+
+src/kernel/qevent.cpp    2.14  agulbra  +24 -2
+src/kernel/qevent.h    2.15  agulbra  +2 -1
+
+  added new convenience function provides( const char * mimeType )
+
+
+src/kernel/qevent.h    2.14  agulbra  +2 -2
+
+  return a real QByteArray
+
+
+src/kernel/qpainter.cpp    2.48  warwick  +4 -4
+
+  Fix bitBlt with negative width/height.
+
+
+src/kernel/qpicture.cpp    2.4  eiriken  +13 -2
+
+  Added support for drawImage()
+
+ 
+src/kernel/qprn_x11.cpp    2.12  agulbra  +18 -10
+
+   close open files before exec'ing lpr.
+
+
+src/kernel/qpsprn.cpp    2.20  eiriken  +100 -24
+src/kernel/qpsprn.h    2.7  eiriken  +3 -2
+src/kernel/qptr_x11.cpp    2.48  eiriken  +4 -3
+src/kernel/qrgn_x11.cpp    2.13  eiriken  +3 -3
+
+  QPrinter now supports clipping of any arbitrary region.
+  The catch is that resolution is 72 dpi.
+  
+  Fixed bug in save()/restore() over page boundaries
+
+
+src/kernel/qpsprn.cpp    2.23  agulbra  +6 -3
+
+  setPen() immediately before drawPoly(most things) did not work.  now
+  it does.
+
+
+src/kernel/qptr_x11.cpp    2.49  warwick  +13 -2
+
+  Probably fix aix-g++ internal compiler error.
+
+
+src/kernel/qregion.cpp    2.10  eiriken  +7 -5
+src/kernel/qregion.h    2.11  eiriken  +2 -3
+
+  Rename  getRects() to rects()
+
+
+src/kernel/qregion.cpp    2.12  hanord  +18 -56
+
+  New region serializing code, writes only raw rectangles.
+  In Qt pre 2.0, we write a sort of recursive structure for backward
+  compatibility. It's large and inefficient. In Qt 2.0, we start using
+  a much slimmer structure and the reading code for this has already
+  been added for Qt 1.40.  I.e. Qt 1.3x programs won't be able to read
+  regions serialized with Qt 2.x.
+
+
+src/kernel/qregion.h    2.12  hanord  +2 -7
+src/kernel/qrgn_win.cpp    2.13  hanord  +12 -44
+src/kernel/qrgn_x11.cpp    2.15  hanord  +15 -50
+
+  Simplified the implementation, now it works with rects only,
+
+
+src/kernel/qwid_win.cpp    2.53  agulbra  +4 -3
+src/kernel/qwid_x11.cpp    2.92  agulbra  +4 -3
+
+  update() with w == 0 || h == 0 is a no-op, so exit quickly
+
+
+src/kernel/qwid_win.cpp    2.54  agulbra  +6 -2
+src/kernel/qwid_x11.cpp    2.93  agulbra  +8 -2
+src/kernel/qwidget.cpp    2.104  agulbra  +3 -10
+src/widgets/qmainwindow.cpp    2.20  agulbra  +16 -6
+
+  make isVisible() return TRUE during showEvent(), to match
+  e.g. resizeEvent().  make QMainWindow fix its geometry when toolbars
+  are hidden and shown.
+
+
+src/kernel/qwidget.h    2.49  agulbra  +2 -6
+
+  removed autoMinimumSize
+
+
+src/widgets/qbttngrp.cpp    2.10  agulbra  +3 -3
+
+  don't delete buttons in the list
+
+
+src/widgets/qbuttonrow.cpp    1.6  paul  +1 -1
+src/widgets/qbuttonrow.h    1.4  paul  +1 -1
+src/widgets/qgrid.cpp    1.9  paul  +1 -1
+src/widgets/qgrid.h    1.7  paul  +1 -1
+src/widgets/qhbox.cpp    1.10  paul  +1 -1
+src/widgets/qhbox.h    1.7  paul  +1 -1
+src/widgets/qlabelled.cpp    1.5  paul  +1 -1
+src/widgets/qlabelled.h    1.4  paul  +1 -1
+src/widgets/qvbox.cpp    1.5  paul  +1 -1
+src/widgets/qvbox.h    1.5  paul  +1 -1
+
+  removing the layout widgets from the library, moved to examples/layouts
+
+
+src/widgets/qheader.cpp    2.38  paul  +121 -62
+src/widgets/qheader.h    2.18  paul  +6 -11
+
+  Implemented setClickEnabled, setResizeEnabled and setMovingEnabled
+
+
+src/widgets/qlined.cpp    2.74  aavit  +8 -5
+src/widgets/qspinbox.cpp    2.30  aavit  +52 -19
+src/widgets/qspinbox.h    2.17  aavit  +3 -1
+
+  lineedit: better sizehint()
+  spinbox: added valuechanged( const char* ) signal
+
+
+src/widgets/qlined.cpp    2.75  agulbra  +11 -6
+
+  start drags when appropriate
+  fold multi-line paste to one line instead of truncating to the \n
+
+
+src/widgets/qlistview.cpp    2.109  agulbra  +17 -12
+src/widgets/qlistview.h    2.48  agulbra  +4 -4
+
+  addColumn() return the column number
+
+
+src/widgets/qmainwindow.cpp    2.18  warwick  +18 -2
+src/widgets/qmainwindow.h    2.13  warwick  +2 -1
+
+  Show/Hide event filters
+
+
+src/widgets/qmainwindow.cpp    2.19  agulbra  +19 -17
+src/widgets/qmainwindow.h    2.14  agulbra  +11 -11
+
+  make set* private as they're not really meaningful any more.
+
+src/widgets/qmainwindow.cpp    2.22  agulbra  +17 -1
+
+  be slightly more clever about autodetecting menu and status bar.
+
+
+src/widgets/qscrollview.cpp    2.45  warwick  +8 -4
+
+  Only enable WPaintClever in viewport if specifically requested.
+
+
+src/widgets/qstatusbar.cpp    2.8  agulbra  +9 -4
+
+  make sure the status bar is tall enough for text, even when there's
+  nothing in it.
+
+
+src/widgets/qtablevw.cpp    2.46  agulbra  +4 -4
+
+  last{Row,Col}Visible() could return >= num{Row,Col}s.  no more.
+
+
+src/kernel/qapp_x11.cpp    2.137  eiriken  +5 -2
+
+  Fixed bug when there are no events in the X queue and there are posted
+  events. The posted events will now be handled.
+
+
+src/kernel/qwidget.cpp    2.106  eiriken  +5 -2
+
+  Fixed bug in destruction of main widget. The application now
+  actually quits.
+
+src/kernel/qapp.cpp    2.55  hanord  +8 -4
+
+  The QApplication contructor now accepts argc=0 and argv=0.

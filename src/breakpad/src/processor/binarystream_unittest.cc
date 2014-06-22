@@ -32,11 +32,11 @@
 #include <vector>
 
 #include "breakpad_googletest_includes.h"
+#include "common/using_std_string.h"
 #include "processor/binarystream.h"
 
 namespace {
 using std::ios_base;
-using std::string;
 using std::vector;
 using google_breakpad::binarystream;
 
@@ -47,14 +47,14 @@ protected:
 };
  
 TEST_F(BinaryStreamBasicTest, ReadU8) {
-  u_int8_t u8 = 0;
+  uint8_t u8 = 0;
   ASSERT_FALSE(stream.eof());
   stream >> u8;
   ASSERT_TRUE(stream.eof());
-  EXPECT_EQ(0, u8);
+  EXPECT_EQ(0U, u8);
   stream.rewind();
   stream.clear();
-  stream << (u_int8_t)1;
+  stream << (uint8_t)1;
   ASSERT_FALSE(stream.eof());
   stream >> u8;
   EXPECT_EQ(1, u8);
@@ -62,14 +62,14 @@ TEST_F(BinaryStreamBasicTest, ReadU8) {
 }
 
 TEST_F(BinaryStreamBasicTest, ReadU16) {
-  u_int16_t u16 = 0;
+  uint16_t u16 = 0;
   ASSERT_FALSE(stream.eof());
   stream >> u16;
   ASSERT_TRUE(stream.eof());
-  EXPECT_EQ(0, u16);
+  EXPECT_EQ(0U, u16);
   stream.rewind();
   stream.clear();
-  stream << (u_int16_t)1;
+  stream << (uint16_t)1;
   ASSERT_FALSE(stream.eof());
   stream >> u16;
   EXPECT_EQ(1, u16);
@@ -77,32 +77,32 @@ TEST_F(BinaryStreamBasicTest, ReadU16) {
 }
 
 TEST_F(BinaryStreamBasicTest, ReadU32) {
-  u_int32_t u32 = 0;
+  uint32_t u32 = 0;
   ASSERT_FALSE(stream.eof());
   stream >> u32;
   ASSERT_TRUE(stream.eof());
-  EXPECT_EQ(0, u32);
+  EXPECT_EQ(0U, u32);
   stream.rewind();
   stream.clear();
-  stream << (u_int32_t)1;
+  stream << (uint32_t)1;
   ASSERT_FALSE(stream.eof());
   stream >> u32;
-  EXPECT_EQ(1, u32);
+  EXPECT_EQ(1U, u32);
   EXPECT_FALSE(stream.eof());
 }
 
 TEST_F(BinaryStreamBasicTest, ReadU64) {
-  u_int64_t u64 = 0;
+  uint64_t u64 = 0;
   ASSERT_FALSE(stream.eof());
   stream >> u64;
   ASSERT_TRUE(stream.eof());
-  EXPECT_EQ(0, u64);
+  EXPECT_EQ(0U, u64);
   stream.rewind();
   stream.clear();
-  stream << (u_int64_t)1;
+  stream << (uint64_t)1;
   ASSERT_FALSE(stream.eof());
   stream >> u64;
-  EXPECT_EQ(1, u64);
+  EXPECT_EQ(1U, u64);
   EXPECT_FALSE(stream.eof());
 }
 
@@ -137,8 +137,8 @@ TEST_F(BinaryStreamBasicTest, ReadEmptyString) {
 }
 
 TEST_F(BinaryStreamBasicTest, ReadMultiU8) {
-  const u_int8_t ea = 0, eb = 100, ec = 200, ed = 0xFF;
-  u_int8_t a, b, c, d, e;
+  const uint8_t ea = 0, eb = 100, ec = 200, ed = 0xFF;
+  uint8_t a, b, c, d, e;
   stream << ea << eb << ec << ed;
   stream >> a >> b >> c >> d;
   ASSERT_FALSE(stream.eof());
@@ -149,7 +149,7 @@ TEST_F(BinaryStreamBasicTest, ReadMultiU8) {
   ASSERT_FALSE(stream.eof());
   e = 0;
   stream >> e;
-  EXPECT_EQ(0, e);
+  EXPECT_EQ(0U, e);
   ASSERT_TRUE(stream.eof());
   // try reading all at once, including one past eof
   stream.rewind();
@@ -162,13 +162,13 @@ TEST_F(BinaryStreamBasicTest, ReadMultiU8) {
   EXPECT_EQ(eb, b);
   EXPECT_EQ(ec, c);
   EXPECT_EQ(ed, d);
-  EXPECT_EQ(0, e);
+  EXPECT_EQ(0U, e);
   EXPECT_TRUE(stream.eof());
 }
 
 TEST_F(BinaryStreamBasicTest, ReadMultiU16) {
-  const u_int16_t ea = 0, eb = 0x100, ec = 0x8000, ed = 0xFFFF;
-  u_int16_t a, b, c, d, e;
+  const uint16_t ea = 0, eb = 0x100, ec = 0x8000, ed = 0xFFFF;
+  uint16_t a, b, c, d, e;
   stream << ea << eb << ec << ed;
   stream >> a >> b >> c >> d;
   ASSERT_FALSE(stream.eof());
@@ -179,7 +179,7 @@ TEST_F(BinaryStreamBasicTest, ReadMultiU16) {
   ASSERT_FALSE(stream.eof());
   e = 0;
   stream >> e;
-  EXPECT_EQ(0, e);
+  EXPECT_EQ(0U, e);
   EXPECT_TRUE(stream.eof());
   // try reading all at once, including one past eof
   stream.rewind();
@@ -192,13 +192,13 @@ TEST_F(BinaryStreamBasicTest, ReadMultiU16) {
   EXPECT_EQ(eb, b);
   EXPECT_EQ(ec, c);
   EXPECT_EQ(ed, d);
-  EXPECT_EQ(0, e);
+  EXPECT_EQ(0U, e);
   EXPECT_TRUE(stream.eof());
 }
 
 TEST_F(BinaryStreamBasicTest, ReadMultiU32) {
-  const u_int32_t ea = 0, eb = 0x10000, ec = 0x8000000, ed = 0xFFFFFFFF;
-  u_int32_t a, b, c, d, e;
+  const uint32_t ea = 0, eb = 0x10000, ec = 0x8000000, ed = 0xFFFFFFFF;
+  uint32_t a, b, c, d, e;
   stream << ea << eb << ec << ed;
   stream >> a >> b >> c >> d;
   ASSERT_FALSE(stream.eof());
@@ -209,7 +209,7 @@ TEST_F(BinaryStreamBasicTest, ReadMultiU32) {
   ASSERT_FALSE(stream.eof());
   e = 0;
   stream >> e;
-  EXPECT_EQ(0, e);
+  EXPECT_EQ(0U, e);
   EXPECT_TRUE(stream.eof());
   // try reading all at once, including one past eof
   stream.rewind();
@@ -222,14 +222,14 @@ TEST_F(BinaryStreamBasicTest, ReadMultiU32) {
   EXPECT_EQ(eb, b);
   EXPECT_EQ(ec, c);
   EXPECT_EQ(ed, d);
-  EXPECT_EQ(0, e);
+  EXPECT_EQ(0U, e);
   EXPECT_TRUE(stream.eof());
 }
 
 TEST_F(BinaryStreamBasicTest, ReadMultiU64) {
-  const u_int64_t ea = 0, eb = 0x10000, ec = 0x100000000ULL,
+  const uint64_t ea = 0, eb = 0x10000, ec = 0x100000000ULL,
     ed = 0xFFFFFFFFFFFFFFFFULL;
-  u_int64_t a, b, c, d, e;
+  uint64_t a, b, c, d, e;
   stream << ea << eb << ec << ed;
   stream >> a >> b >> c >> d;
   ASSERT_FALSE(stream.eof());
@@ -240,7 +240,7 @@ TEST_F(BinaryStreamBasicTest, ReadMultiU64) {
   ASSERT_FALSE(stream.eof());
   e = 0;
   stream >> e;
-  EXPECT_EQ(0, e);
+  EXPECT_EQ(0U, e);
   EXPECT_TRUE(stream.eof());
   // try reading all at once, including one past eof
   stream.rewind();
@@ -253,20 +253,20 @@ TEST_F(BinaryStreamBasicTest, ReadMultiU64) {
   EXPECT_EQ(eb, b);
   EXPECT_EQ(ec, c);
   EXPECT_EQ(ed, d);
-  EXPECT_EQ(0, e);
+  EXPECT_EQ(0U, e);
   EXPECT_TRUE(stream.eof());
 }
 
 TEST_F(BinaryStreamBasicTest, ReadMixed) {
-  const u_int8_t e8 = 0x10;
-  const u_int16_t e16 = 0x2020;
-  const u_int32_t e32 = 0x30303030;
-  const u_int64_t e64 = 0x4040404040404040ULL;
+  const uint8_t e8 = 0x10;
+  const uint16_t e16 = 0x2020;
+  const uint32_t e32 = 0x30303030;
+  const uint64_t e64 = 0x4040404040404040ULL;
   const string es = "test";
-  u_int8_t u8 = 0;
-  u_int16_t u16 = 0;
-  u_int32_t u32 = 0;
-  u_int64_t u64 = 0;
+  uint8_t u8 = 0;
+  uint16_t u16 = 0;
+  uint32_t u32 = 0;
+  uint64_t u64 = 0;
   string s("test");
   stream << e8 << e16 << e32 << e64 << es;
   stream >> u8 >> u16 >> u32 >> u64 >> s;
@@ -280,7 +280,7 @@ TEST_F(BinaryStreamBasicTest, ReadMixed) {
 
 TEST_F(BinaryStreamBasicTest, ReadStringMissing) {
   // ensure that reading a string where only the length is present fails
-  u_int16_t u16 = 8;
+  uint16_t u16 = 8;
   stream << u16;
   stream.rewind();
   string s("");
@@ -291,9 +291,9 @@ TEST_F(BinaryStreamBasicTest, ReadStringMissing) {
 
 TEST_F(BinaryStreamBasicTest, ReadStringTruncated) {
   // ensure that reading a string where not all the data is present fails
-  u_int16_t u16 = 8;
+  uint16_t u16 = 8;
   stream << u16;
-  stream << (u_int8_t)'t' << (u_int8_t)'e' << (u_int8_t)'s' << (u_int8_t)'t';
+  stream << (uint8_t)'t' << (uint8_t)'e' << (uint8_t)'s' << (uint8_t)'t';
   stream.rewind();
   string s("");
   stream >> s;
@@ -303,23 +303,23 @@ TEST_F(BinaryStreamBasicTest, ReadStringTruncated) {
 
 TEST_F(BinaryStreamBasicTest, StreamByteLength) {
   // Test that the stream buffer contains the right amount of data
-  stream << (u_int8_t)0 << (u_int16_t)1 << (u_int32_t)2 << (u_int64_t)3
+  stream << (uint8_t)0 << (uint16_t)1 << (uint32_t)2 << (uint64_t)3
          << string("test");
   string s = stream.str();
-  EXPECT_EQ(21, s.length());
+  EXPECT_EQ(21U, s.length());
 }
 
 TEST_F(BinaryStreamBasicTest, AppendStreamResultsByteLength) {
   // Test that appending the str() results from two streams
   // gives the right byte length
   binarystream stream2;
-  stream << (u_int8_t)0 << (u_int16_t)1;
-  stream2 << (u_int32_t)0 << (u_int64_t)2
+  stream << (uint8_t)0 << (uint16_t)1;
+  stream2 << (uint32_t)0 << (uint64_t)2
           << string("test");
   string s = stream.str();
   string s2 = stream2.str();
   s.append(s2);
-  EXPECT_EQ(21, s.length());
+  EXPECT_EQ(21U, s.length());
 }
 
 TEST_F(BinaryStreamBasicTest, StreamSetStr) {
@@ -344,32 +344,32 @@ protected:
   binarystream stream;
 
   void SetUp() {
-    stream << (u_int8_t)1;
+    stream << (uint8_t)1;
   }
 };
 
 TEST_F(BinaryStreamU8Test, ReadU16) {
-  u_int16_t u16 = 0;
+  uint16_t u16 = 0;
   ASSERT_FALSE(stream.eof());
   stream >> u16;
   ASSERT_TRUE(stream.eof());
-  EXPECT_EQ(0, u16);
+  EXPECT_EQ(0U, u16);
 }
 
 TEST_F(BinaryStreamU8Test, ReadU32) {
-  u_int32_t u32 = 0;
+  uint32_t u32 = 0;
   ASSERT_FALSE(stream.eof());
   stream >> u32;
   ASSERT_TRUE(stream.eof());
-  EXPECT_EQ(0, u32);
+  EXPECT_EQ(0U, u32);
 }
 
 TEST_F(BinaryStreamU8Test, ReadU64) {
-  u_int64_t u64 = 0;
+  uint64_t u64 = 0;
   ASSERT_FALSE(stream.eof());
   stream >> u64;
   ASSERT_TRUE(stream.eof());
-  EXPECT_EQ(0, u64);
+  EXPECT_EQ(0U, u64);
 }
 
 TEST_F(BinaryStreamU8Test, ReadString) {
@@ -384,7 +384,7 @@ TEST_F(BinaryStreamU8Test, ReadString) {
 TEST(BinaryStreamTest, InitWithData) {
   const char *data = "abcd";
   binarystream stream(data);
-  u_int8_t a, b, c, d;
+  uint8_t a, b, c, d;
   stream >> a >> b >> c >> d;
   ASSERT_FALSE(stream.eof());
   EXPECT_EQ('a', a);
@@ -396,10 +396,10 @@ TEST(BinaryStreamTest, InitWithData) {
 TEST(BinaryStreamTest, InitWithDataLeadingNull) {
   const char *data = "\0abcd";
   binarystream stream(data, 5);
-  u_int8_t z, a, b, c, d;
+  uint8_t z, a, b, c, d;
   stream >> z >> a >> b >> c >> d;
   ASSERT_FALSE(stream.eof());
-  EXPECT_EQ(0, z);
+  EXPECT_EQ(0U, z);
   EXPECT_EQ('a', a);
   EXPECT_EQ('b', b);
   EXPECT_EQ('c', c);
@@ -415,7 +415,7 @@ TEST(BinaryStreamTest, InitWithDataVector) {
   data.push_back('e');
   data.resize(4);
   binarystream stream(&data[0], data.size());
-  u_int8_t a, b, c, d;
+  uint8_t a, b, c, d;
   stream >> a >> b >> c >> d;
   ASSERT_FALSE(stream.eof());
   EXPECT_EQ('a', a);

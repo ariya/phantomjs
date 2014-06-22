@@ -1,0 +1,286 @@
+src/kernel/qpainter.cpp    2.127  agulbra  +37 -6  (1998/03/30)
+
+  sort of parse $LANG
+
+
+src/kernel/qpainter.cpp    2.35  warwick  +5 -4  (1998/03/30)
+
+  Fix TAB expansion in QPainter::drawText (and hence QMultiLineEdit).
+
+
+src/widgets/qlined.cpp    2.68  agulbra  +3 -3
+
+  didn't repaint cursor properly when moving the cursor leftwards
+
+
+src/kernel/qfnt_x11.cpp    2.34  warwick  +20 -13  (1998/03/31)
+
+  Some fonts don't have per_char information.
+
+
+src/kernel/qrgn_win.cpp    2.6  hanord  +11 -9  (1998/04/01)
+
+  Bug fixes for the new getRects and boundingRect functions
+
+
+src/kernel/qregion.h    2.8  hanord  +4 -1
+src/kernel/qrgn_win.cpp    2.5  hanord  +42 -2
+src/kernel/qrgn_x11.cpp    2.5  hanord  +50 -2
+
+  New QRegion functions:
+    boundingRect() returns the bounding rectangle of the region
+    getRects() returns an array of the rectangles that make up the region
+
+
+src/widgets/qmainwindow.cpp    2.13  agulbra  +46 -3  (1998/04/02)
+src/widgets/qmainwindow.h    2.9  agulbra  +9 -4
+src/widgets/qtoolbar.cpp    2.15  agulbra  +20 -5
+src/widgets/qtoolbar.h    2.7  agulbra  +5 -2
+src/widgets/qtoolbutton.cpp    2.20  agulbra  +25 -17
+
+  button pixmap size change support
+
+
+src/kernel/qiconset.cpp    2.5  agulbra  +18 -4
+src/kernel/qiconset.h    2.3  agulbra  +4 -3
+src/widgets/qpushbt.cpp    2.37  agulbra  +62 -3
+src/widgets/qpushbt.h    2.7  agulbra  +5 -1
+src/widgets/qtoolbutton.cpp    2.19  agulbra  +31 -5
+src/widgets/qtoolbutton.h    2.4  agulbra  +6 -2
+
+  new functionality, menu buttons
+
+
+src/kernel/qgmanagr.cpp    2.30  paul  +18 -2
+src/kernel/qgmanagr.h    2.11  paul  +3 -2
+src/widgets/qhbox.cpp    1.9  paul  +53 -2
+src/widgets/qhbox.h    1.6  paul  +6 -1
+
+  pack() added, addStretch() now work
+
+
+src/kernel/qpainter.cpp    2.37  warwick  +36 -8  (1998/04/03)
+src/kernel/qpainter.h    2.23  warwick  +11 -1
+
+  Add more QPainter::drawImage calls (but still not implement QPrinter stuff)
+
+
+src/widgets/qmainwindow.cpp    2.14  warwick  +4 -4
+src/widgets/qmainwindow.h    2.10  warwick  +2 -2
+
+  Allow WFlags to QMainWindow.
+
+
+src/kernel/qregion.cpp    2.7  warwick  +4 -2
+src/kernel/qrgn_x11.cpp    2.6  warwick  +4 -3
+
+  Disable BOP
+
+
+src/widgets/qscrollview.cpp    2.23  warwick  +7 -5
+src/widgets/qscrollview.h    2.13  warwick  +2 -2
+
+  Emit signal earlier.
+
+
+src/widgets/qscrollview.cpp    2.22  warwick  +34 -16
+src/widgets/qscrollview.h    2.12  warwick  +3 -1
+
+  Low level hook for painting on existing painter.
+  Direct position set function.
+
+
+src/kernel/qimage.cpp    2.80  warwick  +64 -6
+
+  Optimize a very common case.
+
+
+examples/showimg/showimg.cpp    2.21  warwick  +67 -9
+examples/showimg/showimg.h    2.8  warwick  +7 -0
+
+  Use new QImage bitBlt
+
+
+src/dialogs/qprndlg.cpp    2.15  agulbra  +35 -2
+src/dialogs/qprndlg.h    2.8  agulbra  +2 -1
+src/kernel/qprinter.cpp    2.7  agulbra  +53 -8
+src/kernel/qprinter.h    2.6  agulbra  +6 -2
+
+  added QPrinter::ColorMode and corresponding stuff in the printer
+  dialog.
+
+
+src/kernel/qimage.cpp    2.79  warwick  +183 -3
+src/kernel/qimage.h    2.25  warwick  +16 -1
+src/kernel/qpaintd.h    2.6  warwick  +5 -1
+src/kernel/qpainter.cpp    2.36  warwick  +12 -2
+src/kernel/qpixmap.h    2.19  warwick  +3 -1
+
+  bitBlt for QImages
+     - copy image subarea to position in paintdevice or an image
+
+
+src/kernel/qgmanagr.cpp    2.31  paul  +89 -25
+
+  handle empty layouts in a slightly better way
+
+
+src/dialogs/qprndlg.cpp    2.17  agulbra  +14 -5
+
+  move focus intelligently when the users clicks 'print to file' or
+  'print to printer'
+
+
+src/dialogs/qfiledlg.cpp    2.51  agulbra  +64 -4
+src/dialogs/qfiledlg.h    2.13  agulbra  +5 -1
+
+  new function, addWidgets().  very limited extensibility, designed so
+  that it's easier to reimplement it as syntax sugar if/when we put in a
+  proper extension method.
+
+
+src/dialogs/qprndlg.cpp    2.16  agulbra  +7 -12
+
+  no A3
+
+
+src/dialogs/qfiledlg.cpp    2.52  agulbra  +11 -7
+
+  save a little memory, be a little bug-free
+
+
+src/widgets/qcombo.cpp    2.81  agulbra  +24 -19
+
+  use 1-pixel frame around lineedit in motif style.
+
+
+src/widgets/qmainwindow.cpp    2.15  agulbra  +82 -14
+src/widgets/qmainwindow.h    2.11  agulbra  +7 -4
+src/widgets/qtoolbar.cpp    2.16  agulbra  +46 -11
+src/widgets/qtoolbar.h    2.8  agulbra  +8 -2
+src/widgets/qtoolbutton.cpp    2.21  agulbra  +4 -4
+
+  various improvements in look&feel, stretchable space, stretchable widgets
+
+
+src/kernel/qpainter.cpp    2.38  hanord  +72 -64  (1998/04/04)
+src/kernel/qpainter.h    2.24  hanord  +14 -4
+src/kernel/qptr_x11.cpp    2.43  hanord  +115 -2
+
+  Added QPainter::drawTiledPixmap, not for Windows yet
+
+
+src/kernel/qpainter.cpp    2.39  hanord  +6 -2
+src/kernel/qpainter.h    2.25  hanord  +8 -2
+src/kernel/qptr_x11.cpp    2.44  hanord  +5 -6
+
+  Added overloaded drawTiledPixmap( const QRect &r, const QPixmap &pm )
+
+
+src/widgets/qlistview.cpp    2.87  warwick  +5 -5
+src/widgets/qscrollview.cpp    2.25  warwick  +266 -96
+src/widgets/qscrollview.h    2.15  warwick  +19 -5
+
+  Allow arbitrary child objects positioned at int coords in QScrollView.
+
+
+src/widgets/qlistview.cpp    2.86  warwick  +5 -5
+src/widgets/qscrollview.cpp    2.24  warwick  +35 -11
+src/widgets/qscrollview.h    2.14  warwick  +3 -2
+
+  Fix refresh problen in QScrollView.
+
+
+examples/widgets/widgets.cpp    2.39  warwick  +4 -0
+
+  Show bug in recreate
+
+
+examples/scrollview/scrollview.cpp    1.8  warwick  +49 -5
+
+  Test new arbitrary-number-of-children code.
+
+
+src/qt.pro    2.20  warwick  +2 -0
+
+  fix dependencies
+
+
+src/widgets/qstatusbar.cpp    2.4  agulbra  +4 -2
+
+  less flicker
+
+
+src/widgets/qmainwindow.cpp    2.16  agulbra  +10 -18
+src/widgets/qtoolbar.cpp    2.17  agulbra  +6 -5
+
+  move motif style away from what the OSF probably would have done,
+  closer towards what Netscape and Microsoft has done.
+
+
+src/kernel/qptr_x11.cpp    2.45  hanord  +8 -11
+
+  tilepixmap optimized for the common case (no mask)
+
+src/widgets/qmenudta.cpp    2.13  eiriken  +101 -2  (1998/04/05)
+src/widgets/qmenudta.h    2.10  eiriken  +12 -1
+
+  Added new insertItem functions
+
+
+src/widgets/qmlined.cpp    2.89  eiriken  +14 -1
+src/widgets/qmlined.h    2.33  eiriken  +3 -1
+
+  Added setFixedVisibleLines
+
+
+src/widgets/qscrollview.cpp    2.29  warwick  +10 -4
+src/widgets/qscrollview.h    2.17  warwick  +2 -1
+
+  Fix child deletion.
+
+
+src/widgets/qscrollview.cpp    2.32  warwick  +2 -2
+src/widgets/qtoolbutton.cpp    2.22  warwick  +12 -2
+
+  Focus indication in toolbutton.
+
+
+src/kernel/qfocusdata.h    2.1  warwick  initial checkin
+src/kernel/qwidget.cpp    2.97  warwick  +24 -15
+src/kernel/qwidget.h    2.47  warwick  +4 -2
+src/widgets/qscrollview.cpp    2.31  warwick  +59 -7
+src/widgets/qscrollview.h    2.18  warwick  +3 -1
+
+  Focus traversal among QScrollView children.
+
+
+examples/scrollview/scrollview.cpp    1.9  warwick  +19 -20
+src/widgets/qlistview.cpp    2.88  warwick  +18 -18
+src/widgets/qscrollview.cpp    2.27  warwick  +38 -61
+src/widgets/qscrollview.h    2.16  warwick  +2 -1
+
+  Negate position sense.
+
+
+src/dialogs/qprndlg.cpp    2.18  hanord  +4 -3
+src/kernel/qprn_x11.cpp    2.9  hanord  +4 -4
+
+  QPrinter::setup() uses the QPrintDialog::getPrinterSetup() function
+
+
+src/kernel/qptr_win.cpp    2.31  hanord  +108 -2
+
+  Tiled pixmap implemented, but no optimization yet
+
+src/widgets/qlined.cpp    2.69  agulbra  +21 -3
+
+  handle double-click correctly
+  handle c-k
+
+src/widgets/qlistview.cpp    2.90  eiriken  +17 -2  (1998/04/06)
+src/widgets/qlistview.h    2.42  eiriken  +2 -1
+src/widgets/qstatusbar.cpp    2.5  eiriken  +8 -7
+
+  Added rightButtonPressed signal and removed the resizer
+

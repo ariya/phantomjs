@@ -1,0 +1,235 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:BSD$
+** You may use this file under the terms of the BSD license as follows:
+**
+** "Redistribution and use in source and binary forms, with or without
+** modification, are permitted provided that the following conditions are
+** met:
+**   * Redistributions of source code must retain the above copyright
+**     notice, this list of conditions and the following disclaimer.
+**   * Redistributions in binary form must reproduce the above copyright
+**     notice, this list of conditions and the following disclaimer in
+**     the documentation and/or other materials provided with the
+**     distribution.
+**   * Neither the name of Digia Plc and its Subsidiary(-ies) nor the names
+**     of its contributors may be used to endorse or promote products derived
+**     from this software without specific prior written permission.
+**
+**
+** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+** "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+** LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+** A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+** OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+//! [0]
+-no-sql-<driver> ... Disable SQL <driver> entirely.
+-qt-sql-<driver> ... Enable a SQL <driver> in the Qt Library, by default
+                     none are turned on.
+-plugin-sql-<driver> Enable SQL <driver> as a plugin to be linked to
+                     at run time.
+
+                     Possible values for <driver>:
+                     [ db2 ibase mysql oci odbc psql sqlite sqlite2 tds ]
+//! [0]
+
+
+//! [1]
+create procedure qtestproc (OUT param1 INT, OUT param2 INT)
+BEGIN
+    set param1 = 42;
+    set param2 = 43;
+END
+//! [1]
+
+
+//! [3]
+cd $QTDIR/src/plugins/sqldrivers/mysql
+qmake "INCLUDEPATH+=/usr/local/include" "LIBS+=-L/usr/local/lib -lmysqlclient_r" mysql.pro
+make
+//! [3]
+
+
+//! [4]
+cd $QTDIR/src/plugins/sqldrivers/mysql
+make install
+//! [4]
+
+
+//! [5]
+cd %QTDIR%\src\plugins\sqldrivers\mysql
+qmake "INCLUDEPATH+=C:/MySQL/include" "LIBS+=C:/MYSQL/MySQL Server <version>/lib/opt/libmysql.lib" mysql.pro
+nmake
+//! [5]
+
+
+//! [6]
+cd $QTDIR/src/plugins/sqldrivers/oci
+qmake "INCLUDEPATH+=$ORACLE_HOME/rdbms/public $ORACLE_HOME/rdbms/demo" "LIBS+=-L$ORACLE_HOME/lib -lclntsh -lwtc9" oci.pro
+make
+//! [6]
+
+
+//! [7]
+cd $QTDIR/src/plugins/sqldrivers/oci
+qmake "INCLUDEPATH+=/usr/include/oracle/10.1.0.3/client/" "LIBS+=-L/usr/lib/oracle/10.1.0.3/client/lib -lclntsh" oci.pro
+make
+//! [7]
+
+
+//! [8]
+set INCLUDE=%INCLUDE%;c:\oracle\oci\include
+set LIB=%LIB%;c:\oracle\oci\lib\msvc
+cd %QTDIR%\src\plugins\sqldrivers\oci
+qmake oci.pro
+nmake
+//! [8]
+
+
+//! [9]
+set PATH=%PATH%;c:\oracle\bin
+//! [9]
+
+
+//! [11]
+cd $QTDIR/src/plugins/sqldrivers/odbc
+qmake "INCLUDEPATH+=/usr/local/unixODBC/include" "LIBS+=-L/usr/local/unixODBC/lib -lodbc"
+make
+//! [11]
+
+
+//! [12]
+cd %QTDIR%\src\plugins\sqldrivers\odbc
+qmake odbc.pro
+nmake
+//! [12]
+
+
+//! [13]
+cd $QTDIR/src/plugins/sqldrivers/psql
+qmake "INCLUDEPATH+=/usr/include/pgsql" "LIBS+=-L/usr/lib -lpq" psql.pro
+make
+//! [13]
+
+
+//! [14]
+cd $QTDIR/src/plugins/sqldrivers/psql
+make install
+//! [14]
+
+
+//! [15]
+cd %QTDIR%\src\plugins\sqldrivers\psql
+qmake "INCLUDEPATH+=C:/psql/include" "LIBS+=C:/psql/lib/ms/libpq.lib" psql.pro
+nmake
+//! [15]
+
+
+//! [16]
+cd $QTDIR/src/plugins/sqldrivers/tds
+qmake "INCLUDEPATH=$SYBASE/include" "LIBS=-L$SYBASE/lib -lsybdb"
+make
+//! [16]
+
+
+//! [17]
+cd %QTDIR%\src\plugins\sqldrivers\tds
+qmake "LIBS+=NTWDBLIB.LIB" tds.pro
+nmake
+//! [17]
+
+
+//! [18]
+cd $QTDIR/src/plugins/sqldrivers/db2
+qmake "INCLUDEPATH+=$DB2DIR/include" "LIBS+=-L$DB2DIR/lib -ldb2"
+make
+//! [18]
+
+
+//! [19]
+cd $QTDIR/src/plugins/sqldrivers/db2
+make install
+//! [19]
+
+
+//! [20]
+cd %QTDIR%\src\plugins\sqldrivers\db2
+qmake "INCLUDEPATH+=<DB2 home>/sqllib/include" "LIBS+=<DB2 home>/sqllib/lib/db2cli.lib"
+nmake
+//! [20]
+
+
+//! [21]
+cd $QTDIR/src/plugins/sqldrivers/sqlite
+qmake "INCLUDEPATH+=$SQLITE/include" "LIBS+=-L$SQLITE/lib -lsqlite"
+make
+//! [21]
+
+
+//! [22]
+cd $QTDIR/src/plugins/sqldrivers/sqlite
+make install
+//! [22]
+
+
+//! [23]
+cd %QTDIR%\src\plugins\sqldrivers\sqlite
+qmake "INCLUDEPATH+=C:/SQLITE/INCLUDE" "LIBS+=C:/SQLITE/LIB/SQLITE3.LIB" sqlite.pro
+nmake
+//! [23]
+
+
+//! [27]
+cd $QTDIR/src/plugins/sqldrivers/ibase
+qmake "INCLUDEPATH+=/opt/interbase/include" "LIBS+=-L/opt/interbase/lib" ibase.pro
+make
+//! [27]
+
+
+//! [28]
+cd $QTDIR/src/plugins/sqldrivers/ibase
+qmake "INCLUDEPATH+=/opt/interbase/include" "LIBS+=-L/opt/interbase/lib -lfbclient" ibase.pro
+make
+//! [28]
+
+
+//! [29]
+cd %QTDIR%\src\plugins\sqldrivers\ibase
+qmake "INCLUDEPATH+=C:/interbase/include" ibase.pro
+nmake
+//! [29]
+
+
+//! [30]
+cd %QTDIR%\src\plugins\sqldrivers\ibase
+qmake "INCLUDEPATH+=C:/interbase/include" "LIBS+=-lfbclient" ibase.pro
+nmake
+//! [30]
+
+
+//! [32]
+configure -I /usr/include/oracle/10.1.0.3/client -L /usr/lib/oracle/10.1.0.3/client/lib -R /usr/lib/oracle/10.1.0.3/client/lib -lclntsh -lnnz10
+make
+//! [32]
+
+//! [33]
+cd $QTDIR/src/plugins/sqldrivers/oci
+qmake "INCLUDEPATH+=/usr/include/oracle/10.1.0.3/client" "LIBS+=-L/usr/lib/oracle/10.1.0.3/client/lib -Wl,-rpath,/usr/lib/oracle/10.1.0.3/client/lib -lclntsh -lnnz10" oci.pro
+make
+//! [33]

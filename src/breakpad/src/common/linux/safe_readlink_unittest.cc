@@ -48,7 +48,7 @@ TEST(SafeReadLinkTest, BoundaryBufferSize) {
   char buffer[PATH_MAX];
   EXPECT_TRUE(SafeReadLink("/proc/self/exe", buffer, sizeof(buffer)));
   size_t path_length = strlen(buffer);
-  EXPECT_LT(0, path_length);
+  EXPECT_LT(0U, path_length);
   EXPECT_GT(sizeof(buffer), path_length);
 
   // Buffer size equals to the expected path length plus 1 for the NULL byte.

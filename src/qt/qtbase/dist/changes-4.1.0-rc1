@@ -1,0 +1,554 @@
+Qt 4.1 introduces many new features as well as many improvements and
+bugfixes over the 4.0.x series. For more details, see the online
+documentation which is included in this distribution. The
+documentation is also available at http://qt.nokia.com/doc/
+
+The Qt version 4.1 series is binary compatible with the 4.0.x series.
+Applications compiled for 4.0 will continue to run with 4.1.
+
+****************************************************************************
+*			    General					   *
+****************************************************************************
+
+Qt library
+----------
+
+  - Integrated support for rendering Scalable Vector Graphics (SVG)
+    drawings and animations (QtSvg module).
+
+  - A Portable Document Format (PDF) backend for Qt's printing system.
+
+  - A unit testing framework for Qt applications and libraries.
+
+  - Modules for extending Qt Designer and dynamic user interface
+    building.
+
+  - New proxy models to enable view-specific sorting and filtering of
+    data displayed using item views.
+
+  - Additional features for developers using OpenGL, such as support
+    for pixel and sample buffers.
+
+  - A flexible syntax highlighting class based on the Scribe rich text
+    framework.
+
+  - Support for network proxy servers using the SOCKS5 protocol.
+
+  - Support for OLE verbs and MIME data handling in ActiveQt.
+
+Qt Designer
+-----------
+
+- Added support for editing menu bars and tool bars.
+
+- Added support for adding comments to string properties.
+
+- Added new static QtForm library with improved
+  QForm::Loader API for loading designer forms at run-time.
+
+- Added support for namespaces in uic generated code.
+
+- Added support for dock widgets in main windows.
+
+- Added support for editing table, tree and list widgets.
+
+- Improved palette editing and resource support.
+
+QTestLib
+--------
+
+- Added QTestLib, the Qt Unit Testing Library. See the "QTestLib" chapter
+  in the Qt documentation for more information.
+
+- Users of older versions of QtTestLib can use the updater utility in
+  tools/qtestlib/updater to convert existing autotests to work with QTestLib.
+
+Boost
+-----
+
+Added boost compatible syntax for declaring signals and slots. If you
+define the macro QT_NO_KEYWORDS "Q_SIGNALS" and "Q_SLOTS" are
+recognized as keywords instead of the default "signals" and "slots".
+
+ActiveQt
+--------
+
+QAxServer now supports mime-type handling - a ActiveX control can be
+registered to handle a certain file extension and mime-type, in which case
+QAxBindable::load and QAxBindable::save can be reimplemented to serialize
+the object.
+
+Build system
+------------
+
+Added support for linking static plugins into the application.
+
+Qt 3 to 4 Porting Tool
+----------------------
+
+Q(V|H)BoxLayout and QGridLayout usage is now ported to use
+Q3(V|H)BoxLayout/Q3GridLayout, to retain the margin/spacing
+behavior as in Qt 3.
+
+Meta Object Compiler (moc)
+--------------------------
+
+- Added support for const signals.
+
+Qt Assistant
+------------
+
+- Added -docPath command line option for easy setting of the
+  document root path.
+
+QMake
+-----
+
+- Added support for new FORMS3 profile variable to make it possible
+  to have Qt Designer forms from Qt 3 and Qt 4 in the same project.
+
+- Added support for precompiled headers on win32-g++ (MinGW)
+
+Compilers
+---------
+
+Added support for Solaris 10 on AMD64 with the compiler provided by
+Sun.
+
+
+****************************************************************************
+*			   Library					   *
+****************************************************************************
+
+
+New classes
+-----------
+
+- QTreeWidgetItemIterator
+        Added iterator to help iterating over items in a QTreeWidget.
+
+- QSortingProxyModel
+        The QSortingProxyModel can contain another model and handles
+        the sorting of it.
+
+- QFilteringProxyModel
+        Allows you to provide a subset of a model to a view.
+
+- QStringFilterModel
+        Allows you to provide a subset of a model to a view based on a
+        regular expression.
+
+- QSyntaxHighlighter
+        The QSyntaxHighlighter class allows you to define syntax
+        highlighting rules.
+
+- QAbstractFileEngine
+        A base class for implementing your own file and directory handling
+        back-end for QFile, QFileInfo and QDir.
+
+- QAbstractFileEngineHandler
+        For registering a QAbstractFileEngine subclass with Qt.
+
+- QFSFileEngine
+        The default file engine for regular file and directory access in Qt.
+
+- Q3(H|V)BoxLayout and Q3GridLayout
+        Layout classes provided for compatibility that behave the same
+        as the Qt 4 classes but use a zero margin/spacing by default,
+        just like in Qt 3.
+
+- Added qFromLittleEndian, qToLittleEndian, qFromBigEndian and
+  qToBigEndian endian helper conversion functions (qendian.h)
+
+- Q_EXPORT_PLUGIN2 macro
+        Obsoletes Q_EXPORT_PLUGIN and allows static linking of
+        plugins.
+
+- Q3ComboBox
+        For enhanced backwards compatibility with Qt 3.
+
+- QGLPbuffer
+        For creating and managing OpenGL pixel buffers.
+
+- QNetworkProxy
+        For setting up transparent (SOCKS5) networking proxying.
+
+- QDirectPainter (Qtopia Core only)
+        Provides direct access to video framebuffer hardware.
+
+
+General improvements
+--------------------
+
+- QByteArray
+        Added toLong() and toULong().
+
+- QFileDialog
+        Fix shortcut and focus for "Alpha channel" spinbox.
+
+- QLinkedList
+        Added conversion methods to convert from/to STL lists.
+
+- QMap/QHash
+        Fixed operator>>() to read back multiple values associated
+        to a same key correctly.
+        Added constFind(), for finding an item without causing a detach.
+
+- QMap/QHash
+        Const-correctness in const_iterator's operator--(int).
+
+- QMainWindow
+        The saveState() and restoreState() functions no longer
+        fallback to using the windowTitle property when the objectName
+        property is not set on a QToolBar or QDockWidget; this
+        behavior was undocumented and has been removed.
+
+- QToolBar
+        Added Qt 3 compatibility signal visibilityChanged(bool).
+
+- QMetaType
+        Class is now fully reentrant.
+        Metatypes can be registered or queried from multiple threads.
+        Added qMetaTypeId<T>(), which returns the meta type ID of T at compile time.
+
+- QMetaProperty
+        Added isResettable().
+
+- QSql
+        Oracle plugin adds support for authentication using external credentials.
+        Added isValid() to QSqlError.
+
+- QThread
+        Added setPriority() and priority(), for querying and setting
+        the priority of a thread.
+
+- QTreeWidgetItem/QTreeWidget
+        Added new constructors and addChildren(), insertChildren(),
+        takeChildren(), insertTopLevelItems(), addTopLevelItems to
+        speed up insertion of multiple items.
+
+- QTextDocument
+        Added the class QTextBlockUserData and added the possibility
+        of storing a state or custom user data in a QTextBlock
+        Added useDesignMetrics property, to enable the use of design metrics for
+        all fonts in a QTextDocument.
+
+- QTextFormat
+        Added support for setting the font pixel size.
+        Added UserObject to QTextFormat::ObjectTypes enum.
+
+- QMetaType
+        The value of QMetaTypeId<T>::Defined indicates whether a given type T is
+        supported by QMetaType.
+
+- QAbstractItemView
+        Added setIndexWidget() and indexWidget() which makes it
+        possible to set a widget at a given index.
+
+        Added a QAbstractItemView::ContiguousSelection mode.
+        Added scrollToTop() and scrollToBottom().
+
+- QAbstractItemModel
+        Added a SizeHintRole that can be set for each item. The item
+        delegate will now check for this value before computing the
+        size hint based on other item data.
+
+        Add QModelIndex::operator<() so we are able to use them in
+        QMap and other containers.
+
+        Added qHash function for QModelIndex.
+
+- QTableWidget
+        Added cellWidget() and setCellWidget() which makes it possible
+        to set a widget at a specified cell.
+
+        Added setCurrentCell().
+
+        Added QTableWidgetItem copy constructors.
+
+
+- QTreeWidget
+        Added setItemWidget() and itemWidget() which makes it possible
+        to set a widget on an item.
+
+- QListWidget
+        Added setItemWidget() and itemWidget() which makes it possible
+        to set a widget on an item.
+
+        Added QListWidgetItem copy constructors.
+
+- QMutableMapIterator
+        Added value() overloads to Java-style iterators that return
+        non-const references.
+
+- QTextTable
+        Added mergeCells() and splitCells() to be able to set the row
+        or column span on a table cell.
+
+- QStyle
+        Added standardIcon() which returns a default icon for standard
+        operations.
+        Added State_ReadOnly, which is enabled for read-only widgets.
+
+        Renamed QStyleOption::init() to initFrom().
+        - QGroupBox is now completely stylable (QStyleOptionGroupBox)
+        - Indeterminate (busy) progress bars are now animated properly
+          in all styles.
+
+        Added PM_DockWidgetTitleMargin as pixel metric.
+
+- QHash
+        Make it possible to use QHash with a type that has no default
+        constructor.
+
+- QTableView
+        Made QTableView::setShowGrid() a slot, like in Qt 3.
+        Added setRowHeight() and setColumnWidth().
+
+- QTableWidgetSelectionRange
+        Added rowCount() and columnCount() convenience functions.
+
+- QSettings
+        Added support for custom formats in QSettings.
+
+- QTextStream
+        Added status(), setStatus() and resetStatus() for improved error handling.
+        Added read(qint64 maxlen), for reading parts of a text stream into a
+        QString.
+
+- QTextCursor
+        Added support for BlockUnderCursor selection type.
+
+- QHeaderView
+        Added defaultSectionSize property which tells the default size
+        of the header sections before resizing.
+
+- QScrollBar
+        Added context menu to the scrollbar with default navigation
+        options.
+
+- QScrollArea
+        Added ensureVisible(), which can scroll the scrollarea to make sure a
+        specific point is visible.
+
+- QDateTime
+        Added addMSecs(), which adds a number of milliseconds to the QDateTime.
+
+- QDateTimeEdit
+        Added support for more date/time formats.
+        Now allows multiple sections of the same type.
+
+- QButtonGroup
+        Added handling of buttons with IDs to the buttongroup like in
+        Qt 3.
+
+- QIODevice
+        Added peek() for peeking data from a device.
+
+- QTextEdit
+        Added property tabStopWidth which sets the tab stop width in
+        pixels.
+        append(const QString &) is now a public slot.
+        Added support for inserting Unicode control characters through the
+        context menu.
+        Added property acceptRichText, for whether or not the text edit
+        accepts rich text insertions by the user.
+        Added overwriteMode property.
+
+- QDataStream
+        Added skipRawData().
+        Added support for QRegExp.
+
+- QProgressBar
+        Added support for vertical progress bars.
+
+- QImageIOHandler
+        The name() function has been obsoleted; use format() instead.
+        Added QImageIOHandler::Animation, for determining if the image format
+        supports animation.
+        Added QImageIOHandler::BackgroundColor, for setting the background
+        color for the image loader.
+
+- QImageReader
+        Added setBackgroundColor() and backgroundColor(), for setting the
+        background color of an image before it is read.
+        Added supportsAnimation(), for checking if the image format supports
+        animation.
+
+- QImageWriter
+        Added support for saving image text.
+
+- QLocale
+        Added dateFormat()/timeFormat() to query the date/time format for the
+        current locale.
+        Added toString() overloads for localized QTime and QDate output.
+        Added decimalPoint(), groupSeparator(), percent(), zeroDigit(),
+        negativeSign() and exponential(), which provide a means to generate
+        custom number formatting.
+
+- QHostInfo
+        Added support for reverse name lookups.
+
+- QHostAddress
+        Added a QString assignment operator
+        Added convenience functions for initializing from a native sockaddr
+        structure.
+        Added support for the IPv6 scope-id.
+
+- QPrinter
+        Added property "embedFonts" for embedding fonts into the target
+        document.
+        Added support for printing to PDF.
+        Added support for custom print and paint engines
+
+- QPrintEngine
+        Added PPK_SuppressSystemPrintStatus, for suppressing the printer
+        progress dialog on Mac OS X.
+
+- QKeySequence
+        Added fromString() and toString() for initializing a key sequence
+        from, and exporting a key sequence to a QString.
+
+- QUrl
+        Added the port(int) function, which provides a default value for the
+        port if the URL does not define a port.
+        Support for decoding Punycode encoded hostnames in URLs.
+        Made the parser more tolerant for mistakes, and added a ParsingMode
+        flag for selecting strict or tolerant parsing.
+        Added support for the NAMEPREP standard in our i18n domain name support.
+
+- QDir
+        Added the filter QDir::NoDotAndDotDot, for the
+        special directories "." and "..".
+        Added the filter QDir::AllEntries, for all entries
+        in a directory, including symlinks.
+
+
+- QAbstractSocket
+        Added slots connectToHostImplementation() and
+        disconnectFromHostImplementation() to provide polymorphic behavior for
+        connectToHost() and disconnectFromHost().
+
+- QMenuBar
+        Added setActiveAction(), which makes the provided action
+        active.
+
+- QProxyModel
+        This class has been obsoleted (see QAbstractProxyModel)
+
+- QWidget
+        Now supports three modes of modality: NonModal, WindowModal and
+        ApplicationModal.
+        Added Qt::WindowModality, obsoleted WA_ShowModal and WA_GroupLeader.
+        Added Qt::WA_OpaquePaintEvent widget attribute, obsoleting Qt::WA_NoBackground.
+        Added boolean autoFillBackground property.
+        Child widgets now always inherit the contents of their parent.
+
+- QPalette
+        Added QPalette::Window (obsoletes Background) and
+              QPalette::WindowText (obsoletes Foreground).
+
+- QHttpResponseHeader
+        Added two constructors and the function setStatusLine() for generating
+        a response header.
+
+- QBitArray
+        Added count(bool), for counting on and off-bits in a bit array.
+
+- QVariant
+        Added support for QRegExp
+
+- QRegExpValidator
+        Added the property "regExp".
+
+- QTabBar
+        Added the property "iconSize", for setting the size of the icons on
+        the tabs.
+
+- QLineEdit
+        Added support for inserting Unicode control characters through the
+        context menu.
+
+- QString
+        Added toLong() and toULong().
+        Support for std::string conversions with embedded \0 characters.
+
+- QRegion
+        Added translate(), like QRect::translated().
+
+- QProcess
+        Added systemEnvironment(), which returns the environment variables
+        of the calling process.
+        Added exitStatus(), and added a new finished() signal which takes the
+        exit status as a parameter.
+
+- QComboBox
+        Made setCurrentIndex() a slot.
+
+- QFontDataBase
+        Added styleString(), for retrieving the style string from a QFontInfo.
+        Added support for Myanmar fonts.
+
+- QFontMetrics
+        Added xHeight(), which returns the 'X' height of the font.
+
+- QCoreApplication
+        Added arguments(), which returns a list of command line arguments as a
+        QStringList.
+
+- QTcpSocket
+        Added support for SOCKS5 via setProxy().
+
+- QUdpSocket
+        Added property "bindMode", for binding several sockets to the same
+        address and port.
+
+- QPen
+        Added support for custom dash pattern styles and miter limits.
+        Added support for QDebug.
+
+- QDebug
+        Added support for QVector and QPair output.
+
+- QStringListModel
+        Added support for sorting.
+
+- QOpenGLPaintEngine
+        Gradients in the OpenGL paint engine are now drawn using
+        fragment programs, if the extension is available. Lots of
+        fixes, speedups and tweaks.
+
+
+Platform-Specific changes
+-------------------------
+
+Windows:
+
+- Painting
+        Added support for ClearType text rendering.
+
+- File Engine
+        Added support for long filenames/paths.
+
+X11:
+
+- QWidget
+        Added support for freedesktop.org startup notifications.
+
+Mac OS X:
+
+- Improved support for the VoiceOver accessibility tool in Mac OS 10.4
+  and later
+
+
+3rd-party libraries
+-------------------
+
+- zlib
+        Upgraded to zlib 1.2.3.
+
+- FreeType
+        Upgraded to FreeType 2.1.10.
+
+- SQLite
+        Upgraded to SQLite 3.2.7

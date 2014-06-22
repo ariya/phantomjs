@@ -1,0 +1,121 @@
+
+Qt 3.2 introduces new features as well as many improvements over the
+3.1.x series. This file gives an overview of the main changes since
+version 3.1.2. For more details, see the online documentation which
+is included in this distribution. The documentation is also available
+at http://qt.nokia.com/doc/
+
+The Qt version 3.2 series is binary compatible with the 3.1.x series.
+Applications compiled for 3.1 will continue to run with 3.2.
+
+****************************************************************************
+*			    General					   *
+****************************************************************************
+
+ActiveQt
+--------
+
+Controls developed with ActiveQt support aggregation, which makes it
+possible to use them in containers that require this form of containment to
+be supported. ActiveQt also supports masked controls in containers that
+support this for window'ed controls.
+
+Compilers
+---------
+
+Note: Qt 3.2 is the last version to officially support IRIX MIPSpro
+o32 and Sun CC 5.0. A script, $QTDIR/bin/qt32castcompat, is provided
+for 3.2 which needs to be run for these compilers.
+
+****************************************************************************
+*			   Library					   *
+****************************************************************************
+
+- QApplication
+	Win32 only: Stop compressing mouse move events when a change
+	in the key state is detected. Allow multiple QApplication
+	objects be created sequentially by resetting the pointers to
+	static objects on destruction.
+
+- QClipboard
+	X11 only: Various fixes.
+
+- QDockWindow
+	Various layout fixes.
+
+- QFont related classes
+	Many fixes and improvements.
+
+- QGLWidget
+	X11 only: Various fixes to make pixmap rendering work better
+	with accelerated nVidia drivers.
+
+- QImage
+	Fixed writing of QImages.
+
+- QLayout
+	Fixed layout to take the menu bar's minimum width into
+	consideration and correctly propagate spacing() from parent to
+	child layouts.
+
+- QLineEdit
+ 	Replace all non-printable characters with spaces when
+ 	drawing. Added new function selectionStart() which returns
+	the index of the first selected character in the line edit.
+
+- QListBox
+	Improved item search based on keystrokes.
+
+- QListView
+	Don't move the inline item editor out of the visible area for
+	wide items. Ignore +/- indicator for columns other than the
+	first one. Fixed keyboard handling in Multi selection
+	mode. Improve drawing of extremely long item texts.
+
+- QListViewItem
+	Respects icons vertical alignment properly.
+
+- QMYSQLDriver
+	Better support for MySQL/embedded. Bind TEXT blob fields as
+	strings instead of byte arrays.
+
+- QPainter
+	Qt/Embedded only: Fixed printing issues.
+
+- QPrinter
+	Mac only: Fixed printing issues.
+
+- QSocketDevice
+	Windows only: Fixed setBlocking(TRUE) to work properly.
+
+- QString
+	Fixed toShort() and toUShort() to behave correctly when passed
+	a null pointer as 'ok' value.
+
+- QStyleFactory
+	Return the correct style name from the factory for the
+	WindowsXP style.
+
+- QTable
+	Replace old contents when editing. Take hidden rows into
+	account when activating cells. Clear the cell widget when
+	clearing a cell.
+
+- QTextBrowser
+	Fixed table headers to be bold.
+
+- QTextEdit
+	Implemented insertAt() for LogText mode. Fixed undoAvailable
+	and redoAvailable to be emitted correctly from the context
+	menu. Fixed tripleclick selection in QTextEdit.
+
+- QToolButton
+	Prevent nested openings of the tool button popups.
+
+- QWindowsXPStyle
+	Various paint bug fixes.
+
+- QWorkspace
+	Fixed workspace to keep the active window when
+	tiling. Improved icon handling for maximized and minimized
+	windows.

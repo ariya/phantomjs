@@ -34,6 +34,7 @@
 #define COMMON_LINUX_FILE_ID_H__
 
 #include <limits.h>
+#include <string>
 
 #include "common/linux/guid_creator.h"
 
@@ -69,7 +70,7 @@ class FileID {
 
  private:
   // Storage for the path specified
-  char path_[PATH_MAX];
+  std::string path_;
 };
 
 }  // namespace google_breakpad

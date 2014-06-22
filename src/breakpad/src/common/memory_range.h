@@ -67,7 +67,7 @@ class MemoryRange {
 
   // Sets this memory range to point to |data| and its length to |length|.
   void Set(const void* data, size_t length) {
-    data_ = reinterpret_cast<const u_int8_t*>(data);
+    data_ = reinterpret_cast<const uint8_t*>(data);
     // Always set |length_| to zero if |data_| is NULL.
     length_ = data ? length : 0;
   }
@@ -127,14 +127,14 @@ class MemoryRange {
   }
 
   // Returns a pointer to the beginning of this memory range.
-  const u_int8_t* data() const { return data_; }
+  const uint8_t* data() const { return data_; }
 
   // Returns the length, in bytes, of this memory range.
   size_t length() const { return length_; }
 
  private:
   // Pointer to the beginning of this memory range.
-  const u_int8_t* data_;
+  const uint8_t* data_;
 
   // Length, in bytes, of this memory range.
   size_t length_;

@@ -31,68 +31,70 @@
 #include <string>
 #include <map>
 
-namespace google_breakpad {
+#include "common/linux/libcurl_wrapper.h"
+#include "common/scoped_ptr.h"
+#include "common/using_std_string.h"
 
-class LibcurlWrapper;
+namespace google_breakpad {
 
 class GoogleCrashdumpUploader {
  public:
-  GoogleCrashdumpUploader(const std::string& product,
-                          const std::string& version,
-                          const std::string& guid,
-                          const std::string& ptime,
-                          const std::string& ctime,
-                          const std::string& email,
-                          const std::string& comments,
-                          const std::string& minidump_pathname,
-                          const std::string& crash_server,
-                          const std::string& proxy_host,
-                          const std::string& proxy_userpassword);
+  GoogleCrashdumpUploader(const string& product,
+                          const string& version,
+                          const string& guid,
+                          const string& ptime,
+                          const string& ctime,
+                          const string& email,
+                          const string& comments,
+                          const string& minidump_pathname,
+                          const string& crash_server,
+                          const string& proxy_host,
+                          const string& proxy_userpassword);
 
-  GoogleCrashdumpUploader(const std::string& product,
-                          const std::string& version,
-                          const std::string& guid,
-                          const std::string& ptime,
-                          const std::string& ctime,
-                          const std::string& email,
-                          const std::string& comments,
-                          const std::string& minidump_pathname,
-                          const std::string& crash_server,
-                          const std::string& proxy_host,
-                          const std::string& proxy_userpassword,
+  GoogleCrashdumpUploader(const string& product,
+                          const string& version,
+                          const string& guid,
+                          const string& ptime,
+                          const string& ctime,
+                          const string& email,
+                          const string& comments,
+                          const string& minidump_pathname,
+                          const string& crash_server,
+                          const string& proxy_host,
+                          const string& proxy_userpassword,
                           LibcurlWrapper* http_layer);
 
-  void Init(const std::string& product,
-            const std::string& version,
-            const std::string& guid,
-            const std::string& ptime,
-            const std::string& ctime,
-            const std::string& email,
-            const std::string& comments,
-            const std::string& minidump_pathname,
-            const std::string& crash_server,
-            const std::string& proxy_host,
-            const std::string& proxy_userpassword,
+  void Init(const string& product,
+            const string& version,
+            const string& guid,
+            const string& ptime,
+            const string& ctime,
+            const string& email,
+            const string& comments,
+            const string& minidump_pathname,
+            const string& crash_server,
+            const string& proxy_host,
+            const string& proxy_userpassword,
             LibcurlWrapper* http_layer);
   bool Upload();
 
  private:
   bool CheckRequiredParametersArePresent();
 
-  LibcurlWrapper* http_layer_;
-  std::string product_;
-  std::string version_;
-  std::string guid_;
-  std::string ptime_;
-  std::string ctime_;
-  std::string email_;
-  std::string comments_;
-  std::string minidump_pathname_;
+  scoped_ptr<LibcurlWrapper> http_layer_;
+  string product_;
+  string version_;
+  string guid_;
+  string ptime_;
+  string ctime_;
+  string email_;
+  string comments_;
+  string minidump_pathname_;
 
-  std::string crash_server_;
-  std::string proxy_host_;
-  std::string proxy_userpassword_;
+  string crash_server_;
+  string proxy_host_;
+  string proxy_userpassword_;
 
-  std::map<std::string, std::string> parameters_;
+  std::map<string, string> parameters_;
 };
 }

@@ -1,0 +1,48 @@
+==============================================
+ Running a GTK+ build slave under daemontools
+==============================================
+
+This directory contains several scripts which can be used to run a WebKitGTK+
+build slave under daemontools [1]. This is convenient because daemontools
+will automatically restart services when they die, and that means less human
+intervention is needed.
+
+
+Dependencies
+============
+
+In order to use the provided service control files, you will need the
+following:
+
+* The GNU Bash shell (the scripts contain some bash-isms)
+
+* The daemontools package (or one of its drop-in replacements, like runit
+  or freedt; but only daemontools has been tested so far).
+
+In short, in a Debian-based system you can ensure you have the needed bits
+with the following command:
+
+  apt-get install daemontools-run
+
+
+Setup
+=====
+
+1. Follow the instructions at http://trac.webkit.org/wiki/BuildBot
+
+2. Install the dependencies outlined above.
+
+3. Copy "daemontools-buildbot.conf" to "/etc/daemontools-buildbot.conf"
+
+4. Edit the configuration file to suit your needs, the comments should
+   be self-explanatory.
+
+5. Drop the "buildbot" and "pulseaudio" directories to the service control directory of
+   daemontools; for Debian-based setups that would be "/etc/service"
+
+
+References
+==========
+
+[1] http://cr.yp.to/daemontools.html
+

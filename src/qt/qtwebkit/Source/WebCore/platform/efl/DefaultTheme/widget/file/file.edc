@@ -1,0 +1,148 @@
+/*
+    Copyright (C) 2008,2009 INdT - Instituto Nokia de Tecnologia
+    Copyright (C) 2009,2010 ProFUSION embedded systems
+    Copyright (C) 2009,2010 Samsung Electronics
+
+    This file is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Library General Public
+    License as published by the Free Software Foundation; either
+    version 2 of the License, or (at your option) any later version.
+
+    This file is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Library General Public License for more details.
+
+    You should have received a copy of the GNU Library General Public License
+    along with this library; see the file COPYING.LIB.  If not, write to
+    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+    Boston, MA 02110-1301, USA.
+*/
+
+group {
+      name: "webkit/widget/file";
+
+      images {
+         image: "widget/file/file_normal.png" COMP;
+         image: "widget/file/file_hover.png" COMP;
+         image: "widget/file/file_focus.png" COMP;
+         image: "widget/file/file_press.png" COMP;
+      }
+
+      script {
+          public isEnabled;
+          public isPressed;
+          public isChecked;
+          public isFocused;
+          public isHovered;
+
+          public show() {
+               if (get_int(isEnabled) == 1) {
+                   set_state(PART:"file", "default", 0.0);
+                   if (get_int(isFocused) == 1) {
+                       set_state(PART:"file", "focused", 0.0);
+                       if (get_int(isPressed) == 1)
+                           set_state(PART:"file", "pressed", 0.0);
+                      }
+               else if (get_int(isHovered) == 1) {
+                   set_state(PART:"file", "hovered", 0.0);
+                   if (get_int(isPressed) == 1)
+                       set_state(PART:"file", "pressed", 0.0);
+
+                  }
+              }
+              else
+                  set_state(PART:"file", "disabled", 0.0);
+          }
+      }
+
+      parts {
+         part {
+            name: "file";
+            type: IMAGE;
+            description {
+               state: "default" 0.0;
+               image {
+                  normal: "widget/file/file_normal.png";
+                  border: 8 8 8 8;
+               }
+            }
+            description {
+               state: "disabled" 0.0;
+               inherit: "default" 0.0;
+               color: 255 255 255 150;
+            }
+            description {
+               state: "hovered" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "widget/file/file_hover.png";
+                  border: 8 8 8 8;
+               }
+            }
+            description {
+               state: "focused" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "widget/file/file_focus.png";
+                  border: 8 8 8 8;
+               }
+            }
+            description {
+               state: "pressed" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "widget/file/file_press.png";
+                  border: 8 8 8 8;
+               }
+            }
+         }
+      }
+
+      programs {
+         program {
+            name: "enabled";
+            signal: "enabled";
+            script {
+               set_int(isEnabled, 1);
+               show();
+            }
+         }
+         program {
+            name: "pressed";
+            signal: "pressed";
+            script {
+               set_int(isPressed, 1);
+               show();
+            }
+         }
+         program {
+            name: "focused";
+            signal: "focused";
+            script {
+               set_int(isFocused, 1);
+               show();
+            }
+         }
+          program {
+            name: "hovered";
+            signal: "hovered";
+            script {
+               set_int(isHovered, 1);
+               show();
+            }
+         }
+        program {
+            name: "reset";
+            signal: "reset";
+            script {
+               set_int(isEnabled, 0);
+               set_int(isPressed, 0);
+               set_int(isChecked, 0);
+               set_int(isFocused, 0);
+               set_int(isHovered, 0);
+               show();
+            }
+         }
+      }
+   }

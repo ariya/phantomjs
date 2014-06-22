@@ -1,0 +1,68 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \group examples-network
+    \ingroup all-examples
+    \title Network Examples
+    \brief How to do network programming in Qt.
+
+    \image network-examples.png
+
+    Qt is provided with an extensive set of network classes to support both
+    client-based and server side network programming.
+
+    These examples demonstrate the fundamental aspects of network programming
+    with Qt.
+
+*/
+
+/*
+     \list
+    \li  \l{network/blockingfortuneclient}{Blocking Fortune Client}\raisedaster
+    \li  \l{network/broadcastreceiver}{Broadcast Receiver}
+    \li  \l{network/broadcastsender}{Broadcast Sender}
+    \li  \l{network/download}{Download}
+    \li  \l{network/downloadmanager}{Download Manager}
+    \li  \l{network/network-chat}{Network Chat}
+    \li  \l{network/fortuneclient}{Fortune Client}\raisedaster
+    \li  \l{network/fortuneserver}{Fortune Server}\raisedaster
+    \li  \l{network/qftp}{FTP}\raisedaster
+    \li  \l{network/http}{HTTP}
+    \li  \l{network/loopback}{Loopback}
+    \li  \l{network/threadedfortuneserver}{Threaded Fortune Server}\raisedaster
+    \li  \l{network/torrent}{Torrent}
+    \li  \l{network/googlesuggest}{Google Suggest}
+    \li  \l{network/bearercloud}{Bearer Cloud}\raisedaster
+    \li  \l{network/bearermonitor}{Bearer Monitor}
+    \li  \l{network/securesocketclient}{Secure Socket Client}
+    \li  \l{network/multicastreceiver}{Multicast Receiver}
+    \li  \l{network/multicastsender}{Multicast Sender}
+    \endlist
+
+    Examples marked with an asterisk (*) are fully documented.
+*/

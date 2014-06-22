@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="ministro_not_found_msg">Сервис Ministro не найден.\nПриложение нельзя запустить.</string>
+    <string name="ministro_needed_msg">Этому приложению необходим сервис Ministro. Вы хотите его установить?</string>
+    <string name="fatal_error_msg">Ваше приложение столкнулось с фатальной ошибкой и не может более работать.</string>
+</resources>

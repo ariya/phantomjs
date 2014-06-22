@@ -1,0 +1,328 @@
+------------------------------------------------------------------------
+r618 | thomas | 2006-04-21 09:55:51 -0400 (Fri, 21 Apr 2006) | 1 line
+Changed paths:
+   M /iexploder/README.txt
+   M /iexploder/htdocs/iexploder.cgi
+   M /iexploder/htdocs/iexploder.rb
+   M /iexploder/htdocs/webserver.rb
+
+1.3.2.. minor adjustment to title and where  gets set
+------------------------------------------------------------------------
+r617 | thomas | 2006-04-19 17:14:26 -0400 (Wed, 19 Apr 2006) | 1 line
+Changed paths:
+   A /iexploder/testcases/safari/2500_163-Safari-2.0.3_Mac_OS_X-Crash.html
+
+Add h4+pre+cite+nolayer+code crash for Safari 2.0.3
+------------------------------------------------------------------------
+r616 | thomas | 2006-04-19 17:01:48 -0400 (Wed, 19 Apr 2006) | 1 line
+Changed paths:
+   A /iexploder/tools/showtest.rb
+
+showtest.rb: easily download a testcase
+------------------------------------------------------------------------
+r615 | thomas | 2006-04-19 16:07:13 -0400 (Wed, 19 Apr 2006) | 1 line
+Changed paths:
+   M /iexploder/htdocs/iexploder.rb
+
+Remove stopping debug message
+------------------------------------------------------------------------
+r614 | thomas | 2006-04-19 16:02:48 -0400 (Wed, 19 Apr 2006) | 1 line
+Changed paths:
+   M /iexploder/README.txt
+   M /iexploder/htdocs/iexploder.rb
+
+New subtest algorithm: double the tag count each iteration
+------------------------------------------------------------------------
+r613 | thomas | 2006-04-19 15:05:30 -0400 (Wed, 19 Apr 2006) | 1 line
+Changed paths:
+   M /iexploder/htdocs/cssproperties.in
+
+remove IE dupes: text-overflow and word-wrap
+------------------------------------------------------------------------
+r612 | thomas | 2006-04-19 12:48:07 -0400 (Wed, 19 Apr 2006) | 1 line
+Changed paths:
+   M /iexploder/README.txt
+   M /iexploder/htdocs/config.rb
+   M /iexploder/htdocs/iexploder.rb
+
+Add some benchmark/performance info.. set MAX_TAGS default to 96
+------------------------------------------------------------------------
+r611 | thomas | 2006-04-19 10:22:33 -0400 (Wed, 19 Apr 2006) | 1 line
+Changed paths:
+   M /iexploder/htdocs/iexploder.cgi
+   M /iexploder/htdocs/iexploder.rb
+   M /iexploder/htdocs/webserver.rb
+
+Add stop parameter, fix port assignment issue, fix indentation
+------------------------------------------------------------------------
+r610 | thomas | 2006-04-19 10:22:06 -0400 (Wed, 19 Apr 2006) | 1 line
+Changed paths:
+   M /iexploder/README.txt
+
+1.3.0
+------------------------------------------------------------------------
+r609 | thomas | 2006-04-18 22:46:35 -0400 (Tue, 18 Apr 2006) | 1 line
+Changed paths:
+   A /iexploder/testcases/safari/16170_44-Safari-Nightly-420+-2006-r13911-2006-04-18.html
+
+applet+param Hashmap crash in Safari
+------------------------------------------------------------------------
+r608 | thomas | 2006-04-18 22:07:45 -0400 (Tue, 18 Apr 2006) | 1 line
+Changed paths:
+   M /iexploder/htdocs/iexploder.cgi
+   M /iexploder/htdocs/webserver.rb
+
+1.3.0
+------------------------------------------------------------------------
+r607 | thomas | 2006-04-18 22:05:47 -0400 (Tue, 18 Apr 2006) | 1 line
+Changed paths:
+   M /iexploder/README.txt
+   M /iexploder/htdocs/webserver.rb
+   M /iexploder/tools/osx_last_crash.rb
+
+commit osx_last_crash minutes->days change, document that you can pass a new port number to the webserver.rb program
+------------------------------------------------------------------------
+r606 | thomas | 2006-04-18 22:02:16 -0400 (Tue, 18 Apr 2006) | 1 line
+Changed paths:
+   A /iexploder/testcases/safari/2969_421-Safari-2.0.3_Mac_OS_X-Crash.html
+   A /iexploder/testcases/safari/5763_181-Safari-Nightly-420+-2006-r13911-2006-04-18.html
+
+Add more Safari crashes to the testcases list
+------------------------------------------------------------------------
+r605 | thomas | 2006-04-18 19:05:46 -0400 (Tue, 18 Apr 2006) | 1 line
+Changed paths:
+   M /iexploder/README.txt
+   M /iexploder/htdocs/config.rb
+   M /iexploder/htdocs/iexploder.cgi
+   M /iexploder/htdocs/iexploder.rb
+   M /iexploder/htdocs/webserver.rb
+
+Greatly improve subtests. Not only do we iterate around each tag, but we steadily increase the amount of tags we input as well
+------------------------------------------------------------------------
+r604 | thomas | 2006-04-18 17:04:17 -0400 (Tue, 18 Apr 2006) | 1 line
+Changed paths:
+   M /iexploder/README.txt
+   M /iexploder/htdocs/config.rb
+
+1.3b1.. also, raise max tags to 48 now that we have fixed subtest bugs
+------------------------------------------------------------------------
+r603 | thomas | 2006-04-18 16:59:20 -0400 (Tue, 18 Apr 2006) | 1 line
+Changed paths:
+   M /iexploder/htdocs/iexploder.cgi
+   M /iexploder/htdocs/iexploder.rb
+   A /iexploder/htdocs/webserver.rb
+
+New Webrick based option for standalone hosting
+------------------------------------------------------------------------
+r602 | thomas | 2006-04-18 16:18:35 -0400 (Tue, 18 Apr 2006) | 1 line
+Changed paths:
+   A /iexploder/htdocs/config.rb
+   M /iexploder/htdocs/cssproperties.in
+   M /iexploder/htdocs/iexploder.cgi
+   A /iexploder/htdocs/iexploder.rb
+
+Split iexploder.cgi into iexploder.rb and config.rb
+------------------------------------------------------------------------
+r601 | thomas | 2006-04-18 13:36:25 -0400 (Tue, 18 Apr 2006) | 1 line
+Changed paths:
+   M /iexploder/htdocs/cssvalues.in
+
+Add items from WebKit/WebCore/css/CSSValueKeywords.in
+------------------------------------------------------------------------
+r600 | thomas | 2006-04-18 13:32:45 -0400 (Tue, 18 Apr 2006) | 1 line
+Changed paths:
+   A /iexploder/testcases/opera/4750_Opera_8.5.4_Mac_OS_X-Crash.html
+
+Add odd new crash from Opera 8.5.4 for Mac
+------------------------------------------------------------------------
+r599 | thomas | 2006-04-18 13:10:15 -0400 (Tue, 18 Apr 2006) | 1 line
+Changed paths:
+   A /iexploder/testcases/safari/7483_Safari-Nightly-420+-2006-r13911-2006-04-18.html
+
+Add new Safari test case
+------------------------------------------------------------------------
+r598 | thomas | 2006-04-18 12:25:39 -0400 (Tue, 18 Apr 2006) | 1 line
+Changed paths:
+   M /iexploder/LICENSE.txt
+   M /iexploder/README.txt
+   M /iexploder/htdocs/htmlattrs.in
+   M /iexploder/htdocs/htmltags.in
+   M /iexploder/htdocs/iexploder.cgi
+
+iExploder 1.3: sync with modern rendering kits
+------------------------------------------------------------------------
+r597 | thomas | 2006-04-18 12:25:18 -0400 (Tue, 18 Apr 2006) | 1 line
+Changed paths:
+   A /iexploder/testcases/firefox/354_1-Firefox-1.5.0.1_Solaris-Crash.html
+   A /iexploder/testcases/firefox/44_9-Firefox-1.5.0.1_Solaris-Crash.html
+   A /iexploder/testcases/internet_explorer/8386_11-Internet-Explorer-6.0_WinXP-DoS.html (from /iexploder/testcases/safari/8386_11-Internet-Explorer-6.0_WinXP-DoS.html:596)
+   A /iexploder/testcases/safari/218-Safari-2.0.3_Mac_OS_X-Crash.html
+   D /iexploder/testcases/safari/8386_11-Internet-Explorer-6.0_WinXP-DoS.html
+
+New testcases
+------------------------------------------------------------------------
+r596 | thomas | 2006-04-18 12:23:48 -0400 (Tue, 18 Apr 2006) | 1 line
+Changed paths:
+   D /iexploder/testcases/119_4-Safari-Nightly-420+-2005-10-21-Crash.html
+   D /iexploder/testcases/165367_15-FireFox-1.4.1-Crash.html
+   D /iexploder/testcases/2009-iCab-3.0.1-Mac_OS_X-Crash.html
+   D /iexploder/testcases/2289-iCab-3.0.1-Crash.html
+   D /iexploder/testcases/25057-OmniWeb-5.1.1-Crash.html
+   D /iexploder/testcases/2624-Opera-8.5-Mac_OS_X-Crash.html
+   D /iexploder/testcases/502701_7-FireFox-1.4.1-Crash.html
+   D /iexploder/testcases/60253-OmniWeb-5.1.1-Crash.html
+   D /iexploder/testcases/6134_19-Safari-2.0.1-412.5-Crash.html
+   D /iexploder/testcases/8386_11-Internet-Explorer-6.0_WinXP-DoS.html
+   A /iexploder/testcases/firefox
+   A /iexploder/testcases/firefox/165367_15-Firefox-1.4.1-Crash.html (from /iexploder/testcases/165367_15-FireFox-1.4.1-Crash.html:595)
+   A /iexploder/testcases/firefox/502701_7-Firefox-1.4.1-Crash.html (from /iexploder/testcases/502701_7-FireFox-1.4.1-Crash.html:595)
+   A /iexploder/testcases/icab
+   A /iexploder/testcases/icab/2009-iCab-3.0.1-Mac_OS_X-Crash.html (from /iexploder/testcases/2009-iCab-3.0.1-Mac_OS_X-Crash.html:595)
+   A /iexploder/testcases/icab/2289-iCab-3.0.1-Crash.html (from /iexploder/testcases/2289-iCab-3.0.1-Crash.html:595)
+   A /iexploder/testcases/internet_explorer
+   A /iexploder/testcases/omniweb
+   A /iexploder/testcases/omniweb/25057-OmniWeb-5.1.1-Crash.html (from /iexploder/testcases/25057-OmniWeb-5.1.1-Crash.html:595)
+   A /iexploder/testcases/omniweb/60253-OmniWeb-5.1.1-Crash.html (from /iexploder/testcases/60253-OmniWeb-5.1.1-Crash.html:595)
+   A /iexploder/testcases/opera
+   A /iexploder/testcases/opera/2624-Opera-8.5-Mac_OS_X-Crash.html (from /iexploder/testcases/2624-Opera-8.5-Mac_OS_X-Crash.html:595)
+   A /iexploder/testcases/safari
+   A /iexploder/testcases/safari/119_4-Safari-Nightly-420+-2005-10-21-Crash.html (from /iexploder/testcases/119_4-Safari-Nightly-420+-2005-10-21-Crash.html:595)
+   A /iexploder/testcases/safari/6134_19-Safari-2.0.1-412.5-Crash.html (from /iexploder/testcases/6134_19-Safari-2.0.1-412.5-Crash.html:595)
+   A /iexploder/testcases/safari/8386_11-Internet-Explorer-6.0_WinXP-DoS.html (from /iexploder/testcases/8386_11-Internet-Explorer-6.0_WinXP-DoS.html:595)
+
+Reshuffle testcases
+------------------------------------------------------------------------
+r521 | thomas | 2005-11-03 22:01:43 -0500 (Thu, 03 Nov 2005) | 1 line
+Changed paths:
+   A /iexploder/testcases/2289-iCab-3.0.1-Crash.html
+   A /iexploder/testcases/60253-OmniWeb-5.1.1-Crash.html
+
+add some test cases
+------------------------------------------------------------------------
+r520 | thomas | 2005-11-03 22:01:19 -0500 (Thu, 03 Nov 2005) | 1 line
+Changed paths:
+   M /iexploder/htdocs/iexploder.cgi
+
+Add some cute tabs
+------------------------------------------------------------------------
+r508 | thomas | 2005-10-21 15:34:38 -0400 (Fri, 21 Oct 2005) | 1 line
+Changed paths:
+   A /iexploder/testcases/165367_15-FireFox-1.4.1-Crash.html (from /iexploder/testcases/165367_15-FireFox-1.4.1-Mac_OS_X-Crash.html:505)
+   D /iexploder/testcases/165367_15-FireFox-1.4.1-Mac_OS_X-Crash.html
+
+Crash is not OSX specific
+------------------------------------------------------------------------
+r507 | thomas | 2005-10-21 14:59:41 -0400 (Fri, 21 Oct 2005) | 1 line
+Changed paths:
+   M /iexploder/README.txt
+
+Mention the fact that testcases may not be portable across installations
+------------------------------------------------------------------------
+r506 | thomas | 2005-10-21 14:45:48 -0400 (Fri, 21 Oct 2005) | 1 line
+Changed paths:
+   M /iexploder/htdocs/index.html
+
+Fix lookup html code
+------------------------------------------------------------------------
+r505 | thomas | 2005-10-21 14:22:10 -0400 (Fri, 21 Oct 2005) | 1 line
+Changed paths:
+   A /iexploder/testcases/165367_15-FireFox-1.4.1-Mac_OS_X-Crash.html
+
+QuickDraw crash for Mac OS X
+------------------------------------------------------------------------
+r504 | thomas | 2005-10-21 14:14:34 -0400 (Fri, 21 Oct 2005) | 1 line
+Changed paths:
+   A /iexploder/testcases/25057-OmniWeb-5.1.1-Crash.html
+
+New crash
+------------------------------------------------------------------------
+r503 | thomas | 2005-10-21 14:06:45 -0400 (Fri, 21 Oct 2005) | 1 line
+Changed paths:
+   A /iexploder/testcases/8386_11-Internet-Explorer-6.0_WinXP-DoS.html
+
+IE DoS
+------------------------------------------------------------------------
+r502 | thomas | 2005-10-21 13:24:02 -0400 (Fri, 21 Oct 2005) | 1 line
+Changed paths:
+   M /iexploder/README.txt
+   M /iexploder/htdocs/cssvalues.in
+   M /iexploder/htdocs/iexploder.cgi
+   M /iexploder/htdocs/index.html
+   D /iexploder/testcases/100482.html
+   D /iexploder/testcases/103399-nscssvaluelist.html
+   A /iexploder/testcases/119_4-Safari-Nightly-420+-2005-10-21-Crash.html
+   A /iexploder/testcases/2009-iCab-3.0.1-Mac_OS_X-Crash.html
+   A /iexploder/testcases/2624-Opera-8.5-Mac_OS_X-Crash.html
+   A /iexploder/testcases/502701_7-FireFox-1.4.1-Crash.html
+   A /iexploder/testcases/6134_19-Safari-2.0.1-412.5-Crash.html
+   D /iexploder/testcases/firefox-caption-iframe-table-47179.html
+   D /iexploder/testcases/firefox-caption-marquee-27473.html
+   D /iexploder/testcases/firefox-caption-marquee-66937.html
+   D /iexploder/testcases/firefox-isindex-18149.html
+   D /iexploder/testcases/firefox-visibility-caption-111895.html
+
+1.2 Update, mostly documentation and test cases
+------------------------------------------------------------------------
+r501 | thomas | 2005-10-21 11:41:39 -0400 (Fri, 21 Oct 2005) | 1 line
+Changed paths:
+   M /iexploder/tools/osx_last_crash.rb
+
+back to days, filter out synergy
+------------------------------------------------------------------------
+r500 | thomas | 2005-10-21 11:25:28 -0400 (Fri, 21 Oct 2005) | 1 line
+Changed paths:
+   M /iexploder/htdocs/cssvalues.in
+   M /iexploder/htdocs/iexploder.cgi
+   M /iexploder/tools/lasthit.rb
+
+1.2: We now use javascript reloads after 1 second in case the meta breaks (IE)
+------------------------------------------------------------------------
+r499 | thomas | 2005-10-21 08:51:07 -0400 (Fri, 21 Oct 2005) | 1 line
+Changed paths:
+   M /iexploder/htdocs/iexploder.cgi
+
+1.1: Fix up our subtest model
+------------------------------------------------------------------------
+r498 | thomas | 2005-10-20 21:55:59 -0400 (Thu, 20 Oct 2005) | 1 line
+Changed paths:
+   M /iexploder/htdocs/iexploder.cgi
+
+Support for subtests, and compatibility with mod_ruby
+------------------------------------------------------------------------
+r497 | thomas | 2005-10-20 20:48:59 -0400 (Thu, 20 Oct 2005) | 1 line
+Changed paths:
+   M /iexploder/htdocs/cssproperties.in
+   M /iexploder/htdocs/cssvalues.in
+   M /iexploder/htdocs/htmlattrs.in
+   M /iexploder/htdocs/htmlvalues.in
+   M /iexploder/htdocs/iexploder.cgi
+
+update to v1.0
+------------------------------------------------------------------------
+r455 | tstrombe | 2005-02-28 08:13:25 -0500 (Mon, 28 Feb 2005) | 1 line
+Changed paths:
+   A /iexploder
+   A /iexploder/LICENSE.txt
+   A /iexploder/README.txt
+   A /iexploder/htdocs
+   A /iexploder/htdocs/cssproperties.in
+   A /iexploder/htdocs/cssvalues.in
+   A /iexploder/htdocs/htmlattrs.in
+   A /iexploder/htdocs/htmltags.in
+   A /iexploder/htdocs/htmlvalues.in
+   A /iexploder/htdocs/iexploder.cgi
+   A /iexploder/htdocs/index.html
+   A /iexploder/testcases
+   A /iexploder/testcases/100482.html
+   A /iexploder/testcases/103399-nscssvaluelist.html
+   A /iexploder/testcases/firefox-caption-iframe-table-47179.html
+   A /iexploder/testcases/firefox-caption-marquee-27473.html
+   A /iexploder/testcases/firefox-caption-marquee-66937.html
+   A /iexploder/testcases/firefox-isindex-18149.html
+   A /iexploder/testcases/firefox-visibility-caption-111895.html
+   A /iexploder/tools
+   A /iexploder/tools/lasthit.rb
+   A /iexploder/tools/osx_last_crash.rb
+
+iexploder software
+------------------------------------------------------------------------

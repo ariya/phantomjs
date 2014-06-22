@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+  <head>
+    <title>Core JavaScript Tests</title>
+
+    <script language="JavaScript">
+      function selectAll (suite, testDir)
+      {
+	  if (typeof suite == "undefined")
+	      for (var suite in suites)
+		  setAllDirs (suite, true);
+	  else if (typeof testDir == "undefined")
+	      setAllDirs (suite, true);
+	  else
+	      setAllTests (suite, testDir, true);
+	  updateTotals();
+      }
+
+      function selectNone (suite, testDir)
+      {
+	  
+	  if (typeof suite == "undefined")
+	      for (var suite in suites)
+		  setAllDirs (suite, false);
+	  else if (typeof testDir == "undefined")
+	      setAllDirs (suite, false);
+	  else
+	      setAllTests (suite, testDir, false);
+	  updateTotals();	
+      }
+
+      function setAllDirs (suite, value)
+      {
+	  var dir;
+	  for (dir in suites[suite].testDirs)
+	      setAllTests (suite, dir, value);
+
+      }
+
+      function setAllTests (suite, testDir, value)
+      {
+	  var test, radioName;
+	  
+	  for (test in suites[suite].testDirs[testDir].tests)
+	  {
+	      radioName = suites[suite].testDirs[testDir].tests[test];
+	      document.forms["testCases"].elements[radioName].checked = value;
+	  }
+
+      }
+
+      function createList ()
+      {
+	  var suite, testDir, test, radioName;
+	  var elements = document.forms["testCases"].elements;
+
+	  var win = window.open ("about:blank", "other_window");
+	  win.document.open();
+	  win.document.write ("<pre>\n");
+	  
+	  win.document.write ("# Created " + new Date() + "\n");
+
+	  for (suite in suites)
+	      win.document.write ("# " + suite + ": " + 
+				  elements["SUMMARY_" + suite].value + "\n");
+	  win.document.write ("# TOTAL: " + elements["TOTAL"].value + "\n");
+
+	  for (suite in suites)
+	      for (testDir in suites[suite].testDirs)
+		  for (test in suites[suite].testDirs[testDir].tests)
+		  {  
+		      radioName = suites[suite].testDirs[testDir].tests[test];
+		      if (elements[radioName].checked)
+			  win.document.write (suite + "/" + testDir + "/" + 
+					      elements[radioName].value + "\n");
+		  }
+	  
+	  win.document.close();
+
+      }
+
+      function onRadioClick (name)
+      {
+	  var radio = document.forms["testCases"].elements[name];
+	  radio.checked = !radio.checked;
+	  setTimeout ("updateTotals();", 100);
+	  return false;
+      }
+    
+      function updateTotals()
+      {
+	  var suite, testDir, test, radioName, selected, available, pct;
+	  var totalAvailable = 0, totalSelected = 0;
+	  
+	  var elements = document.forms["testCases"].elements;
+
+	  for (suite in suites)
+	  {
+	      selected = available = 0;
+	      for (testDir in suites[suite].testDirs)
+		  for (test in suites[suite].testDirs[testDir].tests)
+		  {  
+		      available++
+		      radioName = suites[suite].testDirs[testDir].tests[test];
+		      if (elements[radioName].checked)
+			  selected++;
+		  }
+	      totalSelected += selected;
+	      totalAvailable += available;
+	      pct = parseInt((selected / available) * 100);
+	      if (isNaN(pct))
+		  pct = 0;
+	      
+	      elements["SUMMARY_" + suite].value = selected + "/" + available +
+                  " (" + pct + "%) selected";
+	  }
+
+	  pct = parseInt((totalSelected / totalAvailable) * 100);
+	  if (isNaN(pct))
+	      pct = 0;
+	      
+	  elements["TOTAL"].value = totalSelected + "/" + totalAvailable + " (" +
+	      pct + "%) selected";
+
+      }
+    
+    </script>
+
+  </head>
+
+  <body bgcolor="white" onLoad="updateTotals()">
+    <a name='top_of_page'></a>
+    <h1>Core JavaScript Tests</h1>
+
+    <form name="testCases">
+    <input type='button' value='Export Test List' onClick='createList();'>
+    <input type='button' value='Import Test List' 
+      onClick='window.open("importList.html", "other_window");'>

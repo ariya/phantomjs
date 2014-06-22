@@ -1,0 +1,104 @@
+diff -u make-3.82-orig/configure.in make-3.82/configure.in
+--- make-3.82-orig/configure.in	2010-07-28 07:39:50.000000000 +0200
++++ make-3.82/configure.in	2012-03-21 12:34:20.000000000 +0100
+@@ -64,7 +64,8 @@
+ AC_HEADER_STAT
+ AC_HEADER_TIME
+ AC_CHECK_HEADERS(stdlib.h locale.h unistd.h limits.h fcntl.h string.h \
+-		 memory.h sys/param.h sys/resource.h sys/time.h sys/timeb.h)
++		 memory.h sys/param.h sys/resource.h sys/time.h sys/timeb.h \
++		 sys/user.h linux/binfmts.h)
+ 
+ # Set a flag if we have an ANSI C compiler
+ if test "$ac_cv_prog_cc_stdc" != no; then
+Subdirectorios comunes: make-3.82-orig/doc y make-3.82/doc
+Subdirectorios comunes: make-3.82-orig/glob y make-3.82/glob
+diff -u make-3.82-orig/job.c make-3.82/job.c
+--- make-3.82-orig/job.c	2010-07-24 10:27:50.000000000 +0200
++++ make-3.82/job.c	2012-03-21 12:34:20.000000000 +0100
+@@ -29,6 +29,11 @@
+ 
+ #include <string.h>
+ 
++#if defined (HAVE_LINUX_BINFMTS_H) && defined (HAVE_SYS_USER_H)
++#include <sys/user.h>
++#include <linux/binfmts.h>
++#endif
++
+ /* Default shell to use.  */
+ #ifdef WINDOWS32
+ #include <windows.h>
+@@ -2795,6 +2800,7 @@
+     unsigned int sflags_len = strlen (shellflags);
+     char *command_ptr = NULL; /* used for batch_mode_shell mode */
+     char *new_line;
++    char *args_ptr;
+ 
+ # ifdef __EMX__ /* is this necessary? */
+     if (!unixy_shell)
+@@ -2865,8 +2871,17 @@
+ 	return new_argv;
+       }
+ 
++#ifdef MAX_ARG_STRLEN
++    static char eval_line[] = "eval\\ \\\"set\\ x\\;\\ shift\\;\\ ";
++#define ARG_NUMBER_DIGITS 5
++#define EVAL_LEN (sizeof(eval_line)-1 + shell_len + 4                   \
++                  + (7 + ARG_NUMBER_DIGITS) * 2 * line_len / (MAX_ARG_STRLEN - 2))
++#else
++#define EVAL_LEN 0
++#endif
++
+     new_line = alloca (shell_len + 1 + sflags_len + 1
+-                             + (line_len*2) + 1);
++                       + (line_len*2) + 1 + EVAL_LEN);
+     ap = new_line;
+     memcpy (ap, shell, shell_len);
+     ap += shell_len;
+@@ -2875,6 +2890,30 @@
+     ap += sflags_len;
+     *(ap++) = ' ';
+     command_ptr = ap;
++
++#if !defined (WINDOWS32) && defined (MAX_ARG_STRLEN)
++    if (unixy_shell && line_len > MAX_ARG_STRLEN)
++      {
++	unsigned j;
++	memcpy (ap, eval_line, sizeof (eval_line) - 1);
++	ap += sizeof (eval_line) - 1;
++	for (j = 1; j <= 2 * line_len / (MAX_ARG_STRLEN - 2); j++)
++	  ap += sprintf (ap, "\\$\\{%u\\}", j);
++	*ap++ = '\\';
++	*ap++ = '"';
++	*ap++ = ' ';
++	/* Copy only the first word of SHELL to $0.  */
++	for (p = shell; *p != '\0'; ++p)
++	  {
++	    if (isspace ((unsigned char)*p))
++	      break;
++	    *ap++ = *p;
++	  }
++	*ap++ = ' ';
++      }
++#endif
++    args_ptr = ap;
++
+     for (p = line; *p != '\0'; ++p)
+       {
+ 	if (restp != NULL && *p == '\n')
+@@ -2922,6 +2961,14 @@
+           }
+ #endif
+ 	*ap++ = *p;
++
++#if !defined (WINDOWS32) && defined (MAX_ARG_STRLEN)
++	if (unixy_shell && line_len > MAX_ARG_STRLEN && (ap - args_ptr > MAX_ARG_STRLEN - 2))
++	  {
++	    *ap++ = ' ';
++	    args_ptr = ap;
++	  }
++#endif
+       }
+     if (ap == new_line + shell_len + sflags_len + 2)
+       /* Line was empty.  */
+

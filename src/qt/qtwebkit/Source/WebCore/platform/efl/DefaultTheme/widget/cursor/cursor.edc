@@ -1,0 +1,551 @@
+/*
+ * Copyright (C) 2013 Samsung Electronics. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#ifdef CURSOR_IMAGE_DIR
+   group {
+      name: "cursor/hand";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/linkCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "hand";
+            type: IMAGE;
+            description {
+               min: 20 20;
+               max: 20 20;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/linkCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/wait";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/waitCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "wait";
+            type: IMAGE;
+            description {
+               min: 16 16;
+               max: 16 16;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/waitCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/help";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/helpCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "help";
+            type: IMAGE;
+            description {
+               min: 18 18;
+               max: 18 18;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/helpCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/east_resize";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/eastResizeCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "eastResize";
+            type: IMAGE;
+            description {
+               min: 16 16;
+               max: 16 16;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/eastResizeCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/north_resize";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/northResizeCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "northResize";
+            type: IMAGE;
+            description {
+               min: 16 16;
+               max: 16 16;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/northResizeCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/north_east_resize";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/northEastResizeCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "northEastResize";
+            type: IMAGE;
+            description {
+               min: 16 16;
+               max: 16 16;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/northEastResizeCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/north_west_resize";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/northWestResizeCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "northWestResize";
+            type: IMAGE;
+            description {
+               min: 16 16;
+               max: 16 16;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/northWestResizeCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/south_resize";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/southResizeCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "southResize";
+            type: IMAGE;
+            description {
+               min: 16 16;
+               max: 16 16;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/southResizeCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/south_east_resize";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/southEastResizeCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "southEastResize";
+            type: IMAGE;
+            description {
+               min: 16 16;
+               max: 16 16;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/southEastResizeCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/south_west_resize";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/southWestResizeCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "southWestResize";
+            type: IMAGE;
+            description {
+               min: 16 16;
+               max: 16 16;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/southWestResizeCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/west_resize";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/westResizeCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "westResize";
+            type: IMAGE;
+            description {
+               min: 16 16;
+               max: 16 16;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/westResizeCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/north_south_resize";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/northSouthResizeCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "northSouthResize";
+            type: IMAGE;
+            description {
+               min: 16 16;
+               max: 16 16;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/northSouthResizeCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/east_west_resize";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/eastWestResizeCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "eastWestResize";
+            type: IMAGE;
+            description {
+               min: 16 16;
+               max: 16 16;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/eastWestResizeCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/north_east_south_west_resize";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/northEastSouthWestResizeCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "northEastSouthWestResize";
+            type: IMAGE;
+            description {
+               min: 16 16;
+               max: 16 16;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/northEastSouthWestResizeCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/north_west_south_east_resize";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/northWestSouthEastResizeCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "northWestSouthEastResize";
+            type: IMAGE;
+            description {
+               min: 16 16;
+               max: 16 16;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/northWestSouthEastResizeCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/middle_panning";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/panIcon.png" COMP;
+      }
+      parts {
+         part {
+            name: "panIcon";
+            type: IMAGE;
+            description {
+               min: 16 16;
+               max: 16 16;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/panIcon.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/move";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/moveCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "move";
+            type: IMAGE;
+            description {
+               min: 16 16;
+               max: 16 16;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/moveCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/vertical_text";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/verticalTextCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "verticalText";
+            type: IMAGE;
+            description {
+               min: 16 16;
+               max: 16 16;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/verticalTextCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/cell";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/cellCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "cell";
+            type: IMAGE;
+            description {
+               min: 18 18;
+               max: 18 18;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/cellCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/context_menu";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/contextMenuCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "contextMenu";
+            type: IMAGE;
+            description {
+               min: 19 27;
+               max: 19 27;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/contextMenuCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/alias";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/aliasCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "alias";
+            type: IMAGE;
+            description {
+               min: 16 21;
+               max: 16 21;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/aliasCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/progress";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/progressCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "progress";
+            type: IMAGE;
+            description {
+               min: 25 37;
+               max: 25 37;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/progressCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/no_drop";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/noDropCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "noDrop";
+            type: IMAGE;
+            description {
+               min: 25 36;
+               max: 25 36;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/noDropCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/copy";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/copyCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "copy";
+            type: IMAGE;
+            description {
+               min: 25 37;
+               max: 25 37;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/copyCursor.png";
+               }
+            }
+         }
+     }
+   }
+
+   group {
+      name: "cursor/none";
+
+      images {
+         image: CURSOR_IMAGE_DIR"/noneCursor.png" COMP;
+      }
+      parts {
+         part {
+            name: "none";
+            type: IMAGE;
+            description {
+               min: 16 16;
+               max: 16 16;
+               image {
+                  normal: CURSOR_IMAGE_DIR"/noneCursor.png";
+               }
+            }
+         }
+     }
+   }
+#endif

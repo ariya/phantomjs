@@ -38,6 +38,7 @@
 #ifndef PROCESSOR_STACKWALKER_AMD64_H__
 #define PROCESSOR_STACKWALKER_AMD64_H__
 
+#include <vector>
 
 #include "google_breakpad/common/breakpad_types.h"
 #include "google_breakpad/common/minidump_format.h"
@@ -55,35 +56,35 @@ class StackwalkerAMD64 : public Stackwalker {
   // register state corresponding to the innermost called frame to be
   // included in the stack.  The other arguments are passed directly through
   // to the base Stackwalker constructor.
-  StackwalkerAMD64(const SystemInfo *system_info,
-                   const MDRawContextAMD64 *context,
-                   MemoryRegion *memory,
-                   const CodeModules *modules,
-                   SymbolSupplier *supplier,
-                   SourceLineResolverInterface *resolver);
+  StackwalkerAMD64(const SystemInfo* system_info,
+                   const MDRawContextAMD64* context,
+                   MemoryRegion* memory,
+                   const CodeModules* modules,
+                   StackFrameSymbolizer* frame_symbolizer);
 
  private:
   // A STACK CFI-driven frame walker for the AMD64
-  typedef SimpleCFIWalker<u_int64_t, MDRawContextAMD64> CFIWalker;
+  typedef SimpleCFIWalker<uint64_t, MDRawContextAMD64> CFIWalker;
 
   // Implementation of Stackwalker, using amd64 context (stack pointer in %rsp,
   // stack base in %rbp) and stack conventions (saved stack pointer at 0(%rbp))
   virtual StackFrame* GetContextFrame();
-  virtual StackFrame* GetCallerFrame(const CallStack *stack);
+  virtual StackFrame* GetCallerFrame(const CallStack* stack,
+                                     bool stack_scan_allowed);
 
   // Use cfi_frame_info (derived from STACK CFI records) to construct
   // the frame that called frames.back(). The caller takes ownership
   // of the returned frame. Return NULL on failure.
-  StackFrameAMD64 *GetCallerByCFIFrameInfo(const vector<StackFrame *> &frames,
-                                           CFIFrameInfo *cfi_frame_info);
+  StackFrameAMD64* GetCallerByCFIFrameInfo(const vector<StackFrame*> &frames,
+                                           CFIFrameInfo* cfi_frame_info);
 
   // Scan the stack for plausible return addresses. The caller takes ownership
-  // of the returned frame. Return NULL on failure. 
-  StackFrameAMD64 *GetCallerByStackScan(const vector<StackFrame *> &frames);
+  // of the returned frame. Return NULL on failure.
+  StackFrameAMD64* GetCallerByStackScan(const vector<StackFrame*> &frames);
 
   // Stores the CPU context corresponding to the innermost stack frame to
   // be returned by GetContextFrame.
-  const MDRawContextAMD64 *context_;
+  const MDRawContextAMD64* context_;
 
   // Our register map, for cfi_walker_.
   static const CFIWalker::RegisterSet cfi_register_map_[];

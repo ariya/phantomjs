@@ -38,11 +38,11 @@
 #ifndef PROCESSOR_SIMPLE_SERIALIZER_H__
 #define PROCESSOR_SIMPLE_SERIALIZER_H__
 
-#include <sys/types.h>
+#include "google_breakpad/common/breakpad_types.h"
 
 namespace google_breakpad {
 
-typedef u_int64_t MemAddr;
+typedef uint64_t MemAddr;
 
 // Default implementation of SimpleSerializer template.
 // Specializations are defined in "simple_serializer-inl.h".

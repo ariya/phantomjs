@@ -1,0 +1,199 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \module QtGui
+    \title Qt GUI C++ Classes
+    \ingroup modules
+    \qtvariable gui
+
+    \brief The Qt GUI module provides the basic enablers for graphical
+    applications written with Qt.
+
+    The Qt GUI module provides classes for windowing system
+    integration, event handling, OpenGL and OpenGL ES integration, 2D
+    graphics, imaging, fonts and typography. These classes are used
+    internally by Qt's user interface technologies and can also be
+    used directly, for instance to write applications using low-level
+    OpenGL ES graphics APIs.
+
+    To include the definitions of the module's classes, use the
+    following directive:
+
+    \snippet code/doc_src_qtgui.pro 0
+
+    If you use \l qmake to build your projects, \l{Qt GUI} is included by
+    default. To disable Qt GUI, add the following line to your \c .pro file:
+
+    \snippet code/doc_src_qtgui.pro 1
+
+*/
+
+/*!
+    \page qtgui-index.html
+    \title Qt GUI
+
+    The Qt GUI module provides classes for windowing system
+    integration, event handling, OpenGL and OpenGL ES integration, 2D
+    graphics, basic imaging, fonts and text. These classes are used
+    internally by Qt's user interface technologies and can also be
+    used directly, for instance to write applications using low-level
+    OpenGL ES graphics APIs.
+
+    For application developers writing user interfaces, Qt provides
+    higher level API's, like Qt Quick, that are much more suitable
+    than the enablers found in the Qt GUI module.
+
+    \section1 Getting started
+
+    To include the definitions of the module's classes, use the
+    following directive:
+
+    \snippet code/doc_src_qtgui.pro 0
+
+    If you use \l qmake to build your projects, Qt GUI is included by
+    default. To disable Qt GUI, add the following line to your \c .pro file:
+
+    \snippet code/doc_src_qtgui.pro 1
+
+    \section1 Application Windows
+
+    The most important classes in the Qt GUI module are
+    QGuiApplication and QWindow. A Qt application that wants to show
+    content on screen, will need to make use of these. QGuiApplication
+    contains the main event loop, where all events from the window
+    system and other sources are processed and dispatched. It also
+    handles the application's initialization and finalization.
+
+    The \l QWindow class represents a window in the underlying
+    windowing system. It provides a number of virtual functions to
+    handle events (\l {QEvent}) from the windowing system, such as
+    touch-input, exposure, focus, key strokes and geometry changes.
+
+
+
+    \section1 2D Graphics
+
+    The Qt GUI module contains classes for 2D graphics, imaging, fonts
+    and advanced typography.
+
+    A \l QWindow created with the surface type \l
+    {QSurface::RasterSurface} can be used in combination with \l
+    {QBackingStore} and \l {QPainter}, Qt's highly optimized 2D vector
+    graphics API. QPainter supports drawing lines, polygons, vector
+    paths, images and text. For more information, see \l{Paint
+    System} and \l {Raster Window Example}.
+
+    Qt can load and save images using the \l QImage and \l QPixmap
+    classes. By default, Qt supports the most common image formats
+    including JPEG and PNG among others. Users can add support for
+    additional formats via the \l QImageIOPlugin class. For more
+    information, see \l {Reading and Writing Image Files}
+
+    Typography in Qt is done with \l QTextDocument which uses the \l
+    QPainter API in combination with Qt's font classes, primarily
+    QFont. Applications that prefer more low-level APIs  to text
+    and font handling, classes like QRawFont and QGlyphRun can be
+    used.
+
+
+
+    \section1 OpenGL and OpenGL ES Integration
+
+    QWindow supports rendering using OpenGL and OpenGL ES, depending
+    on what the platform supports. OpenGL rendering is enabled by
+    setting the QWindow's surface type to QSurface::OpenGLSurface,
+    choosing the format attributes with QSurfaceFormat, and then
+    creating a QOpenGLContext to manage the native OpenGL context. In
+    addition, Qt has QOpenGLPaintDevice, which enables the use of
+    OpenGL accelerated QPainter rendering, as well as convenience
+    classes that simplify the writing of OpenGL code and hides the
+    complexities of extension handling and the differences between
+    OpenGL ES 2 and desktop OpenGL. The convenience classes include
+    QOpenGLFunctions that lets an application use all the OpenGL ES 2
+    functions on desktop OpenGL without having to manually resolve the
+    OpenGL function pointers, thus allowing cross-platform development
+    of applications targeting mobile or embedded devices, and some
+    classes that wrap native OpenGL functionality in a simpler Qt API:
+
+    \list
+    \li QOpenGLBuffer
+    \li QOpenGLFramebufferObject
+    \li QOpenGLShaderProgram
+    \li QOpenGLTexture
+    \li QOpenGLDebugLogger
+    \li QOpenGLTimerQuery
+    \li QOpenGLVertexArrayObject
+    \endlist
+
+    Finally, in order to provide better support for the newer versions
+    (3.0 and higher) of OpenGL, a versioned function wrapper mechanism
+    is also available: The QOpenGLFunction_N_N family of classes
+    expose all the functions in a given OpenGL version and profile,
+    allowing easy development of desktop applications relying on
+    modern, desktop-only OpenGL features.
+
+    For more information, see the \l {OpenGL Window Example}.
+
+    The Qt GUI module also contains a few math classes to aid with the
+    most common mathmatical operations related to 3D graphics. These
+    classes include \l {QMatrix4x4}, \l {QVector4D} and \l {QQuaternion}
+
+    A \l {QWindow} created with the \l {QSurface::OpenGLSurface} can
+    be used in combination with \l QPainter and \l QOpenGLPaintDevice
+    to have OpenGL hardware accelerated 2D graphics, by sacrificing
+    some of the visual quality.
+
+
+
+    \section1 Qt GUI prior to Qt 5.0
+
+    Prior to Qt 5.0, the Qt GUI module was the monolithic container
+    for all things relating to graphical user interfaces in Qt, and
+    included the Qt widget set, the item views, the graphics view
+    framework and also printing. Starting Qt 5, these classes have
+    been moved to the Qt Widgets module. Printing has been
+    moved to the Qt Print Support module.  Please note that these
+    modules can be excluded from a Qt installation.
+
+    Qt GUI now contains only a small set of enablers, which are generally
+    useful for all graphical applications.
+
+    \section1 Drag and Drop
+
+    More info in \l{Drag and Drop}
+
+    \section1 Reference
+    \list
+    \li \l{Qt GUI C++ Classes}
+        \list
+        \li \l{Event Classes}
+        \li \l{Painting Classes}
+        \li \l{Rendering in 3D}
+        \endlist
+    \endlist
+ */

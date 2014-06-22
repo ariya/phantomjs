@@ -37,15 +37,14 @@
 #include <string>
 
 #include "breakpad_googletest_includes.h"
-#include "common/linux/eintr_wrapper.h"
 #include "common/linux/memory_mapped_file.h"
 #include "common/tests/auto_tempdir.h"
 #include "common/tests/file_utils.h"
+#include "common/using_std_string.h"
 
 using google_breakpad::AutoTempDir;
 using google_breakpad::MemoryMappedFile;
 using google_breakpad::WriteFile;
-using std::string;
 
 namespace {
 
@@ -54,7 +53,7 @@ class MemoryMappedFileTest : public testing::Test {
   void ExpectNoMappedData(const MemoryMappedFile& mapped_file) {
     EXPECT_TRUE(mapped_file.content().IsEmpty());
     EXPECT_TRUE(mapped_file.data() == NULL);
-    EXPECT_EQ(0, mapped_file.size());
+    EXPECT_EQ(0U, mapped_file.size());
   }
 };
 

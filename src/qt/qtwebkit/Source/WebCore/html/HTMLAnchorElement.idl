@@ -1,0 +1,70 @@
+/*
+ * Copyright (C) 2006, 2007, 2009, 2010 Apple Inc. All rights reserved.
+ * Copyright (C) 2006 Samuel Weinig <sam.weinig@gmail.com>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+interface HTMLAnchorElement : HTMLElement {
+    [Reflect] attribute DOMString charset;
+    [Reflect] attribute DOMString coords;
+    [Conditional=DOWNLOAD_ATTRIBUTE, Reflect] attribute DOMString download;
+    [Reflect, URL] attribute DOMString href;
+    [Reflect] attribute DOMString hreflang;
+    [Reflect] attribute DOMString name;
+    [Reflect] attribute DOMString ping;
+    [Reflect] attribute DOMString rel;
+    [Reflect] attribute DOMString rev;
+    [Reflect] attribute DOMString shape;
+    [Reflect] attribute DOMString target;
+    [Reflect] attribute DOMString type;
+
+#if defined(LANGUAGE_OBJECTIVE_C) && LANGUAGE_OBJECTIVE_C
+    [Reflect] attribute DOMString accessKey;
+#endif
+
+#if defined(LANGUAGE_OBJECTIVE_C) && LANGUAGE_OBJECTIVE_C
+    readonly attribute DOMString hash;
+    readonly attribute DOMString host;
+    readonly attribute DOMString hostname;
+    readonly attribute DOMString pathname;
+    readonly attribute DOMString port;
+    readonly attribute DOMString protocol;
+    readonly attribute DOMString search;
+#else
+    [TreatNullAs=NullString] attribute DOMString hash;
+    [TreatNullAs=NullString] attribute DOMString host;
+    [TreatNullAs=NullString] attribute DOMString hostname;
+    [TreatNullAs=NullString] attribute DOMString pathname;
+    [TreatNullAs=NullString] attribute DOMString port;
+    [TreatNullAs=NullString] attribute DOMString protocol;
+    [TreatNullAs=NullString] attribute DOMString search;
+
+    [TreatNullAs=NullString] readonly attribute DOMString origin;
+#endif
+
+    readonly attribute DOMString text;
+
+#if defined(LANGUAGE_JAVASCRIPT) && LANGUAGE_JAVASCRIPT
+    [NotEnumerable] DOMString toString();
+#endif
+
+#if defined(LANGUAGE_OBJECTIVE_C) && LANGUAGE_OBJECTIVE_C
+    // Objective-C extension:
+    readonly attribute URL absoluteLinkURL;
+#endif
+};
+

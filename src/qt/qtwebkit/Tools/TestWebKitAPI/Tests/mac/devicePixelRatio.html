@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<style>
+    #detector { width: 5px; }
+    @media (-webkit-device-pixel-ratio:1) { #detector { width: 10px; } }
+    @media (-webkit-device-pixel-ratio:3) { #detector { width: 30px; } }
+    @media (-webkit-device-pixel-ratio:4) { #detector { width: 40px; } }
+</style>
+<script>
+    function devicePixelRatioFromStyle() {
+        var width = getComputedStyle(document.getElementById("detector")).width;
+        switch (width) {
+            case "10px":
+                return 1;
+            case "30px":
+                return 3;
+            case "40px":
+                return 4;
+            default:
+                return "unknown width: " + width;
+        }
+    }
+</script>
+<div id="detector"></div>

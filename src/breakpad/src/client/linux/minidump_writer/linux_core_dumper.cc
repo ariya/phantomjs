@@ -99,12 +99,16 @@ bool LinuxCoreDumper::GetThreadInfoByIndex(size_t index, ThreadInfo* info) {
   memcpy(&stack_pointer, &info->regs.rsp, sizeof(info->regs.rsp));
 #elif defined(__ARM_EABI__)
   memcpy(&stack_pointer, &info->regs.ARM_sp, sizeof(info->regs.ARM_sp));
+#elif defined(__aarch64__)
+  memcpy(&stack_pointer, &info->regs.sp, sizeof(info->regs.sp));
+#elif defined(__mips__)
+  stack_pointer =
+      reinterpret_cast<uint8_t*>(info->regs.regs[MD_CONTEXT_MIPS_REG_SP]);
 #else
 #error "This code hasn't been ported to your platform yet."
 #endif
-
-  return GetStackInfo(&info->stack, &info->stack_len,
-                      reinterpret_cast<uintptr_t>(stack_pointer));
+  info->stack_pointer = reinterpret_cast<uintptr_t>(stack_pointer);
+  return true;
 }
 
 bool LinuxCoreDumper::IsPostMortem() const {
@@ -184,7 +188,19 @@ bool LinuxCoreDumper::EnumerateThreads() {
         memset(&info, 0, sizeof(ThreadInfo));
         info.tgid = status->pr_pgrp;
         info.ppid = status->pr_ppid;
+#if defined(__mips__)
+        for (int i = EF_REG0; i <= EF_REG31; i++)
+          info.regs.regs[i - EF_REG0] = status->pr_reg[i];
+
+        info.regs.lo = status->pr_reg[EF_LO];
+        info.regs.hi = status->pr_reg[EF_HI];
+        info.regs.epc = status->pr_reg[EF_CP0_EPC];
+        info.regs.badvaddr = status->pr_reg[EF_CP0_BADVADDR];
+        info.regs.status = status->pr_reg[EF_CP0_STATUS];
+        info.regs.cause = status->pr_reg[EF_CP0_CAUSE];
+#else
         memcpy(&info.regs, status->pr_reg, sizeof(info.regs));
+#endif
         if (first_thread) {
           crash_thread_ = pid;
           crash_signal_ = status->pr_info.si_signo;

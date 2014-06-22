@@ -1,0 +1,6 @@
+CONFIG -= windows
+contains(TEMPLATE, ".*app") {
+    QMAKE_LFLAGS += \
+        $$replace(QMAKE_LFLAGS_CONSOLE, @QMAKE_SUBSYSTEM_SUFFIX@, $$QMAKE_SUBSYSTEM_SUFFIX) \
+        $$QMAKE_LFLAGS_EXE
+}

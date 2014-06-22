@@ -20,6 +20,9 @@
  * remains attached.
  */
 
+#ifndef COMMON_CONVERT_UTF_H_
+#define COMMON_CONVERT_UTF_H_
+
 /* ---------------------------------------------------------------------
 
 Conversions between UTF32, UTF-16, and UTF-8.  Header file.
@@ -141,3 +144,5 @@ Boolean isLegalUTF8Sequence(const UTF8 *source, const UTF8 *sourceEnd);
 #endif
 
 /* --------------------------------------------------------------------- */
+
+#endif  // COMMON_CONVERT_UTF_H_

@@ -1,0 +1,26 @@
+body {
+  font-family: Verdana, Helvetica, sans-serif;
+}
+
+#current_status {
+    padding: 5px;
+    font-size: larger;
+}
+
+#last_status_date {
+    font-size: small;
+}
+
+.recent_status {
+    padding-left: 10px;
+}
+
+#recent_status_table {
+    font-size: small;
+    margin: 10px;
+}
+
+#footer {
+    font-size: small;
+    padding-top: 10px;
+}

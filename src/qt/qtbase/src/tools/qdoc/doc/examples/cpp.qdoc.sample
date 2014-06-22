@@ -1,0 +1,126 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+//![class]
+/*!
+    \class QCache
+    \brief The QCache class is a template class that provides a cache.
+
+    \ingroup tools
+    \ingroup shared
+
+    \reentrant
+
+    QCache\<Key, T\> defines a cache that stores objects of type T
+    associated with keys of type Key. For example, here's the
+    definition of a cache that stores objects of type Employee
+    associated with an integer key:
+
+    \snippet code/doc_src_qcache.cpp 0
+
+    Here's how to insert an object in the cache:
+
+    \snippet code/doc_src_qcache.cpp 1
+
+    ... detailed description ommitted
+
+    \sa QPixmapCache, QHash, QMap
+*/
+//![class]
+
+//![function]
+/*!
+  \fn QString &QString::remove(int position, int n)
+
+  Removes \a n characters from the string, starting at the given \a
+  position index, and returns a reference to the string.
+
+  If the specified \a position index is within the string, but \a
+  position + \a n is beyond the end of the string, the string is
+  truncated at the specified \a position.
+
+  \snippet qstring/main.cpp 37
+
+  \sa insert(), replace()
+*/
+QString &QString::remove(int pos, int len)
+//! [function]
+
+//! [return]
+/*!
+    Returns \c true if a QScroller object was already created for \a target; \c false otherwise.
+
+    \sa scroller()
+*/
+bool QScroller::hasScroller(QObject *target)
+//! [return]
+
+//! [property]
+/*!
+    \property QVariantAnimation::duration
+    \brief the duration of the animation
+
+    This property describes the duration in milliseconds of the
+    animation. The default duration is 250 milliseconds.
+
+    \sa QAbstractAnimation::duration()
+ */
+int QVariantAnimation::duration() const
+//! [property]
+
+//! [signals]
+/*!
+  \fn QAbstractTransition::triggered()
+
+  This signal is emitted when the transition has been triggered (after
+  onTransition() has been called).
+*/
+//! [signals]
+
+//! [enums]
+/*!
+    \enum QSql::TableType
+
+    This enum type describes types of SQL tables.
+
+    \value Tables  All the tables visible to the user.
+    \value SystemTables  Internal tables used by the database.
+    \value Views  All the views visible to the user.
+    \value AllTables  All of the above.
+*/
+//! [enums]
+
+//! [overloaded notifier]
+/*!
+\property QSpinBox::value
+\brief the value of the spin box
+
+setValue() will emit valueChanged() if the new value is different
+from the old one. The \l{QSpinBox::}{value} property has a second notifier
+signal which includes the spin box's prefix and suffix.
+*/
+//! [overloaded notifier]

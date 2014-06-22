@@ -1,0 +1,11 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: WebKit
+Description: Web content engine for GTK+
+Version: @VERSION@
+Requires: glib-2.0 gtk+-@GTK_API_VERSION@ libsoup-2.4 javascriptcoregtk-@WEBKITGTK_API_VERSION@
+Libs: -L${libdir} -lwebkitgtk-@WEBKITGTK_API_VERSION@
+Cflags: -I${includedir}/webkitgtk-@WEBKITGTK_API_VERSION@

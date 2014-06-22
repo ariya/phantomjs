@@ -1,0 +1,10 @@
+Name: ANGLE
+URL: https://code.google.com/p/angleproject/
+Version: 2422
+License: BSD
+License File: LICENSE
+
+Description:
+ANGLE is a conformant implementation of the OpenGL ES 2.0
+specification that is hardware‐accelerated via Direct3D.
+

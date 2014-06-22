@@ -1,7 +1,7 @@
 /*
 This file is part of the GhostDriver by Ivan De Marino <http://ivandemarino.me>.
 
-Copyright (c) 2014, Ivan De Marino <http://ivandemarino.me>
+Copyright (c) 2012-2014, Ivan De Marino <http://ivandemarino.me>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -26,16 +26,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /* generate node configuration for this node */
-var nodeconf = function(ip, port, hub) {
+var nodeconf = function(ip, port, hub, proxy, version) {
         var ref$, hubHost, hubPort;
 
         ref$ = hub.match(/([\w\d\.]+):(\d+)/);
         hubHost = ref$[1];
         hubPort = +ref$[2]; //< ensure it's of type "number"
 
+        var ghostdriver = ghostdriver || {};
+
         return {
             capabilities: [{
                 browserName: "phantomjs",
+                version: version,
+                platform: ghostdriver.system.os.name + '-' + ghostdriver.system.os.version + '-' + ghostdriver.system.os.architecture,
                 maxInstances: 1,
                 seleniumProtocol: "WebDriver"
             }],
@@ -43,8 +47,9 @@ var nodeconf = function(ip, port, hub) {
                 hub: hub,
                 hubHost: hubHost,
                 hubPort: hubPort,
+                host: ip,
                 port: port,
-                proxy: "org.openqa.grid.selenium.proxy.DefaultRemoteProxy",
+                proxy: proxy,
                 // Note that multiple webdriver sessions or instances within a single
                 // Ghostdriver process will interact in unexpected and undesirable ways.
                 maxSession: 1,
@@ -59,7 +64,7 @@ var nodeconf = function(ip, port, hub) {
     _log = require("./logger.js").create("HUB Register");
 
 module.exports = {
-    register: function(ip, port, hub) {
+    register: function(ip, port, hub, proxy, version) {
         var page;
 
         try {
@@ -72,7 +77,7 @@ module.exports = {
             /* Register with selenium grid server */
             page.open(hub + 'grid/register', {
                 operation: 'post',
-                data: JSON.stringify(nodeconf(ip, port, hub)),
+                data: JSON.stringify(nodeconf(ip, port, hub, proxy, version)),
                 headers: {
                     'Content-Type': 'application/json'
                 }

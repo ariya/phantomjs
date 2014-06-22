@@ -1,0 +1,486 @@
+<html><head>
+<title>Test results, squirrelfish</title>
+</head>
+<body bgcolor='white'>
+<a name='tippy_top'></a>
+<h2>Test results, squirrelfish</h2><br>
+<p class='results_summary'>
+Test List: All tests<br>
+Skip List: ecma/Date/15.9.2.1.js, ecma/Date/15.9.2.2-1.js, ecma/Date/15.9.2.2-2.js, ecma/Date/15.9.2.2-3.js, ecma/Date/15.9.2.2-4.js, ecma/Date/15.9.2.2-5.js, ecma/Date/15.9.2.2-6.js, ecma_3/Date/15.9.5.7.js, ecma/Date/15.9.5.14.js, ecma/Date/15.9.5.31-1.js, ecma/Date/15.9.5.34-1.js<br>
+1124 test(s) selected, 1116 test(s) completed, 44 failures reported (3.94% failed)<br>
+Engine command line: "/Volumes/Data/Saxony/OpenSource/WebKitBuild/Debug/jsc" <br>
+OS type: Darwin Bearclaw-Kaliber.local 12.0.0 Darwin Kernel Version 12.0.0: Fri Jun 22 20:01:10 PDT 2012; root:xnu-2050.7.7~1/RELEASE_X86_64 x86_64<br>
+Testcase execution time: 54 seconds.<br>
+Tests completed on Fri Sep 21 18:29:47 2012.<br><br>
+[ <a href='#fail_detail'>Failure Details</a> | <a href='#retest_list'>Retest List</a> | <a href='menu.html'>Test Selection Page</a> ]<br>
+<hr>
+<a name='fail_detail'></a>
+<h2>Failure Details</h2><br>
+<dl><a name='failure1'></a><dd><b>Testcase <a target='other_window' href='./ecma_2/Exceptions/function-001.js'>ecma_2/Exceptions/function-001.js</a> failed</b> <a href='http://bugzilla.mozilla.org/show_bug.cgi?id=10278' target='other_window'>Bug Number 10278</a><br>
+ [ <a href='#failure2'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt><br>
+Failure messages were:<br>
+eval("function f(){}function g(){}") (threw no exception thrown = fail FAILED! expected: pass<br>
+</tt><br>
+<a name='failure2'></a><dd><b>Testcase <a target='other_window' href='./ecma_2/RegExp/regress-001.js'>ecma_2/RegExp/regress-001.js</a> failed</b> <a href='http://bugzilla.mozilla.org/show_bug.cgi?id=http://bugzilla.mozilla.org/show_bug.cgi?id=2157' target='other_window'>Bug Number http://bugzilla.mozilla.org/show_bug.cgi?id=2157</a><br>
+ [ <a href='#failure1'>Previous Failure</a> | <a href='#failure3'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+RegExp/hex-001.js JS regexp anchoring on empty match bug<br>
+BUGNUMBER: http://bugzilla.mozilla.org/show_bug.cgi?id=2157<br>
+Exception: TypeError: '/a||b/' is not a function (evaluating '/a||b/('')')<br>
+global code@./ecma_2/RegExp/regress-001.js:18<br>
+</tt><br>
+<a name='failure3'></a><dd><b>Testcase <a target='other_window' href='./ecma_3/FunExpr/fe-001.js'>ecma_3/FunExpr/fe-001.js</a> failed</b> <br>
+ [ <a href='#failure2'>Previous Failure</a> | <a href='#failure4'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>STATUS: Function Expression Statements basic test.<br>
+Failure messages were:<br>
+FAILED!: [reported from test()] Both functions were defined.<br>
+FAILED!: [reported from test()] Expected value '1', Actual value '0'<br>
+FAILED!: [reported from test()] <br>
+</tt><br>
+<a name='failure4'></a><dd><b>Testcase <a target='other_window' href='./ecma_3/Statements/regress-194364.js'>ecma_3/Statements/regress-194364.js</a> failed</b> <br>
+ [ <a href='#failure3'>Previous Failure</a> | <a href='#failure5'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+Exception: SyntaxError: Unexpected token '('<br>
+eval@[native code]<br>
+global code@./ecma_3/Statements/regress-194364.js:56<br>
+</tt><br>
+<a name='failure5'></a><dd><b>Testcase <a target='other_window' href='./ecma_3/Unicode/uc-001.js'>ecma_3/Unicode/uc-001.js</a> failed</b> <a href='http://bugzilla.mozilla.org/show_bug.cgi?id=23610' target='other_window'>Bug Number 23610</a><br>
+ [ <a href='#failure4'>Previous Failure</a> | <a href='#failure6'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>STATUS: Unicode format-control character (Category Cf) test.<br>
+Failure messages were:<br>
+FAILED!: [reported from test()] Unicode format-control character test (Category Cf.)<br>
+FAILED!: [reported from test()] Expected value 'no error', Actual value 'no‎ error'<br>
+FAILED!: [reported from test()] <br>
+</tt><br>
+<a name='failure6'></a><dd><b>Testcase <a target='other_window' href='./js1_2/Objects/toString-001.js'>js1_2/Objects/toString-001.js</a> failed</b> <br>
+ [ <a href='#failure5'>Previous Failure</a> | <a href='#failure7'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+JS1_2 Object.toString()<br>
+Exception: TypeError: '/^\{(.*)\}$/' is not a function (evaluating '/^\{(.*)\}$/(s)')<br>
+checkObjectToString@./js1_2/Objects/toString-001.js:103<br>
+global code@./js1_2/Objects/toString-001.js:64<br>
+</tt><br>
+<a name='failure7'></a><dd><b>Testcase <a target='other_window' href='./js1_2/function/Function_object.js'>js1_2/function/Function_object.js</a> failed</b> <br>
+ [ <a href='#failure6'>Previous Failure</a> | <a href='#failure8'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt><br>
+Failure messages were:<br>
+f.arity = undefined FAILED! expected: 3<br>
+} FAILED! expected: <br>
+</tt><br>
+<a name='failure8'></a><dd><b>Testcase <a target='other_window' href='./js1_2/function/function-001-n.js'>js1_2/function/function-001-n.js</a> failed</b> <br>
+ [ <a href='#failure7'>Previous Failure</a> | <a href='#failure9'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 3, got 0<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+function-001.js functions not separated by semicolons are errors in version 120 and higher<br>
+eval("function f(){}function g(){}") = undefined PASSED!<br>
+</tt><br>
+<a name='failure9'></a><dd><b>Testcase <a target='other_window' href='./js1_2/function/regexparg-1.js'>js1_2/function/regexparg-1.js</a> failed</b> <br>
+ [ <a href='#failure8'>Previous Failure</a> | <a href='#failure10'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+JS_1.2 The variable statment<br>
+Exception: TypeError: '/abc/' is not a function (evaluating 'x("hi")')<br>
+global code@./js1_2/function/regexparg-1.js:80<br>
+</tt><br>
+<a name='failure10'></a><dd><b>Testcase <a target='other_window' href='./js1_2/operator/equality.js'>js1_2/operator/equality.js</a> failed</b> <br>
+ [ <a href='#failure9'>Previous Failure</a> | <a href='#failure11'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt><br>
+Failure messages were:<br>
+(new String('x') == 'x')                  = true FAILED! expected: false<br>
+('x' == new String('x'))                  = true FAILED! expected: false<br>
+</tt><br>
+<a name='failure11'></a><dd><b>Testcase <a target='other_window' href='./js1_2/regexp/RegExp_lastIndex.js'>js1_2/regexp/RegExp_lastIndex.js</a> failed</b> <br>
+ [ <a href='#failure10'>Previous Failure</a> | <a href='#failure12'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt><br>
+Failure messages were:<br>
+re=/x./g; re.lastIndex=4; re.exec('xyabcdxa') = xa FAILED! expected: ["xa"]<br>
+re.exec('xyabcdef') = xy FAILED! expected: ["xy"]<br>
+</tt><br>
+<a name='failure12'></a><dd><b>Testcase <a target='other_window' href='./js1_2/regexp/regress-6359.js'>js1_2/regexp/regress-6359.js</a> failed</b> <a href='http://bugzilla.mozilla.org/show_bug.cgi?id=http://bugzilla.mozilla.org/show_bug.cgi?id=6359' target='other_window'>Bug Number http://bugzilla.mozilla.org/show_bug.cgi?id=6359</a><br>
+ [ <a href='#failure11'>Previous Failure</a> | <a href='#failure13'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+BUGNUMBER: http://bugzilla.mozilla.org/show_bug.cgi?id=6359<br>
+Exception: TypeError: '/(a*)b\1+/' is not a function (evaluating '/(a*)b\1+/("baaac")')<br>
+global code@./js1_2/regexp/regress-6359.js:56<br>
+</tt><br>
+<a name='failure13'></a><dd><b>Testcase <a target='other_window' href='./js1_2/regexp/regress-9141.js'>js1_2/regexp/regress-9141.js</a> failed</b> <a href='http://bugzilla.mozilla.org/show_bug.cgi?id=http://bugzilla.mozilla.org/show_bug.cgi?id=9141' target='other_window'>Bug Number http://bugzilla.mozilla.org/show_bug.cgi?id=9141</a><br>
+ [ <a href='#failure12'>Previous Failure</a> | <a href='#failure14'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+BUGNUMBER: http://bugzilla.mozilla.org/show_bug.cgi?id=9141<br>
+Exception: TypeError: '/(?:xx|x)*/' is not a function (evaluating '/(?:xx|x)*/(s)')<br>
+global code@./js1_2/regexp/regress-9141.js:73<br>
+</tt><br>
+<a name='failure14'></a><dd><b>Testcase <a target='other_window' href='./js1_2/regexp/simple_form.js'>js1_2/regexp/simple_form.js</a> failed</b> <br>
+ [ <a href='#failure13'>Previous Failure</a> | <a href='#failure15'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+Executing script: simple_form.js<br>
+As described in Netscape doc "Whats new in JavaScript 1.2" RegExp: simple form<br>
+Exception: TypeError: '/[0-9]{3}/' is not a function (evaluating '/[0-9]{3}/('23 2 34 678 9 09')')<br>
+global code@./js1_2/regexp/simple_form.js:43<br>
+</tt><br>
+<a name='failure15'></a><dd><b>Testcase <a target='other_window' href='./js1_2/regexp/string_split.js'>js1_2/regexp/string_split.js</a> failed</b> <br>
+ [ <a href='#failure14'>Previous Failure</a> | <a href='#failure16'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt><br>
+Failure messages were:<br>
+'abc'.split(/[a-z]/) = ,,, FAILED! expected: ,,<br>
+'abc'.split(/[a-z]/) = ,,, FAILED! expected: ,,<br>
+'abc'.split(new RegExp('[a-z]')) = ,,, FAILED! expected: ,,<br>
+'abc'.split(new RegExp('[a-z]')) = ,,, FAILED! expected: ,,<br>
+</tt><br>
+<a name='failure16'></a><dd><b>Testcase <a target='other_window' href='./js1_2/version120/boolean-001.js'>js1_2/version120/boolean-001.js</a> failed</b> <br>
+ [ <a href='#failure15'>Previous Failure</a> | <a href='#failure17'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt><br>
+Failure messages were:<br>
+new Boolean(false) = true FAILED! expected: false<br>
+</tt><br>
+<a name='failure17'></a><dd><b>Testcase <a target='other_window' href='./js1_2/version120/regress-99663.js'>js1_2/version120/regress-99663.js</a> failed</b> <br>
+ [ <a href='#failure16'>Previous Failure</a> | <a href='#failure18'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>STATUS: Regression test for Bugzilla bug 99663<br>
+Failure messages were:<br>
+Section 1 of test - got Error: Can't find variable: it FAILED! expected: a "read-only" error<br>
+Section 2 of test - got Error: Can't find variable: it FAILED! expected: a "read-only" error<br>
+Section 3 of test - got Error: Can't find variable: it FAILED! expected: a "read-only" error<br>
+</tt><br>
+<a name='failure18'></a><dd><b>Testcase <a target='other_window' href='./js1_3/Script/function-001-n.js'>js1_3/Script/function-001-n.js</a> failed</b> <a href='http://bugzilla.mozilla.org/show_bug.cgi?id=10278' target='other_window'>Bug Number 10278</a><br>
+ [ <a href='#failure17'>Previous Failure</a> | <a href='#failure19'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 3, got 0<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+BUGNUMBER: 10278<br>
+function-001.js functions not separated by semicolons are errors in version 120 and higher<br>
+eval("function f(){}function g(){}") = undefined PASSED!<br>
+</tt><br>
+<a name='failure19'></a><dd><b>Testcase <a target='other_window' href='./js1_3/Script/script-001.js'>js1_3/Script/script-001.js</a> failed</b> <br>
+ [ <a href='#failure18'>Previous Failure</a> | <a href='#failure20'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+script-001 NativeScript<br>
+Exception: ReferenceError: Can't find variable: Script<br>
+global code@./js1_3/Script/script-001.js:133<br>
+</tt><br>
+<a name='failure20'></a><dd><b>Testcase <a target='other_window' href='./js1_3/regress/function-001-n.js'>js1_3/regress/function-001-n.js</a> failed</b> <a href='http://bugzilla.mozilla.org/show_bug.cgi?id=10278' target='other_window'>Bug Number 10278</a><br>
+ [ <a href='#failure19'>Previous Failure</a> | <a href='#failure21'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 3, got 0<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+BUGNUMBER: 10278<br>
+function-001.js functions not separated by semicolons are errors in version 120 and higher<br>
+eval("function f(){}function g(){}") = undefined PASSED!<br>
+</tt><br>
+<a name='failure21'></a><dd><b>Testcase <a target='other_window' href='./js1_5/Exceptions/catchguard-001.js'>js1_5/Exceptions/catchguard-001.js</a> failed</b> <br>
+ [ <a href='#failure20'>Previous Failure</a> | <a href='#failure22'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+Exception: SyntaxError: Expected token ')'<br>
+</tt><br>
+<a name='failure22'></a><dd><b>Testcase <a target='other_window' href='./js1_5/Exceptions/catchguard-002.js'>js1_5/Exceptions/catchguard-002.js</a> failed</b> <br>
+ [ <a href='#failure21'>Previous Failure</a> | <a href='#failure23'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+Exception: SyntaxError: Expected token ')'<br>
+</tt><br>
+<a name='failure23'></a><dd><b>Testcase <a target='other_window' href='./js1_5/Exceptions/catchguard-003.js'>js1_5/Exceptions/catchguard-003.js</a> failed</b> <br>
+ [ <a href='#failure22'>Previous Failure</a> | <a href='#failure24'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+Exception: SyntaxError: Expected token ')'<br>
+</tt><br>
+<a name='failure24'></a><dd><b>Testcase <a target='other_window' href='./js1_5/Exceptions/errstack-001.js'>js1_5/Exceptions/errstack-001.js</a> failed</b> <br>
+ [ <a href='#failure23'>Previous Failure</a> | <a href='#failure25'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+Exception: TypeError: 'undefined' is not an object (evaluating 'stackFrames[4].substring')<br>
+global code@./js1_5/Exceptions/errstack-001.js:122<br>
+</tt><br>
+<a name='failure25'></a><dd><b>Testcase <a target='other_window' href='./js1_5/Exceptions/regress-50447.js'>js1_5/Exceptions/regress-50447.js</a> failed</b> <a href='http://bugzilla.mozilla.org/show_bug.cgi?id=50447' target='other_window'>Bug Number 50447</a><br>
+ [ <a href='#failure24'>Previous Failure</a> | <a href='#failure26'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+BUGNUMBER: 50447<br>
+STATUS: Test (non-ECMA) Error object properties fileName, lineNumber<br>
+Exception: TypeError: 'undefined' is not an object (evaluating 'e.fileName.search')<br>
+testRealError@./js1_5/Exceptions/regress-50447.js:65<br>
+test@./js1_5/Exceptions/regress-50447.js:44<br>
+global code@./js1_5/Exceptions/regress-50447.js:34<br>
+</tt><br>
+<a name='failure26'></a><dd><b>Testcase <a target='other_window' href='./js1_5/GetSet/getset-001.js'>js1_5/GetSet/getset-001.js</a> failed</b> <br>
+ [ <a href='#failure25'>Previous Failure</a> | <a href='#failure27'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+Exception: SyntaxError: Expected an identifier but found 'getter' instead<br>
+</tt><br>
+<a name='failure27'></a><dd><b>Testcase <a target='other_window' href='./js1_5/GetSet/getset-002.js'>js1_5/GetSet/getset-002.js</a> failed</b> <br>
+ [ <a href='#failure26'>Previous Failure</a> | <a href='#failure28'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+Exception: SyntaxError: Expected an identifier but found 'getter' instead<br>
+</tt><br>
+<a name='failure28'></a><dd><b>Testcase <a target='other_window' href='./js1_5/GetSet/getset-003.js'>js1_5/GetSet/getset-003.js</a> failed</b> <br>
+ [ <a href='#failure27'>Previous Failure</a> | <a href='#failure29'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+Exception: SyntaxError: Expected an identifier but found 'setter' instead<br>
+</tt><br>
+<a name='failure29'></a><dd><b>Testcase <a target='other_window' href='./js1_5/Object/regress-90596-001.js'>js1_5/Object/regress-90596-001.js</a> failed</b> <br>
+ [ <a href='#failure28'>Previous Failure</a> | <a href='#failure30'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+Exception: TypeError: 'undefined' is not a function (evaluating 'obj.toSource()')<br>
+global code@./js1_5/Object/regress-90596-001.js:48<br>
+</tt><br>
+<a name='failure30'></a><dd><b>Testcase <a target='other_window' href='./js1_5/Object/regress-90596-002.js'>js1_5/Object/regress-90596-002.js</a> failed</b> <br>
+ [ <a href='#failure29'>Previous Failure</a> | <a href='#failure31'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+Exception: ReferenceError: Can't find variable: uneval<br>
+global code@./js1_5/Object/regress-90596-002.js:48<br>
+</tt><br>
+<a name='failure31'></a><dd><b>Testcase <a target='other_window' href='./js1_5/Object/regress-96284-001.js'>js1_5/Object/regress-96284-001.js</a> failed</b> <br>
+ [ <a href='#failure30'>Previous Failure</a> | <a href='#failure32'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+Exception: TypeError: 'undefined' is not a function (evaluating 'obj1.toSource()')<br>
+global code@./js1_5/Object/regress-96284-001.js:49<br>
+</tt><br>
+<a name='failure32'></a><dd><b>Testcase <a target='other_window' href='./js1_5/Object/regress-96284-002.js'>js1_5/Object/regress-96284-002.js</a> failed</b> <br>
+ [ <a href='#failure31'>Previous Failure</a> | <a href='#failure33'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+Exception: ReferenceError: Can't find variable: uneval<br>
+global code@./js1_5/Object/regress-96284-002.js:49<br>
+</tt><br>
+<a name='failure33'></a><dd><b>Testcase <a target='other_window' href='./js1_5/Regress/regress-44009.js'>js1_5/Regress/regress-44009.js</a> failed</b> <a href='http://bugzilla.mozilla.org/show_bug.cgi?id=44009' target='other_window'>Bug Number 44009</a><br>
+ [ <a href='#failure32'>Previous Failure</a> | <a href='#failure34'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+BUGNUMBER: 44009<br>
+STATUS: Testing that we don't crash on obj.toSource()<br>
+Exception: TypeError: 'undefined' is not a function (evaluating 'obj.toSource()')<br>
+testThis@./js1_5/Regress/regress-44009.js:60<br>
+test@./js1_5/Regress/regress-44009.js:48<br>
+global code@./js1_5/Regress/regress-44009.js:35<br>
+</tt><br>
+<a name='failure34'></a><dd><b>Testcase <a target='other_window' href='./js1_5/Regress/regress-103602.js'>js1_5/Regress/regress-103602.js</a> failed</b> <a href='http://bugzilla.mozilla.org/show_bug.cgi?id=103602' target='other_window'>Bug Number 103602</a><br>
+ [ <a href='#failure33'>Previous Failure</a> | <a href='#failure35'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>STATUS: Reassignment to a const is NOT an error per ECMA<br>
+Failure messages were:<br>
+FAILED!: [reported from test()] Section 1 of test -<br>
+FAILED!: [reported from test()] Expected value '', Actual value 'Redeclaration of a const FAILED to cause an error'<br>
+FAILED!: [reported from test()] <br>
+FAILED!: [reported from test()] Section 3 of test -<br>
+FAILED!: [reported from test()] Expected value '1', Actual value '2'<br>
+FAILED!: [reported from test()] <br>
+</tt><br>
+<a name='failure35'></a><dd><b>Testcase <a target='other_window' href='./js1_5/Regress/regress-104077.js'>js1_5/Regress/regress-104077.js</a> failed</b> <br>
+ [ <a href='#failure34'>Previous Failure</a> | <a href='#failure36'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+Exception: SyntaxError: Expected token ')'<br>
+</tt><br>
+<a name='failure36'></a><dd><b>Testcase <a target='other_window' href='./js1_5/Regress/regress-127557.js'>js1_5/Regress/regress-127557.js</a> failed</b> <br>
+ [ <a href='#failure35'>Previous Failure</a> | <a href='#failure37'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+Exception: ReferenceError: Can't find variable: clone<br>
+global code@./js1_5/Regress/regress-127557.js:75<br>
+</tt><br>
+<a name='failure37'></a><dd><b>Testcase <a target='other_window' href='./js1_5/Regress/regress-172699.js'>js1_5/Regress/regress-172699.js</a> failed</b> <br>
+ [ <a href='#failure36'>Previous Failure</a> | <a href='#failure38'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+Exception: URIError: URI error<br>
+decodeURI@[native code]<br>
+global code@./js1_5/Regress/regress-172699.js:61<br>
+</tt><br>
+<a name='failure38'></a><dd><b>Testcase <a target='other_window' href='./js1_5/Regress/regress-179524.js'>js1_5/Regress/regress-179524.js</a> failed</b> <a href='http://bugzilla.mozilla.org/show_bug.cgi?id=179524' target='other_window'>Bug Number 179524</a><br>
+ [ <a href='#failure37'>Previous Failure</a> | <a href='#failure39'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>STATUS: Don't crash on extraneous arguments to str.match(), etc.<br>
+Failure messages were:<br>
+FAILED!: [reported from test()] Section 14 of test -<br>
+FAILED!: [reported from test()] Expected value 'A', Actual value 'a'<br>
+FAILED!: [reported from test()] <br>
+FAILED!: [reported from test()] Section 15 of test -<br>
+FAILED!: [reported from test()] Expected value 'A,a', Actual value 'a'<br>
+FAILED!: [reported from test()] <br>
+FAILED!: [reported from test()] Section 17 of test -<br>
+FAILED!: [reported from test()] Expected value 'A', Actual value 'a'<br>
+FAILED!: [reported from test()] <br>
+FAILED!: [reported from test()] Section 18 of test -<br>
+FAILED!: [reported from test()] Expected value 'A,a', Actual value 'a'<br>
+FAILED!: [reported from test()] <br>
+FAILED!: [reported from test()] Section 20 of test -<br>
+FAILED!: [reported from test()] Expected value 'SHOULD HAVE FALLEN INTO CATCH-BLOCK!', Actual value 'a'<br>
+FAILED!: [reported from test()] <br>
+FAILED!: [reported from test()] Section 22 of test -<br>
+FAILED!: [reported from test()] Expected value '0', Actual value '4'<br>
+FAILED!: [reported from test()] <br>
+FAILED!: [reported from test()] Section 23 of test -<br>
+FAILED!: [reported from test()] Expected value '0', Actual value '4'<br>
+FAILED!: [reported from test()] <br>
+FAILED!: [reported from test()] Section 25 of test -<br>
+FAILED!: [reported from test()] Expected value '0', Actual value '4'<br>
+FAILED!: [reported from test()] <br>
+FAILED!: [reported from test()] Section 26 of test -<br>
+FAILED!: [reported from test()] Expected value '0', Actual value '4'<br>
+FAILED!: [reported from test()] <br>
+FAILED!: [reported from test()] Section 28 of test -<br>
+FAILED!: [reported from test()] Type mismatch, expected type string, actual type number<br>
+FAILED!: [reported from test()] Expected value 'SHOULD HAVE FALLEN INTO CATCH-BLOCK!', Actual value '4'<br>
+FAILED!: [reported from test()] <br>
+FAILED!: [reported from test()] Section 30 of test -<br>
+FAILED!: [reported from test()] Expected value 'ZBC abc', Actual value 'ABC Zbc'<br>
+FAILED!: [reported from test()] <br>
+FAILED!: [reported from test()] Section 31 of test -<br>
+FAILED!: [reported from test()] Expected value 'ZBC Zbc', Actual value 'ABC Zbc'<br>
+FAILED!: [reported from test()] <br>
+FAILED!: [reported from test()] Section 33 of test -<br>
+FAILED!: [reported from test()] Expected value 'ZBC abc', Actual value 'ABC Zbc'<br>
+FAILED!: [reported from test()] <br>
+FAILED!: [reported from test()] Section 34 of test -<br>
+FAILED!: [reported from test()] Expected value 'ZBC Zbc', Actual value 'ABC Zbc'<br>
+FAILED!: [reported from test()] <br>
+FAILED!: [reported from test()] Section 36 of test -<br>
+FAILED!: [reported from test()] Expected value 'SHOULD HAVE FALLEN INTO CATCH-BLOCK!', Actual value 'ABC Zbc'<br>
+FAILED!: [reported from test()] <br>
+</tt><br>
+<a name='failure39'></a><dd><b>Testcase <a target='other_window' href='./js1_5/Scope/regress-220584.js'>js1_5/Scope/regress-220584.js</a> failed</b> <br>
+ [ <a href='#failure38'>Previous Failure</a> | <a href='#failure40'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+Exception: ReferenceError: Can't find variable: Script<br>
+global code@./js1_5/Scope/regress-220584.js:56<br>
+</tt><br>
+<a name='failure40'></a><dd><b>Testcase <a target='other_window' href='./js1_5/Scope/scope-001.js'>js1_5/Scope/scope-001.js</a> failed</b> <a href='http://bugzilla.mozilla.org/show_bug.cgi?id=53268' target='other_window'>Bug Number 53268</a><br>
+ [ <a href='#failure39'>Previous Failure</a> | <a href='#failure41'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>STATUS: Testing scope after changing obj.__proto__<br>
+Failure messages were:<br>
+FAILED!: [reported from test()] Step 1:  setting obj.__proto__ = global object<br>
+FAILED!: [reported from test()] Expected value '5', Actual value '1'<br>
+FAILED!: [reported from test()] <br>
+FAILED!: [reported from test()] Step 2:  setting obj.__proto__ = null<br>
+FAILED!: [reported from test()] Type mismatch, expected type undefined, actual type number<br>
+FAILED!: [reported from test()] Expected value 'undefined', Actual value '1'<br>
+FAILED!: [reported from test()] <br>
+</tt><br>
+<a name='failure41'></a><dd><b>Testcase <a target='other_window' href='./js1_6/Regress/regress-301574.js'>js1_6/Regress/regress-301574.js</a> failed</b> <a href='http://bugzilla.mozilla.org/show_bug.cgi?id=301574' target='other_window'>Bug Number 301574</a><br>
+ [ <a href='#failure40'>Previous Failure</a> | <a href='#failure42'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>STATUS: E4X should be enabled even when e4x=1 not specified<br>
+Failure messages were:<br>
+FAILED!: E4X should be enabled even when e4x=1 not specified: XML()<br>
+FAILED!: Expected value 'No error', Actual value 'error: ReferenceError: Can't find variable: XML'<br>
+FAILED!: <br>
+FAILED!: E4X should be enabled even when e4x=1 not specified: XMLList()<br>
+FAILED!: Expected value 'No error', Actual value 'error: ReferenceError: Can't find variable: XML'<br>
+FAILED!: <br>
+</tt><br>
+<a name='failure42'></a><dd><b>Testcase <a target='other_window' href='./js1_6/Regress/regress-309242.js'>js1_6/Regress/regress-309242.js</a> failed</b> <br>
+ [ <a href='#failure41'>Previous Failure</a> | <a href='#failure43'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+Exception: SyntaxError: Unexpected token '<'<br>
+</tt><br>
+<a name='failure43'></a><dd><b>Testcase <a target='other_window' href='./js1_6/Regress/regress-314887.js'>js1_6/Regress/regress-314887.js</a> failed</b> <br>
+ [ <a href='#failure42'>Previous Failure</a> | <a href='#failure44'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+Exception: SyntaxError: Unexpected token '<'<br>
+</tt><br>
+<a name='failure44'></a><dd><b>Testcase <a target='other_window' href='./js1_6/String/regress-306591.js'>js1_6/String/regress-306591.js</a> failed</b> <a href='http://bugzilla.mozilla.org/show_bug.cgi?id=306591' target='other_window'>Bug Number 306591</a><br>
+ [ <a href='#failure43'>Previous Failure</a> | <a href='#failure45'>Next Failure</a> | <a href='#tippy_top'>Top of Page</a> ]<br>
+<tt>Expected exit code 0, got 3<br>
+Testcase terminated with signal 0<br>
+Complete testcase output was:<br>
+BUGNUMBER: 306591<br>
+STATUS: String static methods<br>
+STATUS: See https://bugzilla.mozilla.org/show_bug.cgi?id=304828<br>
+Exception: TypeError: 'undefined' is not a function (evaluating 'String.split(new String('abc'), '')')<br>
+global code@./js1_6/String/regress-306591.js:48<br>
+</tt><br>
+</dl>
+[ <a href='#tippy_top'>Top of Page</a> | <a href='#fail_detail'>Top of Failures</a> ]<br>
+<hr>
+<pre>
+<a name='retest_list'></a>
+<h2>Retest List</h2><br>
+# Retest List, squirrelfish, generated Fri Sep 21 18:29:47 2012.
+# Original test base was: All tests.
+# 1116 of 1124 test(s) were completed, 44 failures reported.
+ecma_2/Exceptions/function-001.js
+ecma_2/RegExp/regress-001.js
+ecma_3/FunExpr/fe-001.js
+ecma_3/Statements/regress-194364.js
+ecma_3/Unicode/uc-001.js
+js1_2/Objects/toString-001.js
+js1_2/function/Function_object.js
+js1_2/function/function-001-n.js
+js1_2/function/regexparg-1.js
+js1_2/operator/equality.js
+js1_2/regexp/RegExp_lastIndex.js
+js1_2/regexp/regress-6359.js
+js1_2/regexp/regress-9141.js
+js1_2/regexp/simple_form.js
+js1_2/regexp/string_split.js
+js1_2/version120/boolean-001.js
+js1_2/version120/regress-99663.js
+js1_3/Script/function-001-n.js
+js1_3/Script/script-001.js
+js1_3/regress/function-001-n.js
+js1_5/Exceptions/catchguard-001.js
+js1_5/Exceptions/catchguard-002.js
+js1_5/Exceptions/catchguard-003.js
+js1_5/Exceptions/errstack-001.js
+js1_5/Exceptions/regress-50447.js
+js1_5/GetSet/getset-001.js
+js1_5/GetSet/getset-002.js
+js1_5/GetSet/getset-003.js
+js1_5/Object/regress-90596-001.js
+js1_5/Object/regress-90596-002.js
+js1_5/Object/regress-96284-001.js
+js1_5/Object/regress-96284-002.js
+js1_5/Regress/regress-44009.js
+js1_5/Regress/regress-103602.js
+js1_5/Regress/regress-104077.js
+js1_5/Regress/regress-127557.js
+js1_5/Regress/regress-172699.js
+js1_5/Regress/regress-179524.js
+js1_5/Scope/regress-220584.js
+js1_5/Scope/scope-001.js
+js1_6/Regress/regress-301574.js
+js1_6/Regress/regress-309242.js
+js1_6/Regress/regress-314887.js
+js1_6/String/regress-306591.js

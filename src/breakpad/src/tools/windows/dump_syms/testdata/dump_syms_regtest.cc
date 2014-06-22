@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// cl /Zi dump_syms_regtest.cc
-// dump_syms dump_syms_regtest.pdb | tr -d '\015' > dump_syms_regtest.sym
+// cl /Zi dump_syms_regtest.cc /link /PROFILE
+// dump_syms dump_syms_regtest.pdb > dump_syms_regtest.sym
 
 namespace google_breakpad {
 

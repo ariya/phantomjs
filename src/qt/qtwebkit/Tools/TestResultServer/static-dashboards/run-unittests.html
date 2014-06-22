@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<!--
+Copyright (C) 2012 Google Inc. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<html>
+<head>
+<link rel="stylesheet" href="../../../Source/ThirdParty/qunit/qunit/qunit.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script> 
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
+<script src="../../../Source/ThirdParty/qunit/qunit/qunit.js"></script>
+</head>
+<body>
+<h1 id="qunit-header">Test Results Server JavaScript Unit Tests</h1>
+<h2 id="qunit-banner"></h2>
+<div id="qunit-testrunner-toolbar"></div>
+<h2 id="qunit-userAgent"></h2>
+<ol id="qunit-tests"></ol>
+
+<link rel="stylesheet" href="flakiness_dashboard.css"></link>
+<link rel="stylesheet" href="flakiness_dashboard_tests.css"></link>
+<script src="builders.js"></script>
+<script src="builders_unittests.js"></script>
+<script src="string.js"></script>
+<script src="history.js"></script>
+<script src="history_unittests.js"></script>
+<script src="dashboard_base.js"></script>
+<script src="ui.js"></script>
+<script src="loader.js"></script>
+<script src="loader_unittests.js"></script>
+<script>
+  // Mock out loader.request so that we don't actually make xhrs for tests.
+  loader.request = function(url, successCallback, errorCallback) {};
+</script>
+<script src="flakiness_dashboard.js"></script>
+
+<script>
+window.location.href = '#useTestData=true';
+</script>
+
+<!-- FIXME: Split this up into multiple unittest.js, e.g. one for builders.js and one for dashboard_base.js. -->
+<script src="flakiness_dashboard_unittests.js"></script>
+</body>
+</html>

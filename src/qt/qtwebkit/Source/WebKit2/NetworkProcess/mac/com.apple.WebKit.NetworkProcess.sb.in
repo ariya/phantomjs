@@ -1,0 +1,148 @@
+(version 1)
+(deny default (with partial-symbolication))
+(allow system-audit file-read-metadata)
+
+(import "system.sb")
+
+;; Utility functions for home directory relative path filters
+(define (home-regex home-relative-regex)
+  (regex (string-append "^" (regex-quote (param "HOME_DIR")) home-relative-regex)))
+
+(define (home-subpath home-relative-subpath)
+    (subpath (string-append (param "HOME_DIR") home-relative-subpath)))
+
+(define (home-literal home-relative-literal)
+    (literal (string-append (param "HOME_DIR") home-relative-literal)))
+
+#if __MAC_OS_X_VERSION_MIN_REQUIRED == 1070
+;; Low level networking. Defined in system.sb on newer OS versions.
+(define (system-network)
+  (allow file-read*
+         (literal "/Library/Preferences/com.apple.networkd.plist"))
+  (allow mach-lookup
+         (global-name "com.apple.SystemConfiguration.PPPController")
+         (global-name "com.apple.SystemConfiguration.SCNetworkReachability")
+         (global-name "com.apple.networkd"))
+  (allow network-outbound
+         (control-name "com.apple.netsrc")
+         (control-name "com.apple.network.statistics"))
+  (allow system-socket
+         (require-all (socket-domain AF_SYSTEM)
+                      (socket-protocol 2)) ; SYSPROTO_CONTROL
+         (socket-domain AF_ROUTE)))
+#endif
+
+;; Read-only preferences and data
+(allow file-read*
+    ;; Basic system paths
+    (subpath "/Library/Frameworks")
+    (subpath "/Library/Managed Preferences")
+
+    ;; System and user preferences
+    (literal "/Library/Preferences/.GlobalPreferences.plist")
+    (regex #"^/Library/Managed Preferences/[^/]+/com\.apple\.networkConnect\.plist$")
+    (home-literal "/Library/Preferences/.GlobalPreferences.plist")
+    (home-regex #"/Library/Preferences/ByHost/\.GlobalPreferences\.")
+    (home-regex #"/Library/Preferences/ByHost/com\.apple\.networkConnect\.")
+    (home-literal "/Library/Preferences/com.apple.DownloadAssessment.plist")
+    (home-literal "/Library/Preferences/com.apple.WebFoundation.plist")
+
+    ;; On-disk WebKit2 framework location, to account for debug installations
+    ;; outside of /System/Library/Frameworks
+    (subpath (param "WEBKIT2_FRAMEWORK_DIR")))
+
+;; Sandbox extensions
+(define (apply-read-and-issue-extension op path-filter)
+    (op file-read* path-filter)
+    (op file-issue-extension (require-all (extension-class "com.apple.app-sandbox.read") path-filter)))
+(define (apply-write-and-issue-extension op path-filter)
+    (op file-write* path-filter)
+    (op file-issue-extension (require-all (extension-class "com.apple.app-sandbox.read-write") path-filter)))
+(define (read-only-and-issue-extensions path-filter)
+    (apply-read-and-issue-extension allow path-filter))
+(define (read-write-and-issue-extensions path-filter)
+    (apply-read-and-issue-extension allow path-filter)
+    (apply-write-and-issue-extension allow path-filter))
+(read-only-and-issue-extensions (extension "com.apple.app-sandbox.read"))
+(read-write-and-issue-extensions (extension "com.apple.app-sandbox.read-write"))
+
+#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1080
+(allow file-read* file-write* (subpath (param "DARWIN_USER_CACHE_DIR")))
+#else
+(allow file-read* file-write* (subpath (string-append (param "DARWIN_USER_CACHE_DIR") "/mds")))
+#endif
+
+(allow file-read* file-write* (subpath (param "DARWIN_USER_TEMP_DIR")))
+
+;; IOKit user clients
+(allow iokit-open
+    (iokit-user-client-class "RootDomainUserClient"))
+
+;; cookied.
+;; FIXME: Update for <rdar://problem/13642852>.
+(allow ipc-posix-shm-read-data
+    (ipc-posix-name "FNetwork.defaultStorageSession")
+    (ipc-posix-name-regex #"\.PrivateBrowsing-")
+    (ipc-posix-name-regex #"^Private WebKit Session-"))
+
+;; Various services required by CFNetwork and other frameworks
+(allow mach-lookup
+    (global-name "com.apple.PowerManagement.control")
+    (global-name "com.apple.SystemConfiguration.configd")
+    (global-name "com.apple.cookied")
+    (global-name "com.apple.cfnetwork.AuthBrokerAgent"))
+
+;; Security framework
+(allow mach-lookup
+       (global-name "com.apple.ocspd")
+       (global-name "com.apple.SecurityServer"))
+(allow file-read* file-write* (home-subpath "/Library/Keychains")) ;; FIXME: This should be removed when <rdar://problem/10479685> is fixed.
+(allow file-read* file-write* (subpath "/private/var/db/mds/system")) ;; FIXME: This should be removed when <rdar://problem/9538414> is fixed.
+(allow file-read*
+       (subpath "/Library/Keychains")
+       (subpath "/private/var/db/mds")
+       (literal "/private/var/db/DetachedSignatures")
+       (literal "/Library/Preferences/com.apple.crypto.plist")
+       (literal "/Library/Preferences/com.apple.security.plist")
+       (literal "/Library/Preferences/com.apple.security.common.plist")
+       (literal "/Library/Preferences/com.apple.security.revocation.plist")
+       (home-literal "/Library/Application Support/SyncServices/Local/ClientsWithChanges/com.apple.Keychain")
+       (home-literal "/Library/Preferences/com.apple.security.plist")
+       (home-literal "/Library/Preferences/com.apple.security.revocation.plist"))
+(allow ipc-posix-shm-read* ipc-posix-shm-write-data
+       (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+(system-network)
+(allow network-outbound
+    ;; Local mDNSResponder for DNS, arbitrary outbound TCP
+    (literal "/private/var/run/mDNSResponder")
+    (remote tcp))
+
+;; FIXME should be removed when <rdar://problem/9347205> + related radar in Safari is fixed
+(allow mach-lookup
+    (global-name "org.h5l.kcm")
+    (global-name "com.apple.system.logger")
+    (global-name "com.apple.system.notification_center"))
+(allow network-outbound
+    (remote udp))
+(allow file-read*
+    (home-subpath "/Library/Preferences/com.apple.Kerberos.plist")
+    (home-subpath "/Library/Preferences/com.apple.GSS.plist")
+    (home-subpath "/Library/Preferences/edu.mit.Kerberos")
+    (literal "/Library/Preferences/com.apple.Kerberos.plist")
+    (literal "/Library/Preferences/com.apple.GSS.plist")
+    (literal "/Library/Preferences/edu.mit.Kerberos")
+    (literal "/private/etc/krb5.conf")
+    (literal "/private/etc/services")
+    (literal "/private/etc/host"))
+
+(if (defined? 'vnode-type)
+    (deny file-write-create (vnode-type SYMLINK)))
+
+(deny file-read* file-write* (with no-log)
+#if __MAC_OS_X_VERSION_MIN_REQUIRED <= 1080
+    (home-literal "/Library/Caches/Cache.db") ;; <rdar://problem/9422957>
+#endif
+    ;; FIXME: Should be removed after <rdar://problem/10463881> is fixed.
+    (home-literal "/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV2")
+    (home-literal "/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV2-journal"))

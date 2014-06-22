@@ -1,5 +1,4 @@
-# Copyright (c) 2010, Google Inc.
-# All rights reserved.
+# Copyright 2010 Google Inc. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
@@ -29,15 +28,17 @@
 
 {
   'includes': [
-    '../build/common.gypi',
+    '../../../build/common.gypi',
   ],
   'targets': [
     {
       'target_name': 'client_tests',
       'type': 'executable',
       'sources': [
+        'exception_handler_test.h',
         'exception_handler_test.cc',
         'exception_handler_death_test.cc',
+        'exception_handler_nesting_test.cc',
         'minidump_test.cc',
         'dump_analysis.cc',
         'dump_analysis.h',

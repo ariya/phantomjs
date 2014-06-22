@@ -1,0 +1,2319 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+/*!
+    \page model-view-programming.html
+    \ingroup qt-basic-concepts
+
+    \title Model/View Programming
+    \brief A guide to Qt's extensible model/view architecture.
+
+    \section1 Introduction to Model/View Programming
+
+    Qt contains a set of item view classes that use a model/view
+    architecture to manage the relationship between data and the way it
+    is presented to the user. The separation of functionality introduced by
+    this architecture gives developers greater flexibility to customize the
+    presentation of items, and provides a standard model interface to allow
+    a wide range of data sources to be used with existing item views.
+    In this document, we give a brief introduction to the model/view paradigm,
+    outline the concepts involved, and describe the architecture of the item
+    view system. Each of the components in the architecture is explained,
+    and examples are given that show how to use the classes provided.
+
+    \section2 The model/view architecture
+
+    Model-View-Controller (MVC) is a design pattern originating from
+    Smalltalk that is often used when building user interfaces.
+    In \l{Design Patterns}, Gamma et al. write:
+
+    \quotation
+    MVC consists of three kinds of objects. The Model is the application
+    object, the View is its screen presentation, and the Controller defines
+    the way the user interface reacts to user input. Before MVC, user
+    interface designs tended to lump these objects together. MVC decouples
+    them to increase flexibility and reuse.
+    \endquotation
+
+    If the view and the controller objects are combined, the result is
+    the model/view architecture. This still separates the way that data
+    is stored from the way that it is presented to the user, but provides
+    a simpler framework based on the same principles. This separation
+    makes it possible to display the same data in several different views,
+    and to implement new types of views, without changing the underlying
+    data structures.
+    To allow flexible handling of user input, we introduce the concept of
+    the \e delegate. The advantage of having a delegate in this framework
+    is that it allows the way items of data are rendered and edited to be
+    customized.
+
+    \table
+    \row \li \inlineimage modelview-overview.png
+    \li \b{The model/view architecture}
+
+    The model communicates with a source of data, providing an \e interface
+    for the other components in the architecture. The nature of the
+    communication depends on the type of data source, and the way the model
+    is implemented.
+
+    The view obtains \e{model indexes} from the model; these are references
+    to items of data. By supplying model indexes to the model, the view can
+    retrieve items of data from the data source.
+
+    In standard views, a \e delegate renders the items of data. When an item
+    is edited, the delegate communicates with the model directly using
+    model indexes.
+    \endtable
+
+    Generally, the model/view classes can be separated into the three groups
+    described above: models, views, and delegates. Each of these components
+    is defined by \e abstract classes that provide common interfaces and,
+    in some cases, default implementations of features.
+    Abstract classes are meant to be subclassed in order to provide the full
+    set of functionality expected by other components; this also allows
+    specialized components to be written.
+
+    Models, views, and delegates communicate with each other using \e{signals
+    and slots}:
+
+    \list
+    \li Signals from the model inform the view about changes to the data
+       held by the data source.
+    \li Signals from the view provide information about the user's interaction
+       with the items being displayed.
+    \li Signals from the delegate are used during editing to tell the
+       model and view about the state of the editor.
+    \endlist
+
+    \section3 Models
+
+    All item models are based on the QAbstractItemModel class. This class
+    defines an interface that is used by views and delegates to access data.
+    The data itself does not have to be stored in the model; it can be held
+    in a data structure or repository provided by a separate class, a file,
+    a database, or some other application component.
+
+    The basic concepts surrounding models are presented in the section
+    on \l{Model Classes}.
+
+    QAbstractItemModel
+    provides an interface to data that is flexible enough to handle views
+    that represent data in the form of tables, lists, and trees. However,
+    when implementing new models for list and table-like data structures,
+    the QAbstractListModel and QAbstractTableModel classes are better
+    starting points because they provide appropriate default implementations
+    of common functions. Each of these classes can be subclassed to provide
+    models that support specialized kinds of lists and tables.
+
+    The process of subclassing models is discussed in the section on
+    \l{Creating New Models}.
+
+    Qt provides some ready-made models that can be used to handle items of
+    data:
+
+    \list
+    \li QStringListModel is used to store a simple list of QString items.
+    \li QStandardItemModel manages more complex tree structures of items, each
+       of which can contain arbitrary data.
+    \li QFileSystemModel provides information about files and directories in the
+       local filing system.
+    \li QSqlQueryModel, QSqlTableModel, and QSqlRelationalTableModel are used
+       to access databases using model/view conventions.
+    \endlist
+
+    If these standard models do not meet your requirements, you can subclass
+    QAbstractItemModel, QAbstractListModel, or QAbstractTableModel to create
+    your own custom models.
+
+    \section3 Views
+
+    Complete implementations are provided for different kinds of
+    views: QListView displays a list of items, QTableView displays data
+    from a model in a table, and QTreeView shows model items of data in a
+    hierarchical list. Each of these classes is based on the
+    QAbstractItemView abstract base class. Although these classes are
+    ready-to-use implementations, they can also be subclassed to provide
+    customized views.
+
+    The available views are examined in the section on \l{View Classes}.
+
+    \section3 Delegates
+
+    QAbstractItemDelegate is the abstract base class for delegates in the
+    model/view framework. The default delegate implementation is
+    provided by QStyledItemDelegate, and this is used as the default delegate
+    by Qt's standard views. However, QStyledItemDelegate and QItemDelegate are
+    independent alternatives to painting and providing editors for items in
+    views. The difference between them is that QStyledItemDelegate uses the
+    current style to paint its items. We therefore recommend using
+    QStyledItemDelegate as the base class when implementing custom delegates or
+    when working with Qt style sheets.
+
+    Delegates are described in the section on \l{Delegate Classes}.
+
+    \section3 Sorting
+
+    There are two ways of approaching sorting in the model/view
+    architecture; which approach to choose depends on your underlying
+    model.
+
+    If your model is sortable, i.e, if it reimplements the
+    QAbstractItemModel::sort() function, both QTableView and QTreeView
+    provide an API that allows you to sort your model data
+    programmatically. In addition, you can enable interactive sorting
+    (i.e. allowing the users to sort the data by clicking the view's
+    headers), by connecting the QHeaderView::sortIndicatorChanged() signal
+    to the QTableView::sortByColumn() slot or the
+    QTreeView::sortByColumn() slot, respectively.
+
+    The alternative approach, if your model does not have the required
+    interface or if you want to use a list view to present your data,
+    is to use a proxy model to transform the structure of your model
+    before presenting the data in the view. This is covered in detail
+    in the section on \l {Proxy Models}.
+
+    \section3 Convenience classes
+
+    A number of \e convenience classes are derived from the standard view
+    classes for the benefit of applications that rely on Qt's item-based
+    item view and table classes. They are not intended to be subclassed.
+
+    Examples of such classes include \l QListWidget, \l QTreeWidget, and
+    \l QTableWidget.
+
+    These classes are less flexible than the view classes, and cannot be
+    used with arbitrary models. We recommend that you use a model/view
+    approach to handling data in item views unless you strongly need an
+    item-based set of classes.
+
+    If you wish to take advantage of the features provided by the model/view
+    approach while still using an item-based interface, consider using view
+    classes, such as QListView, QTableView, and QTreeView with
+    QStandardItemModel.
+
+    \section1 Using models and views
+
+    The following sections explain how to use the model/view pattern
+    in Qt. Each section includes an example and is followed by a
+    section showing how to create new components.
+
+    \section2 Two models included in Qt
+
+    Two of the standard models provided by Qt are QStandardItemModel and
+    QFileSystemModel. QStandardItemModel is a multi-purpose model that can be
+    used to represent various different data structures needed by list, table,
+    and tree views. This model also holds the items of data.
+    QFileSystemModel is a model that maintains information about the contents
+    of a directory. As a result, it does not hold any items of data itself, but
+    simply represents files and directories on the local filing system.
+
+    QFileSystemModel provides a ready-to-use model to experiment with, and can be
+    easily configured to use existing data. Using this model, we can show how
+    to set up a model for use with ready-made views, and explore how to
+    manipulate data using model indexes.
+
+    \section2 Using views with an existing model
+
+    The QListView and QTreeView classes are the most suitable views
+    to use with QFileSystemModel. The example presented below displays the
+    contents of a directory in a tree view next to the same information in
+    a list view. The views share the user's selection so that the selected
+    items are highlighted in both views.
+
+    \image shareddirmodel.png
+
+    We set up a QFileSystemModel so that it is ready for use, and create some
+    views to display the contents of a directory. This shows the simplest
+    way to use a model. The construction and use of the model is
+    performed from within a single \c main() function:
+
+    \snippet shareddirmodel/main.cpp 0
+
+    The model is set up to use data from a certain file system. The call to
+    \l{QFileSystemModel::}{setRootPath()} tell the model which drive on the
+    file system to expose to the views.
+
+    We create two views so that we can examine the items held in the model in two
+    different ways:
+
+    \snippet shareddirmodel/main.cpp 5
+
+    The views are constructed in the same way as other widgets. Setting up
+    a view to display the items in the model is simply a matter of calling its
+    \l{QAbstractItemView::setModel()}{setModel()} function with the directory
+    model as the argument. We filter the data supplied by the model by calling
+    the \l{QAbstractItemView::}{setRootIndex()} function on each view, passing
+    a suitable \e{model index} from the file system model for the current
+    directory.
+
+    The \c index() function used in this case is unique to QFileSystemModel; we
+    supply it with a directory and it returns a model index. Model indexes are
+    discussed in \l{Model Classes}.
+
+    The rest of the function just displays the views within a splitter
+    widget, and runs the application's event loop:
+
+    \snippet shareddirmodel/main.cpp 8
+
+    In the above example, we neglected to mention how to handle selections
+    of items. This subject is covered in more detail in the section about
+    \l{Handling Selections in Item Views}.
+
+    \section1 Model classes
+
+    Before examining how selections are handled, you may find it
+    useful to examine the concepts used in the model/view framework.
+
+    \section2 Basic concepts
+
+    In the model/view architecture, the model provides a standard interface
+    that views and delegates use to access data. In Qt, the standard
+    interface is defined by the QAbstractItemModel class. No matter how the
+    items of data are stored in any underlying data structure, all subclasses
+    of QAbstractItemModel represent the data as a hierarchical structure
+    containing tables of items. Views use this \e convention to access items
+    of data in the model, but they are not restricted in the way that they
+    present this information to the user.
+
+    \image modelview-models.png
+
+    Models also notify any attached views about changes to data through the
+    signals and slots mechanism.
+
+    This section describes some basic concepts that are central to the way
+    item of data are accessed by other components via a model class. More
+    advanced concepts are discussed in later sections.
+
+    \section3 Model indexes
+
+    To ensure that the representation of the data is kept separate from the
+    way it is accessed, the concept of a \e{model index} is introduced. Each
+    piece of information that can be obtained via a model is represented by
+    a model index. Views and delegates use these indexes to request items of
+    data to display.
+
+    As a result, only the model needs to know how to obtain data, and the type
+    of data managed by the model can be defined fairly generally. Model indexes
+    contain a pointer to the model that created them, and this prevents
+    confusion when working with more than one model.
+
+    \snippet code/doc_src_model-view-programming.cpp 0
+
+    Model indexes provide \e temporary references to pieces of information, and
+    can be used to retrieve or modify data via the model. Since models may
+    reorganize their internal structures from time to time, model indexes may
+    become invalid, and \e{should not be stored}. If a long-term reference to a
+    piece of information is required, a \e{persistent model index} must be
+    created. This provides a reference to the information that the model keeps
+    up-to-date. Temporary model indexes are provided by the QModelIndex class,
+    and persistent model indexes are provided by the QPersistentModelIndex
+    class.
+
+    To obtain a model index that corresponds to an item of data, three
+    properties must be specified to the model: a row number, a column number,
+    and the model index of a parent item. The following sections describe
+    and explain these properties in detail.
+
+    \section3 Rows and columns
+
+    In its most basic form, a model can be accessed as a simple table in which
+    items are located by their row and column numbers. \e{This does not mean
+    that the underlying pieces of data are stored in an array structure}; the
+    use of row and column numbers is only a convention to allow components to
+    communicate with each other. We can retrieve information about any given
+    item by specifying its row and column numbers to the model, and we receive
+    an index that represents the item:
+
+    \snippet code/doc_src_model-view-programming.cpp 1
+
+    Models that provide interfaces to simple, single level data structures like
+    lists and tables do not need any other information to be provided but, as
+    the above code indicates, we need to supply more information when obtaining
+    a model index.
+
+    \table
+    \row \li \inlineimage modelview-tablemodel.png
+    \li \b{Rows and columns}
+
+    The diagram shows a representation of a basic table model in which each
+    item is located by a pair of row and column numbers. We obtain a model
+    index that refers to an item of data by passing the relevant row and
+    column numbers to the model.
+
+    \snippet code/doc_src_model-view-programming.cpp 2
+
+    Top level items in a model are always referenced by specifying
+    \c QModelIndex() as their parent item. This is discussed in the next
+    section.
+    \endtable
+
+    \section3 Parents of items
+
+    The table-like interface to item data provided by models is ideal when
+    using data in a table or list view; the row and column number system maps
+    exactly to the way the views display items. However, structures such as
+    tree views require the model to expose a more flexible interface to the
+    items within. As a result, each item can also be the parent of another
+    table of items, in much the same way that a top-level item in a tree view
+    can contain another list of items.
+
+    When requesting an index for a model item, we must provide some information
+    about the item's parent. Outside the model, the only way to refer to an
+    item is through a model index, so a parent model index must also be given:
+
+    \snippet code/doc_src_model-view-programming.cpp 3
+
+    \table
+    \row \li \inlineimage modelview-treemodel.png
+    \li \b{Parents, rows, and columns}
+
+    The diagram shows a representation of a tree model in which each item is
+    referred to by a parent, a row number, and a column number.
+
+    Items "A" and "C" are represented as top-level siblings in the model:
+
+    \snippet code/doc_src_model-view-programming.cpp 4
+
+    Item "A" has a number of children. A model index for item "B" is
+    obtained with the following code:
+
+    \snippet code/doc_src_model-view-programming.cpp 5
+    \endtable
+
+    \section3 Item roles
+
+    Items in a model can perform various \e roles for other components,
+    allowing different kinds of data to be supplied for different situations.
+    For example, Qt::DisplayRole is used to access a string that can be
+    displayed as text in a view. Typically, items contain data for a number of
+    different roles, and the standard roles are defined by Qt::ItemDataRole.
+
+    We can ask the model for the item's data by passing it the model index
+    corresponding to the item, and by specifying a role to obtain the type
+    of data we want:
+
+    \snippet code/doc_src_model-view-programming.cpp 6
+
+    \table
+    \row \li \inlineimage modelview-roles.png
+    \li \b{Item roles}
+
+    The role indicates to the model which type of data is being referred to.
+    Views can display the roles in different ways, so it is important to
+    supply appropriate information for each role.
+
+    The \l{Creating New Models} section covers some specific uses of roles in
+    more detail.
+    \endtable
+
+    Most common uses for item data are covered by the standard roles defined in
+    Qt::ItemDataRole. By supplying appropriate item data for each role, models
+    can provide hints to views and delegates about how items should be
+    presented to the user. Different kinds of views have the freedom to
+    interpret or ignore this information as required. It is also possible to
+    define additional roles for application-specific purposes.
+
+    \section3 Summary
+
+    \list
+    \li Model indexes give views and delegates information about the location
+       of items provided by models in a way that is independent of any
+       underlying data structures.
+    \li Items are referred to by their row and column numbers, and by the model
+       index of their parent items.
+    \li Model indexes are constructed by models at the request of other
+       components, such as views and delegates.
+    \li If a valid model index is specified for the parent item when an index is
+       requested using \l{QAbstractItemModel::index()}{index()}, the index
+       returned refers to an item beneath that parent item in the model.
+       The index obtained refers to a child of that item.
+    \li If an invalid model index is specified for the parent item when an index
+       is requested using \l{QAbstractItemModel::index()}{index()}, the index
+       returned refers to a top-level item in the model.
+    \li The \l{Qt::ItemDataRole}{role} distinguishes between the
+       different kinds of data associated with an item.
+    \endlist
+
+    \section2 Using model indexes
+
+    To demonstrate how data can be retrieved from a model, using model
+    indexes, we set up a QFileSystemModel without a view and display the
+    names of files and directories in a widget.
+    Although this does not show a normal way of using a model, it demonstrates
+    the conventions used by models when dealing with model indexes.
+
+    We construct a file system model in the following way:
+
+    \snippet simplemodel-use/main.cpp 0
+
+    In this case, we set up a default QFileSystemModel, obtain a parent index
+    using a specific implementation of \l{QFileSystemModel::}{index()}
+    provided by that model, and we count the number of rows in the model using
+    the \l{QFileSystemModel::}{rowCount()} function.
+
+    For simplicity, we are only interested in the items in the first column
+    of the model. We examine each row in turn, obtaining a model index for
+    the first item in each row, and read the data stored for that item
+    in the model.
+
+    \snippet simplemodel-use/main.cpp 1
+
+    To obtain a model index, we specify the row number, column number (zero
+    for the first column), and the appropriate model index for the parent
+    of all the items that we want.
+    The text stored in each item is retrieved using the model's
+    \l{QFileSystemModel::}{data()} function. We specify the model index and
+    the \l{Qt::ItemDataRole}{DisplayRole} to obtain data for the
+    item in the form of a string.
+
+    \snippet simplemodel-use/main.cpp 2
+    \codeline
+    \snippet simplemodel-use/main.cpp 3
+
+    The above example demonstrates the basic principles used to retrieve
+    data from a model:
+
+    \list
+    \li The dimensions of a model can be found using
+       \l{QAbstractItemModel::rowCount()}{rowCount()} and
+       \l{QAbstractItemModel::columnCount()}{columnCount()}.
+       These functions generally require a parent model index to be
+       specified.
+    \li Model indexes are used to access items in the model. The row, column,
+       and parent model index are needed to specify the item.
+    \li To access top-level items in a model, specify a null model index
+       as the parent index with \c QModelIndex().
+    \li Items contain data for different roles. To obtain the data for a
+       particular role, both the model index and the role must be supplied
+       to the model.
+    \endlist
+
+    \section2 Further reading
+
+    New models can be created by implementing the standard interface
+    provided by QAbstractItemModel. In the \l{Creating New Models}
+    section, we demonstrate this by creating a convenient ready-to-use
+    model for holding lists of strings.
+
+    \section1 View classes
+
+    \section2 Concepts
+
+    In the model/view architecture, the view obtains items of data from the
+    model and presents them to the user. The way that the data is
+    presented need not resemble the representation of the data provided by
+    the model, and may be \e{completely different} from the underlying data
+    structure used to store items of data.
+
+    The separation of content and presentation is achieved by the use of a
+    standard model interface provided by QAbstractItemModel, a standard view
+    interface provided by QAbstractItemView, and the use of model indexes
+    that represent items of data in a general way.
+    Views typically manage the overall layout of the data obtained from
+    models. They may render individual items of data themselves, or use
+    \l{Delegate Classes}{delegates} to handle both rendering and editing
+    features.
+
+    As well as presenting data, views handle navigation between items,
+    and some aspects of item selection. The views also implement basic
+    user interface features, such as context menus and drag and drop.
+    A view can provide default editing facilities for items, or it may
+    work with a \l{Delegate Classes}{delegate} to provide a custom
+    editor.
+
+    A view can be constructed without a model, but a model must be
+    provided before it can display useful information. Views keep track of
+    the items that the user has selected through the use of
+    \l{Handling Selections in Item Views}{selections} which can be maintained
+    separately for each view, or shared between multiple views.
+
+    Some views, such as QTableView and QTreeView, display headers as well
+    as items. These are also implemented by a view class, QHeaderView.
+    Headers usually access the same model as the view that contains them.
+    They retrieve data from the model using the
+    \l{QAbstractItemModel::headerData()} function, and usually display
+    header information in the form of a label. New headers can be
+    subclassed from the QHeaderView class to provide more specialized
+    labels for views.
+
+    \section2 Using an existing view
+
+    Qt provides three ready-to-use view classes that present data from
+    models in ways that are familiar to most users.
+    QListView can display items from a model as a simple list, or in the
+    form of a classic icon view. QTreeView displays items from a
+    model as a hierarchy of lists, allowing deeply nested structures to be
+    represented in a compact way. QTableView presents items from a model
+    in the form of a table, much like the layout of a spreadsheet
+    application.
+
+    \image standard-views.png
+
+    The default behavior of the standard views shown above should be
+    sufficient for most applications. They provide basic editing
+    facilities, and can be customized to suit the needs of more specialized
+    user interfaces.
+
+    \section3 Using a model
+
+    We take the string list model that \l{Creating New Models}{we created as
+    an example model}, set it up with some data, and construct a view to
+    display the contents of the model. This can all be performed within a
+    single function:
+
+    \snippet stringlistmodel/main.cpp 0
+
+    Note that the \c StringListModel is declared as a \l QAbstractItemModel.
+    This allows us to use the abstract interface to the model, and
+    ensures that the code still works, even if we replace the string list
+    model with a different model.
+
+    The list view provided by \l QListView is sufficient for presenting
+    the items in the string list model. We construct the view, and set up
+    the model using the following lines of code:
+
+    \snippet stringlistmodel/main.cpp 2
+    \snippet stringlistmodel/main.cpp 4
+
+    The view is shown in the normal way:
+
+    \snippet stringlistmodel/main.cpp 5
+
+    The view renders the contents of a model, accessing data via the model's
+    interface. When the user tries to edit an item, the view uses a default
+    delegate to provide an editor widget.
+
+    \image stringlistmodel.png
+
+    The above image shows how a QListView represents the data in the string
+    list model. Since the model is editable, the view automatically allows
+    each item in the list to be edited using the default delegate.
+
+    \section3 Using multiple views of a model
+
+    Providing multiple views onto the same model is simply a matter of
+    setting the same model for each view. In the following code we create
+    two table views, each using the same simple table model which we have
+    created for this example:
+
+    \snippet sharedtablemodel/main.cpp 0
+    \codeline
+    \snippet sharedtablemodel/main.cpp 1
+
+    The use of signals and slots in the model/view architecture means that
+    changes to the model can be propagated to all the attached views,
+    ensuring that we can always access the same data regardless of the
+    view being used.
+
+    \image sharedmodel-tableviews.png
+
+    The above image shows two different views onto the same model, each
+    containing a number of selected items. Although the data from the model
+    is shown consistently across view, each view maintains its own internal
+    selection model. This can be useful in certain situations but, for
+    many applications, a shared selection model is desirable.
+
+    \section2 Handling selections of items
+
+    The mechanism for handling selections of items within views is provided
+    by the \l QItemSelectionModel class. All of the standard views construct
+    their own selection models by default, and interact with them in the
+    normal way. The selection model being used by a view can be obtained
+    through the \l{QAbstractItemView::selectionModel()}{selectionModel()}
+    function, and a replacement selection model can be specified with
+    \l{QAbstractItemView::setSelectionModel()}{setSelectionModel()}.
+    The ability to control the selection model used by a view is useful
+    when we want to provide multiple consistent views onto the same model
+    data.
+
+    Generally, unless you are subclassing a model or view, you don't
+    need to manipulate the contents of selections directly. However,
+    the interface to the selection model can be accessed, if required,
+    and this is explored in \l{Handling Selections in Item Views}.
+
+    \section3 Sharing selections among views
+
+    Although it is convenient that the view classes provide their own
+    selection models by default, when we use more than one view onto the
+    same model it is often desirable that both the model's data and the
+    user's selection are shown consistently in all views.
+    Since the view classes allow their internal selection models to be
+    replaced, we can achieve a unified selection between views with the
+    following line:
+
+    \snippet sharedtablemodel/main.cpp 2
+
+    The second view is given the selection model for the first view.
+    Both views now operate on the same selection model, keeping both
+    the data and the selected items synchronized.
+
+    \image sharedselection-tableviews.png
+
+    In the example shown above, two views of the same type were used to
+    display the same model's data. However, if two different types of view
+    were used, the selected items may be represented very differently in
+    each view; for example, a contiguous selection in a table view can be
+    represented as a fragmented set of highlighted items in a tree view.
+
+    \section1 Delegate classes
+
+    \section2 Concepts
+
+    Unlike the Model-View-Controller pattern, the model/view design does not
+    include a completely separate component for managing interaction with
+    the user. Generally, the view is responsible for the presentation of
+    model data to the user, and for processing user input. To allow some
+    flexibility in the way this input is obtained, the interaction is
+    performed by delegates. These components provide input capabilities
+    and are also responsible for rendering individual items in some views.
+    The standard interface for controlling delegates is defined in the
+    \l QAbstractItemDelegate class.
+
+    Delegates are expected to be able to render their contents themselves
+    by implementing the \l{QItemDelegate::paint()}{paint()}
+    and \l{QItemDelegate::sizeHint()}{sizeHint()} functions.
+    However, simple widget-based delegates can subclass \l QItemDelegate
+    instead of \l QAbstractItemDelegate, and take advantage of the default
+    implementations of these functions.
+
+    Editors for delegates can be implemented either by using widgets to manage
+    the editing process or by handling events directly.
+    The first approach is covered later in this section, and it is also
+    shown in the \l{Spin Box Delegate Example}{Spin Box Delegate} example.
+
+    The \l{Pixelator Example}{Pixelator} example shows how to create a
+    custom delegate that performs specialized rendering for a table view.
+
+    \section2 Using an existing delegate
+
+    The standard views provided with Qt use instances of \l QItemDelegate
+    to provide editing facilities. This default implementation of the
+    delegate interface renders items in the usual style for each of the
+    standard views: \l QListView, \l QTableView, and \l QTreeView.
+
+    All the standard roles are handled by the default delegate used by
+    the standard views. The way these are interpreted is described in the
+    QItemDelegate documentation.
+
+    The delegate used by a view is returned by the
+    \l{QAbstractItemView::itemDelegate()}{itemDelegate()} function.
+    The \l{QAbstractItemView::setItemDelegate()}{setItemDelegate()} function
+    allows you to install a custom delegate for a standard view, and it is
+    necessary to use this function when setting the delegate for a custom
+    view.
+
+    \section2 A simple delegate
+
+    The delegate implemented here uses a \l QSpinBox to provide
+    editing facilities, and is mainly intended for use with models
+    that display integers. Although we set up a custom integer-based
+    table model for this purpose, we could easily have used \l
+    QStandardItemModel instead, since the custom delegate controls
+    data entry. We construct a table view to display the contents of
+    the model, and this will use the custom delegate for editing.
+
+    \image spinboxdelegate-example.png
+
+    We subclass the delegate from \l QItemDelegate because we do not want
+    to write custom display functions. However, we must still provide
+    functions to manage the editor widget:
+
+    \snippet itemviews/spinboxdelegate/delegate.h 0
+
+    Note that no editor widgets are set up when the delegate is
+    constructed. We only construct an editor widget when it is needed.
+
+    \section3 Providing an editor
+
+    In this example, when the table view needs to provide an editor, it
+    asks the delegate to provide an editor widget that is appropriate
+    for the item being modified. The
+    \l{QAbstractItemDelegate::createEditor()}{createEditor()} function is
+    supplied with everything that the delegate needs to be able to set up
+    a suitable widget:
+
+    \snippet itemviews/spinboxdelegate/delegate.cpp 1
+
+    Note that we do not need to keep a pointer to the editor widget because
+    the view takes responsibility for destroying it when it is no longer
+    needed.
+
+    We install the delegate's default event filter on the editor to ensure
+    that it provides the standard editing shortcuts that users expect.
+    Additional shortcuts can be added to the editor to allow more
+    sophisticated behavior; these are discussed in the section on
+    \l{#EditingHints}{Editing Hints}.
+
+    The view ensures that the editor's data and geometry are set
+    correctly by calling functions that we define later for these purposes.
+    We can create different editors depending on the model index supplied
+    by the view. For example, if we have a column of integers and a column
+    of strings we could return either a \c QSpinBox or a \c QLineEdit,
+    depending on which column is being edited.
+
+    The delegate must provide a function to copy model data into the
+    editor. In this example, we read the data stored in the
+    \l{Qt::ItemDataRole}{display role}, and set the value in the
+    spin box accordingly.
+
+    \snippet itemviews/spinboxdelegate/delegate.cpp 2
+
+    In this example, we know that the editor widget is a spin box, but we
+    could have provided different editors for different types of data in
+    the model, in which case we would need to cast the widget to the
+    appropriate type before accessing its member functions.
+
+    \section3 Submitting data to the model
+
+    When the user has finished editing the value in the spin box, the view
+    asks the delegate to store the edited value in the model by calling the
+    \l{QAbstractItemDelegate::setModelData()}{setModelData()} function.
+
+    \snippet itemviews/spinboxdelegate/delegate.cpp 3
+
+    Since the view manages the editor widgets for the delegate, we only
+    need to update the model with the contents of the editor supplied.
+    In this case, we ensure that the spin box is up-to-date, and update
+    the model with the value it contains using the index specified.
+
+    The standard \l QItemDelegate class informs the view when it has
+    finished editing by emitting the
+    \l{QAbstractItemDelegate::closeEditor()}{closeEditor()} signal.
+    The view ensures that the editor widget is closed and destroyed. In
+    this example, we only provide simple editing facilities, so we need
+    never emit this signal.
+
+    All the operations on data are performed through the interface
+    provided by \l QAbstractItemModel. This makes the delegate mostly
+    independent from the type of data it manipulates, but some
+    assumptions must be made in order to use certain types of
+    editor widgets. In this example, we have assumed that the model
+    always contains integer values, but we can still use this
+    delegate with different kinds of models because \l{QVariant}
+    provides sensible default values for unexpected data.
+
+    \section3 Updating the editor's geometry
+
+    It is the responsibility of the delegate to manage the editor's
+    geometry. The geometry must be set when the editor is created, and
+    when the item's size or position in the view is changed. Fortunately,
+    the view provides all the necessary geometry information inside a
+    \l{QStyleOptionViewItem}{view option} object.
+
+    \snippet itemviews/spinboxdelegate/delegate.cpp 4
+
+    In this case, we just use the geometry information provided by the
+    view option in the item rectangle. A delegate that renders items with
+    several elements would not use the item rectangle directly. It would
+    position the editor in relation to the other elements in the item.
+
+    \target EditingHints
+    \section3 Editing hints
+
+    After editing, delegates should provide hints to the other components
+    about the result of the editing process, and provide hints that will
+    assist any subsequent editing operations. This is achieved by
+    emitting the \l{QAbstractItemDelegate::closeEditor()}{closeEditor()}
+    signal with a suitable hint. This is taken care of by the default
+    QItemDelegate event filter which we installed on the spin box when
+    it was constructed.
+
+    The behavior of the spin box could be adjusted to make it more user
+    friendly. In the default event filter supplied by QItemDelegate, if
+    the user hits \uicontrol Return to confirm their choice in the spin box,
+    the delegate commits the value to the model and closes the spin box.
+    We can change this behavior by installing our own event filter on the
+    spin box, and provide editing hints that suit our needs; for example,
+    we might emit \l{QAbstractItemDelegate::closeEditor()}{closeEditor()}
+    with the \l{QAbstractItemDelegate::EndEditHint}{EditNextItem} hint to
+    automatically start editing the next item in the view.
+
+    Another approach that does not require the use of an event
+    filter is to provide our own editor widget, perhaps subclassing
+    QSpinBox for convenience. This alternative approach would give us
+    more control over how the editor widget behaves at the cost of
+    writing additional code. It is usually easier to install an event
+    filter in the delegate if you need to customize the behavior of
+    a standard Qt editor widget.
+
+    Delegates do not have to emit these hints, but those that do not will
+    be less integrated into applications, and will be less usable than
+    those that emit hints to support common editing actions.
+
+    \section1 Handling selections in item views
+
+    \section2 Concepts
+
+    The selection model used in the item view classes provides a general
+    description of selections based on the facilities of the model/view
+    architecture. Although the standard classes for manipulating selections are
+    sufficient for the item views provided, the selection model allows you to
+    create specialized selection models to suit the requirements for your own
+    item models and views.
+
+    Information about the items selected in a view is stored in an instance of
+    the \l QItemSelectionModel class. This maintains model indexes for items in
+    a single model, and is independent of any views. Since there can be many
+    views onto a model, it is possible to share selections between views,
+    allowing applications to show multiple views in a consistent way.
+
+    Selections are made up of \e{selection ranges}. These efficiently maintain
+    information about large selections of items by recording only the starting
+    and ending model indexes for each range of selected items. Non-contiguous
+    selections of items are constructed by using more than one selection range
+    to describe the selection.
+
+    Selections are applied to a collection of model indexes held by a selection
+    model. The most recent selection of items applied is known as the
+    \e{current selection}. The effects of this selection can be modified even
+    after its application through the use of certain types of selection
+    commands. These are discussed later in this section.
+
+    \section3 Current item and selected items
+
+    In a view, there is always a current item and a selected item - two
+    independent states. An item can be the current item and selected at the
+    same time. The view is responsible for ensuring that there is always a
+    current item as keyboard navigation, for example, requires a current item.
+
+    The table below highlights the differences between current item and
+    selected items.
+
+    \table
+    \header
+        \li  Current Item
+        \li  Selected Items
+
+    \row
+        \li  There can only be one current item.
+        \li  There can be multiple selected items.
+    \row
+        \li  The current item will be changed with key navigation or mouse
+            button clicks.
+        \li  The selected state of items is set or unset, depending on several
+            pre-defined modes - e.g., single selection, multiple selection,
+            etc. - when the user interacts with the items.
+    \row
+        \li  The current item will be edited if the edit key, \uicontrol F2, is
+            pressed or the item is double-clicked (provided that editing is
+            enabled).
+        \li  The current item can be used together with an anchor to specify a
+            range that should be selected or deselected (or a combination of
+            the two).
+    \row
+        \li  The current item is indicated by the focus rectangle.
+        \li  The selected items are indicated with the selection rectangle.
+    \endtable
+
+    When manipulating selections, it is often helpful to think of
+    \l QItemSelectionModel as a record of the selection state of all the items
+    in an item model. Once a selection model is set up, collections of items
+    can be selected, deselected, or their selection states can be toggled
+    without the need to know which items are already selected. The indexes of
+    all selected items can be retrieved at any time, and other components can
+    be informed of changes to the selection model via the signals and slots
+    mechanism.
+
+    \section2 Using a selection model
+
+    The standard view classes provide default selection models that can
+    be used in most applications. A selection model belonging to one view
+    can be obtained using the view's
+    \l{QAbstractItemView::selectionModel()}{selectionModel()} function,
+    and shared between many views with
+    \l{QAbstractItemView::setSelectionModel()}{setSelectionModel()},
+    so the construction of new selection models is generally not required.
+
+    A selection is created by specifying a model, and a pair of model
+    indexes to a \l QItemSelection. This uses the indexes to refer to items
+    in the given model, and interprets them as the top-left and bottom-right
+    items in a block of selected items.
+    To apply the selection to items in a model requires the selection to be
+    submitted to a selection model; this can be achieved in a number of ways,
+    each having a different effect on the selections already present in the
+    selection model.
+
+    \section3 Selecting items
+
+    To demonstrate some of the principal features of selections, we construct
+    an instance of a custom table model with 32 items in total, and open a
+    table view onto its data:
+
+    \snippet itemselection/main.cpp 0
+
+    The table view's default selection model is retrieved for later use.
+    We do not modify any items in the model, but instead select a few
+    items that the view will display at the top-left of the table. To do
+    this, we need to retrieve the model indexes corresponding to the
+    top-left and bottom-right items in the region to be selected:
+
+    \snippet itemselection/main.cpp 1
+
+    To select these items in the model, and see the corresponding change
+    in the table view, we need to construct a selection object then apply
+    it to the selection model:
+
+    \snippet itemselection/main.cpp 2
+
+    The selection is applied to the selection model using a command
+    defined by a combination of
+    \l{QItemSelectionModel::SelectionFlag}{selection flags}.
+    In this case, the flags used cause the items recorded in the
+    selection object to be included in the selection model, regardless
+    of their previous state. The resulting selection is shown by the view.
+
+    \image selected-items1.png
+
+    The selection of items can be modified using various operations that
+    are defined by the selection flags. The selection that results from
+    these operations may have a complex structure, but it is represented
+    efficiently by the selection model. The use of different selection
+    flags to manipulate the selected items is described when we examine
+    how to update a selection.
+
+    \section3 Reading the selection state
+
+    The model indexes stored in the selection model can be read using
+    the \l{QItemSelectionModel::selectedIndexes()}{selectedIndexes()}
+    function. This returns an unsorted list of model indexes that we can
+    iterate over as long as we know which model they are for:
+
+    \snippet reading-selections/window.cpp 0
+
+    The above code uses Qt's convenient \l{Container Classes}{foreach
+    keyword} to iterate over, and modify, the items corresponding to the
+    indexes returned by the selection model.
+
+    The selection model emits signals to indicate changes in the
+    selection. These notify other components about changes to both the
+    selection as a whole and the currently focused item in the item
+    model. We can connect the
+    \l{QItemSelectionModel::selectionChanged()}{selectionChanged()}
+    signal to a slot, and examine the items in the model that are selected or
+    deselected when the selection changes. The slot is called with two
+    \l{QItemSelection} objects: one contains a list of indexes that
+    correspond to newly selected items; the other contains indexes that
+    correspond to newly deselected items.
+
+    In the following code, we provide a slot that receives the
+    \l{QItemSelectionModel::selectionChanged()}{selectionChanged()}
+    signal, fills in the selected items with
+    a string, and clears the contents of the deselected items.
+
+    \snippet updating-selections/window.cpp 0
+    \snippet updating-selections/window.cpp 1
+    \codeline
+    \snippet updating-selections/window.cpp 2
+
+    We can keep track of the currently focused item by connecting the
+    \l{QItemSelectionModel::currentChanged()}{currentChanged()} signal
+    to a slot that is called with two model indexes. These correspond to
+    the previously focused item, and the currently focused item.
+
+    In the following code, we provide a slot that receives the
+    \l{QItemSelectionModel::currentChanged()}{currentChanged()} signal,
+    and uses the information provided to update the status bar of a
+    \l QMainWindow:
+
+    \snippet updating-selections/window.cpp 3
+
+    Monitoring selections made by the user is straightforward with these
+    signals, but we can also update the selection model directly.
+
+    \section3 Updating a selection
+
+    Selection commands are provided by a combination of selection flags,
+    defined by \l{QItemSelectionModel::SelectionFlag}.
+    Each selection flag tells the selection model how to update its
+    internal record of selected items when either of the
+    \l{QItemSelection::select()}{select()} functions are called.
+    The most commonly used flag is the
+    \l{QItemSelectionModel::SelectionFlag}{Select} flag
+    which instructs the selection model to record the specified items as
+    being selected. The
+    \l{QItemSelectionModel::SelectionFlag}{Toggle} flag causes the
+    selection model to invert the state of the specified items,
+    selecting any deselected items given, and deselecting any currently
+    selected items. The \l{QItemSelectionModel::SelectionFlag}{Deselect}
+    flag deselects all the specified items.
+
+    Individual items in the selection model are updated by creating a
+    selection of items, and applying them to the selection model. In the
+    following code, we apply a second selection of items to the table
+    model shown above, using the
+    \l{QItemSelectionModel::SelectionFlag}{Toggle} command to invert the
+    selection state of the items given.
+
+    \snippet itemselection/main.cpp 3
+
+    The results of this operation are displayed in the table view,
+    providing a convenient way of visualizing what we have achieved:
+
+    \image selected-items2.png
+
+    By default, the selection commands only operate on the individual
+    items specified by the model indexes. However, the flag used to
+    describe the selection command can be combined with additional flags
+    to change entire rows and columns. For example if you call
+    \l{QItemSelectionModel::select()}{select()} with only one index, but
+    with a command that is a combination of
+    \l{QItemSelectionModel::SelectionFlag}{Select} and
+    \l{QItemSelectionModel::SelectionFlag}{Rows}, the
+    entire row containing the item referred to is selected.
+    The following code demonstrates the use of the
+    \l{QItemSelectionModel::SelectionFlag}{Rows} and
+    \l{QItemSelectionModel::SelectionFlag}{Columns} flags:
+
+    \snippet itemselection/main.cpp 4
+
+    Although only four indexes are supplied to the selection model, the
+    use of the
+    \l{QItemSelectionModel::SelectionFlag}{Columns} and
+    \l{QItemSelectionModel::SelectionFlag}{Rows} selection flags means
+    that two columns and two rows are selected. The following image shows
+    the result of these two selections:
+
+    \image selected-items3.png
+
+    The commands performed on the example model have all involved
+    accumulating a selection of items in the model. It is also possible
+    to clear the selection, or to replace the current selection with
+    a new one.
+
+    To replace the current selection with a new selection, combine
+    the other selection flags with the
+    \l{QItemSelectionModel::SelectionFlag}{Current} flag. A command using
+    this flag instructs the selection model to replace its current collection
+    of model indexes with those specified in a call to
+    \l{QItemSelectionModel::select()}{select()}.
+    To clear all selections before you start adding new ones,
+    combine the other selection flags with the
+    \l{QItemSelectionModel::SelectionFlag}{Clear} flag. This
+    has the effect of resetting the selection model's collection of model
+    indexes.
+
+    \section3 Selecting all items in a model
+
+    To select all items in a model, it is necessary to create a
+    selection for each level of the model that covers all items in that
+    level. We do this by retrieving the indexes corresponding to the
+    top-left and bottom-right items with a given parent index:
+
+    \snippet reading-selections/window.cpp 2
+
+    A selection is constructed with these indexes and the model. The
+    corresponding items are then selected in the selection model:
+
+    \snippet reading-selections/window.cpp 3
+
+    This needs to be performed for all levels in the model.
+    For top-level items, we would define the parent index in the usual way:
+
+    \snippet reading-selections/window.cpp 1
+
+    For hierarchical models, the
+    \l{QAbstractItemModel::hasChildren()}{hasChildren()} function is used to
+    determine whether any given item is the parent of another level of
+    items.
+
+    \section1 Creating new models
+
+    The separation of functionality between the model/view components allows
+    models to be created that can take advantage of existing views. This
+    approach lets us present data from a variety of sources using standard
+    graphical user interface components, such as QListView, QTableView, and
+    QTreeView.
+
+    The QAbstractItemModel class provides an interface that is flexible
+    enough to support data sources that arrange information in hierarchical
+    structures, allowing for the possibility that data will be inserted,
+    removed, modified, or sorted in some way. It also provides support for
+    drag and drop operations.
+
+    The QAbstractListModel and QAbstractTableModel classes provide support
+    for interfaces to simpler non-hierarchical data structures, and are
+    easier to use as a starting point for simple list and table models.
+
+    In this section, we create a simple read-only model to explore
+    the basic principles of the model/view architecture. Later in this
+    section, we adapt this simple model so that items can be modified
+    by the user.
+
+    For an example of a more complex model, see the
+    \l{itemviews/simpletreemodel}{Simple Tree Model} example.
+
+    The requirements of QAbstractItemModel subclasses is described in more
+    detail in the \l{Model Subclassing Reference} document.
+
+    \section2 Designing a model
+
+    When creating a new model for an existing data structure, it is
+    important to consider which type of model should be used to
+    provide an interface onto the data. If the data structure can be
+    represented as a list or table of items, you can subclass
+    QAbstractListModel or QAbstractTableModel since these classes
+    provide suitable default implementations for many functions.
+
+    However, if the underlying data structure can only be represented
+    by a hierarchical tree structure, it is necessary to subclass
+    QAbstractItemModel. This approach is taken in the
+    \l{itemviews/simpletreemodel}{Simple Tree Model} example.
+
+    In this section, we implement a simple model based on a list of
+    strings, so the QAbstractListModel provides an ideal base class on
+    which to build.
+
+    Whatever form the underlying data structure takes, it is
+    usually a good idea to supplement the standard QAbstractItemModel API
+    in specialized models with one that allows more natural access to the
+    underlying data structure. This makes it easier to populate the model
+    with data, yet still enables other general model/view components to
+    interact with it using the standard API. The model described below
+    provides a custom constructor for just this purpose.
+
+    \section2 A read-only example model
+
+    The model implemented here is a simple, non-hierarchical, read-only data
+    model based on the standard QStringListModel class. It has a \l QStringList
+    as its internal data source, and implements only what is needed to make a
+    functioning model. To make the implementation easier, we subclass
+    \l QAbstractListModel because it defines sensible default behavior for list
+    models, and it exposes a simpler interface than the \l QAbstractItemModel
+    class.
+
+    When implementing a model it is important to remember that
+    \l QAbstractItemModel does not store any data itself, it merely
+    presents an interface that the views use to access the data.
+    For a minimal read-only model it is only necessary to implement a few
+    functions as there are default implementations for most of the
+    interface. The class declaration is as follows:
+
+    \snippet stringlistmodel/model.h 0
+    \snippet stringlistmodel/model.h 1
+    \codeline
+    \snippet stringlistmodel/model.h 5
+
+    Apart from the model's constructor, we only need to implement two
+    functions: \l{QAbstractItemModel::rowCount()}{rowCount()} returns the
+    number of rows in the model and \l{QAbstractItemModel::data()}{data()}
+    returns an item of data corresponding to a specified model index.
+
+    Well behaved models also implement
+    \l{QAbstractItemModel::headerData()}{headerData()} to give tree and
+    table views something to display in their headers.
+
+    Note that this is a non-hierarchical model, so we don't have to worry
+    about the parent-child relationships. If our model was hierarchical, we
+    would also have to implement the
+    \l{QAbstractItemModel::index()}{index()} and
+    \l{QAbstractItemModel::parent()}{parent()} functions.
+
+    The list of strings is stored internally in the \c stringList private
+    member variable.
+
+    \section3 Dimensions of the model
+
+    We want the number of rows in the model to be the same as the number of
+    strings in the string list. We implement the
+    \l{QAbstractItemModel::rowCount()}{rowCount()} function with this in
+    mind:
+
+    \snippet stringlistmodel/model.cpp 0
+
+    Since the model is non-hierarchical, we can safely ignore the model index
+    corresponding to the parent item. By default, models derived from
+    QAbstractListModel only contain one column, so we do not need to
+    reimplement the \l{QAbstractItemModel::columnCount()}{columnCount()}
+    function.
+
+    \section3 Model headers and data
+
+    For items in the view, we want to return the strings in the string list.
+    The \l{QAbstractItemModel::data()}{data()} function is responsible for
+    returning the item of data that corresponds to the index argument:
+
+    \snippet stringlistmodel/model.cpp 1-data-read-only
+
+    We only return a valid QVariant if the model index supplied is valid,
+    the row number is within the range of items in the string list, and the
+    requested role is one that we support.
+
+    Some views, such as QTreeView and QTableView, are able to display headers
+    along with the item data. If our model is displayed in a view with headers,
+    we want the headers to show the row and column numbers. We can provide
+    information about the headers by subclassing the
+    \l{QAbstractItemModel::headerData()}{headerData()} function:
+
+    \snippet stringlistmodel/model.cpp 2
+
+    Again, we return a valid QVariant only if the role is one that we support.
+    The orientation of the header is also taken into account when deciding the
+    exact data to return.
+
+    Not all views display headers with the item data, and those that do may
+    be configured to hide them. Nonetheless, it is recommended that you
+    implement the \l{QAbstractItemModel::headerData()}{headerData()} function
+    to provide relevant information about the data provided by the model.
+
+    An item can have several roles, giving out different data depending on the
+    role specified. The items in our model only have one role,
+    \l{Qt::ItemDataRole}{DisplayRole}, so we return the data
+    for items irrespective of the role specified.
+    However, we could reuse the data we provide for the
+    \l{Qt::ItemDataRole}{DisplayRole} in
+    other roles, such as the
+    \l{Qt::ItemDataRole}{ToolTipRole} that views can use to
+    display information about items in a tooltip.
+
+    \section2 An editable model
+
+    The read-only model shows how simple choices could be presented to the
+    user but, for many applications, an editable list model is much more
+    useful. We can modify the read-only model to make the items editable
+    by changing the data() function we implemented for read-only, and
+    by implementing two extra functions:
+    \l{QAbstractItemModel::flags()}{flags()} and
+    \l{QAbstractItemModel::setData()}{setData()}.
+    The following function declarations are added to the class definition:
+
+    \snippet stringlistmodel/model.h 2
+    \snippet stringlistmodel/model.h 3
+
+    \section3 Making the model editable
+
+    A delegate checks whether an item is editable before creating an
+    editor. The model must let the delegate know that its items are
+    editable. We do this by returning the correct flags for each item in
+    the model; in this case, we enable all items and make them both
+    selectable and editable:
+
+    \snippet stringlistmodel/model.cpp 3
+
+    Note that we do not have to know how the delegate performs the actual
+    editing process. We only have to provide a way for the delegate to set the
+    data in the model. This is achieved through the
+    \l{QAbstractItemModel::setData()}{setData()} function:
+
+    \snippet stringlistmodel/model.cpp 4
+    \snippet stringlistmodel/model.cpp 5
+
+    In this model, the item in the string list that corresponds to the
+    model index is replaced by the value provided. However, before we
+    can modify the string list, we must make sure that the index is
+    valid, the item is of the correct type, and that the role is
+    supported. By convention, we insist that the role is the
+    \l{Qt::ItemDataRole}{EditRole} since this is the role used by the
+    standard item delegate. For boolean values, however, you can use
+    Qt::CheckStateRole and set the Qt::ItemIsUserCheckable flag; a
+    checkbox is then used for editing the value. The underlying
+    data in this model is the same for all roles, so this detail just
+    makes it easier to integrate the model with standard components.
+
+    When the data has been set, the model must let the views know that some
+    data has changed. This is done by emitting the
+    \l{QAbstractItemModel::dataChanged()}{dataChanged()} signal. Since only
+    one item of data has changed, the range of items specified in the signal
+    is limited to just one model index.
+
+    Also the data() function needs to be changed to add the Qt::EditRole test:
+
+    \snippet stringlistmodel/model.cpp 1
+
+    \section3 Inserting and removing rows
+
+    It is possible to change the number of rows and columns in a model. In the
+    string list model it only makes sense to change the number of rows, so we
+    only reimplement the functions for inserting and removing rows. These are
+    declared in the class definition:
+
+    \snippet stringlistmodel/model.h 4
+
+    Since rows in this model correspond to strings in a list, the
+    \c insertRows() function inserts a number of empty strings into the string
+    list before the specified position. The number of strings inserted is
+    equivalent to the number of rows specified.
+
+    The parent index is normally used to determine where in the model the
+    rows should be added. In this case, we only have a single top-level list
+    of strings, so we just insert empty strings into that list.
+
+    \snippet stringlistmodel/model.cpp 6
+    \snippet stringlistmodel/model.cpp 7
+
+    The model first calls the
+    \l{QAbstractItemModel::beginInsertRows()}{beginInsertRows()} function to
+    inform other components that the number of rows is about to change. The
+    function specifies the row numbers of the first and last new rows to be
+    inserted, and the model index for their parent item. After changing the
+    string list, it calls
+    \l{QAbstractItemModel::endInsertRows()}{endInsertRows()} to complete the
+    operation and inform other components that the dimensions of the model
+    have changed, returning true to indicate success.
+
+    The function to remove rows from the model is also simple to write.
+    The rows to be removed from the model are specified by the position and
+    the number of rows given.
+    We ignore the parent index to simplify our implementation, and just
+    remove the corresponding items from the string list.
+
+    \snippet stringlistmodel/model.cpp 8
+    \snippet stringlistmodel/model.cpp 9
+
+    The \l{QAbstractItemModel::beginRemoveRows()}{beginRemoveRows()} function
+    is always called before any underlying data is removed, and specifies the
+    first and last rows to be removed. This allows other components to access
+    the data before it becomes unavailable.
+    After the rows have been removed, the model emits
+    \l{QAbstractItemModel::endRemoveRows()}{endRemoveRows()} to finish the
+    operation and let other components know that the dimensions of the model
+    have changed.
+
+    \section2 Next steps
+
+    We can display the data provided by this model, or any other model, using
+    the \l QListView class to present the model's items in the form of a vertical
+    list.
+    For the string list model, this view also provides a default editor so that
+    the items can be manipulated. We examine the possibilities made available by
+    the standard view classes in \l{View Classes}.
+
+    The \l{Model Subclassing Reference} document discusses the requirements of
+    QAbstractItemModel subclasses in more detail, and provides a guide to the
+    virtual functions that must be implemented to enable various features in
+    different types of models.
+
+    \section1 Item view convenience classes
+
+    The item-based widgets have names which reflect their uses:
+    \c QListWidget provides a list of items, \c QTreeWidget displays a
+    multi-level tree structure, and \c QTableWidget provides a table of cell
+    items. Each class inherits the behavior of the \c QAbstractItemView
+    class which implements common behavior for item selection and header
+    management.
+
+    \section2 List widgets
+
+    Single level lists of items are typically displayed using a \c QListWidget
+    and a number of \c{QListWidgetItem}s. A list widget is constructed in the
+    same way as any other widget:
+
+    \snippet qlistwidget-using/mainwindow.cpp 0
+
+    List items can be added directly to the list widget when they are
+    constructed:
+
+    \snippet qlistwidget-using/mainwindow.cpp 3
+
+    They can also be constructed without a parent list widget and added to
+    a list at some later time:
+
+    \snippet qlistwidget-using/mainwindow.cpp 6
+    \snippet qlistwidget-using/mainwindow.cpp 7
+
+    Each item in a list can display a text label and an icon. The colors
+    and font used to render the text can be changed to provide a customized
+    appearance for items. Tooltips, status tips, and "What's
+    This?" help are all easily configured to ensure that the list is properly
+    integrated into the application.
+
+    \snippet qlistwidget-using/mainwindow.cpp 8
+
+    By default, items in a list are presented in the order of their creation.
+    Lists of items can be sorted according to the criteria given in
+    \l{Qt::SortOrder} to produce a list of items that is sorted in forward or
+    reverse alphabetical order:
+
+    \snippet qlistwidget-using/mainwindow.cpp 4
+    \snippet qlistwidget-using/mainwindow.cpp 5
+
+    \section2 Tree widgets
+
+    Trees or hierarchical lists of items are provided by the \c QTreeWidget
+    and \c QTreeWidgetItem classes. Each item in the tree widget can have
+    child items of its own, and can display a number of columns of
+    information. Tree widgets are created just like any other widget:
+
+    \snippet qtreewidget-using/mainwindow.cpp 0
+
+    Before items can be added to the tree widget, the number of columns must
+    be set. For example, we could define two columns, and create a header
+    to provide labels at the top of each column:
+
+    \snippet qtreewidget-using/mainwindow.cpp 1
+    \snippet qtreewidget-using/mainwindow.cpp 2
+
+    The easiest way to set up the labels for each section is to supply a string
+    list. For more sophisticated headers, you can construct a tree item,
+    decorate it as you wish, and use that as the tree widget's header.
+
+    Top-level items in the tree widget are constructed with the tree widget as
+    their parent widget. They can be inserted in an arbitrary order, or you
+    can ensure that they are listed in a particular order by specifying the
+    previous item when constructing each item:
+
+    \snippet qtreewidget-using/mainwindow.cpp 3
+    \codeline
+    \snippet qtreewidget-using/mainwindow.cpp 4
+
+    Tree widgets deal with top-level items slightly differently to other
+    items from deeper within the tree. Items can be removed from the top
+    level of the tree by calling the tree widget's
+    \l{QTreeWidget::takeTopLevelItem()}{takeTopLevelItem()} function, but
+    items from lower levels are removed by calling their parent item's
+    \l{QTreeWidgetItem::takeChild()}{takeChild()} function.
+    Items are inserted in the top level of the tree with the
+    \l{QTreeWidget::insertTopLevelItem()}{insertTopLevelItem()} function.
+    At lower levels in the tree, the parent item's
+    \l{QTreeWidgetItem::insertChild()}{insertChild()} function is used.
+
+    It is easy to move items around between the top level and lower levels
+    in the tree. We just need to check whether the items are top-level items
+    or not, and this information is supplied by each item's \c parent()
+    function. For example, we can remove the current item in the tree widget
+    regardless of its location:
+
+    \snippet qtreewidget-using/mainwindow.cpp 10
+    \snippet qtreewidget-using/mainwindow.cpp 11
+
+    Inserting the item somewhere else in the tree widget follows the same
+    pattern:
+
+    \snippet qtreewidget-using/mainwindow.cpp 8
+    \snippet qtreewidget-using/mainwindow.cpp 9
+
+    \section2 Table widgets
+
+    Tables of items similar to those found in spreadsheet applications
+    are constructed with the \c QTableWidget and \c QTableWidgetItem. These
+    provide a scrolling table widget with headers and items to use within it.
+
+    Tables can be created with a set number of rows and columns, or these
+    can be added to an unsized table as they are needed.
+
+    \snippet qtablewidget-using/mainwindow.h 0
+    \snippet qtablewidget-using/mainwindow.cpp 0
+
+    Items are constructed outside the table before being added to the table
+    at the required location:
+
+    \snippet qtablewidget-using/mainwindow.cpp 3
+
+    Horizontal and vertical headers can be added to the table by constructing
+    items outside the table and using them as headers:
+
+    \snippet qtablewidget-using/mainwindow.cpp 1
+
+    Note that the rows and columns in the table begin at zero.
+
+    \section2 Common features
+
+    There are a number of item-based features common to each of the
+    convenience classes that are available through the same interfaces
+    in each class. We present these in the following sections with some
+    examples for different widgets.
+    Look at the list of \l{Model/View Classes} for each of the widgets
+    for more details about the use of each function used.
+
+    \section3 Hidden items
+
+    It is sometimes useful to be able to hide items in an item view widget
+    rather than remove them. Items for all of the above widgets can be
+    hidden and later shown again. You can determine whether an item is hidden
+    by calling the isItemHidden() function, and items can be hidden with
+    \c setItemHidden().
+
+    Since this operation is item-based, the same function is available for
+    all three convenience classes.
+
+    \section3 Selections
+
+    The way items are selected is controlled by the widget's selection mode
+    (\l{QAbstractItemView::SelectionMode}).
+    This property controls whether the user can select one or many items and,
+    in many-item selections, whether the selection must be a continuous range
+    of items. The selection mode works in the same way for all of the
+    above widgets.
+
+    \table
+    \row
+    \li \image selection-single.png
+    \li \b{Single item selections:}
+    Where the user needs to choose a single item from a widget, the
+    default \c SingleSelection mode is most suitable. In this mode, the
+    current item and the selected item are the same.
+
+    \row
+    \li \image selection-multi.png
+    \li \b{Multi-item selections:}
+    In this mode, the user can toggle the selection state of any item in the
+    widget without changing the existing selection, much like the way
+    non-exclusive checkboxes can be toggled independently.
+
+    \row
+    \li \image selection-extended.png
+    \li \b{Extended selections:}
+    Widgets that often require many adjacent items to be selected, such
+    as those found in spreadsheets, require the \c ExtendedSelection mode.
+    In this mode, continuous ranges of items in the widget can be selected
+    with both the mouse and the keyboard.
+    Complex selections, involving many items that are not adjacent to other
+    selected items in the widget, can also be created if modifier keys are
+    used.
+
+    If the user selects an item without using a modifier key, the existing
+    selection is cleared.
+    \endtable
+
+    The selected items in a widget are read using the \c selectedItems()
+    function, providing a list of relevant items that can be iterated over.
+    For example, we can find the sum of all the numeric values within a
+    list of selected items with the following code:
+
+    \snippet qtablewidget-using/mainwindow.cpp 4
+
+    Note that for the single selection mode, the current item will be in
+    the selection. In the multi-selection and extended selection modes, the
+    current item may not lie within the selection, depending on the way the
+    user formed the selection.
+
+    \section3 Searching
+
+    It is often useful to be able to find items within an item view widget,
+    either as a developer or as a service to present to users. All three
+    item view convenience classes provide a common \c findItems() function
+    to make this as consistent and simple as possible.
+
+    Items are searched for by the text that they contain according to
+    criteria specified by a selection of values from Qt::MatchFlags.
+    We can obtain a list of matching items with the \c findItems()
+    function:
+
+    \snippet qtreewidget-using/mainwindow.cpp 6
+    \snippet qtreewidget-using/mainwindow.cpp 7
+
+    The above code causes items in a tree widget to be selected if they
+    contain the text given in the search string. This pattern can also be
+    used in the list and table widgets.
+
+    \section1 Using Drag and Drop with Item Views
+
+    Qt's drag and drop infrastructure is fully supported by the model/view framework.
+    Items in lists, tables, and trees can be dragged within the views, and data can be
+    imported and exported as MIME-encoded data.
+
+    The standard views automatically support internal drag and drop, where items are
+    moved around to change the order in which they are displayed. By default, drag and
+    drop is not enabled for these views because they are configured for the simplest,
+    most common uses. To allow items to be dragged around, certain properties of the
+    view need to be enabled, and the items themselves must also allow dragging to occur.
+
+    The requirements for a model that only allows items to be exported from a
+    view, and which does not allow data to be dropped into it, are fewer than
+    those for a fully-enabled drag and drop model.
+
+    See also the \l{Model Subclassing Reference} for more information about
+    enabling drag and drop support in new models.
+
+    \section2 Using convenience views
+
+    Each of the types of item used with QListWidget, QTableWidget, and QTreeWidget
+    is configured to use a different set of flags by default. For example, each
+    QListWidgetItem or QTreeWidgetItem is initially enabled, checkable, selectable,
+    and can be used as the source of a drag and drop operation; each QTableWidgetItem
+    can also be edited and used as the target of a drag and drop operation.
+
+    Although all of the standard items have one or both flags set for drag and drop,
+    you generally need to set various properties in the view itself to take advantage
+    of the built-in support for drag and drop:
+
+    \list
+    \li To enable item dragging, set the view's
+       \l{QAbstractItemView::dragEnabled}{dragEnabled} property to \c true.
+    \li To allow the user to drop either internal or external items within the view,
+       set the view's \l{QAbstractScrollArea::}{viewport()}'s
+       \l{QWidget::acceptDrops}{acceptDrops} property to \c true.
+    \li To show the user where the item currently being dragged will be placed if
+       dropped, set the view's \l{QAbstractItemView::showDropIndicator}{showDropIndicator}
+       property. This provides the user with continuously updating information about
+       item placement within the view.
+    \endlist
+
+    For example, we can enable drag and drop in a list widget with the following lines
+    of code:
+
+    \snippet qlistwidget-dnd/mainwindow.cpp 0
+
+    The result is a list widget which allows the items to be copied
+    around within the view, and even lets the user drag items between
+    views containing the same type of data. In both situations, the
+    items are copied rather than moved.
+
+    To enable the user to move the items around within the view, we
+    must set the list widget's \l {QAbstractItemView::}{dragDropMode}:
+
+    \snippet qlistwidget-dnd/mainwindow.cpp 1
+
+    \section2 Using model/view classes
+
+    Setting up a view for drag and drop follows the same pattern used with the
+    convenience views. For example, a QListView can be set up in the same way as a
+    QListWidget:
+
+    \snippet qlistview-dnd/mainwindow.cpp 0
+
+    Since access to the data displayed by the view is controlled by a model, the
+    model used also has to provide support for drag and drop operations. The
+    actions supported by a model can be specified by reimplementing the
+    QAbstractItemModel::supportedDropActions() function. For example, copy and
+    move operations are enabled with the following code:
+
+    \snippet qlistview-dnd/model.cpp 10
+
+    Although any combination of values from Qt::DropActions can be given, the
+    model needs to be written to support them. For example, to allow Qt::MoveAction
+    to be used properly with a list model, the model must provide an implementation
+    of QAbstractItemModel::removeRows(), either directly or by inheriting the
+    implementation from its base class.
+
+    \section3 Enabling drag and drop for items
+
+    Models indicate to views which items can be dragged, and which will accept drops,
+    by reimplementing the QAbstractItemModel::flags() function to provide suitable
+    flags.
+
+    For example, a model which provides a simple list based on QAbstractListModel
+    can enable drag and drop for each of the items by ensuring that the flags
+    returned contain the \l Qt::ItemIsDragEnabled and \l Qt::ItemIsDropEnabled
+    values:
+
+    \snippet qlistview-dnd/model.cpp 7
+
+    Note that items can be dropped into the top level of the model, but dragging is
+    only enabled for valid items.
+
+    In the above code, since the model is derived from QStringListModel, we
+    obtain a default set of flags by calling its implementation of the flags()
+    function.
+
+    \section3 Encoding exported data
+
+    When items of data are exported from a model in a drag and drop operation, they
+    are encoded into an appropriate format corresponding to one or more MIME types.
+    Models declare the MIME types that they can use to supply items by reimplementing
+    the QAbstractItemModel::mimeTypes() function, returning a list of standard MIME
+    types.
+
+    For example, a model that only provides plain text would provide the following
+    implementation:
+
+    \snippet qlistview-dnd/model.cpp 9
+
+    The model must also provide code to encode data in the advertised format. This
+    is achieved by reimplementing the QAbstractItemModel::mimeData() function to
+    provide a QMimeData object, just as in any other drag and drop operation.
+
+    The following code shows how each item of data, corresponding to a given list of
+    indexes, is encoded as plain text and stored in a QMimeData object.
+
+    \snippet qlistview-dnd/model.cpp 8
+
+    Since a list of model indexes is supplied to the function, this approach is general
+    enough to be used in both hierarchical and non-heirarchical models.
+
+    Note that custom datatypes must be declared as \l{QMetaObject}{meta objects}
+    and that stream operators must be implemented for them. See the QMetaObject
+    class description for details.
+
+    \section3 Inserting dropped data into a model
+
+    The way that any given model handles dropped data depends on both its type
+    (list, table, or tree) and the way its contents is likely to be presented to
+    the user. Generally, the approach taken to accommodate dropped data should
+    be the one that most suits the model's underlying data store.
+
+    Different types of model tend to handle dropped data in different ways. List
+    and table models only provide a flat structure in which items of data are
+    stored. As a result, they may insert new rows (and columns) when data is
+    dropped on an existing item in a view, or they may overwrite the item's
+    contents in the model using some of the data supplied. Tree models are
+    often able to add child items containing new data to their underlying data
+    stores, and will therefore behave more predictably as far as the user
+    is concerned.
+
+    Dropped data is handled by a model's reimplementation of
+    QAbstractItemModel::dropMimeData(). For example, a model that handles a
+    simple list of strings can provide an implementation that handles data
+    dropped onto existing items separately to data dropped into the top level
+    of the model (i.e., onto an invalid item).
+
+    The model first has to make sure that the operation should be acted on,
+    the data supplied is in a format that can be used, and that its destination
+    within the model is valid:
+
+    \snippet qlistview-dnd/model.cpp 0
+    \snippet qlistview-dnd/model.cpp 1
+
+    A simple one column string list model can indicate failure if the data
+    supplied is not plain text, or if the column number given for the drop
+    is invalid.
+
+    The data to be inserted into the model is treated differently depending on
+    whether it is dropped onto an existing item or not. In this simple example,
+    we want to allow drops between existing items, before the first item in the
+    list, and after the last item.
+
+    When a drop occurs, the model index corresponding to the parent item will
+    either be valid, indicating that the drop occurred on an item, or it will
+    be invalid, indicating that the drop occurred somewhere in the view that
+    corresponds to top level of the model.
+
+    \snippet qlistview-dnd/model.cpp 2
+
+    We initially examine the row number supplied to see if we can use it
+    to insert items into the model, regardless of whether the parent index is
+    valid or not.
+
+    \snippet qlistview-dnd/model.cpp 3
+
+    If the parent model index is valid, the drop occurred on an item. In this
+    simple list model, we find out the row number of the item and use that
+    value to insert dropped items into the top level of the model.
+
+    \snippet qlistview-dnd/model.cpp 4
+
+    When a drop occurs elsewhere in the view, and the row number is unusable,
+    we append items to the top level of the model.
+
+    In hierarchical models, when a drop occurs on an item, it would be better to
+    insert new items into the model as children of that item. In the simple
+    example shown here, the model only has one level, so this approach is not
+    appropriate.
+
+    \section3 Decoding imported data
+
+    Each implementation of \l{QAbstractItemModel::dropMimeData()}{dropMimeData()} must
+    also decode the data and insert it into the model's underlying data structure.
+
+    For a simple string list model, the encoded items can be decoded and streamed
+    into a QStringList:
+
+    \snippet qlistview-dnd/model.cpp 5
+
+    The strings can then be inserted into the underlying data store. For consistency,
+    this can be done through the model's own interface:
+
+    \snippet qlistview-dnd/model.cpp 6
+
+    Note that the model will typically need to provide implementations of the
+    QAbstractItemModel::insertRows() and QAbstractItemModel::setData() functions.
+
+    \sa {itemviews/puzzle}{Item Views Puzzle Example}
+
+    \section1 Proxy models
+
+    In the model/view framework, items of data supplied by a single model can be shared
+    by any number of views, and each of these can possibly represent the same information
+    in completely different ways.
+    Custom views and delegates are effective ways to provide radically different
+    representations of the same data. However, applications often need to provide
+    conventional views onto processed versions of the same data, such as differently-sorted
+    views onto a list of items.
+
+    Although it seems appropriate to perform sorting and filtering operations as internal
+    functions of views, this approach does not allow multiple views to share the results
+    of such potentially costly operations. The alternative approach, involving sorting
+    within the model itself, leads to the similar problem where each view has to display
+    items of data that are organized according to the most recent processing operation.
+
+    To solve this problem, the model/view framework uses proxy models to manage the
+    information supplied between individual models and views. Proxy models are components
+    that behave like ordinary models from the perspective of a view, and access data from
+    source models on behalf of that view. The signals and slots used by the model/view
+    framework ensure that each view is updated appropriately no matter how many proxy models
+    are placed between itself and the source model.
+
+    \section2 Using proxy models
+
+    Proxy models can be inserted between an existing model and any number of views.
+    Qt is supplied with a standard proxy model, QSortFilterProxyModel, that is usually
+    instantiated and used directly, but can also be subclassed to provide custom filtering
+    and sorting behavior. The QSortFilterProxyModel class can be used in the following way:
+
+    \snippet qsortfilterproxymodel/main.cpp 0
+    \codeline
+    \snippet qsortfilterproxymodel/main.cpp 1
+
+    Since proxy models are inherit from QAbstractItemModel, they can be connected to
+    any kind of view, and can be shared between views. They can also be used to
+    process the information obtained from other proxy models in a pipeline arrangement.
+
+    The QSortFilterProxyModel class is designed to be instantiated and used directly
+    in applications. More specialized proxy models can be created by subclassing this
+    classes and implementing the required comparison operations.
+
+    \section2 Customizing proxy models
+
+    Generally, the type of processing used in a proxy model involves mapping each item of
+    data from its original location in the source model to either a different location in
+    the proxy model. In some models, some items may have no corresponding location in the
+    proxy model; these models are \e filtering proxy models. Views access items using
+    model indexes provided by the proxy model, and these contain no information about the
+    source model or the locations of the original items in that model.
+
+    QSortFilterProxyModel enables data from a source model to be filtered before
+    being supplied to views, and also allows the contents of a source model to
+    be supplied to views as pre-sorted data.
+
+    \section3 Custom filtering models
+
+    The QSortFilterProxyModel class provides a filtering model that is fairly versatile,
+    and which can be used in a variety of common situations. For advanced users,
+    QSortFilterProxyModel can be subclassed, providing a mechanism that enables custom
+    filters to be implemented.
+
+    Subclasses of QSortFilterProxyModel can reimplement two virtual functions that are
+    called whenever a model index from the proxy model is requested or used:
+
+    \list
+    \li \l{QSortFilterProxyModel::filterAcceptsColumn()}{filterAcceptsColumn()} is used to
+       filter specific columns from part of the source model.
+    \li \l{QSortFilterProxyModel::filterAcceptsRow()}{filterAcceptsRow()} is used to filter
+       specific rows from part of the source model.
+    \endlist
+
+    The default implementations of the above functions in QSortFilterProxyModel
+    return true to ensure that all items are passed through to views; reimplementations
+    of these functions should return false to filter out individual rows and columns.
+
+    \section3 Custom sorting models
+
+    QSortFilterProxyModel instances use Qt's built-in qStableSort() function to set up
+    mappings between items in the source model and those in the proxy model, allowing a
+    sorted hierarchy of items to be exposed to views without modifying the structure of the
+    source model. To provide custom sorting behavior, reimplement the
+    \l{QSortFilterProxyModel::lessThan()}{lessThan()} function to perform custom
+    comparisons.
+
+    \section1 Model subclassing reference
+
+    Model subclasses need to provide implementations of many of the virtual functions
+    defined in the QAbstractItemModel base class. The number of these functions that need
+    to be implemented depends on the type of model - whether it supplies views with
+    a simple list, a table, or a complex hierarchy of items. Models that inherit from
+    QAbstractListModel and QAbstractTableModel can take advantage of the default
+    implementations of functions provided by those classes. Models that expose items
+    of data in tree-like structures must provide implementations for many of the
+    virtual functions in QAbstractItemModel.
+
+    The functions that need to be implemented in a model subclass can be divided into three
+    groups:
+
+    \list
+    \li \b{Item data handling:} All models need to implement functions to enable views and
+       delegates to query the dimensions of the model, examine items, and retrieve data.
+    \li \b{Navigation and index creation:} Hierarchical models need to provide functions
+       that views can call to navigate the tree-like structures they expose, and obtain
+       model indexes for items.
+    \li \b{Drag and drop support and MIME type handling:} Models inherit functions that
+       control the way that internal and external drag and drop operations are performed.
+       These functions allow items of data to be described in terms of MIME types that
+       other components and applications can understand.
+    \endlist
+
+    \section2 Item data handling
+
+    Models can provide varying levels of access to the data they provide: They can be
+    simple read-only components, some models may support resizing operations, and
+    others may allow items to be edited.
+
+    \section2 Read-Only access
+
+    To provide read-only access to data provided by a model, the following functions
+    \e{must} be implemented in the model's subclass:
+
+    \table 90%
+    \row \li \l{QAbstractItemModel::flags()}{flags()}
+         \li Used by other components to obtain information about each item provided by
+            the model. In many models, the combination of flags should include
+            Qt::ItemIsEnabled and Qt::ItemIsSelectable.
+    \row \li \l{QAbstractItemModel::data()}{data()}
+         \li Used to supply item data to views and delegates. Generally, models only
+            need to supply data for Qt::DisplayRole and any application-specific user
+            roles, but it is also good practice to provide data for Qt::ToolTipRole,
+            Qt::AccessibleTextRole, and Qt::AccessibleDescriptionRole.
+            See the Qt::ItemDataRole enum documentation for information about the types
+            associated with each role.
+    \row \li \l{QAbstractItemModel::headerData()}{headerData()}
+         \li Provides views with information to show in their headers. The information is
+            only retrieved by views that can display header information.
+    \row \li \l{QAbstractItemModel::rowCount()}{rowCount()}
+         \li Provides the number of rows of data exposed by the model.
+    \endtable
+
+    These four functions must be implemented in all types of model, including list models
+    (QAbstractListModel subclasses) and table models (QAbstractTableModel subclasses).
+
+    Additionally, the following functions \e{must} be implemented in direct subclasses
+    of QAbstractTableModel and QAbstractItemModel:
+
+    \table 90%
+    \row \li \l{QAbstractItemModel::columnCount()}{columnCount()}
+         \li Provides the number of columns of data exposed by the model. List models do not
+            provide this function because it is already implemented in QAbstractListModel.
+    \endtable
+
+    \section3 Editable items
+
+    Editable models allow items of data to be modified, and may also provide
+    functions to allow rows and columns to be inserted and removed. To enable
+    editing, the following functions must be implemented correctly:
+
+    \table 90%
+    \row \li \l{QAbstractItemModel::flags()}{flags()}
+         \li Must return an appropriate combination of flags for each item. In particular,
+            the value returned by this function must include \l{Qt::ItemIsEditable} in
+            addition to the values applied to items in a read-only model.
+    \row \li \l{QAbstractItemModel::setData()}{setData()}
+         \li Used to modify the item of data associated with a specified model index.
+            To be able to accept user input, provided by user interface elements, this
+            function must handle data associated with Qt::EditRole.
+            The implementation may also accept data associated with many different kinds
+            of roles specified by Qt::ItemDataRole. After changing the item of data,
+            models must emit the \l{QAbstractItemModel::dataChanged()}{dataChanged()}
+            signal to inform other components of the change.
+    \row \li \l{QAbstractItemModel::setHeaderData()}{setHeaderData()}
+         \li Used to modify horizontal and vertical header information. After changing
+            the item of data, models must emit the
+            \l{QAbstractItemModel::headerDataChanged()}{headerDataChanged()}
+            signal to inform other components of the change.
+    \endtable
+
+    \section3 Resizable models
+
+    All types of model can support the insertion and removal of rows. Table models
+    and hierarchical models can also support the insertion and removal of columns.
+    It is important to notify other components about changes to the model's dimensions
+    both \e before and \e after they occur. As a result, the following functions
+    can be implemented to allow the model to be resized, but implementations must
+    ensure that the appropriate functions are called to notify attached views and
+    delegates:
+
+    \table 90%
+    \row \li \l{QAbstractItemModel::insertRows()}{insertRows()}
+         \li Used to add new rows and items of data to all types of model.
+            Implementations must call
+            \l{QAbstractItemModel::beginInsertRows()}{beginInsertRows()} \e before
+            inserting new rows into any underlying data structures, and call
+            \l{QAbstractItemModel::endInsertRows()}{endInsertRows()}
+            \e{immediately afterwards}.
+    \row \li \l{QAbstractItemModel::removeRows()}{removeRows()}
+         \li Used to remove rows and the items of data they contain from all types of model.
+            Implementations must call
+            \l{QAbstractItemModel::beginRemoveRows()}{beginRemoveRows()}
+            \e before rows are removed from any underlying data structures, and call
+            \l{QAbstractItemModel::endRemoveRows()}{endRemoveRows()}
+            \e{immediately afterwards}.
+    \row \li \l{QAbstractItemModel::insertColumns()}{insertColumns()}
+         \li Used to add new columns and items of data to table models and hierarchical models.
+            Implementations must call
+            \l{QAbstractItemModel::beginInsertColumns()}{beginInsertColumns()} \e before
+            inserting new columns into any underlying data structures, and call
+            \l{QAbstractItemModel::endInsertColumns()}{endInsertColumns()}
+            \e{immediately afterwards}.
+    \row \li \l{QAbstractItemModel::removeColumns()}{removeColumns()}
+         \li Used to remove columns and the items of data they contain from table models and
+            hierarchical models.
+            Implementations must call
+            \l{QAbstractItemModel::beginRemoveColumns()}{beginRemoveColumns()}
+            \e before columns are removed from any underlying data structures, and call
+            \l{QAbstractItemModel::endRemoveColumns()}{endRemoveColumns()}
+            \e{immediately afterwards}.
+    \endtable
+
+    Generally, these functions should return true if the operation was successful.
+    However, there may be cases where the operation only partly succeeded; for example,
+    if less than the specified number of rows could be inserted. In such cases, the
+    model should return false to indicate failure to enable any attached components to
+    handle the situation.
+
+    The signals emitted by the functions called in implementations of the resizing
+    API give attached components the chance to take action before any data becomes
+    unavailable. The encapsulation of insert and remove operations with begin and end
+    functions also enable the model to manage
+    \l{QPersistentModelIndex}{persistent model indexes} correctly.
+
+    Normally, the begin and end functions are capable of informing other components
+    about changes to the model's underlying structure. For more complex changes to the
+    model's structure, perhaps involving internal reorganization or sorting of data,
+    it is necessary to emit the \l{QAbstractItemModel::layoutChanged()}{layoutChanged()}
+    signal to cause any attached views to be updated.
+
+    \section3 Lazy population of model data
+
+    Lazy population of model data effectively allows requests for information
+    about the model to be deferred until it is actually needed by views.
+
+    Some models need to obtain data from remote sources, or must perform
+    time-consuming operations to obtain information about the way the
+    data is organized. Since views generally request as much information
+    as possible in order to accurately display model data, it can be useful
+    to restrict the amount of information returned to them to reduce
+    unnecessary follow-up requests for data.
+
+    In hierarchical models where finding the number of children of a given
+    item is an expensive operation, it is useful to ensure that the model's
+    \l{QAbstractItemModel::}{rowCount()} implementation is only called when
+    necessary. In such cases, the \l{QAbstractItemModel::}{hasChildren()}
+    function can be reimplemented to provide an inexpensive way for views to
+    check for the presence of children and, in the case of QTreeView, draw
+    the appropriate decoration for their parent item.
+
+    Whether the reimplementation of \l{QAbstractItemModel::}{hasChildren()}
+    returns \c true or \c false, it may not be necessary for the view to call
+    \l{QAbstractItemModel::}{rowCount()} to find out how many children are
+    present. For example, QTreeView does not need to know how many children
+    there are if the parent item has not been expanded to show them.
+
+    If it is known that many items will have children, reimplementing
+    \l{QAbstractItemModel::}{hasChildren()} to unconditionally return \c true
+    is sometimes a useful approach to take. This ensures that each item can
+    be later examined for children while making initial population of model
+    data as fast as possible. The only disadvantage is that items without
+    children may be displayed incorrectly in some views until the user
+    attempts to view the non-existent child items.
+
+    \section2 Navigation and model index creation
+
+    Hierarchical models need to provide functions that views can call to navigate the
+    tree-like structures they expose, and obtain model indexes for items.
+
+    \section3 Parents and children
+
+    Since the structure exposed to views is determined by the underlying data
+    structure, it is up to each model subclass to create its own model indexes
+    by providing implementations of the following functions:
+
+    \table 90%
+    \row \li \l{QAbstractItemModel::index()}{index()}
+         \li Given a model index for a parent item, this function allows views and delegates
+            to access children of that item. If no valid child item - corresponding to the
+            specified row, column, and parent model index, can be found, the function
+            must return QModelIndex(), which is an invalid model index.
+    \row \li \l{QAbstractItemModel::parent()}{parent()}
+         \li Provides a model index corresponding to the parent of any given child item.
+            If the model index specified corresponds to a top-level item in the model, or if
+            there is no valid parent item in the model, the function must return
+            an invalid model index, created with the empty QModelIndex() constructor.
+    \endtable
+
+    Both functions above use the \l{QAbstractItemModel::createIndex()}{createIndex()}
+    factory function to generate indexes for other components to use. It is normal for
+    models to supply some unique identifier to this function to ensure that
+    the model index can be re-associated with its corresponding item later on.
+
+    \section2 Drag and drop support and MIME type handling
+
+    The model/view classes support drag and drop operations, providing default behavior
+    that is sufficient for many applications. However, it is also possible to customize
+    the way items are encoded during drag and drop operations, whether they are copied
+    or moved by default, and how they are inserted into existing models.
+
+    Additionally, the convenience view classes implement specialized behavior that
+    should closely follow that expected by existing developers.
+    The \l{#Convenience Views}{Convenience Views} section provides an overview of this
+    behavior.
+
+    \section3 MIME data
+
+    By default, the built-in models and views use an internal MIME type
+    (\c{application/x-qabstractitemmodeldatalist}) to pass around information about
+    model indexes. This specifies data for a list of items, containing the row and
+    column numbers of each item, and information about the roles that each item
+    supports.
+
+    Data encoded using this MIME type can be obtained by calling
+    QAbstractItemModel::mimeData() with a QModelIndexList containing the items to
+    be serialized.
+    \omit
+    The following types are used to store information about
+    each item as it is streamed into a QByteArray and stored in a QMimeData object:
+
+    \table 90%
+    \header \li Description \li Type
+    \row \li Row \li int
+    \row \li Column \li int
+    \row \li Data for each role \li QMap<int, QVariant>
+    \endtable
+
+    This information can be retrieved for use in non-model classes by calling
+    QMimeData::data() with the \c{application/x-qabstractitemmodeldatalist} MIME
+    type and streaming out the items one by one.
+    \endomit
+
+    When implementing drag and drop support in a custom model, it is possible to
+    export items of data in specialized formats by reimplementing the following
+    function:
+
+    \table 90%
+    \row \li \l{QAbstractItemModel::mimeData()}{mimeData()}
+         \li This function can be reimplemented to return data in formats other
+            than the default \c{application/x-qabstractitemmodeldatalist} internal
+            MIME type.
+
+            Subclasses can obtain the default QMimeData object from the base class
+            and add data to it in additional formats.
+    \endtable
+
+    For many models, it is useful to provide the contents of items in common format
+    represented by MIME types such as \c{text/plain} and \c{image/png}. Note that
+    images, colors and HTML documents can easily be added to a QMimeData object with
+    the QMimeData::setImageData(), QMimeData::setColorData(), and
+    QMimeData::setHtml() functions.
+
+    \section3 Accepting dropped data
+
+    When a drag and drop operation is performed over a view, the underlying model is
+    queried to determine which types of operation it supports and the MIME types
+    it can accept. This information is provided by the
+    QAbstractItemModel::supportedDropActions() and QAbstractItemModel::mimeTypes()
+    functions. Models that do not override the implementations provided by
+    QAbstractItemModel support copy operations and the default internal MIME type
+    for items.
+
+    When serialized item data is dropped onto a view, the data is inserted into
+    the current model using its implementation of QAbstractItemModel::dropMimeData().
+    The default implementation of this function will never overwrite any data in the
+    model; instead, it tries to insert the items of data either as siblings of an
+    item, or as children of that item.
+
+    To take advantage of QAbstractItemModel's default implementation for the built-in
+    MIME type, new models must provide reimplementations of the following functions:
+
+    \table 90%
+    \row \li \l{QAbstractItemModel::insertRows()}{insertRows()}
+         \li {1, 2} These functions enable the model to automatically insert new data using
+            the existing implementation provided by QAbstractItemModel::dropMimeData().
+    \row \li \l{QAbstractItemModel::insertColumns()}{insertColumns()}
+    \row \li \l{QAbstractItemModel::setData()}{setData()}
+         \li Allows the new rows and columns to be populated with items.
+    \row \li \l{QAbstractItemModel::setItemData()}{setItemData()}
+         \li This function provides more efficient support for populating new items.
+    \endtable
+
+    To accept other forms of data, these functions must be reimplemented:
+
+    \table 90%
+    \row \li \l{QAbstractItemModel::supportedDropActions()}{supportedDropActions()}
+         \li Used to return a combination of \l{Qt::DropActions}{drop actions},
+            indicating the types of drag and drop operations that the model accepts.
+    \row \li \l{QAbstractItemModel::mimeTypes()}{mimeTypes()}
+         \li Used to return a list of MIME types that can be decoded and handled by
+            the model. Generally, the MIME types that are supported for input into
+            the model are the same as those that it can use when encoding data for
+            use by external components.
+    \row \li \l{QAbstractItemModel::dropMimeData()}{dropMimeData()}
+         \li Performs the actual decoding of the data transferred by drag and drop
+            operations, determines where in the model it will be set, and inserts
+            new rows and columns where necessary. How this function is implemented
+            in subclasses depends on the requirements of the data exposed by each
+            model.
+    \endtable
+
+    If the implementation of the \l{QAbstractItemModel::dropMimeData()}{dropMimeData()}
+    function changes the dimensions of a model by inserting or removing rows or
+    columns, or if items of data are modified, care must be taken to ensure that
+    all relevant signals are emitted. It can be useful to simply call
+    reimplementations of other functions in the subclass, such as
+    \l{QAbstractItemModel::setData()}{setData()},
+    \l{QAbstractItemModel::insertRows()}{insertRows()}, and
+    \l{QAbstractItemModel::insertColumns()}{insertColumns()}, to ensure that the
+    model behaves consistently.
+
+    In order to ensure drag operations work properly, it is important to
+    reimplement the following functions that remove data from the model:
+
+    \list
+        \li \l{QAbstractItemModel::}{removeRows()}
+        \li \l{QAbstractItemModel::}{removeRow()}
+        \li \l{QAbstractItemModel::}{removeColumns()}
+        \li \l{QAbstractItemModel::}{removeColumn()}
+    \endlist
+
+    For more information about drag and drop with item views, refer to
+    \l{Using drag and drop with item views}.
+
+    \section3 Convenience views
+
+    The convenience views (QListWidget, QTableWidget, and QTreeWidget) override
+    the default drag and drop functionality to provide less flexible, but more
+    natural behavior that is appropriate for many applications. For example,
+    since it is more common to drop data into cells in a QTableWidget, replacing
+    the existing contents with the data being transferred, the underlying model
+    will set the data of the target items rather than insert new rows and columns
+    into the model. For more information on drag and drop in convenience views,
+    you can see \l{Using drag and drop with item views}.
+
+    \section2 Performance optimization for large amounts of data
+
+    The \l{QAbstractItemModel::}{canFetchMore()} function checks if the parent
+    has more data available and returns \c true or false accordingly. The
+    \l{QAbstractItemModel::}{fetchMore()} function fetches data based on the
+    parent specified. Both these functions can be combined, for example, in a
+    database query involving incremental data to populate a QAbstractItemModel.
+    We reimplement \l{QAbstractItemModel::}{canFetchMore()} to indicate if there
+    is more data to be fetched and \l{QAbstractItemModel::}{fetchMore()} to
+    populate the model as required.
+
+    Another example would be dynamically populated tree models, where we
+    reimplement \l{QAbstractItemModel::}{fetchMore()} when a branch in the tree
+    model is expanded.
+
+    If your reimplementation of \l{QAbstractItemModel::}{fetchMore()} adds rows
+    to the model, you need to call \l{QAbstractItemModel::}{beginInsertRows()}
+    and \l{QAbstractItemModel::}{endInsertRows()}. Also, both
+    \l{QAbstractItemModel::}{canFetchMore()} and  \l{QAbstractItemModel::}
+    {fetchMore()} must be reimplemented as their default implementation returns
+    false and does nothing.
+
+    \keyword Model/View Classes
+    \section1 The model/view classes
+
+    These classes use the model/view design pattern in which the
+    underlying data (in the model) is kept separate from the way the
+    data is presented and manipulated by the user (in the view).
+
+    \annotatedlist model-view
+
+    \section1 Related examples
+
+    \list
+    \li \l{itemviews/dirview}{Dir View}
+    \li \l{itemviews/spinboxdelegate}{Spin Box Delegate}
+    \li \l{itemviews/pixelator}{Pixelator}
+    \li \l{itemviews/simpletreemodel}{Simple Tree Model}
+    \li \l{itemviews/chart}{Chart}
+    \endlist
+*/

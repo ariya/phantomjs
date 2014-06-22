@@ -1,0 +1,16 @@
+CONFIG -= console
+contains(TEMPLATE, ".*app"){
+    QMAKE_LFLAGS += \
+        $$replace(QMAKE_LFLAGS_WINDOWS, @QMAKE_SUBSYSTEM_SUFFIX@, $$QMAKE_SUBSYSTEM_SUFFIX) \
+        $$QMAKE_LFLAGS_EXE
+    mingw:DEFINES += QT_NEEDS_QMAIN
+
+    qt:for(entryLib, $$list($$unique(QMAKE_LIBS_QT_ENTRY))) {
+        isEqual(entryLib, -lqtmain): {
+            CONFIG(debug, debug|release): QMAKE_LIBS += $${entryLib}$${QT_LIBINFIX}d
+            else: QMAKE_LIBS += $${entryLib}$${QT_LIBINFIX}
+        } else {
+            QMAKE_LIBS += $${entryLib}
+        }
+    }
+}

@@ -1,0 +1,64 @@
+/*
+ * Copyright (C) 2006, 2007, 2008, 2009 Apple Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+#ifndef DO_NO_IMPORTS
+import "oaidl.idl";
+import "ocidl.idl";
+import "IWebDataSource.idl";
+import "IWebURLResponse.idl";
+#endif
+
+interface IWebView;
+interface IWebDataSource;
+interface IWebURLResponse;
+interface IWebURLRequest;
+
+/*!
+    @category  WebResourceLoadDelegatePrivate
+*/
+
+[
+    object,
+    oleautomation,
+    uuid(099DC3C1-34B5-4169-ABBF-0C63CBC25605),
+    pointer_default(unique)
+]
+interface IWebResourceLoadDelegatePrivate : IUnknown
+{
+    /*!
+        @method webView:didLoadResourceFromMemoryCache:request:response:length:fromDataSource:
+        @param request The request for the resource.
+        @param response The response for the resource.
+        @param dataSource The datasource that initiated the load.
+        @discussion This will be called if the resource can be loaded from memory cache.  No further resource load delegate
+        methods will be called on it after this.
+        - (id)webView:(WebView *)sender didLoadResourceFromMemoryCache:(NSURLRequest *)request response:(NSURLResponse *)response length:(NSInteger)length fromDataSource:(WebDataSource *)dataSource
+    */
+    HRESULT didLoadResourceFromMemoryCache([in] IWebView* webView, [in] IWebURLRequest* request, [in] IWebURLResponse* response, [in] UINT length, [in] IWebDataSource* dataSource);
+
+    HRESULT shouldUseCredentialStorage([in] IWebView* webView, [in] unsigned long identifier, [in] IWebDataSource* dataSource, [out, retval] BOOL* shouldUse);
+
+    HRESULT shouldCacheResponse([in] IWebView* webView, [in] unsigned long identifier, [in] IWebURLResponse* response, [in] const char* data, [in] unsigned long long length, [in] IWebDataSource* dataSource, [out, retval] BOOL* shouldCache);
+}

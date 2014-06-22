@@ -1,0 +1,64 @@
+/*
+ * Copyright (C) 2008, 2009 Apple Inc. All Rights Reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+ 
+[
+    NoInterfaceObject,
+    EventTarget,
+    DoNotCheckConstants,
+    GenerateIsReachable=ImplFrame
+] interface DOMApplicationCache {
+    // update status
+    const unsigned short UNCACHED = 0;
+    const unsigned short IDLE = 1;
+    const unsigned short CHECKING = 2;
+    const unsigned short DOWNLOADING = 3;
+    const unsigned short UPDATEREADY = 4;
+    const unsigned short OBSOLETE = 5;
+    readonly attribute unsigned short status;
+
+    [RaisesException] void update();
+    [RaisesException] void swapCache();
+    void abort();
+
+    // events
+    attribute EventListener onchecking;
+    attribute EventListener onerror;
+    attribute EventListener onnoupdate;
+    attribute EventListener ondownloading;
+    attribute EventListener onprogress;
+    attribute EventListener onupdateready;
+    attribute EventListener oncached;
+    attribute EventListener onobsolete;
+
+    // EventTarget interface
+    void addEventListener(DOMString type, 
+                          EventListener listener, 
+                          optional boolean useCapture);
+    void removeEventListener(DOMString type, 
+                             EventListener listener, 
+                             optional boolean useCapture);
+    [RaisesException] boolean dispatchEvent(Event evt);
+};
+

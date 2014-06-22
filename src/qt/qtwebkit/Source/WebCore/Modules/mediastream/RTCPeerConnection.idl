@@ -1,0 +1,91 @@
+/*
+ * Copyright (C) 2012 Google Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer
+ *    in the documentation and/or other materials provided with the
+ *    distribution.
+ * 3. Neither the name of Google Inc. nor the names of its contributors
+ *    may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+[
+    Conditional=MEDIA_STREAM,
+    ActiveDOMObject,
+    Constructor(Dictionary rtcIceServers, optional Dictionary mediaConstraints),
+    ConstructorRaisesException,
+    ConstructorCallWith=ScriptExecutionContext,
+    EventTarget,
+    InterfaceName=webkitRTCPeerConnection
+] interface RTCPeerConnection {
+    [RaisesException] void createOffer(RTCSessionDescriptionCallback successCallback, [Default=Undefined] optional RTCErrorCallback failureCallback, optional Dictionary mediaConstraints);
+
+    [RaisesException] void createAnswer(RTCSessionDescriptionCallback successCallback, [Default=Undefined] optional RTCErrorCallback failureCallback, optional Dictionary mediaConstraints);
+
+    [RaisesException] void setLocalDescription(RTCSessionDescription description, [Default=Undefined] optional VoidCallback successCallback, [Default=Undefined] optional RTCErrorCallback failureCallback);
+    [GetterRaisesException] readonly attribute RTCSessionDescription localDescription;
+
+    [RaisesException] void setRemoteDescription(RTCSessionDescription description, [Default=Undefined] optional VoidCallback successCallback, [Default=Undefined] optional RTCErrorCallback failureCallback);
+    [GetterRaisesException] readonly attribute RTCSessionDescription remoteDescription;
+
+    readonly attribute DOMString signalingState;
+
+    [RaisesException] void updateIce(optional Dictionary configuration, optional Dictionary mediaConstraints);
+
+    [RaisesException] void addIceCandidate(RTCIceCandidate candidate);
+
+    readonly attribute DOMString iceGatheringState;
+    readonly attribute DOMString iceConnectionState;
+
+    sequence<MediaStream> getLocalStreams();
+    sequence<MediaStream> getRemoteStreams();
+    MediaStream getStreamById(DOMString streamId);
+
+    [StrictTypeChecking, RaisesException] void addStream(MediaStream stream, optional Dictionary mediaConstraints);
+    [StrictTypeChecking, RaisesException] void removeStream(MediaStream stream);
+
+    void getStats(RTCStatsCallback successCallback, [Default=Undefined] optional MediaStreamTrack selector);
+
+    [RaisesException] RTCDataChannel createDataChannel([TreatNullAs=NullString, TreatUndefinedAs=NullString] DOMString label, optional Dictionary options);
+
+    [RaisesException] RTCDTMFSender createDTMFSender(MediaStreamTrack track);
+
+    [RaisesException] void close();
+
+    attribute EventListener onnegotiationneeded;
+    attribute EventListener onicecandidate;
+    attribute EventListener onsignalingstatechange;
+    attribute EventListener onaddstream;
+    attribute EventListener onremovestream;
+    attribute EventListener oniceconnectionstatechange;
+    attribute EventListener ondatachannel;
+
+    // EventTarget interface
+    void addEventListener(DOMString type,
+                          EventListener listener,
+                          optional boolean useCapture);
+    void removeEventListener(DOMString type,
+                             EventListener listener,
+                             optional boolean useCapture);
+    [RaisesException] boolean dispatchEvent(Event event);
+};
+

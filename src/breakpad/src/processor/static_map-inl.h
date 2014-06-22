@@ -47,13 +47,13 @@ StaticMap<Key, Value, Compare>::StaticMap(const char* raw_data)
     : raw_data_(raw_data),
       compare_() {
   // First 4 Bytes store the number of nodes.
-  num_nodes_ = *(reinterpret_cast<const u_int32_t*>(raw_data_));
+  num_nodes_ = *(reinterpret_cast<const uint32_t*>(raw_data_));
 
-  offsets_ = reinterpret_cast<const u_int32_t*>(
+  offsets_ = reinterpret_cast<const uint32_t*>(
       raw_data_ + sizeof(num_nodes_));
 
   keys_ = reinterpret_cast<const Key*>(
-      raw_data_ + (1 + num_nodes_) * sizeof(u_int32_t));
+      raw_data_ + (1 + num_nodes_) * sizeof(uint32_t));
 }
 
 // find(), lower_bound() and upper_bound() implement binary search algorithm.
@@ -132,14 +132,14 @@ bool StaticMap<Key, Value, Compare>::ValidateInMemoryStructure() const {
 
   int node_index = 0;
   if (num_nodes_) {
-    u_int64_t first_offset = sizeof(int32_t) * (num_nodes_ + 1)
+    uint64_t first_offset = sizeof(int32_t) * (num_nodes_ + 1)
                            + sizeof(Key) * num_nodes_;
     // Num_nodes_ is too large.
     if (first_offset > 0xffffffffUL) {
       BPLOG(INFO) << "StaticMap check failed: size exceeds limit";
       return false;
     }
-    if (offsets_[node_index] != static_cast<u_int32_t>(first_offset)) {
+    if (offsets_[node_index] != static_cast<uint32_t>(first_offset)) {
       BPLOG(INFO) << "StaticMap check failed: first node offset is incorrect";
       return false;
     }

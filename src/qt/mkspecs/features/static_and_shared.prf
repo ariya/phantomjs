@@ -1,3 +1,0 @@
-!contains(TEMPLATE, subdirs):!macx-xcode:!symbian-abld:!symbian-sbsv2 {
-    addExclusiveBuilds(static, Static, shared, Shared)
-}

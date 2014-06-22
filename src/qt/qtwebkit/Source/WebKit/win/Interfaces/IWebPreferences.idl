@@ -1,0 +1,216 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+cpp_quote("#define WebPreferencesChangedNotification TEXT(\"WebPreferencesChangedNotification\")")
+cpp_quote("#define WebPreferencesRemovedNotification TEXT(\"WebPreferencesRemovedNotification\")")
+
+#ifndef DO_NO_IMPORTS
+import "oaidl.idl";
+import "ocidl.idl";
+#endif
+
+typedef enum FontSmoothingType {
+    FontSmoothingTypeStandard=0,
+    FontSmoothingTypeLight,
+    FontSmoothingTypeMedium,
+    FontSmoothingTypeStrong,
+    FontSmoothingTypeWindows
+} FontSmoothingType;
+
+typedef enum WebKitEditableLinkBehavior {
+    WebKitEditableLinkDefaultBehavior = 0,
+    WebKitEditableLinkAlwaysLive,
+    WebKitEditableLinkOnlyLiveWithShiftKey,
+    WebKitEditableLinkLiveWhenNotFocused,
+    WebKitEditableLinkNeverLive
+} WebKitEditableLinkBehavior;
+
+typedef enum WebKitCookieStorageAcceptPolicy {
+    WebKitCookieStorageAcceptPolicyAlways = 0,
+    WebKitCookieStorageAcceptPolicyNever,
+    WebKitCookieStorageAcceptPolicyOnlyFromMainDocumentDomain
+} WebKitCookieStorageAcceptPolicy;
+
+typedef enum WebCacheModel {
+    WebCacheModelDocumentViewer = 0,
+    WebCacheModelDocumentBrowser = 1,
+    WebCacheModelPrimaryWebBrowser = 2
+} WebCacheModel;
+
+[
+    object,
+    oleautomation,
+    hidden,
+    uuid(0930D594-A5A3-46e1-858E-AB17A13CD28E),
+    pointer_default(unique)
+]
+interface IWebPreferences : IUnknown
+{
+    HRESULT standardPreferences([out, retval] IWebPreferences** standardPreferences);
+
+    HRESULT initWithIdentifier([in] BSTR anIdentifier, [out, retval] IWebPreferences** preferences);
+    HRESULT identifier([out, retval] BSTR* ident);
+
+    HRESULT standardFontFamily([out, retval] BSTR* family);
+    HRESULT setStandardFontFamily([in] BSTR family);
+
+    HRESULT fixedFontFamily([out, retval] BSTR* family);
+    HRESULT setFixedFontFamily([in] BSTR family);
+
+    HRESULT serifFontFamily([out, retval] BSTR* fontFamily);
+    HRESULT setSerifFontFamily([in] BSTR family);
+
+    HRESULT sansSerifFontFamily([out, retval] BSTR* family);
+    HRESULT setSansSerifFontFamily([in] BSTR family);
+
+    HRESULT cursiveFontFamily([out, retval] BSTR* family);
+    HRESULT setCursiveFontFamily([in] BSTR family);
+
+    HRESULT fantasyFontFamily([out, retval] BSTR* family);
+    HRESULT setFantasyFontFamily([in] BSTR family);
+
+    HRESULT defaultFontSize([out, retval] int* fontSize);
+    HRESULT setDefaultFontSize([in] int fontSize);
+
+    HRESULT defaultFixedFontSize([out, retval] int* fontSize);
+    HRESULT setDefaultFixedFontSize([in] int fontSize);
+
+    HRESULT minimumFontSize([out, retval] int* fontSize);
+    HRESULT setMinimumFontSize([in] int fontSize);
+
+    HRESULT minimumLogicalFontSize([out, retval] int* fontSize);
+    HRESULT setMinimumLogicalFontSize([in] int fontSize);
+
+    HRESULT defaultTextEncodingName([out, retval] BSTR* name);
+    HRESULT setDefaultTextEncodingName([in] BSTR name);
+
+    HRESULT userStyleSheetEnabled([out, retval] BOOL* enabled);
+    HRESULT setUserStyleSheetEnabled([in] BOOL enabled);
+
+    HRESULT userStyleSheetLocation([out, retval] BSTR* location);
+    HRESULT setUserStyleSheetLocation([in] BSTR location);
+
+    HRESULT isJavaEnabled([out, retval] BOOL* enabled);
+    HRESULT setJavaEnabled([in] BOOL enabled);
+
+    HRESULT isJavaScriptEnabled([out, retval] BOOL* enabled);
+    HRESULT setJavaScriptEnabled([in] BOOL enabled);
+
+    HRESULT javaScriptCanOpenWindowsAutomatically([out, retval] BOOL* enabled);
+    HRESULT setJavaScriptCanOpenWindowsAutomatically([in] BOOL enabled);
+
+    HRESULT arePlugInsEnabled([out, retval] BOOL* enabled);
+    HRESULT setPlugInsEnabled([in] BOOL enabled);
+
+    HRESULT allowsAnimatedImages([out, retval] BOOL* enabled);
+    HRESULT setAllowsAnimatedImages([in] BOOL enabled);
+    HRESULT allowAnimatedImageLooping([out, retval] BOOL* enabled);
+    HRESULT setAllowAnimatedImageLooping([in] BOOL enabled);
+
+    HRESULT setLoadsImagesAutomatically([in] BOOL enabled);
+    HRESULT loadsImagesAutomatically([out, retval] BOOL* enabled);
+
+    HRESULT setAutosaves([in] BOOL enabled);
+    HRESULT autosaves([out, retval] BOOL* enabled);
+
+    HRESULT setShouldPrintBackgrounds([in] BOOL enabled);
+    HRESULT shouldPrintBackgrounds([out, retval] BOOL* enabled);
+
+    HRESULT setPrivateBrowsingEnabled([in] BOOL enabled);
+    HRESULT privateBrowsingEnabled([out, retval] BOOL* enabled);
+
+    HRESULT setTabsToLinks([in] BOOL enabled);
+    HRESULT tabsToLinks([out, retval] BOOL* enabled);
+
+    HRESULT textAreasAreResizable([out, retval] BOOL* enabled);
+    HRESULT setTextAreasAreResizable([in] BOOL enabled);
+
+    HRESULT unused1();
+    HRESULT unused2();
+
+    HRESULT iconDatabaseLocation([out, retval] BSTR* location);
+    HRESULT setIconDatabaseLocation([in] BSTR location);
+
+    HRESULT iconDatabaseEnabled([out, retval] BOOL* enabled);
+    HRESULT setIconDatabaseEnabled([in] BOOL enabled);
+
+    HRESULT fontSmoothing([out, retval] FontSmoothingType* smoothingType);
+    HRESULT setFontSmoothing([in] FontSmoothingType smoothingType);
+
+    HRESULT editableLinkBehavior([out, retval] WebKitEditableLinkBehavior* editableLinkBehavior);
+    HRESULT setEditableLinkBehavior([in] WebKitEditableLinkBehavior behavior);
+
+    HRESULT cookieStorageAcceptPolicy([out, retval] WebKitCookieStorageAcceptPolicy* acceptPolicy);
+    HRESULT setCookieStorageAcceptPolicy([in] WebKitCookieStorageAcceptPolicy acceptPolicy);
+
+    HRESULT continuousSpellCheckingEnabled([out, retval] BOOL* enabled);
+    HRESULT setContinuousSpellCheckingEnabled([in] BOOL enabled);
+    HRESULT grammarCheckingEnabled([out, retval] BOOL* enabled);
+    HRESULT setGrammarCheckingEnabled([in] BOOL enabled);
+    HRESULT allowContinuousSpellChecking([out, retval] BOOL *allowed);
+    HRESULT setAllowContinuousSpellChecking([in] BOOL allowed);
+
+    HRESULT isDOMPasteAllowed([out, retval] BOOL *allowed);
+    HRESULT setDOMPasteAllowed([in] BOOL allowed);
+
+    HRESULT usesPageCache([out, retval] BOOL* usesPageCache);
+    HRESULT setUsesPageCache([in] BOOL usesPageCache);
+
+    HRESULT cacheModel([out, retval] WebCacheModel* cacheModel);
+    HRESULT setCacheModel([in] WebCacheModel cacheModel);
+
+    HRESULT unused3();
+    HRESULT unused4();
+
+    HRESULT setZoomsTextOnly(BOOL zoomsTextOnly);
+    HRESULT zoomsTextOnly(BOOL *zoomsTextOnly);
+
+    HRESULT setAcceleratedCompositingEnabled(BOOL acceleratedCompositingEnabled);
+    HRESULT acceleratedCompositingEnabled(BOOL *acceleratedCompositingEnabled);
+
+    HRESULT unused5();
+    HRESULT unused6();
+
+    HRESULT setAVFoundationEnabled(BOOL avFoundationEnabled);
+    HRESULT avFoundationEnabled(BOOL *avFoundationEnabled);
+
+    HRESULT pictographFontFamily([out, retval] BSTR* family);
+    HRESULT setPictographFontFamily([in] BSTR family);
+
+    HRESULT setShouldDisplaySubtitles(BOOL shouldDisplaySubtitles);
+    HRESULT shouldDisplaySubtitles(BOOL *shouldDisplaySubtitles);
+
+    HRESULT setShouldDisplayCaptions(BOOL shouldDisplayCaptions);
+    HRESULT shouldDisplayCaptions(BOOL *shouldDisplayCaptions);
+
+    HRESULT setShouldDisplayTextDescriptions(BOOL shouldDisplayTextDescriptions);
+    HRESULT shouldDisplayTextDescriptions(BOOL *shouldDisplayTextDescriptions);
+
+    HRESULT isCSSRegionsEnabled([out, retval] BOOL* enabled);
+    HRESULT setCSSRegionsEnabled([in] BOOL enabled);
+
+    HRESULT areSeamlessIFramesEnabled([out, retval] BOOL* enabled);
+    HRESULT setSeamlessIFramesEnabled([in] BOOL enabled);
+}

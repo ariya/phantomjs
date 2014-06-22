@@ -1,0 +1,24 @@
+//
+//  ProductionProject.xcconfig
+//
+//  These are Production Configuration project settings for the gtest framework
+//  and examples. It is set in the "Based On:" dropdown in the "Project" info
+//  dialog.
+//  This file is based on the Xcode Configuration files in:
+//  http://code.google.com/p/google-toolbox-for-mac/
+// 
+
+#include "ReleaseProject.xcconfig"
+
+// Used by HEADER_SEARCH_PATHS in General.xcconfig
+WEBCORE_PRIVATE_HEADERS_DIR = $(WEBCORE_PRIVATE_HEADERS_DIR_$(USE_STAGING_INSTALL_PATH));
+WEBCORE_PRIVATE_HEADERS_DIR_ = $(WEBCORE_PRIVATE_HEADERS_DIR_NO);
+WEBCORE_PRIVATE_HEADERS_DIR_NO = $(NEXT_ROOT)$(SYSTEM_LIBRARY_DIR)/Frameworks/WebKit.framework/Versions/A/Frameworks/WebCore.framework/PrivateHeaders;
+WEBCORE_PRIVATE_HEADERS_DIR_YES = $(NEXT_ROOT)$(SYSTEM_LIBRARY_DIR)/StagedFrameworks/Safari/WebCore.framework/PrivateHeaders;
+
+FRAMEWORK_SEARCH_PATHS = $(STAGED_FRAMEWORKS_SEARCH_PATH) $(FRAMEWORK_SEARCH_PATHS);
+
+STAGED_FRAMEWORKS_SEARCH_PATH = $(STAGED_FRAMEWORKS_SEARCH_PATH_$(USE_STAGING_INSTALL_PATH));
+STAGED_FRAMEWORKS_SEARCH_PATH_YES = $(NEXT_ROOT)$(SYSTEM_LIBRARY_DIR)/StagedFrameworks/Safari;
+
+ONLY_ACTIVE_ARCH = NO

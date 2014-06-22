@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>iExploder</title>
+  <style type="text/css">
+body {
+  background-color: #bbb;
+  background-image: -moz-linear-gradient(0% 100% 90deg, #e5e5e5, #666, #e5e5e5 99%);
+  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#e5e5e5), to(#bbb), color-stop(.1,#666));
+}
+
+h1 {
+  margin: 0;
+  font-size: 30px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+img {
+  width: 64px;
+  margin-right: 8px;
+  float: left;
+}
+
+form {
+  display: inline;
+}
+
+.content {
+  width: 850px;
+  margin-left: auto;
+  margin-right: auto; 
+  margin-top: 2em;
+  border: 1px solid #000;
+  background-color: #f5f5f5;
+  box-shadow: 5px 5px 5px #333;
+  -moz-box-shadow: 5px 5px 5px #333;
+  -webkit-box-shadow: 5px 5px 5px #333;
+}
+
+.header {
+  background-color: #999;
+}
+
+.copyright {
+  margin-top: 4em;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 9px;
+  text-align: center;
+  color: #333;
+}
+
+ul {
+  clear: both;
+}
+
+.formtext {
+  width: 16em;
+  display: inline-block;
+}
+
+</style>
+</head>
+<body>
+
+<div class="content">
+  <div class="header"><img src="media/bug.png" alt="Bug logo"><h1>iExploder: Browser Quality Assurance Tester</h1></div>
+
+<ul class="links">
+  <li><a href="iexploder.cgi">Start from the beginning!</a></li>
+  <li><a href="iexploder.cgi?r=1">Start from a random location!</a></li>
+</ul>
+  
+<ul class="formlinks">
+  <li><div class="formtext">Test from:</div>
+    <form method="get" action="iexploder.cgi" name="test">
+	<input size="12" name="t" value="0"> 
+	to: <input size="12" name="x" value=""> 
+        <input value="Go!" type="submit">
+    </form>
+  </li>
+
+
+  <li><div class="formtext">Lookup individual test:</div>
+    <form method="get" action="iexploder.cgi" name="test">
+	<input type="hidden" name="l" value="1">
+	<input size="12" name="t" value="1"> Subtest: <input size="7" name="s" value="">
+        <input value="Go!" type="submit">
+    </form>
+  </li>
+
+  <li><div class="formtext">Generate smaller testcase for:</div>
+    <form method="get" action="iexploder.cgi" name="test">
+	<input size="12" name="t" value="1"> 
+	<input type="hidden" name="s" value="0">
+        <input value="Go!" type="submit">
+    </form>
+  </li>
+
+</ul>
+</div>
+<div class="copyright">&copy; 2005-2010 Thomas Str&ouml;mberg &mdash; <a href="http://iexploder.googlecode.com/">iexploder.googlecode.com</a></div>
+</body>
+</html>

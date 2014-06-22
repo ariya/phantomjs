@@ -1,0 +1,4698 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page qmake-manual.html
+    \title qmake Manual
+    \startpage {index.html}{Qt Reference Documentation}
+    \nextpage Overview
+
+    \ingroup qttools
+    \keyword qmake
+
+    The qmake tool helps simplify the build process for development projects
+    across different platforms. It automates the generation of Makefiles so that
+    only a few lines of information are needed to create each Makefile.
+    You can use qmake for any software project, whether it is written with Qt or
+    not.
+
+    qmake generates a Makefile based on the information in a
+    project file. Project files are created by the developer, and are usually
+    simple, but more sophisticated project files can be created for complex
+    projects.
+
+    qmake contains additional features to support development
+    with Qt, automatically including build rules for \l{moc.html}{moc}
+    and \l{uic.html}{uic}.
+
+    qmake can also generate projects for Microsoft Visual studio
+    without requiring the developer to change the project file.
+
+    \section1 Table of Contents
+
+    \list
+        \li \l{Overview}
+        \li \l{Getting Started}
+        \li \l{Creating Project Files}
+        \li \l{Building Common Project Types}
+        \li \l{Running qmake}
+        \li \l{Platform Notes}
+        \li \l{qmake Language}
+        \li \l{Advanced Usage}
+        \li \l{Using Precompiled Headers}
+        \li \l{Configuring qmake}
+        \li \l{Reference}
+        \list
+            \li \l{Variables}
+            \li \l{Replace Functions}
+            \list
+                \li \l{Built-in Replace Functions}
+           \endlist
+           \li \l{Test Functions}
+            \list
+                \li \l{Built-in Test Functions}
+                \li \l{Test Function Library}
+            \endlist
+        \endlist
+    \endlist
+*/
+
+/*!
+    \page qmake-overview.html
+    \title Overview
+    \contentspage {qmake Manual}{Contents}
+    \previouspage qmake Manual
+    \nextpage Getting Started
+
+    The qmake tool provides you with a project-oriented system for managing the
+    build process for applications, libraries, and other components.
+    This approach gives you control over the source files used, and
+    allows each of the steps in the process to be described concisely,
+    typically within a single file. qmake expands
+    the information in each project file to a Makefile that executes the necessary
+    commands for compiling and linking.
+
+    \section1 Describing a Project
+
+    Projects are described by the contents of project (\c .pro) files. qmake
+    uses the information within the files to generate Makefiles that contain
+    all the commands that are needed to build each project.
+    Project files typically contain a list of source and header files,
+    general configuration information, and any application-specific details,
+    such as a list of extra libraries to link against, or a list of extra
+    include paths to use.
+
+    Project files can contain a number of different elements, including
+    comments, variable declarations, built-in functions, and some simple
+    control structures. In most simple projects, it is only necessary
+    to declare the source and header files that are used to build the
+    project with some basic configuration options. For more information about
+    how to create a simple project file, see \l{Getting Started}.
+
+    You can create more sophisticated project files for complex projects. For an
+    overview of project files, see \l{Creating Project Files}. For detailed
+    information about the variables and functions that you can use in project
+    files, see \l{Reference}.
+
+    You can use application or library project templates to specify specialized
+    configuration options to fine tune the build process. For more information,
+    see \l{Building Common Project Types}.
+
+    You can use the \l{external: Qt Creator Manual}{Qt Creator} new project
+    wizard to create the project file. You choose the project template, and Qt
+    Creator creates a project file with default values that enable you to build
+    and run the project. You can modify the project file to suit your purposes.
+
+    You can also use qmake to generate project files. For a full description of
+    qmake command line options, see \l{Running qmake}.
+
+    The basic configuration features of qmake can handle most cross-platform
+    projects. However, it might be useful, or even necessary, to use some
+    platform-specific variables. For more information, see \l{Platform Notes}.
+
+    \section1 Building a Project
+
+    For simple projects, you only need to run qmake in the top level directory
+    of your project to generate a Makefile. You can then run your platform's
+    \c make tool to build the project according to the Makefile.
+
+    For more information about the environment variables that qmake uses when
+    configuring the build process, see \l{Configuring qmake}.
+
+    \section1 Using Third Party Libraries
+
+    The guide to \l{Third Party Libraries} shows you how to use simple third
+    party libraries in your Qt project.
+
+    \section1 Precompiling Headers
+
+    In large projects, it is possible to take advantage of precompiled
+    header files to speed up the build process. For more information, see
+    \l{Using Precompiled Headers}.
+*/
+
+/*!
+    \page qmake-project-files.html
+    \title Creating Project Files
+    \contentspage {qmake Manual}{Contents}
+    \previouspage Getting Started
+    \nextpage Building Common Project Types
+
+    Project files contain all the information required by qmake to build your
+    application, library, or plugin. Generally, you use a series of declarations
+    to specify the resources in the project, but support for simple programming
+    constructs enables you to describe different build processes for different
+    platforms and environments.
+
+    \section1 Project File Elements
+
+    The project file format used by qmake can be
+    used to support both simple and fairly complex build systems.
+    Simple project files use a straightforward declarative style,
+    defining standard variables to indicate the source and header files
+    that are used in the project. Complex projects may use control flow
+    structures to fine-tune the build process.
+
+    The following sections describe the different types of elements used
+    in project files.
+
+    \target ProjectFileElementsVariables
+    \section2 Variables
+
+    In a project file, variables are used to hold lists of strings. In the
+    simplest projects, these variables inform qmake
+    about the configuration options to use, or supply filenames and paths to
+    use in the build process.
+
+    qmake looks for certain variables in each
+    project file, and it uses the contents of these to determine what it
+    should write to a Makefile. For example, the lists of values in the
+    \l{HEADERS} and \l{SOURCES} variables are used to tell qmake about header
+    and source files in the same directory as the project file.
+
+    Variables can also be used internally to store temporary lists of values,
+    and existing lists of values can be overwritten or extended with new
+    values.
+
+    The following snippet illustrates how lists of values are assigned to
+    variables:
+
+    \snippet qmake/variables.pro 0
+
+    The list of values in a variable is extended in the following way:
+
+    \snippet qmake/variables.pro 1
+
+    \note The first assignment only includes values that are specified on
+    the same line as the \c HEADERS variable. The second assignment splits
+    the values in the \c SOURCES variable across lines by using a backslash
+    (\\).
+
+    The \l{CONFIG} variable is another special variable that qmake uses when
+    generating a Makefile. It is discussed in \l{General Configuration}.
+    In the snippet above, \c console is added to the list of existing values
+    contained in \c CONFIG.
+
+    The following table lists some frequently used variables and describes their
+    contents. For a full list of variables and their descriptions,
+    see \l{Variables}.
+
+    \table
+    \header \li Variable \li Contents
+    \row \li \l{CONFIG}  \li General project configuration options.
+    \row \li \l{DESTDIR} \li The directory in which the executable or binary file will
+                      be placed.
+    \row \li \l{FORMS}   \li A list of UI files to be processed by the
+                         \l{uic}{user interface compiler (uic)}.
+    \row \li \l{HEADERS} \li A list of filenames of header (.h) files used when
+                      building the project.
+    \row \li \l{Variables#QT}{QT} \li A list of Qt modules used in the project.
+    \row \li \l{RESOURCES} \li A list of resource (.qrc) files to be included in the
+                      final project. See the \l{The Qt Resource System} for
+                      more information about these files.
+    \row \li \l{SOURCES}  \li A list of source code files to be used when building
+                      the project.
+    \row \li \l{TEMPLATE} \li The template to use for the project. This determines
+                      whether the output of the build process will be an
+                      application, a library, or a plugin.
+    \endtable
+
+    The contents of a variable can be read by prepending the variable name with
+    \c $$. This can be used to assign the contents of one variable to another:
+
+    \snippet qmake/dereferencing.pro 0
+
+    The \c $$ operator is used extensively with built-in functions that operate
+    on strings and lists of values. For more information, see
+    \l{qmake Language}.
+
+    \section3 Whitespace
+
+    Usually, whitespace separates values in variable assignments. To specify
+    values that contain spaces, you must enclose the values in double quotes:
+
+    \snippet qmake/quoting.pro 0
+
+    The quoted text is treated as a single item in the list of values held by
+    the variable. A similar approach is used to deal with paths that contain
+    spaces, particularly when defining the
+    \l{INCLUDEPATH} and \l{LIBS} variables for the Windows platform:
+
+    \snippet qmake/spaces.pro quoting include paths with spaces
+
+    \section2 Comments
+
+    You can add comments to project files. Comments begin with the \c
+    # character and continue to the end of the same line. For example:
+
+    \snippet qmake/comments.pro 0
+
+    To include the \c # character in variable assignments, it is necessary
+    to use the contents of the built-in \l{LITERAL_HASH} variable.
+
+    \section2 Built-in Functions and Control Flow
+
+    qmake provides a number of built-in functions to enable the contents of
+    variables to be processed. The most commonly used function in simple
+    project files is the \l{include(filename)}{include()} function which takes a
+    filename as an
+    argument. The contents of the given file are included in the project
+    file at the place where the \c include function is used.
+    The \c include function is most commonly used to include other project
+    files:
+
+    \snippet qmake/include.pro 0
+
+    Support for conditional structures is made available via
+    \l{Scopes}{scopes} that behave like \c if statements in programming languages:
+
+    \snippet qmake/scopes.pro 0
+
+    The assignments inside the braces are only made if the condition is
+    true. In this case, the \c win32 \l{CONFIG} option must be set. This
+    happens automatically on Windows. The opening brace must stand on the same
+    line as the condition.
+
+    More complex operations on variables that would usually require loops
+    are provided by built-in functions such as \l{findfunction}{find()},
+    \l{unique}{unique()}, and \l{countfunction}{count()}. These functions, and
+    many others are provided to manipulate
+    strings and paths, support user input, and call external tools. For more
+    information about using the functions, see \l{qmake Language}. For lists
+    of all functions and their descriptions, see \l{Replace Functions} and
+    \l{Test Functions}.
+
+    \section1 Project Templates
+
+    The \l{TEMPLATE} variable is used to define the type of project that will
+    be built. If this is not declared in the project file,
+    qmake assumes that an application should be
+    built, and will generate an appropriate Makefile (or equivalent file)
+    for the purpose.
+
+    The following table summarizes the types of projects available and describes
+    the files that qmake will generate for each of them:
+
+    \table
+    \header \li Template      \li qmake Output
+    \row    \li app (default) \li Makefile to build an application.
+    \row    \li lib           \li Makefile to build a library.
+    \row    \li subdirs       \li Makefile containing rules for the
+    subdirectories specified using the \l{SUBDIRS}
+    variable. Each subdirectory must contain its own project file.
+    \row    \li vcapp         \li Visual Studio Project file to build
+                             an application.
+    \row    \li vclib         \li Visual Studio Project file to build a library.
+    \row    \li vcsubdirs     \li Visual Studio Solution file to build
+                              projects in sub-directories.
+    \endtable
+
+    See \l{Building Common Project Types} for advice on writing project files for
+    projects that use the \c app and \c lib templates.
+
+    When the \c subdirs template is used, qmake
+    generates a Makefile to examine each specified subdirectory,
+    process any project file it finds there, and run the platform's
+    \c make tool on the newly-created Makefile.
+    The \c SUBDIRS variable is used to
+    contain a list of all the subdirectories to be processed.
+
+    \target GeneralConfiguration
+    \section1 General Configuration
+
+    The \l{CONFIG} variable specifies the options and features that the project
+    should be configured with.
+
+    The project can be built in \e release mode or \e debug mode, or both.
+    If debug and release are both specified, the last one takes effect. If you
+    specify the \c debug_and_release option to build both the debug and release
+    versions of a project, the Makefile that qmake generates includes a rule
+    that builds both versions. This can be invoked in the following way:
+
+    \snippet code/doc_src_qmake-manual.pro 0
+
+    Adding the \c build_all option to the \c CONFIG variable makes this rule
+    the default when building the project.
+
+    \note Each of the options specified in the \c CONFIG variable can also be
+    used as a scope condition.
+    You can test for the presence of certain configuration options by using the
+    built-in \l{CONFIG(config)}{CONFIG()} function.
+    For example, the following lines show the function as the condition in a scope
+    to test whether only the \c opengl option is in use:
+
+    \snippet qmake/configscopes.pro 4
+    \snippet qmake/configscopes.pro 5
+
+    This enables different configurations to be defined for \c release and
+    \c debug builds. For more information, see \l{Scopes}{Using Scopes}.
+
+    The following options define the type of project to be built.
+
+    \note Some of these options only take effect when used on the relevant
+    platform.
+
+    \table
+    \header \li Option \li Description
+    \row    \li qt     \li The project is a Qt application and should link against the Qt
+                      library. You can use the \c QT variable to control any additional
+                      Qt modules that are required by your application.
+                      This value is added by default, but you can remove it to
+                      use qmake for a non-Qt project.
+    \row    \li x11    \li The project is an X11 application or library.
+                       This value is not needed if the target uses Qt.
+    \endtable
+
+    The \l{TEMPLATE}{application and library project templates} provide you with
+    more specialized configuration options to fine tune the build process. The
+    options are explained in detail in \l{Building Common Project Types}.
+
+    For example, if your application uses the Qt library and you want to
+    build it in \c debug mode, your project file will contain the following line:
+
+    \snippet code/doc_src_qmake-manual.pro 1
+
+    \note You must use "+=", not "=", or qmake
+    will not be able to use Qt's configuration to determine the settings
+    needed for your project.
+
+    \section1 Declaring Qt Libraries
+
+    If the \l{CONFIG} variable contains the \c qt value, qmake's support for Qt
+    applications is enabled. This makes it possible to fine-tune which of the
+    Qt modules are used by your application. This is achieved with the
+    \l{Variables#QT}{QT} variable which can be used to declare the required
+    extension modules.
+    For example, we can enable the XML and network modules in the following way:
+
+    \snippet code/doc_src_qmake-manual.pro 2
+
+    \note \c QT includes the \c core and \c gui modules by default, so the
+    above declaration \e adds the network and XML modules to this default list.
+    The following assignment \e omits the default modules, and will lead to
+    errors when the application's source code is being compiled:
+
+    \snippet code/doc_src_qmake-manual.pro 3
+
+    If you want to build a project \e without the \c gui module, you need to
+    exclude it with the "-=" operator. By default, \c QT contains both
+    \c core and \c gui, so the following line will result in a minimal
+    Qt project being built:
+
+    \snippet code/doc_src_qmake-manual.pro 4
+
+    For a list of Qt modules that you can add to the \c QT variable, see
+    \l{Variables#QT}{QT}.
+
+    \section1 Configuration Features
+
+    qmake can be set up with extra configuration
+    features that are specified in feature (.prf) files. These extra features
+    often provide support for custom tools that are used during the build
+    process. To add a feature to the build process, append the feature name
+    (the stem of the feature filename) to the \c CONFIG variable.
+
+    For example, qmake can configure the build
+    process to take advantage of external libraries that are supported by
+    \l{http://www.freedesktop.org/wiki/Software/pkg-config}{pkg-config},
+    such as the D-Bus and ogg libraries, with the following lines:
+
+    \snippet code/doc_src_qmake-manual.pro 5
+
+    For more information about adding features, see
+    \l{Adding New Configuration Features}.
+
+    \section1 Declaring Other Libraries
+
+    If you are using other libraries in your project in addition to those
+    supplied with Qt, you need to specify them in your project file.
+
+    The paths that qmake searches for libraries
+    and the specific libraries to link against can be added to the list of values in the
+    \l{LIBS} variable. You can specify the paths to the libraries or use the
+    Unix-style notation for specifying libraries and paths.
+
+    For example, the following lines show how a library can be specified:
+
+    \snippet code/doc_src_qmake-manual.pro 6
+
+    The paths containing header files can also be specified in a similar way
+    using the \l{INCLUDEPATH} variable.
+
+    For example, to add several paths to be searched for header files:
+
+    \snippet code/doc_src_qmake-manual.pro 7
+*/
+
+/*!
+    \page qmake-running.html
+    \title Running qmake
+    \contentspage {qmake Manual}{Contents}
+    \previouspage Building Common Project Types
+    \nextpage Platform Notes
+
+    The behavior of qmake can be customized when it
+    is run by specifying various options on the command line. These allow the
+    build process to be fine-tuned, provide useful diagnostic
+    information, and can be used to specify the target platform for
+    your project.
+
+    \section1 Command Syntax
+
+    The syntax used to run qmake takes the following simple form:
+
+    \snippet code/doc_src_qmake-manual.pro 8
+
+    \section1 Operating Modes
+
+    qmake supports two different modes of operation. In the default mode, qmake
+    uses the information in a project file to generate a Makefile, but it is also
+    possible to use qmake to generate project files.
+    If you want to explicitly set the mode, you must specify it before all
+    other options. The \c mode can be either of the following two values:
+
+    \list
+    \li \c -makefile \BR
+        qmake output will be a Makefile.
+    \li \c -project \BR
+        qmake output will be a project file. \BR
+    \note It is likely that the created file will need to be edited. For example,
+    adding the \c QT variable to suit what modules are required for the project.
+    \endlist
+
+    You can use the \c options to specify both general and mode-specific
+    settings. Options that only apply to the Makefile mode are described in the
+    \l{#MakefileMode}{Makefile Mode Options} section, whereas options that influence the
+    creation of project files are described in the
+    \l{#ProjectMode}{Project Mode Options} section.
+
+    \section1 Files
+
+    The \c files argument represents a list of one or more project files, separated
+    by spaces.
+
+    \section1 General Options
+
+    A wide range of options can be specified on the command line to
+    qmake in order to customize the build process,
+    and to override default settings for your platform. The following basic
+    options provide help on using qmake, specify where qmake writes the output
+    file, and control the
+    level of debugging information that will be written to the console:
+
+    \list
+    \li \c -help \BR
+        qmake will go over these features and give some useful help.
+    \li \c {-o file} \BR
+        qmake output will be directed to \c file. If
+        this option is not specified, qmake will try
+        to use a suitable file name for its output, depending on the mode it is
+        running in.\BR
+        If '-' is specified, output is directed to stdout.
+    \li \c -d \BR
+        qmake will output debugging information. Adding \c -d more than once
+        increases verbosity.
+    \endlist
+
+    The template used for the project is usually specified by the \l{TEMPLATE}
+    variable in the project file. You can override or modify this by using the
+    following options:
+
+    \list
+    \li \c {-t tmpl} \BR
+        qmake will override any set \c TEMPLATE variables with \c tmpl, but only
+        \e after the .pro file has been processed.
+    \li \c {-tp prefix} \BR
+        qmake will add \c prefix to the \c TEMPLATE variable.
+    \endlist
+
+    The level of warning information can be fine-tuned to help you find problems in
+    your project file:
+
+    \list
+    \li \c -Wall \BR
+        qmake will report all known warnings.
+    \li \c -Wnone \BR
+        No warning information will be generated by qmake.
+    \li \c -Wparser \BR
+        qmake will only generate parser warnings.
+        This will alert you to common pitfalls and potential problems in the
+        parsing of your project files.
+    \li \c -Wlogic \BR
+        qmake will warn of common pitfalls and
+        potential problems in your project file. For example,
+        qmake will report multiple occurrences of files in lists and missing
+        files.
+    \endlist
+
+    \target MakefileMode
+    \section1 Makefile Mode Options
+
+    \snippet code/doc_src_qmake-manual.pro 9
+
+    In Makefile mode, qmake will generate a Makefile
+    that is used to build the project. Additionally, the following options may
+    be used in this mode to influence the way the project file is generated:
+
+    \list
+    \li \c -after \BR
+        qmake will process assignments given on the
+        command line after the specified files.
+    \li \c -nocache \BR
+        qmake will ignore the \c{.qmake.cache} file.
+    \li \c -nodepend \BR
+        qmake will not generate any dependency
+        information.
+    \li \c {-cache file} \BR
+        qmake will use \c file as the cache file,
+        ignoring any other .qmake.cache files found.
+    \li \c {-spec spec} \BR
+        qmake will use \c spec as a path to platform and compiler information,
+        and ignore the value of \l{QMAKESPEC}.
+    \endlist
+
+    You may also pass qmake assignments on the command line. They are processed
+    before all of the files specified. For example, the following command
+    generates a Makefile from test.pro:
+
+    \snippet code/doc_src_qmake-manual.pro 10
+
+    However, some of the specified options can be omitted as they are default
+    values:
+
+    \snippet code/doc_src_qmake-manual.pro 11
+
+    If you are certain you want your variables processed after the
+    files specified, then you may pass the \c -after option. When this
+    is specified, all assignments on the command line after the \c -after
+    option will be postponed until after the specified files are parsed.
+
+    \target ProjectMode
+    \section1 Project Mode Options
+
+    \snippet code/doc_src_qmake-manual.pro 12
+
+    In project mode, qmake will generate a project
+    file. Additionally, you may supply the following options in this mode:
+
+    \list
+    \li \c -r \BR
+       qmake will look through supplied directories recursively.
+    \li \c -nopwd \BR
+       qmake will not look in your current working directory for source code.
+       It will only use the specified \c files.
+    \endlist
+
+    In this mode, the \c files argument can be a list of files or directories.
+    If a directory is specified, it will be included in the \l{DEPENDPATH}
+    variable, and relevant code from there will be included in the generated
+    project file. If a file is given, it will be appended to the correct
+    variable, depending on its extension. For example, UI files are added
+    to \l{FORMS}, and C++ files are added to \l{SOURCES}.
+
+    You may also pass assignments on the command line in this mode. When doing
+    so, these assignments will be placed last in the generated project file.
+*/
+
+/*!
+    \page qmake-platform-notes.html
+    \title Platform Notes
+    \contentspage {qmake Manual}{Contents}
+    \previouspage Running qmake
+    \nextpage qmake Language
+
+    Many cross-platform projects can be handled by the basic qmake configuration
+    features. However, on some platforms, it is sometimes useful, or even
+    necessary, to take advantage of platform-specific features.
+    qmake knows about many of these features, which can be accessed via specific
+    variables that only take effect on the platforms where they are relevant.
+
+    \section1 Mac OS X
+
+    Features specific to this platform include support for creating universal
+    binaries, frameworks and bundles.
+
+    \section2 Source and Binary Packages
+
+    The version of qmake supplied in source packages
+    is configured slightly differently to that supplied in binary packages in
+    that it uses a different feature specification. Where the source package
+    typically uses the \c macx-g++ specification, the binary package is
+    typically configured to use the \c macx-xcode specification.
+
+    Users of each package can override this configuration by invoking
+    qmake with the \c -spec option (see \l{Running qmake} for more information).
+    For example, to use qmake from a binary package to create a Makefile in a
+    project directory, invoke the following command:
+
+    \snippet code/doc_src_qmake-manual.pro 13
+
+    \section2 Using Frameworks
+
+    qmake is able to automatically generate build
+    rules for linking against frameworks in the standard framework directory on
+    Mac OS X, located at \c{/Library/Frameworks/}.
+
+    Directories other than the standard framework directory need to be specified
+    to the build system, and this is achieved by appending linker options to the
+    \l{QMAKE_LFLAGS} variable, as shown in the following example:
+
+    \snippet code/doc_src_qmake-manual.pro 14
+
+    The framework itself is linked in by appending the \c{-framework} options and
+    the name of the framework to the \l{LIBS} variable:
+
+    \snippet code/doc_src_qmake-manual.pro 15
+
+    \section2 Creating Frameworks
+
+    Any given library project can be configured so that the resulting library
+    file is placed in a
+    \l{http://developer.apple.com/documentation/MacOSX/Conceptual/BPFrameworks/Concepts/WhatAreFrameworks.html}
+    {framework}, ready for deployment. To do this, set up the project to use the
+    \l{TEMPLATE}{\c lib template} and add the \c lib_bundle option to the
+    \l{CONFIG} variable:
+
+    \snippet code/doc_src_qmake-manual.pro 16
+
+    The data associated with the library is specified using the
+    \l{QMAKE_BUNDLE_DATA}
+    variable. This holds items that will be installed with a library
+    bundle, and is often used to specify a collection of header files,
+    as in the following example:
+
+    \snippet code/doc_src_qmake-manual.pro 17
+
+    You use the \c FRAMEWORK_HEADERS variable to specify the headers required by
+    a particular framework.
+    Appending it to the \c QMAKE_BUNDLE_DATA variable ensures that
+    information about these headers is added to the collection of
+    resources that will be installed with the library bundle. Also, the
+    framework name and version are specified by the \l {QMAKE_FRAMEWORK_BUNDLE_NAME}
+    and \l{QMAKE_FRAMEWORK_VERSION} variables. By default, the values used for
+    these variables are obtained from the \l{TARGET} and \l{VERSION} variables.
+
+    See \l{Qt for Mac OS X - Deployment} for more information about
+    deploying applications and libraries.
+
+    \section2 Creating and Moving Xcode Projects
+
+    Developers on Mac OS X can take advantage of the qmake support for Xcode
+    project files, as described in
+    \l{Qt is Mac OS X Native#Development Tools}{Qt is Mac OS X Native},
+    by running qmake to generate an Xcode project from an existing qmake project
+    file. For example:
+
+    \snippet code/doc_src_qmake-manual.pro 19
+
+    \note If a project is later moved on the disk, qmake must be run again to
+    process the project file and create a new Xcode project file.
+
+    \section2 Supporting Two Build Targets Simultaneously
+
+    Implementing this is currently not feasible, because the Xcode
+    concept of Active Build Configurations is conceptually different
+    from the qmake idea of build targets.
+
+    The Xcode Active Build Configurations settings are for modifying
+    Xcode configurations, compiler flags and similar build
+    options. Unlike Visual Studio, Xcode does not allow for the
+    selection of specific library files based on whether debug or
+    release build configurations are selected. The qmake debug and
+    release settings control which library files are linked to the
+    executable.
+
+    It is currently not possible to set files in Xcode configuration
+    settings from the qmake generated Xcode project file. The way the
+    libraries are linked in the \e {Frameworks & Libraries} phase in the
+    Xcode build system.
+
+    Furthermore, the selected \e {Active Build Configuration} is stored
+    in a .pbxuser file, which is generated by Xcode on first load, not
+    created by qmake.
+
+    \section1 Windows
+
+    Features specific to this platform include support for creating Visual
+    Studio project files and handling manifest files when deploying Qt
+    applications developed using Visual Studio 2005, or later.
+
+    \section2 Creating Visual Studio Project Files
+
+    Developers using Visual Studio to write Qt applications can use the
+    Visual Studio integration facilities provided with the
+    \l{Qt Commercial License}
+    and do not need to worry about how project dependencies are managed.
+
+    However, some developers may need to import an existing
+    qmake project into Visual Studio.
+    qmake is able to take a project file and create
+    a Visual Studio project that contains all the necessary information
+    required by the development environment. This is achieved by setting the
+    qmake \l{TEMPLATE}{project template} to either \c vcapp
+    (for application projects) or \c vclib (for library projects).
+
+    This can also be set using a command line option, for example:
+
+    \snippet code/doc_src_qmake-manual.pro 20
+
+    It is possible to recursively generate \c{.vcproj} files in subdirectories
+    and a \c{.sln} file in the main directory, by typing:
+
+    \snippet code/doc_src_qmake-manual.pro 21
+
+    Each time you update the project file, you need to run
+    qmake to generate an updated Visual Studio
+    project.
+
+    \note If you are using the Visual Studio Add-in, select \gui Qt >
+    \gui{Import from .pro file} to import \c .pro files.
+
+    \section2 Visual Studio Manifest Files
+
+    When deploying Qt applications built using Visual Studio 2005, or later,
+    make sure that the manifest file that was created when the application
+    was linked is handled correctly. This is handled automatically for
+    projects that generate DLLs.
+
+    Removing manifest embedding for application executables can be done with
+    the following assignment to the \l{CONFIG} variable:
+
+    \snippet code/doc_src_qmake-manual.pro 22
+
+    Also, the manifest embedding for DLLs can be removed with the following
+    assignment to the \c CONFIG variable:
+
+    \snippet code/doc_src_qmake-manual.pro 23
+
+    This is discussed in more detail in the
+    \l{Qt for Windows - Deployment#Manifest files}
+    {deployment guide for Windows}.
+*/
+
+/*!
+    \page qmake-reference.html
+    \title Reference
+    \contentspage {qmake Manual}{Contents}
+    \previouspage Configuring qmake
+    \nextpage Variables
+
+    The reference sections describe in detail the variables and functions that
+    are available for use in qmake project files.
+
+    \section1 Variable Reference
+
+    \l{Variables} describes the variables that are recognized by qmake when
+    configuring the build process for projects.
+
+    \section1 Function Reference
+
+    There are two types of qmake functions: replace functions and test
+    functions. Replace functions return a value list, while test functions
+    return a boolean result. The functions are implemented in two places:
+    fundamental functionality is offered as built-in functions. More complex
+    functions are implemented in a library of feature files (.prf).
+
+    The functions are divided into categories according to their type:
+
+    \list
+        \li \l{Replace Functions}
+        \li \l{Test Functions}
+    \endlist
+*/
+
+/*!
+    \page qmake-variable-reference.html
+    \title Variables
+    \contentspage {qmake Manual}{Contents}
+    \previouspage Reference
+    \nextpage Replace Functions
+    \keyword qmake Variable Reference
+
+    The fundamental behavior of qmake is influenced by variable declarations that
+    define the build process of each project. Some of these declare resources,
+    such as headers and source files, that are common to each platform. Others
+    are used to customize the behavior of compilers and linkers on specific
+    platforms.
+
+    Platform-specific variables follow the naming pattern of the
+    variables which they extend or modify, but include the name of the relevant
+    platform in their name. For example, \c QMAKE_LIBS can be used to specify a list
+    of libraries that a project needs to link against, and \c QMAKE_LIBS_X11 can be
+    used to extend or override this list.
+
+    \target CONFIG
+    \section1 CONFIG
+
+    Specifies project configuration and compiler options. The values are
+    recognized internally by qmake and have special meaning.
+
+    The following \c CONFIG values control compilation flags:
+
+    \table
+    \header \li Option   \li Description
+    \row    \li release  \li The project is to be built in release mode.
+            If \c debug is also specified, the last one takes effect.
+    \row    \li debug    \li The project is to be built in debug mode.
+    \row    \li debug_and_release \li The project is prepared to be built in
+            \e both debug and release modes.
+    \row    \li debug_and_release_target \li This option is set by default. If
+            \c debug_and_release is also set, the debug and release builds
+            end up in separate debug and release directories.
+    \row    \li build_all \li If \c debug_and_release is specified, the project is
+            built in both debug and release modes by default.
+    \row    \li autogen_precompile_source \li Automatically generates a \c .cpp
+            file that includes the precompiled header file specified in the .pro
+            file.
+    \row    \li ordered  \li When using the \c subdirs template, this option
+            specifies that the directories listed should be processed in the
+            order in which they are given.
+    \row    \li precompile_header \li Enables support for the use of
+            \l{Using Precompiled Headers}{precompiled headers} in projects.
+    \row    \li warn_on  \li The compiler should output as many warnings as possible.
+            If \c warn_off is also specified, the last one takes effect.
+    \row    \li warn_off \li The compiler should output as few warnings as possible.
+    \row    \li exceptions \li Exception support is enabled. Set by default.
+    \row    \li exceptions_off \li Exception support is disabled.
+    \row    \li rtti \li RTTI support is enabled. By default, the compiler
+            default is used.
+    \row    \li rtti_off \li RTTI support is disabled. By default, the compiler
+            default is used.
+    \row    \li stl \li STL support is enabled. By default, the compiler
+            default is used.
+    \row    \li stl_off \li STL support is disabled. By default, the compiler
+            default is used.
+    \row    \li thread \li Thread support is enabled. This is enabled when CONFIG
+            includes \c qt, which is the default.
+    \row    \li c++11 \li C++11 support is enabled. This option has no effect if
+            the compiler does not support C++11.
+            By default, support is disabled.
+    \endtable
+
+    When you use the \c debug_and_release option (which is the default under
+    Windows), the project will be processed three times: one time to produce
+    a "meta" Makefile, and two more times to produce a Makefile.Debug and a
+    Makefile.Release.
+
+    During the latter passes, \c build_pass and the respective \c debug or
+    \c release option is appended to \c CONFIG. This makes it possible to
+    perform build-specific tasks. For example:
+
+    \snippet code/doc_src_qmake-manual.pro 25
+
+    As an alternative to manually writing build type conditionals, some
+    variables offer build-specific variants, for example
+    \l{#QMAKE_LFLAGS_RELEASE}{QMAKE_LFLAGS_RELEASE} in addition to the general
+    \l{#QMAKE_LFLAGS}{QMAKE_LFLAGS}. These should be used when available.
+
+    The meta Makefile makes the sub-builds invokable via the \c debug and
+    \c release targets, and a combined build via the \c all target.
+    When the \c build_all \c CONFIG option is used, the combined build is
+    the default. Otherwise, the last specified \c CONFIG option from the set
+    (\c debug, \c release) determines the default. In this case, you can
+    explicitly invoke the \c all target to build both configurations at once:
+
+    \snippet code/doc_src_qmake-manual.pro 24
+
+    \note The details are slightly different when producing Visual Studio
+    and Xcode projects.
+
+    When linking a library, qmake relies on the
+    underlying platform to know what other libraries this library links
+    against. However, if linking statically, qmake
+    will not get this information unless we use the following \c CONFIG
+    options:
+
+     \table
+     \header \li Option   \li Description
+     \row    \li create_prl  \li This option enables
+        qmake to track these dependencies. When this
+        option is enabled, qmake will create a file
+        with the extension \c .prl which will save meta-information about the library
+        (see \l{LibDepend}{Library Dependencies} for more info).
+     \row    \li link_prl    \li When this option is enabled,
+        qmake will process all libraries linked to
+        by the application and find their meta-information (see
+        \l{LibDepend}{Library Dependencies} for more info).
+     \endtable
+
+    \note The \c create_prl option is required when \e {building} a
+    static library, while \c link_prl is required when \e {using} a
+    static library.
+
+    The following options define the application or library type:
+
+    \table
+    \header \li Option \li Description
+    \row \li qt \li The target is a Qt application or library and requires the Qt
+         library and header files. The proper include and library paths for the
+         Qt library will automatically be added to the project. This is defined
+         by default, and can be fine-tuned with the \c{\l{#qt}{QT}} variable.
+    \row \li x11 \li The target is a X11 application or library. The proper
+        include paths and libraries will automatically be added to the
+        project.
+    \row \li testcase \li The target is an automated test.
+        \l{Building Common Project Types#building-a-testcase}{A check target} will be added
+        to the generated Makefile to run the test. Only relevant when generating
+        Makefiles.
+    \row \li insignificant_test \li The exit code of the automated test will be ignored.
+        Only relevant if \c testcase is also set.
+    \row \li windows \li The target is a Win32 window application (app only). The
+        proper include paths, compiler flags and libraries will
+        automatically be added to the project.
+    \row \li console \li The target is a Win32 console application (app only). The
+        proper include paths, compiler flags and libraries will
+        automatically be added to the project.
+    \row \li shared \li{1,2} The target is a shared object/DLL. The proper
+        include paths, compiler flags and libraries will automatically be
+        added to the project. Note that \c dll can also be used on all platforms;
+        a shared library file with the appropriate suffix for the target platform
+        (.dll or .so) will be created.
+    \row \li dll
+    \row \li static \li{1,2} The target is a static library (lib only).  The proper
+        compiler flags will automatically be added to the project.
+    \row \li staticlib
+    \row \li plugin \li The target is a plugin (lib only). This enables dll as well.
+    \row \li designer \li The target is a plugin for \QD.
+    \row \li no_lflags_merge \li Ensures that the list of libraries stored in the
+         \c LIBS variable is not reduced to a list of unique values before it is used.
+    \endtable
+
+    These options define specific features on Windows only:
+
+    \table
+    \header \li Option \li Description
+    \row \li flat \li When using the vcapp template this will put all the source
+         files into the source group and the header files into the header group
+         regardless of what directory they reside in.  Turning this
+         option off will group the files within the source/header group depending
+         on the directory they reside. This is turned on by default.
+    \row \li embed_manifest_dll \li Embeds a manifest file in the DLL created
+         as part of a library project.
+    \row \li embed_manifest_exe \li Embeds a manifest file in the DLL created
+         as part of an application project.
+    \endtable
+
+    See \l{Platform Notes#Visual Studio Manifest Files}{Platform Notes}
+    for more information about the options for embedding manifest files.
+
+    The following options take an effect only on Mac OS X:
+
+    \table
+    \header \li Option \li Description
+    \row \li app_bundle \li Puts the executable into a bundle (this is the default).
+    \row \li lib_bundle \li Puts the library into a library bundle.
+    \endtable
+
+    The build process for bundles is also influenced by
+    the contents of the \l{#QMAKE_BUNDLE_DATA}{QMAKE_BUNDLE_DATA} variable.
+
+    The following options take an effect only on Linux/Unix platforms:
+
+    \table
+    \header \li Option \li Description
+    \row \li largefile \li Includes support for large files.
+    \row \li separate_debug_info \li Puts debugging information for libraries in
+    separate files.
+    \endtable
+
+    The \c CONFIG variable will also be checked when resolving scopes. You may
+    assign anything to this variable.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 26
+
+    \target DEFINES
+    \section1 DEFINES
+
+    qmake adds the values of this variable as
+    compiler C preprocessor macros (-D option).
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 27
+
+    \target DEF_FILE
+    \section1 DEF_FILE
+
+    \note This variable is used only on Windows when using the \c app template.
+
+    Specifies a \c .def file to be included in the project.
+
+    \target DEPENDPATH
+    \section1 DEPENDPATH
+
+    Specifies a list of all directories to look in to resolve dependencies. This
+    variable is used when crawling through \c included files.
+
+    \target DEPLOYMENT
+    \section1 DEPLOYMENT
+
+    \note This variable is used only on the Windows CE platform.
+
+    Specifies which additional files will be deployed. Deployment means the
+    transfer of files from the development system to the target device or
+    emulator.
+
+    Files can be deployed by either creating a Visual Studio project or using
+    the \l {Using Qt Test remotely on Windows CE}{cetest} executable.
+
+    For example, the following definition uploads all PNG images in \c path to
+    the directory where the build target is deployed:
+
+    \snippet code/doc_src_qmake-manual.pro 28
+
+    The default deployment target path for Windows CE is
+    \c{%CSIDL_PROGRAM_FILES%\target}, which usually gets expanded to
+    \c{\Program Files\target}.
+
+    It is also possible to specify multiple \c sources to be deployed on
+    target \c paths. In addition, different variables can be used for
+    deployment to different directories.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 29
+
+    \note In Windows CE all linked Qt libraries will be deployed to the path
+    specified by \c{myFiles.path}.
+
+    \target DEPLOYMENT_PLUGIN
+    \section1 DEPLOYMENT_PLUGIN
+
+    \note This variable is used only on the Windows CE platform.
+
+    Specifies the Qt plugins that will be deployed. All plugins
+    available in Qt can be explicitly deployed to the device. See
+    \l{Static Plugins}{Static Plugins} for a complete list.
+
+    \note No plugins will be deployed automatically to Windows CE devices.
+    If the application depends on plugins, these plugins have to be specified
+    manually.
+
+    For example, the following definition uploads the jpeg imageformat plugin to
+    the plugins directory on the Windows CE device:
+
+    \snippet code/doc_src_qmake-manual.pro 142
+
+    \target DESTDIR
+    \section1 DESTDIR
+
+    Specifies where to put the \l{#TARGET}{target} file.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 30
+
+    \target DISTFILES
+    \section1 DISTFILES
+
+    Specifies a list of files to be included in the dist
+    target. This feature is supported by UnixMake specs only.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 31
+
+    \target DLLDESTDIR
+    \section1 DLLDESTDIR
+
+    \note This variable applies only to Windows targets.
+
+    Specifies where to copy the \l{#TARGET}{target} dll.
+
+    \target FORMS
+    \section1 FORMS
+
+    Specifies the UI files (see \l{Qt Designer Manual}) to be processed by \c uic
+    before compiling.  All dependencies, headers and source files required
+    to build these UI files will automatically be added to the project.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 32
+
+    \target GUID
+    \section1 GUID
+
+    Specifies the GUID that is set inside a \c{.vcproj} file. The GUID is
+    usually randomly determined. However, should you require a fixed GUID,
+    it can be set using this variable.
+
+    This variable is specific to \c{.vcproj} files only; it is ignored
+    otherwise.
+
+    \target HEADERS
+    \section1 HEADERS
+
+    Defines the header files for the project.
+
+    qmake automatically detects whether \l{moc} is required by the classes in
+    the headers, and adds the appropriate dependencies and files to the project
+    for generating and linking the moc files.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 34
+
+    See also \l{#SOURCES}{SOURCES}.
+
+    \target ICON
+    \section1 ICON
+
+    This variable is used only on Mac OS to set the application icon.
+    Please see \l{Setting the Application Icon}{the application icon documentation}
+    for more information.
+
+    \target INCLUDEPATH
+    \section1 INCLUDEPATH
+
+    Specifies the #include directories which should be
+    searched when compiling the project.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 35
+
+    To specify a path containing spaces, quote the path using the technique
+    described in \l{Whitespace}.
+
+    \snippet qmake/spaces.pro quoting include paths with spaces
+
+    \target INSTALLS
+    \section1 INSTALLS
+
+    Specifies a list of resources that will be installed when
+    \c{make install} or a similar installation procedure is executed. Each
+    item in the list is typically defined with attributes that provide
+    information about where it will be installed.
+
+    For example, the following \c{target.path} definition describes where the
+    build target will be installed, and the \c INSTALLS assignment adds the
+    build target to the list of existing resources to be installed:
+
+    \snippet code/doc_src_qmake-manual.pro 36
+
+    For more information, see \l{Installing Files}.
+
+    \target LEXIMPLS
+    \section1 LEXIMPLS
+
+    Specifies a list of Lex implementation files.  The value
+    of this variable is typically handled by qmake or
+    \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \target LEXOBJECTS
+    \section1 LEXOBJECTS
+
+    Specifies the names of intermediate Lex object
+    files.The value of this variable is typically handled by
+    qmake and rarely needs to be modified.
+
+    \target LEXSOURCES
+    \section1 LEXSOURCES
+
+    Specifies a list of Lex source files.  All
+    dependencies, headers and source files will automatically be added to
+    the project for building these lex files.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 37
+
+    \target LIBS
+    \section1 LIBS
+
+    Specifies a list of libraries to be linked into the project.
+    If you use the Unix \c -l (library) and -L (library path) flags, qmake
+    handles the libraries correctly on Windows (that is, passes the full path of
+    the library to the linker). The library must exist for
+    qmake to find the directory where a \c -l lib is located.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 38
+
+    To specify a path containing spaces, quote the path using the technique
+    described in \l{Whitespace}.
+
+    \snippet qmake/spaces.pro quoting library paths with spaces
+
+    By default, the list of libraries stored in \c LIBS is reduced to a list of
+    unique names before it is used. To change this behavior, add the
+    \c no_lflags_merge option to the \l{CONFIG} variable:
+
+    \snippet code/doc_src_qmake-manual.pro 39
+
+    \target LITERAL_HASH
+    \section1 LITERAL_HASH
+
+    This variable is used whenever a literal hash character (\c{#}) is needed in
+    a variable declaration, perhaps as part of a file name or in a string passed
+    to some external application.
+
+    For example:
+
+    \snippet qmake/comments.pro 1
+
+    By using \c LITERAL_HASH in this way, the \c # character can be used
+    to construct a URL for the \c message() function to print to the console.
+
+    \target MAKEFILE
+    \section1 MAKEFILE
+
+    Specifies the name of the generated Makefile. The value of this variable is
+    typically handled by qmake or \l{#QMAKESPEC}{qmake.conf} and rarely needs to
+    be modified.
+
+    \target MAKEFILE_GENERATOR
+    \section1 MAKEFILE_GENERATOR
+
+    Specifies the name of the Makefile generator to use
+    when generating a Makefile.  The value of this variable is typically
+    handled internally by qmake and rarely needs to
+    be modified.
+
+    \target MOC_DIR
+    \section1 MOC_DIR
+
+    Specifies the directory where all intermediate moc
+    files should be placed.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 40
+
+    \target OBJECTS
+    \section1 OBJECTS
+
+    This variable is automatically populated from the \l{SOURCES} variable.
+    The extension of each source file is replaced by .o (Unix) or .obj (Win32).
+    You can add objects to the list.
+
+    \target OBJECTS_DIR
+    \section1 OBJECTS_DIR
+
+    Specifies the directory where all intermediate
+    objects should be placed.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 41
+
+    \target POST_TARGETDEPS
+    \section1 POST_TARGETDEPS
+
+    Lists the libraries that the \l{#TARGET}{target} depends on. Some backends,
+    such as the generators for Visual Studio and Xcode project files, do not
+    support this variable. Generally, this variable is supported internally by
+    these build tools, and it is useful for explicitly listing dependent static
+    libraries.
+
+    This list is placed after all builtin (and \link #PRE_TARGETDEPS
+    $$PRE_TARGETDEPS \endlink) dependencies.
+
+    \target PRE_TARGETDEPS
+    \section1 PRE_TARGETDEPS
+
+    Lists libraries that the \l{#TARGET}{target} depends on. Some backends,
+    such as the generators for Visual Studio and Xcode project files, do not
+    support this variable. Generally, this variable is supported internally by
+    these build tools, and it is useful for explicitly listing dependent static
+    libraries.
+
+    This list is placed before all builtin dependencies.
+
+    \target PRECOMPILED_HEADER
+    \section1 PRECOMPILED_HEADER
+
+    Indicates the header file for creating a precompiled
+    header file, to increase the compilation speed of a project.
+    Precompiled headers are currently only supported on some platforms
+    (Windows - all MSVC project types, Mac OS X - Xcode, Makefile,
+    Unix - gcc 3.3 and up).
+
+    \target PWD
+    \section1 PWD
+
+    Specifies the full path leading to the directory
+    containing the current file being parsed. This can be useful
+    to refer to files within the source tree when writing project files to
+    support shadow builds.
+
+    See also \l{#_PRO_FILE_PWD_}{_PRO_FILE_PWD_}.
+
+    \note Do not attempt to overwrite the value of this variable.
+
+    \target OUT_PWD
+    \section1 OUT_PWD
+
+    Specifies the full path leading to the directory where qmake places the
+    generated Makefile.
+
+    \note Do not attempt to overwrite the value of this variable.
+
+    \target QMAKE_systemvariable
+    \section1 QMAKE
+
+    Specifies the name of the qmake program itself and is placed in generated
+    Makefiles. The value of this variable is typically handled by qmake or
+    \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \target QMAKESPEC_systemvariable
+    \section1 QMAKESPEC
+
+    A system variable that contains the full path of the qmake configuration that is used
+    when generating Makefiles. The value of this variable is automatically computed.
+
+    \note Do not attempt to overwrite the value of this variable.
+
+    \target QMAKE_AR_CMD
+    \section1 QMAKE_AR_CMD
+
+    \note This variable is used on Unix platforms only.
+
+    Specifies the command to execute when creating a shared library. The value of this variable
+    is typically handled by qmake or \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \target QMAKE_BUNDLE_DATA
+    \section1 QMAKE_BUNDLE_DATA
+
+    \note This variable is used on Mac OS X only.
+
+    Specifies the data that will be installed with a library
+    bundle, and is often used to specify a collection of header files.
+
+    For example, the following lines add \c path/to/header_one.h
+    and \c path/to/header_two.h to a group containing information about the
+    headers supplied with the framework:
+
+    \snippet code/doc_src_qmake-manual.pro 43
+
+    The last line adds the information about the headers to the collection of
+    resources that will be installed with the library bundle.
+
+    Library bundles are created when the \c lib_bundle option is added to the
+    \l{#CONFIG}{CONFIG} variable.
+
+    See \l{Platform Notes#Creating Frameworks}{Platform Notes} for
+    more information about creating library bundles.
+
+    \section1 QMAKE_BUNDLE_EXTENSION
+
+    \note This variable is used on Mac OS X only.
+
+    Specifies the extension to be used for library bundles.
+    This allows frameworks to be created with custom extensions instead of the
+    standard \c{.framework} directory name extension.
+
+    For example, the following definition will result in a framework with the
+    \c{.myframework} extension:
+
+    \snippet code/doc_src_qmake-manual.pro 44
+
+    \section1 QMAKE_CC
+
+    Specifies the C compiler that will be used when building
+    projects containing C source code. Only the file name of the compiler
+    executable needs to be specified as long as it is on a path contained
+    in the \c PATH variable when the Makefile is processed.
+
+    \target QMAKE_CFLAGS_DEBUG
+    \section1 QMAKE_CFLAGS_DEBUG
+
+    Specifies the C compiler flags for debug builds.
+    The value of this variable is typically handled by qmake or \l{#QMAKESPEC}{qmake.conf} and
+    rarely needs to be modified.
+
+    \target QMAKE_CFLAGS_RELEASE
+    \section1 QMAKE_CFLAGS_RELEASE
+
+    Specifies the C compiler flags for release builds.
+    The value of this variable is typically handled by qmake or \l{#QMAKESPEC}{qmake.conf}
+    and rarely needs to be modified.
+
+    \target QMAKE_CFLAGS_SHLIB
+    \section1 QMAKE_CFLAGS_SHLIB
+
+    \note This variable is used on Unix platforms only.
+
+    Specifies the compiler flags for creating a shared
+    library. The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    \target QMAKE_CFLAGS_THREAD
+    \section1 QMAKE_CFLAGS_THREAD
+
+    Specifies the compiler flags for creating a multi-threaded
+    application. The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    \target QMAKE_CFLAGS_WARN_OFF
+    \section1 QMAKE_CFLAGS_WARN_OFF
+
+    This variable is used only when the \c {warn_off} \l{#CONFIG}{CONFIG} option
+    is set. The value of this variable is typically handled by qmake or
+    \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \target QMAKE_CFLAGS_WARN_ON
+    \section1 QMAKE_CFLAGS_WARN_ON
+
+    This variable is used only when the \c {warn_on} \l{#CONFIG}{CONFIG} option
+    is set. The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \target QMAKE_CLEAN
+    \section1 QMAKE_CLEAN
+
+    Specifies a list of generated files (by \l{moc} and \l{uic}, for example) and
+    object files to be removed by \c {make clean}.
+
+    \section1 QMAKE_CXX
+
+    Specifies the C++ compiler that will be used when building
+    projects containing C++ source code. Only the file name of the compiler
+    executable needs to be specified as long as it is on a path contained
+    in the \c PATH variable when the Makefile is processed.
+
+    \section1 QMAKE_CXXFLAGS
+
+    Specifies the C++ compiler flags for building
+    a project. The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified. The flags specific to debug and release modes can be
+    adjusted by modifying the \c QMAKE_CXXFLAGS_DEBUG and
+    \c QMAKE_CXXFLAGS_RELEASE variables, respectively.
+
+    \target QMAKE_CXXFLAGS_DEBUG
+    \section1 QMAKE_CXXFLAGS_DEBUG
+
+    Specifies the C++ compiler flags for debug builds.
+    The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \target QMAKE_CXXFLAGS_RELEASE
+    \section1 QMAKE_CXXFLAGS_RELEASE
+
+    Specifies the C++ compiler flags for release builds.
+    The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \target QMAKE_CXXFLAGS_SHLIB
+    \section1 QMAKE_CXXFLAGS_SHLIB
+
+    Specifies the C++ compiler flags for creating a shared library.
+    The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    \target QMAKE_CXXFLAGS_THREAD
+    \section1 QMAKE_CXXFLAGS_THREAD
+
+    Specifies the C++ compiler flags for creating a multi-threaded application.
+    The value of this variable is typically handled by qmake or \l{#QMAKESPEC}
+    {qmake.conf} and rarely needs to be modified.
+
+    \target QMAKE_CXXFLAGS_WARN_OFF
+    \section1 QMAKE_CXXFLAGS_WARN_OFF
+
+    Specifies the C++ compiler flags for suppressing compiler
+    warnings. The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    \target QMAKE_CXXFLAGS_WARN_ON
+    \section1 QMAKE_CXXFLAGS_WARN_ON
+
+    Specifies C++ compiler flags for generating compiler warnings.
+    The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    \target QMAKE_DISTCLEAN
+    \section1 QMAKE_DISTCLEAN
+
+    Specifies a list of files to be removed by \c{make distclean}.
+
+    \target QMAKE_EXTENSION_SHLIB
+    \section1 QMAKE_EXTENSION_SHLIB
+
+    Contains the extension for shared libraries.  The value of
+    this variable is typically handled by qmake or
+    \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \note Platform-specific variables that change the extension override
+    the contents of this variable.
+
+    \section1 QMAKE_EXT_MOC
+
+    Contains the extension used on included moc files.
+
+    See also \l{Configuring qmake#Extensions}{File Extensions}.
+
+    \section1 QMAKE_EXT_UI
+
+    Contains the extension used on \QD UI files.
+
+    See also \l{Configuring qmake#Extensions}{File Extensions}.
+
+    \section1 QMAKE_EXT_PRL
+
+    Contains the extension used on created PRL files.
+
+    See also \l{Configuring qmake#Extensions}{File Extensions},
+             \l{LibDepend}{Library Dependencies}.
+
+    \section1 QMAKE_EXT_LEX
+
+    Contains the extension used on files given to Lex.
+
+    See also \l{Configuring qmake#Extensions}{File Extensions},
+             \l{#LEXSOURCES}{LEXSOURCES}.
+
+    \section1 QMAKE_EXT_YACC
+    Contains the extension used on files given to Yacc.
+
+    See also \l{Configuring qmake#Extensions}{File Extensions},
+             \l{#YACCSOURCES}{YACCSOURCES}.
+
+    \section1 QMAKE_EXT_OBJ
+
+    Contains the extension used on generated object files.
+
+    See also \l{Configuring qmake#Extensions}{File Extensions}.
+
+    \section1 QMAKE_EXT_CPP
+
+    Contains suffixes for files that should be interpreted as C++ source code.
+
+    See also \l{Configuring qmake#Extensions}{File Extensions}.
+
+    \section1 QMAKE_EXT_H
+
+    Contains suffixes for files which should be interpreted as C header files.
+
+    See also \l{Configuring qmake#Extensions}{File Extensions}.
+
+        \section1 QMAKE_EXTRA_COMPILERS
+
+    Specifies a list of additional compilers or preprocessors.
+
+    See also \l{Adding Compilers}.
+
+        \section1 QMAKE_EXTRA_TARGETS
+
+    Specifies a list of additional qmake targets.
+
+    See also \l{Adding Custom Targets}.
+
+    \target QMAKE_FAILED_REQUIREMENTS
+    \section1 QMAKE_FAILED_REQUIREMENTS
+
+    Contains the list of failed requirements.
+    The value of this variable is set by qmake and cannot be modified.
+
+    See also \l{requires(condition)}{requires()} and \l{REQUIRES}.
+
+    \section1 QMAKE_FRAMEWORK_BUNDLE_NAME
+
+    \note This variable is used on Mac OS X only.
+
+    In a framework project, this variable contains the name to be used for the
+    framework that is built.
+
+    By default, this variable contains the same value as the \l{#TARGET}{TARGET}
+    variable.
+
+    See \l{Creating Frameworks} for
+    more information about creating frameworks and library bundles.
+
+    \target QMAKE_FRAMEWORK_VERSION
+    \section1 QMAKE_FRAMEWORK_VERSION
+
+    \note This variable is used on Mac OS X only.
+
+    For projects where the build target is a Mac OS X framework, this variable
+    is used to specify the version number that will be applied to the framework
+    that is built.
+
+    By default, this variable contains the same value as the \l{#VERSION}{VERSION}
+    variable.
+
+    See \l{Creating Frameworks} for more information about creating frameworks.
+
+    \target QMAKE_INCDIR
+    \section1 QMAKE_INCDIR
+
+    Specifies the list of system header paths that are appended to \l{INCLUDEPATH}.
+    The value of this variable is typically handled by qmake or
+    \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \target QMAKE_INCDIR_EGL
+    \section1 QMAKE_INCDIR_EGL
+
+    Specifies the location of EGL header files to be added to
+    \l{INCLUDEPATH} when building a target with OpenGL/ES or OpenVG support.
+    The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    \target QMAKE_INCDIR_OPENGL
+    \section1 QMAKE_INCDIR_OPENGL
+
+    Specifies the location of OpenGL header files to be added
+    to \l{INCLUDEPATH} when building a target with OpenGL support. The
+    value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    If the OpenGL implementation uses EGL (most OpenGL/ES systems),
+    then QMAKE_INCDIR_EGL may also need to be set.
+
+    \section1 QMAKE_INCDIR_OPENGL_ES2
+
+    This variable specifies the location of OpenGL header files to be added
+    to \l{INCLUDEPATH} when building a target with OpenGL ES 2 support.
+
+    The value of this variable is typically handled by qmake or
+    \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    If the OpenGL implementation uses EGL (most OpenGL/ES systems),
+    then QMAKE_INCDIR_EGL may also need to be set.
+
+    \target QMAKE_INCDIR_OPENVG
+    \section1 QMAKE_INCDIR_OPENVG
+
+    Specifies the location of OpenVG header files to be added
+    to \l{INCLUDEPATH} when building a target with OpenVG support. The
+    value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    If the OpenVG implementation uses EGL then QMAKE_INCDIR_EGL may also
+    need to be set.
+
+    \target QMAKE_INCDIR_X11
+    \section1 QMAKE_INCDIR_X11
+
+    \note This variable is used on Unix platforms only.
+
+    Specifies the location of X11 header file paths to be added
+    to \l{INCLUDEPATH} when building a X11 target. The value of this variable
+    is typically handled by qmake or
+    \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \target QMAKE_INFO_PLIST
+    \section1 QMAKE_INFO_PLIST
+
+    \note This variable is used on Mac OS X platforms only.
+
+    Specifies the name of the property list file, \c{.plist}, you
+    would like to include in your Mac OS X application bundle.
+
+    In the \c{.plist} file, you can define some variables, e.g., @EXECUTABLE@,
+    which qmake will replace with the actual executable name. Other variables
+    include @ICON@, @TYPEINFO@, @LIBRARY@, and @SHORT_VERSION@.
+
+    \note Most of the time, the default \c{Info.plist} is good enough.
+
+    \section1 QMAKE_LFLAGS
+
+    Specifies a general set of flags that are passed to
+    the linker. If you need to change the flags used for a particular
+    platform or type of project, use one of the specialized variables
+    for that purpose instead of this variable.
+
+    \target QMAKE_LFLAGS_CONSOLE
+    \section1 QMAKE_LFLAGS_CONSOLE
+
+    \note This variable is used on Windows only.
+
+    Specifies the linker flags for building console programs. The value
+    of this variable is typically handled by qmake
+    or \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \section1 QMAKE_LFLAGS_DEBUG
+
+    Specifies the linker flags for debug builds.
+    The value of this variable is typically handled by qmake or \l{#QMAKESPEC}{qmake.conf}
+    and rarely needs to be modified.
+
+    \section1 QMAKE_LFLAGS_PLUGIN
+
+    Specifies the linker flags for building plugins. The value of this
+    variable is typically handled by qmake or
+    \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \section1 QMAKE_LFLAGS_RPATH
+
+    \note This variable is used on Unix platforms only.
+
+    Specifies the linker flags needed to use the values from \l{QMAKE_RPATHDIR}.
+
+    The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \section1 QMAKE_LFLAGS_RPATHLINK
+
+    Specifies the linker flags needed to use the values from
+    \l{QMAKE_RPATHLINKDIR}.
+
+    The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \section1 QMAKE_LFLAGS_RELEASE
+
+    Specifies the linker flags for release builds.
+    The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \section1 QMAKE_LFLAGS_APP
+
+    Specifies the linker flags for building applications.
+    The value of this variable is typically handled by qmake or
+    \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \section1 QMAKE_LFLAGS_SHLIB
+
+    Specifies the linker flags used for building shared libraries.
+    The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    \section1 QMAKE_LFLAGS_SONAME
+
+    Specifies the linker flags for setting the name of shared objects,
+    such as .so or .dll. The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    \section1 QMAKE_LFLAGS_THREAD
+
+    Specifies the linker flags for building multi-threaded projects.
+    The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    \section1 QMAKE_LFLAGS_WINDOWS
+
+    \note This variable is used on Windows only.
+
+    Specifies the linker flags for building Windows GUI projects (that is,
+    non-console applications). The value of this variable is typically handled
+    by qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    \section1 QMAKE_LIBDIR
+
+    Specifies a list of system library paths.
+    The value of this variable is typically handled by qmake
+    or \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \section1 QMAKE_LIBDIR_FLAGS
+
+    \note This variable is used on Unix platforms only.
+
+    Specifies the location of all library directories with -L
+    prefixed. The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    \section1 QMAKE_LIBDIR_EGL
+
+    Specifies the location of the EGL library directory, when EGL
+    is used with OpenGL/ES or OpenVG. The value of this variable is typically
+    handled by qmake or \l{#QMAKESPEC}{qmake.conf}
+    and rarely needs to be modified.
+
+    \section1 QMAKE_LIBDIR_OPENGL
+
+    Specifies the location of the OpenGL library directory. The
+    value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    If the OpenGL implementation uses EGL (most OpenGL/ES systems),
+    then QMAKE_LIBDIR_EGL may also need to be set.
+
+    \section1 QMAKE_LIBDIR_OPENVG
+
+    Specifies the location of the OpenVG library directory. The
+    value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    If the OpenVG implementation uses EGL, then QMAKE_LIBDIR_EGL
+    may also need to be set.
+
+    \section1 QMAKE_LIBDIR_X11
+
+    \note This variable is used on Unix platforms only.
+
+    Specifies the location of the X11 library directory. The value
+    of this variable is typically handled by qmake
+    or \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \section1 QMAKE_LIBS
+
+    Specifies all project libraries. The value of this variable
+    is typically handled by qmake or
+    \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \section1 QMAKE_LIBS_EGL
+
+    Specifies all EGL libraries when building Qt with OpenGL/ES
+    or OpenVG.  The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.  The usual value is \c{-lEGL}.
+
+    \section1 QMAKE_LIBS_OPENGL
+
+    Specifies all OpenGL libraries.  The value of this variable
+    is typically handled by qmake or
+    \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    If the OpenGL implementation uses EGL (most OpenGL/ES systems),
+    then QMAKE_LIBS_EGL may also need to be set.
+
+    \section1 QMAKE_LIBS_OPENGL_ES1, QMAKE_LIBS_OPENGL_ES2
+
+    These variables specify all the OpenGL libraries for OpenGL ES 1
+    and OpenGL ES 2.
+
+    The value of these variables is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    If the OpenGL implementation uses EGL (most OpenGL/ES systems),
+    then QMAKE_LIBS_EGL may also need to be set.
+
+    \section1 QMAKE_LIBS_OPENVG
+
+    Specifies all OpenVG libraries.  The value of this variable
+    is typically handled by qmake or
+    \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.  The usual
+    value is \c{-lOpenVG}.
+
+    Some OpenVG engines are implemented on top of OpenGL.  This will
+    be detected at configure time and QMAKE_LIBS_OPENGL will be implicitly
+    added to QMAKE_LIBS_OPENVG wherever the OpenVG libraries are linked.
+
+    If the OpenVG implementation uses EGL, then QMAKE_LIBS_EGL may also
+    need to be set.
+
+    \section1 QMAKE_LIBS_THREAD
+
+    \note This variable is used on Unix platforms only.
+
+    Specifies all libraries that need to be linked against when
+    building a multi-threaded target. The value of this variable is
+    typically handled by qmake or
+    \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \section1 QMAKE_LIBS_X11
+
+    \note This variable is used on Unix platforms only.
+
+    Specifies all X11 libraries. The value of this variable is typically handled by qmake or
+    \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \section1 QMAKE_LIB_FLAG
+
+    This variable is not empty if the \c lib template is specified. The value
+    of this variable is typically handled by qmake
+    or \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \section1 QMAKE_LINK_SHLIB_CMD
+
+    Specifies the command to execute when creating a shared
+    library. The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    \section1 QMAKE_LN_SHLIB
+
+    Specifies the command to execute when creating a link to a shared library. The
+    value of this variable is typically handled by qmake or
+     \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \section1 QMAKE_POST_LINK
+
+    Specifies the command to execute after linking the \l{TARGET}
+    together. This variable is normally empty and therefore nothing is
+    executed.
+
+    \note This variable takes no effect on Xcode projects.
+
+    \section1 QMAKE_PRE_LINK
+
+    Specifies the command to execute before linking the \l{TARGET}
+    together. This variable is normally empty and therefore nothing is
+    executed.
+
+    \note This variable takes no effect on Xcode projects.
+
+    \section1 QMAKE_PROJECT_NAME
+
+    \note This variable is used for Visual Studio project files only.
+
+    Determines the name of the project when generating project
+    files for IDEs. The default value is the target name. The value of this
+    variable is typically handled by qmake and rarely needs to be modified.
+
+    \section1 QMAKE_MAC_SDK
+
+    This variable is used on Mac OS X when building universal binaries.
+
+    \section1 QMAKE_MACOSX_DEPLOYMENT_TARGET
+
+    This variable only takes effect when building on Mac OS X. On that
+    platform, the variable will be forwarded to the MACOSX_DEPLOYMENT_TARGET
+    environment variable, which is interpreted by the compiler or linker.
+    For more information, see the
+    \l{Qt for Mac OS X - Deployment#Mac OS X Version Dependencies}{Deploying
+    an Application on Mac OS X} document.
+
+    \section1 QMAKE_MAKEFILE
+
+    Specifies the name of the Makefile to create. The value of
+    this variable is typically handled by qmake or
+    \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \section1 QMAKE_QMAKE
+
+    Contains the abosolute path of the qmake executable.
+
+    \note Do not attempt to overwrite the value of this variable.
+
+    \section1 QMAKE_RESOURCE_FLAGS
+
+    This variable is used to customize the list of options passed to the
+    \l{rcc}{Resource Compiler} in each of the build rules where it is used.
+    For example, the following line ensures that the \c{-threshold} and
+    \c{-compress} options are used with particular values each time that
+    \c rcc is invoked:
+
+    \snippet code/doc_src_qmake-manual.pro 45
+
+    \section1 QMAKE_RPATHDIR
+
+    \note This variable is used on Unix platforms only.
+
+    Specifies a list of library paths that are added to the
+    executable at link time so that the paths will be preferentially
+    searched at runtime.
+
+    \section1 QMAKE_RPATHLINKDIR
+
+    Specifies a list of library paths for the static linker to search for implicit
+    dependencies of shared libraries. For more information, see the manual page
+    for \c ld(1).
+
+    \section1 QMAKE_RUN_CC
+
+    Specifies the individual rule needed to build an object. The
+    value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    \section1 QMAKE_RUN_CC_IMP
+
+    Specifies the individual rule needed to build an object. The
+    value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    \section1 QMAKE_RUN_CXX
+
+    Specifies the individual rule needed to build an object. The
+    value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    \section1 QMAKE_RUN_CXX_IMP
+
+    Specifies the individual rule needed to build an object. The
+    value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    \section1 QMAKE_TARGET
+
+    Specifies the name of the project target.  The value of this
+    variable is typically handled by qmake or
+    \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \section1 QT
+
+    Specifies the Qt modules that are used by your project.
+
+    The table below shows the options that can be used with the \c QT variable
+    and the Qt modules that are associated with each of them:
+
+    \table
+    \header \li Option                     \li Module Enabled
+    \row    \li axcontainer                \li \l{Using ActiveX controls and COM in Qt}
+                                               {QAxContainer}, which is
+                                               part of the \l{Active Qt} framework
+    \row    \li axserver                   \li \l{Building ActiveX servers in Qt}
+                                               {QAxServer}, which is
+                                               part of the \l{Active Qt} framework
+    \row    \li concurrent                 \li \l{Qt Concurrent}
+    \row    \li core (included by default) \li \l{Qt Core}
+    \row    \li dbus                       \li \l{Qt D-Bus}
+    \row    \li declarative                \li \l{Qt Quick 1} (deprecated)
+    \row    \li designer                   \li \l{Qt Designer}
+    \row    \li gui  (included by default) \li \l{Qt GUI}
+    \row    \li help                       \li \l{Qt Help}
+    \row    \li multimedia                 \li \l{Qt Multimedia}
+    \row    \li multimediawidgets          \li \l{Qt Multimedia Widgets}
+    \row    \li network                    \li \l{Qt Network}
+    \row    \li opengl                     \li \l{Qt OpenGL} (deprecated)
+    \row    \li printsupport               \li \l{Qt Print Support}
+    \row    \li qml                        \li \l{Qt QML}
+    \row    \li qmltest                    \li \l{Qt QML Test}
+    \row    \li x11extras                  \li \l{Qt X11 Extras}
+    \row    \li quick                      \li \l{Qt Quick}
+    \row    \li script                     \li \l{Qt Script} (deprecated)
+    \row    \li scripttools                \li \l{Qt Script Tools} (deprecated)
+    \row    \li sensors                    \li \l{Qt Sensors}
+    \row    \li serialport                 \li \l{Qt Serial Port}
+    \row    \li sql                        \li \l{Qt SQL}
+    \row    \li svg                        \li \l{Qt SVG}
+    \row    \li testlib                    \li \l{Qt Test}
+    \row    \li uitools                    \li \l{Qt UI Tools}
+    \row    \li webkit                     \li \l{Qt WebKit}
+    \row    \li webkitwidgets              \li \l{Qt WebKit Widgets}
+    \row    \li widgets                    \li \l{Qt Widgets}
+    \row    \li winextras                  \li \l{Qt Windows Extras}
+    \row    \li xml                        \li \l{Qt XML} (deprecated)
+    \row    \li xmlpatterns                \li \l{Qt XML Patterns}
+    \endtable
+
+    By default, \c QT contains both \c core and \c gui, ensuring that standard
+    GUI applications can be built without further configuration.
+
+    If you want to build a project \e without the \l{Qt GUI} module, you need to
+    exclude the \c gui value with the "-=" operator. The following line will
+    result in a minimal Qt project being built:
+
+    \snippet code/doc_src_qmake-manual.pro 47
+
+    \section1 QTPLUGIN
+
+    Specifies a list of names of static Qt plugins that are to be
+    linked with an application so that they are available as built-in
+    resources.
+
+    qmake automatically adds the plugins that are typically needed
+    by the used Qt modules (see \c QT).
+    The defaults are tuned towards an optimal out-of-the-box experience.
+    See \l{Static Plugins} for a list of available plugins, and ways
+    to override the automatic linking.
+
+    This variable currently has no effect when linking against a
+    shared/dynamic build of Qt, or when linking libraries.
+    It may be used for deployment of dynamic plugins at a later time.
+
+    \target QT_VERSION_variable
+    \section1 QT_VERSION
+
+    Contains the current version of Qt.
+
+    \target QT_MAJOR_VERSION
+    \section1 QT_MAJOR_VERSION
+
+    Contains the current major version of Qt.
+
+    \target QT_MINOR_VERSION
+    \section1 QT_MINOR_VERSION
+
+    Contains the current minor version of Qt.
+
+    \target QT_PATCH_VERSION
+    \section1 QT_PATCH_VERSION
+
+    Contains the current patch version of Qt.
+
+    \section1 RC_FILE
+
+    Specifies the name of the resource file for the application.
+    The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    \section1 RC_INCLUDEPATH
+
+    Specifies include paths that are passed to the Windows Resource Compiler.
+
+    \target RCC_DIR
+    \section1 RCC_DIR
+
+    Specifies the directory for Qt Resource Compiler output files.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 48
+
+    \target REQUIRES
+    \section1 REQUIRES
+
+    Specifies a list of values that are evaluated as conditions. If any of the conditions is false,
+    qmake skips this project (and its \l{SUBDIRS}) when building.
+
+    \note We recommend using the \l{requires(condition)}{requires()} function
+    instead if you want to skip projects or subprojects when building.
+
+    \target RESOURCES
+    \section1 RESOURCES
+
+    Specifies the name of the resource collection files (qrc)
+    for the target. For more information about the resource collection
+    file, see \l{The Qt Resource System}.
+
+    \section1 RES_FILE
+
+    Specifies the name of the compiled Windows resource file for the target.
+    The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    \target SIGNATURE_FILE
+    \section1 SIGNATURE_FILE
+
+    \note This variable is only used on Windows CE.
+
+    Specifies which signature file should be used to sign the project target.
+
+    \note This variable will overwrite the setting you have specified in configure,
+    with the \c -signature option.
+
+    \target SOURCES
+    \section1 SOURCES
+
+    Specifies the names of all source files in the project.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 49
+
+    See also \l{#HEADERS}{HEADERS}.
+
+    \target SUBDIRS
+    \section1 SUBDIRS
+
+    This variable, when used with the \c subdirs \l{#TEMPLATE}{template}
+    specifies the names of all subdirectories or project files that contain
+    parts of the project that need to be built. Each subdirectory specified
+    using this variable must contain its own project file.
+
+    It is recommended that the project file in each subdirectory has the same
+    base name as the subdirectory itself, because that makes it possible to omit
+    the file name. For example, if the subdirectory is called \c myapp, the
+    project file in that directory should be called \c myapp.pro.
+
+    Alternatively, you can specify a relative path to a .pro file in any
+    directory. It is strongly recommended that you specify only paths in the
+    current project's parent directory or its subdirectories.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 50
+
+    If you need to ensure that the subdirectories are built in the order in
+    which they are specified, update the \l{#CONFIG}{CONFIG} variable to
+    include the \c ordered option:
+
+    \snippet code/doc_src_qmake-manual.pro 51
+
+    It is possible to modify this default behavior of \c SUBDIRS by giving
+    additional modifiers to \c SUBDIRS elements. Supported modifiers are:
+
+    \table
+    \header \li Modifier \li Effect
+    \row \li .subdir     \li Use the specified subdirectory instead of \c SUBDIRS value.
+    \row \li .file       \li Specify the subproject \c pro file explicitly. Cannot be
+                        used in conjunction with \c .subdir modifier.
+    \row \li .depends    \li This subproject depends on specified subproject.
+                        Available only on platforms that use makefiles.
+    \row \li .makefile   \li The makefile of subproject.
+                        Available only on platforms that use makefiles.
+    \row \li .target     \li Base string used for makefile targets related to this
+                        subproject.
+                        Available only on platforms that use makefiles.
+    \endtable
+
+    For example, define two subdirectories, both of which reside in a different directory
+    than the \c SUBDIRS value, and one of the subdirectories must be built before the other:
+
+    \snippet code/doc_src_qmake-manual.pro 149
+
+    \target TARGET
+    \section1 TARGET
+
+    Specifies the name of the target file. Contains the base name of the project
+    file by default.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 52
+
+    The project file above would produce an executable named \c myapp on
+    unix and \c{myapp.exe} on Windows.
+
+    \section1 TARGET_EXT
+
+    Specifies the extension of \c TARGET. The value of this variable
+    is typically handled by qmake or
+    \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \section1 TARGET_x
+
+    Specifies the extension of \c TARGET with a major version number.
+    The value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    \section1 TARGET_x.y.z
+
+    Specifies the extension of \c TARGET with version number. The
+    value of this variable is typically handled by
+    qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
+
+    \target TEMPLATE
+    \section1 TEMPLATE
+
+    Specifies the name of the template to use when generating the project. The
+    allowed values are:
+
+    \table
+    \header \li Option \li Description
+    \row    \li app    \li Creates a Makefile for building applications
+            (the default). See \l{Building an Application} for more information.
+    \row    \li lib    \li Creates a Makefile for building libraries. See
+            \l{Building a Library} for more information.
+    \row    \li subdirs \li Creates a Makefile for building targets in subdirectories.
+            The subdirectories are specified using the \l{#SUBDIRS}{SUBDIRS}
+            variable.
+    \row    \li vcapp  \li Windows only. Creates an application project for
+            Visual Studio. See \l{Creating Visual Studio Project Files} for more
+            information.
+    \row    \li vclib  \li Windows only. Creates a library project for Visual Studio.
+    \endtable
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 53
+
+    The template can be overridden by specifying a new template type with the
+    \c -t command line option. This overrides the template type \e after the .pro
+    file has been processed. With .pro files that use the template type to
+    determine how the project is built, it is necessary to declare TEMPLATE on
+    the command line rather than use the \c -t option.
+
+    \section1 TRANSLATIONS
+
+    Specifies a list of translation (.ts) files that contain
+    translations of the user interface text into non-native languages.
+
+    See the \l{Qt Linguist Manual} for more information about
+    internationalization (i18n) and localization (l10n) with Qt.
+
+    \target UI_DIR
+    \section1 UI_DIR
+
+    Specifies the directory where all intermediate files from uic
+    should be placed.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 54
+
+    \target VERSION
+    \section1 VERSION
+
+    Specifies the version number of the application if the \c app \l{#TEMPLATE}{template} is
+    specified or the version number of the library if the \c lib template is specified.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 57
+
+    \section1 VER_MAJ
+
+    Specifies the major version number of the library if the
+    \c lib \l{#TEMPLATE}{template} is specified.
+
+    \section1 VER_MIN
+
+    Specifies the minor version number of the library if the
+    \c lib \l{#TEMPLATE}{template} is specified.
+
+    \section1 VER_PAT
+
+    Specifies the patch version number of the library if the
+    \c lib \l{#TEMPLATE}{template} is specified.
+
+    \section1 VPATH
+
+    Tells qmake where to search for files it cannot open. For example, if qmake
+    looks for \c SOURCES and finds an entry that it cannot open, it looks
+    through the entire VPATH list to see if it can find the file on its own.
+
+    See also \l{#DEPENDPATH}{DEPENDPATH}.
+
+    \target WINRT_MANIFEST
+    \section1 WINRT_MANIFEST
+
+    Specifies parameters to be passed to the application manifest on \l{Qt for WinRT}{Windows
+    Runtime}. The allowed values are:
+
+    \table
+    \header
+        \li Member
+        \li Description
+    \row
+        \li architecture
+        \li The target architecture. Defaults to \c VCPROJ_ARCH.
+    \row
+        \li arguments
+        \li Allows arguments to be passed to the executable.
+    \row
+        \li author
+        \li Package author. Defaults to \c{Default package author}.
+            This option is only available for Windows Phone.
+    \row
+        \li background
+        \li Tile background color. Defaults to \c{green}.
+    \row
+        \li capabilities
+        \li Specifies capabilities to add to the capability list.
+    \row
+        \li capabilities_device
+        \li Specifies device capabilities to add to the capability list
+            (location, webcam, and so on). This option is not available on Windows Phone.
+    \row
+        \li dependencies
+        \li Specifies dependencies required by the package.
+    \row
+        \li description
+        \li Package description. Defaults to \c{Default package description}.
+    \row
+        \li foreground
+        \li Tile foreground (text) color. Defaults to \c{light}.
+            This option is only available for Windows Store apps on Windows 8 and Windows RT.
+    \row
+        \li genre
+        \li Package genre. Defaults to \c{apps.normal}.
+            This option is only available for Windows Phone.
+    \row
+        \li iconic_tile_icon
+        \li Image file for the \c{iconic} tile template icon. Default provided by
+            the mkspec.
+    \row
+        \li iconic_tile_small
+        \li Image file for the small \c{iconic} tile template logo. Default provided
+            by the mkspec.
+    \row
+        \li identity
+        \li The unique ID of the app. Defaults to reusing the existing generated
+            manifest's UUID, or generates a new UUID if none is present.
+    \row
+        \li logo_large
+        \li Large logo image file. Default provided by the mkspec.
+    \row
+        \li logo_medium
+        \li Medium logo image file. Default provided by the mkspec.
+    \row
+        \li logo_small
+        \li Small logo image file. Default provided by the mkspec.
+    \row
+        \li logo_store
+        \li Logo image file for Windows Store. Default provided by the mkspec.
+    \row
+        \li name
+        \li The name of the package as displayed to the user. Defaults to TARGET.
+    \row
+        \li publisher
+        \li Display name of the publisher. Defaults to \c{Default publisher display name}.
+    \row
+        \li publisher_id
+        \li On Windows 8 or Windows RT, the publisher's distinguished name (default: \c{CN=MyCN}).
+            On Windows Phone, the publisher's UUID (default: invalid UUID string).
+    \row
+        \li splash_screen
+        \li Splash screen image file. Default provided by the mkspec.
+    \row
+        \li target
+        \li The name of the target (.exe). Defaults to TARGET.
+    \row
+        \li version
+        \li The version number of the package. Defaults to \c{1.0.0.0}.
+    \endtable
+
+    You can use any combination of those values.
+
+    For example:
+
+    \code
+    WINRT_MANIFEST.publisher = MyCompany
+    WINRT_MANIFEST.logo_store = someImage.png
+    winphone {
+        WINRT_MANIFEST.capabilities += ID_CAP_LOCATION ID_CAP_NETWORKING
+    } else {
+        WINRT_MANIFEST.capabilities += internetClient
+        WINRT_MANIFEST.device_capabilities += location
+    }
+    \endcode
+
+    Additionally, an input manifest file can be specified by using WINRT_MANIFEST.
+
+    For example:
+
+    \code
+    WINRT_MANIFEST = someManifest.xml.in
+    \endcode
+
+    \target YACCSOURCES
+    \section1 YACCSOURCES
+
+    Specifies a list of Yacc source files to be included
+    in the project. All dependencies, headers and source files will
+    automatically be included in the project.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 58
+
+    \section1 _PRO_FILE_
+
+    Contains the path to the project file in use.
+
+    For example, the following line causes the location of the project
+    file to be written to the console:
+
+    \snippet qmake/project_location.pro project file
+
+    \note Do not attempt to overwrite the value of this variable.
+
+    \section1 _PRO_FILE_PWD_
+
+    Contains the path to the directory containing the project file in use.
+
+    For example, the following line causes the location of the directory
+    containing the project file to be written to the console:
+
+    \snippet qmake/project_location.pro project file directory
+
+    \note Do not attempt to overwrite the value of this variable.
+*/
+
+/*!
+    \page qmake-function-reference.html
+    \title Replace Functions
+    \contentspage {qmake Manual}{Contents}
+    \previouspage Variables
+    \nextpage Test Functions
+    \keyword qmake Function Reference - Replace Functions
+
+    qmake provides functions for processing the contents of variables
+    during the configuration process. These functions are called
+    \e {replace functions}. Typically, they return values that you can
+    assign to other variables. You can obtain these values by prefixing a
+    function with the \c $$ operator. Replace functions can be divided into
+    built-in functions and function libraries.
+
+    See also \l{Test Functions}.
+
+    \section1 Built-in Replace Functions
+
+    Basic replace functions are implemented as built-in functions.
+
+    \section2 absolute_path(path[, base])
+
+    Returns the absolute path of \c path.
+
+    If \c base is not specified, uses the current directory as the base
+    directory.
+
+    For example, the following call returns the string
+    \c {"/home/johndoe/myproject/readme.txt"}:
+
+    \snippet code/doc_src_qmake-manual.pro 159
+
+    See also \l{clean_path(path)}{clean_path()},
+    \l{relative_path(filePath[, base])}{relative_path()}.
+
+    \section2 basename(variablename)
+
+    Returns the basename of the file specified in \c variablename.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 59
+
+    \section2 cat(filename[, mode])
+
+    Returns the contents of \c filename. You can specify the following options
+    for \c mode:
+
+    \list
+        \li \c blob returns the entire contents of the file as one value
+        \li \c lines returns each line as a separate value (without line
+            endings)
+        \li \c true (default value) and \c false return file contents as
+            separate values, split according to qmake value list splitting rules
+            (as in variable assignments). If \c mode is \c false, values that
+            contain only a newline character are inserted into the list to
+            indicate where line breaks were in the file.
+    \endlist
+
+    \section2 clean_path(path)
+
+    Returns \c path with directory separators normalized (converted to "/") and
+    redundant ones removed, and "."s and ".."s resolved (as far as possible).
+    This function is a wrapper around QDir::cleanPath.
+
+    See also \l{absolute_path(path[, base])}{absolute_path()},
+    \l{relative_path(filePath[, base])}{relative_path()},
+    \l{shell_path(path)}{shell_path()}, \l{system_path(path)}{system_path()}.
+
+    \section2 dirname(file)
+
+    Returns the directory name part of the specified file. For example:
+
+    \snippet qmake/dirname.pro 0
+
+    \section2 enumerate_vars
+
+    Returns a list of all defined variable names.
+
+    \section2 escape_expand(arg1 [, arg2 ..., argn])
+
+    Accepts an arbitrary number of arguments. It expands the
+    escape sequences \c {\n}, \c {\r}, \c {\t} for each argument and returns
+    the arguments as a list.
+
+    \note If you specify the string to expand literally, you need to escape the
+    backslashes, as illustrated by the following code snippet:
+
+    \snippet code/doc_src_qmake-manual.pro 173
+
+    \target findfunction
+    \section2 find(variablename, substr)
+
+    Returns all the values in \c variablename that match the regular expression
+    \c substr.
+
+    \snippet code/doc_src_qmake-manual.pro 64
+
+    MY_VAR2 will contain '-Lone -Ltwo -Lthree -Lfour -Lfive', and MY_VAR3 will
+    contain 'three two three'.
+
+    \section2 first(variablename)
+
+    Returns the first value of \c variablename.
+
+    For example, the following call returns \c firstname:
+
+    \snippet code/doc_src_qmake-manual.pro 161
+
+    See also \l{last(variablename)}{last()}.
+
+    \section2 format_number(number[, options...])
+
+    Returns \c number in the format specified by \c options. You can specify the
+    following options:
+
+    \list
+        \li \c ibase=n sets the base of the input to \c n
+        \li \c obase=n sets the base of the output to \c n
+        \li \c width=n sets the minimum width of the output to \c n. If the
+            output is shorter than \c width, it is padded with spaces
+        \li \c zeropad pads the output with zeroes instead of spaces
+        \li \c padsign prepends a space to positive values in the output
+        \li \c alwayssign prepends a plus sign to positive values in the output
+        \li \c leftalign places the padding to the right of the value in the
+            output
+    \endlist
+
+    Floating-point numbers are currently not supported.
+
+    For example, the following call converts the hexadecimal number \c BAD to
+    \c 002989:
+
+    \snippet code/doc_src_qmake-manual.pro 163
+
+    \section2 fromfile(filename, variablename)
+
+    Evaluates \c filename as a qmake project file and returns the value assigned
+    to \c variablename.
+
+    See also \l{infile(filename, var, val)}{infile()}.
+
+    \section2 getenv(variablename)
+
+    Returns the value of the environment variable \c variablename.
+    This is mostly equivalent to the \c $$(variablename) syntax.
+    The \c getenv function, however, supports environment variables with
+    parentheses in their name.
+
+    \section2 join(variablename, glue, before, after)
+
+    Joins the value of \c variablename with \c glue. If this value is
+    not empty, this function prefixes the value with \c before and suffixes it
+    with \c after. \c variablename is the only required field, the others default
+    to empty strings. If you need to encode spaces in \c glue, \c before, or \c
+    after, you must quote them.
+
+    \section2 last(variablename)
+
+    Returns the last value of \c variablename.
+
+    For example, the following call returns \c phone:
+
+    \snippet code/doc_src_qmake-manual.pro 162
+
+    See also \l{first(variablename)}{first()}.
+
+    \section2 list(arg1 [, arg2 ..., argn])
+
+    Takes an arbitrary number of arguments. It creates a uniquely
+    named variable that contains a list of the arguments, and returns the name
+    of that variable. You can use the variable to write a loop as illustrated by
+    the following code snippet
+
+    \snippet code/doc_src_qmake-manual.pro 170
+
+    instead of:
+
+    \snippet code/doc_src_qmake-manual.pro 171
+
+    \section2 lower(arg1 [, arg2 ..., argn])
+
+    Takes an arbitrary number of arguments and converts them to lower case.
+
+    See also \l{upper(arg1 [, arg2 ..., argn])}{upper()}.
+
+    \section2 member(variablename, position)
+
+    Returns the value at the given \c position in the list of items in
+    \c variablename.
+    If an item cannot be found at the position specified, an empty string is
+    returned. \c variablename is the only required field. If not specified,
+    \c position defaults to 0, causing the first value in the list to be
+    returned.
+
+    \section2 prompt(question)
+
+    Displays the specified \c question, and returns a value read from stdin.
+
+    \section2 quote(string)
+
+    Converts a whole \c string into a single entity and returns the result.
+    This is just a fancy way of enclosing the string into double quotes.
+
+    \section2 re_escape(string)
+
+    Returns the \c string with every special regular expression character
+    escaped with a backslash. This function is a wrapper around QRegExp::escape.
+
+    \section2 relative_path(filePath[, base])
+
+    Returns the path to \c filePath relative to \c base. If \c base is not
+    specified, it is the current project directory. This function is a wrapper
+    around QDir::relativeFilePath.
+
+    See also \l{absolute_path(path[, base])}{absolute_path()},
+    \l{clean_path(path)}{clean_path()}.
+
+    \section2 replace(string, old_string, new_string)
+
+    Replaces each instance of \c old_string with \c new_string in the
+    contents of the variable supplied as \c string. For example, the
+    code
+
+    \snippet qmake/replace.pro 0
+
+    prints the message:
+
+    \snippet code/doc_src_qmake-manual.pro 70
+
+    \section2 sprintf(string, arguments...)
+
+    Replaces %1-%9 with the arguments passed in the comma-separated list
+    of function \c arguments and returns the processed string.
+
+    \section2 resolve_depends(variablename, prefix)
+
+    This is an internal function that you will typically not need.
+
+    \section2 reverse(variablename)
+
+    Returns the values of \c variablename in reverse order.
+
+    \section2 section(variablename, separator, begin, end)
+
+    Returns a section of the value of \c variablename. This function is a
+    wrapper around QString::section.
+
+    For example, the following call outputs \c surname:
+
+    \snippet code/doc_src_qmake-manual.pro 167
+
+    \section2 shadowed(path)
+
+    Maps the path from the project source directory to the build directory.
+    This function returns \c path for in-source builds. It returns an empty
+    string if \c path points outside of the source tree.
+
+    \section2 shell_path(path)
+
+    Converts all directory separators within \c path to separators that are
+    compatible with the shell that is used while building the project (that is,
+    the shell that is invoked by the make tool). For example, slashes are
+    converted to backslashes when the Windows shell is used.
+
+    See also \l{system_path(path)}{system_path()}.
+
+    \section2 shell_quote(arg)
+
+    Quotes \c arg for the shell that is used while building the project.
+
+    See also \l{system_quote(arg)}{system_quote()}.
+
+    \section2 size(variablename)
+
+    Returns the number of values of \c variablename.
+
+    \section2 sort_depends(variablename, prefix)
+
+    This is an internal function that you will typically not need.
+
+    \section2 split(variablename, separator)
+
+    Splits the value of \c variablename into separate values, and returns them
+    as a list. This function is a wrapper around QString::split.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 168
+
+    \section2 system(command[, mode])
+
+    You can use this variant of the \c system function to obtain stdout from the
+    command and assign it to a variable.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 72
+
+    See also the test variant of \l{system(command)}{system()}.
+
+    \section2 system_path(path)
+
+    Converts all directory separators within \c path to separators that are
+    compatible with the shell that is used by the \c{system()} functions to
+    invoke commands. For example, slashes are converted to backslashes for the
+    Windows shell.
+
+    See also \l{shell_path(path)}{shell_path()}.
+
+    \section2 system_quote(arg)
+
+    Quotes \c arg for the for the shell that is used by the \c{system()}
+    functions.
+
+    See also \l{shell_quote(arg)}{shell_quote()}.
+
+    \target unique
+    \section2 unique(variablename)
+
+    Returns the list of values in \c variablename with duplicate entries removed.
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 73
+
+    \section2 upper(arg1 [, arg2 ..., argn])
+
+    Takes an arbitrary number of arguments and converts them to upper case.
+
+    See also \l{lower(arg1 [, arg2 ..., argn])}{lower()}.
+
+    \section2 val_escape(variablename)
+
+    Escapes the values of \c variablename in a way that enables parsing them as
+    qmake code.
+*/
+
+/*!
+    \page qmake-test-function-reference.html
+    \title Test Functions
+    \contentspage {qmake Manual}{Contents}
+    \previouspage Replace Functions
+    \keyword qmake Function Reference - Test Functions
+
+    Test functions return a boolean value that you can test for in the
+    conditional parts of scopes. Test functions can be divided into
+    built-in functions and function libraries.
+
+    See also \l{Replace Functions}.
+
+    \section1 Built-in Test Functions
+
+    Basic test functions are implemented as built-in functions.
+
+    \section2 cache(variablename, [set|add|sub] [transient] [super|stash], [source variablename])
+
+    This is an internal function that you will typically not need.
+
+    \section2 CONFIG(config)
+
+    This function can be used to test for variables placed into the
+    \l{CONFIG} variable. This is the same as scopes,
+    but has the added advantage that a second parameter can be passed to test for
+    the active config. As the order of values is important in \c CONFIG
+    variables (that is, the last one set will be considered the active config for
+    mutually exclusive values) a second parameter can be used to specify a set
+    of values to consider. For example:
+
+    \snippet code/doc_src_qmake-manual.pro 60
+
+    Because release is considered the active setting (for feature parsing)
+    it will be the CONFIG used to generate the build file. In the common
+    case a second parameter is not needed, but for specific mutual
+    exclusive tests it is invaluable.
+
+    \section2 contains(variablename, value)
+
+    Succeeds if the variable \c variablename contains the value \c value;
+    otherwise fails. It is possible to specify a regular expression for
+    parameter \e value.
+
+    You can check the return value of this function using a scope.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 61
+
+    The contents of the scope are only processed if the \c drivers
+    variable contains the value \c network. If this is the case, the
+    appropriate files are added to the \l{SOURCES} and \l{HEADERS}
+    variables.
+
+    \target countfunction
+    \section2 count(variablename, number)
+
+    Succeeds if the variable \c variablename contains a list with the
+    specified \c number of values; otherwise fails.
+
+    This function is used to ensure that declarations inside a scope are
+    only processed if the variable contains the correct number of values.
+    For example:
+
+    \snippet qmake/functions.pro 2
+
+    \section2 debug(level, message)
+
+    Checks whether qmake runs at the specified debug level. If yes, it returns
+    true and prints a debug message.
+
+    \section2 defined(name[, type])
+
+    Tests whether the function or variable \c name is defined. If \c type is
+    omitted, checks all functions. To check only variables or particular type of
+    functions, specify \c type. It can have the following values:
+
+    \list
+        \li \c test only checks test functions
+        \li \c replace only checks replace functions
+        \li \c var only checks variables
+    \endlist
+
+    \section2 equals(variablename, value)
+
+    Tests whether \c variablename equals the string \c value.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 160
+
+    \section2 error(string)
+
+    This function never returns a value. qmake displays \c string as an error
+    message to the user and exits. This function should only be used for
+    unrecoverable errors.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 62
+
+    \section2 eval(string)
+
+    Evaluates the contents of the string using
+    qmake syntax rules and returns true.
+    Definitions and assignments can be used in the string to modify the
+    values of existing variables or create new definitions.
+
+    For example:
+    \snippet qmake/functions.pro 4
+
+    \note Quotation marks can be used to delimit the string, and
+    the return value can be discarded if it is not needed.
+
+    \section2 exists(filename)
+
+    Tests whether a file with the given \c filename exists.
+    If the file exists, the function succeeds; otherwise it fails.
+    If a regular expression is specified for the filename, this function
+    succeeds if any file matches the regular expression specified.
+
+    For example:
+    \snippet code/doc_src_qmake-manual.pro 63
+
+    \note "/" should be used as a directory separator, regardless of the
+    platform in use.
+
+    \section2 export(variablename)
+
+    Exports the current value of \c variablename from the local context of a
+    function to the global context.
+
+    \section2 files(pattern[, recursive=false])
+
+    Expands the specified wildcard pattern and returns a list of filenames.
+    If \c recursive is true, this function descends into subdirectories.
+
+    \target forfunction
+    \section2 for(iterate, list)
+
+    Starts a loop that iterates over all values in \c list, setting \c iterate to each
+    value in turn. As a convenience, if \c list is 1..10 then iterate will
+    iterate over the values 1 through 10.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 65
+
+    \section2 greaterThan(variablename, value)
+
+    Tests that the value of \c variablename is greater than \c value. First,
+    this function attempts a numerical comparison. If at least one of the
+    operands fails to convert, this function does a string comparison.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 164
+
+    It is impossible to compare two numbers as strings directly. As a
+    workaround, construct temporary values with a non-numeric prefix and compare
+    these.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 172
+
+    See also \l{lessThan(variablename, value)}{lessThan()}.
+
+    \section2 if(condition)
+
+    Evaluates \c condition. It is used to group boolean expressions.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 166
+
+    \section2 include(filename)
+
+    Includes the contents of the file specified by \c filename into the
+    current project at the point where it is included. This function
+    succeeds if \c filename is included; otherwise it fails. The included
+    file is processed immediately.
+
+    You can check whether the file was included by using this function as
+    the condition for a scope. For example:
+
+    \snippet code/doc_src_qmake-manual.pro 66
+
+    \section2 infile(filename, var, val)
+
+    Succeeds if the file \c filename (when parsed by qmake itself) contains the
+    variable \c var with a value of \c val; otherwise fails. If you do not
+    specify \c val, the function tests whether \c var has been assigned in
+    the file.
+
+    \section2 isActiveConfig
+
+    This is an alias for the \c CONFIG function.
+
+    \section2 isEmpty(variablename)
+
+    Succeeds if the variable \c variablename is empty; otherwise fails.
+    This is the equivalent of \c{count( variablename, 0 )}.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 67
+
+    \section2 isEqual
+
+    This is an alias for the \c equals function.
+
+    \section2 lessThan(variablename, value)
+
+    Tests that the value of \c variablename is less than \c value. Works as
+    \l{greaterThan(variablename, value)}{greaterThan()}.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 165
+
+    \section2 load(feature)
+
+    Loads the feature file (\c .prf) specified by \c feature,
+    unless the feature has already been loaded.
+
+    \section2 log(message)
+
+    Prints a message on the console. Unlike the \c message function, neither
+    prepends text nor appends a line break.
+
+    See also \l{message(string)}{message()}.
+
+    \section2 message(string)
+
+    Always succeeds, and displays \c string as a general message to the user.
+    Unlike the \c error() function, this function allows processing to continue.
+
+    \snippet code/doc_src_qmake-manual.pro 68
+
+    The above line causes "This is a message" to be written to the console.
+    The use of quotation marks is optional, but recommended.
+
+    \note By default, messages are written out for each Makefile generated by
+    qmake for a given project. If you want to ensure that messages only appear
+    once for each project, test the \c build_pass variable
+    \l{Scopes}{in conjunction with a scope} to filter out
+    messages during builds. For example:
+
+    \snippet code/doc_src_qmake-manual.pro 69
+
+    \section2 mkpath(dirPath)
+
+    Creates the directory path \c dirPath. This function is a wrapper around the
+    QDir::makepath function.
+
+    \section2 requires(condition)
+
+    Evaluates \c condition. If the condition is false, qmake skips this
+    project (and its \l{SUBDIRS}) when building.
+
+    \note You can also use the \l{REQUIRES} variable for this purpose. However, we
+    recommend using this function, instead.
+
+    \section2 system(command)
+
+    Executes the given \c command in a secondary shell. Succeeds
+    if the command returns with a zero exit status; otherwise fails.
+    You can check the return value of this function using a scope.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 71
+
+    See also the replace variant of \l{system(command[, mode])}{system()}.
+
+    \target touchfunction
+    \section2 touch(filename, reference_filename)
+
+    Updates the time stamp of \c filename to match the time stamp of
+    \c reference_filename.
+
+    \section2 unset(variablename)
+
+    Removes \c variablename from the current context.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 169
+
+    \section2 warning(string)
+
+    Always succeeds, and displays \c string as a warning message to the user.
+
+    \section2 write_file(filename, [variablename, [mode]])
+
+    Writes the values of \c variablename to a file with the name \c filename,
+    each value on a separate line. If \c variablename is not specified, creates
+    an empty file. If \c mode is \c append and the file already exists, appends
+    to it instead of replacing it.
+
+    \section1 Test Function Library
+
+    Complex test functions are implemented in a library of .prf files.
+
+    \section2 packagesExist(packages)
+
+    Uses the PKGCONFIG mechanism to determine whether or not the given packages
+    exist at the time of project parsing.
+
+    This can be useful to optionally enable or disable features. For example:
+
+    \snippet code/doc_src_qmake-manual.pro 157
+
+    And then, in the code:
+
+    \snippet code/doc_src_qmake-manual.pro 158
+
+    \section2 prepareRecursiveTarget(target)
+
+    Facilitates the creation of project-wide targets similar to the \c install
+    target by preparing a target that iterates through all subdirectories. For
+    example:
+
+    \snippet code/doc_src_qmake-manual.pro 174
+
+    Subdirs that have \c have_no_default or \c no_<target>_target specified in
+    their .CONFIG are excluded from this target:
+
+    \snippet code/doc_src_qmake-manual.pro 175
+
+    You must add the prepared target manually to \l{QMAKE_EXTRA_TARGETS}:
+
+    \snippet code/doc_src_qmake-manual.pro 176
+
+    To make the target global, the code above needs to be included into every
+    subdirs subproject. In addition, to make these targets do anything,
+    non-subdirs subprojects need to include respective code. The easiest way to
+    achieve this is creating a custom feature file. For example:
+
+    \snippet code/doc_src_qmake-manual.pro 177
+
+    The feature file needs to be injected into each subproject, for example by
+    .qmake.conf:
+
+    \snippet code/doc_src_qmake-manual.pro 178
+
+    \section2 qtCompileTest(test)
+
+    Builds a test project. If the test passes, true is returned and
+    \c {config_<test>} is added to the \l{CONFIG} variable. Otherwise, false is
+    returned.
+
+    To make this function available, you need to load the respective feature
+    file:
+
+    \snippet code/doc_src_qmake-manual.pro 179
+
+    This also sets the variable QMAKE_CONFIG_TESTS_DIR to the
+    \c config.tests subdirectory of the project's parent directory.
+    It is possible to override this value after loading the feature file.
+
+    Inside the tests directory, there has to be one subdirectory per test that
+    contains a simple qmake project. The following code snippet illustrates the
+    .pro file of the project:
+
+    \snippet code/doc_src_qmake-manual.pro 180
+
+    The following code snippet illustrates the main .cpp file of the project:
+
+    \snippet code/doc_src_qmake-manual.pro 181
+
+    The following code snippet shows the invocation of the test:
+
+    \snippet code/doc_src_qmake-manual.pro 182
+
+    If the test project is built successfully, the test passes.
+
+    The test results are automatically cached, which also makes them
+    available to all subprojects. It is therefore recommended to run
+    all configuration tests in the top-level project file.
+
+    To suppress the re-use of cached results, pass \c{CONFIG+=recheck}
+    to qmake.
+
+    See also \l{load(feature)}{load()}.
+
+    \section2 qtHaveModule(name)
+
+    Checks whether the Qt module specified by \c name is present.
+    For a list of possible values, see \l{Variables#QT}{QT}.
+*/
+
+/*!
+    \page qmake-environment-reference.html
+    \contentspage {qmake Manual}{Contents}
+    \previouspage Using Precompiled Headers
+    \nextpage Reference
+
+    \title Configuring qmake
+
+    \section1 Properties
+
+    qmake has a system for persistent configuration, which allows you to set a
+    property in qmake once, and query it each time qmake is invoked. You can set
+    a property in qmake as follows:
+
+    \snippet code/doc_src_qmake-manual.pro 74
+
+    The appropriate property and value should be substituted for
+    \c PROPERTY and \c VALUE.
+
+    You can retrieve this information back from qmake as follows:
+
+    \snippet code/doc_src_qmake-manual.pro 75
+
+    \note \c{qmake -query} lists built-in properties in addition to the
+    properties that you set with \c{qmake -set PROPERTY VALUE}.
+
+    This information will be saved into a QSettings object (meaning it
+    will be stored in different places for different platforms).
+
+    The following list summarizes the \c built-in properties:
+
+    \list
+        \li QMAKE_SPEC - the shortname of the host \c mkspec that is resolved
+            and stored in the \l{QMAKESPEC} variable during a host build
+        \li QMAKE_VERSION - the current version of qmake
+        \li QMAKE_XSPEC - the shortname of the target \c mkspec that is resolved
+            and stored in the \l{QMAKESPEC} variable during a target build
+        \li QT_HOST_BINS - location of host executables
+        \li QT_HOST_DATA - location of data for host executables used by qmake
+        \li QT_HOST_PREFIX - default prefix for all host paths
+        \li QT_INSTALL_ARCHDATA - location of general architecture-dependent Qt
+            data
+        \li QT_INSTALL_BINS - location of Qt binaries (tools and applications)
+        \li QT_INSTALL_CONFIGURATION - location for Qt settings. Not applicable
+            on Windows
+        \li QT_INSTALL_DATA - location of general architecture-independent Qt
+            data
+        \li QT_INSTALL_DOCS - location of documentation
+        \li QT_INSTALL_EXAMPLES - location of examples
+        \li QT_INSTALL_HEADERS - location for all header files
+        \li QT_INSTALL_IMPORTS - location of QML 1.x extensions
+        \li QT_INSTALL_LIBEXECS - location of executables required by libraries at runtime
+        \li QT_INSTALL_LIBS - location of libraries
+        \li QT_INSTALL_PLUGINS - location of Qt plugins
+        \li QT_INSTALL_PREFIX - default prefix for all paths
+        \li QT_INSTALL_QML - location of QML 2.x extensions
+        \li QT_INSTALL_TESTS - location of Qt test cases
+        \li QT_INSTALL_TRANSLATIONS - location of translation information for
+            Qt strings
+        \li QT_SYSROOT - the sysroot used by the target build environment
+        \li QT_VERSION - the Qt version. We recommend that you query Qt module specific
+            version numbers by using $$QT.<module>.version variables instead.
+    \endlist
+
+    For example, you can query the installation of Qt for this version of qmake with the
+    \c QT_INSTALL_PREFIX property:
+
+    \snippet code/doc_src_qmake-manual.pro 77
+
+    You can query the values of properties in a project file as follows:
+
+    \snippet code/doc_src_qmake-manual.pro 78
+
+    \target QMAKESPEC
+    \section1 QMAKESPEC
+
+    qmake requires a platform and compiler
+    description file which contains many default values used to generate
+    appropriate Makefiles. The standard Qt distribution comes with many of
+    these files, located in the \c mkspecs subdirectory of the Qt installation.
+
+    The \c QMAKESPEC environment variable can contain any of the following:
+
+    \list
+    \li A complete path to a directory containing a \c{qmake.conf} file.
+       In this case qmake will open the
+       \c{qmake.conf} file from within that directory. If the file does not
+       exist, qmake will exit with an error.
+    \li The name of a platform-compiler combination. In this case,
+       qmake will search in the directory specified
+       by the \c mkspecs subdirectory of the data path specified when Qt was
+       compiled (see QLibraryInfo::DataPath).
+    \endlist
+
+    \note The \c QMAKESPEC path will automatically be added to the
+    \l{INCLUDEPATH} system variable.
+
+    \target cache
+    \section1 Cache File
+
+    The cache file is a special file qmake reads to
+    find settings not specified in the \c qmake.conf file, project files, or
+    at the command line. When qmake is run, it looks for a file called
+    \c{.qmake.cache} in parent directories of the current directory, unless you
+    specify \c -nocache. If qmake
+    fails to find this file, it will silently ignore this step of processing.
+
+    If qmake  finds a \c{.qmake.cache} file then it will process this file first before
+    it processes the project file.
+
+    \target Extensions
+    \section1 File Extensions
+
+    Under normal circumstances qmake will try to
+    use appropriate file extensions for your platform. However, it is
+    sometimes necessary to override the default choices for each platform and
+    explicitly define file extensions for qmake to
+    use. This is achieved by redefining certain built-in variables. For
+    example, the extension used for \l moc files can be redefined with the
+    following assignment in a project file:
+
+    \snippet code/doc_src_qmake-manual.pro 85
+
+    The following variables can be used to redefine common file extensions recognized
+    by qmake:
+
+    \list
+    \li \l{QMAKE_EXT_MOC} modifies the extension placed on included moc files.
+    \li \l{QMAKE_EXT_UI} modifies the extension used for \QD UI files
+        (usually in \l{FORMS}).
+    \li \l{QMAKE_EXT_PRL} modifies the extension placed on
+                       \l{LibDepend}{library dependency files}.
+    \li \l{QMAKE_EXT_LEX} changes the suffix used in Lex files (usually in
+        \l{LEXSOURCES}).
+    \li \l{QMAKE_EXT_YACC} changes the suffix used in Yacc files (usually in
+        \l{YACCSOURCES}).
+    \li \l{QMAKE_EXT_OBJ} changes the suffix used on generated object files.
+    \endlist
+
+    All of the above accept just the first value, so you must assign to it just one
+    value that will be used throughout your project file. There are two variables that
+    accept a list of values:
+
+    \list
+    \li \l{QMAKE_EXT_CPP} causes qmake to interpret
+        all files with these suffixes as C++ source files.
+    \li \l{QMAKE_EXT_H} causes qmake to interpret
+        all files with these suffixes as C and C++ header files.
+    \endlist
+*/
+
+/*!
+    \page qmake-language.html
+    \title qmake Language
+    \contentspage {qmake Manual}{Contents}
+    \previouspage Platform Notes
+    \nextpage Advanced Usage
+
+    Many qmake project files simply describe the
+    sources and header files used by the project, using a list of
+    \c{name = value} and \c{name += value} definitions.
+    qmake also provides other operators, functions,
+    and scopes that can be used to process the information supplied in
+    variable declarations. These advanced features allow Makefiles to be
+    generated for multiple platforms from a single project file.
+
+    \section1 Operators
+
+    In many project files, the assignment (\c{=}) and append (\c{+=}) operators can
+    be used to include all the information about a project. The typical pattern of
+    use is to assign a list of values to a variable, and append more values
+    depending on the result of various tests. Since
+    qmake defines certain variables using default
+    values, it is sometimes necessary to use the removal (\c{-=}) operator to
+    filter out values that are not required. The following sections describe how
+    to use operators to manipulate the contents of variables.
+
+    \section2 Assigning Values
+
+    The \c = operator assigns a value to a variable:
+
+    \snippet code/doc_src_qmake-manual.pro 89
+
+    The above line sets the \l{TARGET} variable to \c myapp. This will overwrite any
+    values previously set for \c TARGET with \c myapp.
+
+    \section2 Appending Values
+
+    The \c += operator appends a new value to the list of values in a variable:
+
+    \snippet code/doc_src_qmake-manual.pro 90
+
+    The above line appends \c USE_MY_STUFF to the list of pre-processor defines to be put
+    in the generated Makefile.
+
+    \section2 Removing Values
+
+    The \c -= operator removes a value from the list of values in a variable:
+
+    \snippet code/doc_src_qmake-manual.pro 91
+
+    The above line removes \c USE_MY_STUFF from the list of pre-processor defines to be
+    put in the generated Makefile.
+
+    \section2 Adding Unique Values
+
+    The \c *= operator adds a value to the list of values in a variable, but only
+    if it is not already present. This prevents values from being included many
+    times in a variable. For example:
+
+    \snippet code/doc_src_qmake-manual.pro 92
+
+    In the above line, \c USE_MY_STUFF will only be added to the list of pre-processor
+    defines if it is not already defined. Note that the \l{unique}{unique()}
+    function can also be used to ensure that a variable only contains one
+    instance of each value.
+
+    \section2 Replacing Values
+
+    The \c ~= operator replaces any values that match a regular expression with
+    the specified value:
+
+    \snippet code/doc_src_qmake-manual.pro 93
+
+    In the above line, any values in the list that start with \c QT_D or \c QT_T are
+    replaced with \c QT.
+
+    \section2 Variable Expansion
+
+    The \c $$ operator is used to extract the contents of a variable, and can be
+    used to pass values between variables or supply them to functions:
+
+    \snippet code/doc_src_qmake-manual.pro 94
+
+    Variables can be used to store the contents of environment variables.
+    These can be evaluated at the time when qmake
+    is run, or included in the generated Makefile for evaluation when the
+    project is built.
+
+    To obtain the contents of an environment value when
+    qmake is run, use the \c $$(...) operator:
+
+    \snippet qmake/environment.pro 0
+
+    In the above assignment, the value of the \c PWD environment variable
+    is read when the project file is processed.
+
+    To obtain the contents of an environment value at the time when the
+    generated Makefile is processed, use the \c $(...) operator:
+
+    \snippet qmake/environment.pro 1
+
+    In the above assignment, the value of \c PWD is read immediately
+    when the project file is processed, but \c $(PWD) is assigned to
+    \c DESTDIR in the generated Makefile. This makes the build process
+    more flexible as long as the environment variable is set correctly
+    when the Makefile is processed.
+
+    \section2 Accessing qmake Properties
+
+    The special \c $$[...] operator can be used to access qmake properties:
+
+    \snippet qmake/qtconfiguration.pro 0
+
+    For more information, see \l{Configuring qmake}.
+
+    The properties accessible with this operator are typically used to
+    enable third party plugins and components to be integrated in Qt.
+    For example, a \QD plugin can be installed alongside \QD's built-in
+    plugins if the following declaration is made in its project file:
+
+    \snippet code/doc_src_qmake-manual.pro 101
+
+    \target Scopes
+    \section1 Scopes
+
+    Scopes are similar to \c if statements in procedural programming languages.
+    If a certain condition is true, the declarations inside the scope are processed.
+
+    \section2 Scope Syntax
+
+    Scopes consist of a condition followed by an opening brace on the same line,
+    a sequence of commands and definitions, and a closing brace on a new line:
+
+    \snippet qmake/scopes.pro syntax
+
+    The opening brace \e{must be written on the same line as the condition}.
+    Scopes may be concatenated to include more than one condition, as described
+    in the following sections.
+
+    \section2 Scopes and Conditions
+
+    A scope is written as a condition followed by a series of declarations
+    contained within a pair of braces. For example:
+
+    \snippet qmake/scopes.pro 0
+
+    The above code will add the \c paintwidget_win.cpp file to the sources listed
+    in the generated Makefile when building for a Windows platform. When
+    building for other platforms, the define will be ignored.
+
+    The conditions used in a given scope can also be negated to provide an
+    alternative set of declarations that will be processed only if the
+    original condition is false. For example, to process something when building
+    for all platforms \e except Windows, negate the scope like this:
+
+    \snippet qmake/scopes.pro 1
+
+    Scopes can be nested to combine more than one condition. For instance, to
+    include a particular file for a certain platform only if
+    debugging is enabled, write the following:
+
+    \snippet qmake/scopes.pro 2
+
+    To save writing many nested scopes, you can nest scopes using the \c :
+    operator. The nested scopes in the above example can be rewritten in
+    the following way:
+
+    \snippet qmake/scopes.pro 3
+
+    You may also use the \c : operator to perform single line conditional
+    assignments. For example:
+
+    \snippet code/doc_src_qmake-manual.pro 95
+
+    The above line adds \c USE_MY_STUFF to the \l{DEFINES} variable only when
+    building for the Windows platform.
+    Generally, the \c : operator behaves like a logical AND operator, joining
+    together a number of conditions, and requiring all of them to be true.
+
+    There is also the \c | operator to act like a logical OR operator, joining
+    together a number of conditions, and requiring only one of them to be true.
+
+    \snippet qmake/scopes.pro 4
+
+    You can also provide alternative declarations to those within a scope by
+    using an \c else scope. Each \c else scope is processed if the conditions
+    for the preceding scopes are false.
+    This allows you to write complex tests when combined with other scopes
+    (separated by the \c : operator as above). For example:
+
+    \snippet code/doc_src_qmake-manual.pro 96
+
+    \section2 Configuration and Scopes
+
+    The values stored in the \l{CONFIG} variable are
+    treated specially by qmake. Each of the possible
+    values can be used as the condition for a scope. For example, the list of
+    values held by \c CONFIG can be extended with the \c opengl value:
+
+    \snippet qmake/configscopes.pro 0
+
+    As a result of this operation, any scopes that test for \c opengl will
+    be processed. We can use this feature to give the final executable an
+    appropriate name:
+
+    \snippet qmake/configscopes.pro 1
+    \snippet qmake/configscopes.pro 2
+    \snippet qmake/configscopes.pro 3
+
+    This feature makes it easy to change the configuration for a project
+    without losing all the custom settings that might be needed for a specific
+    configuration. In the above code, the declarations in the first scope are
+    processed, and the final executable will be called \c application-gl.
+    However, if \c opengl is not specified, the declarations in the second
+    scope are processed instead, and the final executable will be called
+    \c application.
+
+    Since it is possible to put your own values on the \c CONFIG
+    line, this provides you with a convenient way to customize project files
+    and fine-tune the generated Makefiles.
+
+    \section2 Platform Scope Values
+
+    In addition to the \c win32, \c macx, and \c unix values used in many
+    scope conditions, various other built-in platform and compiler-specific
+    values can be tested with scopes. These are based on platform
+    specifications provided in Qt's \c mkspecs directory. For example, the
+    following lines from a project file show the current specification in
+    use and test for the \c linux-g++ specification:
+
+    \snippet qmake/specifications.pro 0
+
+    You can test for any other platform-compiler combination as long as a
+    specification exists for it in the \c mkspecs directory.
+
+    \target UsingVariables
+    \section1 Variables
+
+    Many of the variables used in project files are special variables that
+    qmake uses when generating Makefiles, such as \l{DEFINES}, \l{SOURCES}, and
+    \l{HEADERS}. In addition, you can create variables for your own use. qmake
+    creates new
+    variables with a given name when it encounters an assignment to that name.
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 97
+
+    There are no restricitions on what you do to your own variables, as
+    qmake will ignore them unless it needs to evaluate them when processing
+    a scope.
+
+    You can also assign the value of a current variable to another
+    variable by prefixing $$ to the variable name. For example:
+
+    \snippet code/doc_src_qmake-manual.pro 98
+
+    Now the MY_DEFINES variable contains what is in the DEFINES variable at
+    this point in the project file.  This is also equivalent to:
+
+    \snippet code/doc_src_qmake-manual.pro 99
+
+    The second notation allows you to append the contents of the variable to
+    another value without separating the two with a space. For example, the
+    following will ensure that the final executable will be given a name
+    that includes the project template being used:
+
+    \snippet code/doc_src_qmake-manual.pro 100
+
+    \target UsingReplaceFunctions
+    \section1 Replace Functions
+
+    qmake provides a selection of built-in
+    functions to allow the contents of variables to be processed. These
+    functions process the arguments supplied to them and return a value, or
+    list of values, as a result. To assign a result to a variable, use the \c $$
+    operator with this type of function as you would to assign contents of one
+    variable to another:
+
+    \snippet qmake/functions.pro 1
+
+    This type of function should be used on the right-hand side of
+    assignments (that is, as an operand).
+
+    You can define your own functions for processing the contents of variables
+    as follows:
+
+    \snippet code/doc_src_qmake-manual.pro 102
+
+    The following example function takes a variable name as its only
+    argument, extracts a list of values from the variable with the
+    \l{eval(string)}{eval()} built-in function, and compiles a list of files:
+
+    \snippet qmake/replacefunction.pro 0
+
+    \target UsingTestFunctions
+    \section1 Test Functions
+
+    qmake provides built-in functions that can be
+    used as conditions when writing scopes. These functions do not return a
+    value, but instead indicate \e success or \e failure:
+
+    \snippet qmake/functions.pro 3
+
+    This type of function should be used in conditional expressions
+    only.
+
+    It is possible to define your own functions to provide conditions
+    for scopes. The following example tests whether each file in a list
+    exists and returns true if they all exist, or false if not:
+
+    \snippet qmake/testfunction.pro 0
+*/
+
+/*!
+    \page qmake-advanced-usage.html
+    \title Advanced Usage
+    \contentspage {qmake Manual}{Contents}
+    \previouspage qmake Language
+    \nextpage Using Precompiled Headers
+
+    \section1 Adding New Configuration Features
+
+    qmake lets you create your own \c features that
+    can be included in project files by adding their names to the list of
+    values specified by the \l{CONFIG} variable. Features are collections of
+    custom functions and definitions in \c{.prf} files that can reside in one
+    of many standard directories. The locations of these directories are
+    defined in a number of places, and qmake checks
+    each of them in the following order when it looks for \c{.prf} files:
+
+    \omit
+        TODO: Fix the list, as it is incomplete and partly incorrect.
+    \endomit
+
+    \list 1
+    \li In a directory listed in the \c QMAKEFEATURES environment variable that
+        contains a colon-separated list of directories.
+    \li In a directory listed in the \c QMAKEFEATURES property variable that
+       contains a colon-spearated list of directories.
+    \omit
+    \li In a features directory beneath the project's root directory (where
+       the \c{.qmake.cache} file is generated).
+    \endomit
+    \li In a features directory residing within a \c mkspecs directory.
+       \c mkspecs directories can be located beneath any of the directories
+       listed in the \c QMAKEPATH environment variable that contains a
+        colon-separated list of directories. For example:
+        \c{$QMAKEPATH/mkspecs/<features>}.
+    \li In a features directory residing beneath the directory provided by the
+       \l{QMAKESPEC} environment variable. For example: \c{$QMAKESPEC/<features>}.
+    \li In a features directory residing in the \c data_install/mkspecs directory.
+       For example: \c{data_install/mkspecs/<features>}.
+    \li In a features directory that exists as a sibling of the directory
+       specified by the \c QMAKESPEC environment variable.
+       For example: \c{$QMAKESPEC/../<features>}.
+    \endlist
+
+    The following features directories are searched for features files:
+
+    \list 1
+    \li \c{features/unix}, \c{features/win32}, or \c{features/macx}, depending on
+       the platform in use
+    \li \c features/
+    \endlist
+
+    For example, consider the following assignment in a project file:
+
+    \snippet code/doc_src_qmake-manual.pro 103
+
+    With this addition to the \c CONFIG variable,
+    qmake will search the locations listed above for
+    the \c myfeatures.prf file after it has finished parsing your project file.
+    On Unix systems, it will look for the following file:
+
+    \list 1
+    \li \c $QMAKEFEATURES/myfeatures.prf (for each directory listed in the
+       \c QMAKEFEATURES environment variable)
+    \li \c $$QMAKEFEATURES/myfeatures.prf (for each directory listed in the
+       \c QMAKEFEATURES property variable)
+    \li \c myfeatures.prf (in the project's root directory)
+    \li \c $QMAKEPATH/mkspecs/features/unix/myfeatures.prf and
+       \c $QMAKEPATH/mkspecs/features/myfeatures.prf (for each directory
+       listed in the \c QMAKEPATH environment variable)
+    \li \c $QMAKESPEC/features/unix/myfeatures.prf and
+       \c $QMAKESPEC/features/myfeatures.prf
+    \li \c data_install/mkspecs/features/unix/myfeatures.prf and
+       \c data_install/mkspecs/features/myfeatures.prf
+    \li \c $QMAKESPEC/../features/unix/myfeatures.prf and
+       \c $QMAKESPEC/../features/myfeatures.prf
+    \endlist
+
+    \note The \c{.prf} files must have names in lower case.
+
+    \section1 Installing Files
+
+    It is common on Unix to also use the build tool to install applications
+    and libraries; for example, by invoking \c{make install}. For this reason,
+    qmake has the concept of an \c {install set}, an
+    object which contains instructions about the way a part of a project is to
+    be installed. For example, a collection of documentation files can be
+    described in the following way:
+
+    \snippet code/doc_src_qmake-manual.pro 79
+
+    The \c path member informs qmake that the files
+    should be installed in \c /usr/local/program/doc (the path member), and the
+    \c files member specifies the files that should be copied to the
+    installation directory. In this case, everything in the \c docs directory
+    will be copied to \c /usr/local/program/doc.
+
+    Once an install set has been fully described, you can append it to the
+    install list with a line like this:
+
+    \snippet code/doc_src_qmake-manual.pro 80
+
+    qmake will ensure that the specified files are
+    copied to the installation directory. If you require more control over
+    this process, you can also provide a definition for the \c extra member of
+    the object. For example, the following line tells
+    qmake to execute a series of commands for this
+    install set:
+
+    \snippet code/doc_src_qmake-manual.pro 81
+
+    The \c unix \l{Scopes and Conditions}{scope}
+    ensures that these particular commands are only executed on Unix platforms.
+    Appropriate commands for other platforms can be defined using other scope
+    rules.
+
+    Commands specified in the \c extra member are executed before the instructions
+    in the other members of the object are performed.
+
+    If you append a built-in install set to the \c INSTALLS variable and do
+    not specify \c files or \c extra members, qmake
+    will decide what needs to be copied for you. Currently, the \c target and \c dlltarget
+    install sets are supported. For example:
+
+    \snippet code/doc_src_qmake-manual.pro 82
+
+    In the above lines, qmake knows what needs to
+    be copied, and will handle the installation process automatically.
+
+    \section1 Adding Custom Targets
+
+    qmake tries to do everything expected of a
+    cross-platform build tool. This is often less than ideal when you really
+    need to run special platform-dependent commands. This can be achieved with
+    specific instructions to the different qmake backends.
+
+    Customization of the Makefile output is performed through an object-style
+    API as found in other places in qmake. Objects are defined automatically by
+    specifying their \e members. For example:
+
+    \snippet code/doc_src_qmake-manual.pro 86
+
+    The definitions above define a qmake target called \c mytarget, containing a
+    Makefile target called \c{.buildfile} which in turn is generated with the
+    \l{touchfunction}{touch()} function. Finally, the
+    \c{.depends} member specifies that \c mytarget depends on \c mytarget2,
+    another target that is defined afterwards. \c mytarget2 is a dummy target.
+    It is only defined to echo some text to the console.
+
+    The final step is to use the \c QMAKE_EXTRA_TARGETS variable to instruct
+    qmake that this object is a target to be built:
+
+    \snippet code/doc_src_qmake-manual.pro 87
+
+    This is all you need to do to actually build custom targets. Of course,
+    you may want to tie one of these targets to the
+    \l{TARGET}{qmake build target}. To do this, you
+    simply need to include your Makefile target in the list of
+    \l{PRE_TARGETDEPS}.
+
+    Custom target specifications support the following members:
+
+    \table
+    \header
+        \li Member
+        \li Description
+    \row
+        \li commands
+        \li The commands for generating the custom build target.
+    \row
+        \li CONFIG
+        \li Specific configuration options for the custom build target. Can be
+            set to \c recursive to indicate that rules should be created in the
+            Makefile to call the relevant target inside the sub-target specific
+            Makefile. This member defaults to creating an entry for each of the
+            sub-targets.
+    \row
+        \li depends
+        \li The existing build targets that the custom build target depends on.
+    \row
+        \li recurse
+        \li Specifies which sub-targets should be used when creating the rules
+            in the Makefile to call in the sub-target specific Makefile. This
+            member is used only when \c recursive is set in \c CONFIG. Typical
+            values are "Debug" and "Release".
+    \row
+        \li recurse_target
+        \li Specifies the target that should be built via the sub-target
+            Makefile for the rule in the Makefile. This member adds something
+            like \c {$(MAKE) -f Makefile.[subtarget] [recurse_target]}. This
+            member is used only when \c recursive is set in \c CONFIG.
+    \row
+        \li target
+        \li The name of the custom build target.
+    \endtable
+
+    \section1 Adding Compilers
+
+    It is possible to customize qmake to support new compilers and
+    preprocessors:
+
+    \snippet code/doc_src_qmake-manual.pro 88
+
+    With the above definitions, you can use a drop-in replacement for moc if one
+    is available. The command is executed on all arguments given to the
+    \c NEW_HEADERS variable (from the \c input member), and the result is written
+    to the file defined by the \c output member. This file is added to the
+    other source files in the project. Additionally, qmake will execute
+    \c depend_command to generate dependency information, and place this
+    information in the project as well.
+
+    Custom compiler specifications support the following members:
+
+    \table
+    \header
+        \li Member
+        \li Description
+    \row
+        \li commands
+        \li The commands used for for generating the output from the input.
+    \row
+        \li CONFIG
+        \li Specific configuration options for the custom compiler. See the
+            CONFIG table for details.
+    \row
+        \li depend_command
+        \li Specifies a command used to generate the list of dependencies for
+            the output.
+    \row
+        \li dependency_type
+        \li Specifies the type of file the output is. If it is a known type
+            (such as TYPE_C, TYPE_UI, TYPE_QRC), it is handled as one of those
+            type of files.
+    \row
+        \li depends
+        \li Specifies the dependencies of the output file.
+    \row
+        \li input
+        \li The variable that specifies the files that should be processed with
+            the custom compiler.
+    \row
+        \li name
+        \li A description of what the custom compiler is doing.  This is only
+            used in some backends.
+    \row
+        \li output
+        \li The filename that is created from the custom compiler.
+    \row
+        \li output_function
+        \li Specifies a custom qmake function that is used to specify the
+            filename to be created.
+    \row
+        \li variables
+        \li Indicates that the variables specified here are replaced with
+            $(QMAKE_COMP_VARNAME) when referred to in the pro file as
+            $(VARNAME).
+    \row
+        \li variable_out
+        \li The variable that the files created from the output should be added
+            to.
+    \endtable
+
+    The CONFIG member supports the following options:
+
+    \table
+    \header
+        \li Option
+        \li Description
+    \row
+        \li combine
+        \li Indicates that all of the input files are combined into a single
+            output file.
+    \row
+        \li target_predeps
+        \li Indicates that the output should be added to the list of
+            \l{PRE_TARGETDEPS}.
+    \row
+        \li explicit_dependencies
+        \li The dependencies for the output only get generated from the depends
+            member and from nowhere else.
+    \row
+        \li no_link
+        \li Indicates that the output should not be added to the list of objects
+            to be linked in.
+    \endtable
+
+    \target LibDepend
+    \section1 Library Dependencies
+
+    Often when linking against a library, qmake
+    relies on the underlying platform to know what other libraries this
+    library links against, and lets the platform pull them in. In many cases,
+    however, this is not sufficient. For example, when statically linking a
+    library, no other libraries are linked to, and therefore no dependencies
+    to those libraries are created. However, an application that later links
+    against this library will need to know where to find the symbols that
+    the static library will require. qmake attempts to keep track of the
+    dependencies of a library, where appropriate, if you explicitly enable
+    tracking.
+
+    The first step is to enable dependency tracking in the library itself.
+    To do this you must tell qmake to save information about the library:
+
+    \snippet code/doc_src_qmake-manual.pro 83
+
+    This is only relevant to the \c lib template, and will be ignored for all
+    others. When this option is enabled, qmake will create a file ending in .prl
+    which will save some meta-information about the library. This metafile is
+    just like an ordinary project file, but only contains internal variable
+    declarations. When installing this library, by specifying it as a target in
+    an \l{INSTALLS} declaration, qmake will automatically copy the .prl file to
+    the installation path.
+
+    The second step in this process is to enable reading of this meta
+    information in the applications that use the static library:
+
+    \snippet code/doc_src_qmake-manual.pro 84
+
+    When this is enabled, qmake will process all
+    libraries linked to by the application and find their meta-information.
+    qmake will use this to determine the relevant
+    linking information, specifically adding values to the application project
+    file's list of \l{DEFINES} as well as \l{LIBS}. Once
+    qmake has processed this file, it will then
+    look through the newly introduced libraries in the \c LIBS variable, and
+    find their dependent .prl files, continuing until all libraries have been
+    resolved. At this point, the Makefile is created as usual, and the
+    libraries are linked explicitly against the application.
+
+    The .prl files should be created by qmake only, and should not be
+    transferred between operating systems, as they may contain
+    platform-dependent information.
+*/
+
+/*!
+    \page qmake-precompiledheaders.html
+    \title Using Precompiled Headers
+    \contentspage {qmake Manual}{Contents}
+    \previouspage Advanced Usage
+    \nextpage Configuring qmake
+
+    \target Introduction
+
+    Precompiled headers (PCH) are a performance feature supported by some
+    compilers to compile a stable body of code, and store the compiled
+    state of the code in a binary file. During subsequent compilations,
+    the compiler will load the stored state, and continue compiling the
+    specified file. Each subsequent compilation is faster because the
+    stable code does not need to be recompiled.
+
+    qmake supports the use of precompiled headers
+    on some platforms and build environments, including:
+    \list
+    \li Windows
+        \list
+        \li nmake
+        \li Visual Studio projects (VS 2008 and later)
+        \endlist
+    \li Mac OS X
+        \list
+        \li Makefile
+        \li Xcode
+        \endlist
+    \li Unix
+        \list
+        \li GCC 3.4 and above
+        \endlist
+    \endlist
+
+    \target ADD_PCH
+    \section1 Adding Precompiled Headers to Your Project
+
+    The precompiled header must contain code which is \e stable
+    and \e static throughout your project. A typical precompiled header might
+    look like this:
+
+    \snippet code/doc_src_qmake-manual.cpp 104
+
+    \note A precompiled header file needs to separate C includes from
+    C++ includes, since the precompiled header file for C files may not
+    contain C++ code.
+
+    \target PROJECT_OPTIONS
+    \section2 Project Options
+
+    To make your project use precompiled headers, you only need to define the
+    \l{PRECOMPILED_HEADER} variable in your project file:
+
+    \snippet code/doc_src_qmake-manual.pro 105
+
+    qmake will handle the rest, to ensure the
+    creation and use of the precompiled header file. You do not need to
+    include the precompiled header file in \c HEADERS, as
+    qmake will do this if the configuration supports precompiled headers.
+
+    The MSVC and g++ specs targeting Windows (and Windows CE) enable
+    \c precompile_header by default.
+
+    Using this option, you may trigger
+    conditional blocks in your project file to add settings when using
+    precompiled headers.
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 106
+
+    \section1 Notes on Possible Issues
+
+    On some platforms, the file name suffix for precompiled header files is
+    the same as that for other object files. For example, the following
+    declarations may cause two different object files with the same name to
+    be generated:
+
+    \snippet code/doc_src_qmake-manual.pro 107
+
+    To avoid potential conflicts like these, give distinctive names to header
+    files that will be precompiled.
+
+    \target EXAMPLE_PROJECT
+    \section1 Example Project
+
+    You can find the following source code in the
+    \c{examples/qmake/precompile} directory in the Qt distribution:
+
+    \section2 \c mydialog.ui
+
+    The following image displays the mydialog.ui file in Qt Creator Design mode.
+    You can view the code in the Edit mode.
+
+    \image qmake-precompile-ui.png
+
+    \section2 \c stable.h
+
+    \snippet qmake/precompile-stable.h 0
+
+    \omit
+    ##Keeping the snippet in qtdoc is a workaround, because it contains code
+    that would tell qdoc to start a new page. Remove it and put the
+    following snippet back after modularizing the docs.
+    \snippet examples/qmake/precompile/stable.h 0
+    \endomit
+
+    \section2 \c myobject.h
+
+    \code
+    #include <QObject>
+
+    class MyObject : public QObject
+    {
+    public:
+        MyObject();
+        ~MyObject();
+    };
+    \endcode
+
+    \omit
+    ##Remove the code and put the snippets back after modularizing the docs.
+    \snippet examples/qmake/precompile/myobject.h 0
+    \endomit
+
+    \section2 \c myobject.cpp
+
+    \code
+    #include <iostream>
+    #include <QDebug>
+    #include <QObject>
+    #include "myobject.h"
+
+    MyObject::MyObject()
+        : QObject()
+    {
+        std::cout << "MyObject::MyObject()\n";
+    }
+    \endcode
+
+    \omit
+    \snippet examples/qmake/precompile/myobject.cpp 0
+    \endomit
+
+    \section2 \c util.cpp
+
+    \code
+    void util_function_does_nothing()
+    {
+        // Nothing here...
+        int x = 0;
+        ++x;
+    }
+    \endcode
+
+    \omit
+    \snippet examples/qmake/precompile/util.cpp 0
+    \endomit
+
+    \section2 \c main.cpp
+
+    \code
+    #include <QApplication>
+    #include <QPushButton>
+    #include <QLabel>
+    #include "myobject.h"
+    #include "mydialog.h"
+
+    int main(int argc, char **argv)
+    {
+        QApplication app(argc, argv);
+
+        MyObject obj;
+        MyDialog dialog;
+
+        dialog.connect(dialog.aButton, SIGNAL(clicked()), SLOT(close()));
+        dialog.show();
+
+        return app.exec();
+    }
+    \endcode
+
+    \omit
+    \snippet examples/qmake/precompile/main.cpp 0
+    \endomit
+
+    \section2 \c precompile.pro
+
+    \code
+    TEMPLATE  = app
+    LANGUAGE  = C++
+    CONFIG   += console precompile_header
+    CONFIG   -= app_bundle
+
+    # Use Precompiled headers (PCH)
+    PRECOMPILED_HEADER  = stable.h
+
+    HEADERS   = stable.h \
+                mydialog.h \
+                myobject.h
+    SOURCES   = main.cpp \
+                mydialog.cpp \
+                myobject.cpp \
+                util.cpp
+    FORMS     = mydialog.ui
+    \endcode
+
+    \omit
+    \snippet examples/qmake/precompile/precompile.pro 0
+    \endomit
+*/
+
+/*!
+    \target qmake-getting-started
+    \page qmake-tutorial.html
+    \title Getting Started
+    \contentspage {qmake Manual}{Contents}
+    \previouspage Overview
+    \nextpage Creating Project Files
+
+    This tutorial teaches you the basics of qmake. The other topics in this
+    manual contain more detailed information about using qmake.
+
+    \section1 Starting off Simple
+
+    Let's assume that you have just finished a basic implementation of
+    your application, and you have created the following files:
+
+    \list
+    \li hello.cpp
+    \li hello.h
+    \li main.cpp
+    \endlist
+
+    You will find these files in the \c{examples/qmake/tutorial} directory
+    of the Qt distribution. The only other thing you know about the setup of
+    the application is that it's written in Qt.  First, using your favorite
+    plain text editor, create a file called \c hello.pro in
+    \c{examples/qmake/tutorial}. The first thing you need to do is add the
+    lines that tell qmake about the source and
+    header files that are part of your development project.
+
+    We'll add the source files to the project file first.  To do this you
+    need to use the \l{SOURCES} variable.
+    Just start a new line with \c {SOURCES +=} and put hello.cpp after it.
+    You should have something like this:
+
+    \snippet code/doc_src_qmake-manual.pro 108
+
+    We repeat this for each source file in the project, until we end up
+    with the following:
+
+    \snippet code/doc_src_qmake-manual.pro 109
+
+    If you prefer to use a Make-like syntax, with all the files listed in
+    one go you can use the newline escaping like this:
+
+    \snippet code/doc_src_qmake-manual.pro 110
+
+    Now that the source files are listed in the project file, the header
+    files must be added. These are added in exactly the same way as source
+    files, except that the variable name we use is \l{HEADERS}.
+
+    Once you have done this, your project file should look something like
+    this:
+
+    \snippet code/doc_src_qmake-manual.pro 111
+
+    The target name is set automatically. It is the same as the project
+    filename, but with the suffix appropriate for the platform. For example, if
+    the project file is called \c hello.pro, the target will be \c hello.exe
+    on Windows and \c hello on Unix. If you want to use a different name
+    you can set it in the project file:
+
+    \snippet code/doc_src_qmake-manual.pro 112
+
+    The finished project file should look like this:
+
+    \snippet code/doc_src_qmake-manual.pro 113
+
+    You can now use qmake to generate a Makefile
+    for your application. On the command line, in your project directory,
+    type the following:
+
+    \snippet code/doc_src_qmake-manual.pro 114
+
+    Then type \c make or \c nmake depending on the compiler you use.
+
+    For Visual Studio users, qmake can also generate Visual Studio project
+    files. For example:
+
+    \snippet code/doc_src_qmake-manual.pro 115
+
+    \section1 Making an Application Debuggable
+
+    The release version of an application does not contain any debugging
+    symbols or other debugging information. During development, it is useful
+    to produce a debugging version of the application that has the
+    relevant information. This is easily achieved by adding \c debug to the
+    \l{CONFIG} variable in the project file.
+
+    For example:
+
+    \snippet code/doc_src_qmake-manual.pro 116
+
+    Use qmake as before to generate a Makefile. You will now obtain useful
+    information about your application when running it in a debugging
+    environment.
+
+    \section1 Adding Platform-Specific Source Files
+
+    After a few hours of coding, you might have made a start on the
+    platform-specific part of your application, and decided to keep the
+    platform-dependent code separate.  So you now have two new files to
+    include into your project file: \c hellowin.cpp and \c
+    hellounix.cpp.  We cannot just add these to the \c SOURCES
+    variable since that would place both files in the Makefile. So, what we
+    need to do here is to use a scope which will be processed depending on
+    which platform we are building for.
+
+    A simple scope that adds the platform-dependent file for
+    Windows looks like this:
+
+    \snippet code/doc_src_qmake-manual.pro 117
+
+    When building for Windows, qmake adds \c hellowin.cpp to the list of source
+    files. When building for any other platform, qmake simply ignores it. Now
+    all that is left to be done is to create a scope for the Unix-specific file.
+
+    When you have done that, your project file should look
+    something like this:
+
+    \snippet code/doc_src_qmake-manual.pro 118
+
+    Use qmake as before to generate a Makefile.
+
+    \section1 Stopping qmake If a File Does Not Exist
+
+    You may not want to create a Makefile if a certain file does not exist.
+    We can check if a file exists by using the \l{exists(filename)}{exists()}
+    function. We can stop qmake from processing by using the \l{error(string)}
+    {error()} function. This works in the same way as scopes do. Simply replace
+    the scope condition with the function. A check for a file called main.cpp looks
+    like this:
+
+    \snippet code/doc_src_qmake-manual.pro 119
+
+    The \c{!} symbol is used to negate the test. That is, \c{exists( main.cpp )}
+    is true if the file exists, and \c{!exists( main.cpp )} is true if the
+    file does not exist.
+
+    \snippet code/doc_src_qmake-manual.pro 120
+
+    Use qmake as before to generate a makefile.
+    If you rename \c main.cpp temporarily, you will see the message and
+    qmake will stop processing.
+
+    \section1 Checking for More than One Condition
+
+    Suppose you use Windows and you want to be able to see statement
+    output with \c {qDebug()} when you run your application on the command line.
+    To see the output, you must build your application with the appropriate
+    console setting. We can easily put \c console on the \c CONFIG
+    line to include this setting in the Makefile on Windows. However,
+    let's say that we only want to add the \c CONFIG line when we are running
+    on Windows \e and when \c debug is already on the \c CONFIG line.
+    This requires using two nested scopes. First create one scope, then create
+    the other inside it. Put the settings to be processed inside the second
+    scope, like this:
+
+    \snippet code/doc_src_qmake-manual.pro 121
+
+    Nested scopes can be joined together using colons, so the final
+    project file looks like this:
+
+    \snippet code/doc_src_qmake-manual.pro 122
+
+    That's it! You have now completed the tutorial for
+    qmake, and are ready to write project files for
+    your development projects.
+*/
+
+/*!
+    \page qmake-common-projects.html
+    \title Building Common Project Types
+    \contentspage {qmake Manual}{Contents}
+    \previouspage Creating Project Files
+    \nextpage Running qmake
+
+    This chapter describes how to set up qmake project files for three common
+    project types that are based on Qt: application, library, and plugin.
+    Although all project types use many of the same variables, each of
+    them uses project-specific variables to customize output files.
+
+    Platform-specific variables are not described here. For more information,
+    see  \l{Qt for Windows - Deployment} and \l{Qt for Mac OS X}.
+
+    \target Application
+    \section1 Building an Application
+
+    The \c app template tells qmake to generate a
+    Makefile that will build an application. With this template, the type of
+    application can be specified by adding one of the following options to the
+    \l{CONFIG} variable definition:
+
+    \table
+    \header \li Option  \li Description
+    \row    \li windows \li The application is a Windows GUI application.
+    \row    \li console \li \c app template only: the application is a Windows console
+                       application.
+    \row    \li testcase \li The application is \l{Building a Testcase}{an automated test}.
+    \endtable
+
+    When using this template, the following qmake
+    system variables are recognized. You should use these in your .pro file to
+    specify information about your application.
+
+    \list
+    \li \l{HEADERS} - A list of header files for the application.
+    \li \l{SOURCES} - A list of C++ source files for the application.
+    \li \l{FORMS} - A list of UI files for the application (created using
+        Qt Designer).
+    \li \l{LEXSOURCES} - A list of Lex source files for the application.
+    \li \l{YACCSOURCES} - A list of Yacc source files for the
+        application.
+    \li \l{TARGET} - Name of the executable for the application. This defaults
+    to the name of the project file. (The extension, if any, is added
+    automatically).
+    \li \l{DESTDIR} - The directory in which the target executable is placed.
+    \li \l{DEFINES} - A list of any additional pre-processor defines needed for
+        the application.
+    \li \l{INCLUDEPATH} - A list of any additional include paths needed for the
+        application.
+    \li \l{DEPENDPATH} - The dependency search path for the application.
+    \li \l{VPATH} - The search path to find supplied files.
+    \li \l{DEF_FILE} - Windows only: A .def file to be linked against for the
+        application.
+    \li \l{RC_FILE} - Windows only: A resource file for the application.
+    \li \l{RES_FILE} - Windows only: A resource file to be linked against for
+        the application.
+    \endlist
+
+    You only need to use the system variables that you have values for. For
+    example, if you do not have any extra INCLUDEPATHs then you do not need
+    to specify any. qmake will add the necessary default values.
+    An example project file might look like this:
+
+    \snippet code/doc_src_qmake-manual.pro 123
+
+    For items that are single valued, such as the template or the destination
+    directory, we use "="; but for multi-valued items we use "+=" to \e
+    add to the existing items of that type. Using "=" replaces the variable
+    value with the new value. For example, if we write \c{DEFINES=USE_MY_STUFF},
+    all other definitions are deleted.
+
+    \section1 Building a Testcase
+
+    A testcase project is an \c app project intended to be run as an automated
+    test. Any \c app may be marked as a testcase by adding the value \c testcase
+    to the \c CONFIG variable.
+
+    For testcase projects, qmake will insert a \c check
+    target into the generated Makefile. This target will run the application.
+    The test is considered to pass if it terminates with an exit code equal to zero.
+
+    The \c check target automatically recurses through
+    \l{SUBDIRS} projects. This means it is
+    possible to issue a \c{make check} command from within a SUBDIRS project
+    to run an entire test suite.
+
+    The execution of the \c check target may be customized by certain Makefile
+    variables. These variables are:
+
+    \table
+    \header
+        \li Variable
+        \li Description
+    \row
+        \li TESTRUNNER
+        \li A command or shell fragment prepended to each test command. An example
+            use-case is a "timeout" script which will terminate a test if it does not
+            complete within a specified time.
+    \row
+        \li TESTARGS
+        \li Additional arguments appended to each test command. For example, it may
+            be useful to pass additional arguments to set the output file and format
+            from the test (such as the \c{-o filename,format} option supported by
+            \l{QTestLib}).
+    \endtable
+
+    \note The variables must be set while invoking the \c make tool, not in the
+    .pro file. Most \c make tools support the setting of Makefile variables directly
+    on the command-line:
+
+    \code
+        # Run tests through test-wrapper and use xunitxml output format.
+        # In this example, test-wrapper is a fictional wrapper script which terminates
+        # a test if it does not complete within the amount of seconds set by "--timeout".
+        # The "-o result.xml,xunitxml" options are interpreted by QTestLib.
+        make check TESTRUNNER="test-wrapper --timeout 120" TESTARGS="-o result.xml,xunitxml"
+    \endcode
+
+    Testcase projects may be further customized with the following \c CONFIG options:
+
+    \table
+    \header
+        \li Option
+        \li Description
+    \row
+        \li insignificant_test
+        \li The exit code of the test will be ignored during \c{make check}.
+    \endtable
+
+    Testcases will often be written with \l{QTest} or \l{TestCase}, but
+    that is not a requirement to make use of \c{CONFIG+=testcase} and \c{make check}.
+    The only primary requirement is that the test program exit with a zero exit code
+    on success, and a non-zero exit code on failure.
+
+    \target Library
+    \section1 Building a Library
+
+    The \c lib template tells qmake to generate a Makefile that will build a
+    library.  When using this template, the \l{VERSION} variable is supported,
+    in addition to the system variables that the \c app template supports. Use
+    the variables in your .pro file to specify information about the library.
+
+    When using the \c lib template, the following options can be added to the
+    \l{CONFIG} variable to determine the type of library that is built:
+
+    \table
+    \header \li Option    \li Description
+    \row    \li dll       \li The library is a shared library (dll).
+    \row    \li staticlib \li The library is a static library.
+    \row    \li plugin    \li The library is a plugin.
+    \endtable
+
+    The following option can also be defined to provide additional information about
+    the library.
+
+    \list
+    \li VERSION - The version number of the target library. For example, 2.3.1.
+    \endlist
+
+    The target file name for the library is platform-dependent. For example, on
+    X11 and Mac OS X, the library name will be prefixed by \c lib. On Windows,
+    no prefix is added to the file name.
+
+    \target Plugin
+    \section1 Building a Plugin
+
+    Plugins are built using the \c lib template, as described in the previous
+    section. This tells qmake to generate a
+    Makefile for the project that will build a plugin in a suitable form for
+    each platform, usually in the form of a library. As with ordinary
+    libraries, the \l{VERSION} variable is used to specify information about the
+    plugin.
+
+    \list
+    \li VERSION - The version number of the target library. For example, 2.3.1.
+    \endlist
+
+    \section2 Building a Qt Designer Plugin
+
+    \QD plugins are built using a specific set of configuration settings that
+    depend on the way Qt was configured for your system. For convenience, these
+    settings can be enabled by adding \c designer to the \l{Variables#QT}{QT}
+    variable. For example:
+
+    \code
+    QT          += widgets designer
+    \endcode
+
+    See the \l{Qt Designer Examples} for more examples of plugin-based projects.
+
+    \section1 Building and Installing in Debug and Release Modes
+
+    Sometimes, it is necessary to build a project in both debug and release
+    modes. Although the \l{CONFIG} variable can hold both \c debug and \c release
+    options, only the option that is specified last is applied.
+
+    \section2 Building in Both Modes
+
+    To enable a project to be built in both modes, you must add the
+    \c debug_and_release option to the \c CONFIG variable:
+
+    \snippet qmake/debug_and_release.pro 0
+    \snippet qmake/debug_and_release.pro 1
+
+    The scope in the above snippet modifies the build target in each mode to
+    ensure that the resulting targets have different names. Providing different
+    names for targets ensures that one will not overwrite the other.
+
+    When qmake processes the project file, it will
+    generate a Makefile rule to allow the project to be built in both modes.
+    This can be invoked in the following way:
+
+    \snippet code/doc_src_qmake-manual.pro 124
+
+    The \c build_all option can be added to the \c CONFIG variable in the
+    project file to ensure that the project is built in both modes by default:
+
+    \snippet qmake/debug_and_release.pro 2
+
+    This allows the Makefile to be processed using the default rule:
+
+    \snippet code/doc_src_qmake-manual.pro 125
+
+    \section2 Installing in Both Modes
+
+    The \c build_all option also ensures that both versions of the target
+    will be installed when the installation rule is invoked:
+
+    \snippet code/doc_src_qmake-manual.pro 126
+
+    It is possible to customize the names of the build targets depending on
+    the target platform. For example, a library or plugin may be named using a
+    different convention on Windows from the one used on Unix platforms:
+
+    \omit
+    Note: This was originally used in the customwidgetplugin.pro file, but is
+    no longer needed there.
+    \endomit
+    \snippet code/doc_src_qmake-manual.pro 127
+
+    The default behavior in the above snippet is to modify the name used for
+    the build target when building in debug mode. An \c else clause could be
+    added to the scope to do the same for release mode. Left as it is, the
+    target name remains unmodified.
+*/

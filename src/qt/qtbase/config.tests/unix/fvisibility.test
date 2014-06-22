@@ -1,0 +1,74 @@
+#!/bin/sh
+
+FVISIBILITY_SUPPORT=no
+COMPILER=$1
+VERBOSE=$2
+
+CMDLINE=
+
+
+RunCompileTest() {
+    cat >>fvisibility.c << EOF
+#if defined(__GNUC__)
+#   if (__GNUC__ < 4)
+#      error "GCC3 with backported visibility patch is known to miscompile Qt"
+#   endif
+__attribute((visibility("default"))) void blah();
+#elif defined(__SUNPRO_CC)
+#   if (__SUNPRO_CC < 0x0550)
+#      error "SunStudio 8 or later is required for ELF visibility"
+#   endif
+__global void blah();
+#else
+#   error "GCC4+ or SunStudio 8+ are required to support ELF visibility"
+#endif
+EOF
+
+    if [ "$VERBOSE" = "yes" ] ; then
+        echo $COMPILER -c $CMDLINE fvisibility.c
+        $COMPILER -c $CMDLINE fvisibility.c && FVISIBILITY_SUPPORT=yes
+    else
+        $COMPILER -c $CMDLINE fvisibility.c >/dev/null 2>&1 && FVISIBILITY_SUPPORT=yes
+    fi
+    rm -f fvisibility.c fvisibility.o
+}
+
+
+case "$COMPILER" in
+*g++*|*c++*|*qcc*)
+    CMDLINE="-fvisibility=hidden"
+    RunCompileTest
+   ;;
+
+aCC*)
+    ;;
+
+icpc)
+    ICPC_VERSION=`icpc -dumpversion`
+    case "$ICPC_VERSION" in
+    8.*|9.*|10.0)
+        # 8.x, 9.x, and 10.0 don't support symbol visibility
+        ;;
+    *)
+        # the compile test works for the intel compiler because it mimics gcc's behavior
+        CMDLINE="-fvisibility=hidden"
+        RunCompileTest
+        ;;
+    esac
+    ;;
+
+CC)
+   # This should be SunStudio.  If not, it'll get caught.
+   CMDLINE="-xldscope=hidden"
+   RunCompileTest
+   ;;
+esac
+
+# done
+if [ "$FVISIBILITY_SUPPORT" != "yes" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "Symbol visibility control disabled."
+    exit 0
+else
+    [ "$VERBOSE" = "yes" ] && echo "Symbol visibility control enabled."
+    exit 1
+fi

@@ -35,12 +35,12 @@
 #define GOOGLE_BREAKPAD_PROCESSOR_SOURCE_LINE_RESOLVER_INTERFACE_H__
 
 #include <string>
+
+#include "common/using_std_string.h"
 #include "google_breakpad/common/breakpad_types.h"
 #include "google_breakpad/processor/code_module.h"
 
 namespace google_breakpad {
-
-using std::string;
 
 struct StackFrame;
 struct WindowsFrameInfo;
@@ -48,7 +48,7 @@ class CFIFrameInfo;
 
 class SourceLineResolverInterface {
  public:
-  typedef u_int64_t MemAddr;
+  typedef uint64_t MemAddr;
 
   virtual ~SourceLineResolverInterface() {}
 
@@ -64,12 +64,15 @@ class SourceLineResolverInterface {
   virtual bool LoadModuleUsingMapBuffer(const CodeModule *module,
                                         const string &map_buffer) = 0;
 
-  // Add an interface to load symbol using C-String data insteading string.
+  // Add an interface to load symbol using C-String data instead of string.
   // This is useful in the optimization design for avoiding unnecessary copying
   // of symbol data, in order to improve memory efficiency.
   // LoadModuleUsingMemoryBuffer() does NOT take ownership of memory_buffer.
+  // LoadModuleUsingMemoryBuffer() null terminates the passed in buffer, if
+  // the last character is not a null terminator.
   virtual bool LoadModuleUsingMemoryBuffer(const CodeModule *module,
-                                           char *memory_buffer) = 0;
+                                           char *memory_buffer,
+                                           size_t memory_buffer_size) = 0;
 
   // Return true if the memory buffer should be deleted immediately after
   // LoadModuleUsingMemoryBuffer(). Return false if the memory buffer has to be
@@ -82,6 +85,9 @@ class SourceLineResolverInterface {
 
   // Returns true if the module has been loaded.
   virtual bool HasModule(const CodeModule *module) = 0;
+
+  // Returns true if the module has been loaded and it is corrupt.
+  virtual bool IsModuleCorrupt(const CodeModule *module) = 0;
 
   // Fills in the function_base, function_name, source_file_name,
   // and source_line fields of the StackFrame.  The instruction and

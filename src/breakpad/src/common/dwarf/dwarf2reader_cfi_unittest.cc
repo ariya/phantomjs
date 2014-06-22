@@ -62,6 +62,7 @@ extern "C" {
 #include "common/dwarf/bytereader-inl.h"
 #include "common/dwarf/cfi_assembler.h"
 #include "common/dwarf/dwarf2reader.h"
+#include "common/using_std_string.h"
 #include "google_breakpad/common/breakpad_types.h"
 
 using google_breakpad::CFISection;
@@ -76,7 +77,6 @@ using dwarf2reader::ENDIANNESS_LITTLE;
 using dwarf2reader::ByteReader;
 using dwarf2reader::CallFrameInfo;
 
-using std::string;
 using std::vector;
 using testing::InSequence;
 using testing::Return;
@@ -2326,14 +2326,14 @@ struct ELFSectionHeader {
         alignment(1), entry_size(0) { }
   Label name;
   unsigned int type;
-  u_int64_t flags;
-  u_int64_t address;
+  uint64_t flags;
+  uint64_t address;
   Label file_offset;
   Label file_size;
   unsigned int link;
   unsigned int info;
-  u_int64_t alignment;
-  u_int64_t entry_size;
+  uint64_t alignment;
+  uint64_t entry_size;
 };
 
 void AppendSectionHeader(CFISection *table, const ELFSectionHeader &header) {

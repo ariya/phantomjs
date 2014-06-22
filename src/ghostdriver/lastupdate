@@ -1,7 +1,20 @@
-2014-01-12 21:02:05
+2014-06-19 22:46:10
 
-commit 24452f72b6daa0a8ba14822172012d781c89fbcb (HEAD, tag: refs/tags/1.1.1, refs/heads/master)
+commit 6c918e230cc98a7bce75e652c020c55cc3e0dd23 (HEAD, refs/remotes/origin/master, refs/remotes/origin/HEAD, refs/heads/master)
 Author: Ivan De Marino <detronizator@gmail.com>
-Date:   Sun Jan 12 20:37:01 2014 +0000
+Date:   Tue Jun 10 23:34:43 2014 +0100
 
-    Changing only the Driver (no need for the Java Bindings) to 1.1.1
+    Return Selenium own Java Exception on Failed Cmd.
+    
+    Selenium server assumes that in the JSON response
+    of a failed command, the “class” field returns the
+    fully qualified name of the Java Exception the
+    Server is supposed to map the error to.
+    
+    A very “cavalier” behaviour that I have changed
+    in Selenium (see https://code.google.com/p/selenium/source/detail?r=4959695b2267deb16d829290d47c73e829c59422).
+    But, in the meantime, I decide I’d make GhostDriver
+    comply: so far I haven’t really used that field
+    to report anything useful, so it’s OK to change.
+    
+    Fixes #354.

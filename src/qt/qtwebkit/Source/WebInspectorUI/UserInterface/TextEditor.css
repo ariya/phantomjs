@@ -1,0 +1,164 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.text-editor {
+    position: relative;
+
+    overflow: hidden;
+}
+
+.text-editor > .CodeMirror {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    height: auto;
+}
+
+.text-editor > .CodeMirror .has-breakpoint:not(.breakpoint-disabled) .CodeMirror-linenumber {
+    color: white;
+}
+
+.text-editor > .CodeMirror .has-breakpoint.multiple-breakpoints .CodeMirror-linenumber {
+    color: transparent;
+}
+
+.text-editor > .CodeMirror .has-breakpoint .CodeMirror-linenumber::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: -7px;
+
+    content: "";
+
+    z-index: -2;
+
+    border-image-source: -webkit-image-set(url(Images/BreakpointInactive.png) 1x, url(Images/BreakpointInactive@2x.png) 2x);
+    border-image-slice: 3 7 3 3 fill;
+    border-width: 3px 7px 3px 3px;
+}
+
+.text-editor > .CodeMirror .breakpoint-resolved .CodeMirror-linenumber::before {
+    border-image-source: -webkit-image-set(url(Images/Breakpoint.png) 1x, url(Images/Breakpoint@2x.png) 2x);
+}
+
+.text-editor > .CodeMirror .breakpoint-disabled .CodeMirror-linenumber::before {
+    opacity: 0.35;
+}
+
+.text-editor > .CodeMirror .has-breakpoint.multiple-breakpoints .CodeMirror-linenumber::before {
+    content: "•••";
+    color: white;
+    line-height: 6px;
+    text-align: center;
+    text-indent: -1px;
+}
+
+.text-editor > .CodeMirror .execution-line .CodeMirror-linenumber::after {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: -9px;
+    width: 9px;
+
+    content: "";
+
+    z-index: -1;
+
+    background-image: -webkit-image-set(url(Images/InstructionPointer.png) 1x, url(Images/InstructionPointer@2x.png) 2x);
+    background-size: 9px 100%;
+    background-repeat: no-repeat;
+}
+
+.text-editor > .CodeMirror .execution-line {
+    background-color: rgb(217, 234, 208) !important;
+}
+
+.text-editor .bouncy-highlight {
+    position: absolute;
+    z-index: 100;
+
+    box-shadow: inset rgb(250, 232, 140) 0 -1px 0, rgba(211, 197, 96, 1) 0 1px 1px, rgba(0, 0, 0, 0.33) 0 1px 2px 1px;
+    text-shadow: white 0 0 2px;
+
+    background: -webkit-linear-gradient(top, rgb(250, 237, 108), rgb(242, 220, 100));
+    border-radius: 7px;
+
+    padding: 2px 4px;
+    margin-top: -2px;
+    margin-left: -4px;
+
+    -webkit-user-select: none;
+    pointer-events: none;
+
+    -webkit-animation-name: text-editor-bouncy;
+    -webkit-animation-duration: 750ms;
+    -webkit-animation-timing-function: ease-in-out;
+
+    opacity: 0;
+}
+
+@-webkit-keyframes text-editor-bouncy {
+    0% {
+        -webkit-transform: scale(1);
+        opacity: 1;
+    }
+
+    12.5% {
+        -webkit-transform: scale(1.25);
+    }
+
+    25% {
+        -webkit-transform: scale(1);
+    }
+
+    62.5% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+.text-editor > .CodeMirror .highlighted {
+    -webkit-animation: "text-editor-highlight-fadeout" 2s;
+}
+
+@-webkit-keyframes text-editor-highlight-fadeout {
+    from { background-color: highlight; }
+}
+
+.text-editor > .CodeMirror .hovered-expression-highlight {
+    -webkit-animation: "text-editor-hovered-expression-highlight-fadeout" 2s;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+@-webkit-keyframes text-editor-hovered-expression-highlight-fadeout {
+    from { background-color: highlight; }
+    to { background-color: rgba(0, 0, 0, 0.1); }
+}

@@ -34,6 +34,8 @@
 
 #include <string>
 #include <vector>
+
+#include "common/using_std_string.h"
 #include "google_breakpad/common/breakpad_types.h"
 
 namespace google_breakpad {
@@ -42,24 +44,24 @@ using std::vector;
 
 // Convert |in| to UTF-16 into |out|.  Use platform byte ordering.  If the
 // conversion failed, |out| will be zero length.
-void UTF8ToUTF16(const char *in, vector<u_int16_t> *out);
+void UTF8ToUTF16(const char *in, vector<uint16_t> *out);
 
 // Convert at least one character (up to a maximum of |in_length|) from |in|
 // to UTF-16 into |out|.  Return the number of characters consumed from |in|.
 // Any unused characters in |out| will be initialized to 0.  No memory will
 // be allocated by this routine.
-int UTF8ToUTF16Char(const char *in, int in_length, u_int16_t out[2]);
+int UTF8ToUTF16Char(const char *in, int in_length, uint16_t out[2]);
 
 // Convert |in| to UTF-16 into |out|.  Use platform byte ordering.  If the
 // conversion failed, |out| will be zero length.
-void UTF32ToUTF16(const wchar_t *in, vector<u_int16_t> *out);
+void UTF32ToUTF16(const wchar_t *in, vector<uint16_t> *out);
 
 // Convert |in| to UTF-16 into |out|.  Any unused characters in |out| will be
 // initialized to 0.  No memory will be allocated by this routine.
-void UTF32ToUTF16Char(wchar_t in, u_int16_t out[2]);
+void UTF32ToUTF16Char(wchar_t in, uint16_t out[2]);
 
 // Convert |in| to UTF-8.  If |swap| is true, swap bytes before converting.
-std::string UTF16ToUTF8(const vector<u_int16_t> &in, bool swap);
+string UTF16ToUTF8(const vector<uint16_t> &in, bool swap);
 
 }  // namespace google_breakpad
 

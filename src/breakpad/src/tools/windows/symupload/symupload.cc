@@ -153,33 +153,31 @@ static bool DumpSymbolsToTempFile(const wchar_t *file,
   return writer.GetModuleInfo(pdb_info);
 }
 
-void printUsageAndExit() {
-  wprintf(L"Usage: symupload [--timeout NN] <file.exe|file.dll> <symbol upload URL>\n\n");
+__declspec(noreturn) void printUsageAndExit() {
+  wprintf(L"Usage: symupload [--timeout NN] <file.exe|file.dll> "
+      L"<symbol upload URL> [...<symbol upload URLs>]\n\n");
   wprintf(L"Timeout is in milliseconds, or can be 0 to be unlimited\n\n");
-  wprintf(L"Example:\n\n\tsymupload.exe --timeout 0 chrome.dll http://no.free.symbol.server.for.you\n");
+  wprintf(L"Example:\n\n\tsymupload.exe --timeout 0 chrome.dll "
+      L"http://no.free.symbol.server.for.you\n");
   exit(0);
 }
 int wmain(int argc, wchar_t *argv[]) {
-  if ((argc != 3) &&
-      (argc != 5)) {
+  const wchar_t *module;
+  int timeout = -1;
+  int currentarg = 1;
+  if (argc > 2) {
+    if (!wcscmp(L"--timeout", argv[1])) {
+      timeout = _wtoi(argv[2]);
+      currentarg = 3;
+    }
+  } else {
     printUsageAndExit();
   }
 
-  const wchar_t *module, *url;
-  int timeout = -1;
-  if (argc == 3) {
-    module = argv[1];
-    url = argv[2];
-  } else {
-    // check for timeout flag
-    if (!wcscmp(L"--timeout", argv[1])) {
-      timeout  = _wtoi(argv[2]);
-      module = argv[3];
-      url = argv[4];
-    } else {
-      printUsageAndExit();
-    }
-  }
+  if (argc >= currentarg + 2)
+    module = argv[currentarg++];
+  else
+    printUsageAndExit();
 
   wstring symbol_file;
   PDBModuleInfo pdb_info;
@@ -206,20 +204,27 @@ int wmain(int argc, wchar_t *argv[]) {
     fwprintf(stderr, L"Warning: Could not get file version for %s\n", module);
   }
 
-  bool success = HTTPUpload::SendRequest(url, parameters,
-                                         symbol_file, L"symbol_file",
-										 timeout == -1 ? NULL : &timeout,
-                                         NULL, NULL);
-  _wunlink(symbol_file.c_str());
+  bool success = true;
 
-  if (!success) {
-    fwprintf(stderr, L"Symbol file upload failed\n");
-    return 1;
+  while (currentarg < argc) {
+    if (!HTTPUpload::SendRequest(argv[currentarg], parameters,
+                                 symbol_file, L"symbol_file",
+                                 timeout == -1 ? NULL : &timeout,
+                                 NULL, NULL)) {
+      success = false;
+      fwprintf(stderr, L"Symbol file upload to %s failed\n", argv[currentarg]);
+    }
+    currentarg++;
   }
 
-  wprintf(L"Uploaded symbols for windows-%s/%s/%s (%s %s)\n",
-          pdb_info.cpu.c_str(), pdb_info.debug_file.c_str(),
-          pdb_info.debug_identifier.c_str(), code_file.c_str(),
-          file_version.c_str());
-  return 0;
+  _wunlink(symbol_file.c_str());
+
+  if (success) {
+    wprintf(L"Uploaded symbols for windows-%s/%s/%s (%s %s)\n",
+            pdb_info.cpu.c_str(), pdb_info.debug_file.c_str(),
+            pdb_info.debug_identifier.c_str(), code_file.c_str(),
+            file_version.c_str());
+  }
+
+  return success ? 0 : 1;
 }

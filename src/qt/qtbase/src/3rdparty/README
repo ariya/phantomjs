@@ -1,0 +1,17 @@
+The libraries included here are the original packages, unpacked, and
+with their version number removed from the directory name (for version
+information, see the README files in the directories).
+
+Certain files and subdirectories of the original library packages that
+are irrelevant to Qt may not be included here. Typically, those are
+the standalone library configuration and make files, tools, test
+files, contribs, documentation, and similar.
+
+Patches may have been applied, typically for configuration and build
+issues in the Qt framework. Such patches can be reviewed in the the
+public git repository; they will appear in the commit logs of each
+library directory, following the latest clean version update commit.
+
+The 'patches' subdirectory contains certain patches applied prior to
+the start of the public git history, where the library has not been
+updated since.

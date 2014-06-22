@@ -41,6 +41,7 @@
 #include "common/dwarf/bytereader-inl.h"
 #include "common/dwarf/dwarf2reader_test_common.h"
 #include "common/dwarf/dwarf2reader.h"
+#include "common/using_std_string.h"
 #include "google_breakpad/common/breakpad_types.h"
 
 using google_breakpad::test_assembler::Endianness;
@@ -49,7 +50,6 @@ using google_breakpad::test_assembler::Section;
 using google_breakpad::test_assembler::kBigEndian;
 using google_breakpad::test_assembler::kLittleEndian;
 
-using dwarf2reader::AttributeList;
 using dwarf2reader::ByteReader;
 using dwarf2reader::CompilationUnit;
 using dwarf2reader::Dwarf2Handler;
@@ -61,7 +61,6 @@ using dwarf2reader::ENDIANNESS_BIG;
 using dwarf2reader::ENDIANNESS_LITTLE;
 using dwarf2reader::SectionMap;
 
-using std::string;
 using std::vector;
 using testing::InSequence;
 using testing::Pointee;
@@ -76,8 +75,7 @@ class MockDwarf2Handler: public Dwarf2Handler {
   MOCK_METHOD5(StartCompilationUnit, bool(uint64 offset, uint8 address_size,
                                           uint8 offset_size, uint64 cu_length,
                                           uint8 dwarf_version));
-  MOCK_METHOD3(StartDIE, bool(uint64 offset, enum DwarfTag tag,
-                              const AttributeList& attrs));
+  MOCK_METHOD2(StartDIE, bool(uint64 offset, enum DwarfTag tag));
   MOCK_METHOD4(ProcessAttributeUnsigned, void(uint64 offset,
                                               DwarfAttribute attr,
                                               enum DwarfForm form,
@@ -98,7 +96,7 @@ class MockDwarf2Handler: public Dwarf2Handler {
   MOCK_METHOD4(ProcessAttributeString, void(uint64 offset,
                                             enum DwarfAttribute attr,
                                             enum DwarfForm form,
-                                            const std::string& data));
+                                            const string& data));
   MOCK_METHOD4(ProcessAttributeSignature, void(uint64 offset,
                                                DwarfAttribute attr,
                                                enum DwarfForm form,
@@ -115,7 +113,7 @@ struct DIEFixture {
 
     // Default expectations for the data handler.
     EXPECT_CALL(handler, StartCompilationUnit(_, _, _, _, _)).Times(0);
-    EXPECT_CALL(handler, StartDIE(_, _, _)).Times(0);
+    EXPECT_CALL(handler, StartDIE(_, _)).Times(0);
     EXPECT_CALL(handler, ProcessAttributeUnsigned(_, _, _, _)).Times(0);
     EXPECT_CALL(handler, ProcessAttributeSigned(_, _, _, _)).Times(0);
     EXPECT_CALL(handler, ProcessAttributeReference(_, _, _, _)).Times(0);
@@ -186,7 +184,7 @@ TEST_P(DwarfHeader, Header) {
                                      GetParam().format_size, _,
                                      GetParam().version))
         .WillOnce(Return(true));
-    EXPECT_CALL(handler, StartDIE(_, dwarf2reader::DW_TAG_compile_unit, _))
+    EXPECT_CALL(handler, StartDIE(_, dwarf2reader::DW_TAG_compile_unit))
         .WillOnce(Return(true));
     EXPECT_CALL(handler, ProcessAttributeString(_, dwarf2reader::DW_AT_name, 
                                                 dwarf2reader::DW_FORM_string,
@@ -262,7 +260,7 @@ struct DwarfFormsFixture: public DIEFixture {
                                      params.version))
         .InSequence(s)
         .WillOnce(Return(true));
-    EXPECT_CALL(handler, StartDIE(_, tag, _))
+    EXPECT_CALL(handler, StartDIE(_, tag))
         .InSequence(s)
         .WillOnce(Return(true));
   }
@@ -291,7 +289,7 @@ TEST_P(DwarfForms, addr) {
   StartSingleAttributeDIE(GetParam(), dwarf2reader::DW_TAG_compile_unit,
                           dwarf2reader::DW_AT_low_pc,
                           dwarf2reader::DW_FORM_addr);
-  u_int64_t value;
+  uint64_t value;
   if (GetParam().address_size == 4) {
     value = 0xc8e9ffcc;
     info.D32(value);
@@ -374,7 +372,7 @@ TEST_P(DwarfForms, sec_offset) {
   StartSingleAttributeDIE(GetParam(), (DwarfTag) 0x1d971689,
                           (DwarfAttribute) 0xa060bfd1,
                           dwarf2reader::DW_FORM_sec_offset);
-  u_int64_t value;
+  uint64_t value;
   if (GetParam().format_size == 4) {
     value = 0xacc9c388;
     info.D32(value);

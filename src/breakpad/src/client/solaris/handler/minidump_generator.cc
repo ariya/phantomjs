@@ -455,7 +455,7 @@ bool WriteCVRecord(MinidumpFileWriter *minidump_writer,
   snprintf(path, sizeof(path), "/proc/self/object/%s", module_name);
 
   size_t module_name_length = strlen(realname);
-  if (!cv.AllocateObjectAndArray(module_name_length + 1, sizeof(u_int8_t)))
+  if (!cv.AllocateObjectAndArray(module_name_length + 1, sizeof(uint8_t)))
     return false;
   if (!cv.CopyIndexAfterObject(0, realname, module_name_length))
     return false;
@@ -522,7 +522,7 @@ bool ModuleInfoCallback(const ModuleInfo &module_info, void *context) {
   if (!callback_context->minidump_writer->WriteString(realname, 0, &loc))
     return false;
 
-  module.base_of_image = (u_int64_t)module_info.start_addr;
+  module.base_of_image = (uint64_t)module_info.start_addr;
   module.size_of_image = module_info.size;
   module.module_name_rva = loc.rva;
 

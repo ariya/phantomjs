@@ -1,0 +1,112 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
+ * Copyright (C) 2009 Anthony Ricaud <rik@webkit.org>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1.  Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ * 2.  Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ * 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+ *     its contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.sidebar-pane > .body .breakpoint-condition {
+    display: block;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    margin-left: 23px;
+    margin-right: 8px;
+}
+
+#breakpoint-condition-input {
+    display: block;
+    margin-left: 0;
+    margin-right: 0;
+    outline: none !important;
+    border: 1px solid rgb(66%, 66%, 66%);
+}
+
+ol.breakpoint-list {
+    -webkit-padding-start: 0;
+    list-style: none;
+    margin: 0;
+}
+
+.breakpoints-list-deactivated {
+    background-color: rgb(245, 245, 245);
+    opacity: 0.3;
+}
+
+.breakpoint-list li {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    padding: 2px 0;
+    color: black;
+}
+
+.breakpoint-list li:hover {
+    background-color: rgba(56, 121, 217, 0.2);
+}
+
+.breakpoint-list .checkbox-elem {
+    font-size: 10px;
+    margin: 0 4px;
+    vertical-align: top;
+    position: relative;
+    z-index: 1;
+}
+
+.breakpoint-list .source-text {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    margin: 2px 0 0px 20px;
+}
+
+.sidebar-pane .breakpoint-hit {
+    background-color: rgb(255, 255, 194);
+}
+
+li.breakpoint-hit .breakpoint-hit-marker {
+    background-color: rgb(255, 255, 194);
+    height: 18px;
+    left: 0px;
+    margin-top: -16px;
+    position: absolute;
+    right: 0px;
+    z-index: -1;
+}
+
+.event-listener-breakpoints .event-category {
+    padding-top: 2px;
+}
+
+.event-listener-breakpoints.properties-tree .children li {
+    margin-left: 12px;
+    height: 16px;
+}
+
+.event-listener-breakpoints .checkbox-elem {
+    float: left;
+    top: -2px;
+    position: relative;
+    left: -1px;
+}

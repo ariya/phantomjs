@@ -1,15 +1,11 @@
-#!/usr/bin/python2.4
-
-# Copyright (c) 2009 Google Inc. All rights reserved.
+# Copyright (c) 2012 Google Inc. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
 """Visual Studio project reader/writer."""
 
-import common
-import xml.dom
-import xml.dom.minidom
-import MSVSNew
+import gyp.common
+import gyp.easy_xml as easy_xml
 
 #------------------------------------------------------------------------------
 
@@ -24,24 +20,16 @@ class Tool(object):
       name: Tool name.
       attrs: Dict of tool attributes; may be None.
     """
-    self.name = name
-    self.attrs = attrs or {}
+    self._attrs = attrs or {}
+    self._attrs['Name'] = name
 
-  def CreateElement(self, doc):
+  def _GetSpecification(self):
     """Creates an element for the tool.
-
-    Args:
-      doc: xml.dom.Document object to use for node creation.
 
     Returns:
       A new xml.dom.Element for the tool.
     """
-    node = doc.createElement('Tool')
-    node.setAttribute('Name', self.name)
-    for k, v in self.attrs.items():
-      node.setAttribute(k, v)
-    return node
-
+    return ['Tool', self._attrs]
 
 class Filter(object):
   """Visual Studio filter - that is, a virtual folder."""
@@ -63,71 +51,35 @@ class Filter(object):
 class Writer(object):
   """Visual Studio XML project writer."""
 
-  def __init__(self, project_path, version):
+  def __init__(self, project_path, version, name, guid=None, platforms=None):
     """Initializes the project.
 
     Args:
       project_path: Path to the project file.
       version: Format version to emit.
-    """
-    self.project_path = project_path
-    self.doc = None
-    self.version = version
-
-  def Create(self, name, guid=None, platforms=None):
-    """Creates the project document.
-
-    Args:
       name: Name of the project.
       guid: GUID to use for project, if not None.
+      platforms: Array of string, the supported platforms.  If null, ['Win32']
     """
+    self.project_path = project_path
+    self.version = version
     self.name = name
-    self.guid = guid or MSVSNew.MakeGuid(self.project_path)
+    self.guid = guid
 
     # Default to Win32 for platforms.
     if not platforms:
       platforms = ['Win32']
 
-    # Create XML doc
-    xml_impl = xml.dom.getDOMImplementation()
-    self.doc = xml_impl.createDocument(None, 'VisualStudioProject', None)
-
-    # Add attributes to root element
-    self.n_root = self.doc.documentElement
-    self.n_root.setAttribute('ProjectType', 'Visual C++')
-    self.n_root.setAttribute('Version', self.version.ProjectVersion())
-    self.n_root.setAttribute('Name', self.name)
-    self.n_root.setAttribute('ProjectGUID', self.guid)
-    self.n_root.setAttribute('RootNamespace', self.name)
-    self.n_root.setAttribute('Keyword', 'Win32Proj')
-
-    # Add platform list
-    n_platform = self.doc.createElement('Platforms')
-    self.n_root.appendChild(n_platform)
+    # Initialize the specifications of the various sections.
+    self.platform_section = ['Platforms']
     for platform in platforms:
-      n = self.doc.createElement('Platform')
-      n.setAttribute('Name', platform)
-      n_platform.appendChild(n)
+      self.platform_section.append(['Platform', {'Name': platform}])
+    self.tool_files_section = ['ToolFiles']
+    self.configurations_section = ['Configurations']
+    self.files_section = ['Files']
 
-    # Add tool files section
-    self.n_tool_files = self.doc.createElement('ToolFiles')
-    self.n_root.appendChild(self.n_tool_files)
-
-    # Add configurations section
-    self.n_configs = self.doc.createElement('Configurations')
-    self.n_root.appendChild(self.n_configs)
-
-    # Add empty References section
-    self.n_root.appendChild(self.doc.createElement('References'))
-
-    # Add files section
-    self.n_files = self.doc.createElement('Files')
-    self.n_root.appendChild(self.n_files)
     # Keep a dict keyed on filename to speed up access.
-    self.n_files_dict = dict()
-
-    # Add empty Globals section
-    self.n_root.appendChild(self.doc.createElement('Globals'))
+    self.files_dict = dict()
 
   def AddToolFile(self, path):
     """Adds a tool file to the project.
@@ -135,20 +87,17 @@ class Writer(object):
     Args:
       path: Relative path from project to tool file.
     """
-    n_tool = self.doc.createElement('ToolFile')
-    n_tool.setAttribute('RelativePath', path)
-    self.n_tool_files.appendChild(n_tool)
+    self.tool_files_section.append(['ToolFile', {'RelativePath': path}])
 
-  def _AddConfigToNode(self, parent, config_type, config_name, attrs=None,
-                       tools=None):
-    """Adds a configuration to the parent node.
+  def _GetSpecForConfiguration(self, config_type, config_name, attrs, tools):
+    """Returns the specification for a configuration.
 
     Args:
-      parent: Destination node.
       config_type: Type of configuration node.
       config_name: Configuration name.
       attrs: Dict of configuration attributes; may be None.
       tools: List of tools (strings or Tool objects); may be None.
+    Returns:
     """
     # Handle defaults
     if not attrs:
@@ -157,19 +106,19 @@ class Writer(object):
       tools = []
 
     # Add configuration node and its attributes
-    n_config = self.doc.createElement(config_type)
-    n_config.setAttribute('Name', config_name)
-    for k, v in attrs.items():
-      n_config.setAttribute(k, v)
-    parent.appendChild(n_config)
+    node_attrs = attrs.copy()
+    node_attrs['Name'] = config_name
+    specification = [config_type, node_attrs]
 
     # Add tool nodes and their attributes
     if tools:
       for t in tools:
         if isinstance(t, Tool):
-          n_config.appendChild(t.CreateElement(self.doc))
+          specification.append(t._GetSpecification())
         else:
-          n_config.appendChild(Tool(t).CreateElement(self.doc))
+          specification.append(Tool(t)._GetSpecification())
+    return specification
+
 
   def AddConfig(self, name, attrs=None, tools=None):
     """Adds a configuration to the project.
@@ -179,7 +128,8 @@ class Writer(object):
       attrs: Dict of configuration attributes; may be None.
       tools: List of tools (strings or Tool objects); may be None.
     """
-    self._AddConfigToNode(self.n_configs, 'Configuration', name, attrs, tools)
+    spec = self._GetSpecForConfiguration('Configuration', name, attrs, tools)
+    self.configurations_section.append(spec)
 
   def _AddFilesToNode(self, parent, files):
     """Adds files and/or filters to the parent node.
@@ -192,14 +142,12 @@ class Writer(object):
     """
     for f in files:
       if isinstance(f, Filter):
-        node = self.doc.createElement('Filter')
-        node.setAttribute('Name', f.name)
+        node = ['Filter', {'Name': f.name}]
         self._AddFilesToNode(node, f.contents)
       else:
-        node = self.doc.createElement('File')
-        node.setAttribute('RelativePath', f)
-        self.n_files_dict[f] = node
-      parent.appendChild(node)
+        node = ['File', {'RelativePath': f}]
+        self.files_dict[f] = node
+      parent.append(node)
 
   def AddFiles(self, files):
     """Adds files to the project.
@@ -211,7 +159,7 @@ class Writer(object):
     later add files to a Filter object which was passed into a previous call
     to AddFiles(), it will not be reflected in this project.
     """
-    self._AddFilesToNode(self.n_files, files)
+    self._AddFilesToNode(self.files_section, files)
     # TODO(rspangler) This also doesn't handle adding files to an existing
     # filter.  That is, it doesn't merge the trees.
 
@@ -228,17 +176,33 @@ class Writer(object):
       ValueError: Relative path does not match any file added via AddFiles().
     """
     # Find the file node with the right relative path
-    parent = self.n_files_dict.get(path)
+    parent = self.files_dict.get(path)
     if not parent:
       raise ValueError('AddFileConfig: file "%s" not in project.' % path)
 
     # Add the config to the file node
-    self._AddConfigToNode(parent, 'FileConfiguration', config, attrs, tools)
+    spec = self._GetSpecForConfiguration('FileConfiguration', config, attrs,
+                                         tools)
+    parent.append(spec)
 
-  def Write(self, writer=common.WriteOnDiff):
+  def WriteIfChanged(self):
     """Writes the project file."""
-    f = writer(self.project_path)
-    self.doc.writexml(f, encoding='Windows-1252', addindent='  ', newl='\r\n')
-    f.close()
-
-#------------------------------------------------------------------------------
+    # First create XML content definition
+    content = [
+        'VisualStudioProject',
+        {'ProjectType': 'Visual C++',
+         'Version': self.version.ProjectVersion(),
+         'Name': self.name,
+         'ProjectGUID': self.guid,
+         'RootNamespace': self.name,
+         'Keyword': 'Win32Proj'
+        },
+        self.platform_section,
+        self.tool_files_section,
+        self.configurations_section,
+        ['References'],  # empty section
+        self.files_section,
+        ['Globals']  # empty section
+    ]
+    easy_xml.WriteXmlIfChanged(content, self.project_path,
+                               encoding="Windows-1252")

@@ -154,7 +154,8 @@
 #endif
 
 /* The size of `long', as computed by sizeof. */
-#if defined(_M_X64) || defined(__x86_64__)
+#if defined(_M_X64) || (defined(__x86_64__) && !defined(__ILP32__)) ||      \
+    defined(__aarch64__)
 #define CURL_SIZEOF_LONG 8
 #else
 #define CURL_SIZEOF_LONG 4
@@ -170,7 +171,8 @@
 typedef CURL_TYPEOF_CURL_SOCKLEN_T curl_socklen_t;
 
 /* Signed integral data type used for curl_off_t. */
-#if defined(_M_X64) || defined(__x86_64__)
+#if defined(_M_X64) || (defined(__x86_64__) && !defined(__ILP32__)) ||      \
+    defined(__aarch64__)
 #define CURL_TYPEOF_CURL_OFF_T long
 #else
 #define CURL_TYPEOF_CURL_OFF_T int64_t

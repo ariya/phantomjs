@@ -1,0 +1,32 @@
+# -------------------------------------------------------------------
+# Pretend that we are building against a minimal Qt version
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+DEFINES *= \
+    QT_NO_ANIMATION \
+    QT_NO_BEARERMANAGEMENT \
+    QT_NO_CLIPBOARD \
+    QT_NO_COMBOBOX \
+    QT_NO_CONCURRENT \
+    QT_NO_CRASHHANDLER \
+    QT_NO_CURSOR \
+    QT_NO_DESKTOPSERVICES \
+    QT_NO_FILEDIALOG \
+    QT_NO_GRAPHICSEFFECT \
+    QT_NO_IM \
+    QT_NO_INPUTDIALOG \
+    QT_NO_LINEEDIT \
+    QT_NO_MESSAGEBOX \
+    QT_NO_OPENSSL \
+    QT_NO_PRINTER \
+    QT_NO_QUUID_STRING \
+    QT_NO_SHORTCUT \
+    QT_NO_STYLE_STYLESHEET \
+    QT_NO_SYSTEMTRAYICON \
+    QT_NO_TEMPORARYFILE \
+    QT_NO_TOOLTIP \
+    QT_NO_UNDOCOMMAND \
+    QT_NO_UNDOSTACK \
+    QT_NO_XRENDER

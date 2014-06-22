@@ -85,16 +85,38 @@ bool ClientInfo::Initialize() {
   return dump_generated_handle_ != NULL;
 }
 
-ClientInfo::~ClientInfo() {
+void ClientInfo::UnregisterDumpRequestWaitAndBlockUntilNoPending() {
   if (dump_request_wait_handle_) {
     // Wait for callbacks that might already be running to finish.
     UnregisterWaitEx(dump_request_wait_handle_, INVALID_HANDLE_VALUE);
+    dump_request_wait_handle_ = NULL;
   }
+}
 
+void ClientInfo::UnregisterProcessExitWait(bool block_until_no_pending) {
   if (process_exit_wait_handle_) {
-    // Wait for the callback that might already be running to finish.
-    UnregisterWaitEx(process_exit_wait_handle_, INVALID_HANDLE_VALUE);
+    if (block_until_no_pending) {
+      // Wait for the callback that might already be running to finish.
+      UnregisterWaitEx(process_exit_wait_handle_, INVALID_HANDLE_VALUE);
+    } else {
+      UnregisterWait(process_exit_wait_handle_);
+    }
+    process_exit_wait_handle_ = NULL;
   }
+}
+
+ClientInfo::~ClientInfo() {
+  // Waiting for the callback to finish here is safe because ClientInfo's are
+  // never destroyed from the dump request handling callback.
+  UnregisterDumpRequestWaitAndBlockUntilNoPending();
+
+  // This is a little tricky because ClientInfo's may be destroyed by the same
+  // callback (OnClientEnd) and waiting for it to finish will cause a deadlock.
+  // Regardless of this complication, wait for any running callbacks to finish
+  // so that the common case is properly handled.  In order to avoid deadlocks,
+  // the OnClientEnd callback must call UnregisterProcessExitWait(false)
+  // before deleting the ClientInfo.
+  UnregisterProcessExitWait(true);
 
   if (process_handle_) {
     CloseHandle(process_handle_);
@@ -106,18 +128,6 @@ ClientInfo::~ClientInfo() {
 
   if (dump_generated_handle_) {
     CloseHandle(dump_generated_handle_);
-  }
-}
-
-void ClientInfo::UnregisterWaits() {
-  if (dump_request_wait_handle_) {
-    UnregisterWait(dump_request_wait_handle_);
-    dump_request_wait_handle_ = NULL;
-  }
-
-  if (process_exit_wait_handle_) {
-    UnregisterWait(process_exit_wait_handle_);
-    process_exit_wait_handle_ = NULL;
   }
 }
 
@@ -196,7 +206,7 @@ bool ClientInfo::PopulateCustomInfo() {
   }
 
   SetProcessUptime();
-  return (bytes_count != read_count);
+  return (bytes_count == read_count);
 }
 
 CustomClientInfo ClientInfo::GetCustomInfo() const {

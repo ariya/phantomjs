@@ -36,18 +36,8 @@
 #include <sys/time.h>
 
 #import "client/apple/Framework/BreakpadDefines.h"
-#import "common/mac/SimpleStringDictionary.h"
 #import "GTMDefines.h"
 
-#define VERBOSE 0
-
-#if VERBOSE
-  bool gDebugLog = true;
-#else
-  bool gDebugLog = false;
-#endif
-
-#define DEBUGLOG if (gDebugLog) fprintf
 
 namespace google_breakpad {
 
@@ -78,13 +68,10 @@ BOOL ConfigFile::AppendConfigData(const char *key,
   assert(config_file_ != -1);
 
   if (!key) {
-    DEBUGLOG(stderr, "Breakpad: Missing Key\n");
     return NO;
   }
 
   if (!data) {
-    DEBUGLOG(stderr, "Breakpad: Missing data for key: %s\n", key ? key :
-            "<Unknown Key>");
     return NO;
   }
 
@@ -148,13 +135,7 @@ void ConfigFile::WriteFile(const char* directory,
   config_file_ = mkstemp(config_file_path_);
 
   if (config_file_ == -1) {
-    DEBUGLOG(stderr,
-             "mkstemp(config_file_path_) == -1 (%s)\n",
-             strerror(errno));
     return;
-  }
-  else {
-    DEBUGLOG(stderr, "Writing config file to (%s)\n", config_file_path_);
   }
 
   has_created_file_ = true;
@@ -167,15 +148,11 @@ void ConfigFile::WriteFile(const char* directory,
   BOOL result = YES;
   const SimpleStringDictionary &dictionary = *configurationParameters;
 
-  const KeyValueEntry *entry = NULL;
-  SimpleStringDictionaryIterator iter(dictionary);
+  const SimpleStringDictionary::Entry *entry = NULL;
+  SimpleStringDictionary::Iterator iter(dictionary);
 
   while ((entry = iter.Next())) {
-    DEBUGLOG(stderr,
-             "config: (%s) -> (%s)\n",
-             entry->GetKey(),
-             entry->GetValue());
-    result = AppendConfigString(entry->GetKey(), entry->GetValue());
+    result = AppendConfigString(entry->key, entry->value);
 
     if (!result)
       break;

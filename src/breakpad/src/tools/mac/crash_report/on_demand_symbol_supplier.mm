@@ -80,7 +80,7 @@ OnDemandSymbolSupplier::OnDemandSymbolSupplier(const string &search_dir,
         [dirEnum skipDescendents];
       } else {
         NSString *filePath = [symbolSearchPath stringByAppendingPathComponent:fileName];
-        NSString *dataStr = [[[NSString alloc] initWithContentsOfFile:filePath] autorelease];
+        NSString *dataStr = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:NULL];
         if (dataStr) {
           // Check file to see if it is of appropriate type, and grab module
           // name.
@@ -164,19 +164,22 @@ SymbolSupplier::SymbolResult
 OnDemandSymbolSupplier::GetCStringSymbolData(const CodeModule *module,
                                              const SystemInfo *system_info,
                                              string *symbol_file,
-                                             char **symbol_data) {
+                                             char **symbol_data,
+                                             size_t *symbol_data_size) {
   std::string symbol_data_string;
   SymbolSupplier::SymbolResult result = GetSymbolFile(module,
                                                       system_info,
                                                       symbol_file,
                                                       &symbol_data_string);
   if (result == FOUND) {
-    *symbol_data = new char[symbol_data_string.size() + 1];
+    *symbol_data_size = symbol_data_string.size() + 1;
+    *symbol_data = new char[*symbol_data_size];
     if (*symbol_data == NULL) {
       // Should return INTERRUPT on memory allocation failure.
       return INTERRUPT;
     }
-    strcpy(*symbol_data, symbol_data_string.c_str());
+    memcpy(*symbol_data, symbol_data_string.c_str(), symbol_data_string.size());
+    (*symbol_data)[symbol_data_string.size()] = '\0';
     memory_buffers_.insert(make_pair(module->code_file(), *symbol_data));
   }
   return result;
@@ -280,7 +283,7 @@ bool OnDemandSymbolSupplier::GenerateSymbolFile(const CodeModule *module,
     NSString *module_str = [[NSFileManager defaultManager]
       stringWithFileSystemRepresentation:module_path.c_str()
                                   length:module_path.length()];
-    DumpSymbols dump;
+    DumpSymbols dump(ALL_SYMBOL_DATA, false);
     if (dump.Read(module_str)) {
       // What Breakpad calls "x86" should be given to the system as "i386".
       std::string architecture;
@@ -293,7 +296,7 @@ bool OnDemandSymbolSupplier::GenerateSymbolFile(const CodeModule *module,
       if (dump.SetArchitecture(architecture)) {
         std::fstream file([symbol_path fileSystemRepresentation],
                           std::ios_base::out | std::ios_base::trunc);
-        dump.WriteSymbolFile(file, true);
+        dump.WriteSymbolFile(file);
       } else {
         printf("Architecture %s not available for %s\n",
                system_info->cpu.c_str(), name.c_str());

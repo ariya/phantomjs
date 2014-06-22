@@ -1,0 +1,390 @@
+Qt 3.3.2 is a bugfix release. It maintains both forward and backward
+compatibility (source and binary) with Qt 3.3.1 and Qt 3.3.0.
+
+
+****************************************************************************
+*                           General                                        *
+****************************************************************************
+
+Compilers
+---------
+
+MinGW: It is now possible to build the WinXP style on MinGW.
+
+FreeBSD: Enable DragonFly to build Qt with its native compiler.
+
+Mac: Assistant builds with Professional edition when Fink is installed.
+
+AIX: Fixed compile problem with OpenType.
+
+Tru64: Correctly detects the Compaq C++ compiler.
+
+HP-UX 64: Fixed link failure for Designer.
+
+Intel: Fixed compile failure on icc version 8.0 p42+.
+
+Qt/Embedded: Compiles with gcc 3.4.0 (prerelease).
+
+Added macro QT_QLOCALE_USES_FCVT for systems with non-IEEE-compliant
+floating point implementations (notably some versions of ARM
+Linux). These systems are not autodetected; use
+"-DQT_QLOCALE_USES_FCVT" as a parameter to ./configure.
+
+Qt Designer
+-----------
+
+Allows saving of the column and label information for QDataTable, even
+when Qt is compiled without the SQL module.
+
+Fixed data corruption in .pro files with whitespace.
+
+Fixed crash on closing a new, modified, unsaved C++ file.
+
+Fixed crash with QicsTable.
+
+Fixed corrupted .ui files caused by '<' or '>' in the object name.
+
+Fixed freeze when opening a modal Wizard Dialog from file.
+
+Fixed crash when adding a new separator using drag and drop.
+
+Qt Assistant
+------------
+
+Fixed the Settings font combobox to not re-add font entries.
+
+
+****************************************************************************
+*                          Library                                         *
+****************************************************************************
+
+General Fixes
+-------------
+
+- QAction
+	Fixed bug when adding invisible/disabled actions to
+	visible/enabled action groups.
+
+- QCanvas
+	Cleans up old animations in setCanvas().
+
+- QClipboard
+	Fixed potential double deletion in clean up.
+
+- QColorDialog
+	Fixed crash when running on very small screens (less than
+	480x350).
+
+- QDateEdit
+	Fixed bug that would accept invalid dates when losing focus.
+
+- QDialog
+	Made showMaximized() and showFullScreen() work for dialogs
+	again.
+
+- QDns
+	Improved handling of literal IP addresses for both IPv4 and
+	IPv6.
+	Improved handling of disappearing/reappearing name servers.
+
+- QFont
+	Fixed handling of Oblique fonts.
+
+- QImage
+	Fixed crash when loading MNG animations.
+
+- QLabel
+	Fixed bug with labels without buddies that have '&' in the
+	text.
+
+- QLineEdit
+	Handles input method events according to the specification,
+	fixing severe problems with Korean input on Windows. This
+	change could show up problems with buggy input methods.
+	Fixed disappearing cursor for right-aligned text and Xft1.
+
+- QListBox
+	Fixed bug in itemAt() when listbox has wide line/framestyle.
+
+- QListView
+	Fixed problem with editor sometimes having zero width.
+
+- QLocale
+	Fixed crash on FreeBSD/Alpha.
+
+- QPainter
+	Fixed QPicture transformation bug.
+
+
+- QPopupMenu
+	Fixed crash-on-exit bug when using floating menus.
+
+- QRegExp
+	Fixed bug with patterns of the form "^A|B".
+
+- QSocket
+	Fixed bug where connecting two QSockets simultaneously would
+	cause both to connect to the same address.
+	Fixed bug where ErrConnectionRefused would not be emitted in
+	rare cases.
+
+- QSql
+	Fixed data corruption in OCI driver.
+	Fixed data corruption with SQLite driver when using non-UTF-8
+	databases with special characters.
+	Updated to work with SQLite version 2.8.13.
+
+- QString
+	Made string-to-number conversions interpret strings according
+	to the current locale.
+	Fixed the format of the %p sprintf flag.
+	Perform sanity check on the length parameter to fromUtf8().
+	Fixed toDouble() to again return a value even when failing on
+	trailing whitespace.
+	Performance optimization for startsWith()/endsWith().
+
+- QTable
+	Fixed crash caused by calling addLabel() on a horizontal header
+	when there are no columns in the table.
+	Fixed crash that occurs when deleting a QTable while editing
+	a cell.
+	Made it possible to override the grid line color.
+	Fixed selectionChanged() to be emitted correctly when dealing
+	with selections of multiple items.
+
+- QTabWidget
+	Fixed setAutoMask().
+
+- QToolButton
+	Icon and label now move the same distance when pressed.
+
+- QTextEdit
+	Does not override Ctrl+Alt+key accelerators.
+	Performance optimization: do not call ensureCursorVisible() when
+	isUpdatesEnabled() is not true.
+	Fixed crash when using removeParagraph() to remove QTextTable
+	items.
+	Fixed data corruption when saving documents with overline or
+	strikeout.
+
+- QTextBrowser
+	Fixed Purify warning about array-bound reads.
+
+- QVariant
+	Fixed bug in detaching LongLong and ULongLong values.
+
+- QWidget
+	Made showMaximized()/showFullScreen()/showMinimized() work
+	correctly again.
+	Posts events from the windowing system as before.
+
+- QWizard
+	Does not show enabled Next button on the last page if the
+	Finish button was enabled on an earlier page.
+
+- QWorkspace
+	Scales down maximize icon correctly.
+	Fixed active window/focus bug.
+	Ensured that children added to invisible workspaces are
+	painted correctly.
+	Fixed flicker with tooltips for maximize, minimize and close
+	buttons.
+
+- QXml
+	Fixed bug causing data corruption when reading invalid XML
+	files.
+
+
+Platform-Specific Issues
+------------------------
+
+Windows:
+
+- QApplication
+	Does not handle GUI messages for non-GUI appliations.
+	Disabled MenuItem highlight color for XP in non-themed
+	Classical Style.
+
+- QContextMenuEvent
+	Made right mouse button send menu event also for popup widgets
+	such as the QListBox in QComboBox.
+
+- QDesktopWidget
+	Made qApp->desktop()->size() give the correct size after a
+	display resolution change.
+
+- QFont
+	Loading a Japanese font using the English name now works when
+	running in a Japanese locale.
+
+- QLineEdit
+	Fixed drawing problems that affected very long strings and the
+	handling of trailing spaces when using Uniscribe.
+
+- QPainter
+	Fixed possible crash in setBrush().
+	Draw bitmaps using painter's foreground color when painter is
+	using a complex transformation.
+	Fixed inter-letter spacings for scaled fonts.
+
+- QPrinter
+	Fixed crash when using buggy printer drivers.
+
+- QSound
+	Made setLoops(-1) work again (plays the sound in a loop).
+	Made setLoops(0) play no sound.
+	Made setLoops(1) set isFinished() correctly.
+	Fixed memory leak.
+	If a new sound is started then stop the existing one, and play
+	the new one.
+
+- QTextEngine
+	Performs auto-detection of Asian scripts even if Uniscribe is
+	not installed.
+
+- QWidget
+	Returns correct isMinimized/isMaximized state if an application
+	is started through a shortcut using "Minimized" or "Maximized".
+
+Mac:
+
+- QAccel
+	Solved the problem where we received two accel override events
+	for each keypress.
+
+- QApplication
+	Uses better technique for obtaining applicationFilePath().
+	Allows non-GUI applications to run without the GUI.
+	Stopped using EnableSecureEventInput() because of
+	Jaguar/Panther compatibility problems.
+	Updates the text highlight color when the system changes it.
+
+- QClipboard
+	Fixed posting to the clipboard and access rights.
+
+- QComboBox
+	Ensures that the item list stays within the screen size.
+
+- QCursor
+	Uses native splitter cursors when available.
+
+- QFontMetrics
+	Fixed fontmetrics for Asian fonts.
+
+- QLineEdit
+	Uses secure keyboard input in Password mode, so that keyboard
+	events cannot be intercepted.
+
+- QMacStyle
+	Fixed painting of radio buttons to be perfectly circular.
+
+- QMenuBar
+	Fixed bug when using pixmaps without an alpha channel.
+
+- QPainter
+	Improved raster operations.
+	Made custom bitmap brushes work.
+	Draws text using painter's foreground color.
+
+- QPrinter
+	Ensures that the printer name and page range are correct after
+	setup.
+	Always uses the native print dialog.
+	Implemented setPageSize() and pageSize() properly.
+	Made QPrinter work when no printer is installed.
+	Fixed font width bug in postscript when font embedding is
+	disabled.
+
+- QSettings
+	Returns correct value for global settings when scope is User.
+
+- QSlider
+	Fixed drawing of tickmarks when minimum value is non-zero.
+
+- QStyle
+	Does not change pixmap of QToolbutton if the button is not
+	auto-raised.
+
+- QWidget
+	Fixed bug where the toolbar is partially hidden when showing a
+	mainwindow in fullscreen mode.
+	Made WStyle_StaysOnTop work in the same way as on the other
+	platforms.
+	Fixed bug in maximizing windows with a maximum size.
+
+- QWorkspace
+	Fixed bug giving frozen child windows when maximizing and
+	restoring.
+
+X11:
+
+Fixed crash bug when using X Input Method Chinput.
+
+- Drag and Drop
+	Ignores accelerator events when dragging.
+
+- QClipboard
+	Fixed bug where data()->format() would return the wrong value.
+	Fixed potential crashes with regards to iterators.
+
+- QFont
+	Avoids badly scaled fonts, and prefers exact matches.
+	Made sure symbol fonts get loaded correctly.
+	Made it possible to load Latin fonts that do not contain the
+	Euro symbol.
+	Fixed glyph width bug observed with some Khmer fonts.
+	Fixed crash with misconfigured Xft.
+	Fixed problem with font selection for Xft2 when having Latin
+	text with non-Latin locale.
+	Respects custom dpi settings for Xft.
+	Does not use Xft if we have FreeType1 but no XRender.
+	Fixed memory leak in the font engine when drawing transformed
+	fonts.
+
+- QGL
+	Fixed crash when rendering text in GL widgets.
+
+- QLocale
+	Tru64: Fixed crash when INFINITY is compared to another double.
+	Tru64: Uses DBL_INFINITY for Compaq C++ compiler.
+
+- QMimeSource
+	Does not re-enter the event loop in provides().
+
+- QPainter
+	Fixed rendering of anti-aliased text on non-XRender enabled
+	displays.
+
+- QPrinter
+	Fixed setFromTo().
+	Fixed printing of Arabic text with XLFD fonts.
+
+- QTextEdit
+	Fixed bug with extremely long lines.
+
+- QThread
+	Fixed bug that made program require superuser privileges on
+	some Linux machines.
+
+- QWidget
+	Fixed showFullScreen() and showMaximized() for window managers
+	that do not support extended window manager hints (EWMH).
+
+Embedded:
+
+- QFontInfo
+	Made QFontInfo work properly on Qt/Embedded.
+
+- QGfxVNC
+	Fixed crash if VNC viewer is closed while Qt/E is painting.
+
+- QWidget
+	Uses correct focus handling if the focus widget is hidden or
+	deleted while a popup is open.
+
+Linux virtual console switching:
+	Fixed race condition in handling of virtual console switching
+	that could cause a deadlock in some cases.
+	Switch consoles on key press event.
+	Fixed QWSServer::hideCursor()/showCursor() display locking bug
+	which could block client processes.

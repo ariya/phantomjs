@@ -44,12 +44,13 @@
 #include <string>
 #include <vector>
 
+#include "common/symbol_data.h"
+#include "common/using_std_string.h"
 #include "google_breakpad/common/breakpad_types.h"
 
 namespace google_breakpad {
 
 using std::set;
-using std::string;
 using std::vector;
 using std::map;
 
@@ -60,7 +61,7 @@ using std::map;
 class Module {
  public:
   // The type of addresses and sizes in a symbol table.
-  typedef u_int64_t Address;
+  typedef uint64_t Address;
   struct File;
   struct Function;
   struct Line;
@@ -259,13 +260,15 @@ class Module {
   // breakpad symbol format. Return true if all goes well, or false if
   // an error occurs. This method writes out:
   // - a header based on the values given to the constructor,
+  // If symbol_data is not ONLY_CFI then:
   // - the source files added via FindFile,
   // - the functions added via AddFunctions, each with its lines,
   // - all public records,
-  // - and if CFI is true, all CFI records.
+  // If symbol_data is not NO_CFI then:
+  // - all CFI records.
   // Addresses in the output are all relative to the load address
   // established by SetLoadAddress.
-  bool Write(std::ostream &stream, bool cfi);
+  bool Write(std::ostream &stream, SymbolData symbol_data);
 
  private:
   // Report an error that has occurred writing the symbol file, using
@@ -288,7 +291,7 @@ class Module {
   // Relation for maps whose keys are strings shared with some other
   // structure.
   struct CompareStringPtrs {
-    bool operator()(const string *x, const string *y) { return *x < *y; }
+    bool operator()(const string *x, const string *y) const { return *x < *y; }
   };
 
   // A map from filenames to File structures.  The map's keys are

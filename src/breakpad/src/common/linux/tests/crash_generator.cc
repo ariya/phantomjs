@@ -43,9 +43,13 @@
 
 #include <string>
 
+#if defined(__ANDROID__)
+#include "common/android/testing/pthread_fixes.h"
+#endif
 #include "common/linux/eintr_wrapper.h"
 #include "common/tests/auto_tempdir.h"
 #include "common/tests/file_utils.h"
+#include "common/using_std_string.h"
 
 namespace {
 
@@ -61,15 +65,26 @@ const char* const kProcFilesToCopy[] = {
 const size_t kNumProcFilesToCopy =
     sizeof(kProcFilesToCopy) / sizeof(kProcFilesToCopy[0]);
 
+int gettid() {
+  // Glibc does not provide a wrapper for this.
+  return syscall(__NR_gettid);
+}
+
+int tkill(pid_t tid, int sig) {
+  // Glibc does not provide a wrapper for this.
+  return syscall(__NR_tkill, tid, sig);
+}
+
 // Core file size limit set to 1 MB, which is big enough for test purposes.
 const rlim_t kCoreSizeLimit = 1024 * 1024;
 
 void *thread_function(void *data) {
   ThreadData* thread_data = reinterpret_cast<ThreadData*>(data);
-  volatile pid_t thread_id = syscall(__NR_gettid);
+  volatile pid_t thread_id = gettid();
   *(thread_data->thread_id_ptr) = thread_id;
   int result = pthread_barrier_wait(thread_data->barrier);
   if (result != 0 && result != PTHREAD_BARRIER_SERIAL_THREAD) {
+    perror("Failed to wait for sync barrier");
     exit(1);
   }
   while (true) {
@@ -97,11 +112,11 @@ bool CrashGenerator::HasDefaultCorePattern() const {
          buffer_size == 5 && memcmp(buffer, "core", 4) == 0;
 }
 
-std::string CrashGenerator::GetCoreFilePath() const {
+string CrashGenerator::GetCoreFilePath() const {
   return temp_dir_.path() + "/core";
 }
 
-std::string CrashGenerator::GetDirectoryOfProcFilesCopy() const {
+string CrashGenerator::GetDirectoryOfProcFilesCopy() const {
   return temp_dir_.path() + "/proc";
 }
 
@@ -156,11 +171,16 @@ bool CrashGenerator::SetCoreFileSizeLimit(rlim_t limit) const {
 bool CrashGenerator::CreateChildCrash(
     unsigned num_threads, unsigned crash_thread, int crash_signal,
     pid_t* child_pid) {
-  if (num_threads == 0 || crash_thread >= num_threads)
+  if (num_threads == 0 || crash_thread >= num_threads) {
+    fprintf(stderr, "CrashGenerator: Invalid thread counts; num_threads=%u"
+                    " crash_thread=%u\n", num_threads, crash_thread);
     return false;
+  }
 
-  if (!MapSharedMemory(num_threads * sizeof(pid_t)))
+  if (!MapSharedMemory(num_threads * sizeof(pid_t))) {
+    perror("CrashGenerator: Unable to map shared memory");
     return false;
+  }
 
   pid_t pid = fork();
   if (pid == 0) {
@@ -170,7 +190,7 @@ bool CrashGenerator::CreateChildCrash(
     }
     if (SetCoreFileSizeLimit(kCoreSizeLimit)) {
       CreateThreadsInChildProcess(num_threads);
-      std::string proc_dir = GetDirectoryOfProcFilesCopy();
+      string proc_dir = GetDirectoryOfProcFilesCopy();
       if (mkdir(proc_dir.c_str(), 0755) == -1) {
         perror("CrashGenerator: Failed to create proc directory");
         exit(1);
@@ -179,9 +199,35 @@ bool CrashGenerator::CreateChildCrash(
         fprintf(stderr, "CrashGenerator: Failed to copy proc files\n");
         exit(1);
       }
-      if (kill(*GetThreadIdPointer(crash_thread), crash_signal) == -1) {
-        perror("CrashGenerator: Failed to kill thread by signal");
+      // On Android the signal sometimes doesn't seem to get sent even though
+      // tkill returns '0'.  Retry a couple of times if the signal doesn't get
+      // through on the first go:
+      // https://code.google.com/p/google-breakpad/issues/detail?id=579
+#if defined(__ANDROID__)
+      const int kRetries = 60;
+      const unsigned int kSleepTimeInSeconds = 1;
+#else
+      const int kRetries = 1;
+      const unsigned int kSleepTimeInSeconds = 600;
+#endif
+      for (int i = 0; i < kRetries; i++) {
+        if (tkill(*GetThreadIdPointer(crash_thread), crash_signal) == -1) {
+          perror("CrashGenerator: Failed to kill thread by signal");
+        } else {
+          // At this point, we've queued the signal for delivery, but there's no
+          // guarantee when it'll be delivered.  We don't want the main thread to
+          // race and exit before the thread we signaled is processed.  So sleep
+          // long enough that we won't flake even under fairly high load.
+          // TODO: See if we can't be a bit more deterministic.  There doesn't
+          // seem to be an API to check on signal delivery status, so we can't
+          // really poll and wait for the kernel to declare the signal has been
+          // delivered.  If it has, and things worked, we'd be killed, so the
+          // sleep length doesn't really matter.
+          sleep(kSleepTimeInSeconds);
+        }
       }
+    } else {
+      perror("CrashGenerator: Failed to set core limit");
     }
     exit(1);
   } else if (pid == -1) {
@@ -196,8 +242,8 @@ bool CrashGenerator::CreateChildCrash(
   }
   if (!WIFSIGNALED(status) || WTERMSIG(status) != crash_signal) {
     fprintf(stderr, "CrashGenerator: Child process not killed by the expected signal\n"
-                    "  exit status=0x%x signaled=%s sig=%d expected=%d\n",
-                    status, WIFSIGNALED(status) ? "true" : "false",
+                    "  exit status=0x%x pid=%u signaled=%s sig=%d expected=%d\n",
+                    status, pid, WIFSIGNALED(status) ? "true" : "false",
                     WTERMSIG(status), crash_signal);
     return false;
   }

@@ -62,10 +62,7 @@ bool MemoryMappedFile::Map(const char* path) {
     return false;
   }
 
-#if defined(__ANDROID__)
-  struct stat st;
-  if (fstat(fd, &st) != 0) {
-#elif defined(__x86_64__)
+#if defined(__x86_64__) || defined(__aarch64__)
   struct kernel_stat st;
   if (sys_fstat(fd, &st) == -1 || st.st_size < 0) {
 #else
@@ -84,7 +81,7 @@ bool MemoryMappedFile::Map(const char* path) {
     return true;
   }
 
-#if defined(__x86_64__)
+#if defined(__x86_64__) || defined(__aarch64__)
   void* data = sys_mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 #else
   void* data = sys_mmap2(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
@@ -100,7 +97,7 @@ bool MemoryMappedFile::Map(const char* path) {
 
 void MemoryMappedFile::Unmap() {
   if (content_.data()) {
-    sys_munmap(const_cast<u_int8_t*>(content_.data()), content_.length());
+    sys_munmap(const_cast<uint8_t*>(content_.data()), content_.length());
     content_.Set(NULL, 0);
   }
 }

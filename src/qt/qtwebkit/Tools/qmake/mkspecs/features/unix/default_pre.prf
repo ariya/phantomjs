@@ -1,0 +1,18 @@
+# -------------------------------------------------------------------
+# Unix specific defaults
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+load(functions)
+
+CONFIG += object_parallel_to_source
+
+# Expose if we are building inside Scratchbox
+SBOX_CHECK = $$(_SBOX_DIR)
+!isEmpty(SBOX_CHECK): CONFIG += scratchbox
+
+# Reduce linking memory pressure on 32-bit debug builds on Linux
+linux-g++*:CONFIG(debug, debug|release):isEqual(QT_ARCH,i386): CONFIG += use_all_in_one_files
+
+load(default_pre)

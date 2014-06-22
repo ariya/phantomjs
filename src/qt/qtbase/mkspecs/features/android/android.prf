@@ -1,0 +1,14 @@
+contains(TEMPLATE, ".*app") {
+    !android_app {
+        !contains(TARGET, ".so"): TARGET = lib$${TARGET}.so
+        QMAKE_LFLAGS += -Wl,-soname,$$TARGET
+
+        android_install: {
+            target.path=/libs/$$ANDROID_TARGET_ARCH/
+            INSTALLS *= target
+        }
+    }
+} else: contains(TEMPLATE, "lib"):!QTDIR_build:android_install {
+    target.path = /libs/$$ANDROID_TARGET_ARCH/
+    INSTALLS *= target
+}

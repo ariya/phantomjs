@@ -1,0 +1,31 @@
+#!/bin/sh
+
+BSYMBOLIC_FUNCTIONS_SUPPORT=no
+COMPILER=$1
+VERBOSE=$2
+
+
+cat >>bsymbolic_functions.c << EOF
+#if !(defined(__i386) || defined(__i386__) || defined(__x86_64) || defined(__x86_64__) || defined(__amd64))
+#error "Symbolic function binding on this architecture may be broken, disabling it (see QTBUG-36129)."
+#endif
+
+int main() { return 0; }
+EOF
+
+if [ "$VERBOSE" = "yes" ] ; then
+    echo $COMPILER $SYSROOT_FLAG -o libtest.so -shared -Wl,-Bsymbolic-functions -fPIC bsymbolic_functions.c
+    $COMPILER $SYSROOT_FLAG -o libtest.so -shared -Wl,-Bsymbolic-functions -fPIC bsymbolic_functions.c && BSYMBOLIC_FUNCTIONS_SUPPORT=yes
+else
+    $COMPILER $SYSROOT_FLAG -o libtest.so -shared -Wl,-Bsymbolic-functions -fPIC bsymbolic_functions.c >/dev/null 2>&1 && BSYMBOLIC_FUNCTIONS_SUPPORT=yes
+fi
+rm -f bsymbolic_functions.c libtest.so
+
+# done
+if [ "$BSYMBOLIC_FUNCTIONS_SUPPORT" != "yes" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "Symbolic function binding disabled."
+    exit 0
+else
+    [ "$VERBOSE" = "yes" ] && echo "Symbolic function binding enabled."
+    exit 1
+fi

@@ -1,0 +1,375 @@
+(version 1)
+(deny default)
+(allow system-audit file-read-metadata)
+
+(import "system.sb")
+
+;; Utility functions
+(define (home-literal home-relative-literal)
+    (literal (string-append (param "HOME_DIR") home-relative-literal)))
+
+(define (home-library-regex home-library-relative-regex)
+    (regex (string-append "^" (regex-quote (param "HOME_LIBRARY_DIR")) home-library-relative-regex)))
+
+(define (home-library-subpath home-library-relative-subpath)
+    (subpath (string-append (param "HOME_LIBRARY_DIR") home-library-relative-subpath)))
+
+(define (home-library-literal home-library-relative-literal)
+    (literal (string-append (param "HOME_LIBRARY_DIR") home-library-relative-literal)))
+
+(define (home-library-preferences-regex home-library-preferences-relative-regex)
+    (regex (string-append "^" (regex-quote (param "HOME_LIBRARY_PREFERENCES_DIR")) home-library-preferences-relative-regex)))
+
+(define (home-library-preferences-subpath home-library-preferences-relative-subpath)
+    (subpath (string-append (param "HOME_LIBRARY_PREFERENCES_DIR") home-library-preferences-relative-subpath)))
+
+(define (home-library-preferences-literal home-library-preferences-relative-literal)
+    (literal (string-append (param "HOME_LIBRARY_PREFERENCES_DIR") home-library-preferences-relative-literal)))
+
+(define (shared-preferences-read . domains)
+  (for-each (lambda (domain)
+              (begin
+                (if (defined? `user-preference-read)
+                    (allow user-preference-read (preference-domain domain)))
+                ; (Temporary) backward compatibility with non-CFPreferences readers.
+                (allow file-read*
+                       (literal (string-append "/Library/Preferences/" domain ".plist"))
+                       (home-library-preferences-literal (string-append "/" domain ".plist"))
+                       (home-library-preferences-regex (string-append #"/ByHost/" (regex-quote domain) #"\..*\.plist$")))))
+            domains))
+
+(define (shared-preferences-read-write . domains)
+  (for-each (lambda (domain)
+              (begin
+                (if (defined? `user-preference-write)
+                    (allow user-preference-read user-preference-write (preference-domain domain)))
+                ; (Temporary) backward compatibility with non-CFPreferences readers / writers.
+                (allow file-read* file-write*
+                       (literal (string-append "/Library/Preferences/" domain ".plist"))
+                       (home-library-preferences-literal (string-append "/" domain ".plist"))
+                       (home-library-preferences-regex (string-append #"/ByHost/" (regex-quote domain) #"\..*\.plist$")))))
+            domains))
+
+;; WebKit2 sandbox launcher needs to define an _OS_VERSION parameter
+;; This parameter is the major OS Version number.
+(if (not (defined? 'os-version))
+    (define os-version (param "_OS_VERSION")))
+
+;; OS X 10.7 (Lion) compatibility
+(if (not (defined? 'ipc-posix-shm*))
+    (define ipc-posix-shm* ipc-posix-shm))
+(if (not (defined? 'ipc-posix-shm-read*))
+    (define ipc-posix-shm-read* ipc-posix-shm))
+(if (not (defined? 'ipc-posix-shm-write-data))
+    (define ipc-posix-shm-write-data ipc-posix-shm))
+
+;; Graphics
+(if (defined? 'system-graphics)
+    (system-graphics)
+    (begin
+        (shared-preferences-read
+            "com.apple.opengl"
+            "com.nvidia.OpenGL")
+        (allow mach-lookup (global-name "com.apple.cvmsServ"))
+        (allow iokit-open
+            (iokit-connection "IOAccelerator")
+            (iokit-user-client-class "IOAccelerationUserClient")
+            (iokit-user-client-class "IOSurfaceRootUserClient")
+            (iokit-user-client-class "IOSurfaceSendRight")
+            (iokit-user-client-class "IOFramebufferSharedUserClient")
+            (iokit-user-client-class "AppleSNBFBUserClient")
+            (iokit-user-client-class "AGPMClient")
+            (iokit-user-client-class "AppleGraphicsControlClient")
+            (iokit-user-client-class "AppleGraphicsPolicyClient"))))
+
+;; Read-only preferences
+(shared-preferences-read
+    ".GlobalPreferences"
+    "com.apple.Bluetooth"
+    "com.apple.CoreGraphics"
+    "com.apple.QuickTime"
+    "com.apple.HIToolbox"
+    "com.apple.ATS"
+    "com.apple.driver.AppleBluetoothMultitouch.mouse"
+    "com.apple.driver.AppleBluetoothMultitouch.trackpad"
+    "com.apple.driver.AppleHIDMouse"
+    "com.apple.inputmethodkit"
+    "com.apple.iWork.Pages"
+    "com.apple.LaunchServices"
+    "com.apple.MultitouchSupport"
+    "com.apple.security"
+    "com.apple.security.revocation"
+    "com.apple.security_common"
+    "com.apple.speech.voice.prefs"
+    "com.apple.speech.synthesis.general.prefs"
+    "com.apple.speech.recognition.AppleSpeechRecognition.prefs"
+    "com.apple.systemsound"
+    "com.apple.universalaccess"
+    "com.apple.WebFoundation"
+    "com.apple.WebKit.PluginProcess"
+    "pbs"
+    "com.apple.ServicesMenu.Services")
+
+;; Read-only data
+(allow file-read*
+    (literal "/")
+    (literal "/private/etc/hosts")
+    (literal "/private/etc/protocols")
+    (literal "/private/etc/services")
+    (literal "/private/etc/resolv.conf")
+    (literal "/private/var/run/resolv.conf")
+
+    (subpath "/Library/Frameworks")
+    (subpath "/private/var/db/mds")
+
+    (regex #"^/Library/Preferences/com\.apple\.security")
+    (home-literal "/.CFUserTextEncoding")
+    (home-library-subpath "/Audio")
+    (home-library-subpath "/ColorPickers")
+    (home-library-subpath "/ColorSync")
+    (subpath "/Library/Components")
+    (home-library-subpath "/Components")
+    (subpath "/Library/Contextual Menu Items")
+    (subpath "/Library/Input Methods")
+    (home-library-subpath "/Input Methods")
+    (subpath "/Library/InputManagers")
+    (home-library-subpath "/InputManagers")
+    (home-library-subpath "/KeyBindings")
+    (subpath "/Library/Keyboard Layouts")
+    (home-library-subpath "/Keyboard Layouts")
+    (subpath "/Library/Fonts")
+    (home-library-subpath "/Fonts")
+    (subpath "/Library/Spelling")
+    (home-library-subpath "/Spelling")
+    (subpath "/Library/PDF Services")
+    (home-library-subpath "/PDF Services")
+    (home-library-preferences-literal "/QuickTime Preferences")
+
+    (home-library-literal "/Caches/com.apple.coreaudio.components.plist")
+
+    (subpath "/Library/Audio/Sounds")
+    (subpath "/Library/Audio/Plug-Ins/Components")
+    (home-library-subpath "/Audio/Plug-Ins/Components")
+    (subpath "/Library/Audio/Plug-Ins/HAL")
+    (subpath "/Library/CoreMediaIO/Plug-Ins/DAL")
+    (subpath "/Library/QuickTime")
+    (home-library-subpath "/QuickTime")
+    (subpath "/Library/Video/Plug-Ins")
+    (home-library-subpath "/Caches/QuickTime")
+
+    (literal "/Library/Application Support/CrashReporter/SubmitDiagInfo.domains")
+
+    (home-library-literal "/Application Support/SyncServices/Local/ClientsWithChanges/com.apple.Keychain")
+
+    (subpath "/Library/ColorSync")
+
+    ;; FIXME: This should be removed when <rdar://problem/10479685> is fixed.
+    (subpath "/Library/Keychains"))
+
+;; Security framework
+(allow mach-lookup (global-name "com.apple.ocspd"))
+(allow file-read* file-write* (home-library-subpath "/Keychains"))
+(allow file-read*
+       (subpath "/private/var/db/mds")
+       (literal "/private/var/db/DetachedSignatures"))
+(allow ipc-posix-shm-read* ipc-posix-shm-write-data
+       (ipc-posix-name "com.apple.AppleDatabaseChanged"))
+
+;; Read-write preferences and data
+(allow file*
+    ;; FIXME: This should be removed when <rdar://problem/10479685> is fixed.
+    (home-library-subpath "/Keychains"))
+
+;; IOKit user clients
+(allow iokit-open
+    (iokit-user-client-class "IOAudioControlUserClient")
+    (iokit-user-client-class "IOAudioEngineUserClient")
+    (iokit-user-client-class "IOHIDParamUserClient")
+    (iokit-user-client-class "RootDomainUserClient"))
+
+;; Various services required by AppKit and other frameworks
+(allow mach-lookup
+    (global-name "com.apple.CoreServices.coreservicesd")
+    (global-name "com.apple.DiskArbitration.diskarbitrationd")
+    (global-name "com.apple.FileCoordination")
+    (global-name "com.apple.FontObjectsServer")
+    (global-name "com.apple.FontServer")
+    (global-name "com.apple.ImageCaptureExtension2.presence")
+    (global-name "com.apple.PowerManagement.control")
+    (global-name "com.apple.SecurityServer")
+    (global-name "com.apple.SystemConfiguration.PPPController")
+    (global-name "com.apple.SystemConfiguration.configd")
+    (global-name "com.apple.UNCUserNotification")
+    (global-name "com.apple.audio.VDCAssistant")
+    (global-name "com.apple.audio.audiohald")
+    (global-name "com.apple.audio.coreaudiod")
+    (global-name "com.apple.cfnetwork.AuthBrokerAgent")
+    (global-name "com.apple.cmio.VDCAssistant")
+    (global-name "com.apple.cookied") ;; FIXME: <rdar://problem/10790768> Limit access to cookies.
+    (global-name "com.apple.coreservices.launchservicesd")
+    (global-name "com.apple.ocspd")
+    (global-name "com.apple.pasteboard.1")
+    (global-name "com.apple.pbs.fetch_services")
+    (global-name "com.apple.tccd.system")
+    (global-name "com.apple.tsm.uiserver")
+    (global-name "com.apple.window_proxies")
+    (global-name "com.apple.windowserver.active")
+    (local-name "com.apple.tsm.portname")
+    (global-name-regex #"_OpenStep$"))
+
+(if (equal? os-version "10.7")
+    (allow mach-lookup
+        (global-name "com.apple.system.DirectoryService.membership_v1")))
+
+;; Configuration directories
+(allow file-read* (subpath (param "PLUGIN_PATH")))
+(allow file-read* (subpath (param "WEBKIT2_FRAMEWORK_DIR")))
+(allow file* (subpath (param "DARWIN_USER_TEMP_DIR")))
+(allow file* (subpath (param "DARWIN_USER_CACHE_DIR")))
+(allow file* (subpath (param "NSURL_CACHE_DIR")))
+
+
+;; Networking
+(if (defined? 'system-network)
+    (system-network)
+    (begin
+      (allow file-read* (literal "/Library/Preferences/com.apple.networkd.plist"))
+      (allow mach-lookup
+             (global-name "com.apple.SystemConfiguration.SCNetworkReachability")
+             (global-name "com.apple.networkd"))
+      (allow network-outbound
+             (control-name "com.apple.netsrc")
+             (control-name "com.apple.network.statistics"))
+      (allow system-socket
+             (require-all (socket-domain AF_SYSTEM)
+                          (socket-protocol 2)) ; SYSPROTO_CONTROL
+             (socket-domain AF_ROUTE))))
+
+(allow network-outbound
+    ;; Local mDNSResponder for DNS, arbitrary outbound TCP and UDP
+    (literal "/private/var/run/mDNSResponder")
+    (remote tcp)
+    (remote udp))
+(allow network-inbound
+    (local udp))
+
+
+;; Open and Save panels
+(define (webkit-powerbox)
+    (allow file-read* file-write* (extension "com.apple.app-sandbox.read-write"))
+    (allow file-issue-extension
+        (require-all
+            (extension-class "com.apple.app-sandbox.read")
+            (extension "com.apple.app-sandbox.read-write"))
+        (require-all
+            (extension-class "com.apple.app-sandbox.read-write")
+            (extension "com.apple.app-sandbox.read-write"))))
+
+;; Printing
+(define (webkit-printing)
+    (if (defined? 'authorization-right-obtain)
+        (allow authorization-right-obtain
+               (right-name "system.print.operator")
+               (right-name "system.printingmanager")))
+    (if (defined? 'mach-register)
+        (deny mach-register (with no-log)
+               (global-name-regex #"^com\.apple\.ICA-[0-9]+$")))
+    (if (defined? 'mach-task-name)
+        (allow mach-task-name))
+    (allow network-outbound (literal "/private/var/run/cupsd"))
+    (allow mach-lookup
+        (global-name "com.apple.printuitool.agent")
+        (global-name "com.apple.printtool.agent")
+        (global-name "com.apple.printtool.daemon"))
+    (allow file-read*
+        (subpath "/Library/Printers")
+        (home-literal "/.cups/lpoptions")
+        (home-literal "/.cups/client.conf")
+        (literal "/private/etc/cups/client.conf")
+        (literal "/private/etc/cups/lpoptions")
+        (subpath "/private/etc/cups/ppd")
+        (subpath "/private/var/run/cupsd"))
+    (shared-preferences-read "org.cups.PrintingPrefs"))
+
+;; Text Services Manager
+(allow iokit-set-properties (iokit-property "CapsLockDelayOverride"))
+
+;; Image Capture
+(define (webkit-imagecapture)
+    (allow appleevent-send (appleevent-destination "com.apple.imagecaptureextension2")))
+
+;; Camera
+(define (webkit-camera)
+    (allow mach-lookup (extension "com.apple.app-sandbox.mach"))
+    (allow mach-lookup
+        (global-name "com.apple.cmio.AppleCameraAssistant")
+        ;; Apple DAL assistants
+        (global-name "com.apple.cmio.VDCAssistant")
+        (global-name "com.apple.cmio.AVCAssistant")
+        (global-name "com.apple.cmio.IIDCVideoAssistant")
+        ;; QuickTimeIIDCDigitizer assistant
+        (global-name "com.apple.IIDCAssistant"))
+    (allow iokit-open
+        ;; QuickTimeUSBVDCDigitizer
+        (iokit-user-client-class "IOUSBDeviceUserClientV2")
+        (iokit-user-client-class "IOUSBInterfaceUserClientV2"))
+    (allow device-camera))
+
+;; Microphone
+(define (webkit-microphone)
+    (allow device-microphone))
+
+(if (equal? os-version "10.7")
+    (allow ipc-posix-shm)
+    (begin
+        (if (equal? os-version "10.8")
+            (allow ipc-posix-shm*
+                (ipc-posix-name "_CS_GSHMEMLOCK")
+                (ipc-posix-name "_CS_DSHMEMLOCK")))
+        (allow ipc-posix-shm*
+            (ipc-posix-name-regex #"^AudioIO")
+            (ipc-posix-name-regex #"^CFPBS:")
+            (ipc-posix-name "com.apple.ColorSync.Gen.lock")
+            (ipc-posix-name "com.apple.ColorSync.Disp.lock")
+            (ipc-posix-name "com.apple.ColorSync.Gray2.2")
+            (ipc-posix-name "com.apple.ColorSync.sRGB")
+            (ipc-posix-name "com.apple.ColorSync.GenGray")
+            (ipc-posix-name "com.apple.ColorSync.GenRGB")
+            (ipc-posix-name-regex #"^com\.apple\.cs\.")
+            (ipc-posix-name-regex #"^ls\."))
+        (allow ipc-posix-shm-read*
+            (ipc-posix-name-regex #"^/tmp/com\.apple\.csseed\.")
+            (ipc-posix-name "FNetwork.defaultStorageSession")
+            (ipc-posix-name "apple.shm.notification_center"))))
+
+;; Silently block access to some resources
+(deny file-read* file-write* (with no-log)
+    (subpath "/Network/Library")
+    (subpath "/Network/Applications")
+    (home-library-preferences-regex #"/com\.apple\.internetconfig(priv)?\.plist")
+
+    ;; FIXME: Should be removed after <rdar://problem/9422957> is fixed.
+    (home-library-literal "/Caches/Cache.db")
+
+    ;; FIXME: Should be removed after <rdar://problem/10463881> is fixed.
+    (home-library-preferences-literal "/com.apple.LaunchServices.QuarantineEventsV2")
+    (home-library-preferences-literal "/com.apple.LaunchServices.QuarantineEventsV2-journal"))
+
+(deny mach-lookup (with no-log)
+    (global-name "com.apple.FSEvents")
+    (global-name "com.apple.coreservices.appleevents")
+    (global-name "com.apple.dock.server")
+    (global-name-regex #"^com\.apple\.distributed_notifications"))
+
+;; This inserts deny rules for creating symbolic links. The rules are inserted
+;; at the end of sandbox profile compilation by overriding the finalizer. The
+;; initial value of %finalize must be the last function called.
+(letrec
+   ((original-%finalize %finalize)
+    (webkit-%finalize
+        (lambda ()
+            (if (defined? 'vnode-type)
+                (deny file-write-create
+                      (vnode-type SYMLINK)))
+            (original-%finalize))))
+   (set! %finalize webkit-%finalize))

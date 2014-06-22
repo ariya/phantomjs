@@ -1,0 +1,159 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2006 Apple Computer, Inc.  All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+# 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Used for splitting a single file into multiple class files
+# Usage: split-class <header file>
+
+use strict;
+use File::Copy;
+use FindBin;
+use lib $FindBin::Bin;
+use SpacingHeuristics;
+
+
+for my $filename (@ARGV) {
+
+    $filename =~ m/^(\w+)\.h$/ or die "Command line args must be .h files.\n";
+    my $basename = $1;
+
+    open(OLDFILE, "<", $filename) or die "File does not exist: $filename\n";
+    print "Splitting class $filename.{h,cpp}:\n";
+    
+    my $currentClassName = "";
+    my $classIndent = "";
+    my $fileContent = "";
+    my %classDefs = ();
+    while (my $line = <OLDFILE>) {
+        if ($currentClassName) {
+            $classDefs{$currentClassName} .= $line;
+            if ($line =~ /^$classIndent};\s*$/) {
+                $currentClassName = "";
+            }
+        } else {
+            if ($line =~ /^(\s*)class\s+(\w+)\s+[^;]*$/) {
+                $classIndent = $1;
+                $currentClassName = $2;
+                $classDefs{$currentClassName} .= $line;
+                $fileContent .= "###CLASS###$currentClassName\n";
+            } else {
+                $fileContent .= $line;
+            }
+        }
+    }
+    close(OLDFILE);
+    
+    if (scalar(keys(%classDefs)) == 1) { # degenerate case
+        my ($classname) = keys(%classDefs);
+        if (!($classname eq $basename)) {
+            print "Skipping $filename, already correctly named.\n";
+        } else {
+            print "$filename only includes one class, renaming to $classname.h\n";
+            system("svn rm --force $classname.h") if (-r "$classname.h");
+            system "svn mv $basename.h $classname.h";
+        }
+    } else {
+        while (my ($classname, $classDef) = each(%classDefs)) {
+            if (($classname eq $basename)) {
+                print "Skipping $filename, already correctly named.\n";
+            } else {
+                print "Using SVN to copy $basename.{h,cpp} to $classname.{h,cpp}\n";
+                
+                system("svn rm --force $classname.h") if (-r "$classname.h");
+                system "svn cp $basename.h $classname.h";
+                
+                system("svn rm --force $classname.cpp") if (-r "$classname.cpp");
+                system "svn cp $basename.cpp $classname.cpp";
+            }
+            
+            print "Fixing $classname.h as much as possible.\n";
+            open(NEWHEADER, ">", "$classname.h") or die "File does not exist: $filename\n";
+            my @lines = split("\n", $fileContent);
+            foreach my $line (@lines) {
+                if ($line =~ /^###CLASS###(\w+)/) {
+                    if ($1 eq $classname) {
+                        print NEWHEADER $classDef . "\n";
+                    }
+                } else {
+                    print NEWHEADER $line . "\n";
+                }
+            }
+            close(NEWHEADER);
+            
+            print "Fixing $classname.cpp as much as possible.\n";
+            copy("$classname.cpp", "$classname.cpp.original");
+            open(OLDCPP, "<", "$classname.cpp.original") or die "Failed to copy file for reading: $filename\n";
+            open(NEWCPP, ">", "$classname.cpp") or die "File does not exist: $filename\n";
+            my $insideMemberFunction = 0;
+            my $shouldPrintMemberFunction = 0;
+            resetSpacingHeuristics();
+            while (my $line = <OLDCPP>) {
+                if ($insideMemberFunction) {
+                    if ($shouldPrintMemberFunction) {
+                        print NEWCPP $line;
+                        #setPreviousAllowedLine($line);
+                    } else {
+                        ignoringLine($line);
+                    }
+                    if ($line =~ /^}\s*$/) {
+                        $insideMemberFunction = 0;
+                    }
+                } elsif ($line =~ /$filename/) {
+                    print NEWCPP "#include \"config.h\"\n";
+                    print NEWCPP "#include \"$classname.h\"\n";
+                } elsif ($line =~ /#include/ || $line =~ /#import/) {
+                    next; # skip includes, they're generally wrong or unecessary anyway.
+                } else {
+                    $line =~ s/DOM:://;
+                    $line =~ s/khtml:://;
+                    $line =~ s/namespace DOM/namespace WebCore/;
+                    $line =~ s/namespace khtml/namespace WebCore/;
+                    
+                    if ($line =~ /^(.*?\s+)?(\*|&)?(\w+)::(~)?\w+\s*\(/) {
+                        $insideMemberFunction = 1;
+                        $shouldPrintMemberFunction = ($classname eq $3);
+                        if ($shouldPrintMemberFunction) {
+                            printPendingEmptyLines(*NEWCPP, $line);
+                            print NEWCPP $line;
+                        }
+                    } else {
+                        next if isOnlyWhiteSpace($line);
+                        next if ($line =~ m/------------/);
+                        printPendingEmptyLines(*NEWCPP, $line);
+                        applySpacingHeuristicsAndPrint(*NEWCPP, $line);
+                    }
+                }
+            }
+            close(NEWCPP);
+            close(OLDCPP);
+            unlink("$classname.cpp.original");
+        }
+    }
+    
+    print "Opening new files...\n";
+    system("open " . join(".* ", keys(%classDefs)) . ".*");
+}

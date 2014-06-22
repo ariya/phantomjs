@@ -1,0 +1,121 @@
+/*************************************************************************
+ *
+ *  File Name (AccessibleApplication.idl)
+ * 
+ *  IAccessible2 IDL Specification 
+ * 
+ *  Copyright (c) 2007, 2010 Linux Foundation 
+ *  Copyright (c) 2006 IBM Corporation 
+ *  Copyright (c) 2000, 2006 Sun Microsystems, Inc. 
+ *  All rights reserved. 
+ *   
+ *   
+ *  Redistribution and use in source and binary forms, with or without 
+ *  modification, are permitted provided that the following conditions 
+ *  are met: 
+ *   
+ *   1. Redistributions of source code must retain the above copyright 
+ *      notice, this list of conditions and the following disclaimer. 
+ *   
+ *   2. Redistributions in binary form must reproduce the above 
+ *      copyright notice, this list of conditions and the following 
+ *      disclaimer in the documentation and/or other materials 
+ *      provided with the distribution. 
+ *
+ *   3. Neither the name of the Linux Foundation nor the names of its 
+ *      contributors may be used to endorse or promote products 
+ *      derived from this software without specific prior written 
+ *      permission. 
+ *   
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND 
+ *  CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, 
+ *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+ *  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
+ *  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ *  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
+ *  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+ *  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+ *  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+ *  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+ *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ *   
+ *  This BSD License conforms to the Open Source Initiative "Simplified 
+ *  BSD License" as published at: 
+ *  http://www.opensource.org/licenses/bsd-license.php 
+ *   
+ *  IAccessible2 is a trademark of the Linux Foundation. The IAccessible2 
+ *  mark may be used in accordance with the Linux Foundation Trademark 
+ *  Policy to indicate compliance with the IAccessible2 specification. 
+ * 
+ ************************************************************************/ 
+
+
+import "objidl.idl";
+import "oaidl.idl";
+import "oleacc.idl";
+
+/** @brief This interface gives access to the application's name and version information.
+        
+ This interface provides the AT with the information it needs to differentiate 
+ this application from other applications, from other versions of this 
+ application, or from other versions of this application running on different 
+ versions of an accessibility bridge or accessibility toolkit.
+
+ Servers implementing IAccessible2 should provide access to the %IAccessibleApplication 
+ interface via QueryService from any object so that ATs can easily determine specific 
+ information about the application such as its name or version.
+*/
+[object, uuid(D49DED83-5B25-43F4-9B95-93B44595979E)]
+interface IAccessibleApplication : IUnknown
+{
+  
+  /** @brief Returns the application name.
+   @param [out] name
+   @retval S_OK
+   @retval S_FALSE if there is nothing to return, [out] value is NULL
+  */
+  [propget] HRESULT appName
+    (
+     [out, retval] BSTR *name
+    );
+
+  /** @brief Returns the application version.
+   @param [out] version
+    The version string must not contain levels when it is know beforehand that
+    this information will never require a change in a client's behavior.
+    For example, use "3.6.0" rather than "3.6.0.v201005131500".
+   @retval S_OK
+   @retval S_FALSE if there is nothing to return, [out] value is NULL
+  */
+  [propget] HRESULT appVersion
+    (
+     [out, retval] BSTR *version
+    );
+
+  /** @brief Returns the toolkit/bridge name.
+   @param [out] name
+   @retval S_OK
+   @retval S_FALSE if there is nothing to return, [out] value is NULL
+  */
+  [propget] HRESULT toolkitName
+    (
+     [out, retval] BSTR *name
+    );
+
+  /** @brief Returns the toolkit/bridge version.
+   @param [out] version
+    The version string must not contain levels when it is know beforehand that
+    this information will never require a change in a client's behavior.
+    For example, use "3.6.0" rather than "3.6.0.v201005131500".
+   @retval S_OK
+   @retval S_FALSE if there is nothing to return, [out] value is NULL
+  */
+  [propget] HRESULT toolkitVersion
+    (
+     [out, retval] BSTR *version
+    );  
+
+}
+

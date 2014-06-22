@@ -1,0 +1,197 @@
+/*
+ * Copyright (C) 2010, 2011, 2012 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+interface TestRunner {
+    // The basics.
+    void dumpAsText(boolean dumpPixels);
+    void dumpChildFramesAsText();
+    void waitForPolicyDelegate();
+    void waitUntilDone();
+    void notifyDone();
+    double preciseTime();
+
+    // Other dumping.
+    void dumpBackForwardList();
+    void dumpChildFrameScrollPositions();
+    void dumpEditingCallbacks();
+    void dumpSelectionRect();
+    void dumpStatusCallbacks();
+    void dumpTitleChanges();
+    void dumpFullScreenCallbacks();
+    void dumpFrameLoadCallbacks();
+    void dumpProgressFinishedCallback();
+    void dumpResourceLoadCallbacks();
+    void dumpResourceResponseMIMETypes();
+    void dumpWillCacheResponse();
+    void dumpApplicationCacheDelegateCallbacks();
+    void dumpDatabaseCallbacks();
+    void dumpDOMAsWebArchive();
+
+    // Special options.
+    void keepWebHistory();
+    void setAcceptsEditing(boolean value);
+    void setCanOpenWindows(boolean value);
+    void setCloseRemainingWindowsWhenComplete(boolean value);
+    void setXSSAuditorEnabled(boolean value);
+    void setAllowUniversalAccessFromFileURLs(boolean value);
+    void setAllowFileAccessFromFileURLs(boolean value);
+    void setPluginsEnabled(boolean value);
+    void setJavaScriptCanAccessClipboard(boolean value);
+    void setPrivateBrowsingEnabled(boolean value);
+    void setPopupBlockingEnabled(boolean value);
+    void setAuthorAndUserStylesEnabled(boolean value);
+    void setCustomPolicyDelegate(boolean enabled, boolean permissive);
+    void addOriginAccessWhitelistEntry(DOMString sourceOrigin, DOMString destinationProtocol, DOMString destinationHost, boolean allowDestinationSubdomains);
+    void removeOriginAccessWhitelistEntry(DOMString sourceOrigin, DOMString destinationProtocol, DOMString destinationHost, boolean allowDestinationSubdomains);
+    void setUserStyleSheetEnabled(boolean value);
+    void setUserStyleSheetLocation(DOMString location);
+    void setSpatialNavigationEnabled(boolean value);
+    void setTabKeyCyclesThroughElements(boolean enabled);
+    void setSerializeHTTPLoads();
+    void dispatchPendingLoadRequests();
+    void setCacheModel(int model);
+    void setAsynchronousSpellCheckingEnabled(boolean value);
+    void setPrinting();
+
+    // Special DOM functions.
+    void clearBackForwardList();
+    void execCommand(DOMString name, DOMString argument);
+    boolean isCommandEnabled(DOMString name);
+    unsigned long windowCount();
+
+    // Special DOM variables.
+    attribute boolean globalFlag;
+
+    // Repaint testing.
+    void testRepaint();
+    void repaintSweepHorizontally();
+    void display();
+
+    // Printing
+    boolean isPageBoxVisible(int pageIndex);
+
+    [PassContext] void setValueForUser(object element, DOMString value);
+
+    // UserContent testing.
+    void addUserScript(DOMString source, boolean runAtStart, boolean allFrames);
+    void addUserStyleSheet(DOMString source, boolean allFrames);
+
+    // Local storage API
+    void clearAllDatabases();
+    void setDatabaseQuota(unsigned long long quota);
+    DOMString pathToLocalResource(DOMString url);
+
+    // Application Cache API
+    void clearAllApplicationCaches();
+    void setAppCacheMaximumSize(unsigned long long size);
+    long long applicationCacheDiskUsageForOrigin(DOMString origin);
+    void clearApplicationCacheForOrigin(DOMString name);
+    void setApplicationCacheOriginQuota(unsigned long long bytes);
+    void disallowIncreaseForApplicationCacheQuota();
+    object originsWithApplicationCache();
+
+    // Text search testing.
+    boolean findString(DOMString target, object optionsArray);
+
+    // Evaluating script in a special context.
+    [PassContext] void evaluateScriptInIsolatedWorld(unsigned long worldID, DOMString script);
+
+    // For Web Inspector tests
+    void showWebInspector();
+    void closeWebInspector();
+    void evaluateInWebInspector(long callID, DOMString script);
+
+    void setPOSIXLocale(DOMString locale);
+
+    void setTextDirection(DOMString direction);
+
+    void setWillSendRequestReturnsNull(boolean flag);
+    void setWillSendRequestReturnsNullOnRedirect(boolean flag);
+    
+    void setShouldStayOnPageAfterHandlingBeforeUnload(boolean flag);
+
+    void setDefersLoading(boolean flag);
+    void setStopProvisionalFrameLoads();
+
+    // Focus testing.
+    void addChromeInputField(object callback);
+    void removeChromeInputField(object callback);
+    void focusWebView(object callback);
+
+    void setBackingScaleFactor(double backingScaleFactor, object callback);
+
+    void setWindowIsKey(boolean isKey);
+
+    // Cookies testing
+    void setAlwaysAcceptCookies(boolean accept);
+
+    void overridePreference(DOMString preference, DOMString value);
+
+    // Page Visibility API
+    void setPageVisibility(DOMString state);
+    void resetPageVisibility();
+
+    readonly attribute DOMString platformName;
+
+    // Control full screen behavior.
+    void setHasCustomFullScreenBehavior(boolean value);
+
+    // Web notifications support
+    void grantWebNotificationPermission(DOMString origin);
+    void denyWebNotificationPermission(DOMString origin);
+    void removeAllWebNotificationPermissions();
+    void simulateWebNotificationClick(object notification);
+
+    // Geolocation
+    void setGeolocationPermission(boolean value);
+    void setMockGeolocationPosition(double latitude, double longitude, double accuracy, [Default=Undefined] optional object altitude, optional object altitudeAccuracy, optional object heading, optional object speed);
+    void setMockGeolocationPositionUnavailableError(DOMString errorMessage);
+
+    // Audio testing.
+    [PassContext] void setAudioResult(object data);
+
+    boolean callShouldCloseOnWebView();
+
+    // Work queue.
+    void queueBackNavigation(unsigned long howFarBackward);
+    void queueForwardNavigation(unsigned long howFarForward);
+    void queueLoad(DOMString url, DOMString target);
+    void queueLoadHTMLString(DOMString content, optional DOMString baseURL, optional DOMString unreachableURL);
+    void queueReload();
+    void queueLoadingScript(DOMString script);
+    void queueNonLoadingScript(DOMString script);
+
+    // Authentication
+    void setHandlesAuthenticationChallenges(boolean value);
+    void setAuthenticationUsername(DOMString username);
+    void setAuthenticationPassword(DOMString password);
+
+    // Secure text input mode (Mac only)
+    readonly attribute boolean secureEventInputIsEnabled;
+    
+    // Override plugin load policy.
+    void setBlockAllPlugins(boolean shouldBlock);
+};
+

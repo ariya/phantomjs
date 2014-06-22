@@ -1,0 +1,214 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2005 Apple Computer, Inc.  All rights reserved.
+# Copyright (C) 2007 Eric Seidel <eric@webkit.org>
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+# 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Script to run the WebKit Open Source Project JavaScriptCore tests (adapted from Mozilla).
+
+use strict;
+use FindBin;
+use Getopt::Long qw(:config pass_through);
+use lib $FindBin::Bin;
+use webkitdirs;
+use POSIX;
+
+# determine configuration
+setConfiguration();
+my $configuration = configuration();
+
+my @testsToSkip = (
+    # Various ecma/Date tests sometimes fail on Windows (but not Mac) https://bugs.webkit.org/show_bug.cgi?id=25160
+    "ecma/Date/15.9.2.1.js",
+    "ecma/Date/15.9.2.2-1.js",
+    "ecma/Date/15.9.2.2-2.js",
+    "ecma/Date/15.9.2.2-3.js",
+    "ecma/Date/15.9.2.2-4.js",
+    "ecma/Date/15.9.2.2-5.js",
+    "ecma/Date/15.9.2.2-6.js",
+    # ecma_3/Date/15.9.5.7.js fails on Mac (but not Windows) https://bugs.webkit.org/show_bug.cgi?id=25161
+    "ecma_3/Date/15.9.5.6.js",
+    "ecma_3/Date/15.9.5.7.js",
+    # These three fail on Linux in certain time zones, at certain times
+    # of the year (!): https://bugs.webkit.org/show_bug.cgi?id=71371
+    "ecma/Date/15.9.5.14.js",
+    "ecma/Date/15.9.5.31-1.js",
+    "ecma/Date/15.9.5.34-1.js",
+);
+
+my $jsDriverArgs = "-L " . join(" ", @testsToSkip);
+# These variables are intentionally left undefined.
+my $root;
+my $showHelp;
+
+my $buildJSC = 1;
+
+my $programName = basename($0);
+my $buildJSCDefault = $buildJSC ? "will check" : "will not check";
+my $usage = <<EOF;
+Usage: $programName [options] [options to pass to build system]
+  --help                        Show this help message
+  --jsDriver-args=              A string of arguments to pass to jsDriver.pl
+  --root=                       Path to pre-built root containing jsc
+  --[no-]build                  Check (or don't check) to see if the jsc build is up-to-date (default: $buildJSCDefault)
+EOF
+
+GetOptions(
+    'j|jsDriver-args=s' => \$jsDriverArgs,
+    'root=s' => \$root,
+    'build!' => \$buildJSC,
+    'help' => \$showHelp
+);
+
+# Assume any arguments left over from GetOptions are assumed to be build arguments
+my @buildArgs = @ARGV;
+
+# Arguments passed to --jsDriver-args (if any) are passed to jsDriver.pl
+my @jsArgs = split(" ", $jsDriverArgs);
+
+if ($showHelp) {
+   print STDERR $usage;
+   exit 1;
+}
+
+setConfigurationProductDir(Cwd::abs_path($root)) if (defined($root));
+
+if (!defined($root) && $buildJSC) {
+    chdirWebKit();
+
+    push(@buildArgs, argumentsForConfiguration());
+    
+    print "Running: build-jsc " . join(" ", @buildArgs) . "\n";
+    my $buildResult = system "perl", "Tools/Scripts/build-jsc", @buildArgs;
+    if ($buildResult) {
+        print STDERR "Compiling jsc failed!\n";
+        exit exitStatus($buildResult);
+    }
+}
+
+
+my $productDir = jscProductDir();
+$ENV{DYLD_FRAMEWORK_PATH} = $productDir;
+setPathForRunningWebKitApp(\%ENV) if isCygwin();
+
+sub testapiPath($)
+{
+    my ($productDir) = @_;
+    my $jscName = "testapi";
+    $jscName .= "_debug" if configurationForVisualStudio() eq "Debug_All";
+    return "$productDir/$jscName";
+}
+
+#run api tests
+if (isAppleMacWebKit() || isAppleWinWebKit()) {
+    chdirWebKit();
+    chdir($productDir) or die "Failed to switch directory to '$productDir'\n";
+    my $path = testapiPath($productDir);
+    # Use an "indirect object" so that system() won't get confused if the path
+    # contains spaces (see perldoc -f exec).
+    my $testapiResult = system { $path } $path;
+    exit exitStatus($testapiResult)  if $testapiResult;
+}
+
+# Find JavaScriptCore directory
+chdirWebKit();
+chdir("Source/JavaScriptCore");
+chdir "tests/mozilla" or die "Failed to switch directory to 'tests/mozilla'\n";
+printf "Running: jsDriver.pl -e squirrelfish -s %s -f actual.html %s\n", jscPath($productDir), join(" ", @jsArgs);
+my @jsDriverCmd = ("perl", "jsDriver.pl", "-e", "squirrelfish", "-s", jscPath($productDir), "-f", "actual.html", @jsArgs);
+if (isGtk() || isEfl()) {
+    my @jhbuildPrefix = sourceDir() . "/Tools/jhbuild/jhbuild-wrapper";
+
+    if (isEfl()) {
+        push(@jhbuildPrefix, '--efl');
+    } elsif (isGtk()) {
+        push(@jhbuildPrefix, '--gtk');
+    }
+    push(@jhbuildPrefix, 'run');
+
+    unshift(@jsDriverCmd, @jhbuildPrefix);
+}
+my $result = system(@jsDriverCmd);
+exit exitStatus($result)  if $result;
+
+my %failures;
+
+open EXPECTED, "expected.html" or die "Failed to open 'expected.html'\n";
+while (<EXPECTED>) {
+    last if /failures reported\.$/;
+}
+while (<EXPECTED>) {
+    chomp;
+    $failures{$_} = 1;
+}
+close EXPECTED;
+
+my %newFailures;
+
+open ACTUAL, "actual.html" or die "Failed to open 'actual.html'";
+while (<ACTUAL>) {
+    last if /failures reported\.$/;
+}
+while (<ACTUAL>) {
+    chomp;
+    if ($failures{$_}) {
+        delete $failures{$_};
+    } else {
+        $newFailures{$_} = 1;
+    }
+}
+close ACTUAL;
+
+my $numNewFailures = keys %newFailures;
+if ($numNewFailures) {
+    print "\n** Danger, Will Robinson! Danger! The following failures have been introduced:\n";
+    foreach my $failure (sort keys %newFailures) {
+        print "\t$failure\n";
+    }
+}
+
+my $numOldFailures = keys %failures;
+if ($numOldFailures) {
+    print "\nYou fixed the following test";
+    print "s" if $numOldFailures != 1;
+    print ":\n";
+    foreach my $failure (sort keys %failures) {
+        print "\t$failure\n";
+    }
+}
+
+print "\n";
+
+print "$numNewFailures regression";
+print "s" if $numNewFailures != 1;
+print " found.\n";
+
+print "$numOldFailures test";
+print "s" if $numOldFailures != 1;
+print " fixed.\n";
+
+print "OK.\n" if $numNewFailures == 0;
+exit(1)  if $numNewFailures;

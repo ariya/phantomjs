@@ -46,7 +46,7 @@ template<typename AddressType, typename EntryType>
 StaticContainedRangeMap<AddressType, EntryType>::StaticContainedRangeMap(
     const char *base)
     : base_(*(reinterpret_cast<const AddressType*>(base))),
-      entry_size_(*(reinterpret_cast<const u_int32_t*>(base + sizeof(base_)))),
+      entry_size_(*(reinterpret_cast<const uint32_t*>(base + sizeof(base_)))),
       entry_ptr_(reinterpret_cast<const EntryType *>(
           base + sizeof(base_) + sizeof(entry_size_))),
       map_(base + sizeof(base_) + sizeof(entry_size_) + entry_size_) {

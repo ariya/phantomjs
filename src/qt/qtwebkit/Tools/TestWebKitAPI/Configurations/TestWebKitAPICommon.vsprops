@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="TestWebKitAPICommon"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+                AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;;&quot;$(ProjectDir)\..&quot;;&quot;$(ConfigurationBuildDir)\include&quot;;&quot;$(ConfigurationBuildDir)\include\private\JavaScriptCore&quot;;&quot;$(ConfigurationBuildDir)\include\WebCore\ForwardingHeaders&quot;;&quot;$(ConfigurationBuildDir)\include\private&quot;;&quot;$(WebKitLibrariesDir)\include&quot;;&quot;$(ProjectDir)\..\..\..\Source\ThirdParty\gtest\include&quot;"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		AdditionalDependencies="WebKit$(WebKitDLLConfigSuffix).lib JavaScriptCore$(WebKitDLLConfigSuffix).lib gtest.lib"
+		SubSystem="1"
+	/>
+</VisualStudioPropertySheet>

@@ -1,0 +1,182 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2005, 2006, 2013 Apple Computer, Inc.  All rights reserved.
+# Copyright (C) 2007 Holger Hans Peter Freyther.  All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+# 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Script to build, run and visualize coverage information
+
+use strict;
+use File::Basename;
+use File::Spec;
+use FindBin;
+use Getopt::Long qw(:config pass_through);
+use JSON;
+use lib $FindBin::Bin;
+use List::Util qw(sum);
+use List::Util qw(max);
+use POSIX;
+use webkitdirs;
+use XML::Simple;
+
+sub parseGcovrOutput($);
+sub getFileHitsAndBranches($);
+sub addLineCounts($$$$$$);
+sub createResultName();
+sub generateReport($);
+
+chdirWebKit();
+system("mkdir WebKitBuild/Coverage") if ! -d "WebKitBuild/Coverage";
+
+# Delete old gcov files
+print "Cleaning up\n";
+system("if [ -d WebKitBuild ]; then find WebKitBuild -name '*.gcda' -delete; fi;") == 0 or die "Cannot delete old gcda files (code coverage";
+
+print "Building and testing\n";
+system("Tools/Scripts/build-webkit", "--clean", @ARGV) == 0 or die "Cannot clean WebKit build";
+system("Tools/Scripts/build-webkit", "--coverage", "--release", @ARGV) == 0 or die "Cannot compile WebKit with code coverage";
+system("Tools/Scripts/run-javascriptcore-tests --no-build");
+system("Tools/Scripts/run-api-tests");
+system("Tools/Scripts/run-webkit-tests");
+system("Tools/Scripts/run-webkit-tests -2");
+generateReport(createResultName());
+print "Done\n";
+
+sub generateReport()
+{
+    my ($reportName) = @_;
+
+    # Generate the coverage data and report
+    print "Collecting coverage data\n";
+    system("python Tools/Scripts/webkitpy/tool/gcovr --xml --output=WebKitBuild/Coverage/" . $reportName . ".xml") == 0 or die "Cannot run gcovr";
+
+    # Collect useful data from xml to json format
+    my $jsonData = encode_json(parseGcovrOutput("WebKitBuild/Coverage/$reportName.xml"));
+    open my $templateFile, "<", "Tools/CodeCoverage/results-template.html" or die "Cannot open Tools/CodeCoverage/results-template.html";
+    my $templateHtml = join("", <$templateFile>);
+    close $templateFile;
+    $templateHtml =~ s/%CoverageDataJSON%/$jsonData/;
+
+    my $reportFilename = "WebKitBuild/Coverage/$reportName.html";
+    open my $reportFile, ">", $reportFilename or die "Cannot open $reportFilename";
+    print $reportFile $templateHtml;
+    close $reportFile;
+
+    # Open the report
+    my $url = "file://" . sourceDir() . "/WebKitBuild/Coverage/$reportName.html";
+    system "open \"$url\"";
+}
+
+sub parseGcovrOutput($)
+{
+    my ($xmlData) = @_;
+    my $sourceDir = sourceDir();
+    
+    my @files;
+
+    # The xml output of gcovr uses a Java-like package/class names for directories and files
+    my $packages = new XML::Simple->XMLin($xmlData)->{"packages"}->{"package"};
+
+    foreach my $packageName (keys %{$packages}) {
+        my $classes = $packages->{$packageName}->{"classes"}->{"class"};
+        
+        # Perl's XML::Simple causes files to be here in the parsed xml data structure
+        # if there's only one child, even though they're a layer deeper in the xml tree
+        if ($classes->{"filename"} && $classes->{"lines"}) {
+            if ($classes->{"filename"} =~ /$sourceDir/) {
+                push(@files, getFileHitsAndBranches($classes));
+            }
+        }
+        else {
+            foreach my $key (keys %{$classes}) {
+                my $class = $classes->{$key};
+                if ($class->{"filename"} =~ /$sourceDir/) {
+                    push(@files,getFileHitsAndBranches($class));
+                }
+            }
+        }
+    }
+    return \@files;
+}
+
+sub getFileHitsAndBranches($)
+{
+    my ($class) = @_;
+
+    my @hits;
+    my @hitLines;
+    my @branchesPossible;
+    my @branchesTaken;
+    my @branchLines;
+
+    my $lines = $class->{"lines"}->{"line"};
+    if (ref($lines) eq "ARRAY") {
+        foreach my $line (@$lines) {
+            addLineCounts($line, \@hits, \@hitLines, \@branchesPossible, \@branchesTaken, \@branchLines);
+        }
+    } else {
+        addLineCounts($lines, \@hits, \@hitLines, \@branchesPossible, \@branchesTaken, \@branchLines);
+    }
+    
+    my $file = {};
+    $file->{"hits"} = \@hits;
+    $file->{"hitLines"} = \@hitLines;
+    $file->{"branchesPossible"} = \@branchesPossible;
+    $file->{"branchesTaken"} = \@branchesTaken;
+    $file->{"branchLines"} = \@branchLines;
+    $file->{"filename"} = substr($class->{"filename"}, length(sourceDir()));
+    $file->{"coverage"} = abs($class->{"line-rate"});
+    if (@branchLines) {
+        $file->{"branchCoverage"} = abs($class->{"branch-rate"});
+    } else {
+        $file->{"branchCoverage"} = 1;
+    }
+    $file->{"totalHeat"} = sum(@hits);
+    $file->{"maxHeat"} = max(@hits);
+    return $file;
+}
+
+sub addLineCounts($$$$$$)
+{
+    my ($line, $hits, $hitLines, $branchesPossible, $branchesTaken, $branchLines) = @_;
+    push(@$hits, int($line->{"hits"}));
+    push(@$hitLines, int($line->{"number"}));
+    if($line->{"branch"} eq "true") {
+    
+        # Extract the numerator and denominator of the condition-coverage attribute, which looks like "75% (3/4)"
+        $line->{"condition-coverage"} =~ /\((.*)\/(.*)\)/;
+        push(@$branchesTaken, int($1));
+        push(@$branchesPossible, int($2));
+        push(@$branchLines, int($line->{"number"}));
+    }
+}
+
+sub createResultName()
+{
+    my $svnVersion = determineCurrentSVNRevision();
+    my @timeData = localtime(time);
+    return $svnVersion . "-" . join('_', @timeData);
+}

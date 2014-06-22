@@ -53,23 +53,23 @@ class StackwalkerPPC : public Stackwalker {
   // register state corresponding to the innermost called frame to be
   // included in the stack.  The other arguments are passed directly through
   // to the base Stackwalker constructor.
-  StackwalkerPPC(const SystemInfo *system_info,
-                 const MDRawContextPPC *context,
-                 MemoryRegion *memory,
-                 const CodeModules *modules,
-                 SymbolSupplier *supplier,
-                 SourceLineResolverInterface *resolver);
+  StackwalkerPPC(const SystemInfo* system_info,
+                 const MDRawContextPPC* context,
+                 MemoryRegion* memory,
+                 const CodeModules* modules,
+                 StackFrameSymbolizer* frame_symbolizer);
 
  private:
   // Implementation of Stackwalker, using ppc context (stack pointer in %r1,
   // saved program counter in %srr0) and stack conventions (saved stack
   // pointer at 0(%r1), return address at 8(0(%r1)).
   virtual StackFrame* GetContextFrame();
-  virtual StackFrame* GetCallerFrame(const CallStack *stack);
+  virtual StackFrame* GetCallerFrame(const CallStack* stack,
+                                     bool stack_scan_allowed);
 
   // Stores the CPU context corresponding to the innermost stack frame to
   // be returned by GetContextFrame.
-  const MDRawContextPPC *context_;
+  const MDRawContextPPC* context_;
 };
 
 

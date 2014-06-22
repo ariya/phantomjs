@@ -1,0 +1,54 @@
+(webkit-printing)
+
+(allow signal network-inbound)
+(allow process-fork)
+(allow process-exec
+    (subpath "/System/Library/Java/JavaVirtualMachines")
+    (subpath "/Library/Internet Plug-Ins/JavaAppletPlugin.plugin"))
+
+(allow mach-lookup
+    (global-name "com.apple.coreservices.launchservicesd")
+    (global-name-regex #"^PlaceHolderServerName-"))
+
+(if (equal? os-version "10.7")
+    (begin
+        (allow mach-lookup
+            (global-name-regex #"^com\.apple\.java\.jrs\.carenderserver"))
+        (allow file-read* file-write*
+            (home-library-subpath "/Caches/net.java.openjdk.cmd"))))
+
+(allow file-read*
+    (literal "/dev/fd")
+    (literal "/usr/bin")
+    (literal "/private/etc/hosts")
+    (subpath "/Library/Java")
+    (subpath "/System/Library/Java"))
+
+(shared-preferences-read
+    "com.apple.java.JavaPreferences"
+    "net.java.openjdk.cmd")
+
+(shared-preferences-read-write
+    "com.apple.java.util.prefs"
+    "com.oracle.javadeployment")
+
+(allow file-read* file-write*
+    (home-library-subpath "/Saved Application State/net.java.openjdk.cmd.savedState")
+    (home-library-subpath "/Application Support/Oracle/Java/Deployment")
+    (home-library-subpath "/Caches/Java"))
+
+(allow file-write-create
+    (home-library-literal "/Application Support/Oracle")
+    (home-library-literal "/Application Support/Oracle/Java"))
+
+(allow file-read*
+    (subpath "/Library/Application Support/Java/PublicFiles")
+    (subpath "/Library/Application Support/Oracle/Java/Deployment"))
+
+(allow network-bind network-outbound (subpath (param "DARWIN_USER_TEMP_DIR")))
+(allow network-bind (local ip))
+
+(deny file-write* (with no-log) (subpath "/Library/Application Support/Oracle"))
+(deny file-write* (with no-log) (subpath (param "WEBKIT2_FRAMEWORK_DIR")))
+
+(deny job-creation (with no-log))

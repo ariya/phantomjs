@@ -176,7 +176,19 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath="..\..\..\common\windows\dia_util.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\common\windows\guid_string.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\common\windows\omap_internal.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\common\windows\omap.h"
 				>
 			</File>
 			<File
@@ -200,11 +212,19 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\..\..\common\windows\dia_util.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\dump_syms.cc"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\common\windows\guid_string.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\common\windows\omap.cc"
 				>
 			</File>
 			<File

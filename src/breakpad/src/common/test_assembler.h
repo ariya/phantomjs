@@ -60,12 +60,12 @@
 #include <vector>
 #include <string>
 
+#include "common/using_std_string.h"
 #include "google_breakpad/common/breakpad_types.h"
 
 namespace google_breakpad {
 
 using std::list;
-using std::string;
 using std::vector;
 
 namespace test_assembler {
@@ -110,7 +110,7 @@ namespace test_assembler {
 class Label {
  public:
   Label();                      // An undefined label.
-  Label(u_int64_t value);       // A label with a fixed value
+  Label(uint64_t value);       // A label with a fixed value
   Label(const Label &value);    // A label equal to another.
   ~Label();
 
@@ -119,23 +119,23 @@ class Label {
   // Providing this as a cast operator is nifty, but the conversions
   // happen in unexpected places. In particular, ISO C++ says that
   // Label + size_t becomes ambigious, because it can't decide whether
-  // to convert the Label to a u_int64_t and then to a size_t, or use
+  // to convert the Label to a uint64_t and then to a size_t, or use
   // the overloaded operator that returns a new label, even though the
   // former could fail if the label is not yet defined and the latter won't.
-  u_int64_t Value() const;
+  uint64_t Value() const;
 
-  Label &operator=(u_int64_t value);
+  Label &operator=(uint64_t value);
   Label &operator=(const Label &value);
-  Label operator+(u_int64_t addend) const;
-  Label operator-(u_int64_t subtrahend) const;
-  u_int64_t operator-(const Label &subtrahend) const;
+  Label operator+(uint64_t addend) const;
+  Label operator-(uint64_t subtrahend) const;
+  uint64_t operator-(const Label &subtrahend) const;
 
   // We could also provide == and != that work on undefined, but
   // related, labels.
 
   // Return true if this label's value is known. If VALUE_P is given,
   // set *VALUE_P to the known value if returning true.
-  bool IsKnownConstant(u_int64_t *value_p = NULL) const;
+  bool IsKnownConstant(uint64_t *value_p = NULL) const;
 
   // Return true if the offset from LABEL to this label is known. If
   // OFFSET_P is given, set *OFFSET_P to the offset when returning true.
@@ -150,12 +150,12 @@ class Label {
   //   m = l + 10;
   //   l.IsKnownConstant();             // false
   //   m.IsKnownConstant();             // false
-  //   u_int64_t d;                     
+  //   uint64_t d;                     
   //   l.IsKnownOffsetFrom(m, &d);      // true, and sets d to -10.
   //   l-m                              // -10
   //   m-l                              // 10
   //   m.Value()                        // error: m's value is not known
-  bool IsKnownOffsetFrom(const Label &label, u_int64_t *offset_p = NULL) const;
+  bool IsKnownOffsetFrom(const Label &label, uint64_t *offset_p = NULL) const;
 
  private:
   // A label's value, or if that is not yet known, how the value is
@@ -173,7 +173,7 @@ class Label {
   class Binding {
    public:
     Binding();
-    Binding(u_int64_t addend);
+    Binding(uint64_t addend);
     ~Binding();
 
     // Increment our reference count.
@@ -186,7 +186,7 @@ class Label {
     // Update every binding on this binding's chain to point directly
     // to BINDING, or to be a constant, with addends adjusted
     // appropriately.
-    void Set(Binding *binding, u_int64_t value);
+    void Set(Binding *binding, uint64_t value);
 
     // Return what we know about the value of this binding.
     // - If this binding's value is a known constant, set BASE to
@@ -198,7 +198,7 @@ class Label {
     //   value.
     // - If this binding is unconstrained, set BASE to this, and leave
     //   ADDEND unchanged.
-    void Get(Binding **base, u_int64_t *addend);
+    void Get(Binding **base, uint64_t *addend);
 
    private:
     // There are three cases:
@@ -221,7 +221,7 @@ class Label {
     // binding on the chain to point directly to the final value,
     // adjusting addends as appropriate.
     Binding *base_;
-    u_int64_t addend_;
+    uint64_t addend_;
 
     // The number of Labels and Bindings pointing to this binding.
     // (When a binding points to itself, indicating a completely
@@ -233,7 +233,7 @@ class Label {
   Binding *value_;
 };
 
-inline Label operator+(u_int64_t a, const Label &l) { return l + a; }
+inline Label operator+(uint64_t a, const Label &l) { return l + a; }
 // Note that int-Label isn't defined, as negating a Label is not an
 // operation we support.
 
@@ -271,7 +271,10 @@ class Section {
  public:
   Section(Endianness endianness = kUnsetEndian)
       : endianness_(endianness) { };
-  ~Section() { };
+
+  // A base class destructor should be either public and virtual,
+  // or protected and nonvirtual.
+  virtual ~Section() { };
 
   // Set the default endianness of this section to ENDIANNESS. This
   // sets the behavior of the D<N> appending functions. If the
@@ -285,7 +288,7 @@ class Section {
 
   // Append the SIZE bytes at DATA or the contents of STRING to the
   // end of this section. Return a reference to this section.
-  Section &Append(const u_int8_t *data, size_t size) {
+  Section &Append(const uint8_t *data, size_t size) {
     contents_.append(reinterpret_cast<const char *>(data), size);
     return *this;
   };
@@ -296,7 +299,7 @@ class Section {
 
   // Append SIZE copies of BYTE to the end of this section. Return a
   // reference to this section.
-  Section &Append(size_t size, u_int8_t byte) {
+  Section &Append(size_t size, uint8_t byte) {
     contents_.append(size, (char) byte);
     return *this;
   }
@@ -304,7 +307,7 @@ class Section {
   // Append NUMBER to this section. ENDIANNESS is the endianness to
   // use to write the number. SIZE is the length of the number in
   // bytes. Return a reference to this section.
-  Section &Append(Endianness endianness, size_t size, u_int64_t number);
+  Section &Append(Endianness endianness, size_t size, uint64_t number);
   Section &Append(Endianness endianness, size_t size, const Label &label);
 
   // Append SECTION to the end of this section. The labels SECTION
@@ -349,12 +352,12 @@ class Section {
   // the compiler will properly sign-extend a signed value before
   // passing it to the function, at which point the function's
   // behavior is the same either way.
-  Section &L8(u_int8_t value) { contents_ += value; return *this; }
-  Section &B8(u_int8_t value) { contents_ += value; return *this; }
-  Section &D8(u_int8_t value) { contents_ += value; return *this; }
-  Section &L16(u_int16_t), &L32(u_int32_t), &L64(u_int64_t),
-          &B16(u_int16_t), &B32(u_int32_t), &B64(u_int64_t),
-          &D16(u_int16_t), &D32(u_int32_t), &D64(u_int64_t);
+  Section &L8(uint8_t value) { contents_ += value; return *this; }
+  Section &B8(uint8_t value) { contents_ += value; return *this; }
+  Section &D8(uint8_t value) { contents_ += value; return *this; }
+  Section &L16(uint16_t), &L32(uint32_t), &L64(uint64_t),
+          &B16(uint16_t), &B32(uint32_t), &B64(uint64_t),
+          &D16(uint16_t), &D32(uint32_t), &D64(uint64_t);
   Section &L8(const Label &label),  &L16(const Label &label),
           &L32(const Label &label), &L64(const Label &label),
           &B8(const Label &label),  &B16(const Label &label),
@@ -396,13 +399,13 @@ class Section {
   //
   // Note that VALUE cannot be a Label (we would have to implement
   // relaxation).
-  Section &ULEB128(u_int64_t value);
+  Section &ULEB128(uint64_t value);
 
   // Jump to the next location aligned on an ALIGNMENT-byte boundary,
   // relative to the start of the section. Fill the gap with PAD_BYTE.
   // ALIGNMENT must be a power of two. Return a reference to this
   // section.
-  Section &Align(size_t alignment, u_int8_t pad_byte = 0);
+  Section &Align(size_t alignment, uint8_t pad_byte = 0);
 
   // Clear the contents of this section.
   void Clear();

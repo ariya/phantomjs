@@ -1,0 +1,1241 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+cpp_quote("/* identifiers for commands that can be called by the webview's frame */")
+cpp_quote("enum WebViewCmd { Cut = 100, Copy, Paste, ForwardDelete, SelectAll, Undo, Redo };")
+
+cpp_quote("#define WebViewProgressStartedNotification TEXT(\"WebProgressStartedNotification\")")
+cpp_quote("#define WebViewProgressEstimateChangedNotification TEXT(\"WebProgressEstimateChangedNotification\")")
+cpp_quote("#define WebViewProgressFinishedNotification TEXT(\"WebProgressFinishedNotification\")")
+cpp_quote("#define WebViewDidChangeSelectionNotification TEXT(\"WebViewDidChangeSelectionNotification\")")
+
+#ifndef DO_NO_IMPORTS
+import "oaidl.idl";
+import "ocidl.idl";
+import "IWebUIDelegate.idl";
+import "IWebURLResponse.idl";
+import "IWebResourceLoadDelegate.idl";
+import "IWebDownload.idl";
+import "IWebFrameLoadDelegate.idl";
+import "IWebPolicyDelegate.idl";
+import "IWebBackForwardList.idl";
+import "IWebHistoryItem.idl";
+import "IWebPreferences.idl";
+import "DOMCSS.idl";
+import "IWebUndoManager.idl";
+import "IWebEditingDelegate.idl";
+import "DOMRange.idl";
+import "AccessibilityDelegate.idl";
+#endif
+
+interface IDOMCSSStyleDeclaration;
+interface IDOMDocument;
+interface IDOMElement;
+interface IDOMNode;
+interface IDOMRange;
+
+interface IWebArchive;
+interface IWebBackForwardList;
+interface IWebDataSource;
+interface IWebFrame;
+interface IWebFrameView;
+interface IWebHistoryItem;
+interface IWebPreferences;
+interface IWebScriptObject;
+
+interface IWebUIDelegate;
+interface IWebResourceLoadDelegate;
+interface IWebDownloadDelegate;
+interface IWebEditingDelegate;
+interface IWebFrameLoadDelegate;
+interface IWebPolicyDelegate;
+interface IWebDocumentView;
+interface IWebDocumentRepresentation;
+interface IWebUndoManager;
+
+interface IAccessibilityDelegate;
+
+/* These are the keys for the WebElementPropertyBag */
+const LPCOLESTR WebElementDOMNodeKey = L"WebElementDOMNodeKey";
+const LPCOLESTR WebElementFrameKey = L"WebElementFrameKey";
+const LPCOLESTR WebElementImageAltStringKey = L"WebElementImageAltStringKey";
+const LPCOLESTR WebElementImageKey = L"WebElementImageKey";
+const LPCOLESTR WebElementImageRectKey = L"WebElementImageRectKey";
+const LPCOLESTR WebElementImageURLKey = L"WebElementImageURLKey";
+const LPCOLESTR WebElementIsSelectedKey = L"WebElementIsSelectedKey";
+const LPCOLESTR WebElementMediaURLKey = L"WebElementMediaURLKey";
+const LPCOLESTR WebElementSpellingToolTipKey = L"WebElementSpellingToolTipKey";
+const LPCOLESTR WebElementTitleKey = L"WebElementTitleKey";
+const LPCOLESTR WebElementLinkURLKey = L"WebElementLinkURLKey";
+const LPCOLESTR WebElementLinkTargetFrameKey = L"WebElementLinkTargetFrameKey";
+const LPCOLESTR WebElementLinkTitleKey = L"WebElementLinkTitleKey";
+const LPCOLESTR WebElementLinkLabelKey = L"WebElementLinkLabelKey";
+const LPCOLESTR WebElementIsContentEditableKey = L"WebElementIsContentEditableKey";
+
+/*!
+    @class IEnumTextMatches
+*/
+[
+    object,
+    oleautomation,
+    uuid(C0CDE63A-5ED1-453f-B937-93B1A61AD3B3),
+    pointer_default(unique)
+]
+interface IEnumTextMatches : IUnknown
+{
+    HRESULT Next(ULONG celt, RECT* rect, ULONG* pceltFetched);
+    HRESULT Skip(ULONG celt);
+    HRESULT Reset(void);
+    HRESULT Clone(IEnumTextMatches** ppenum);
+};
+
+/*!
+    @class WebView
+    WebView manages the interaction between WebFrameViews and WebDataSources.  Modification
+    of the policies and behavior of the WebKit is largely managed by WebViews and their
+    delegates.
+    
+    <p>
+    Typical usage:
+    </p>
+    <pre>
+    WebView *webView;
+    WebFrame *mainFrame;
+    
+    webView  = [[WebView alloc] initWithFrame: NSMakeRect (0,0,640,480)];
+    mainFrame = [webView mainFrame];
+    [mainFrame loadRequest:request];
+    </pre>
+    
+    WebViews have the following delegates:  WebUIDelegate, WebResourceLoadDelegate,
+    WebFrameLoadDelegate, and WebPolicyDelegate.
+    
+    WebKit depends on the WebView's WebUIDelegate for all window
+    related management, including opening new windows and controlling the user interface
+    elements in those windows.
+    
+    WebResourceLoadDelegate is used to monitor the progress of resources as they are
+    loaded.  This delegate may be used to present users with a progress monitor.
+    
+    The WebFrameLoadDelegate receives messages when the URL in a WebFrame is
+    changed.
+    
+    WebView's WebPolicyDelegate can make determinations about how
+    content should be handled, based on the resource's URL and MIME type.
+
+    @interface WebView : NSView
+*/
+[
+    object,
+    oleautomation,
+    hidden,
+    uuid(174BBEFD-058E-49c7-91DF-6F110AA4AC28),
+    pointer_default(unique)
+]
+interface IWebView : IUnknown
+{
+    /*!
+        @method canShowMIMEType:
+        @abstract Checks if the WebKit can show content of a certain MIME type.
+        @param MIMEType The MIME type to check.
+        @result YES if the WebKit can show content with MIMEtype.
+        + (BOOL)canShowMIMEType:(NSString *)MIMEType;
+    */
+    HRESULT canShowMIMEType([in] BSTR mimeType, [out, retval] BOOL* canShow);
+
+    /*!
+        @method canShowMIMETypeAsHTML:
+        @abstract Checks if the the MIME type is a type that the WebKit will interpret as HTML.
+        @param MIMEType The MIME type to check.
+        @result YES if the MIMEtype in an HTML type.
+        + (BOOL)canShowMIMETypeAsHTML:(NSString *)MIMEType;
+    */
+    HRESULT canShowMIMETypeAsHTML([in] BSTR mimeType, [out, retval] BOOL* canShow);
+
+    /*!
+        @method MIMETypesShownAsHTML
+        @result Returns an array of NSStrings that describe the MIME types
+        WebKit will attempt to render as HTML.
+        + (NSArray *)MIMETypesShownAsHTML;
+    */
+    HRESULT MIMETypesShownAsHTML([out, retval] IEnumVARIANT** enumVariant);
+
+    /*!
+        @method setMIMETypesShownAsHTML:
+        @discussion Sets the array of NSString MIME types that WebKit will
+        attempt to render as HTML.  Typically you will retrieve the built-in
+        array using MIMETypesShownAsHTML and add additional MIME types to that
+        array.
+        + (void)setMIMETypesShownAsHTML:(NSArray *)MIMETypes;
+    */
+    HRESULT setMIMETypesShownAsHTML([in, size_is(cMimeTypes)] BSTR* mimeTypes, [in] int cMimeTypes);
+
+    /*!
+        @method URLFromPasteboard:
+        @abstract Returns a URL from a pasteboard
+        @param pasteboard The pasteboard with a URL
+        @result A URL if the pasteboard has one. Nil if it does not.
+        @discussion This method differs than NSURL's URLFromPasteboard method in that it tries multiple pasteboard types
+        including NSURLPboardType to find a URL on the pasteboard.
+        + (NSURL *)URLFromPasteboard:(NSPasteboard *)pasteboard;
+    */
+    HRESULT URLFromPasteboard([in] IDataObject* pasteboard, [out, retval] BSTR* url);
+
+    /*!
+        @method URLTitleFromPasteboard:
+        @abstract Returns a URL title from a pasteboard
+        @param pasteboard The pasteboard with a URL title
+        @result A URL title if the pasteboard has one. Nil if it does not.
+        @discussion This method returns a title that refers a URL on the pasteboard. An example of this is the link label
+        which is the text inside the anchor tag.
+        + (NSString *)URLTitleFromPasteboard:(NSPasteboard *)pasteboard;
+    */
+    HRESULT URLTitleFromPasteboard([in] IDataObject* pasteboard, [out, retval] BSTR* urlTitle);
+
+    /*!
+        @method initWithFrame:frameName:groupName:
+        @abstract The designated initializer for WebView.
+        @discussion Initialize a WebView with the supplied parameters. This method will 
+        create a main WebFrame with the view. Passing a top level frame name is useful if you
+        handle a targetted frame navigation that would normally open a window in some other 
+        way that still ends up creating a new WebView.
+        @param frame The frame used to create the view.
+        @param frameName The name to use for the top level frame. May be nil.
+        @param groupName The name of the webView set to which this webView will be added.  May be nil.
+        @result Returns an initialized WebView.
+        - (id)initWithFrame:(NSRect)frame frameName:(NSString *)frameName groupName:(NSString *)groupName;
+    */
+    HRESULT initWithFrame([in] RECT frame, [in] BSTR frameName, [in] BSTR groupName);
+
+    /*!
+        @method accessibilityDelegate:
+        @abstract Return the WebView's accessibilityDelegate.
+        @param delegate The WebUIDelegate to set as the delegate.
+        - (void)setUIDelegate:(id)delegate;
+    */
+    HRESULT setAccessibilityDelegate([in] IAccessibilityDelegate *d);
+
+    /*!
+        @method setAccessibilityDelegate:
+        @abstract Set the WebView's accessibilityDelegate.
+        @result The WebView's WebUIDelegate.
+        - (id)UIDelegate;
+    */
+    HRESULT accessibilityDelegate([out][retval] IAccessibilityDelegate **d);
+
+    /*!
+        @method setUIDelegate:
+        @abstract Set the WebView's WebUIDelegate.
+        @param delegate The WebUIDelegate to set as the delegate.
+        - (void)setUIDelegate:(id)delegate;
+    */
+    HRESULT setUIDelegate([in] IWebUIDelegate* d);
+
+    /*!
+        @method UIDelegate
+        @abstract Return the WebView's WebUIDelegate.
+        @result The WebView's WebUIDelegate.
+        - (id)UIDelegate;
+    */
+    HRESULT uiDelegate([retval, out] IWebUIDelegate** d);
+
+    /*!
+        @method setResourceLoadDelegate:
+        @abstract Set the WebView's WebResourceLoadDelegate load delegate.
+        @param delegate The WebResourceLoadDelegate to set as the load delegate.
+        - (void)setResourceLoadDelegate:(id)delegate;
+    */
+    HRESULT setResourceLoadDelegate([in] IWebResourceLoadDelegate* d);
+
+    /*!
+        @method resourceLoadDelegate
+        @result Return the WebView's WebResourceLoadDelegate.
+        - (id)resourceLoadDelegate;
+    */    
+    HRESULT resourceLoadDelegate([retval, out] IWebResourceLoadDelegate** d);
+
+    /*!
+        @method setDownloadDelegate:
+        @abstract Set the WebView's WebDownloadDelegate.
+        @discussion The download delegate is retained by WebDownload when any downloads are in progress.
+        @param delegate The WebDownloadDelegate to set as the download delegate.
+        - (void)setDownloadDelegate:(id)delegate;
+    */
+    HRESULT setDownloadDelegate([in] IWebDownloadDelegate* d);
+
+    /*!
+        @method downloadDelegate
+        @abstract Return the WebView's WebDownloadDelegate.
+        @result The WebView's WebDownloadDelegate.
+        - (id)downloadDelegate;
+    */    
+    HRESULT downloadDelegate([retval, out] IWebDownloadDelegate** d);
+
+    /*!
+        @method setFrameLoadDelegate:
+        @abstract Set the WebView's WebFrameLoadDelegate delegate.
+        @param delegate The WebFrameLoadDelegate to set as the delegate.
+        - (void)setFrameLoadDelegate:(id)delegate;
+    */
+    HRESULT setFrameLoadDelegate([in] IWebFrameLoadDelegate* d);
+
+    /*!
+        @method frameLoadDelegate
+        @abstract Return the WebView's WebFrameLoadDelegate delegate.
+        @result The WebView's WebFrameLoadDelegate delegate.
+        - (id)frameLoadDelegate;
+    */    
+    HRESULT frameLoadDelegate([retval, out] IWebFrameLoadDelegate** d);
+
+    /*!
+        @method setPolicyDelegate:
+        @abstract Set the WebView's WebPolicyDelegate delegate.
+        @param delegate The WebPolicyDelegate to set as the delegate.
+        - (void)setPolicyDelegate:(id)delegate;
+    */    
+    HRESULT setPolicyDelegate([in] IWebPolicyDelegate* d);
+
+    /*!
+        @method policyDelegate
+        @abstract Return the WebView's WebPolicyDelegate.
+        @result The WebView's WebPolicyDelegate.
+        - (id)policyDelegate;
+    */    
+    HRESULT policyDelegate([retval, out] IWebPolicyDelegate** d);
+
+    /*!
+        @method mainFrame
+        @abstract Return the top level frame.  
+        @discussion Note that even document that are not framesets will have a
+        mainFrame.
+        @result The main frame.
+        - (WebFrame *)mainFrame;
+    */    
+    HRESULT mainFrame([retval, out] IWebFrame** frame);
+
+    /*!
+        @method focusedFrame
+    @abstract Return the frame that has the current focus.  
+    */
+    HRESULT focusedFrame([retval, out] IWebFrame** frame);
+
+    /*!
+        @method backForwardList
+        @result The backforward list for this webView.
+        - (WebBackForwardList *)backForwardList;
+    */    
+    HRESULT backForwardList([retval, out] IWebBackForwardList** list);
+
+    /*!
+        @method setMaintainsBackForwardList:
+        @abstract Enable or disable the use of a backforward list for this webView.
+        @param flag Turns use of the back forward list on or off
+        - (void)setMaintainsBackForwardList:(BOOL)flag;
+    */    
+    HRESULT setMaintainsBackForwardList([in] BOOL flag);
+
+    /*!
+        @method goBack
+        @abstract Go back to the previous URL in the backforward list.
+        @result YES if able to go back in the backforward list, NO otherwise.
+        - (BOOL)goBack;
+    */
+    HRESULT goBack([out, retval] BOOL* succeeded);
+
+    /*!
+        @method goForward
+        @abstract Go forward to the next URL in the backforward list.
+        @result YES if able to go forward in the backforward list, NO otherwise.
+        - (BOOL)goForward;
+    */    
+    HRESULT goForward([out, retval] BOOL* succeeded);
+
+    /*!
+        @method goToBackForwardItem:
+        @abstract Go back or forward to an item in the backforward list.
+        @result YES if able to go to the item, NO otherwise.
+        - (BOOL)goToBackForwardItem:(WebHistoryItem *)item;
+    */    
+    HRESULT goToBackForwardItem([in] IWebHistoryItem* item, [out, retval] BOOL* succeeded);
+
+    /*!
+        @method setTextSizeMultiplier:
+        @abstract Change the size of the text rendering in views managed by this webView.
+        @param multiplier A fractional percentage value, 1.0 is 100%.
+        - (void)setTextSizeMultiplier:(float)multiplier;
+    */
+    HRESULT setTextSizeMultiplier([in] float multiplier);
+
+    /*!
+        @method textSizeMultiplier
+        @result The text size multipler.
+        - (float)textSizeMultiplier;
+    */    
+    HRESULT textSizeMultiplier([out, retval] float* multiplier);
+
+    /*!
+        @method setApplicationNameForUserAgent:
+        @abstract Set the application name. 
+        @discussion This name will be used in user-agent strings
+        that are chosen for best results in rendering web pages.
+        @param applicationName The application name
+        - (void)setApplicationNameForUserAgent:(NSString *)applicationName;
+    */
+    HRESULT setApplicationNameForUserAgent([in] BSTR applicationName);
+
+    /*!
+        @method applicationNameForUserAgent
+        @result The name of the application as used in the user-agent string.
+        - (NSString *)applicationNameForUserAgent;
+    */
+    HRESULT applicationNameForUserAgent([out, retval] BSTR* applicationName);
+
+    /*!
+        @method setCustomUserAgent:
+        @abstract Set the user agent. 
+        @discussion Setting this means that the webView should use this user-agent string
+        instead of constructing a user-agent string for each URL. Setting it to nil
+        causes the webView to construct the user-agent string for each URL
+        for best results rendering web pages.
+        @param userAgentString The user agent description
+        - (void)setCustomUserAgent:(NSString *)userAgentString;
+    */
+    HRESULT setCustomUserAgent([in] BSTR userAgentString);
+
+    /*!
+        @method customUserAgent
+        @result The custom user-agent string or nil if no custom user-agent string has been set.
+        - (NSString *)customUserAgent;
+    */
+    HRESULT customUserAgent([out, retval] BSTR* userAgentString);
+
+    /*!
+        @method userAgentForURL:
+        @abstract Get the appropriate user-agent string for a particular URL.
+        @param URL The URL.
+        @result The user-agent string for the supplied URL.
+        - (NSString *)userAgentForURL:(NSURL *)URL;
+    */
+    HRESULT userAgentForURL([in] BSTR url, [out, retval] BSTR* userAgent);
+
+    /*!
+        @method supportsTextEncoding
+        @abstract Find out if the current web page supports text encodings.
+        @result YES if the document view of the current web page can
+        support different text encodings.
+        - (BOOL)supportsTextEncoding;
+    */
+    HRESULT supportsTextEncoding([out, retval] BOOL* supports);
+
+    /*!
+        @method setCustomTextEncodingName:
+        @discussion Make the page display with a different text encoding; stops any load in progress.
+        The text encoding passed in overrides the normal text encoding smarts including
+        what's specified in a web page's header or HTTP response.
+        The text encoding automatically goes back to the default when the top level frame
+        changes to a new location.
+        Setting the text encoding name to nil makes the webView use default encoding rules.
+        @param encoding The text encoding name to use to display a page or nil.
+        - (void)setCustomTextEncodingName:(NSString *)encodingName;
+    */
+    HRESULT setCustomTextEncodingName([in] BSTR encodingName);
+
+    /*!
+        @method customTextEncodingName
+        @result The custom text encoding name or nil if no custom text encoding name has been set.
+        - (NSString *)customTextEncodingName;
+    */
+    HRESULT customTextEncodingName([out, retval] BSTR* encodingName);
+
+    /*!
+        @method setMediaStyle:
+        @discussion Set the media style for the WebView.  The mediaStyle will override the normal value
+        of the CSS media property.  Setting the value to nil will restore the normal value.
+        @param mediaStyle The value to use for the CSS media property.
+        - (void)setMediaStyle:(NSString *)mediaStyle;
+    */
+    HRESULT setMediaStyle([in] BSTR media);
+
+    /*!
+        @method mediaStyle
+        @result mediaStyle The value to use for the CSS media property, as set by setMediaStyle:.  It
+        will be nil unless set by that method.
+        - (NSString *)mediaStyle;
+    */
+    HRESULT mediaStyle([out, retval] BSTR* media);
+
+    /*!
+        @method stringByEvaluatingJavaScriptFromString:
+        @param script The text of the JavaScript.
+        @result The result of the script, converted to a string, or nil for failure.
+        - (NSString *)stringByEvaluatingJavaScriptFromString:(NSString *)script;
+    */
+    HRESULT stringByEvaluatingJavaScriptFromString([in] BSTR script, [out, retval] BSTR* result);
+
+    /*!
+        @method windowScriptObject
+        @discussion windowScriptObject return a WebScriptObject that represents the
+        window object from the script environment.
+        @result Returns the window object from the script environment.
+        - (WebScriptObject *)windowScriptObject;
+    */
+    HRESULT windowScriptObject([out, retval] IWebScriptObject** webScriptObject);
+
+    /*!
+        @method setPreferences:
+        @param preferences The preferences to use for the webView.
+        @abstract Override the standard setting for the webView. 
+        - (void)setPreferences: (WebPreferences *)prefs;
+    */
+    HRESULT setPreferences([in] IWebPreferences* prefs);
+
+    /*!
+        @method preferences
+        @result Returns the preferences used by this webView.
+        @discussion This method will return [WebPreferences standardPreferences] if no
+        other instance of WebPreferences has been set.
+        - (WebPreferences *)preferences;
+    */
+    HRESULT preferences([out, retval] IWebPreferences** prefs);
+
+    /*!
+        @method setPreferencesIdentifier:
+        @param anIdentifier The string to use a prefix for storing values for this WebView in the user
+        defaults database.
+        @discussion If the WebPreferences for this WebView are stored in the user defaults database, the
+        string set in this method will be used a key prefix.
+        - (void)setPreferencesIdentifier:(NSString *)anIdentifier;
+    */
+    HRESULT setPreferencesIdentifier([in] BSTR anIdentifier);
+
+    /*!
+        @method preferencesIdentifier
+        @result Returns the WebPreferences key prefix.
+        - (NSString *)preferencesIdentifier;
+    */
+    HRESULT preferencesIdentifier([out, retval] BSTR* anIdentifier);
+
+    /*!
+        @method setHostWindow:
+        @param hostWindow The host window for the web view.
+        @discussion Parts of WebKit (such as plug-ins and JavaScript) depend on a window to function
+        properly. Set a host window so these parts continue to function even when the web view is
+        not in an actual window.
+        - (void)setHostWindow:(NSWindow *)hostWindow;
+    */
+    HRESULT setHostWindow([in] OLE_HANDLE window);
+
+    /*!
+        @method hostWindow
+        @result The host window for the web view.
+        - (NSWindow *)hostWindow;
+    */
+    HRESULT hostWindow([out, retval] OLE_HANDLE* window);
+
+    /*!
+        @method searchFor:direction:caseSensitive:
+        @abstract Searches a document view for a string and highlights the string if it is found.
+        Starts the search from the current selection.  Will search across all frames.
+        @param string The string to search for.
+        @param forward YES to search forward, NO to seach backwards.
+        @param caseFlag YES to for case-sensitive search, NO for case-insensitive search.
+        @result YES if found, NO if not found.
+        - (BOOL)searchFor:(NSString *)string direction:(BOOL)forward caseSensitive:(BOOL)caseFlag wrap:(BOOL)wrapFlag;
+    */
+    HRESULT searchFor([in] BSTR str, [in] BOOL forward, [in] BOOL caseFlag, [in] BOOL wrapFlag, [out, retval] BOOL* found);
+
+    /*!
+        @method registerViewClass:representationClass:forMIMEType:
+        @discussion Register classes that implement WebDocumentView and WebDocumentRepresentation respectively.
+        A document class may register for a primary MIME type by excluding
+        a subtype, i.e. "video/" will match the document class with
+        all video types.  More specific matching takes precedence
+        over general matching.
+        @param viewClass The WebDocumentView class to use to render data for a given MIME type.
+        @param representationClass The WebDocumentRepresentation class to use to represent data of the given MIME type.
+        @param MIMEType The MIME type to represent with an object of the given class.
+        + (void)registerViewClass:(Class)viewClass representationClass:(Class)representationClass forMIMEType:(NSString *)MIMEType;
+    */
+    HRESULT registerViewClass([in] IWebDocumentView* view, [in] IWebDocumentRepresentation* representation, [in] BSTR forMIMEType);
+
+    /*!
+        @method setGroupName:
+        @param groupName The name of the group for this WebView.
+        @discussion JavaScript may access named frames within the same group. 
+        - (void)setGroupName:(NSString *)groupName;
+    */
+    HRESULT setGroupName([in] BSTR groupName);
+
+    /*!
+        @method groupName
+        @discussion The group name for this WebView.
+        - (NSString *)groupName;
+    */
+    HRESULT groupName([out, retval] BSTR* groupName);
+
+    /*!
+        @method estimatedProgress
+        @discussion An estimate of the percent complete for a document load.  This
+        value will range from 0 to 1.0 and, once a load completes, will remain at 1.0 
+        until a new load starts, at which point it will be reset to 0.  The value is an
+        estimate based on the total number of bytes expected to be received
+        for a document, including all it's possible subresources.  For more accurate progress
+        indication it is recommended that you implement a WebFrameLoadDelegate and a
+        WebResourceLoadDelegate.
+        - (double)estimatedProgress;
+    */
+    HRESULT estimatedProgress([out, retval] double* estimatedProgress);
+
+    /*!
+        @method isLoading
+        @discussion Returns YES if there are any pending loads.
+        - (BOOL)isLoading;
+    */
+    HRESULT isLoading([out, retval] BOOL* isLoading);
+
+    /*!
+        @method elementAtPoint:
+        @param point A point in the coordinates of the WebView
+        @result An element dictionary describing the point
+        - (NSDictionary *)elementAtPoint:(NSPoint)point;
+    */
+    HRESULT elementAtPoint([in] LPPOINT point, [out, retval] IPropertyBag** elementDictionary);
+
+    /*!
+        @method pasteboardTypesForSelection
+        @abstract Returns the pasteboard types that WebView can use for the current selection
+        - (NSArray *)pasteboardTypesForSelection;
+    */
+    HRESULT pasteboardTypesForSelection([out, retval] IEnumVARIANT** enumVariant);
+
+    /*!
+        @method writeSelectionWithPasteboardTypes:toPasteboard:
+        @abstract Writes the current selection to the pasteboard
+        @param types The types that WebView will write to the pasteboard
+        @param pasteboard The pasteboard to write to
+        - (void)writeSelectionWithPasteboardTypes:(NSArray *)types toPasteboard:(NSPasteboard *)pasteboard;
+    */
+    HRESULT writeSelectionWithPasteboardTypes([in, size_is(cTypes)] BSTR* types, [in] int cTypes, [in] IDataObject* pasteboard);
+
+    /*!
+        @method pasteboardTypesForElement:
+        @abstract Returns the pasteboard types that WebView can use for an element
+        @param element The element
+        - (NSArray *)pasteboardTypesForElement:(NSDictionary *)element;
+    */
+    HRESULT pasteboardTypesForElement([in] IPropertyBag* elementDictionary, [out, retval] IEnumVARIANT** enumVariant);
+
+    /*!
+        @method writeElement:withPasteboardTypes:toPasteboard:
+        @abstract Writes an element to the pasteboard
+        @param element The element to write to the pasteboard
+        @param types The types that WebView will write to the pasteboard
+        @param pasteboard The pasteboard to write to
+        - (void)writeElement:(NSDictionary *)element withPasteboardTypes:(NSArray *)types toPasteboard:(NSPasteboard *)pasteboard;
+    */
+    HRESULT writeElement([in] IPropertyBag* elementDictionary, [in, size_is(cWithPasteboardTypes)] BSTR* withPasteboardTypes, [in] int cWithPasteboardTypes, [in] IDataObject* pasteboard);
+
+    /*!
+        @method selectedText
+        @abstract Returns the selection as a string
+    */
+    HRESULT selectedText([out, retval] BSTR* text);
+
+    /*!
+        @method centerSelectionInVisibleArea
+        @abstract Centers the selected text in the WebView
+        - (void)centerSelectionInVisibleArea:(id)sender;
+    */
+    HRESULT centerSelectionInVisibleArea([in] IUnknown* sender);
+
+    /*!
+        @method moveDragCaretToPoint:
+        @param point A point in the coordinates of the WebView
+        @discussion This method moves the caret that shows where something being dragged will be dropped. It may cause the WebView to scroll
+        to make the new position of the drag caret visible.
+        - (void)moveDragCaretToPoint:(NSPoint)point;
+    */
+    HRESULT moveDragCaretToPoint([in] LPPOINT point);
+
+    /*!
+        @method removeDragCaret
+        @abstract Removes the drag caret from the WebView
+        - (void)removeDragCaret;
+    */
+    HRESULT removeDragCaret();
+
+    /*!
+        @method setDrawsBackground:
+        @param drawsBackround YES to cause the receiver to draw a default white background, NO otherwise.
+        @abstract Sets whether the receiver draws a default white background when the loaded page has no background specified.
+        - (void)setDrawsBackground:(BOOL)drawsBackround;
+    */
+    HRESULT setDrawsBackground([in] BOOL drawsBackground);
+
+    /*!
+        @method drawsBackground
+        @result Returns YES if the receiver draws a default white background, NO otherwise.
+        - (BOOL)drawsBackground;
+    */
+    HRESULT drawsBackground([out, retval] BOOL* drawsBackground);
+
+    /*!
+        @method setMainFrameURL:
+        @param URLString The URL to load in the mainFrame.
+        - (void)setMainFrameURL:(NSString *)URLString;
+    */
+    HRESULT setMainFrameURL([in] BSTR urlString);
+
+    /*!
+        @method mainFrameURL
+        @result Returns the main frame's current URL.
+        - (NSString *)mainFrameURL;
+    */
+    HRESULT mainFrameURL([out, retval] BSTR* urlString);
+
+    /*!
+        @method mainFrameDocument
+        @result Returns the main frame's DOMDocument.
+        - (DOMDocument *)mainFrameDocument;
+    */
+    HRESULT mainFrameDocument([out, retval] IDOMDocument** document);
+
+    /*!
+        @method mainFrameTitle
+        @result Returns the main frame's title if any, otherwise an empty string.
+        - (NSString *)mainFrameTitle;
+    */
+    HRESULT mainFrameTitle([out, retval] BSTR* title);
+
+    /*!
+        @method mainFrameIcon
+        @discussion The methods returns the site icon for the current page loaded in the mainFrame.
+        @result Returns the main frame's icon if any, otherwise nil.
+        - (NSImage *)mainFrameIcon;
+    */
+    HRESULT mainFrameIcon([out, retval] OLE_HANDLE* hBitmap);
+
+    /*!
+        @method registerURLSchemeAsLocal
+        @discussion Adds the scheme to the list of schemes to be treated as local.
+        @param scheme The scheme to register.
+        + (void)registerURLSchemeAsLocal:(NSString *)scheme;
+    */
+    HRESULT registerURLSchemeAsLocal([in] BSTR scheme);
+
+    /*!
+        @method close
+        @abstract Closes the receiver, unloading its web page and canceling any pending loads.
+        Once the receiver has closed, it will no longer respond to requests or fire delegate methods.
+        (However, the -close method itself may fire delegate methods.)
+        @discussion A garbage collected application is required to call close when the receiver is no longer needed.
+        The close method will be called automatically when the window or hostWindow closes and shouldCloseWithWindow returns YES.
+        A non-garbage collected application can still call close, providing a convenient way to prevent receiver
+        from doing any more loading and firing any future delegate methods.
+    */
+    HRESULT close();
+}
+
+/*
+    @interface WebView (WebIBActions) <NSUserInterfaceValidations>
+*/
+[
+    object,
+    oleautomation,
+    uuid(8F0E3A30-B924-44f8-990A-1AE61ED6C632),
+    pointer_default(unique)
+]
+interface IWebIBActions : IUnknown
+{
+    /*
+        - (IBAction)takeStringURLFrom:(id)sender;
+    */
+    HRESULT takeStringURLFrom([in] IUnknown* sender);
+
+    /*
+        - (IBAction)stopLoading:(id)sender;
+    */
+    HRESULT stopLoading([in] IUnknown* sender);
+
+    /*
+        - (IBAction)reload:(id)sender;
+    */
+    HRESULT reload([in] IUnknown* sender);
+
+    /*
+        - (BOOL)canGoBack;
+    */
+    HRESULT canGoBack([in] IUnknown* sender, [out, retval] BOOL* result);
+
+    /*
+        - (IBAction)goBack:(id)sender;
+    */
+    HRESULT goBack([in] IUnknown* sender);
+
+    /*
+        - (BOOL)canGoForward;
+    */
+    HRESULT canGoForward([in] IUnknown* sender, [out, retval] BOOL* result);
+
+    /*
+        - (IBAction)goForward:(id)sender;
+    */
+    HRESULT goForward([in] IUnknown* sender);
+
+    /*
+        - (BOOL)canMakeTextLarger;
+    */
+    HRESULT canMakeTextLarger([in] IUnknown* sender, [out, retval] BOOL* result);
+
+    /*
+        - (IBAction)makeTextLarger:(id)sender;
+    */
+    HRESULT makeTextLarger([in] IUnknown* sender);
+
+    /*
+        - (BOOL)canMakeTextSmaller;
+    */
+    HRESULT canMakeTextSmaller([in] IUnknown* sender, [out, retval] BOOL* result);
+
+    /*
+        - (IBAction)makeTextSmaller:(id)sender;
+    */
+    HRESULT makeTextSmaller([in] IUnknown* sender);
+
+    /*
+        - (BOOL)canMakeTextStandardSize;
+    */
+    HRESULT canMakeTextStandardSize([in] IUnknown* sender, [out, retval] BOOL* result);
+
+    /*
+        - (IBAction)makeTextStandardSize:(id)sender;
+    */
+    HRESULT makeTextStandardSize([in] IUnknown* sender);
+
+    /*
+        - (IBAction)toggleContinuousSpellChecking:(id)sender;
+    */
+    HRESULT toggleContinuousSpellChecking([in] IUnknown* sender);
+
+    /*
+        - (IBAction)toggleSmartInsertDelete:(id)sender;
+    */
+    HRESULT toggleSmartInsertDelete([in] IUnknown* sender);
+
+    /*
+        - (void)toggleGrammarChecking:(id)sender
+    */
+    HRESULT toggleGrammarChecking([in] IUnknown* sender);
+
+       /*!
+        @method setPageSizeMultiplier:
+        @abstract Set a zoom factor for all views managed by this webView.
+        @param multiplier A fractional percentage value, 1.0 is 100%.
+        - (void)setPageSizeMultiplier:(float)multiplier;
+    */
+    HRESULT setPageSizeMultiplier([in] float multiplier);
+
+    /*!
+        @method pageSizeMultiplier
+        @result The page size multipler.
+        - (float)pageSizeMultiplier;
+    */    
+    HRESULT pageSizeMultiplier([out, retval] float* multiplier);
+
+    /*
+        - (BOOL)canZoomPageIn;
+    */
+    HRESULT canZoomPageIn([in] IUnknown* sender, [out, retval] BOOL* result);
+
+    /*
+        - (IBAction)zoomPageIn:(id)sender;
+    */
+    HRESULT zoomPageIn([in] IUnknown* sender);
+
+    /*
+        - (BOOL)canZoomPageOut;
+    */
+    HRESULT canZoomPageOut([in] IUnknown* sender, [out, retval] BOOL* result);
+
+    /*
+        - (IBAction)zoomPageOut:(id)sender;
+    */
+    HRESULT zoomPageOut([in] IUnknown* sender);
+
+    /*
+        - (BOOL)canResetPageZoom;
+    */
+    HRESULT canResetPageZoom([in] IUnknown* sender, [out, retval] BOOL* result);
+
+    /*
+        - (IBAction)resetPageZoom:(id)sender;
+    */
+    HRESULT resetPageZoom([in] IUnknown* sender);
+
+    /*
+        - (IBAction)reloadFromOrigin:(id)sender;
+    */
+    HRESULT reloadFromOrigin([in] IUnknown* sender);
+}
+
+/*
+    @interface WebView (WebViewCSS)
+*/
+[
+    object,
+    oleautomation,
+    uuid(ADF68A8C-336F-405c-A053-3D11A9D5B092),
+    pointer_default(unique)
+]
+interface IWebViewCSS : IUnknown
+{
+    /*
+        - (DOMCSSStyleDeclaration *)computedStyleForElement:(DOMElement *)element pseudoElement:(NSString *)pseudoElement;
+    */
+    HRESULT computedStyleForElement([in] IDOMElement* element, [in] BSTR pseudoElement, [out, retval] IDOMCSSStyleDeclaration** style);
+}
+
+/*
+    @interface WebView (WebViewEditing)
+*/
+[
+    object,
+    oleautomation,
+    uuid(07BDAC9A-19A1-4086-864D-BAD9E0F00D5C),
+    pointer_default(unique)
+]
+interface IWebViewEditing : IUnknown
+{
+    /*
+        - (DOMRange *)editableDOMRangeForPoint:(NSPoint)point;
+    */
+    HRESULT editableDOMRangeForPoint([in] LPPOINT point, [out, retval] IDOMRange** range);
+
+    /*
+        - (void)setSelectedDOMRange:(DOMRange *)range affinity:(NSSelectionAffinity)selectionAffinity;
+    */
+    HRESULT setSelectedDOMRange([in] IDOMRange* range, [in] WebSelectionAffinity affinity);
+
+    /*
+        - (DOMRange *)selectedDOMRange;
+    */
+    HRESULT selectedDOMRange([out, retval] IDOMRange** range);
+
+    /*
+        - (NSSelectionAffinity)selectionAffinity;
+    */
+    HRESULT selectionAffinity([out, retval] [out, retval] WebSelectionAffinity* affinity);
+
+    /*
+        - (void)setEditable:(BOOL)flag;
+    */
+    HRESULT setEditable([in] BOOL flag);
+
+    /*
+        - (BOOL)isEditable;
+    */
+    HRESULT isEditable([out, retval] BOOL* isEditable);
+
+    /*
+        - (void)setTypingStyle:(DOMCSSStyleDeclaration *)style;
+    */
+    HRESULT setTypingStyle([in] IDOMCSSStyleDeclaration* style);
+
+    /*
+        - (DOMCSSStyleDeclaration *)typingStyle;
+    */
+    HRESULT typingStyle([out, retval] IDOMCSSStyleDeclaration** style);
+
+    /*
+        - (void)setSmartInsertDeleteEnabled:(BOOL)flag;
+    */
+    HRESULT setSmartInsertDeleteEnabled([in] BOOL flag);
+
+    /*
+        - (BOOL)smartInsertDeleteEnabled;
+    */
+    HRESULT smartInsertDeleteEnabled([out, retval] BOOL* enabled);
+
+    /*
+        - (void)setContinuousSpellCheckingEnabled:(BOOL)flag;
+    */
+    HRESULT setContinuousSpellCheckingEnabled([in] BOOL flag);
+
+    /*
+        - (BOOL)isContinuousSpellCheckingEnabled;
+    */
+    HRESULT isContinuousSpellCheckingEnabled([out, retval] BOOL* enabled);
+
+    /*
+        - (WebNSInt)spellCheckerDocumentTag;
+    */
+    HRESULT spellCheckerDocumentTag([out, retval] int* tag);
+
+    /*
+        - (NSUndoManager *)undoManager;
+    */
+    HRESULT undoManager([out, retval] IWebUndoManager** manager);
+
+    /*
+        - (void)setEditingDelegate:(id)delegate;
+    */
+    HRESULT setEditingDelegate([in] IWebEditingDelegate* d);
+
+    /*
+        - (id)editingDelegate;
+    */
+    HRESULT editingDelegate([out, retval] IWebEditingDelegate** d);
+
+    /*
+        - (DOMCSSStyleDeclaration *)styleDeclarationWithText:(NSString *)text;
+    */
+    HRESULT styleDeclarationWithText([in] BSTR text, [out, retval] IDOMCSSStyleDeclaration** style);
+
+    /*
+        - (BOOL)hasSelectedRange;
+    */
+    HRESULT hasSelectedRange([out, retval] BOOL* hasSelectedRange);
+
+    /*
+        - (BOOL)cutEnabled;
+    */
+    HRESULT cutEnabled([out, retval] BOOL* enabled);
+
+    /*
+        - (BOOL)copyEnabled;
+    */
+    HRESULT copyEnabled([out, retval] BOOL* enabled);
+
+    /*
+        - (BOOL)pasteEnabled;
+    */
+    HRESULT pasteEnabled([out, retval] BOOL* enabled);
+
+    /*
+        - (BOOL)deleteEnabled;
+    */
+    HRESULT deleteEnabled([out, retval] BOOL* enabled);
+
+    /*
+        - (BOOL)editingEnabled;
+    */
+    HRESULT editingEnabled([out, retval] BOOL* enabled);
+
+    /*
+        - (BOOL)isGrammarCheckingEnabled
+    */
+    HRESULT isGrammarCheckingEnabled([out, retval] BOOL* enabled);
+
+    /*
+        - (void)setGrammarCheckingEnabled:(BOOL)flag
+    */
+    HRESULT setGrammarCheckingEnabled(BOOL enabled);
+
+    /*
+        - (void)setSelectTrailingWhitespaceEnabled:(BOOL)flag;
+    */
+    HRESULT setSelectTrailingWhitespaceEnabled([in] BOOL flag);
+
+    /*
+        - (BOOL)selectTrailingWhitespaceEnabled;
+    */
+    HRESULT isSelectTrailingWhitespaceEnabled([out, retval] BOOL* enabled);
+}
+
+/*
+    @interface WebView (WebViewUndoableEditing)
+*/
+[
+    object,
+    oleautomation,
+    uuid(639E7121-13C8-4a12-BC18-6E1F3D68F3C3),
+    pointer_default(unique)
+]
+interface IWebViewUndoableEditing : IUnknown
+{
+    /*
+        - (void)replaceSelectionWithNode:(DOMNode *)node; 
+    */
+    HRESULT replaceSelectionWithNode([in] IDOMNode* node);
+
+    /*
+        - (void)replaceSelectionWithText:(NSString *)text;    
+    */
+    HRESULT replaceSelectionWithText([in] BSTR text);
+
+    /*
+        - (void)replaceSelectionWithMarkupString:(NSString *)markupString;
+    */
+    HRESULT replaceSelectionWithMarkupString([in] BSTR markupString);
+
+    /*
+        - (void)replaceSelectionWithArchive:(WebArchive *)archive;
+    */
+    HRESULT replaceSelectionWithArchive([in] IWebArchive* archive);
+
+    /*
+        - (void)deleteSelection;    
+    */
+    HRESULT deleteSelection();
+
+    /*
+        - (void)clearSelection;    
+    */
+    HRESULT clearSelection();
+
+    /*
+        - (void)applyStyle:(DOMCSSStyleDeclaration *)style;
+    */
+    HRESULT applyStyle([in] IDOMCSSStyleDeclaration* style);
+}
+
+/*
+    @interface WebView (WebViewEditingActions)
+*/
+[
+    object,
+    oleautomation,
+    uuid(7E066C42-8E81-4778-888D-D6CC93E27D4C),
+    pointer_default(unique)
+]
+interface IWebViewEditingActions : IUnknown
+{
+    /*
+        - (void)copy:(id)sender;
+    */
+    HRESULT copy([in] IUnknown* sender);
+
+    /*
+        - (void)cut:(id)sender;
+    */
+    HRESULT cut([in] IUnknown* sender);
+
+    /*
+        - (void)paste:(id)sender;
+    */
+    HRESULT paste([in] IUnknown* sender);
+
+    /*
+        - (void)copyURL:(id)sender;
+    */
+    HRESULT copyURL([in] BSTR url);
+
+    /*
+        - (void)copyFont:(id)sender;
+    */
+    HRESULT copyFont([in] IUnknown* sender);
+
+    /*
+        - (void)pasteFont:(id)sender;
+    */
+    HRESULT pasteFont([in] IUnknown* sender);
+
+    /*
+        - (void)delete:(id)sender;
+    */
+    HRESULT delete_([in] IUnknown* sender);
+
+    /*
+        - (void)pasteAsPlainText:(id)sender;
+    */
+    HRESULT pasteAsPlainText([in] IUnknown* sender);
+
+    /*
+        - (void)pasteAsRichText:(id)sender;
+    */
+    HRESULT pasteAsRichText([in] IUnknown* sender);
+
+
+    /*
+        - (void)changeFont:(id)sender;
+    */
+    HRESULT changeFont([in] IUnknown* sender);
+
+    /*
+        - (void)changeAttributes:(id)sender;
+    */
+    HRESULT changeAttributes([in] IUnknown* sender);
+
+    /*
+        - (void)changeDocumentBackgroundColor:(id)sender;
+    */
+    HRESULT changeDocumentBackgroundColor([in] IUnknown* sender);
+
+    /*
+        - (void)changeColor:(id)sender;
+    */
+    HRESULT changeColor([in] IUnknown* sender);
+
+
+    /*
+        - (void)alignCenter:(id)sender;
+    */
+    HRESULT alignCenter([in] IUnknown* sender);
+
+    /*
+        - (void)alignJustified:(id)sender;
+    */
+    HRESULT alignJustified([in] IUnknown* sender);
+
+    /*
+        - (void)alignLeft:(id)sender;
+    */
+    HRESULT alignLeft([in] IUnknown* sender);
+
+    /*
+        - (void)alignRight:(id)sender;
+    */
+    HRESULT alignRight([in] IUnknown* sender);
+
+
+    /*
+        - (void)checkSpelling:(id)sender;
+    */
+    HRESULT checkSpelling([in] IUnknown* sender);
+
+    /*
+        - (void)showGuessPanel:(id)sender;
+    */
+    HRESULT showGuessPanel([in] IUnknown* sender);
+
+    /*
+        - (void)performFindPanelAction:(id)sender;
+    */
+    HRESULT performFindPanelAction([in] IUnknown* sender);
+
+
+    /*
+        - (void)startSpeaking:(id)sender;
+    */
+    HRESULT startSpeaking([in] IUnknown* sender);
+
+    /*
+        - (void)stopSpeaking:(id)sender;
+    */
+    HRESULT stopSpeaking([in] IUnknown* sender);
+}
+
+
+

@@ -202,17 +202,6 @@ int __breakpad_fdnlist(int fd, nlist_type *list, const char **symbolNames,
   if (CFSwapInt32BigToHost(*((uint32_t *)&buf)) == FAT_MAGIC ||
       /* The following is the big-endian ppc64 check */
       *((unsigned int *)&buf) == FAT_MAGIC) {
-    /* Get host info */
-    host_t host = mach_host_self();
-    unsigned i = HOST_BASIC_INFO_COUNT;
-    struct host_basic_info hbi;
-    kern_return_t kr;
-    if ((kr = host_info(host, HOST_BASIC_INFO,
-                        (host_info_t)(&hbi), &i)) != KERN_SUCCESS) {
-      return -1;
-    }
-    mach_port_deallocate(mach_task_self(), host);
-
     /* Read in the fat header */
     struct fat_header fh;
     if (lseek(fd, 0, SEEK_SET) == -1) {
@@ -281,7 +270,7 @@ int __breakpad_fdnlist(int fd, nlist_type *list, const char **symbolNames,
 
   off_t sa;  /* symbol address */
   off_t ss;  /* start of strings */
-  register register_t n;
+  register_t n;
   if (*((unsigned int *)&buf) == magic) {
     if (lseek(fd, arch_offset, SEEK_SET) == -1) {
       return -1;
@@ -354,14 +343,14 @@ int __breakpad_fdnlist(int fd, nlist_type *list, const char **symbolNames,
   // and look for a match
   while (n) {
     nlist_type space[BUFSIZ/sizeof (nlist_type)];
-    register register_t m = sizeof (space);
+    register_t m = sizeof (space);
 
     if (n < m)
       m = n;
     if (read(fd, (char *)space, m) != m)
       break;
     n -= m;
-    long savpos = lseek(fd, 0, SEEK_CUR);
+    off_t savpos = lseek(fd, 0, SEEK_CUR);
     if (savpos == -1) {
       return -1;
     }

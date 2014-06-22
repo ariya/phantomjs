@@ -1,0 +1,283 @@
+# -------------------------------------------------------------------
+# This file does basic 'configure' style checks to determine the
+# set of enable/use/have defines and their values.
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+# This file is read after .qmake.cache, but before command line options,
+# which means we might have a config from a previous build.
+
+load(features)
+load(configure)
+
+WEBKIT_TOOLS_CONFIG = \
+    build_drt \
+    build_wtr \
+    build_imagediff \
+    build_test_npapi \
+    build_testbrowser \
+    build_minibrowser \
+    build_qttestsupport
+
+defineTest(runConfigure) {
+    !webkit_configured:!print_defaults {
+        log($${EOL}Running configure tests...$${EOL}$${EOL})
+        QMAKE_CONFIG_TESTS_DIR = $$ROOT_WEBKIT_DIR/Tools/qmake/config.tests
+        CONFIG_TESTS = $$files($$QMAKE_CONFIG_TESTS_DIR/*.pro, true)
+        for(test, CONFIG_TESTS) {
+            test = $$basename(test)
+            test ~= s/\\.pro$//
+            qtCompileTest($$test)
+        }
+    } else {
+        CONFIG += skipped_config_tests
+
+        # Save and reset configuration from .qmake.cache, so that we can
+        # detect changes to the configuration and abort the build.
+        PREVIOUS_WEBKIT_CONFIG = $$WEBKIT_CONFIG
+        unset(WEBKIT_CONFIG)
+        export(PREVIOUS_WEBKIT_CONFIG)
+    }
+
+    # Running feature detection inside a function ensures that we only
+    # export WEBKIT_CONFIG, and don not mess up any other variables.
+    detectFeatures()
+
+    # Set up a base list of optional things to build, which we later on
+    # sanitize based on constraints of the platform.
+
+    WEBKIT_CONFIG += \
+        build_webkit1 \
+        build_webkit2 \
+        build_tests \
+        $$WEBKIT_TOOLS_CONFIG
+
+    # Sanatize WebKit1/WebKit2, as WebKit.pro uses these two options
+    # to determine which pro-files to include. The remaining sanitazion
+    # is done when finalizing configure.
+
+    !qtHaveModule(widgets) {
+        CONFIGURE_WARNINGS += "Missing QtWidgets module, disabling WebKit1"
+        WEBKIT_CONFIG -= build_webkit1
+    }
+
+    # WebKit2 requires OpenGL TextureMapper, which requires 3D Graphics
+    !use?(3d_graphics): WEBKIT_CONFIG -= build_webkit2
+
+    export(CONFIG)
+    export(WEBKIT_CONFIG)
+    export(CONFIGURE_WARNINGS)
+}
+
+defineReplace(configEnabled) {
+    trueValue = $$2
+    isEmpty(trueValue): trueValue = yes
+
+    falseValue = $$3
+    isEmpty(falseValue): falseValue = no
+
+    $$1: return($$trueValue)
+    return($$falseValue)
+}
+
+# This is called from default_post, at which point we've also parsed
+# command line options
+defineTest(finalizeConfigure) {
+
+    # Sanitize clashing options
+    santizeFeatures()
+
+    # Sanitize build options
+    !qtHaveModule(testlib) {
+        CONFIGURE_WARNINGS += "Missing QtTest module, disabling DumpRenderTree, WebKitTestRunner and tests"
+        WEBKIT_CONFIG -= build_drt build_wtr build_tests
+    }
+
+    win32|!enable?(NETSCAPE_PLUGIN_API): WEBKIT_CONFIG -= build_test_npapi
+
+    win* {
+        WEBKIT_CONFIG -= build_drt
+    }
+
+    production_build {
+        WEBKIT_CONFIG -= $$WEBKIT_TOOLS_CONFIG build_tests
+    }
+
+    static {
+        CONFIGURE_WARNINGS += "QtWebKitQml will not be build. It is not supported with static linking"
+        WEBKIT_CONFIG -= build_webkit2 build_minibrowser build_wtr
+    }
+
+    print_defaults {
+        log(DEFINES: $$configDefines()$${EOL})
+        error(Done computing defaults)
+    }
+
+    # Sanity checks that would prevent us from building the whole project altogether.
+    !mac:!contains(QT_CONFIG,icu) {
+        addReasonForSkippingBuild("ICU is required. To build QtWebKit with Qt 5 you need to build Qt 5 with libICU support. Check for ICU support being mentioned in qtbase/config.summary.")
+    }
+    production_build:blackberry|qnx {
+        addReasonForSkippingBuild("Build not supported on BB10/QNX yet.")
+    }
+
+    requiredPrograms = gperf python perl bison ruby flex
+    for(program, requiredPrograms): \
+        !programExistsInPath($$program): \
+            addReasonForSkippingBuild("Missing $$program from PATH")
+
+    requiredModules = gui
+    for(module, requiredModules): \
+        !qtHaveModule($$module): \
+            addReasonForSkippingBuild("QtWebKit depends on $$module for building.")
+
+    # Detect changes to the configuration. Changes need a clean build.
+    webkit_configured {
+        added_features = $$WEBKIT_CONFIG
+        added_features -= $$PREVIOUS_WEBKIT_CONFIG
+
+        removed_features = $$PREVIOUS_WEBKIT_CONFIG
+        removed_features -= $$WEBKIT_CONFIG
+
+        !isEmpty(added_features)|!isEmpty(removed_features) {
+            CONFIG += configuration_changed
+        }
+    }
+
+    reconfigureMsg = \
+        "Reconfiguration likely requires a clean build. You$${QUOTE}ve been warned!" \
+        "You may execute $${QUOTE}make wipeclean$${QUOTE} to wipe the build directory."
+
+    # Add target for reconfiguring the build
+    reconfigure.target = reconfigure
+    double_quote = $$escape_expand(\")
+    reconfigure.commands = echo > .qmake.cache && $(MAKE) -f $(MAKEFILE) qmake $$EOC
+    reconfigure.commands += @echo $${double_quote}WARNING: $$join(reconfigureMsg,\\n,,)\\n$${double_quote}
+    QMAKE_EXTRA_TARGETS += reconfigure
+    export(reconfigure.target)
+    export(reconfigure.commands)
+    export(QMAKE_EXTRA_TARGETS)
+
+    # Add target for wiping clean the build
+    wipeclean.target = wipeclean
+    win_cmd_shell: wipeclean.commands = FOR /D %%p IN (*) DO rmdir "%%p" /s /q
+    else: wipeclean.commands = $(COPY_FILE) $(MAKEFILE) .$(MAKEFILE) && rm -Rf * && $(MOVE) .$(MAKEFILE) $(MAKEFILE)
+    QMAKE_EXTRA_TARGETS += wipeclean
+    export(wipeclean.target)
+    export(wipeclean.commands)
+    export(QMAKE_EXTRA_TARGETS)
+
+    # Print a prettified dump of the configuration, for easier debugging
+    !webkit_configured|configuration_changed|buildbot {
+
+        skipped_config_tests {
+            log($${EOL}Skipping configure tests. Execute $${QUOTE}make reconfigure$${QUOTE} to re-run.$${EOL})
+        }
+
+        leftoverConfig = $$WEBKIT_CONFIG
+
+        for(config, WEBKIT_CONFIG) {
+            match = $$find(config, "^build_")
+            !isEmpty(match) {
+                build += $$replace(match, ^build_,)
+                leftoverConfig -= $$config
+                next()
+            }
+            match = $$find(config, "^have_")
+            !isEmpty(match) {
+                have += $$replace(match, ^have_,)
+                leftoverConfig -= $$config
+                next()
+            }
+            match = $$find(config, "^use_")
+            !isEmpty(match) {
+                use += $$replace(match, ^use_,)
+                leftoverConfig -= $$config
+            }
+        }
+
+        scripts_dir = $$toSystemPath($$ROOT_WEBKIT_DIR/Tools/Scripts)
+        features = $$system(perl -I $${scripts_dir} -I $${scripts_dir}$${QMAKE_DIR_SEP}webkitperl $$toSystemPath($$ROOT_WEBKIT_DIR/Tools/qmake/dump-features.pl))
+        for(feature, features) {
+            parts = $$split(feature, =)
+            desc = $$member(parts, 0, 0)
+            desc ~= s/_/ /
+            value = $$member(parts, 1, 1)
+
+            contains(WEBKIT_CONFIG, $$value) {
+                leftoverConfig -= $$value
+                value = yes
+            } else {
+                value = no
+            }
+
+            featureConfiguration += "$$desc $$value$${EOL}"
+        }
+
+        log($${EOL}Final configuration:$${EOL}$${EOL})
+
+        debug: buildConfig += debug
+        release: buildConfig += release
+        buildConfig = $$join(buildConfig,/,,)
+        debug:release:debug_and_release:buildConfig += (combined)
+
+        log(Build ......................... $$build$${EOL})
+        log(Configuration ................. $$buildConfig$${EOL})
+        log(All-in-one files .............. $$configEnabled(use_all_in_one_files)$$EOL)
+        log(GNUmake ....................... $$configEnabled(GNUmake)$$EOL)
+        log(Static libs as shared ......... $$configEnabled(force_static_libs_as_shared)$$EOL)
+        log(Static libs as thin archives .. $$configEnabled(gnu_thin_archives)$$EOL)
+        log(Production build .............. $$configEnabled(production_build)$$EOL)
+        log($$EOL)
+
+        log(Have .......................... $$have$${EOL})
+        log(Use ........................... $$use$${EOL})
+        log(Features ...................... $${leftoverConfig}$${EOL})
+        log($$EOL)
+
+        for(feature, featureConfiguration) {
+            log($$feature)
+        }
+
+        !isEmpty(CONFIGURE_WARNINGS) {
+            log("$${EOL}Encountered $$size(CONFIGURE_WARNINGS) configuration warning(s):$${EOL}$${EOL}")
+            for(warn, CONFIGURE_WARNINGS) {
+                log(" ! $$warn$${EOL}")
+            }
+        }
+
+        !isEmpty(skipBuildReason) {
+            log("$${EOL}The WebKit build was disabled for the following reasons: $$skipBuildReason $${EOL}$${EOL}")
+            SUBDIRS=
+            export(SUBDIRS)
+        } else {
+            log("$${EOL}WebKit is now configured for building. Just run 'make'.$${EOL}$${EOL}")
+        }
+
+        configuration_changed {
+            log(WARNING: The configuration was changed since the last build:$${EOL}$${EOL})
+
+            !isEmpty(added_features): log($${TAB}Added feature(s): $${added_features}$${EOL})
+            !isEmpty(removed_features): log($${TAB}Removed feature(s): $${removed_features}$${EOL})
+
+            log($$join(reconfigureMsg,$${EOL},$${EOL},$${EOL}$${EOL}))
+        }
+    }
+
+    # Cache the result for all the other project files, and for
+    # the next build, so we can detect changes to the config.
+    !webkit_configured|configuration_changed {
+        !configuration_changed: cache(CONFIG, add, $$list(webkit_configured))
+
+        msg = "$${EOL}$${LITERAL_HASH} Configuration changed $$_DATE_"
+        write_file($$_QMAKE_CACHE_, msg, append)
+
+        !configuration_changed {
+            cache(WEBKIT_CONFIG, set, WEBKIT_CONFIG)
+        } else {
+            !isEmpty(added_features): cache(WEBKIT_CONFIG, add, added_features)
+            !isEmpty(removed_features): cache(WEBKIT_CONFIG, sub, removed_features)
+        }
+    }
+}

@@ -31,9 +31,9 @@
 
 namespace google_breakpad {
 
-DisassemblerX86::DisassemblerX86(const u_int8_t *bytecode,
-                                 u_int32_t size,
-                                 u_int32_t virtual_address) :
+DisassemblerX86::DisassemblerX86(const uint8_t *bytecode,
+                                 uint32_t size,
+                                 uint32_t virtual_address) :
                                      bytecode_(bytecode),
                                      size_(size),
                                      virtual_address_(virtual_address),
@@ -54,7 +54,7 @@ DisassemblerX86::~DisassemblerX86() {
   libdis::x86_cleanup();
 }
 
-u_int32_t DisassemblerX86::NextInstruction() {
+uint32_t DisassemblerX86::NextInstruction() {
   if (instr_valid_)
     libdis::x86_oplist_free(&current_instr_);
 
@@ -62,7 +62,7 @@ u_int32_t DisassemblerX86::NextInstruction() {
     instr_valid_ = false;
     return 0;
   }
-  u_int32_t instr_size = 0;
+  uint32_t instr_size = 0;
   instr_size = libdis::x86_disasm((unsigned char *)bytecode_, size_,
                           virtual_address_, current_byte_offset_,
                           &current_instr_);

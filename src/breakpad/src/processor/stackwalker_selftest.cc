@@ -64,17 +64,19 @@
 
 #include <stdio.h>
 
+#include "common/scoped_ptr.h"
 #include "google_breakpad/common/breakpad_types.h"
 #include "google_breakpad/common/minidump_format.h"
 #include "google_breakpad/processor/basic_source_line_resolver.h"
 #include "google_breakpad/processor/call_stack.h"
+#include "google_breakpad/processor/code_module.h"
 #include "google_breakpad/processor/memory_region.h"
 #include "google_breakpad/processor/stack_frame.h"
 #include "google_breakpad/processor/stack_frame_cpu.h"
-#include "processor/scoped_ptr.h"
 
 using google_breakpad::BasicSourceLineResolver;
 using google_breakpad::CallStack;
+using google_breakpad::CodeModule;
 using google_breakpad::MemoryRegion;
 using google_breakpad::scoped_ptr;
 using google_breakpad::StackFrame;
@@ -100,20 +102,20 @@ using google_breakpad::StackwalkerSPARC;
 // process' memory space by pointer.
 class SelfMemoryRegion : public MemoryRegion {
  public:
-  virtual u_int64_t GetBase() { return 0; }
-  virtual u_int32_t GetSize() { return 0xffffffff; }
+  virtual uint64_t GetBase() { return 0; }
+  virtual uint32_t GetSize() { return 0xffffffff; }
 
-  bool GetMemoryAtAddress(u_int64_t address, u_int8_t*  value) {
+  bool GetMemoryAtAddress(uint64_t address, uint8_t*  value) {
       return GetMemoryAtAddressInternal(address, value); }
-  bool GetMemoryAtAddress(u_int64_t address, u_int16_t* value) {
+  bool GetMemoryAtAddress(uint64_t address, uint16_t* value) {
       return GetMemoryAtAddressInternal(address, value); }
-  bool GetMemoryAtAddress(u_int64_t address, u_int32_t* value) {
+  bool GetMemoryAtAddress(uint64_t address, uint32_t* value) {
       return GetMemoryAtAddressInternal(address, value); }
-  bool GetMemoryAtAddress(u_int64_t address, u_int64_t* value) {
+  bool GetMemoryAtAddress(uint64_t address, uint64_t* value) {
       return GetMemoryAtAddressInternal(address, value); }
 
  private:
-  template<typename T> bool GetMemoryAtAddressInternal(u_int64_t address,
+  template<typename T> bool GetMemoryAtAddressInternal(uint64_t address,
                                                        T*        value) {
     // Without knowing what addresses are actually mapped, just assume that
     // everything low is not mapped.  This helps the stackwalker catch the
@@ -123,7 +125,7 @@ class SelfMemoryRegion : public MemoryRegion {
     if (address < 0x100)
       return false;
 
-    u_int8_t* memory = 0;
+    uint8_t* memory = 0;
     *value = *reinterpret_cast<const T*>(&memory[address]);
     return true;
   }
@@ -142,9 +144,9 @@ class SelfMemoryRegion : public MemoryRegion {
 // on the stack (provided frame pointers are not being omitted.)  Because
 // this function depends on the compiler-generated preamble, inlining is
 // disabled.
-static u_int32_t GetEBP() __attribute__((noinline));
-static u_int32_t GetEBP() {
-  u_int32_t ebp;
+static uint32_t GetEBP() __attribute__((noinline));
+static uint32_t GetEBP() {
+  uint32_t ebp;
   __asm__ __volatile__(
     "movl (%%ebp), %0"
     : "=a" (ebp)
@@ -158,9 +160,9 @@ static u_int32_t GetEBP() {
 // The CALL instruction places a 4-byte return address on the stack above
 // the caller's %esp, and this function's prolog will save the caller's %ebp
 // on the stack as well, for another 4 bytes, before storing %esp in %ebp.
-static u_int32_t GetESP() __attribute__((noinline));
-static u_int32_t GetESP() {
-  u_int32_t ebp;
+static uint32_t GetESP() __attribute__((noinline));
+static uint32_t GetESP() {
+  uint32_t ebp;
   __asm__ __volatile__(
     "movl %%ebp, %0"
     : "=a" (ebp)
@@ -179,9 +181,9 @@ static u_int32_t GetESP() {
 // because GetEBP and stackwalking necessarily depends on access to frame
 // pointers.  Because this function depends on a call instruction and the
 // compiler-generated preamble, inlining is disabled.
-static u_int32_t GetEIP() __attribute__((noinline));
-static u_int32_t GetEIP() {
-  u_int32_t eip;
+static uint32_t GetEIP() __attribute__((noinline));
+static uint32_t GetEIP() {
+  uint32_t eip;
   __asm__ __volatile__(
     "movl 4(%%ebp), %0"
     : "=a" (eip)
@@ -199,9 +201,9 @@ static u_int32_t GetEIP() {
 // pointer.  Dereference %r1 to obtain the caller's stack pointer, which the
 // compiler-generated prolog stored on the stack.  Because this function
 // depends on the compiler-generated prolog, inlining is disabled.
-static u_int32_t GetSP() __attribute__((noinline));
-static u_int32_t GetSP() {
-  u_int32_t sp;
+static uint32_t GetSP() __attribute__((noinline));
+static uint32_t GetSP() {
+  uint32_t sp;
   __asm__ __volatile__(
     "lwz %0, 0(r1)"
     : "=r" (sp)
@@ -215,9 +217,9 @@ static u_int32_t GetSP() {
 // link register, where it was placed by the branch instruction that called
 // GetPC.  Because this function depends on the caller's use of a branch
 // instruction, inlining is disabled.
-static u_int32_t GetPC() __attribute__((noinline));
-static u_int32_t GetPC() {
-  u_int32_t lr;
+static uint32_t GetPC() __attribute__((noinline));
+static uint32_t GetPC() {
+  uint32_t lr;
   __asm__ __volatile__(
     "mflr %0"
     : "=r" (lr)
@@ -236,9 +238,9 @@ static u_int32_t GetPC() {
 // pointer, which the compiler-generated prolog stored on the stack.
 // Because this function depends on the compiler-generated prolog, inlining
 // is disabled.
-static u_int32_t GetSP() __attribute__((noinline));
-static u_int32_t GetSP() {
-  u_int32_t sp;
+static uint32_t GetSP() __attribute__((noinline));
+static uint32_t GetSP() {
+  uint32_t sp;
   __asm__ __volatile__(
     "mov %%fp, %0"
     : "=r" (sp)
@@ -253,9 +255,9 @@ static u_int32_t GetSP() {
 // on the stack (provided frame pointers are not being omitted.)  Because
 // this function depends on the compiler-generated preamble, inlining is
 // disabled.
-static u_int32_t GetFP() __attribute__((noinline));
-static u_int32_t GetFP() {
-  u_int32_t fp;
+static uint32_t GetFP() __attribute__((noinline));
+static uint32_t GetFP() {
+  uint32_t fp;
   __asm__ __volatile__(
     "ld [%%fp+56], %0"
     : "=r" (fp)
@@ -268,9 +270,9 @@ static u_int32_t GetFP() {
 // link register, where it was placed by the branch instruction that called
 // GetPC.  Because this function depends on the caller's use of a branch
 // instruction, inlining is disabled.
-static u_int32_t GetPC() __attribute__((noinline));
-static u_int32_t GetPC() {
-  u_int32_t pc;
+static uint32_t GetPC() __attribute__((noinline));
+static uint32_t GetPC() {
+  uint32_t pc;
   __asm__ __volatile__(
     "mov %%i7, %0"
     : "=r" (pc)
@@ -284,15 +286,15 @@ static u_int32_t GetPC() {
 
 #if defined(__i386__)
 extern "C" {
-extern u_int32_t GetEIP();
-extern u_int32_t GetEBP();
-extern u_int32_t GetESP();
+extern uint32_t GetEIP();
+extern uint32_t GetEBP();
+extern uint32_t GetESP();
 }
 #elif defined(__sparc__)
 extern "C" {
-extern u_int32_t GetPC();
-extern u_int32_t GetFP();
-extern u_int32_t GetSP();
+extern uint32_t GetPC();
+extern uint32_t GetFP();
+extern uint32_t GetSP();
 }
 #endif // __i386__ || __sparc__
 
@@ -337,7 +339,8 @@ static unsigned int CountCallerFrames() {
 #endif  // __i386__ || __ppc__ || __sparc__
 
   CallStack stack;
-  stackwalker.Walk(&stack);
+  vector<const CodeModule*> modules_without_symbols;
+  stackwalker.Walk(&stack, &modules_without_symbols);
 
 #ifdef PRINT_STACKS
   printf("\n");

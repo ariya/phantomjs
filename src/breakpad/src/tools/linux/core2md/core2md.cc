@@ -34,6 +34,7 @@
 #include "client/linux/minidump_writer/minidump_writer.h"
 #include "client/linux/minidump_writer/linux_core_dumper.h"
 
+using google_breakpad::AppMemoryList;
 using google_breakpad::MappingList;
 using google_breakpad::LinuxCoreDumper;
 
@@ -46,8 +47,10 @@ bool WriteMinidumpFromCore(const char* filename,
                            const char* core_path,
                            const char* procfs_override) {
   MappingList mappings;
+  AppMemoryList memory_list;
   LinuxCoreDumper dumper(0, core_path, procfs_override);
-  return google_breakpad::WriteMinidump(filename, mappings, &dumper);
+  return google_breakpad::WriteMinidump(filename, mappings, memory_list,
+                                        &dumper);
 }
 
 int main(int argc, char *argv[]) {

@@ -41,12 +41,12 @@
 #include <map>
 #include <string>
 
+#include "common/using_std_string.h"
 #include "google_breakpad/common/breakpad_types.h"
 
 namespace google_breakpad {
 
 using std::map;
-using std::string;
 
 class MemoryRegion;
 
@@ -80,8 +80,8 @@ class CFIFrameInfo {
 
   // Compute the values of the calling frame's registers, according to
   // this rule set. Use ValueType in expression evaluation; this
-  // should be u_int32_t on machines with 32-bit addresses, or
-  // u_int64_t on machines with 64-bit addresses.
+  // should be uint32_t on machines with 32-bit addresses, or
+  // uint64_t on machines with 64-bit addresses.
   //
   // Return true on success, false otherwise.
   //
@@ -204,7 +204,7 @@ class CFIFrameInfoParseHandler: public CFIRuleParser::Handler {
 // up in a class should allow the walkers to share code.
 //
 // RegisterType should be the type of this architecture's registers, either
-// u_int32_t or u_int64_t. RawContextType should be the raw context
+// uint32_t or uint64_t. RawContextType should be the raw context
 // structure type for this architecture.
 template <typename RegisterType, class RawContextType>
 class SimpleCFIWalker {

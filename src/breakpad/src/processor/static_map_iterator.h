@@ -39,7 +39,7 @@
 #ifndef PROCESSOR_STATIC_MAP_ITERATOR_H__
 #define PROCESSOR_STATIC_MAP_ITERATOR_H__
 
-#include <sys/types.h>
+#include "google_breakpad/common/breakpad_types.h"
 
 namespace google_breakpad {
 
@@ -101,7 +101,7 @@ class StaticMapIterator {
   // offsets_ is an array of offset addresses of mapped values.
   // For example:
   // address_of_i-th_node_value = base_ + offsets_[i]
-  const u_int32_t* offsets_;
+  const uint32_t* offsets_;
 
   // keys_[i] = key of i_th node.
   const Key* keys_;

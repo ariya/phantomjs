@@ -31,12 +31,12 @@
 // request using wininet.  It currently supports requests that contain
 // a set of string parameters (key/value pairs), and a file to upload.
 
-#ifndef COMMON_WINDOWS_HTTP_UPLOAD_H__
-#define COMMON_WINDOWS_HTTP_UPLOAD_H__
+#ifndef COMMON_WINDOWS_HTTP_UPLOAD_H_
+#define COMMON_WINDOWS_HTTP_UPLOAD_H_
 
-#pragma warning( push )
+#pragma warning(push)
 // Disable exception handler warnings.
-#pragma warning( disable : 4530 ) 
+#pragma warning(disable : 4530)
 
 #include <Windows.h>
 #include <WinInet.h>
@@ -121,6 +121,6 @@ class HTTPUpload {
 
 }  // namespace google_breakpad
 
-#pragma warning( pop )
+#pragma warning(pop)
 
-#endif  // COMMON_WINDOWS_HTTP_UPLOAD_H__
+#endif  // COMMON_WINDOWS_HTTP_UPLOAD_H_

@@ -45,10 +45,10 @@
 
 #include "common/module.h"
 #include "common/stabs_reader.h"
+#include "common/using_std_string.h"
 
 namespace google_breakpad {
 
-using std::string;
 using std::vector;
 
 // A StabsToModule is a handler that receives parsed STABS debugging 

@@ -1,0 +1,239 @@
+@namespace "http://www.w3.org/1998/Math/MathML";
+
+math {
+    -webkit-line-box-contain: glyphs replaced;
+    line-height: 0;
+    text-indent: 0;
+}
+mtext {
+    line-height: 1.0;
+}
+
+/* Keep font-family and other defaults here consistent with http://mxr.mozilla.org/mozilla-central/source/layout/mathml/mathml.css and feedback from www-math. */
+math, mfenced > * {
+    font-family: MathJax_Main, STIXGeneral, "DejaVu Serif", Cambria, "Cambria Math", Times, serif;
+}
+mo, mfenced {
+    font-family: MathJax_Main, STIXGeneral, STIXSizeOneSym, "DejaVu Sans", "DejaVu Serif", Cambria, "Cambria Math",
+        "Lucida Sans Unicode", "Arial Unicode MS", "Lucida Grande", OpenSymbol, "Standard Symbols L", sans-serif;
+}
+
+math {
+    display: -webkit-inline-flex !important;
+    padding-left: 1px;
+    padding-right: 1px;
+}
+
+math[display="block"] {
+    display: -webkit-flex !important;
+    -webkit-justify-content: center;
+    page-break-inside: avoid;
+    /* -webkit-margin-before: 1em; -- FIXME: Ask www-math for a default MathML stylesheet, including this (or margin-top). */
+    -webkit-margin-after: 1em;
+}
+
+mo, mrow, mfenced, mfrac, msub, msup, msubsup, munder, mover, munderover, msqrt, mroot {
+    display: -webkit-inline-flex !important;
+}
+
+msup {
+    -webkit-align-items: flex-start;
+}
+
+msub {
+    -webkit-align-items: flex-end;
+}
+
+math, mrow, mfenced, msqrt, mroot {
+    -webkit-align-items: baseline;
+}
+msqrt > * { /* This rule is needed because of <msqrt>'s anonymous <mrow>. */
+    -webkit-align-self: baseline;
+}
+
+mo, mfrac, munder, mover, munderover {
+    -webkit-flex-direction: column;
+}
+
+munder, mover, munderover {
+    -webkit-align-items: center;
+}
+
+mfrac > * {
+    -webkit-align-self: center;
+}
+mfrac[numalign="left"] > :first-child {
+    -webkit-align-self: flex-start;
+}
+mfrac[numalign="right"] > :first-child {
+    -webkit-align-self: flex-end;
+}
+mfrac[denomalign="left"] > :last-child {
+    -webkit-align-self: flex-start;
+}
+mfrac[denomalign="right"] > :last-child {
+    -webkit-align-self: flex-end;
+}
+mfrac > :first-child {
+    -webkit-margin-after: 0.2em;
+}
+mfrac > :last-child {
+    -webkit-margin-before: 0.2em;
+}
+mfrac {
+    -webkit-margin-start: 1px;
+    -webkit-margin-end: 1px;
+}
+
+msubsup > :last-child, mover > :last-child, munderover > :last-child {
+    -webkit-order: -1;
+}
+
+msub > * + *, msup > * + *, msubsup > * + *, munder > * + *, mover > * + *, munderover > * + * {
+    font-size: 0.75em; /* FIXME: MathML standard is 0.71em */
+}
+
+mi {
+    font-style: italic;
+    -webkit-padding-end: 0.1em;
+}
+msub > mi:first-child, msubsup > mi:first-child {
+    -webkit-padding-end: 0;
+}
+msubsup > mi:first-child + * + * {
+    -webkit-margin-start: 0.14em; /* This is larger than 0.1em because the child's font-size is smaller than the <msubsup>'s. */
+}
+
+/* FIXME: For a RenderMathMLOperator's margin-start and margin-end, or for a MathML "embellished operator", check the operator's lspace and rspace attributes,
+   and the MathML operator dictionary. */
+math > mo, mrow > mo, msqrt > mo, mtd > mo {
+    -webkit-margin-start: 0.2em;
+    -webkit-margin-end: 0.2em;
+}
+math > mo:first-child, mrow > mo:first-child, msqrt > mo:first-child, mtd > mo:first-child,
+math > mo:last-child, mrow > mo:last-child, msqrt > mo:last-child, mtd > mo:last-child {
+    -webkit-margin-start: 0.1em;
+    -webkit-margin-end: 0.1em;
+}
+
+mroot {
+    position: relative;
+}
+mroot > * + * {
+    font-size: 0.75em;
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding-right: 0.4em;
+    padding-left: 0.2em;
+    padding-bottom: 0.35em;
+}
+
+math[mathvariant="normal"], mstyle[mathvariant="normal"], mo[mathvariant="normal"], mn[mathvariant="normal"], mi[mathvariant="normal"], mtext[mathvariant="normal"], mspace[mathvariant="normal"], ms[mathvariant="normal"] {
+    font-style: normal;
+    font-weight: normal;
+}
+
+math[mathvariant="bold"], mstyle[mathvariant="bold"], mo[mathvariant="bold"], mn[mathvariant="bold"], mi[mathvariant="bold"], mtext[mathvariant="bold"], mspace[mathvariant="bold"], ms[mathvariant="bold"] {
+    font-style: normal;
+    font-weight: bold;
+}
+
+math[mathvariant="italic"], mstyle[mathvariant="italic"], mo[mathvariant="italic"], mn[mathvariant="italic"], mi[mathvariant="italic"], mtext[mathvariant="italic"], mspace[mathvariant="italic"], ms[mathvariant="italic"] {
+    font-style: italic;
+    font-weight: normal;
+}
+
+math[mathvariant="bold-italic"], mstyle[mathvariant="bold-italic"], mo[mathvariant="bold-italic"], mn[mathvariant="bold-italic"], mi[mathvariant="bold-italic"], mtext[mathvariant="bold-italic"], mspace[mathvariant="bold-italic"], ms[mathvariant="bold-italic"] {
+    font-weight: bold;
+    font-style: italic;
+}
+
+math[mathsize="small"], mstyle[mathsize="small"], mo[mathsize="small"], mn[mathsize="small"], mi[mathsize="small"], mtext[mathsize="small"], mspace[mathsize="small"], ms[mathsize="small"] {
+    font-size: 0.75em;
+}
+
+math[mathsize="normal"], mstyle[mathsize="normal"], mo[mathsize="normal"], mn[mathsize="normal"], mi[mathsize="normal"], mtext[mathsize="normal"], mspace[mathsize="normal"], ms[mathsize="normal"] {
+    font-size: 1em;
+}
+
+math[mathsize="big"], mstyle[mathsize="big"], mo[mathsize="big"], mn[mathsize="big"], mi[mathsize="big"], mtext[mathsize="big"], mspace[mathsize="big"], ms[mathsize="big"] {
+    font-size: 1.5em;
+}
+ 
+annotation, annotation-xml {
+    display: none;
+}
+
+mphantom {
+    visibility: hidden;
+}
+
+merror {
+    outline: solid thin red;
+    font-weight: bold;
+    font-family: sans-serif;
+    background-color: lightYellow;
+}
+
+mtable {
+    display: inline-table;
+    text-align: center;
+}
+
+mtr {
+    display: table-row;
+}
+
+mtd {
+    display: table-cell;
+    padding: 0.5ex;
+}
+
+mtable[columnalign="left"], mtr[columnalign="left"], mtd[columnalign="left"] {
+    text-align: left;
+}
+
+mtable[columnalign="right"], mtr[columnalign="right"], mtd[columnalign="right"] {
+    text-align: right;
+}
+
+mtable[rowalign="top"] mtd, mtable mtr[rowalign="top"] mtd, mtable mtr mtd[rowalign="top"] {
+    vertical-align: top;
+}
+
+mtable[rowalign="bottom"] mtd, mtable mtr[rowalign="bottom"] mtd, mtable mtr mtd[rowalign="bottom"] {
+    vertical-align: bottom;
+}
+
+mtable[rowalign="center"] mtd, mtable mtr[rowalign="center"] mtd, mtable mtr mtd[rowalign="center"] {
+    vertical-align: middle;
+}
+
+mtable[frame="solid"] {
+    border: solid thin;
+}
+
+mtable[frame="dashed"] {
+    border: dashed thin;
+}
+
+mtable[rowlines="solid"], mtable[rowlines="dashed"], mtable[columnlines="solid"], mtable[columnlines="dashed"] {
+    border-collapse: collapse;
+}
+
+mtable[rowlines="solid"] > mtr + mtr {
+    border-top: solid thin;
+}
+
+mtable[rowlines="dashed"] > mtr + mtr {
+    border-top: dashed thin;
+}
+
+mtable[columnlines="solid"] > mtr > mtd + mtd {
+    border-left: solid thin;
+}
+
+mtable[columnlines="dashed"] > mtr > mtd + mtd {
+    border-left: dashed thin;
+}

@@ -1,0 +1,154 @@
+
+Qt 2.2.2 is a bugfix release. It keeps both forward and backward
+compatibility (source and binary) with Qt 2.2.1
+
+
+****************************************************************************
+*			    General					   *
+****************************************************************************
+
+OpenGL:		More Problems with the auto-detection of OpenGL
+		libraries have been fixed.
+
+
+****************************************************************************
+*			   Designer					   *
+****************************************************************************
+
+uic:		Added workaround for the QListView::Manual vs.
+		QScrollView::Manual enumeration clash.	
+		Fixed backslashes inside strings.
+		Obeys user defined layout names.
+
+RC2UI:		Converts Microsoft Dialog Resources (.rc) to
+		Qt Designer Dialog Userinterface Description Files (.ui).
+		You find it in $QTDIR/tools/designer/integration/rc2ui.
+		See the README file there.
+
+****************************************************************************
+*			   Library					   *
+****************************************************************************
+
+QAction:	Fixed possible crash in removeFrom().
+
+QApplication:	X11 only: Add possibility to input text in more than
+		one encoding.
+
+QCanvas:	Deletes items at canvas destruction time. Without a
+		canvas, items are not deletable anyway as they need to
+		access their canvas during destruction.
+		Some performance optimizations.
+
+QCanvasItem:	More accurate rectangle collision detection.
+
+QClipboard:	X11 only: 64bit cleanness when transferring data
+		with format==32 using dnd/clipboard.
+
+QColorDialog:	MS-Windows only: Tries harder to use a nice icon.
+
+QDialog:	Keypard-Enter triggers default button.
+
+QFile:		Unix only: Safe access to files in the proc filesystem.
+
+QFileDialog:	Fixed reentrancy problem when used with qFtp.
+		MS-Windows only: Tries harder to use a nice icon.
+
+QFontCache:	Fixed possible crash in the rare case that the font
+		cache runs over.
+
+QGLWidget:	MS-Windows only: Fix for GL context switching.
+
+QIconView:	Fixed possible crash.
+
+QImage:		Increased number of colors when writing XPM files from
+		64^2 to 64^4.
+		Fixed 16-bit pixel().
+
+QImageIO:	MS-Windows only: exported qInitJpegIO function.
+		Fixed crash with libpng 1.0.8.
+		Fixed huge memory leak with PNG files.
+
+QLCDNumber:	Sensible precision when displaying doubles.
+
+QLineEdit:	Accepts text drops other than text/plain.
+		Fixed psosible crash when deleting a line edit while its
+		context menu is visible.
+
+QListView:	Less flicker. Improved performance on insertItem().
+
+QMainWindow:	Deletes its layout first on destruction time to avoid
+		possible crashes with subclasses.
+
+QMotifPlusStyle:Tuned drawing of tabs.
+
+QPainter:	Fixed rounded rectangle drawing with rotation and
+		viewport transformation turned on.
+		Ignores '\r' in drawText.
+
+QPopupMenu:	Ensure to emit the aboutToShow() signal only once
+		for submenus.
+
+QPrinter:	Unix only: Fixed output for when printing some but not all pages
+		of multi-page output.
+		Unix only: Fixed an infinite loop in the image compression
+		algorithm for some images.
+		Unix only: Added MIBs for 8859-13, -14 and -15.
+		MS-Windows only: Fixed system print dialog for Win9x.
+
+QPrintDialog:	MS-Windows only: Tries harder to use a nice icon.
+
+QProgressBar:	Fixed drawing problem with really large progress ranges.
+
+QPushButton:	Implemented "flat" property as advertised.
+
+QPrinter:	MS-Windows only: Keep the current printer name.
+
+QRichText:	Fixed line breaking for asian scripts. Support for
+		chinese punctuation.
+		Obeys <font color="..."> tags inside links.
+
+QString:	Allows 'G' in sprintf.
+
+QTextCodec:	Recognizes "he" and "he_IL" as 8859-8 locales.
+		Added latin4 locales.
+		Improved Thai support.
+		X11 only: fixed crashes when LANG=ko.
+		Improved conversion performance.
+
+QWidget:	X11 only: fixed a crash in case XmbTextListToTextProperty
+		fails for a certain locale.
+		Visiblity fix when reparenting a widget to 0.
+		X11 only: Improved transient placement for embedded
+		windows.
+		X11 only: Maintains XDND state when reparented.
+		X11 only: No more crashes in setActiveWindow() with
+		or without XIM support.
+		X11 only: small ICCCM compatibility issue with subsequent
+		hide and show fixed.
+
+QWorkspace:	Tab-focus remains inside a document window.
+		Fixed problem with menubars inside document windows.
+		Obeys initial child geometry.
+		Uses the children's size hint when cascading.
+
+QXmlInputSource:Fix for stream devices that do not support
+		direct access.
+
+****************************************************************************
+*			   Third party					   *
+****************************************************************************
+
+None
+
+****************************************************************************
+*               Changes that might affect runtime behavior                 *
+****************************************************************************
+
+None
+
+****************************************************************************
+*		    Qt/Embedded-specific changes		           *
+****************************************************************************
+
+ - Drawing speed-ups, especially rectangles, alpha blitting, horizontal lines.
+ - More control of qconfig.h

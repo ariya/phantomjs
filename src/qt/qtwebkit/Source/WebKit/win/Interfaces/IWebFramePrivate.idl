@@ -1,0 +1,122 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+#ifndef DO_NO_IMPORTS
+import "oaidl.idl";
+import "ocidl.idl";
+import "IWebFrame.idl";
+#endif
+
+interface IWebFrame;
+interface IWebScriptWorld;
+
+typedef enum {
+    WebFrameLoadTypeStandard,
+    WebFrameLoadTypeBack,
+    WebFrameLoadTypeForward,
+    WebFrameLoadTypeIndexedBackForward, // a multi-item hop in the backforward list
+    WebFrameLoadTypeReload,
+    WebFrameLoadTypeReloadAllowingStaleData,
+    WebFrameLoadTypeSame,               // user loads same URL again (but not reload button)
+    WebFrameLoadTypeRedirectWithLockedBackForwardList,
+    WebFrameLoadTypeReplace,
+    WebFrameLoadTypeReloadFromOrigin,
+} WebFrameLoadType;
+
+[
+    object,
+    oleautomation,
+    uuid(A1657D07-4881-4475-9D10-76548731D448),
+    pointer_default(unique)
+]
+
+interface IWebFramePrivate : IUnknown
+{
+    HRESULT unused1([out, retval] BSTR*);
+    HRESULT scrollOffset([out, retval] SIZE* offset);
+
+    // FIXME: This shouldn't be needed once IWebDocumentView is implemented.
+    HRESULT layout();
+    HRESULT firstLayoutDone([out, retval] BOOL* result);
+    HRESULT loadType([out, retval] WebFrameLoadType* type);
+
+    HRESULT setInPrintingMode([in] BOOL value, [in] HDC printDC);
+    HRESULT getPrintedPageCount([in] HDC printDC, [out, retval] UINT* pageCount);
+    [local] HRESULT spoolPages([in] HDC printDC, [in] UINT startPage, [in] UINT endPage, [out, retval] void* ctx);
+
+    HRESULT isFrameSet([out, retval] BOOL* result);
+    HRESULT string([out, retval] BSTR* result);
+
+    HRESULT size([out, retval] SIZE* size);
+    HRESULT hasScrollBars([out, retval] BOOL* result);
+    HRESULT contentBounds([out, retval] RECT* result);
+    HRESULT frameBounds([out, retval] RECT* result);
+
+    HRESULT isDescendantOfFrame([in] IWebFrame* ancestor, [out, retval] BOOL* result);
+
+    HRESULT pendingFrameUnloadEventCount([out, retval] UINT* result);
+
+    HRESULT unused2();
+
+    HRESULT paintDocumentRectToContext([in] RECT rect, [in] OLE_HANDLE deviceContext);
+
+    HRESULT elementDoesAutoComplete([in] IDOMElement* element, [out, retval] BOOL* result);
+
+    HRESULT pauseAnimation([in] BSTR animationName, [in] IDOMNode* node, [in] double secondsFromNow, [out, retval] BOOL* animationWasRunning);
+    HRESULT pauseTransition([in] BSTR propertyName, [in] IDOMNode* node, [in] double secondsFromNow, [out, retval] BOOL* transitionWasRunning);
+    HRESULT numberOfActiveAnimations([out, retval] UINT* number);
+
+    HRESULT isDisplayingStandaloneImage([out, retval] BOOL* result);
+
+    HRESULT allowsFollowingLink([in] BSTR url, [out, retval] BOOL* result);
+
+    [local] HRESULT stringByEvaluatingJavaScriptInScriptWorld([in] IWebScriptWorld*, [in] JSObjectRef globalObject, [in] BSTR script, [out, retval] BSTR* result);
+
+    [local] JSGlobalContextRef globalContextForScriptWorld([in] IWebScriptWorld*);
+
+    HRESULT unused3([in] BSTR, [out, retval] BSTR*);
+
+    HRESULT visibleContentRect([out, retval] RECT*);
+
+    HRESULT pageNumberForElementById([in] BSTR id, [in] float pageWidthInPixels, [in] float pageHeightInPixels, [out, retval] int* pageNumber);
+
+    HRESULT numberOfPages([in] float pageWidthInPixels, [in] float pageHeightInPixels, [out, retval] int* pageNumber);
+
+    HRESULT layerTreeAsText([out, retval] BSTR* result);
+
+    HRESULT paintScrollViewRectToContextAtPoint([in] RECT rect, [in] POINT pt, [in] OLE_HANDLE deviceContext);
+
+    HRESULT renderTreeAsExternalRepresentation([in] BOOL forPrinting, [out, retval] BSTR* result);
+
+    HRESULT suspendAnimations();
+    HRESULT resumeAnimations(); 
+
+    HRESULT loadPlainTextString([in] BSTR string, [in] BSTR url);
+
+    HRESULT clearOpener();
+
+    HRESULT setTextDirection([in] BSTR direction);
+
+}

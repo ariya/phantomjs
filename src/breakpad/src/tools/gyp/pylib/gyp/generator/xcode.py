@@ -1,6 +1,4 @@
-#!/usr/bin/python
-
-# Copyright (c) 2009 Google Inc. All rights reserved.
+# Copyright (c) 2012 Google Inc. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -9,6 +7,7 @@ import gyp.common
 import gyp.xcodeproj_file
 import errno
 import os
+import sys
 import posixpath
 import re
 import shutil
@@ -31,11 +30,13 @@ _intermediate_var = 'INTERMEDIATE_DIR'
 # targets that share the same BUILT_PRODUCTS_DIR.
 _shared_intermediate_var = 'SHARED_INTERMEDIATE_DIR'
 
+_library_search_paths_var = 'LIBRARY_SEARCH_PATHS'
+
 generator_default_variables = {
   'EXECUTABLE_PREFIX': '',
   'EXECUTABLE_SUFFIX': '',
   'STATIC_LIB_PREFIX': 'lib',
-  'SHARED_LIB_PREFIX': '',
+  'SHARED_LIB_PREFIX': 'lib',
   'STATIC_LIB_SUFFIX': '.a',
   'SHARED_LIB_SUFFIX': '.dylib',
   # INTERMEDIATE_DIR is a place for targets to build up intermediate products.
@@ -51,6 +52,7 @@ generator_default_variables = {
   'RULE_INPUT_EXT': '$(INPUT_FILE_SUFFIX)',
   'RULE_INPUT_NAME': '$(INPUT_FILE_NAME)',
   'RULE_INPUT_PATH': '$(INPUT_FILE_PATH)',
+  'RULE_INPUT_DIRNAME': '$(INPUT_FILE_DIRNAME)',
   'SHARED_INTERMEDIATE_DIR': '$(%s)' % _shared_intermediate_var,
   'CONFIGURATION_NAME': '$(CONFIGURATION)',
 }
@@ -58,6 +60,8 @@ generator_default_variables = {
 # The Xcode-specific sections that hold paths.
 generator_additional_path_sections = [
   'mac_bundle_resources',
+  'mac_framework_headers',
+  'mac_framework_private_headers',
   # 'mac_framework_dirs', input already handles _dirs endings.
 ]
 
@@ -66,17 +70,30 @@ generator_additional_path_sections = [
 generator_additional_non_configuration_keys = [
   'mac_bundle',
   'mac_bundle_resources',
+  'mac_framework_headers',
+  'mac_framework_private_headers',
+  'mac_xctest_bundle',
   'xcode_create_dependents_test_runner',
 ]
 
 # We want to let any rules apply to files that are resources also.
 generator_extra_sources_for_rules = [
   'mac_bundle_resources',
+  'mac_framework_headers',
+  'mac_framework_private_headers',
 ]
 
+# Xcode's standard set of library directories, which don't need to be duplicated
+# in LIBRARY_SEARCH_PATHS. This list is not exhaustive, but that's okay.
+xcode_standard_library_dirs = frozenset([
+  '$(SDKROOT)/usr/lib',
+  '$(SDKROOT)/usr/local/lib',
+])
 
 def CreateXCConfigurationList(configuration_names):
   xccl = gyp.xcodeproj_file.XCConfigurationList({'buildConfigurations': []})
+  if len(configuration_names) == 0:
+    configuration_names = ['Default']
   for configuration_name in configuration_names:
     xcbc = gyp.xcodeproj_file.XCBuildConfiguration({
         'name': configuration_name})
@@ -130,7 +147,6 @@ class XcodeProject(object):
       xccl = CreateXCConfigurationList(configurations)
       self.project.SetProperty('buildConfigurationList', xccl)
     except:
-      import sys
       sys.stderr.write("Problem with gyp file %s\n" % self.gyp_path)
       raise
 
@@ -151,15 +167,35 @@ class XcodeProject(object):
     xccl.SetBuildSetting(_shared_intermediate_var,
                          '$(SYMROOT)/DerivedSources/$(CONFIGURATION)')
 
-    # Set user-specified project-wide build settings.  This is intended to be
-    # used very sparingly.  Really, almost everything should go into
-    # target-specific build settings sections.  The project-wide settings are
-    # only intended to be used in cases where Xcode attempts to resolve
-    # variable references in a project context as opposed to a target context,
-    # such as when resolving sourceTree references while building up the tree
-    # tree view for UI display.
+    # Set user-specified project-wide build settings and config files.  This
+    # is intended to be used very sparingly.  Really, almost everything should
+    # go into target-specific build settings sections.  The project-wide
+    # settings are only intended to be used in cases where Xcode attempts to
+    # resolve variable references in a project context as opposed to a target
+    # context, such as when resolving sourceTree references while building up
+    # the tree tree view for UI display.
+    # Any values set globally are applied to all configurations, then any
+    # per-configuration values are applied.
     for xck, xcv in self.build_file_dict.get('xcode_settings', {}).iteritems():
       xccl.SetBuildSetting(xck, xcv)
+    if 'xcode_config_file' in self.build_file_dict:
+      config_ref = self.project.AddOrGetFileInRootGroup(
+          self.build_file_dict['xcode_config_file'])
+      xccl.SetBaseConfiguration(config_ref)
+    build_file_configurations = self.build_file_dict.get('configurations', {})
+    if build_file_configurations:
+      for config_name in configurations:
+        build_file_configuration_named = \
+            build_file_configurations.get(config_name, {})
+        if build_file_configuration_named:
+          xcc = xccl.ConfigurationNamed(config_name)
+          for xck, xcv in build_file_configuration_named.get('xcode_settings',
+                                                             {}).iteritems():
+            xcc.SetBuildSetting(xck, xcv)
+          if 'xcode_config_file' in build_file_configuration_named:
+            config_ref = self.project.AddOrGetFileInRootGroup(
+                build_file_configurations[config_name]['xcode_config_file'])
+            xcc.SetBaseConfiguration(config_ref)
 
     # Sort the targets based on how they appeared in the input.
     # TODO(mark): Like a lot of other things here, this assumes internal
@@ -205,11 +241,9 @@ class XcodeProject(object):
       if target_name.lower() == 'all':
         has_custom_all = True;
 
-      # If this target has a 'run_as' attribute, or is a test, add its
-      # target to the targets, and (if it's a test) add it the to the
-      # test targets.
-      is_test = int(target.get('test', 0))
-      if target.get('run_as') or is_test:
+      # If this target has a 'run_as' attribute, add its target to the
+      # targets, and add it to the test targets.
+      if target.get('run_as'):
         # Make a target to run something.  It should have one
         # dependency, the parent xcode target.
         xccl = CreateXCConfigurationList(configurations)
@@ -221,14 +255,7 @@ class XcodeProject(object):
             parent=self.project)
         run_target.AddDependency(xcode_target)
 
-        # The test runner target has a build phase that executes the
-        # test, if this has the 'test' attribute.  If the 'run_as' tag
-        # doesn't exist (meaning that this must be a test), then we
-        # define a default test command line.
-        command = target.get('run_as', {
-          'action': ['${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}']
-          })
-
+        command = target['run_as']
         script = ''
         if command.get('working_directory'):
           script = script + 'cd "%s"\n' % \
@@ -248,7 +275,7 @@ class XcodeProject(object):
         # little bit of python does the same as the linux flock utility to
         # make sure only one runs at a time.
         command_prefix = ''
-        if is_test and serialize_all_tests:
+        if serialize_all_tests:
           command_prefix = \
 """python -c "import fcntl, subprocess, sys
 file = open('$TMPDIR/GYP_serialize_test_runs', 'a')
@@ -270,9 +297,8 @@ sys.exit(subprocess.call(sys.argv[1:]))" """
 
         # Add the run target to the project file.
         targets.append(run_target)
-        if is_test:
-          run_test_targets.append(run_target)
-          xcode_target.test_runner = run_target
+        run_test_targets.append(run_target)
+        xcode_target.test_runner = run_target
 
 
     # Make sure that the list of targets being replaced is the same length as
@@ -352,9 +378,7 @@ sys.exit(subprocess.call(sys.argv[1:]))" """
           for pbxtd in pbxtds:
             pbxcip = pbxtd.GetProperty('targetProxy')
             dependency_xct = pbxcip.GetProperty('remoteGlobalIDString')
-            target_dict = xcode_target_to_target_dict[dependency_xct]
-            if target_dict and int(target_dict.get('test', 0)):
-              assert dependency_xct.test_runner
+            if hasattr(dependency_xct, 'test_runner'):
               all_run_tests.append(dependency_xct.test_runner)
 
           # Directly depend on all the runners as they depend on the target
@@ -457,52 +481,29 @@ sys.exit(subprocess.call(sys.argv[1:]))" """
       raise
 
 
-cached_xcode_version = None
-def InstalledXcodeVersion():
-  """Fetches the installed version of Xcode, returns empty string if it is
-  unable to figure it out."""
-
-  global cached_xcode_version
-  if not cached_xcode_version is None:
-    return cached_xcode_version
-
-  # Default to an empty string
-  cached_xcode_version = ''
-
-  # Collect the xcodebuild's version information.
-  try:
-    import subprocess
-    cmd = ['/usr/bin/xcodebuild', '-version']
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-    xcodebuild_version_info = proc.communicate()[0]
-    # Any error, return empty string
-    if proc.returncode:
-      xcodebuild_version_info = ''
-  except OSError:
-    # We failed to launch the tool
-    xcodebuild_version_info = ''
-
-  # Pull out the Xcode version itself.
-  match_line = re.search('^Xcode (.*)$', xcodebuild_version_info, re.MULTILINE)
-  if match_line:
-    cached_xcode_version = match_line.group(1)
-  # Done!
-  return cached_xcode_version
-
-
-def AddSourceToTarget(source, pbxp, xct):
-  # TODO(mark): Perhaps this can be made a little bit fancier.
+def AddSourceToTarget(source, type, pbxp, xct):
+  # TODO(mark): Perhaps source_extensions and library_extensions can be made a
+  # little bit fancier.
   source_extensions = ['c', 'cc', 'cpp', 'cxx', 'm', 'mm', 's']
+
+  # .o is conceptually more of a "source" than a "library," but Xcode thinks
+  # of "sources" as things to compile and "libraries" (or "frameworks") as
+  # things to link with. Adding an object file to an Xcode target's frameworks
+  # phase works properly.
+  library_extensions = ['a', 'dylib', 'framework', 'o']
+
   basename = posixpath.basename(source)
   (root, ext) = posixpath.splitext(basename)
-  if ext != '':
+  if ext:
     ext = ext[1:].lower()
 
-  if ext in source_extensions:
+  if ext in source_extensions and type != 'none':
     xct.SourcesPhase().AddFile(source)
+  elif ext in library_extensions and type != 'none':
+    xct.FrameworksPhase().AddFile(source)
   else:
-    # Files that aren't added to a sources build phase can still go into
-    # the project file, just not as part of a build phase.
+    # Files that aren't added to a sources or frameworks build phase can still
+    # go into the project file, just not as part of a build phase.
     pbxp.AddOrGetFileInRootGroup(source)
 
 
@@ -510,6 +511,13 @@ def AddResourceToTarget(resource, pbxp, xct):
   # TODO(mark): Combine with AddSourceToTarget above?  Or just inline this call
   # where it's used.
   xct.ResourcesPhase().AddFile(resource)
+
+
+def AddHeaderToTarget(header, pbxp, xct, is_public):
+  # TODO(mark): Combine with AddSourceToTarget above?  Or just inline this call
+  # where it's used.
+  settings = '{ATTRIBUTES = (%s, ); }' % ('Private', 'Public')[is_public]
+  xct.HeadersPhase().AddFile(header, settings)
 
 
 _xcode_variable_re = re.compile('(\$\((.*?)\))')
@@ -539,12 +547,42 @@ def ExpandXcodeVariables(string, expansions):
   return string
 
 
+_xcode_define_re = re.compile(r'([\\\"\' ])')
+def EscapeXcodeDefine(s):
+  """We must escape the defines that we give to XCode so that it knows not to
+     split on spaces and to respect backslash and quote literals. However, we
+     must not quote the define, or Xcode will incorrectly intepret variables
+     especially $(inherited)."""
+  return re.sub(_xcode_define_re, r'\\\1', s)
+
+
+def PerformBuild(data, configurations, params):
+  options = params['options']
+
+  for build_file, build_file_dict in data.iteritems():
+    (build_file_root, build_file_ext) = os.path.splitext(build_file)
+    if build_file_ext != '.gyp':
+      continue
+    xcodeproj_path = build_file_root + options.suffix + '.xcodeproj'
+    if options.generator_output:
+      xcodeproj_path = os.path.join(options.generator_output, xcodeproj_path)
+
+  for config in configurations:
+    arguments = ['xcodebuild', '-project', xcodeproj_path]
+    arguments += ['-configuration', config]
+    print "Building [%s]: %s" % (config, arguments)
+    subprocess.check_call(arguments)
+
+
 def GenerateOutput(target_list, target_dicts, data, params):
   options = params['options']
   generator_flags = params.get('generator_flags', {})
   parallel_builds = generator_flags.get('xcode_parallel_builds', True)
   serialize_all_tests = \
       generator_flags.get('xcode_serialize_all_test_runs', True)
+  project_version = generator_flags.get('xcode_project_version', None)
+  skip_excluded_files = \
+      not generator_flags.get('xcode_list_excluded_files', True)
   xcode_projects = {}
   for build_file, build_file_dict in data.iteritems():
     (build_file_root, build_file_ext) = os.path.splitext(build_file)
@@ -560,12 +598,16 @@ def GenerateOutput(target_list, target_dicts, data, params):
     if parallel_builds:
       pbxp.SetProperty('attributes',
                        {'BuildIndependentTargetsInParallel': 'YES'})
+    if project_version:
+      xcp.project_file.SetXcodeVersion(project_version)
 
-    main_group = pbxp.GetProperty('mainGroup')
-    build_group = gyp.xcodeproj_file.PBXGroup({'name': 'Build'})
-    main_group.AppendChild(build_group)
-    for included_file in build_file_dict['included_files']:
-      build_group.AddOrGetFileByPath(included_file, False)
+    # Add gyp/gypi files to project
+    if not generator_flags.get('standalone'):
+      main_group = pbxp.GetProperty('mainGroup')
+      build_group = gyp.xcodeproj_file.PBXGroup({'name': 'Build'})
+      main_group.AppendChild(build_group)
+      for included_file in build_file_dict['included_files']:
+        build_group.AddOrGetFileByPath(included_file, False)
 
   xcode_targets = {}
   xcode_target_to_target_dict = {}
@@ -589,15 +631,19 @@ def GenerateOutput(target_list, target_dicts, data, params):
     # supplied.
     xccl = CreateXCConfigurationList(configuration_names)
 
-    # Create an XCTarget subclass object for the target.  We use the type
-    # with "+bundle" appended if the target has "mac_bundle" set.
+    # Create an XCTarget subclass object for the target. The type with
+    # "+bundle" appended will be used if the target has "mac_bundle" set.
+    # loadable_modules not in a mac_bundle are mapped to
+    # com.googlecode.gyp.xcode.bundle, a pseudo-type that xcode.py interprets
+    # to create a single-file mh_bundle.
     _types = {
       'executable':             'com.apple.product-type.tool',
-      'loadable_module':        'com.apple.product-type.library.dynamic',
+      'loadable_module':        'com.googlecode.gyp.xcode.bundle',
       'shared_library':         'com.apple.product-type.library.dynamic',
       'static_library':         'com.apple.product-type.library.static',
       'executable+bundle':      'com.apple.product-type.application',
       'loadable_module+bundle': 'com.apple.product-type.bundle',
+      'loadable_module+xctest': 'com.apple.product-type.bundle.unit-test',
       'shared_library+bundle':  'com.apple.product-type.framework',
     }
 
@@ -607,11 +653,18 @@ def GenerateOutput(target_list, target_dicts, data, params):
     }
 
     type = spec['type']
-    is_bundle = int(spec.get('mac_bundle', 0))
+    is_xctest = int(spec.get('mac_xctest_bundle', 0))
+    is_bundle = int(spec.get('mac_bundle', 0)) or is_xctest
     if type != 'none':
       type_bundle_key = type
-      if is_bundle:
+      if is_xctest:
+        type_bundle_key += '+xctest'
+        assert type == 'loadable_module', (
+            'mac_xctest_bundle targets must have type loadable_module '
+            '(target %s)' % target_name)
+      elif is_bundle:
         type_bundle_key += '+bundle'
+
       xctarget_type = gyp.xcodeproj_file.PBXNativeTarget
       try:
         target_properties['productType'] = _types[type_bundle_key]
@@ -621,24 +674,24 @@ def GenerateOutput(target_list, target_dicts, data, params):
         raise
     else:
       xctarget_type = gyp.xcodeproj_file.PBXAggregateTarget
+      assert not is_bundle, (
+          'mac_bundle targets cannot have type none (target "%s")' %
+          target_name)
+      assert not is_xctest, (
+          'mac_xctest_bundle targets cannot have type none (target "%s")' %
+          target_name)
 
-    target_product_name = spec.get('product_name', None)
-    if target_product_name:
+    target_product_name = spec.get('product_name')
+    if target_product_name is not None:
       target_properties['productName'] = target_product_name
 
     xct = xctarget_type(target_properties, parent=pbxp,
-                        force_extension=spec.get('product_extension', None))
+                        force_outdir=spec.get('product_dir'),
+                        force_prefix=spec.get('product_prefix'),
+                        force_extension=spec.get('product_extension'))
     pbxp.AppendProperty('targets', xct)
     xcode_targets[qualified_target] = xct
     xcode_target_to_target_dict[xct] = spec
-
-    # Xcode does not have a distinct type for loadable_modules that are pure
-    # BSD targets (ie-unbundled). It uses the same setup as a shared_library
-    # but the mach-o type is explictly set in the settings.  So before we do
-    # anything else, for this one case, we stuff in that one setting.  This
-    # would allow the other data in the spec to change it if need be.
-    if type == 'loadable_module' and not is_bundle:
-      xccl.SetBuildSetting('MACH_O_TYPE', 'mh_bundle')
 
     spec_actions = spec.get('actions', [])
     spec_rules = spec.get('rules', [])
@@ -646,15 +699,17 @@ def GenerateOutput(target_list, target_dicts, data, params):
     # Xcode has some "issues" with checking dependencies for the "Compile
     # sources" step with any source files/headers generated by actions/rules.
     # To work around this, if a target is building anything directly (not
-    # type "none"), then a second target as used to run the GYP actions/rules
+    # type "none"), then a second target is used to run the GYP actions/rules
     # and is made a dependency of this target.  This way the work is done
     # before the dependency checks for what should be recompiled.
     support_xct = None
     if type != 'none' and (spec_actions or spec_rules):
       support_xccl = CreateXCConfigurationList(configuration_names);
+      support_target_suffix = generator_flags.get(
+          'support_target_suffix', ' Support')
       support_target_properties = {
         'buildConfigurationList': support_xccl,
-        'name':                   target_name + ' Support',
+        'name':                   target_name + support_target_suffix,
       }
       if target_product_name:
         support_target_properties['productName'] = \
@@ -719,7 +774,7 @@ def GenerateOutput(target_list, target_dicts, data, params):
       # TODO(mark): Should verify that at most one of these is specified.
       if int(action.get('process_outputs_as_sources', False)):
         for output in action['outputs']:
-          AddSourceToTarget(output, pbxp, xct)
+          AddSourceToTarget(output, type, pbxp, xct)
 
       if int(action.get('process_outputs_as_mac_bundle_resources', False)):
         for output in action['outputs']:
@@ -811,7 +866,8 @@ def GenerateOutput(target_list, target_dicts, data, params):
       actions = []
 
       for rule_source in rule.get('rule_sources', []):
-        rule_source_basename = posixpath.basename(rule_source)
+        rule_source_dirname, rule_source_basename = \
+            posixpath.split(rule_source)
         (rule_source_root, rule_source_ext) = \
             posixpath.splitext(rule_source_basename)
 
@@ -823,6 +879,7 @@ def GenerateOutput(target_list, target_dicts, data, params):
           'INPUT_FILE_SUFFIX': rule_source_ext,
           'INPUT_FILE_NAME':   rule_source_basename,
           'INPUT_FILE_PATH':   rule_source,
+          'INPUT_FILE_DIRNAME': rule_source_dirname,
         }
 
         concrete_outputs_for_this_rule_source = []
@@ -845,7 +902,7 @@ def GenerateOutput(target_list, target_dicts, data, params):
         # TODO(mark): Should verify that at most one of these is specified.
         if int(rule.get('process_outputs_as_sources', False)):
           for output in concrete_outputs_for_this_rule_source:
-            AddSourceToTarget(output, pbxp, xct)
+            AddSourceToTarget(output, type, pbxp, xct)
 
         # If the file came from the mac_bundle_resources list or if the rule
         # is marked to process outputs as bundle resource, do so.
@@ -859,8 +916,7 @@ def GenerateOutput(target_list, target_dicts, data, params):
         message = rule.get('message')
         if message:
           message = gyp.common.EncodePOSIXShellArgument(message)
-          message = '@echo note: ' + ExpandXcodeVariables(message,
-                                                          rule_input_dict)
+          message = ExpandXcodeVariables(message, rule_input_dict)
         messages.append(message)
 
         # Turn the list into a string that can be passed to a shell.
@@ -872,7 +928,8 @@ def GenerateOutput(target_list, target_dicts, data, params):
       if len(concrete_outputs_all) > 0:
         # TODO(mark): There's a possibilty for collision here.  Consider
         # target "t" rule "A_r" and target "t_A" rule "r".
-        makefile_name = '%s_%s.make' % (target_name, rule['rule_name'])
+        makefile_name = '%s.make' % re.sub(
+            '[^a-zA-Z0-9_]', '_' , '%s_%s' % (target_name, rule['rule_name']))
         makefile_path = os.path.join(xcode_projects[build_file].path,
                                      makefile_name)
         # TODO(mark): try/close?  Write to a temporary file and swap it only
@@ -937,14 +994,15 @@ def GenerateOutput(target_list, target_dicts, data, params):
 
           # Make sure that output directories exist before executing the rule
           # action.
-          # TODO(mark): quote the list of concrete_output_dirs.
           if len(concrete_output_dirs) > 0:
-            makefile.write('\tmkdir -p %s\n' % ' '.join(concrete_output_dirs))
+            makefile.write('\t@mkdir -p "%s"\n' %
+                           '" "'.join(concrete_output_dirs))
 
           # The rule message and action have already had the necessary variable
           # substitutions performed.
           if message:
-            makefile.write('\t%s\n' % message)
+            # Mark it with note: so Xcode picks it up in build output.
+            makefile.write('\t@echo note: %s\n' % message)
           makefile.write('\t%s\n' % action)
 
         makefile.close()
@@ -972,11 +1030,11 @@ def GenerateOutput(target_list, target_dicts, data, params):
         # Xeons, a build can quickly run out of processes based on
         # scheduling/other tasks, and randomly failing builds are no good.
         script = \
-"""JOB_COUNT="$(sysctl -n hw.ncpu)"
+"""JOB_COUNT="$(/usr/sbin/sysctl -n hw.ncpu)"
 if [ "${JOB_COUNT}" -gt 4 ]; then
   JOB_COUNT=4
 fi
-exec "${DEVELOPER_BIN_DIR}/make" -f "${PROJECT_FILE_PATH}/%s" -j "${JOB_COUNT}"
+exec xcrun make -f "${PROJECT_FILE_PATH}/%s" -j "${JOB_COUNT}"
 exit 1
 """ % makefile_name
         ssbp = gyp.xcodeproj_file.PBXShellScriptBuildPhase({
@@ -996,7 +1054,10 @@ exit 1
 
       # Extra rule inputs also go into the project file.  Concrete outputs were
       # already added when they were computed.
-      for group in ['inputs', 'inputs_excluded']:
+      groups = ['inputs', 'inputs_excluded']
+      if skip_excluded_files:
+        groups = [x for x in groups if not x.endswith('_excluded')]
+      for group in groups:
         for item in rule.get(group, []):
           pbxp.AddOrGetFileInRootGroup(item)
 
@@ -1006,11 +1067,12 @@ exit 1
       if source_extension[1:] not in rules_by_ext:
         # AddSourceToTarget will add the file to a root group if it's not
         # already there.
-        AddSourceToTarget(source, pbxp, xct)
+        AddSourceToTarget(source, type, pbxp, xct)
       else:
         pbxp.AddOrGetFileInRootGroup(source)
 
-    # Add "mac_bundle_resources" if it's a bundle of any type.
+    # Add "mac_bundle_resources" and "mac_framework_private_headers" if
+    # it's a bundle of any type.
     if is_bundle:
       for resource in tgt_mac_bundle_resources:
         (resource_root, resource_extension) = posixpath.splitext(resource)
@@ -1019,34 +1081,56 @@ exit 1
         else:
           pbxp.AddOrGetFileInRootGroup(resource)
 
+      for header in spec.get('mac_framework_private_headers', []):
+        AddHeaderToTarget(header, pbxp, xct, False)
+
+    # Add "mac_framework_headers". These can be valid for both frameworks
+    # and static libraries.
+    if is_bundle or type == 'static_library':
+      for header in spec.get('mac_framework_headers', []):
+        AddHeaderToTarget(header, pbxp, xct, True)
+
     # Add "copies".
+    pbxcp_dict = {}
     for copy_group in spec.get('copies', []):
-      pbxcp = gyp.xcodeproj_file.PBXCopyFilesBuildPhase({
-            'name': 'Copy to ' + copy_group['destination']
-          },
-          parent=xct)
       dest = copy_group['destination']
       if dest[0] not in ('/', '$'):
         # Relative paths are relative to $(SRCROOT).
         dest = '$(SRCROOT)/' + dest
-      pbxcp.SetDestination(dest)
 
-      # TODO(mark): The usual comment about this knowing too much about
-      # gyp.xcodeproj_file internals applies.
-      xct._properties['buildPhases'].insert(prebuild_index, pbxcp)
+      # Coalesce multiple "copies" sections in the same target with the same
+      # "destination" property into the same PBXCopyFilesBuildPhase, otherwise
+      # they'll wind up with ID collisions.
+      pbxcp = pbxcp_dict.get(dest, None)
+      if pbxcp is None:
+        pbxcp = gyp.xcodeproj_file.PBXCopyFilesBuildPhase({
+              'name': 'Copy to ' + copy_group['destination']
+            },
+            parent=xct)
+        pbxcp.SetDestination(dest)
+
+        # TODO(mark): The usual comment about this knowing too much about
+        # gyp.xcodeproj_file internals applies.
+        xct._properties['buildPhases'].insert(prebuild_index, pbxcp)
+
+        pbxcp_dict[dest] = pbxcp
 
       for file in copy_group['files']:
         pbxcp.AddFile(file)
 
     # Excluded files can also go into the project file.
-    for key in ['sources', 'mac_bundle_resources']:
-      excluded_key = key + '_excluded'
-      for item in spec.get(excluded_key, []):
-        pbxp.AddOrGetFileInRootGroup(item)
+    if not skip_excluded_files:
+      for key in ['sources', 'mac_bundle_resources', 'mac_framework_headers',
+                  'mac_framework_private_headers']:
+        excluded_key = key + '_excluded'
+        for item in spec.get(excluded_key, []):
+          pbxp.AddOrGetFileInRootGroup(item)
 
     # So can "inputs" and "outputs" sections of "actions" groups.
+    groups = ['inputs', 'inputs_excluded', 'outputs', 'outputs_excluded']
+    if skip_excluded_files:
+      groups = [x for x in groups if not x.endswith('_excluded')]
     for action in spec.get('actions', []):
-      groups = ['inputs', 'inputs_excluded', 'outputs', 'outputs_excluded']
       for group in groups:
         for item in action.get(group, []):
           # Exclude anything in BUILT_PRODUCTS_DIR.  They're products, not
@@ -1057,7 +1141,14 @@ exit 1
     for postbuild in spec.get('postbuilds', []):
       action_string_sh = gyp.common.EncodePOSIXShellList(postbuild['action'])
       script = 'exec ' + action_string_sh + '\nexit 1\n'
+
+      # Make the postbuild step depend on the output of ld or ar from this
+      # target. Apparently putting the script step after the link step isn't
+      # sufficient to ensure proper ordering in all cases. With an input
+      # declared but no outputs, the script step should run every time, as
+      # desired.
       ssbp = gyp.xcodeproj_file.PBXShellScriptBuildPhase({
+            'inputPaths': ['$(BUILT_PRODUCTS_DIR)/$(EXECUTABLE_PATH)'],
             'name': 'Postbuild "' + postbuild['postbuild_name'] + '"',
             'shellScript': script,
             'showEnvVarsInLog': 0,
@@ -1088,15 +1179,11 @@ exit 1
         xct.FrameworksPhase().AddFile(library)
         # Add the library's directory to LIBRARY_SEARCH_PATHS if necessary.
         # I wish Xcode handled this automatically.
-        # TODO(mark): this logic isn't right.  There are certain directories
-        # that are always searched, we should check to see if the library is
-        # in one of those directories, and if not, we should do the
-        # AppendBuildSetting thing.
-        if not posixpath.isabs(library) and not library.startswith('$'):
-          # TODO(mark): Need to check to see if library_dir is already in
-          # LIBRARY_SEARCH_PATHS.
-          library_dir = posixpath.dirname(library)
-          xct.AppendBuildSetting('LIBRARY_SEARCH_PATHS', library_dir)
+        library_dir = posixpath.dirname(library)
+        if library_dir not in xcode_standard_library_dirs and (
+            not xct.HasBuildSetting(_library_search_paths_var) or
+            library_dir not in xct.GetBuildSetting(_library_search_paths_var)):
+          xct.AppendBuildSetting(_library_search_paths_var, library_dir)
 
     for configuration_name in configuration_names:
       configuration = spec['configurations'][configuration_name]
@@ -1105,18 +1192,23 @@ exit 1
         xcbc.AppendBuildSetting('FRAMEWORK_SEARCH_PATHS', include_dir)
       for include_dir in configuration.get('include_dirs', []):
         xcbc.AppendBuildSetting('HEADER_SEARCH_PATHS', include_dir)
+      for library_dir in configuration.get('library_dirs', []):
+        if library_dir not in xcode_standard_library_dirs and (
+            not xcbc.HasBuildSetting(_library_search_paths_var) or
+            library_dir not in xcbc.GetBuildSetting(_library_search_paths_var)):
+          xcbc.AppendBuildSetting(_library_search_paths_var, library_dir)
+
       if 'defines' in configuration:
         for define in configuration['defines']:
-          # If the define is of the form A="B", escape the quotes
-          # yielding A=\"\\\"B\\\"\".  The extra set of quotes tell
-          # Xcode NOT to split on spaces, and still define a string
-          # literal (with quotes).
-          set_define = re.sub(r'^([^=]*=)"([^"]*)"$',
-                              r'\1"\"\2\""', define)
+          set_define = EscapeXcodeDefine(define)
           xcbc.AppendBuildSetting('GCC_PREPROCESSOR_DEFINITIONS', set_define)
       if 'xcode_settings' in configuration:
         for xck, xcv in configuration['xcode_settings'].iteritems():
           xcbc.SetBuildSetting(xck, xcv)
+      if 'xcode_config_file' in configuration:
+        config_ref = pbxp.AddOrGetFileInRootGroup(
+            configuration['xcode_config_file'])
+        xcbc.SetBaseConfiguration(config_ref)
 
   build_files = []
   for build_file, build_file_dict in data.iteritems():

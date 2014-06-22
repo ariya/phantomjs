@@ -45,7 +45,7 @@ using google_breakpad::Module;
 TEST(SimpleModule, One) {
   Module m("name", "os", "architecture", "id");
   vector<Module::Line> lines;
-  DwarfLineToModule h(&m, &lines);
+  DwarfLineToModule h(&m, "/", &lines);
 
   h.DefineFile("file1", 0x30bf0f27, 0, 0, 0);
   h.AddLine(0x6fd126fbf74f2680LL, 0x63c9a14cf556712bLL, 0x30bf0f27,
@@ -54,7 +54,7 @@ TEST(SimpleModule, One) {
   vector<Module::File *> files;
   m.GetFiles(&files);
   EXPECT_EQ(1U, files.size());
-  EXPECT_STREQ("file1", files[0]->name.c_str());
+  EXPECT_STREQ("/file1", files[0]->name.c_str());
 
   EXPECT_EQ(1U, lines.size());
   EXPECT_EQ(0x6fd126fbf74f2680ULL, lines[0].address);
@@ -66,7 +66,7 @@ TEST(SimpleModule, One) {
 TEST(SimpleModule, Many) {
   Module m("name", "os", "architecture", "id");
   vector<Module::Line> lines;
-  DwarfLineToModule h(&m, &lines);
+  DwarfLineToModule h(&m, "/", &lines);
 
   h.DefineDir("directory1", 0x838299ab);
   h.DefineDir("directory2", 0xf85de023);
@@ -89,11 +89,11 @@ TEST(SimpleModule, Many) {
   vector<Module::File *> files;
   m.GetFiles(&files);
   ASSERT_EQ(5U, files.size());
-  EXPECT_STREQ("directory1/file1", files[0]->name.c_str());
-  EXPECT_STREQ("directory1/file2", files[1]->name.c_str());
-  EXPECT_STREQ("directory2/file1", files[2]->name.c_str());
-  EXPECT_STREQ("directory2/file2", files[3]->name.c_str());
-  EXPECT_STREQ("file3",            files[4]->name.c_str());
+  EXPECT_STREQ("/directory1/file1", files[0]->name.c_str());
+  EXPECT_STREQ("/directory1/file2", files[1]->name.c_str());
+  EXPECT_STREQ("/directory2/file1", files[2]->name.c_str());
+  EXPECT_STREQ("/directory2/file2", files[3]->name.c_str());
+  EXPECT_STREQ("/file3",            files[4]->name.c_str());
 
   ASSERT_EQ(5U, lines.size());
 
@@ -126,7 +126,7 @@ TEST(SimpleModule, Many) {
 TEST(Filenames, Absolute) {
   Module m("name", "os", "architecture", "id");
   vector<Module::Line> lines;
-  DwarfLineToModule h(&m, &lines);
+  DwarfLineToModule h(&m, "/", &lines);
 
   h.DefineDir("directory1", 1);
   h.DefineFile("/absolute", 1, 1, 0, 0);
@@ -144,7 +144,7 @@ TEST(Filenames, Absolute) {
 TEST(Filenames, Relative) {
   Module m("name", "os", "architecture", "id");
   vector<Module::Line> lines;
-  DwarfLineToModule h(&m, &lines);
+  DwarfLineToModule h(&m, "/", &lines);
 
   h.DefineDir("directory1", 1);
   h.DefineFile("relative", 1, 1, 0, 0);
@@ -154,7 +154,7 @@ TEST(Filenames, Relative) {
   vector<Module::File *> files;
   m.GetFiles(&files);
   ASSERT_EQ(1U, files.size());
-  EXPECT_STREQ("directory1/relative", files[0]->name.c_str());
+  EXPECT_STREQ("/directory1/relative", files[0]->name.c_str());
   ASSERT_EQ(1U, lines.size());
   EXPECT_TRUE(lines[0].file == files[0]);
 }
@@ -162,20 +162,20 @@ TEST(Filenames, Relative) {
 TEST(Filenames, StrangeFile) {
   Module m("name", "os", "architecture", "id");
   vector<Module::Line> lines;
-  DwarfLineToModule h(&m, &lines);
+  DwarfLineToModule h(&m, "/", &lines);
 
   h.DefineDir("directory1", 1);
   h.DefineFile("", 1, 1, 0, 0);
   h.AddLine(1, 1, 1, 0, 0);
 
   ASSERT_EQ(1U, lines.size());
-  EXPECT_STREQ("directory1/", lines[0].file->name.c_str());
+  EXPECT_STREQ("/directory1/", lines[0].file->name.c_str());
 }
 
 TEST(Filenames, StrangeDirectory) {
   Module m("name", "os", "architecture", "id");
   vector<Module::Line> lines;
-  DwarfLineToModule h(&m, &lines);
+  DwarfLineToModule h(&m, "/", &lines);
 
   h.DefineDir("", 1);
   h.DefineFile("file1", 1, 1, 0, 0);
@@ -188,7 +188,7 @@ TEST(Filenames, StrangeDirectory) {
 TEST(Filenames, StrangeDirectoryAndFile) {
   Module m("name", "os", "architecture", "id");
   vector<Module::Line> lines;
-  DwarfLineToModule h(&m, &lines);
+  DwarfLineToModule h(&m, "/", &lines);
 
   h.DefineDir("", 1);
   h.DefineFile("", 1, 1, 0, 0);
@@ -198,12 +198,60 @@ TEST(Filenames, StrangeDirectoryAndFile) {
   EXPECT_STREQ("/", lines[0].file->name.c_str());
 }
 
+// We should use the compilation directory when encountering a file for
+// directory number zero.
+TEST(Filenames, DirectoryZeroFileIsRelativeToCompilationDir) {
+  Module m("name", "os", "architecture", "id");
+  vector<Module::Line> lines;
+  DwarfLineToModule h(&m, "src/build", &lines);
+
+  h.DefineDir("Dir", 1);
+  h.DefineFile("File", 1, 0, 0, 0);
+
+  h.AddLine(1, 1, 1, 0, 0);
+
+  ASSERT_EQ(1U, lines.size());
+  EXPECT_STREQ("src/build/File", lines[0].file->name.c_str());
+}
+
+// We should treat non-absolute directories as relative to the compilation
+// directory.
+TEST(Filenames, IncludeDirectoryRelativeToDirectoryZero) {
+  Module m("name", "os", "architecture", "id");
+  vector<Module::Line> lines;
+  DwarfLineToModule h(&m, "src/build", &lines);
+
+  h.DefineDir("Dir", 1);
+  h.DefineFile("File", 1, 1, 0, 0);
+
+  h.AddLine(1, 1, 1, 0, 0);
+
+  ASSERT_EQ(1U, lines.size());
+  EXPECT_STREQ("src/build/Dir/File", lines[0].file->name.c_str());
+}
+
+// We should treat absolute directories as absolute, and not relative to
+// the compilation dir.
+TEST(Filenames, IncludeDirectoryAbsolute) {
+  Module m("name", "os", "architecture", "id");
+  vector<Module::Line> lines;
+  DwarfLineToModule h(&m, "src/build", &lines);
+
+  h.DefineDir("/Dir", 1);
+  h.DefineFile("File", 1, 1, 0, 0);
+
+  h.AddLine(1, 1, 1, 0, 0);
+
+  ASSERT_EQ(1U, lines.size());
+  EXPECT_STREQ("/Dir/File", lines[0].file->name.c_str());
+}
+
 // We should silently ignore attempts to define directory number zero,
 // since that is always the compilation directory.
 TEST(ModuleErrors, DirectoryZero) {
   Module m("name", "os", "architecture", "id");
   vector<Module::Line> lines;
-  DwarfLineToModule h(&m, &lines);
+  DwarfLineToModule h(&m, "/", &lines);
 
   h.DefineDir("directory0", 0); // should be ignored
   h.DefineFile("relative", 1, 0, 0, 0);
@@ -211,7 +259,7 @@ TEST(ModuleErrors, DirectoryZero) {
   h.AddLine(1, 1, 1, 0, 0);
 
   ASSERT_EQ(1U, lines.size());
-  EXPECT_STREQ("relative", lines[0].file->name.c_str());
+  EXPECT_STREQ("/relative", lines[0].file->name.c_str());
 }
 
 // We should refuse to add lines with bogus file numbers. We should
@@ -219,7 +267,7 @@ TEST(ModuleErrors, DirectoryZero) {
 TEST(ModuleErrors, BadFileNumber) {
   Module m("name", "os", "architecture", "id");
   vector<Module::Line> lines;
-  DwarfLineToModule h(&m, &lines);
+  DwarfLineToModule h(&m, "/", &lines);
 
   h.DefineFile("relative", 1, 0, 0, 0);
   h.AddLine(1, 1, 2, 0, 0); // bad file number
@@ -233,7 +281,7 @@ TEST(ModuleErrors, BadFileNumber) {
 TEST(ModuleErrors, BadDirectoryNumber) {
   Module m("name", "os", "architecture", "id");
   vector<Module::Line> lines;
-  DwarfLineToModule h(&m, &lines);
+  DwarfLineToModule h(&m, "/", &lines);
 
   h.DefineDir("directory1", 1);
   h.DefineFile("baddirnumber1", 1, 2, 0, 0); // bad directory number
@@ -248,7 +296,7 @@ TEST(ModuleErrors, BadDirectoryNumber) {
 TEST(ModuleErrors, EmptyLine) {
   Module m("name", "os", "architecture", "id");
   vector<Module::Line> lines;
-  DwarfLineToModule h(&m, &lines);
+  DwarfLineToModule h(&m, "/", &lines);
 
   h.DefineFile("filename1", 1, 0, 0, 0);
   h.AddLine(1, 0, 1, 0, 0);
@@ -261,7 +309,7 @@ TEST(ModuleErrors, EmptyLine) {
 TEST(ModuleErrors, BigLine) {
   Module m("name", "os", "architecture", "id");
   vector<Module::Line> lines;
-  DwarfLineToModule h(&m, &lines);
+  DwarfLineToModule h(&m, "/", &lines);
 
   h.DefineFile("filename1", 1, 0, 0, 0);
   h.AddLine(0xffffffffffffffffULL, 2, 1, 0, 0);
@@ -278,7 +326,7 @@ TEST(ModuleErrors, BigLine) {
 TEST(Omitted, DroppedThenGood) {
   Module m("name", "os", "architecture", "id");
   vector<Module::Line> lines;
-  DwarfLineToModule h(&m, &lines);
+  DwarfLineToModule h(&m, "/", &lines);
 
   h.DefineFile("filename1", 1, 0, 0, 0);
   h.AddLine(0,  10, 1, 83816211, 0);   // should be omitted
@@ -291,7 +339,7 @@ TEST(Omitted, DroppedThenGood) {
 TEST(Omitted, GoodThenDropped) {
   Module m("name", "os", "architecture", "id");
   vector<Module::Line> lines;
-  DwarfLineToModule h(&m, &lines);
+  DwarfLineToModule h(&m, "/", &lines);
 
   h.DefineFile("filename1", 1, 0, 0, 0);
   h.AddLine(0x9dd6a372, 10, 1, 41454594, 0);   // should be recorded
@@ -304,7 +352,7 @@ TEST(Omitted, GoodThenDropped) {
 TEST(Omitted, Mix1) {
   Module m("name", "os", "architecture", "id");
   vector<Module::Line> lines;
-  DwarfLineToModule h(&m, &lines);
+  DwarfLineToModule h(&m, "/", &lines);
 
   h.DefineFile("filename1", 1, 0, 0, 0);
   h.AddLine(0x679ed72f,  10,   1, 58932642, 0);   // should be recorded
@@ -325,7 +373,7 @@ TEST(Omitted, Mix1) {
 TEST(Omitted, Mix2) {
   Module m("name", "os", "architecture", "id");
   vector<Module::Line> lines;
-  DwarfLineToModule h(&m, &lines);
+  DwarfLineToModule h(&m, "/", &lines);
 
   h.DefineFile("filename1", 1, 0, 0, 0);
   h.AddLine(0,           0xf2, 1, 58802211, 0);   // should be omitted

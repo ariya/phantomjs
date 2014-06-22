@@ -44,6 +44,7 @@
 #include <iostream>
 #include <fstream>
 
+#include "common/using_std_string.h"
 #include "google_breakpad/processor/code_module.h"
 #include "google_breakpad/processor/system_info.h"
 #include "processor/logging.h"
@@ -83,12 +84,12 @@ SymbolSupplier::SymbolResult SimpleSymbolSupplier::GetSymbolFile(
   assert(symbol_data);
   symbol_data->clear();
 
-  SymbolSupplier::SymbolResult s = GetSymbolFile(module, system_info, symbol_file);
-
+  SymbolSupplier::SymbolResult s = GetSymbolFile(module, system_info,
+                                                 symbol_file);
   if (s == FOUND) {
     std::ifstream in(symbol_file->c_str());
-    std::getline(in, *symbol_data, std::string::traits_type::to_char_type(
-                     std::string::traits_type::eof()));
+    std::getline(in, *symbol_data, string::traits_type::to_char_type(
+                     string::traits_type::eof()));
     in.close();
   }
   return s;
@@ -98,22 +99,25 @@ SymbolSupplier::SymbolResult SimpleSymbolSupplier::GetCStringSymbolData(
     const CodeModule *module,
     const SystemInfo *system_info,
     string *symbol_file,
-    char **symbol_data) {
+    char **symbol_data,
+    size_t *symbol_data_size) {
   assert(symbol_data);
+  assert(symbol_data_size);
 
   string symbol_data_string;
   SymbolSupplier::SymbolResult s =
       GetSymbolFile(module, system_info, symbol_file, &symbol_data_string);
 
   if (s == FOUND) {
-    unsigned int size = symbol_data_string.size() + 1;
-    *symbol_data = new char[size];
+    *symbol_data_size = symbol_data_string.size() + 1;
+    *symbol_data = new char[*symbol_data_size];
     if (*symbol_data == NULL) {
-      BPLOG(ERROR) << "Memory allocation for size " << size << " failed";
+      BPLOG(ERROR) << "Memory allocation for size " << *symbol_data_size
+                   << " failed";
       return INTERRUPT;
     }
-    memcpy(*symbol_data, symbol_data_string.c_str(), size - 1);
-    (*symbol_data)[size - 1] = '\0';
+    memcpy(*symbol_data, symbol_data_string.c_str(), symbol_data_string.size());
+    (*symbol_data)[symbol_data_string.size()] = '\0';
     memory_buffers_.insert(make_pair(module->code_file(), *symbol_data));
   }
   return s;

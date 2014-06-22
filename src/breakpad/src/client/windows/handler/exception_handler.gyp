@@ -1,5 +1,4 @@
-# Copyright (c) 2010, Google Inc.
-# All rights reserved.
+# Copyright 2010 Google Inc. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
@@ -29,12 +28,12 @@
 
 {
   'includes': [
-    '../build/common.gypi',
+    '../../../build/common.gypi',
   ],
   'targets': [
     {
       'target_name': 'exception_handler',
-      'type': '<(library)',
+      'type': 'static_library',
       'sources': [
         "exception_handler.cc",
         "exception_handler.h",

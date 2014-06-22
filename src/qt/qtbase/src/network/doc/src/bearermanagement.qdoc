@@ -1,0 +1,267 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+\page bearer-management.html
+
+\title Bearer Management
+\brief An API to control the system's connectivity state.
+
+Bearer Management controls the connectivity state of the system so that
+the user can start or stop interfaces or roam transparently between
+access points.
+
+\tableofcontents
+
+
+\section1 Overview
+
+The Bearer Management API controls the system's connectivity state. This
+incorporates simple information such as whether the device is online and
+how many interfaces there are as well as enables the application developer
+to start, stop network interfaces and influences other connection specific
+details. Depending on the platform's capabilities it may even provide
+session management so that a network interface remains up for as long as
+clients have a registered interest in them while at the same time
+optimizes the interface's uptime.
+
+This API does not provide support for management of network configurations
+themselves. It is up to the platform to provide infrastructure which
+enables to user to create, edit or delete network configurations.
+
+\section2 The API in Detail
+
+Computer systems manage their network interfaces via a set of configurations.
+Each configuration describes a set of parameters which instruct the system
+how a particular network interface is started. One of the most simplistic
+examples might be an Ethernet configuration that links a network card to a
+DHCP server. A more complex example might be a Wireless LAN configuration
+which may comprise of hardware details such as the WLAN card address,
+WLAN access point details (e.g ESSID, encryption details) and user specific
+information (for example username and password). Once the network interface
+was configured and started according to the configuration blue print,
+multiple applications are free to use this link layer connection/session
+for their own socket operations. Note that the QNetworkConfiguration object
+only provides limited information about the configuration details themselves.
+It's main purpose is to act as a configuration identifier through which link
+layer connections can be created, destroyed and monitored.
+
+QNetworkSession provides two types of use cases. It enables the monitoring of
+physical network interfaces and management of network sessions. Network sessions
+are a common feature on mobile devices where multiple applications
+can request network sessions as they see fit. The system consolidates and tracks
+active network sessions for the same network interface by maintaining the link
+layer connections until the last session has been closed. The subsequent table
+lists the major QNetworkSession functions and how they fit into the session and
+hardware management categories:
+
+\table 60%
+\header \li Interface management             \li Session management
+\row    \li QNetworkSession::stop()          \li QNetworkSession::open()
+\row    \li QNetworkSession::interface()     \li QNetworkSession::close()
+\row    \li QNetworkSession::state()         \li QNetworkSession::isOpen()
+\row    \li QNetworkSession::bytesWritten()  \li QNetworkSession::migrate()
+\row    \li QNetworkSession::bytesReceived() \li QNetworkSession::ignore()
+\row    \li QNetworkSession::activeTime()    \li QNetworkSession::accept()
+\row    \li QNetworkSession::stateChanged()  \li QNetworkSession::reject()
+\row    \li                                  \li QNetworkSession::opened()
+\row    \li                                  \li QNetworkSession::closed()
+\endtable
+
+The state of the session represents the state of the underlying access point
+whereas the session's openness implies the networking/connectivity state available
+to the current process.
+
+Possible use cases for interface management are network management related
+applications which intend to monitor the connectivity state but do not engage
+in network communication themselves. Any application wanting to open a socket
+to a remote address will typically use session management related functionality.
+
+\section3 Service networks
+
+Some mobile platforms use the concept of grouped access points (also
+called SNAP or Service Network Access Point). In principle multiple
+configurations are grouped together and possibly even prioritized when
+compared to each other. This is useful for use cases where all
+configurations serve a similar purpose or context. A common context could
+be that they provide access to the public Internet or possibly only to the
+office Intranet. By providing a pool of configurations the system can make
+a decision based on given priorities which usually map to factors such as
+speed, availability and cost. Furthermore the system can automatically
+roam from one access point to the next one while ensuring minimal impact on
+the user experience.
+
+The \l{QNetworkConfiguration::Type} flag specifies to what category a
+configuration belongs. The \l{QNetworkConfiguration::InternetAccessPoint}
+type is the most common example. It represents a configuration that can be
+used to create a session. The above mentioned grouping behavior is provided
+by \l {QNetworkConfiguration::ServiceNetwork} configurations. Service
+networks are place holders until such time when the user attempts to
+\l {QNetworkSession::open()}{open()} a new session. At that point in time
+the system determines which of the configurations \l{QNetworkConfiguration::children()}
+is best to use. The selection algorithm is provided by the platform and is usually managed
+by network settings applications. A service network can only have one level of indirection
+which implies children can only be of type \l {QNetworkConfiguration::InternetAccessPoint}.
+
+Most systems allow the user to define the systems default configuration.
+Usually the default behavior is either a service network, a particular
+Internet access point or the user instructs the platform to ask the user
+once an application requests the network. User interaction is generally
+implemented by some sort of system dialog which shows up at the appropriate
+point in time. The application does not have to handle the user input. This
+API provides the \l QNetworkConfigurationManager::defaultConfiguration()
+call which serves a similar purpose. The subsequent code snippet provides
+a quick way how an application can quickly create a new network session
+without (or only minimal) user interaction:
+
+\code
+    // Set Internet Access Point
+    QNetworkConfigurationManager manager;
+    const bool canStartIAP = (manager.capabilities()
+                              & QNetworkConfigurationManager::CanStartAndStopInterfaces);
+    // Is there default access point, use it
+    QNetworkConfiguration cfg = manager.defaultConfiguration();
+    if (!cfg.isValid() || (!canStartIAP && cfg.state() != QNetworkConfiguration::Active)) {
+        QMessageBox::information(this, tr("Network"), tr(
+                                     "No Access Point found."));
+        return;
+    }
+
+    session = new QNetworkSession(cfg, this);
+    session->open();
+    session->waitForOpened(-1);
+\endcode
+
+To accommodate the "Ask user" use case the default configuration can be of
+type QNetworkConfiguration::UserChoice. A user choice configuration is
+resolved as part of the \l {QNetworkSession::open()} call. Note that a
+\l{QNetworkConfiguration::UserChoice}{UserChoice} configuration is only
+ever returned via \l {QNetworkConfigurationManager::defaultConfiguration()}
+and not \l QNetworkConfigurationManager::allConfigurations().
+
+On systems which do not maintain a list of
+\l {QNetworkConfigurationManager::defaultConfiguration()}{defaultConfiguration()}
+an invalid configuration is returned. A possible workaround could be to
+implement a custom dialog which is populated based on what
+\l QNetworkConfigurationManager::allConfigurations() returns.
+
+\section3 Managing network sessions
+
+A QNetworkSession object separates a \l {QNetworkSession::state()}{state()}
+and an \l{QNetworkSession::isOpen()}{isOpen()} condition.
+
+The state() attribute enables developers to detect whether the system
+currently maintains a global network session for the given
+QNetworkConfiguration. If \l {QNetworkSession::isOpen()}{isOpen()}
+returns \c true the QNetworkSession instance at hand was at least one of the
+entities requesting the global network session. This distinction is
+required to support the notion of session registrations. For as long as
+there are one or more open QNetworkSession instances the underlying
+network interface is not shut down. Therefore the session
+\l{QNetworkSession::state()}{state()} can be used to monitor the state of
+network interfaces.
+
+An open session is created by calling \l {QNetworkSession::open()} and
+closed via \l{QNetworkSession::close()}, respectively. If the session
+is \l{QNetworkSession::Disconnected}{disconnected} at the time of the
+\l{QNetworkSession::open()}{open()} call the underlying interface is started;
+otherwise only the reference counter against the global session is
+incremented. The opposite behavior can be observed when using
+\l{QNetworkSession::close()}{close()}.
+
+In some use cases it may be necessary to turn the interface off despite of
+open sessions. This can be achieved by calling
+\l{QNetworkSession::stop()}{stop()}. An example use case could be a
+network manager type of application allowing the user to control the
+overall state of the devices connectivity.
+
+Global (inter-process) session support is platform dependent and can be
+detected via \l {QNetworkConfigurationManager::SystemSessionSupport}.
+If the system does not support global session calling
+\l{QNetworkSession::close()}{close()} never stops the interface.
+
+\section3 Roaming
+
+Roaming is the process of reconnecting a device from one network to another
+while minimizing the impact on the application. The system notifies the application
+about link layer changes so that the required preparation can be taken.
+The most common reaction would be to reinitialize sockets and to renegotiate
+stateful connections with other parties. In the most extreme cases applications
+may even prevent the roaming altogether.
+
+Roaming is initiated when the system determines that a more appropriate access point
+becomes available to the user. In general such a decision is based on cost, network speed
+or network type (access to certain private networks may only be provided via certain access points).
+Almost all devices providing roaming support have some form of global configuration application
+enabling the user to define such groups of access points (service networks) and priorities.
+
+This API supports two types of roaming. Application level roaming (ALR)
+provides the most control over the process. Applications will be notified about upcoming
+link layer changes and get the opportunity to test the new access point. Eventually they can
+reject or accept the link layer change. The second form of roaming is referred to as Forced Roaming.
+The system simply changes the link layer without consulting the application. It is up to
+the application to detect that some of its internal socket may have become invalid. As a consequence
+it has to reinitialize those sockets and reestablish the previous user session without
+any interruption. Forced roaming has the advantage that applications don't have to
+manage the entire roaming process by themselves.
+
+QNetworkSession is the central class for managing roaming related issues.
+
+\section3 Platform capabilities
+
+Some API features are not available on all platforms. The
+\l QNetworkConfigurationManager::Capability should be used to detect
+platform features at runtime. The following table lists the various
+platform APIs being used by this API. This may assist in the process of
+determining the feature support:
+
+\table
+    \header
+    \li Platform
+    \li Backend capabilities
+    \row
+        \li Linux\unicode{0xAE}
+        \li Linux uses the \l {http://projects.gnome.org/NetworkManager}{NetworkManager}
+           and \l {http://connman.net/}{ConnMan} / \l {http://ofono.org/}{oFono} APIs
+           which support interface notifications and starting and stopping of network
+           interfaces.
+    \row
+        \li Windows\unicode{0xAE} XP
+        \li This platform supports interface notifications without active polling.
+    \row
+        \li Windows XP SP2+Hotfixes, Windows XP SP3, Windows Vista, Windows 7
+        \li In addition to standard Windows XP wifi access point monitoring has been improved which includes the ability to start and stop wifi interfaces. This requires Windows to manage the wifi interfaces.
+    \row
+        \li Mac OS\unicode{0xAE}
+        \li This platform has full support by way of CoreWLAN offered in Mac OS 10.6. Previous
+           versions of Mac OS - 10.5 and 10.4 have limited support.
+    \row
+        \li All other platforms (*nix, Windows Mobile)
+        \li This backend is the fallback for all platforms supports network interface notifications via active polling only.
+\endtable
+
+*/

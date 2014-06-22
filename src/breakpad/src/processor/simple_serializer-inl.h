@@ -60,6 +60,11 @@ class SimpleSerializer<bool> {
     *dest = static_cast<char>(boolean? 255 : 0);
     return ++dest;
   }
+
+  static const char *Read(const char *source, bool *value) {
+    *value = ((*source) == 0 ? false : true);
+    return ++source;
+  }
 };
 
 // Specializations of SimpleSerializer: string
@@ -132,25 +137,28 @@ class SimpleSerializer<WindowsFrameInfo> {
  public:
   static size_t SizeOf(const WindowsFrameInfo &wfi) {
     unsigned int size = 0;
+    size += sizeof(int32_t);  // wfi.type_
     size += SimpleSerializer<int32_t>::SizeOf(wfi.valid);
-    size += SimpleSerializer<u_int32_t>::SizeOf(wfi.prolog_size);
-    size += SimpleSerializer<u_int32_t>::SizeOf(wfi.epilog_size);
-    size += SimpleSerializer<u_int32_t>::SizeOf(wfi.parameter_size);
-    size += SimpleSerializer<u_int32_t>::SizeOf(wfi.saved_register_size);
-    size += SimpleSerializer<u_int32_t>::SizeOf(wfi.local_size);
-    size += SimpleSerializer<u_int32_t>::SizeOf(wfi.max_stack_size);
+    size += SimpleSerializer<uint32_t>::SizeOf(wfi.prolog_size);
+    size += SimpleSerializer<uint32_t>::SizeOf(wfi.epilog_size);
+    size += SimpleSerializer<uint32_t>::SizeOf(wfi.parameter_size);
+    size += SimpleSerializer<uint32_t>::SizeOf(wfi.saved_register_size);
+    size += SimpleSerializer<uint32_t>::SizeOf(wfi.local_size);
+    size += SimpleSerializer<uint32_t>::SizeOf(wfi.max_stack_size);
     size += SimpleSerializer<bool>::SizeOf(wfi.allocates_base_pointer);
     size += SimpleSerializer<string>::SizeOf(wfi.program_string);
     return size;
   }
   static char *Write(const WindowsFrameInfo &wfi, char *dest) {
+    dest = SimpleSerializer<int32_t>::Write(
+        static_cast<const int32_t>(wfi.type_), dest);
     dest = SimpleSerializer<int32_t>::Write(wfi.valid, dest);
-    dest = SimpleSerializer<u_int32_t>::Write(wfi.prolog_size, dest);
-    dest = SimpleSerializer<u_int32_t>::Write(wfi.epilog_size, dest);
-    dest = SimpleSerializer<u_int32_t>::Write(wfi.parameter_size, dest);
-    dest = SimpleSerializer<u_int32_t>::Write(wfi.saved_register_size, dest);
-    dest = SimpleSerializer<u_int32_t>::Write(wfi.local_size, dest);
-    dest = SimpleSerializer<u_int32_t>::Write(wfi.max_stack_size, dest);
+    dest = SimpleSerializer<uint32_t>::Write(wfi.prolog_size, dest);
+    dest = SimpleSerializer<uint32_t>::Write(wfi.epilog_size, dest);
+    dest = SimpleSerializer<uint32_t>::Write(wfi.parameter_size, dest);
+    dest = SimpleSerializer<uint32_t>::Write(wfi.saved_register_size, dest);
+    dest = SimpleSerializer<uint32_t>::Write(wfi.local_size, dest);
+    dest = SimpleSerializer<uint32_t>::Write(wfi.max_stack_size, dest);
     dest = SimpleSerializer<bool>::Write(wfi.allocates_base_pointer, dest);
     return SimpleSerializer<string>::Write(wfi.program_string, dest);
   }

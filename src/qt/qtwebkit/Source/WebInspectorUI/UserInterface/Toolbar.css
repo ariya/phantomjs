@@ -1,0 +1,121 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.toolbar {
+    display: -webkit-flex;
+
+    white-space: nowrap;
+    overflow: hidden;
+
+    border-bottom: 1px solid rgb(85, 85, 85);
+
+    outline: none;
+}
+
+.toolbar.icon-and-label-vertical {
+    height: 56px;
+}
+
+.toolbar.icon-and-label-vertical.small-size {
+    height: 48px;
+}
+
+.toolbar.icon-and-label-horizontal,
+.toolbar.icon-only {
+    height: 40px;
+}
+
+.toolbar.icon-and-label-horizontal.small-size,
+.toolbar.icon-only.small-size,
+.toolbar.label-only {
+    height: 32px;
+}
+
+body.docked .toolbar {
+    background-image: -webkit-linear-gradient(top, rgb(216, 216, 216), rgb(190, 190, 190));
+    box-shadow: inset rgba(255, 255, 255, 0.1) 0 1px 0, inset rgba(0, 0, 0, 0.02) 0 -1px 0;
+}
+
+body:not(.docked) .toolbar .item.button > .label {
+ /* We need to disable sub-pixel antialiasing in the toolbar when not docked because the
+    toolbar is transparent and so is the WebView. */
+    -webkit-font-smoothing: antialiased;
+
+ /* Compensate for the text not being sub-pixel antialiased by adding a small stroke. */
+    -webkit-text-stroke: 0.2px;
+}
+
+body.window-inactive .toolbar {
+    border-bottom: 1px solid rgb(128, 128, 128);
+}
+
+.toolbar .control-section {
+    display: -webkit-flex;
+
+    -webkit-flex-direction: column;
+    -webkit-align-items: center;
+    -webkit-justify-content: center;
+
+    padding-left: 6px;
+    padding-right: 6px;
+
+    min-width: -webkit-min-content;
+}
+
+.toolbar.icon-and-label-horizontal.small-size .control-section,
+.toolbar.icon-only.small-size .control-section,
+.toolbar.label-only .control-section {
+    -webkit-flex-direction: row;
+}
+
+.toolbar .item-section {
+    display: -webkit-flex;
+    min-width: -webkit-min-content;
+}
+
+.toolbar .item-section:not(.center) {
+    -webkit-flex: 1;
+}
+
+.toolbar .item-section.left {
+    -webkit-justify-content: flex-start;
+    margin-right: 12px;
+}
+
+.toolbar .item-section.center {
+    -webkit-flex: 2;
+    -webkit-justify-content: center;
+}
+
+.toolbar .item-section.right {
+    -webkit-justify-content: flex-end;
+    margin-left: 12px;
+    margin-right: 12px;
+}
+
+.toolbar .item {
+    display: -webkit-flex;
+    outline: none;
+}

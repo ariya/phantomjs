@@ -1,0 +1,164 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>FreeType-2.3.12 API Reference</title>
+<style type="text/css">
+  body { font-family: Verdana, Geneva, Arial, Helvetica, serif;
+         color: #000000;
+         background: #FFFFFF; }
+
+  p { text-align: justify; }
+  h1 { text-align: center; }
+  li { text-align: justify; }
+  td { padding: 0 0.5em 0 0.5em; }
+  td.left { padding: 0 0.5em 0 0.5em;
+            text-align: left; }
+
+  a:link { color: #0000EF; }
+  a:visited { color: #51188E; }
+  a:hover { color: #FF0000; }
+
+  span.keyword { font-family: monospace;
+                 text-align: left;
+                 white-space: pre;
+                 color: darkblue; }
+
+  pre.colored { color: blue; }
+
+  ul.empty { list-style-type: none; }
+</style>
+</head>
+<body>
+
+<table align=center><tr><td><font size=-1>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-1>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+<center><h1>FreeType-2.3.12 API Reference</h1></center>
+
+<center><h1>
+Size Management
+</h1></center>
+<h2>Synopsis</h2>
+<table align=center cellspacing=5 cellpadding=0 border=0>
+<tr><td></td><td><a href="#FT_New_Size">FT_New_Size</a></td><td></td><td><a href="#FT_Done_Size">FT_Done_Size</a></td><td></td><td><a href="#FT_Activate_Size">FT_Activate_Size</a></td><td></td><td></td></tr>
+</table><br><br>
+
+<table align=center width="87%"><tr><td>
+<p>When creating a new face object (e.g., with <a href="ft2-base_interface.html#FT_New_Face">FT_New_Face</a>), an <a href="ft2-base_interface.html#FT_Size">FT_Size</a> object is automatically created and used to store all pixel-size dependent information, available in the &lsquo;face-&gt;size&rsquo; field.</p>
+<p>It is however possible to create more sizes for a given face, mostly in order to manage several character pixel sizes of the same font family and style. See <a href="ft2-sizes_management.html#FT_New_Size">FT_New_Size</a> and <a href="ft2-sizes_management.html#FT_Done_Size">FT_Done_Size</a>.</p>
+<p>Note that <a href="ft2-base_interface.html#FT_Set_Pixel_Sizes">FT_Set_Pixel_Sizes</a> and <a href="ft2-base_interface.html#FT_Set_Char_Size">FT_Set_Char_Size</a> only modify the contents of the current &lsquo;active&rsquo; size; you thus need to use <a href="ft2-sizes_management.html#FT_Activate_Size">FT_Activate_Size</a> to change it.</p>
+<p>99% of applications won't need the functions provided here, especially if they use the caching sub-system, so be cautious when using these.</p>
+</td></tr></table><br>
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_New_Size">FT_New_Size</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_SIZES_H (freetype/ftsizes.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Error">FT_Error</a> )
+  <b>FT_New_Size</b>( <a href="ft2-base_interface.html#FT_Face">FT_Face</a>   face,
+               <a href="ft2-base_interface.html#FT_Size">FT_Size</a>*  size );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Create a new size object from a given face object.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>face</b></td><td>
+<p>A handle to a parent face object.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>output</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>asize</b></td><td>
+<p>A handle to a new size object.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>FreeType error code. 0&nbsp;means success.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>You need to call <a href="ft2-sizes_management.html#FT_Activate_Size">FT_Activate_Size</a> in order to select the new size for upcoming calls to <a href="ft2-base_interface.html#FT_Set_Pixel_Sizes">FT_Set_Pixel_Sizes</a>, <a href="ft2-base_interface.html#FT_Set_Char_Size">FT_Set_Char_Size</a>, <a href="ft2-base_interface.html#FT_Load_Glyph">FT_Load_Glyph</a>, <a href="ft2-base_interface.html#FT_Load_Char">FT_Load_Char</a>, etc.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Done_Size">FT_Done_Size</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_SIZES_H (freetype/ftsizes.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Error">FT_Error</a> )
+  <b>FT_Done_Size</b>( <a href="ft2-base_interface.html#FT_Size">FT_Size</a>  size );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Discard a given size object. Note that <a href="ft2-base_interface.html#FT_Done_Face">FT_Done_Face</a> automatically discards all size objects allocated with <a href="ft2-sizes_management.html#FT_New_Size">FT_New_Size</a>.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>size</b></td><td>
+<p>A handle to a target size object.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>FreeType error code. 0&nbsp;means success.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Activate_Size">FT_Activate_Size</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_SIZES_H (freetype/ftsizes.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Error">FT_Error</a> )
+  <b>FT_Activate_Size</b>( <a href="ft2-base_interface.html#FT_Size">FT_Size</a>  size );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Even though it is possible to create several size objects for a given face (see <a href="ft2-sizes_management.html#FT_New_Size">FT_New_Size</a> for details), functions like <a href="ft2-base_interface.html#FT_Load_Glyph">FT_Load_Glyph</a> or <a href="ft2-base_interface.html#FT_Load_Char">FT_Load_Char</a> only use the one which has been activated last to determine the &lsquo;current character pixel size&rsquo;.</p>
+<p>This function can be used to &lsquo;activate&rsquo; a previously created size object.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>size</b></td><td>
+<p>A handle to a target size object.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>FreeType error code. 0&nbsp;means success.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>If &lsquo;face&rsquo; is the size's parent face object, this function changes the value of &lsquo;face-&gt;size&rsquo; to the input size handle.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+</body>
+</html>

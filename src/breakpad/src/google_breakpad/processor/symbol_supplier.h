@@ -34,10 +34,10 @@
 #define GOOGLE_BREAKPAD_PROCESSOR_SYMBOL_SUPPLIER_H__
 
 #include <string>
+#include "common/using_std_string.h"
 
 namespace google_breakpad {
 
-using std::string;
 class CodeModule;
 struct SystemInfo;
 
@@ -87,7 +87,8 @@ class SymbolSupplier {
   virtual SymbolResult GetCStringSymbolData(const CodeModule *module,
                                             const SystemInfo *system_info,
                                             string *symbol_file,
-                                            char **symbol_data) = 0;
+                                            char **symbol_data,
+                                            size_t *symbol_data_size) = 0;
 
   // Frees the data buffer allocated for the module in GetCStringSymbolData.
   virtual void FreeSymbolData(const CodeModule *module) = 0;

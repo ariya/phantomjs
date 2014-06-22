@@ -1,0 +1,97 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2005 Apple Computer, Inc.  All rights reserved.
+# Copyright (C) 2007 Eric Seidel <eric@webkit.org>
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+# 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+use strict;
+use FindBin;
+use Getopt::Long qw(:config pass_through);
+use lib $FindBin::Bin;
+use webkitdirs;
+use POSIX;
+
+my $coverageSupport = 0;
+my $showHelp = 0;
+
+my $programName = basename($0);
+my $usage = <<EOF;
+Usage: $programName [options] [options to pass to build system]
+  --help                        Show this help message
+  --[no-]coverage               Toggle code coverage support (default: $coverageSupport)
+EOF
+
+GetOptions(
+    'coverage!' => \$coverageSupport,
+    'help' => \$showHelp
+);
+
+if ($showHelp) {
+   print STDERR $usage;
+   exit 1;
+}
+
+checkRequiredSystemConfig();
+setConfiguration();
+chdirWebKit();
+my @options = XcodeOptions();
+my @coverageSupportOptions = ($coverageSupport) ? XcodeCoverageSupportOptions() : ();
+
+if (isQt()) {
+    checkForArgumentAndRemoveFromARGV("--qt");
+    my @projects = ("WTF", "JavaScriptCore");
+    # Pick up the --no-webkit2 option from BUILD_WEBKIT_ARGS if it is needed
+    push @ARGV, split(/ /, $ENV{'BUILD_WEBKIT_ARGS'}) if ($ENV{'BUILD_WEBKIT_ARGS'});
+    push @ARGV, "WEBKIT_CONFIG-=build_webkit2" if checkForArgumentAndRemoveFromARGV("--no-webkit2");
+    my $result = buildQMakeProjects(\@projects, 0, @ARGV);
+    exit exitStatus($result);
+} elsif (cmakeBasedPortName()) {
+    buildCMakeProjectOrExit(0, cmakeBasedPortName(), undef, "jsc", cmakeBasedPortArguments()); # This call only returns if nothing wrong happened
+    exit exitStatus(0);
+}
+
+sub buildMyProject
+{
+    my ($projectDirectory, $projectName) = @_;
+    my $result;
+    chdir $projectDirectory or die "Can't find $projectName directory to build from";
+    if (isAppleMacWebKit()) {
+        $result = system "sh", "-c", ('xcodebuild -project ' . $projectName . '.xcodeproj "$@" | grep -v setenv && exit ${PIPESTATUS[0]}'), "xcodebuild",  @options, @ARGV, @coverageSupportOptions;
+    } elsif (isAppleWinWebKit()) {
+        $result = buildVisualStudioProject("$projectName.vcxproj/$projectName.submit.sln");
+    } elsif (isGtk()) {
+        checkForArgumentAndRemoveFromARGV("--gtk");
+        $result = buildGtkProject($projectName, 0);
+    } else {
+        die "Building not defined for this platform!\n";
+    }
+    exit exitStatus($result) if exitStatus($result);
+    chdirWebKit();
+}
+
+buildMyProject("Source/WTF", "WTF");
+buildMyProject("Source/JavaScriptCore", "JavaScriptCore");

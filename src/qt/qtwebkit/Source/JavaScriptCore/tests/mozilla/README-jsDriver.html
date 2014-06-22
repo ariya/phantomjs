@@ -1,0 +1,344 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+  <head>
+    <title>jsDriver.pl</title>
+  </head>
+
+  <body bgcolor="white">
+    <h1 align="right">jsDriver.pl</h1>
+
+    <dl>
+      <dt><b>NAME</b></dt>
+      <dd>
+        <b>jsDriver.pl</b> - execute JavaScript programs in various shells in
+        batch or single mode, reporting on failures encountered.
+        <br>
+        <br>
+
+      <dt><b>SYNOPSIS</b></dt>
+      <dd>
+        <table>
+          <tr>
+            <td align="right" valign="top">
+              <code>
+                <b>jsDriver.pl</b>
+              </code>
+            </td>
+            <td>
+              <code>
+                [-hkt] [-b BUGURL] [-c CLASSPATH] [-f OUTFILE]
+                [-j JAVAPATH] [-l TESTLIST ...] [-L NEGLIST ...] [-p TESTPATH]
+                [-s SHELLPATH] [-u LXRURL] [--help] [--confail] [--trace]
+                [--classpath=CLASSPATH] [--file=OUTFILE] [--javapath=JAVAPATH]
+                [--list=TESTLIST] [--neglist=TESTLIST] [--testpath=TESTPATH]
+                [--shellpath=SHELLPATH] [--lxrurl=LXRURL] {-e ENGINETYPE |
+                --engine=ENGINETYPE}
+              </code>
+            </td>
+          </tr>
+        </table>
+        <br>
+        <br>
+
+      <dt><b>DESCRIPTION</b></dt>
+      <dd>
+        <b>jsDriver.pl</b> is normally used to run a series of tests against
+        one of the JavaScript shells.  These tests are expected to be laid out
+        in a directory structure exactly three levels deep.  The first level
+        is considered the <b>root</b> of the tests, subdirectories under the
+        <b>root</b> represent <b>Test Suites</b> and generally mark broad
+        categories such as <i>ECMA Level 1</i> or <i>Live Connect 3</i>.  Under the
+        <b>Test Suites</b> are the <b>Test Categories</b>, which divide the 
+        <b>Test Suite</b> into smaller categories, such as <i>Execution Contexts</i>
+        or <i>Lexical Rules</i>.  Testcases are located under the
+        <B>Test Categories</b> as normal JavaScript (*.js) files.  
+        <p>
+          If a file named <b>shell.js</b> exists in either the
+          <b>Test Suite</b> or the <b>Test Category</b> directory, it is
+          loaded into the shell before the testcase.  If <b>shell.js</b>
+          exists in both directories, the version in the <b>Test Suite</b>
+          directory is loaded <i>first</i>, giving the version associated with
+          the <b>Test Category</b> the ability to override functions previously
+          declared.  You can use this to
+          create functions and variables common to an entire suite or category.
+        <p>
+          Testcases can report failures back to <b>jsDriver.pl</b> in one of
+          two ways.  The most common is to write a line of text containing
+          the word <code>FAILED!</code> to <b>STDOUT</b> or <b>STDERR</b>.
+          When the engine encounters a matching line, the test is marked as
+          failed, and any line containing <code>FAILED!</code> is displayed in
+          the failure report.  The second way a test case can report failure is
+          to return an unexpected exit code.  By default, <b>jsDriver.pl</b>
+          expects all test cases to return exit code 0, although a test
+          can output a line containing <code>EXPECT EXIT <i>n</i></code> where
+          <i>n</i> is the exit code the driver should expect to see.  Testcases
+          can return a nonzero exit code by calling the shell function
+          <code>quit(<i>n</i>)</code> where <code><i>n</i></code> is the
+          code to exit with.  The various JavaScript shells report
+          non-zero exit codes under the following conditions:
+
+          <center>
+            <table border="1">
+              <tr>
+                <th>Reason</th>
+                <th>Exit Code</th>
+              </tr>
+              <tr>
+                <td>
+                  Engine initialization failure.
+                </td>
+                <td>
+                  1
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Invalid argument on command line.
+                </td>
+                <td>
+                  2
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Runtime error (uncaught exception) encountered.
+                </td>
+                <td>
+                  3
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  File argument specified on command line not found.
+                </td>
+                <td>
+                  4
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Reserved for future use.
+                </td>
+                <td>
+                  5-9
+                </td>
+              </tr>
+            </table>
+          </center>
+          <br>
+          <br>
+
+      <dt><b>OPTIONS</b></dt>
+      <dd>
+        <dl>
+          <dt><b>-b URL, --bugurl=URL</b></dt>
+          <dd>
+            Bugzilla URL.  When a testcase writes a line in the format
+            <code>BUGNUMBER <i>n</i></code> to <b>STDOUT</b> or <b>STDERR</b>,
+            <b>jsDriver.pl</b> interprets <code><i>n</i></code> as a bugnumber
+            in the <a href="http://bugzilla.mozilla.org">BugZilla</a> bug
+            tracking system.  In the event that a testcase which has specified
+            a bugnumber fails, a hyperlink to the BugZilla database
+            will be included in the output by prefixing the bugnumber with the
+            URL specified here.  By default, URL is assumed to be
+            &quot;http://bugzilla.mozilla.org/show_bug.cgi?id=&quot;.
+            <br>
+            <br>
+            <a name="classpath"></a>
+          <dt><b>-c PATH, --classpath=PATH</b></dt>
+          <dd>
+            Classpath to pass the the Java Virtual Machine.  When running tests
+            against the <b>Rhino</b> engine, PATH will be passed in as the value
+            to an argument named &quot;-classpath&quot;.  If your particular JVM
+            does not support this option, it is recommended you specify your
+            class path via an environment setting.  Refer to your JVM
+            documentation for more details about CLASSPATH.
+            <br>
+            <br>
+          <dt><b>-e TYPE ..., --engine=TYPE ...</b></dt>
+          <dd>
+            Required.  Type of engine(s) to run the tests against.  TYPE can be
+            one or more of the following values:
+            <center>
+              <table border="1">
+                <tr>
+                  <th>TYPE</th>
+                  <th>Engine</th>
+                </tr>
+                <tr>
+                  <td>lcopt</td>
+                  <td>LiveConnect, optimized</td>
+                </tr>
+                <tr>
+                  <td>lcdebug</td>
+                  <td>LiveConnect, debug</td>
+                </tr>
+                <tr>
+                  <td>rhino</td>
+                  <td>Rhino compiled mode</td>
+                </tr>
+                <tr>
+                  <td>rhinoi</td>
+                  <td>Rhino interpreted mode</td>
+                </tr>
+                <tr>
+                  <td>rhinoms</td>
+                  <td>Rhino compiled mode for the Microsoft VM (jview)</td>
+                </tr>
+                <tr>
+                  <td>rhinomsi</td>
+                  <td>Rhino interpreted mode for the Microsoft VM (jview)</td>
+                </tr>
+                <tr>
+                  <td>smopt</td>
+                  <td>Spider-Monkey, optimized</td>
+                </tr>
+                <tr>
+                  <td>smdebug</td>
+                  <td>Spider-Monkey, debug</td>
+                </tr>
+                <tr>
+                  <td>xpcshell</td>
+                  <td>XPConnect shell</td>
+                </tr>
+              </table>
+            </center>
+            <br>
+            <br>
+          <dt><b>-f FILE, --file=FILE</b></dt>
+          <dd>
+            Generate html output to the HTML file named by FILE.  By default,
+            a filename will be generated using a combination of the engine type
+            and a date/time stamp, in the format: 
+            <code>results-<i>&lt;engine-type&gt;</i>-<i>&lt;date-stamp&gt;</i>.html</code>
+            <br>
+            <br>
+          <dt><b>-h, --help</b></dt>
+          <dd>
+            Prints usage information.
+            <br>
+            <br>
+          <dt><b>-j PATH, --javapath=PATH</b></dt>
+          <dd>
+            Set the location of the Java Virtual Machine to use when running
+            tests against the <b>Rhino</b> engine.  This can be used to test
+            against multiple JVMs on the same system.
+            <br>
+            <br>
+          <dt><b>-k, --confail</b></dt>
+          <dd>
+            Log failures to the console.  This will show any failures, as they
+            occur, on <b>STDERR</b> in addition to creating the HTML results
+            file.  This can be useful for times when it may be 
+            counter-productive to load an HTML version of the results each time
+            a test is re-run.
+            <br>
+            <br>
+          <dt><b>-l FILE ..., --list=FILE ...</b></dt>
+          <dd>
+            Specify a list of tests to execute.  FILE can be a plain text file
+            containing a list of testcases to execute, a subdirectory 
+            in which to
+            <a href="http://www.instantweb.com/~foldoc/foldoc.cgi?query=grovel">grovel</a>
+            for tests, or a single testcase to execute.  Any number of FILE 
+            specifiers may follow this option.  The driver uses the fact that a
+            valid testcase should be a file ending in .js to make the distinction
+            between a file containing a list of tests and an actual testcase.
+            <br>
+            <br>
+          <dt><b>-L FILE ..., --neglist=FILE ...</b></dt>
+          <dd>
+            Specify a list of tests to skip.  FILE has the same meaning as in
+            the <b>-l</b> option.  This option is evaluated after
+            <b>all</b> <b>-l</b> and <b>--list</b> options, allowing a user
+            to subtract a single testcase, a directory of testcases, or a
+            collection of unrelated testcases from the execution list.
+            <br>
+            <br>
+          <dt><b>-p PATH, --testpath=PATH</b></dt>
+          <dd>
+            Directory holding the &quot;Test Suite&quot; subdirectories.  By
+            default this is ./
+            <br>
+            <br>
+          <dt><b>-s PATH, --shellpath=PATH</b></dt>
+          <dd>
+            Directory holding the JavaScript shell.  This can be used to override
+            the automatic shell location <b>jsDriver.pl</b> performs based on
+            you OS and engine type.  For Non <b>Rhino</b> engines, this 
+            includes the name of the executable as well as the path.  In
+            <b>Rhino</b>, this path will be appended to your 
+            <a href="#classpath">CLASSPATH</a>.  For the 
+            <b>SpiderMonkey</b> shells, this value defaults to
+            ../src/&lt;Platform-and-buildtype-specific-directory&gt;/[js|jsshell],
+            for the
+            <b>LiveConnect</b> shells,
+            ../src/liveconnect/src/&lt;Platform-and-buildtype-specific-directory&gt;/lschell
+            and for the <b>xpcshell</b> the default is the value of your 
+            <code>MOZILLA_FIVE_HOME</code> environment variable.  There is no
+            default (as it is usually not needed) for the <b>Rhino</b> shell.
+            <br>
+            <br>
+          <dt><b>-t, --trace</b></dt>
+          <dd>
+            Trace execution of <b>jsDriver.pl</b>.  This option is primarily
+            used for debugging of the script itself, but if you are interested in
+            seeing the actual command being run, or generally like gobs of
+            useless information, you may find it entertaining.
+            <br>
+            <br>
+          <dt><b>-u URL, --lxrurl=URL</b></dt>
+          <dd>
+            Failures listed in the HTML results will be hyperlinked to the
+            lxr source available online by prefixing the test path and
+            name with this URL.  By default, URL is
+            http://lxr.mozilla.org/mozilla/source/js/tests/
+            <br>
+            <br>
+
+        </dl>
+      <dt><b>SEE ALSO</b></dt>
+      <dd>
+        <a href="http://lxr.mozilla.org/mozilla/source/js/tests/jsDriver.pl">jsDriver.pl</a>,
+        <a href="http://lxr.mozilla.org/mozilla/source/js/tests/mklistpage.pl">mklistpage.pl</a>,
+        <a href="http://www.mozilla.org/js/">http://www.mozilla.org/js/</a>,
+        <a href="http://www.mozilla.org/js/tests/library.html">http://www.mozilla.org/js/tests/library.html</a>
+        <br>
+        <br>
+
+      <dt><b>REQUIREMENTS</b></dt>
+      <dd>
+        <b>jsDriver.pl</b> requires the
+        <a href="http://search.cpan.org/search?module=Getopt::Mixed">Getopt::Mixed</a>
+        perl package, available from <a href="http://www.cpan.org">cpan.org</a>.
+        <br>
+        <br>
+      <dt><b>EXAMPLES</b></dt>
+      <dd>
+          <code>perl jsDriver.pl -e smdebug -L lc*</code><br>
+          Executes all tests EXCEPT the liveconnect tests against the
+          SpiderMonkey debug shell, writing the results
+          to the default result file.  (NOTE: Unix shells take care of wildcard
+          expansion, turning <code>lc*</code> into <code>lc2 lc3</code>.  Under
+          a DOS shell, you must explicitly list the directories.)
+        <p>
+          <code>perl jsDriver.pl -e rhino -L rhino-n.tests</code><br>
+          Executes all tests EXCEPT those listed in the
+          <code>rhino-n.tests</code> file.
+        <p>
+          <code>perl -I/home/rginda/perl/lib/ jsDriver.pl -e lcopt -l lc2
+            lc3 -f lcresults.html -k</code><br>
+          Executes ONLY the tests under the <code>lc2</code> and <code>lc3</code>
+          directories against the LiveConnect shell.  Results will be written to
+          the file <code>lcresults.html</code> <b>AND</b> the console.  The 
+          <code>-I</code> option tells perl to look for modules in the
+          <code>/home/rginda/perl/lib</code> directory (in addition to the
+          usual places), useful if you do not have root access to install new
+          modules on the system.
+    </dl>
+    <hr>
+    Author: Robert Ginda<br>
+    Currently maintained by <i><a href="mailto:pschwartau@netscape.com">Phil Schwartau</a> </i><br>
+<!-- Created: Thu Dec  2 19:08:05 PST 1999 -->
+  </body>
+</html>

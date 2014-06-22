@@ -1,0 +1,10 @@
+        INSTALLING Qt Source Package Version 5.3.0.
+
+For instructions on building and installing Qt for each supported platform,
+please see http://qt-project.org/doc/qt-5.3/build-sources.html,
+or follow one of these links:
+
+Mac OS X:         http://qt-project.org/doc/qt-5.3/macosx-building.html
+Windows:          http://qt-project.org/doc/qt-5.3/windows-building.html
+X11 Platforms:    http://qt-project.org/doc/qt-5.3/linux-building.html
+Windows CE:       http://qt-project.org/doc/qt-5.3/install-wince.html

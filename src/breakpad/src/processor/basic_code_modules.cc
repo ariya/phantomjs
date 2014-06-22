@@ -47,7 +47,7 @@ namespace google_breakpad {
 
 BasicCodeModules::BasicCodeModules(const CodeModules *that)
     : main_address_(0),
-      map_(new RangeMap<u_int64_t, linked_ptr<const CodeModule> >()) {
+      map_(new RangeMap<uint64_t, linked_ptr<const CodeModule> >()) {
   BPLOG_IF(ERROR, !that) << "BasicCodeModules::BasicCodeModules requires "
                             "|that|";
   assert(that);
@@ -82,7 +82,7 @@ unsigned int BasicCodeModules::module_count() const {
 }
 
 const CodeModule* BasicCodeModules::GetModuleForAddress(
-    u_int64_t address) const {
+    uint64_t address) const {
   linked_ptr<const CodeModule> module;
   if (!map_->RetrieveRange(address, &module, NULL, NULL)) {
     BPLOG(INFO) << "No module at " << HexString(address);

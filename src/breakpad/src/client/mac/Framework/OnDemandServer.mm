@@ -123,11 +123,14 @@ kern_return_t OnDemandServer::Initialize(const char *server_command,
 
   strlcpy(service_name_, service_name, sizeof(service_name_));
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   // Create a service called service_name, and return send rights to
   // that port in service_port_.
   kr = bootstrap_create_service(server_port_,
                                 const_cast<char*>(service_name),
                                 &service_port_);
+#pragma clang diagnostic pop
   if (kr != BOOTSTRAP_SUCCESS) {
     PRINT_BOOTSTRAP_RESULT(kr, "bootstrap_create_service(): ");
 

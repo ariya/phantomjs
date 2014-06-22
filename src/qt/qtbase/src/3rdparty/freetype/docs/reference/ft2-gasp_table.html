@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>FreeType-2.3.12 API Reference</title>
+<style type="text/css">
+  body { font-family: Verdana, Geneva, Arial, Helvetica, serif;
+         color: #000000;
+         background: #FFFFFF; }
+
+  p { text-align: justify; }
+  h1 { text-align: center; }
+  li { text-align: justify; }
+  td { padding: 0 0.5em 0 0.5em; }
+  td.left { padding: 0 0.5em 0 0.5em;
+            text-align: left; }
+
+  a:link { color: #0000EF; }
+  a:visited { color: #51188E; }
+  a:hover { color: #FF0000; }
+
+  span.keyword { font-family: monospace;
+                 text-align: left;
+                 white-space: pre;
+                 color: darkblue; }
+
+  pre.colored { color: blue; }
+
+  ul.empty { list-style-type: none; }
+</style>
+</head>
+<body>
+
+<table align=center><tr><td><font size=-1>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-1>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+<center><h1>FreeType-2.3.12 API Reference</h1></center>
+
+<center><h1>
+Gasp Table
+</h1></center>
+<h2>Synopsis</h2>
+<table align=center cellspacing=5 cellpadding=0 border=0>
+<tr><td></td><td><a href="#FT_GASP_XXX">FT_GASP_XXX</a></td><td></td><td><a href="#FT_Get_Gasp">FT_Get_Gasp</a></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</table><br><br>
+
+<table align=center width="87%"><tr><td>
+<p>The function <a href="ft2-gasp_table.html#FT_Get_Gasp">FT_Get_Gasp</a> can be used to query a TrueType or OpenType font for specific entries in its &lsquo;gasp&rsquo; table, if any. This is mainly useful when implementing native TrueType hinting with the bytecode interpreter to duplicate the Windows text rendering results.</p>
+</td></tr></table><br>
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_GASP_XXX">FT_GASP_XXX</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_GASP_H (freetype/ftgasp.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+#define <a href="ft2-gasp_table.html#FT_GASP_XXX">FT_GASP_NO_TABLE</a>               -1
+#define <a href="ft2-gasp_table.html#FT_GASP_XXX">FT_GASP_DO_GRIDFIT</a>           0x01
+#define <a href="ft2-gasp_table.html#FT_GASP_XXX">FT_GASP_DO_GRAY</a>              0x02
+#define <a href="ft2-gasp_table.html#FT_GASP_XXX">FT_GASP_SYMMETRIC_SMOOTHING</a>  0x08
+#define <a href="ft2-gasp_table.html#FT_GASP_XXX">FT_GASP_SYMMETRIC_GRIDFIT</a>    0x10
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A list of values and/or bit-flags returned by the <a href="ft2-gasp_table.html#FT_Get_Gasp">FT_Get_Gasp</a> function.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>values</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>FT_GASP_NO_TABLE</b></td><td>
+<p>This special value means that there is no GASP table in this face. It is up to the client to decide what to do.</p>
+</td></tr>
+<tr valign=top><td><b>FT_GASP_DO_GRIDFIT</b></td><td>
+<p>Grid-fitting and hinting should be performed at the specified ppem. This <b>really</b> means TrueType bytecode interpretation.</p>
+</td></tr>
+<tr valign=top><td><b>FT_GASP_DO_GRAY</b></td><td>
+<p>Anti-aliased rendering should be performed at the specified ppem.</p>
+</td></tr>
+<tr valign=top><td colspan=0><b>FT_GASP_SYMMETRIC_SMOOTHING</b></td></tr>
+<tr valign=top><td></td><td>
+<p>Smoothing along multiple axes must be used with ClearType.</p>
+</td></tr>
+<tr valign=top><td colspan=0><b>FT_GASP_SYMMETRIC_GRIDFIT</b></td></tr>
+<tr valign=top><td></td><td>
+<p>Grid-fitting must be used with ClearType's symmetric smoothing.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>&lsquo;ClearType&rsquo; is Microsoft's implementation of LCD rendering, partly protected by patents.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>since</b></em></td></tr><tr><td>
+<p>2.3.0</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Get_Gasp">FT_Get_Gasp</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_GASP_H (freetype/ftgasp.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Int">FT_Int</a> )
+  <b>FT_Get_Gasp</b>( <a href="ft2-base_interface.html#FT_Face">FT_Face</a>  face,
+               <a href="ft2-basic_types.html#FT_UInt">FT_UInt</a>  ppem );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Read the &lsquo;gasp&rsquo; table from a TrueType or OpenType font file and return the entry corresponding to a given character pixel size.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>face</b></td><td>
+<p>The source face handle.</p>
+</td></tr>
+<tr valign=top><td><b>ppem</b></td><td>
+<p>The vertical character pixel size.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>Bit flags (see <a href="ft2-gasp_table.html#FT_GASP_XXX">FT_GASP_XXX</a>), or <a href="ft2-gasp_table.html#FT_GASP_XXX">FT_GASP_NO_TABLE</a> if there is no &lsquo;gasp&rsquo; table in the face.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>since</b></em></td></tr><tr><td>
+<p>2.3.0</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+</body>
+</html>

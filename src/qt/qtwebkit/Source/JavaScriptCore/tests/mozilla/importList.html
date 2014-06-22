@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+  <head>
+    <title>Import Test List</title>
+    <script language="JavaScript">
+      function onRadioClick (name)
+      {
+	  var radio = document.forms["foo"].elements[name];
+	  radio.checked = !radio.checked;
+	  return false;
+      }
+
+      function doImport()
+      {
+          var lines =
+              document.forms["foo"].elements["testList"].value.split(/\r?\n/);
+          var suites = window.opener.suites;
+          var elems = window.opener.document.forms["testCases"].elements;
+
+          if (document.forms["foo"].elements["clear_all"].checked)
+              window.opener.selectNone();
+
+          for (var l in lines)
+          {
+              if (lines[l].search(/^\s$|\s*\#/) == -1)
+              {
+                  var ary = lines[l].match (/(.*)\/(.*)\/(.*)/);
+
+                  if (!ary) 
+                      if (!confirm ("Line " + lines[l] + " is confusing, " +
+                                    "continue with import?"))
+                          return;
+                      else
+                          continue;
+                  
+                  if (suites[ary[1]] && suites[ary[1]].testDirs[ary[2]] &&
+                      suites[ary[1]].testDirs[ary[2]].tests[ary[3]])
+                      elems[suites[ary[1]].testDirs[ary[2]].tests[ary[3]]].
+                          checked = true;    
+              }
+          }
+
+          window.opener.updateTotals();
+
+	  window.close();
+                  
+      }
+      </script>
+  </head>
+
+  <body>
+    
+    <form name="foo">
+      <textarea rows="25" cols="50" name="testList"></textarea><br>
+      <input type="radio" name="clear_all" checked 
+        onclick="return onRadioClick('clear_all');">
+      &nbsp;Clear all selections berofe import.<br>
+      <input type="button" value="Import" onclick="doImport();">
+      <input type="button" value="Cancel" onclick="window.close();">
+    </form>
+
+    <hr>
+    <address><a href="mailto:rginda@netscape.com"></a></address>
+<!-- Created: Wed Nov 17 13:52:23 PST 1999 -->
+<!-- hhmts start -->
+Last modified: Wed Nov 17 14:18:42 PST 1999
+<!-- hhmts end -->
+  </body>
+</html>

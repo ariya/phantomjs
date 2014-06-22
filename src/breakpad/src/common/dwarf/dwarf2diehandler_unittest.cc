@@ -38,9 +38,9 @@
 #include "breakpad_googletest_includes.h"
 
 #include "common/dwarf/dwarf2diehandler.h"
+#include "common/using_std_string.h"
 
 using std::make_pair;
-using std::string;
 
 using ::testing::_;
 using ::testing::ContainerEq;
@@ -51,7 +51,6 @@ using ::testing::Return;
 using ::testing::Sequence;
 using ::testing::StrEq;
 
-using dwarf2reader::AttributeList;
 using dwarf2reader::DIEDispatcher;
 using dwarf2reader::DIEHandler;
 using dwarf2reader::DwarfAttribute;
@@ -74,8 +73,7 @@ class MockDIEHandler: public DIEHandler {
   MOCK_METHOD3(ProcessAttributeSignature,
                void(DwarfAttribute, DwarfForm, uint64));
   MOCK_METHOD0(EndAttributes, bool());
-  MOCK_METHOD3(FindChildHandler, DIEHandler *(uint64, DwarfTag,
-                                              const AttributeList &));
+  MOCK_METHOD2(FindChildHandler, DIEHandler *(uint64, DwarfTag));
   MOCK_METHOD0(Finish, void());
 };
 
@@ -94,11 +92,10 @@ class MockRootDIEHandler: public RootDIEHandler {
   MOCK_METHOD3(ProcessAttributeSignature,
                void(DwarfAttribute, DwarfForm, uint64));
   MOCK_METHOD0(EndAttributes, bool());
-  MOCK_METHOD3(FindChildHandler, DIEHandler *(uint64, DwarfTag,
-                                              const AttributeList &));
+  MOCK_METHOD2(FindChildHandler, DIEHandler *(uint64, DwarfTag));
   MOCK_METHOD0(Finish, void());
   MOCK_METHOD5(StartCompilationUnit, bool(uint64, uint8, uint8, uint64, uint8));
-  MOCK_METHOD3(StartRootDIE, bool(uint64, DwarfTag, const AttributeList &));
+  MOCK_METHOD2(StartRootDIE, bool(uint64, DwarfTag));
 };
 
 // If the handler elects to skip the compilation unit, the dispatcher
@@ -129,18 +126,13 @@ TEST(Dwarf2DIEHandler, SkipRootDIE) {
   MockRootDIEHandler mock_root_handler;
   DIEDispatcher die_dispatcher(&mock_root_handler);
 
-  AttributeList mock_attribute_list;
-  mock_attribute_list.push_back(make_pair(dwarf2reader::DW_AT_name,
-                                          dwarf2reader::DW_FORM_string));
-
   EXPECT_CALL(mock_root_handler,
               StartCompilationUnit(0xde8994029fc8b999LL, 0xf4, 0x02,
                                    0xb00febffa76e2b2bLL, 0x5c))
       .InSequence(s)
       .WillOnce(Return(true));
   EXPECT_CALL(mock_root_handler,
-              StartRootDIE(0x7d08242b4b510cf2LL, (DwarfTag) 0xb4f98da6,
-                           ContainerEq(mock_attribute_list)))
+              StartRootDIE(0x7d08242b4b510cf2LL, (DwarfTag) 0xb4f98da6))
       .InSequence(s)
       .WillOnce(Return(false));
 
@@ -148,8 +140,7 @@ TEST(Dwarf2DIEHandler, SkipRootDIE) {
                                                   0xf4, 0x02,
                                                   0xb00febffa76e2b2bLL, 0x5c));
   EXPECT_FALSE(die_dispatcher.StartDIE(0x7d08242b4b510cf2LL,
-                                       (DwarfTag) 0xb4f98da6,
-                                       mock_attribute_list));
+                                       (DwarfTag) 0xb4f98da6));
   die_dispatcher.EndDIE(0x7d08242b4b510cf2LL);
 }
 
@@ -160,8 +151,6 @@ TEST(Dwarf2DIEHandler, SkipRootDIEChildren) {
   MockRootDIEHandler mock_root_handler;
   DIEDispatcher die_dispatcher(&mock_root_handler);
 
-  AttributeList mock_attribute_list;
-
   {
     InSequence s;
 
@@ -170,8 +159,7 @@ TEST(Dwarf2DIEHandler, SkipRootDIEChildren) {
                                      0x09f8bf0767f91675LL, 0xdb))
       .WillOnce(Return(true));
     EXPECT_CALL(mock_root_handler,
-                StartRootDIE(0x7d08242b4b510cf2LL, (DwarfTag) 0xb4f98da6,
-                             ContainerEq(mock_attribute_list)))
+                StartRootDIE(0x7d08242b4b510cf2LL, (DwarfTag) 0xb4f98da6))
       .WillOnce(Return(true));
     // Please don't tell me about my children.
     EXPECT_CALL(mock_root_handler, EndAttributes())
@@ -184,11 +172,9 @@ TEST(Dwarf2DIEHandler, SkipRootDIEChildren) {
                                                   0x26, 0xa0,
                                                   0x09f8bf0767f91675LL, 0xdb));
   EXPECT_TRUE(die_dispatcher.StartDIE(0x7d08242b4b510cf2LL,
-                                      (DwarfTag) 0xb4f98da6,
-                                      mock_attribute_list));
+                                      (DwarfTag) 0xb4f98da6));
   EXPECT_FALSE(die_dispatcher.StartDIE(0x435150ceedccda18LL,
-                                       (DwarfTag) 0xc3a17bba,
-                                       mock_attribute_list));
+                                       (DwarfTag) 0xc3a17bba));
   die_dispatcher.EndDIE(0x435150ceedccda18LL);
   die_dispatcher.EndDIE(0x7d08242b4b510cf2LL);
 }
@@ -199,9 +185,6 @@ TEST(Dwarf2DIEHandler, PassAttributeValues) {
   MockRootDIEHandler mock_root_handler;
   DIEDispatcher die_dispatcher(&mock_root_handler);
 
-  AttributeList mock_attribute_list;
-  mock_attribute_list.push_back(make_pair(dwarf2reader::DW_AT_name,
-                                          dwarf2reader::DW_FORM_string));
   const char buffer[10] = { 0x24, 0x24, 0x35, 0x9a, 0xca,
                             0xcf, 0xa8, 0x84, 0xa7, 0x18 };
   string str = "\xc8\x26\x2e\x0d\xa4\x9c\x37\xd6\xfb\x1d";
@@ -218,8 +201,7 @@ TEST(Dwarf2DIEHandler, PassAttributeValues) {
 
     // We'll like the root DIE.
     EXPECT_CALL(mock_root_handler,
-                StartRootDIE(0xe2222da01e29f2a9LL, (DwarfTag) 0x9829445c,
-                             ContainerEq(mock_attribute_list)))
+                StartRootDIE(0xe2222da01e29f2a9LL, (DwarfTag) 0x9829445c))
       .WillOnce(Return(true));
 
     // Expect some attribute values.
@@ -255,7 +237,7 @@ TEST(Dwarf2DIEHandler, PassAttributeValues) {
       .WillOnce(Return());
     EXPECT_CALL(mock_root_handler, EndAttributes())
       .WillOnce(Return(true));
-    EXPECT_CALL(mock_root_handler, FindChildHandler(_, _, _))
+    EXPECT_CALL(mock_root_handler, FindChildHandler(_, _))
       .Times(0);
     EXPECT_CALL(mock_root_handler, Finish())
       .WillOnce(Return());
@@ -270,8 +252,7 @@ TEST(Dwarf2DIEHandler, PassAttributeValues) {
                                                   0x66));
   // Report the root DIE.
   EXPECT_TRUE(die_dispatcher.StartDIE(0xe2222da01e29f2a9LL,
-                                      (DwarfTag) 0x9829445c,
-                                      mock_attribute_list));
+                                      (DwarfTag) 0x9829445c));
 
   // Report some attribute values.
   die_dispatcher.ProcessAttributeUnsigned(0xe2222da01e29f2a9LL,
@@ -309,25 +290,6 @@ TEST(Dwarf2DIEHandler, FindAndSkipChildren) {
   MockDIEHandler *mock_child3_handler = new(MockDIEHandler);
   DIEDispatcher die_dispatcher(&mock_root_handler);
 
-  AttributeList root_attribute_list;
-  root_attribute_list.push_back(make_pair((DwarfAttribute) 0xb01185df,
-                                          (DwarfForm) 0xbc97cee8));
-  AttributeList child1_attribute_list;
-  child1_attribute_list.push_back(make_pair((DwarfAttribute) 0x41014e43,
-                                            (DwarfForm) 0x63155f4c));
-  AttributeList grandchild1_attribute_list;
-  grandchild1_attribute_list.push_back(make_pair((DwarfAttribute) 0xf72f823c,
-                                                 (DwarfForm) 0x0ff6a201));
-  AttributeList greatgrandchild1_attribute_list;
-  greatgrandchild1_attribute_list
-    .push_back(make_pair((DwarfAttribute) 0xbe66e5f0, (DwarfForm) 0xb4b24ff7));
-  AttributeList child2_attribute_list;
-  child1_attribute_list.push_back(make_pair((DwarfAttribute) 0xf22df14c,
-                                            (DwarfForm) 0x20676e7d));
-  AttributeList child3_attribute_list;
-  child3_attribute_list.push_back(make_pair((DwarfAttribute) 0xe8bf1201,
-                                            (DwarfForm) 0x53a5b7a8));
-
   {
     InSequence s;
 
@@ -340,8 +302,7 @@ TEST(Dwarf2DIEHandler, FindAndSkipChildren) {
     // Root DIE.
     {
       EXPECT_CALL(mock_root_handler,
-                  StartRootDIE(0x15f0e06bdfe3c372LL, (DwarfTag) 0xf5d60c59,
-                               ContainerEq(root_attribute_list)))
+                  StartRootDIE(0x15f0e06bdfe3c372LL, (DwarfTag) 0xf5d60c59))
         .WillOnce(Return(true));
       EXPECT_CALL(mock_root_handler,
                   ProcessAttributeSigned((DwarfAttribute) 0xf779a642,
@@ -354,8 +315,7 @@ TEST(Dwarf2DIEHandler, FindAndSkipChildren) {
       // First child DIE.
       EXPECT_CALL(mock_root_handler,
                   FindChildHandler(0x149f644f8116fe8cLL,
-                                   (DwarfTag) 0xac2cbd8c,
-                                   ContainerEq(child1_attribute_list)))
+                                   (DwarfTag) 0xac2cbd8c))
         .WillOnce(Return(mock_child1_handler));
       {
         EXPECT_CALL(*mock_child1_handler,
@@ -374,15 +334,13 @@ TEST(Dwarf2DIEHandler, FindAndSkipChildren) {
       // for this child.
       EXPECT_CALL(mock_root_handler,
                   FindChildHandler(0x97412be24875de9dLL,
-                                   (DwarfTag) 0x505a068b,
-                                   ContainerEq(child2_attribute_list)))
+                                   (DwarfTag) 0x505a068b))
         .WillOnce(Return((DIEHandler *) NULL));
 
       // Third child DIE.
       EXPECT_CALL(mock_root_handler,
                   FindChildHandler(0x753c964c8ab538aeLL,
-                                   (DwarfTag) 0x8c22970e,
-                                   ContainerEq(child3_attribute_list)))
+                                   (DwarfTag) 0x8c22970e))
         .WillOnce(Return(mock_child3_handler));
       {
         EXPECT_CALL(*mock_child3_handler,
@@ -411,8 +369,7 @@ TEST(Dwarf2DIEHandler, FindAndSkipChildren) {
   // Report the root DIE.
   {
     EXPECT_TRUE(die_dispatcher.StartDIE(0x15f0e06bdfe3c372LL,
-                                        (DwarfTag) 0xf5d60c59,
-                                        root_attribute_list));
+                                        (DwarfTag) 0xf5d60c59));
     die_dispatcher.ProcessAttributeSigned(0x15f0e06bdfe3c372LL,
                                           (DwarfAttribute) 0xf779a642,
                                           (DwarfForm) 0x2cb63027,
@@ -421,8 +378,7 @@ TEST(Dwarf2DIEHandler, FindAndSkipChildren) {
     // First child DIE.
     {
       EXPECT_TRUE(die_dispatcher.StartDIE(0x149f644f8116fe8cLL,
-                                          (DwarfTag) 0xac2cbd8c,
-                                          child1_attribute_list));
+                                          (DwarfTag) 0xac2cbd8c));
       die_dispatcher.ProcessAttributeSigned(0x149f644f8116fe8cLL,
                                             (DwarfAttribute) 0xa6fd6f65,
                                             (DwarfForm) 0xe4f64c41,
@@ -431,15 +387,13 @@ TEST(Dwarf2DIEHandler, FindAndSkipChildren) {
       // First grandchild DIE.  Will be skipped.
       {
         EXPECT_FALSE(die_dispatcher.StartDIE(0xd68de1ee0bd29419LL,
-                                            (DwarfTag) 0x22f05a15,
-                                            grandchild1_attribute_list));
+                                            (DwarfTag) 0x22f05a15));
         // First great-grandchild DIE.  Will be skipped without being
         // mentioned to any handler.
         {
           EXPECT_FALSE(die_dispatcher
                        .StartDIE(0xb3076285d25cac25LL,
-                                 (DwarfTag) 0xcff4061b,
-                                 greatgrandchild1_attribute_list));
+                                 (DwarfTag) 0xcff4061b));
           die_dispatcher.EndDIE(0xb3076285d25cac25LL);          
         }
         die_dispatcher.EndDIE(0xd68de1ee0bd29419LL);
@@ -450,16 +404,14 @@ TEST(Dwarf2DIEHandler, FindAndSkipChildren) {
     // Second child DIE.  Root handler will decline to find a handler for it.
     {
       EXPECT_FALSE(die_dispatcher.StartDIE(0x97412be24875de9dLL,
-                                           (DwarfTag) 0x505a068b,
-                                           child2_attribute_list));
+                                           (DwarfTag) 0x505a068b));
       die_dispatcher.EndDIE(0x97412be24875de9dLL);
     }
     
     // Third child DIE.
     {
       EXPECT_TRUE(die_dispatcher.StartDIE(0x753c964c8ab538aeLL,
-                                          (DwarfTag) 0x8c22970e,
-                                          child3_attribute_list));
+                                          (DwarfTag) 0x8c22970e));
       die_dispatcher.ProcessAttributeSigned(0x753c964c8ab538aeLL,
                                             (DwarfAttribute) 0x4e2b7cfb,
                                             (DwarfForm) 0x610b7ae1,
@@ -478,7 +430,6 @@ TEST(Dwarf2DIEHandler, FreeHandlersOnStack) {
   MockRootDIEHandler mock_root_handler;
   MockDIEHandler *mock_child_handler = new(MockDIEHandler);
   MockDIEHandler *mock_grandchild_handler = new(MockDIEHandler);
-  AttributeList empty_attribute_list;
 
   {
     InSequence s;
@@ -492,8 +443,7 @@ TEST(Dwarf2DIEHandler, FreeHandlersOnStack) {
     // Root DIE.
     {
       EXPECT_CALL(mock_root_handler,
-                  StartRootDIE(0xbf13b761691ddc91LL, (DwarfTag) 0x98980361,
-                               ContainerEq(empty_attribute_list)))
+                  StartRootDIE(0xbf13b761691ddc91LL, (DwarfTag) 0x98980361))
         .WillOnce(Return(true));
       EXPECT_CALL(mock_root_handler, EndAttributes())
         .WillOnce(Return(true));
@@ -501,8 +451,7 @@ TEST(Dwarf2DIEHandler, FreeHandlersOnStack) {
       // Child DIE.
       EXPECT_CALL(mock_root_handler,
                   FindChildHandler(0x058f09240c5fc8c9LL,
-                                   (DwarfTag) 0x898bf0d0,
-                                   ContainerEq(empty_attribute_list)))
+                                   (DwarfTag) 0x898bf0d0))
         .WillOnce(Return(mock_child_handler));
       {
         EXPECT_CALL(*mock_child_handler, EndAttributes())
@@ -511,8 +460,7 @@ TEST(Dwarf2DIEHandler, FreeHandlersOnStack) {
         // Grandchild DIE.
         EXPECT_CALL(*mock_child_handler,
                     FindChildHandler(0x32dc00c9945dc0c8LL,
-                                     (DwarfTag) 0x2802d007,
-                                     ContainerEq(empty_attribute_list)))
+                                     (DwarfTag) 0x2802d007))
           .WillOnce(Return(mock_grandchild_handler));
         {
           EXPECT_CALL(*mock_grandchild_handler,
@@ -548,20 +496,17 @@ TEST(Dwarf2DIEHandler, FreeHandlersOnStack) {
   // Report the root DIE.
   {
     EXPECT_TRUE(die_dispatcher.StartDIE(0xbf13b761691ddc91LL,
-                                        (DwarfTag) 0x98980361,
-                                        empty_attribute_list));
+                                        (DwarfTag) 0x98980361));
 
     // Child DIE.
     {
       EXPECT_TRUE(die_dispatcher.StartDIE(0x058f09240c5fc8c9LL,
-                                          (DwarfTag) 0x898bf0d0,
-                                          empty_attribute_list));
+                                          (DwarfTag) 0x898bf0d0));
 
       // Grandchild DIE.
       {
         EXPECT_TRUE(die_dispatcher.StartDIE(0x32dc00c9945dc0c8LL,
-                                            (DwarfTag) 0x2802d007,
-                                            empty_attribute_list));
+                                            (DwarfTag) 0x2802d007));
         die_dispatcher.ProcessAttributeSigned(0x32dc00c9945dc0c8LL,
                                               (DwarfAttribute) 0x4e2b7cfb,
                                               (DwarfForm) 0x610b7ae1,

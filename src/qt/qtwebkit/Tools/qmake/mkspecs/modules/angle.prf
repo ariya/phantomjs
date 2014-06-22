@@ -1,0 +1,9 @@
+# -------------------------------------------------------------------
+# Module file for ANGLE, used by targets that depend on ANGLE
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+WEBKIT.angle.root_source_dir = $${ROOT_WEBKIT_DIR}/Source/ThirdParty/ANGLE
+
+include($${WEBKIT.angle.root_source_dir}/ANGLE.pri)

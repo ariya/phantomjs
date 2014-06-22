@@ -86,7 +86,7 @@ static bool WriteFile(const char *path) {
     google_breakpad::TypedMDRVA<ArrayStructure> array(&writer);
     unsigned int count = 10;
     ASSERT_TRUE(array.AllocateArray(count));
-    for (unsigned int i = 0; i < count; ++i) {
+    for (unsigned char i = 0; i < count; ++i) {
       ArrayStructure local;
       local.char_value = i;
       local.short_value = i + 1;
@@ -99,7 +99,7 @@ static bool WriteFile(const char *path) {
     ASSERT_TRUE(obj_array.AllocateObjectAndArray(count,
                                                  sizeof(ArrayStructure)));
     obj_array.get()->count = count;
-    for (unsigned int i = 0; i < count; ++i) {
+    for (unsigned char i = 0; i < count; ++i) {
       ArrayStructure local;
       local.char_value = i;
       local.short_value = i + 1;

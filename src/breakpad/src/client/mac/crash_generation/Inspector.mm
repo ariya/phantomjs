@@ -41,7 +41,6 @@
 #import "client/mac/Framework/Breakpad.h"
 #import "client/mac/handler/minidump_generator.h"
 
-#import "common/mac/SimpleStringDictionary.h"
 #import "common/mac/MachIPC.h"
 #include "common/mac/bootstrap_compat.h"
 
@@ -253,8 +252,6 @@ kern_return_t Inspector::ReadMessages() {
       }
     }
     if (parameters_read != info.parameter_count) {
-      DEBUGLOG(stderr, "Only read %d parameters instead of %d, aborting crash "
-               "dump generation.", parameters_read, info.parameter_count);
       return KERN_FAILURE;
     }
   }
@@ -266,7 +263,6 @@ kern_return_t Inspector::ReadMessages() {
 bool Inspector::InspectTask() {
   // keep the task quiet while we're looking at it
   task_suspend(remote_task_);
-  DEBUGLOG(stderr, "Suspended Remote task\n");
 
   NSString *minidumpDir;
 
@@ -283,11 +279,11 @@ bool Inspector::InspectTask() {
 
     NSString *applicationSupportDirectory =
         [libraryDirectories objectAtIndex:0];
-    NSString *library_subdirectory = [NSString 
+    NSString *library_subdirectory = [NSString
         stringWithUTF8String:kDefaultLibrarySubdirectory];
-    NSString *breakpad_product = [NSString 
+    NSString *breakpad_product = [NSString
         stringWithUTF8String:config_params_.GetValueForKey(BREAKPAD_PRODUCT)];
-        
+
     NSArray *path_components = [NSArray
         arrayWithObjects:applicationSupportDirectory,
                          library_subdirectory,
@@ -299,9 +295,6 @@ bool Inspector::InspectTask() {
     minidumpDir = [[NSString stringWithUTF8String:minidumpDirectory]
                     stringByExpandingTildeInPath];
   }
-  DEBUGLOG(stderr, 
-           "Writing minidump to directory (%s)\n",
-           [minidumpDir UTF8String]);
 
   MinidumpLocation minidumpLocation(minidumpDir);
 
@@ -315,13 +308,8 @@ bool Inspector::InspectTask() {
   NSString *pathid_ns = [NSString
       stringWithUTF8String:minidumpLocation.GetID()];
   NSString *minidumpPath = [path_ns stringByAppendingPathComponent:pathid_ns];
-  minidumpPath = [minidumpPath 
+  minidumpPath = [minidumpPath
       stringByAppendingPathExtension:@"dmp"];
-  
-  DEBUGLOG(stderr, 
-           "minidump path (%s)\n",
-           [minidumpPath UTF8String]);
-
 
   config_file_.WriteFile( 0,
                           &config_params_,
@@ -341,15 +329,8 @@ bool Inspector::InspectTask() {
 
   bool result = generator.Write([minidumpPath fileSystemRepresentation]);
 
-  if (result) {
-    DEBUGLOG(stderr, "Wrote minidump - OK\n");
-  } else {
-    DEBUGLOG(stderr, "Error writing minidump - errno=%s\n",  strerror(errno));
-  }
-
   // let the task continue
   task_resume(remote_task_);
-  DEBUGLOG(stderr, "Resumed remote task\n");
 
   return result;
 }
@@ -362,9 +343,6 @@ kern_return_t Inspector::SendAcknowledgement() {
     MachPortSender sender(ack_port_);
     MachSendMessage ack_message(kMsgType_InspectorAcknowledgement);
 
-    DEBUGLOG(stderr, "Inspector: trying to send acknowledgement to port %d\n",
-      ack_port_);
-
     kern_return_t result = sender.SendMessage(ack_message, 2000);
 
 #if VERBOSE
@@ -374,7 +352,6 @@ kern_return_t Inspector::SendAcknowledgement() {
     return result;
   }
 
-  DEBUGLOG(stderr, "Inspector: port translation failure!\n");
   return KERN_INVALID_NAME;
 }
 
@@ -383,7 +360,6 @@ void Inspector::LaunchReporter(const char *inConfigFilePath) {
   // Extract the path to the reporter executable.
   const char *reporterExecutablePath =
           config_params_.GetValueForKey(BREAKPAD_REPORTER_EXE_LOCATION);
-  DEBUGLOG(stderr, "reporter path = %s\n", reporterExecutablePath);
 
   // Setup and launch the crash dump sender.
   const char *argv[3];
@@ -399,7 +375,6 @@ void Inspector::LaunchReporter(const char *inConfigFilePath) {
   if (pid == 0) {
     execv(argv[0], (char * const *)argv);
     config_file_.Unlink();  // launch failed - get rid of config file
-    DEBUGLOG(stderr, "Inspector: unable to launch reporter app\n");
     _exit(1);
   }
 
@@ -417,8 +392,7 @@ void Inspector::LaunchReporter(const char *inConfigFilePath) {
       // The child has not yet finished.
       sleep(1);
     } else if (result == -1) {
-      DEBUGLOG(stderr, "Inspector: waitpid error (%d) waiting for reporter app\n",
-        errno);
+      // error occurred.
       break;
     } else {
       // child has finished

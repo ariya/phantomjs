@@ -39,6 +39,7 @@
 
 #include <Foundation/Foundation.h>
 
+#include "common/scoped_ptr.h"
 #include "google_breakpad/processor/basic_source_line_resolver.h"
 #include "google_breakpad/processor/call_stack.h"
 #include "google_breakpad/processor/code_module.h"
@@ -48,7 +49,6 @@
 #include "google_breakpad/processor/stack_frame_cpu.h"
 #include "google_breakpad/processor/system_info.h"
 #include "processor/pathname_stripper.h"
-#include "processor/scoped_ptr.h"
 #include "processor/simple_symbol_supplier.h"
 
 #include "on_demand_symbol_supplier.h"
@@ -164,7 +164,7 @@ static void PrintRegisters(const CallStack *stack, const string &cpu) {
     const StackFramePPC *frame_ppc =
       reinterpret_cast<const StackFramePPC*>(frame);
 
-    if (frame_ppc->context_validity & StackFramePPC::CONTEXT_VALID_ALL ==
+    if ((frame_ppc->context_validity & StackFramePPC::CONTEXT_VALID_ALL) ==
         StackFramePPC::CONTEXT_VALID_ALL) {
       sequence = PrintRegister("srr0", frame_ppc->context.srr0, sequence);
       sequence = PrintRegister("srr1", frame_ppc->context.srr1, sequence);

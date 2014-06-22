@@ -27,15 +27,21 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "common/windows/pdb_source_line_writer.h"
+
+#include <windows.h>
+#include <winnt.h>
 #include <atlbase.h>
 #include <dia2.h>
 #include <ImageHlp.h>
 #include <stdio.h>
 
-#include "common/windows/string_utils-inl.h"
+#include <limits>
+#include <set>
 
-#include "common/windows/pdb_source_line_writer.h"
+#include "common/windows/dia_util.h"
 #include "common/windows/guid_string.h"
+#include "common/windows/string_utils-inl.h"
 
 // This constant may be missing from DbgHelp.h.  See the documentation for
 // IDiaSymbol::get_undecoratedNameEx.
@@ -43,7 +49,59 @@
 #define UNDNAME_NO_ECSU 0x8000  // Suppresses enum/class/struct/union.
 #endif  // UNDNAME_NO_ECSU
 
+/*
+ * Not defined in WinNT.h for some reason. Definitions taken from:
+ * http://uninformed.org/index.cgi?v=4&a=1&p=13
+ *
+ */
+typedef unsigned char UBYTE;
+
+#if !defined(_WIN64)
+#define UNW_FLAG_EHANDLER  0x01
+#define UNW_FLAG_UHANDLER  0x02
+#define UNW_FLAG_CHAININFO 0x04
+#endif
+
+union UnwindCode {
+  struct {
+    UBYTE offset_in_prolog;
+    UBYTE unwind_operation_code : 4;
+    UBYTE operation_info        : 4;
+  };
+  USHORT frame_offset;
+};
+
+enum UnwindOperationCodes {
+  UWOP_PUSH_NONVOL = 0, /* info == register number */
+  UWOP_ALLOC_LARGE,     /* no info, alloc size in next 2 slots */
+  UWOP_ALLOC_SMALL,     /* info == size of allocation / 8 - 1 */
+  UWOP_SET_FPREG,       /* no info, FP = RSP + UNWIND_INFO.FPRegOffset*16 */
+  UWOP_SAVE_NONVOL,     /* info == register number, offset in next slot */
+  UWOP_SAVE_NONVOL_FAR, /* info == register number, offset in next 2 slots */
+  // XXX: these are missing from MSDN!
+  // See: http://www.osronline.com/ddkx/kmarch/64bitamd_4rs7.htm
+  UWOP_SAVE_XMM,
+  UWOP_SAVE_XMM_FAR,
+  UWOP_SAVE_XMM128,     /* info == XMM reg number, offset in next slot */
+  UWOP_SAVE_XMM128_FAR, /* info == XMM reg number, offset in next 2 slots */
+  UWOP_PUSH_MACHFRAME   /* info == 0: no error-code, 1: error-code */
+};
+
+// See: http://msdn.microsoft.com/en-us/library/ddssxxy8.aspx
+// Note: some fields removed as we don't use them.
+struct UnwindInfo {
+  UBYTE version       : 3;
+  UBYTE flags         : 5;
+  UBYTE size_of_prolog;
+  UBYTE count_of_codes;
+  UBYTE frame_register : 4;
+  UBYTE frame_offset   : 4;
+  UnwindCode unwind_code[1];
+};
+
 namespace google_breakpad {
+
+namespace {
 
 using std::vector;
 
@@ -63,14 +121,27 @@ class AutoImage {
   PLOADED_IMAGE img_;
 };
 
+}  // namespace
+
 PDBSourceLineWriter::PDBSourceLineWriter() : output_(NULL) {
 }
 
 PDBSourceLineWriter::~PDBSourceLineWriter() {
 }
 
+bool PDBSourceLineWriter::SetCodeFile(const wstring &exe_file) {
+  if (code_file_.empty()) {
+    code_file_ = exe_file;
+    return true;
+  }
+  // Setting a different code file path is an error.  It is success only if the
+  // file paths are the same.
+  return exe_file == code_file_;
+}
+
 bool PDBSourceLineWriter::Open(const wstring &file, FileFormat format) {
   Close();
+  code_file_.clear();
 
   if (FAILED(CoInitialize(NULL))) {
     fprintf(stderr, "CoInitialize failed\n");
@@ -84,6 +155,7 @@ bool PDBSourceLineWriter::Open(const wstring &file, FileFormat format) {
     StringFromGUID2(CLSID_DiaSource, classid, kGuidSize);
     // vc80 uses bce36434-2c24-499e-bf49-8bd99b0eeb68.
     // vc90 uses 4C41678E-887B-4365-A09E-925D28DB33C2.
+    // vc100 uses B86AE24D-BF2F-4AC9-B5A2-34B14E4CE11D.
     fprintf(stderr, "CoCreateInstance CLSID_DiaSource %S failed "
             "(msdia*.dll unregistered?)\n", classid);
     return false;
@@ -106,10 +178,11 @@ bool PDBSourceLineWriter::Open(const wstring &file, FileFormat format) {
     case ANY_FILE:
       if (FAILED(data_source->loadDataFromPdb(file.c_str()))) {
         if (FAILED(data_source->loadDataForExe(file.c_str(), NULL, NULL))) {
-          fprintf(stderr, "loadDataForPdb and loadDataFromExe failed for %ws\n", file.c_str());
+          fprintf(stderr, "loadDataForPdb and loadDataFromExe failed for %ws\n",
+                  file.c_str());
           return false;
         }
-	code_file_ = file;
+        code_file_ = file;
       }
       break;
     default:
@@ -157,7 +230,12 @@ bool PDBSourceLineWriter::PrintLines(IDiaEnumLineNumbers *lines) {
       return false;
     }
 
-    fprintf(output_, "%x %x %d %d\n", rva, length, line_num, source_id);
+    AddressRangeVector ranges;
+    MapAddressRange(image_map_, AddressRange(rva, length), &ranges);
+    for (size_t i = 0; i < ranges.size(); ++i) {
+      fprintf(output_, "%x %x %d %d\n", ranges[i].rva, ranges[i].length,
+              line_num, source_id);
+    }
     line.Release();
   }
   return true;
@@ -196,8 +274,13 @@ bool PDBSourceLineWriter::PrintFunction(IDiaSymbol *function,
     stack_param_size = GetFunctionStackParamSize(function);
   }
 
-  fprintf(output_, "FUNC %x %" WIN_STRING_FORMAT_LL "x %x %ws\n",
-          rva, length, stack_param_size, name);
+  AddressRangeVector ranges;
+  MapAddressRange(image_map_, AddressRange(rva, static_cast<DWORD>(length)),
+                  &ranges);
+  for (size_t i = 0; i < ranges.size(); ++i) {
+    fprintf(output_, "FUNC %x %x %x %ws\n",
+            ranges[i].rva, ranges[i].length, stack_param_size, name);
+  }
 
   CComPtr<IDiaEnumLineNumbers> lines;
   if (FAILED(session_->findLinesByRVA(rva, DWORD(length), &lines))) {
@@ -261,47 +344,101 @@ bool PDBSourceLineWriter::PrintSourceFiles() {
 }
 
 bool PDBSourceLineWriter::PrintFunctions() {
-  CComPtr<IDiaEnumSymbolsByAddr> symbols;
-  if (FAILED(session_->getSymbolsByAddr(&symbols))) {
-    fprintf(stderr, "failed to get symbol enumerator\n");
+  ULONG count = 0;
+  DWORD rva = 0;
+  CComPtr<IDiaSymbol> global;
+  HRESULT hr;
+
+  if (FAILED(session_->get_globalScope(&global))) {
+    fprintf(stderr, "get_globalScope failed\n");
     return false;
   }
 
-  CComPtr<IDiaSymbol> symbol;
-  if (FAILED(symbols->symbolByAddr(1, 0, &symbol))) {
-    fprintf(stderr, "failed to enumerate symbols\n");
-    return false;
+  CComPtr<IDiaEnumSymbols> symbols = NULL;
+
+  // Find all function symbols first.
+  std::set<DWORD> rvas;
+  hr = global->findChildren(SymTagFunction, NULL, nsNone, &symbols);
+
+  if (SUCCEEDED(hr)) {
+    CComPtr<IDiaSymbol> symbol = NULL;
+
+    while (SUCCEEDED(symbols->Next(1, &symbol, &count)) && count == 1) {
+      if (SUCCEEDED(symbol->get_relativeVirtualAddress(&rva))) {
+        // To maintain existing behavior of one symbol per address, place the
+        // rva onto a set here to uniquify them.
+        rvas.insert(rva);
+      } else {
+        fprintf(stderr, "get_relativeVirtualAddress failed on the symbol\n");
+        return false;
+      }
+
+      symbol.Release();
+    }
+
+    symbols.Release();
   }
 
-  DWORD rva_last = 0;
-  if (FAILED(symbol->get_relativeVirtualAddress(&rva_last))) {
-    fprintf(stderr, "failed to get symbol rva\n");
-    return false;
+  // Find all public symbols.  Store public symbols that are not also private
+  // symbols for later.
+  std::set<DWORD> public_only_rvas;
+  hr = global->findChildren(SymTagPublicSymbol, NULL, nsNone, &symbols);
+
+  if (SUCCEEDED(hr)) {
+    CComPtr<IDiaSymbol> symbol = NULL;
+
+    while (SUCCEEDED(symbols->Next(1, &symbol, &count)) && count == 1) {
+      if (SUCCEEDED(symbol->get_relativeVirtualAddress(&rva))) {
+        if (rvas.count(rva) == 0) {
+          rvas.insert(rva); // Keep symbols in rva order.
+          public_only_rvas.insert(rva);
+        }
+      } else {
+        fprintf(stderr, "get_relativeVirtualAddress failed on the symbol\n");
+        return false;
+      }
+
+      symbol.Release();
+    }
+
+    symbols.Release();
   }
 
-  ULONG count;
-  do {
-    DWORD tag;
-    if (FAILED(symbol->get_symTag(&tag))) {
-      fprintf(stderr, "failed to get symbol tag\n");
+  std::set<DWORD>::iterator it;
+
+  // For each rva, dump the first symbol DIA knows about at the address.
+  for (it = rvas.begin(); it != rvas.end(); ++it) {
+    CComPtr<IDiaSymbol> symbol = NULL;
+    // If the symbol is not in the public list, look for SymTagFunction. This is
+    // a workaround to a bug where DIA will hang if searching for a private
+    // symbol at an address where only a public symbol exists.
+    // See http://connect.microsoft.com/VisualStudio/feedback/details/722366
+    if (public_only_rvas.count(*it) == 0) {
+      if (SUCCEEDED(session_->findSymbolByRVA(*it, SymTagFunction, &symbol))) {
+        // Sometimes findSymbolByRVA returns S_OK, but NULL.
+        if (symbol) {
+          if (!PrintFunction(symbol, symbol))
+            return false;
+          symbol.Release();
+        }
+      } else {
+        fprintf(stderr, "findSymbolByRVA SymTagFunction failed\n");
+        return false;
+      }
+    } else if (SUCCEEDED(session_->findSymbolByRVA(*it,
+                                                   SymTagPublicSymbol,
+                                                   &symbol))) {
+      // Sometimes findSymbolByRVA returns S_OK, but NULL.
+      if (symbol) {
+        if (!PrintCodePublicSymbol(symbol))
+          return false;
+        symbol.Release();
+      }
+    } else {
+      fprintf(stderr, "findSymbolByRVA SymTagPublicSymbol failed\n");
       return false;
     }
-
-    // For a given function, DIA seems to give either a symbol with
-    // SymTagFunction or SymTagPublicSymbol, but not both.  This means
-    // that PDBSourceLineWriter will output either a FUNC or PUBLIC line,
-    // but not both.
-    if (tag == SymTagFunction) {
-      if (!PrintFunction(symbol, symbol)) {
-        return false;
-      }
-    } else if (tag == SymTagPublicSymbol) {
-      if (!PrintCodePublicSymbol(symbol)) {
-        return false;
-      }
-    }
-    symbol.Release();
-  } while (SUCCEEDED(symbols->Next(1, &symbol, &count)) && count == 1);
+  }
 
   // When building with PGO, the compiler can split functions into
   // "hot" and "cold" blocks, and move the "cold" blocks out to separate
@@ -310,12 +447,6 @@ bool PDBSourceLineWriter::PrintFunctions() {
   // that are children of them. We can then find the lexical parents
   // of those blocks and print out an extra FUNC line for blocks
   // that are not contained in their parent functions.
-  CComPtr<IDiaSymbol> global;
-  if (FAILED(session_->get_globalScope(&global))) {
-    fprintf(stderr, "get_globalScope failed\n");
-    return false;
-  }
-
   CComPtr<IDiaEnumSymbols> compilands;
   if (FAILED(global->findChildren(SymTagCompiland, NULL,
                                   nsNone, &compilands))) {
@@ -361,38 +492,26 @@ bool PDBSourceLineWriter::PrintFunctions() {
     compiland.Release();
   }
 
+  global.Release();
   return true;
 }
 
-bool PDBSourceLineWriter::PrintFrameData() {
+bool PDBSourceLineWriter::PrintFrameDataUsingPDB() {
   // It would be nice if it were possible to output frame data alongside the
   // associated function, as is done with line numbers, but the DIA API
   // doesn't make it possible to get the frame data in that way.
 
-  CComPtr<IDiaEnumTables> tables;
-  if (FAILED(session_->getEnumTables(&tables)))
-    return false;
-
-  // Pick up the first table that supports IDiaEnumFrameData.
   CComPtr<IDiaEnumFrameData> frame_data_enum;
-  CComPtr<IDiaTable> table;
-  ULONG count;
-  while (!frame_data_enum &&
-         SUCCEEDED(tables->Next(1, &table, &count)) &&
-         count == 1) {
-    table->QueryInterface(_uuidof(IDiaEnumFrameData),
-                          reinterpret_cast<void**>(&frame_data_enum));
-    table.Release();
-  }
-  if (!frame_data_enum)
+  if (!FindTable(session_, &frame_data_enum))
     return false;
 
-  DWORD last_type = -1;
-  DWORD last_rva = -1;
+  DWORD last_type = std::numeric_limits<DWORD>::max();
+  DWORD last_rva = std::numeric_limits<DWORD>::max();
   DWORD last_code_size = 0;
-  DWORD last_prolog_size = -1;
+  DWORD last_prolog_size = std::numeric_limits<DWORD>::max();
 
   CComPtr<IDiaFrameData> frame_data;
+  ULONG count = 0;
   while (SUCCEEDED(frame_data_enum->Next(1, &frame_data, &count)) &&
          count == 1) {
     DWORD type;
@@ -410,9 +529,6 @@ bool PDBSourceLineWriter::PrintFrameData() {
     DWORD prolog_size;
     if (FAILED(frame_data->get_lengthProlog(&prolog_size)))
       return false;
-
-    // epliog_size is always 0.
-    DWORD epilog_size = 0;
 
     // parameter_size is the size of parameters passed on the stack.  If any
     // parameters are not passed on the stack (such as in registers), their
@@ -460,14 +576,67 @@ bool PDBSourceLineWriter::PrintFrameData() {
     // this check reduces the size of the dumped symbol file by a third.
     if (type != last_type || rva != last_rva || code_size != last_code_size ||
         prolog_size != last_prolog_size) {
-      fprintf(output_, "STACK WIN %x %x %x %x %x %x %x %x %x %d ",
-              type, rva, code_size, prolog_size, epilog_size,
-              parameter_size, saved_register_size, local_size, max_stack_size,
-              program_string_result == S_OK);
-      if (program_string_result == S_OK) {
-        fprintf(output_, "%ws\n", program_string);
+      // The prolog and the code portions of the frame have to be treated
+      // independently as they may have independently changed in size, or may
+      // even have been split.
+      // NOTE: If epilog size is ever non-zero, we have to do something
+      //     similar with it.
+
+      // Figure out where the prolog bytes have landed.
+      AddressRangeVector prolog_ranges;
+      if (prolog_size > 0) {
+        MapAddressRange(image_map_, AddressRange(rva, prolog_size),
+                        &prolog_ranges);
+      }
+
+      // And figure out where the code bytes have landed.
+      AddressRangeVector code_ranges;
+      MapAddressRange(image_map_,
+                      AddressRange(rva + prolog_size,
+                                   code_size - prolog_size),
+                      &code_ranges);
+
+      struct FrameInfo {
+        DWORD rva;
+        DWORD code_size;
+        DWORD prolog_size;
+      };
+      std::vector<FrameInfo> frame_infos;
+
+      // Special case: The prolog and the code bytes remain contiguous. This is
+      // only done for compactness of the symbol file, and we could actually
+      // be outputting independent frame info for the prolog and code portions.
+      if (prolog_ranges.size() == 1 && code_ranges.size() == 1 &&
+          prolog_ranges[0].end() == code_ranges[0].rva) {
+        FrameInfo fi = { prolog_ranges[0].rva,
+                         prolog_ranges[0].length + code_ranges[0].length,
+                         prolog_ranges[0].length };
+        frame_infos.push_back(fi);
       } else {
-        fprintf(output_, "%d\n", allocates_base_pointer);
+        // Otherwise we output the prolog and code frame info independently.
+        for (size_t i = 0; i < prolog_ranges.size(); ++i) {
+          FrameInfo fi = { prolog_ranges[i].rva,
+                           prolog_ranges[i].length,
+                           prolog_ranges[i].length };
+          frame_infos.push_back(fi);
+        }
+        for (size_t i = 0; i < code_ranges.size(); ++i) {
+          FrameInfo fi = { code_ranges[i].rva, code_ranges[i].length, 0 };
+          frame_infos.push_back(fi);
+        }
+      }
+
+      for (size_t i = 0; i < frame_infos.size(); ++i) {
+        const FrameInfo& fi(frame_infos[i]);
+        fprintf(output_, "STACK WIN %x %x %x %x %x %x %x %x %x %d ",
+                type, fi.rva, fi.code_size, fi.prolog_size,
+                0 /* epilog_size */, parameter_size, saved_register_size,
+                local_size, max_stack_size, program_string_result == S_OK);
+        if (program_string_result == S_OK) {
+          fprintf(output_, "%ws\n", program_string);
+        } else {
+          fprintf(output_, "%d\n", allocates_base_pointer);
+        }
       }
 
       last_type = type;
@@ -480,6 +649,149 @@ bool PDBSourceLineWriter::PrintFrameData() {
   }
 
   return true;
+}
+
+bool PDBSourceLineWriter::PrintFrameDataUsingEXE() {
+  if (code_file_.empty() && !FindPEFile()) {
+    fprintf(stderr, "Couldn't locate EXE or DLL file.\n");
+    return false;
+  }
+
+  // Convert wchar to native charset because ImageLoad only takes
+  // a PSTR as input.
+  string code_file;
+  if (!WindowsStringUtils::safe_wcstombs(code_file_, &code_file)) {
+    return false;
+  }
+
+  AutoImage img(ImageLoad((PSTR)code_file.c_str(), NULL));
+  if (!img) {
+    fprintf(stderr, "Failed to load %s\n", code_file.c_str());
+    return false;
+  }
+  PIMAGE_OPTIONAL_HEADER64 optional_header =
+    &(reinterpret_cast<PIMAGE_NT_HEADERS64>(img->FileHeader))->OptionalHeader;
+  if (optional_header->Magic != IMAGE_NT_OPTIONAL_HDR64_MAGIC) {
+    fprintf(stderr, "Not a PE32+ image\n");
+    return false;
+  }
+
+  // Read Exception Directory
+  DWORD exception_rva = optional_header->
+    DataDirectory[IMAGE_DIRECTORY_ENTRY_EXCEPTION].VirtualAddress;
+  DWORD exception_size = optional_header->
+    DataDirectory[IMAGE_DIRECTORY_ENTRY_EXCEPTION].Size;
+  PIMAGE_RUNTIME_FUNCTION_ENTRY funcs =
+    static_cast<PIMAGE_RUNTIME_FUNCTION_ENTRY>(
+        ImageRvaToVa(img->FileHeader,
+                     img->MappedAddress,
+                     exception_rva,
+                     &img->LastRvaSection));
+  for (DWORD i = 0; i < exception_size / sizeof(*funcs); i++) {
+    DWORD unwind_rva = funcs[i].UnwindInfoAddress;
+    // handle chaining
+    while (unwind_rva & 0x1) {
+      unwind_rva ^= 0x1;
+      PIMAGE_RUNTIME_FUNCTION_ENTRY chained_func =
+        static_cast<PIMAGE_RUNTIME_FUNCTION_ENTRY>(
+            ImageRvaToVa(img->FileHeader,
+                         img->MappedAddress,
+                         unwind_rva,
+                         &img->LastRvaSection));
+      unwind_rva = chained_func->UnwindInfoAddress;
+    }
+
+    UnwindInfo *unwind_info = static_cast<UnwindInfo *>(
+        ImageRvaToVa(img->FileHeader,
+                     img->MappedAddress,
+                     unwind_rva,
+                     &img->LastRvaSection));
+
+    DWORD stack_size = 8;  // minimal stack size is 8 for RIP
+    DWORD rip_offset = 8;
+    do {
+      for (UBYTE c = 0; c < unwind_info->count_of_codes; c++) {
+        UnwindCode *unwind_code = &unwind_info->unwind_code[c];
+        switch (unwind_code->unwind_operation_code) {
+          case UWOP_PUSH_NONVOL: {
+            stack_size += 8;
+            break;
+          }
+          case UWOP_ALLOC_LARGE: {
+            if (unwind_code->operation_info == 0) {
+              c++;
+              if (c < unwind_info->count_of_codes)
+                stack_size += (unwind_code + 1)->frame_offset * 8;
+            } else {
+              c += 2;
+              if (c < unwind_info->count_of_codes)
+                stack_size += (unwind_code + 1)->frame_offset |
+                              ((unwind_code + 2)->frame_offset << 16);
+            }
+            break;
+          }
+          case UWOP_ALLOC_SMALL: {
+            stack_size += unwind_code->operation_info * 8 + 8;
+            break;
+          }
+          case UWOP_SET_FPREG:
+          case UWOP_SAVE_XMM:
+          case UWOP_SAVE_XMM_FAR:
+            break;
+          case UWOP_SAVE_NONVOL:
+          case UWOP_SAVE_XMM128: {
+            c++;  // skip slot with offset
+            break;
+          }
+          case UWOP_SAVE_NONVOL_FAR:
+          case UWOP_SAVE_XMM128_FAR: {
+            c += 2;  // skip 2 slots with offset
+            break;
+          }
+          case UWOP_PUSH_MACHFRAME: {
+            if (unwind_code->operation_info) {
+              stack_size += 88;
+            } else {
+              stack_size += 80;
+            }
+            rip_offset += 80;
+            break;
+          }
+        }
+      }
+      if (unwind_info->flags & UNW_FLAG_CHAININFO) {
+        PIMAGE_RUNTIME_FUNCTION_ENTRY chained_func =
+          reinterpret_cast<PIMAGE_RUNTIME_FUNCTION_ENTRY>(
+              (unwind_info->unwind_code +
+              ((unwind_info->count_of_codes + 1) & ~1)));
+
+        unwind_info = static_cast<UnwindInfo *>(
+            ImageRvaToVa(img->FileHeader,
+                         img->MappedAddress,
+                         chained_func->UnwindInfoAddress,
+                         &img->LastRvaSection));
+      } else {
+        unwind_info = NULL;
+      }
+    } while (unwind_info);
+    fprintf(output_, "STACK CFI INIT %x %x .cfa: $rsp .ra: .cfa %d - ^\n",
+            funcs[i].BeginAddress,
+            funcs[i].EndAddress - funcs[i].BeginAddress, rip_offset);
+    fprintf(output_, "STACK CFI %x .cfa: $rsp %d +\n",
+            funcs[i].BeginAddress, stack_size);
+  }
+
+  return true;
+}
+
+bool PDBSourceLineWriter::PrintFrameData() {
+  PDBModuleInfo info;
+  if (GetModuleInfo(&info) && info.cpu == L"x86_64") {
+    return PrintFrameDataUsingEXE();
+  } else {
+    return PrintFrameDataUsingPDB();
+  }
+  return false;
 }
 
 bool PDBSourceLineWriter::PrintCodePublicSymbol(IDiaSymbol *symbol) {
@@ -502,8 +814,12 @@ bool PDBSourceLineWriter::PrintCodePublicSymbol(IDiaSymbol *symbol) {
     return false;
   }
 
-  fprintf(output_, "PUBLIC %x %x %ws\n", rva,
-          stack_param_size > 0 ? stack_param_size : 0, name);
+  AddressRangeVector ranges;
+  MapAddressRange(image_map_, AddressRange(rva, 1), &ranges);
+  for (size_t i = 0; i < ranges.size(); ++i) {
+    fprintf(output_, "PUBLIC %x %x %ws\n", ranges[i].rva,
+            stack_param_size > 0 ? stack_param_size : 0, name);
+  }
   return true;
 }
 
@@ -530,8 +846,8 @@ bool PDBSourceLineWriter::PrintPEInfo() {
   }
 
   fprintf(output_, "INFO CODE_ID %ws %ws\n",
-	  info.code_identifier.c_str(),
-	  info.code_file.c_str());
+          info.code_identifier.c_str(),
+          info.code_file.c_str());
   return true;
 }
 
@@ -582,18 +898,18 @@ bool PDBSourceLineWriter::FindPEFile() {
   CComBSTR symbols_file;
   if (SUCCEEDED(global->get_symbolsFileName(&symbols_file))) {
     wstring file(symbols_file);
-    
+
     // Look for an EXE or DLL file.
     const wchar_t *extensions[] = { L"exe", L"dll" };
     for (int i = 0; i < sizeof(extensions) / sizeof(extensions[0]); i++) {
       size_t dot_pos = file.find_last_of(L".");
       if (dot_pos != wstring::npos) {
-	file.replace(dot_pos + 1, wstring::npos, extensions[i]);
-	// Check if this file exists.
-	if (GetFileAttributesW(file.c_str()) != INVALID_FILE_ATTRIBUTES) {
-	  code_file_ = file;
-	  return true;
-	}
+        file.replace(dot_pos + 1, wstring::npos, extensions[i]);
+        // Check if this file exists.
+        if (GetFileAttributesW(file.c_str()) != INVALID_FILE_ATTRIBUTES) {
+          code_file_ = file;
+          return true;
+        }
       }
     }
   }
@@ -803,13 +1119,20 @@ next_child:
 bool PDBSourceLineWriter::WriteMap(FILE *map_file) {
   output_ = map_file;
 
+  // Load the OMAP information, and disable auto-translation of addresses in
+  // preference of doing it ourselves.
+  OmapData omap_data;
+  if (!GetOmapDataAndDisableTranslation(session_, &omap_data))
+    return false;
+  BuildImageMap(omap_data, &image_map_);
+
   bool ret = PrintPDBInfo();
   // This is not a critical piece of the symbol file.
   PrintPEInfo();
   ret = ret &&
-    PrintSourceFiles() && 
-    PrintFunctions() &&
-    PrintFrameData();
+      PrintSourceFiles() &&
+      PrintFunctions() &&
+      PrintFrameData();
 
   output_ = NULL;
   return ret;
@@ -949,15 +1272,14 @@ bool PDBSourceLineWriter::GetPEInfo(PEModuleInfo *info) {
   if (opt->Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC) {
     // 64-bit PE file.
     SizeOfImage = opt->SizeOfImage;
-  }
-  else {
+  } else {
     // 32-bit PE file.
     SizeOfImage = img->FileHeader->OptionalHeader.SizeOfImage;
   }
   wchar_t code_identifier[32];
   swprintf(code_identifier,
-	   sizeof(code_identifier) / sizeof(code_identifier[0]),
-	   L"%08X%X", TimeDateStamp, SizeOfImage);
+      sizeof(code_identifier) / sizeof(code_identifier[0]),
+      L"%08X%X", TimeDateStamp, SizeOfImage);
   info->code_identifier = code_identifier;
 
   return true;

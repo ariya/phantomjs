@@ -1,0 +1,141 @@
+.CodeMirror * {
+  -webkit-box-sizing: content-box;
+}
+
+.CodeMirror {
+  line-height: 1.2em !important;
+  height: 100% !important;
+  background-color: transparent !important;
+}
+
+.CodeMirror .source-frame-eval-expression {
+  outline: 0px;
+  border: 1px solid rgb(163, 41, 34);
+  border-left-width: 0px;
+  border-right-width: 0px;
+}
+
+.CodeMirror .source-frame-eval-expression-end {
+  border-right-width: 1px;
+  margin-right: -1px;
+}
+
+.CodeMirror .source-frame-eval-expression-start {
+  border-left-width: 1px;
+  margin-left: -1px;
+}
+
+
+.CodeMirror-linenumber {
+  padding-top: 1px !important;
+  min-width: 22px !important;
+}
+
+.cm-highlight {
+  -webkit-animation: "fadeout" 2s 0s;
+}
+@-webkit-keyframes fadeout {
+    from {background-color: rgb(255, 255, 120); }
+    to { background-color: white; }
+}
+.cm-breakpoint {
+  color: white;
+  position: absolute;
+  right: 3px;
+  margin: 0 -8px 0 -6px !important;
+  border-width: 0 8px 0px 2px !important;
+  -webkit-border-image: url(Images/breakpointBorder.png) 1 14 1 2;
+  padding: 0 0 1px 100px;
+}
+.cm-breakpoint-disabled {
+  opacity: 0.5;
+}
+
+.CodeMirror-matchingbracket {
+  border-bottom: 1px solid black;
+  color: black !important;
+}
+
+.CodeMirror-nonmatchingbracket {
+  color: black !important;
+}
+
+.cm-breakpoint-conditional {
+  -webkit-border-image: url(Images/breakpointConditionalBorder.png) 1 14 1 2;
+}
+
+.cm-execution-line {
+    background-color: rgb(171, 191, 254) !important;
+    outline: 1px solid rgb(64, 115, 244);
+}
+
+.cm-token-highlight {
+    position: relative;
+}
+
+.cm-token-highlight:before {
+    position: absolute;
+    border: 1px solid gray;
+    border-radius: 3px;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    content: "";
+}
+
+.cm-line-with-selection .cm-column-with-selection:before {
+    border: 0px;
+}
+
+.cm-s-web-inspector-js span.cm-keyword {color: rgb(170, 13, 145);}
+.cm-s-web-inspector-js span.cm-number {color: rgb(28, 0, 207);}
+.cm-s-web-inspector-js span.cm-comment {color: rgb(0, 116, 0);}
+.cm-s-web-inspector-js span.cm-string {color: rgb(196, 26, 22);}
+.cm-s-web-inspector-js span.cm-string-2 {color: rgb(196, 26, 22);}
+
+.cm-s-web-inspector-css span.cm-keyword { color: rgb(7, 144, 154);}
+.cm-s-web-inspector-css span.cm-number {color: rgb(50, 0, 255);}
+.cm-s-web-inspector-css span.cm-comment {color: rgb(0, 116, 0);}
+.cm-s-web-inspector-css span.cm-meta {color: rgb(200, 0, 0);}
+.cm-s-web-inspector-css span.cm-atom {color: rgb(7, 144, 154);}
+.cm-s-web-inspector-css span.cm-string {color: rgb(7, 144, 154);}
+.cm-s-web-inspector-css span.cm-string-2 {color: rgb(7, 144, 154);}
+.cm-s-web-inspector-css span.cm-link {color: rgb(7, 144, 154);}
+.cm-s-web-inspector-css span.cm-variable {color: rgb(200, 0, 0);}
+.cm-s-web-inspector-css span.cm-property {color: rgb(200, 0, 0);}
+
+.cm-s-web-inspector-html span.cm-meta {color: rgb(192, 192, 192);}
+.cm-s-web-inspector-html span.cm-comment {color: rgb(35, 110, 37);}
+.cm-s-web-inspector-html span.cm-string {color: rgb(26, 26, 166);}
+.cm-s-web-inspector-html span.cm-tag {color: rgb(136, 18, 128);}
+.cm-s-web-inspector-html span.cm-attribute {color: rgb(153, 69, 0);}
+.cm-s-web-inspector-html span.cm-link {color: #00e;}
+
+.CodeMirror .webkit-html-message-bubble {
+    -webkit-box-shadow: black 0px 2px 5px;
+    -webkit-border-radius: 9px;
+    -webkit-border-fit: lines;
+    font-size: 10px;
+    font-family: Lucida Grande, sans-serif;
+    font-weight: bold;
+    margin: 3px 10px;
+    padding: 1px 2px 0;
+    z-index: 5;
+}
+
+.CodeMirror .webkit-html-message-bubble img {
+    position: relative;
+    top: 1px;
+    margin-right: 2px;
+}
+
+.CodeMirror .webkit-html-warning-message {
+    background-color: rgb(100%, 62%, 42%);
+    border: 2px solid rgb(100%, 52%, 21%);
+}
+
+.CodeMirror .webkit-html-error-message {
+    background-color: rgb(100%, 42%, 42%);
+    border: 2px solid rgb(100%, 31%, 31%);
+}

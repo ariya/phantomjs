@@ -1,0 +1,262 @@
+<!--
+/*
+ * Copyright (C) 2010 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+-->
+
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <title>CSS 2.1 Test Harness</title>
+  <link rel="stylesheet" href="harness.css" type="text/css" media="screen" charset="utf-8">
+
+  <script src="http://code.jquery.com/jquery-1.4.2.min.js" type="text/javascript" charset="utf-8"></script>
+  <script src="harness.js" type="text/javascript" charset="utf-8"></script>
+  
+  <script type="text/javascript" charset="utf-8">
+    var gTestSuite;
+    function setupTests()
+    {
+      gTestSuite = new TestSuite();
+    }
+    
+    window.addEventListener('load', setupTests, false);
+    
+    function skipTest()
+    {
+      gTestSuite.skipTest(document.getElementById('skip-reason').value);
+    }
+    
+    function invalidTest()
+    {
+      gTestSuite.invalidTest();
+    }
+
+    function failTest()
+    {
+      gTestSuite.failTest();
+    }
+
+    function passTest()
+    {
+      gTestSuite.passTest();
+    }
+    
+    function goToNextUntested()
+    {
+      gTestSuite.goToNextIncompleteTest();
+    }
+
+    function goToTest()
+    {
+      var testName = prompt('Go to test:', '');
+      
+      // This accepts any of the following:
+      // at-charset-010
+      // at-charset-010.xht
+      // xhtml1/at-charset-010
+      // xhtml1/at-charset-010.xht
+      // and will choose the format if specified.
+      if (!gTestSuite.goToTestByName(testName))
+        alert('Failed to find test ' + testName);
+    }
+    
+    function formatChanged()
+    {
+      var newFormat;
+      if (document.harness.format.html4.checked)
+        newFormat = 'html4';
+      else
+        newFormat = 'xhtml1';
+      gTestSuite.formatChanged(newFormat);
+    }
+    
+    function testSelected()
+    {
+      var list = document.getElementById('test-list')
+      if (list.selectedIndex >= 0)
+        gTestSuite.goToTestIndex(list.selectedIndex);
+      else
+        gTestSuite.clearTest();
+    }
+
+    function resultsPopupChanged(popup)
+    {
+      gTestSuite.resultsPopupChanged(popup.selectedIndex);
+    }
+    
+    function doExport()
+    {
+      gTestSuite.exportResults(document.getElementById('results-popup').selectedIndex);
+    }
+    
+    function printTestIframe()
+    {
+      var testFrame = document.getElementById('test-frame');
+      testFrame.contentWindow.print();
+    }
+
+    var gOverlayConfirmCallback;
+    function showOverlay(overlayConfirmCallback)
+    {
+      document.getElementById('overlay-data').value = '';
+      gOverlayConfirmCallback = overlayConfirmCallback;
+      $('#overlay').addClass('visible');
+    }
+
+    function overlayCancel()
+    {
+      $('#overlay').removeClass('visible');
+    }
+    
+    function overlayConfirm()
+    {
+      var data = document.getElementById('overlay-data').value;
+      gOverlayConfirmCallback(data);
+      $('#overlay').removeClass('visible');
+    }
+    
+    function doImport()
+    {
+      document.getElementById('overlay-action').innerText = 'Enter results to import (in the same format as the exported results):';
+      showOverlay(function(data) {
+        gTestSuite.importResults(data);
+      });
+    }
+    
+    function doClear()
+    {
+      document.getElementById('overlay-action').innerText = 'Enter list of tests for which to clear results (so they can be re-tested):';
+      showOverlay(function(data) {
+        gTestSuite.clearResults(data);
+      });
+    }
+  </script>
+
+</head>
+<body>
+
+  <div class="controls">
+    <form name="harness" onsubmit="return false;">
+    <select id="chapters">
+      <option>Test category</option>
+    </select>
+    <div class="progress">
+      <div><span id="test-index">1</span> of <span id="chapter-test-count">200</span> unique tests</div>
+    </div>
+    <div class="details">
+      <div class="name">
+        <div class="test-type">
+          <input type="radio" name="format" id="html4" onchange="formatChanged()" checked><label for="html4">HTML4</label><br>
+          <input type="radio" name="format" id="xhtml1" onchange="formatChanged()"><label for="xhtml1">XHTML1</label>
+        </div>
+        <button onclick="goToNextUntested()" accesskey="n"><strong>N</strong>ext Untested</button>
+        <button onclick="goToTest()" accesskey="g">Go to Test...</button>
+      </div>
+    </div>
+    
+    <div>
+      <select id="test-list" size="40" onchange="testSelected()"></select>
+    </div>
+    </form>
+  </div>
+  
+  <div class="actions">
+    <span>Skip reason:</span> <input type="text" id="skip-reason" size="50">
+    <button onclick="skipTest()" accesskey="s"><strong>S</strong>kip</button>
+    <div class="note">Use <i>Control-Option-letter</i> to<br> trigger buttons via the keyboard.</div>
+    <div class="action-buttons">
+      <button onclick="invalidTest()" accesskey="i">Invalid</button>
+      <button onclick="failTest()" accesskey="f"><strong>F</strong>ail</button>
+      <button onclick="passTest()" accesskey="p"><strong>P</strong>ass</button>
+    </div>
+  </div>
+  <div id="test-content">
+    <div class="info">
+      <div class="title">Title: <span id="test-title"></span></div>
+      <div class="url">URL: <span id="test-url"></span></div>
+      <div class="assertion">Assertion: <span id="test-assertion"></span></div>
+      <div class="flags">Flags: <span id="test-flags"></span>
+        <span id="warning">This test must be run over HTTP.</span>
+        <button id="print-button" onclick="printTestIframe()">Print Preview</button>
+      </div>
+    </div>
+    
+    <div id="test-wrapper" class="frame-wrapper">
+      <h2>Test</h2>
+      <iframe id="test-frame"></iframe>
+    </div>
+    <div id="ref-wrapper" class="frame-wrapper">
+      <h2>Reference</h2>
+      <iframe id="ref-frame"></iframe>
+    </div>
+  </div>
+
+  <div class="results">
+
+    <div class="output-options">
+      <p>Show results for:</p>
+      <select id="results-popup" onchange="resultsPopupChanged(this)">
+      </select>
+      <div>
+        <button id="export-button" onclick="doExport()">Export...</button>
+      </div>
+
+      <div class="custom">
+        <button id="import-button" onclick="doImport()">Import...</button>
+        <button id="import-button" onclick="doClear()">Clear Results...</button>
+      </div>
+    </div>
+
+    <div id="output"></div>
+    <div class="summary">
+      <table>
+        <tr>
+          <th></th><th>Passed</th><th>Failed</th><th>Skipped</th><th>Invalid</th><th>Tested</th><th>Total</th><th>% done</th>
+        </tr>
+        <tr>
+          <td class="label">HTML4:</td><td id="h-passed"></td><td id="h-failed"></td><td id="h-skipped"></td><td id="h-invalid"></td><td id="h-tested"></td><td id="h-total"></td><td id="h-percent"></td>
+        </tr>
+        <tr>
+          <td class="label">XHTML1:</td><td id="x-passed"></td><td id="x-failed"></td><td id="x-skipped"></td><td id="x-invalid"></td><td id="x-tested"></td><td id="x-total"></td><td id="x-percent"></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div id="overlay">
+    
+    <div class="overlay-contents">
+      <p id="overlay-action"></p>
+      <textarea id="overlay-data"></textarea>
+      <p class="note">Pasting many lines of text here can be very slow in Safari 5. You can quit Safari and use a <a href="http://nightly.webkit.org/" title="WebKit Nightly Builds">WebKit nightly build</a> for importing or clearing.</p>
+      <div class="buttons">
+        <button onclick="overlayCancel()">Cancel</button><button onclick="overlayConfirm()">OK</button>
+      </div>
+    </div>
+    
+  </div>
+</body>
+</html>

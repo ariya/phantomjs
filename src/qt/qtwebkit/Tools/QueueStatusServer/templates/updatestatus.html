@@ -1,0 +1,21 @@
+<form name="update_status" enctype="multipart/form-data" method="post">
+Update status for a queue: <input name="queue_name">
+ <div>
+     Bot Id:
+    <input name="bot_id">
+ </div>
+ <div>
+     Active Bug Id:
+    <input name="bug_id">
+ </div>
+ <div>
+     Active Patch Id:
+    <input name="patch_id">
+ </div>
+  <div>
+      Status Text:<br>
+      <textarea name="status" rows="3" cols="60"></textarea>
+  </div>
+  <div>Results file: <input type="file" name="results_file"></div>
+  <div><input type="submit" value="Add Status"></div>
+</form>

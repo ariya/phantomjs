@@ -82,10 +82,10 @@
 typedef struct {
 
   /* FPU floating point regs */
-  u_int64_t	regs[MD_FLOATINGSAVEAREA_SPARC_FPR_COUNT];
+  uint64_t      regs[MD_FLOATINGSAVEAREA_SPARC_FPR_COUNT];
 
-  u_int64_t	filler;
-  u_int64_t	fsr;        /* FPU status register */
+  uint64_t      filler;
+  uint64_t      fsr;        /* FPU status register */
 } MDFloatingSaveAreaSPARC;  /* FLOATING_SAVE_AREA */
 
 #define MD_CONTEXT_SPARC_GPR_COUNT 32
@@ -94,8 +94,8 @@ typedef struct {
   /* The next field determines the layout of the structure, and which parts
    * of it are populated
    */
-  u_int32_t	context_flags;
-  u_int32_t	flag_pad;
+  uint32_t      context_flags;
+  uint32_t      flag_pad;
   /*
    * General register access (SPARC).
    * Don't confuse definitions here with definitions in <sys/regset.h>.
@@ -110,28 +110,28 @@ typedef struct {
    * g_r[16-23] local registers(l0-l7)
    * g_r[24-31] in registers(i0-i7)
    */
-  u_int64_t     g_r[MD_CONTEXT_SPARC_GPR_COUNT];
+  uint64_t     g_r[MD_CONTEXT_SPARC_GPR_COUNT];
 
   /* several control registers */
 
   /* Processor State register(PSR) for SPARC V7/V8
    * Condition Code register (CCR) for SPARC V9
    */
-  u_int64_t     ccr;
+  uint64_t     ccr;
 
-  u_int64_t     pc;     /* Program Counter register (PC) */
-  u_int64_t     npc;    /* Next Program Counter register (nPC) */
-  u_int64_t     y;      /* Y register (Y) */
+  uint64_t     pc;     /* Program Counter register (PC) */
+  uint64_t     npc;    /* Next Program Counter register (nPC) */
+  uint64_t     y;      /* Y register (Y) */
 
   /* Address Space Identifier register (ASI) for SPARC V9
    * WIM for SPARC V7/V8
    */
-  u_int64_t     asi;
+  uint64_t     asi;
 
   /* Floating-Point Registers State register (FPRS) for SPARC V9
    * TBR for for SPARC V7/V8
    */
-  u_int64_t     fprs;
+  uint64_t     fprs;
 
   /* The next field is included with MD_CONTEXT_SPARC_FLOATING_POINT */
   MDFloatingSaveAreaSPARC float_save;

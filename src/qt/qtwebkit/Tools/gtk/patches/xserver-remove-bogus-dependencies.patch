@@ -1,0 +1,43 @@
+From 879f42531ff04be578c39f9d44548aeb3ded67fd Mon Sep 17 00:00:00 2001
+From: Gustavo Noronha Silva <gustavo.noronha@collabora.com>
+Date: Wed, 8 May 2013 19:44:15 -0300
+Subject: [PATCH 2/2] Filter out -l parameters when setting dependencies
+
+Newer make (Fedora 19) gets confused when it finds a -l parameter in a
+dependency, and tries to make it as a target, causing the build to fail.
+
+Signed-off-by: Gustavo Noronha Silva <gustavo.noronha@collabora.com>
+---
+ hw/vfb/Makefile.am | 2 +-
+ test/Makefile.am   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/hw/vfb/Makefile.am b/hw/vfb/Makefile.am
+index 9f4992c..06830ae 100644
+--- a/hw/vfb/Makefile.am
++++ b/hw/vfb/Makefile.am
+@@ -25,7 +25,7 @@ XVFB_LIBS = \
+ 	$(XSERVER_LIBS)
+ 
+ Xvfb_LDADD = $(XVFB_LIBS) $(XVFB_SYS_LIBS) $(XSERVER_SYS_LIBS)
+-Xvfb_DEPENDENCIES = $(XVFB_LIBS)
++Xvfb_DEPENDENCIES = $(filter-out -l%,$(XVFB_LIBS))
+ Xvfb_LDFLAGS = $(LD_EXPORT_SYMBOLS_FLAG)
+ 
+ relink:
+diff --git a/test/Makefile.am b/test/Makefile.am
+index 34f53fc..3509306 100644
+--- a/test/Makefile.am
++++ b/test/Makefile.am
+@@ -117,7 +117,7 @@ libxservertest_la_LIBADD += \
+ endif
+ endif
+ 
+-libxservertest_la_DEPENDENCIES = $(libxservertest_la_LIBADD)
++libxservertest_la_DEPENDENCIES = $(filter-out -l%,$(libxservertest_la_LIBADD))
+ endif
+ 
+ EXTRA_DIST = ddxstubs.c
+-- 
+1.8.2.1
+

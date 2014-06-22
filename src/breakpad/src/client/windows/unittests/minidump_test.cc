@@ -31,8 +31,8 @@
 #include <objbase.h>
 #include <dbghelp.h>
 
-#include "../crash_generation/minidump_generator.h"
-#include "dump_analysis.h"  // NOLINT
+#include "client/windows/crash_generation/minidump_generator.h"
+#include "client/windows/unittests/dump_analysis.h"  // NOLINT
 
 #include "gtest/gtest.h"
 
@@ -104,19 +104,19 @@ class MinidumpTest: public testing::Test {
       &ctx_record,
     };
 
-    MinidumpGenerator generator(dump_path_);
-
+    MinidumpGenerator generator(dump_path_,
+                                ::GetCurrentProcess(),
+                                ::GetCurrentProcessId(),
+                                ::GetCurrentThreadId(),
+                                ::GetCurrentThreadId(),
+                                &ex_ptrs,
+                                NULL,
+                                static_cast<MINIDUMP_TYPE>(flags),
+                                TRUE);
+    generator.GenerateDumpFile(&dump_file_);
+    generator.GenerateFullDumpFile(&full_dump_file_);
     // And write a dump
-    bool result = generator.WriteMinidump(::GetCurrentProcess(),
-                                          ::GetCurrentProcessId(),
-                                          ::GetCurrentThreadId(),
-                                          ::GetCurrentThreadId(),
-                                          &ex_ptrs,
-                                          NULL,
-                                          static_cast<MINIDUMP_TYPE>(flags),
-                                          TRUE,
-                                          &dump_file_,
-                                          &full_dump_file_);
+    bool result = generator.WriteMinidump();
     return result == TRUE;
   }
 
@@ -161,7 +161,8 @@ bool HasFileInfo(const std::wstring& file_path) {
 }
 
 TEST_F(MinidumpTest, Version) {
-  API_VERSION* version = ::ImagehlpApiVersion();
+  // Loads DbgHelp.dll in process
+  ImagehlpApiVersion();
 
   HMODULE dbg_help = ::GetModuleHandle(L"dbghelp.dll");
   ASSERT_TRUE(dbg_help != NULL);

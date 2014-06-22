@@ -35,6 +35,7 @@
 #define COMMON_MAC_FILE_ID_H__
 
 #include <limits.h>
+#include <mach/machine.h>
 
 namespace google_breakpad {
 
@@ -50,15 +51,18 @@ class FileID {
   bool FileIdentifier(unsigned char identifier[16]);
 
   // Treat the file as a mach-o file that will contain one or more archicture.
-  // Accepted values for |cpu_type| (e.g., CPU_TYPE_X86 or CPU_TYPE_POWERPC)
-  // are listed in /usr/include/mach/machine.h.
-  // If |cpu_type| is 0, then the native cpu type is used.
-  // Returns false if opening the file failed or if the |cpu_type| is not
-  // present in the file.
+  // Accepted values for |cpu_type| and |cpu_subtype| (e.g., CPU_TYPE_X86 or
+  // CPU_TYPE_POWERPC) are listed in /usr/include/mach/machine.h.
+  // If |cpu_type| is 0, then the native cpu type is used. If |cpu_subtype| is
+  // CPU_SUBTYPE_MULTIPLE, the match is only done on |cpu_type|.
+  // Returns false if opening the file failed or if the |cpu_type|/|cpu_subtype|
+  // is not present in the file.
   // Return the unique identifier in |identifier|.
   // The current implementation will look for the (in order of priority):
   // LC_UUID, LC_ID_DYLIB, or MD5 hash of the given |cpu_type|.
-  bool MachoIdentifier(int cpu_type, unsigned char identifier[16]);
+  bool MachoIdentifier(cpu_type_t cpu_type,
+                       cpu_subtype_t cpu_subtype,
+                       unsigned char identifier[16]);
 
   // Convert the |identifier| data to a NULL terminated string.  The string will
   // be formatted as a UUID (e.g., 22F065BB-FC9C-49F7-80FE-26A7CEBD7BCE).
@@ -75,4 +79,3 @@ class FileID {
 }  // namespace google_breakpad
 
 #endif  // COMMON_MAC_FILE_ID_H__
-

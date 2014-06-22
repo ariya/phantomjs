@@ -1,0 +1,37 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/checkbox_checked.png</file>
+        <file>icons/checkbox_unchecked.png</file>
+        <file>icons/contents_width.png</file>
+        <file>icons/favicon.png</file>
+        <file>icons/find.png</file>
+        <file>icons/folder.png</file>
+        <file>icons/info.png</file>
+        <file>icons/next.png</file>
+        <file>icons/plus.png</file>
+        <file>icons/previous.png</file>
+        <file>icons/refresh.png</file>
+        <file>icons/stop.png</file>
+        <file>icons/titlebar.png</file>
+        <file>icons/touch.png</file>
+        <file>icons/touchpoint.png</file>
+        <file>icons/up.png</file>
+        <file>js/MultiSelect.js</file>
+        <file>qml/AlertDialog.qml</file>
+        <file>qml/AuthenticationDialog.qml</file>
+        <file>qml/BrowserWindow.qml</file>
+        <file>qml/CheckBox.qml</file>
+        <file>qml/ColorChooser.qml</file>
+        <file>qml/ConfirmDialog.qml</file>
+        <file>qml/Dialog.qml</file>
+        <file>qml/DialogButton.qml</file>
+        <file>qml/DialogLineInput.qml</file>
+        <file>qml/FilePicker.qml</file>
+        <file>qml/ItemSelector.qml</file>
+        <file>qml/MockTouchPoint.qml</file>
+        <file>qml/PromptDialog.qml</file>
+        <file>qml/ProxyAuthenticationDialog.qml</file>
+        <file>qml/ScrollIndicator.qml</file>
+        <file>qml/ViewportInfoItem.qml</file>
+    </qresource>
+</RCC>

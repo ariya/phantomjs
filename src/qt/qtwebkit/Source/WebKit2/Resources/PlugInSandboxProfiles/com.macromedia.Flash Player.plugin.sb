@@ -1,0 +1,41 @@
+(webkit-powerbox)
+(webkit-printing)
+(webkit-camera)
+(webkit-microphone)
+
+(allow ipc-posix-sem
+    (ipc-posix-name "MacromediaSemaphoreDig")
+    (ipc-posix-name "59918130"))
+
+(allow file-read*
+    (home-literal "/mm.cfg")
+    (home-literal "/mms.cfg"))
+
+(deny file-read-xattr (with no-log)
+    (home-library-literal "/Caches")
+    (home-library-preferences-literal "/"))
+
+(allow file-read* file-write-create file-write-mode file-write-owner
+    (home-library-literal "/Caches/Adobe")
+    (home-library-preferences-literal "/Macromedia"))
+
+(allow file-read* file-write*
+    (literal "/Library/Application Support/Macromedia/mms.cfg")
+    (home-library-literal "/Application Support/Macromedia/mms.cfg")
+    (home-library-subpath "/Caches/Adobe/Flash Player")
+    (home-library-preferences-subpath "/Macromedia/Flash Player"))
+
+(allow file-read*
+    (literal "/Library/PreferencePanes/Flash Player.prefPane")
+    (home-library-literal "/PreferencePanes/Flash Player.prefPane")
+    (home-library-regex "/Application Support/Macromedia/ss\.(cfg|cfn|sgn)$"))
+
+(allow file-read* file-write*
+    (mount-relative-regex #"^/\.TemporaryItems/"))
+
+(deny file-read* (with no-log)
+    (literal "/Library/Application Support/Macromedia/FlashAuthor.cfg")
+    (subpath "/Library/Application Support/Macromedia/FlashPlayerTrust"))
+
+(allow network-bind (local ip))
+

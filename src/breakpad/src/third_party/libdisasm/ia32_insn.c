@@ -538,12 +538,10 @@ size_t ia32_table_lookup( unsigned char *buf, size_t buf_len,
 
 static size_t handle_insn_suffix( unsigned char *buf, size_t buf_len,
 			   ia32_insn_t *raw_insn, x86_insn_t * insn ) {
-	ia32_table_desc_t *table_desc;
 	ia32_insn_t *sfx_insn;
 	size_t size;
 	unsigned int prefixes = 0;
 
-	table_desc = &ia32_tables[raw_insn->table]; 
 	size = ia32_table_lookup( buf, buf_len, raw_insn->table, &sfx_insn,
 				 &prefixes );
 	if (size == INVALID_INSN || sfx_insn->mnem_flag == INS_INVALID ) {

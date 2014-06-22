@@ -1,0 +1,56 @@
+{
+    "GTK EWS": {
+        "port": "gtk",
+        "watchers": [
+            "xan.lopez@gmail.com"
+        ]
+    },
+    "GTK WK2 EWS": {
+        "port": "gtk-wk2",
+        "watchers": [
+            "xan.lopez@gmail.com"
+        ]
+    },
+    "EFL EWS": {
+        "port": "efl",
+        "watchers": [
+            "gyuyoung.kim@webkit.org"
+        ]
+    },
+    "EFL WK2 EWS": {
+        "port": "efl-wk2",
+        "watchers": [
+            "gyuyoung.kim@webkit.org"
+        ]
+    },
+    "Qt EWS": {
+        "port": "qt",
+        "watchers": [
+            "webkit-ews@sed.inf.u-szeged.hu"
+        ]
+    },
+    "Qt WK2 EWS": {
+        "port": "qt-wk2",
+        "watchers": [
+            "webkit-ews@sed.inf.u-szeged.hu"
+        ]
+    },
+    "Win EWS": {
+        "port": "win",
+        "runTests": true
+    },
+    "Mac EWS": {
+        "port": "mac",
+        "watchers": [
+            "rniwa@webkit.org"
+        ],
+        "runTests": true
+    },
+    "Mac WK2 EWS": {
+        "port": "mac-wk2",
+        "watchers": [
+            "rniwa@webkit.org"
+        ],
+        "runTests": true
+    }
+}

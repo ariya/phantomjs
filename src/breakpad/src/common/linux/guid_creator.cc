@@ -46,14 +46,14 @@
 //
 class GUIDGenerator {
  public:
-  static u_int32_t BytesToUInt32(const u_int8_t bytes[]) {
-    return ((u_int32_t) bytes[0]
-            | ((u_int32_t) bytes[1] << 8)
-            | ((u_int32_t) bytes[2] << 16)
-            | ((u_int32_t) bytes[3] << 24));
+  static uint32_t BytesToUInt32(const uint8_t bytes[]) {
+    return ((uint32_t) bytes[0]
+            | ((uint32_t) bytes[1] << 8)
+            | ((uint32_t) bytes[2] << 16)
+            | ((uint32_t) bytes[3] << 24));
   }
 
-  static void UInt32ToBytes(u_int8_t bytes[], u_int32_t n) {
+  static void UInt32ToBytes(uint8_t bytes[], uint32_t n) {
     bytes[0] = n & 0xff;
     bytes[1] = (n >> 8) & 0xff;
     bytes[2] = (n >> 16) & 0xff;
@@ -63,8 +63,8 @@ class GUIDGenerator {
   static bool CreateGUID(GUID *guid) {
     InitOnce();
     guid->data1 = random();
-    guid->data2 = (u_int16_t)(random());
-    guid->data3 = (u_int16_t)(random());
+    guid->data2 = (uint16_t)(random());
+    guid->data3 = (uint16_t)(random());
     UInt32ToBytes(&guid->data4[0], random());
     UInt32ToBytes(&guid->data4[4], random());
     return true;

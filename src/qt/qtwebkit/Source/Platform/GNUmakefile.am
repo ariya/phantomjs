@@ -1,0 +1,129 @@
+# The platform layer code is built into two separate static libraries - libPlatformGtk.la
+# is built from files that require GTK+ and libPlatform.la is built from all the other files.
+# This makes it possible to build two separate libPlatformGtk.la libraries, one using GTK3
+# and the other (named libPlatformGtk2.la) using GTK2. The latter is required by the
+# WebKitPluginProcess in WebKit2 as some plugins (such as Flash) still use GTK2.
+# For now we only build the libPlatformGtk library as there are no source files in place yet
+# that could be built into libPlatform.
+
+platform_cppflags += \
+	-I$(srcdir)/Source/ThirdParty/ANGLE/src \
+	-I$(srcdir)/Source/ThirdParty/ANGLE/include \
+	-I$(srcdir)/Source/ThirdParty/ANGLE/include/GLSLANG \
+	-I$(srcdir)/Source/ThirdParty/ANGLE/include/KHR \
+	-I$(top_builddir)/DerivedSources/Platform
+
+platformgtk_cppflags += \
+	-DWEBKITGTK_API_VERSION_STRING=\"@WEBKITGTK_API_VERSION@\" \
+	-DDATA_DIR=\"${datadir}\"
+
+# This is the minimal set of Source/WebCore/platform subdirectories that contain headers required by the GTK-specific
+# platform source files. These inclusions are required due to platform layer source files not yet completely migrated
+# into Source/Platform. Only Source/WebCore/platform subdirectories must be listed here as this, coupled with the
+# header inclusion in source files that's done via specifying the header basename, prevents any platform violations
+# occurring.
+platform_webcore_cppflags += \
+	-I$(srcdir)/Source/WebCore/platform \
+	-I$(srcdir)/Source/WebCore/platform/animation \
+	-I$(srcdir)/Source/WebCore/platform/audio \
+	-I$(srcdir)/Source/WebCore/platform/cairo \
+	-I$(srcdir)/Source/WebCore/platform/geoclue \
+	-I$(srcdir)/Source/WebCore/platform/graphics \
+	-I$(srcdir)/Source/WebCore/platform/graphics/cairo \
+	-I$(srcdir)/Source/WebCore/platform/graphics/cpu/arm \
+	-I$(srcdir)/Source/WebCore/platform/graphics/cpu/arm/filters \
+	-I$(srcdir)/Source/WebCore/platform/graphics/egl \
+	-I$(srcdir)/Source/WebCore/platform/graphics/filters \
+	-I$(srcdir)/Source/WebCore/platform/graphics/glx \
+	-I$(srcdir)/Source/WebCore/platform/graphics/gpu \
+	-I$(srcdir)/Source/WebCore/platform/graphics/gstreamer \
+	-I$(srcdir)/Source/WebCore/platform/graphics/gtk \
+	-I$(srcdir)/Source/WebCore/platform/graphics/harfbuzz \
+	-I$(srcdir)/Source/WebCore/platform/graphics/opengl \
+	-I$(srcdir)/Source/WebCore/platform/graphics/texmap \
+	-I$(srcdir)/Source/WebCore/platform/graphics/transforms \
+	-I$(srcdir)/Source/WebCore/platform/gtk \
+	-I$(srcdir)/Source/WebCore/platform/image-decoders \
+	-I$(srcdir)/Source/WebCore/platform/image-decoders/bmp \
+	-I$(srcdir)/Source/WebCore/platform/image-decoders/cairo \
+	-I$(srcdir)/Source/WebCore/platform/image-decoders/gif \
+	-I$(srcdir)/Source/WebCore/platform/image-decoders/ico \
+	-I$(srcdir)/Source/WebCore/platform/image-decoders/jpeg \
+	-I$(srcdir)/Source/WebCore/platform/image-decoders/png \
+	-I$(srcdir)/Source/WebCore/platform/image-decoders/webp \
+	-I$(srcdir)/Source/WebCore/platform/network \
+	-I$(srcdir)/Source/WebCore/platform/network/gtk \
+	-I$(srcdir)/Source/WebCore/platform/network/soup \
+	-I$(srcdir)/Source/WebCore/platform/text \
+	-I$(srcdir)/Source/WebCore/platform/text/transcoder
+
+noinst_LTLIBRARIES += \
+	libPlatform.la \
+	libPlatformGtk.la
+
+# Artificial dependencies to try to force a relink of the Platform libraries when their makefile changes.
+platform_lib_for_dep = libPlatform.la
+$(platform_lib_for_dep): $(srcdir)/Source/Platform/GNUmakefile.am $(srcdir)/Source/WebCore/GNUmakefile.list.am
+
+platformgtk_lib_for_dep = libPlatformGtk.la
+$(platformgtk_lib_for_dep): $(srcdir)/Source/Platform/GNUmakefile.am $(srcdir)/Source/WebCore/GNUmakefile.list.am
+
+libPlatform_la_SOURCES = \
+	$(platform_sources)
+
+nodist_libPlatform_la_SOURCES = \
+	$(platform_built_sources)
+
+libPlatform_la_CXXFLAGS = \
+	-fvisibility-inlines-hidden \
+	$(global_cxxflags)
+
+libPlatform_la_CFLAGS = \
+	-fvisibility=hidden \
+	$(global_cflags)
+
+libPlatform_la_CPPFLAGS = \
+	-DBUILDING_WEBKIT \
+	$(global_cppflags) \
+	$(platform_cppflags) \
+	$(platform_webcore_cppflags) \
+	$(javascriptcore_cppflags) \
+	-fno-strict-aliasing \
+	$(CAIRO_CFLAGS) \
+	$(ENCHANT_CFLAGS) \
+	$(FREETYPE_CFLAGS) \
+	$(GEOCLUE_CFLAGS) \
+	$(GSTREAMER_CFLAGS) \
+	$(LIBSOUP_CFLAGS)
+
+libPlatformGtk_la_SOURCES = \
+	$(platformgtk_sources)
+
+libPlatformGtk_la_CXXFLAGS = \
+	-fvisibility-inlines-hidden \
+	$(global_cxxflags)
+
+libPlatformGtk_la_CFLAGS = \
+	-fvisibility=hidden \
+	$(global_cflags)
+
+libPlatformGtk_la_CPPFLAGS = \
+	-DBUILDING_WEBKIT \
+	$(global_cppflags) \
+	$(platform_cppflags) \
+	$(platformgtk_cppflags) \
+	$(platform_webcore_cppflags) \
+	$(javascriptcore_cppflags) \
+	-fno-strict-aliasing \
+	$(FREETYPE_CFLAGS) \
+	$(GSTREAMER_CFLAGS) \
+	$(GTK_CFLAGS) \
+	$(LIBSECRET_CFLAGS) \
+	$(LIBSOUP_CFLAGS)
+
+DerivedSources/Platform/ColorData.cpp: $(WebCore)/platform/ColorData.gperf $(WebCore)/make-hash-tools.pl
+	$(AM_V_GEN)$(PERL) $(WebCore)/make-hash-tools.pl $(GENSOURCES_PLATFORM) $(WebCore)/platform/ColorData.gperf
+
+DerivedSources/Platform/WebKitFontFamilyNames.cpp: DerivedSources/Platform/WebKitFontFamilyNames.h
+DerivedSources/Platform/WebKitFontFamilyNames.h: $(WebCore)/dom/make_names.pl $(WebCore)/bindings/scripts/Hasher.pm $(WebCore)/bindings/scripts/StaticString.pm $(WebCore)/css/WebKitFontFamilyNames.in
+	$(AM_V_GEN)$(PERL) -I$(WebCore)/bindings/scripts $< --fonts $(WebCore)/css/WebKitFontFamilyNames.in --outputDir "$(GENSOURCES_PLATFORM)"

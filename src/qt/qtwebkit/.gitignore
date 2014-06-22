@@ -1,0 +1,25 @@
+bin/
+
+# generated files
+Tools/qmake/config.tests
+Makefile
+Makefile.*
+.moc
+.obj
+.rcc
+.qmake.cache
+
+Source/JavaScriptCore/LLIntDesiredOffsets.h
+Source/JavaScriptCore/LLIntOffsetsExtractor
+Source/JavaScriptCore/disassembler/udis86/ud_opcode.pyc
+Source/JavaScriptCore/disassembler/udis86/ud_optable.pyc
+Source/JavaScriptCore/generated/
+Source/WebCore/generated/
+Source/WebCore/inspector/CodeGeneratorInspectorStrings.pyc
+
+# build folders
+Source/JavaScriptCore/release/
+Source/WTF/release/
+Source/WebCore/release/
+Source/WebKit/release/
+config.log

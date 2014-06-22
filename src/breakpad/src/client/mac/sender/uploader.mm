@@ -28,7 +28,6 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #import <fcntl.h>
-#import <pwd.h>
 #import <sys/stat.h>
 #include <TargetConditionals.h>
 #import <unistd.h>
@@ -418,6 +417,7 @@ NSDictionary *readConfigurationData(const char *configFile) {
   [googleDictionary_ setObject:@"comments" forKey:@BREAKPAD_COMMENTS];
   [googleDictionary_ setObject:@"prod" forKey:@BREAKPAD_PRODUCT];
   [googleDictionary_ setObject:@"ver" forKey:@BREAKPAD_VERSION];
+  [googleDictionary_ setObject:@"guid" forKey:@"guid"];
 
   [socorroDictionary_ setObject:@"Comments" forKey:@BREAKPAD_COMMENTS];
   [socorroDictionary_ setObject:@"CrashTime"

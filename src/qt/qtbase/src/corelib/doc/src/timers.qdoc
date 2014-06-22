@@ -1,0 +1,123 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page timers.html
+    \title Timers
+    \brief How to use Qt timers in your application.
+
+    \ingroup best-practices
+
+    QObject, the base class of all Qt objects, provides the basic
+    timer support in Qt. With QObject::startTimer(), you start a
+    timer with an interval in milliseconds as argument. The function
+    returns a unique integer timer ID. The timer will now fire at
+    regular intervals until you explicitly call QObject::killTimer()
+    with the timer ID.
+
+    For this mechanism to work, the application must run in an event
+    loop. You start an event loop with QApplication::exec(). When a
+    timer fires, the application sends a QTimerEvent, and the flow of
+    control leaves the event loop until the timer event is processed.
+    This implies that a timer cannot fire while your application is
+    busy doing something else. In other words: the accuracy of timers
+    depends on the granularity of your application.
+
+    In multithreaded applications, you can use the timer mechanism in
+    any thread that has an event loop. To start an event loop from a
+    non-GUI thread, use QThread::exec(). Qt uses the object's
+    \l{QObject::thread()}{thread affinity} to determine which thread
+    will deliver the QTimerEvent. Because of this, you must start and
+    stop all timers in the object's thread; it is not possible to
+    start timers for objects in another thread.
+
+    The upper limit for the interval value is determined by the number
+    of milliseconds that can be specified in a signed integer
+    (in practice, this is a period of just over 24 days). The accuracy
+    depends on the underlying operating system. Windows 2000 has 15
+    millisecond accuracy; other systems that we have tested can handle
+    1 millisecond intervals.
+
+    The main API for the timer functionality is QTimer. That class
+    provides regular timers that emit a signal when the timer fires, and
+    inherits QObject so that it fits well into the ownership structure
+    of most GUI programs. The normal way of using it is like this:
+
+    \snippet timers/timers.cpp 0
+    \snippet timers/timers.cpp 1
+    \snippet timers/timers.cpp 2
+
+    The QTimer object is made into a child of this widget so that,
+    when this widget is deleted, the timer is deleted too.
+    Next, its \l{QTimer::}{timeout()} signal is connected to the slot
+    that will do the work, it is started with a value of 1000
+    milliseconds, indicating that it will time out every second.
+
+    QTimer also provides a static function for single-shot timers.
+    For example:
+
+    \snippet timers/timers.cpp 3
+
+    200 milliseconds (0.2 seconds) after this line of code is
+    executed, the \c updateCaption() slot will be called.
+
+    For QTimer to work, you must have an event loop in your
+    application; that is, you must call QCoreApplication::exec()
+    somewhere. Timer events will be delivered only while the event
+    loop is running.
+
+    In multithreaded applications, you can use QTimer in any thread
+    that has an event loop. To start an event loop from a non-GUI
+    thread, use QThread::exec(). Qt uses the timer's
+    \l{QObject::thread()}{thread affinity} to determine which thread
+    will emit the \l{QTimer::}{timeout()} signal. Because of this, you
+    must start and stop the timer in its thread; it is not possible to
+    start a timer from another thread.
+
+    The \l{widgets/analogclock}{Analog Clock} example shows how to use
+    QTimer to redraw a widget at regular intervals. From \c{AnalogClock}'s
+    implementation:
+
+    \snippet timers/analogclock.cpp 0
+    \snippet timers/analogclock.cpp 2
+    \snippet timers/analogclock.cpp 3
+    \snippet timers/analogclock.cpp 4
+    \snippet timers/analogclock.cpp 5
+    \snippet timers/analogclock.cpp 6
+    \dots
+    \snippet timers/analogclock.cpp 7
+
+    Every second, QTimer will call the QWidget::update() slot to
+    refresh the clock's display.
+
+    If you already have a QObject subclass and want an easy
+    optimization, you can use QBasicTimer instead of QTimer. With
+    QBasicTimer, you must reimplement
+    \l{QObject::timerEvent()}{timerEvent()} in your QObject subclass
+    and handle the timeout there. The \l{widgets/wiggly}{Wiggly}
+    example shows how to use QBasicTimer.
+*/

@@ -345,9 +345,9 @@ void CleanUp() {
 
 // Processes messages for the main window.
 //
-// WM_COMMAND	- process the application menu.
-// WM_PAINT	- Paint the main window.
-// WM_DESTROY	- post a quit message and return.
+// WM_COMMAND - process the application menu.
+// WM_PAINT   - Paint the main window.
+// WM_DESTROY - post a quit message and return.
 LRESULT CALLBACK WndProc(HWND wnd,
                          UINT message,
                          WPARAM w_param,
@@ -357,13 +357,7 @@ LRESULT CALLBACK WndProc(HWND wnd,
   PAINTSTRUCT ps;
   HDC hdc;
 
-#pragma warning(push)
-#pragma warning(disable:4312)
-  // Disable warning	C4312: 'type cast' : conversion from 'LONG' to
-  // 'HINSTANCE' of greater size.
-  // The value returned by GetwindowLong in the case below returns unsigned.
-  HINSTANCE instance = (HINSTANCE)GetWindowLong(wnd, GWL_HINSTANCE);
-#pragma warning(pop)
+  HINSTANCE instance = (HINSTANCE)GetWindowLongPtr(wnd, GWLP_HINSTANCE);
 
   switch (message) {
     case WM_COMMAND:
@@ -415,16 +409,16 @@ LRESULT CALLBACK WndProc(HWND wnd,
                                             instance,
                                             NULL);
       break;
-    case WM_SIZE: 
-      // Make the edit control the size of the window's client area. 
-      MoveWindow(client_status_edit_box, 
+    case WM_SIZE:
+      // Make the edit control the size of the window's client area.
+      MoveWindow(client_status_edit_box,
                  0,
                  0,
                  LOWORD(l_param),        // width of client area.
                  HIWORD(l_param),        // height of client area.
                  TRUE);                  // repaint window.
       break;
-    case WM_SETFOCUS: 
+    case WM_SETFOCUS:
       SetFocus(client_status_edit_box);
       break;
     case WM_PAINT:
@@ -501,7 +495,7 @@ int APIENTRY _tWinMain(HINSTANCE instance,
   MyRegisterClass(instance);
 
   // Perform application initialization.
-  if (!InitInstance (instance, command_show)) {
+  if (!InitInstance(instance, command_show)) {
     return FALSE;
   }
 
@@ -518,5 +512,5 @@ int APIENTRY _tWinMain(HINSTANCE instance,
     }
   }
 
-  return (int)msg.wParam;
+  return static_cast<int>(msg.wParam);
 }

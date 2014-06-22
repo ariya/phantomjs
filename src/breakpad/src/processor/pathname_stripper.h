@@ -36,9 +36,9 @@
 
 #include <string>
 
-namespace google_breakpad {
+#include "common/using_std_string.h"
 
-using std::string;
+namespace google_breakpad {
 
 class PathnameStripper {
  public:

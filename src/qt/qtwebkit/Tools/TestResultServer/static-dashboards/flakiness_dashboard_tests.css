@@ -1,0 +1,273 @@
+/*
+ * Copyright (C) 2012 Google Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#errors {
+    color: red;
+    font-size: 16px;
+    margin: 0;
+}
+#result-input {
+    width: 7em;
+}
+.test-link.builder-name {
+    white-space: nowrap;
+}
+.test-link, .options-container {
+    padding: 0 2px;
+}
+.test-table {
+    white-space: nowrap;
+    border-spacing: 1px;
+}
+/* Let the bugs column wrap. */
+.test-table tr > td:nth-child(2) {
+    white-space: normal;
+}
+.test-table {
+    width: 100%;
+}
+.test-table tr {
+    border: 1px solid red;
+    background-color: #E8E8E8;
+}
+.test-table tbody tr:hover {
+    opacity: .7;
+}
+.test-table th {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+}
+.link, .sortable .header-text {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.table-header-content,
+.table-header-content * {
+    display: -webkit-box;
+}
+.table-header-content * {
+    -webkit-box-flex: 1;
+    cursor: pointer;
+}
+.results {
+    cursor: pointer;
+    padding: 0 1px;
+    font-size: 10px;
+    text-align: center;
+}
+#legend {
+    position: fixed;
+    top: 5px;
+    right: 5px;
+    width: 400px;
+    padding: 2px;
+    border: 2px solid grey;
+    background-color: white;
+    z-index: 1;
+}
+#legend ul, #legend ol {
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+#legend-contents * {
+    margin: 3px 0;
+    padding: 0 2px;
+    float: left;
+    border: 1px solid grey;
+}
+.P {
+    background-color: #3f3;
+}
+.N {
+    background-color: #fff;
+}
+.X {
+    background-color: lightgray;
+}
+.C {
+    background-color: #c90;
+}
+.T {
+    background-color: #fffc6c;
+}
+.I {
+    background-color: #69f;
+}
+.S {
+    background-color: #c6c;
+}
+.F {
+    background-color: #e98080;
+}
+.O {
+    background-color: #8a7700;
+}
+.Z {
+    background-color: #96f;
+}
+#legend .merge {
+    background-color: black;
+    color: white;
+}
+.test-table .merge {
+    border-right: solid 2px #000;
+    padding-right: 0;
+}
+.separator {
+    border: 1px solid lightgray;
+    height: 0px;
+}
+#passing-tests,
+#skipped-tests {
+    -webkit-column-count: 3;
+    -webkit-column-gap: 25px;
+    -webkit-column-rule: 1px dashed black;
+    -moz-column-count: 3;
+    -moz-column-gap: 25px;
+    -moz-column-rule: 1px dashed black;
+    border-top: 1px dashed black;
+    border-bottom: 1px dashed black;
+}
+.not-found {
+    color: red;
+    font-size: large;
+}
+#loading-ui {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: yellow;
+    padding: 5px;
+    text-align: center;
+    font-weight: bold;
+}
+#popup {
+    background-color: white;
+    z-index: 1;
+    position: absolute;
+    border: 3px solid grey;
+    padding: 3px;
+    -webkit-box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+}
+#popup > ul {
+    margin: 0;
+    padding-left: 20px;
+}
+.expectations-container {
+    clear: both;
+}
+.expectations-item {
+    float: left;
+    border: 1px solid grey;
+    display: -webkit-box;
+    display: -moz-box;
+    position: relative;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+}
+.expectations-item .expectation {
+    width: 400px;
+    height: 300px;
+    border: 0;
+    border-top: 1px solid grey;
+    overflow: auto;
+    display: -webkit-box;
+    display: -moz-box;
+    -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+}
+pre.expectation {
+    padding: 8px;
+    margin: 0;
+    box-sizing: border-box;
+}
+.expectations-item .large {
+    width: 800px;
+    height: 600px;
+}
+.non-webkit-results {
+    width: 99%;
+}
+.gpu-test-results {
+    width: 400px;
+}
+.used-platform {
+    float: right;
+    color: darkblue;
+    margin: 0 5px;
+}
+.expectations-title {
+    /* Hack to make a containing block for absolute positioned elements. */
+    position: relative;
+    clear: both;
+}
+.title {
+    /* Position absolutely so the container does not grow to contain this. */
+    position: absolute;
+}
+.platforms {
+    position: absolute;
+    right: 0;
+    z-index: 1;
+}
+.file-bug {
+    font-weight: bold;
+    font-size: 11px;
+}
+.pngchecksum {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    background-color: #ffffc8;
+    visibility: hidden;
+}
+.expectations-item:hover .pngchecksum {
+    visibility: visible;
+}
+.skipped-builder-list {
+    margin-left: 20px;
+    background-color: #E8E8E8;
+}
+.skipped-builder {
+    display: inline-block;
+    white-space: nowrap;
+}
+.skipped-builder:after {
+    content: '|';
+    margin: 5px;
+}
+.skipped-builder:last-child:after {
+    content: '';
+}
+

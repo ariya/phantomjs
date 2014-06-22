@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+<head>
+<script>
+document.title = "";
+function updateTitle(accepted) {
+    if (accepted)
+        document.title += " ACCEPTED";
+    else
+        document.title += " REJECTED";
+}
+
+updateTitle(confirm("ACCEPT"));
+updateTitle(confirm("REJECT"));
+</script>
+</head>
+<body>
+</body>
+</html>

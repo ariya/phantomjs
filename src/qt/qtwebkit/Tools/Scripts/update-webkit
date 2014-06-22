@@ -1,0 +1,130 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2005, 2006, 2007, 2008, 2009 Apple Inc. All rights reserved.
+# Copyright (C) 2009 Google Inc. All rights reserved.
+# Copyright (C) 2011 Brent Fulgham. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+# 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Update script for WebKit Open Source Project.
+
+use strict;
+use FindBin;
+use lib $FindBin::Bin;
+use File::Basename;
+use File::Spec;
+use Getopt::Long;
+use VCSUtils;
+use webkitdirs;
+
+sub runSvnUpdate();
+sub runGitUpdate();
+
+# Handle options
+my $quiet = '';
+my $showHelp;
+
+determineIsQt();
+determineIsWinCairo();
+
+chdirWebKit();
+
+my $getOptionsResult = GetOptions(
+    'h|help'  => \$showHelp,
+    'q|quiet' => \$quiet,
+); 
+
+if (!$getOptionsResult || $showHelp) {
+    print STDERR <<__END__;
+Usage: @{[ basename($0) ]} [options]
+  -h|--help           show the help message
+  -q|--quiet          pass -q to svn update for quiet updates
+  --wincairo          also update dependencies of the WinCairo port
+__END__
+    exit 1;
+}
+
+my @svnOptions = ();
+push @svnOptions, '-q' if $quiet;
+
+# Don't prompt when using svn-1.6 or newer.
+push @svnOptions, qw(--accept postpone) if isSVNVersion16OrNewer();
+
+print "Updating OpenSource\n" unless $quiet;
+runSvnUpdate() if isSVN();
+runGitUpdate() if isGit();
+
+if (-d "../Internal") {
+    chdir("../Internal");
+    print "Updating Internal\n" unless $quiet;
+    runSvnUpdate() if isSVNDirectory(".");
+    runGitUpdate() if isGitDirectory(".");
+} elsif (isAppleWinWebKit()) {
+    system("perl", "Tools/Scripts/update-webkit-auxiliary-libs") == 0 or die;
+    if (isWinCairo()) {
+        # WinCairo shares the auxiliary libs from the Apple port.
+        system("perl", "Tools/Scripts/update-webkit-wincairo-libs") == 0 or die;
+    }
+}
+
+setupAppleWinEnv() if isAppleWinWebKit();
+
+exit 0;
+
+sub runSvnUpdate()
+{
+    open UPDATE, "-|", "svn", "update", @svnOptions or die;
+    my @conflictedChangeLogs;
+    while (my $line = <UPDATE>) {
+        print $line;
+        $line =~ m/^C\s+(.+?)[\r\n]*$/;
+        if ($1) {
+          my $filename = normalizePath($1);
+          push @conflictedChangeLogs, $filename if basename($filename) eq "ChangeLog";
+        }
+    }
+    close UPDATE or die;
+
+    if (@conflictedChangeLogs) {
+        print "Attempting to merge conflicted ChangeLogs.\n";
+        my $resolveChangeLogsPath = File::Spec->catfile(dirname($0), "resolve-ChangeLogs");
+        (system($resolveChangeLogsPath, "--no-warnings", @conflictedChangeLogs) == 0)
+            or die "Could not open resolve-ChangeLogs script: $!.\n";
+    }
+}
+
+sub runGitUpdate()
+{
+    # Doing a git fetch first allows setups with svn-remote.svn.fetch = trunk:refs/remotes/origin/master
+    # to perform the rebase much much faster.
+    system("git", "fetch") == 0 or die;
+    if (isGitSVN()) {
+        system("git", "svn", "rebase") == 0 or die;
+    } else {
+        # This will die if branch.$BRANCHNAME.merge isn't set, which is
+        # almost certainly what we want.
+        system("git", "pull") == 0 or die;
+    }
+}

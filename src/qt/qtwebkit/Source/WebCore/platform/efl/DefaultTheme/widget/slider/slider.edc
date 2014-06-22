@@ -1,0 +1,424 @@
+/*
+    Copyright (C) 2008,2009 INdT - Instituto Nokia de Tecnologia
+    Copyright (C) 2009,2010 ProFUSION embedded systems
+    Copyright (C) 2009,2010 Samsung Electronics
+    Copyright (c) 2012 Intel Corporation. All rights reserved.
+
+    This file is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Library General Public
+    License as published by the Free Software Foundation; either
+    version 2 of the License, or (at your option) any later version.
+
+    This file is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Library General Public License for more details.
+
+    You should have received a copy of the GNU Library General Public License
+    along with this library; see the file COPYING.LIB.  If not, write to
+    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+    Boston, MA 02110-1301, USA.
+*/
+
+group {
+   name: "webkit/widget/slider/thumb_vertical";
+
+   min: 11 29;
+   max: 11 29;
+
+   images {
+      image: "widget/slider/slider_thumb_v.png" COMP;
+      image: "widget/slider/slider_thumb_press_v.png" COMP;
+   }
+
+   script {
+      public isEnabled;
+      public isPressed;
+      public isFocused;
+      public isHovered;
+
+      public show() {
+         if (get_int(isEnabled) == 1) {
+            set_state(PART:"img.thumb", "default", 0.0);
+            if (get_int(isFocused) == 1) {
+               set_state(PART:"img.thumb", "pressed", 0.0);
+               if (get_int(isPressed) == 1)
+                  set_state(PART:"img.thumb", "pressed", 0.0);
+            } else if (get_int(isHovered) == 1) {
+               set_state(PART:"img.thumb", "pressed", 0.0);
+               if (get_int(isPressed) == 1)
+                  set_state(PART:"img.thumb", "pressed", 0.0);
+            }
+         } else
+            set_state(PART:"img.thumb", "default", 0.0);
+      }
+   }
+
+   parts {
+      part {
+         name: "img.thumb";
+         type: IMAGE;
+         mouse_events: 0;
+         description {
+            state: "default" 0.0;
+            min: 11 29;
+            image {
+               normal: "widget/slider/slider_thumb_v.png";
+               border: 6 6 0 0;
+            }
+         }
+         description {
+            state: "pressed" 0.0;
+            inherit: "default" 0.0;
+            image.normal: "widget/slider/slider_thumb_press_v.png";
+         }
+      }
+   }
+
+   programs {
+      program {
+         name: "enabled";
+         signal: "enabled";
+         script {
+            set_int(isEnabled, 1);
+            show();
+         }
+      }
+
+      program {
+         name: "pressed";
+         signal: "pressed";
+         script {
+            set_int(isPressed, 1);
+            show();
+         }
+      }
+
+      program {
+         name: "focused";
+         signal: "focused";
+         script {
+            set_int(isFocused, 1);
+            show();
+         }
+      }
+
+      program {
+         name: "hovered";
+         signal: "hovered";
+         script {
+            set_int(isHovered, 1);
+            show();
+         }
+      }
+
+      program {
+         name: "reset";
+         signal: "reset";
+         script {
+            set_int(isEnabled, 0);
+            set_int(isPressed, 0);
+            set_int(isFocused, 0);
+            set_int(isHovered, 0);
+            show();
+         }
+      }
+   }
+}
+
+group {
+   name: "webkit/widget/slider/vertical";
+
+   min: 11 0; /* if > 0, this is the minimum size that will be allocated.
+               * If wants to draw on top, just overflow usign edje's rel1/rel2
+               */
+   max: 11 999999;
+
+   script {
+      public message(Msg_Type:type, id, ...) {
+         if ((id == 0) && (type == MSG_FLOAT_SET)) {
+            new Float:y, Float:sy;
+            y = getfarg(2);
+            sy = getfarg(3);
+
+            if (sy >= 0.0) {
+               set_drag(PART:"img.slider_fill", 1.0, y);
+               set_drag_size(PART:"img.slider_fill", 1.0, sy);
+            }
+         }
+      }
+   }
+
+   images {
+      image: "widget/slider/slider_v.png" COMP;
+      image: "widget/slider/slider_fill_v.png" COMP;
+   }
+
+   parts {
+      part {
+         name: "rect.base";
+         type: RECT;
+         description {
+            min: 11 29;
+            max: 11 999999;
+            state: "default" 0.0;
+            color: 255 255 255 0;
+         }
+      }
+
+      part {
+         name: "rect.clipper";
+         type: RECT;
+         description {
+            state: "default" 0.0;
+            color: 255 255 255 255;
+         }
+         description {
+            state: "hidden" 0.0;
+            color: 255 255 255 128;
+         }
+      }
+
+      part {
+         name: "img.slider";
+         type: IMAGE;
+         mouse_events: 0;
+         clip_to: "rect.clipper";
+         description {
+            state: "default" 0.0;
+            min: 5 29;
+            max: 5 999999;
+            rel1.to: "rect.base";
+            rel2.to: "rect.base";
+            image {
+               normal: "widget/slider/slider_v.png";
+               border: 0 0 5 5;
+            }
+        }
+      }
+
+      part {
+         name: "img.slider_fill";
+         type: IMAGE;
+         mouse_events: 0;
+         clip_to: "rect.clipper";
+         dragable {
+            x: 0 0 0;
+            y: 1 1 0;
+            confine: "rect.base";
+         }
+         description {
+            state: "default" 0.0;
+            min: 5 0;
+            max: 5 999999;
+            align: 0.5 0.5;
+            image {
+               normal: "widget/slider/slider_fill_v.png";
+               border: 0 0 5 5;
+            }
+         }
+      }
+   }
+}
+
+group {
+   name: "webkit/widget/slider/thumb_horizontal";
+
+   min: 29 11;
+   max: 29 11;
+
+   images {
+      image: "widget/slider/slider_thumb_h.png" COMP;
+      image: "widget/slider/slider_thumb_press_h.png" COMP;
+   }
+
+   script {
+      public isEnabled;
+      public isPressed;
+      public isFocused;
+      public isHovered;
+
+      public show() {
+         if (get_int(isEnabled) == 1) {
+            set_state(PART:"img.thumb", "default", 0.0);
+            if (get_int(isFocused) == 1) {
+               set_state(PART:"img.thumb", "pressed", 0.0);
+               if (get_int(isPressed) == 1)
+                  set_state(PART:"img.thumb", "pressed", 0.0);
+            } else if (get_int(isHovered) == 1) {
+               set_state(PART:"img.thumb", "pressed", 0.0);
+               if (get_int(isPressed) == 1)
+                  set_state(PART:"img.thumb", "pressed", 0.0);
+            }
+         } else
+            set_state(PART:"img.thumb", "default", 0.0);
+      }
+   }
+
+   parts {
+      part {
+         name: "img.thumb";
+         type: IMAGE;
+         mouse_events: 0;
+         description {
+            state: "default" 0.0;
+            min: 29 11;
+            image {
+               normal: "widget/slider/slider_thumb_h.png";
+               border: 6 6 0 0;
+            }
+         }
+         description {
+            state: "pressed" 0.0;
+            inherit: "default" 0.0;
+            image.normal: "widget/slider/slider_thumb_press_h.png";
+         }
+      }
+   }
+
+   programs {
+      program {
+         name: "enabled";
+         signal: "enabled";
+         script {
+            set_int(isEnabled, 1);
+            show();
+         }
+      }
+
+      program {
+         name: "pressed";
+         signal: "pressed";
+         script {
+            set_int(isPressed, 1);
+            show();
+         }
+      }
+
+      program {
+         name: "focused";
+         signal: "focused";
+         script {
+            set_int(isFocused, 1);
+            show();
+         }
+      }
+
+      program {
+         name: "hovered";
+         signal: "hovered";
+         script {
+            set_int(isHovered, 1);
+            show();
+         }
+      }
+
+      program {
+         name: "reset";
+         signal: "reset";
+         script {
+            set_int(isEnabled, 0);
+            set_int(isPressed, 0);
+            set_int(isFocused, 0);
+            set_int(isHovered, 0);
+            show();
+         }
+      }
+   }
+}
+
+group {
+   name: "webkit/widget/slider/horizontal";
+
+   min: 0 11; /* if > 0, this is the minimum size that will be allocated.
+               * If wants to draw on top, just overflow usign edje's rel1/rel2
+               */
+   max: 999999 11;
+
+   images {
+      image: "widget/slider/slider_h.png" COMP;
+      image: "widget/slider/slider_fill_h.png" COMP;
+   }
+
+   script {
+      public message(Msg_Type:type, id, ...) {
+         if ((id == 0) && (type == MSG_FLOAT_SET)) {
+            new Float:x, Float:sx;
+            x = getfarg(2);
+            sx = getfarg(3);
+
+            if (sx >= 0.0) {
+               set_drag(PART:"img.slider_fill", x, 0.0);
+               set_drag_size(PART:"img.slider_fill", sx, 1.0);
+            }
+         }
+      }
+   }
+
+   parts {
+      part {
+         name: "rect.base";
+         type: RECT;
+         description {
+            state: "default" 0.0;
+            min: 29 11;
+            max: 999999 11;
+            color: 255 255 255 0;
+         }
+      }
+
+      part {
+         name: "rect.clipper";
+         type: RECT;
+         description {
+            state: "default" 0.0;
+            color: 255 255 255 255;
+         }
+         description {
+            state: "hidden" 0.0;
+            color: 255 255 255 128;
+         }
+      }
+
+      part {
+         name: "img.slider";
+         type: IMAGE;
+         mouse_events: 0;
+         clip_to: "rect.clipper";
+         description {
+            state: "default" 0.0;
+            min: 29 5;
+            max: 999999 5;
+            rel1.to: "rect.base";
+            rel2.to: "rect.base";
+            align: 0.5 0.5;
+            image {
+               normal: "widget/slider/slider_h.png";
+               border: 5 5 0 0;
+            }
+         }
+      }
+
+      part {
+         name: "img.slider_fill";
+         type: IMAGE;
+         mouse_events: 0;
+         clip_to: "rect.clipper";
+         dragable {
+            x: 1 1 0;
+            y: 0 0 0;
+            confine: "rect.base";
+         }
+         description {
+            state: "default" 0.0;
+            min: 0 5;
+            max: 999999 5;
+            align: 0.5 0.5;
+            image {
+               normal: "widget/slider/slider_fill_h.png";
+               border: 5 5 0 0;
+            }
+         }
+      }
+   }
+}

@@ -1,0 +1,31 @@
+#
+#    Tested with gcov 4.8.1
+#    http://gcc.gnu.org/onlinedocs/gcc-4.8.1/gcc/Gcov.html
+
+# To instrument a Qt application or library with the gcov coverage
+# tool, do `CONFIG+=gcov' in the application .pro file.
+#
+# To instrument Qt itself with gcov, use the `-gcov' configure
+# option.
+
+# The .gcno file is generated when the source file is compiled.
+# The .gcda file is generated when a program is executed.
+
+# Example how to generate the html output after you've run the program or test
+#
+# lcov --capture --directory . --output-file coverage-gcov.info --no-external
+# lcov --output-file coverage-gcov.info --remove coverage-gcov.info '*.moc*' '.*rcc*' '*3rdparty*'
+# genhtml coverage-gcov.info --output-directory doc/coverage
+
+# If you want to use gcov directly, you most likely need to manually move the .gcda and .gcno files
+# along with the program.
+#
+# mv .obj/debug-shared/tst_example.gc* .
+# gcov -b -c tst_example.cpp
+
+QMAKE_CFLAGS           += -fprofile-arcs -ftest-coverage
+QMAKE_CXXFLAGS         += -fprofile-arcs -ftest-coverage
+QMAKE_OBJECTIVE_CFLAGS += -fprofile-arcs -ftest-coverage
+QMAKE_LFLAGS           += -fprofile-arcs -ftest-coverage
+
+QMAKE_CLEAN += $(OBJECTS_DIR)*.gcno and $(OBJECTS_DIR)*.gcda

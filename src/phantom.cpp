@@ -34,10 +34,11 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFile>
-#include <QWebPage>
+#include <QtWebKitWidgets/QWebPage>
 #include <QDebug>
 #include <QMetaObject>
 #include <QMetaProperty>
+#include <QStandardPaths>
 
 #include "consts.h"
 #include "terminal.h"
@@ -98,6 +99,16 @@ void Phantom::init()
 
     // Initialize the CookieJar
     m_defaultCookieJar = new CookieJar(m_config.cookiesFile());
+
+    QWebSettings::setOfflineWebApplicationCachePath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+    if (m_config.offlineStoragePath().isEmpty()) {
+        QWebSettings::setOfflineStoragePath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+    } else {
+        QWebSettings::setOfflineStoragePath(m_config.offlineStoragePath());
+    }
+    if (m_config.offlineStorageDefaultQuota() > 0) {
+        QWebSettings::setOfflineStorageDefaultQuota(m_config.offlineStorageDefaultQuota());
+    }
 
     m_page = new WebPage(this, QUrl::fromLocalFile(m_config.scriptFile()));
     m_page->setCookieJar(m_defaultCookieJar);
@@ -387,7 +398,7 @@ void Phantom::loadModule(const QString &moduleSource, const QString &filename)
       "require.cache['" + filename + "'].exports," +
       "require.cache['" + filename + "']" +
       "));";
-   m_page->mainFrame()->evaluateJavaScript(scriptSource, filename);
+   m_page->mainFrame()->evaluateJavaScript(scriptSource, "");
 }
 
 bool Phantom::injectJs(const QString &jsFilePath)
@@ -405,6 +416,29 @@ bool Phantom::injectJs(const QString &jsFilePath)
         return false;
 
     return Utils::injectJsInFrame(pre + jsFilePath, libraryPath(), m_page->mainFrame());
+}
+
+void Phantom::setProxy(const QString &ip, const qint64 &port, const QString &proxyType, const QString &user, const QString &password)
+{
+    qDebug() << "Set " << proxyType << " proxy to: " << ip << ":" << port;
+    if (ip.isEmpty()) {
+        QNetworkProxyFactory::setUseSystemConfiguration(true);
+    }
+    else {
+        QNetworkProxy::ProxyType networkProxyType = QNetworkProxy::HttpProxy;
+
+        if (proxyType == "socks5") {
+            networkProxyType = QNetworkProxy::Socks5Proxy;
+        }
+        // Checking for passed proxy user and password
+        if(!user.isEmpty() && !password.isEmpty()) {
+            QNetworkProxy proxy(networkProxyType, ip, port, user, password);
+            QNetworkProxy::setApplicationProxy(proxy);
+        } else {
+            QNetworkProxy proxy(networkProxyType, ip, port);
+            QNetworkProxy::setApplicationProxy(proxy);
+        }
+    }
 }
 
 void Phantom::exit(int code)
@@ -483,7 +517,8 @@ void Phantom::doExit(int code)
     emit aboutToExit(code);
     m_terminated = true;
     m_returnValue = code;
-    qDeleteAll(m_pages);
+    foreach (QPointer<WebPage> page, m_pages)
+      page->deleteLater();
     m_pages.clear();
     m_page = 0;
     QApplication::instance()->exit(code);

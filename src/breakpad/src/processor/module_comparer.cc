@@ -37,9 +37,9 @@
 #include <map>
 #include <string>
 
+#include "common/scoped_ptr.h"
 #include "processor/basic_code_module.h"
 #include "processor/logging.h"
-#include "processor/scoped_ptr.h"
 
 #define ASSERT_TRUE(condition) \
   if (!(condition)) { \
@@ -58,8 +58,10 @@ bool ModuleComparer::Compare(const string &symbol_data) {
 
   // Load symbol data into basic_module
   scoped_array<char> buffer(new char[symbol_data.size() + 1]);
-  strcpy(buffer.get(), symbol_data.c_str());
-  ASSERT_TRUE(basic_module->LoadMapFromMemory(buffer.get()));
+  memcpy(buffer.get(), symbol_data.c_str(), symbol_data.size());
+  buffer.get()[symbol_data.size()] = '\0';
+  ASSERT_TRUE(basic_module->LoadMapFromMemory(buffer.get(),
+                                              symbol_data.size() + 1));
   buffer.reset();
 
   // Serialize BasicSourceLineResolver::Module.
@@ -70,7 +72,9 @@ bool ModuleComparer::Compare(const string &symbol_data) {
   BPLOG(INFO) << "Serialized size = " << serialized_size << " Bytes";
 
   // Load FastSourceLineResolver::Module using serialized data.
-  ASSERT_TRUE(fast_module->LoadMapFromMemory(serialized_data.get()));
+  ASSERT_TRUE(fast_module->LoadMapFromMemory(serialized_data.get(),
+                                             serialized_size));
+  ASSERT_TRUE(fast_module->IsCorrupt() == basic_module->IsCorrupt());
 
   // Compare FastSourceLineResolver::Module with
   // BasicSourceLineResolver::Module.
@@ -240,6 +244,7 @@ bool ModuleComparer::ComparePubSymbol(const BasicPubSymbol* basic_ps,
 
 bool ModuleComparer::CompareWFI(const WindowsFrameInfo& wfi1,
                                const WindowsFrameInfo& wfi2) const {
+  ASSERT_TRUE(wfi1.type_ == wfi2.type_);
   ASSERT_TRUE(wfi1.valid == wfi2.valid);
   ASSERT_TRUE(wfi1.prolog_size == wfi2.prolog_size);
   ASSERT_TRUE(wfi1.epilog_size == wfi2.epilog_size);

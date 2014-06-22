@@ -1,0 +1,27 @@
+From cf8f0424db45c43ecda812b7c238ece5e2398107 Mon Sep 17 00:00:00 2001
+From: Dan Winship <danw@gnome.org>
+Date: Fri, 21 Dec 2012 11:13:31 +0800
+Subject: [PATCH] Fix an error in the progressive DTD parsing code
+
+For https://bugzilla.gnome.org/show_bug.cgi?id=689958
+We were looking for the wrong character in the input stream
+---
+ parser.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/parser.c b/parser.c
+index c7802cf..e719c9f 100644
+--- a/parser.c
++++ b/parser.c
+@@ -12042,7 +12042,7 @@ xmlParseCheckTransition(xmlParserCtxtPtr ctxt, const char *chunk, int size) {
+     }
+     if ((ctxt->progressive == XML_PARSER_DTD) ||
+         (ctxt->instate == XML_PARSER_DTD)) {
+-        if (memchr(chunk, ']', size) != NULL)
++        if (memchr(chunk, '>', size) != NULL)
+             return(1);
+         return(0);
+     }
+-- 
+1.8.0.1
+

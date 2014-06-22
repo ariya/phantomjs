@@ -37,6 +37,7 @@
 #include <errno.h>
 #include <string.h>
 
+#include "common/linux/linux_libc_support.h"
 #include "third_party/lss/linux_syscall_support.h"
 
 namespace google_breakpad {
@@ -90,7 +91,7 @@ class DirectoryReader {
       reinterpret_cast<kernel_dirent*>(buf_);
 
     buf_used_ -= dent->d_reclen;
-    memmove(buf_, buf_ + dent->d_reclen, buf_used_);
+    my_memmove(buf_, buf_ + dent->d_reclen, buf_used_);
   }
 
  private:

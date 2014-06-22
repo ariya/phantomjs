@@ -65,7 +65,7 @@ const MDCPUArchitecture kNativeArchitecture =
 #endif
   ;
 
-const u_int32_t kNativeContext =
+const uint32_t kNativeContext =
 #if defined(__i386__)
   MD_CONTEXT_X86
 #elif defined(__x86_64__)

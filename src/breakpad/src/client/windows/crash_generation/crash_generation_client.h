@@ -35,7 +35,7 @@
 #include <string>
 #include <utility>
 #include "client/windows/common/ipc_protocol.h"
-#include "processor/scoped_ptr.h"
+#include "common/scoped_ptr.h"
 
 namespace google_breakpad {
 
@@ -63,6 +63,10 @@ struct CustomClientInfo;
 class CrashGenerationClient {
  public:
   CrashGenerationClient(const wchar_t* pipe_name,
+                        MINIDUMP_TYPE dump_type,
+                        const CustomClientInfo* custom_info);
+
+  CrashGenerationClient(HANDLE pipe_handle,
                         MINIDUMP_TYPE dump_type,
                         const CustomClientInfo* custom_info);
 
@@ -96,6 +100,14 @@ class CrashGenerationClient {
   // false will be returned.
   bool RequestDump(MDRawAssertionInfo* assert_info);
 
+  // If the crash generation client is running in a sandbox that prevents it
+  // from opening the named pipe directly, the server process may open the
+  // handle and duplicate it into the client process with this helper method.
+  // Returns INVALID_HANDLE_VALUE on failure. The process must have been opened
+  // with the PROCESS_DUP_HANDLE access right.
+  static HANDLE DuplicatePipeToClientProcess(const wchar_t* pipe_name,
+                                             HANDLE hProcess);
+
  private:
   // Connects to the appropriate pipe and sets the pipe handle state.
   //
@@ -126,6 +138,10 @@ class CrashGenerationClient {
 
   // Pipe name to use to talk to server.
   std::wstring pipe_name_;
+
+  // Pipe handle duplicated from server process. Only valid before
+  // Register is called.
+  HANDLE pipe_handle_;
 
   // Custom client information
   CustomClientInfo custom_info_;

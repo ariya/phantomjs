@@ -81,7 +81,7 @@ class StaticContainedRangeMap {
   // actually contain an entry, so its entry_ field is meaningless.  For
   // this reason, the entry_ field should only be accessed on child
   // ContainedRangeMap objects, and never on |this|.
-  u_int32_t entry_size_;
+  uint32_t entry_size_;
   const EntryType *entry_ptr_;
 
   // The map containing child ranges, keyed by each child range's high

@@ -1,0 +1,890 @@
+------------------------------------------------------------------------
+r227 | helixblue | 2010-09-20 09:20:36 +0200 (Mon, 20 Sep 2010) | 1 line
+
+update readme
+------------------------------------------------------------------------
+r226 | helixblue | 2010-09-20 09:17:00 +0200 (Mon, 20 Sep 2010) | 1 line
+
+1.7.2
+------------------------------------------------------------------------
+r225 | helixblue | 2010-09-20 08:50:32 +0200 (Mon, 20 Sep 2010) | 1 line
+
+Change style tag generation blacklist lookup to use same format as other tags
+------------------------------------------------------------------------
+r224 | helixblue | 2010-09-19 23:51:56 +0200 (Sun, 19 Sep 2010) | 1 line
+
+Fix whitespace and ruby 1.9 glitches
+------------------------------------------------------------------------
+r223 | helixblue | 2010-09-19 22:45:21 +0200 (Sun, 19 Sep 2010) | 1 line
+
+clean up filters
+------------------------------------------------------------------------
+r222 | helixblue | 2010-09-19 22:08:13 +0200 (Sun, 19 Sep 2010) | 1 line
+
+version bump to 1.7.1
+------------------------------------------------------------------------
+r221 | helixblue | 2010-09-19 22:07:53 +0200 (Sun, 19 Sep 2010) | 1 line
+
+Add progress font 9999 crash
+------------------------------------------------------------------------
+r220 | helixblue | 2010-09-19 21:34:24 +0200 (Sun, 19 Sep 2010) | 1 line
+
+Add Chrome crash for url//%n%n redirect
+------------------------------------------------------------------------
+r219 | helixblue | 2010-09-19 21:34:12 +0200 (Sun, 19 Sep 2010) | 1 line
+
+User the digested user agent
+------------------------------------------------------------------------
+r218 | helixblue | 2010-09-19 21:12:11 +0200 (Sun, 19 Sep 2010) | 1 line
+
+Make it so that the first testing redirect has the same content as the page being tested
+------------------------------------------------------------------------
+r217 | helixblue | 2010-09-19 21:07:44 +0200 (Sun, 19 Sep 2010) | 1 line
+
+Add a second redirection test for better testcase generation
+------------------------------------------------------------------------
+r216 | helixblue | 2010-09-19 21:07:20 +0200 (Sun, 19 Sep 2010) | 1 line
+
+Display lookup_mode in stdout, get user agent from last_page_requested
+------------------------------------------------------------------------
+r215 | helixblue | 2010-09-19 18:50:11 +0200 (Sun, 19 Sep 2010) | 1 line
+
+Fix nextTestNum() so that it works properly with @random_mode
+------------------------------------------------------------------------
+r213 | helixblue | 2010-09-06 12:38:12 +0200 (Mon, 06 Sep 2010) | 1 line
+
+Update docs to point to ../output instead of /tmp
+------------------------------------------------------------------------
+r212 | helixblue | 2010-09-06 11:34:48 +0200 (Mon, 06 Sep 2010) | 3 lines
+
+Add an empty output directory
+
+
+------------------------------------------------------------------------
+r211 | helixblue | 2010-09-06 11:34:30 +0200 (Mon, 06 Sep 2010) | 1 line
+
+change test_dir and log_dir default to ../output
+------------------------------------------------------------------------
+r210 | helixblue | 2010-09-06 11:29:45 +0200 (Mon, 06 Sep 2010) | 1 line
+
+Add some more testcases
+------------------------------------------------------------------------
+r209 | helixblue | 2010-09-06 10:07:45 +0200 (Mon, 06 Sep 2010) | 1 line
+
+Set default watchdog timer to 60s.
+------------------------------------------------------------------------
+r208 | helixblue | 2010-09-06 09:56:48 +0200 (Mon, 06 Sep 2010) | 1 line
+
+Give subtest form more room
+------------------------------------------------------------------------
+r207 | helixblue | 2010-09-06 09:56:40 +0200 (Mon, 06 Sep 2010) | 1 line
+
+Decrease the chance of arbitrary tag closure from 20% to 14%
+------------------------------------------------------------------------
+r206 | helixblue | 2010-09-06 09:49:29 +0200 (Mon, 06 Sep 2010) | 1 line
+
+Fix browser comment
+------------------------------------------------------------------------
+r205 | helixblue | 2010-09-06 09:44:29 +0200 (Mon, 06 Sep 2010) | 1 line
+
+Change Refresh from 0 to 1 when saving testcase
+------------------------------------------------------------------------
+r204 | helixblue | 2010-09-05 11:13:50 +0200 (Sun, 05 Sep 2010) | 1 line
+
+Revisit using THE_END marker, in conjunction w/ test_redirect.
+------------------------------------------------------------------------
+r203 | helixblue | 2010-09-05 11:10:12 +0200 (Sun, 05 Sep 2010) | 1 line
+
+Instead of using THE END, use test_redirect.
+------------------------------------------------------------------------
+r202 | helixblue | 2010-09-05 11:05:03 +0200 (Sun, 05 Sep 2010) | 1 line
+
+Make THE END work the same as surviving a redirect
+------------------------------------------------------------------------
+r201 | helixblue | 2010-09-05 10:51:23 +0200 (Sun, 05 Sep 2010) | 1 line
+
+Mention testcase viewing
+------------------------------------------------------------------------
+r200 | helixblue | 2010-09-05 09:22:26 +0200 (Sun, 05 Sep 2010) | 1 line
+
+Fix comments.
+------------------------------------------------------------------------
+r199 | helixblue | 2010-09-05 09:22:15 +0200 (Sun, 05 Sep 2010) | 1 line
+
+Adjust browser_harness so that references to iexploder.cgi are altered to localhost:3100 instances
+------------------------------------------------------------------------
+r198 | helixblue | 2010-09-03 21:45:27 +0200 (Fri, 03 Sep 2010) | 1 line
+
+If we are at the end, and stalled, save a testcase.
+------------------------------------------------------------------------
+r197 | helixblue | 2010-09-03 18:42:42 +0200 (Fri, 03 Sep 2010) | 1 line
+
+ruby assignments hate me. dup it.
+------------------------------------------------------------------------
+r196 | helixblue | 2010-09-03 18:25:24 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Put comments in for START/END tag, use less attributes per page
+------------------------------------------------------------------------
+r195 | helixblue | 2010-09-03 18:06:53 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Be better about generating sane <style> tags
+------------------------------------------------------------------------
+r194 | helixblue | 2010-09-03 18:06:25 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Make pages a bit smaller
+------------------------------------------------------------------------
+r193 | helixblue | 2010-09-03 17:50:45 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Mark as 1.7-DEV
+------------------------------------------------------------------------
+r192 | helixblue | 2010-09-03 17:49:27 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Add some extra asterisks for fun
+------------------------------------------------------------------------
+r191 | helixblue | 2010-09-03 17:29:30 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Add CSS selector fuzzing
+------------------------------------------------------------------------
+r190 | helixblue | 2010-09-03 16:56:14 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Add css at-rules
+------------------------------------------------------------------------
+r189 | helixblue | 2010-09-03 16:16:35 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Add css selector data, fix html5 mozilla attributes
+------------------------------------------------------------------------
+r188 | helixblue | 2010-09-03 15:07:30 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Bump version to 1.6
+------------------------------------------------------------------------
+r187 | helixblue | 2010-09-03 14:48:52 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Update release tool to use version.rb
+------------------------------------------------------------------------
+r186 | helixblue | 2010-09-03 14:18:06 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Remove pid disappeared warning, fix False usage
+------------------------------------------------------------------------
+r185 | helixblue | 2010-09-03 14:16:14 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Fix log access mode (append)
+------------------------------------------------------------------------
+r184 | helixblue | 2010-09-03 13:27:50 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Update docs for -r
+------------------------------------------------------------------------
+r183 | helixblue | 2010-09-03 13:20:49 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Update options. If we can't figure out the -port option, output an error.
+------------------------------------------------------------------------
+r182 | helixblue | 2010-09-03 13:13:16 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Keep the original browser name in the output doc, do some testcase munging. Don't initialize test_num to 1
+------------------------------------------------------------------------
+r181 | helixblue | 2010-09-03 13:11:49 +0200 (Fri, 03 Sep 2010) | 1 line
+
+New testcases for Chrome and Opera
+------------------------------------------------------------------------
+r180 | helixblue | 2010-09-03 11:10:08 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Reset testcases directory
+------------------------------------------------------------------------
+r179 | helixblue | 2010-09-03 11:05:08 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Ruby 1.9.x fix: trailing colon
+------------------------------------------------------------------------
+r178 | helixblue | 2010-09-03 11:03:05 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Change -r to random_mode, and --rescan to -s/--scan. Remove some extra debug messages
+------------------------------------------------------------------------
+r177 | helixblue | 2010-09-03 10:52:58 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Change find_crash_logs() to use Dir.glob fully
+------------------------------------------------------------------------
+r176 | helixblue | 2010-09-03 08:53:07 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Fix max_age in find_crash_logs
+------------------------------------------------------------------------
+r175 | helixblue | 2010-09-03 08:50:04 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Fix dangling parens
+------------------------------------------------------------------------
+r174 | helixblue | 2010-09-03 08:46:05 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Add client logging, make crash files return list of files
+------------------------------------------------------------------------
+r173 | helixblue | 2010-09-03 08:03:57 +0200 (Fri, 03 Sep 2010) | 1 line
+
+Reach back a little further to get iexploder lines
+------------------------------------------------------------------------
+r172 | helixblue | 2010-09-02 22:06:00 +0200 (Thu, 02 Sep 2010) | 1 line
+
+Extend watchdog from 30s to 45s
+------------------------------------------------------------------------
+r171 | helixblue | 2010-09-02 22:04:47 +0200 (Thu, 02 Sep 2010) | 1 line
+
+divide the sleeping up
+------------------------------------------------------------------------
+r170 | helixblue | 2010-09-02 21:42:28 +0200 (Thu, 02 Sep 2010) | 1 line
+
+More sleepy
+------------------------------------------------------------------------
+r169 | helixblue | 2010-09-02 19:36:00 +0200 (Thu, 02 Sep 2010) | 1 line
+
+Use File.stat for mtime to avoid too many open files
+------------------------------------------------------------------------
+r168 | helixblue | 2010-09-02 18:47:50 +0200 (Thu, 02 Sep 2010) | 1 line
+
+Add better testcase naming
+------------------------------------------------------------------------
+r167 | helixblue | 2010-09-02 18:22:51 +0200 (Thu, 02 Sep 2010) | 1 line
+
+Fix save_testcase
+------------------------------------------------------------------------
+r166 | helixblue | 2010-09-02 18:22:39 +0200 (Thu, 02 Sep 2010) | 1 line
+
+Add more browser_harness docs
+------------------------------------------------------------------------
+r165 | helixblue | 2010-09-02 18:10:20 +0200 (Thu, 02 Sep 2010) | 1 line
+
+Fix posix loading
+------------------------------------------------------------------------
+r164 | helixblue | 2010-09-02 18:06:19 +0200 (Thu, 02 Sep 2010) | 1 line
+
+Add Mac support for the browser_harness
+------------------------------------------------------------------------
+r163 | helixblue | 2010-09-02 12:59:02 +0200 (Thu, 02 Sep 2010) | 1 line
+
+Add version
+------------------------------------------------------------------------
+r162 | helixblue | 2010-09-02 12:14:11 +0200 (Thu, 02 Sep 2010) | 1 line
+
+A fully working browser harness for UNIX. awesome.
+------------------------------------------------------------------------
+r161 | helixblue | 2010-09-01 21:40:02 +0200 (Wed, 01 Sep 2010) | 1 line
+
+Clean up option parsing
+------------------------------------------------------------------------
+r160 | helixblue | 2010-09-01 21:33:22 +0200 (Wed, 01 Sep 2010) | 1 line
+
+Ruby 1.9.x + style fixes
+------------------------------------------------------------------------
+r159 | helixblue | 2010-09-01 21:18:16 +0200 (Wed, 01 Sep 2010) | 1 line
+
+Add hex junk generator, add newlines where spaces used to be, and add some document.write js tests
+------------------------------------------------------------------------
+r158 | helixblue | 2010-09-01 21:16:32 +0200 (Wed, 01 Sep 2010) | 1 line
+
+Add :% value
+------------------------------------------------------------------------
+r157 | helixblue | 2010-09-01 21:15:59 +0200 (Wed, 01 Sep 2010) | 1 line
+
+Add -l option to set a log path
+------------------------------------------------------------------------
+r156 | helixblue | 2010-09-01 16:31:55 +0200 (Wed, 01 Sep 2010) | 1 line
+
+Commit a sample browser harness
+------------------------------------------------------------------------
+r155 | helixblue | 2010-09-01 11:24:30 +0200 (Wed, 01 Sep 2010) | 1 line
+
+Sync to Webkit trunk
+------------------------------------------------------------------------
+r154 | helixblue | 2010-09-01 11:22:16 +0200 (Wed, 01 Sep 2010) | 1 line
+
+Add mozilla tags
+------------------------------------------------------------------------
+r153 | helixblue | 2010-09-01 11:21:56 +0200 (Wed, 01 Sep 2010) | 1 line
+
+Minor fixes, update for mozilla trunk parsing
+------------------------------------------------------------------------
+r150 | helixblue | 2010-03-14 16:10:15 +0100 (Sun, 14 Mar 2010) | 1 line
+
+Update the README
+------------------------------------------------------------------------
+r149 | helixblue | 2010-03-14 15:45:20 +0100 (Sun, 14 Mar 2010) | 1 line
+
+Fix straggler testcase
+------------------------------------------------------------------------
+r148 | helixblue | 2010-03-14 15:30:46 +0100 (Sun, 14 Mar 2010) | 1 line
+
+Add gtkhtml protocols
+------------------------------------------------------------------------
+r147 | helixblue | 2010-03-14 15:30:01 +0100 (Sun, 14 Mar 2010) | 1 line
+
+Add note about asterisk
+------------------------------------------------------------------------
+r146 | helixblue | 2010-03-14 15:29:31 +0100 (Sun, 14 Mar 2010) | 1 line
+
+Comment out chrome video crashes from config.yaml
+------------------------------------------------------------------------
+r145 | helixblue | 2010-03-14 15:28:55 +0100 (Sun, 14 Mar 2010) | 1 line
+
+Output the headers being manipulated
+------------------------------------------------------------------------
+r144 | helixblue | 2010-03-14 15:28:43 +0100 (Sun, 14 Mar 2010) | 1 line
+
+Add Chrome video crashes to config.yaml
+------------------------------------------------------------------------
+r143 | helixblue | 2010-03-14 15:06:33 +0100 (Sun, 14 Mar 2010) | 1 line
+
+Add Chrome hang on textarea letter-spacing
+------------------------------------------------------------------------
+r142 | helixblue | 2010-03-14 14:58:19 +0100 (Sun, 14 Mar 2010) | 1 line
+
+Add LinesAgo column to lasthit
+------------------------------------------------------------------------
+r141 | helixblue | 2010-03-14 14:11:00 +0100 (Sun, 14 Mar 2010) | 1 line
+
+Update lasthit for new subtest data structure
+------------------------------------------------------------------------
+r140 | helixblue | 2010-03-14 14:10:32 +0100 (Sun, 14 Mar 2010) | 1 line
+
+Remove some debug statements
+------------------------------------------------------------------------
+r139 | helixblue | 2010-03-14 14:10:12 +0100 (Sun, 14 Mar 2010) | 1 line
+
+Increase property counts
+------------------------------------------------------------------------
+r138 | helixblue | 2010-03-14 14:09:54 +0100 (Sun, 14 Mar 2010) | 1 line
+
+Add some more chrome crashers
+------------------------------------------------------------------------
+r137 | helixblue | 2010-03-14 13:44:10 +0100 (Sun, 14 Mar 2010) | 1 line
+
+Fix check against subtest_combinations_max, add subtest comment to html output
+------------------------------------------------------------------------
+r136 | helixblue | 2010-03-14 13:43:43 +0100 (Sun, 14 Mar 2010) | 1 line
+
+Remove some debug statements, use the golden ratio to calculate the new width
+------------------------------------------------------------------------
+r135 | helixblue | 2010-03-14 13:43:12 +0100 (Sun, 14 Mar 2010) | 1 line
+
+lower html_tags_per_page to 135 for faster subtest generation
+------------------------------------------------------------------------
+r134 | helixblue | 2010-03-14 12:24:31 +0100 (Sun, 14 Mar 2010) | 1 line
+
+Add an extra width line when we hit 3 offsets
+------------------------------------------------------------------------
+r133 | helixblue | 2010-03-14 12:24:08 +0100 (Sun, 14 Mar 2010) | 1 line
+
+Support an initial_subtest_width
+------------------------------------------------------------------------
+r132 | helixblue | 2010-03-14 10:21:34 +0100 (Sun, 14 Mar 2010) | 1 line
+
+Only add tag_data in subtests if there is data to append
+------------------------------------------------------------------------
+r131 | helixblue | 2010-03-14 10:21:20 +0100 (Sun, 14 Mar 2010) | 1 line
+
+Rename lines_at_time to width, enforce min width of 1
+------------------------------------------------------------------------
+r130 | helixblue | 2010-03-14 10:13:34 +0100 (Sun, 14 Mar 2010) | 5 lines
+
+* Add copyright to scanner, remove comments
+* Make exclusions work better: add check method, make sure that methods that check the property name get the unblacklisted version.
+* Add some initial blacklists
+
+
+------------------------------------------------------------------------
+r129 | helixblue | 2010-03-13 19:21:32 +0100 (Sat, 13 Mar 2010) | 1 line
+
+Oh jesus.. we now have a decent subtest implementation. RIP Bo Skough.
+------------------------------------------------------------------------
+r128 | helixblue | 2010-03-10 08:11:56 +0100 (Wed, 10 Mar 2010) | 2 lines
+
+add interesting firefox 3.6 crasher, still need to isolate testcase
+
+------------------------------------------------------------------------
+r127 | helixblue | 2010-03-10 07:06:16 +0100 (Wed, 10 Mar 2010) | 1 line
+
+Make some doc updates in preparation for 1.5 release
+------------------------------------------------------------------------
+r126 | helixblue | 2010-03-10 07:02:21 +0100 (Wed, 10 Mar 2010) | 1 line
+
+Make lasthit work with webserver.rb
+------------------------------------------------------------------------
+r125 | helixblue | 2010-03-09 19:39:55 +0100 (Tue, 09 Mar 2010) | 1 line
+
+add interesting double-page crash for Chrome
+------------------------------------------------------------------------
+r124 | helixblue | 2010-03-09 16:58:10 +0100 (Tue, 09 Mar 2010) | 1 line
+
+Lower headers_per_page_max, put back missing response.body change in webserver.rb
+------------------------------------------------------------------------
+r123 | helixblue | 2010-03-09 16:47:11 +0100 (Tue, 09 Mar 2010) | 1 line
+
+Make sure things work if @config['exclude'] is defined but empty
+------------------------------------------------------------------------
+r122 | helixblue | 2010-03-09 16:46:50 +0100 (Tue, 09 Mar 2010) | 1 line
+
+Fix buildHeaders bug
+------------------------------------------------------------------------
+r121 | helixblue | 2010-03-09 16:30:59 +0100 (Tue, 09 Mar 2010) | 1 line
+
+Allow iexploder to work if no exclude properties have been set, and fix special case for src tag
+------------------------------------------------------------------------
+r120 | helixblue | 2010-03-09 16:20:48 +0100 (Tue, 09 Mar 2010) | 1 line
+
+Add the ability to exclude certain combinations of tags/properties
+------------------------------------------------------------------------
+r119 | helixblue | 2010-03-09 15:20:37 +0100 (Tue, 09 Mar 2010) | 1 line
+
+Fix bug where we fill subtests with escaped tags
+------------------------------------------------------------------------
+r118 | helixblue | 2010-03-09 15:05:29 +0100 (Tue, 09 Mar 2010) | 1 line
+
+Add firefox hang
+------------------------------------------------------------------------
+r117 | helixblue | 2010-03-09 11:33:06 +0100 (Tue, 09 Mar 2010) | 1 line
+
+More tuning
+------------------------------------------------------------------------
+r116 | helixblue | 2010-03-09 11:29:54 +0100 (Tue, 09 Mar 2010) | 1 line
+
+Move max_garbage_text_size to be tuned by config.yaml
+------------------------------------------------------------------------
+r115 | helixblue | 2010-03-09 11:25:15 +0100 (Tue, 09 Mar 2010) | 1 line
+
+Minor adjustments to the skew mix
+------------------------------------------------------------------------
+r114 | helixblue | 2010-03-09 11:22:23 +0100 (Tue, 09 Mar 2010) | 1 line
+
+Add a list of tags we favor for testing
+------------------------------------------------------------------------
+r113 | helixblue | 2010-03-09 11:11:46 +0100 (Tue, 09 Mar 2010) | 1 line
+
+Make img/src inclusion random, not mandatory. Add raw values to js, fix subtest end lookup
+------------------------------------------------------------------------
+r112 | helixblue | 2010-03-09 10:52:42 +0100 (Tue, 09 Mar 2010) | 1 line
+
+We have a Firefox 3.6 hanger now
+------------------------------------------------------------------------
+r111 | helixblue | 2010-03-09 10:02:35 +0100 (Tue, 09 Mar 2010) | 1 line
+
+Sync the interface changes to the CGI version
+------------------------------------------------------------------------
+r110 | helixblue | 2010-03-08 08:35:12 +0100 (Mon, 08 Mar 2010) | 1 line
+
+Re-arrange testcase directories
+------------------------------------------------------------------------
+r109 | helixblue | 2010-03-08 07:55:27 +0100 (Mon, 08 Mar 2010) | 1 line
+
+Another chrome crasher
+------------------------------------------------------------------------
+r108 | helixblue | 2010-03-08 00:00:41 +0100 (Mon, 08 Mar 2010) | 1 line
+
+More floating point crashes
+------------------------------------------------------------------------
+r107 | helixblue | 2010-03-07 23:46:33 +0100 (Sun, 07 Mar 2010) | 1 line
+
+Mave generateOverflow less static
+------------------------------------------------------------------------
+r106 | helixblue | 2010-03-07 23:45:42 +0100 (Sun, 07 Mar 2010) | 1 line
+
+Tune down some of the excessiveness with overflow triggering. We don't exploit too many of them
+------------------------------------------------------------------------
+r105 | helixblue | 2010-03-07 20:58:35 +0100 (Sun, 07 Mar 2010) | 1 line
+
+Add back the default content-type, remove debug line
+------------------------------------------------------------------------
+r104 | helixblue | 2010-03-07 20:54:12 +0100 (Sun, 07 Mar 2010) | 1 line
+
+Add a dummy favicon.ico link, extend copyright, rename req/res to request/response, fix bug where we reset the http headers before returning
+------------------------------------------------------------------------
+r103 | helixblue | 2010-03-07 18:27:04 +0100 (Sun, 07 Mar 2010) | 1 line
+
+Add video height crasher for Chrome
+------------------------------------------------------------------------
+r102 | helixblue | 2010-03-07 18:26:10 +0100 (Sun, 07 Mar 2010) | 1 line
+
+End garbage text with a newline
+------------------------------------------------------------------------
+r101 | helixblue | 2010-03-07 18:24:18 +0100 (Sun, 07 Mar 2010) | 1 line
+
+Fix subtest generation by making sure all calls to random are accounted for, even when subtesting
+------------------------------------------------------------------------
+r100 | helixblue | 2010-03-07 16:30:09 +0100 (Sun, 07 Mar 2010) | 1 line
+
+Add video width crasher for chrome
+------------------------------------------------------------------------
+r99 | helixblue | 2010-03-07 14:08:06 +0100 (Sun, 07 Mar 2010) | 1 line
+
+1.5-BETA2 - add a Chrome crasher
+------------------------------------------------------------------------
+r97 | helixblue | 2010-03-07 12:54:03 +0100 (Sun, 07 Mar 2010) | 1 line
+
+Add bug.png mapping, fix HTML compliance
+------------------------------------------------------------------------
+r96 | helixblue | 2010-03-07 12:48:11 +0100 (Sun, 07 Mar 2010) | 1 line
+
+Give the form a facelift
+------------------------------------------------------------------------
+r95 | helixblue | 2010-03-07 11:39:55 +0100 (Sun, 07 Mar 2010) | 1 line
+
+Update the docs
+------------------------------------------------------------------------
+r94 | helixblue | 2010-03-07 11:36:52 +0100 (Sun, 07 Mar 2010) | 1 line
+
+Add tool to make source code releases
+------------------------------------------------------------------------
+r93 | helixblue | 2010-03-07 11:33:13 +0100 (Sun, 07 Mar 2010) | 1 line
+
+Do more munging
+------------------------------------------------------------------------
+r92 | helixblue | 2010-03-07 11:26:23 +0100 (Sun, 07 Mar 2010) | 1 line
+
+Change default port to 3100 to avoid conflicts, fix one more upto, and fix mime type parsing
+------------------------------------------------------------------------
+r91 | helixblue | 2010-03-07 11:20:10 +0100 (Sun, 07 Mar 2010) | 1 line
+
+Fix upto syntax
+------------------------------------------------------------------------
+r90 | helixblue | 2010-03-07 11:13:24 +0100 (Sun, 07 Mar 2010) | 1 line
+
+Fix ie.random_mode nil comparison
+------------------------------------------------------------------------
+r89 | helixblue | 2010-03-07 11:08:27 +0100 (Sun, 07 Mar 2010) | 1 line
+
+Rename htdocs to src
+------------------------------------------------------------------------
+r88 | helixblue | 2010-03-07 11:07:36 +0100 (Sun, 07 Mar 2010) | 1 line
+
+Change the way we log to console using webserver.rb
+------------------------------------------------------------------------
+r87 | helixblue | 2010-03-07 09:51:11 +0100 (Sun, 07 Mar 2010) | 1 line
+
+generateGarbageText should also love generateGarbageValue
+------------------------------------------------------------------------
+r86 | helixblue | 2010-03-07 09:40:00 +0100 (Sun, 07 Mar 2010) | 1 line
+
+Activate media fuzzing - oh yeah\!
+------------------------------------------------------------------------
+r85 | helixblue | 2010-03-07 07:34:48 +0100 (Sun, 07 Mar 2010) | 1 line
+
+Add mime-types content
+------------------------------------------------------------------------
+r84 | helixblue | 2010-03-06 22:23:28 +0100 (Sat, 06 Mar 2010) | 1 line
+
+Add some html files for Chrome
+------------------------------------------------------------------------
+r83 | helixblue | 2010-03-06 22:12:29 +0100 (Sat, 06 Mar 2010) | 1 line
+
+Add some url related opera bugs
+------------------------------------------------------------------------
+r82 | helixblue | 2010-03-06 12:34:45 +0100 (Sat, 06 Mar 2010) | 1 line
+
+Add an opera crasher
+------------------------------------------------------------------------
+r81 | helixblue | 2010-03-06 11:58:31 +0100 (Sat, 06 Mar 2010) | 1 line
+
+Better testing values, including a custom handler for html on attributes
+------------------------------------------------------------------------
+r80 | helixblue | 2010-03-06 11:17:48 +0100 (Sat, 06 Mar 2010) | 1 line
+
+iexploder.rb can now load tests.. add javascript testing to each page
+------------------------------------------------------------------------
+r79 | helixblue | 2010-03-06 08:04:14 +0100 (Sat, 06 Mar 2010) | 1 line
+
+Add new protocol/header data
+------------------------------------------------------------------------
+r78 | helixblue | 2010-03-06 08:03:58 +0100 (Sat, 06 Mar 2010) | 1 line
+
+Return accidentally deleted properties
+------------------------------------------------------------------------
+r77 | helixblue | 2010-03-06 08:02:50 +0100 (Sat, 06 Mar 2010) | 1 line
+
+Split out protocol and header properties
+------------------------------------------------------------------------
+r76 | helixblue | 2010-03-06 05:34:31 +0100 (Sat, 06 Mar 2010) | 1 line
+
+We have a Chrome 5.0 crasher
+------------------------------------------------------------------------
+r75 | helixblue | 2010-03-05 14:46:21 +0100 (Fri, 05 Mar 2010) | 1 line
+
+More tweaking: increase attributes_per_html_tag and properties_per_style
+------------------------------------------------------------------------
+r74 | helixblue | 2010-03-05 09:57:06 +0100 (Fri, 05 Mar 2010) | 1 line
+
+Move around our loading text
+------------------------------------------------------------------------
+r73 | helixblue | 2010-03-05 09:54:22 +0100 (Fri, 05 Mar 2010) | 1 line
+
+Fix --port passing
+------------------------------------------------------------------------
+r71 | helixblue | 2010-03-05 09:49:04 +0100 (Fri, 05 Mar 2010) | 1 line
+
+1.4-BETA1
+------------------------------------------------------------------------
+r70 | helixblue | 2010-03-05 09:47:46 +0100 (Fri, 05 Mar 2010) | 1 line
+
+Update README
+------------------------------------------------------------------------
+r69 | helixblue | 2010-03-05 09:44:29 +0100 (Fri, 05 Mar 2010) | 1 line
+
+Fix path interpolation
+------------------------------------------------------------------------
+r68 | helixblue | 2010-03-05 09:30:28 +0100 (Fri, 05 Mar 2010) | 1 line
+
+Add config.yaml file
+------------------------------------------------------------------------
+r67 | helixblue | 2010-03-05 09:30:15 +0100 (Fri, 05 Mar 2010) | 1 line
+
+Do some refactoring, moving configuration into a YAML file
+------------------------------------------------------------------------
+r66 | helixblue | 2010-03-05 07:55:26 +0100 (Fri, 05 Mar 2010) | 1 line
+
+Narrow down some chrome testcases
+------------------------------------------------------------------------
+r65 | helixblue | 2010-03-04 22:42:20 +0100 (Thu, 04 Mar 2010) | 1 line
+
+Narrow down chrome crasher
+------------------------------------------------------------------------
+r64 | helixblue | 2010-03-04 20:25:59 +0100 (Thu, 04 Mar 2010) | 1 line
+
+Fix subtesting
+------------------------------------------------------------------------
+r63 | helixblue | 2010-03-04 20:25:43 +0100 (Thu, 04 Mar 2010) | 1 line
+
+firefox sample
+------------------------------------------------------------------------
+r62 | helixblue | 2010-03-04 18:45:40 +0100 (Thu, 04 Mar 2010) | 1 line
+
+Make it a better URL
+------------------------------------------------------------------------
+r61 | helixblue | 2010-03-04 18:44:59 +0100 (Thu, 04 Mar 2010) | 1 line
+
+Change 127.0.0.1 to a full qualified URL
+------------------------------------------------------------------------
+r60 | helixblue | 2010-03-04 18:15:19 +0100 (Thu, 04 Mar 2010) | 1 line
+
+Make it less likely that there is a missing = after an HTML attribute name
+------------------------------------------------------------------------
+r59 | helixblue | 2010-03-04 17:59:13 +0100 (Thu, 04 Mar 2010) | 1 line
+
+Do some retuning and re-organization for todays generation of bugs. This may cause less crashes, so we need to keep an eye out on the results
+------------------------------------------------------------------------
+r58 | helixblue | 2010-03-04 17:58:32 +0100 (Thu, 04 Mar 2010) | 1 line
+
+update testcases
+------------------------------------------------------------------------
+r57 | helixblue | 2010-03-04 13:46:21 +0100 (Thu, 04 Mar 2010) | 1 line
+
+include the user-agent in the URL as a b variable
+------------------------------------------------------------------------
+r56 | helixblue | 2010-03-04 12:25:26 +0100 (Thu, 04 Mar 2010) | 1 line
+
+HTML_MAX_TAGS 150
+------------------------------------------------------------------------
+r55 | helixblue | 2010-03-04 10:15:48 +0100 (Thu, 04 Mar 2010) | 1 line
+
+Add some chrome test cases
+------------------------------------------------------------------------
+r54 | helixblue | 2010-03-04 09:48:57 +0100 (Thu, 04 Mar 2010) | 1 line
+
+Remove extraneous output
+------------------------------------------------------------------------
+r53 | helixblue | 2010-03-04 09:47:13 +0100 (Thu, 04 Mar 2010) | 1 line
+
+MAX_TAGS = 100
+------------------------------------------------------------------------
+r52 | helixblue | 2010-03-04 09:46:54 +0100 (Thu, 04 Mar 2010) | 1 line
+
+Add html-values
+------------------------------------------------------------------------
+r51 | helixblue | 2010-03-04 09:45:56 +0100 (Thu, 04 Mar 2010) | 1 line
+
+Complete splitting of properties, values, and tags
+------------------------------------------------------------------------
+r50 | helixblue | 2010-03-04 09:25:36 +0100 (Thu, 04 Mar 2010) | 1 line
+
+Start auto-generating html-values as well
+------------------------------------------------------------------------
+r49 | helixblue | 2010-03-04 09:24:46 +0100 (Thu, 04 Mar 2010) | 1 line
+
+Increase MAX_TAGS to 125
+------------------------------------------------------------------------
+r48 | helixblue | 2010-03-03 23:37:11 +0100 (Wed, 03 Mar 2010) | 1 line
+
+make webserver.rb executable
+------------------------------------------------------------------------
+r47 | helixblue | 2010-03-03 23:35:55 +0100 (Wed, 03 Mar 2010) | 1 line
+
+Add support for multiple css attributes in one style tag
+------------------------------------------------------------------------
+r46 | helixblue | 2010-03-03 23:27:10 +0100 (Wed, 03 Mar 2010) | 1 line
+
+Move to tag directories, add tool to extract tags from common open-source browsers
+------------------------------------------------------------------------
+r45 | helixblue | 2010-03-03 20:44:19 +0100 (Wed, 03 Mar 2010) | 3 lines
+
+Move code from /svn/iexploder to /svn/trunk
+
+
+------------------------------------------------------------------------
+r44 | helixblue | 2010-03-03 10:05:40 +0100 (Wed, 03 Mar 2010) | 1 line
+
+Re-license as Apache 2.0
+------------------------------------------------------------------------
+r42 | thomas | 2006-05-31 02:43:02 +0200 (Wed, 31 May 2006) | 1 line
+
+config->ieconfig
+------------------------------------------------------------------------
+r41 | thomas | 2006-05-22 23:21:15 +0200 (Mon, 22 May 2006) | 1 line
+
+Remove version
+------------------------------------------------------------------------
+r40 | thomas | 2006-04-25 21:43:38 +0200 (Tue, 25 Apr 2006) | 1 line
+
+Rename config.rb to ieconfig.rb to avoid conflict with ruby-config
+------------------------------------------------------------------------
+r39 | thomas | 2006-04-21 15:55:51 +0200 (Fri, 21 Apr 2006) | 1 line
+
+1.3.2.. minor adjustment to title and where  gets set
+------------------------------------------------------------------------
+r38 | thomas | 2006-04-19 23:14:26 +0200 (Wed, 19 Apr 2006) | 1 line
+
+Add h4+pre+cite+nolayer+code crash for Safari 2.0.3
+------------------------------------------------------------------------
+r37 | thomas | 2006-04-19 23:01:48 +0200 (Wed, 19 Apr 2006) | 1 line
+
+showtest.rb: easily download a testcase
+------------------------------------------------------------------------
+r36 | thomas | 2006-04-19 22:07:13 +0200 (Wed, 19 Apr 2006) | 1 line
+
+Remove stopping debug message
+------------------------------------------------------------------------
+r35 | thomas | 2006-04-19 22:02:48 +0200 (Wed, 19 Apr 2006) | 1 line
+
+New subtest algorithm: double the tag count each iteration
+------------------------------------------------------------------------
+r34 | thomas | 2006-04-19 21:05:30 +0200 (Wed, 19 Apr 2006) | 1 line
+
+remove IE dupes: text-overflow and word-wrap
+------------------------------------------------------------------------
+r33 | thomas | 2006-04-19 18:48:07 +0200 (Wed, 19 Apr 2006) | 1 line
+
+Add some benchmark/performance info.. set MAX_TAGS default to 96
+------------------------------------------------------------------------
+r32 | thomas | 2006-04-19 16:22:33 +0200 (Wed, 19 Apr 2006) | 1 line
+
+Add stop parameter, fix port assignment issue, fix indentation
+------------------------------------------------------------------------
+r31 | thomas | 2006-04-19 16:22:06 +0200 (Wed, 19 Apr 2006) | 1 line
+
+1.3.0
+------------------------------------------------------------------------
+r30 | thomas | 2006-04-19 04:46:35 +0200 (Wed, 19 Apr 2006) | 1 line
+
+applet+param Hashmap crash in Safari
+------------------------------------------------------------------------
+r29 | thomas | 2006-04-19 04:07:45 +0200 (Wed, 19 Apr 2006) | 1 line
+
+1.3.0
+------------------------------------------------------------------------
+r28 | thomas | 2006-04-19 04:05:47 +0200 (Wed, 19 Apr 2006) | 1 line
+
+commit osx_last_crash minutes->days change, document that you can pass a new port number to the webserver.rb program
+------------------------------------------------------------------------
+r27 | thomas | 2006-04-19 04:02:16 +0200 (Wed, 19 Apr 2006) | 1 line
+
+Add more Safari crashes to the testcases list
+------------------------------------------------------------------------
+r26 | thomas | 2006-04-19 01:05:46 +0200 (Wed, 19 Apr 2006) | 1 line
+
+Greatly improve subtests. Not only do we iterate around each tag, but we steadily increase the amount of tags we input as well
+------------------------------------------------------------------------
+r25 | thomas | 2006-04-18 23:04:17 +0200 (Tue, 18 Apr 2006) | 1 line
+
+1.3b1.. also, raise max tags to 48 now that we have fixed subtest bugs
+------------------------------------------------------------------------
+r24 | thomas | 2006-04-18 22:59:20 +0200 (Tue, 18 Apr 2006) | 1 line
+
+New Webrick based option for standalone hosting
+------------------------------------------------------------------------
+r23 | thomas | 2006-04-18 22:18:35 +0200 (Tue, 18 Apr 2006) | 1 line
+
+Split iexploder.cgi into iexploder.rb and config.rb
+------------------------------------------------------------------------
+r22 | thomas | 2006-04-18 19:36:25 +0200 (Tue, 18 Apr 2006) | 1 line
+
+Add items from WebKit/WebCore/css/CSSValueKeywords.in
+------------------------------------------------------------------------
+r21 | thomas | 2006-04-18 19:32:45 +0200 (Tue, 18 Apr 2006) | 1 line
+
+Add odd new crash from Opera 8.5.4 for Mac
+------------------------------------------------------------------------
+r20 | thomas | 2006-04-18 19:10:15 +0200 (Tue, 18 Apr 2006) | 1 line
+
+Add new Safari test case
+------------------------------------------------------------------------
+r19 | thomas | 2006-04-18 18:25:39 +0200 (Tue, 18 Apr 2006) | 1 line
+
+iExploder 1.3: sync with modern rendering kits
+------------------------------------------------------------------------
+r18 | thomas | 2006-04-18 18:25:18 +0200 (Tue, 18 Apr 2006) | 1 line
+
+New testcases
+------------------------------------------------------------------------
+r17 | thomas | 2006-04-18 18:23:48 +0200 (Tue, 18 Apr 2006) | 1 line
+
+Reshuffle testcases
+------------------------------------------------------------------------
+r16 | thomas | 2005-11-04 04:01:43 +0100 (Fri, 04 Nov 2005) | 1 line
+
+add some test cases
+------------------------------------------------------------------------
+r15 | thomas | 2005-11-04 04:01:19 +0100 (Fri, 04 Nov 2005) | 1 line
+
+Add some cute tabs
+------------------------------------------------------------------------
+r14 | thomas | 2005-10-21 21:34:38 +0200 (Fri, 21 Oct 2005) | 1 line
+
+Crash is not OSX specific
+------------------------------------------------------------------------
+r13 | thomas | 2005-10-21 20:59:41 +0200 (Fri, 21 Oct 2005) | 1 line
+
+Mention the fact that testcases may not be portable across installations
+------------------------------------------------------------------------
+r12 | thomas | 2005-10-21 20:45:48 +0200 (Fri, 21 Oct 2005) | 1 line
+
+Fix lookup html code
+------------------------------------------------------------------------
+r11 | thomas | 2005-10-21 20:22:10 +0200 (Fri, 21 Oct 2005) | 1 line
+
+QuickDraw crash for Mac OS X
+------------------------------------------------------------------------
+r10 | thomas | 2005-10-21 20:14:34 +0200 (Fri, 21 Oct 2005) | 1 line
+
+New crash
+------------------------------------------------------------------------
+r9 | thomas | 2005-10-21 20:06:45 +0200 (Fri, 21 Oct 2005) | 1 line
+
+IE DoS
+------------------------------------------------------------------------
+r8 | thomas | 2005-10-21 19:24:02 +0200 (Fri, 21 Oct 2005) | 1 line
+
+1.2 Update, mostly documentation and test cases
+------------------------------------------------------------------------
+r7 | thomas | 2005-10-21 17:41:39 +0200 (Fri, 21 Oct 2005) | 1 line
+
+back to days, filter out synergy
+------------------------------------------------------------------------
+r6 | thomas | 2005-10-21 17:25:28 +0200 (Fri, 21 Oct 2005) | 1 line
+
+1.2: We now use javascript reloads after 1 second in case the meta breaks (IE)
+------------------------------------------------------------------------
+r5 | thomas | 2005-10-21 14:51:07 +0200 (Fri, 21 Oct 2005) | 1 line
+
+1.1: Fix up our subtest model
+------------------------------------------------------------------------
+r4 | thomas | 2005-10-21 03:55:59 +0200 (Fri, 21 Oct 2005) | 1 line
+
+Support for subtests, and compatibility with mod_ruby
+------------------------------------------------------------------------
+r3 | thomas | 2005-10-21 02:48:59 +0200 (Fri, 21 Oct 2005) | 1 line
+
+update to v1.0
+------------------------------------------------------------------------
+r1 | tstrombe | 2005-02-28 14:13:25 +0100 (Mon, 28 Feb 2005) | 1 line
+
+iexploder software
+------------------------------------------------------------------------

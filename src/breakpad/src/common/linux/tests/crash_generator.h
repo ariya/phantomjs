@@ -38,6 +38,7 @@
 #include <string>
 
 #include "common/tests/auto_tempdir.h"
+#include "common/using_std_string.h"
 
 namespace google_breakpad {
 
@@ -59,10 +60,10 @@ class CrashGenerator {
   bool HasDefaultCorePattern() const;
 
   // Returns the expected path of the core dump file.
-  std::string GetCoreFilePath() const;
+  string GetCoreFilePath() const;
 
   // Returns the directory of a copy of proc files of the child process.
-  std::string GetDirectoryOfProcFilesCopy() const;
+  string GetDirectoryOfProcFilesCopy() const;
 
   // Creates a crash (and a core dump file) by creating a child process with
   // |num_threads| threads, and the terminating the child process by sending

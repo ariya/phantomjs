@@ -1,0 +1,9 @@
+# -------------------------------------------------------------------
+# Module file for WebCore, used by targets that depend on WebCore
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+WEBKIT.webcore.root_source_dir = $${ROOT_WEBKIT_DIR}/Source/WebCore
+
+include($${WEBKIT.webcore.root_source_dir}/WebCore.pri)

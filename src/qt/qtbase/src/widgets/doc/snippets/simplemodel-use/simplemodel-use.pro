@@ -1,0 +1,1 @@
+SOURCES += main.cpp

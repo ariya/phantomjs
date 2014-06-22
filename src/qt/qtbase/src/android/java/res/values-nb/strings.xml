@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="ministro_not_found_msg">Kan ikke finne tjenesten Ministro. Applikasjonen kan ikke starte.</string>
+    <string name="ministro_needed_msg">Denne applikasjonen krever tjenesten Ministro. Vil du installere denne?</string>
+    <string name="fatal_error_msg">Applikasjonen fikk en kritisk feil og kan ikke fortsette</string>
+</resources>

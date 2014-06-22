@@ -1,0 +1,13 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+datadir=${prefix}/@DATA_INSTALL_DIR@
+
+Name: WebKit2-EFL
+Description: Web content engine for EFL applications
+Version: @PROJECT_VERSION@
+Requires: cairo evas ecore harfbuzz libsoup-2.4 ecore-input
+Libs: -L${libdir} -lewebkit2
+Libs.private: @LIBS_PRIVATE@
+Cflags: -I${includedir}/@WebKit2_OUTPUT_NAME@-@PROJECT_VERSION_MAJOR@

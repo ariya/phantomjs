@@ -41,11 +41,13 @@
 #include <map>
 #include <memory>
 #include <stack>
+#include <string>
 #include <utility>
 
 #include "common/dwarf/bytereader-inl.h"
 #include "common/dwarf/bytereader.h"
 #include "common/dwarf/line_state_machine.h"
+#include "common/using_std_string.h"
 
 namespace dwarf2reader {
 
@@ -498,7 +500,7 @@ void CompilationUnit::ProcessDIEs() {
 
     const Abbrev& abbrev = abbrevs_->at(static_cast<size_t>(abbrev_num));
     const enum DwarfTag tag = abbrev.tag;
-    if (!handler_->StartDIE(absolute_offset, tag, abbrev.attributes)) {
+    if (!handler_->StartDIE(absolute_offset, tag)) {
       dieptr = SkipDIE(dieptr, abbrev);
     } else {
       dieptr = ProcessDIE(absolute_offset, dieptr, abbrev);
@@ -1004,7 +1006,7 @@ class CallFrameInfo::RegisterRule: public CallFrameInfo::Rule {
 // Rule: EXPRESSION evaluates to the address at which the register is saved.
 class CallFrameInfo::ExpressionRule: public CallFrameInfo::Rule {
  public:
-  explicit ExpressionRule(const std::string &expression)
+  explicit ExpressionRule(const string &expression)
       : expression_(expression) { }
   ~ExpressionRule() { }
   bool Handle(Handler *handler, uint64 address, int reg) const {
@@ -1018,13 +1020,13 @@ class CallFrameInfo::ExpressionRule: public CallFrameInfo::Rule {
   }
   Rule *Copy() const { return new ExpressionRule(*this); }
  private:
-  std::string expression_;
+  string expression_;
 };
 
 // Rule: EXPRESSION evaluates to the address at which the register is saved.
 class CallFrameInfo::ValExpressionRule: public CallFrameInfo::Rule {
  public:
-  explicit ValExpressionRule(const std::string &expression)
+  explicit ValExpressionRule(const string &expression)
       : expression_(expression) { }
   ~ValExpressionRule() { }
   bool Handle(Handler *handler, uint64 address, int reg) const {
@@ -1039,7 +1041,7 @@ class CallFrameInfo::ValExpressionRule: public CallFrameInfo::Rule {
   }
   Rule *Copy() const { return new ValExpressionRule(*this); }
  private:
-  std::string expression_;
+  string expression_;
 };
 
 // A map from register numbers to rules.
@@ -1220,7 +1222,7 @@ class CallFrameInfo::State {
     unsigned register_number;  // A register number.
     uint64 offset;             // An offset or address.
     long signed_offset;        // A signed offset.
-    std::string expression;    // A DWARF expression.
+    string expression;         // A DWARF expression.
   };
 
   // Parse CFI instruction operands from STATE's instruction stream as
@@ -1407,7 +1409,7 @@ bool CallFrameInfo::State::ParseOperands(const char *format,
         if (len > bytes_left || expression_length > bytes_left - len)
           return ReportIncomplete();
         cursor_ += len;
-        operands->expression = std::string(cursor_, expression_length);
+        operands->expression = string(cursor_, expression_length);
         cursor_ += expression_length;
         break;
       }
@@ -1510,16 +1512,19 @@ bool CallFrameInfo::State::DoInstruction() {
 
     // Change the base register used to compute the CFA.
     case DW_CFA_def_cfa_register: {
+      if (!ParseOperands("r", &ops)) return false;
       Rule *cfa_rule = rules_.CFARule();
       if (!cfa_rule) {
-        reporter_->NoCFARule(entry_->offset, entry_->kind, CursorOffset());
+        if (!DoDefCFA(ops.register_number, ops.offset)) {
+          reporter_->NoCFARule(entry_->offset, entry_->kind, CursorOffset());
+          return false;
+        }
+      } else {
+        cfa_rule->SetBaseRegister(ops.register_number);
+        if (!cfa_rule->Handle(handler_, address_,
+                              Handler::kCFARegister))
         return false;
       }
-      if (!ParseOperands("r", &ops)) return false;
-      cfa_rule->SetBaseRegister(ops.register_number);
-      if (!cfa_rule->Handle(handler_, address_,
-                            Handler::kCFARegister))
-        return false;
       break;
     }
 
@@ -1872,7 +1877,7 @@ bool CallFrameInfo::ReadCIEFields(CIE *cie) {
       memchr(augmentation_start, '\0', cie->end - augmentation_start);
   if (! augmentation_end) return ReportIncomplete(cie);
   cursor = static_cast<const char *>(augmentation_end);
-  cie->augmentation = std::string(augmentation_start,
+  cie->augmentation = string(augmentation_start,
                                   cursor - augmentation_start);
   // Skip the terminating '\0'.
   cursor++;
@@ -2260,7 +2265,7 @@ void CallFrameInfo::Reporter::UnrecognizedVersion(uint64 offset, int version) {
 }
 
 void CallFrameInfo::Reporter::UnrecognizedAugmentation(uint64 offset,
-                                                       const std::string &aug) {
+                                                       const string &aug) {
   fprintf(stderr,
           "%s: CFI frame description entry at offset 0x%llx in '%s':"
           " CIE specifies unrecognized augmentation: '%s'\n",

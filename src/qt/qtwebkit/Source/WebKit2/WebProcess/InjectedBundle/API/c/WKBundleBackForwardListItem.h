@@ -1,0 +1,55 @@
+/*
+ * Copyright (C) 2010 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#ifndef WKBundleBackForwardListItem_h
+#define WKBundleBackForwardListItem_h
+
+#include <WebKit2/WKBase.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+WK_EXPORT WKTypeID WKBundleBackForwardListItemGetTypeID();
+
+WK_EXPORT bool WKBundleBackForwardListItemIsSame(WKBundleBackForwardListItemRef item1, WKBundleBackForwardListItemRef item2);
+
+WK_EXPORT WKURLRef WKBundleBackForwardListItemCopyOriginalURL(WKBundleBackForwardListItemRef item);
+WK_EXPORT WKURLRef WKBundleBackForwardListItemCopyURL(WKBundleBackForwardListItemRef item);
+WK_EXPORT WKStringRef WKBundleBackForwardListItemCopyTitle(WKBundleBackForwardListItemRef item);
+
+WK_EXPORT WKStringRef WKBundleBackForwardListItemCopyTarget(WKBundleBackForwardListItemRef item);
+WK_EXPORT bool WKBundleBackForwardListItemIsTargetItem(WKBundleBackForwardListItemRef item);
+
+WK_EXPORT bool WKBundleBackForwardListItemIsInPageCache(WKBundleBackForwardListItemRef item);
+WK_EXPORT bool WKBundleBackForwardListItemHasCachedPageExpired(WKBundleBackForwardListItemRef item);
+
+WK_EXPORT WKArrayRef WKBundleBackForwardListItemCopyChildren(WKBundleBackForwardListItemRef item);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* WKBundleBackForwardListItem_h */

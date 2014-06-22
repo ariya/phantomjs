@@ -1,0 +1,87 @@
+#!/usr/bin/python
+# Copyright (C) 2013 Apple Inc.  All rights reserved.
+# Copyright (C) 2012 Google Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import optparse
+import os
+import subprocess
+import sys
+
+
+def main():
+    parser = optparse.OptionParser("usage: %prog [options]")
+    parser.add_option("--platform")
+    parser.add_option("--build-directory")
+    parser.add_option("--debug", action="store_const", const="debug", dest="configuration")
+    parser.add_option("--release", action="store_const", const="release", dest="configuration")
+
+    options, parameters = parser.parse_args()
+    if not options.platform:
+        parser.error("Platform is required")
+        return -1
+    if not options.configuration:
+        parser.error("Configuration is required")
+        return -2
+
+    genericPlatform = options.platform.split('-', 1)[0]
+    if genericPlatform != 'mac':
+        print 'Exited without removing any files.'
+        return 0
+
+    if options.build_directory:
+        buildDirectory = options.build_directory
+    else:
+        buildDirectory = webkitBuildDirectory(genericPlatform, options.configuration)
+
+    exit_code = 0
+
+    for root, _, files in os.walk(buildDirectory):
+        for name in files:
+            full_path = os.path.join(root, name)
+            ext = os.path.splitext(full_path)[1]
+
+            try:
+                if ext not in ('.o', '.d') or os.path.getsize(full_path):
+                    continue
+            except OSError as exception:
+                print exception
+                continue
+
+            try:
+                os.remove(full_path)
+                print 'Removed', full_path
+            except OSError as exception:
+                print exception
+                exit_code += 1
+
+    return exit_code
+
+
+def webkitBuildDirectory(platform, configuration):
+    return subprocess.Popen(['perl', os.path.join(os.path.dirname(__file__), "..", "Scripts", "webkit-build-directory"),
+        "--" + platform, "--" + configuration, '--top-level'], stdout=subprocess.PIPE).communicate()[0].strip()
+
+
+if __name__ == '__main__':
+    sys.exit(main())

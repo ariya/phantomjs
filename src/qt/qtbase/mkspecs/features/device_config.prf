@@ -1,0 +1,30 @@
+# This file is loaded by some qmakespecs to get early configuration data.
+
+# Load generated qdevice.pri
+DEVICE_PRI = $$[QT_HOST_DATA/get]/mkspecs/qdevice.pri
+exists($$DEVICE_PRI):include($$DEVICE_PRI)
+unset(DEVICE_PRI)
+
+isEmpty(CROSS_COMPILE) {
+    #this variable can be persisted via qmake -set CROSS_COMPILE /foo
+    CROSS_COMPILE = $$[CROSS_COMPILE]
+}
+
+# Provide a function to be used by mkspecs
+defineTest(deviceSanityCheckCompiler) {
+    # Check if the binary exists with an absolute path. Do this check
+    # before the CROSS_COMPILE empty check below to allow the mkspec
+    # to derive the compiler path from other device options.
+    exists($$QMAKE_CXX):return()
+
+    # Check for possible reasons of failure
+    # check if CROSS_COMPILE device-option is set
+    isEmpty(CROSS_COMPILE):error("CROSS_COMPILE needs to be set via -device-option CROSS_COMPILE=<path>")
+
+    # Check if QMAKE_CXX points to an executable.
+    system("which $$QMAKE_CXX > /dev/null"):return()
+
+    # QMAKE_CXX does not point to a compiler.
+    error("Compiler $$QMAKE_CXX not found. Check the value of CROSS_COMPILE -device-option")
+}
+

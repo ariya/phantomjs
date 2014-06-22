@@ -1,0 +1,2572 @@
++[WebPreferences initialize]
+_WebKitLinkedOnOrAfter
++[WebPreferences(WebPrivate) setWebKitLinkTimeVersion:]
+_setWebKitLinkTimeVersion
++[WebView initialize]
+__Z26InitWebCoreSystemInterfacev
++[WebView(WebPrivate) _standardUserAgentWithApplicationName:]
++[WebPreferences standardPreferences]
+-[WebPreferences initWithIdentifier:]
++[WebPreferences(WebInternal) _IBCreatorID]
++[WebPreferences(WebPrivate) _getInstanceForIdentifier:]
++[WebPreferences(WebPrivate) _setInstance:forIdentifier:]
+-[WebPreferences(WebPrivate) _postPreferencesChangedNotification]
++[WebView(WebFileInternal) _preferencesChangedNotification:]
+-[WebPreferences cacheModel]
+-[WebPreferences _integerValueForKey:]
+-[WebPreferences _valueForKey:]
++[WebView(WebFileInternal) _didSetCacheModel]
++[WebView(WebFileInternal) _setCacheModel:]
+_WKCopyFoundationCacheDirectory
+_cfURLCache
+_WebMemorySize
+_initCapabilities
+_WebVolumeFreeSize
+-[WebPreferences setAutosaves:]
++[NSString(WebKitExtras) _webkit_localCacheDirectoryWithBundleIdentifier:]
+-[NSString(WebKitExtras) _web_stringByAbbreviatingWithTildeInPath]
++[WebView(WebPrivate) _registerViewClass:representationClass:forURLScheme:]
++[WebView(WebPrivate) _generatedMIMETypeForURLScheme:]
++[WebView registerViewClass:representationClass:forMIMEType:]
++[WebFrameView(WebInternal) _viewTypesAllowImageTypeOmission:]
++[WebHTMLView initialize]
++[WebHTMLView(WebPrivate) _insertablePasteboardTypes]
++[WebHTMLView(WebPrivate) _selectionPasteboardTypes]
++[WebHTMLView(WebPrivate) supportedNonImageMIMETypes]
++[WebHTMLRepresentation supportedNonImageMIMETypes]
+__ZL11stringArrayRKN3WTF7HashSetINS_6StringENS_10StringHashENS_10HashTraitsIS1_EEEE
++[WebPDFView supportedMIMETypes]
++[WebPDFRepresentation supportedMIMETypes]
++[WebPDFRepresentation postScriptMIMETypes]
++[WebDataSource(WebInternal) _repTypesAllowImageTypeOmission:]
+_WebInstallMemoryPressureHandler
++[WebPreferences(WebPrivate) _setInitialDefaultTextEncodingToSystemEncoding]
++[WebPreferences(WebPrivate) _systemCFStringEncoding]
+_WKGetWebDefaultCFStringEncoding
+-[NSString(WebKitExtras) _webkit_isCaseInsensitiveEqualToString:]
+-[WebPreferences arePlugInsEnabled]
+-[WebPreferences _boolValueForKey:]
+-[WebPreferences(WebPrivate) acceleratedCompositingEnabled]
++[NSURL(WebNSURLExtras) _web_URLWithDataAsString:]
++[NSURL(WebNSURLExtras) _web_URLWithDataAsString:relativeToURL:]
+-[NSString(WebKitExtras) _webkit_stringByTrimmingWhitespace]
++[NSURL(WebNSURLExtras) _web_URLWithData:relativeToURL:]
+-[NSURL(WebNSURLExtras) _web_originalDataAsString]
+-[NSURL(WebNSURLExtras) _web_originalData]
+_WebLocalizedString
++[WebView(WebPrivate) _registerURLSchemeAsSecure:]
++[WebView(WebPrivate) _setDomainRelaxationForbidden:forURLScheme:]
+-[WebPreferences(WebPrivate) setDeveloperExtrasEnabled:]
+-[WebPreferences _setBoolValue:forKey:]
++[NSPasteboard(WebExtras) _web_dragTypesForURL]
+-[NSString(WebKitExtras) _web_widthWithFont:]
+__ZN7WebCore16FontFallbackListD1Ev
+__ZN7WebCore10FontFamilyD1Ev
+__ZN3WTF10ListRefPtrIN7WebCore16SharedFontFamilyEED2Ev
+__ZN3WTF14derefIfNotNullIN7WebCore16SharedFontFamilyEEEvPT_
++[WebStringTruncator initialize]
++[WebStringTruncator centerTruncateString:toWidth:withFont:]
+__ZL14fontFromNSFontP6NSFont
++[NSUserDefaults(WebNSUserDefaultsExtras) _webkit_preferredLanguageCode]
+-[NSView(WebExtras) _web_superviewOfClass:]
++[WebHistory(WebPrivate) _setVisitedLinkTrackingEnabled:]
++[WebHistory(WebPrivate) _removeAllVisitedLinks]
+-[WebPreferences(WebPrivate) setRespectStandardStyleKeyEquivalents:]
+-[WebPreferences setPrivateBrowsingEnabled:]
+-[WebPreferences(WebPrivate) setDOMPasteAllowed:]
+-[WebPreferences setCacheModel:]
+-[WebPreferences _setIntegerValue:forKey:]
+-[WebPreferences(WebPrivate) setAutomaticallyDetectsCacheModel:]
++[NSURL(WebNSURLExtras) _web_URLWithUserTypedString:]
++[NSURL(WebNSURLExtras) _web_URLWithUserTypedString:relativeToURL:]
+__ZL12mapHostNamesP8NSStringa
+-[NSURL(WebNSURLExtras) _web_userVisibleString]
+-[NSEvent(WebExtras) _web_isOptionTabKeyEvent]
+-[NSString(WebNSURLExtras) _web_isUserVisibleURL]
+-[NSURL(WebNSURLExtras) _webkit_canonicalize]
+_WKNSURLProtocolClassForRequest
++[WebStringTruncator rightTruncateString:toWidth:withFont:]
+-[NSString(WebKitExtras) _web_drawAtPoint:font:textColor:]
+-[NSString(WebKitExtras) _web_drawAtPoint:font:textColor:allowingFontSmoothing:]
+-[NSURL(WebNSURLExtras) _web_hostString]
+-[NSURL(WebNSURLExtras) _web_hostData]
+-[NSURL(WebNSURLExtras) _web_dataForURLComponentType:]
+-[NSURL(WebNSURLExtras) _web_schemeData]
+-[NSData(WebNSDataExtras) _web_isCaseInsensitiveEqualToCString:]
+-[NSEvent(WebExtras) _web_isReturnOrEnterKeyEvent]
+-[NSEvent(WebExtras) _web_isKeyEvent:]
++[NSPasteboard(WebExtras) _web_setFindPasteboardString:withOwner:]
+-[WebPreferences(WebPrivate) setAllowUniversalAccessFromFileURLs:]
+-[WebPreferences(WebPrivate) setAllowFileAccessFromFileURLs:]
+-[WebPreferences setStandardFontFamily:]
+-[WebPreferences _setStringValue:forKey:]
+-[WebPreferences _stringValueForKey:]
+-[WebPreferences setFixedFontFamily:]
+-[WebPreferences setSerifFontFamily:]
+-[WebPreferences setSansSerifFontFamily:]
+-[WebPreferences setCursiveFontFamily:]
+-[WebPreferences setFantasyFontFamily:]
+-[WebPreferences setDefaultFontSize:]
+-[WebPreferences setDefaultFixedFontSize:]
+-[WebPreferences setMinimumFontSize:]
+-[WebPreferences setJavaEnabled:]
+-[WebPreferences setJavaScriptEnabled:]
+-[WebPreferences(WebPrivate) setEditableLinkBehavior:]
+-[WebPreferences setTabsToLinks:]
+-[WebPreferences setShouldPrintBackgrounds:]
+-[WebPreferences(WebPrivate) setXSSAuditorEnabled:]
+-[WebPreferences(WebPrivate) setExperimentalNotificationsEnabled:]
+-[WebPreferences(WebPrivate) setPluginAllowedRunTime:]
+-[WebPreferences setPlugInsEnabled:]
+-[WebPreferences(WebPrivate) setAuthorAndUserStylesEnabled:]
+-[WebPreferences setJavaScriptCanOpenWindowsAutomatically:]
+-[WebPreferences(WebPrivate) setJavaScriptCanAccessClipboard:]
+-[WebPreferences(WebPrivate) setOfflineWebApplicationCacheEnabled:]
+-[WebPreferences setLoadsImagesAutomatically:]
+-[WebPreferences(WebPrivate) setLoadsSiteIconsIgnoringImageLoadingPreference:]
+-[WebPreferences(WebPrivate) setFrameFlatteningEnabled:]
+-[WebPreferences(WebPrivate) setSpatialNavigationEnabled:]
+-[WebPreferences setUserStyleSheetEnabled:]
+-[WebPreferences setUsesPageCache:]
+-[WebPreferences(WebPrivate) setAcceleratedCompositingEnabled:]
+-[WebPreferences(WebPrivate) setCanvasUsesAcceleratedDrawing:]
+-[WebPreferences(WebPrivate) setAcceleratedDrawingEnabled:]
+-[WebPreferences(WebPrivate) setWebGLEnabled:]
+-[WebPreferences(WebPrivate) setUsePreHTML5ParserQuirks:]
+-[WebPreferences(WebPrivate) setAsynchronousSpellCheckingEnabled:]
++[WebView(WebPrivate) _setLoadResourcesSerially:]
+_WKInitializeMaximumHTTPConnectionCountPerHost
++[WebPluginDatabase setAdditionalWebPlugInPaths:]
++[WebPluginDatabase sharedDatabase]
+-[WebPluginDatabase init]
++[WebPluginDatabase(Internal) _defaultPlugInPaths]
+-[WebPluginDatabase setPlugInPaths:]
+-[WebPluginDatabase refresh]
+-[WebPluginDatabase(Internal) _scanForNewPlugins]
+-[WebPluginDatabase(Internal) _plugInPaths]
++[WebBasePluginPackage initialize]
++[WebBasePluginPackage pluginWithPath:]
+-[WebBasePluginPackage .cxx_construct]
+-[WebPluginPackage initWithPath:]
+-[WebBasePluginPackage initWithPath:]
+-[WebPluginPackage dealloc]
+-[WebBasePluginPackage dealloc]
+-[WebBasePluginPackage .cxx_destruct]
+__ZN7WebCore10PluginInfoD1Ev
+__ZN3WTF6VectorIN7WebCore13MimeClassInfoELm0EED1Ev
+-[WebNetscapePluginPackage initWithPath:]
+-[WebNetscapePluginPackage _initWithPath:]
+-[WebBasePluginPackage getPluginInfoFromPLists]
+-[WebBasePluginPackage _objectForInfoDictionaryKey:]
+-[NSArray(WebPluginExtensions) _web_lowercaseStrings]
+__ZN3WTF6VectorINS_6StringELm0EE14expandCapacityEm
+__ZN3WTF6VectorIN7WebCore13MimeClassInfoELm0EE15reserveCapacityEm
+__ZN7WebCore13MimeClassInfoC2ERKS0_
+__ZN3WTF6VectorINS_6StringELm0EEC2ERKS2_
+__ZN7WebCore13MimeClassInfoD1Ev
+__ZN3WTF6VectorINS_6StringELm0EED1Ev
+-[WebBasePluginPackage isNativeLibraryData:]
+-[WebBasePluginPackage pListForPath:createFile:]
++[WebBasePluginPackage preferredLocalizationName]
+_WKCopyCFLocalizationPreferredName
+-[WebNetscapePluginPackage(Internal) _unloadWithShutdown:]
+-[WebPluginDatabase(Internal) _addPlugin:]
+-[WebBasePluginPackage path]
+-[WebBasePluginPackage wasAddedToPluginDatabase:]
+-[WebBasePluginPackage pluginInfo]
++[WebView canShowMIMETypeAsHTML:]
++[WebFrameView(WebInternal) _canShowMIMETypeAsHTML:]
+-[NSDictionary(WebNSDictionaryExtras) _webkit_objectForMIMEType:]
+-[WebPluginDatabase pluginForMIMEType:]
+-[WebBasePluginPackage supportsMIMEType:]
+__ZN23PluginPackageCandidates6updateEP20WebBasePluginPackage
+-[WebNetscapePluginPackage executableType]
+__ZL14checkCandidatePP20WebBasePluginPackageS1_
+-[WebBasePluginPackage isQuickTimePlugIn]
+-[WebBasePluginPackage bundleIdentifier]
+-[WebBasePluginPackage isJavaPlugIn]
++[WebView(WebPrivate) _registerPluginMIMEType:]
+__ZN3WTF9HashTableINS_6StringES1_NS_17IdentityExtractorIS1_EENS_10StringHashENS_10HashTraitsIS1_EES6_E3addIS1_S1_NS_22IdentityHashTranslatorIS1_S1_S4_EEEESt4pairINS_17HashTableIteratorIS1_S1_S3_S4_S6_S6_EEbERKT_RKT0_
+__ZNK3WTF10StringImpl4hashEv
+__ZN3WTF9HashTableINS_6StringES1_NS_17IdentityExtractorIS1_EENS_10StringHashENS_10HashTraitsIS1_EES6_E6rehashEi
+__ZN3WTF9HashTableINS_6StringES1_NS_17IdentityExtractorIS1_EENS_10StringHashENS_10HashTraitsIS1_EES6_E16lookupForWritingIS1_NS_22IdentityHashTranslatorIS1_S1_S4_EEEESt4pairIPS1_bERKT_
+__ZN3WTF9HashTableINS_6StringES1_NS_17IdentityExtractorIS1_EENS_10StringHashENS_10HashTraitsIS1_EES6_E6lookupIS1_NS_22IdentityHashTranslatorIS1_S1_S4_EEEEPS1_RKT_
+-[WebPluginDatabase(Internal) _removePlugin:]
++[WebView(WebPrivate) _unregisterPluginMIMEType:]
++[WebView(WebPrivate) _unregisterViewClassAndRepresentationClassForMIMEType:]
++[WebHTMLView(WebPrivate) supportedImageMIMETypes]
++[WebHTMLRepresentation supportedImageMIMETypes]
+__ZN3WTF9HashTableINS_6StringES1_NS_17IdentityExtractorIS1_EENS_10StringHashENS_10HashTraitsIS1_EES6_E6removeEPS1_
+-[WebNetscapePluginPackage wasRemovedFromPluginDatabase:]
+-[WebBasePluginPackage wasRemovedFromPluginDatabase:]
+-[WebView initWithFrame:frameName:groupName:]
+__ZL32needsWebViewInitThreadWorkaroundv
+-[WebView(WebPrivate) _initWithFrame:frameName:groupName:usesDocumentViews:]
++[WebViewPrivate initialize]
+-[WebViewPrivate .cxx_construct]
+-[WebViewPrivate init]
+-[WebView(WebPrivate) _commonInitializationWithFrameName:groupName:usesDocumentViews:]
+-[WebPreferences(WebPrivate) willAddToWebView]
+-[WebFrameView initWithFrame:]
++[WebViewFactory createSharedFactory]
+-[WebDynamicScrollBarsView initWithFrame:]
+-[WebClipView initWithFrame:]
+-[WebClipView visibleRect]
+-[WebDynamicScrollBarsView(WebInternal) tile]
+-[WebFrameView visibleRect]
+-[WebFrameView webFrame]
+-[WebView(WebPrivate) isFlipped]
+_WebKitInitializeLoggingChannelsIfNecessary
+_initializeLogChannel
++[WebHistoryItem initialize]
++[WebHistoryItem(WebInternal) initWindowWatcherIfNecessary]
+__Z36WebKitInitializeDatabasesIfNecessaryv
+__ZN24WebDatabaseManagerClient30sharedWebDatabaseManagerClientEv
+__Z34WebKitInitializeStorageIfNecessaryv
+__ZN23WebStorageManagerClient29sharedWebStorageManagerClientEv
+__ZN21WebPlatformStrategies10initializeEv
+__ZN15WebChromeClientC1EP7WebView
+__ZN20WebContextMenuClientC1EP7WebView
+__ZN15WebEditorClientC1EP7WebView
+__ZN15WebEditorClientC2EP7WebView
+__ZN15CorrectionPanelC1Ev
+__ZN13WebDragClientC1EP7WebView
+__ZN18WebInspectorClientC1EP7WebView
+__ZN18WebInspectorClientC2EP7WebView
+-[WebNodeHighlighter initWithInspectedWebView:]
+__ZN21WebPluginHalterClientC1EP7WebView
+__ZN20WebGeolocationClientC1EP7WebView
+-[WebView preferences]
+-[WebPreferences(WebPrivate) _localStorageDatabasePath]
++[WebFrame(WebInternal) _createMainFrameWithPage:frameName:frameView:]
++[WebFrame(WebInternal) _createFrameWithPage:frameName:frameView:ownerElement:]
+__ZNK15WebChromeClient7webViewEv
+-[WebFrame(WebInternal) _initWithWebFrameView:webView:]
++[WebView(WebViewInternal) shouldIncludeInWebKitStatistics]
+-[WebFramePrivate setWebFrameView:]
+-[WebFrameView(WebInternal) _setWebFrame:]
+-[WebFrame(WebInternal) _isIncludedInWebKitStatistics]
+__ZN20WebFrameLoaderClientC1EP8WebFrame
+__ZN20WebFrameLoaderClientC2EP8WebFrame
+__ZN20WebFrameLoaderClient20createDocumentLoaderERKN7WebCore15ResourceRequestERKNS0_14SubstituteDataE
+__ZN20WebDocumentLoaderMacC1ERKN7WebCore15ResourceRequestERKNS0_14SubstituteDataE
+__ZN20WebDocumentLoaderMacC2ERKN7WebCore15ResourceRequestERKNS0_14SubstituteDataE
+-[WebDataSource(WebInternal) _initWithDocumentLoader:]
++[WebDataSourcePrivate initialize]
+-[WebDataSource webFrame]
+__Z10getWebViewP8WebFrame
+__ZN20WebDocumentLoaderMac13setDataSourceEP13WebDataSourceP7WebView
+-[WebView resourceLoadDelegate]
+-[WebView downloadDelegate]
+__ZN20WebDocumentLoaderMac13attachToFrameEv
+__ZN20WebFrameLoaderClient22provisionalLoadStartedEv
+-[WebFrameView(WebInternal) _scrollView]
+__ZN20WebFrameLoaderClient25setMainFrameDocumentReadyEb
+-[WebView(WebPendingPublic) setMainFrameDocumentReady:]
+__ZN20WebFrameLoaderClient17setCopiesOnScrollEv
+__ZN20WebFrameLoaderClient31prepareForDataSourceReplacementEv
+-[WebFrame(WebInternal) _dataSource]
+__ZN20WebFrameLoaderClient31transitionToCommittedForNewPageEv
+__ZNK20WebDocumentLoaderMac10dataSourceEv
+-[WebView(WebPrivate) _usesDocumentViews]
+-[WebDataSource(WebPrivate) _responseMIMEType]
+-[WebDataSource response]
+-[WebFrameView(WebInternal) _viewClassForMIMEType:]
+-[WebFrameView(WebInternal) _webView]
+-[WebFrame webView]
++[WebFrameView(WebInternal) _viewClassForMIMEType:allowingPlugins:]
++[WebView(WebPrivate) _viewClass:andRepresentationClass:forMIMEType:allowingPlugins:]
++[WebHTMLView(WebPrivate) unsupportedTextMIMETypes]
++[WebHTMLRepresentation unsupportedTextMIMETypes]
+__Z4coreP8WebFrame
+-[WebView removePluginInstanceViewsFor:]
+-[WebFrameView(WebInternal) _makeDocumentViewForDataSource:]
+-[WebDataSource representation]
+-[WebHTMLView initWithFrame:]
++[WebHTMLViewPrivate initialize]
+-[WebPluginController initWithDocumentView:]
+-[WebFrameView(WebInternal) _setDocumentView:]
+__Z4coreP7WebView
+-[WebView(WebPrivate) page]
+-[WebDynamicScrollBarsView(WebInternal) setSuppressLayout:]
+-[WebHTMLView viewWillMoveToSuperview:]
+-[WebHTMLView(WebHTMLViewFileInternal) _removeSuperviewObservers]
+-[WebHTMLView setNeedsDisplayInRect:]
+__ZL21setNeedsDisplayInRectP6NSViewP13objc_selector6CGRect
+-[WebHTMLView visibleRect]
+-[WebClipView hasAdditionalClip]
+-[WebFrame(WebInternal) _getVisibleRect:]
+-[WebHTMLView isFlipped]
+-[WebHTMLView viewDidMoveToSuperview]
+-[WebHTMLView addSuperviewObservers]
+-[WebHTMLView(WebPrivate) _isUsingAcceleratedCompositing]
+-[WebHTMLView _invalidateGStatesForTree]
+-[WebDynamicScrollBarsView(WebInternal) reflectScrolledClipView:]
+-[WebDynamicScrollBarsView(WebInternal) updateScrollers]
+-[WebDynamicScrollBarsView(WebInternal) adjustForScrollOriginChange]
+-[WebFrame(WebInternal) _updateBackgroundAndUpdatesWhileOffscreen]
+-[WebView drawsBackground]
+-[WebView(WebPrivate) backgroundColor]
+-[WebFrame frameView]
+-[WebFrameView documentView]
+-[WebView shouldUpdateWhileOffscreen]
+-[WebFrameView(WebInternal) _install]
+-[WebDynamicScrollBarsView(WebInternal) scrollingModes:vertical:]
+-[WebHTMLView setDataSource:]
+-[WebPluginController setDataSource:]
+-[WebHTMLView addMouseMovedObserver]
+-[WebHTMLView(WebHTMLViewFileInternal) _isTopHTMLView]
+-[WebHTMLView(WebHTMLViewFileInternal) _topHTMLView]
+-[WebDataSource(WebInternal) _webView]
+-[WebView mainFrame]
+__Z3kitPN7WebCore5FrameE
+-[WebHTMLView(WebHTMLViewFileInternal) _webView]
+-[WebView(WebPrivate) _dashboardBehavior:]
+-[WebDataSource(WebInternal) _documentLoader]
+-[WebDataSource pageTitle]
+__ZN20WebFrameLoaderClient15finishedLoadingEPN7WebCore14DocumentLoaderE
+-[WebDataSource(WebInternal) _finishedLoading]
+__ZNK7WebCore17FrameLoaderClient23shouldUsePluginDocumentERKN3WTF6StringE
+__ZNK20WebFrameLoaderClient11hasHTMLViewEv
+__ZNK7WebCore12ChromeClient26allowedCompositingTriggersEv
+__ZN15WebChromeClient28numWheelEventHandlersChangedEj
+-[WebHTMLView(WebInternal) _needsLayout]
+-[WebHTMLView(WebInternal) _frame]
+-[WebFrame(WebInternal) _needsLayout]
+_WKMakeScrollbarPainterController
+_WKContentAreaResized
+__ZNK15WebChromeClient19contentsSizeChangedEPN7WebCore5FrameERKNS0_7IntSizeE
+__ZNK20WebFrameLoaderClient17overrideMediaTypeEv
+-[WebView mediaStyle]
+__ZN20WebFrameLoaderClient24documentElementAvailableEv
+__ZN20WebFrameLoaderClient18frameLoadCompletedEv
+__ZN20WebFrameLoaderClient21forceLayoutForNonHTMLEv
+-[WebDataSource(WebInternal) _isDocumentHTML]
+__ZN20WebFrameLoaderClient23createNetworkingContextEv
+-[WebView _realZoomMultiplierIsTextOnly]
+-[WebView _realZoomMultiplier]
+-[WebView _setZoomMultiplier:isTextOnly:]
+-[WebView(WebViewInternal) _mainCoreFrame]
+-[WebView(WebPendingPublic) scheduleInRunLoop:forMode:]
+-[WebView(AllWebViews) _addToAllWebViewsSet]
+-[WebView setGroupName:]
+-[WebView(WebPrivate) _registerDraggedTypes]
+-[WebView(WebPrivate) _preferencesChanged:]
+-[WebPreferences(WebPrivate) _useSiteSpecificSpoofing]
+-[WebPreferences cursiveFontFamily]
+__ZN3WTF12AtomicStringC2EP8NSString
+-[WebPreferences defaultFixedFontSize]
+-[WebPreferences defaultFontSize]
+-[WebPreferences defaultTextEncodingName]
+-[WebPreferences(WebPrivate) usesEncodingDetector]
+-[WebPreferences fantasyFontFamily]
+-[WebPreferences fixedFontFamily]
+-[WebPreferences(WebPrivate) _forceFTPDirectoryListings]
+-[WebPreferences(WebPrivate) _ftpDirectoryTemplatePath]
+-[WebPreferences isJavaEnabled]
+-[WebPreferences isJavaScriptEnabled]
+-[WebPreferences(WebPrivate) isWebSecurityEnabled]
+-[WebPreferences(WebPrivate) allowUniversalAccessFromFileURLs]
+-[WebPreferences(WebPrivate) allowFileAccessFromFileURLs]
+-[WebPreferences javaScriptCanOpenWindowsAutomatically]
+-[WebPreferences minimumFontSize]
+-[WebPreferences minimumLogicalFontSize]
+-[WebPreferences(WebPrivate) databasesEnabled]
+-[WebPreferences(WebPrivate) localStorageEnabled]
+-[WebPreferences(WebPrivate) experimentalNotificationsEnabled]
+-[WebPreferences privateBrowsingEnabled]
+-[WebPreferences sansSerifFontFamily]
+-[WebPreferences serifFontFamily]
+-[WebPreferences standardFontFamily]
+-[WebPreferences loadsImagesAutomatically]
+-[WebPreferences(WebPrivate) loadsSiteIconsIgnoringImageLoadingPreference]
+-[WebPreferences shouldPrintBackgrounds]
+-[WebPreferences(WebPrivate) textAreasAreResizable]
+-[WebPreferences(WebPrivate) shrinksStandaloneImagesToFit]
+-[WebPreferences(WebPrivate) editableLinkBehavior]
+__Z4core26WebKitEditableLinkBehavior
+-[WebPreferences(WebPrivate) textDirectionSubmenuInclusionBehavior]
+__Z4core40WebTextDirectionSubmenuInclusionBehavior
+-[WebPreferences(WebPrivate) isDOMPasteAllowed]
+-[WebView(WebPrivate) usesPageCache]
+-[WebPreferences usesPageCache]
+-[WebPreferences(WebPrivate) showsURLsInToolTips]
+-[WebPreferences(WebPrivate) developerExtrasEnabled]
+-[WebPreferences(WebPrivate) authorAndUserStylesEnabled]
+-[WebPreferences(WebPrivate) applicationChromeModeEnabled]
+-[WebPreferences userStyleSheetEnabled]
+-[WebView(WebPrivate) _needsAdobeFrameReloadingQuirk]
+_WKAppVersionCheckLessThan
+-[WebView(WebPrivate) _needsLinkElementTextCSSQuirk]
+-[WebView(WebPrivate) _needsKeyboardEventDisambiguationQuirks]
+-[WebPreferences(WebPrivate) webArchiveDebugModeEnabled]
+-[WebPreferences(WebPrivate) localFileContentSniffingEnabled]
+-[WebPreferences(WebPrivate) offlineWebApplicationCacheEnabled]
+-[WebPreferences(WebPrivate) javaScriptCanAccessClipboard]
+-[WebPreferences(WebPrivate) isXSSAuditorEnabled]
+-[WebPreferences(WebPrivate) isDNSPrefetchingEnabled]
+-[WebPreferences(WebPrivate) acceleratedDrawingEnabled]
+-[WebPreferences(WebPrivate) canvasUsesAcceleratedDrawing]
+-[WebPreferences(WebPrivate) showDebugBorders]
+-[WebPreferences(WebPrivate) showRepaintCounter]
+-[WebPreferences(WebPrivate) pluginAllowedRunTime]
+-[WebPreferences(WebPrivate) webAudioEnabled]
+-[WebPreferences(WebPrivate) webGLEnabled]
+-[WebPreferences(WebPrivate) accelerated2dCanvasEnabled]
+-[WebPreferences(WebPrivate) isFrameFlatteningEnabled]
+-[WebPreferences(WebPrivate) isSpatialNavigationEnabled]
+-[WebPreferences(WebPrivate) paginateDuringLayoutEnabled]
+-[WebPreferences(WebPrivate) fullScreenEnabled]
+-[WebPreferences(WebPrivate) asynchronousSpellCheckingEnabled]
+-[WebPreferences(WebPrivate) hyperlinkAuditingEnabled]
+-[WebView(WebPrivate) _needsPreHTML5ParserQuirks]
+-[WebPreferences(WebPrivate) usePreHTML5ParserQuirks]
+-[WebView(WebPrivate) _needsUnrestrictedGetMatchedCSSRules]
+-[WebView(WebPrivate) interactiveFormValidationEnabled]
+-[WebView(WebPrivate) validationMessageTimerMagnification]
+-[WebPreferences(WebPrivate) isAVFoundationEnabled]
+-[WebPreferences(WebPrivate) applicationCacheDefaultOriginQuota]
+-[WebPreferences _longLongValueForKey:]
++[WebApplicationCache setDefaultOriginQuota:]
+-[WebPreferences(WebPrivate) zoomsTextOnly]
+-[WebPreferences(WebPrivate) _postPreferencesChangedAPINotification]
+-[WebView setMaintainsBackForwardList:]
+-[WebView setUIDelegate:]
+-[WebView setFrameLoadDelegate:]
+-[WebView(WebPrivate) _needsFrameLoadDelegateRetainQuirk]
+-[WebView(WebPrivate) _cacheFrameLoadDelegateImplementations]
+-[WebView(WebViewEditing) setEditingDelegate:]
+-[WebView(WebViewEditing) registerForEditingDelegateNotification:selector:]
+-[WebView setResourceLoadDelegate:]
+-[WebView(WebPrivate) _cacheResourceLoadDelegateImplementations]
+-[WebView(WebViewGeolocation) _setGeolocationProvider:]
++[WebDeviceOrientationProviderMock shared]
+-[WebDeviceOrientationProviderMock init]
+-[WebDeviceOrientationProviderMockInternal .cxx_construct]
+-[WebDeviceOrientationProviderMockInternal init]
+-[WebView(WebViewDeviceOrientation) _setDeviceOrientationProvider:]
++[WebView registerURLSchemeAsLocal:]
+-[WebView(WebViewEditing) setContinuousSpellCheckingEnabled:]
+-[WebView(WebViewEditing) isContinuousSpellCheckingEnabled]
+-[WebView(WebFileInternal) _continuousCheckingAllowed]
++[WebView(WebFileInternal) _preflightSpellChecker]
+-[WebView(WebViewGrammarChecking) setGrammarCheckingEnabled:]
+-[WebView(WebPrivate) setInteractiveFormValidationEnabled:]
+-[WebView(WebPrivate) setValidationMessageTimerMagnification:]
+-[WebView viewWillMoveToWindow:]
+_WKSetNSWindowShouldPostEventNotifications
+-[WebView removeWindowObservers]
+-[WebView addWindowObserversForWindow:]
+_WKWindowWillOrderOnScreenNotification
+-[WebHTMLView viewWillMoveToWindow:]
+-[WebHTMLView(WebHTMLViewFileInternal) _removeMouseMovedObserverUnconditionally]
+-[WebHTMLView(WebHTMLViewFileInternal) _removeWindowObservers]
+-[WebHTMLView(WebHTMLViewFileInternal) _cancelUpdateMouseoverTimer]
+-[WebHTMLView(WebPrivate) _pluginController]
+-[WebPluginController stopAllPlugins]
+-[WebHTMLView viewDidMoveToWindow]
+-[WebHTMLView(WebPrivate) _stopAutoscrollTimer]
+-[WebHTMLView addWindowObservers]
+-[WebHTMLView(WebPrivate) _frameOrBoundsChanged]
+_WKMouseMovedNotification
+-[WebPluginController startAllPlugins]
+-[WebFrameView viewDidMoveToWindow]
+-[WebView viewDidMoveToWindow]
+_WKContentAreaDidShow
+-[WebView(WebPrivate) _updateActiveState]
+-[WebView _windowWillOrderOnScreen:]
+-[WebView acceptsFirstResponder]
+-[WebFrameView acceptsFirstResponder]
+-[WebView becomeFirstResponder]
+-[WebFrameView becomeFirstResponder]
+-[WebHTMLView acceptsFirstResponder]
+-[WebHTMLView becomeFirstResponder]
+-[WebView(WebPrivate) _isPerformingProgrammaticFocus]
+-[WebHTMLView(WebInternal) _updateFontPanel]
+-[WebHTMLView(WebPrivate) _canEdit]
+-[WebHTMLView(WebNSTextInputSupport) _updateSecureInputState]
+__ZN15WebChromeClient19focusedFrameChangedEPN7WebCore5FrameE
+-[WebDynamicScrollBarsView(WebInternal) setScrollBarsSuppressed:repaintOnUnsuppress:]
+-[WebDynamicScrollBarsView(WebInternal) setScrollingModes:vertical:andLock:]
+_WKSetUpFontCache
+_WKGetGlyphsForCharacters
+_WKGetGlyphTransformedAdvances
+-[WebHTMLView setNeedsLayout:]
+-[WebHTMLView layout]
+-[WebHTMLView layoutToMinimumPageWidth:height:maximumPageWidth:adjustingViewSize:]
+__ZN7WebCore12ChromeClient17setRenderTreeSizeEm
+__ZN20WebFrameLoaderClient22dispatchDidFirstLayoutEv
+__Z42WebViewGetFrameLoadDelegateImplementationsP7WebView
+__ZN20WebFrameLoaderClient38dispatchDidFirstVisuallyNonEmptyLayoutEv
+-[WebView(WebPrivate) viewWillDraw]
+-[WebHTMLView(WebPrivate) viewWillDraw]
+-[WebHTMLView(WebInternal) _web_updateLayoutAndStyleIfNeededRecursive]
+-[WebFrameView isOpaque]
+-[WebHTMLView isOpaque]
+-[WebHTMLView(WebPrivate) _recursiveDisplayAllDirtyWithLockFocus:visRect:]
+-[WebHTMLView(WebPrivate) _setAsideSubviews]
+-[WebHTMLView drawRect:]
+-[WebHTMLView(WebPrivate) _restoreSubviews]
+-[WebView(WebPrivate) _mustDrawUnionedRect:singleRects:count:]
+-[WebHTMLView drawSingleRect:]
+-[WebClipView setAdditionalClip:]
+-[WebHTMLView(WebPrivate) _transparentBackground]
+-[WebFrame(WebInternal) _drawRect:contentsOnly:]
+-[WebFrame(WebInternal) _shouldFlattenCompositingLayers:]
+_WKCGContextIsBitmapContext
+_WKSetCGFontRenderingMode
+-[WebView(WebPrivate) _UIDelegateForwarder]
++[WebDefaultUIDelegate sharedUIDelegate]
+-[_WebSafeForwarder initWithTarget:defaultTarget:catchExceptions:]
+-[_WebSafeForwarder methodSignatureForSelector:]
+-[_WebSafeForwarder forwardInvocation:]
+-[WebDefaultUIDelegate webView:didDrawRect:]
+-[WebView currentNodeHighlight]
+-[WebClipView resetAdditionalClip]
+-[WebView(WebViewInternal) _needsOneShotDrawingSynchronization]
+__Z14CallUIDelegateP7WebViewP13objc_selectorP11objc_object
+-[WebView(WebPrivate) _setPostsAcceleratedCompositingNotifications:]
+-[WebView(WebPrivate) drawRect:]
+-[WebFrameView drawRect:]
+-[WebHTMLView(WebPrivate) _recursive:displayRectIgnoringOpacity:inContext:topView:]
+-[WebHTMLView(WebInternal) _web_isDrawingIntoLayer]
+-[WebView(WebPrivate) _includesFlattenedCompositingLayersWhenDrawingToBitmap]
++[WebCache initialize]
++[WebCache empty]
++[WebView(WebFileInternal) _cacheModel]
+-[WebView stringByEvaluatingJavaScriptFromString:]
+-[WebFrame(WebInternal) _stringByEvaluatingJavaScriptFromString:]
+-[WebFrame(WebInternal) _stringByEvaluatingJavaScriptFromString:forceUserGesture:]
+__ZN7WebCore17FrameLoaderClient15allowJavaScriptEb
+__ZN20WebFrameLoaderClient35dispatchDidClearWindowObjectInWorldEPN7WebCore15DOMWrapperWorldE
+-[WebView(WebPendingPublic) scriptDebugDelegate]
+__ZN15WebChromeClient19addMessageToConsoleEN7WebCore13MessageSourceENS0_11MessageTypeENS0_12MessageLevelERKN3WTF6StringEjS7_
+-[WebView UIDelegate]
+__ZN3WTF9HashTableINS_6RefPtrIN7WebCore15DOMWrapperWorldEEESt4pairIS4_N3JSC6StrongINS2_16JSDOMWindowShellEEEENS_18PairFirstExtractorISA_EENS_7PtrHashIS4_EENS_14PairHashTraitsINS_10HashTraitsIS4_EENSG_IS9_EEEESH_E4findIPS3_NS_29RefPtrHashMapRawKeyTranslatorISM_SA_SJ_SE_EEEENS_17HashTableIteratorIS4_SA_SC_SE_SJ_SH_EERKT_
+__ZNK3JSC7JSValue8toStringEPNS_9ExecStateE
+__ZN3JSC14NumericStrings3addEi
+__ZN3JSC14NumericStrings17lookupSmallStringEj
+-[WebView close]
+-[WebView(WebPrivate) _close]
+-[WebView(AllWebViews) _removeFromAllWebViewsSet]
+-[WebView(WebViewEventHandling) _closingEventHandling]
+-[WebView(WebViewInternal) _exitFullscreen]
+__ZN15WebEditorClient23clearUndoRedoOperationsEv
+__ZN20WebFrameLoaderClient17cancelPolicyCheckEv
+__ZN20WebFrameLoaderClient19detachedFromParent2Ev
+-[WebHTMLView(WebPrivate) close]
+-[WebHTMLView(WebPrivate) _clearLastHitViewIfSelf]
+-[WebPluginController destroyAllPlugins]
+-[WebPluginController _cancelOutstandingChecks]
+-[WebHTMLViewPrivate clear]
+-[WebPluginController dealloc]
+__ZN20WebDocumentLoaderMac15detachFromFrameEv
+-[WebDataSource dealloc]
+-[WebDataSourcePrivate dealloc]
+__ZN20WebDocumentLoaderMac16detachDataSourceEv
+__ZN20WebFrameLoaderClient19detachedFromParent3Ev
+-[WebView setHostWindow:]
+-[WebView setDownloadDelegate:]
+-[WebView setPolicyDelegate:]
+-[WebView(WebPendingPublic) setScriptDebugDelegate:]
+-[WebView(WebPrivate) _cacheScriptDebugDelegateImplementations]
+-[WebView(WebPrivate) _detachScriptDebuggerFromAllFrames]
+-[WebFrame(WebInternal) _detachScriptDebugger]
+-[WebView removeDragCaret]
+__ZN15WebEditorClient13pageDestroyedEv
+__ZN15WebEditorClientD0Ev
+__ZN15CorrectionPanel7dismissEN7WebCore34ReasonForDismissingCorrectionPanelE
+__ZN15CorrectionPanel15dismissInternalEN7WebCore34ReasonForDismissingCorrectionPanelEb
+__ZN15CorrectionPanelD1Ev
+__ZN18WebInspectorClient18inspectorDestroyedEv
+__ZN18WebInspectorClientD0Ev
+-[WebNodeHighlighter dealloc]
+__ZN21WebPluginHalterClientD0Ev
+__ZN20WebGeolocationClient20geolocationDestroyedEv
+__ZN20WebGeolocationClientD0Ev
+__ZN20WebContextMenuClient20contextMenuDestroyedEv
+__ZN20WebContextMenuClientD0Ev
+__ZN13WebDragClient23dragControllerDestroyedEv
+__ZN13WebDragClientD0Ev
+__ZN15WebChromeClient15chromeDestroyedEv
+__ZN15WebChromeClientD0Ev
+-[WebView(WebFileInternal) _clearLayerSyncLoopObserver]
+-[WebView preferencesIdentifier]
+-[WebPreferences identifier]
++[WebPreferences(WebPrivate) _removeReferenceForIdentifier:]
+-[WebPreferences(WebPrivate) didRemoveFromWebView]
+-[WebView(WebPrivate) _closePluginDatabases]
+-[WebView dealloc]
+-[WebViewPrivate dealloc]
+-[WebViewPrivate .cxx_destruct]
+-[WebView setNextKeyView:]
+-[WebFrameView dealloc]
+-[WebFrameViewPrivate dealloc]
+-[WebFrameView setNextKeyView:]
+-[WebDynamicScrollBarsView dealloc]
+-[WebHTMLView dealloc]
+-[WebHTMLViewPrivate dealloc]
+-[WebView(WebViewEditing) setEditable:]
+-[WebView(WebViewEditing) isEditable]
+-[WebView(WebViewEditing) editingDelegate]
+-[WebView(WebIBActions) makeTextStandardSize:]
+-[WebView _resetZoom:isTextOnly:]
+-[WebView _zoomMultiplier:]
+-[WebView(WebPendingPublic) resetPageZoom:]
+-[WebView(WebPrivate) _scaleWebView:atOrigin:]
+-[WebDynamicScrollBarsView(WebInternal) scrollOrigin]
+-[WebView(WebPendingPublic) setTabKeyCyclesThroughElements:]
+-[WebView(WebPrivate) _setDashboardBehavior:to:]
+-[WebView(WebPrivate) _clearMainFrameName]
+-[WebView(WebViewEditing) undoManager]
+-[WebView(WebPrivate) _editingDelegateForwarder]
++[WebDefaultEditingDelegate sharedEditingDelegate]
+-[WebDefaultEditingDelegate undoManagerForWebView:]
+-[WebView groupName]
++[WebView(WebPrivate) _removeAllUserContentFromGroup:]
++[WebView(WebPrivate) _defaultMinimumTimerInterval]
+-[WebView(WebPrivate) _setMinimumTimerInterval:]
+-[WebView(WebViewEditing) setSmartInsertDeleteEnabled:]
+-[WebView(WebPrivate) setSelectTrailingWhitespaceEnabled:]
+-[WebView(WebPrivate) inspector]
+-[WebInspector initWithWebView:]
+-[WebInspector setJavaScriptProfilingEnabled:]
+__ZN7WebCore15InspectorClient26updateInspectorStateCookieERKN3WTF6StringE
++[WebView(WebPrivate) _setUsesTestModeFocusRingColor:]
++[WebView(WebPrivate) _resetOriginAccessWhitelists]
+-[WebFrame(WebPrivate) _clearOpener]
+-[WebView(WebPendingPublic) setHistoryDelegate:]
+-[WebView(WebPrivate) _cacheHistoryDelegateImplementations]
+-[NSMutableDictionary(WebNSDictionaryExtras) _webkit_setBool:forKey:]
+-[WebView(WebPrivate) _preferencesChangedNotification:]
++[WebHistory optionalSharedHistory]
+-[WebView backForwardList]
+__Z3kitPN7WebCore19BackForwardListImplE
++[WebBackForwardList initialize]
+-[WebBackForwardList(WebBackForwardListInternal) initWithBackForwardList:]
+-[WebBackForwardList currentItem]
+__Z3kitPN7WebCore11HistoryItemE
+-[WebFrame loadRequest:]
+__ZN7WebCore15ResourceRequestC1EP12NSURLRequest
+__ZN7WebCore19ResourceRequestBaseC2Ev
+__ZN7WebCore4KURLC1Ev
+__ZN20WebFrameLoaderClient39dispatchDecidePolicyForNavigationActionEMN7WebCore13PolicyCheckerEFvNS0_12PolicyActionEERKNS0_16NavigationActionERKNS0_15ResourceRequestEN3WTF10PassRefPtrINS0_9FormStateEEE
+-[WebView(WebPrivate) _policyDelegateForwarder]
++[WebDefaultPolicyDelegate sharedPolicyDelegate]
+__ZN20WebFrameLoaderClient19setUpPolicyListenerEMN7WebCore13PolicyCheckerEFvNS0_12PolicyActionEE
++[WebFramePolicyListener initialize]
+-[WebFramePolicyListener initWithWebCoreFrame:]
+__ZNK20WebFrameLoaderClient16actionDictionaryERKN7WebCore16NavigationActionEN3WTF10PassRefPtrINS0_9FormStateEEE
+-[WebDefaultPolicyDelegate webView:decidePolicyForNavigationAction:request:frame:decisionListener:]
++[WebView(WebPrivate) _canHandleRequest:forMainFrame:]
+-[WebFramePolicyListener use]
+-[WebFramePolicyListener receivedPolicyDecision:]
+__ZN20WebFrameLoaderClient21receivedPolicyDecisonEN7WebCore12PolicyActionE
+__ZNK20WebFrameLoaderClient16canHandleRequestERKN7WebCore15ResourceRequestE
+__ZN15WebChromeClient30canRunBeforeUnloadConfirmPanelEv
+__ZN20WebFrameLoaderClient27willChangeEstimatedProgressEv
+-[WebView(WebPrivate) _willChangeValueForKey:]
+-[WebView(WebPrivate) observationInfo]
+__ZN20WebFrameLoaderClient31postProgressStartedNotificationEv
+__ZN20WebFrameLoaderClient26didChangeEstimatedProgressEv
+-[WebView(WebPrivate) _didChangeValueForKey:]
+__ZN20WebFrameLoaderClient31dispatchDidStartProvisionalLoadEv
+-[WebView(WebPrivate) _didStartProvisionalLoadForFrame:]
+-[WebView(WebPrivate) _willChangeBackForwardKeys]
+__Z21CallFrameLoadDelegatePFP11objc_objectS0_P13objc_selectorzEP7WebViewS2_S0_
+-[WebFrame provisionalDataSource]
+__ZN20WebFrameLoaderClient32assignIdentifierToInitialRequestEmPN7WebCore14DocumentLoaderERKNS0_15ResourceRequestE
+__Z45WebViewGetResourceLoadDelegateImplementationsP7WebView
+__Z24CallResourceLoadDelegatePFP11objc_objectS0_P13objc_selectorzEP7WebViewS2_S0_S0_
+__ZL12CallDelegatePFP11objc_objectS0_P13objc_selectorzEP7WebViewS0_S2_S0_S0_
+-[WebFrame dataSource]
+-[WebView(WebViewInternal) _addObject:forIdentifier:]
+__ZN20WebFrameLoaderClient9userAgentERKN7WebCore4KURLE
+-[WebView userAgentForURL:]
+__ZN20WebFrameLoaderClient23dispatchWillSendRequestEPN7WebCore14DocumentLoaderEmRNS0_15ResourceRequestERKNS0_16ResourceResponseE
+__ZL36applyAppleDictionaryApplicationQuirkP20WebFrameLoaderClientRKN7WebCore15ResourceRequestE
+__ZN20WebDocumentLoaderMac17increaseLoadCountEm
+__ZNK3WTF9HashTableImmNS_17IdentityExtractorImEENS_7IntHashImEENS_10HashTraitsImEES6_E8containsImNS_22IdentityHashTranslatorImmS4_EEEEbRKT_
+__ZN3WTF9HashTableImmNS_17IdentityExtractorImEENS_7IntHashImEENS_10HashTraitsImEES6_E3addImmNS_22IdentityHashTranslatorImmS4_EEEESt4pairINS_17HashTableIteratorImmS2_S4_S6_S6_EEbERKT_RKT0_
+__ZN3WTF9HashTableImmNS_17IdentityExtractorImEENS_7IntHashImEENS_10HashTraitsImEES6_E6expandEv
+-[WebView(WebViewInternal) _objectForIdentifier:]
+__Z24CallResourceLoadDelegatePFP11objc_objectS0_P13objc_selectorzEP7WebViewS2_S0_S0_S0_S0_
+__ZL12CallDelegatePFP11objc_objectS0_P13objc_selectorzEP7WebViewS0_S2_S0_S0_S0_S0_
+__ZN7WebCore19ResourceRequestBaseaSERKS0_
+__ZN7WebCore4KURLaSERKS0_
+__ZNSt4pairIN3WTF12AtomicStringENS0_6StringEED1Ev
+__ZN3WTF6VectorINS_6StringELm0EEaSERKS2_
+__ZN7WebCore19ResourceRequestBaseD2Ev
+__ZNK20WebFrameLoaderClient32representationExistsForURLSchemeERKN3WTF6StringE
++[WebView(WebPrivate) _representationExistsForURLScheme:]
+__ZNK7WebCore22FrameNetworkingContext7isValidEv
+_WKCreateNSURLConnectionDelegateProxy
+__ZN20WebFrameLoaderClient26shouldUseCredentialStorageEPN7WebCore14DocumentLoaderEm
+__ZNK25WebFrameNetworkingContext23needsSiteSpecificQuirksEv
+__ZNK25WebFrameNetworkingContext31localFileContentSniffingEnabledEv
+_WKSetNSURLRequestShouldContentSniff
+__ZNK25WebFrameNetworkingContext21scheduledRunLoopPairsEv
+-[WebFramePolicyListener dealloc]
+__ZL29_updateMouseoverTimerCallbackP16__CFRunLoopTimerPv
+-[WebHTMLView(WebPrivate) _updateMouseoverWithFakeEvent]
+-[WebHTMLView(WebPrivate) _updateMouseoverWithEvent:]
+__ZN20WebFrameLoaderClient20frameLoaderDestroyedEv
+-[WebFrame(WebInternal) _clearCoreFrame]
+__ZN20WebFrameLoaderClientD0Ev
+-[WebFrame dealloc]
+-[WebFramePrivate dealloc]
+__ZN25WebFrameNetworkingContextD0Ev
+__ZN20WebDocumentLoaderMacD0Ev
+_WKGetCFURLResponseMIMEType
+__ZN20WebFrameLoaderClient31dispatchDecidePolicyForResponseEMN7WebCore13PolicyCheckerEFvNS0_12PolicyActionEERKNS0_16ResourceResponseERKNS0_15ResourceRequestE
+-[WebDefaultPolicyDelegate webView:decidePolicyForMIMEType:request:frame:decisionListener:]
+-[WebView _canShowMIMEType:]
++[WebView _canShowMIMEType:allowingPlugins:]
+__ZNK20WebFrameLoaderClient15canShowMIMETypeERKN3WTF6StringE
+__ZN20WebFrameLoaderClient26dispatchDidReceiveResponseEPN7WebCore14DocumentLoaderEmRKNS0_16ResourceResponseE
+__Z24CallResourceLoadDelegatePFP11objc_objectS0_P13objc_selectorzEP7WebViewS2_S0_S0_S0_
+__ZL12CallDelegatePFP11objc_objectS0_P13objc_selectorzEP7WebViewS0_S2_S0_S0_S0_
+__ZN20WebFrameLoaderClient17dispatchWillCloseEv
+__ZN20WebFrameLoaderClient18makeRepresentationEPN7WebCore14DocumentLoaderE
+-[WebDataSource(WebInternal) _makeRepresentation]
++[WebDataSource(WebFileInternal) _representationClassForMIMEType:allowingPlugins:]
+-[WebHTMLRepresentation init]
+-[WebDataSource(WebFileInternal) _setRepresentation:]
+-[WebHTMLRepresentation setDataSource:]
+__Z26WKNotifyHistoryItemChangedPN7WebCore11HistoryItemE
+__ZN20WebFrameLoaderClient19updateGlobalHistoryEv
+-[WebView(WebPendingPublic) historyDelegate]
+__ZN20WebFrameLoaderClient32updateGlobalHistoryRedirectLinksEv
+__ZNK7WebCore14DocumentLoader30serverRedirectSourceForHistoryEv
+__ZN20WebFrameLoaderClient30updateGlobalHistoryItemForPageEv
+-[WebView(WebPrivate) _setGlobalHistoryItem:]
+__ZN21WebPlatformStrategies25createVisitedLinkStrategyEv
+__ZThn56_N21WebPlatformStrategies14addVisitedLinkEPN7WebCore4PageEy
+__ZN15WebChromeClient16setStatusbarTextERKN3WTF6StringE
+__ZN20WebFrameLoaderClient13committedLoadEPN7WebCore14DocumentLoaderEPKci
+-[WebDataSource(WebInternal) _receivedData:]
+-[WebHTMLRepresentation receivedData:withDataSource:]
+-[WebFrame(WebInternal) _commitData:]
+__ZN20WebFrameLoaderClient21dispatchDidCommitLoadEv
+-[WebView(WebPrivate) _didCommitLoadForFrame:]
+-[WebHTMLView dataSourceUpdated:]
+__ZN20WebFrameLoaderClient39postProgressEstimateChangedNotificationEv
+__ZN20WebFrameLoaderClient31dispatchDidReceiveContentLengthEPN7WebCore14DocumentLoaderEmi
+__Z24CallResourceLoadDelegatePFP11objc_objectS0_P13objc_selectorzEP7WebViewS2_S0_lS0_
+-[WebHTMLRepresentation finishedLoadingWithDataSource:]
+-[WebHTMLRepresentation _isDisplayingWebArchive]
++[WebScriptWorld(WebInternal) findOrCreateWorld:]
++[WebScriptWorld standardWorld]
+-[WebScriptWorld initWithWorld:]
+-[WebScriptWorldPrivate .cxx_construct]
+__Z21CallFrameLoadDelegatePFP11objc_objectS0_P13objc_selectorzEP7WebViewS2_S0_S0_
+-[WebFrame globalContext]
+-[WebFrame windowObject]
+__ZN20WebFrameLoaderClient29dispatchDidFinishDocumentLoadEv
+-[WebFrame(WebPrivate) _pendingFrameUnloadEventCount]
+__ZN20WebFrameLoaderClient29dispatchDidHandleOnloadEventsEv
+__ZN20WebFrameLoaderClient21dispatchDidFinishLoadEv
+-[WebView(WebPrivate) _didFinishLoadForFrame:]
+-[WebView(WebPrivate) _didChangeBackForwardKeys]
+-[WebFrame DOMDocument]
+-[WebFrame parentFrame]
+__ZN20WebFrameLoaderClient32postProgressFinishedNotificationEv
+__ZN20WebFrameLoaderClient24dispatchDidFinishLoadingEPN7WebCore14DocumentLoaderEm
+-[WebView(WebViewInternal) _removeObjectForIdentifier:]
+__ZN20WebDocumentLoaderMac17decreaseLoadCountEm
+__ZNK3WTF9HashTableImmNS_17IdentityExtractorImEENS_7IntHashImEENS_10HashTraitsImEES6_E4findImNS_22IdentityHashTranslatorImmS4_EEEENS_22HashTableConstIteratorImmS2_S4_S6_S6_EERKT_
+__ZN3WTF9HashTableImmNS_17IdentityExtractorImEENS_7IntHashImEENS_10HashTraitsImEES6_E6removeEPm
+-[WebView(WebViewEditing) setSelectedDOMRange:affinity:]
+-[WebView(WebViewInternal) _selectedOrMainFrame]
+-[WebView selectedFrame]
+-[WebView(WebFileInternal) _focusedFrame]
+-[WebInspector close:]
+-[WebFrame loadHTMLString:baseURL:]
+-[WebFrame _loadHTMLString:baseURL:unreachableURL:]
+-[WebFrame _loadData:MIMEType:textEncodingName:baseURL:unreachableURL:]
+__ZN7WebCore19ResourceRequestBaseC2ERKNS_4KURLENS_26ResourceRequestCachePolicyE
+__ZN7WebCore14SubstituteDataC2EN3WTF10PassRefPtrINS_12SharedBufferEEERKNS1_6StringES7_RKNS_4KURLESA_
+__ZN7WebCore14SubstituteDataD1Ev
+-[WebFrame stopLoading]
+__ZN20WebFrameLoaderClient14cancelledErrorERKN7WebCore15ResourceRequestE
++[NSError(WebKitExtras) _webKitErrorWithDomain:code:URL:]
++[NSError(WebKitExtras) _registerWebKitErrors]
+_registerErrors
+_WebLocalizedStringInternal
++[NSError(WebKitExtras) _webkit_addErrorsWithCodesAndDescriptions:inDomain:]
++[NSError(WebKitExtras) _webkit_errorWithDomain:code:URL:]
+-[NSError(WebKitExtras) _webkit_initWithDomain:code:URL:]
+__ZN20WebFrameLoaderClient22dispatchDidFailLoadingEPN7WebCore14DocumentLoaderEmRKNS0_13ResourceErrorE
+__ZN20WebFrameLoaderClient14shouldFallBackERKN7WebCore13ResourceErrorE
+__ZN20WebFrameLoaderClient20setMainDocumentErrorEPN7WebCore14DocumentLoaderERKNS0_13ResourceErrorE
+-[WebDataSource(WebInternal) _setMainDocumentError:]
+__ZN20WebFrameLoaderClient30dispatchDidFailProvisionalLoadERKN7WebCore13ResourceErrorE
+-[WebView(WebPrivate) _didFailProvisionalLoadWithError:forFrame:]
+-[WebHistoryItem(WebInternal) initWithWebCoreHistoryItem:]
+__ZNK20WebFrameLoaderClient12canCachePageEv
+__ZNK20WebFrameLoaderClient25didPerformFirstNavigationEv
+-[WebPreferences(WebPrivate) automaticallyDetectsCacheModel]
+__ZN20WebFrameLoaderClient19saveViewStateToItemEPN7WebCore11HistoryItemE
+-[WebHTMLView(WebNSTextInputSupport) inputContext]
+-[WebHTMLRepresentation title]
+__ZN15WebChromeClient18formStateDidChangeEPKN7WebCore4NodeE
+__ZN15WebEditorClient23willSetInputMethodStateEv
+__ZN15WebChromeClient12formDidFocusEPKN7WebCore4NodeE
+__ZN15WebChromeClient14firstResponderEv
+-[WebDefaultUIDelegate webViewFirstResponder:]
+__ZN15WebChromeClient18focusedNodeChangedEPN7WebCore4NodeE
+__ZN15WebEditorClient19setInputMethodStateEb
+__ZNK15WebChromeClient18scrollRectIntoViewERKN7WebCore7IntRectEPKNS0_10ScrollViewE
+-[WebFrame(WebPrivate) accessibilityRoot]
+-[WebClipView _focusRingVisibleRect]
+-[WebClipView additionalClip]
++[WebView(WebFileInternal) _preflightSpellCheckerNow:]
+_WKUnregisterUniqueIdForElement
+-[WebHTMLRepresentation dealloc]
+_WKAccessibilityHandleFocusChanged
+__ZN15WebChromeClient11formDidBlurEPKN7WebCore4NodeE
+__ZN20WebFrameLoaderClient38dispatchDidLoadResourceFromMemoryCacheEPN7WebCore14DocumentLoaderERKNS0_15ResourceRequestERKNS0_16ResourceResponseEi
+__ZN3WTF14PairHashTraitsINS_10HashTraitsImEENS1_INS_9RetainPtrIP11objc_objectEEEEE10emptyValueEv
+_WKDrawFocusRing
+-[WebDynamicScrollBarsView(WebInternal) accessibilityIsIgnored]
+-[WebHTMLView accessibilityAttributeValue:]
+__ZN15WebEditorClient22dismissCorrectionPanelEN7WebCore34ReasonForDismissingCorrectionPanelE
+__ZN15WebEditorClient32isContinuousSpellCheckingEnabledEv
+__ZN15WebEditorClient24isGrammarCheckingEnabledEv
+-[WebView(WebViewGrammarChecking) isGrammarCheckingEnabled]
+__ZN15WebEditorClient25respondToChangedSelectionEv
+-[WebView(WebViewInternal) _selectionChanged]
+-[WebHTMLView(WebInternal) _selectionChanged]
+-[WebHTMLView(WebNSTextInputSupport) _updateSelectionForInputManager]
+_WKDrawBezeledTextFieldCell
+__ZN15WebEditorClient11textCheckerEv
+__ZThn8_N15WebEditorClient20checkTextOfParagraphEPKtijRN3WTF6VectorIN7WebCore18TextCheckingResultELm0EEE
+__ZN15WebEditorClient20checkTextOfParagraphEPKtijRN3WTF6VectorIN7WebCore18TextCheckingResultELm0EEE
+__ZN15WebEditorClient23spellCheckerDocumentTagEv
+-[WebView(WebViewEditing) spellCheckerDocumentTag]
+__ZL4coreP7NSArrayj
+__ZN3WTF6VectorIN7WebCore18TextCheckingResultELm0EEaSERKS3_
+__ZNSt6__copyILb0ESt26random_access_iterator_tagE4copyIPKN7WebCore18TextCheckingResultEPS4_EET0_T_S9_S8_
+__ZN3WTF12VectorCopierILb0EN7WebCore18TextCheckingResultEE17uninitializedCopyEPKS2_S5_PS2_
+__ZN3WTF6VectorIN7WebCore18TextCheckingResultELm0EED1Ev
+__ZN15WebEditorClient22textFieldDidEndEditingEPN7WebCore7ElementE
+__Z16CallFormDelegateP7WebViewP13objc_selectorP11objc_objectS4_
+__ZN3WTF9HashTableImSt4pairImNS_9RetainPtrIP11objc_objectEEENS_18PairFirstExtractorIS6_EENS_7IntHashImEENS_14PairHashTraitsINS_10HashTraitsImEENSC_IS5_EEEESD_E16lookupForWritingERKm
+__ZN3WTF9HashTableImSt4pairImNS_9RetainPtrIP11objc_objectEEENS_18PairFirstExtractorIS6_EENS_7IntHashImEENS_14PairHashTraitsINS_10HashTraitsImEENSC_IS5_EEEESD_E3addImS5_NS_17HashMapTranslatorIS6_SF_SA_EEEES1_INS_17HashTableIteratorImS6_S8_SA_SF_SD_EEbERKT_RKT0_
+__ZN3WTF9HashTableImSt4pairImNS_9RetainPtrIP11objc_objectEEENS_18PairFirstExtractorIS6_EENS_7IntHashImEENS_14PairHashTraitsINS_10HashTraitsImEENSC_IS5_EEEESD_E4findImNS_22IdentityHashTranslatorImS6_SA_EEEENS_17HashTableIteratorImS6_S8_SA_SF_SD_EERKT_
+__ZN3WTF9HashTableImSt4pairImNS_9RetainPtrIP11objc_objectEEENS_18PairFirstExtractorIS6_EENS_7IntHashImEENS_14PairHashTraitsINS_10HashTraitsImEENSC_IS5_EEEESD_E6lookupERKm
+__ZN3WTF9HashTableImSt4pairImNS_9RetainPtrIP11objc_objectEEENS_18PairFirstExtractorIS6_EENS_7IntHashImEENS_14PairHashTraitsINS_10HashTraitsImEENSC_IS5_EEEESD_E6rehashEi
+_WKMakeScrollbarPainter
+_WKScrollbarThickness
+_WKScrollbarPainterSetDelegate
+_WKSetPainterForPainterController
+_WKScrollbarPainterUsesOverlayScrollers
+_WKDrawBezeledTextArea
+__ZNK15WebChromeClient17windowResizerRectEv
+_WKSetScrollbarPainterKnobStyle
+_WKScrollbarPainterPaint
+__ZN20WebFrameLoaderClient25accessibilityRemoteObjectEv
+_WKCreateAXTextMarker
+__ZThn56_N21WebPlatformStrategies13isLinkVisitedEPN7WebCore4PageEy
+__ZN15WebChromeClient20populateVisitedLinksEv
+__ZN7WebCore17FrameLoaderClient11allowImagesEb
+__ZNK20WebFrameLoaderClient22shouldPaintBrokenImageERKN7WebCore4KURLE
+__Z40CallResourceLoadDelegateReturningBooleanaPFP11objc_objectS0_P13objc_selectorzEP7WebViewS2_S0_
+__ZN20WebFrameLoaderClient15willChangeTitleEPN7WebCore14DocumentLoaderE
+__ZN20WebFrameLoaderClient14didChangeTitleEPN7WebCore14DocumentLoaderE
+__ZN20WebFrameLoaderClient8setTitleERKN7WebCore19StringWithDirectionERKNS0_4KURLE
+__ZN20WebFrameLoaderClient23dispatchDidReceiveTitleERKN7WebCore19StringWithDirectionE
+-[WebClipView _immediateScrollToPoint:]
+-[WebDynamicScrollBarsView(WebInternal) inProgrammaticScroll]
+-[WebHTMLView(WebHTMLViewFileInternal) _frameView]
+-[WebDefaultUIDelegate webView:didScrollDocumentInFrameView:]
+_WKGetAXTextMarkerTypeID
+_WKGetAXTextMarkerRangeTypeID
+__ZN15WebChromeClient11scaleFactorEv
+_WKIOSurfaceContextCreate
+__ZN15WebChromeClient23attachRootGraphicsLayerEPN7WebCore5FrameEPNS0_13GraphicsLayerE
+-[WebHTMLView(WebInternal) attachRootLayer:]
+-[WebHTMLView addSubview:]
++[WebPluginController isPlugInView:]
+-[WebView(WebPrivate) _postsAcceleratedCompositingNotifications]
+-[WebView(WebPrivate) _isUsingAcceleratedCompositing]
+__ZN15WebChromeClient37setNeedsOneShotDrawingSynchronizationEv
+-[WebView(WebViewInternal) _setNeedsOneShotDrawingSynchronization:]
+__ZN15WebChromeClient28scheduleCompositingLayerSyncEv
+-[WebView(WebViewInternal) _scheduleCompositingLayerSync]
+_WKIOSurfaceContextCreateImage
+__ZL32layerSyncRunLoopObserverCallBackP19__CFRunLoopObservermPv
+-[WebView(WebViewInternal) _syncCompositingChanges]
+-[WebHTMLView(WebInternal) detachRootLayer]
+-[WebHTMLView willRemoveSubview:]
+__ZN15WebChromeClient35selectItemWritingDirectionIsNaturalEv
+__ZN3WTF9HashTableIPN7WebCore11HistoryItemESt4pairIS3_P14WebHistoryItemENS_18PairFirstExtractorIS7_EENS_7PtrHashIS3_EENS_14PairHashTraitsINS_10HashTraitsIS3_EENSD_IS6_EEEESE_E16lookupForWritingERKS3_
+__ZN3WTF9HashTableIPN7WebCore11HistoryItemESt4pairIS3_P14WebHistoryItemENS_18PairFirstExtractorIS7_EENS_7PtrHashIS3_EENS_14PairHashTraitsINS_10HashTraitsIS3_EENSD_IS6_EEEESE_E3addIS3_S6_NS_17HashMapTranslatorIS7_SG_SB_EEEES4_INS_17HashTableIteratorIS3_S7_S9_SB_SG_SE_EEbERKT_RKT0_
+__ZN3WTF9HashTableIPN7WebCore11HistoryItemESt4pairIS3_P14WebHistoryItemENS_18PairFirstExtractorIS7_EENS_7PtrHashIS3_EENS_14PairHashTraitsINS_10HashTraitsIS3_EENSD_IS6_EEEESE_E4findIS3_NS_22IdentityHashTranslatorIS3_S7_SB_EEEENS_17HashTableIteratorIS3_S7_S9_SB_SG_SE_EERKT_
+__ZN3WTF9HashTableIPN7WebCore11HistoryItemESt4pairIS3_P14WebHistoryItemENS_18PairFirstExtractorIS7_EENS_7PtrHashIS3_EENS_14PairHashTraitsINS_10HashTraitsIS3_EENSD_IS6_EEEESE_E6lookupERKS3_
+__ZN3WTF9HashTableIPN7WebCore11HistoryItemESt4pairIS3_P14WebHistoryItemENS_18PairFirstExtractorIS7_EENS_7PtrHashIS3_EENS_14PairHashTraitsINS_10HashTraitsIS3_EENSD_IS6_EEEESE_E6rehashEi
+__ZN15WebEditorClient18shouldBeginEditingEPN7WebCore5RangeE
+__ZN15WebEditorClient15didBeginEditingEv
+__ZN15WebEditorClient25shouldChangeSelectedRangeEPN7WebCore5RangeES2_NS0_9EAffinityEb
+-[WebView(WebViewEditing) _shouldChangeSelectedDOMRange:toDOMRange:affinity:stillSelecting:]
++[NSObject(WebScripting) isKeyExcludedFromWebScript:]
+-[WebHTMLView(WebPrivate) hitTest:]
+-[WebHTMLView mouseMovedNotification:]
+-[WebView(WebPendingPublic) isHoverFeedbackSuspended]
+__ZNK15WebChromeClient18platformPageClientEv
+__ZN15WebChromeClient9setCursorERKN7WebCore6CursorE
+_WKMouseEnteredContentArea
+_WKMouseMovedInContentArea
+__ZN15WebChromeClient23mouseDidMoveOverElementERKN7WebCore13HitTestResultEj
++[WebElementDictionary initialize]
+-[WebElementDictionary initWithHitTestResult:]
++[WebElementDictionary initializeLookupTable]
+-[WebView(WebPrivate) _mouseDidMoveOverElement:modifierFlags:]
+__Z14CallUIDelegateP7WebViewP13objc_selectorP11objc_objectm
+-[WebElementDictionary dealloc]
+__ZN15WebChromeClient10setToolTipERKN3WTF6StringEN7WebCore13TextDirectionE
+-[WebView(WebViewEventHandling) _setToolTip:]
+-[WebHTMLView(WebPrivate) _setToolTip:]
+-[WebHTMLView mouseDown:]
+-[WebHTMLView(WebNSTextInputSupport) validAttributesForMarkedText]
+-[WebHTMLView(WebHTMLViewFileInternal) _setMouseDownEvent:]
+-[WebHTMLView mouseUp:]
+__ZN15WebEditorClient33isSelectTrailingWhitespaceEnabledEv
+-[WebView(WebPrivate) isSelectTrailingWhitespaceEnabled]
+__ZN20WebFrameLoaderClient11createFrameERKN7WebCore4KURLERKN3WTF6StringEPNS0_21HTMLFrameOwnerElementES7_bii
++[WebFrame(WebInternal) _createSubframeWithOwnerElement:frameName:frameView:]
+-[WebFrameView setFrameSize:]
+-[WebFrameView(WebFrameViewFileInternal) _web_frame]
+-[WebHTMLView _accessibilityParentForSubview:]
+__ZN7WebCore17FrameLoaderClient12allowPluginsEb
+__ZN21WebPlatformStrategies20createPluginStrategyEv
+__ZThn48_N21WebPlatformStrategies13getPluginInfoEPKN7WebCore4PageERN3WTF6VectorINS0_10PluginInfoELm0EEE
+__ZN21WebPlatformStrategies13getPluginInfoEPKN7WebCore4PageERN3WTF6VectorINS0_10PluginInfoELm0EEE
+-[WebPluginDatabase plugins]
+__ZN3WTF6VectorIN7WebCore10PluginInfoELm0EE15reserveCapacityEm
+__ZN7WebCore10PluginInfoC2ERKS0_
+__ZN3WTF6VectorIN7WebCore13MimeClassInfoELm0EEC2ERKS3_
+__ZN7WebCore12ChromeClient34requiresFullscreenForVideoPlaybackEv
+_WKGetMIMETypeForExtension
+_WKQTIncludeOnlyModernMediaFileTypes
+_WKDrawMediaUIPart
+__ZL16controlsForThemei
+__ZN13MediaControls8drawPartEiP9CGContext6CGRectj
+__ZNK21MediaSharedUIControls14controlForPartEi
+__ZN30MediaSharedUIBackgroundElement5paintEP9CGContext6CGRect
+__ZNK14MediaUIElement23setUpContextForPaintingEP9CGContext6CGRect
+__ZN30MediaSharedUIBackgroundElement17layerWithContentsEP9CGContext6CGRect
+__ZL25createGenericGrayGradientPKdS0_m
+__ZN14MediaUIElement8setLayerEP7CGLayer
+__ZNK14MediaUIElement5layerEv
+__ZL35draw3PartBannerInRectRelativeToEdgeP9CGContext6CGRect10CGRectEdgedPKvP7CGColorS4_
+__ZNK14MediaUIElement27restoreContextAfterPaintingEP9CGContext
+__ZN25MediaSharedUIImageElement21invalidateCachedImageEv
+__ZN25MediaSharedUIImageElement5paintEP9CGContext6CGRect
+__ZNK25MediaSharedUIImageElement20constrainAspectRatioEv
+__ZN25MediaSharedUIImageElement17layerWithContentsEP9CGContext6CGRect
+__ZNK25MediaSharedUIImageElement12defaultImageEv
+__ZL32createCGLayerFromPDFDataProviderP14CGDataProvider
+__ZNK25MediaSharedUIImageElement14drawBackgroundEP9CGContext6CGRect
+__ZL15drawOuterShadowP9CGContext6CGRectPKv
+__ZL10drawShadowP9CGContext6CGRectPKv6CGSizedP7CGColor
+__ZL16drawImageOrLayerP9CGContext6CGRectPKv
+__ZL15drawInnerShadowP9CGContext6CGRectPKv6CGSizedP7CGColor
+_WKGetUserToBaseCTM
+__ZN15WebChromeClient28supportsFullScreenForElementEPKN7WebCore7ElementEb
+__Z30CallUIDelegateReturningBooleanaP7WebViewP13objc_selectorP11objc_objecta
+_WKMeasureMediaUIPart
+__ZNK13MediaControls11naturalSizeEi
+__ZNK39MediaSharedUITimelineSliderThumbElement11naturalSizeEv
+-[WebHTMLView(WebPrivate) _recursiveDisplayRectIfNeededIgnoringOpacity:isVisibleRect:rectIsVisibleRectForView:topView:]
+_WKDrawMediaSliderTrack
+__ZN13MediaControls23drawTimelineSliderTrackEP9CGContext6CGRectddj
+__ZNK21MediaSharedUIControls6sliderEv
+__ZN27MediaSharedUITimelineSlider5paintEP9CGContext6CGRect
+__ZN27MediaSharedUITimelineSlider17layerWithContentsEP9CGContext6CGRect
+__ZL23addRoundedRectToContextP9CGContext6CGRectd
+__ZNK27MediaSharedUITimelineSlider22highlightUnloadedRangeEP9CGContext6CGRect
+__ZN39MediaSharedUITimelineSliderThumbElement5paintEP9CGContext6CGRect
+__ZN39MediaSharedUITimelineSliderThumbElement17layerWithContentsEP9CGContext6CGRect
+_WKScrollbarMinimumThumbLength
+_WKContentAreaScrolled
+__ZN20WebFrameLoaderClient17objectContentTypeERKN7WebCore4KURLERKN3WTF6StringEb
+-[WebView _pluginForMIMEType:]
+__ZN20WebFrameLoaderClient12createPluginERKN7WebCore7IntSizeEPNS0_17HTMLPlugInElementERKNS0_4KURLERKN3WTF6VectorINS9_6StringELm0EEESE_RKSB_b
++[WebBaseNetscapePluginView initialize]
+_WKSendUserChangeNotifications
++[WebHostedNetscapePluginView initialize]
+-[WebBaseNetscapePluginView .cxx_construct]
+-[WebHostedNetscapePluginView .cxx_construct]
+-[WebHostedNetscapePluginView initWithFrame:pluginPackage:URL:baseURL:MIMEType:attributeKeys:attributeValues:loadManually:element:]
+-[WebBaseNetscapePluginView initWithFrame:pluginPackage:URL:baseURL:MIMEType:attributeKeys:attributeValues:loadManually:element:]
+-[WebHostedNetscapePluginView setAttributeKeys:andValues:]
+-[WebBaseNetscapePluginView visibleRect]
+-[WebBaseNetscapePluginView _windowClipRect]
+-[WebBaseNetscapePluginView isFlipped]
+-[WebBaseNetscapePluginView renewGState]
+__ZN7WebCore6Widget16setParentVisibleEb
+-[WebBaseNetscapePluginView viewWillMoveToSuperview:]
+-[WebBaseNetscapePluginView viewWillMoveToWindow:]
+-[WebBaseNetscapePluginView removeTrackingRect]
+-[WebHostedNetscapePluginView removeWindowObservers]
+-[WebBaseNetscapePluginView removeWindowObservers]
+-[WebBaseNetscapePluginView setHasFocus:]
+-[WebBaseNetscapePluginView viewDidMoveToWindow]
+-[WebBaseNetscapePluginView resetTrackingRect]
+-[WebBaseNetscapePluginView webView]
+-[WebBaseNetscapePluginView webFrame]
+-[WebBaseNetscapePluginView start]
+_WKSetNSURLConnectionDefersCallbacks
+-[WebHostedNetscapePluginView createPlugin]
+-[WebNetscapePluginPackage pluginHostArchitecture]
+__ZN6WebKit25NetscapePluginHostManager6sharedEv
+__ZN6WebKit25NetscapePluginHostManager17instantiatePluginERKN3WTF6StringEiS4_P27WebHostedNetscapePluginViewP8NSStringP7NSArraySA_S8_P5NSURLbbb
+__ZN6WebKit25NetscapePluginHostManager13hostForPluginERKN3WTF6StringEiS4_
+__ZN6WebKit25NetscapePluginHostManager15spawnPluginHostERKN3WTF6StringEijRjR19ProcessSerialNumber
+__ZN6WebKit25NetscapePluginHostManager20initializeVendorPortEv
+__WKPACheckInApplication
+_WKInitializeRenderServer
+__WKPASpawnPluginHost
+__WKPHCheckInWithPluginHost
+__ZN6WebKit23NetscapePluginHostProxyC1EjjRK19ProcessSerialNumberb
+__ZN6WebKit23NetscapePluginHostProxyC2EjjRK19ProcessSerialNumberb
+_WKCreateMIGServerSource
+__ZN6WebKit27NetscapePluginInstanceProxy6createEPNS_23NetscapePluginHostProxyEP27WebHostedNetscapePluginViewb
+__ZN6WebKit27NetscapePluginInstanceProxyC2EPNS_23NetscapePluginHostProxyEP27WebHostedNetscapePluginViewb
+__ZN6WebKit23NetscapePluginHostProxy14pluginInstanceEj
+__ZNK3WTF7HashMapIjNS_6RefPtrIN6WebKit27NetscapePluginInstanceProxyEEENS_7IntHashIjEENS_10HashTraitsIjEENS7_IS4_EEE3getERKj
+__ZN6WebKit23NetscapePluginHostProxy17addPluginInstanceEPNS_27NetscapePluginInstanceProxyE
+__ZN3WTF7HashMapIjNS_6RefPtrIN6WebKit27NetscapePluginInstanceProxyEEENS_7IntHashIjEENS_10HashTraitsIjEENS7_IS4_EEE3setERKjRKS4_
+__ZN6WebKit27NetscapePluginInstanceProxy13nextRequestIDEv
+__WKPHInstantiatePlugin
+__ZN6WebKit27NetscapePluginInstanceProxy12waitForReplyINS0_22InstantiatePluginReplyEEESt8auto_ptrIT_Ej
+__ZN6WebKit27NetscapePluginInstanceProxy22willCallPluginFunctionEv
+__ZN6WebKit27NetscapePluginInstanceProxy30processRequestsAndWaitForReplyEj
+__ZN6WebKit23NetscapePluginHostProxy15processRequestsEv
+_WebKitPluginClient_server
+__XPCGetWindowNPObject
+_WKPCGetWindowNPObject
+__ZNK3WTF7HashMapIjPN6WebKit23NetscapePluginHostProxyENS_7IntHashIjEENS_10HashTraitsIjEENS6_IS3_EEE3getERKj
+__ZN6WebKit27NetscapePluginInstanceProxy17getWindowNPObjectERj
+__ZN6WebKit27NetscapePluginInstanceProxy14LocalObjectMap11idForObjectERN3JSC12VMEPNS2_8JSObjectE
+__ZNK3WTF9HashTableIjSt4pairIjN3JSC6StrongINS2_8JSObjectEEEENS_18PairFirstExtractorIS6_EENS_7IntHashIjEENS_14PairHashTraitsINS_10HashTraitsIjEENSC_IS5_EEEESD_E8containsIjNS_22IdentityHashTranslatorIjS6_SA_EEEEbRKT_
+__ZN3JSC6StrongINS_8JSObjectEEaSERKS2_
+__XPCEvaluate
+_WKPCEvaluate
+__ZN6WebKit21PluginDestroyDeferrerC1EPNS_27NetscapePluginInstanceProxyE
+__ZN6WebKit27NetscapePluginInstanceProxy8evaluateEjRKN3WTF6StringERPcRjb
+__ZN7WebCore10makeSourceERKN3WTF6StringES3_i
+__ZN7WebCore20StringSourceProviderC2ERKN3WTF6StringES4_RKNS1_12TextPositionINS1_14OneBasedNumberEEE
+__ZN3JSC14SourceProviderC2ERKNS_7UStringEPNS_19SourceProviderCacheE
+__ZN3JSC10SourceCodeC2EN3WTF10PassRefPtrINS_14SourceProviderEEEi
+__ZNK7WebCore20StringSourceProvider6lengthEv
+__ZNK7WebCore20StringSourceProvider4dataEv
+__ZN6WebKit27NetscapePluginInstanceProxy12marshalValueEPN3JSC9ExecStateENS1_7JSValueERPcRj
+__ZN6WebKit27NetscapePluginInstanceProxy15addValueToArrayEP14NSMutableArrayPN3JSC9ExecStateENS3_7JSValueE
+__WKPHBooleanAndDataReply
+__ZN6WebKit21PluginDestroyDeferrerD1Ev
+__ZN6WebKit27NetscapePluginInstanceProxy21didCallPluginFunctionERb
+__XPCGetStringIdentifier
+_WKPCGetStringIdentifier
+__XPCInvoke
+_WKPCInvoke
+__ZL27identifierFromIdentifierRepPN7WebCore13IdentifierRepE
+__ZN6WebKit27NetscapePluginInstanceProxy6invokeEjRKN3JSC10IdentifierEPcjRS5_Rj
+__ZNK3WTF7HashMapIjN3JSC6StrongINS1_8JSObjectEEENS_7IntHashIjEENS_10HashTraitsIjEENS7_IS4_EEE3getERKj
+__ZN3JSC6StrongINS_8JSObjectEEC2ERKS2_
+__ZNK3JSC8JSObject3getEPNS_9ExecStateERKNS_10IdentifierE
+__ZN6WebKit27NetscapePluginInstanceProxy15demarshalValuesEPN3JSC9ExecStateEPcjRNS1_20MarkedArgumentBufferE
+__ZN6WebKit27NetscapePluginInstanceProxy23demarshalValueFromArrayEPN3JSC9ExecStateEP7NSArrayRmRNS1_7JSValueE
+__ZN3JSC20MarkedArgumentBufferD1Ev
+__XPCForgetBrowserObject
+_WKPCForgetBrowserObject
+__ZN6WebKit27NetscapePluginInstanceProxy21forgetBrowserObjectIDEj
+__ZN6WebKit27NetscapePluginInstanceProxy14LocalObjectMap6forgetEj
+__XPCLoadURL
+_WKPCLoadURL
+__ZN6WebKit27NetscapePluginInstanceProxy7loadURLEPKcS2_S2_j12LoadURLFlagsRj
+-[WebBaseNetscapePluginView requestWithURLCString:]
+-[WebBaseNetscapePluginView URLWithCString:]
+-[NSString(WebKitExtras) _web_stringByStrippingReturnCharacters]
+-[NSURL(WebNSURLExtras) _webkit_URLByRemovingResourceSpecifier]
+-[NSURL(WebNSURLExtras) _web_URLByTruncatingOneCharacterBeforeComponent:]
+-[NSMutableURLRequest(WebNSURLRequestExtras) _web_setHTTPReferrer:]
+-[NSString(WebNSURLExtras) _webkit_isFileURL]
+__ZN6WebKit27NetscapePluginInstanceProxy11loadRequestEP12NSURLRequestPKcbRj
+-[WebBaseNetscapePluginView dataSource]
+-[NSURL(WebNSURLExtras) _webkit_scriptIfJavaScriptURL]
+-[NSString(WebNSURLExtras) _webkit_scriptIfJavaScriptURL]
+-[NSString(WebNSURLExtras) _webkit_isJavaScriptURL]
+-[NSString(WebKitExtras) _webkit_hasCaseInsensitivePrefix:]
+__ZN6WebKit26HostedNetscapePluginStreamC1EPNS_27NetscapePluginInstanceProxyEjP12NSURLRequest
+__ZN6WebKit26HostedNetscapePluginStreamC2EPNS_27NetscapePluginInstanceProxyEjP12NSURLRequest
+__ZN6WebKit26HostedNetscapePluginStream5startEv
+__XPCInstantiatePluginReply
+_WKPCInstantiatePluginReply
+__ZN6WebKit27NetscapePluginInstanceProxy22InstantiatePluginReplyD0Ev
+_WKMakeRenderLayer
+-[WebBaseNetscapePluginView element]
+__ZN6WebKit27NetscapePluginInstanceProxy18windowFrameChangedE6CGRect
+__WKPHPluginInstanceWindowFrameChanged
+__ZNK21WebPluginHalterClient7enabledEv
+-[WebView addPluginInstanceView:]
+-[WebPluginDatabase addPluginInstanceView:]
+-[WebBaseNetscapePluginView currentWindow]
+-[WebHostedNetscapePluginView updateAndSetWindow]
+-[WebBaseNetscapePluginView shouldClipOutPlugin]
+-[WebBaseNetscapePluginView actualVisibleRectInWindow]
+__ZN6WebKit27NetscapePluginInstanceProxy6resizeE6CGRectS1_
+__WKPHResizePluginInstance
+__ZN6WebKit27NetscapePluginInstanceProxy12waitForReplyINS0_12BooleanReplyEEESt8auto_ptrIT_Ej
+__XPCBooleanReply
+_WKPCBooleanReply
+__ZN6WebKit27NetscapePluginInstanceProxy12BooleanReplyD0Ev
+-[WebHostedNetscapePluginView addWindowObservers]
+-[WebBaseNetscapePluginView addWindowObservers]
+-[WebBaseNetscapePluginView sendActivateEvent:]
+-[WebHostedNetscapePluginView windowFocusChanged:]
+__ZN6WebKit27NetscapePluginInstanceProxy18windowFocusChangedEb
+__WKPHPluginInstanceWindowFocusChanged
+-[WebBaseNetscapePluginView restartTimers]
+-[WebHostedNetscapePluginView stopTimers]
+__ZN6WebKit27NetscapePluginInstanceProxy10stopTimersEv
+__WKPHPluginInstanceStopTimers
+-[WebHostedNetscapePluginView startTimers]
+__ZN6WebKit27NetscapePluginInstanceProxy11startTimersEb
+__WKPHPluginInstanceStartTimers
+-[WebHostedNetscapePluginView loadStream]
+__ZNK7WebCore6Widget11isFrameViewEv
+__ZNK7WebCore14PluginViewBase16isPluginViewBaseEv
+__ZNK20NetscapePluginWidget13platformLayerEv
+-[WebHostedNetscapePluginView pluginLayer]
+__ZN7WebCore6Widget22widgetPositionsUpdatedEv
+-[WebHostedNetscapePluginView drawRect:]
+-[WebBaseNetscapePluginView preferencesHaveChanged:]
+__ZN6WebKit26HostedNetscapePluginStream7didFailEPN7WebCore26NetscapePlugInStreamLoaderERKNS1_13ResourceErrorE
+__WKPHStreamDidFail
+__ZN6WebKit27NetscapePluginInstanceProxy16disconnectStreamEPNS_26HostedNetscapePluginStreamE
+__ZN6WebKit26HostedNetscapePluginStreamD0Ev
+-[WebView initWithFrame:]
+-[WebPreferences(WebPrivate) useQuickLookResourceCachingQuirks]
++[WebView(WebFileInternal) _preferencesRemovedNotification:]
+-[WebPreferences userStyleSheetLocation]
+-[NSString(WebNSURLExtras) _webkit_looksLikeAbsoluteURL]
+-[NSString(WebNSURLExtras) _webkit_rangeOfURLScheme]
+__ZL9setCursorP8NSWindowP13objc_selector7CGPoint
+-[NSWindow(BorderViewAccess) _web_borderView]
++[WebView(WebPrivate) _shouldUseFontSmoothing]
++[WebView(WebPrivate) _setShouldUseFontSmoothing:]
+-[WebWindowWatcher windowWillClose:]
++[WebView(WebPrivate) canCloseAllWebViews]
++[WebView _applicationWillTerminate]
++[WebView(WebPrivate) closeAllWebViews]
++[WebPluginDatabase closeSharedDatabase]
++[WebHTMLView(WebPrivate) _postFlagsChangedEvent:]
+-[NSEvent(WebExtras) _web_isTabKeyEvent]
++[WebStringTruncator centerTruncateString:toWidth:]
+-[NSView(WebExtras) _web_dragShouldBeginFromMouseDown:withExpiration:]
+-[NSView(WebExtras) _web_dragShouldBeginFromMouseDown:withExpiration:xHysteresis:yHysteresis:]
+-[NSFileManager(WebNSFileManagerExtras) _webkit_pathWithUniqueFilenameForPath:]
+-[NSString(WebKitExtras) _webkit_filenameByFixingIllegalCharacters]
+-[WebView(WebPrivate) _viewWillDrawInternal]
+-[WebPluginDatabase removePluginInstanceViewsFor:]
+-[WebView hostWindow]
+-[WebBaseNetscapePluginView stop]
+-[WebHostedNetscapePluginView shouldStop]
+__ZN6WebKit27NetscapePluginInstanceProxy10shouldStopEv
+-[WebView removePluginInstanceView:]
+-[WebPluginDatabase removePluginInstanceView:]
+-[WebHostedNetscapePluginView destroyPlugin]
+__ZN6WebKit27NetscapePluginInstanceProxy7destroyEv
+__WKPHDestroyPluginInstance
+__ZN6WebKit27NetscapePluginInstanceProxy7cleanupEv
+__ZN6WebKit27NetscapePluginInstanceProxy14stopAllStreamsEv
+__ZN3WTF18copyValuesToVectorIjNS_6RefPtrIN6WebKit26HostedNetscapePluginStreamEEENS_7IntHashIjEENS_10HashTraitsIjEENS7_IS4_EENS_6VectorIS4_Lm0EEEEEvRKNS_7HashMapIT_T0_T1_T2_T3_EERT4_
+__ZN3WTF6VectorINS_6RefPtrIN6WebKit26HostedNetscapePluginStreamEEELm0EED1Ev
+__ZN6WebKit27NetscapePluginInstanceProxy14LocalObjectMap5clearEv
+__ZN6WebKit23NetscapePluginHostProxy20removePluginInstanceEPNS_27NetscapePluginInstanceProxyE
+__ZN6WebKit27NetscapePluginInstanceProxyD1Ev
+__ZN6WebKit27NetscapePluginInstanceProxyD2Ev
+__ZN6WebKit27NetscapePluginInstanceProxy14LocalObjectMapD1Ev
+__ZN3WTF5DequeINS_6RefPtrIN6WebKit27NetscapePluginInstanceProxy13PluginRequestEEELm0EED1Ev
+__ZN3WTF5DequeINS_6RefPtrIN6WebKit27NetscapePluginInstanceProxy13PluginRequestEEELm0EE10destroyAllEv
+-[WebHostedNetscapePluginView inputContext]
++[WebTextInputWindowController sharedTextInputWindowController]
+-[WebTextInputWindowController init]
+-[WebTextInputPanel init]
+_WKGetInputPanelWindowStyle
+-[WebTextInputWindowController inputContext]
+-[WebTextInputPanel _inputContext]
+__ZN20NetscapePluginWidgetD0Ev
+-[WebBaseNetscapePluginView dealloc]
+-[WebHostedNetscapePluginView .cxx_destruct]
+-[WebBaseNetscapePluginView .cxx_destruct]
+__ZN17WebHaltablePluginD0Ev
+__ZN7WebCore20StringSourceProviderD0Ev
+__ZN3JSC14SourceProviderD2Ev
+__ZN6WebKit23NetscapePluginHostProxy28deadNameNotificationCallbackEP12__CFMachPortPvlS3_
+__ZN6WebKit23NetscapePluginHostProxy14pluginHostDiedEv
+__ZN6WebKit25NetscapePluginHostManager14pluginHostDiedEPNS_23NetscapePluginHostProxyE
+__ZN6WebKit23NetscapePluginHostProxyD2Ev
+_WKCreateAXTextMarkerRange
+-[WebFrame(WebPrivate) _numberOfActiveAnimations]
+-[WebFrame(WebPrivate) _pauseAnimation:onNode:atTime:]
+_WKExecutableWasLinkedOnOrBeforeSnowLeopard
++[WebCoreStatistics garbageCollectJavaScriptObjects]
+__ZNK7WebCore12ChromeClient29dispatchViewportDataDidChangeERKNS_17ViewportArgumentsE
+-[WebView(WebPrivate) setFrameSize:]
+-[WebFrame(WebKitDebug) renderTreeAsExternalRepresentationForPrinting:]
++[WebView(WebPrivate) _pointingHandCursor]
+_WKGetCFURLResponseURL
+_WKGetCFURLResponseHTTPResponse
+_WKSetCFURLResponseMIMEType
+_WKGetFontInLanguageForRange
+-[WebFrame(WebPrivate) _layerTreeAsText]
+__ZN20WebFrameLoaderClient25dispatchDidBecomeFramesetEb
+-[WebView _pluginForExtension:]
+-[WebPluginDatabase pluginForExtension:]
+-[WebBasePluginPackage supportsExtension:]
+__ZSt6__findIPKN3WTF6StringES1_ET_S4_S4_RKT0_St26random_access_iterator_tag
+-[WebBasePluginPackage MIMETypeForExtension:]
+__XPCResolveURL
+_WKPCResolveURL
+__ZN6WebKit27NetscapePluginInstanceProxy10resolveURLEPKcS2_RPcRj
+-[WebBaseNetscapePluginView resolvedURLStringForURL:target:]
+__ZN3WTF10RefCountedINS_13CStringBufferEE5derefEv
+__XPCConvertPoint
+_WKPCConvertPoint
+__ZN6WebKit27NetscapePluginInstanceProxy12convertPointEdd17NPCoordinateSpaceRdS2_S1_
+-[WebBaseNetscapePluginView convertFromX:andY:space:toX:andY:space:]
+__XPCGetPluginElementNPObject
+_WKPCGetPluginElementNPObject
+__ZN6WebKit27NetscapePluginInstanceProxy24getPluginElementNPObjectERj
+__XPCInvokeDefault
+_WKPCInvokeDefault
+__ZN6WebKit27NetscapePluginInstanceProxy13invokeDefaultEjPcjRS1_Rj
+-[WebHostedNetscapePluginView visibleRectDidChange]
+-[WebBaseNetscapePluginView visibleRectDidChange]
+_WKSyncSurfaceToView
+__ZN3WTF14PairHashTraitsINS_10HashTraitsIjEENS1_IN3JSC6StrongINS3_8JSObjectEEEEEE10emptyValueEv
+-[WebInspector webViewClosed]
++[WebView(WebFileInternal) _maxCacheModelInAnyInstance]
+-[WebPluginDatabase destroyAllPluginInstanceViews]
+-[WebPluginDatabase close]
+-[WebPluginDatabase dealloc]
++[WebCoreStatistics emptyCache]
+-[WebHistoryItem dealloc]
+-[WebBackForwardList dealloc]
+-[WebInspector dealloc]
+__ZN20WebFrameLoaderClient33dispatchWillPerformClientRedirectERKN7WebCore4KURLEdd
+__Z21CallFrameLoadDelegatePFP11objc_objectS0_P13objc_selectorzEP7WebViewS2_S0_dS0_S0_
+__ZN20WebFrameLoaderClient31dispatchDidCancelClientRedirectEv
+-[WebHTMLView needsPanelToBecomeKey]
+__ZN15WebChromeClient18makeFirstResponderEP11NSResponder
+-[WebView(WebPrivate) _pushPerformingProgrammaticFocus]
+-[WebDefaultUIDelegate webView:makeFirstResponder:]
+-[WebHTMLView resignFirstResponder]
+-[WebHTMLView updateCell:]
+-[WebHTMLView maintainsInactiveSelection]
+-[WebView(WebViewEditing) maintainsInactiveSelection]
+-[WebHTMLView(WebDocumentPrivateProtocols) deselectAll]
+-[WebView(WebPrivate) _popPerformingProgrammaticFocus]
+__ZN20WebFrameLoaderClient19dispatchDidFailLoadERKN7WebCore13ResourceErrorE
+-[WebView(WebPrivate) _didFailLoadWithError:forFrame:]
+_WKContentAreaWillPaint
+__ZN7WebCore14PluginViewBase12scriptObjectEPN3JSC14JSGlobalObjectE
+-[WebHostedNetscapePluginView createPluginBindingsInstance:]
+__ZN6WebKit27NetscapePluginInstanceProxy22createBindingsInstanceEN3WTF10PassRefPtrIN3JSC8Bindings10RootObjectEEE
+__WKPHGetScriptableNPObject
+__ZN6WebKit27NetscapePluginInstanceProxy12waitForReplyINS0_26GetScriptableNPObjectReplyEEESt8auto_ptrIT_Ej
+__XPCGetScriptableNPObjectReply
+_WKPCGetScriptableNPObjectReply
+__ZN6WebKit13ProxyInstance6createEN3WTF10PassRefPtrIN3JSC8Bindings10RootObjectEEEPNS_27NetscapePluginInstanceProxyEj
+__ZN6WebKit13ProxyInstanceC1EN3WTF10PassRefPtrIN3JSC8Bindings10RootObjectEEEPNS_27NetscapePluginInstanceProxyEj
+__ZN6WebKit13ProxyInstanceC2EN3WTF10PassRefPtrIN3JSC8Bindings10RootObjectEEEPNS_27NetscapePluginInstanceProxyEj
+__ZN6WebKit27NetscapePluginInstanceProxy11addInstanceEPNS_13ProxyInstanceE
+__ZN3WTF9HashTableIPN6WebKit13ProxyInstanceES3_NS_17IdentityExtractorIS3_EENS_7PtrHashIS3_EENS_10HashTraitsIS3_EES9_E3addIS3_S3_NS_22IdentityHashTranslatorIS3_S3_S7_EEEESt4pairINS_17HashTableIteratorIS3_S3_S5_S7_S9_S9_EEbERKT_RKT0_
+__ZN3WTF9HashTableIPN6WebKit13ProxyInstanceES3_NS_17IdentityExtractorIS3_EENS_7PtrHashIS3_EENS_10HashTraitsIS3_EES9_E6expandEv
+__ZN6WebKit27NetscapePluginInstanceProxy26GetScriptableNPObjectReplyD0Ev
+__ZN6WebKit13ProxyInstance16newRuntimeObjectEPN3JSC9ExecStateE
+__ZN6WebKit18ProxyRuntimeObjectC1EPN3JSC9ExecStateEPNS1_14JSGlobalObjectEN3WTF10PassRefPtrINS_13ProxyInstanceEEE
+__ZN6WebKit18ProxyRuntimeObjectC2EPN3JSC9ExecStateEPNS1_14JSGlobalObjectEN3WTF10PassRefPtrINS_13ProxyInstanceEEE
+__ZN3JSC8Bindings8Instance12virtualBeginEv
+__ZNK6WebKit13ProxyInstance8getClassEv
+__ZNK6WebKit10ProxyClass10fieldNamedERKN3JSC10IdentifierEPNS1_8Bindings8InstanceE
+__ZN6WebKit13ProxyInstance10fieldNamedERKN3JSC10IdentifierE
+__WKPHNPObjectHasProperty
+__XPCIdentifierInfo
+_WKPCIdentifierInfo
+__ZNK6WebKit10ProxyClass12methodsNamedERKN3JSC10IdentifierEPNS1_8Bindings8InstanceE
+__ZN6WebKit13ProxyInstance12methodsNamedERKN3JSC10IdentifierE
+__WKPHNPObjectHasMethod
+__ZN3JSC8Bindings5Class14fallbackObjectEPNS_9ExecStateEPNS0_8InstanceERKNS_10IdentifierE
+__ZN3JSC8Bindings8Instance10virtualEndEv
+__ZN3JSC8Bindings8Instance18getOwnPropertySlotEPNS_8JSObjectEPNS_9ExecStateERKNS_10IdentifierERNS_12PropertySlotE
+__ZN6WebKit18ProxyRuntimeObjectD1Ev
+__ZN6WebKit13ProxyInstance10invalidateEv
+__WKPHNPObjectRelease
+__ZN6WebKit13ProxyInstanceD0Ev
+-[WebFrame(WebPrivate) _pauseTransitionOfProperty:onNode:atTime:]
+_WKQTMovieDisableComponent
+_WKQTMovieMaxTimeLoadedChangeNotification
+-[NSString(WebNSURLExtras) _web_decodeHostName]
+-[NSString(WebNSURLExtras) _web_mapHostNameWithRange:encode:makeString:]
+-[WebPreferences(WebPrivate) _setPreferenceForTestWithValue:forKey:]
+-[NSError(WebKitExtras) _initWithPluginErrorCode:contentURL:pluginPageURL:pluginName:MIMEType:]
+__ZN15WebChromeClient46selectItemAlignmentFollowsMenuWritingDirectionEv
+__ZN23WebStorageTrackerClient23dispatchDidModifyOriginERKN3WTF6StringE
+__ZN23WebStorageTrackerClient35dispatchDidModifyOriginOnMainThreadEPv
+__ZN23WebStorageTrackerClient23dispatchDidModifyOriginEN3WTF10PassRefPtrIN7WebCore14SecurityOriginEEE
+-[WebSecurityOrigin(WebInternal) _initWithWebCoreSecurityOrigin:]
+-[WebSecurityOrigin dealloc]
+__ZN7WebCore14SecurityOriginD1Ev
+__ZN20WebFrameLoaderClient22dispatchWillSubmitFormEMN7WebCore13PolicyCheckerEFvNS0_12PolicyActionEEN3WTF10PassRefPtrINS0_9FormStateEEE
+-[WebView(WebPrivate) _formDelegate]
+__ZNK25WebFrameNetworkingContext12blockedErrorERKN7WebCore15ResourceRequestE
+__ZN20WebFrameLoaderClient12blockedErrorERKN7WebCore15ResourceRequestE
+__ZN15WebEditorClient17shouldDeleteRangeEPN7WebCore5RangeE
+__ZN15WebEditorClient26shouldMoveRangeAfterDeleteEPN7WebCore5RangeES2_
+-[WebDefaultEditingDelegate webView:shouldMoveRangeAfterDelete:replacingRange:]
+__ZN15WebEditorClient22registerCommandForUndoEN3WTF10PassRefPtrIN7WebCore11EditCommandEEE
+__ZN15WebEditorClient28registerCommandForUndoOrRedoEN3WTF10PassRefPtrIN7WebCore11EditCommandEEEb
++[WebEditCommand initialize]
++[WebEditCommand commandWithEditCommand:]
+-[WebEditCommand .cxx_construct]
+-[WebEditCommand initWithEditCommand:]
+__ZN15WebEditorClient24respondToChangedContentsEv
+__ZN15WebEditorClient13didEndEditingEv
+-[WebEditCommand dealloc]
+-[WebEditCommand .cxx_destruct]
+__ZThn8_N15WebEditorClient21checkSpellingOfStringEPKtiPiS2_
+__ZN15WebEditorClient21checkSpellingOfStringEPKtiPiS2_
+__ZThn8_N15WebEditorClient20checkGrammarOfStringEPKtiRN3WTF6VectorIN7WebCore13GrammarDetailELm0EEEPiS8_
+__ZN15WebEditorClient20checkGrammarOfStringEPKtiRN3WTF6VectorIN7WebCore13GrammarDetailELm0EEEPiS8_
+__ZN15WebEditorClient36isAutomaticSpellingCorrectionEnabledEv
+-[WebView(WebViewTextChecking) isAutomaticSpellingCorrectionEnabled]
+__ZN3WTF6VectorIN7WebCore18TextCheckingResultELm0EE15reserveCapacityEm
+__ZN3WTF11VectorMoverILb0EN7WebCore18TextCheckingResultEE4moveEPKS2_S5_PS2_
+__ZN3WTF6VectorIN7WebCore13GrammarDetailELm0EEC2ERKS3_
+__ZN7WebCore18TextCheckingResultD1Ev
+__ZN7WebCore18callRemovedLastRefEPNS_10TreeSharedINS_13ContainerNodeEEE
+__ZN3WTF6VectorIN7WebCore13GrammarDetailELm0EED1Ev
+__ZN3WTF6VectorIN7WebCore18TextCheckingResultELm0EE14shrinkCapacityEm
+__ZN15WebEditorClient25shouldShowDeleteInterfaceEPN7WebCore11HTMLElementE
+-[WebHTMLView(WebPrivate) _hasSelection]
+__ZN15WebEditorClient16shouldEndEditingEPN7WebCore5RangeE
+__ZN15WebEditorClient35isAutomaticQuoteSubstitutionEnabledEv
+-[WebView(WebViewTextChecking) isAutomaticQuoteSubstitutionEnabled]
+__ZN15WebEditorClient31isAutomaticLinkDetectionEnabledEv
+-[WebView(WebViewTextChecking) isAutomaticLinkDetectionEnabled]
+__ZN15WebEditorClient34isAutomaticDashSubstitutionEnabledEv
+-[WebView(WebViewTextChecking) isAutomaticDashSubstitutionEnabled]
+__ZN15WebEditorClient33isAutomaticTextReplacementEnabledEv
+-[WebView(WebViewTextChecking) isAutomaticTextReplacementEnabled]
+__ZN15WebEditorClient24textFieldDidBeginEditingEPN7WebCore7ElementE
+__ZN15WebEditorClient24textDidChangeInTextFieldEPN7WebCore7ElementE
+__ZN15WebEditorClient28textWillBeDeletedInTextFieldEPN7WebCore7ElementE
+__Z32CallFormDelegateReturningBooleanaP7WebViewP13objc_selectorP11objc_objectS2_S4_
+-[WebView(WebPrivate) _executeCoreCommandByName:value:]
+__ZN15WebEditorClient24smartInsertDeleteEnabledEv
+-[WebView(WebViewEditing) smartInsertDeleteEnabled]
+__ZN15WebChromeClient18runJavaScriptAlertEPN7WebCore5FrameERKN3WTF6StringE
+__Z14CallUIDelegateP7WebViewP13objc_selectorP11objc_objectS4_
+-[WebHTMLView keyDown:]
+__ZN15WebEditorClient24handleInputMethodKeydownEPN7WebCore13KeyboardEventE
+-[WebHTMLView(WebInternal) _interpretKeyEvent:savingCommands:]
+-[WebHTMLView(WebNSTextInputSupport) doCommandBySelector:]
+__ZN3WTF6VectorIN7WebCore15KeypressCommandELm0EE15reserveCapacityEm
+__ZN7WebCore15KeypressCommandD1Ev
+__ZN15WebEditorClient19handleKeyboardEventEPN7WebCore13KeyboardEventE
+-[WebHTMLView coreCommandBySelector:]
+__ZNK3WTF9HashTableIP13objc_selectorSt4pairIS2_NS_6StringEENS_18PairFirstExtractorIS5_EENS_7PtrHashIS2_EENS_14PairHashTraitsINS_10HashTraitsIS2_EENSB_IS4_EEEESC_E4findIS2_NS_22IdentityHashTranslatorIS2_S5_S9_EEEENS_22HashTableConstIteratorIS2_S5_S7_S9_SE_SC_EERKT_
+-[WebHTMLView(WebInternal) _executeSavedKeypressCommands]
+-[WebDefaultEditingDelegate webView:doCommandBySelector:]
+__ZN3WTF6VectorIN7WebCore15KeypressCommandELm0EE14shrinkCapacityEm
+-[WebHTMLView keyUp:]
+__ZN3WTF6VectorIN7WebCore13GrammarDetailELm0EE15reserveCapacityEm
+__ZN3WTF11VectorMoverILb0EN7WebCore13GrammarDetailEE4moveEPKS2_S5_PS2_
+__ZN7WebCore13GrammarDetailD1Ev
+__ZNK15WebEditorClient7canUndoEv
+__ZN15WebEditorClient4undoEv
+-[WebEditorUndoTarget undoEditing:]
+-[WebEditCommand command]
+__ZN15WebEditorClient22registerCommandForRedoEN3WTF10PassRefPtrIN7WebCore11EditCommandEEE
+_WKSetPatternPhaseInUserSpace
+-[NSFileManager(WebNSFileManagerExtras) _webkit_setMetadataURL:referrer:atPath:]
+-[NSURL(WebNSURLExtras) _web_URLByRemovingUserInfo]
+-[NSURL(WebNSURLExtras) _web_URLByRemovingComponentAndSubsequentCharacter:]
+_setMetaData
+_WKSetMetadataURL
+-[NSString(WebKitExtras) _webkit_fixedCarbonPOSIXPath]
++[WebView(WebPrivate) _addOriginAccessWhitelistEntryWithSourceOrigin:destinationProtocol:destinationHost:allowDestinationSubdomains:]
+-[WebView setApplicationNameForUserAgent:]
++[WebPreferences(WebInternal) _concatenateKeyWithIBCreatorID:]
+-[WebPreferences(WebPrivate) setDatabasesEnabled:]
+-[WebPreferences(WebPrivate) setLocalStorageEnabled:]
+-[NSMutableDictionary(WebNSDictionaryExtras) _webkit_setInt:forKey:]
+-[WebView setPreferences:]
+-[WebView setDrawsBackground:]
+__Z40WebViewGetHistoryDelegateImplementationsP7WebView
+-[WebNavigationData initWithURLString:title:originalRequest:response:hasSubstituteData:clientRedirectSource:]
+__Z19CallHistoryDelegatePFP11objc_objectS0_P13objc_selectorzEP7WebViewS2_S0_S0_
+-[WebNavigationData dealloc]
+-[WebNavigationDataPrivate dealloc]
+-[WebFrame(WebPrivate) setAccessibleName:]
+_WKCreateCTLineWithUniCharProvider
+_WKCreateCTTypesetterWithUniCharProviderAndOptions
+__ZN15WebEditorClient23textDidChangeInTextAreaEPN7WebCore7ElementE
+-[WebView initWithCoder:]
+-[WebPreferences initWithCoder:]
++[WebPreferences(WebPrivate) _checkLastReferenceForIdentifier:]
+-[WebPreferences dealloc]
+-[WebPreferencesPrivate dealloc]
++[WebView(WebPrivate) _reportException:inContext:]
+__Z19CallHistoryDelegatePFP11objc_objectS0_P13objc_selectorzEP7WebViewS2_
+__ZL12CallDelegatePFP11objc_objectS0_P13objc_selectorzEP7WebViewS0_S2_
+-[WebHTMLView shouldDelayWindowOrderingForEvent:]
+-[WebHTMLView(WebHTMLViewFileInternal) _hitViewForEvent:]
+-[WebHTMLView _isSelectionEvent:]
+-[WebHTMLView(WebDocumentInternalProtocols) elementAtPoint:allowShadowContent:]
+-[WebElementDictionary objectForKey:]
+-[WebElementDictionary _isSelected]
+-[WebHTMLView scrollWheel:]
+-[WebClipView scrollWheel:]
+-[WebDynamicScrollBarsView(WebInternal) scrollWheel:]
+_WKGetWheelEventDeltas
+-[WebDynamicScrollBarsView(WebInternal) allowsVerticalScrolling]
+-[WebDynamicScrollBarsView(WebInternal) allowsHorizontalScrolling]
+-[WebHTMLView clearFocus]
+-[WebView _windowWillClose:]
+-[WebView shouldCloseWithWindow]
+-[WebHTMLView windowWillClose:]
+-[WebView _windowDidResignKey:]
+-[WebHTMLView windowDidResignKey:]
+-[WebHTMLView removeMouseMovedObserver]
+-[WebHTMLView _windowChangedKeyState]
+-[WebHTMLView _updateControlTints]
+-[WebView _windowDidBecomeKey:]
+-[WebHTMLView windowDidBecomeKey:]
+-[WebSerializedJSValue initWithInternalRepresentation:]
+-[WebSerializedJSValuePrivate .cxx_construct]
+-[WebSerializedJSValue deserialize:]
+-[WebSerializedJSValue initWithValue:context:exception:]
+-[WebSerializedJSValue dealloc]
+-[WebSerializedJSValuePrivate .cxx_destruct]
+-[WebSerializedJSValue internalRepresentation]
+-[NSWindow(WebExtras) makeResponder:firstResponderIfDescendantOfView:]
+__ZNK15WebEditorClient10canCopyCutEPN7WebCore5FrameEb
+-[DOMDocument(WebDOMDocumentOperations) webFrame]
+-[WebView textSizeMultiplier]
+__ZN15WebEditorClient33didSetSelectionTypesForPasteboardEv
+-[WebDefaultEditingDelegate webView:didSetSelectionTypesForPasteboard:]
+__ZN15WebEditorClient29didWriteSelectionToPasteboardEv
+-[WebDefaultEditingDelegate webView:didWriteSelectionToPasteboard:]
+__ZNK15WebEditorClient8canPasteEPN7WebCore5FrameEb
+__ZN15WebEditorClient22setInsertionPasteboardEP12NSPasteboard
+-[WebView(WebViewInternal) _setInsertionPasteboard:]
+__ZNK20WebFrameLoaderClient21canShowMIMETypeAsHTMLERKN3WTF6StringE
+__ZN15WebEditorClient16shouldInsertNodeEPN7WebCore4NodeEPNS0_5RangeENS0_18EditorInsertActionE
++[WebStringTruncator widthOfString:font:]
+-[WebFrame(WebInternal) _findFrameWithSelection]
+-[WebFrame(WebInternal) _hasSelection]
+__ZN15WebEditorClient16shouldInsertTextERKN3WTF6StringEPN7WebCore5RangeENS4_18EditorInsertActionE
+-[WebView(WebIBActions) validateUserInterfaceItem:]
+-[WebView(WebIBActions) validateUserInterfaceItemWithoutDelegate:]
+-[WebView(WebIBActions) _responderValidateUserInterfaceItem:]
+-[WebView(WebFileInternal) _responderForResponderOperations]
+-[NSView(WebExtras) _web_firstResponderIsSelfOrDescendantView]
+-[WebHTMLView validateUserInterfaceItemWithoutDelegate:]
+__ZL29collectRangesThatNeedEncodingP8NSString8_NSRangePv
+__ZL28collectRangesThatNeedMappingP8NSString8_NSRangePva
+-[NSString(WebNSURLExtras) _web_hostNameNeedsEncodingWithRange:]
+__ZN15WebChromeClient5printEPN7WebCore5FrameE
+-[WebHTMLView(WebNSTextInputSupport) setMarkedText:selectedRange:]
+-[WebHTMLView(WebPrivate) _isEditable]
+-[WebResponderChainSink initWithResponderChain:]
+-[WebFrameView scrollPageDown:]
+-[WebFrameView _pageInBlockProgressionDirection:]
+-[WebFrameView _isVerticalDocument]
+-[WebFrameView _isFlippedDocument]
+-[WebFrameView _pageVertically:]
+-[WebFrameView _scrollOverflowInDirection:granularity:]
+-[WebFrameView(WebPrivate) _isScrollable]
+-[WebDynamicScrollBarsView horizontalScrollingAllowed]
+-[WebDynamicScrollBarsView verticalScrollingAllowed]
+-[WebFrameView(WebInternal) _verticalPageScrollDistance]
+-[WebFrameView(WebPrivate) _contentView]
+-[WebFrameView _scrollVerticallyBy:]
+-[WebResponderChainSink receivedUnhandledCommand]
+-[WebResponderChainSink detach]
+-[WebFrameView scrollPageUp:]
+-[WebHTMLView(WebNSTextInputSupport) hasMarkedText]
+-[WebHTMLView(WebNSTextInputSupport) markedRange]
+-[WebFrame(WebInternal) _convertToNSRange:]
+-[WebHTMLView(WebNSTextInputSupport) firstRectForCharacterRange:]
+-[WebFrame(WebInternal) _convertNSRangeToDOMRange:]
+-[WebFrame(WebInternal) _convertToDOMRange:]
+-[WebFrame(WebInternal) _firstRectForDOMRange:]
+-[WebHTMLView(WebNSTextInputSupport) unmarkText]
++[NSPasteboard(WebExtras) _web_writableTypesForURL]
+-[NSPasteboard(WebExtras) _web_writeURL:andTitle:types:]
++[WebURLsWithTitles writeURLs:andTitles:toPasteboard:]
++[WebURLsWithTitles arrayWithIFURLsWithTitlesPboardType]
+__ZNK15WebEditorClient7canRedoEv
+__ZN15WebEditorClient4redoEv
+-[WebEditorUndoTarget redoEditing:]
+__ZN15WebEditorClient27doTextFieldCommandFromEventEPN7WebCore7ElementEPNS0_13KeyboardEventE
+-[DOMDocument(WebDOMDocumentOperations) URLWithAttributeString:]
+-[WebHTMLView mouseDragged:]
+__ZN13WebDragClient28dragSourceActionMaskForPointERKN7WebCore8IntPointE
+-[WebDefaultUIDelegate webView:dragSourceActionMaskForPoint:]
+__ZN13WebDragClient24declareAndWriteDragImageEP12NSPasteboardP10DOMElementP5NSURLP8NSStringPN7WebCore5FrameE
+-[DOMNode(WebDOMNodeOperations) webArchive]
+-[WebArchive(WebInternal) _initWithCoreLegacyWebArchive:]
++[WebArchivePrivate initialize]
+-[WebArchivePrivate .cxx_construct]
+-[WebArchivePrivate initWithCoreArchive:]
+-[NSPasteboard(WebExtras) _web_declareAndWriteDragImageForElement:URL:title:archive:source:]
++[NSPasteboard(WebExtras) _web_writableTypesForImageIncludingArchive:]
+__ZL36_writableTypesForImageWithoutArchivev
+-[WebHTMLView(WebPrivate) pasteboard:provideDataForType:]
+-[WebHTMLView(WebInternal) promisedDragTIFFDataSource]
+-[NSPasteboard(WebExtras) _web_writeImage:element:URL:title:archive:types:source:]
+-[WebHTMLView(WebInternal) setPromisedDragTIFFDataSource:]
+__ZN7WebCore20CachedResourceClient12imageChangedEPNS_11CachedImageEPKNS_7IntRectE
+__ZN7WebCore20CachedResourceClient14notifyFinishedEPNS_14CachedResourceE
+-[WebArchive data]
+-[WebArchivePrivate coreArchive]
+__ZN13WebDragClient27willPerformDragSourceActionEN7WebCore16DragSourceActionERKNS0_8IntPointEPNS0_9ClipboardE
+-[WebDefaultUIDelegate webView:willPerformDragSourceAction:fromPoint:withPasteboard:]
+__ZN13WebDragClient9startDragEN3WTF9RetainPtrI7NSImageEERKN7WebCore8IntPointES7_PNS4_9ClipboardEPNS4_5FrameEb
+-[WebHTMLView(WebInternal) _mouseDownEvent]
+-[WebView(WebPrivate) _catchesDelegateExceptions]
+-[WebView draggingUpdated:]
+-[WebView applicationFlags:]
+-[WebHTMLView draggingSourceOperationMaskForLocal:]
+__ZN13WebDragClient17actionMaskForDragEPN7WebCore8DragDataE
+-[WebDefaultUIDelegate webView:dragDestinationActionMaskForDraggingInfo:]
+-[WebView performDragOperation:]
+__ZN13WebDragClient32willPerformDragDestinationActionEN7WebCore21DragDestinationActionEPNS0_8DragDataE
+-[WebDefaultUIDelegate webView:willPerformDragDestinationAction:forDraggingInfo:]
+-[WebHTMLView draggedImage:endedAt:operation:]
+-[WebFrame(WebInternal) _dragSourceEndedAt:operation:]
+-[WebArchive dealloc]
+-[WebArchivePrivate dealloc]
+-[WebArchivePrivate .cxx_destruct]
+__ZN7WebCore7ArchiveD1Ev
+__ZN3WTF6VectorINS_6RefPtrIN7WebCore7ArchiveEEELm0EED1Ev
+__ZN3WTF6VectorINS_6RefPtrIN7WebCore15ArchiveResourceEEELm0EED1Ev
++[WebView(WebPrivate) _removeOriginAccessWhitelistEntryWithSourceOrigin:destinationProtocol:destinationHost:allowDestinationSubdomains:]
+-[WebPreferences setDefaultTextEncodingName:]
+-[WebDataSource subresourceForURL:]
+-[WebDataSource(WebPrivate) _fileWrapperForURL:]
+-[WebHTMLView menuForEvent:]
+_WKCopyDefaultSearchProviderDisplayName
+__ZN20WebContextMenuClient29getCustomMenuFromDefaultItemsEPN7WebCore11ContextMenuE
+__ZL14setMenuTargetsP6NSMenu
++[WebMenuTarget sharedMenuTarget]
+-[WebMenuTarget setMenuController:]
+__ZN15WebEditorClient17userVisibleStringEP5NSURL
+_WKGetExtensionsForMIMEType
+__ZN15WebEditorClient36documentFragmentFromAttributedStringEP18NSAttributedStringRN3WTF6VectorINS2_6RefPtrIN7WebCore15ArchiveResourceEEELm0EEE
++[NSURL(WebDataURL) _web_uniqueWebDataURL]
+-[WebResource initWithData:URL:MIMEType:textEncodingName:frameName:]
+-[WebResource(WebResourcePrivate) _initWithData:URL:MIMEType:textEncodingName:frameName:response:copyData:]
++[WebResourcePrivate initialize]
+__ZN7WebCore16ResourceResponseC1EP13NSURLResponse
+-[WebResourcePrivate initWithCoreResource:]
+__ZN7WebCore20ResourceResponseBaseD2Ev
+-[WebResource(WebResourceInternal) _coreResource]
+__ZN3WTF6VectorINS_6RefPtrIN7WebCore15ArchiveResourceEEELm0EE14expandCapacityEm
+-[WebResource dealloc]
+-[WebResourcePrivate dealloc]
++[WebCoreStatistics setShouldPrintExceptions:]
+-[WebView draggingExited:]
+_WKMouseExitedContentArea
+-[WebView mainFrameURL]
+-[WebDataSource request]
+-[WebView draggingEntered:]
+__ZN15WebEditorClient15canonicalizeURLEP5NSURL
+_WKCGContextGetShouldSmoothFonts
+__ZN15WebChromeClient18chooseIconForFilesERKN3WTF6VectorINS0_6StringELm0EEEPN7WebCore11FileChooserE
+-[WebPreferences setUserStyleSheetLocation:]
+-[WebFrameView setAllowsScrolling:]
+-[WebHTMLView(WebNSTextInputSupport) insertText:]
+__ZN3WTF6String7replaceEtt
++[WebURLsWithTitles URLsFromPasteboard:]
+-[NSPasteboard(WebExtras) _web_bestURL]
+-[NSView(WebExtras) _web_dragOperationForDraggingInfo:]
+-[WebPreferences(WebPrivate) setZoomsTextOnly:]
+-[WebDynamicScrollBarsView initWithCoder:]
+-[WebFrame loadData:MIMEType:textEncodingName:baseURL:]
+-[WebView(WebPrivate) _isClosed]
+-[WebPreferences init]
+-[WebPreferences setAllowsAnimatedImages:]
+-[WebPreferences setMinimumLogicalFontSize:]
+-[WebPreferences(WebPrivate) setShowDebugBorders:]
+-[WebPreferences(WebPrivate) setShowRepaintCounter:]
+-[WebView setShouldCloseWithWindow:]
+-[WebView(WebPrivate) setProhibitsMainFrameScrolling:]
+-[WebView setShouldUpdateWhileOffscreen:]
+-[WebFrameView(WebPrivate) _setCustomScrollViewClass:]
+-[WebFrame findFrameNamed:]
+-[WebFrame(WebPrivate) _setIsDisconnected:]
+-[WebDefaultEditingDelegate webView:shouldBeginEditingInDOMRange:]
+__ZN15WebChromeClient14keyboardUIModeEv
+-[WebView(WebViewInternal) _keyboardUIMode]
+-[WebView(WebViewInternal) _retrieveKeyboardUIModeFromPreferences:]
+-[WebPreferences tabsToLinks]
+-[WebView(WebPrivate) _closeWithFastTeardown]
+_WKContentAreaDidHide
+-[WebPreferences(WebPrivate) setDNSPrefetchingEnabled:]
++[WebCache setDisabled:]
+-[WebView setPreferencesIdentifier:]
+-[WebView(WebPendingPublic) setPageSizeMultiplier:]
+-[WebPreferences(WebPrivate) setShowsURLsInToolTips:]
+-[WebTextIterator initWithRange:]
++[WebTextIteratorPrivate initialize]
+-[WebTextIteratorPrivate .cxx_construct]
+-[WebTextIterator atEnd]
+-[WebTextIterator currentTextLength]
+-[WebTextIterator currentTextPointer]
+-[WebTextIterator advance]
+-[WebHTMLView performKeyEquivalent:]
+-[WebHTMLView _handleStyleKeyEquivalent:]
+-[WebPreferences(WebPrivate) respectStandardStyleKeyEquivalents]
+-[WebTextIterator dealloc]
+-[WebTextIteratorPrivate .cxx_destruct]
+-[WebTextIterator currentRange]
+-[WebHTMLView(WebPrivate) addTrackingRect:owner:userData:assumeInside:]
+-[WebHTMLView(WebPrivate) _sendToolTipMouseEntered]
+-[WebHTMLView(WebPrivate) _sendToolTipMouseExited]
+-[WebHTMLView(WebPrivate) _removeTrackingRects:count:]
+-[WebView(WebPrivate) setAlwaysShowVerticalScroller:]
+-[WebDynamicScrollBarsView(WebInternal) setVerticalScrollingMode:andLock:]
+-[WebDynamicScrollBarsView(WebInternal) horizontalScrollingMode]
+-[WebDynamicScrollBarsView(WebInternal) setScrollingModesLocked:]
+-[WebView(WebViewEditing) selectedDOMRange]
+-[WebView(WebViewEditing) selectionAffinity]
+-[WebView elementAtPoint:]
+-[WebView _elementAtWindowPoint:]
+-[WebView(WebFileInternal) _frameViewAtWindowPoint:]
+-[WebHTMLView(WebDocumentInternalProtocols) elementAtPoint:]
+-[WebElementDictionary _domNode]
+-[WebElementDictionary _webFrame]
+-[WebElementDictionary _absoluteLinkURL]
+-[WebDefaultEditingDelegate webView:shouldChangeSelectedDOMRange:toDOMRange:affinity:stillSelecting:]
+-[WebView(WebViewEditingInMail) _selectionIsAll]
+-[WebView(WebViewEditingInMail) _selectionIsCaret]
+-[WebHTMLView flagsChanged:]
+__ZN7WebCore21PlatformKeyboardEventD1Ev
+-[WebView(WebViewEditing) typingStyle]
+-[WebFrame(WebInternal) _typingStyle]
+-[WebFrameView keyDown:]
+-[WebFrameView allowsScrolling]
+-[WebFrameView _scrollLineHorizontally:]
+-[WebFrameView _horizontalKeyboardScrollDistance]
+-[WebFrameView _scrollHorizontallyBy:]
+__ZN15WebEditorClient19showCorrectionPanelEN7WebCore19CorrectionPanelInfo9PanelTypeERKNS0_9FloatRectERKN3WTF6StringES9_RKNS6_6VectorIS7_Lm0EEE
+__ZN15CorrectionPanel4showEP7WebViewN7WebCore19CorrectionPanelInfo9PanelTypeERKNS2_9FloatRectERKN3WTF6StringESB_RKNS8_6VectorIS9_Lm0EEE
+___show_block_invoke_1
+__ZN15CorrectionPanel25handleAcceptedReplacementEP8NSStringS1_S1_l
+-[WebView(WebViewTextChecking) handleCorrectionPanelResult:]
+__ZN15WebEditorClient19spellingUIIsShowingEv
+__ZN15WebEditorClient27substitutionsPanelIsShowingEv
+__ZN20WebContextMenuClient10isSpeakingEv
+-[WebResponderChainSink doCommandBySelector:]
+-[WebHTMLView(WebNSTextInputSupport) selectedRange]
+-[WebFrame(WebPrivate) _selectedNSRange]
+-[WebHTMLView(WebPrivate) _addTrackingRect:owner:userData:assumeInside:useTrackingNum:]
+-[WebHTMLView(WebPrivate) removeTrackingRect:]
+_WKGetFontInLanguageForCharacter
+__ZN15WebChromeClient5focusEv
+__ZThn8_N15WebEditorClient17getGuessesForWordERKN3WTF6StringES3_RNS0_6VectorIS1_Lm0EEE
+__ZN15WebEditorClient17getGuessesForWordERKN3WTF6StringES3_RNS0_6VectorIS1_Lm0EEE
+__ZN3WTF6VectorINS_6StringELm0EE14shrinkCapacityEm
+__ZN15WebEditorClient34updateSpellingUIWithMisspelledWordERKN3WTF6StringE
+__ZThn8_N15WebEditorClient23requestCheckingOfStringEPN7WebCore12SpellCheckerEijRKN3WTF6StringE
+__ZN15WebEditorClient23requestCheckingOfStringEPN7WebCore12SpellCheckerEijRKN3WTF6StringE
+___copy_helper_block_1
+___requestCheckingOfString_block_invoke_1
+-[WebEditorSpellCheckResponder .cxx_construct]
+-[WebEditorSpellCheckResponder initWithSender:sequence:types:results:]
+-[WebEditorSpellCheckResponder perform]
+-[WebEditorSpellCheckResponder .cxx_destruct]
+___destroy_helper_block_1
+__ZN15WebChromeClient19customHighlightRectEPN7WebCore4NodeERKN3WTF12AtomicStringERKNS0_9FloatRectE
+-[WebHTMLView(WebInternal) _highlighterForType:]
+__ZN15WebChromeClient20paintCustomHighlightEPN7WebCore4NodeERKN3WTF12AtomicStringERKNS0_9FloatRectES9_bb
+-[WebView(WebPendingPublic) findString:options:]
+__ZL10findStringP6NSViewP8NSStringm
+-[WebHTMLView(WebDocumentInternalProtocols) _findString:options:]
+-[WebDynamicScrollBarsView(WebInternal) setScrollOrigin:updatePositionAtAll:immediately:]
+__ZN7WebCore17FrameLoaderClient29dispatchDidNavigateWithinPageEv
+__ZN20WebFrameLoaderClient29dispatchDidPopStateWithinPageEv
+__ZN20WebFrameLoaderClient35dispatchDidChangeLocationWithinPageEv
+__ZN20WebFrameLoaderClient13didFinishLoadEv
+__ZN20WebFrameLoaderClient16restoreViewStateEv
+__ZN3WTF9HashTableImmNS_17IdentityExtractorImEENS_7IntHashImEENS_10HashTraitsImEES6_E16lookupForWritingERKm
+__ZN3WTF9HashTableImmNS_17IdentityExtractorImEENS_7IntHashImEENS_10HashTraitsImEES6_E4findImNS_22IdentityHashTranslatorImmS4_EEEENS_17HashTableIteratorImmS2_S4_S6_S6_EERKT_
+_WKAVAssetResolvedURL
+-[WebView(WebIBActions) reload:]
+-[WebFrame reload]
+__ZN3WTF9HashTableIPN7WebCore19BackForwardListImplESt4pairIS3_P18WebBackForwardListENS_18PairFirstExtractorIS7_EENS_7PtrHashIS3_EENS_14PairHashTraitsINS_10HashTraitsIS3_EENSD_IS6_EEEESE_E16lookupForWritingERKS3_
+__ZN3WTF9HashTableIPN7WebCore19BackForwardListImplESt4pairIS3_P18WebBackForwardListENS_18PairFirstExtractorIS7_EENS_7PtrHashIS3_EENS_14PairHashTraitsINS_10HashTraitsIS3_EENSD_IS6_EEEESE_E3addIS3_S6_NS_17HashMapTranslatorIS7_SG_SB_EEEES4_INS_17HashTableIteratorIS3_S7_S9_SB_SG_SE_EEbERKT_RKT0_
+__ZN3WTF9HashTableIPN7WebCore19BackForwardListImplESt4pairIS3_P18WebBackForwardListENS_18PairFirstExtractorIS7_EENS_7PtrHashIS3_EENS_14PairHashTraitsINS_10HashTraitsIS3_EENSD_IS6_EEEESE_E4findIS3_NS_22IdentityHashTranslatorIS3_S7_SB_EEEENS_17HashTableIteratorIS3_S7_S9_SB_SG_SE_EERKT_
+__ZN3WTF9HashTableIPN7WebCore19BackForwardListImplESt4pairIS3_P18WebBackForwardListENS_18PairFirstExtractorIS7_EENS_7PtrHashIS3_EENS_14PairHashTraitsINS_10HashTraitsIS3_EENSD_IS6_EEEESE_E6lookupERKS3_
+__ZN3WTF9HashTableIPN7WebCore19BackForwardListImplESt4pairIS3_P18WebBackForwardListENS_18PairFirstExtractorIS7_EENS_7PtrHashIS3_EENS_14PairHashTraitsINS_10HashTraitsIS3_EENSD_IS6_EEEESE_E6rehashEi
+__ZN3WTF9HashTableIjSt4pairIjPN6WebKit27NetscapePluginInstanceProxy5ReplyEENS_18PairFirstExtractorIS6_EENS_7IntHashIjEENS_14PairHashTraitsINS_10HashTraitsIjEENSC_IS5_EEEESD_E16lookupForWritingERKj
+__ZN3WTF9HashTableIjSt4pairIjPN6WebKit27NetscapePluginInstanceProxy5ReplyEENS_18PairFirstExtractorIS6_EENS_7IntHashIjEENS_14PairHashTraitsINS_10HashTraitsIjEENSC_IS5_EEEESD_E3addIjS5_NS_17HashMapTranslatorIS6_SF_SA_EEEES1_INS_17HashTableIteratorIjS6_S8_SA_SF_SD_EEbERKT_RKT0_
+__ZN3WTF9HashTableIjSt4pairIjPN6WebKit27NetscapePluginInstanceProxy5ReplyEENS_18PairFirstExtractorIS6_EENS_7IntHashIjEENS_14PairHashTraitsINS_10HashTraitsIjEENSC_IS5_EEEESD_E4findIjNS_22IdentityHashTranslatorIjS6_SA_EEEENS_17HashTableIteratorIjS6_S8_SA_SF_SD_EERKT_
+__ZN3WTF9HashTableIjSt4pairIjPN6WebKit27NetscapePluginInstanceProxy5ReplyEENS_18PairFirstExtractorIS6_EENS_7IntHashIjEENS_14PairHashTraitsINS_10HashTraitsIjEENSC_IS5_EEEESD_E6rehashEi
+__ZN3WTF9HashTableIPN3JSC8JSObjectESt4pairIS3_S4_IjjEENS_18PairFirstExtractorIS6_EENS_7PtrHashIS3_EENS_14PairHashTraitsINS_10HashTraitsIS3_EENSC_IS5_EEEESD_E16lookupForWritingERKS3_
+__ZN3WTF9HashTableIPN3JSC8JSObjectESt4pairIS3_S4_IjjEENS_18PairFirstExtractorIS6_EENS_7PtrHashIS3_EENS_14PairHashTraitsINS_10HashTraitsIS3_EENSC_IS5_EEEESD_E3addIS3_S5_NS_17HashMapTranslatorIS6_SF_SA_EEEES4_INS_17HashTableIteratorIS3_S6_S8_SA_SF_SD_EEbERKT_RKT0_
+__ZN3WTF9HashTableIPN3JSC8JSObjectESt4pairIS3_S4_IjjEENS_18PairFirstExtractorIS6_EENS_7PtrHashIS3_EENS_14PairHashTraitsINS_10HashTraitsIS3_EENSC_IS5_EEEESD_E4findIS3_NS_22IdentityHashTranslatorIS3_S6_SA_EEEENS_17HashTableIteratorIS3_S6_S8_SA_SF_SD_EERKT_
+__ZN3WTF9HashTableIPN3JSC8JSObjectESt4pairIS3_S4_IjjEENS_18PairFirstExtractorIS6_EENS_7PtrHashIS3_EENS_14PairHashTraitsINS_10HashTraitsIS3_EENSC_IS5_EEEESD_E6rehashEi
+__ZN3WTF9HashTableIjSt4pairIjN3JSC6StrongINS2_8JSObjectEEEENS_18PairFirstExtractorIS6_EENS_7IntHashIjEENS_14PairHashTraitsINS_10HashTraitsIjEENSC_IS5_EEEESD_E16lookupForWritingERKj
+__ZN3WTF9HashTableIjSt4pairIjN3JSC6StrongINS2_8JSObjectEEEENS_18PairFirstExtractorIS6_EENS_7IntHashIjEENS_14PairHashTraitsINS_10HashTraitsIjEENSC_IS5_EEEESD_E3addIjS5_NS_17HashMapTranslatorIS6_SF_SA_EEEES1_INS_17HashTableIteratorIjS6_S8_SA_SF_SD_EEbERKT_RKT0_
+__ZN3WTF9HashTableIjSt4pairIjN3JSC6StrongINS2_8JSObjectEEEENS_18PairFirstExtractorIS6_EENS_7IntHashIjEENS_14PairHashTraitsINS_10HashTraitsIjEENSC_IS5_EEEESD_E4findIjNS_22IdentityHashTranslatorIjS6_SA_EEEENS_17HashTableIteratorIjS6_S8_SA_SF_SD_EERKT_
+__ZN3WTF9HashTableIjSt4pairIjN3JSC6StrongINS2_8JSObjectEEEENS_18PairFirstExtractorIS6_EENS_7IntHashIjEENS_14PairHashTraitsINS_10HashTraitsIjEENSC_IS5_EEEESD_E6rehashEi
+__ZN3WTF9HashTableIjSt4pairIjNS_6RefPtrIN6WebKit26HostedNetscapePluginStreamEEEENS_18PairFirstExtractorIS6_EENS_7IntHashIjEENS_14PairHashTraitsINS_10HashTraitsIjEENSC_IS5_EEEESD_E16lookupForWritingERKj
+__ZN3WTF9HashTableIjSt4pairIjNS_6RefPtrIN6WebKit26HostedNetscapePluginStreamEEEENS_18PairFirstExtractorIS6_EENS_7IntHashIjEENS_14PairHashTraitsINS_10HashTraitsIjEENSC_IS5_EEEESD_E3addIjS5_NS_17HashMapTranslatorIS6_SF_SA_EEEES1_INS_17HashTableIteratorIjS6_S8_SA_SF_SD_EEbERKT_RKT0_
+__ZN3WTF9HashTableIjSt4pairIjNS_6RefPtrIN6WebKit26HostedNetscapePluginStreamEEEENS_18PairFirstExtractorIS6_EENS_7IntHashIjEENS_14PairHashTraitsINS_10HashTraitsIjEENSC_IS5_EEEESD_E4findIjNS_22IdentityHashTranslatorIjS6_SA_EEEENS_17HashTableIteratorIjS6_S8_SA_SF_SD_EERKT_
+__ZN3WTF9HashTableIjSt4pairIjNS_6RefPtrIN6WebKit26HostedNetscapePluginStreamEEEENS_18PairFirstExtractorIS6_EENS_7IntHashIjEENS_14PairHashTraitsINS_10HashTraitsIjEENSC_IS5_EEEESD_E6rehashEi
+__ZN3WTF9HashTableIjSt4pairIjNS_6RefPtrIN6WebKit27NetscapePluginInstanceProxyEEEENS_18PairFirstExtractorIS6_EENS_7IntHashIjEENS_14PairHashTraitsINS_10HashTraitsIjEENSC_IS5_EEEESD_E16lookupForWritingERKj
+__ZN3WTF9HashTableIjSt4pairIjNS_6RefPtrIN6WebKit27NetscapePluginInstanceProxyEEEENS_18PairFirstExtractorIS6_EENS_7IntHashIjEENS_14PairHashTraitsINS_10HashTraitsIjEENSC_IS5_EEEESD_E3addIjS5_NS_17HashMapTranslatorIS6_SF_SA_EEEES1_INS_17HashTableIteratorIjS6_S8_SA_SF_SD_EEbERKT_RKT0_
+__ZN3WTF9HashTableIjSt4pairIjNS_6RefPtrIN6WebKit27NetscapePluginInstanceProxyEEEENS_18PairFirstExtractorIS6_EENS_7IntHashIjEENS_14PairHashTraitsINS_10HashTraitsIjEENSC_IS5_EEEESD_E4findIjNS_22IdentityHashTranslatorIjS6_SA_EEEENS_17HashTableIteratorIjS6_S8_SA_SF_SD_EERKT_
+__ZN3WTF9HashTableIjSt4pairIjNS_6RefPtrIN6WebKit27NetscapePluginInstanceProxyEEEENS_18PairFirstExtractorIS6_EENS_7IntHashIjEENS_14PairHashTraitsINS_10HashTraitsIjEENSC_IS5_EEEESD_E6rehashEi
+__ZN3WTF9HashTableIjSt4pairIjNS_6RefPtrIN6WebKit27NetscapePluginInstanceProxyEEEENS_18PairFirstExtractorIS6_EENS_7IntHashIjEENS_14PairHashTraitsINS_10HashTraitsIjEENSC_IS5_EEEESD_E6removeEPS6_
+__ZN3WTF9HashTableIjSt4pairIjPN6WebKit23NetscapePluginHostProxyEENS_18PairFirstExtractorIS5_EENS_7IntHashIjEENS_14PairHashTraitsINS_10HashTraitsIjEENSB_IS4_EEEESC_E16lookupForWritingERKj
+__ZN3WTF9HashTableIjSt4pairIjPN6WebKit23NetscapePluginHostProxyEENS_18PairFirstExtractorIS5_EENS_7IntHashIjEENS_14PairHashTraitsINS_10HashTraitsIjEENSB_IS4_EEEESC_E3addIjS4_NS_17HashMapTranslatorIS5_SE_S9_EEEES1_INS_17HashTableIteratorIjS5_S7_S9_SE_SC_EEbERKT_RKT0_
+__ZN3WTF9HashTableIjSt4pairIjPN6WebKit23NetscapePluginHostProxyEENS_18PairFirstExtractorIS5_EENS_7IntHashIjEENS_14PairHashTraitsINS_10HashTraitsIjEENSB_IS4_EEEESC_E4findIjNS_22IdentityHashTranslatorIjS5_S9_EEEENS_17HashTableIteratorIjS5_S7_S9_SE_SC_EERKT_
+__ZN3WTF9HashTableIjSt4pairIjPN6WebKit23NetscapePluginHostProxyEENS_18PairFirstExtractorIS5_EENS_7IntHashIjEENS_14PairHashTraitsINS_10HashTraitsIjEENSB_IS4_EEEESC_E6rehashEi
+-[WebView(WebIBActions) makeTextLarger:]
+-[WebView _zoomIn:isTextOnly:]
+-[WebView(WebPendingPublic) zoomPageIn:]
+__ZNK20WebFrameLoaderClient21shouldGoToHistoryItemEPN7WebCore11HistoryItemE
+-[WebDefaultPolicyDelegate webView:shouldGoToHistoryItem:]
+-[WebView(WebPendingPublic) zoomPageOut:]
+-[WebView _zoomOut:isTextOnly:]
+-[WebFrame(WebKitDebug) counterValueForElement:]
+__ZN15WebChromeClient10windowRectEv
+__ZN15WebChromeClient11canRunModalEv
+__ZN20WebFrameLoaderClient27dispatchWillSendSubmitEventEPN7WebCore15HTMLFormElementE
+__ZN3WTF6VectorIPN3JSC8Bindings6MethodELm0EE14expandCapacityEm
+__ZN3WTF29RefPtrHashMapRawKeyTranslatorIPNS_10StringImplESt4pairINS_6RefPtrIS1_EEPN3JSC8Bindings5FieldEENS_14PairHashTraitsINS_10HashTraitsIS5_EENSC_IS9_EEEENS_10StringHashEE5equalERKS5_S2_
+__ZN3WTF29RefPtrHashMapRawKeyTranslatorIPNS_10StringImplESt4pairINS_6RefPtrIS1_EEPN3JSC8Bindings6MethodEENS_14PairHashTraitsINS_10HashTraitsIS5_EENSC_IS9_EEEENS_10StringHashEE5equalERKS5_S2_
+__ZN6WebKit13ProxyInstance9getMethodEPN3JSC9ExecStateERKNS1_10IdentifierE
+__ZN6WebKit18ProxyRuntimeMethodC1EPN3JSC9ExecStateEPNS1_14JSGlobalObjectERKNS1_10IdentifierERN3WTF6VectorIPNS1_8Bindings6MethodELm0EEE
+__ZN6WebKit13ProxyInstance12invokeMethodEPN3JSC9ExecStateEPNS1_13RuntimeMethodE
+__ZN6WebKit13ProxyInstance6invokeEPN3JSC9ExecStateE10InvokeTypeyRKNS1_7ArgListE
+__ZN6WebKit27NetscapePluginInstanceProxy13marshalValuesEPN3JSC9ExecStateERKNS1_7ArgListE
+__WKPHNPObjectInvoke
+__ZN6WebKit27NetscapePluginInstanceProxy12waitForReplyINS0_19BooleanAndDataReplyEEESt8auto_ptrIT_Ej
+__XPCBooleanAndDataReply
+_WKPCBooleanAndDataReply
+__ZN6WebKit27NetscapePluginInstanceProxy30moveGlobalExceptionToExecStateEPN3JSC9ExecStateE
+__ZN6WebKit27NetscapePluginInstanceProxy14demarshalValueEPN3JSC9ExecStateEPKcj
+__ZN7WebCore8jsStringEPN3JSC9ExecStateERKN3WTF6StringE
+__ZN3WTF9HashTableIPNS_10StringImplESt4pairIS2_N3JSC4WeakINS4_8JSStringEEEENS_18PairFirstExtractorIS8_EENS_10StringHashENS_14PairHashTraitsINS_10HashTraitsIS2_EENSD_IS7_EEEESE_E6lookupIS2_NS_22IdentityHashTranslatorIS2_S8_SB_EEEEPS8_RKT_
+__ZN6WebKit27NetscapePluginInstanceProxy19BooleanAndDataReplyD0Ev
+__ZN6WebKit18ProxyRuntimeMethodD1Ev
+__ZN3JSC13RuntimeMethodD2Ev
+__ZN6WebKit11ProxyMethodD0Ev
+_WKQTMovieSelectPreferredAlternates
+_WKQTMovieSelectPreferredAlternateTrackForMediaType
+_WKQTMovieGetType
+_WKQTMovieMaxTimeLoaded
+_maxValueForTimeRanges
+_WKQTMovieMaxTimeSeekable
+-[WebFrame childFrames]
+-[WebFrame name]
++[WebCoreStatistics javaScriptObjectsCount]
+__ZN15WebChromeClient13setWindowRectERKN7WebCore9FloatRectE
+-[WebFrameView scrollToBeginningOfDocument:]
+-[WebFrameView _scrollToBeginningOfDocument]
+-[WebFrameView scrollToEndOfDocument:]
+-[WebFrameView _scrollToEndOfDocument]
+-[WebBackForwardList capacity]
+-[WebBackForwardList setCapacity:]
+-[WebBackForwardList addItem:]
+__Z4coreP14WebHistoryItem
+-[WebBackForwardList goToItem:]
+__ZN15WebChromeClient12createWindowEPN7WebCore5FrameERKNS0_16FrameLoadRequestERKNS0_14WindowFeaturesERKNS0_16NavigationActionE
+__ZN6WebKit25NetscapePluginHostManager15didCreateWindowEv
+__ZN15WebChromeClient18setToolbarsVisibleEb
+-[WebDefaultUIDelegate webView:setToolbarsVisible:]
+__ZN15WebChromeClient19setStatusbarVisibleEb
+-[WebDefaultUIDelegate webView:setStatusBarVisible:]
+__ZN15WebChromeClient20setScrollbarsVisibleEb
+__ZN15WebChromeClient17setMenubarVisibleEb
+__ZN15WebChromeClient12setResizableEb
+-[WebDefaultUIDelegate webView:setResizable:]
+__ZN15WebChromeClient8pageRectEv
+__ZN15WebChromeClient4showEv
+-[WebDefaultUIDelegate webViewShow:]
+__ZN15WebChromeClient15closeWindowSoonEv
+-[WebView(WebIBActions) stopLoading:]
+-[WebView(WebPrivate) _closeWindow]
+__ZN20WebFrameLoaderClient38dispatchDecidePolicyForNewWindowActionEMN7WebCore13PolicyCheckerEFvNS0_12PolicyActionEERKNS0_16NavigationActionERKNS0_15ResourceRequestEN3WTF10PassRefPtrINS0_9FormStateEEERKNSB_6StringE
+-[WebDefaultPolicyDelegate webView:decidePolicyForNewWindowAction:request:newFrameName:decisionListener:]
+__ZN20WebFrameLoaderClient18dispatchCreatePageERKN7WebCore16NavigationActionE
+-[WebDefaultUIDelegate webView:createWebViewWithRequest:windowFeatures:]
+__ZN20WebFrameLoaderClient12dispatchShowEv
+__ZN15WebChromeClient14menubarVisibleEv
+__ZN20WebGeolocationClient17requestPermissionEPN7WebCore11GeolocationE
+-[WebGeolocationPolicyListener .cxx_construct]
+-[WebGeolocationPolicyListener initWithGeolocation:]
+__Z14CallUIDelegateP7WebViewP13objc_selectorP11objc_objectS4_S4_
+__ZN20WebGeolocationClient23cancelPermissionRequestEPN7WebCore11GeolocationE
+-[WebGeolocationPosition initWithTimestamp:latitude:longitude:accuracy:]
+-[WebGeolocationPositionInternal .cxx_construct]
+-[WebGeolocationPositionInternal initWithCoreGeolocationPosition:]
+-[WebGeolocationPolicyListener allow]
+__ZN20WebGeolocationClient13startUpdatingEv
+-[WebView(WebViewGeolocation) _geolocationProvider]
+-[WebGeolocationPolicyListener .cxx_destruct]
+-[WebView(WebViewGeolocation) _geolocationDidChangePosition:]
+__Z4coreP22WebGeolocationPosition
+__ZN20WebGeolocationClient12stopUpdatingEv
+-[WebGeolocationPosition dealloc]
+-[WebGeolocationPositionInternal .cxx_destruct]
+-[WebGeolocationPolicyListener deny]
+-[WebView(WebViewGeolocation) _geolocationDidFailWithError:]
+__ZN3WTF10RefCountedIN7WebCore16GeolocationErrorEE5derefEv
+__ZNK20WebFrameLoaderClient31shouldStopLoadingForHistoryItemEPN7WebCore11HistoryItemE
+__ZN20WebFrameLoaderClient29savePlatformDataToCachedFrameEPN7WebCore11CachedFrameE
+__ZN20WebFrameLoaderClient18didSaveToPageCacheEv
+__ZN26WebCachedFramePlatformData5clearEv
+-[WebHTMLView(WebInternal) closeIfNotCurrentView]
+__ZN26WebCachedFramePlatformDataD0Ev
+__ZNK7WebCore12ChromeClient37willRunModalDialogDuringPageDismissalERKNS0_10DialogTypeE
+__ZN15WebChromeClient7unfocusEv
++[DOMElement(WebDOMElementOperationsPrivate) _DOMElementFromJSContext:value:]
+-[DOMElement(WebDOMElementOperationsPrivate) _shadowRoot:]
+__ZN7WebCore4toJSEPN3JSC9ExecStateEPNS_17JSDOMGlobalObjectEPNS_4NodeE
+__ZN3WTF9HashTableIPvSt4pairIS1_N3JSC4WeakIN7WebCore12JSDOMWrapperEEEENS_18PairFirstExtractorIS8_EENS_7PtrHashIS1_EENS_14PairHashTraitsINS_10HashTraitsIS1_EENSE_IS7_EEEESF_E6lookupERKS1_
+__ZN20WebFrameLoaderClient10javaAppletEP6NSView
+-[WebFrameView scrollLineDown:]
+-[WebFrameView _scrollLineVertically:]
+-[WebFrameView(WebPrivate) _largestScrollableChild]
+-[WebView(WebViewEditingActions) scrollLineDown:]
+-[WebView(WebViewEditingActions) _performResponderOperation:with:]
+__ZThn48_N21WebPlatformStrategies14refreshPluginsEv
+__ZN15WebChromeClient20runJavaScriptConfirmEPN7WebCore5FrameERKN3WTF6StringE
+__Z30CallUIDelegateReturningBooleanaP7WebViewP13objc_selectorP11objc_objectS4_
+__ZN15WebChromeClient19runJavaScriptPromptEPN7WebCore5FrameERKN3WTF6StringES6_RS4_
+__ZN15WebChromeClient17scrollbarsVisibleEv
+__ZN15WebChromeClient15toolbarsVisibleEv
+__Z30CallUIDelegateReturningBooleanaP7WebViewP13objc_selector
+__ZN15WebChromeClient16statusbarVisibleEv
+__ZN20WebFrameLoaderClient36transitionToCommittedFromCachedFrameEPN7WebCore11CachedFrameE
+__ZN20WebFrameLoaderClient23didRestoreFromPageCacheEv
+__ZN15WebChromeClient25shouldInterruptJavaScriptEv
+__Z14CallUIDelegateP7WebViewP13objc_selector
+-[DOMElement(WebDOMElementOperationsPrivate) _ensureShadowRoot:]
+-[DOMElement(WebDOMElementOperationsPrivate) _removeShadowRoot]
+-[NSString(WebNSURLExtras) _web_encodeHostName]
+__ZL22readIDNScriptWhiteListv
+__ZL26readIDNScriptWhiteListFileP8NSString
+-[WebFramePolicyListener ignore]
+__ZN20WebFrameLoaderClient22dispatchDidChangeIconsEN7WebCore8IconTypeE
+-[WebHTMLRepresentation receivedError:withDataSource:]
+__ZN20WebFrameLoaderClient34didTransferChildFrameToNewDocumentEPN7WebCore4PageE
+-[WebHTMLView complete:]
+-[WebHTMLView callDelegateDoCommandBySelectorIfNeeded:]
+-[WebTextCompletionController initWithWebView:HTMLView:]
+-[WebTextCompletionController doCompletion]
+-[WebFrame(WebInternal) _rangeByAlteringCurrentSelection:direction:granularity:]
+__ZN7WebCore14FrameSelectionD1Ev
+__ZN7WebCore16VisibleSelectionD1Ev
+-[WebTextCompletionController popupWindowIsOpen]
+-[WebTextCompletionController filterKeyDown:]
+-[WebTextCompletionController endRevertingChange:moveLeft:]
+-[WebTextCompletionController dealloc]
+-[WebView(WebViewEditingActions) scrollPageUp:]
+-[WebResponderChainSink tryToPerform:with:]
+-[WebView(WebViewEditingActions) scrollPageDown:]
+-[WebView(WebViewEditingActions) scrollToBeginningOfDocument:]
+-[WebView(WebViewEditingActions) scrollToEndOfDocument:]
+__ZN15WebChromeClient12canTakeFocusEN7WebCore14FocusDirectionE
+__ZN15WebChromeClient9takeFocusEN7WebCore14FocusDirectionE
+-[WebView(WebViewInternal) _becomingFirstResponderFromOutside]
+-[WebView(WebPendingPublic) shouldClose]
+-[WebDefaultUIDelegate webViewClose:]
+-[WebFrameView(WebFrameViewFileInternal) _verticalKeyboardScrollDistance]
+__ZN15WebChromeClient8runModalEv
+_WKSoftwareCARendererCreate
+_WKSoftwareCARendererRender
+__ZN6WebKit27NetscapePluginInstanceProxy7didDrawEv
+__ZN20NetscapePluginWidget11handleEventEPN7WebCore5EventE
+__ZN7WebCore16threadGlobalDataEv
+__ZN3WTF14ThreadSpecificIN7WebCore16ThreadGlobalDataEEcvPS2_Ev
+-[WebBaseNetscapePluginView acceptsFirstResponder]
+-[WebBaseNetscapePluginView becomeFirstResponder]
+-[WebHostedNetscapePluginView focusChanged]
+__ZN6WebKit27NetscapePluginInstanceProxy12focusChangedEb
+__WKPHPluginInstanceFocusChanged
+-[WebBaseNetscapePluginView resignFirstResponder]
+__ZN6WebKit27NetscapePluginInstanceProxy14removeInstanceEPNS_13ProxyInstanceE
+__ZNK3WTF9HashTableIPN6WebKit13ProxyInstanceES3_NS_17IdentityExtractorIS3_EENS_7PtrHashIS3_EENS_10HashTraitsIS3_EES9_E4findIS3_NS_22IdentityHashTranslatorIS3_S3_S7_EEEENS_22HashTableConstIteratorIS3_S3_S5_S7_S9_S9_EERKT_
+__ZN3WTF9HashTableIPN6WebKit13ProxyInstanceES3_NS_17IdentityExtractorIS3_EENS_7PtrHashIS3_EENS_10HashTraitsIS3_EES9_E6removeEPS3_
+_WKSoftwareCARendererDestroy
+-[DOMHTMLInputElement(WebDOMHTMLInputElementOperationsPrivate) _setAutofilled:]
+-[WebFrameView scrollLineUp:]
+-[WebView(WebViewEditingActions) scrollLineUp:]
+-[DOMHTMLInputElement(WebDOMHTMLInputElementOperationsPrivate) _setValueForUser:]
+-[WebView goBack]
+__ZN20WebFrameLoaderClient20redirectDataToPluginEPN7WebCore6WidgetE
+-[WebHTMLRepresentation _redirectDataToManualLoader:forPluginView:]
+-[WebHostedNetscapePluginView pluginView:receivedError:]
+__XPCCancelLoadURL
+_WKPCCancelLoadURL
+__ZN6WebKit27NetscapePluginInstanceProxy16cancelStreamLoadEjs
+__ZNK3WTF7HashMapIjNS_6RefPtrIN6WebKit26HostedNetscapePluginStreamEEENS_7IntHashIjEENS_10HashTraitsIjEENS7_IS4_EEE3getERKj
+-[WebHostedNetscapePluginView pluginView:receivedResponse:]
+-[WebHostedNetscapePluginView pluginView:receivedData:]
+__ZN20WebFrameLoaderClient31transferLoadingResourceFromPageEmPN7WebCore14DocumentLoaderERKNS0_15ResourceRequestEPNS0_4PageE
+__Z3kitPN7WebCore4PageE
+-[WebFrameView setBoundsSize:]
+-[WebView(WebPrivate) _isProcessingUserGesture]
+__ZN15WebChromeClient21exceededDatabaseQuotaEPN7WebCore5FrameERKN3WTF6StringE
+-[WebSecurityOrigin(WebQuotaManagers) databaseQuotaManager]
+-[WebDatabaseQuotaManager initWithOrigin:]
+-[WebDatabaseQuotaManager setQuota:]
+-[WebSecurityOrigin(WebInternal) _core]
+__ZN24WebDatabaseManagerClient23dispatchDidModifyOriginEPN7WebCore14SecurityOriginE
+__ZN24WebDatabaseManagerClient25dispatchDidModifyDatabaseEPN7WebCore14SecurityOriginERKN3WTF6StringE
+__ZN7WebCore17FrameLoaderClient17didNotAllowScriptEv
+-[WebBackForwardList forwardListCount]
+-[WebBackForwardList backListCount]
+-[WebBackForwardList itemAtIndex:]
+-[WebHistoryItem URLString]
+-[WebHistoryItem(WebPrivate) target]
+-[WebHistoryItem(WebPrivate) isTargetItem]
+-[WebHistoryItem(WebPrivate) children]
+__ZN20WebFrameLoaderClient33dispatchDidReplaceStateWithinPageEv
+__ZN20WebFrameLoaderClient30dispatchDidPushStateWithinPageEv
+-[WebHistory init]
++[WebHistoryPrivate initialize]
+-[WebHistoryPrivate init]
++[WebHistory setOptionalSharedHistory:]
+-[WebHistory(WebInternal) _addVisitedLinksToPageGroup:]
+-[WebHistoryPrivate addVisitedLinksToPageGroup:]
+-[WebView(WebViewPrivateStyleInfo) _computedStyleIncludingVisitedInfo:forElement:]
+__ZN7WebCore13computedStyleEN3WTF10PassRefPtrINS_4NodeEEEbRKNS0_6StringE
+-[WebHistory dealloc]
+-[WebHistoryPrivate dealloc]
+-[WebHistory(WebInternal) _visitedURL:withTitle:method:wasFailure:increaseVisitCount:]
+-[WebHistoryPrivate visitedURL:withTitle:increaseVisitCount:]
+-[WebHistoryItem initWithURLString:title:lastVisitedTimeInterval:]
+-[WebHistoryItem(WebInternal) _recordInitialVisit]
+-[WebHistoryPrivate addItemToDateCaches:]
+-[WebHistoryItem lastVisitedTimeInterval]
+-[WebHistoryPrivate findKey:forDay:]
+__ZNK3WTF9HashTableIxSt4pairIxNS_9RetainPtrI14NSMutableArrayEEENS_18PairFirstExtractorIS5_EENS_7IntHashIyEENS_14PairHashTraitsINS_10HashTraitsIxEENSB_IS4_EEEESC_E8containsIxNS_22IdentityHashTranslatorIxS5_S9_EEEEbRKT_
+-[WebHistory _sendNotification:entries:]
+-[WebHistory(WebPrivate) allItems]
+-[WebHistoryPrivate allItems]
+-[DOMElement(WebDOMElementOperationsPrivate) _shadowPseudoId]
+-[DOMElement(WebDOMElementOperationsPrivate) _markerTextForListItem]
+-[WebView(WebPrivate) _loadBackForwardListFromOtherView:]
+-[WebDataSource(WebPrivate) _setDeferMainResourceDataLoad:]
+-[WebHistoryPrivate insertItem:forDateKey:]
+__ZN3WTF9HashTableIxSt4pairIxNS_9RetainPtrI14NSMutableArrayEEENS_18PairFirstExtractorIS5_EENS_7IntHashIyEENS_14PairHashTraitsINS_10HashTraitsIxEENSB_IS4_EEEESC_E16lookupForWritingERKx
+__ZN3WTF9HashTableIxSt4pairIxNS_9RetainPtrI14NSMutableArrayEEENS_18PairFirstExtractorIS5_EENS_7IntHashIyEENS_14PairHashTraitsINS_10HashTraitsIxEENSB_IS4_EEEESC_E3addIxS4_NS_17HashMapTranslatorIS5_SE_S9_EEEES1_INS_17HashTableIteratorIxS5_S7_S9_SE_SC_EEbERKT_RKT0_
+__ZN3WTF9HashTableIxSt4pairIxNS_9RetainPtrI14NSMutableArrayEEENS_18PairFirstExtractorIS5_EENS_7IntHashIyEENS_14PairHashTraitsINS_10HashTraitsIxEENSB_IS4_EEEESC_E4findIxNS_22IdentityHashTranslatorIxS5_S9_EEEENS_17HashTableIteratorIxS5_S7_S9_SE_SC_EERKT_
+__ZN3WTF9HashTableIxSt4pairIxNS_9RetainPtrI14NSMutableArrayEEENS_18PairFirstExtractorIS5_EENS_7IntHashIyEENS_14PairHashTraitsINS_10HashTraitsIxEENSB_IS4_EEEESC_E6lookupERKx
+__ZN3WTF9HashTableIxSt4pairIxNS_9RetainPtrI14NSMutableArrayEEENS_18PairFirstExtractorIS5_EENS_7IntHashIyEENS_14PairHashTraitsINS_10HashTraitsIxEENSB_IS4_EEEESC_E6rehashEi
+-[WebFrameView(WebPrivate) _area]
++[WebWorkersPrivate workerThreadCount]
+__ZN19DidModifyOriginData20dispatchToMainThreadEP24WebDatabaseManagerClientPN7WebCore14SecurityOriginE
+__ZN19DidModifyOriginData35dispatchDidModifyOriginOnMainThreadEPv
+__ZN15WebChromeClient25enterFullScreenForElementEPN7WebCore7ElementE
+-[WebKitFullScreenListener .cxx_construct]
+-[WebKitFullScreenListener initWithElement:]
+-[WebKitFullScreenListener webkitWillEnterFullScreen]
+__ZN15WebChromeClient25fullScreenRendererChangedEPN7WebCore9RenderBoxE
+-[WebView(WebViewInternal) _fullScreenRendererChanged:]
+-[WebFullScreenController .cxx_construct]
+-[WebFullScreenController init]
+-[WebFullscreenWindow initWithContentRect:styleMask:backing:defer:]
+-[WebFullScreenController windowDidLoad]
+__ZN18MediaEventListener6createEP23WebFullScreenController
+-[WebFullScreenController setRenderer:]
+__ZN7WebCore12ChromeClient22setRootFullScreenLayerEPNS_13GraphicsLayerE
+-[WebKitFullScreenListener webkitDidEnterFullScreen]
+-[WebKitFullScreenListener .cxx_destruct]
+-[WebFrameView _firstResponderIsFormControl]
+__ZN15WebChromeClient24exitFullScreenForElementEPN7WebCore7ElementE
+-[WebKitFullScreenListener webkitWillExitFullScreen]
+-[WebKitFullScreenListener webkitDidExitFullScreen]
+-[WebInspector show:]
+__ZN18WebInspectorClient21openInspectorFrontendEPN7WebCore19InspectorControllerE
+-[WebInspectorWindowController .cxx_construct]
+-[WebInspectorWindowController initWithInspectedWebView:]
+-[WebInspectorWindowController init]
+-[WebInspectorWindowController setInspectorClient:]
+-[WebInspectorWindowController webView]
+__ZN18WebInspectorClient22createFrontendSettingsEv
+__ZN26WebInspectorFrontendClientC2EP7WebViewP28WebInspectorWindowControllerPN7WebCore19InspectorControllerEPNS4_4PageEN3WTF10PassOwnPtrINS4_28InspectorFrontendClientLocal8SettingsEEE
+-[WebInspectorWindowController setFrontendClient:]
+-[WebInspectorFrontend initWithFrontendClient:]
+-[WebInspector setFrontend:]
+-[WebInspector evaluateInFrontend:callId:script:]
+__ZN26WebInspectorFrontendClient19localizedStringsURLEv
+__ZN26WebInspectorFrontendClient14frontendLoadedEv
+-[WebInspectorWindowController showWindow:]
+__ZN18WebInspectorClient23inspectorStartsAttachedEv
+__ZL15populateSettingRKN3WTF6StringEPS0_
+-[WebInspectorWindowController attached]
+__ZZN18WebInspectorClient22createFrontendSettingsEvEN27InspectorFrontendSettingsCF11getPropertyERKN3WTF6StringE
+__ZN26WebInspectorFrontendClient23setAttachedWindowHeightEj
+-[WebInspectorWindowController setAttachedWindowHeight:]
+__ZN26WebInspectorFrontendClient12bringToFrontEv
+__ZNK26WebInspectorFrontendClient17updateWindowTitleEv
+-[WebInspectorWindowController window]
+_WKNSWindowMakeBottomCornersSquare
+__ZN18WebInspectorClient21sendMessageToFrontendERKN3WTF6StringE
+__ZN26WebInspectorFrontendClient18loadSessionSettingERKN3WTF6StringEPS1_
+-[WebInspectorWindowController inspectorClient]
+__ZN18WebInspectorClient18loadSessionSettingERKN3WTF6StringEPS1_
+__ZN3WTF9HashTableINS_6StringESt4pairIS1_S1_ENS_18PairFirstExtractorIS3_EENS_10StringHashENS_14PairHashTraitsINS_10HashTraitsIS1_EES9_EES9_E16lookupForWritingIS1_NS_22IdentityHashTranslatorIS1_S3_S6_EEEES2_IPS3_bERKT_
+__ZN3WTF9HashTableINS_6StringESt4pairIS1_S1_ENS_18PairFirstExtractorIS3_EENS_10StringHashENS_14PairHashTraitsINS_10HashTraitsIS1_EES9_EES9_E3addIS1_S1_NS_17HashMapTranslatorIS3_SA_S6_EEEES2_INS_17HashTableIteratorIS1_S3_S5_S6_SA_S9_EEbERKT_RKT0_
+__ZN3WTF9HashTableINS_6StringESt4pairIS1_S1_ENS_18PairFirstExtractorIS3_EENS_10StringHashENS_14PairHashTraitsINS_10HashTraitsIS1_EES9_EES9_E6lookupIS1_NS_22IdentityHashTranslatorIS1_S3_S6_EEEEPS3_RKT_
+__ZN3WTF9HashTableINS_6StringESt4pairIS1_S1_ENS_18PairFirstExtractorIS3_EENS_10StringHashENS_14PairHashTraitsINS_10HashTraitsIS1_EES9_EES9_E6rehashEi
+__ZN26WebInspectorFrontendClient19inspectedURLChangedERKN3WTF6StringE
+__ZN18WebInspectorClient13hideHighlightEv
+-[WebNodeHighlighter hideHighlight]
+-[WebInspector setTimelineProfilingEnabled:]
+__ZN26WebInspectorFrontendClient21disconnectFromBackendEv
+-[WebInspectorWindowController destroyInspectorView:]
+-[WebInspectorWindowController close]
+__ZN26WebInspectorFrontendClientD0Ev
+-[WebInspectorWindowController dealloc]
+-[WebInspectorWindowController .cxx_destruct]
+__ZZN18WebInspectorClient22createFrontendSettingsEvEN27InspectorFrontendSettingsCFD0Ev
+-[WebDefaultEditingDelegate webView:shouldEndEditingInDOMRange:]
+__ZN18WebInspectorClient9highlightEPN7WebCore4NodeE
+-[WebNodeHighlighter highlightNode:]
+-[WebNodeHighlight initWithTargetView:inspectorController:]
+-[WebNodeHighlight(FileInternal) _computeHighlightWindowFrame]
+-[WebNodeHighlightView initWithWebNodeHighlight:]
+-[WebNodeHighlightView isFlipped]
+-[WebNodeHighlight setDelegate:]
+-[WebNodeHighlight attach]
+-[WebNodeHighlightView drawRect:]
+-[WebNodeHighlight inspectorController]
+-[WebNodeHighlighter didAttachWebNodeHighlight:]
+-[WebView setCurrentNodeHighlight:]
+-[WebNodeHighlight detach]
+-[WebNodeHighlighter willDetachWebNodeHighlight:]
+-[WebNodeHighlightView detachFromWebNodeHighlight]
+-[WebNodeHighlight dealloc]
+-[WebNodeHighlightView dealloc]
+__ZN26WebInspectorFrontendClient18saveSessionSettingERKN3WTF6StringES3_
+__ZN18WebInspectorClient18saveSessionSettingERKN3WTF6StringES3_
+__ZN3WTF17HashMapTranslatorISt4pairINS_6StringES2_ENS_14PairHashTraitsINS_10HashTraitsIS2_EES6_EENS_10StringHashEE9translateERS3_RKS2_SC_
+-[WebDefaultUIDelegate webViewFocus:]
+-[WebNodeHighlight(FileInternal) _repositionHighlightWindow]
+-[WebNodeHighlight highlightView]
+__ZN20WebFrameLoaderClient22createJavaAppletWidgetERKN7WebCore7IntSizeEPNS0_17HTMLAppletElementERKNS0_4KURLERKN3WTF6VectorINS9_6StringELm0EEESE_
+__XPCHasProperty
+_WKPCHasProperty
+__ZN6WebKit27NetscapePluginInstanceProxy11hasPropertyEjRKN3JSC10IdentifierE
+__WKPHBooleanReply
+__XPCGetProperty
+_WKPCGetProperty
+__ZN6WebKit27NetscapePluginInstanceProxy11getPropertyEjRKN3JSC10IdentifierERPcRj
+__XPCSetProperty
+_WKPCSetProperty
+__ZN6WebKit27NetscapePluginInstanceProxy11setPropertyEjRKN3JSC10IdentifierEPcj
+__XPCInvalidateRect
+_WKPCInvalidateRect
+___WKPCInvalidateRect_block_invoke_2
+__ZN6WebKit27NetscapePluginInstanceProxy14invalidateRectEdddd
+-[WebBaseNetscapePluginView invalidatePluginContentRect:]
+__ZN20WebFrameLoaderClient25pluginWillHandleLoadErrorERKN7WebCore16ResourceResponseE
+__ZN7WebCore17ResourceErrorBaseD2Ev
+_WKCopyAXTextMarkerRangeStart
+_WKGetBytesFromAXTextMarker
+_WKCopyAXTextMarkerRangeEnd
+-[WebHTMLView accessibilityHitTest:]
+__ZN3WTF6VectorIN7WebCore20CompositionUnderlineELm0EE15reserveCapacityEm
+-[WebHTMLView(WebNSTextInputSupport) attributedSubstringFromRange:]
+__ZN15WebEditorClient16shouldApplyStyleEPN7WebCore19CSSStyleDeclarationEPNS0_5RangeE
+-[WebFrame(WebPrivate) _selectNSRange:]
+-[WebHTMLView(WebNSTextInputSupport) characterIndexForPoint:]
+-[WebFrame(WebInternal) _characterRangeAtPoint:]
+-[WebHTMLView(WebNSTextInputSupport) conversationIdentifier]
+__ZN15WebEditorClient28recordAutocorrectionResponseEN7WebCore12EditorClient26AutocorrectionResponseTypeERKN3WTF6StringES6_
+__ZN15CorrectionPanel28recordAutocorrectionResponseEP7WebViewlRKN3WTF6StringES5_
+-[WebView(WebPendingPublic) aeDescByEvaluatingJavaScriptFromString:]
+__ZL17aeDescFromJSValuePN3JSC9ExecStateENS_7JSValueE
+__ZNK3WTF9HashTableIPN3JSC8JSObjectES3_NS_17IdentityExtractorIS3_EENS_7PtrHashIS3_EENS_10HashTraitsIS3_EES9_E8containsIS3_NS_22IdentityHashTranslatorIS3_S3_S7_EEEEbRKT_
+__ZN3WTF9HashTableIPN3JSC8JSObjectES3_NS_17IdentityExtractorIS3_EENS_7PtrHashIS3_EENS_10HashTraitsIS3_EES9_E3addIS3_S3_NS_22IdentityHashTranslatorIS3_S3_S7_EEEESt4pairINS_17HashTableIteratorIS3_S3_S5_S7_S9_S9_EEbERKT_RKT0_
+__ZN3WTF9HashTableIPN3JSC8JSObjectES3_NS_17IdentityExtractorIS3_EENS_7PtrHashIS3_EENS_10HashTraitsIS3_EES9_E6expandEv
+__ZNK3JSC12PropertySlot8getValueEPNS_9ExecStateEj
+__ZNK3WTF9HashTableIPN3JSC8JSObjectES3_NS_17IdentityExtractorIS3_EENS_7PtrHashIS3_EENS_10HashTraitsIS3_EES9_E4findIS3_NS_22IdentityHashTranslatorIS3_S3_S7_EEEENS_22HashTableConstIteratorIS3_S3_S5_S7_S9_S9_EERKT_
+__ZN3WTF9HashTableIPN3JSC8JSObjectES3_NS_17IdentityExtractorIS3_EENS_7PtrHashIS3_EENS_10HashTraitsIS3_EES9_E6removeEPS3_
+-[WebFrame(WebInternal) _convertDOMRangeToNSRange:]
+-[WebPDFRepresentation setDataSource:]
+-[WebPDFView initWithFrame:]
++[WebPDFView(FileInternal) _PDFPreviewViewClass]
++[WebPDFView PDFKitBundle]
+-[PDFPrefUpdatingProxy initWithView:]
+-[WebPDFView setNextKeyView:]
+-[WebPDFView viewWillMoveToWindow:]
+-[WebPDFView viewDidMoveToWindow]
+-[WebPDFView(FileInternal) _trackFirstResponder]
+-[WebPDFView(FileInternal) _clipViewForPDFDocumentView]
+-[WebPDFView setDataSource:]
+-[WebPDFRepresentation title]
+-[WebPDFRepresentation receivedData:withDataSource:]
+-[WebPDFView dataSourceUpdated:]
+-[WebPDFRepresentation finishedLoadingWithDataSource:]
+-[WebDataSource data]
++[WebPDFRepresentation PDFDocumentClass]
+-[WebPDFView setPDFDocument:]
+-[WebPDFView(FileInternal) _scaleOrDisplayModeOrPageChanged:]
+-[WebPDFView(FileInternal) _applyPDFDefaults]
+-[WebPreferences(WebPrivate) PDFScaleFactor]
+-[WebPreferences _floatValueForKey:]
+-[WebPreferences(WebPrivate) PDFDisplayMode]
+__Z23allScriptsInPDFDocumentP11PDFDocument
+-[WebPDFView(FileInternal) _updatePreferencesSoon]
+-[NSView(WebExtras) _webView]
+-[WebPDFView setNeedsLayout:]
+-[WebPDFView layout]
+-[WebPDFView(FileInternal) _updatePreferences:]
+-[WebPreferences(WebPrivate) setPDFScaleFactor:]
+-[WebPreferences _setFloatValue:forKey:]
+-[WebPreferences(WebPrivate) setPDFDisplayMode:]
+-[WebPDFView viewState]
+-[WebPDFView dealloc]
+__ZNSt4pairIN3WTF6StringES1_ED1Ev
++[WebHTMLView(WebPrivate) supportedMIMETypes]
++[WebHTMLRepresentation supportedMIMETypes]
+__ZN7WebCore17FrameLoaderClient18didNotAllowPluginsEv
+-[WebHostedNetscapePluginView handleMouseEntered:]
+__ZN6WebKit27NetscapePluginInstanceProxy10mouseEventEP6NSViewP7NSEvent16NPCocoaEventType
+__WKPHPluginInstanceMouseEvent
+-[WebHostedNetscapePluginView handleMouseMoved:]
+-[WebHostedNetscapePluginView mouseDown:]
+__ZN6WebKit26HostedNetscapePluginStream10cancelLoadEs
+__ZN6WebKit26HostedNetscapePluginStream10cancelLoadEP7NSError
+__ZNK15WebChromeClient34shouldMissingPluginMessageBeButtonEv
+__ZNK15WebChromeClient26missingPluginButtonClickedEPN7WebCore7ElementE
+__ZN6WebKit27NetscapePluginInstanceProxy17retainLocalObjectEN3JSC7JSValueE
+__ZN6WebKit27NetscapePluginInstanceProxy18releaseLocalObjectEN3JSC7JSValueE
+__ZN6WebKit26HostedNetscapePluginStream18didReceiveResponseEPN7WebCore26NetscapePlugInStreamLoaderERKNS1_16ResourceResponseE
+_WKGetNSURLResponseLastModifiedDate
+__ZN6WebKit26HostedNetscapePluginStream11startStreamEP5NSURLxP6NSDateP8NSStringP6NSData
+-[NSURL(WebNSURLExtras) _web_URLCString]
+__WKPHStartStream
+__ZN6WebKit26HostedNetscapePluginStream16didFinishLoadingEPN7WebCore26NetscapePlugInStreamLoaderE
+__WKPHStreamDidFinishLoading
+__ZNK6WebKit10ProxyField17valueFromInstanceEPN3JSC9ExecStateEPKNS1_8Bindings8InstanceE
+__ZNK6WebKit13ProxyInstance10fieldValueEPN3JSC9ExecStateEPKNS1_8Bindings5FieldE
+__WKPHNPObjectGetProperty
+__ZN6WebKit10ProxyFieldD0Ev
+-[NSString(WebNSURLExtras) _webkit_stringByReplacingValidPercentEscapes]
+__ZN6WebKit27NetscapePluginInstanceProxy13PluginRequestC2EjP12NSURLRequestP8NSStringb
+__ZN3WTF5DequeINS_6RefPtrIN6WebKit27NetscapePluginInstanceProxy13PluginRequestEEELm0EE14expandCapacityEv
+__ZN7WebCore5TimerIN6WebKit27NetscapePluginInstanceProxyEE5firedEv
+__ZN6WebKit27NetscapePluginInstanceProxy17requestTimerFiredEPN7WebCore5TimerIS0_EE
+__ZN6WebKit27NetscapePluginInstanceProxy14performRequestEPNS0_13PluginRequestE
+__ZN6WebKit27NetscapePluginInstanceProxy18evaluateJavaScriptEPNS0_13PluginRequestE
+__ZN6WebKit27NetscapePluginInstanceProxy13PluginRequestD1Ev
+-[WebFrame(WebInternal) _internalLoadDelegate]
+__ZN3WTF7HashMapIP8WebFrameNS_6RefPtrIN6WebKit27NetscapePluginInstanceProxy13PluginRequestEEENS_7PtrHashIS2_EENS_10HashTraitsIS2_EENSA_IS7_EEE3setERKS2_RKS7_
+-[WebFrame(WebInternal) _setInternalLoadDelegate:]
+-[WebHostedNetscapePluginView webFrame:didFinishLoadWithError:]
+-[WebHostedNetscapePluginView webFrame:didFinishLoadWithReason:]
+__ZN6WebKit27NetscapePluginInstanceProxy31webFrameDidFinishLoadWithReasonEP8WebFrames
+__ZN3WTF9HashTableIP8WebFrameSt4pairIS2_NS_6RefPtrIN6WebKit27NetscapePluginInstanceProxy13PluginRequestEEEENS_18PairFirstExtractorIS9_EENS_7PtrHashIS2_EENS_14PairHashTraitsINS_10HashTraitsIS2_EENSF_IS8_EEEESG_E16lookupForWritingERKS2_
+__ZN3WTF9HashTableIP8WebFrameSt4pairIS2_NS_6RefPtrIN6WebKit27NetscapePluginInstanceProxy13PluginRequestEEEENS_18PairFirstExtractorIS9_EENS_7PtrHashIS2_EENS_14PairHashTraitsINS_10HashTraitsIS2_EENSF_IS8_EEEESG_E3addIS2_S8_NS_17HashMapTranslatorIS9_SI_SD_EEEES3_INS_17HashTableIteratorIS2_S9_SB_SD_SI_SG_EEbERKT_RKT0_
+__ZN3WTF9HashTableIP8WebFrameSt4pairIS2_NS_6RefPtrIN6WebKit27NetscapePluginInstanceProxy13PluginRequestEEEENS_18PairFirstExtractorIS9_EENS_7PtrHashIS2_EENS_14PairHashTraitsINS_10HashTraitsIS2_EENSF_IS8_EEEESG_E4findIS2_NS_22IdentityHashTranslatorIS2_S9_SD_EEEENS_17HashTableIteratorIS2_S9_SB_SD_SI_SG_EERKT_
+__ZN3WTF9HashTableIP8WebFrameSt4pairIS2_NS_6RefPtrIN6WebKit27NetscapePluginInstanceProxy13PluginRequestEEEENS_18PairFirstExtractorIS9_EENS_7PtrHashIS2_EENS_14PairHashTraitsINS_10HashTraitsIS2_EENSF_IS8_EEEESG_E6rehashEi
+__ZN3WTF9HashTableIP8WebFrameSt4pairIS2_NS_6RefPtrIN6WebKit27NetscapePluginInstanceProxy13PluginRequestEEEENS_18PairFirstExtractorIS9_EENS_7PtrHashIS2_EENS_14PairHashTraitsINS_10HashTraitsIS2_EENSF_IS8_EEEESG_E6removeEPS9_
+__WKPHLoadURLNotify
+__ZN6WebKit26HostedNetscapePluginStream23startStreamWithResponseEP13NSURLResponse
+__ZN6WebKit26HostedNetscapePluginStream14didReceiveDataEPN7WebCore26NetscapePlugInStreamLoaderEPKci
+__WKPHStreamDidReceiveData
+__ZNK6WebKit10ProxyField18setValueToInstanceEPN3JSC9ExecStateEPKNS1_8Bindings8InstanceENS1_7JSValueE
+__ZNK6WebKit13ProxyInstance13setFieldValueEPN3JSC9ExecStateEPKNS1_8Bindings5FieldENS1_7JSValueE
+__WKPHNPObjectSetProperty
+-[WebBaseNetscapePluginView windowWillClose:]
+__WKPHPluginInstanceDidDraw
+-[WebHostedNetscapePluginView mouseUp:]
+-[WebHostedNetscapePluginView keyDown:]
+-[WebTextInputWindowController interpretKeyEvent:string:]
+-[WebTextInputPanel _interpretKeyEvent:string:]
+__ZN6WebKit27NetscapePluginInstanceProxy8keyEventEP6NSViewP7NSEvent16NPCocoaEventType
+_WKGetNSEventKeyChar
+__WKPHPluginInstanceKeyboardEvent
+-[WebHostedNetscapePluginView keyUp:]
+-[WebHostedNetscapePluginView mouseDragged:]
+-[WebHostedNetscapePluginView handleMouseExited:]
+__ZNK6WebKit18ProxyRuntimeObject24getInternalProxyInstanceEv
+__ZN6WebKit27NetscapePluginInstanceProxy14pluginHostDiedEv
+-[WebHostedNetscapePluginView pluginHostDied]
+__XPCSetException
+_WKPCSetException
+__ZN6WebKit27NetscapePluginInstanceProxy18setGlobalExceptionERKN3WTF6StringE
+__ZN6WebKit27NetscapePluginInstanceProxy14LocalObjectMap7releaseEPN3JSC8JSObjectE
+__ZN6WebKit26HostedNetscapePluginStreamC1EPNS_27NetscapePluginInstanceProxyEPN7WebCore11FrameLoaderE
+__ZN6WebKit26HostedNetscapePluginStreamC2EPNS_27NetscapePluginInstanceProxyEPN7WebCore11FrameLoaderE
+__ZN6WebKit27NetscapePluginInstanceProxy15setManualStreamEN3WTF10PassRefPtrINS_26HostedNetscapePluginStreamEEE
+-[WebHostedNetscapePluginView pluginViewFinishedLoading:]
++[WebScriptWorld world]
+-[WebScriptWorld init]
++[WebView(WebPrivate) _addUserScriptToGroup:world:source:url:whitelist:blacklist:injectionTime:injectedFrames:]
+__ZL14toStringVectorP7NSArray
+__Z4coreP14WebScriptWorld
+-[WebScriptWorld dealloc]
+-[WebScriptWorldPrivate .cxx_destruct]
+__ZN3WTF9HashTableIPN7WebCore15DOMWrapperWorldESt4pairIS3_P14WebScriptWorldENS_18PairFirstExtractorIS7_EENS_7PtrHashIS3_EENS_14PairHashTraitsINS_10HashTraitsIS3_EENSD_IS6_EEEESE_E16lookupForWritingERKS3_
+__ZN3WTF9HashTableIPN7WebCore15DOMWrapperWorldESt4pairIS3_P14WebScriptWorldENS_18PairFirstExtractorIS7_EENS_7PtrHashIS3_EENS_14PairHashTraitsINS_10HashTraitsIS3_EENSD_IS6_EEEESE_E3addIS3_S6_NS_17HashMapTranslatorIS7_SG_SB_EEEES4_INS_17HashTableIteratorIS3_S7_S9_SB_SG_SE_EEbERKT_RKT0_
+__ZN3WTF9HashTableIPN7WebCore15DOMWrapperWorldESt4pairIS3_P14WebScriptWorldENS_18PairFirstExtractorIS7_EENS_7PtrHashIS3_EENS_14PairHashTraitsINS_10HashTraitsIS3_EENSD_IS6_EEEESE_E4findIS3_NS_22IdentityHashTranslatorIS3_S7_SB_EEEENS_17HashTableIteratorIS3_S7_S9_SB_SG_SE_EERKT_
+__ZN3WTF9HashTableIPN7WebCore15DOMWrapperWorldESt4pairIS3_P14WebScriptWorldENS_18PairFirstExtractorIS7_EENS_7PtrHashIS3_EENS_14PairHashTraitsINS_10HashTraitsIS3_EENSD_IS6_EEEESE_E6lookupERKS3_
+__ZN3WTF9HashTableIPN7WebCore15DOMWrapperWorldESt4pairIS3_P14WebScriptWorldENS_18PairFirstExtractorIS7_EENS_7PtrHashIS3_EENS_14PairHashTraitsINS_10HashTraitsIS3_EENSD_IS6_EEEESE_E6rehashEi
+-[WebFrame(WebPrivate) _globalContextForScriptWorld:]
+_WKCreatePrivateStorageSession
+_CoreServicesLibrary
+_canLoad_CFURLStorageSessionCopyCache
+_canLoad_CFURLStorageSessionCopyCookieStorage
+__CFURLStorageSessionCreate
+__CFURLStorageSessionCopyCache
+__CFURLStorageSessionCopyCookieStorage
+_WKCopyHTTPCookieStorage
+__ZN7WebCore14PluginViewBase27privateBrowsingStateChangedEb
+-[WebHostedNetscapePluginView privateBrowsingModeDidChange]
+__ZN6WebKit27NetscapePluginInstanceProxy28privateBrowsingModeDidChangeEb
+__WKPHPluginInstancePrivateBrowsingModeDidChange
+_WKSetCookieStoragePrivateBrowsingEnabled
+__ZN3JSC8JSObject17getDirectLocationERNS_12VMERKNS_10IdentifierE
+__XPCStatusText
+_WKPCStatusText
+__ZN6WebKit27NetscapePluginInstanceProxy6statusEPKc
+__XPCConstruct
+_WKPCConstruct
+__ZN6WebKit27NetscapePluginInstanceProxy9constructEjPcjRS1_Rj
+__ZNK6WebKit13ProxyInstance17supportsConstructEv
+__WKPHNPObjectHasConstructMethod
+__ZN6WebKit13ProxyInstance15invokeConstructEPN3JSC9ExecStateERKNS1_7ArgListE
+__XPCEnumerate
+_WKPCEnumerate
+__ZN6WebKit27NetscapePluginInstanceProxy9enumerateEjRPcRj
+__ZN3JSC17PropertyNameArrayD1Ev
+__ZN3WTF6VectorIN3JSC10IdentifierELm20EED1Ev
+__ZN3JSC8jsStringEPNS_12VMERKNS_7UStringE
+__ZN6WebKit13ProxyInstance16getPropertyNamesEPN3JSC9ExecStateERNS1_17PropertyNameArrayE
+__WKPHNPObjectEnumerate
+__XPCGetIntIdentifier
+_WKPCGetIntIdentifier
+__XPCHasMethod
+_WKPCHasMethod
+__ZN6WebKit27NetscapePluginInstanceProxy9hasMethodEjRKN3JSC10IdentifierE
+__ZNK3JSC8JSObject11toPrimitiveEPNS_9ExecStateENS_22PreferredPrimitiveTypeE
+__ZNK6WebKit13ProxyInstance27supportsInvokeDefaultMethodEv
+__WKPHNPObjectHasInvokeDefaultMethod
+__ZN6WebKit13ProxyInstance19invokeDefaultMethodEPN3JSC9ExecStateE
+__XPCRemoveProperty
+_WKPCRemoveProperty
+__ZN6WebKit27NetscapePluginInstanceProxy14removePropertyEjRKN3JSC10IdentifierE
+__ZN6WebKit27NetscapePluginInstanceProxy14removePropertyEjj
+-[WebFrame(WebKitDebug) pageNumberForElement:::]
+-[WebFrame(WebKitDebug) numberOfPages::]
+-[WebFrame(WebKitDebug) pageSizeAndMarginsInPixels:::::::]
+-[WebFrame(WebKitDebug) isPageBoxVisible:]
+-[WebFrame(WebKitDebug) pageProperty::]
++[WebView(WebPrivate) _addUserStyleSheetToGroup:world:source:url:whitelist:blacklist:injectedFrames:]
+-[WebView(WebViewEventHandling) mouseUp:]
+-[WebHTMLRepresentation elementDoesAutoComplete:]
++[WebDatabaseManager sharedWebDatabaseManager]
+-[WebDatabaseManager deleteAllDatabases]
+-[WebFrame(WebPrivate) _stringByEvaluatingJavaScriptFromString:withGlobalObject:inScriptWorld:]
+-[WebSecurityOrigin initWithURL:]
+-[WebSecurityOrigin port]
+-[WebSecurityOrigin host]
+-[WebSecurityOrigin protocol]
++[WebStorageManager sharedWebStorageManager]
+-[WebStorageManager origins]
+__ZN3WTF6VectorINS_6RefPtrIN7WebCore14SecurityOriginEEELm0EED1Ev
+-[WebSecurityOrigin databaseIdentifier]
+-[WebStorageManager deleteAllOrigins]
+-[WebStorageManager syncLocalStorage]
+-[WebStorageManager deleteOrigin:]
+-[WebStorageManager diskUsageForOrigin:]
+__ZN3WTF6RefPtrIN7WebCore7ArchiveEED1Ev
+__ZN3WTF10RefCountedIN7WebCore7ArchiveEE5derefEv
+-[WebDataSource webArchive]
++[WebIconDatabase initialize]
++[WebIconDatabase sharedIconDatabase]
+-[WebIconDatabase init]
+-[WebIconDatabase(WebInternal) _startUpIconDatabase]
+-[WebIconDatabase(WebInternal) _databaseDirectory]
+-[WebIconDatabase(WebPendingPublic) isEnabled]
+__ZN21WebIconDatabaseClient13performImportEv
+__Z21importToWebCoreFormatv
+__ZL20objectFromPathForKeyP8NSStringP11objc_object
+__ZN21WebIconDatabaseClient18didFinishURLImportEv
+-[WebIconDatabase(WebPendingPublic) setEnabled:]
+-[WebIconDatabase(WebInternal) _resetCachedWebPreferences:]
+-[WebIconDatabase(WebInternal) _shutDownIconDatabase]
+_WKCopyNSURLResponseStatusLine
+__ZNK20WebFrameLoaderClient17willCacheResponseEPN7WebCore14DocumentLoaderEmP19NSCachedURLResponse
+__ZN20WebFrameLoaderClient50dispatchDidReceiveServerRedirectForProvisionalLoadEv
+__ZN20WebFrameLoaderClient18cannotShowURLErrorERKN7WebCore15ResourceRequestE
+__ZN20WebFrameLoaderClient37canAuthenticateAgainstProtectionSpaceEPN7WebCore14DocumentLoaderEmRKNS0_15ProtectionSpaceE
++[WebApplicationCache setMaximumSize:]
++[WebApplicationCache deleteAllApplicationCaches]
+__ZN15WebChromeClient22reachedMaxAppCacheSizeEx
++[WebApplicationCache deleteCacheForOrigin:]
+-[WebSecurityOrigin(WebQuotaManagers) applicationCacheQuotaManager]
+-[WebApplicationCacheQuotaManager initWithOrigin:]
+-[WebApplicationCacheQuotaManager setQuota:]
+__ZN15WebChromeClient34reachedApplicationCacheOriginQuotaEPN7WebCore14SecurityOriginE
++[WebApplicationCache defaultOriginQuota]
++[WebApplicationCache diskUsageForOrigin:]
++[WebApplicationCache originsWithCache]
+-[WebView goForward]
+-[WebNavigationData url]
+-[WebNavigationData clientRedirectSource]
+-[WebNavigationData response]
+-[WebNavigationData hasSubstituteData]
+-[WebNavigationData originalRequest]
+-[WebNavigationData title]
+__Z19CallHistoryDelegatePFP11objc_objectS0_P13objc_selectorzEP7WebViewS2_S0_S0_S0_
+__ZN20WebFrameLoaderClient41dispatchDidReceiveAuthenticationChallengeEPN7WebCore14DocumentLoaderEmRKNS0_23AuthenticationChallengeE
+-[WebView(WebPrivate) _dispatchPendingLoadRequests]
+_WKCopyCFURLResponseSuggestedFilename
+__ZN20WebFrameLoaderClient29interruptForPolicyChangeErrorERKN7WebCore15ResourceRequestE
+_WKCreateCustomCFReadStream
+_WKSignalCFReadStreamHasBytes
+__ZN15WebChromeClient39shouldReplaceWithGeneratedFileForUploadERKN3WTF6StringERS1_
+-[WebDefaultUIDelegate webView:shouldReplaceUploadFile:usingGeneratedFilename:]
+_WKSignalCFReadStreamEnd
+-[WebResource(WebResourceInternal) _initWithCoreResource:]
+-[WebResource MIMEType]
+-[WebResource data]
+-[WebView(WebPrivate) _cachedResponseForURL:]
+-[NSMutableURLRequest(WebNSURLRequestExtras) _web_setHTTPUserAgent:]
+__ZN21WebIconDatabaseClient23didChangeIconForPageURLERKN3WTF6StringE
+__ZN21WebIconDatabaseClient26didImportIconURLForPageURLERKN3WTF6StringE
+-[WebIconDatabase(WebInternal) _sendNotificationForURL:]
+-[NSNotificationCenter(WebNSNotificationCenterExtras) postNotificationOnMainThreadWithName:object:userInfo:]
+-[NSNotificationCenter(WebNSNotificationCenterExtras) postNotificationOnMainThreadWithName:object:userInfo:waitUntilDone:]
+__ZN20WebFrameLoaderClient22dispatchDidReceiveIconEv
+-[WebView(WebViewInternal) _dispatchDidReceiveIconFromWebFrame:]
+-[WebView(WebViewInternal) _registerForIconNotification:]
++[NSNotificationCenter(WebNSNotificationCenterExtras) _postNotificationName:]
+__ZN20WebFrameLoaderClient31dispatchUnableToImplementPolicyERKN7WebCore13ResourceErrorE
+__ZN20WebFrameLoaderClient24revertToProvisionalStateEPN7WebCore14DocumentLoaderE
+-[WebDataSource(WebInternal) _revertToProvisionalState]
+-[WebView goToBackForwardItem:]
+__ZNK6WebKit26HostedNetscapePluginStream15wantsAllStreamsEv
+-[NSData(WebNSDataExtras) _web_startsWithBlankLine]
+-[NSData(WebNSDataExtras) _web_locationAfterFirstBlankLine]
+__ZN20WebFrameLoaderClient21didRunInsecureContentEPN7WebCore14SecurityOriginERKNS0_4KURLE
+__ZN20WebFrameLoaderClient25didDisplayInsecureContentEv
+__Z21CallFrameLoadDelegatePFP11objc_objectS0_P13objc_selectorzEP7WebViewS2_
+-[WebHTMLView(WebPrivate) view:stringForToolTip:point:userData:]
+-[NSNotificationCenter(WebNSNotificationCenterExtras) postNotificationOnMainThreadWithName:object:]
+-[WebView windowScriptObject]
+-[WebView(WebViewCSS) computedStyleForElement:pseudoElement:]
+-[WebView(WebPrivate) setBackgroundColor:]
+-[WebDynamicScrollBarsView setAllowsHorizontalScrolling:]
+-[WebHTMLView validRequestorForSendType:returnType:]
+-[WebHTMLView(WebDocumentPrivateProtocols) pasteboardTypesForSelection]
+-[WebHTMLView(WebInternal) _canSmartCopyOrDelete]
+-[WebFrame frameElement]
+-[WebDataSource initialRequest]
+-[WebPreferences setAllowsAnimatedImageLooping:]
+-[WebDynamicScrollBarsView(WebInternal) autoforwardsScrollWheelEvents]
+-[WebView(WebPendingPublic) pageSizeMultiplier]
+_WKScrollbarPainterIsHorizontal
+__ZL10pluginViewP8WebFrameP16WebPluginPackageP7NSArrayS4_P5NSURLP10DOMElementa
+-[WebPluginPackage load]
+-[WebBasePluginPackage load]
+-[WebPluginPackage viewFactory]
++[WebPluginController plugInViewWithArguments:fromPluginPackage:]
+-[WebPluginController webFrame]
+-[NSView(WebExtras) _web_parentWebFrameView]
+-[WebPluginController addPlugin:]
+-[WebPluginController webView]
+-[WebView(WebPrivate) defersCallbacks]
+-[WebView(WebPrivate) setDefersCallbacks:]
+__ZNK7WebCore14PluginViewBase13platformLayerEv
+-[WebHTMLView(WebDocumentPrivateProtocols) selectedAttributedString]
+-[WebHTMLView(WebHTMLViewFileInternal) _selectedRange]
+-[WebHTMLView(WebDocumentPrivateProtocols) _attributeStringFromDOMRange:]
+__ZN7WebCore6Widget12notifyWidgetENS_18WidgetNotificationE
+-[WebPluginController stopOnePlugin:]
+-[WebPluginController destroyOnePlugin:]
+__ZN12PluginWidgetD0Ev
+-[WebView(WebPrivate) setMemoryCacheDelegateCallsEnabled:]
+-[WebView(WebPrivate) _setFormDelegate:]
+-[WebView isLoading]
+-[WebView(WebFileInternal) _isLoading]
+-[WebDataSource isLoading]
++[WebView(WebPrivate) _canHandleRequest:]
+-[WebDataSource unreachableURL]
+-[WebView(WebIBActions) canGoBack]
+-[WebView(WebIBActions) canGoForward]
+-[WebHTMLView viewWillMoveToHostWindow:]
+-[WebHTMLView _web_makePluginSubviewsPerformSelector:withObject:]
+-[WebHTMLView viewDidMoveToHostWindow]
+-[WebView estimatedProgress]
++[WebView canShowMIMEType:]
+-[WebFrame(WebPrivate) _loadType]
+-[WebView(WebPendingPublic) addVisitedLinks:]
+-[WebHistoryItem(WebPrivate) _transientPropertyForKey:]
+-[WebElementDictionary _targetWebFrame]
+-[NSURL(WebNSURLExtras) _webkit_URLByRemovingFragment]
+-[WebScriptWorld unregisterWorld]
+-[WebView(WebPrivate) _globalHistoryItem]
+-[WebHistoryItem originalURLString]
+-[WebHTMLView(WebDocumentPrivateProtocols) selectionView]
+-[WebView(WebPrivate) _isSoftwareRenderable]
+-[WebFrame(WebPrivate) _isFrameSet]
+-[WebHTMLView(WebDocumentPrivateProtocols) string]
+-[WebHTMLView(WebHTMLViewFileInternal) _documentRange]
+-[DOMDocument(WebDOMDocumentOperationsInternal) _documentRange]
+-[WebFrame(WebInternal) _stringForRange:]
+-[WebHistoryItem title]
+-[WebView(WebPrivate) _clearUndoRedoOperations]
+-[WebHTMLView acceptsFirstMouse:]
+-[WebHTMLView _isScrollBarEvent:]
+-[WebElementDictionary _isInScrollBar]
+-[WebView _hitTest:dragTypes:]
+-[WebView _shouldAutoscrollForDraggingInfo:]
+-[WebView documentViewAtWindowPoint:]
+__ZNK20WebFrameLoaderClient29generatedMIMETypeForURLSchemeERKN3WTF6StringE
+__Z16CallFormDelegateP7WebViewP13objc_selectorP11objc_objectS4_S4_S4_S4_
+-[WebFramePolicyListener continue]
+__ZN20NetscapePluginWidget12notifyWidgetEN7WebCore18WidgetNotificationE
+-[WebBaseNetscapePluginView cacheSnapshot]
+-[WebBaseNetscapePluginView supportsSnapshotting]
+-[WebNetscapePluginPackage supportsSnapshotting]
+__ZN6WebKit27NetscapePluginInstanceProxy8snapshotEP9CGContextjj
+__WKPHPluginInstanceSnapshot
+-[WebBaseNetscapePluginView clearCachedSnapshot]
+-[WebHostedNetscapePluginView windowFrameDidChange:]
+-[WebBaseNetscapePluginView windowResignedKey:]
+-[WebBaseNetscapePluginView windowBecameKey:]
+-[WebView(WebIBActions) goBack:]
+-[WebHistoryItem(WebPrivate) URL]
+__ZN15WebEditorClient21canonicalizeURLStringEP8NSString
++[NSURL(WebNSURLExtras) _web_URLWithData:]
++[WebView(WebPrivate) suggestedFileExtensionForMIMEType:]
+_WKGetPreferredExtensionForMIMEType
+-[NSEvent(WebExtras) _web_isEscapeKeyEvent]
+-[WebFrame(WebPrivate) _isDisplayingStandaloneImage]
+-[WebView(WebPendingPublic) canMarkAllTextMatches]
+-[WebView(WebPendingPublic) countMatchesForText:options:highlight:limit:markMatches:]
+-[WebView(WebPendingPublic) countMatchesForText:inDOMRange:options:highlight:limit:markMatches:]
+-[WebHTMLView(WebDocumentInternalProtocols) setMarkedTextMatchesAreHighlighted:]
+-[WebHTMLView(WebDocumentInternalProtocols) countMatchesForText:inDOMRange:options:limit:markMatches:]
+-[WebView(WebPendingPublic) unmarkAllTextMatches]
+-[WebHTMLView(WebDocumentInternalProtocols) unmarkAllTextMatches]
+-[WebView(WebPendingPublic) rectsForTextMatches]
+-[WebHTMLView(WebDocumentInternalProtocols) rectsForTextMatches]
+-[WebHTMLView(WebDocumentPrivateProtocols) selectionRect]
+-[WebHTMLView(WebDocumentPrivateProtocols) selectionTextRects]
+-[WebHTMLView(WebDocumentPrivateProtocols) selectionImageForcingBlackText:]
+-[WebHTMLView(WebDocumentPrivateProtocols) selectedString]
+-[WebFrame(WebInternal) _selectedString]
+-[WebElementDictionary _absoluteImageURL]
+-[WebElementDictionary _absoluteMediaURL]
+-[WebHTMLRepresentation canProvideDocumentSource]
+-[WebFrame(WebInternal) _canProvideDocumentSource]
+__ZL30fixMenusReceivedFromOldClientsP14NSMutableArrayS0_
+-[WebMenuTarget validateMenuItem:]
+-[WebHTMLRepresentation documentSource]
+-[WebHTMLRepresentation canSaveAsWebArchive]
+-[WebFrame(WebInternal) _canSaveAsWebArchive]
+-[WebFrameView documentViewShouldHandlePrint]
+-[WebFrameView printOperationWithPrintInfo:]
+-[WebFrameView canPrintHeadersAndFooters]
+-[WebHTMLView canPrintHeadersAndFooters]
+-[WebHTMLView knowsPageRange:]
+-[WebView(WebViewPrintingPrivate) _adjustPrintingMarginsForHeaderAndFooter]
+-[NSPrintOperation(WebKitExtras) _web_pageSetupScaleFactor]
+-[WebView(WebViewPrintingPrivate) _headerHeight]
+__Z28CallUIDelegateReturningFloatP7WebViewP13objc_selector
+-[WebView(WebViewPrintingPrivate) _footerHeight]
+-[NSPrintOperation(WebKitExtras) _web_availablePaperHeight]
+-[NSPrintOperation(WebKitExtras) _web_availablePaperWidth]
+-[WebHTMLView(WebPrivate) _beginPrintModeWithPageWidth:height:shrinkToFit:]
+-[WebHTMLView(WebPrivate) _isInScreenPaginationMode]
+-[WebHTMLView _setPrinting:minimumPageLogicalWidth:logicalHeight:maximumPageLogicalWidth:adjustViewSize:paginateScreenContent:]
+-[WebHTMLView _scaleFactorForPrintOperation:]
+-[WebFrame(WebPrivate) _computePageRectsWithPrintScaleFactor:pageSize:]
+-[WebHTMLView _provideTotalScaleFactorForPrintOperation:]
+-[WebHTMLView beginDocument]
+-[WebHTMLView endDocument]
+-[WebHTMLView _endPrintModeAndRestoreWindowAutodisplay]
+-[WebHTMLView(WebPrivate) _endPrintMode]
+-[WebHTMLView rectForPage:]
+-[WebHTMLView drawPageBorderWithSize:]
+-[WebView(WebViewPrintingPrivate) _drawHeaderAndFooter]
+-[WebView(WebViewPrintingPrivate) _drawHeaderInRect:]
+__Z14CallUIDelegateP7WebViewP13objc_selector6CGRect
+-[WebView(WebViewPrintingPrivate) _drawFooterInRect:]
+-[NonBlockingPanel _blocksActionWhenModal:]
+-[WebDownload init]
+-[WebDownload dealloc]
+-[WebDownloadInternal dealloc]
+-[NSEvent(WebExtras) _web_isDeleteKeyEvent]
+-[WebPreferences(WebPrivate) setWebArchiveDebugModeEnabled:]
+-[WebPreferences(WebPrivate) setLocalFileContentSniffingEnabled:]
++[WebCoreStatistics statistics]
++[WebCache statistics]
++[WebCoreStatistics javaScriptGlobalObjectsCount]
++[WebCoreStatistics javaScriptProtectedObjectsCount]
++[WebCoreStatistics javaScriptProtectedObjectTypeCounts]
++[WebCoreStatistics javaScriptObjectTypeCounts]
++[WebCoreStatistics iconPageURLMappingCount]
++[WebCoreStatistics iconRetainedPageURLCount]
++[WebCoreStatistics iconRecordCount]
++[WebCoreStatistics iconsWithDataCount]
++[WebCoreStatistics cachedFontDataCount]
++[WebCoreStatistics cachedFontDataInactiveCount]
++[WebCoreStatistics glyphPageCount]
++[WebCoreStatistics memoryStatistics]
++[WebCoreStatistics returnFreeMemoryToSystem]
++[WebCache isDisabled]
++[WebCoreStatistics purgeInactiveFontData]
++[WebCoreStatistics cachedPageCount]
++[WebCoreStatistics cachedFrameCount]
++[WebCoreStatistics autoreleasedPageCount]
+-[WebFrame(WebPrivate) _cacheabilityDictionary]
++[WebView(WebPrivate) _setAlwaysUsesComplexTextCodePath:]
+-[WebView(WebPendingPublic) canZoomPageIn]
+-[WebView _canZoomIn:]
+-[WebView(WebPendingPublic) canZoomPageOut]
+-[WebView _canZoomOut:]
+-[WebHTMLView validateUserInterfaceItem:]
+__Z40CallResourceLoadDelegateReturningBooleanaPFP11objc_objectS0_P13objc_selectorzEP7WebViewS2_S0_S0_S0_
+__ZN20WebFrameLoaderClient27registerForIconNotificationEb
+__ZNK7WebCore20StringSourceProvider8getRangeEii
+-[NSData(WebNSDataExtras) _webkit_parseRFC822HeaderFields]
+-[NSString(WebNSDataExtrasInternal) _web_capitalizeRFC822HeaderFieldName]
+-[WebView(WebPrivate) _setIncludesFlattenedCompositingLayersWhenDrawingToBitmap:]
+-[WebHTMLView(WebPrivate) _compositingLayersHostingView]
+__ZN20WebFrameLoaderClient21fileDoesNotExistErrorERKN7WebCore16ResourceResponseE
+-[WebDatabaseManager detailsForDatabase:withOrigin:]
+__ZN7WebCore15DatabaseDetailsD1Ev
+-[WebSecurityOrigin(Deprecated) usage]
+-[WebSecurityOrigin(Deprecated) quota]
+-[WebSecurityOrigin(Deprecated) setQuota:]
+-[WebPDFView becomeFirstResponder]
+-[WebPDFView acceptsFirstResponder]
+-[WebPDFView selectionView]
+-[WebPDFView PDFDocument]
+-[WebPDFRepresentation receivedError:withDataSource:]
+-[WebPreferences(WebPrivate) setApplicationChromeModeEnabled:]
+-[WebFrame loadAlternateHTMLString:baseURL:forUnreachableURL:]
+-[WebHistoryItem(WebPrivate) _setTransientProperty:forKey:]
+-[WebBackForwardList backItem]

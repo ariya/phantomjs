@@ -59,7 +59,7 @@ bool Terminal::setEncoding(const QString &encoding)
     // Since there can be multiple names for the same codec (i.e., "utf8" and
     // "utf-8"), we need to get the codec in the system first and use its
     // canonical name
-    QTextCodec *codec = QTextCodec::codecForName(encoding.toAscii());
+    QTextCodec *codec = QTextCodec::codecForName(encoding.toLatin1());
     if ((QTextCodec *)NULL == codec) {
       return false;
     }

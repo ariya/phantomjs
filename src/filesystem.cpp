@@ -131,7 +131,7 @@ bool File::write(const QString &data)
         // binary file
         QByteArray bytes(data.size(), Qt::Uninitialized);
         for(int i = 0; i < data.size(); ++i) {
-            bytes[i] = data.at(i).toAscii();
+            bytes[i] = data.at(i).toLatin1();
         }
         return m_file->write(bytes);
     }
@@ -161,7 +161,7 @@ QString File::readLine()
         return m_fileStream->readLine();
     } else {
         // binary file - doesn't make much sense but well...
-        return QString::fromAscii(m_file->readLine());
+        return QString::fromLatin1(m_file->readLine());
     }
 }
 
@@ -230,7 +230,7 @@ bool File::setEncoding(const QString &encoding) {
     // Since there can be multiple names for the same codec (i.e., "utf8" and
     // "utf-8"), we need to get the codec in the system first and use its
     // canonical name
-    QTextCodec *codec = QTextCodec::codecForName(encoding.toAscii());
+    QTextCodec *codec = QTextCodec::codecForName(encoding.toLatin1());
     if ((QTextCodec *)NULL == codec) {
       return false;
     }
@@ -458,7 +458,7 @@ QObject *FileSystem::_open(const QString &path, const QVariantMap &opts) const
 
     // Determine the OpenMode
     foreach(const QChar &c, modeVar.toString()) {
-        switch(c.toAscii()) {
+        switch(c.toLatin1()) {
         case 'r': case 'R': {
             modeCode |= QFile::ReadOnly;
             break;
@@ -501,7 +501,7 @@ QObject *FileSystem::_open(const QString &path, const QVariantMap &opts) const
     if (!isBinary) {
         // default to UTF-8 encoded files
         const QString charset = opts.value("charset", "UTF-8").toString();
-        codec = QTextCodec::codecForName(charset.toAscii());
+        codec = QTextCodec::codecForName(charset.toLatin1());
         if (!codec) {
             qDebug() << "FileSystem::open - " << "Unknown charset:" << charset;
             return 0;

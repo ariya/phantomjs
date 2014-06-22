@@ -1,0 +1,252 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+#ifndef DO_NO_IMPORTS
+import "oaidl.idl";
+import "ocidl.idl";
+import "DOMCore.idl";
+import "IWebScriptObject.idl";
+#endif
+
+interface IDOMObject;
+interface IDOMCSSValue;
+interface IDOMCSSStyleDeclaration;
+interface IDOMCSSStyleSheet;
+interface IDOMCSSRule;
+interface IDOMElement;
+
+/*
+    @interface DOMDocument (DOMViewCSS)
+*/
+[
+    object,
+    oleautomation,
+    uuid(43EFE238-A4DF-400a-983D-FCE0C0F56BCD),
+    pointer_default(unique)
+]
+interface IDOMViewCSS : IUnknown
+{
+    /*
+        - (DOMCSSStyleDeclaration *)getComputedStyle:(DOMElement *)elt :(NSString *)pseudoElt;
+    */
+    HRESULT getComputedStyle([in] IDOMElement* elt, [in] BSTR pseudoElt, [out, retval] IDOMCSSStyleDeclaration** result);
+}
+
+/*
+    @interface DOMCSSRuleList : DOMObject
+*/
+[
+    object,
+    oleautomation,
+    uuid(D45DA43D-5EDB-4315-A097-3ED3FA089193),
+    pointer_default(unique)
+]
+interface IDOMCSSRuleList : IDOMObject
+{
+    /*
+        - (unsigned)length;
+    */
+    HRESULT length([out, retval] UINT* result);
+
+    /*
+        - (DOMCSSRule *)item:(unsigned)index;
+    */
+    HRESULT item([in] UINT index, [out, retval] IDOMCSSRule** result);
+}
+
+/*
+    @interface DOMCSSRule : DOMObject
+*/
+[
+    object,
+    oleautomation,
+    uuid(05947A31-9E1C-4c98-8608-6688959D6542),
+    pointer_default(unique)
+]
+interface IDOMCSSRule : IDOMObject
+{
+    /*
+        - (unsigned short)type;
+    */
+    HRESULT type([out, retval] unsigned short* result);
+
+    /*
+        - (NSString *)cssText;
+    */
+    HRESULT cssText([out, retval] BSTR* text);
+
+    /*
+        - (void)setCssText:(NSString *)cssText;
+    */
+    HRESULT setCssText([in] BSTR cssText);
+
+    /*
+        - (DOMCSSStyleSheet *)parentStyleSheet;
+    */
+    HRESULT parentStyleSheet([out, retval] IDOMCSSStyleSheet** sheet);
+
+    /*
+        - (DOMCSSRule *)parentRule;
+    */
+    HRESULT parentRule([out, retval] IDOMCSSRule** rule);
+}
+
+/*
+    @interface DOMCSSStyleDeclaration : DOMObject
+*/
+[
+    object,
+    oleautomation,
+    uuid(DBBE9A6B-D505-4647-B4AB-40A7CF3EE63E),
+    pointer_default(unique)
+]
+interface IDOMCSSStyleDeclaration : IDOMObject
+{
+    /*
+        - (NSString *)cssText;
+    */
+    HRESULT cssText([out, retval] BSTR* result);
+
+    /*
+        - (void)setCssText:(NSString *)cssText;
+    */
+    HRESULT setCssText([in] BSTR cssText);
+
+    /*
+        - (NSString *)getPropertyValue:(NSString *)propertyName;
+    */
+    HRESULT getPropertyValue([in] BSTR propertyName, [out, retval] BSTR* result);
+
+    /*
+        - (DOMCSSValue *)getPropertyCSSValue:(NSString *)propertyName;
+    */
+    HRESULT getPropertyCSSValue([in] BSTR propertyName, [out, retval] IDOMCSSValue** result);
+
+    /*
+        - (NSString *)removeProperty:(NSString *)propertyName;
+    */
+    HRESULT removeProperty([in] BSTR propertyName, [out, retval] BSTR* result);
+
+    /*
+        - (NSString *)getPropertyPriority:(NSString *)propertyName;
+    */
+    HRESULT getPropertyPriority([in] BSTR propertyName, [out, retval] BSTR* result);
+
+    /*
+        - (void)setProperty:(NSString *)propertyName :(NSString *)value :(NSString *)priority;
+    */
+    HRESULT setProperty([in] BSTR propertyName, [in] BSTR value, [in] BSTR priority);
+
+    /*
+        - (unsigned)length;
+    */
+    HRESULT length([out, retval] UINT* result);
+
+    /*
+        - (NSString *)item:(unsigned)index;
+    */
+    HRESULT item([in] UINT index, [out, retval] BSTR* result);
+
+    /*
+        - (DOMCSSRule *)parentRule;
+    */
+    HRESULT parentRule([out, retval] IDOMCSSRule** result);
+}
+
+/*
+    @interface DOMCSSValue : DOMObject
+*/
+[
+    object,
+    oleautomation,
+    uuid(51D29553-2AF7-4f52-AFE6-3C59196A8BAA),
+    pointer_default(unique)
+]
+interface IDOMCSSValue : IDOMObject
+{
+    /*
+        - (NSString *)cssText;
+    */
+    HRESULT cssText([out, retval] BSTR* text);
+
+    /*
+        - (void)setCssText:(NSString *)cssText;
+    */
+    HRESULT setCssText([in] BSTR text);
+
+    /*
+        - (unsigned short)cssValueType;
+    */
+    HRESULT cssValueType([out, retval] unsigned short *valueType);
+}
+
+/*
+    @interface DOMCSSStyleSheet : DOMStyleSheet
+*/
+[
+    object,
+    oleautomation,
+    uuid(14B1C213-1458-48a1-AD8F-54BFE64F9ECF),
+    pointer_default(unique)
+]
+interface IDOMCSSStyleSheet : IDOMObject
+{
+    /*
+        - (DOMCSSRule *)ownerRule;
+    */
+    HRESULT ownerRule([out, retval] IDOMCSSRule** rule);
+
+    /*
+        - (DOMCSSRuleList *)cssRules;
+    */
+    HRESULT cssRules([out, retval] IDOMCSSRuleList** ruleList);
+
+    /*
+        - (unsigned)insertRule:(NSString *)rule :(unsigned)index;
+    */
+    HRESULT insertRule([in] BSTR rule, [in] UINT index, [out, retval] UINT* result);
+
+    /*
+        - (void)deleteRule:(unsigned)index;
+    */
+    HRESULT deleteRule([in] UINT index);
+}
+
+/*
+    @interface DOMElement (DOMElementCSSInlineStyle)
+*/
+[
+    object,
+    oleautomation,
+    uuid(585127E2-D698-44c4-83EC-4D1E6E07E90D),
+    pointer_default(unique)
+]
+interface IDOMElementCSSInlineStyle : IUnknown
+{
+    /*
+        - (DOMCSSStyleDeclaration *)style;
+    */
+    HRESULT style([out, retval] IDOMCSSStyleDeclaration** result);
+}

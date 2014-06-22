@@ -106,11 +106,11 @@ class ModuleSerializer {
       FastSourceLineResolver *fast_resolver);
 
   // Number of Maps that Module class contains.
-  static const u_int32_t kNumberMaps_ =
+  static const int32_t kNumberMaps_ =
       FastSourceLineResolver::Module::kNumberMaps_;
 
   // Memory sizes required to serialize map components in Module.
-  u_int32_t map_sizes_[kNumberMaps_];
+  uint32_t map_sizes_[kNumberMaps_];
 
   // Serializers for each individual map component in Module class.
   StdMapSerializer<int, string> files_serializer_;

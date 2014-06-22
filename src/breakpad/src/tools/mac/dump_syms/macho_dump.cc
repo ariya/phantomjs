@@ -47,6 +47,7 @@
 #include <vector>
 
 #include "common/byte_cursor.h"
+#include "common/mac/arch_utilities.h"
 #include "common/mac/macho_reader.h"
 
 using google_breakpad::ByteBuffer;
@@ -142,8 +143,9 @@ void DumpFile(const char *filename) {
   printf("  object file count: %ld\n", object_files_size);
   for (size_t i = 0; i < object_files_size; i++) {
     const struct fat_arch &file = object_files[i];
-    const NXArchInfo *fat_arch_info
-      = NXGetArchInfoFromCpuType(file.cputype, file.cpusubtype);
+    const NXArchInfo *fat_arch_info =
+        google_breakpad::BreakpadGetArchInfoFromCpuType(
+            file.cputype, file.cpusubtype);
     printf("\n  object file %ld:\n"
            "    fat header:\n:"
            "      CPU type: %s (%s)\n"

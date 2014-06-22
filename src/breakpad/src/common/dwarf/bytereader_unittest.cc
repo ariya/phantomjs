@@ -37,6 +37,7 @@
 #include "common/dwarf/bytereader.h"
 #include "common/dwarf/bytereader-inl.h"
 #include "common/dwarf/cfi_assembler.h"
+#include "common/using_std_string.h"
 
 using dwarf2reader::ByteReader;
 using dwarf2reader::DwarfPointerEncoding;
@@ -47,7 +48,6 @@ using google_breakpad::test_assembler::Label;
 using google_breakpad::test_assembler::kBigEndian;
 using google_breakpad::test_assembler::kLittleEndian;
 using google_breakpad::test_assembler::Section;
-using std::string;
 using testing::Test;
 
 struct ReaderFixture {

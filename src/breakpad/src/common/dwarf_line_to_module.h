@@ -38,8 +38,11 @@
 #ifndef COMMON_LINUX_DWARF_LINE_TO_MODULE_H
 #define COMMON_LINUX_DWARF_LINE_TO_MODULE_H
 
+#include <string>
+
 #include "common/module.h"
 #include "common/dwarf/dwarf2reader.h"
+#include "common/using_std_string.h"
 
 namespace google_breakpad {
 
@@ -117,8 +120,10 @@ class DwarfLineToModule: public dwarf2reader::LineInfoHandler {
   // end of the address space, we clip it. It's up to our client to
   // sort out which lines belong to which functions; we don't add them
   // to any particular function in MODULE ourselves.
-  DwarfLineToModule(Module *module, vector<Module::Line> *lines)
+  DwarfLineToModule(Module *module, const string& compilation_dir,
+                    vector<Module::Line> *lines)
       : module_(module),
+        compilation_dir_(compilation_dir),
         lines_(lines),
         highest_file_number_(-1),
         omitted_line_end_(0),
@@ -127,8 +132,8 @@ class DwarfLineToModule: public dwarf2reader::LineInfoHandler {
   
   ~DwarfLineToModule() { }
 
-  void DefineDir(const std::string &name, uint32 dir_num);
-  void DefineFile(const std::string &name, int32 file_num,
+  void DefineDir(const string &name, uint32 dir_num);
+  void DefineFile(const string &name, int32 file_num,
                   uint32 dir_num, uint64 mod_time,
                   uint64 length);
   void AddLine(uint64 address, uint64 length,
@@ -136,12 +141,16 @@ class DwarfLineToModule: public dwarf2reader::LineInfoHandler {
 
  private:
 
-  typedef std::map<uint32, std::string> DirectoryTable;
+  typedef std::map<uint32, string> DirectoryTable;
   typedef std::map<uint32, Module::File *> FileTable;
 
   // The module we're contributing debugging info to. Owned by our
   // client.
   Module *module_;
+
+  // The compilation directory for the current compilation unit whose
+  // lines are being accumulated.
+  string compilation_dir_;
 
   // The vector of lines we're accumulating. Owned by our client.
   //

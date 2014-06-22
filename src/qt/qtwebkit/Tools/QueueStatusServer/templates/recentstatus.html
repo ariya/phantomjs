@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>WebKit Queue Status</title>
+<link type="text/css" rel="stylesheet" href="/stylesheets/dashboard.css" />
+</head>
+<body>
+<h1>WebKit Queue Status</h1>
+{% for queue in queues %}
+<div class="queue_bubble {{ queue.status_class }}">
+    <div class="queue_name">
+        <a href="/queue-status/{{ queue.name }}">
+        {{ queue.display_name }}
+        </a>
+    </div>
+    {% if queue.last_heard_from %}
+    <div class="last_heard_from">{{ queue.last_heard_from|timesince }} ago</div>
+    {% endif %}
+    <div class="status_text">
+        Status: {{ queue.status_text|force_escape|urlize|webkit_linkify|safe }}
+    </div>
+    <div>
+        {{ queue.pending_items_count }} pending
+    </div>
+</div>
+{% endfor %}
+<a href='/active-bots'>List of all active bots</a><br>
+<a href='http://ews-watcher.kov.eti.br/'>Graph of queue depths over time</a>
+</body>
+</html>

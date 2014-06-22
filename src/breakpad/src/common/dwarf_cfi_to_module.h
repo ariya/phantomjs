@@ -48,13 +48,13 @@
 
 #include "common/module.h"
 #include "common/dwarf/dwarf2reader.h"
+#include "common/using_std_string.h"
 
 namespace google_breakpad {
 
 using dwarf2reader::CallFrameInfo;
 using google_breakpad::Module;
 using std::set;
-using std::string;
 using std::vector;
 
 // A class that accepts parsed call frame information from the DWARF
@@ -108,6 +108,12 @@ class DwarfCFIToModule: public CallFrameInfo::Handler {
 
     // ARM.
     static vector<string> ARM();
+
+    // ARM64, aka AARCH64.
+    static vector<string> ARM64();
+
+    // MIPS.
+    static vector<string> MIPS();
 
    private:
     // Given STRINGS, an array of C strings with SIZE elements, return an
@@ -182,7 +188,7 @@ class DwarfCFIToModule: public CallFrameInfo::Handler {
   // A set of strings used by this CFI. Before storing a string in one of
   // our data structures, insert it into this set, and then use the string
   // from the set.
-  // 
+  //
   // Because std::string uses reference counting internally, simply using
   // strings from this set, even if passed by value, assigned, or held
   // directly in structures and containers (map<string, ...>, for example),

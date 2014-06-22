@@ -1,7 +1,7 @@
 /*
 This file is part of the GhostDriver by Ivan De Marino <http://ivandemarino.me>.
 
-Copyright (c) 2014, Ivan De Marino <http://ivandemarino.me>
+Copyright (c) 2012-2014, Ivan De Marino <http://ivandemarino.me>
 Copyright (c) 2014, Alex Anderson <@alxndrsn>
 All rights reserved.
 
@@ -213,7 +213,7 @@ ghostdriver.WebElementReqHand = function(idOrElement, session) {
     _getSizeCommand = function (req, res) {
         var sizeRes = _getSizeResult(req);
 
-        _log.debug("_getSizeCommand", JSON.stringify(sizeRes))
+        _log.debug("_getSizeCommand", JSON.stringify(sizeRes));
 
         res.respondBasedOnResult(_session, req, sizeRes);
     },
@@ -384,18 +384,12 @@ ghostdriver.WebElementReqHand = function(idOrElement, session) {
             },
             function(errMsg) {
                 var errCode = errMsg === "timeout"
-                    ? _errors.FAILED_CMD_STATUS.TIMEOUT
-                    : _errors.FAILED_CMD_STATUS.UNKNOWN_ERROR;
+                    ? _errors.FAILED_CMD_STATUS_CODES.Timeout
+                    : _errors.FAILED_CMD_STATUS_CODES.UnknownError;
 
                 // Report Submit Error, only if callbacks were not "aborted"
                 if (!abortCallback) {
-                    _errors.handleFailedCommandEH(
-                        errCode,
-                        "Submit failed: " + errMsg,
-                        req,
-                        res,
-                        _session,
-                        "WebElementReqHand");
+                    _errors.handleFailedCommandEH(errCode, "Submit failed: " + errMsg, req, res, _session);
                 }
             });
     },
@@ -425,18 +419,12 @@ ghostdriver.WebElementReqHand = function(idOrElement, session) {
             },
             function(errMsg) {
                 var errCode = errMsg === "timeout"
-                    ? _errors.FAILED_CMD_STATUS.TIMEOUT
-                    : _errors.FAILED_CMD_STATUS.UNKNOWN_ERROR;
+                    ? _errors.FAILED_CMD_STATUS_CODES.Timeout
+                    : _errors.FAILED_CMD_STATUS_CODES.UnknownError;
 
                 // Report Load Error, only if callbacks were not "aborted"
                 if (!abortCallback) {
-                    _errors.handleFailedCommandEH(
-                        errCode,
-                        "Click failed: " + errMsg,
-                        req,
-                        res,
-                        _session,
-                        "WebElementReqHand");
+                    _errors.handleFailedCommandEH(errCode, "Click failed: " + errMsg, req, res, _session);
                 }
             });
     },

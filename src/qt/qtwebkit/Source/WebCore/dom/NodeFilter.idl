@@ -1,0 +1,52 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc. All rights reserved.
+ * Copyright (C) 2006 Samuel Weinig <sam.weinig@gmail.com>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+// Introduced in DOM Level 2:
+[
+    JSCustomMarkFunction,
+    JSCustomToNativeObject,
+    ObjCProtocol,
+    CPPPureInterface,
+    ImplementationLacksVTable
+] interface NodeFilter {
+    // Constants returned by acceptNode
+    const short               FILTER_ACCEPT                  = 1;
+    const short               FILTER_REJECT                  = 2;
+    const short               FILTER_SKIP                    = 3;
+
+    // Constants for whatToShow
+    const unsigned long       SHOW_ALL                       = 0xFFFFFFFF;
+    const unsigned long       SHOW_ELEMENT                   = 0x00000001;
+    const unsigned long       SHOW_ATTRIBUTE                 = 0x00000002;
+    const unsigned long       SHOW_TEXT                      = 0x00000004;
+    const unsigned long       SHOW_CDATA_SECTION             = 0x00000008;
+    const unsigned long       SHOW_ENTITY_REFERENCE          = 0x00000010;
+    const unsigned long       SHOW_ENTITY                    = 0x00000020;
+    const unsigned long       SHOW_PROCESSING_INSTRUCTION    = 0x00000040;
+    const unsigned long       SHOW_COMMENT                   = 0x00000080;
+    const unsigned long       SHOW_DOCUMENT                  = 0x00000100;
+    const unsigned long       SHOW_DOCUMENT_TYPE             = 0x00000200;
+    const unsigned long       SHOW_DOCUMENT_FRAGMENT         = 0x00000400;
+    const unsigned long       SHOW_NOTATION                  = 0x00000800;
+
+    [CallWith=ScriptState] short acceptNode([Default=Undefined] optional Node n);
+
+};
+

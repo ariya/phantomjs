@@ -90,20 +90,20 @@ typedef struct {
   /* context_flags is not present in ppc_thread_state, but it aids
    * identification of MDRawContextPPC among other raw context types,
    * and it guarantees alignment when we get to float_save. */
-  u_int64_t             context_flags;
+  uint64_t              context_flags;
 
-  u_int64_t             srr0;    /* Machine status save/restore: stores pc
+  uint64_t              srr0;    /* Machine status save/restore: stores pc
                                   * (instruction) */
-  u_int64_t             srr1;    /* Machine status save/restore: stores msr
+  uint64_t              srr1;    /* Machine status save/restore: stores msr
                                   * (ps, program/machine state) */
   /* ppc_thread_state contains 32 fields, r0 .. r31.  Here, an array is
    * used for brevity. */
-  u_int64_t             gpr[MD_CONTEXT_PPC64_GPR_COUNT];
-  u_int64_t             cr;      /* Condition */
-  u_int64_t             xer;     /* Integer (fiXed-point) exception */
-  u_int64_t             lr;      /* Link */
-  u_int64_t             ctr;     /* Count */
-  u_int64_t             vrsave;  /* Vector save */
+  uint64_t              gpr[MD_CONTEXT_PPC64_GPR_COUNT];
+  uint64_t              cr;      /* Condition */
+  uint64_t              xer;     /* Integer (fiXed-point) exception */
+  uint64_t              lr;      /* Link */
+  uint64_t              ctr;     /* Count */
+  uint64_t              vrsave;  /* Vector save */
 
   /* float_save and vector_save aren't present in ppc_thread_state, but
    * are represented in separate structures that still define a thread's
@@ -116,14 +116,14 @@ typedef struct {
  * context stored in the structure.  MD_CONTEXT_PPC is Breakpad-defined.  Its
  * value was chosen to avoid likely conflicts with MD_CONTEXT_* for other
  * CPUs. */
-#define MD_CONTEXT_PPC                0x20000000
-#define MD_CONTEXT_PPC_BASE           (MD_CONTEXT_PPC | 0x00000001)
-#define MD_CONTEXT_PPC_FLOATING_POINT (MD_CONTEXT_PPC | 0x00000008)
-#define MD_CONTEXT_PPC_VECTOR         (MD_CONTEXT_PPC | 0x00000020)
+#define MD_CONTEXT_PPC64                0x01000000
+#define MD_CONTEXT_PPC64_BASE           (MD_CONTEXT_PPC64 | 0x00000001)
+#define MD_CONTEXT_PPC64_FLOATING_POINT (MD_CONTEXT_PPC64 | 0x00000008)
+#define MD_CONTEXT_PPC64_VECTOR         (MD_CONTEXT_PPC64 | 0x00000020)
 
-#define MD_CONTEXT_PPC_FULL           MD_CONTEXT_PPC_BASE
-#define MD_CONTEXT_PPC_ALL            (MD_CONTEXT_PPC_FULL | \
-                                       MD_CONTEXT_PPC_FLOATING_POINT | \
-                                       MD_CONTEXT_PPC_VECTOR)
+#define MD_CONTEXT_PPC64_FULL           MD_CONTEXT_PPC64_BASE
+#define MD_CONTEXT_PPC64_ALL            (MD_CONTEXT_PPC64_FULL | \
+                                         MD_CONTEXT_PPC64_FLOATING_POINT | \
+                                         MD_CONTEXT_PPC64_VECTOR)
 
 #endif /* GOOGLE_BREAKPAD_COMMON_MINIDUMP_CPU_PPC64_H__ */

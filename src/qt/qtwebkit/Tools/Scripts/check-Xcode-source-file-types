@@ -1,0 +1,168 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2007, 2008, 2009, 2010 Apple Inc.  All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Script to check that source file extensions match file types in Xcode project.pbxproj files.
+
+# TODO
+# - Add support for file types other than source code files.
+# - Can't differentiate between sourcecode.c.h and sourcecode.cpp.h.
+#   (Hint: Use gcc -x c/objective-c/c++/objective-c++ -E.  It will
+#   take time to check each header using gcc, so make it a switch.)
+
+use strict;
+
+use File::Basename;
+use File::Spec;
+use File::Temp qw(tempfile);
+use Getopt::Long;
+
+# Map of Xcode file types to file extensions.
+my %typeExtensionMap = qw(
+    sourcecode.c.c        .c
+    sourcecode.c.h        .h
+    sourcecode.c.objc     .m
+    sourcecode.cpp.h      .h
+    sourcecode.cpp.cpp    .cpp
+    sourcecode.cpp.objcpp .mm
+    sourcecode.exports    .exp
+    sourcecode.javascript .js
+    sourcecode.make       .make
+    sourcecode.mig        .defs
+    sourcecode.yacc       .y
+);
+
+# Map of file extensions to Xcode file types.
+my %extensionTypeMap = map { $typeExtensionMap{$_} => $_ } keys %typeExtensionMap;
+$extensionTypeMap{'.h'} = 'sourcecode.c.h'; # See TODO list.
+
+my $shouldFixIssues = 0;
+my $printWarnings = 1;
+my $showHelp;
+
+my $getOptionsResult = GetOptions(
+    'f|fix'          => \$shouldFixIssues,
+    'h|help'         => \$showHelp,
+    'w|warnings!'    => \$printWarnings,
+);
+
+if (scalar(@ARGV) == 0 && !$showHelp) {
+    print STDERR "ERROR: No Xcode project files (project.pbxproj) listed on command-line.\n";
+    undef $getOptionsResult;
+}
+
+if (!$getOptionsResult || $showHelp) {
+    print STDERR <<__END__;
+Usage: @{[ basename($0) ]} [options] path/to/project.pbxproj [path/to/project.pbxproj ...]
+  -f|--fix            fix mismatched types in Xcode project file
+  -h|--help           show this help message
+  -w|--[no-]warnings  show or suppress warnings (default: show warnings)
+__END__
+    exit 1;
+}
+
+for my $projectFile (@ARGV) {
+    my $issuesFound = 0;
+    my $issuesFixed = 0;
+
+    if (basename($projectFile) =~ /\.xcodeproj$/) {
+        $projectFile = File::Spec->catfile($projectFile, "project.pbxproj");
+    }
+
+    if (basename($projectFile) ne "project.pbxproj") {
+        print STDERR "WARNING: Not an Xcode project file: $projectFile\n" if $printWarnings;
+        next;
+    }
+
+    open(IN, "< $projectFile") || die "Could not open $projectFile: $!";
+
+    my ($OUT, $tempFileName);
+    if ($shouldFixIssues) {
+        ($OUT, $tempFileName) = tempfile(
+            basename($projectFile) . "-XXXXXXXX",
+            DIR => dirname($projectFile),
+            UNLINK => 0,
+        );
+
+        # Clean up temp file in case of die()
+        $SIG{__DIE__} = sub {
+            close(IN);
+            close($OUT);
+            unlink($tempFileName);
+        };
+    }
+
+    # Fast-forward to "Begin PBXFileReference section".
+    while (my $line = <IN>) {
+        print $OUT $line if $shouldFixIssues;
+        last if $line =~ m#^\Q/* Begin PBXFileReference section */\E$#;
+    }
+
+    while (my $line = <IN>) {
+        if ($line =~ m#^\Q/* End PBXFileReference section */\E$#) {
+            print $OUT $line if $shouldFixIssues;
+            last;
+        }
+
+        if ($line =~ m#^\s*[A-Z0-9]{24} /\* (.+) \*/\s+=\s+\{.*\s+explicitFileType = (sourcecode[^;]*);.*\s+path = ([^;]+);.*\};$#) {
+            my $fileName = $1;
+            my $fileType = $2;
+            my $filePath = $3;
+            my (undef, undef, $fileExtension) = map { lc($_) } fileparse(basename($filePath), qr{\.[^.]+$});
+
+            if (!exists $typeExtensionMap{$fileType}) {
+                $issuesFound++;
+                print STDERR "WARNING: Unknown file type '$fileType' for file '$filePath'.\n" if $printWarnings;
+            } elsif ($typeExtensionMap{$fileType} ne $fileExtension) {
+                $issuesFound++;
+                print STDERR "WARNING: Incorrect file type '$fileType' for file '$filePath'.\n" if $printWarnings;
+                $line =~ s/(\s+)explicitFileType( = )(sourcecode[^;]*);/$1lastKnownFileType$2$extensionTypeMap{$fileExtension};/;
+                $issuesFixed++ if $shouldFixIssues;
+            }
+        }
+
+        print $OUT $line if $shouldFixIssues;
+    }
+
+    # Output the rest of the file.
+    print $OUT <IN> if $shouldFixIssues;
+
+    close(IN);
+
+    if ($shouldFixIssues) {
+        close($OUT);
+
+        unlink($projectFile) || die "Could not delete $projectFile: $!";
+        rename($tempFileName, $projectFile) || die "Could not rename $tempFileName to $projectFile: $!";
+    }
+
+    if ($printWarnings) {
+        printf STDERR "%s issues found for $projectFile.\n", ($issuesFound ? $issuesFound : "No");
+        print STDERR "$issuesFixed issues fixed for $projectFile.\n" if $issuesFixed && $shouldFixIssues;
+        print STDERR "NOTE: Open $projectFile in Xcode to let it have its way with the file.\n" if $issuesFixed;
+        print STDERR "\n";
+    }
+}
+
+exit 0;

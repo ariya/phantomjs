@@ -1,0 +1,21 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/webkit/resources">
+    <file alias="missingImage.png">Resources/missingImage.png</file>
+    <file alias="nullPlugin.png">Resources/nullPlugin.png</file>
+    <file alias="textAreaResizeCorner.png">Resources/textAreaResizeCorner.png</file>
+    <file alias="urlIcon.png">Resources/urlIcon.png</file>
+    <file alias="zoomInCursor.png">Resources/zoomInCursor.png</file>
+    <file alias="zoomOutCursor.png">Resources/zoomOutCursor.png</file>
+    <file alias="verticalTextCursor.png">Resources/verticalTextCursor.png</file>
+    <file alias="cellCursor.png">Resources/cellCursor.png</file>
+    <file alias="contextMenuCursor.png">Resources/contextMenuCursor.png</file>
+    <file alias="copyCursor.png">Resources/copyCursor.png</file>
+    <file alias="progressCursor.png">Resources/progressCursor.png</file>
+    <file alias="aliasCursor.png">Resources/aliasCursor.png</file>
+    <file alias="deleteButton.png">Resources/deleteButton.png</file>
+    <file alias="inputSpeech.png">Resources/inputSpeech.png</file>
+</qresource>
+<qresource prefix="/webkit/resources/audio">
+    <file alias="Composite">platform/audio/resources/Composite.wav</file>
+</qresource>
+</RCC>

@@ -1,0 +1,34 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>iExploder 1.3.2</title>
+</head>
+<body>
+<h2>iExploder: Web Browser Quality Assurance Tester</h2>
+<small>Written by <a href="http://toadstool.se/">Thomas Str&ouml;mberg</a> for the
+<a href="http://www.mozilla.org/firefox/">Mozilla FireFox</a> project</small>
+
+
+<ul>
+  <li><a href="iexploder.cgi">Start test sequence from the beginning!</a></li>
+  <li><a href="iexploder.cgi?random=1">Start test sequence in random</a></li>
+  <li>Start testing from a test number:
+    <form method="get" action="iexploder.cgi" name="test">
+	Test: <input size="9" name="test" value="1"> Subtest: <input size="2" name="subtest" value="">
+	<input value="Start" type="submit">
+    </form>
+  </li>
+
+  <li>Lookup a single test number:
+    <form method="get" action="iexploder.cgi" name="test">
+	<input type="hidden" name="lookup" value="1">
+	Test: <input size="9" name="test" value="1"> Subtest: <input size="2" name="subtest" value="">
+ <input value="Lookup" type="submit"></form>
+  </li>
+</ul>
+
+If your browser crashes, please contact thomas%stromberg.org!
+
+</body>
+</html>
+

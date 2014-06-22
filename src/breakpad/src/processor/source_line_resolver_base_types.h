@@ -43,6 +43,7 @@
 #include <map>
 #include <string>
 
+#include "google_breakpad/common/breakpad_types.h"
 #include "google_breakpad/processor/source_line_resolver_base.h"
 #include "google_breakpad/processor/stack_frame.h"
 #include "processor/cfi_frame_info.h"
@@ -120,7 +121,15 @@ class SourceLineResolverBase::Module {
   // Loads a map from the given buffer in char* type.
   // Does NOT take ownership of memory_buffer (the caller, source line resolver,
   // is the owner of memory_buffer).
-  virtual bool LoadMapFromMemory(char *memory_buffer) = 0;
+  // The passed in |memory buffer| is of size |memory_buffer_size|.  If it is
+  // not null terminated, LoadMapFromMemory will null terminate it by modifying
+  // the passed in buffer.
+  virtual bool LoadMapFromMemory(char *memory_buffer,
+                                 size_t memory_buffer_size) = 0;
+
+  // Tells whether the loaded symbol data is corrupt.  Return value is
+  // undefined, if the symbol data hasn't been loaded yet.
+  virtual bool IsCorrupt() const = 0;
 
   // Looks up the given relative address, and fills the StackFrame struct
   // with the result.

@@ -1,0 +1,1 @@
+KERNEL=="event*", ENV{ID_INPUT_TOUCHPAD}=="1", MODE="0644"

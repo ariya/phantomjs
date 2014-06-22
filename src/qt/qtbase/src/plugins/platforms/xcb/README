@@ -1,0 +1,23 @@
+Requires libxcb >= 1.5.
+
+PACKAGE DEPENDENCIES
+
+Required packages:
+libxcb1 libxcb1-dev libx11-xcb1 libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-image0 libxcb-image0-dev libxcb-shm0 libxcb-shm0-dev libxcb-icccm1 libxcb-icccm1-dev libxcb-sync0 libxcb-sync0-dev libxcb-render-util0 libxcb-render-util0-dev libxcb-xfixes0-dev libxrender-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-glx0-dev
+
+On Ubuntu 11.10 icccm1 is replaced by icccm4 and xcb-render-util is not available:
+libxcb1 libxcb1-dev libx11-xcb1 libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-image0 libxcb-image0-dev libxcb-shm0 libxcb-shm0-dev libxcb-icccm4 libxcb-icccm4-dev libxcb-sync0 libxcb-sync0-dev libxcb-xfixes0-dev libxrender-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-glx0-dev
+The packages for xcb-render-util can be installed manually from http://packages.ubuntu.com/natty/libxcb-render-util0 and http://packages.ubuntu.com/natty/libxcb-render-util0-dev
+
+On Ubuntu 12.04 icccm1 is replaced by icccm4 and xcb-render-util can be installed automatically:
+libxcb1 libxcb1-dev libx11-xcb1 libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-image0 libxcb-image0-dev libxcb-shm0 libxcb-shm0-dev libxcb-icccm4 libxcb-icccm4-dev libxcb-sync0 libxcb-sync0-dev libxcb-xfixes0-dev libxrender-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0 libxcb-render-util0-dev libxcb-glx0-dev
+
+
+On Fedora, the following packages are required:
+libxcb libxcb-devel libXrender libXrender-devel xcb-util-wm xcb-util-wm-devel xcb-util xcb-util-devel xcb-util-image xcb-util-image-devel xcb-util-keysyms xcb-util-keysyms-devel
+
+REDUCING RUNTIME DEPENDENCIES
+
+The '-qt-xcb' configure option can be used to get rid of most xcb- dependencies. Only libxcb will
+still be linked dynamically, since it will be most likely be pulled in via other dependencies anyway.
+This should allow for binaries that are portable across most modern Linux distributions.

@@ -1,0 +1,13 @@
+GTest v.1.5.0
+
+http://googletest.googlecode.com/svn/tags/release-1.5.0/ 
+
+2012-01-04 Dmitry Lomov (dslomov@google.com)  David Kilzer (ddkilzer@apple.com)
+      - WebKit port of gtest uses FastMalloc "new" and "delete" operators from JavaScriptCore.
+      - The gtest.framework target now links to JavaScriptCore.framework.
+
+2011-12-22 David Kilzer (ddkilzer@apple.com)
+      Added Production configuration to gtest Xcode project.
+
+2011-05-06 Dmitry Lomov (dslomov@google.com)
+      gtest-md.vcproj upgraded to VS 2005 (8.0) format to match the rest of WebKit

@@ -1,0 +1,320 @@
+doc/indices.doc    2.17  agulbra  +4 -4
+doc/misc.doc    2.29  agulbra  +4 -4
+doc/qcache.doc    2.4  agulbra  +598 -304
+doc/qdict.doc    2.5  agulbra  +4 -3
+
+  documented QCache/QIntCache and the iterators, fixed some types
+
+
+doc/indices.doc    2.18  agulbra  +7 -7
+extensions/imageio/doc/index.doc    1.6  agulbra  +3 -3
+extensions/nsplugin/doc/annotated.doc    1.2  agulbra  +2 -2
+extensions/nsplugin/doc/classes.doc    1.2  agulbra  +2 -2
+extensions/opengl/src/qgl.cpp    1.20  agulbra  +5 -6
+extensions/xt/doc/annotated.doc    1.2  agulbra  +2 -2
+extensions/xt/doc/classes.doc    1.2  agulbra  +2 -2
+src/tools/qtextstream.cpp    2.16  agulbra  +1 -2
+
+  finished merge of qt/extensions documentation in one directory.
+
+
+doc/indices.doc    2.20  aavit  +3 -3
+doc/qcache.doc    2.8  aavit  +9 -1
+examples/application/application.cpp    1.16  aavit  +17 -17
+examples/widgets/widgets.cpp    2.45  aavit  +29 -5
+extensions/nsplugin/src/qnp.cpp    1.22  aavit  +5 -5
+extensions/opengl/doc.conf    1.14  aavit  +7 -0
+extensions/opengl/src/qgl.cpp    1.23  aavit  +4 -4
+extensions/xt/doc/index.doc    1.4  aavit  +18 -8
+extensions/xt/src/qxt.cpp    1.5  aavit  +3 -3
+src/dialogs/qmessagebox.cpp    2.50  aavit  +5 -5
+
+  Improved doc of extensions.
+
+
+doc/qcache.doc    2.9  aavit  +47 -8
+
+  Documented the remaining functions in qcache et al.
+
+
+examples/dragdrop/dropsite.cpp    1.12  paul  +76 -22
+examples/dragdrop/dropsite.h    1.5  paul  +14 -2
+examples/dragdrop/main.cpp    1.7  paul  +8 -3
+
+  How to make your own dragobject class
+
+
+examples/dragdrop/dropsite.cpp    1.9  warwick  +36 -81
+examples/dragdrop/dropsite.h    1.4  warwick  +7 -9
+src/qt.pro    2.30  warwick  +2 -0
+src/kernel/qclipboard_x11.cpp    2.15  warwick  +10 -8
+src/kernel/qdnd_win.cpp    2.15  warwick  +1 -18
+src/kernel/qdnd_x11.cpp    2.33  warwick  +62 -67
+src/kernel/qdragobject.cpp    2.29  warwick  +73 -27
+src/kernel/qdragobject.h    2.16  warwick  +18 -12
+src/kernel/qdropsite.cpp    2.1  warwick  initial checkin
+src/kernel/qdropsite.h    2.1  warwick  initial checkin
+src/kernel/qwidget.h    2.52  warwick  +3 -2
+src/kernel/qwidget_win.cpp    2.60  warwick  +17 -7
+src/kernel/qwidget_x11.cpp    2.99  warwick  +22 -12
+src/kernel/qwindowdefs.h    2.25  warwick  +7 -3
+src/widgets/qlineedit.cpp    2.85  warwick  +3 -3
+
+  Don't declare MIME types for drop sites in advance, just enable drops.
+
+
+examples/examples.pro    2.10  hanord  +1 -0
+
+  Added splitter
+
+
+examples/examples.pro    2.9  agulbra  +1 -0
+
+  add dragdrop to examples makefile
+
+
+examples/layouts/layouts.cpp    1.6  aavit  +2 -3
+
+  return value from main to avoid compiler warning
+
+
+extensions/nsplugin/src/qnp.cpp    1.21  agulbra  +34 -24
+extensions/opengl/src/qgl.cpp    1.22  agulbra  +7 -1
+extensions/xt/src/qxt.cpp    1.4  agulbra  +6 -2
+
+  use new \extension in qdoc
+
+
+src/dialogs/qprintdialog.cpp    2.30  aavit  +2 -2
+src/widgets/qspinbox.cpp    2.36  aavit  +22 -29
+src/widgets/qspinbox.h    2.21  aavit  +1 -3
+
+  spinbox: better looking in windows mode (more like win32)
+
+
+src/kernel/qapplication_x11.cpp    2.142  agulbra  +7 -12
+src/kernel/qdnd_x11.cpp    2.37  agulbra  +22 -23
+src/kernel/qdragobject.cpp    2.32  agulbra  +5 -25
+src/kernel/qdragobject.h    2.19  agulbra  +1 -4
+
+  protect another little bit against the other application crashing
+
+
+src/kernel/qclipboard_x11.cpp    2.16  agulbra  +2 -2
+
+  avoid double delete in certain cases.  would cause segfault.
+
+
+src/kernel/qdnd_win.cpp    2.16  warwick  +98 -59
+src/kernel/qdropsite.cpp    2.2  warwick  +3 -3
+src/kernel/qwidget_win.cpp    2.61  warwick  +1 -2
+
+  Update for X11 changes.
+
+
+src/kernel/qdnd_win.cpp    2.17  warwick  +22 -5
+src/kernel/qdnd_x11.cpp    2.36  warwick  +5 -3
+src/kernel/qdragobject.cpp    2.30  warwick  +63 -7
+src/kernel/qdragobject.h    2.17  warwick  +10 -3
+
+  Renaming; make space in API for Copy vs. Move
+
+
+src/kernel/qdnd_x11.cpp    2.32  agulbra  +13 -12
+src/kernel/qdnd_x11.cpp    2.31  agulbra  +33 -8
+
+  support accept/ignore rectangles properly.
+
+
+src/kernel/qdnd_x11.cpp    2.34  agulbra  +7 -2
+src/widgets/qlineedit.cpp    2.86  agulbra  +13 -13
+
+  isAccepted() of one drag enter/move is the default state for the next
+  (until the target changes).
+
+
+src/kernel/qdnd_x11.cpp    2.35  warwick  +20 -13
+
+  Fix lost-leaves.
+
+
+src/kernel/qdnd_x11.cpp    2.38  agulbra  +23 -22
+
+  always give the right cursor
+
+
+src/kernel/qdnd_x11.cpp    2.39  hanord  +2 -2
+
+  Patch from Bernd Unger to compile on irix-n64
+
+
+src/kernel/qdnd_x11.cpp    2.40  hanord  +5 -5
+src/widgets/qheader.cpp    2.47  hanord  +5 -5
+src/widgets/qstatusbar.cpp    2.15  hanord  +12 -12
+src/widgets/qtoolbar.cpp    2.24  hanord  +14 -15
+src/widgets/qtoolbutton.cpp    2.29  hanord  +4 -4
+src/widgets/qwellarray.cpp    1.5  hanord  +8 -10
+
+  Removed Sun CC warnings. All these warnings come from use of local
+  variables inside member functions clashing with private variable names
+  in the class. I think this is a correct warning, because if somebody
+  wants to access a private variable from a member function where it's
+  already used as a local variable, he will be somewhat confused.
+
+
+src/kernel/qdragobject.cpp    2.34  hanord  +3 -2
+
+  Avoid array-bounds error when copying text
+
+
+src/kernel/qdragobject.cpp    2.35  hanord  +15 -18
+src/kernel/qdragobject.h    2.20  hanord  +7 -7
+
+  QStoredDrag::setEncodedData takes a const byte array.
+  parent changed to dragSource everywhere.
+
+
+src/kernel/qimage.cpp    2.102  agulbra  +9 -5
+src/kernel/qpixmap.cpp    2.31  agulbra  +22 -32
+
+  mention the QPixmap/QImage differences prominently.  other minor doc
+  changes.
+
+
+src/kernel/qimage.cpp    2.99  agulbra  +7 -6
+src/kernel/qimage.cpp    2.98  agulbra  +18 -14
+src/kernel/qmovie.cpp    1.38  agulbra  +8 -7
+src/kernel/qmovie.cpp    1.37  agulbra  +12 -3
+
+  warn about unisys $#@! and about possible removal of gif support in a
+  future version of qt.
+
+
+src/kernel/qpainter_win.cpp    2.38  hanord  +2 -3
+src/kernel/qpainter_x11.cpp    2.53  hanord  +2 -3
+
+  Fixed UMR in drawText to external device. Could be serious and crash.
+
+
+src/kernel/qprinter_x11.cpp    2.18  agulbra  +38 -11
+
+  OS/2 fixes from miyata.
+
+
+src/kernel/qpsprinter.cpp    2.28  agulbra  +67 -19
+
+  oops.  we broke kmail by not supporting QFont::AnyCharSet at all.
+  fixed.
+  
+  also contains two other fixes that I'd delayed committing: use
+  colorimage only where available, else image.  produce 78-character
+  lines, not lines of several thousand characters.
+
+
+src/kernel/qpsprinter.cpp    2.29  agulbra  +49 -28
+
+  make the dicts slightly bigger so more level 1 printers are happy.
+  avoid a memory leak in drawPixmap().
+
+
+src/kernel/qwidget.cpp    2.116  hanord  +2 -2
+
+  Does destroy() AFTER deleteExtra(), because deleteExtra() calls
+  deleteSysExtra() which unregisters OLE stuff on Windows (and needs the Win
+  ID).
+
+
+src/moc/moc.1    2.7  hanord  +11 -3
+src/moc/moc.l    2.3  hanord  +57 -7
+src/moc/moc.y    2.24  hanord  +22 -12
+
+  Warwick's support for #ifdef and #ifndef added
+
+
+src/qt.pro    2.33  hanord  +8 -7
+
+  Changed DEPENDPATH to relative, makes makefiles movable.
+  Sorted a couple of filenames.
+
+
+src/qt.pro    2.34  hanord  +1 -1
+
+  Changed version number to 1.40
+
+
+src/tools/qglobal.h    2.53  agulbra  +3 -3
+
+  1.40.  yes it's true.
+
+
+src/tools/qglobal.h    2.55  agulbra  +3 -3
+
+  make one final snapshot
+
+
+src/widgets/qbuttongroup.cpp    2.14  agulbra  +3 -3
+
+  roll back my "don't delete twice" fix: it was a "don't delete once"
+  fix, in fact.  oops.
+
+
+src/widgets/qheader.cpp    2.49  agulbra  +2 -1
+
+  memory leak gone
+
+
+src/widgets/qlabel.cpp    2.34  agulbra  +6 -9
+
+  respect buddy's focus policy and other accessibility.
+
+
+src/widgets/qlineedit.cpp    2.83  agulbra  +4 -4
+
+  use enter event and accept drops in the entire rectangle.
+
+
+src/widgets/qlineedit.cpp    2.84  agulbra  +8 -1
+
+  ...and the drop should happen in the right place.  oooh, this is so
+  polished :)
+
+
+src/widgets/qlineedit.cpp    2.88  agulbra  +2 -2
+
+  avoid memory leak when dragging out of qle
+
+
+src/widgets/qlineedit.cpp    2.89  agulbra  +5 -1
+
+  #ifdef out dnd support.  it works on x11, not quite on windows.
+  besides, having QLineEdit work differently from typical windows
+  widgets and cannot be changed is a bad policy.
+
+
+src/widgets/qlistview.cpp    2.129  agulbra  +3 -2
+
+  don't accept() enter/return key presses.  qdialog.
+
+
+src/widgets/qlistview.cpp    2.130  agulbra  +8 -9
+
+  avoid a couple of memory leaks
+
+
+src/widgets/qprogressbar.cpp    2.21  aavit  +10 -1
+src/widgets/qtableview.cpp    2.51  aavit  +2 -2
+
+  Progressbar: allow changing of guistyle before show(). Should really
+  implement styleChanged(); in 2.0.
+  Tableview: Avoid infinite loop.
+
+
+src/widgets/qspinbox.cpp    2.38  aavit  +2 -2
+src/widgets/qwidgetstack.cpp    2.11  aavit  +13 -9
+
+  Widgetstack: be robust when got no children. spinbox: comment
+
+
+src/widgets/qsplitter.cpp    1.24  warwick  +48 -45
+
+  Make bitmaps correspond to splitter dimensions.

@@ -36,6 +36,7 @@
 #include <string>
 
 #include "breakpad_googletest_includes.h"
+#include "common/using_std_string.h"
 #include "google_breakpad/common/minidump_format.h"
 #include "processor/synth_minidump.h"
 #include "processor/synth_minidump_unittest_data.h"
@@ -50,11 +51,9 @@ using google_breakpad::SynthMinidump::Section;
 using google_breakpad::SynthMinidump::Stream;
 using google_breakpad::SynthMinidump::String;
 using google_breakpad::SynthMinidump::SystemInfo;
-using google_breakpad::SynthMinidump::Thread;
 using google_breakpad::test_assembler::kBigEndian;
 using google_breakpad::test_assembler::kLittleEndian;
 using google_breakpad::test_assembler::Label;
-using std::string;
 
 TEST(Section, Simple) {
   Dump dump(0);
@@ -148,7 +147,7 @@ TEST(Context, ARM) {
 TEST(ContextDeathTest, X86BadFlags) {
   Dump dump(0, kLittleEndian);
   MDRawContextX86 raw;
-  raw.context_flags = 0;
+  raw.context_flags = MD_CONTEXT_AMD64;
   ASSERT_DEATH(Context context(dump, raw);,
                "context\\.context_flags & (0x[0-9a-f]+|MD_CONTEXT_X86)");
 }
@@ -168,14 +167,15 @@ TEST(Thread, Simple) {
   Memory stack(dump, 0xaad55a93cc3c0efcULL);
   stack.Append("stack contents");
   stack.Finish(0xe08cdbd1);
-  Thread thread(dump, 0x3d7ec360, stack, context,
-                0x3593f44d, // suspend count
-                0xab352b82, // priority class
-                0x2753d838, // priority
-                0xeb2de4be3f29e3e9ULL); // thread environment block
+  google_breakpad::SynthMinidump::Thread thread(
+      dump, 0x3d7ec360, stack, context,
+      0x3593f44d, // suspend count
+      0xab352b82, // priority class
+      0x2753d838, // priority
+      0xeb2de4be3f29e3e9ULL); // thread environment block
   string contents;
   ASSERT_TRUE(thread.GetContents(&contents));
-  static const u_int8_t expected_bytes[] = {
+  static const uint8_t expected_bytes[] = {
     0x60, 0xc3, 0x7e, 0x3d, // thread id
     0x4d, 0xf4, 0x93, 0x35, // suspend count
     0x82, 0x2b, 0x35, 0xab, // priority class
@@ -203,7 +203,7 @@ TEST(Exception, Simple) {
                       0x0919a9b9c9d9e9f9ULL); // exception address
   string contents;
   ASSERT_TRUE(exception.GetContents(&contents));
-  static const u_int8_t expected_bytes[] = {
+  static const uint8_t expected_bytes[] = {
     0xcd, 0xab, 0x34, 0x12, // thread id
     0x00, 0x00, 0x00, 0x00, // __align
     0x21, 0x43, 0xba, 0xdc, // exception code

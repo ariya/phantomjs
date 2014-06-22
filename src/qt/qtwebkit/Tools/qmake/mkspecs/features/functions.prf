@@ -1,0 +1,400 @@
+# -------------------------------------------------------------------
+# This file defines a few useful functions that are exposed to the
+# real project files.
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+defineReplace(toSanitizedPath) {
+    path = $$1
+    win32-msvc*|wince* {
+        components = $$split(path, :)
+        count(components, 2): path = $$lower($$first(components)):$$last(components)
+        return($$replace(path, \\\\, /))
+    } else {
+        return($$path)
+    }
+}
+
+defineReplace(toSystemPath) {
+    return($$replace(1, [/\\\\], $${QMAKE_DIR_SEP}))
+}
+
+defineReplace(toEvaluatablePath) {
+    return($$replace(1, \\\\, \\\\\\\\))
+}
+
+defineReplace(targetSubDir) {
+    # The paths to the elements of the thin archive are stored
+    # relative to the archive itself, thus we have to prevent
+    # qmake from moving the archive after creation.
+    gnu_thin_archives: return()
+    else: CONFIG(debug, debug|release): return(debug)
+    else: return(release)
+}
+
+defineReplace(computeSubdirVariables) {
+    unset(subdir)
+    subdir = $$1
+
+    scope = $$subdir
+    path = $$eval($${subdir}.file)
+    isEmpty(path): path = $$eval($${subdir}.subdir)
+    isEmpty(path) {
+        path = $${subdir}
+        # We can't use scope as a variable scope, so unset it for
+        # now and we'll compute a new scope based on the target.
+        unset(scope)
+    }
+
+    # Technically this could be a directory, but we assume sane naming.
+    is_file = $$find(path, \\.pr[io]$)
+    isEmpty(is_file) {
+        subdirectory = $$path
+    } else {
+        subdirectory = $$dirname(path)
+        filename = $$basename(path)
+    }
+
+    # Make directory relative
+    !isEmpty(subdirectory):subdirectory = $$replace(subdirectory, ^$$re_escape($${_PRO_FILE_PWD_})/,)
+
+    !isEmpty(subdirectory) {
+        subdir_command = cd $$toSystemPath($${subdirectory}$${QMAKE_DIR_SEP}) &&
+    }
+
+    target = $$eval($${subdir}.target)
+    isEmpty(target) {
+        sanitizedPath = $$toSanitizedPath($$path)
+        target = sub-$$replace(sanitizedPath, [^a-zA-Z0-9_], -)
+    }
+
+    isEmpty(scope): scope = $$target
+
+    makefile = $$eval($${subdir}.makefile)
+    isEmpty(makefile) {
+        !isEmpty(filename) {
+            filebase = $$replace(filename, \\..*$,)
+            dirbase = $$basename(subdirectory)
+            !equals(filebase, $$dirbase) {
+                makefile = $(MAKEFILE).$$filebase
+            } else {
+                makefile = $(MAKEFILE)
+            }
+        } else {
+            makefile = $(MAKEFILE)
+        }
+    }
+
+    subdir_command = $$toEvaluatablePath($$subdir_command)
+    eval($${scope}.subdir_command = $$subdir_command)
+    export($${scope}.subdir_command)
+
+    eval($${scope}.target = $$target)
+    export($${scope}.target)
+
+    eval($${scope}.makefile = $$makefile)
+    export($${scope}.makefile)
+
+    return($$scope)
+}
+
+# Qmake has QMAKE_FILE_IN_PATH, but nothing for the out file
+# This allows you do do ${QMAKE_FUNC_FILE_OUT_PATH}
+defineReplace(PATH) {
+    return($$dirname(1))
+}
+
+# We need both versions, in case the first one returns an empty string
+defineReplace(FILE_OUT_PATH) {
+    return($$dirname(2))
+}
+
+# addStrictSubdirOrderBetween(firstSubdir, secondSubdir)
+defineTest(addStrictSubdirOrderBetween) {
+    unset(firstSubdir)
+    unset(secondSubdir)
+
+    firstSubdir = $$1
+    secondSubdir = $$2
+
+    firstVariables = $$computeSubdirVariables($${firstSubdir})
+    secondVariables = $$computeSubdirVariables($${secondSubdir})
+
+    !contains(TEMPLATE, subdirs) {
+        error("Strict subdir dependencies can only be used with subdirs template")
+    }
+
+    firstSubdirFile = $$eval($${firstSubdir}.file)
+    secondSubdirFile = $$eval($${secondSubdir}.file)
+
+    isEmpty(firstSubdirFile)|isEmpty(secondSubdirFile) {
+        error("Missing subdir file ($$firstSubdirFile, $$secondSubdirFile)")
+    }
+
+    # Make sure the order is right
+    SUBDIRS -= $$secondSubdir
+    SUBDIRS += $$secondSubdir
+    NO_RECURSIVE_QMAKE_SUBDIRS += $$firstSubdir $$secondSubdir
+    CONFIG *= ordered
+
+    first_base_target = sub-$$replace(firstSubdirFile, [^a-zA-Z0-9_], -)
+    second_base_target = sub-$$replace(secondSubdirFile, [^a-zA-Z0-9_], -)
+
+    # Use a custom target for making the derived sources, as the default target
+    # will do 'test -f $(MAKEFILE).DerivedSources || $(QMAKE) ...', which clashes
+    # with the qmake-run of the -qmake_all target, and we end up with a race
+    # and potentially half-written makefiles. The custom target depends explicitly
+    # on -qmake_all, to ensure that we have a makefile, and then calls make.
+    derived_make_for_qmake = $${first_base_target}-make_for_qmake
+    eval($${derived_make_for_qmake}.depends = $${first_base_target}-qmake_all)
+    eval($${derived_make_for_qmake}.commands = $(MAKE) -f $$eval($${firstSubdir}.makefile))
+    QMAKE_EXTRA_TARGETS += $${derived_make_for_qmake}
+
+    # This target ensures that running "make qmake_all" will force both qmake and make
+    # to be run on the derived sources before running qmake on the target, so that
+    # qmake can pick up the right dependencies for the target based on the derived
+    # sources that were generated.
+    target_make_qmake = $${second_base_target}-qmake_all
+    eval($${target_make_qmake}.depends = $${derived_make_for_qmake})
+    QMAKE_EXTRA_TARGETS += $${target_make_qmake}
+
+    # Make things work even if qmake -r is used.
+    CONFIG += dont_recurse
+
+    export(SUBDIRS)
+    export(NO_RECURSIVE_QMAKE_SUBDIRS)
+    export(CONFIG)
+    export($${target_make_qmake}.target)
+    export($${target_make_qmake}.depends)
+    export($${derived_make_for_qmake}.depends)
+    export($${derived_make_for_qmake}.commands)
+    export(QMAKE_EXTRA_TARGETS)
+    return(true)
+}
+
+# Check if we have the given Qt version. The major version needs
+# to be exact, the minor and patch version is same or higher
+defineTest(haveQt) {
+    count(ARGS, 1, lessThan)|count(ARGS, 3, greaterThan) {
+        error("Unexpected number of arguments: haveQt($$ARGS)")
+    }
+
+    !equals(QT_MAJOR_VERSION, $$1): return(false)
+
+    count(ARGS, 1, greaterThan) {
+        lessThan(QT_MINOR_VERSION, $$2): return(false)
+        greaterThan(QT_MINOR_VERSION, $$2): return(true)
+
+        count(ARGS, 2, greaterThan) {
+            lessThan(QT_PATCH_VERSION, $$3): return(false)
+            greaterThan(QT_PATCH_VERSION, $$3): return(true)
+        }
+    }
+
+    return(true)
+}
+
+defineTest(programExistsInPath) {
+    win32: program = $${1}.exe
+    else: program = $$1
+
+    PATH = "$$(PATH)"
+    paths=$$split(PATH, $$QMAKE_DIRLIST_SEP)
+
+    GNUTOOLS_DIR=$$[QT_HOST_DATA]/../gnuwin32/bin
+    exists($$GNUTOOLS_DIR): paths += $$GNUTOOLS_DIR
+
+    for(p, paths): exists($$p/$$program):return(true)
+    return(false)
+}
+
+defineTest(addReasonForSkippingBuild) {
+    skipBuildReason = "$$skipBuildReason$${EOL}    * $$1"
+    export(skipBuildReason)
+}
+
+defineTest(prependEach) {
+    unset(variable)
+    unset(prefix)
+
+    variable = $$1
+    prefix = $$2
+
+    original_values = $$unique($$variable)
+
+    for(value, original_values) {
+        values += $${prefix}$${value}
+    }
+
+    eval($$variable = $$values)
+    export($$variable)
+
+    return(true)
+}
+
+defineReplace(resolveFinalLibraryName) {
+    !debug_and_release: return($$1)
+
+    original_framework_name = $$QMAKE_FRAMEWORK_BUNDLE_NAME
+
+    TEMPLATE = lib # So that qtLibraryTarget works
+    target = $$qtLibraryTarget($$1)
+
+    # qtLibraryTarget will export QMAKE_FRAMEWORK_BUNDLE_NAME, which gets
+    # exported not only to this function scope, but to our call site.
+    QMAKE_FRAMEWORK_BUNDLE_NAME = $$original_framework_name
+    export(QMAKE_FRAMEWORK_BUNDLE_NAME)
+
+    return($$target)
+}
+
+defineTest(linkAgainstLibrary) {
+    unset(target)
+    target = $$1
+
+    unset(source_dir)
+    source_dir = $$2
+
+    library = $$lower($$target)
+
+    target = $$resolveFinalLibraryName($$target)
+
+    path = $$replace(source_dir, $$re_escape($${ROOT_WEBKIT_DIR}), $${ROOT_BUILD_DIR})/$$targetSubDir()
+
+    force_static_libs_as_shared {
+            LIBS += -L$${ROOT_BUILD_DIR}/lib -l$$target
+    } else {
+
+        mac {
+            LIBS += -Wl,-force_load,$${path}$${QMAKE_DIR_SEP}lib$${target}.a
+        } else:win32-msvc*|wince*|win32-icc {
+            LIBS += /OPT:REF -l$$target
+        } else {
+            CONFIG *= no_smart_library_merge
+            LIBS += -Wl,-whole-archive -l$$target -Wl,-no-whole-archive
+        }
+
+        LIBS += -L$$path
+
+        win32-msvc*|wince*|win32-icc {
+            POST_TARGETDEPS += $${path}$${QMAKE_DIR_SEP}$${target}.lib
+        } else {
+            POST_TARGETDEPS += $${path}$${QMAKE_DIR_SEP}lib$${target}.a
+        }
+    }
+
+    export(LIBS)
+    export(QMAKE_LIBDIR)
+    export(POST_TARGETDEPS)
+    export(CONFIG)
+    return(true)
+}
+
+defineTest(xlibAvailable) {
+    contains(QT_CONFIG, xcb-xlib) {
+        return(true)
+    } else {
+        return(false)
+    }
+}
+
+defineTest(build?) {
+    contains(WEBKIT_CONFIG, build_$$lower($$1)): return(true)
+    return(false)
+}
+
+defineTest(have?) {
+    contains(WEBKIT_CONFIG, have_$$lower($$1)): return(true)
+    return(false)
+}
+
+defineTest(use?) {
+    contains(WEBKIT_CONFIG, use_$$lower($$1)): return(true)
+    return(false)
+}
+
+defineTest(enable?) {
+    contains(WEBKIT_CONFIG, $$lower($$1)): return(true)
+    return(false)
+}
+
+# Used by configDefines below
+include(features.pri)
+
+# Turn Webkit config into defines
+defineReplace(configDefines) {
+    unset(defines)
+
+    args = $$split(1, |)
+
+    possible_args = enable have use plugin_architecture
+    !isEmpty(args) {
+        for(arg, possible_args): contains(args, $$arg): CONFIG += $$arg
+    } else {
+        CONFIG += $$possible_args
+    }
+
+    for(config, WEBKIT_CONFIG) {
+        match = $$find(config, "^build_")
+        !isEmpty(match) {
+            # We don't translate build_ to defines
+            next()
+        }
+        match = $$find(config, "^have_")
+        !isEmpty(match) {
+            have: defines += $$upper($$config)=1
+            next()
+        }
+        match = $$find(config, "^plugin_architecture_")
+        !isEmpty(match) {
+            plugin_architecture: defines += $$upper($$config)=1
+            next()
+        }
+        match = $$find(config, "^use_")
+        !isEmpty(match) {
+            use: defines += WTF_$$upper($$config)=1
+            next()
+        }
+
+        enable: defines += ENABLE_$$upper($$config)=1
+    }
+
+    # To prevent clashes with Platform.h, we have to explicitly
+    # disable features that are not enabled.
+    for(define, FEATURE_DEFAULTS) {
+        anyFeatureDefine = $$find(define, =.$)
+        isEmpty(anyFeatureDefine): next()
+
+        enabledFeature = $$replace(anyFeatureDefine, =.$, =1)
+        disabledFeature = $$replace(anyFeatureDefine, =.$, =0)
+
+        !contains(defines, $$enabledFeature) {
+            defines += $$disabledFeature
+        }
+    }
+
+    return($$defines)
+}
+
+defineReplace(javascriptFeatureDefines) {
+    defines = LANGUAGE_JAVASCRIPT=1 $$configDefines(enable)
+
+    # Omit disabled features when generating bindings to shrink the
+    # generator's command line on Windows.
+    disabledFeatures = $$find(defines, ^.+=0$)
+    for (disabledFeature, disabledFeatures) {
+        defines -= $$disabledFeature
+    }
+
+    return($$defines)
+}
+
+defineReplace(setEnvironmentVariable) {
+  variable = $$1
+  value = $$2
+  win_cmd_shell {
+      return((set \"$$variable=$$value\"))
+  }
+  return(export \"$$variable=$$value\")
+}

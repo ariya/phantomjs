@@ -1,0 +1,2945 @@
+MODULE windows x86 11F7284EDE764667AA5234B0E7B07EEF1 omap_reorder_funcs.pdb
+FILE 1 c:\src\breakpad\src\src\tools\windows\dump_syms\testdata\dump_syms_regtest.cc
+FILE 2 f:\dd\public\sdk\inc\internal\pebteb.h
+FILE 3 f:\dd\public\sdk\inc\internal\ntldr.h
+FILE 4 f:\dd\public\sdk\inc\internal\ntconfig.h
+FILE 5 f:\dd\public\sdk\inc\internal\ntregapi.h
+FILE 6 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\stdarg.h
+FILE 7 f:\dd\public\ddk\inc\ntdef.h
+FILE 8 f:\dd\public\sdk\inc\internal\ntmmapi.h
+FILE 9 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\ctype.h
+FILE 10 f:\dd\public\sdk\inc\pshpack1.h
+FILE 11 f:\dd\public\sdk\inc\internal\nxi386.h
+FILE 12 f:\dd\public\ddk\inc\poppack.h
+FILE 13 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\process.h
+FILE 14 f:\dd\public\sdk\inc\pshpack8.h
+FILE 15 f:\dd\public\ddk\inc\ntpoapi.h
+FILE 16 f:\dd\public\sdk\inc\internal\ntexapi.h
+FILE 17 f:\dd\public\sdk\inc\poppack.h
+FILE 18 f:\dd\public\ddk\inc\ntimage.h
+FILE 19 f:\dd\public\ddk\inc\pshpack4.h
+FILE 20 f:\dd\public\sdk\inc\pshpack2.h
+FILE 21 f:\dd\public\ddk\inc\ntnls.h
+FILE 22 f:\dd\public\sdk\inc\internal\ntelfapi.h
+FILE 23 f:\dd\public\sdk\inc\internal\ntpsapi.h
+FILE 24 f:\dd\public\sdk\inc\internal\nti386.h
+FILE 25 f:\dd\public\sdk\inc\specstrings.h
+FILE 26 f:\dd\public\sdk\inc\sal_supp.h
+FILE 27 f:\dd\public\sdk\inc\specstrings_supp.h
+FILE 28 f:\dd\public\sdk\inc\specstrings_strict.h
+FILE 29 f:\dd\public\sdk\inc\specstrings_undef.h
+FILE 30 f:\dd\public\sdk\inc\driverspecs.h
+FILE 31 f:\dd\public\sdk\inc\sdv_driverspecs.h
+FILE 32 f:\dd\public\sdk\inc\basetsd.h
+FILE 33 f:\dd\public\sdk\inc\internal\ntpnpapi.h
+FILE 34 f:\dd\public\sdk\inc\cfg.h
+FILE 35 f:\dd\public\sdk\inc\internal\ntxcapi.h
+FILE 36 f:\dd\public\sdk\inc\guiddef.h
+FILE 37 f:\dd\public\sdk\inc\internal\nt.h
+FILE 38 f:\dd\public\sdk\inc\ntstatus.h
+FILE 39 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\excpt.h
+FILE 40 f:\dd\public\sdk\inc\internal\ntkeapi.h
+FILE 41 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\crtdefs.h
+FILE 42 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\sal.h
+FILE 43 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\codeanalysis\sourceannotations.h
+FILE 44 f:\dd\public\sdk\inc\internal\ntobapi.h
+FILE 45 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\string.h
+FILE 46 f:\dd\public\sdk\inc\internal\ntioapi.h
+FILE 47 f:\dd\public\ddk\inc\devioctl.h
+FILE 48 f:\dd\public\sdk\inc\internal\ntseapi.h
+FILE 49 f:\dd\public\ddk\inc\mce.h
+FILE 50 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\misc\i386\chandler4.c
+FILE 51 f:\dd\public\sdk\inc\pshpack4.h
+FILE 52 f:\dd\public\devdiv\inc\ddbanned.h
+FILE 53 f:\dd\public\sdk\inc\internal\ntlpcapi.h
+FILE 54 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\vadefs.h
+FILE 55 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\cruntime.h
+FILE 56 f:\dd\public\sdk\inc\internal\ntiolog.h
+FILE 57 f:\dd\vctools\crt_bld\SELF_X86\crt\prebuild\misc\i386\exsup.asm
+FILE 58 f:\dd\vctools\crt_bld\SELF_X86\crt\prebuild\h\pversion.inc
+FILE 59 f:\dd\vctools\crt_bld\SELF_X86\crt\prebuild\h\cmacros.inc
+FILE 60 f:\dd\vctools\crt_bld\SELF_X86\crt\prebuild\h\exsup.inc
+FILE 61 f:\dd\vctools\crt_bld\SELF_X86\crt\prebuild\misc\i386\nlgsupp.asm
+FILE 62 f:\dd\vctools\crt_bld\SELF_X86\crt\prebuild\misc\i386\exsup4.asm
+FILE 64 f:\dd\vctools\crt_bld\SELF_X86\crt\prebuild\misc\i386\sehprolg4.asm
+FILE 65 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\string\i386\p4_memcpy.c
+FILE 69 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\string\i386\memcmp.c
+FILE 73 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\string\i386\p4_memset.c
+FILE 77 f:\dd\public\sdk\inc\winreg.h
+FILE 78 f:\dd\public\sdk\inc\imm.h
+FILE 79 f:\dd\public\sdk\inc\wingdi.h
+FILE 80 f:\dd\vctools\crt_bld\self_x86\crt\src\stdlib.h
+FILE 81 f:\dd\public\sdk\inc\winerror.h
+FILE 82 f:\dd\public\sdk\inc\ktmtypes.h
+FILE 84 f:\dd\vctools\crt_bld\self_x86\crt\src\stdarg.h
+FILE 85 f:\dd\public\sdk\inc\windef.h
+FILE 86 f:\dd\public\sdk\inc\winbase.h
+FILE 88 f:\dd\vctools\crt_bld\self_x86\crt\src\string.h
+FILE 89 f:\dd\public\sdk\inc\winuser.h
+FILE 91 f:\dd\public\sdk\inc\winnetwk.h
+FILE 92 f:\dd\public\sdk\inc\winnt.h
+FILE 93 f:\dd\public\sdk\inc\wnnc.h
+FILE 94 f:\dd\vctools\crt_bld\self_x86\crt\src\ctype.h
+FILE 96 f:\dd\public\sdk\inc\winnls.h
+FILE 98 f:\dd\vctools\crt_bld\self_x86\crt\src\mtdll.h
+FILE 99 f:\dd\vctools\crt_bld\self_x86\crt\src\crtdefs.h
+FILE 100 f:\dd\vctools\crt_bld\self_x86\crt\src\sal.h
+FILE 101 f:\dd\vctools\crt_bld\self_x86\crt\src\codeanalysis\sourceannotations.h
+FILE 102 f:\dd\public\sdk\inc\winver.h
+FILE 103 f:\dd\public\sdk\inc\verrsrc.h
+FILE 104 f:\dd\public\sdk\inc\wincon.h
+FILE 105 f:\dd\public\sdk\inc\stralign.h
+FILE 107 f:\dd\public\sdk\inc\mcx.h
+FILE 108 f:\dd\vctools\crt_bld\self_x86\crt\src\atox.c
+FILE 109 f:\dd\vctools\crt_bld\self_x86\crt\src\limits.h
+FILE 110 f:\dd\public\sdk\inc\windows.h
+FILE 111 f:\dd\vctools\crt_bld\self_x86\crt\src\setlocal.h
+FILE 112 f:\dd\public\sdk\inc\sdkddkver.h
+FILE 113 f:\dd\vctools\crt_bld\self_x86\crt\src\oscalls.h
+FILE 114 f:\dd\vctools\crt_bld\self_x86\crt\src\excpt.h
+FILE 120 f:\dd\public\sdk\inc\reason.h
+FILE 123 f:\dd\public\sdk\inc\kernelspecs.h
+FILE 125 f:\dd\vctools\crt_bld\self_x86\crt\src\tchar.h
+FILE 126 f:\dd\vctools\crt_bld\self_x86\crt\src\mbstring.h
+FILE 127 f:\dd\vctools\crt_bld\self_x86\crt\src\mbctype.h
+FILE 128 f:\dd\public\sdk\inc\ime_cmodes.h
+FILE 130 f:\dd\vctools\crt_bld\self_x86\crt\src\vadefs.h
+FILE 131 f:\dd\vctools\crt_bld\self_x86\crt\src\cruntime.h
+FILE 132 f:\dd\public\sdk\inc\tvout.h
+FILE 145 f:\dd\vctools\crt_bld\self_x86\crt\src\internal_securecrt.h
+FILE 152 f:\dd\vctools\crt_bld\self_x86\crt\src\internal.h
+FILE 164 f:\dd\vctools\crt_bld\self_x86\crt\src\crtdbg.h
+FILE 165 f:\dd\vctools\crt_bld\self_x86\crt\src\xtoa.c
+FILE 178 f:\dd\vctools\crt_bld\self_x86\crt\src\xtoas.c
+FILE 182 f:\dd\vctools\crt_bld\self_x86\crt\src\errno.h
+FILE 224 f:\dd\vctools\crt_bld\self_x86\crt\src\dosmap.c
+FILE 250 f:\dd\vctools\crt_bld\self_x86\crt\src\rtcsup.h
+FILE 251 f:\dd\vctools\crt_bld\self_x86\crt\src\rtcapi.h
+FILE 265 f:\dd\vctools\crt_bld\self_x86\crt\src\winheap.h
+FILE 281 f:\dd\vctools\crt_bld\self_x86\crt\src\malloc.h
+FILE 291 f:\dd\vctools\crt_bld\self_x86\crt\src\calloc_impl.c
+FILE 299 f:\dd\vctools\crt_bld\self_x86\crt\src\dbgint.h
+FILE 333 f:\dd\vctools\crt_bld\self_x86\crt\src\crtheap.c
+FILE 389 f:\dd\vctools\crt_bld\self_x86\crt\src\free.c
+FILE 453 f:\dd\vctools\crt_bld\self_x86\crt\src\heapinit.c
+FILE 498 f:\dd\vctools\crt_bld\self_x86\crt\src\rterr.h
+FILE 504 f:\dd\vctools\crt_bld\self_x86\crt\src\malloc.c
+FILE 561 f:\dd\vctools\crt_bld\self_x86\crt\src\msize.c
+FILE 618 f:\dd\vctools\crt_bld\self_x86\crt\src\realloc.c
+FILE 677 f:\dd\vctools\crt_bld\self_x86\crt\src\recalloc.c
+FILE 731 f:\dd\vctools\crt_bld\self_x86\crt\src\_newmode.c
+FILE 774 f:\dd\vctools\crt_bld\self_x86\crt\src\msdos.h
+FILE 777 f:\dd\vctools\crt_bld\self_x86\crt\src\stddef.h
+FILE 792 f:\dd\vctools\crt_bld\self_x86\crt\src\ioinit.c
+FILE 844 f:\dd\vctools\crt_bld\self_x86\crt\src\intel\loadcfg.c
+FILE 892 f:\dd\vctools\crt_bld\self_x86\crt\src\intel\secchk.c
+FILE 904 f:\dd\vctools\crt_bld\self_x86\crt\src\process.h
+FILE 943 f:\dd\vctools\crt_bld\self_x86\crt\src\a_env.c
+FILE 960 f:\dd\vctools\crt_bld\self_x86\crt\src\awint.h
+FILE 975 f:\dd\vctools\crt_bld\self_x86\crt\src\signal.h
+FILE 1011 f:\dd\vctools\crt_bld\self_x86\crt\src\abort.c
+FILE 1039 f:\dd\vctools\crt_bld\self_x86\crt\src\swprintf.inl
+FILE 1053 f:\dd\vctools\crt_bld\self_x86\crt\src\crtmbox.c
+FILE 1063 f:\dd\vctools\crt_bld\self_x86\crt\src\crtmboxw.c
+FILE 1065 f:\dd\vctools\crt_bld\self_x86\crt\src\wchar.h
+FILE 1069 f:\dd\vctools\crt_bld\self_x86\crt\src\wtime.inl
+FILE 1120 f:\dd\vctools\crt_bld\self_x86\crt\src\ctype.c
+FILE 1145 f:\dd\vctools\crt_bld\self_x86\crt\src\dbghook.c
+FILE 1181 f:\dd\vctools\crt_bld\self_x86\crt\src\errmode.c
+FILE 1244 f:\dd\vctools\crt_bld\self_x86\crt\src\getqloc.c
+FILE 1288 f:\dd\vctools\crt_bld\self_x86\crt\src\locale.h
+FILE 1301 f:\dd\vctools\crt_bld\self_x86\crt\src\glstatus.c
+FILE 1344 f:\dd\vctools\crt_bld\self_x86\crt\src\gs_cookie.c
+FILE 1392 f:\dd\vctools\crt_bld\self_x86\crt\src\gs_report.c
+FILE 1413 f:\binaries.x86ret\inc\mm3dnow.h
+FILE 1415 f:\binaries.x86ret\inc\ammintrin.h
+FILE 1424 f:\binaries.x86ret\inc\immintrin.h
+FILE 1426 f:\binaries.x86ret\inc\wmmintrin.h
+FILE 1427 f:\binaries.x86ret\inc\nmmintrin.h
+FILE 1428 f:\binaries.x86ret\inc\smmintrin.h
+FILE 1429 f:\binaries.x86ret\inc\tmmintrin.h
+FILE 1430 f:\binaries.x86ret\inc\pmmintrin.h
+FILE 1431 f:\binaries.x86ret\inc\emmintrin.h
+FILE 1432 f:\binaries.x86ret\inc\xmmintrin.h
+FILE 1433 f:\binaries.x86ret\inc\mmintrin.h
+FILE 1455 f:\dd\vctools\crt_bld\self_x86\crt\src\gs_support.c
+FILE 1467 f:\dd\vctools\crt_bld\self_x86\crt\src\intrin.h
+FILE 1468 f:\dd\vctools\crt_bld\self_x86\crt\src\setjmp.h
+FILE 1508 f:\dd\vctools\crt_bld\self_x86\crt\src\initcoll.c
+FILE 1568 f:\dd\vctools\crt_bld\self_x86\crt\src\initctyp.c
+FILE 1627 f:\dd\vctools\crt_bld\self_x86\crt\src\inithelp.c
+FILE 1685 f:\dd\vctools\crt_bld\self_x86\crt\src\initmon.c
+FILE 1737 f:\dd\vctools\crt_bld\self_x86\crt\src\nlsint.h
+FILE 1742 f:\dd\vctools\crt_bld\self_x86\crt\src\initnum.c
+FILE 1800 f:\dd\vctools\crt_bld\self_x86\crt\src\inittime.c
+FILE 1855 f:\dd\vctools\crt_bld\self_x86\crt\src\lconv.c
+FILE 1913 f:\dd\vctools\crt_bld\self_x86\crt\src\localref.c
+FILE 1962 f:\dd\vctools\crt_bld\self_x86\crt\src\sect_attribs.h
+FILE 1969 f:\dd\vctools\crt_bld\self_x86\crt\src\onexit.c
+FILE 1989 f:\dd\vctools\crt_bld\self_x86\crt\src\nlsdata1.c
+FILE 2036 f:\dd\vctools\crt_bld\self_x86\crt\src\nlsdata2.c
+FILE 2079 f:\dd\vctools\crt_bld\self_x86\crt\src\pesect.c
+FILE 2128 f:\dd\vctools\crt_bld\self_x86\crt\src\purevirt.c
+FILE 2186 f:\dd\vctools\crt_bld\self_x86\crt\src\rand_s.c
+FILE 2250 f:\dd\vctools\crt_bld\self_x86\crt\src\setlocal.c
+FILE 2311 f:\dd\vctools\crt_bld\self_x86\crt\src\winsig.c
+FILE 2314 f:\dd\vctools\crt_bld\self_x86\crt\src\float.h
+FILE 2315 f:\dd\vctools\crt_bld\self_x86\crt\src\crtwrn.h
+FILE 2369 f:\dd\vctools\crt_bld\self_x86\crt\src\winxfltr.c
+FILE 2394 f:\dd\vctools\crt_bld\self_x86\crt\src\fltintrn.h
+FILE 2419 f:\dd\vctools\crt_bld\self_x86\crt\src\cmiscdat.c
+FILE 2445 f:\dd\vctools\crt_bld\self_x86\crt\src\intel\strncmp.c
+FILE 2468 f:\dd\vctools\crt_bld\self_x86\crt\src\tcscat_s.inl
+FILE 2493 f:\dd\vctools\crt_bld\self_x86\crt\src\strcat_s.c
+FILE 2523 f:\dd\vctools\crt_bld\self_x86\crt\src\tcscpy_s.inl
+FILE 2548 f:\dd\vctools\crt_bld\self_x86\crt\src\strcpy_s.c
+FILE 2578 f:\dd\vctools\crt_bld\self_x86\crt\src\tcsncpy_s.inl
+FILE 2603 f:\dd\vctools\crt_bld\self_x86\crt\src\strncpy_s.c
+FILE 2658 f:\dd\vctools\crt_bld\self_x86\crt\src\wcscat_s.c
+FILE 2713 f:\dd\vctools\crt_bld\self_x86\crt\src\wcscpy_s.c
+FILE 2728 f:\dd\vctools\crt_bld\self_x86\crt\src\wcslen.c
+FILE 2776 f:\dd\vctools\crt_bld\self_x86\crt\src\wcsncpy_s.c
+FILE 2787 f:\dd\vctools\crt_bld\SELF_X86\crt\src\INTEL\memcpy.asm
+FILE 2788 f:\dd\vctools\crt_bld\SELF_X86\crt\src\cruntime.inc
+FILE 2789 f:\dd\vctools\crt_bld\SELF_X86\crt\src\INTEL\memset.asm
+FILE 2791 f:\dd\vctools\crt_bld\SELF_X86\crt\src\INTEL\strcmp.asm
+FILE 2793 f:\dd\vctools\crt_bld\SELF_X86\crt\src\INTEL\strcspn.asm
+FILE 2794 f:\dd\vctools\crt_bld\SELF_X86\crt\src\Intel\STRSPN.ASM
+FILE 2796 f:\dd\vctools\crt_bld\SELF_X86\crt\src\INTEL\strlen.asm
+FILE 2798 f:\dd\vctools\crt_bld\SELF_X86\crt\src\INTEL\_strnicm.asm
+FILE 2800 f:\dd\vctools\crt_bld\SELF_X86\crt\src\INTEL\strpbrk.asm
+FILE 2803 f:\dd\vctools\crt_bld\SELF_X86\crt\src\INTEL\llmul.asm
+FILE 2805 f:\dd\vctools\crt_bld\SELF_X86\crt\src\mm.inc
+FILE 2806 f:\dd\vctools\crt_bld\SELF_X86\crt\src\INTEL\ulldvrm.asm
+FILE 2820 f:\dd\vctools\crt_bld\self_x86\crt\src\handler.cpp
+FILE 2841 f:\dd\vctools\crt_bld\self_x86\crt\src\new.h
+FILE 2875 f:\dd\vctools\crt_bld\self_x86\crt\src\delete.cpp
+FILE 2931 f:\dd\vctools\crt_bld\self_x86\crt\src\_wctype.c
+FILE 2987 f:\dd\vctools\crt_bld\self_x86\crt\src\iswctype.c
+FILE 2998 f:\dd\vctools\crt_bld\self_x86\crt\src\stdio.h
+FILE 3045 f:\dd\vctools\crt_bld\self_x86\crt\src\isctype.c
+FILE 3106 f:\dd\vctools\crt_bld\self_x86\crt\src\strtol.c
+FILE 3163 f:\dd\vctools\crt_bld\self_x86\crt\src\strtoq.c
+FILE 3218 f:\dd\vctools\crt_bld\self_x86\crt\src\tolower.c
+FILE 3271 f:\dd\vctools\crt_bld\self_x86\crt\src\ismbbyte.c
+FILE 3305 f:\dd\vctools\crt_bld\self_x86\crt\src\mbdata.h
+FILE 3326 f:\dd\vctools\crt_bld\self_x86\crt\src\mbctype.c
+FILE 3386 f:\dd\vctools\crt_bld\self_x86\crt\src\a_loc.c
+FILE 3447 f:\dd\vctools\crt_bld\self_x86\crt\src\a_map.c
+FILE 3507 f:\dd\vctools\crt_bld\self_x86\crt\src\a_str.c
+FILE 3583 f:\dd\vctools\crt_bld\self_x86\crt\src\invarg.c
+FILE 3626 f:\dd\vctools\crt_bld\self_x86\crt\src\stricmp.c
+FILE 3682 f:\dd\vctools\crt_bld\self_x86\crt\src\strnicmp.c
+FILE 3774 f:\dd\vctools\crt_bld\self_x86\crt\src\tidtable.c
+FILE 3778 f:\dd\vctools\crt_bld\self_x86\crt\src\memory.h
+FILE 3838 f:\dd\vctools\crt_bld\self_x86\crt\src\stdenvp.c
+FILE 3860 f:\dd\vctools\crt_bld\self_x86\crt\src\dos.h
+FILE 3891 f:\dd\vctools\crt_bld\self_x86\crt\src\stdargv.c
+FILE 3954 f:\dd\vctools\crt_bld\self_x86\crt\src\mlock.c
+FILE 3998 f:\dd\vctools\crt_bld\self_x86\crt\src\cmsgs.h
+FILE 4012 f:\dd\vctools\crt_bld\self_x86\crt\src\crt0msg.c
+FILE 4072 f:\dd\vctools\crt_bld\self_x86\crt\src\crt0init.c
+FILE 4123 f:\dd\vctools\crt_bld\self_x86\crt\src\crt0fp.c
+FILE 4186 f:\dd\vctools\crt_bld\self_x86\crt\src\crt0dat.c
+FILE 4250 f:\dd\vctools\crt_bld\self_x86\crt\src\crt0.c
+FILE 4274 f:\dd\vctools\crt_bld\SELF_X86\crt\src\INTEL\alloca16.asm
+FILE 4276 f:\dd\vctools\crt_bld\SELF_X86\crt\src\INTEL\chkstk.asm
+FILE 4289 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\errno.h
+FILE 4293 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\internal.h
+FILE 4294 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\limits.h
+FILE 4295 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\mtdll.h
+FILE 4309 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\sect_attribs.h
+FILE 4315 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\tran\i386\cpu_disp.c
+FILE 4327 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\crtdbg.h
+FILE 4340 f:\dd\vctools\langapi\undname\undname.cxx
+FILE 4345 f:\dd\vctools\langapi\undname\undname.inl
+FILE 4347 f:\dd\vctools\langapi\undname\utf8.h
+FILE 4355 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\swprintf.inl
+FILE 4365 f:\dd\vctools\langapi\undname\undname.hxx
+FILE 4366 f:\dd\vctools\langapi\undname\undname.h
+FILE 4367 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\stdlib.h
+FILE 4368 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\stdio.h
+FILE 4396 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\eh.h
+FILE 4397 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\eh\unhandld.cpp
+FILE 4401 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\ehhooks.h
+FILE 4405 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\ehassert.h
+FILE 4427 f:\dd\vctools\langapi\include\ehdata.h
+FILE 4429 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\stddef.h
+FILE 4449 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\stdhpp\exception
+FILE 4472 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\malloc.h
+FILE 4473 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\eh\typname.cpp
+FILE 4475 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\stdhpp\cstddef
+FILE 4487 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\typeinfo.h
+FILE 4488 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\stdhpp\typeinfo
+FILE 4490 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\stdhpp\xstddef
+FILE 4491 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\stdhpp\yvals.h
+FILE 4492 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\stdhpp\use_ansi.h
+FILE 4493 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\dbgint.h
+FILE 4496 f:\dd\public\internal\vctools\include\undname.h
+FILE 4531 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\eh\typinfo.cpp
+FILE 4591 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\eh\hooks.cpp
+FILE 4643 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\rtc\initsect.cpp
+FILE 4664 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\rtcapi.h
+FILE 4680 f:\dd\vctools\crt_bld\self_x86\crt\prebuild\h\rtcpriv.h
+FUNC 41e2 54 0 main
+41e2 6 57 1
+41e8 8 58 1
+41f0 e 59 1
+41fe 8 60 1
+4206 b 61 1
+4211 f 62 1
+4220 12 64 1
+4232 4 65 1
+FUNC 4242 a 0 google_breakpad::i
+4242 3 51 1
+4245 5 52 1
+424a 2 53 1
+FUNC 2b6a 21 0 google_breakpad::C::C()
+2b6a 21 37 1
+FUNC 30dd 14 0 google_breakpad::C::~C()
+30dd 14 38 1
+FUNC 21f6 16 0 google_breakpad::C::set_member(int)
+21f6 16 40 1
+FUNC 22e9 1e 0 google_breakpad::C::f()
+22e9 1e 43 1
+FUNC 2895 10 0 google_breakpad::C::g()
+2895 10 44 1
+FUNC 308e 7 0 google_breakpad::C::h(google_breakpad::C const &)
+308e 7 45 1
+FUNC 13a0 2c 0 google_breakpad::C::`scalar deleting destructor'(unsigned int)
+FUNC 205a 10 0 type_info::~type_info()
+205a 2 49 4531
+205c d 50 4531
+2069 1 51 4531
+FUNC 1445 21 0 type_info::`scalar deleting destructor'(unsigned int)
+FUNC 2307 b 0 operator delete(void *)
+2307 5 20 2875
+230c 1 24 2875
+230d 5 23 2875
+FUNC 3238 29 0 fast_error_exit
+3238 5 326 4250
+323d 9 335 4250
+3246 5 337 4250
+324b 8 339 4250
+3253 c 340 4250
+325f 2 341 4250
+FUNC 32ed 161 0 __tmainCRTStartup
+32ed c 196 4250
+32f9 a 214 4250
+3303 b 216 4250
+330e 49 223 4250
+3357 9 225 4250
+3360 8 226 4250
+3368 9 228 4250
+3371 8 229 4250
+3379 5 238 4250
+337e 3 246 4250
+3381 9 248 4250
+338a 8 249 4250
+3392 b 252 4250
+339d a 255 4250
+33a7 9 257 4250
+33b0 8 258 4250
+33b8 9 259 4250
+33c1 8 260 4250
+33c9 8 262 4250
+33d1 4 263 4250
+33d5 7 264 4250
+33dc a 277 4250
+33e6 18 278 4250
+33fe 5 281 4250
+3403 6 282 4250
+3409 5 284 4250
+340e 2 286 4250
+3410 17 287 4250
+3427 6 293 4250
+342d 6 295 4250
+3433 6 296 4250
+3439 5 298 4250
+343e 7 300 4250
+3445 3 302 4250
+3448 6 303 4250
+FUNC 2104 a 0 mainCRTStartup
+2104 0 179 4250
+2104 5 186 4250
+2109 5 188 4250
+FUNC 5330 70 0 type_info::_Type_info_dtor(type_info *)
+5330 c 62 4473
+533c 8 63 4473
+5344 4 64 4473
+5348 a 65 4473
+5352 d 70 4473
+535f 4 72 4473
+5363 4 74 4473
+5367 6 79 4473
+536d 7 80 4473
+5374 9 94 4473
+537d 4 101 4473
+5381 c 103 4473
+538d 6 107 4473
+5393 2 83 4473
+5395 2 72 4473
+5397 9 104 4473
+FUNC 2f6b 88 0 strcmp
+2f6b 0 65 2791
+2f6b 4 73 2791
+2f6f 4 74 2791
+2f73 6 76 2791
+2f79 2 77 2791
+2f7b 2 81 2791
+2f7d 2 83 2791
+2f7f 2 84 2791
+2f81 2 85 2791
+2f83 2 86 2791
+2f85 3 87 2791
+2f88 2 88 2791
+2f8a 2 89 2791
+2f8c 2 90 2791
+2f8e 3 92 2791
+2f91 3 94 2791
+2f94 2 95 2791
+2f96 2 96 2791
+2f98 2 97 2791
+2f9a 3 98 2791
+2f9d 2 99 2791
+2f9f 3 100 2791
+2fa2 3 101 2791
+2fa5 2 102 2791
+2fa7 4 103 2791
+2fab 2 107 2791
+2fad 2 108 2791
+2faf 2 115 2791
+2fb1 2 116 2791
+2fb3 3 117 2791
+2fb6 1 118 2791
+2fb7 6 122 2791
+2fbd 2 123 2791
+2fbf 2 125 2791
+2fc1 3 126 2791
+2fc4 2 127 2791
+2fc6 2 128 2791
+2fc8 3 129 2791
+2fcb 2 130 2791
+2fcd 2 131 2791
+2fcf 6 133 2791
+2fd5 2 134 2791
+2fd7 3 139 2791
+2fda 3 140 2791
+2fdd 2 141 2791
+2fdf 2 142 2791
+2fe1 2 143 2791
+2fe3 2 144 2791
+2fe5 3 145 2791
+2fe8 2 146 2791
+2fea 2 147 2791
+2fec 2 148 2791
+2fee 3 149 2791
+2ff1 2 150 2791
+FUNC 2b8b 3a 0 free
+2b8b 5 40 389
+2b90 6 45 389
+2b96 11 50 389
+2ba7 4 51 389
+2bab 18 53 389
+2bc3 2 55 389
+FUNC 23da 42 0 __CxxUnhandledExceptionFilter(_EXCEPTION_POINTERS *)
+23da 5 67 4397
+23df 32 68 4397
+2411 5 69 4397
+2416 2 72 4397
+2418 4 73 4397
+FUNC 283a e 0 __CxxSetUnhandledExceptionFilter
+283a 0 86 4397
+283a b 89 4397
+2845 2 90 4397
+2847 1 91 4397
+FUNC 18d9 2b 0 __crtCorExitProcess
+18d9 5 675 4186
+18de b 679 4186
+18e9 4 680 4186
+18ed c 681 4186
+18f9 4 682 4186
+18fd 5 683 4186
+1902 2 693 4186
+FUNC 5175 18 0 __crtExitProcess
+5175 5 698 4186
+517a 9 699 4186
+5183 a 708 4186
+FUNC 48f0 9 0 _lockexit
+48f0 0 758 4186
+48f0 8 759 4186
+48f8 1 760 4186
+FUNC 406d 9 0 _unlockexit
+406d 0 784 4186
+406d 8 785 4186
+4075 1 786 4186
+FUNC 1fa0 33 0 _init_pointers
+1fa0 3 809 4186
+1fa3 7 810 4186
+1faa 6 812 4186
+1fb0 6 813 4186
+1fb6 6 814 4186
+1fbc 6 815 4186
+1fc2 6 816 4186
+1fc8 a 817 4186
+1fd2 1 818 4186
+FUNC 5043 24 0 _initterm_e
+5043 6 908 4186
+5049 b 917 4186
+5054 6 922 4186
+505a 2 923 4186
+505c 3 924 4186
+505f 6 917 4186
+5065 2 928 4186
+FUNC 147f 97 0 _cinit
+147f 5 258 4186
+1484 18 268 4186
+149c a 270 4186
+14a6 5 272 4186
+14ab 11 278 4186
+14bc 2 279 4186
+14be 2 280 4186
+14c0 c 283 4186
+14cc 20 288 4186
+14ec 1a 301 4186
+1506 c 303 4186
+1512 2 307 4186
+1514 2 308 4186
+FUNC 4504 140 0 doexit
+4504 c 489 4186
+4510 8 507 4186
+4518 4 508 4186
+451c f 510 4186
+452b 5 511 4186
+4530 8 514 4186
+4538 a 516 4186
+4542 13 532 4186
+4555 4 533 4186
+4559 d 534 4186
+4566 3 538 4186
+4569 3 539 4186
+456c 11 547 4186
+457d 2 550 4186
+457f 4 552 4186
+4583 6 559 4186
+4589 7 562 4186
+4590 2 565 4186
+4592 a 567 4186
+459c 8 568 4186
+45a4 a 570 4186
+45ae 6 573 4186
+45b4 8 574 4186
+45bc 5 576 4186
+45c1 21 582 4186
+45e2 21 590 4186
+4603 c 608 4186
+460f 6 613 4186
+4615 a 617 4186
+461f 8 619 4186
+4627 8 621 4186
+462f 6 609 4186
+4635 9 610 4186
+463e 6 622 4186
+FUNC 315a 16 0 exit
+315a 5 392 4186
+315f f 393 4186
+316e 2 394 4186
+FUNC 1778 16 0 _exit
+1778 5 400 4186
+177d f 401 4186
+178c 2 402 4186
+FUNC 3229 f 0 _cexit
+3229 0 407 4186
+3229 e 408 4186
+3237 1 409 4186
+FUNC 405e f 0 _c_exit
+405e 0 414 4186
+405e e 415 4186
+406c 1 416 4186
+FUNC 2abf 1e 0 _amsg_exit
+2abf 5 439 4186
+2ac4 5 440 4186
+2ac9 9 441 4186
+2ad2 b 442 4186
+FUNC 424c 26 0 _GET_RTERRMSG
+424c 5 165 4012
+4251 2 168 4012
+4253 c 169 4012
+425f 6 168 4012
+4265 2 172 4012
+4267 2 173 4012
+4269 7 170 4012
+4270 2 173 4012
+FUNC 268b 1af 0 _NMSG_WRITE
+268b 1b 196 4012
+26a6 8 197 4012
+26ae 11 199 4012
+26bf 2a 226 4012
+26e9 c 263 4012
+26f5 20 272 4012
+2715 21 275 4012
+2736 1f 276 4012
+2755 d 279 4012
+2762 d 281 4012
+276f 1d 282 4012
+278c 18 285 4012
+27a4 14 286 4012
+27b8 15 290 4012
+27cd a 272 4012
+27d7 a 228 4012
+27e1 9 229 4012
+27ea 2 244 4012
+27ec a 246 4012
+27f6 6 248 4012
+27fc 8 244 4012
+2804 27 260 4012
+282b f 294 4012
+FUNC 21bd 39 0 _FF_MSGBANNER
+21bd 0 134 4012
+21bd 22 138 4012
+21df a 140 4012
+21e9 c 141 4012
+21f5 1 143 4012
+FUNC 3ed7 14a 0 _XcptFilter
+3ed7 6 195 2369
+3edd 7 202 2369
+3ee4 8 203 2369
+3eec 2a 208 2369
+3f16 4 210 2369
+3f1a 3 216 2369
+3f1d 4 223 2369
+3f21 7 224 2369
+3f28 5 232 2369
+3f2d 4 237 2369
+3f31 8 238 2369
+3f39 3 244 2369
+3f3c 6 248 2369
+3f42 a 263 2369
+3f4c c 272 2369
+3f58 3 280 2369
+3f5b 13 283 2369
+3f6e c 310 2369
+3f7a 9 312 2369
+3f83 7 314 2369
+3f8a 9 316 2369
+3f93 7 318 2369
+3f9a 9 320 2369
+3fa3 7 322 2369
+3faa 9 324 2369
+3fb3 7 326 2369
+3fba 9 328 2369
+3fc3 7 330 2369
+3fca 9 332 2369
+3fd3 7 334 2369
+3fda 9 336 2369
+3fe3 7 338 2369
+3fea 9 340 2369
+3ff3 7 342 2369
+3ffa 7 344 2369
+4001 8 353 2369
+4009 3 358 2369
+400c 2 360 2369
+400e 4 365 2369
+4012 4 366 2369
+4016 4 372 2369
+401a 5 374 2369
+401f 2 376 2369
+FUNC 255c dc 0 _setenvp
+255c 0 77 3838
+255c 9 85 3838
+2565 6 86 3838
+256b 9 91 3838
+2574 4 98 3838
+2578 8 99 3838
+2580 4 110 3838
+2584 1 111 3838
+2585 b 112 3838
+2590 6 108 3838
+2596 15 117 3838
+25ab 2 118 3838
+25ad 9 121 3838
+25b6 6 123 3838
+25bc 9 125 3838
+25c5 10 127 3838
+25d5 f 133 3838
+25e4 3 134 3838
+25e7 7 121 3838
+25ee b 138 3838
+25f9 7 139 3838
+2600 3 142 3838
+2603 a 149 3838
+260d 2 152 3838
+260f 2 138 3838
+2611 3 153 3838
+2614 b 129 3838
+261f 7 130 3838
+2626 5 131 3838
+262b d 133 3838
+FUNC 54b7 19a 0 parse_cmdline
+54b7 6 221 3891
+54bd 9 229 3891
+54c6 2 232 3891
+54c8 17 234 3891
+54df 3 253 3891
+54e2 5 255 3891
+54e7 5 257 3891
+54ec 9 258 3891
+54f5 2 259 3891
+54f7 2 261 3891
+54f9 4 262 3891
+54fd 8 263 3891
+5505 2 265 3891
+5507 f 267 3891
+5516 2 268 3891
+5518 6 269 3891
+551e a 270 3891
+5528 1 271 3891
+5529 1a 275 3891
+5543 4 280 3891
+5547 4 281 3891
+554b 4 284 3891
+554f 9 289 3891
+5558 a 290 3891
+5562 3 291 3891
+5565 1 278 3891
+5566 2 279 3891
+5568 9 294 3891
+5571 6 298 3891
+5577 9 299 3891
+5580 2 300 3891
+5582 3 314 3891
+5585 4 318 3891
+5589 1 321 3891
+558a 1 322 3891
+558b 5 319 3891
+5590 5 324 3891
+5595 5 327 3891
+559a e 328 3891
+55a8 2 329 3891
+55aa 2 330 3891
+55ac d 332 3891
+55b9 2 335 3891
+55bb 5 339 3891
+55c0 4 340 3891
+55c4 4 341 3891
+55c8 6 342 3891
+55ce 3 341 3891
+55d1 14 346 3891
+55e5 4 351 3891
+55e9 12 353 3891
+55fb b 354 3891
+5606 2 355 3891
+5608 a 357 3891
+5612 2 358 3891
+5614 a 359 3891
+561e 1 360 3891
+561f 2 361 3891
+5621 5 364 3891
+5626 1 366 3891
+5627 5 375 3891
+562c 4 379 3891
+5630 7 380 3891
+5637 2 381 3891
+5639 8 382 3891
+5641 9 385 3891
+564a 3 386 3891
+564d 2 387 3891
+564f 2 388 3891
+FUNC 15b7 bb 0 _setargv
+15b7 9 88 3891
+15c0 c 97 3891
+15cc 5 98 3891
+15d1 18 104 3891
+15e9 19 120 3891
+1602 11 127 3891
+1613 15 134 3891
+1628 a 138 3891
+1632 2 140 3891
+1634 9 142 3891
+163d 2 143 3891
+163f 2 144 3891
+1641 13 151 3891
+1654 c 156 3891
+1660 6 160 3891
+1666 4 175 3891
+166a 6 136 3891
+1670 2 176 3891
+FUNC 220c 97 0 __crtGetEnvironmentStringsA
+220c a 40 943
+2216 e 49 943
+2224 4 50 943
+2228 5 54 943
+222d 8 55 943
+2235 9 56 943
+223e 1b 70 943
+2259 12 74 943
+226b 12 88 943
+227d 9 90 943
+2286 3 91 943
+2289 7 94 943
+2290 5 95 943
+2295 7 76 943
+229c 5 77 943
+22a1 2 96 943
+FUNC 1cf7 245 0 _ioinit
+1cf7 9 111 792
+1d00 a 122 792
+1d0a 13 129 792
+1d1d 8 131 792
+1d25 15 137 792
+1d3a 3 134 792
+1d3d a 139 792
+1d47 3 141 792
+1d4a 6 143 792
+1d50 4 145 792
+1d54 3 146 792
+1d57 1b 147 792
+1d72 15 155 792
+1d87 2 160 792
+1d89 6 166 792
+1d8f 2 167 792
+1d91 e 173 792
+1d9f d 179 792
+1dac f 185 792
+1dbb 7 199 792
+1dc2 c 201 792
+1dce 3 198 792
+1dd1 4 203 792
+1dd5 4 205 792
+1dd9 4 206 792
+1ddd 10 209 792
+1ded 12 210 792
+1dff b 179 792
+1e0a 2 280 792
+1e0c 6 191 792
+1e12 6 217 792
+1e18 29 230 792
+1e41 14 232 792
+1e55 7 233 792
+1e5c 8 234 792
+1e64 17 237 792
+1e7b 3 239 792
+1e7e c 217 792
+1e8a 2 249 792
+1e8c b 251 792
+1e97 c 254 792
+1ea3 6 302 792
+1ea9 4 258 792
+1ead 30 262 792
+1edd c 273 792
+1ee9 6 274 792
+1eef 5 275 792
+1ef4 4 276 792
+1ef8 13 280 792
+1f0b 3 282 792
+1f0e 2 284 792
+1f10 4 293 792
+1f14 6 294 792
+1f1a a 249 792
+1f24 c 309 792
+1f30 5 311 792
+1f35 2 312 792
+1f37 5 281 792
+FUNC 137a 26 0 _RTC_Initialize
+FUNC 2034 26 0 _RTC_Terminate
+FUNC 3d7a 9 0 _encoded_null
+3d7a 0 79 3774
+3d7a 8 80 3774
+3d82 1 81 3774
+FUNC 156e 9 4 __crtTlsAlloc
+156e 0 95 3774
+156e 6 96 3774
+1574 3 97 3774
+FUNC 380c 34 0 __set_flsgetvalue
+380c 3 143 3774
+380f e 145 3774
+381d 4 146 3774
+3821 e 148 3774
+382f d 149 3774
+383c 3 151 3774
+383f 1 155 3774
+FUNC 4021 3d 0 _mtterm
+4021 0 329 3774
+4021 a 336 3774
+402b f 337 3774
+403a 7 338 3774
+4041 a 342 3774
+404b 7 343 3774
+4052 7 344 3774
+4059 5 352 3774
+FUNC 53a0 b4 0 _initptd
+53a0 c 379 3774
+53ac b 381 3774
+53b7 a 384 3774
+53c1 4 385 3774
+53c5 6 386 3774
+53cb 3 391 3774
+53ce 7 395 3774
+53d5 7 396 3774
+53dc 7 397 3774
+53e3 8 399 3774
+53eb 4 400 3774
+53ef 9 402 3774
+53f8 c 404 3774
+5404 8 411 3774
+540c 3 412 3774
+540f 6 413 3774
+5415 4 421 3774
+5419 8 422 3774
+5421 9 423 3774
+542a c 425 3774
+5436 6 428 3774
+543c 6 404 3774
+5442 9 406 3774
+544b 9 426 3774
+FUNC 13cc 79 0 _getptd_noexit
+13cc 4 448 3774
+13d0 6 452 3774
+13d6 15 460 3774
+13eb 14 472 3774
+13ff 19 475 3774
+1418 a 481 3774
+1422 6 483 3774
+1428 6 484 3774
+142e 2 486 3774
+1430 7 492 3774
+1437 2 493 3774
+1439 8 498 3774
+1441 3 500 3774
+1444 1 501 3774
+FUNC 2848 1a 0 _getptd
+2848 3 522 3774
+284b 7 523 3774
+2852 4 524 3774
+2856 8 525 3774
+285e 3 527 3774
+2861 1 528 3774
+FUNC 4272 12f 4 _freefls
+4272 c 556 3774
+427e b 567 3774
+4289 7 568 3774
+4290 7 569 3774
+4297 7 571 3774
+429e 7 572 3774
+42a5 7 574 3774
+42ac 7 575 3774
+42b3 7 577 3774
+42ba 7 578 3774
+42c1 7 580 3774
+42c8 7 581 3774
+42cf 7 583 3774
+42d6 7 584 3774
+42dd 7 586 3774
+42e4 7 587 3774
+42eb a 589 3774
+42f5 7 590 3774
+42fc 8 592 3774
+4304 4 593 3774
+4308 1a 596 3774
+4322 7 597 3774
+4329 c 599 3774
+4335 8 603 3774
+433d 7 605 3774
+4344 7 606 3774
+434b 7 608 3774
+4352 15 611 3774
+4367 7 612 3774
+436e c 615 3774
+437a 7 619 3774
+4381 8 622 3774
+4389 3 599 3774
+438c 9 600 3774
+4395 3 615 3774
+4398 9 616 3774
+FUNC 4980 17b 0 _mtinit
+4980 3 203 3774
+4983 d 211 3774
+4990 4 212 3774
+4994 5 213 3774
+4999 3 214 3774
+499c 2 300 3774
+499e e 218 3774
+49ac d 221 3774
+49b9 d 224 3774
+49c6 d 227 3774
+49d3 2a 228 3774
+49fd a 231 3774
+4a07 1a 235 3774
+4a21 25 244 3774
+4a46 5 249 3774
+4a4b e 256 3774
+4a59 d 257 3774
+4a66 d 258 3774
+4a73 12 259 3774
+4a85 7 266 3774
+4a8c 2 268 3774
+4a8e 1d 274 3774
+4aab 2 276 3774
+4aad 29 284 3774
+4ad6 a 294 3774
+4ae0 6 296 3774
+4ae6 6 297 3774
+4aec 5 299 3774
+4af1 5 286 3774
+4af6 4 245 3774
+4afa 1 300 3774
+FUNC 252f 1e 0 _heap_init
+252f 0 40 453
+252f 1d 44 453
+254c 1 60 453
+FUNC 1c7a 45 0 _SEH_prolog4
+FUNC 1cbf 14 0 _SEH_epilog4
+FUNC 1aeb 18f 0 _except_handler4
+FUNC 2ff3 9b 0 __security_init_cookie
+2ff3 8 97 1455
+2ffb 21 114 1455
+301c 7 116 1455
+3023 3 117 1455
+3026 a 127 1455
+3030 6 132 1455
+3036 8 135 1455
+303e 8 136 1455
+3046 8 137 1455
+304e a 139 1455
+3058 8 144 1455
+3060 4 161 1455
+3064 7 163 1455
+306b 4 166 1455
+306f c 168 1455
+307b 6 172 1455
+3081 b 173 1455
+308c 2 175 1455
+FUNC 1214 f 0 _initp_misc_invarg
+1214 5 64 3583
+1219 8 65 3583
+1221 2 66 3583
+FUNC 4afb 129 0 _call_reportfault
+4afb 16 164 3583
+4b11 9 166 3583
+4b1a 7 167 3583
+4b21 17 170 3583
+4b38 1b 172 3583
+4b53 6 179 3583
+4b59 6 180 3583
+4b5f 6 181 3583
+4b65 6 182 3583
+4b6b 6 183 3583
+4b71 6 184 3583
+4b77 7 185 3583
+4b7e 7 186 3583
+4b85 7 187 3583
+4b8c 7 188 3583
+4b93 7 189 3583
+4b9a 7 190 3583
+4ba1 1 191 3583
+4ba2 6 192 3583
+4ba8 3 198 3583
+4bab 19 199 3583
+4bc4 9 201 3583
+4bcd 9 240 3583
+4bd6 9 241 3583
+4bdf 6 242 3583
+4be5 6 245 3583
+4beb a 248 3583
+4bf5 d 250 3583
+4c02 d 254 3583
+4c0f 7 255 3583
+4c16 e 257 3583
+FUNC 5150 25 0 _invoke_watson
+5150 3 146 3583
+5153 12 155 3583
+5165 f 156 3583
+5174 1 157 3583
+FUNC 3261 2d 0 _invalid_parameter
+3261 5 96 3583
+3266 c 103 3583
+3272 4 104 3583
+3276 1 111 3583
+3277 2 106 3583
+3279 15 110 3583
+FUNC 146f 10 0 _invalid_parameter_noinfo
+146f 0 120 3583
+146f f 121 3583
+147e 1 122 3583
+FUNC 2af4 4a 0 _mtinitlocks
+2af4 4 136 3954
+2af8 7 143 3954
+2aff a 144 3954
+2b09 9 145 3954
+2b12 14 147 3954
+2b26 6 143 3954
+2b2c 3 156 3954
+2b2f 3 157 3954
+2b32 c 150 3954
+FUNC 4d69 57 0 _mtdeletelocks
+4d69 3 187 3954
+4d6c d 193 3954
+4d79 c 195 3954
+4d85 3 199 3954
+4d88 6 205 3954
+4d8e 4 206 3954
+4d92 b 193 3954
+4d9d 6 214 3954
+4da3 c 216 3954
+4daf 3 220 3954
+4db2 b 214 3954
+4dbd 3 223 3954
+FUNC 2add 17 0 _unlock
+2add 5 370 3954
+2ae2 10 374 3954
+2af2 2 375 3954
+FUNC 12b8 c2 0 _mtinitlocknum
+12b8 c 258 3954
+12c4 6 260 3954
+12ca a 268 3954
+12d4 5 269 3954
+12d9 7 270 3954
+12e0 c 271 3954
+12ec e 275 3954
+12fa 4 276 3954
+12fe e 278 3954
+130c b 279 3954
+1317 4 280 3954
+131b 8 283 3954
+1323 3 284 3954
+1326 4 286 3954
+132a 10 287 3954
+133a 7 288 3954
+1341 b 289 3954
+134c 3 290 3954
+134f 2 291 3954
+1351 2 292 3954
+1353 2 295 3954
+1355 7 296 3954
+135c c 299 3954
+1368 3 303 3954
+136b 6 304 3954
+1371 9 300 3954
+FUNC 31f6 33 0 _lock
+31f6 5 332 3954
+31fb 10 337 3954
+320b b 339 3954
+3216 8 340 3954
+321e 9 347 3954
+3227 2 348 3954
+FUNC 2a1e 5f 0 strcpy_s
+2a1e 5 13 2523
+2a23 23 18 2523
+2a46 b 19 2523
+2a51 11 23 2523
+2a62 4 27 2523
+2a66 3 29 2523
+2a69 e 30 2523
+2a77 4 33 2523
+2a7b 2 34 2523
+FUNC 4eba 8b 0 strlen
+4eba 0 54 2796
+4eba 4 63 2796
+4ebe 6 64 2796
+4ec4 2 65 2796
+4ec6 2 69 2796
+4ec8 3 70 2796
+4ecb 2 71 2796
+4ecd 2 72 2796
+4ecf 6 73 2796
+4ed5 2 74 2796
+4ed7 13 76 2796
+4eea 2 81 2796
+4eec 5 82 2796
+4ef1 2 83 2796
+4ef3 3 84 2796
+4ef6 2 85 2796
+4ef8 3 86 2796
+4efb 5 87 2796
+4f00 2 88 2796
+4f02 3 90 2796
+4f05 2 91 2796
+4f07 2 92 2796
+4f09 2 93 2796
+4f0b 2 94 2796
+4f0d 5 95 2796
+4f12 2 96 2796
+4f14 5 97 2796
+4f19 2 98 2796
+4f1b 2 99 2796
+4f1d 3 103 2796
+4f20 4 104 2796
+4f24 2 105 2796
+4f26 1 106 2796
+4f27 3 108 2796
+4f2a 4 109 2796
+4f2e 2 110 2796
+4f30 1 111 2796
+4f31 3 113 2796
+4f34 4 114 2796
+4f38 2 115 2796
+4f3a 1 116 2796
+4f3b 3 118 2796
+4f3e 4 119 2796
+4f42 2 120 2796
+4f44 1 121 2796
+FUNC 2312 94 0 malloc
+2312 6 81 504
+2318 a 85 504
+2322 3d 89 504
+235f 4 94 504
+2363 b 98 504
+236e b 105 504
+2379 2 109 504
+237b 7 100 504
+2382 7 119 504
+2389 6 121 504
+238f 7 111 504
+2396 b 112 504
+23a1 3 113 504
+23a4 2 122 504
+FUNC 43b2 90 0 _local_unwind4
+FUNC 4442 46 0 _unwind_handler4
+FUNC 4488 1c 4 _seh_longjmp_unwind4
+FUNC 44a4 17 0 _EH4_CallFilterFunc
+FUNC 44bb 19 0 _EH4_TransferToHandler
+FUNC 44d4 19 0 _EH4_GlobalUnwind2
+FUNC 44ed 17 8 _EH4_LocalUnwind
+FUNC 2a7d 42 0 _get_errno_from_oserr
+2a7d 5 119 224
+2a82 5 123 224
+2a87 9 124 224
+2a90 6 123 224
+2a96 8 133 224
+2a9e 3 134 224
+2aa1 2 139 224
+2aa3 7 125 224
+2aaa 2 139 224
+2aac 11 135 224
+2abd 2 139 224
+FUNC 3095 13 0 _errno
+3095 0 279 224
+3095 5 280 224
+309a 4 281 224
+309e 5 282 224
+30a3 1 287 224
+30a4 3 284 224
+30a7 1 287 224
+FUNC 31bd 39 0 terminate()
+31bd c 84 4591
+31c9 8 89 4591
+31d1 4 90 4591
+31d5 4 95 4591
+31d9 2 99 4591
+31db 2 100 4591
+31dd 7 101 4591
+31e4 7 106 4591
+31eb 5 114 4591
+31f0 6 115 4591
+FUNC 43a1 11 0 _initp_eh_hooks
+43a1 0 69 4591
+43a1 10 70 4591
+43b1 1 71 4591
+FUNC 215a 1e 0 _initp_misc_winsig
+215a 5 57 2311
+215f 8 58 2311
+2167 5 59 2311
+216c 5 60 2311
+2171 5 61 2311
+2176 2 62 2311
+FUNC 24f8 37 0 siglookup
+24f8 5 629 2311
+24fd a 630 2311
+2507 14 639 2311
+251b e 642 2311
+2529 2 646 2311
+252b 2 651 2311
+252d 2 652 2311
+FUNC 48e3 d 0 __get_sigabrt
+48e3 0 669 2311
+48e3 c 670 2311
+48ef 1 671 2311
+FUNC 518d 1a3 0 raise
+518d c 450 2311
+5199 5 457 2311
+519e 3 458 2311
+51a1 1f 460 2311
+51c0 a 486 2311
+51ca 4 487 2311
+51ce 8 488 2311
+51d6 a 463 2311
+51e0 2 465 2311
+51e2 10 490 2311
+51f2 2 491 2311
+51f4 f 460 2311
+5203 12 498 2311
+5215 a 474 2311
+521f 2 476 2311
+5221 a 468 2311
+522b 2 470 2311
+522d a 479 2311
+5237 7 480 2311
+523e a 500 2311
+5248 2 508 2311
+524a 4 507 2311
+524e 6 508 2311
+5254 5 513 2311
+5259 7 518 2311
+5260 5 525 2311
+5265 7 526 2311
+526c 5 528 2311
+5271 f 539 2311
+5280 6 540 2311
+5286 3 541 2311
+5289 5 547 2311
+528e 6 548 2311
+5294 7 549 2311
+529b 5 557 2311
+52a0 1a 564 2311
+52ba d 567 2311
+52c7 5 564 2311
+52cc 7 570 2311
+52d3 c 573 2311
+52df 5 578 2311
+52e4 8 584 2311
+52ec 2 585 2311
+52ee 6 573 2311
+52f4 6 574 2311
+52fa 9 575 2311
+5303 5 586 2311
+5308 f 593 2311
+5317 6 594 2311
+531d 5 599 2311
+5322 6 600 2311
+5328 2 603 2311
+532a 6 604 2311
+FUNC 254d f 0 _initp_misc_rand_s
+254d 5 58 2186
+2552 8 59 2186
+255a 2 60 2186
+FUNC 37b7 f 0 _initp_misc_purevirt
+37b7 5 179 1627
+37bc 8 180 1627
+37c4 2 181 1627
+FUNC 24e9 f 0 _initp_heap_handler
+24e9 5 31 2820
+24ee 8 32 2820
+24f6 2 33 2820
+FUNC 4644 28 0 _callnewh
+4644 5 131 2820
+4649 c 133 2820
+4655 e 135 2820
+4663 3 138 2820
+4666 2 139 2820
+4668 2 136 2820
+466a 2 139 2820
+FUNC 4c24 b6 0 _onexit_nolock
+4c24 8 100 1969
+4c2c f 103 1969
+4c3b f 104 1969
+4c4a 14 108 1969
+4c5e 10 118 1969
+4c6e d 123 1969
+4c7b 13 125 1969
+4c8e 3 130 1969
+4c91 13 132 1969
+4ca4 3 143 1969
+4ca7 f 145 1969
+4cb6 10 152 1969
+4cc6 8 153 1969
+4cce 5 155 1969
+4cd3 5 110 1969
+4cd8 2 156 1969
+FUNC 11e3 31 0 __onexitinit
+11e3 3 201 1969
+11e6 d 204 1969
+11f3 11 205 1969
+1204 4 207 1969
+1208 4 212 1969
+120c 1 217 1969
+120d 3 214 1969
+1210 3 216 1969
+1213 1 217 1969
+FUNC 5114 3c 0 _onexit
+5114 c 81 1969
+5120 5 84 1969
+5125 4 86 1969
+5129 c 87 1969
+5135 c 89 1969
+5141 3 93 1969
+5144 6 94 1969
+514a 6 90 1969
+FUNC 3ec0 17 0 atexit
+3ec0 5 161 1969
+3ec5 10 162 1969
+3ed5 2 163 1969
+FUNC 28a5 23 0 _initp_misc_cfltcvt_tab
+28a5 4 54 2419
+28a9 2 56 2419
+28ab 1a 58 2419
+28c5 3 60 2419
+FUNC 30a8 35 0 _ValidateImageBase
+30a8 5 44 2079
+30ad d 50 2079
+30ba 2 52 2079
+30bc 2 68 2079
+30be 5 55 2079
+30c3 6 56 2079
+30c9 2 58 2079
+30cb 10 62 2079
+30db 2 68 2079
+FUNC 32a9 44 0 _FindPESection
+32a9 5 92 2079
+32ae 8 99 2079
+32b6 18 108 2079
+32ce 10 111 2079
+32de 8 108 2079
+32e6 5 123 2079
+32eb 2 124 2079
+FUNC 5651 bc 0 _IsNonwritableInCurrentImage
+5651 35 149 2079
+5686 7 156 2079
+568d f 164 2079
+569c 2 166 2079
+569e 8 174 2079
+56a6 e 175 2079
+56b4 2 176 2079
+56b6 2 178 2079
+56b8 12 185 2079
+56ca 12 195 2079
+56dc 16 187 2079
+56f2 9 193 2079
+56fb 12 195 2079
+FUNC 4076 16c 0 __crtMessageBoxW
+4076 12 41 1053
+4088 14 49 1053
+409c 4 56 1053
+40a0 c 62 1053
+40ac d 64 1053
+40b9 2 65 1053
+40bb 6 67 1053
+40c1 10 72 1053
+40d1 6 76 1053
+40d7 9 78 1053
+40e0 10 81 1053
+40f0 10 84 1053
+4100 d 88 1053
+410d 8 93 1053
+4115 4 95 1053
+4119 10 97 1053
+4129 1a 110 1053
+4143 3 113 1053
+4146 c 114 1053
+4152 8 116 1053
+415a 1f 121 1053
+4179 7 130 1053
+4180 2 132 1053
+4182 a 134 1053
+418c 3 136 1053
+418f 4 137 1053
+4193 5 139 1053
+4198 e 143 1053
+41a6 3 145 1053
+41a9 4 146 1053
+41ad 8 148 1053
+41b5 8 155 1053
+41bd 4 156 1053
+41c1 10 158 1053
+41d1 2 163 1053
+41d3 f 166 1053
+FUNC 3943 75 0 wcscat_s
+3943 6 13 2468
+3949 22 18 2468
+396b 2 46 2468
+396d e 19 2468
+397b 2 21 2468
+397d 6 23 2468
+3983 3 25 2468
+3986 3 26 2468
+3989 2 29 2468
+398b 2 32 2468
+398d 14 35 2468
+39a1 9 41 2468
+39aa e 42 2468
+FUNC 241c cd 0 wcsncpy_s
+241c 5 13 2578
+2421 16 17 2578
+2437 5 65 2578
+243c 2 66 2578
+243e 1e 24 2578
+245c 4 25 2578
+2460 5 28 2578
+2465 2 29 2578
+2467 e 31 2578
+2475 2 33 2578
+2477 5 35 2578
+247c 16 37 2578
+2492 2 41 2578
+2494 19 45 2578
+24ad 4 48 2578
+24b1 5 50 2578
+24b6 8 54 2578
+24be a 58 2578
+24c8 d 59 2578
+24d5 3 61 2578
+24d8 11 62 2578
+FUNC 328e 1b 0 wcslen
+328e 5 41 2728
+3293 3 42 2728
+3296 b 44 2728
+32a1 6 46 2728
+32a7 2 47 2728
+FUNC 5454 63 0 wcscpy_s
+5454 6 13 2523
+545a 22 18 2523
+547c 2 34 2523
+547e c 19 2523
+548a 16 23 2523
+54a0 9 29 2523
+54a9 e 30 2523
+FUNC 3d3b 3f 0 _set_error_mode
+3d3b 5 43 1181
+3d40 11 46 1181
+3d51 5 54 1181
+3d56 2 61 1181
+3d58 5 50 1181
+3d5d 6 51 1181
+3d63 2 61 1181
+3d65 13 57 1181
+3d78 2 61 1181
+FUNC 28c8 f 0 __security_check_cookie
+28c8 0 52 892
+28c8 6 55 892
+28ce 2 56 892
+28d0 2 57 892
+28d2 5 59 892
+FUNC 2178 45 0 _malloc_crt
+2178 7 39 333
+217f 2 40 333
+2181 b 44 333
+218c c 45 333
+2198 1a 46 333
+21b2 5 47 333
+21b7 4 50 333
+21bb 2 51 333
+FUNC 210e 4c 0 _calloc_crt
+210e 7 54 333
+2115 2 55 333
+2117 12 61 333
+2129 c 62 333
+2135 1a 63 333
+214f 5 64 333
+2154 4 67 333
+2158 2 68 333
+FUNC 4e39 4e 0 _realloc_crt
+4e39 7 71 333
+4e40 2 72 333
+4e42 f 76 333
+4e51 11 77 333
+4e62 1a 78 333
+4e7c 5 79 333
+4e81 4 82 333
+4e85 2 83 333
+FUNC 2bc5 2f 0 CPtoLCID
+2bc5 0 329 3326
+2bc5 14 330 3326
+2bd9 2 345 3326
+2bdb 1 346 3326
+2bdc 5 342 3326
+2be1 1 346 3326
+2be2 5 339 3326
+2be7 1 346 3326
+2be8 5 336 3326
+2bed 1 346 3326
+2bee 5 333 3326
+2bf3 1 346 3326
+FUNC 1f3c 64 0 setSBCS
+1f3c 6 363 3326
+1f42 11 368 3326
+1f53 1b 379 3326
+1f6e 12 381 3326
+1f80 9 382 3326
+1f89 b 384 3326
+1f94 9 385 3326
+1f9d 3 386 3326
+FUNC 466c 190 0 setSBUpLow
+466c 17 402 3326
+4683 10 412 3326
+4693 f 415 3326
+46a2 c 416 3326
+46ae 11 420 3326
+46bf 6 419 3326
+46c5 20 421 3326
+46e5 a 420 3326
+46ef 20 427 3326
+470f 23 432 3326
+4732 25 437 3326
+4757 2 442 3326
+4759 d 443 3326
+4766 5 445 3326
+476b 9 446 3326
+4774 5 448 3326
+4779 5 450 3326
+477e e 451 3326
+478c 2 453 3326
+478e 7 454 3326
+4795 5 442 3326
+479a 8 456 3326
+47a2 12 472 3326
+47b4 17 461 3326
+47cb 5 463 3326
+47d0 5 464 3326
+47d5 5 466 3326
+47da 5 468 3326
+47df 5 469 3326
+47e4 2 471 3326
+47e6 3 472 3326
+47e9 5 460 3326
+47ee e 474 3326
+FUNC 3d83 a4 0 __updatetmbcinfo
+3d83 c 495 3326
+3d8f 7 498 3326
+3d96 10 499 3326
+3da6 3 532 3326
+3da9 4 535 3326
+3dad 8 537 3326
+3db5 2 540 3326
+3db7 6 541 3326
+3dbd 8 500 3326
+3dc5 4 502 3326
+3dc9 e 505 3326
+3dd7 17 511 3326
+3dee 7 516 3326
+3df5 11 523 3326
+3e06 7 524 3326
+3e0d 11 527 3326
+3e1e 9 529 3326
+FUNC 48f9 87 0 _LocaleUpdate::_LocaleUpdate(localeinfo_struct *)
+48f9 5 240 111
+48fe e 241 111
+490c 8 243 111
+4914 5 244 111
+4919 6 245 111
+491f 1c 247 111
+493b 21 248 111
+495c 9 249 111
+4965 4 251 111
+4969 4 252 111
+496d 2 255 111
+496f a 257 111
+4979 7 259 111
+FUNC 10e5 7c 0 getSystemCP
+10e5 9 282 3326
+10ee b 284 3326
+10f9 6 285 3326
+10ff 5 289 3326
+1104 a 291 3326
+110e 14 292 3326
+1122 5 295 3326
+1127 a 297 3326
+1131 8 298 3326
+1139 5 302 3326
+113e 12 305 3326
+1150 f 308 3326
+115f 2 309 3326
+FUNC 3b52 1e9 0 _setmbcp_nolock
+3b52 17 684 3326
+3b69 b 691 3326
+3b74 9 694 3326
+3b7d 7 696 3326
+3b84 7 697 3326
+3b8b 3 701 3326
+3b8e 2 703 3326
+3b90 c 706 3326
+3b9c d 703 3326
+3ba9 2a 741 3326
+3bd3 13 749 3326
+3be6 f 754 3326
+3bf5 15 759 3326
+3c0a 17 762 3326
+3c21 c 764 3326
+3c2d f 710 3326
+3c3c 15 713 3326
+3c51 9 718 3326
+3c5a 8 721 3326
+3c62 12 722 3326
+3c74 4 721 3326
+3c78 b 718 3326
+3c83 12 713 3326
+3c95 20 729 3326
+3cb5 f 731 3326
+3cc4 7 734 3326
+3ccb 5 735 3326
+3cd0 6 765 3326
+3cd6 4 764 3326
+3cda d 762 3326
+3ce7 8 769 3326
+3cef 7 770 3326
+3cf6 b 773 3326
+3d01 3 776 3326
+3d04 2 778 3326
+3d06 3 780 3326
+3d09 12 783 3326
+3d1b 2 787 3326
+3d1d 6 792 3326
+3d23 6 795 3326
+3d29 3 744 3326
+3d2c f 800 3326
+FUNC 39b8 19a 0 _setmbcp
+39b8 c 572 3326
+39c4 4 573 3326
+39c8 a 577 3326
+39d2 5 579 3326
+39d7 3 580 3326
+39da b 582 3326
+39e5 9 584 3326
+39ee d 590 3326
+39fb 8 592 3326
+3a03 c 594 3326
+3a0f 3 605 3326
+3a12 16 610 3326
+3a28 1a 612 3326
+3a42 7 613 3326
+3a49 3 617 3326
+3a4c 9 618 3326
+3a55 17 620 3326
+3a6c 8 622 3326
+3a74 4 623 3326
+3a78 8 628 3326
+3a80 8 629 3326
+3a88 8 630 3326
+3a90 a 631 3326
+3a9a d 632 3326
+3aa7 3 631 3326
+3aaa c 633 3326
+3ab6 a 634 3326
+3ac0 3 633 3326
+3ac3 c 635 3326
+3acf d 636 3326
+3adc 3 635 3326
+3adf 1c 638 3326
+3afb 7 639 3326
+3b02 6 643 3326
+3b08 3 644 3326
+3b0b e 646 3326
+3b19 9 648 3326
+3b22 2 651 3326
+3b24 5 652 3326
+3b29 8 658 3326
+3b31 7 659 3326
+3b38 b 660 3326
+3b43 2 666 3326
+3b45 4 671 3326
+3b49 3 680 3326
+3b4c 6 681 3326
+FUNC 1cd3 1e 0 __initmbctable
+1cd3 0 841 3326
+1cd3 9 851 3326
+1cdc 8 852 3326
+1ce4 a 853 3326
+1cee 2 858 3326
+1cf0 1 859 3326
+FUNC 2638 53 0 x_ismbbtype_l
+2638 8 213 3271
+2640 b 214 3271
+264b 4 219 3271
+264f 3a 222 3271
+2689 2 223 3271
+FUNC 1516 18 0 _ismbblead
+1516 5 171 3271
+151b 11 172 3271
+152c 2 173 3271
+FUNC 4cda 8f 0 __addlocaleref
+4cda 7 36 1913
+4ce1 d 39 1913
+4cee a 41 1913
+4cf8 3 42 1913
+4cfb a 44 1913
+4d05 3 45 1913
+4d08 a 47 1913
+4d12 3 48 1913
+4d15 a 50 1913
+4d1f 3 51 1913
+4d22 a 53 1913
+4d2c f 55 1913
+4d3b 3 56 1913
+4d3e d 59 1913
+4d4b 3 60 1913
+4d4e 8 53 1913
+4d56 11 63 1913
+4d67 2 64 1913
+FUNC 3e27 99 0 __removelocaleref
+3e27 6 74 1913
+3e2d b 77 1913
+3e38 b 79 1913
+3e43 a 81 1913
+3e4d 3 82 1913
+3e50 a 84 1913
+3e5a 3 85 1913
+3e5d a 87 1913
+3e67 3 88 1913
+3e6a a 90 1913
+3e74 3 91 1913
+3e77 a 93 1913
+3e81 f 95 1913
+3e90 3 96 1913
+3e93 d 99 1913
+3ea0 3 100 1913
+3ea3 8 93 1913
+3eab 10 103 1913
+3ebb 3 106 1913
+3ebe 2 107 1913
+FUNC 178e 14b 0 __freetlocinfo
+178e 7 129 1913
+1795 25 137 1913
+17ba e 140 1913
+17c8 6 142 1913
+17ce d 143 1913
+17db e 147 1913
+17e9 6 149 1913
+17ef d 150 1913
+17fc b 153 1913
+1807 d 154 1913
+1814 e 161 1913
+1822 11 163 1913
+1833 13 164 1913
+1846 e 165 1913
+1854 e 166 1913
+1862 15 173 1913
+1877 6 175 1913
+187d d 176 1913
+188a a 179 1913
+1894 13 182 1913
+18a7 7 184 1913
+18ae 10 192 1913
+18be 7 194 1913
+18c5 8 179 1913
+18cd a 201 1913
+18d7 2 202 1913
+FUNC 3170 4d 0 _updatetlocinfoEx_nolock
+3170 6 216 1913
+3176 e 219 1913
+3184 3 222 1913
+3187 4 223 1913
+318b 9 230 1913
+3194 4 236 1913
+3198 6 238 1913
+319e e 248 1913
+31ac 7 249 1913
+31b3 5 253 1913
+31b8 3 220 1913
+31bb 2 254 1913
+FUNC 4dc0 79 0 __updatetlocinfo
+4dc0 c 281 1913
+4dcc 7 283 1913
+4dd3 10 285 1913
+4de3 8 297 1913
+4deb 4 300 1913
+4def 8 302 1913
+4df7 2 305 1913
+4df9 6 306 1913
+4dff 8 286 1913
+4e07 4 288 1913
+4e0b 14 290 1913
+4e1f e 292 1913
+4e2d 8 294 1913
+4e35 4 295 1913
+FUNC 344e 8 0 _crt_debugger_hook
+344e 0 62 1145
+344e 7 65 1145
+3455 1 66 1145
+FUNC 208a 7a 0 memset
+208a 0 59 2789
+208a 4 68 2789
+208e 4 69 2789
+2092 2 71 2789
+2094 2 72 2789
+2096 2 74 2789
+2098 4 75 2789
+209c 2 78 2789
+209e 2 79 2789
+20a0 6 80 2789
+20a6 2 81 2789
+20a8 7 82 2789
+20af 2 83 2789
+20b1 5 85 2789
+20b6 1 91 2789
+20b7 2 92 2789
+20b9 3 94 2789
+20bc 2 95 2789
+20be 2 97 2789
+20c0 3 98 2789
+20c3 2 99 2789
+20c5 2 101 2789
+20c7 2 103 2789
+20c9 3 104 2789
+20cc 3 105 2789
+20cf 2 106 2789
+20d1 2 110 2789
+20d3 3 111 2789
+20d6 2 113 2789
+20d8 2 115 2789
+20da 3 117 2789
+20dd 2 119 2789
+20df 2 122 2789
+20e1 3 123 2789
+20e4 3 124 2789
+20e7 2 125 2789
+20e9 2 127 2789
+20eb 2 129 2789
+20ed 2 130 2789
+20ef 2 134 2789
+20f1 3 135 2789
+20f4 3 137 2789
+20f7 2 138 2789
+20f9 4 142 2789
+20fd 1 143 2789
+20fe 1 145 2789
+20ff 4 148 2789
+2103 1 150 2789
+FUNC 1223 95 0 _aulldvrm
+1223 0 45 2806
+1223 1 48 2806
+1224 4 80 2806
+1228 2 81 2806
+122a 2 82 2806
+122c 4 83 2806
+1230 4 84 2806
+1234 2 85 2806
+1236 2 86 2806
+1238 2 87 2806
+123a 4 88 2806
+123e 2 89 2806
+1240 2 90 2806
+1242 2 95 2806
+1244 4 96 2806
+1248 2 97 2806
+124a 2 98 2806
+124c 4 99 2806
+1250 2 100 2806
+1252 2 101 2806
+1254 2 108 2806
+1256 4 109 2806
+125a 4 110 2806
+125e 4 111 2806
+1262 2 113 2806
+1264 2 114 2806
+1266 2 115 2806
+1268 2 116 2806
+126a 2 117 2806
+126c 2 118 2806
+126e 2 119 2806
+1270 2 120 2806
+1272 4 129 2806
+1276 2 130 2806
+1278 4 131 2806
+127c 2 132 2806
+127e 2 133 2806
+1280 2 134 2806
+1282 4 142 2806
+1286 2 143 2806
+1288 2 144 2806
+128a 4 145 2806
+128e 2 146 2806
+1290 1 148 2806
+1291 4 149 2806
+1295 4 150 2806
+1299 2 152 2806
+129b 4 161 2806
+129f 4 162 2806
+12a3 2 163 2806
+12a5 2 164 2806
+12a7 3 165 2806
+12aa 2 170 2806
+12ac 2 171 2806
+12ae 2 172 2806
+12b0 2 173 2806
+12b2 2 174 2806
+12b4 1 180 2806
+12b5 3 182 2806
+FUNC 28d7 20 0 _global_unwind2
+FUNC 28f7 45 0 __unwind_handler
+FUNC 293c 84 0 _local_unwind2
+FUNC 29c0 23 0 _abnormal_termination
+FUNC 29e3 9 0 _NLG_Notify1
+FUNC 29ec 1f 0 _NLG_Notify
+PUBLIC 2a03 0 _NLG_Dispatch2
+FUNC 2a0b 3 0 _NLG_Call
+PUBLIC 2a0d 0 _NLG_Return2
+FUNC 2862 33 0 abort
+2862 0 54 1011
+2862 5 71 1011
+2867 4 72 1011
+286b 8 74 1011
+2873 9 81 1011
+287c 11 83 1011
+288d 8 92 1011
+FUNC 3456 361 0 memcpy
+3456 3 101 2787
+3459 1 113 2787
+345a 1 114 2787
+345b 3 116 2787
+345e 3 117 2787
+3461 3 119 2787
+3464 2 129 2787
+3466 2 131 2787
+3468 2 132 2787
+346a 2 134 2787
+346c 2 135 2787
+346e 2 137 2787
+3470 6 138 2787
+3476 6 147 2787
+347c 2 148 2787
+347e 7 150 2787
+3485 2 151 2787
+3487 1 153 2787
+3488 1 154 2787
+3489 3 155 2787
+348c 3 156 2787
+348f 2 157 2787
+3491 1 158 2787
+3492 1 159 2787
+3493 2 160 2787
+3495 5 163 2787
+349a 6 176 2787
+34a0 2 177 2787
+34a2 3 179 2787
+34a5 3 180 2787
+34a8 3 182 2787
+34ab 2 183 2787
+34ad 2 185 2787
+34af 7 187 2787
+34b6 2 205 2787
+34b8 5 206 2787
+34bd 3 208 2787
+34c0 2 209 2787
+34c2 3 211 2787
+34c5 2 212 2787
+34c7 7 214 2787
+34ce 8 218 2787
+34d6 14 222 2787
+34ea 2 229 2787
+34ec 2 230 2787
+34ee 2 232 2787
+34f0 3 233 2787
+34f3 3 235 2787
+34f6 3 236 2787
+34f9 3 238 2787
+34fc 3 239 2787
+34ff 3 241 2787
+3502 3 242 2787
+3505 3 244 2787
+3508 2 245 2787
+350a 2 247 2787
+350c a 249 2787
+3516 2 253 2787
+3518 2 254 2787
+351a 2 256 2787
+351c 3 257 2787
+351f 3 259 2787
+3522 3 260 2787
+3525 3 262 2787
+3528 3 263 2787
+352b 3 265 2787
+352e 2 266 2787
+3530 2 268 2787
+3532 8 270 2787
+353a 2 274 2787
+353c 2 275 2787
+353e 2 277 2787
+3540 3 278 2787
+3543 3 280 2787
+3546 3 281 2787
+3549 3 283 2787
+354c 2 284 2787
+354e 2 286 2787
+3550 2a 288 2787
+357a 4 295 2787
+357e 4 297 2787
+3582 4 299 2787
+3586 4 301 2787
+358a 4 303 2787
+358e 4 305 2787
+3592 4 307 2787
+3596 4 309 2787
+359a 4 311 2787
+359e 4 313 2787
+35a2 4 315 2787
+35a6 4 317 2787
+35aa 4 319 2787
+35ae 4 321 2787
+35b2 7 323 2787
+35b9 2 325 2787
+35bb 2 326 2787
+35bd 19 328 2787
+35d6 3 337 2787
+35d9 1 338 2787
+35da 1 339 2787
+35db 3 341 2787
+35de 2 345 2787
+35e0 2 347 2787
+35e2 3 348 2787
+35e5 1 349 2787
+35e6 1 350 2787
+35e7 3 351 2787
+35ea 2 355 2787
+35ec 2 357 2787
+35ee 3 358 2787
+35f1 3 359 2787
+35f4 3 360 2787
+35f7 1 361 2787
+35f8 1 362 2787
+35f9 5 363 2787
+35fe 2 367 2787
+3600 2 369 2787
+3602 3 370 2787
+3605 3 371 2787
+3608 3 372 2787
+360b 3 373 2787
+360e 3 374 2787
+3611 1 375 2787
+3612 1 376 2787
+3613 3 377 2787
+3616 4 388 2787
+361a 4 389 2787
+361e 6 394 2787
+3624 2 395 2787
+3626 3 397 2787
+3629 3 398 2787
+362c 3 400 2787
+362f 2 401 2787
+3631 1 403 2787
+3632 2 404 2787
+3634 1 405 2787
+3635 9 407 2787
+363e 2 411 2787
+3640 a 414 2787
+364a 2 419 2787
+364c 5 420 2787
+3651 3 422 2787
+3654 2 423 2787
+3656 3 425 2787
+3659 2 426 2787
+365b 7 428 2787
+3662 14 432 2787
+3676 3 439 2787
+3679 2 440 2787
+367b 3 442 2787
+367e 3 443 2787
+3681 3 445 2787
+3684 3 446 2787
+3687 3 448 2787
+368a 2 449 2787
+368c 1 451 2787
+368d 2 452 2787
+368f 1 453 2787
+3690 a 455 2787
+369a 3 459 2787
+369d 2 460 2787
+369f 3 462 2787
+36a2 3 463 2787
+36a5 3 465 2787
+36a8 3 466 2787
+36ab 3 468 2787
+36ae 3 469 2787
+36b1 3 471 2787
+36b4 2 472 2787
+36b6 1 474 2787
+36b7 2 475 2787
+36b9 1 476 2787
+36ba 8 478 2787
+36c2 3 482 2787
+36c5 2 483 2787
+36c7 3 485 2787
+36ca 3 486 2787
+36cd 3 488 2787
+36d0 3 489 2787
+36d3 3 491 2787
+36d6 3 492 2787
+36d9 3 494 2787
+36dc 3 495 2787
+36df 3 497 2787
+36e2 6 498 2787
+36e8 1 500 2787
+36e9 2 501 2787
+36eb 1 502 2787
+36ec 2a 504 2787
+3716 4 513 2787
+371a 4 515 2787
+371e 4 517 2787
+3722 4 519 2787
+3726 4 521 2787
+372a 4 523 2787
+372e 4 525 2787
+3732 4 527 2787
+3736 4 529 2787
+373a 4 531 2787
+373e 4 533 2787
+3742 4 535 2787
+3746 4 537 2787
+374a 4 539 2787
+374e 7 541 2787
+3755 2 543 2787
+3757 2 544 2787
+3759 19 546 2787
+3772 3 555 2787
+3775 1 557 2787
+3776 1 558 2787
+3777 3 559 2787
+377a 3 563 2787
+377d 3 565 2787
+3780 3 566 2787
+3783 1 567 2787
+3784 1 568 2787
+3785 5 569 2787
+378a 3 573 2787
+378d 3 575 2787
+3790 3 576 2787
+3793 3 577 2787
+3796 3 578 2787
+3799 1 579 2787
+379a 1 580 2787
+379b 3 581 2787
+379e 3 585 2787
+37a1 3 587 2787
+37a4 3 588 2787
+37a7 3 589 2787
+37aa 3 590 2787
+37ad 3 591 2787
+37b0 3 592 2787
+37b3 1 593 2787
+37b4 1 594 2787
+37b5 2 595 2787
+FUNC 206a 20 0 _freea
+206a 5 235 281
+206f 7 237 281
+2076 3 239 281
+2079 8 241 281
+2081 7 243 281
+2088 2 252 281
+FUNC 4e87 33 0 _msize
+4e87 5 39 561
+4e8c 19 43 561
+4ea5 2 50 561
+4ea7 11 46 561
+4eb8 2 50 561
+FUNC 1466 9 0 _fptrap
+1466 0 46 4123
+1466 8 47 4123
+146e 1 48 4123
+FUNC 1672 106 0 __report_gsfailure
+1672 b 140 1392
+167d 5 170 1392
+1682 6 171 1392
+1688 6 172 1392
+168e 6 173 1392
+1694 6 174 1392
+169a 6 175 1392
+16a0 7 176 1392
+16a7 7 177 1392
+16ae 7 178 1392
+16b5 7 179 1392
+16bc 7 180 1392
+16c3 7 181 1392
+16ca 1 182 1392
+16cb 6 183 1392
+16d1 3 190 1392
+16d4 5 191 1392
+16d9 3 192 1392
+16dc 5 193 1392
+16e1 3 194 1392
+16e4 5 195 1392
+16e9 6 201 1392
+16ef a 204 1392
+16f9 a 206 1392
+1703 a 285 1392
+170d a 286 1392
+1717 b 293 1392
+1722 b 294 1392
+172d b 297 1392
+1738 8 298 1392
+1740 8 302 1392
+1748 b 304 1392
+1753 9 313 1392
+175c 8 315 1392
+1764 12 319 1392
+1776 2 320 1392
+FUNC 1161 82 0 _calloc_impl
+1161 5 21 291
+1166 7 26 291
+116d 19 28 291
+1186 2 69 291
+1188 7 30 291
+118f 4 34 291
+1193 1 35 291
+1194 2 39 291
+1196 5 41 291
+119b f 44 291
+11aa d 47 291
+11b7 b 59 291
+11c2 7 61 291
+11c9 6 62 291
+11cf 4 63 291
+11d3 7 52 291
+11da 7 53 291
+11e1 2 69 291
+FUNC 5067 ad 0 realloc
+5067 5 62 618
+506c 6 67 618
+5072 9 68 618
+507b 3 117 618
+507e 7 71 618
+5085 9 73 618
+508e 5 74 618
+5093 2 109 618
+5095 4 83 618
+5099 1 84 618
+509a 14 85 618
+50ae c 94 618
+50ba b 109 618
+50c5 5 81 618
+50ca 7 89 618
+50d1 b 90 618
+50dc 4 91 618
+50e0 2 117 618
+50e2 16 111 618
+50f8 2 112 618
+50fa 16 103 618
+5110 4 105 618
+FUNC 1904 1e7 0 __crtLCMapStringA_stat
+1904 12 96 3447
+1916 c 101 3447
+1922 17 102 3447
+1939 4 106 3447
+193d 1 107 3447
+193e 3 109 3447
+1941 3 113 3447
+1944 5 133 3447
+1949 b 134 3447
+1954 2c 145 3447
+1980 7 146 3447
+1987 48 149 3447
+19cf 3 150 3447
+19d2 2 151 3447
+19d4 19 160 3447
+19ed 1f 169 3447
+1a0c a 172 3447
+1a16 b 175 3447
+1a21 9 177 3447
+1a2a 10 186 3447
+1a3a 5 190 3447
+1a3f 4b 196 3447
+1a8a 4 197 3447
+1a8e 16 207 3447
+1aa4 9 220 3447
+1aad 2 223 3447
+1aaf 17 233 3447
+1ac6 7 240 3447
+1acd 8 242 3447
+1ad5 4 244 3447
+1ad9 12 245 3447
+FUNC 22a3 46 0 __crtLCMapStringA
+22a3 8 258 3447
+22ab b 259 3447
+22b6 31 271 3447
+22e7 2 272 3447
+FUNC 47fc e7 0 __crtGetStringTypeA_stat
+47fc 12 63 3507
+480e 7 67 3507
+4815 5 83 3507
+481a b 84 3507
+4825 29 95 3507
+484e 4 96 3507
+4852 3e 99 3507
+4890 2 100 3507
+4892 2 101 3507
+4894 f 103 3507
+48a3 13 111 3507
+48b6 11 116 3507
+48c7 6 118 3507
+48cd 4 120 3507
+48d1 12 121 3507
+FUNC 152e 40 0 __crtGetStringTypeA
+152e 8 133 3507
+1536 b 134 3507
+1541 2b 145 3507
+156c 2 146 3507
+FUNC 2bf4 377 0 __free_lc_time
+2bf4 6 228 1800
+2bfa b 229 1800
+2c05 8 232 1800
+2c0d 8 233 1800
+2c15 8 234 1800
+2c1d 8 235 1800
+2c25 8 236 1800
+2c2d 8 237 1800
+2c35 7 238 1800
+2c3c 8 240 1800
+2c44 8 241 1800
+2c4c 8 242 1800
+2c54 8 243 1800
+2c5c 8 244 1800
+2c64 8 245 1800
+2c6c 8 246 1800
+2c74 8 248 1800
+2c7c b 249 1800
+2c87 8 250 1800
+2c8f 8 251 1800
+2c97 8 252 1800
+2c9f 8 253 1800
+2ca7 8 254 1800
+2caf 8 255 1800
+2cb7 8 256 1800
+2cbf 8 257 1800
+2cc7 8 258 1800
+2ccf 8 259 1800
+2cd7 8 261 1800
+2cdf 8 262 1800
+2ce7 8 263 1800
+2cef 8 264 1800
+2cf7 8 265 1800
+2cff b 266 1800
+2d0a b 267 1800
+2d15 b 268 1800
+2d20 b 269 1800
+2d2b b 270 1800
+2d36 b 271 1800
+2d41 b 272 1800
+2d4c b 274 1800
+2d57 b 275 1800
+2d62 b 277 1800
+2d6d b 278 1800
+2d78 b 279 1800
+2d83 b 282 1800
+2d8e b 283 1800
+2d99 b 284 1800
+2da4 b 285 1800
+2daf e 286 1800
+2dbd b 287 1800
+2dc8 b 288 1800
+2dd3 b 290 1800
+2dde b 291 1800
+2de9 b 292 1800
+2df4 b 293 1800
+2dff b 294 1800
+2e0a b 295 1800
+2e15 b 296 1800
+2e20 b 298 1800
+2e2b b 299 1800
+2e36 b 300 1800
+2e41 b 301 1800
+2e4c b 302 1800
+2e57 b 303 1800
+2e62 e 304 1800
+2e70 b 305 1800
+2e7b b 306 1800
+2e86 b 307 1800
+2e91 b 308 1800
+2e9c b 309 1800
+2ea7 b 311 1800
+2eb2 b 312 1800
+2ebd b 313 1800
+2ec8 b 314 1800
+2ed3 b 315 1800
+2ede b 316 1800
+2ee9 b 317 1800
+2ef4 b 318 1800
+2eff b 319 1800
+2f0a b 320 1800
+2f15 e 321 1800
+2f23 b 322 1800
+2f2e b 324 1800
+2f39 b 325 1800
+2f44 b 327 1800
+2f4f b 328 1800
+2f5a f 329 1800
+2f69 2 332 1800
+FUNC 30f1 69 0 __free_lconv_num
+30f1 6 218 1742
+30f7 7 219 1742
+30fe a 222 1742
+3108 7 223 1742
+310f b 225 1742
+311a 7 226 1742
+3121 b 228 1742
+312c 7 229 1742
+3133 b 231 1742
+313e 7 232 1742
+3145 b 234 1742
+3150 8 235 1742
+3158 2 236 1742
+FUNC 4f45 fe 0 __free_lconv_mon
+4f45 6 270 1685
+4f4b b 271 1685
+4f56 b 274 1685
+4f61 7 275 1685
+4f68 b 277 1685
+4f73 7 278 1685
+4f7a b 280 1685
+4f85 7 281 1685
+4f8c b 283 1685
+4f97 7 284 1685
+4f9e b 286 1685
+4fa9 7 287 1685
+4fb0 b 289 1685
+4fbb 7 290 1685
+4fc2 b 292 1685
+4fcd 7 293 1685
+4fd4 b 295 1685
+4fdf 7 296 1685
+4fe6 b 298 1685
+4ff1 7 299 1685
+4ff8 b 301 1685
+5003 7 302 1685
+500a b 304 1685
+5015 7 305 1685
+501c b 307 1685
+5027 7 308 1685
+502e b 310 1685
+5039 8 311 1685
+5041 2 312 1685
+FUNC 1000 ba 0 _VEC_memzero
+FUNC 2a0e 10 0 __sse2_available_init
+2a0e 0 30 4315
+2a0e d 31 4315
+2a1b 2 32 4315
+2a1d 1 33 4315
+FUNC 3840 103 0 _VEC_memcpy
+FUNC 2b3e 2c 0 _alloca_probe_16
+2b3e 0 44 4274
+2b3e 1 46 4274
+2b3f 4 47 4274
+2b43 2 48 4274
+2b45 3 49 4274
+2b48 2 50 4274
+2b4a 2 51 4274
+2b4c 2 52 4274
+2b4e 1 53 4274
+2b4f 5 54 4274
+2b54 1 59 4274
+2b55 4 60 4274
+2b59 2 61 4274
+2b5b 3 62 4274
+2b5e 2 63 4274
+2b60 2 64 4274
+2b62 2 65 4274
+2b64 1 66 4274
+2b65 5 67 4274
+PUBLIC 2b54 0 _alloca_probe_8
+FUNC 23a6 34 0 _allmul
+23a6 0 47 2803
+23a6 4 63 2803
+23aa 4 64 2803
+23ae 2 65 2803
+23b0 4 66 2803
+23b4 2 67 2803
+23b6 4 69 2803
+23ba 2 70 2803
+23bc 3 72 2803
+23bf 1 75 2803
+23c0 2 83 2803
+23c2 2 84 2803
+23c4 4 86 2803
+23c8 4 87 2803
+23cc 2 88 2803
+23ce 4 90 2803
+23d2 2 91 2803
+23d4 2 92 2803
+23d6 1 94 2803
+23d7 3 96 2803
+FUNC 10ba 2b 0 _chkstk
+10ba 0 65 4276
+10ba 1 69 4276
+10bb 4 73 4276
+10bf 2 74 4276
+10c1 2 79 4276
+10c3 2 80 4276
+10c5 2 81 4276
+10c7 2 83 4276
+10c9 5 84 4276
+10ce 2 87 4276
+10d0 2 88 4276
+10d2 2 89 4276
+10d4 1 90 4276
+10d5 1 91 4276
+10d6 2 92 4276
+10d8 3 93 4276
+10db 1 94 4276
+10dc 5 98 4276
+10e1 2 99 4276
+10e3 2 100 4276
+FUNC 37c6 46 0 strcspn
+37c6 4 191 2794
+37ca 2 198 2794
+37cc 1 199 2794
+37cd 1 200 2794
+37ce 1 201 2794
+37cf 1 202 2794
+37d0 1 203 2794
+37d1 1 204 2794
+37d2 1 205 2794
+37d3 1 206 2794
+37d4 6 212 2794
+37da 2 216 2794
+37dc 2 217 2794
+37de 2 218 2794
+37e0 3 219 2794
+37e3 4 220 2794
+37e7 2 221 2794
+37e9 3 227 2794
+37ec 6 229 2794
+37f2 3 234 2794
+37f5 2 236 2794
+37f7 2 237 2794
+37f9 2 238 2794
+37fb 3 239 2794
+37fe 4 240 2794
+3802 2 245 2794
+3804 2 255 2794
+3806 3 257 2794
+3809 3 259 2794
+FUNC 1577 40 0 strpbrk
+1577 4 191 2794
+157b 2 198 2794
+157d 1 199 2794
+157e 1 200 2794
+157f 1 201 2794
+1580 1 202 2794
+1581 1 203 2794
+1582 1 204 2794
+1583 1 205 2794
+1584 1 206 2794
+1585 6 212 2794
+158b 2 216 2794
+158d 2 217 2794
+158f 2 218 2794
+1591 3 219 2794
+1594 4 220 2794
+1598 2 221 2794
+159a 5 227 2794
+159f 2 236 2794
+15a1 2 237 2794
+15a3 2 238 2794
+15a5 3 239 2794
+15a8 4 240 2794
+15ac 2 247 2794
+15ae 3 248 2794
+15b1 3 257 2794
+15b4 3 259 2794
+FUNC 1fd3 61 0 __ascii_strnicmp
+1fd3 6 69 2798
+1fd9 3 75 2798
+1fdc 2 76 2798
+1fde 2 77 2798
+1fe0 3 79 2798
+1fe3 3 80 2798
+1fe6 2 82 2798
+1fe8 2 83 2798
+1fea 5 84 2798
+1fef 2 89 2798
+1ff1 2 91 2798
+1ff3 2 93 2798
+1ff5 2 95 2798
+1ff7 2 97 2798
+1ff9 2 98 2798
+1ffb 3 100 2798
+1ffe 3 101 2798
+2001 2 103 2798
+2003 2 104 2798
+2005 2 106 2798
+2007 2 107 2798
+2009 2 109 2798
+200b 2 112 2798
+200d 2 113 2798
+200f 2 115 2798
+2011 2 116 2798
+2013 2 118 2798
+2015 2 121 2798
+2017 2 122 2798
+2019 3 124 2798
+201c 2 125 2798
+201e 2 128 2798
+2020 2 129 2798
+2022 2 130 2798
+2024 5 133 2798
+2029 2 134 2798
+202b 2 135 2798
+202d 2 138 2798
+202f 5 140 2798
+PUBLIC 1cf1 10 RtlUnwind
+STACK WIN 4 41e2 54 6 0 8 0 14 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 4242 a 3 0 0 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 2b6a 21 7 0 0 0 4 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 30dd 14 7 0 0 0 4 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 21f6 16 7 0 4 0 4 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 22e9 1e 7 0 0 0 4 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 2895 10 7 0 0 0 4 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 308e 7 3 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 13a0 2c 7 0 4 0 4 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 205a 10 0 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 1445 21 8 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 144b 17 2 0 4 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 2307 b 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 3238 29 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 32ed 161 c 0 0 10 24 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 40 - ^ =  $23 $T0 44 - ^ =  $24 $T0 48 - ^ = 
+STACK WIN 4 3410 14 0 0 0 10 24 0 1 $T0 $ebp = $T2 $esp = $T1 .raSearchStart = $eip $T1 ^ = $ebp $T0 = $esp $T1 4 + = 
+STACK WIN 4 2104 a 0 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 5330 70 c 0 4 10 1c 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 32 - ^ =  $23 $T0 36 - ^ =  $24 $T0 40 - ^ = 
+STACK WIN 4 5397 8 0 0 4 10 1c 0 1 $T0 $ebp = $T2 $esp = $T1 .raSearchStart = $eip $T1 ^ = $ebp $T0 = $esp $T1 4 + = 
+STACK WIN 4 2b8b 3a 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 2bac 17 0 0 4 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 23da 42 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 283a e 0 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 18d9 2b 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 5175 18 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 48f0 9 0 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 406d 9 0 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 1fa0 33 3 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 1fa3 2f 0 0 0 4 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 5043 24 6 0 8 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 5049 1c 0 0 8 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 147f 97 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 14c1 34 0 0 4 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 14c2 32 0 0 4 8 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ =  $24 $T0 8 - ^ = 
+STACK WIN 4 4504 140 c 0 c 10 30 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 52 - ^ =  $23 $T0 56 - ^ =  $24 $T0 60 - ^ = 
+STACK WIN 4 462f e 0 0 c 10 30 0 1 $T0 $ebp = $T2 $esp = $T1 .raSearchStart = $eip $T1 ^ = $ebp $T0 = $esp $T1 4 + = 
+STACK WIN 4 315a 16 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 1778 16 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 3229 f 0 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 405e f 0 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 2abf 1e 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 424c 26 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 268b 1af 1b 0 4 0 1fc 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 26a1 192 5 0 4 4 1fc 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 512 - ^ = 
+STACK WIN 4 26a2 18e 4 0 4 8 1fc 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 512 - ^ =  $23 $T0 516 - ^ = 
+STACK WIN 4 26a6 189 0 0 4 c 1fc 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 512 - ^ =  $23 $T0 516 - ^ =  $24 $T0 520 - ^ = 
+STACK WIN 4 21bd 39 0 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 3ed7 14a 6 0 8 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 3edd 142 0 0 8 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 3ef5 129 0 0 8 8 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ =  $24 $T0 8 - ^ = 
+STACK WIN 4 3f46 d4 0 0 8 c 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ =  $24 $T0 8 - ^ =  $20 $T0 12 - ^ = 
+STACK WIN 4 255c dc 0 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 256b a8 0 0 0 4 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 2572 a0 0 0 0 8 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $23 $T0 4 - ^ =  $24 $T0 8 - ^ = 
+STACK WIN 4 25b4 5d 0 0 0 c 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $23 $T0 4 - ^ =  $24 $T0 8 - ^ =  $20 $T0 12 - ^ = 
+STACK WIN 4 54b7 19a d 0 c 0 4 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 54c1 185 3 0 c 4 4 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 8 - ^ = 
+STACK WIN 4 54c4 181 0 0 c 8 4 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 8 - ^ =  $23 $T0 12 - ^ = 
+STACK WIN 4 15b7 bb d 0 0 0 c 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 15c0 b0 4 0 0 4 c 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 16 - ^ = 
+STACK WIN 4 15c3 ac 1 0 0 8 c 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 16 - ^ =  $23 $T0 20 - ^ = 
+STACK WIN 4 15c4 aa 0 0 0 c c 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 16 - ^ =  $23 $T0 20 - ^ =  $24 $T0 24 - ^ = 
+STACK WIN 4 220c 97 a 0 0 0 c 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 2215 8c 1 0 0 4 c 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 16 - ^ = 
+STACK WIN 4 2216 8a 0 0 0 8 c 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 16 - ^ =  $23 $T0 20 - ^ = 
+STACK WIN 4 223e 61 0 0 0 c c 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 16 - ^ =  $23 $T0 20 - ^ =  $24 $T0 24 - ^ = 
+STACK WIN 4 1cf7 245 9 0 0 0 4c 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 1d00 235 0 0 0 4 4c 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 80 - ^ = 
+STACK WIN 4 1d71 1c3 0 0 0 8 4c 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 80 - ^ =  $20 $T0 84 - ^ = 
+STACK WIN 4 1d72 1c1 0 0 0 c 4c 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 80 - ^ =  $20 $T0 84 - ^ =  $24 $T0 88 - ^ = 
+STACK WIN 4 137a 26 e 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 137d 22 b 0 0 4 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 1388 16 0 0 0 8 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $23 $T0 4 - ^ =  $24 $T0 8 - ^ = 
+STACK WIN 4 2034 26 e 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 2037 22 b 0 0 4 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 2042 16 0 0 0 8 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $23 $T0 4 - ^ =  $24 $T0 8 - ^ = 
+STACK WIN 4 3d7a 9 0 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 156e 9 0 0 4 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 380c 34 3 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 380f 30 0 0 0 4 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 4021 3d 0 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 53a0 b4 c 0 8 10 18 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 28 - ^ =  $23 $T0 32 - ^ =  $24 $T0 36 - ^ = 
+STACK WIN 4 543c e 0 0 8 10 18 0 1 $T0 $ebp = $T2 $esp = $T1 .raSearchStart = $eip $T1 ^ = $ebp $T0 = $esp $T1 4 + = 
+STACK WIN 4 544b 8 0 0 8 10 18 0 1 $T0 $ebp = $T2 $esp = $T1 .raSearchStart = $eip $T1 ^ = $ebp $T0 = $esp $T1 4 + = 
+STACK WIN 4 13cc 79 4 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 13cf 75 1 0 0 4 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 13d0 71 0 0 0 8 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $23 $T0 4 - ^ =  $24 $T0 8 - ^ = 
+STACK WIN 4 2848 1a 3 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 284b 16 0 0 0 4 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 4272 12f c 0 4 10 18 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 28 - ^ =  $23 $T0 32 - ^ =  $24 $T0 36 - ^ = 
+STACK WIN 4 4389 b 0 0 4 10 18 0 1 $T0 $ebp = $T2 $esp = $T1 .raSearchStart = $eip $T1 ^ = $ebp $T0 = $esp $T1 4 + = 
+STACK WIN 4 4395 b 0 0 4 10 18 0 1 $T0 $ebp = $T2 $esp = $T1 .raSearchStart = $eip $T1 ^ = $ebp $T0 = $esp $T1 4 + = 
+STACK WIN 4 4980 17b 3 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 4983 177 0 0 0 4 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $24 $T0 4 - ^ = 
+STACK WIN 4 499e 15b 0 0 0 8 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $24 $T0 4 - ^ =  $23 $T0 8 - ^ = 
+STACK WIN 4 252f 1e 0 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 1aeb 18f 17 0 10 0 18 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 1af4 c9 e 0 10 4 18 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 28 - ^ = 
+STACK WIN 4 1af8 c4 a 0 10 8 18 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 28 - ^ =  $23 $T0 32 - ^ = 
+STACK WIN 4 1b02 b9 0 0 10 c 18 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 28 - ^ =  $23 $T0 32 - ^ =  $24 $T0 36 - ^ = 
+STACK WIN 4 2ff3 9b 17 0 0 0 10 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 3009 83 1 0 0 4 10 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 20 - ^ = 
+STACK WIN 4 300a 81 0 0 0 8 10 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 20 - ^ =  $24 $T0 24 - ^ = 
+STACK WIN 4 3026 64 0 0 0 c 10 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 20 - ^ =  $24 $T0 24 - ^ =  $23 $T0 28 - ^ = 
+STACK WIN 4 1214 f 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 4afb 129 1a 0 c 8 328 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 812 - ^ =  $24 $T0 816 - ^ = 
+STACK WIN 4 5150 25 3 0 14 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 5153 21 0 0 14 4 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 3261 2d 5 0 14 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 146f 10 0 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 2af4 4a 4 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 2af7 3a 1 0 0 4 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 2af8 38 0 0 0 8 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $23 $T0 4 - ^ =  $24 $T0 8 - ^ = 
+STACK WIN 4 4d69 57 a 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 4d6c 53 7 0 0 4 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $20 $T0 4 - ^ = 
+STACK WIN 4 4d73 4b 0 0 0 8 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $20 $T0 4 - ^ =  $23 $T0 8 - ^ = 
+STACK WIN 4 4d79 2a 0 0 0 c 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $20 $T0 4 - ^ =  $23 $T0 8 - ^ =  $24 $T0 12 - ^ = 
+STACK WIN 4 2add 17 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 12b8 c2 c 0 4 10 1c 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 32 - ^ =  $23 $T0 36 - ^ =  $24 $T0 40 - ^ = 
+STACK WIN 4 1371 8 0 0 4 10 1c 0 1 $T0 $ebp = $T2 $esp = $T1 .raSearchStart = $eip $T1 ^ = $ebp $T0 = $esp $T1 4 + = 
+STACK WIN 4 31f6 33 9 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 31ff 28 0 0 4 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 2a1e 5f a 0 c 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 2a27 54 1 0 c 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 2a28 52 0 0 c 8 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ =  $24 $T0 8 - ^ = 
+STACK WIN 4 2312 94 6 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 2318 8c 0 0 4 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 4 - ^ = 
+STACK WIN 4 2321 6c 0 0 4 8 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 4 - ^ =  $23 $T0 8 - ^ = 
+STACK WIN 4 2322 6a 0 0 4 c 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 4 - ^ =  $23 $T0 8 - ^ =  $24 $T0 12 - ^ = 
+STACK WIN 4 2a7d 42 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 3095 13 0 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 31bd 39 c 0 0 10 18 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 28 - ^ =  $23 $T0 32 - ^ =  $24 $T0 36 - ^ = 
+STACK WIN 4 31dd 4 0 0 0 10 18 0 1 $T0 $ebp = $T2 $esp = $T1 .raSearchStart = $eip $T1 ^ = $ebp $T0 = $esp $T1 4 + = 
+STACK WIN 4 43a1 11 0 0 4 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 215a 1e 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 24f8 37 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 2507 1b 0 0 4 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 48e3 d 0 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 518d 1a3 c 0 4 10 30 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 52 - ^ =  $23 $T0 56 - ^ =  $24 $T0 60 - ^ = 
+STACK WIN 4 52ee 14 0 0 4 10 30 0 1 $T0 $ebp = $T2 $esp = $T1 .raSearchStart = $eip $T1 ^ = $ebp $T0 = $esp $T1 4 + = 
+STACK WIN 4 254d f 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 37b7 f 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 24e9 f 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 4644 28 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 4c24 b6 f 0 4 0 4 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 4c2b ad 8 0 4 4 4 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 8 - ^ = 
+STACK WIN 4 4c2c ab 7 0 4 8 4 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 8 - ^ =  $23 $T0 12 - ^ = 
+STACK WIN 4 4c33 a3 0 0 4 c 4 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 8 - ^ =  $23 $T0 12 - ^ =  $24 $T0 16 - ^ = 
+STACK WIN 4 11e3 31 3 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 11e6 2d 0 0 0 4 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 5114 3c c 0 4 10 1c 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 32 - ^ =  $23 $T0 36 - ^ =  $24 $T0 40 - ^ = 
+STACK WIN 4 514a 5 0 0 4 10 1c 0 1 $T0 $ebp = $T2 $esp = $T1 .raSearchStart = $eip $T1 ^ = $ebp $T0 = $esp $T1 4 + = 
+STACK WIN 4 3ec0 17 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 28a5 23 4 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 28a8 1f 1 0 0 4 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 28a9 1d 0 0 0 8 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $23 $T0 4 - ^ =  $24 $T0 8 - ^ = 
+STACK WIN 4 30a8 35 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 32a9 44 1a 0 8 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 32bb 30 8 0 8 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 4 - ^ = 
+STACK WIN 4 32bc 2e 7 0 8 8 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 4 - ^ =  $23 $T0 8 - ^ = 
+STACK WIN 4 32c3 26 0 0 8 c 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 4 - ^ =  $23 $T0 8 - ^ =  $24 $T0 12 - ^ = 
+STACK WIN 4 5651 bc 35 0 4 10 18 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 28 - ^ =  $23 $T0 32 - ^ =  $24 $T0 36 - ^ = 
+STACK WIN 4 56dc 13 0 0 4 10 18 0 1 $T0 $ebp = $T2 $esp = $T1 .raSearchStart = $eip $T1 ^ = $ebp $T0 = $esp $T1 4 + = 
+STACK WIN 4 4076 16c 1e 0 c 0 24 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 408c 14f 8 0 c 4 24 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 40 - ^ = 
+STACK WIN 4 4093 145 1 0 c 8 24 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 40 - ^ =  $23 $T0 44 - ^ = 
+STACK WIN 4 4094 143 0 0 c c 24 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 40 - ^ =  $23 $T0 44 - ^ =  $24 $T0 48 - ^ = 
+STACK WIN 4 3943 75 a 0 c 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 3949 22 4 0 c 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 394d 1d 0 0 c 8 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ =  $24 $T0 8 - ^ = 
+STACK WIN 4 241c cd e 0 10 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 2425 17 5 0 10 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 4 - ^ = 
+STACK WIN 4 2429 28 1 0 10 8 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 4 - ^ =  $23 $T0 8 - ^ = 
+STACK WIN 4 242a 10 0 0 10 c 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 4 - ^ =  $23 $T0 8 - ^ =  $24 $T0 12 - ^ = 
+STACK WIN 4 328e 1b 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 5454 63 a 0 c 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 545a 22 4 0 c 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 545e 1d 0 0 c 8 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ =  $24 $T0 8 - ^ = 
+STACK WIN 4 3d3b 3f 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 28c8 f 0 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 2178 45 7 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 217e 3d 1 0 4 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 217f 3b 0 0 4 8 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ =  $24 $T0 8 - ^ = 
+STACK WIN 4 210e 4c 7 0 8 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 2114 44 1 0 8 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 2115 42 0 0 8 8 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ =  $24 $T0 8 - ^ = 
+STACK WIN 4 4e39 4e 7 0 8 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 4e3f 46 1 0 8 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 4e40 44 0 0 8 8 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ =  $24 $T0 8 - ^ = 
+STACK WIN 4 2bc5 2f 0 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 1f3c 64 6 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 1f3f 60 3 0 0 4 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 1f40 5e 2 0 0 8 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + =  $23 $T0 4 - ^ =  $24 $T0 8 - ^ = 
+STACK WIN 4 466c 190 17 0 0 0 51c 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 4682 173 1 0 0 4 51c 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 1312 - ^ = 
+STACK WIN 4 4683 16f 0 0 0 8 51c 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 1312 - ^ =  $24 $T0 1316 - ^ = 
+STACK WIN 4 3d83 a4 c 0 0 10 1c 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 32 - ^ =  $23 $T0 36 - ^ =  $24 $T0 40 - ^ = 
+STACK WIN 4 3e1b b 0 0 0 10 1c 0 1 $T0 $ebp = $T2 $esp = $T1 .raSearchStart = $eip $T1 ^ = $ebp $T0 = $esp $T1 4 + = 
+STACK WIN 4 48f9 87 b 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 4902 7a 2 0 4 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 10e5 7c 9 0 0 0 10 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 10ee 71 0 0 0 4 10 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 20 - ^ = 
+STACK WIN 4 3b52 1e9 1b 0 8 0 20 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 3b65 1cf 8 0 8 4 20 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 36 - ^ = 
+STACK WIN 4 3b69 1c8 4 0 8 8 20 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 36 - ^ =  $23 $T0 40 - ^ = 
+STACK WIN 4 3b6d 1c3 0 0 8 c 20 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 36 - ^ =  $23 $T0 40 - ^ =  $24 $T0 44 - ^ = 
+STACK WIN 4 39b8 19a c 0 4 10 24 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 40 - ^ =  $23 $T0 44 - ^ =  $24 $T0 48 - ^ = 
+STACK WIN 4 3b19 8 0 0 4 10 24 0 1 $T0 $ebp = $T2 $esp = $T1 .raSearchStart = $eip $T1 ^ = $ebp $T0 = $esp $T1 4 + = 
+STACK WIN 4 1cd3 1e 0 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 2638 53 8 0 10 0 10 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 1516 18 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 4cda 8f e 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 4ce0 87 8 0 4 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 4 - ^ = 
+STACK WIN 4 4ce1 85 7 0 4 8 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 4 - ^ =  $23 $T0 8 - ^ = 
+STACK WIN 4 4ce8 7d 0 0 4 c 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 4 - ^ =  $23 $T0 8 - ^ =  $24 $T0 12 - ^ = 
+STACK WIN 4 3e27 99 6 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 3e2d 91 0 0 4 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $24 $T0 4 - ^ = 
+STACK WIN 4 3e39 82 0 0 4 8 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $24 $T0 4 - ^ =  $20 $T0 8 - ^ = 
+STACK WIN 4 3e3a 80 0 0 4 c 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $24 $T0 4 - ^ =  $20 $T0 8 - ^ =  $23 $T0 12 - ^ = 
+STACK WIN 4 178e 14b 13 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 1794 143 d 0 4 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 4 - ^ = 
+STACK WIN 4 1795 141 c 0 4 8 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 4 - ^ =  $23 $T0 8 - ^ = 
+STACK WIN 4 17a1 134 0 0 4 c 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 4 - ^ =  $23 $T0 8 - ^ =  $24 $T0 12 - ^ = 
+STACK WIN 4 3170 4d 6 0 8 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 3176 45 0 0 8 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $24 $T0 4 - ^ = 
+STACK WIN 4 3185 31 0 0 8 8 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $24 $T0 4 - ^ =  $23 $T0 8 - ^ = 
+STACK WIN 4 4dc0 79 c 0 0 10 1c 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 32 - ^ =  $23 $T0 36 - ^ =  $24 $T0 40 - ^ = 
+STACK WIN 4 4e2d 8 0 0 0 10 1c 0 1 $T0 $ebp = $T2 $esp = $T1 .raSearchStart = $eip $T1 ^ = $ebp $T0 = $esp $T1 4 + = 
+STACK WIN 4 344e 8 0 0 4 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 2862 33 0 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 206a 20 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 4e87 33 5 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 1466 9 0 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 1672 106 b 0 0 0 328 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 1161 82 5 0 c 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 118d 54 0 0 c 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 5067 ad 5 0 8 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 507e 62 0 0 8 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 5093 4c 0 0 8 8 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ =  $24 $T0 8 - ^ = 
+STACK WIN 4 1904 1e7 1a 0 24 c 10 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 20 - ^ =  $23 $T0 24 - ^ =  $24 $T0 28 - ^ = 
+STACK WIN 4 22a3 46 8 0 24 0 10 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 47fc e7 16 0 1c c 8 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $20 $T0 12 - ^ =  $23 $T0 16 - ^ =  $24 $T0 20 - ^ = 
+STACK WIN 4 152e 40 8 0 20 0 10 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 2bf4 377 6 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 2bfa 36f 0 0 4 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 30f1 69 6 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 30f7 61 0 0 4 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 4f45 fe 6 0 4 0 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + = 
+STACK WIN 4 4f4b f6 0 0 4 4 0 0 1 $T0 $ebp = $eip $T0 4 + ^ = $ebp $T0 ^ = $esp $T0 8 + =  $23 $T0 4 - ^ = 
+STACK WIN 4 1000 ba 0 0 c 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 2a0e 10 0 0 0 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 4 3840 103 0 0 c 0 0 0 1 $T0 .raSearch = $eip $T0 ^ = $esp $T0 4 + = 
+STACK WIN 0 3410 14 0 0 0 0 0 0 0 0
+STACK WIN 0 5397 9 0 0 0 0 0 0 0 0
+STACK WIN 0 2f6b 88 0 0 8 0 0 0 0 0
+STACK WIN 0 462f f 0 0 0 0 0 0 0 0
+STACK WIN 0 543c f 0 0 0 0 0 0 0 0
+STACK WIN 0 544b 9 0 0 0 0 0 0 0 0
+STACK WIN 0 4389 c 0 0 0 0 0 0 0 0
+STACK WIN 0 4395 c 0 0 0 0 0 0 0 0
+STACK WIN 0 1371 9 0 0 0 0 0 0 0 0
+STACK WIN 0 4eba 8b 0 0 4 0 0 0 0 0
+STACK WIN 0 43b2 90 3 0 c c 0 0 0 0
+STACK WIN 0 4442 46 0 0 10 4 0 0 0 1
+STACK WIN 0 44a4 17 4 0 0 10 0 0 0 1
+STACK WIN 0 44bb 19 0 0 0 0 0 0 0 0
+STACK WIN 0 44ed 17 1 0 8 4 0 0 0 1
+STACK WIN 0 31dd 4 0 0 0 0 0 0 0 0
+STACK WIN 0 52ee 15 0 0 0 0 0 0 0 0
+STACK WIN 0 514a 6 0 0 0 0 0 0 0 0
+STACK WIN 0 56dc 13 0 0 0 0 0 0 0 0
+STACK WIN 0 3e1b c 0 0 0 0 0 0 0 0
+STACK WIN 0 3b19 9 0 0 0 0 0 0 0 0
+STACK WIN 0 4e2d 9 0 0 0 0 0 0 0 0
+STACK WIN 0 208a 7a 0 0 c 0 0 0 0 0
+STACK WIN 0 1223 95 0 0 10 0 4 0 0 0
+STACK WIN 0 293c 84 3 0 8 c 0 0 0 0
+STACK WIN 0 29c0 23 0 0 0 0 0 0 0 0
+STACK WIN 0 2a0b 3 0 0 0 0 0 0 0 0
+STACK WIN 0 23a6 1a 0 0 10 0 0 0 0 0
+STACK WIN 0 23c0 1a 0 0 10 0 4 0 0 0

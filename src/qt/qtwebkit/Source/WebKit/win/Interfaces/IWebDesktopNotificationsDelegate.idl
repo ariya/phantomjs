@@ -1,0 +1,114 @@
+/*
+ * Copyright (C) 2009 Google Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#ifndef DO_NO_IMPORTS
+import "oaidl.idl";
+import "ocidl.idl";
+#endif
+
+/*!
+    @category WebDesktopNotification
+    @discussion A class that represents a notification being shown
+    on the user's desktop.  It provides the contents of the notification
+    and receives events related to the display.
+    @interface NSObject (WebDesktopNotificationProvider)
+*/
+[
+    object,
+    oleautomation,
+    uuid(0A0AAFA8-C698-4cff-BD28-39614622EEA4),
+    pointer_default(unique)
+]
+interface IWebDesktopNotification : IUnknown
+{
+    HRESULT isHTML([out, retval] BOOL* result);
+    HRESULT contentsURL([out, retval] BSTR* result);
+    HRESULT iconURL([out, retval] BSTR* result);
+    HRESULT title([out, retval] BSTR* result);
+    HRESULT text([out, retval] BSTR* result);
+
+    HRESULT notifyDisplay();
+    HRESULT notifyError();
+    HRESULT notifyClose([in] BOOL xplicit);
+}
+
+/*!
+    @category WebDesktopNotificationsDelegate
+    @discussion A class that implements WebDesktopNotificationProvider provides
+    methods that may be used by Javascript to display notifications ("toasts")
+    on the user's desktop.
+    @interface NSObject (WebDesktopNotificationProvider)
+*/
+[
+    object,
+    oleautomation,
+    uuid(09DA073E-38B3-466a-9828-B2915FDD2ECB),
+    pointer_default(unique)
+]
+
+interface IWebDesktopNotificationsDelegate : IUnknown
+{
+    /*!
+        @method showDesktopNotification:
+        @abstract Show a notification.
+        @param notification The Notification to be shown.
+    */
+    HRESULT showDesktopNotification([in] IWebDesktopNotification* notification);
+
+    /*!
+        @method cancelDesktopNotification:
+        @abstract Cancel showing a notification (or take it down if it's shown).
+        @param notification The Notification to be canceled.
+    */
+    HRESULT cancelDesktopNotification([in] IWebDesktopNotification* notification);
+
+    /*!
+        @method notificationDestroyed:
+        @abstract Notify the presenter that the object has been destroyed.  The
+        notification need not be un-shown, but events should not be invoked.
+        @param notification The Notification that was destroyed.
+    */
+    HRESULT notificationDestroyed([in] IWebDesktopNotification* notification);
+
+    /*!
+        @method checkNotificationPermission:
+        @abstract See if the origin context is allowed to show notifications.
+        @param origin The origin to be checked.
+        @param result A value from WebCore::NotificationProvider::Permission enum.
+    */
+    HRESULT checkNotificationPermission([in] BSTR origin, [out, retval] int* result);
+
+    /*!
+        @method requestNotificationPermission:
+        @abstract Request permission to show notifications on a given origin.
+        @param origin The origin to be requested.
+    */
+    HRESULT requestNotificationPermission([in] BSTR origin);
+}

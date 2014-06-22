@@ -55,16 +55,15 @@
 // attempting to load symbols from their server (.reload).
 //
 // This code has been tested with dbghelp.dll 6.5.3.7 and symsrv.dll 6.5.3.8,
-// included with Microsoft Visual Studio 8 in Common7/IDE.  This has also
-// been tested with dbghelp.dll and symsrv.dll 6.6.7.5, included with that
-// version of Debugging Tools for Windows, available at
+// included with Microsoft Visual Studio 8 in Common7/IDE.  This has also been
+// tested with dbghelp.dll and symsrv.dll versions 6.6.7.5 and 6.12.2.633,
+// included with the same versions of Debugging Tools for Windows, available at
 // http://www.microsoft.com/whdc/devtools/debugging/ .
 //
 // Author: Mark Mentovai
 
-
-#ifndef MS_SYMBOL_SERVER_CONVERTER_H__
-#define MS_SYMBOL_SERVER_CONVERTER_H__
+#ifndef TOOLS_WINDOWS_MS_SYMBOL_SERVER_CONVERTER_H_
+#define TOOLS_WINDOWS_MS_SYMBOL_SERVER_CONVERTER_H_
 
 #include <Windows.h>
 
@@ -145,6 +144,13 @@ class MSSymbolServerConverter {
   MSSymbolServerConverter(const string &local_cache,
                           const vector<string> &symbol_servers);
 
+  // Locates the PE file (DLL or EXE) specified by the identifying information
+  // in |missing|, by checking the symbol stores identified when the object
+  // was created.  When returning LOCATE_SUCCESS, pe_file is set to
+  // the pathname of the decompressed PE file as it is stored in the
+  // local cache.
+  LocateResult LocatePEFile(const MissingSymbolInfo &missing, string *pe_file);
+
   // Locates the symbol file specified by the identifying information in
   // |missing|, by checking the symbol stores identified when the object
   // was created.  When returning LOCATE_SUCCESS, symbol_file is set to
@@ -159,16 +165,28 @@ class MSSymbolServerConverter {
   // value of LocateSymbolFile, or if LocateSymbolFile succeeds but
   // conversion fails, returns LOCATE_FAILURE.  The pathname to the
   // pdb file and to the converted symbol file are returned in
-  // converted_symbol_file and symbol_file.  symbol_file is optional and
-  // may be NULL.  If only the converted symbol file is desired, set
-  // keep_symbol_file to false to indicate that the original symbol file
-  // (pdb) should be deleted after conversion.
+  // |converted_symbol_file|, |symbol_file|, and |pe_file|.  |symbol_file| and
+  // |pe_file| are optional and may be NULL.  If only the converted symbol file
+  // is desired, set |keep_symbol_file| and |keep_pe_file| to false to indicate
+  // that the original symbol file (pdb) and executable file (exe, dll) should
+  // be deleted after conversion.
   LocateResult LocateAndConvertSymbolFile(const MissingSymbolInfo &missing,
                                           bool keep_symbol_file,
+                                          bool keep_pe_file,
                                           string *converted_symbol_file,
-                                          string *symbol_file);
+                                          string *symbol_file,
+                                          string *pe_file);
 
  private:
+  // Locates the PDB or PE file (DLL or EXE) specified by the identifying
+  // information in |debug_or_code_file| and |debug_or_code_id|, by checking
+  // the symbol stores identified when the object was created.  When
+  // returning LOCATE_SUCCESS, file_name is set to the pathname of the
+  // decompressed PDB or PE file file as it is stored in the local cache.
+  LocateResult LocateFile(const string &debug_or_code_file,
+                          const string &debug_or_code_id,
+                          const string &version, string *file_name);
+
   // Called by various SymSrv functions to report status as progress is made
   // and to allow the callback to influence processing.  Messages sent to this
   // callback can be used to distinguish between the various failure modes
@@ -181,7 +199,7 @@ class MSSymbolServerConverter {
   // SymFindFileInPath actually seems to accept NULL for a callback function
   // and behave properly for our needs in that case, but the documentation
   // doesn't mention it, so this little callback is provided.
-  static BOOL CALLBACK SymFindFileInPathCallback(char *filename,
+  static BOOL CALLBACK SymFindFileInPathCallback(const char *filename,
                                                  void *context);
 
   // The search path used by SymSrv, built based on the arguments to the
@@ -198,4 +216,4 @@ class MSSymbolServerConverter {
 
 }  // namespace google_breakpad
 
-#endif  // MS_SYMBOL_SERVER_CONVERTER_H__
+#endif  // TOOLS_WINDOWS_MS_SYMBOL_SERVER_CONVERTER_H_

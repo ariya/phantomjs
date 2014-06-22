@@ -1,0 +1,2 @@
+This is a QAbstractTableModel implementation used for several other snippets.
+There is no .pro file in this directory because it is not a standalone project.

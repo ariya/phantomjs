@@ -1,0 +1,35 @@
+# Many of the following are from mangleme.cgi.c's make_up_value() function
+#
+*
+_blank
+_parent
+_self
+_top
+about:
+about:plugins
+file:
+http:
+jar:
+javascript:
+left
+top
+%n%n%n%n%n
+ftp:
+right
+wysiwyg:
+bottom
+none
+ldap:
+%i %i
+999999999,9999999,999999999,9999999,999999999,9999999,999999999,9999999,9
+999999999,9999999,9
+999999999,9999999
+true
+false
+_SEARCH
+javascript
+off
+on
+vbscript
+password
+image

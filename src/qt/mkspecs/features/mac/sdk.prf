@@ -1,8 +1,0 @@
-!isEmpty(QMAKE_MAC_SDK) {
-    !macx-xcode:!macx-pbuilder {
-        QMAKE_CFLAGS += -isysroot $$QMAKE_MAC_SDK
-        QMAKE_OBJECTIVE_CFLAGS += -isysroot $$QMAKE_MAC_SDK
-        QMAKE_CXXFLAGS += -isysroot $$QMAKE_MAC_SDK
-        QMAKE_LFLAGS += -Wl,-syslibroot,$$QMAKE_MAC_SDK
-    }
-}

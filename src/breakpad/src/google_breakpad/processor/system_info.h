@@ -37,9 +37,9 @@
 
 #include <string>
 
-namespace google_breakpad {
+#include "common/using_std_string.h"
 
-using std::string;
+namespace google_breakpad {
 
 struct SystemInfo {
  public:
@@ -63,10 +63,11 @@ struct SystemInfo {
   string os;
 
   // A short form of the os string, using lowercase letters and no spaces,
-  // suitable for use in a filesystem.  Possible values are "windows",
-  // "mac", and "linux".  Empty if the information is not present in the dump
-  // or if the OS given by the dump is unknown.  The values stored in this
-  // field should match those used by MinidumpSystemInfo::GetOS.
+  // suitable for use in a filesystem.  Possible values include "windows",
+  // "mac", "linux" and "nacl".  Empty if the information is not present
+  // in the dump or if the OS given by the dump is unknown.  The values
+  // stored in this field should match those used by
+  // MinidumpSystemInfo::GetOS.
   string os_short;
 
   // A string identifying the version of the operating system, such as

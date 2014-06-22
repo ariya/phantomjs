@@ -1,0 +1,306 @@
+/*
+    Copyright (C) 2008,2009 INdT - Instituto Nokia de Tecnologia
+    Copyright (C) 2009,2010 ProFUSION embedded systems
+    Copyright (C) 2009,2010 Samsung Electronics
+
+    This file is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Library General Public
+    License as published by the Free Software Foundation; either
+    version 2 of the License, or (at your option) any later version.
+
+    This file is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Library General Public License for more details.
+
+    You should have received a copy of the GNU Library General Public License
+    along with this library; see the file COPYING.LIB.  If not, write to
+    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+    Boston, MA 02110-1301, USA.
+*/
+
+group {
+    name: "webkit/widget/combo";
+
+    images {
+        image: "widget/combo/combo_normal.png" COMP;
+        image: "widget/combo/combo_normal_button.png" COMP;
+        image: "widget/combo/combo_hover.png" COMP;
+        image: "widget/combo/combo_hover_button.png" COMP;
+        image: "widget/combo/combo_focus.png" COMP;
+        image: "widget/combo/combo_focus_button.png" COMP;
+        image: "widget/combo/combo_press.png" COMP;
+        image: "widget/combo/combo_press_button.png" COMP;
+        image: "widget/combo/icon.png" COMP;
+    }
+
+    script {
+        public isEnabled;
+        public isPressed;
+        public isChecked;
+        public isFocused;
+        public isHovered;
+
+        public show() {
+            if (get_int(isEnabled) == 1) {
+                set_state(PART:"combo", "default", 0.0);
+                set_state(PART:"combo_button", "default", 0.0);
+                set_state(PART:"combo_button_icon", "default", 0.0);
+                if (get_int(isFocused) == 1) {
+                    set_state(PART:"combo", "focused", 0.0);
+                    set_state(PART:"combo_button", "focused", 0.0);
+                    if (get_int(isPressed) == 1) {
+                        set_state(PART:"combo", "pressed", 0.0);
+                        set_state(PART:"combo_button", "pressed", 0.0);
+                    }
+                }
+                else if (get_int(isHovered) == 1) {
+                    set_state(PART:"combo", "hovered", 0.0);
+                    set_state(PART:"combo_button", "hovered", 0.0);
+                    if (get_int(isPressed) == 1) {
+                        set_state(PART:"combo", "pressed", 0.0);
+                        set_state(PART:"combo_button", "pressed", 0.0);
+                    }
+                }
+            }
+            else {
+                set_state(PART:"combo", "disabled", 0.0);
+                set_state(PART:"combo_button", "disabled", 0.0);
+                set_state(PART:"combo_button_icon", "disabled", 0.0);
+            }
+        }
+    }
+
+    parts {
+        part {
+            name: "clipper";
+            type: RECT;
+            description {
+                min: 35 27;
+                state: "default" 0.0;
+            }
+        }
+
+        part {
+            name: "combo_clipper";
+            type: RECT;
+            clip_to: "clipper";
+            description {
+                state: "default" 0.0;
+                rel1.to: "clipper";
+                rel2 {
+                    to: "clipper"; 
+                    offset: -32 -1;
+                }
+            }
+        }
+
+        part {
+            name: "combo";
+            type: IMAGE;
+            clip_to: "combo_clipper";
+            description {
+                state: "default" 0.0;
+                min: 36 20;
+                image {
+                    normal: "widget/combo/combo_normal.png";
+                    border: 15 0 8 11;
+                }
+            }
+            description {
+               state: "disabled" 0.0;
+               inherit: "default" 0.0;
+               color: 255 255 255 150;
+            }
+            description {
+               state: "hovered" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "widget/combo/combo_hover.png";
+                  border: 15 0 8 11;
+               }
+            }
+            description {
+               state: "focused" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "widget/combo/combo_focus.png";
+                  border: 15 0 8 11;
+               }
+            }
+            description {
+               state: "pressed" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "widget/combo/combo_press.png";
+                  border: 15 0 8 11;
+               }
+            }
+        }
+
+        part {
+            name: "bt_combo_clipper";
+            type: RECT;
+            clip_to: "clipper";
+            description {
+                state: "default" 0.0;
+                rel1 {
+                    to: "combo_clipper";
+                    relative: 1.0 0.0;
+                }
+                rel2 {
+                    to: "clipper"; 
+                    relative: 1.0 1.0;
+                }
+            }
+        }
+
+        part {
+            name: "combo_button";
+            type: IMAGE;
+            clip_to: "bt_combo_clipper";
+            description {
+                state: "default" 0.0;
+                min: 18 20; // 3 + 5 + image width (10), 5 + 5 + image height (10)
+                rel1.to: "bt_combo_clipper";
+                image {
+                     normal: "widget/combo/combo_normal_button.png";
+                     border: 1 15 8 10;
+               }
+            }
+            description {
+                state: "disabled" 0.0;
+                inherit: "default" 0.0;
+                color: 255 255 255 150;
+                rel1.to: "bt_combo_clipper";
+            }
+            description {
+                state: "hovered" 0.0;
+                inherit: "default" 0.0;
+                rel1.to: "bt_combo_clipper";
+                image {
+                    normal: "widget/combo/combo_hover_button.png";
+                    border: 1 15 8 10;
+                }
+            }
+            description {
+                state: "focused" 0.0;
+                inherit: "default" 0.0;
+                rel1.to: "bt_combo_clipper";
+                image {
+                    normal: "widget/combo/combo_focus_button.png";
+                    border: 1 15 8 10;
+                }
+            }
+            description {
+                state: "pressed" 0.0;
+                inherit: "default" 0.0;
+                rel1.to: "bt_combo_clipper";
+                image {
+                    normal: "widget/combo/combo_press_button.png";
+                    border: 1 15 8 10;
+                }
+            }
+        }
+
+
+        part {
+            name: "combo_button_icon";
+            type: IMAGE;
+            clip_to: "bt_combo_clipper";
+            description {
+                state: "default" 0.0;
+                min: 12 10;
+                max: 12 10;
+                color: 255 255 255 150;
+                rel1 {
+                    to: "bt_combo_clipper";
+                    relative: 0.5 0.5;
+                    offset: 0 1;
+                }
+                rel2 {
+                    to: "bt_combo_clipper";
+                    relative: 0.5 0.5;
+                }
+                fixed: 1 1;
+                image {
+                     normal: "widget/combo/icon.png";
+                     border: 5 5 0 0;
+               }
+            }
+            description {
+                state: "disabled" 0.0;
+                inherit: "default" 0.0;
+                color: 255 255 255 50;
+                image {
+                     normal: "widget/combo/icon.png";
+                     border: 5 5 0 0;
+               }
+            }
+        }
+
+        part {
+            name: "text_confinement";
+            type: RECT;
+            description {
+               state: "default" 0.0;
+               color: 0 0 0 0;
+               rel1 {
+                  to: "combo_clipper";
+                  offset: 15 10;
+               }
+               rel2 {
+                  to: "combo_clipper";
+                  offset: -11 -11;
+               }
+            }
+         }
+    }
+
+    programs {
+        program {
+            name: "enabled";
+            signal: "enabled";
+            script {
+                set_int(isEnabled, 1);
+                show();
+            }
+        }
+        program {
+            name: "pressed";
+            signal: "pressed";
+            script {
+               set_int(isPressed, 1);
+               show();
+            }
+        }
+        program {
+            name: "focused";
+            signal: "focused";
+            script {
+                set_int(isFocused, 1);
+                show();
+            }
+        }
+        program {
+            name: "hovered";
+            signal: "hovered";
+            script {
+                set_int(isHovered, 1);
+                show();
+            }
+        }
+        program {
+            name: "reset";
+            signal: "reset";
+            script {
+                set_int(isEnabled, 0);
+                set_int(isPressed, 0);
+                set_int(isChecked, 0);
+                set_int(isFocused, 0);
+                set_int(isHovered, 0);
+                show();
+            }
+        }
+    }
+}

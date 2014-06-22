@@ -1,0 +1,31 @@
+<html>
+<head>
+  <script>
+    function addForm()
+    {
+        var form = document.createElement("form");
+        form.id = "login_form";
+
+        var usernameField = document.createElement("input");
+        usernameField.id = "username";
+        usernameField.type = "text";
+        form.appendChild(usernameField);
+
+        document.body.appendChild(form);
+    }
+
+    function addPasswordFieldToForm()
+    {
+        var passwordField = document.createElement("input");
+        passwordField.id = "password";
+        passwordField.type = "password";
+
+        var form = document.getElementById("login_form");
+        form.appendChild(passwordField);
+    }
+  </script>
+</head>
+<body onload="addForm()">
+<button onclick="addPasswordFieldToForm()">Manual Testing: Add the password field</button>
+</body>
+</html>

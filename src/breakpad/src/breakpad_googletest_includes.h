@@ -33,4 +33,25 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/include/gmock/gmock.h"
 
+// If AddressSanitizer is used, NULL pointer dereferences generate SIGILL
+// (illegal instruction) instead of SIGSEGV (segmentation fault).  Also,
+// the number of memory regions differs, so there is no point in running
+// this test if AddressSanitizer is used.
+//
+// Ideally we'd use this attribute to disable ASAN on a per-func basis,
+// but this doesn't seem to actually work, and it's changed names over
+// time.  So just stick with disabling the actual tests.
+// http://crbug.com/304575
+//#define NO_ASAN __attribute__((no_sanitize_address))
+#if defined(__clang__) && defined(__has_feature)
+// Have to keep this check sep from above as newer gcc will barf on it.
+# if __has_feature(address_sanitizer)
+#  define ADDRESS_SANITIZER
+# endif
+#elif defined(__GNUC__) && defined(__SANITIZE_ADDRESS__)
+# define ADDRESS_SANITIZER
+#else
+# undef ADDRESS_SANITIZER
+#endif
+
 #endif  // BREAKPAD_GOOGLETEST_INCLUDES_H__

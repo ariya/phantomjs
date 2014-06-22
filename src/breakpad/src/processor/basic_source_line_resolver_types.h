@@ -40,6 +40,7 @@
 #include <map>
 #include <string>
 
+#include "common/scoped_ptr.h"
 #include "google_breakpad/processor/basic_source_line_resolver.h"
 #include "processor/source_line_resolver_base_types.h"
 
@@ -48,7 +49,6 @@
 #include "processor/contained_range_map-inl.h"
 
 #include "processor/linked_ptr.h"
-#include "processor/scoped_ptr.h"
 #include "google_breakpad/processor/stack_frame.h"
 #include "processor/cfi_frame_info.h"
 #include "processor/windows_frame_info.h"
@@ -73,12 +73,20 @@ BasicSourceLineResolver::Function : public SourceLineResolverBase::Function {
 
 class BasicSourceLineResolver::Module : public SourceLineResolverBase::Module {
  public:
-  explicit Module(const string &name) : name_(name) { }
+  explicit Module(const string &name) : name_(name), is_corrupt_(false) { }
   virtual ~Module() { }
 
   // Loads a map from the given buffer in char* type.
   // Does NOT have ownership of memory_buffer.
-  virtual bool LoadMapFromMemory(char *memory_buffer);
+  // The passed in |memory buffer| is of size |memory_buffer_size|.  If it is
+  // not null terminated, LoadMapFromMemory() will null terminate it by
+  // modifying the passed in buffer.
+  virtual bool LoadMapFromMemory(char *memory_buffer,
+                                 size_t memory_buffer_size);
+
+  // Tells whether the loaded symbol data is corrupt.  Return value is
+  // undefined, if the symbol data hasn't been loaded yet.
+  virtual bool IsCorrupt() const { return is_corrupt_; }
 
   // Looks up the given relative address, and fills the StackFrame struct
   // with the result.
@@ -105,6 +113,13 @@ class BasicSourceLineResolver::Module : public SourceLineResolverBase::Module {
 
   typedef std::map<int, string> FileMap;
 
+  // Logs parse errors.  |*num_errors| is increased every time LogParseError is
+  // called.
+  static void LogParseError(
+      const string &message,
+      int line_number,
+      int *num_errors);
+
   // Parses a file declaration
   bool ParseFile(char *file_line);
 
@@ -129,6 +144,7 @@ class BasicSourceLineResolver::Module : public SourceLineResolverBase::Module {
   FileMap files_;
   RangeMap< MemAddr, linked_ptr<Function> > functions_;
   AddressMap< MemAddr, linked_ptr<PublicSymbol> > public_symbols_;
+  bool is_corrupt_;
 
   // Each element in the array is a ContainedRangeMap for a type
   // listed in WindowsFrameInfoTypes. These are split by type because

@@ -1,0 +1,39 @@
+// Copyright (C) 2010, 2013 Apple Inc. All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+//
+// THIS SOFTWARE IS PROVIDED BY APPLE INC. ``AS IS'' AND ANY
+// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE INC. OR
+// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+
+#include "BaseTarget.xcconfig"
+
+PRODUCT_NAME = WebKit2;
+INFOPLIST_FILE = Info.plist;
+
+INSTALL_PATH = $(WEBKIT2_FRAMEWORKS_DIR);
+DYLIB_INSTALL_NAME_BASE = $(NORMAL_WEBKIT2_FRAMEWORKS_DIR);
+
+FRAMEWORK_AND_LIBRARY_LDFLAGS = -framework ApplicationServices -framework Carbon -framework Cocoa -framework CoreServices -framework IOKit -framework JavaScriptCore -licucore -framework QuartzCore -framework Security -framework WebCore -framework CoreAudio;
+
+OTHER_LDFLAGS = $(OTHER_LDFLAGS_$(PLATFORM_NAME)) $(OTHER_LDFLAGS);
+OTHER_LDFLAGS_macosx = $(FRAMEWORK_AND_LIBRARY_LDFLAGS);
+
+EXCLUDED_SOURCE_FILE_NAMES = $(EXCLUDED_SOURCE_FILE_NAMES_$(PLATFORM_NAME));
+EXCLUDED_SOURCE_FILE_NAMES_iphoneos = *.pdf;
+EXCLUDED_SOURCE_FILE_NAMES_iphonesimulator = $(EXCLUDED_SOURCE_FILE_NAMES_iphoneos);

@@ -43,6 +43,10 @@
 #define CPU_TYPE_ARM 12
 #endif
 
+#if !defined(CPU_TYPE_ARM_64)
+#define CPU_TYPE_ARM_64 16777228
+#endif
+
 namespace google_breakpad {
 namespace mach_o {
 
@@ -242,6 +246,7 @@ bool Reader::Read(const uint8_t *buffer,
       case CPU_TYPE_POWERPC:
         expected_magic = MH_MAGIC;
         break;
+      case CPU_TYPE_ARM_64:
       case CPU_TYPE_X86_64:
         expected_magic = MH_CIGAM_64;
         break;

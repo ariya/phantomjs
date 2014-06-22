@@ -1,8 +1,0 @@
-{
-     extern "C++" {
-         "qt_x11ft_convert_pattern(_FcPattern*, QByteArray*, int*, bool*)";
-         "QApplication::x11ClientMessage(QWidget*, _XEvent*, bool)";
-         "QApplication::notify(QObject*, QEvent*)";
-         "QApplication::qwsEventFilter(QWSEvent*)";
-     };
-};

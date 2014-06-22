@@ -1,0 +1,176 @@
+#!/usr/bin/perl
+
+# Copyright (C) 2006 Alexey Proskuryakov (ap@nypop.com)
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+# 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# A script to semi-automatically run mangleme tests.
+
+use strict;
+use warnings;
+
+use Cwd;
+use File::Spec;
+use FindBin;
+use Getopt::Long;
+use IPC::Open2;
+
+use lib $FindBin::Bin;
+use webkitdirs;
+
+sub openHTTPDIfNeeded();
+sub closeHTTPD();
+sub runSafariWithMangleme();
+
+# Argument handling
+my $guardMalloc = '';
+my $httpdPort = 8000;
+my $downloadTest;
+
+GetOptions(
+    'guard-malloc|g' => \$guardMalloc,
+    'get=s' => \$downloadTest,
+    'port=i' => \$httpdPort
+);
+
+
+setConfiguration();
+my $productDir = productDir();
+
+chdirWebKit();
+
+checkFrameworks();
+
+mkdir "WebKitBuild/mangleme";
+(system "/usr/bin/make", "-C", "Tools/mangleme") == 0 or die;
+
+my $httpdOpen = 0;
+openHTTPDIfNeeded();
+
+if ($downloadTest) {
+    system "/usr/bin/curl -o ~/Desktop/mangleme$downloadTest.html http://127.0.0.1:$httpdPort/remangle.cgi?$downloadTest";
+    print "Saved the test as mangleme$downloadTest.html on the desktop\n";
+} else {
+    runSafariWithMangleme();
+    print "Last generated tests:\n";
+    system "grep 'Mangle attempt' /tmp/WebKit/error_log.txt | tail -n -5 | awk ' {print \$4}'";
+}
+
+closeHTTPD();
+
+
+sub runSafariWithMangleme()
+{
+    my $redirectTo;
+    if (@ARGV) {
+        $redirectTo = "http://127.0.0.1:$httpdPort/remangle.cgi?$ARGV[0]";
+    } else {
+        $redirectTo = "http://127.0.0.1:$httpdPort/mangle.cgi";
+    }
+
+    open REDIRECT_HTML, ">", "/tmp/WebKit/redirect.html" or die;
+    print REDIRECT_HTML "<html>\n";
+    print REDIRECT_HTML "    <head>\n";
+    print REDIRECT_HTML "        <meta http-equiv=\"refresh\" content=\"1;URL=$redirectTo\" />\n";
+    print REDIRECT_HTML "        <script type=\"text/javascript\">\n";
+    print REDIRECT_HTML "            document.location = \"$redirectTo\";\n";
+    print REDIRECT_HTML "        </script>\n";
+    print REDIRECT_HTML "    </head>\n";
+    print REDIRECT_HTML "    <body>\n";
+    print REDIRECT_HTML "    </body>\n";
+    print REDIRECT_HTML "</html>\n";
+    close REDIRECT_HTML;
+    
+    local %ENV;
+    $ENV{DYLD_INSERT_LIBRARIES} = "/usr/lib/libgmalloc.dylib" if $guardMalloc;
+    system "Tools/Scripts/run-safari", "-NSOpen", "/tmp/WebKit/redirect.html";
+}
+
+sub openHTTPDIfNeeded()
+{
+    return if $httpdOpen;
+
+    mkdir "/tmp/WebKit";
+    
+    if (-f "/tmp/WebKit/httpd.pid") {
+        my $oldPid = `cat /tmp/WebKit/httpd.pid`;
+        chomp $oldPid;
+        if (0 != kill 0, $oldPid) {
+            print "\nhttpd is already running: pid $oldPid, killing...\n";
+            kill 15, $oldPid;
+            
+            my $retryCount = 20;
+            while ((0 != kill 0, $oldPid) && $retryCount) {
+                sleep 1;
+                --$retryCount;
+            }
+            
+            die "Timed out waiting for httpd to quit" unless $retryCount;
+        }
+    }
+    
+    my $testDirectory = getcwd() . "/LayoutTests";
+    my $manglemeDirectory = getcwd() . "/WebKitBuild/mangleme";
+    my $httpdPath = "/usr/sbin/httpd";
+    my $httpdConfig = "$testDirectory/http/conf/httpd.conf";
+    $httpdConfig = "$testDirectory/http/conf/apache2-httpd.conf" if `$httpdPath -v` =~ m|Apache/2|;
+    my $documentRoot = "$manglemeDirectory";
+    my $typesConfig = "$testDirectory/http/conf/mime.types";
+    my $sslCertificate = "$testDirectory/http/conf/webkit-httpd.pem";
+    my $listen = "127.0.0.1:$httpdPort";
+
+    open2(\*HTTPDIN, \*HTTPDOUT, $httpdPath, 
+        "-f", "$httpdConfig",
+        "-C", "DocumentRoot \"$documentRoot\"",
+        "-C", "Listen $listen",
+        "-c", "TypesConfig \"$typesConfig\"",
+        "-c", "CustomLog \"/tmp/WebKit/access_log.txt\" common",
+        "-c", "ErrorLog \"/tmp/WebKit/error_log.txt\"",
+        "-c", "SSLCertificateFile \"$sslCertificate\"",
+        # Apache wouldn't run CGIs with permissions==700 otherwise
+        "-c", "User \"#$<\"");
+
+    my $retryCount = 20;
+    while (system("/usr/bin/curl -q --silent --stderr - --output " . File::Spec->devnull() . " $listen") && $retryCount) {
+        sleep 1;
+        --$retryCount;
+    }
+    
+    die "Timed out waiting for httpd to start" unless $retryCount;
+    
+    $httpdOpen = 1;
+}
+
+sub closeHTTPD()
+{
+    return if !$httpdOpen;
+
+    close HTTPDIN;
+    close HTTPDOUT;
+
+    kill 15, `cat /tmp/WebKit/httpd.pid` if -f "/tmp/WebKit/httpd.pid";
+
+    $httpdOpen = 0;
+}

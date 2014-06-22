@@ -41,7 +41,8 @@
 
 #include <string>
 
-#include "processor/scoped_ptr.h"
+#include "client/mac/handler/ucontext_compat.h"
+#include "common/scoped_ptr.h"
 
 #if !TARGET_OS_IPHONE
 #include "client/mac/crash_generation/crash_generation_client.h"
@@ -182,10 +183,13 @@ class ExceptionHandler {
   // success, false otherwise.
   bool SendMessageToHandlerThread(HandlerThreadMessage message_id);
 
-  // All minidump writing goes through this one routine
+  // All minidump writing goes through this one routine.
+  // |task_context| can be NULL. If not, it will be used to retrieve the
+  // context of the current thread, instead of using |thread_get_state|.
   bool WriteMinidumpWithException(int exception_type,
                                   int exception_code,
                                   int exception_subcode,
+                                  breakpad_ucontext_t *task_context,
                                   mach_port_t thread_name,
                                   bool exit_after_write,
                                   bool report_current_thread);

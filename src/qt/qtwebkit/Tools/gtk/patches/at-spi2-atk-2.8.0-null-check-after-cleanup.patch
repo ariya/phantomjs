@@ -1,0 +1,22 @@
+From 5de2b2bc9c83045a6870e13cd20bc3c2c0a1121f Mon Sep 17 00:00:00 2001
+From: Mike Gorse <mgorse@suse.com>
+Date: Wed, 10 Apr 2013 17:40:47 +0000
+Subject: Add NULL check to fix crash when receiving a dbus reply after cleanup
+
+---
+diff --git a/atk-adaptor/bridge.c b/atk-adaptor/bridge.c
+index 9683e18..b016da6 100644
+--- a/atk-adaptor/bridge.c
++++ b/atk-adaptor/bridge.c
+@@ -88,6 +88,9 @@ tally_event_reply ()
+ {
+   static int replies_received = 0;
+ 
++  if (!spi_global_app_data)
++    return;
++
+   replies_received++;
+   if (replies_received == 3)
+   {
+--
+cgit v0.9.1

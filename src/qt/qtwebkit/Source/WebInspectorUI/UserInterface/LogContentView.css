@@ -1,0 +1,500 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.content-view.log {
+    overflow-y: overlay;
+    overflow-x: hidden;
+}
+
+.console-messages {
+    display: -webkit-flex;
+    -webkit-flex-direction: column;
+
+    word-wrap: break-word;
+
+    font-family: Menlo, monospace;
+    font-size: 11px;
+
+    min-height: 100%;
+}
+
+.console-messages > :first-child {
+    margin-top: auto;
+}
+
+.console-item {
+    border-top: 1px solid rgb(240, 240, 240);
+}
+
+.console-group.new-session .console-group-messages .console-item:first-child {
+    border-top: none;
+}
+
+.console-item.selected {
+    background-color: rgb(212, 212, 212);
+}
+
+.console-messages:focus .console-item.selected {
+    background-color: rgb(56, 121, 217);
+}
+
+.console-messages:focus .console-item.selected * {
+    color: white !important;
+}
+
+.console-user-command-result.console-log-level::before {
+    background-image: url(Images/UserInputResult.pdf);
+}
+
+.console-messages:focus .console-item.selected .console-user-command-result.console-log-level::before {
+    background-image: url(Images/UserInputResultSelected.pdf);
+}
+
+.console-message, .console-user-command {
+    position: relative;
+    padding: 2px 12px 2px 18px;
+    min-height: 16px;
+}
+
+.console-message::before, .console-user-command::before, .javascript-prompt::before, .console-group-title::before {
+    position: absolute;
+    display: block;
+    content: "";
+    left: 4px;
+    top: 8px;
+    width: 10px;
+    height: 10px;
+    margin-top: -5px;
+}
+
+.console-message .bubble {
+    display: inline-block;
+    height: 14px;
+    background-color: rgb(128, 151, 189);
+    vertical-align: middle;
+    white-space: nowrap;
+    padding: 1px 4px;
+    margin-top: -2px;
+    margin-right: 4px;
+    margin-left: -18px;
+    text-align: left;
+    font-size: 11px;
+    line-height: normal;
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    text-shadow: none;
+    color: white;
+    border-radius: 7px;
+
+    float: left;
+    margin-top: 0px;
+    margin-left: 2px;
+}
+
+.console-message-text {
+    white-space: pre-wrap;
+}
+
+.console-message-text > span {
+    -webkit-user-select: text;
+}
+
+.console-group-title {
+    font-weight: bold;
+}
+
+.console-group-title::before {
+    background-image: -webkit-canvas(disclosure-triangle-small-open-normal);
+    background-size: 13px 13px;
+    top: 6px;
+    width: 13px;
+    height: 13px;
+    left: 3px;
+}
+
+.console-messages:focus .console-item.selected .console-group-title::before {
+    background-image: -webkit-canvas(disclosure-triangle-small-open-selected);
+}
+
+.console-group.collapsed .console-group-title::before {
+    background-image: -webkit-canvas(disclosure-triangle-small-closed-normal);
+}
+
+.console-messages:focus .console-group.collapsed .console-item.selected .console-group-title::before {
+    background-image: -webkit-canvas(disclosure-triangle-small-closed-selected);
+}
+
+.console-group.collapsed > .console-group-messages {
+    display: none;
+}
+
+.console-group {
+    position: relative;
+}
+
+.console-group.new-session {
+    border-top: 3px dashed rgb(240, 240, 240);
+}
+
+.console-error-level .console-message-text, .console-error-level .section .header .title {
+    color: red !important;
+}
+
+.console-messages:focus .console-item.selected .console-message-text,
+.console-messages:focus .console-item.selected .section .header .title {
+    color: white !important;
+}
+
+.console-debug-level .console-message-text {
+    color: blue;
+}
+
+.console-debug-level::before {
+    background-color: blue;
+}
+
+.console-error-level::before {
+    background-image: url(Images/ErrorSmall.pdf);
+    background-size: 10px 10px;
+}
+
+.console-warning-level::before {
+    background-image: url(Images/WarningSmall.pdf);
+    background-size: 10px 10px;
+}
+
+.console-user-command .console-message {
+    margin-left: -24px;
+    padding-right: 0;
+}
+
+.console-user-command::before {
+    background-image: url(Images/UserInputPromptPrevious.pdf);
+}
+
+.console-messages:focus .console-item.selected .console-user-command::before {
+    background-image: url(Images/UserInputPromptPreviousSelected.pdf);
+}
+
+.console-user-command > .console-message-text {
+    color: rgb(0, 128, 255);
+}
+
+.console-messages a {
+    color: rgb(33%, 33%, 33%);
+    cursor: pointer;
+}
+
+.console-messages a:hover {
+    color: rgb(15%, 15%, 15%);
+}
+
+.console-message-url {
+    float: right;
+    margin-left: 4px;
+    font-weight: normal;
+}
+
+.console-group-messages .section {
+    margin: 0 0 0 12px !important;
+}
+
+.console-group-messages .section .header {
+    padding: 0 8px 0 0;
+    background-image: none;
+    border: none;
+    min-height: 0;
+}
+
+.console-group-messages .section .header::before {
+    top: 2px;
+    left: 1px;
+}
+
+.console-messages:focus .console-item.selected .section .header::before {
+    background-image: -webkit-canvas(disclosure-triangle-tiny-closed-selected);
+}
+
+.console-messages:focus .console-item.selected .section.expanded .header::before {
+    background-image: -webkit-canvas(disclosure-triangle-tiny-open-selected);
+}
+
+.console-messages:focus .console-item.selected .properties-tree li.parent::before {
+    background-image: -webkit-canvas(disclosure-triangle-tiny-closed-selected);
+}
+
+.console-messages:focus .console-item.selected .properties-tree li.parent.expanded::before {
+    background-image: -webkit-canvas(disclosure-triangle-tiny-open-selected);
+}
+
+.console-group-messages .section .header .title {
+    color: black;
+    font-weight: normal;
+    line-height: normal;
+}
+
+.console-group-messages .section .properties li .info {
+    padding-top: 0;
+    padding-bottom: 0;
+    color: rgb(60%, 60%, 60%);
+}
+
+.console-group-messages .outline-disclosure {
+    outline: none;
+    padding-left: 0;
+}
+
+.console-group-messages .outline-disclosure > ol {
+    padding: 0 0 0 12px !important;
+}
+
+.console-group-messages .outline-disclosure, .console-group-messages .outline-disclosure ol {
+    font-size: inherit;
+    line-height: 12px;
+}
+
+.console-group-messages .outline-disclosure.single-node li {
+    padding-left: 2px;
+}
+
+.console-group-messages .outline-disclosure li .selection {
+    margin-left: -6px;
+    margin-right: -6px;
+}
+
+.console-group-messages .add-attribute {
+    display: none;
+}
+
+.console-formatted-object, .console-formatted-node {
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    color: black;
+}
+
+.console-formatted-object .section, .console-formatted-node .section {
+    position: static;
+}
+
+.console-formatted-object .properties, .console-formatted-node .properties {
+    padding-left: 0 !important;
+}
+
+.console-formatted-number {
+    color: rgb(28, 0, 207);
+}
+
+.console-formatted-string, .console-formatted-regexp {
+    color: rgb(196, 26, 22);
+    white-space: pre;
+}
+
+.console-formatted-null, .console-formatted-undefined {
+    color: rgb(128, 128, 128);
+}
+
+.error-message {
+    color: red;
+}
+
+.auto-complete-text, .editing .auto-complete-text {
+    color: rgb(128, 128, 128) !important;
+    -webkit-user-modify: read-only;
+}
+
+.outline-disclosure li.hovered:not(.selected) .selection {
+    display: block;
+    left: 3px;
+    right: 3px;
+    background-color: rgba(56, 121, 217, 0.1);
+    border-radius: 5px;
+}
+
+.outline-disclosure li.highlighted .highlight {
+    background-color: rgb(255, 230, 179);
+    border-radius: 4px;
+    padding-bottom: 2px;
+    margin-bottom: -2px;
+}
+
+.outline-disclosure li.selected.highlighted .highlight {
+    background-color: transparent;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+.outline-disclosure li .selection {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 15px;
+    z-index: -1;
+}
+
+.outline-disclosure li.selected .selection {
+    display: block;
+    background-color: rgb(212, 212, 212);
+}
+
+.outline-disclosure li.elements-drag-over .selection {
+    display: block;
+    margin-top: -2px;
+    border-top: 2px solid rgb(56, 121, 217);
+}
+
+.outline-disclosure ol:focus li.selected .selection {
+    background-color: rgb(56, 121, 217);
+}
+
+.outline-disclosure ol.search-match-not-found li.selected .selection {
+    border: 1px solid rgb(56, 121, 217);
+    background-color: white;
+}
+
+.outline-disclosure {
+    font-size: 11px;
+}
+
+.outline-disclosure > ol {
+    position: relative;
+    padding: 2px 6px !important;
+    margin: 0;
+    color: black;
+    cursor: default;
+    min-width: 100%;
+}
+
+.outline-disclosure, .outline-disclosure ol {
+    list-style-type: none;
+    -webkit-padding-start: 12px;
+    margin: 0;
+}
+
+.outline-disclosure li {
+    padding: 0 0 0 14px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    margin-left: -2px;
+    word-wrap: break-word;
+}
+
+.outline-disclosure ol:focus li.selected {
+    color: white;
+}
+
+.outline-disclosure ol.search-match-found li.selected {
+    color: white;
+}
+
+.outline-disclosure ol:focus li.selected * {
+    color: inherit;
+}
+
+.outline-disclosure ol.search-match-found li.selected * {
+    color: inherit;
+}
+
+.outline-disclosure li.parent {
+    margin-left: -12px
+}
+
+.outline-disclosure li .webkit-html-tag.close {
+    margin-left: -12px;
+}
+
+.outline-disclosure li.parent::before {
+    float: left;
+
+    content: "";
+
+    background-image: -webkit-canvas(disclosure-triangle-tiny-closed-normal);
+    background-size: 8px 8px;
+    background-repeat: no-repeat;
+
+    width: 8px;
+    height: 8px;
+
+    margin-top: 2px;
+    padding-right: 2px;
+}
+
+.console-messages:focus .console-item.selected .outline-disclosure li.parent::before {
+    background-image: -webkit-canvas(disclosure-triangle-tiny-closed-selected);
+}
+
+.outline-disclosure li.parent.expanded::before {
+    background-image: -webkit-canvas(disclosure-triangle-tiny-open-normal);
+}
+
+.console-messages:focus .console-item.selected .outline-disclosure li.parent.expanded::before {
+    background-image: -webkit-canvas(disclosure-triangle-tiny-open-selected);
+}
+
+.outline-disclosure ol.children {
+    display: none;
+}
+
+.outline-disclosure ol.children.expanded {
+    display: block;
+}
+
+.webkit-html-fragment.shadow {
+    opacity: 0.6;
+}
+
+.console-item.filtered-out {
+    display: none;
+}
+
+.log-search-bar > input {
+    width: 150px;
+}
+
+.search-in-progress .console-item.filtered-out-by-search {
+    display: none;
+}
+
+.search-in-progress .console-item:not(.filtered-out-by-search) .highlighted {
+    color: black;
+    background-color: rgba(235, 215, 38, 0.2);
+    border-bottom: 1px solid rgb(237, 202, 71);
+}
+
+.search-in-progress .console-item:not(.filtered-out-by-search) .highlighted.selected {
+    background-color: rgba(235, 215, 38, 0.75);
+}
+
+/* @media reader currently blocked by: http://webkit.org/b/118096 */
+@media reader {
+    .console-user-command::before, 
+    .console-messages:focus .console-item.selected .console-user-command::before,
+    .console-user-command-result.console-log-level::before,
+    .console-messages:focus .console-item.selected .console-user-command-result.console-log-level::before {
+        /* accessible label alternative for icon indicating console input/output/warning/error, etc. */
+        content: attr(data-labelprefix);
+    }
+}

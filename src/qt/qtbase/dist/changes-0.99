@@ -1,0 +1,60 @@
+Here is a list of user-visible changes in Qt from 0.98 to 0.99.
+As usual, we fixed some bugs and improved the documentation.
+
+Qt 0.99 includes makefiles for Linux, Solaris, SunOS, FreeBSD, OSF/1,
+Irix, BSD/OS, SCO and HP-UX. 
+
+
+*************** Changes that might affect runtime behavior *****************
+
+none
+
+*************** Changes that might generate compile errors *****************
+**************           when compiling old code           *****************
+
+QVector:
+--------
+
+Removed operator const type**().
+
+*************** Type changes that might generate warnings: *****************
+
+none
+
+*****************         Obsoleted functions         **********************
+
+none
+
+***************** All other changes from 0.98 to 0.99 **********************
+
+QApplication:
+-------------
+Added beep() to make a sound.
+
+
+QFileInfo
+---------
+Added readLink() to return the name of the file a symlink points to,
+fixed bug in isSymlink().
+
+
+QPrinter:
+---------
+The X11 version now supports landscape printing and different paper sizes.
+
+
+QTableView:
+-----------
+The functions horizontalScrollBar and verticalScrollBar gives access
+to the internal scroll bars so you can connect to their signals.
+
+
+QWidget:
+--------
+Added sizeHint virtual function which is implemented in subclasses to 
+return a recommended size.
+
+Added new function setFixedSize() to set both the minimum and maximum sizes
+at the same time.
+
+Added clearFocus() function to take keyboard focus from the widget.

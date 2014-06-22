@@ -1,14 +1,14 @@
 TEMPLATE = app
 TARGET = phantomjs
-QT += network webkit
+QT += network webkitwidgets
 CONFIG += console
 
 DESTDIR = ../bin
 
 RESOURCES = phantomjs.qrc \
-    ghostdriver/ghostdriver.qrc \
-    qt/src/3rdparty/webkit/Source/WebCore/inspector/front-end/WebKit.qrc \
-    qt/src/3rdparty/webkit/Source/WebCore/generated/InspectorBackendStub.qrc
+    ghostdriver/ghostdriver.qrc
+
+QTPLUGIN += qphantom
 
 HEADERS += csconverter.h \
     phantom.h \
@@ -68,12 +68,6 @@ linux*|mac|openbsd* {
       breakpad/src/common/convert_UTF.c \
       breakpad/src/common/md5.cc \
       breakpad/src/common/string_conversion.cc 
-
-    QTPLUGIN += \
-        qcncodecs \
-        qjpcodecs \
-        qkrcodecs \
-        qtwcodecs
 }
 
 linux* {
@@ -117,23 +111,16 @@ mac {
 }
 
 win32-msvc* {
-    LIBS += -lCrypt32
+    LIBS += -lCrypt32 -llibxml2
     INCLUDEPATH += breakpad/src
     SOURCES += breakpad/src/client/windows/handler/exception_handler.cc \
       breakpad/src/client/windows/crash_generation/crash_generation_client.cc \
       breakpad/src/common/windows/guid_string.cc
     CONFIG(static) {
         DEFINES += STATIC_BUILD
-        QTPLUGIN += \
-            qcncodecs \
-            qjpcodecs \
-            qkrcodecs \
-            qtwcodecs \
-            qico
     }
 }
 
 openbsd* {
     LIBS += -L/usr/X11R6/lib
 }
-

@@ -1,0 +1,2512 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Shankar Prasad <svenkate@redhat.com>, 2012, 2013.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: http://bugs.webkit.org\n"
+"POT-Creation-Date: 2013-05-24 23:51+0000\n"
+"PO-Revision-Date: 2013-05-29 13:49+0530\n"
+"Last-Translator: Shankar Prasad <svenkate@redhat.com>\n"
+"Language-Team: Kannada <kde-i18n-doc@kde.org>\n"
+"Language: kn\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Lokalize 1.5\n"
+
+#: ../ErrorsGtk.cpp:37
+msgid "Load request cancelled"
+msgstr "ಲೋಡ್ ಮಾಡುವ ಮನವಿಯನ್ನು ರದ್ದು ಮಾಡಲಾಗಿದೆ"
+
+#: ../ErrorsGtk.cpp:43
+msgid "Not allowed to use restricted network port"
+msgstr "ನಿರ್ಬಂಧಿತ ಜಾಲಬಂಧ ಸಂಪರ್ಕಸ್ಥಾನವನ್ನು ಬಳಸಲು ಅನುಮತಿ ಇಲ್ಲ"
+
+#: ../ErrorsGtk.cpp:49
+msgid "URL cannot be shown"
+msgstr "URL ಅನ್ನು ತೋರಿಸಲಾಗಿಲ್ಲ"
+
+#: ../ErrorsGtk.cpp:55
+msgid "Frame load was interrupted"
+msgstr "ಚೌಕಟ್ಟಿನ ಹೊರೆಗೆ ತಡೆಯುಂಟಾಗಿದೆ"
+
+#: ../ErrorsGtk.cpp:61
+msgid "Content with the specified MIME type cannot be shown"
+msgstr "ನಿಶ್ಚಿತ MIME ಬಗೆಯೊಂದಿಗಿನ ವಿಷಯವನ್ನು ತೋರಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ"
+
+#: ../ErrorsGtk.cpp:67
+msgid "File does not exist"
+msgstr "ಕಡತ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ"
+
+#: ../ErrorsGtk.cpp:73
+msgid "Plugin will handle load"
+msgstr "ಪ್ಲಗ್‌ಇನ್ ಹೊರೆಯನ್ನು ನಿಭಾಯಿಸುತ್ತದೆ"
+
+#: ../ErrorsGtk.cpp:85
+msgid "User cancelled the download"
+msgstr "ಬಳಕೆದಾರರು ಇಳಿಸುವಿಕೆಯನ್ನು ರದ್ದುಗೊಳಿಸಿದ್ದಾರೆ"
+
+#: ../ErrorsGtk.cpp:105
+msgid "Printer not found"
+msgstr "ಮುದ್ರಕವು ಕಂಡುಬಂದಿಲ್ಲ"
+
+#: ../ErrorsGtk.cpp:112
+msgid "Invalid page range"
+msgstr "ಅಮಾನ್ಯವಾದ ಪುಟದ ವ್ಯಾಪ್ತಿ"
+
+#: ../LocalizedStringsGtk.cpp:56 ../LocalizedStringsGtk.cpp:61
+msgid "Submit"
+msgstr "ಸಲ್ಲಿಸು"
+
+#: ../LocalizedStringsGtk.cpp:66
+msgid "Reset"
+msgstr "ಮರುಹೊಂದಿಸು"
+
+#: ../LocalizedStringsGtk.cpp:71
+msgid "Details"
+msgstr "ವಿವರಗಳು"
+
+#: ../LocalizedStringsGtk.cpp:76
+msgid "This is a searchable index. Enter search keywords: "
+msgstr "ಇದು ಹುಡುಕಬಹುದಾದ ಸೂಚಿ. ಹುಡುಕು ಕೀಲಿಪದಗಳನ್ನು ದಾಖಲಿಸಿ:"
+
+#: ../LocalizedStringsGtk.cpp:81
+msgid "Choose File"
+msgstr "ಕಡತವನ್ನು ಆರಿಸು"
+
+#: ../LocalizedStringsGtk.cpp:86
+msgid "Choose Files"
+msgstr "ಕಡತಗಳನ್ನು ಆಯ್ಕೆ ಮಾಡಿ"
+
+#: ../LocalizedStringsGtk.cpp:91 ../LocalizedStringsGtk.cpp:96
+msgid "(None)"
+msgstr "(ಯಾವುದೂ ಇಲ್ಲ)"
+
+#: ../LocalizedStringsGtk.cpp:101
+msgid "Open Link in New _Window"
+msgstr "ಕೊಂಡಿಯನ್ನು ಹೊಸ ಕಿಟಕಿಯಲ್ಲಿ ತೆರೆ (_W)"
+
+#: ../LocalizedStringsGtk.cpp:106
+msgid "_Download Linked File"
+msgstr "ಕೊಂಡಿ ಮಾಡಿದ ಕಡತವನ್ನು ಇಳಿಸಿಕೊಳ್ಳಲಾಗಿದೆ (_D)"
+
+#: ../LocalizedStringsGtk.cpp:111
+msgid "Copy Link Loc_ation"
+msgstr "ಕೊಂಡಿಯ ಸ್ಥಳವನ್ನು ಪ್ರತಿ ಮಾಡು (_a)"
+
+#: ../LocalizedStringsGtk.cpp:116
+msgid "Open _Image in New Window"
+msgstr "ಹೊಸ ಕಿಟಕಿಯಲ್ಲಿ ಚಿತ್ರವನ್ನು ತೆರೆ (_I)"
+
+#: ../LocalizedStringsGtk.cpp:121
+msgid "Sa_ve Image As"
+msgstr "ಚಿತ್ರವನ್ನು ಹೀಗೆ ಉಳಿಸು (_v)"
+
+#: ../LocalizedStringsGtk.cpp:126
+msgid "Cop_y Image"
+msgstr "ಚಿತ್ರವನ್ನು ಪ್ರತಿ ಮಾಡು (_y)"
+
+#: ../LocalizedStringsGtk.cpp:131
+msgid "Copy Image _Address"
+msgstr "ಚಿತ್ರದ ವಿಳಾಸವನ್ನು ಪ್ರತಿ ಮಾಡು (_A)"
+
+#: ../LocalizedStringsGtk.cpp:136
+msgid "Open _Video in New Window"
+msgstr "ವೀಡಿಯೊವನ್ನು ಹೊಸ ಕಿಟಕಿಯಲ್ಲಿ ತೆರೆ (_V)"
+
+#: ../LocalizedStringsGtk.cpp:141
+msgid "Open _Audio in New Window"
+msgstr "ಆಡಿಯೊವನ್ನು ಹೊಸ ಕಿಟಕಿಯಲ್ಲಿ ತೆರೆ (_A)"
+
+#: ../LocalizedStringsGtk.cpp:146
+msgid "Cop_y Video Link Location"
+msgstr "ವೀಡಿಯೊ ಕೊಂಡಿಯ ತಾಣವನ್ನು ಪ್ರತಿ ಮಾಡು  (_y)"
+
+#: ../LocalizedStringsGtk.cpp:151
+msgid "Cop_y Audio Link Location"
+msgstr "ಆಡಿಯೊ ಕೊಂಡಿಯ ತಾಣವನ್ನು ಪ್ರತಿ ಮಾಡು  (_y)"
+
+#: ../LocalizedStringsGtk.cpp:156
+msgid "_Toggle Media Controls"
+msgstr "ಮಾಧ್ಯಮ ನಿಯಂತ್ರಣಗಳನ್ನು ಹೊರಳಿಸು (_T)"
+
+#: ../LocalizedStringsGtk.cpp:161
+msgid "Toggle Media _Loop Playback"
+msgstr "ಮಾಧ್ಯಮ ಲೂಪ್ ಪ್ಲೇಬ್ಯಾಕ್ ಅನ್ನು ಹೊರಳಿಸು (_L)"
+
+#: ../LocalizedStringsGtk.cpp:166
+msgid "Switch Video to _Fullscreen"
+msgstr "ವೀಡಿಯೊವನ್ನು ಪೂರ್ಣತೆರೆಗೆ ಬದಲಾಯಿಸು (_F)"
+
+#: ../LocalizedStringsGtk.cpp:171
+msgid "_Play"
+msgstr "ಚಲಾಯಿಸು (_P)"
+
+#: ../LocalizedStringsGtk.cpp:176
+msgid "_Pause"
+msgstr "ತಾತ್ಕಾಲಿಕ ತಡೆ (_P)"
+
+#: ../LocalizedStringsGtk.cpp:181
+msgid "_Mute"
+msgstr "ಮೂಕ (_M)"
+
+#: ../LocalizedStringsGtk.cpp:186
+msgid "Open _Frame in New Window"
+msgstr "ಹೊಸ ಕಿಟಕಿಯಲ್ಲಿ ಚೌಕಟ್ಟನ್ನು ತೆರೆ (_F)"
+
+#: ../LocalizedStringsGtk.cpp:209
+msgid "_Insert Unicode Control Character"
+msgstr "ಯುನಿಕೊಡ್ ನಿಯಂತ್ರಣ ಚಿಹ್ನೆಯನ್ನು ಸೇರಿಸು (_I)"
+
+#: ../LocalizedStringsGtk.cpp:214
+msgid "Input _Methods"
+msgstr "ಊಡಿಕೆ (ಇನ್‌ಪುಟ್) ಪದ್ದತಿಗಳು (_M)"
+
+#: ../LocalizedStringsGtk.cpp:237
+msgid "_Reload"
+msgstr "ಪುನ: ಲೋಡ್ ಮಾಡು (_R)"
+
+#: ../LocalizedStringsGtk.cpp:254
+msgid "No Guesses Found"
+msgstr "ಯಾವುದೆ ಊಹೆಗಳು ಕಂಡುಬಂದಿಲ್ಲ"
+
+#: ../LocalizedStringsGtk.cpp:259
+msgid "_Ignore Spelling"
+msgstr "ಕಾಗುಣಿತವನ್ನು ಕಡೆಗಣಿಸು (_I)"
+
+#: ../LocalizedStringsGtk.cpp:264
+msgid "_Learn Spelling"
+msgstr "ಕಾಗುಣಿತವನ್ನು ಕಲಿ (_L)"
+
+#: ../LocalizedStringsGtk.cpp:269
+msgid "_Search the Web"
+msgstr "ಜಾಲದಲ್ಲಿ ಹುಡುಕು (_S)"
+
+#: ../LocalizedStringsGtk.cpp:274
+msgid "_Look Up in Dictionary"
+msgstr "ಶಬ್ಧಕೋಶದಲ್ಲಿ ಹುಡುಕು (_L)"
+
+#: ../LocalizedStringsGtk.cpp:279
+msgid "_Open Link"
+msgstr "ಕೊಂಡಿಯನ್ನು ತೆರೆ (_O)"
+
+#: ../LocalizedStringsGtk.cpp:284
+msgid "Ignore _Grammar"
+msgstr "ವ್ಯಾಕರಣವನ್ನು ಕಡೆಗಣಿಸು (_G)"
+
+#: ../LocalizedStringsGtk.cpp:289
+msgid "Spelling and _Grammar"
+msgstr "ಕಾಗುಣಿತ ಮತ್ತು ವ್ಯಾಕರಣ (_G)"
+
+#: ../LocalizedStringsGtk.cpp:294
+msgid "_Show Spelling and Grammar"
+msgstr "ಕಾಗುಣಿತ ಮತ್ತು ವ್ಯಾಕರಣವನ್ನು ಪರಿಶೀಲನೆಯನ್ನು ತೋರಿಸು (_S)"
+
+#: ../LocalizedStringsGtk.cpp:294
+msgid "_Hide Spelling and Grammar"
+msgstr "ಕಾಗುಣಿತ ಮತ್ತು ವ್ಯಾಕರಣವನ್ನು ಪರಿಶೀಲನೆಯನ್ನು ಅಡಗಿಸು (_H)"
+
+#: ../LocalizedStringsGtk.cpp:299
+msgid "_Check Document Now"
+msgstr "ದಸ್ತಾವೇಜನ್ನು ಈಗ ಪರೀಕ್ಷಿಸು (_C)"
+
+#: ../LocalizedStringsGtk.cpp:304
+msgid "Check Spelling While _Typing"
+msgstr "ನಮೂದಿಸುತ್ತಾ ಹೋದಂತೆಲ್ಲಾ ಕಾಗುಣಿತವನ್ನು ಪರಿಶೀಲಿಸು (_T)"
+
+#: ../LocalizedStringsGtk.cpp:309
+msgid "Check _Grammar With Spelling"
+msgstr "ಕಾಗುಣಿತದೊಂದಿಗೆ ವ್ಯಾಕರಣವನ್ನು ಪರೀಕ್ಷಿಸು (_G)"
+
+#: ../LocalizedStringsGtk.cpp:314
+msgid "_Font"
+msgstr "ಅಕ್ಷರ ಶೈಲಿ (_F)"
+
+#: ../LocalizedStringsGtk.cpp:337
+msgid "_Outline"
+msgstr "ಹೊರರೇಖೆ (_O)"
+
+#: ../LocalizedStringsGtk.cpp:342
+msgid "Inspect _Element"
+msgstr "ಘಟಕವನ್ನು ಪರಿಶೀಲಿಸು (_E)"
+
+#: ../LocalizedStringsGtk.cpp:347
+msgid "LRM _Left-to-right mark"
+msgstr "_LRM ಎಡದಿಂದ-ಬಲಕ್ಕೆ ಗುರುತು"
+
+#: ../LocalizedStringsGtk.cpp:352
+msgid "RLM _Right-to-left mark"
+msgstr "_RLM ಬಲದಿಂದ-ಎಡಕ್ಕೆ ಗುರುತು"
+
+#: ../LocalizedStringsGtk.cpp:357
+msgid "LRE Left-to-right _embedding"
+msgstr "LRE ಎಡದಿಂದ-ಬಲಕ್ಕೆ ಅಡಕಗೊಳಿಸುವಿಕೆ (_e)"
+
+#: ../LocalizedStringsGtk.cpp:362
+msgid "RLE Right-to-left e_mbedding"
+msgstr "RLE ಬಲದಿಂದ-ಎಡಕ್ಕೆ ಅಡಕಗೊಳಿಸುವಿಕೆ (_m)"
+
+#: ../LocalizedStringsGtk.cpp:367
+msgid "LRO Left-to-right _override"
+msgstr "LRO ಎಡದಿಂದ-ಬಲಕ್ಕೆ ಅತಿಕ್ರಮಿಕೆ (_o)"
+
+#: ../LocalizedStringsGtk.cpp:372
+msgid "RLO Right-to-left o_verride"
+msgstr "RLO ಬಲದಿಂದ-ಎಡಕ್ಕೆ ಅತಿಕ್ರಮಿಕೆ (_v)"
+
+#: ../LocalizedStringsGtk.cpp:377
+msgid "PDF _Pop directional formatting"
+msgstr "_PDF ಪಾಪ್ ಡೈರೆಕ್ಶನಲ್ ಫಾರ್ಮಾಟಿಂಗ್"
+
+#: ../LocalizedStringsGtk.cpp:382
+msgid "ZWS _Zero width space"
+msgstr "_ZWS ಶೂನ್ಯ ಅಗಲದ ಜಾಗ"
+
+#: ../LocalizedStringsGtk.cpp:387
+msgid "ZWJ Zero width _joiner"
+msgstr "ZWJ ಶೂನ್ಯ ಅಗಲ ಸಂಯೋಜಕ (_j)"
+
+#: ../LocalizedStringsGtk.cpp:392
+msgid "ZWNJ Zero width _non-joiner"
+msgstr "ZWNJ ಸಂಯೋಜಕವಲ್ಲದ ಶೂನ್ಯ ಅಗಲ (_n)"
+
+#: ../LocalizedStringsGtk.cpp:397
+msgid "No recent searches"
+msgstr "ಯಾವುದೆ ಇತ್ತೀಚಿನ ಹುಟುಕಾಟಗಳಿಲ್ಲ"
+
+#: ../LocalizedStringsGtk.cpp:402
+msgid "Recent searches"
+msgstr "ಇತ್ತೀಚಿನ ಹುಟುಕಾಟಗಳು"
+
+#: ../LocalizedStringsGtk.cpp:407
+msgid "_Clear recent searches"
+msgstr "ಇತ್ತೀಚಿನ ಹುಟುಕಾಟಗಳನ್ನು ಅಳಿಸು (_C)"
+
+#: ../LocalizedStringsGtk.cpp:412
+msgid "definition"
+msgstr "ವಿವರಣೆ"
+
+#: ../LocalizedStringsGtk.cpp:417
+#| msgid "description"
+msgid "description list"
+msgstr "ವಿವರಣಾ ಪಟ್ಟಿ"
+
+#: ../LocalizedStringsGtk.cpp:422
+msgid "term"
+msgstr "ಪದ"
+
+#: ../LocalizedStringsGtk.cpp:427
+msgid "description"
+msgstr "ವಿವರಣೆ"
+
+#: ../LocalizedStringsGtk.cpp:432
+msgid "footer"
+msgstr "ಅಡಿಬರಹ"
+
+#: ../LocalizedStringsGtk.cpp:437
+msgid "press"
+msgstr "ಪ್ರೆಸ್"
+
+#: ../LocalizedStringsGtk.cpp:442
+msgid "select"
+msgstr "ಆರಿಸು"
+
+#: ../LocalizedStringsGtk.cpp:447
+msgid "activate"
+msgstr "ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../LocalizedStringsGtk.cpp:452
+msgid "uncheck"
+msgstr "ಗುರುತು ತೆಗೆದುಹಾಕು"
+
+#: ../LocalizedStringsGtk.cpp:457
+msgid "check"
+msgstr "ಗುರುತು ಹಾಕು"
+
+#: ../LocalizedStringsGtk.cpp:462
+msgid "jump"
+msgstr "ತೆರಳು"
+
+#: ../LocalizedStringsGtk.cpp:477
+msgid "Missing Plug-in"
+msgstr "ಪ್ಲಗ್‌-ಇನ್ ಕಾಣಿಸುತ್ತಿಲ್ಲ"
+
+#: ../LocalizedStringsGtk.cpp:483
+msgid "Plug-in Failure"
+msgstr "ಪ್ಲಗ್‌ಇನ್ ವಿಫಲತೆ"
+
+#. FIXME: If this file gets localized, this should really be localized as one string with a wildcard for the number.
+#: ../LocalizedStringsGtk.cpp:507
+msgid " files"
+msgstr "ಕಡತಗಳು"
+
+#: ../LocalizedStringsGtk.cpp:512
+msgid "Unknown"
+msgstr "ಗೊತ್ತಿರದ"
+
+#: ../LocalizedStringsGtk.cpp:517
+#, c-format
+msgctxt "Title string for images"
+msgid "%s  (%dx%d pixels)"
+msgstr "%s  (%dx%d ಪಿಕ್ಸೆಲ್‌ಗಳು)"
+
+#: ../LocalizedStringsGtk.cpp:529
+msgid "Loading..."
+msgstr "ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ..."
+
+#: ../LocalizedStringsGtk.cpp:534
+msgid "Live Broadcast"
+msgstr "ಲೈವ್ ಪ್ರಸಾರ"
+
+#: ../LocalizedStringsGtk.cpp:540
+#| msgid "pause playback"
+msgid "audio playback"
+msgstr "ಆಡಿಯೊ ಪ್ಲೇಬ್ಯಾಕ್"
+
+#: ../LocalizedStringsGtk.cpp:542
+#| msgid "begin playback"
+msgid "video playback"
+msgstr "ವೀಡಿಯೊ ಪ್ಲೇಬ್ಯಾಕ್"
+
+#: ../LocalizedStringsGtk.cpp:544
+msgid "mute"
+msgstr "ಮೂಕಗೊಳಿಸು"
+
+#: ../LocalizedStringsGtk.cpp:546
+msgid "unmute"
+msgstr "ಮಾತುಬರಿಸು"
+
+#: ../LocalizedStringsGtk.cpp:548
+msgid "play"
+msgstr "ಚಾಲನೆ ಮಾಡು"
+
+#: ../LocalizedStringsGtk.cpp:550
+msgid "pause"
+msgstr "ವಿರಮಿಸು"
+
+#: ../LocalizedStringsGtk.cpp:552
+msgid "movie time"
+msgstr "ಚಲನಚಿತ್ರದ ಸಮಯ"
+
+#: ../LocalizedStringsGtk.cpp:554
+msgid "timeline slider thumb"
+msgstr "ಕಾಲಾವಧಿ ಸ್ಲೈಡರ್ ತಂಬ್"
+
+#: ../LocalizedStringsGtk.cpp:556
+msgid "back 30 seconds"
+msgstr "ಹಿಂದಿನ 30 ಸೆಕೆಂಡುಗಳು"
+
+#: ../LocalizedStringsGtk.cpp:558
+msgid "return to realtime"
+msgstr "ನಿಜಸಮಯಕ್ಕೆ ಮರಳು"
+
+#: ../LocalizedStringsGtk.cpp:560
+msgid "elapsed time"
+msgstr "ಕಳೆದ ಸಮಯ"
+
+#: ../LocalizedStringsGtk.cpp:562
+msgid "remaining time"
+msgstr "ಉಳಿದಿರುವ ಸಮಯ"
+
+#: ../LocalizedStringsGtk.cpp:564
+msgid "status"
+msgstr "ಸ್ಥಿತಿ"
+
+#: ../LocalizedStringsGtk.cpp:566
+msgid "enter fullscreen"
+msgstr "ಪೂರ್ಣತೆರೆಗೆ ದಾಖಲಿಸು"
+
+#: ../LocalizedStringsGtk.cpp:568
+msgid "exit fullscreen"
+msgstr "ಪೂರ್ಣತೆರೆಯಿಂದ ನಿರ್ಗಮಿಸು"
+
+#: ../LocalizedStringsGtk.cpp:570
+msgid "fast forward"
+msgstr "ಮುಂದೂಡು"
+
+#: ../LocalizedStringsGtk.cpp:572
+msgid "fast reverse"
+msgstr "ಹಿಂದೂಡು"
+
+#: ../LocalizedStringsGtk.cpp:574
+msgid "show closed captions"
+msgstr "ಮುಚ್ಚಲಾದ ಶೀರ್ಷಿಕೆಗಳನ್ನು ತೋರಿಸು"
+
+#: ../LocalizedStringsGtk.cpp:576
+msgid "hide closed captions"
+msgstr "ಮುಚ್ಚಲಾದ ಶೀರ್ಷಿಕೆಗಳನ್ನು ಅಡಗಿಸು"
+
+#: ../LocalizedStringsGtk.cpp:578
+msgid "media controls"
+msgstr "ಮಾಧ್ಯಮ ನಿಯಂತ್ರಣಗಳು"
+
+#: ../LocalizedStringsGtk.cpp:587
+msgid "audio element playback controls and status display"
+msgstr "ಆಡಿಯೋ ಘಟಕ ಪ್ಲೇಬ್ಯಾಕ್ ನಿಯಂತ್ರಣಗಳು ಮತ್ತು ಸ್ಥಿತಿ ಪ್ರದರ್ಶನ"
+
+#: ../LocalizedStringsGtk.cpp:589
+msgid "video element playback controls and status display"
+msgstr "ವೀಡಿಯೋ ಘಟಕ ಪ್ಲೇಬ್ಯಾಕ್ ನಿಯಂತ್ರಣಗಳು ಮತ್ತು ಸ್ಥಿತಿ ಪ್ರದರ್ಶನ"
+
+#: ../LocalizedStringsGtk.cpp:591
+msgid "mute audio tracks"
+msgstr "ಆಡಿಯೊ ಟ್ರ್ಯಾಕ್‌ಗಳನ್ನು ಮೂಕಗೊಳಿಸು"
+
+#: ../LocalizedStringsGtk.cpp:593
+msgid "unmute audio tracks"
+msgstr "ಆಡಿಯೊ ಟ್ರ್ಯಾಕ್‌ಗಳನ್ನು ಮಾತುಬರಿಸು"
+
+#: ../LocalizedStringsGtk.cpp:595
+msgid "begin playback"
+msgstr "ಪ್ಲೇಬ್ಯಾಕನ್ನು ಆರಂಭಿಸು"
+
+#: ../LocalizedStringsGtk.cpp:597
+msgid "pause playback"
+msgstr "ಪ್ಲೇಬ್ಯಾಕನ್ನು ತಾತ್ಕಾಲಿಕ ಸ್ಥಗಿತಗೊಳಿಸು"
+
+#: ../LocalizedStringsGtk.cpp:599
+msgid "movie time scrubber"
+msgstr "ಚಲನಚಿತ್ರದ ಸಮಯದ ಸ್ಕ್ರಬರ್"
+
+#: ../LocalizedStringsGtk.cpp:601
+msgid "movie time scrubber thumb"
+msgstr "ಚಲನಚಿತ್ರದ ಸಮಯದ ಸ್ಕ್ರಬರ್ ತಂಬ್"
+
+#: ../LocalizedStringsGtk.cpp:603
+msgid "seek movie back 30 seconds"
+msgstr "ಚಲನಚಿತ್ರವು 30 ಸೆಕೆಂಡುಗಳಷ್ಟು ಹಿಂದಕ್ಕೆ ಹೋಗಲು ಕೋರು"
+
+#: ../LocalizedStringsGtk.cpp:605
+msgid "return streaming movie to real time"
+msgstr "ಚಲನಚಿತ್ರವನ್ನು ನಿಜ ಸಮಯದಲ್ಲಿ ಸ್ಟ್ರೀಮ್ ಮಾಡುವದಕ್ಕೆ ಮರಳಿಸು"
+
+#: ../LocalizedStringsGtk.cpp:607
+msgid "current movie time in seconds"
+msgstr "ಪ್ರಸಕ್ತ ಚಲನಚಿತ್ರದ ಸಮಯ, ಸೆಕೆಂಡುಗಳಲ್ಲಿ"
+
+#: ../LocalizedStringsGtk.cpp:609
+msgid "number of seconds of movie remaining"
+msgstr "ಚಲನಚಿತ್ರದ ಬಾಕಿ ಇರುವ ಸಮಯ, ಸೆಕೆಂಡುಗಳಲ್ಲಿ"
+
+#: ../LocalizedStringsGtk.cpp:611
+msgid "current movie status"
+msgstr "ಪ್ರಸಕ್ತ ಚಲನಚಿತ್ರದ ಸ್ಥಿತಿ"
+
+#: ../LocalizedStringsGtk.cpp:613
+msgid "seek quickly back"
+msgstr "ಕ್ಷಿಪ್ರವಾಗಿ ಹಿಂದಕ್ಕೆ ಹೋಗಲು ಕೋರು"
+
+#: ../LocalizedStringsGtk.cpp:615
+msgid "seek quickly forward"
+msgstr "ಕ್ಷಿಪ್ರವಾಗಿ ಮುಂದಕ್ಕೆ ಹೋಗಲು ಕೋರು"
+
+#: ../LocalizedStringsGtk.cpp:617
+msgid "Play movie in fullscreen mode"
+msgstr "ಚಲನಚಿತ್ರವನ್ನು ಪೂರ್ಣತೆರೆಯಲ್ಲಿ ಚಲಾಯಿಸು"
+
+#: ../LocalizedStringsGtk.cpp:619
+msgid "Exit fullscreen mode"
+msgstr "ಪೂರ್ಣತೆರೆ ಸ್ಥಿತಿಯಿಂದ ನಿರ್ಗಮಿಸು"
+
+#: ../LocalizedStringsGtk.cpp:621
+msgid "start displaying closed captions"
+msgstr "ಮುಚ್ಚಲಾದ ಶೀರ್ಷಿಕೆಗಳನ್ನು ತೋರಿಸುವುದನ್ನು ಆರಂಭಿಸು"
+
+#: ../LocalizedStringsGtk.cpp:623
+msgid "stop displaying closed captions"
+msgstr "ಮುಚ್ಚಲಾದ ಶೀರ್ಷಿಕೆಗಳನ್ನು ತೋರಿಸುವುದನ್ನು ನಿಲ್ಲಿಸು"
+
+#: ../LocalizedStringsGtk.cpp:632
+msgid "indefinite time"
+msgstr "ಅನಿರ್ದಿಷ್ಟ ಸಮಯ"
+
+#: ../LocalizedStringsGtk.cpp:662
+msgid "value missing"
+msgstr "ಮೌಲ್ಯವು ಕಾಣಿಸುತ್ತಿಲ್ಲ"
+
+#: ../LocalizedStringsGtk.cpp:698
+msgid "type mismatch"
+msgstr "ಬಗೆಯು ಹೊಂದಿಕೆಯಾಗಿಲ್ಲ"
+
+#: ../LocalizedStringsGtk.cpp:721
+msgid "pattern mismatch"
+msgstr "ವಿನ್ಯಾಸವು ಹೊಂದಿಕೆಯಾಗಿಲ್ಲ"
+
+#: ../LocalizedStringsGtk.cpp:726
+msgid "too long"
+msgstr "ಬಹಳ ಉದ್ದವಾಗಿದೆ"
+
+#: ../LocalizedStringsGtk.cpp:731
+msgid "range underflow"
+msgstr "ವ್ಯಾಪ್ತಿಯ ಅಡಿಹರಿವು"
+
+#: ../LocalizedStringsGtk.cpp:736
+msgid "range overflow"
+msgstr "ವ್ಯಾಪ್ತಿಯು ಮಿತಿ ಮೀರಿದೆ"
+
+#: ../LocalizedStringsGtk.cpp:741
+msgid "step mismatch"
+msgstr "ಹಂತವು ಹೊಂದಿಕೆಯಾಗಿಲ್ಲ"
+
+#: ../LocalizedStringsGtk.cpp:746
+msgid "Unacceptable TLS certificate"
+msgstr "TLS ಪ್ರಮಾಣಪತ್ರವನ್ನು ಒಪ್ಪಿಕೊಳ್ಳಲು ಸಾಧ್ಯವಿಲ್ಲ"
+
+#: ../LocalizedStringsGtk.cpp:763
+msgctxt "Closed Captions"
+msgid "Menu section heading for closed captions"
+msgstr "ಮುಚ್ಚಲಾದ ಶೀರ್ಷಿಕೆಗಳಿಗಾಗಿ ಪರಿವಿಡಿ ವಿಭಾಗ ಶೀರ್ಷಿಕೆ"
+
+#: ../LocalizedStringsGtk.cpp:768
+msgctxt "Subtitles"
+msgid "Menu section heading for subtitles"
+msgstr "ಉಪಶೀರ್ಷಿಕೆಗಳಿಗಾಗಿ ಪರಿವಿಡಿ ವಿಭಾಗ ಶೀರ್ಷಿಕೆ"
+
+#: ../LocalizedStringsGtk.cpp:773
+msgctxt "Off"
+msgid "Menu item label for the track that represents disabling closed captions"
+msgstr ""
+"ನಿಷ್ಕ್ರಿಯಗೊಂಡ ಮುಚ್ಚಲಾದ ಶೀರ್ಷಿಕೆಗಳನ್ನು ಸೂಚಿಸುವ ಟ್ರ್ಯಾಕ್‌ಗಾಗಿನ ಪರಿವಿಡಿ ಅಂಶದ "
+"ಲೇಬಲ್"
+
+#: ../LocalizedStringsGtk.cpp:778
+msgctxt "No label"
+msgid "Menu item label for a closed captions track that has no other name"
+msgstr ""
+"ಬೇರಾವಿದೆ ಹೆಸರನ್ನು ಹೊಂದಿರದ ಪರಿವಿಡಿ ಅಂಶ ಲೇಬಲ್‌ಗಾಗಿನ ಮುಚ್ಚಲಾದ ಶೀರ್ಷಿಕೆಗಳ ಟ್ರ್ಯಾಕ್"
+
+#: ../LocalizedStringsGtk.cpp:784
+msgctxt "Snapshotted Plug-In"
+msgid "Title of the label to show on a snapshotted plug-in"
+msgstr "ಸ್ನಾಪ್‌ಶಾಟ್ ಮಾಡಲಾದ ಪ್ಲಗ್-ಇನ್‌ನಲ್ಲಿನ ತೋರಿಸಬೇಕಿರುವ ಲೇಬಲ್‌ನ ಶೀರ್ಷಿಕೆ"
+
+#: ../LocalizedStringsGtk.cpp:789
+msgctxt "Click to restart"
+msgid "Subtitle of the label to show on a snapshotted plug-in"
+msgstr "ಸ್ನಾಪ್‌ಶಾಟ್ ಮಾಡಲಾದ ಪ್ಲಗ್-ಇನ್‌ನಲ್ಲಿನ ತೋರಿಸಬೇಕಿರುವ ಲೇಬಲ್‌ನ ಉಪಶೀರ್ಷಿಕೆ"
+
+#: ../WebKitAuthenticationWidget.cpp:155
+#, c-format
+msgid "The site %s:%i requests a username and password"
+msgstr "%s:%i ಎಂಬ ಜಾಲತಾಣವು ಒಂದು ಬಳಕೆದಾರಹೆಸರು ಮತ್ತು ಗುಪ್ತಪದಕ್ಕೆ ಮನವಿ ಮಾಡಿದೆ"
+
+#: ../WebKitAuthenticationWidget.cpp:159
+msgid "_Remember password"
+msgstr "ಗುಪ್ತಪದಗಳನ್ನು ನೆನಪಿಟ್ಟುಕೊ (_R)"
+
+#: ../WebKitAuthenticationWidget.cpp:167
+msgid "Server message:"
+msgstr "ಪೂರೈಕೆಗಣಕ ಸಂದೇಶ:"
+
+#: ../WebKitAuthenticationWidget.cpp:168 ../WebKitAuthenticationWidget.cpp:177
+msgid "Username:"
+msgstr "ಬಳಕೆದಾರಹೆಸರು:"
+
+#: ../WebKitAuthenticationWidget.cpp:169 ../WebKitAuthenticationWidget.cpp:178
+msgid "Password:"
+msgstr "ಗುಪ್ತಪದ:"
+
+#: ../../graphics/gtk/FullscreenVideoControllerGtk.cpp:328
+msgid "Play"
+msgstr "ಚಾಲನೆ ಮಾಡು"
+
+#: ../../graphics/gtk/FullscreenVideoControllerGtk.cpp:330
+msgid "Pause"
+msgstr "ವಿರಮಿಸು"
+
+#: ../../graphics/gtk/FullscreenVideoControllerGtk.cpp:410
+msgid "Play / Pause"
+msgstr "ಚಲಾಯಿಸು / ವಿರಮಿಸು"
+
+#: ../../graphics/gtk/FullscreenVideoControllerGtk.cpp:410
+msgid "Play or pause the media"
+msgstr "ಮಾಧ್ಯಮವನ್ನು ಚಲಾಯಿಸು ಅಥವ ವಿರಮಿಸು"
+
+#: ../../graphics/gtk/FullscreenVideoControllerGtk.cpp:416
+msgid "Time:"
+msgstr "ಸಮಯ:"
+
+#: ../../graphics/gtk/FullscreenVideoControllerGtk.cpp:442
+msgid "Exit Fullscreen"
+msgstr "ಪೂರ್ಣತೆರೆಯಿಂದ ನಿರ್ಗಮಿಸು"
+
+#: ../../graphics/gtk/FullscreenVideoControllerGtk.cpp:442
+msgid "Exit from fullscreen mode"
+msgstr "ಪೂರ್ಣತೆರೆ ಸ್ಥಿತಿಯಿಂದ ನಿರ್ಗಮಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:276
+msgid "Network Request"
+msgstr "ಜಾಲಬಂಧ ಮನವಿ"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:277
+msgid "The network request for the URI that should be downloaded"
+msgstr "ಇಳಿಸಿಕೊಳ್ಳಬೇಕಿರುವ URI ಗಾಗಿನ ಜಾಲಬಂಧ ಮನವಿ"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:291
+msgid "Network Response"
+msgstr "ಜಾಲಬಂಧದ ಪ್ರತಿಕ್ರಿಯೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:292
+msgid "The network response for the URI that should be downloaded"
+msgstr "ಇಳಿಸಿಕೊಳ್ಳಬೇಕಿರುವ URI ಗಾಗಿನ ಜಾಲಬಂಧದ ಪ್ರತ್ಯುತ್ತರ"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:306
+msgid "Destination URI"
+msgstr "ನಿರ್ದೇಶಿತ URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:307
+msgid "The destination URI where to save the file"
+msgstr "ಕಡತವನ್ನು ಉಳಿಸಬೇಕಿರುವ ಸ್ಥಳದ URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:321
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:150
+msgid "Suggested Filename"
+msgstr "ಸಲಹೆ ಮಾಡಲಾಗುವ ಕಡತದ ಹೆಸರು"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:322
+msgid "The filename suggested as default when saving"
+msgstr "ಉಳಿಸುವಾಗ ಪೂರ್ವನಿಯೋಜಿತ ಎಂದು ಸಲಹೆ ಮಾಡಲಾಗುವ ಕಡತದ ಹೆಸರು"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:339
+msgid "Progress"
+msgstr "ಮುನ್ನಡೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:340
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:171
+msgid "Determines the current progress of the download"
+msgstr "ಇಳಿಕೆಯ ಪ್ರಸಕ್ತ ಪ್ರಗತಿಯನ್ನು ನಿರ್ಧರಿಸುತ್ತದೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:353
+msgid "Status"
+msgstr "ಸ್ಥಿತಿ"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:354
+msgid "Determines the current status of the download"
+msgstr "ಇಳಿಕೆಯ ಪ್ರಸಕ್ತ ಸ್ಥಿತಿಯನ್ನು ನಿರ್ಧರಿಸುತ್ತದೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:369
+msgid "Current Size"
+msgstr "ಪ್ರಸ್ತುತ ಗಾತ್ರ"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:370
+msgid "The length of the data already downloaded"
+msgstr "ಈಗಾಗಲೆ ಇಳಿಸಿಕೊಳ್ಳಲಾದ ದತ್ತಾಂಶ ಉದ್ದ"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:384
+msgid "Total Size"
+msgstr "ಒಟ್ಟು ಗಾತ್ರ"
+
+#: ../../../../WebKit/gtk/webkit/webkitdownload.cpp:385
+msgid "The total size of the file"
+msgstr "ಕಡತದ ಒಟ್ಟು ಗಾತ್ರ"
+
+#: ../../../../WebKit/gtk/webkit/webkitfavicondatabase.cpp:144
+#: ../../../../WebKit/gtk/webkit/webkitfavicondatabase.cpp:579
+msgid "Operation was cancelled"
+msgstr "ಕಾರ್ಯಾಚರಣೆಯನ್ನು ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitfavicondatabase.cpp:253
+#: ../../../../WebKit/gtk/webkit/webkiticondatabase.cpp:148
+msgid "Path"
+msgstr "ಮಾರ್ಗ"
+
+#: ../../../../WebKit/gtk/webkit/webkitfavicondatabase.cpp:254
+#: ../../../../WebKit/gtk/webkit/webkiticondatabase.cpp:149
+msgid "The absolute path of the icon database folder"
+msgstr "ಚಿಹ್ನೆಯ ದತ್ತಸಂಚಯ ಕಡತಕೋಶದ ಪರಿಪೂರ್ಣ ಮಾರ್ಗ"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:129
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:128
+msgid "MIME types filter"
+msgstr "MIME ಬಗೆಗಳ ಫಿಲ್ಟರ್"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:130
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:129
+msgid "The filter currently associated with the request"
+msgstr "ಸೋಸುಗವು ಪ್ರಸಕ್ತ ಯಾವುದೆ ಮನವಿಯೊಂದಿಗೆ ಸಂಬಂಧಿತಗೊಂಡಿಲ್ಲ"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:145
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:142
+msgid "MIME types"
+msgstr "MIME ಬಗೆಗಳು"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:146
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:143
+msgid "The list of MIME types associated with the request"
+msgstr "ಮನವಿಗೆ ಸಂಬಂಧಿಸಿದ MIME ಬಗೆಗಳ ಪಟ್ಟಿ"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:161
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:157
+msgid "Select multiple files"
+msgstr "ಅನೇಕ ಕಡತಗಳನ್ನು ಆಯ್ಕೆ ಮಾಡು"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:162
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:158
+msgid "Whether the file chooser should allow selecting multiple files"
+msgstr "ಕಡತಗಳ ಆಯ್ಕೆಗಾರನು ಅನೇಕ ಕಡತಗಳನ್ನು ಆಯ್ಕೆ ಮಾಡುವುದನ್ನು ಅನುಮತಿಸಬೇಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:177
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:171
+msgid "Selected files"
+msgstr "ಆಯ್ಕೆ ಮಾಡಿದ ಕಡತ"
+
+#: ../../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:178
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:172
+msgid "The list of selected files associated with the request"
+msgstr "ಮನವಿಗೆ ಸಂಬಂಧಿಸಿದ ಕಡತಗಳ ಆಯ್ಕೆ ಮಾಡಿದ ಪಟ್ಟಿ"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:174
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:152
+msgid "Context"
+msgstr "ಸನ್ನಿವೇಶ"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:175
+msgid "Flags indicating the kind of target that received the event."
+msgstr "ಘಟನೆಯನ್ನು ಸ್ವೀಕರಿಸಿದ ಗುರಿಯ ಬಗೆಯನ್ನು ಸೂಚಿಸುವುದನ್ನು ಫ್ಲ್ಯಾಗ್ ಮಾಡುತ್ತದೆ."
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:189
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:166
+msgid "Link URI"
+msgstr "ಕೊಂಡಿ URI"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:190
+msgid "The URI to which the target that received the event points, if any."
+msgstr "ಗುರಿಯಿಂದ ಸ್ವೀಕರಿಸಲಾದ ಘಟನೆಯ ಅಂಶಗಳಿದ್ದಲ್ಲಿ ಅದರ URI."
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:203
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:205
+msgid "Image URI"
+msgstr "ಚಿತ್ರದ URI"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:204
+msgid ""
+"The URI of the image that is part of the target that received the event, if "
+"any."
+msgstr "ಗುರಿಯಿಂದ ಸ್ವೀಕರಿಸಲಾದ ಘಟನೆಯಿದ್ದಲ್ಲಿ ಅದರ ಒಂದು ಭಾಗವಾದಂತಹ ಚಿತ್ರದ URI."
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:217
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:218
+msgid "Media URI"
+msgstr "ಮಾಧ್ಯಮ URI"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:218
+msgid ""
+"The URI of the media that is part of the target that received the event, if "
+"any."
+msgstr "ಗುರಿಯಿಂದ ಸ್ವೀಕರಿಸಲಾದ ಘಟನೆಯಿದ್ದಲ್ಲಿ ಅದರ ಒಂದು ಭಾಗವಾದಂತಹ ಮಾಧ್ಯಮದ URI."
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:239
+msgid "Inner node"
+msgstr "ಒಳಗಿನ ನೋಡ್"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:240
+msgid "The inner DOM node associated with the hit test result."
+msgstr "ಭೇಟಿಯ ಪರೀಕ್ಷೆಯ ಫಲಿತಾಂಶಕ್ಕೆ ಸಂಬಂಧಿಸಿದ ಆಂತರಿಕ DOM ನೋಡ್."
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:253
+msgid "X coordinate"
+msgstr "X ನಿರ್ದೇಶಾಂಕ"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:254
+msgid "The x coordinate of the event relative to the view's window."
+msgstr "ನೋಟದ ಕಿಟಕಿಗೆ ಸಂಬಂಧಿಸಿದ ಘಟನೆಯ x ಅಕ್ಷಾಂಶ"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:267
+msgid "Y coordinate"
+msgstr "Y ನಿರ್ದೇಶಾಂಕ"
+
+#: ../../../../WebKit/gtk/webkit/webkithittestresult.cpp:268
+msgid "The y coordinate of the event relative to the view's window."
+msgstr "ನೋಟದ ಕಿಟಕಿಗೆ ಸಂಬಂಧಿಸಿದ ಘಟನೆಯ y ಅಕ್ಷಾಂಶ"
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkrequest.cpp:134
+#: ../../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:143
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:467
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:176
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:209
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3238
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIRequest.cpp:95
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:99
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebResource.cpp:109
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:689
+msgid "URI"
+msgstr "URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkrequest.cpp:135
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIRequest.cpp:96
+msgid "The URI to which the request will be made."
+msgstr "ಎಲ್ಲಿಗೆ ಮನವಿಯನ್ನು ಮಾಡಬೇಕೊ ಅಲ್ಲಿಯ URI."
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkrequest.cpp:148
+#: ../../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:157
+msgid "Message"
+msgstr "ಸಂದೇಶ"
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkrequest.cpp:149
+msgid "The SoupMessage that backs the request."
+msgstr "ಮನವಿಯನ್ನು ಬೆಂಬಲಿಸುವ SoupMessage."
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:144
+msgid "The URI to which the response will be made."
+msgstr "ಯಾವುದಕ್ಕೆ ಪ್ರತಿಕ್ರಿಯೆ ಮಾಡಬೇಕೊ ಅಲ್ಲಿಯ URI."
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:158
+msgid "The SoupMessage that backs the response."
+msgstr "ಪ್ರತಿಕ್ರಿಯೆಯನ್ನು ಬೆಂಬಲಿಸುವ SoupMessage."
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:171
+msgid "Suggested filename"
+msgstr "ಸಲಹೆ ಮಾಡಲಾದ ಕಡತದ ಹೆಸರು"
+
+#: ../../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:172
+msgid "The suggested filename for the response."
+msgstr "ಪ್ರತಿಕ್ರಿಯೆಗೆ ಸಲಹೆ ಮಾಡಲಾದ ಕಡತದ ಹೆಸರು."
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:150
+msgid "Protocol"
+msgstr "ಪ್ರೊಟೋಕಾಲ್"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:151
+msgid "The protocol of the security origin"
+msgstr "ಸುರಕ್ಷತಾ ಮೂಲಕದ ಪ್ರೊಟೊಕಾಲ್"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:164
+msgid "Host"
+msgstr "ಆತಿಥೇಯ"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:165
+msgid "The host of the security origin"
+msgstr "ಸುರಕ್ಷತಾ ಮೂಲಕದ ಆತಿಥೇಯ"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:178
+msgid "Port"
+msgstr "ಸಂಪರ್ಕಸ್ಥಾನ"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:179
+msgid "The port of the security origin"
+msgstr "ಸುರಕ್ಷತಾ ಮೂಲಕದ ಸಂಪರ್ಕಸ್ಥಾನ"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:192
+msgid "Web Database Usage"
+msgstr "ಜಾಲ ದತ್ತಸಂಚಯ ಬಳಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:193
+msgid "The cumulative size of all web databases in the security origin"
+msgstr "ಸುರಕ್ಷತಾ ಮೂಲದಲ್ಲಿನ ಎಲ್ಲಾ ಜಾಲ ದತ್ತಸಂಚಯಗಳ ಕ್ಯುಮುಲೇಟೀವ್ ಗಾತ್ರ"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:205
+msgid "Web Database Quota"
+msgstr "ಜಾಲ ದತ್ತಸಂಚಯ ಕೋಟಾ"
+
+#: ../../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:206
+msgid "The web database quota of the security origin in bytes"
+msgstr "ಸುರಕ್ಷತಾ ಮೂಲದ ಜಾಲ ದತ್ತಸಂಚಯ ಕೋಟಾ, ಬೈಟ್‌ಗಳಲ್ಲಿ"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:139
+msgid "Device Width"
+msgstr "ಸಾಧನದ ಅಗಲ"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:140
+msgid "The width of the screen."
+msgstr "ತೆರೆಯ ಅಗಲ."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:161
+msgid "Device Height"
+msgstr "ಸಾಧನದ ಎತ್ತರ"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:162
+msgid "The height of the screen."
+msgstr "ತೆರೆಯ ಎತ್ತರ."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:185
+msgid "Available Width"
+msgstr "ಲಭ್ಯವಿರುವ ಅಗಲ"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:186
+msgid "The width of the visible area."
+msgstr "ಗೋಚರಿಸುವ ಸ್ಥಳದ ಅಗಲ."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:209
+msgid "Available Height"
+msgstr "ಲಭ್ಯವಿರುವ ಎತ್ತರ"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:210
+msgid "The height of the visible area."
+msgstr "ಗೋಚರಿಸುವ ಸ್ಥಳದ ಎತ್ತರ."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:231
+msgid "Desktop Width"
+msgstr "ಗಣಕತೆರೆಯ ಅಗಲ"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:232
+msgid ""
+"The width of viewport that works well for most web pages designed for "
+"desktop."
+msgstr ""
+"ವೀವ್‌ಪೋರ್ಟಿನ ಅಗಲವು ಗಣಕತೆರೆಗಾಗಿ ವಿನ್ಯಾಸಗೊಳಿಸಲಾದ ಹೆಚ್ಚಿನ ಜಾಲ ತಾಣಗಳೊಂದಿಗೆ "
+"ಸೂಕ್ತವಾಗಿ "
+"ಕೆಲಸ ಮಾಡುತ್ತದೆ."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:254
+msgid "Device DPI"
+msgstr "ಸಾಧನ DPI"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:255
+msgid "The number of dots per inch of the screen."
+msgstr "ತೆರೆಯ ಮೇಲೆ ಪ್ರತಿ ಇಂಚಿನಲ್ಲಿಯೂ ಇರುವ ಚುಕ್ಕಿಗಳ ಸಂಖ್ಯೆ."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:273
+msgid "Width"
+msgstr "ಅಗಲ"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:274
+msgid "The width of the viewport."
+msgstr "ವೀವ್‌ಪೋರ್ಟಿನ ಅಗಲ"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:292
+msgid "Height"
+msgstr "ಎತ್ತರ"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:293
+msgid "The height of the viewport."
+msgstr "ವೀವ್‌ಪೋರ್ಟಿನ ಎತ್ತರ."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:311
+msgid "Initial Scale Factor"
+msgstr "ಆರಂಭಿಕ ಮಾಪಕ ಅಂಶ"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:312
+msgid "The initial scale of the viewport."
+msgstr "ವೀವ್‌ಪೋರ್ಟಿನ ಆರಂಭಿಕ ಮಾಪಕ ಅಂಶ."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:330
+msgid "Minimum Scale Factor"
+msgstr "ಕನಿಷ್ಟ ಮಾಪಕ ಅಂಶ"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:331
+msgid "The minimum scale of the viewport."
+msgstr "ವೀವ್‌ಪೋರ್ಟಿನ ಕನಿಷ್ಟ ಮಾಪಕ ಅಂಶ."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:349
+msgid "Maximum Scale Factor"
+msgstr "ಗರಿಷ್ಟ ಮಾಪಕ ಅಂಶ"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:350
+msgid "The maximum scale of the viewport."
+msgstr "ವೀವ್‌ಪೋರ್ಟಿನ ಗರಿಷ್ಟ ಮಾಪಕ ಅಂಶ."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:368
+msgid "Device Pixel Ratio"
+msgstr "ಸಾಧನದ ಪಿಕ್ಸೆಲ್ ಅನುಪಾತ"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:369
+msgid "The device pixel ratio of the viewport."
+msgstr "ವೀವ್‌ಪೋರ್ಟಿನ ಸಾಧನದ ಪಿಕ್ಸೆಲ್ ಅನುಪಾತ"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:388
+msgid "User Scalable"
+msgstr "ಬಳಕೆದಾರರಿಂದ ಬದಲಿಸಬಹುದಾದ"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:389
+msgid "Determines whether or not the user can zoom in and out."
+msgstr "ಬಳಕೆದಾರರು ಹಿಗ್ಗಿಸಲು ಮತ್ತು ಕುಗ್ಗಿಸಲು ಅವಕಾಶವಿದೆಯೆ ಎಂದು ನಿರ್ಧರಿಸುತ್ತದೆ."
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:407
+msgid "Valid"
+msgstr "ಮಾನ್ಯವಾದ"
+
+#: ../../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:408
+msgid "Determines whether or not the attributes are valid, and can be used."
+msgstr ""
+"ಗುಣವಿಶೇಷಗಳು ಮಾನ್ಯವಾಗಿವೆಯೆ ಅಥವ ಇಲ್ಲವೆ ಮತ್ತು ಬಳಸಬಹುದೆ ಎಂದು ನಿರ್ಧರಿಸುತ್ತದೆ."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:176
+msgid "Security Origin"
+msgstr "ಸುರಕ್ಷತಾ ಮೂಲ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:177
+msgid "The security origin of the database"
+msgstr "ದತ್ತಸಂಚಯದ ಸುರಕ್ಷತಾ ಮೂಲ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:190
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:453
+msgid "Name"
+msgstr "ಹೆಸರು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:191
+msgid "The name of the Web Database database"
+msgstr "ವೆಬ್‌ ಡೇಟಾಬೇಸ್‌ ದತ್ತಸಂಚಯದ ಹೆಸರು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:204
+msgid "Display Name"
+msgstr "ತೋರಿಸಲಾಗುವ ಹೆಸರು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:205
+msgid "The display name of the Web Storage database"
+msgstr "ವೆಬ್ ಡೇಟಾಬೇಸ್ ದತ್ತಸಂಚಯದ ತೋರಿಸಲಾಗುವ ಹೆಸರು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:218
+msgid "Expected Size"
+msgstr "ನಿರೀಕ್ಷಿಸಲಾದ ಗಾತ್ರ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:219
+msgid "The expected size of the Web Database database"
+msgstr "ವೆಬ್‌ ಡೇಟಾಬೇಸ್‌ ದತ್ತಸಂಚಯದ ನಿರೀಕ್ಷಿತ ಗಾತ್ರ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:231
+msgid "Size"
+msgstr "ಗಾತ್ರ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:232
+msgid "The current size of the Web Database database"
+msgstr "ವೆಬ್‌ ಡೇಟಾಬೇಸ್‌ ದತ್ತಸಂಚಯದ ಪ್ರಸ್ತುತ ಗಾತ್ರ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:244
+msgid "Filename"
+msgstr "ಕಡತದ ಹೆಸರು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:245
+msgid "The absolute filename of the Web Storage database"
+msgstr "ವೆಬ್ ಡೇಟಾಬೇಸ್ ದತ್ತಸಂಚಯದ ಪರಿಪೂರ್ಣ ಕಡತಹೆಸರು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:454
+msgid "The name of the frame"
+msgstr "ಚೌಕಟ್ಟಿನ ಹೆಸರು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:460
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:144
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3224
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:645
+msgid "Title"
+msgstr "ಶೀರ್ಷಿಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:461
+msgid "The document title of the frame"
+msgstr "ಚೌಕಟ್ಟಿನ ದಸ್ತಾವೇಜು ಶೀರ್ಷಿಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:468
+msgid "The current URI of the contents displayed by the frame"
+msgstr "ಚೌಕಟ್ಟಿನಿಂದ ತೋರಿಸಲಾಗುವ ವಿಷಯಗಳ ಪ್ರಸಕ್ತ URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:499
+msgid "Horizontal Scrollbar Policy"
+msgstr "ಅಡ್ಡ ಚಲನಪಟ್ಟಿಕೆ ನಿಯಮ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:500
+msgid ""
+"Determines the current policy for the horizontal scrollbar of the frame."
+msgstr "ಚೌಕಟ್ಟಿನ ಅಡ್ಡಚಲನಪಟ್ಟಿಕೆಗಾಗಿ ಪ್ರಸಕ್ತ ಪಾಲಿಸಿಯನ್ನು ನಿರ್ಧರಿಸುತ್ತದೆ."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:517
+msgid "Vertical Scrollbar Policy"
+msgstr "ಲಂಬ ಚಲನಪಟ್ಟಿಕೆ ನಿಯಮ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebframe.cpp:518
+msgid "Determines the current policy for the vertical scrollbar of the frame."
+msgstr "ಚೌಕಟ್ಟಿನ ಲಂಬಚಲನಪಟ್ಟಿಕೆಗಾಗಿ ಪ್ರಸಕ್ತ ಪಾಲಿಸಿಯನ್ನು ನಿರ್ಧರಿಸುತ್ತದೆ."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:145
+msgid "The title of the history item"
+msgstr "ಇತಿಹಾಸದ ಅಂಶದ ಶೀರ್ಷಿಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:160
+msgid "Alternate Title"
+msgstr "ಪರ್ಯಾಯ ಶೀರ್ಷಿಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:161
+msgid "The alternate title of the history item"
+msgstr "ಇತಿಹಾಸದ ಅಂಶದ ಪರ್ಯಾಯ ಶೀರ್ಷಿಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:177
+msgid "The URI of the history item"
+msgstr "ಇತಿಹಾಸದ ಅಂಶದ URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:192
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:163
+msgid "Original URI"
+msgstr "ಮೂಲ URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:193
+msgid "The original URI of the history item"
+msgstr "ಇತಿಹಾಸದ ಅಂಶದ ಮೂಲ URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:208
+msgid "Last visited Time"
+msgstr "ಕೊನೆಯ ಬಾರಿ ಭೇಟಿ ನೀಡಿದ ಸಮಯ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:209
+msgid "The time at which the history item was last visited"
+msgstr "ಇತಿಹಾಸದ ಅಂಶವನ್ನು ಕಡೆಯಬಾರಿ ಭೇಟಿ ನೀಡಿದ ಸಮಯ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:273
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:154
+msgid "Web View"
+msgstr "ಜಾಲ ನೋಟ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:274
+msgid "The Web View that renders the Web Inspector itself"
+msgstr "ಸ್ವತಃ ಜಾಲ ನಿರೀಕ್ಷಣಾಧಿಕಾರಿಯನ್ನು ತೋರಿಸುವ ಜಾಲದ ನೋಟ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:287
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebInspector.cpp:122
+msgid "Inspected URI"
+msgstr "ಪರಿಶೀಲಿಸಲಾದ URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:288
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebInspector.cpp:123
+msgid "The URI that is currently being inspected"
+msgstr "ಪ್ರಸಕ್ತ ಪರಿಶೀಲಸಲಾಗುತ್ತಿರುವ URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:304
+msgid "Enable JavaScript profiling"
+msgstr "ಜಾವಾಸ್ಕ್ರಿಪ್ಟ್‍ ಪ್ರೊಫೈಲಿಂಗ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:305
+msgid "Profile the executed JavaScript."
+msgstr "ಕಾರ್ಯಗತಗೊಳಿಸಲಾದ ಜಾವಾಸ್ಕ್ರಿಪ್ಟ್ ಪ್ರೊಫೈಲ್."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:320
+msgid "Enable Timeline profiling"
+msgstr "ಟೈಮ್‌ಲೈನ್ ಪ್ರೊಫೈಲಿಂಗ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebinspector.cpp:321
+msgid "Profile the WebCore instrumentation."
+msgstr "WebCore ಇನ್‌ಸ್ಟ್ರುಮೆಂಟೇಶಮ್ ಪ್ರೊಫೈಲ್ ಮಾಡು."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:148
+msgid "Reason"
+msgstr "ಕಾರಣ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:149
+msgid "The reason why this navigation is occurring"
+msgstr "ಈ ನ್ಯಾವಿಗೇಶನ್ ಅನ್ನು ಏಕೆ ಮಾಡಲಾಗುತ್ತಿದೆ ಎನ್ನುವದರ ಕಾರಣ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:164
+msgid "The URI that was requested as the target for the navigation"
+msgstr "ನ್ಯಾವಿಗೇಶನ್‌ಗಾಗಿ ಗುರಿಯಾಗಿ ಮನವಿ ಮಾಡಲಾದ URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:178
+msgid "Button"
+msgstr "ಒತ್ತುಗುಂಡಿ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:179
+msgid "The button used to click"
+msgstr "ಕ್ಲಿಕ್ ಮಾಡಲು ಬಳಸಲಾದ ಒತ್ತು ಗುಂಡಿ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:194
+msgid "Modifier state"
+msgstr "ಮಾರ್ಪಡಕದ ಸ್ಥಿತಿ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:195
+msgid "A bitmask representing the state of the modifier keys"
+msgstr "ಮಾರ್ಪಡಕ ಕೀಲಿಗಳ ಸ್ಥಿತಿಯನ್ನು ಪ್ರತಿನಿಧಿಸುವ ಒಂದು ಬಿಟ್‌ಮಾಸ್ಕ್‍"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:210
+msgid "Target frame"
+msgstr "ನಿರ್ದೇಶಿತ ಚೌಕಟ್ಟು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:211
+msgid "The target frame for the navigation"
+msgstr "ನ್ಯಾವಿಗೇಶನ್‌ಗಾಗಿ ನಿರ್ದೇಶಿತವಾದ ಚೌಕಟ್ಟು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebplugin.cpp:113
+msgid "Enabled"
+msgstr "ಸಕ್ರಿಯಗೊಂಡ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebplugin.cpp:114
+msgid "Whether the plugin is enabled"
+msgstr "ಪ್ಲಗ್‌ಇನ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆಯೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:210
+msgid "The URI of the resource"
+msgstr "ಸಂಪನ್ಮೂಲದ URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:224
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:137
+msgid "MIME Type"
+msgstr "MIME ಬಗೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:225
+msgid "The MIME type of the resource"
+msgstr "ಸಂಪನ್ಮೂಲದ MIME ಬಗೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:239
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3373
+msgid "Encoding"
+msgstr "ಎನ್ಕೋಡಿಂಗ್"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:240
+msgid "The text encoding name of the resource"
+msgstr "ಸಂಪನ್ಮೂಲದ ಪಠ್ಯ ಎನ್ಕೋಡಿಂಗ್ ಹೆಸರು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:255
+msgid "Frame Name"
+msgstr "ಚೌಕಟ್ಟಿನ ಹೆಸರು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebresource.cpp:256
+msgid "The frame name of the resource"
+msgstr "ಸಂಪನ್ಮೂಲದ ಚೌಕಟ್ಟಿನ ಹೆಸರು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:150
+msgid "Default Encoding"
+msgstr "ಪೂರ್ವನಿಯೋಜಿತ ಎನ್ಕೋಡಿಂಗ್"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:151
+msgid "The default encoding used to display text."
+msgstr "ಪಠ್ಯವನ್ನು ತೋರಿಸಲು ಬಳಸಲಾಗುವ ಪೂರ್ವನಿಯೋಜಿತ ಎನ್ಕೋಡಿಂಗ್"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:159
+msgid "Cursive Font Family"
+msgstr "ಕರ್ಸೀವ್ ಅಕ್ಷರಶೈಲಿಯ ಪರಿವಾರ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:160
+msgid "The default Cursive font family used to display text."
+msgstr "ಪಠ್ಯವನ್ನು ತೋರಿಸಲು ಬಳಸಲಾಗುವ ಪೂರ್ವನಿಯೋಜಿತ ಕರ್ಸೀವ್ ಅಕ್ಷರಶೈಲಿ ಪರಿವಾರ."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:168
+msgid "Default Font Family"
+msgstr "ಪೂರ್ವನಿಯೋಜಿತ ಅಕ್ಷರಶೈಲಿಯ ಪರಿವಾರ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:169
+msgid "The default font family used to display text."
+msgstr "ಪಠ್ಯವನ್ನು ತೋರಿಸಲು ಬಳಸಲಾಗುವ ಪೂರ್ವನಿಯೋಜಿತ ಅಕ್ಷರಶೈಲಿ ಪರಿವಾರ."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:177
+msgid "Fantasy Font Family"
+msgstr "ಫ್ಯಾಂಟಸಿ ಅಕ್ಷರಶೈಲಿಯ ಪರಿವಾರ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:178
+msgid "The default Fantasy font family used to display text."
+msgstr "ಪಠ್ಯವನ್ನು ತೋರಿಸಲು ಬಳಸಲಾಗುವ ಪೂರ್ವನಿಯೋಜಿತ ಫ್ಯಾಂಟಸಿ ಅಕ್ಷರಶೈಲಿ ಪರಿವಾರ."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:186
+msgid "Monospace Font Family"
+msgstr "ಮೊನೊಸ್ಪೇಸ್ ಅಕ್ಷರಶೈಲಿ ಪರಿವಾರ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:187
+msgid "The default font family used to display monospace text."
+msgstr "ಪಠ್ಯವನ್ನು ತೋರಿಸಲು ಬಳಸಲಾಗುವ ಪೂರ್ವನಿಯೋಜಿತ ಮೊನೊಸ್ಪೇಸ್ ಅಕ್ಷರಶೈಲಿ ಪರಿವಾರ."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:195
+msgid "Sans Serif Font Family"
+msgstr "ಸಾನ್ಸ್‍ ಸೆರಿಫ್ ಅಕ್ಷರಶೈಲಿ ಪರಿವಾರ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:196
+msgid "The default Sans Serif font family used to display text."
+msgstr ""
+"ಪಠ್ಯವನ್ನು ತೋರಿಸಲು ಬಳಸಲಾಗುವ ಪೂರ್ವನಿಯೋಜಿತ ಸಾನ್ಸ್‍ ಸೆರಿಫ್ ಅಕ್ಷರಶೈಲಿ ಪರಿವಾರ."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:204
+msgid "Serif Font Family"
+msgstr "ಸೆರಿಫ್ ಅಕ್ಷರಶೈಲಿ ಪರಿವಾರ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:205
+msgid "The default Serif font family used to display text."
+msgstr "ಪಠ್ಯವನ್ನು ತೋರಿಸಲು ಬಳಸಲಾಗುವ ಪೂರ್ವನಿಯೋಜಿತ ಸೆರಿಫ್ ಅಕ್ಷರಶೈಲಿ ಪರಿವಾರ."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:213
+msgid "Default Font Size"
+msgstr "ಪೂರ್ವನಿಯೋಜಿತ ಅಕ್ಷರಶೈಲಿ ಗಾತ್ರ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:214
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:729
+msgid "The default font size used to display text."
+msgstr "ಪಠ್ಯವನ್ನು ತೋರಿಸಲು ಬಳಸಲಾಗುವ ಪೂರ್ವನಿಯೋಜಿತ ಅಕ್ಷರಶೈಲಿ ಗಾತ್ರ."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:222
+msgid "Default Monospace Font Size"
+msgstr "ಪೂರ್ವನಿಯೋಜಿತ ಮೊನೊಸ್ಪೇಸ್ ಅಕ್ಷರಶೈಲಿ ಗಾತ್ರ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:223
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:743
+msgid "The default font size used to display monospace text."
+msgstr "ಪಠ್ಯವನ್ನು ತೋರಿಸಲು ಬಳಸಲಾಗುವ ಪೂರ್ವನಿಯೋಜಿತ ಮೊನೊಸ್ಪೇಸ್ ಅಕ್ಷರಶೈಲಿ ಗಾತ್ರ."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:231
+msgid "Minimum Font Size"
+msgstr "ಅಕ್ಷರಶೈಲಿಯ ಕನಿಷ್ಟ ಗಾತ್ರ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:232
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:758
+msgid "The minimum font size used to display text."
+msgstr "ಪಠ್ಯವನ್ನು ತೋರಿಸಲು ಬಳಸಲಾಗುವ ಅಕ್ಷರಶೈಲಿಯ ಕನಿಷ್ಟ ಗಾತ್ರ."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:240
+msgid "Minimum Logical Font Size"
+msgstr "ತಾರ್ಕಿಕ ಅಕ್ಷರಶೈಲಿಯ ಕನಿಷ್ಟ ಗಾತ್ರ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:241
+msgid "The minimum logical font size used to display text."
+msgstr "ಪಠ್ಯವನ್ನು ತೋರಿಸಲು ಬಳಸಲಾಗುವ ತಾರ್ಕಿಕ ಅಕ್ಷರಶೈಲಿಯ ಕನಿಷ್ಟ ಗಾತ್ರ."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:260
+msgid "Enforce 96 DPI"
+msgstr "96 DPI ಅನ್ನು ಒತ್ತಾಯಪಡಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:261
+msgid "Enforce a resolution of 96 DPI"
+msgstr "96 DPI ರೆಸಲ್ಯೂಶನ್‌ ಅನ್ನು ಒತ್ತಾಯಪಡಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:269
+msgid "Auto Load Images"
+msgstr "ಚಿತ್ರಗಳನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ತುಂಬು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:270
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:470
+msgid "Load images automatically."
+msgstr "ಚಿತ್ರಗಳನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ತುಂಬಿಸು."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:278
+msgid "Auto Shrink Images"
+msgstr "ಚಿತ್ರಗಳನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಸಂಕುಚನಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:279
+msgid "Automatically shrink standalone images to fit."
+msgstr "ಚಿತ್ರಗಳು ಹೊಂದಿಕೆಯಾಗುವಂತೆ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಕುಗ್ಗಿಸು."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:287
+msgid "Respect Image Orientation"
+msgstr "ಚಿತ್ರದ ನಿಲುವಿಗೆ (ಓರಿಯೆಂಟೇಶನ್) ಆದ್ಯತೆ ನೀಡು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:288
+msgid "Whether WebKit should respect image orientation."
+msgstr "WebKit ಚಿತ್ರದ ನಿಲುವಿಗೆ ಗಮನವನ್ನು ನೀಡಬೇಕೆ."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:296
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:882
+msgid "Print Backgrounds"
+msgstr "ಹಿನ್ನೆಲೆಗಳನ್ನು ಮುದ್ರಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:297
+msgid "Whether background images should be printed."
+msgstr "ಹಿನ್ನಲೆ ಚಿತ್ರಗಳನ್ನು ಮುದ್ರಿಸಬೇಕೆ."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:305
+msgid "Enable Scripts"
+msgstr "ಸ್ಕ್ರಿಪ್ಟುಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:306
+msgid "Enable embedded scripting languages."
+msgstr "ಅಡಕಗೊಳಿಸಲಾದ ಸ್ಕ್ರಿಪ್ಟಿಂಗ್ ಭಾಷೆಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:314
+msgid "Enable Plugins"
+msgstr "ಪ್ಲಗ್‌ಇನ್‌ಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:315
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:580
+msgid "Enable embedded plugin objects."
+msgstr "ಅಡಕಗೊಳಿಸಲಾದ ಪ್ಲಗ್‌ಇನ್ ವಸ್ತುಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:323
+msgid "Resizable Text Areas"
+msgstr "ಮರುಗಾತ್ರಿಸಬಹುದಾದ ಪಠ್ಯ ಸ್ಥಳಗಳು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:324
+msgid "Whether text areas are resizable."
+msgstr "ಪಠ್ಯದ ಗಾತ್ರಗಳನ್ನು ಮರುಗಾತ್ರಿಸಲು ಸಾಧ್ಯವೆ."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:331
+msgid "User Stylesheet URI"
+msgstr "ಬಳಕೆದಾರ ಶೈಲಿಹಾಳೆ URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:332
+msgid "The URI of a stylesheet that is applied to every page."
+msgstr "ಪ್ರತಿಯೊಂದು ಪುಟಕ್ಕೂ ಸಹ ಅಳವಡಿಸಲಾಗುವ ಶೈಲಿಹಾಳೆಗಳು."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:347
+msgid "Zoom Stepping Value"
+msgstr "ಗಾತ್ರ ಹೆಚ್ಚಿಸುವ ಮೌಲ್ಯ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:348
+msgid "The value by which the zoom level is changed when zooming in or out."
+msgstr ""
+"ಗಾತ್ರವನ್ನು ಕುಗ್ಗಿಸುವಾಗ ಅಥವ ಹಿಗ್ಗಿಸುವಾಗ ಗಾತ್ರ ಬದಲಾವಣೆ ಮಟ್ಟವನ್ನು ಬದಲಾಯಿಸಬೇಕಿರುವ "
+"ಮೌಲ್ಯ."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:366
+msgid "Enable Developer Extras"
+msgstr "ವಿಕಸನೆಗಾರ ಹೆಚ್ಚುವರಿಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:367
+msgid "Enables special extensions that help developers"
+msgstr "ವಿಕಸನಗಾರರಿಗೆ ನೆರವಾಗುವ ವಿಶೇಷವಾದ ವಿಸ್ತರಣೆಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸುತ್ತದೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:387
+msgid "Enable Private Browsing"
+msgstr "ಖಾಸಗಿ ಜಾಲವೀಕ್ಷಣಾ ಕ್ರಮವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:388
+msgid "Enables private browsing mode"
+msgstr "ಖಾಸಗಿ ಜಾಲವೀಕ್ಷಣಾ ಕ್ರಮವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸುತ್ತದೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:403
+msgid "Enable Spell Checking"
+msgstr "ಕಾಗುಣಿತ ಪರೀಕ್ಷೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:404
+msgid "Enables spell checking while typing"
+msgstr "ನಮೂದಿಸದಂತೆಲ್ಲಾ ಕಾಗುಣಿತ ಪರೀಕ್ಷಿಸುವುದನ್ನು ಸಕ್ರಿಯಗೊಳಿಸುತ್ತದೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:427
+msgid "Languages to use for spell checking"
+msgstr "ಕಾಗುಣಿತ ಪರೀಕ್ಷೆಗಾಗಿ ಬಳಸಬೇಕಿರುವ ಭಾಷೆಗಳು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:428
+msgid "Comma separated list of languages to use for spell checking"
+msgstr ""
+"ಕಾಗುಣಿತ ಪರೀಕ್ಷೆಗಾಗಿ ಬಳಸಬೇಕಿರುವ ಭಾಷೆಗಳು, ವಿರಾಮಚಿಹ್ನೆಗಳಿಂದ ಬೇರ್ಪಡಿಸಲಾಗಿರುವ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:442
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:853
+msgid "Enable Caret Browsing"
+msgstr "ಕ್ಯಾರಟ್ ಜಾಲವೀಕ್ಷಣೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:443
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:854
+msgid "Whether to enable accessibility enhanced keyboard navigation"
+msgstr "ಕೀಲಿಮಣೆ ನ್ಯಾವಿಗೇಶನ್ ಅನ್ನು ವರ್ಧಿಸಲು ನಿಲುಕಣೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:458
+msgid "Enable HTML5 Database"
+msgstr "HTML5 ದತ್ತಸಂಚಯವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:459
+msgid "Whether to enable HTML5 database support"
+msgstr "HTML5 ದತ್ತಸಂಚಯ ಬೆಂಬಲವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:474
+msgid "Enable HTML5 Local Storage"
+msgstr "HTML5 ಸ್ಥಳೀಯ ಶೇಖರಣೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:475
+msgid "Whether to enable HTML5 Local Storage support"
+msgstr "HTML5 ಸ್ಥಳೀಯ ಶೇಖರಣೆ ಬೆಂಬಲವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:490
+msgid "Local Storage Database Path"
+msgstr "ಸ್ಥಳೀಯ ಶೇಖರಣಾ ದತ್ತಸಂಚಯ ಮಾರ್ಗ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:491
+msgid "The path to where HTML5 Local Storage databases are stored."
+msgstr "HTML5 ಸ್ಥಳೀಯ ಶೇಖರಣೆ ದತ್ತಸಂಚಯಗಳನ್ನು ಶೇಖರಿಸಿ ಇಡಲಾದ ಸ್ಥಳದ ಮಾರ್ಗ."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:505
+msgid "Enable XSS Auditor"
+msgstr "XSS ಆಡಿಟರ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:506
+msgid "Whether to enable the XSS auditor"
+msgstr "XSS ಆಡಿಟರ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:524
+msgid "Enable Spatial Navigation"
+msgstr "ಸ್ಪೇಶಿಯಲ್ ನ್ಯಾವಿಗೇಶನ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:525
+msgid "Whether to enable Spatial Navigation"
+msgstr "ಸ್ಪೇಶಿಯಲ್ ನ್ಯಾವಿಗೇಶನ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:543
+msgid "Enable Frame Flattening"
+msgstr "ಚೌಕಟ್ಟು ಸಪಾಟುಗೊಳಿಸುವಿಕೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:544
+msgid "Whether to enable Frame Flattening"
+msgstr "ಚೌಕಟ್ಟು ಸಪಾಟುಗೊಳಿಸುವಿಕೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:561
+msgid "User Agent"
+msgstr "ಬಳಕೆದಾರ ಮಧ್ಯವರ್ತಿ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:562
+msgid "The User-Agent string used by WebKitGtk"
+msgstr "WebKitGtk ಇಂದ ಬಳಸಲಾದ ಬಳಕೆದಾರ ಮಧ್ಯವರ್ತಿ ವಾಕ್ಯಾಂಶ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:577
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:606
+msgid "JavaScript can open windows automatically"
+msgstr "ಜಾವಾಸ್ಕ್ರಿಪ್ಟ್‍ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಕಿಟಕಿಯನ್ನು ತೆಗೆಯಬಹುದು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:578
+msgid "Whether JavaScript can open windows automatically"
+msgstr "ಜಾವಾಸ್ಕ್ರಿಪ್ಟ್‍ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಕಿಟಕಿಯನ್ನು ತೆಗೆಯಬಹುದೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:592
+msgid "JavaScript can access Clipboard"
+msgstr "ಜಾವಾಸ್ಕ್ರಿಪ್ಟನ್ನು ನಕಲುಫಲಕದಿಂದ ನಿಲುಕಿಸಿಕೊಳ್ಳಬಹುದು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:593
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:966
+msgid "Whether JavaScript can access Clipboard"
+msgstr "ಜಾವಾಸ್ಕ್ರಿಪ್ಟನ್ನು ನಕಲುಫಲಕದಿಂದ ನಿಲುಕಿಸಿಕೊಳ್ಳಬಹುದೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:609
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:501
+msgid "Enable offline web application cache"
+msgstr "ಆಫ್‌ಲೈನ್ ಜಾಲ ಅನ್ವಯ ಕ್ಯಾಶೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:610
+msgid "Whether to enable offline web application cache"
+msgstr "ಆಫ್‌ಲೈನ್ ಜಾಲ ಅನ್ವಯ ಕ್ಯಾಶೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:635
+msgid "Editing behavior"
+msgstr "ಸಂಪಾದನೆಯ ವರ್ತನೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:636
+msgid "The behavior mode to use in editing mode"
+msgstr "ಸಂಪಾದನೆಯ ಕ್ರಮದಲ್ಲಿ ಬಳಸಬೇಕಿರುವ ಪೂರ್ವನಿಯೋಜಿತ ವರ್ತನೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:652
+msgid "Enable universal access from file URIs"
+msgstr "ಕಡತ URIಗಳ ಮುಖಾಂತರ ಜಾಗತಿಕ ನಿಲುಕಣೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:653
+msgid "Whether to allow universal access from file URIs"
+msgstr "ಕಡತ URIಗಳ ಮುಖಾಂತರ ಜಾಗತಿಕ ನಿಲುಕಣೆಯನ್ನು ಅನುಮತಿಸಬೇಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:668
+msgid "Enable DOM paste"
+msgstr "DOM ಅಂಟಿಸುವಿಕೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:669
+msgid "Whether to enable DOM paste"
+msgstr "DOM ಅಂಟಿಸುವಿಕೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:687
+msgid "Tab key cycles through elements"
+msgstr "ಟ್ಯಾಬ್ ಕೀಲಿಯು ಪುಟದಲ್ಲಿರುವ ಘಟಕಗಳ ಮುಖಾಂತರ ಹಾಯುತ್ತದೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:688
+msgid "Whether the tab key cycles through elements on the page."
+msgstr "ಟ್ಯಾಬ್ ಕೀಲಿಯು ಪುಟದಲ್ಲಿರುವ ಘಟಕಗಳ ಮುಖಾಂತರ ಹಾದು ಹೋಗುತ್ತದೆಯೆ."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:710
+msgid "Enable Default Context Menu"
+msgstr "ಪೂರ್ವನಿಯೋಜಿತ ಸನ್ನಿವೇಶ ಪರಿವಿಡಿಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:711
+msgid ""
+"Enables the handling of right-clicks for the creation of the default context "
+"menu"
+msgstr ""
+"ಪೂರ್ವನಿಯೋಜಿತ ಸನ್ನಿವೇಶ ಪರಿವಿಡಿಯ ರಚನೆಗಾಗಿ ಬಲ-ಕ್ಲಿಕ್‌ಗಳನ್ನು ನಿಭಾಯಿಸುವುದನ್ನು "
+"ಸಕ್ರಿಯಗೊಳಿಸುತ್ತದೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:731
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1030
+msgid "Enable Site Specific Quirks"
+msgstr "ತಾಣ-ನಿಶ್ಚಿತ ಚಮತ್ಕಾರಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:732
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1031
+msgid "Enables the site-specific compatibility workarounds"
+msgstr "ತಾಣ-ನಿಶ್ಚಿತ ಹೊಂದಾಣಿಕೆ ಪರ್ಯಾಯಮಾರ್ಗಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:754
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1051
+msgid "Enable page cache"
+msgstr "ಪುಟದ ಕ್ಯಾಶೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:755
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1052
+msgid "Whether the page cache should be used"
+msgstr "ಪುಟದ ಕ್ಯಾಶೆಯನ್ನು ಬಳಸಬೇಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:775
+msgid "Auto Resize Window"
+msgstr "ಕಿಟಕಿಯ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಮರುಗಾತ್ರಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:776
+msgid "Automatically resize the toplevel window when a page requests it"
+msgstr "ಒಂದು ಪುಟವು ಮೇಲ್ಮಟ್ಟದ ಕಿಟಕಿಯನ್ನು ಮರುಗಾತ್ರಿಸಲು ಮನವಿ ಸಲ್ಲಿಸಿದಾಗ ಹಾಗೆ ಮಾಡು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:808
+msgid "Enable Java Applet"
+msgstr "ಜಾವಾ ಆಪ್ಲೆಟ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:809
+msgid "Whether Java Applet support through <applet> should be enabled"
+msgstr "<applet> ಮೂಲಕ ಜಾವಾ ಆಪ್ಲೆಟ್ ಬೆಂಬಲವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:823
+msgid "Enable Hyperlink Auditing"
+msgstr "ಹೈಪರ್ಲಿಂಕ್ ಆಡಿಟಿಂಗ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:824
+msgid "Whether <a ping> should be able to send pings"
+msgstr "<a ping> ಎನ್ನುವುದು ಪಿಂಗ್‌ಗಳನ್ನು ಕಳುಹಿಸಲು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:832
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:869
+msgid "Enable Fullscreen"
+msgstr "ಪೂರ್ಣತೆರೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:833
+msgid "Whether the Mozilla style API should be enabled."
+msgstr "Mozilla ಶೈಲಿ API ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:848
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:916
+msgid "Enable WebGL"
+msgstr "WebGL ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:849
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:917
+msgid "Whether WebGL content should be rendered"
+msgstr "WebGL ವಿಷಯವನ್ನು ತೋರಿಸಬೇಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:865
+msgid "Enable accelerated compositing"
+msgstr "ವೇಗವರ್ಧನೆ ಸಮ್ಮಿಶ್ರಗೊಳಿಕೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:866
+msgid "Whether accelerated compositing should be enabled"
+msgstr "ವೇಗವರ್ಧನೆ ಸಮ್ಮಿಶ್ರಗೊಳಿಕೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:884
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:901
+msgid "Enable WebAudio"
+msgstr "WebAudio ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:885
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:902
+msgid "Whether WebAudio content should be handled"
+msgstr "WebAudio ವಿಷಯವನ್ನು ನಿಭಾಯಿಸಬೇಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:901
+msgid "WebKit prefetches domain names"
+msgstr "WebKit ಡೊಮೈನ್ ಹೆಸರುಗಳನ್ನು ಮೊದಲೆ ತೆಗೆದುಕೊಳ್ಳುತ್ತದೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:902
+msgid "Whether WebKit prefetches domain names"
+msgstr "WebKit ಡೊಮೈನ್ ಹೆಸರುಗಳನ್ನು ಮೊದಲೆ ತೆಗೆದುಕೊಳ್ಳಬೇಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:920
+msgid "Enable Media Stream"
+msgstr "ಮಾಧ್ಯಮ ಸ್ಟ್ರೀಮ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:921
+msgid "Whether Media Stream should be enabled"
+msgstr "ಮಾಧ್ಯಮ ಸ್ಟ್ರೀಮ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:936
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1084
+msgid "Enable smooth scrolling"
+msgstr "ಮೃದುವಾದ ಚಲನೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:937
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1085
+msgid "Whether to enable smooth scrolling"
+msgstr "ಮೃದುವಾದ ಚಲನೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:955
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:982
+msgid "Media playback requires user gesture"
+msgstr "ಮೀಡಿಯ ಪ್ಲೇಬ್ಯಾಕ್‌ಗಾಗಿ ಬಳಕೆದಾರರ ಸೂಚನೆಯ ಅಗತ್ಯವಿರುತ್ತದೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:956
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:983
+msgid "Whether media playback requires user gesture"
+msgstr "ಮೀಡಿಯ ಪ್ಲೇಬ್ಯಾಕ್‌ಗಾಗಿ ಬಳಕೆದಾರರ ಸೂಚನೆಯ ಅಗತ್ಯವಿರುತ್ತದೆಯೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:972
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:997
+msgid "Media playback allows inline"
+msgstr "ಮೀಡಿಯ ಪ್ಲೇಬ್ಯಾಕ್ ಸಾಲಿನೊಳಗಿರುವುದಕ್ಕೆ ಅನುಮತಿಸುತ್ತದೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:973
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:998
+msgid "Whether media playback allows inline"
+msgstr "ಮೀಡಿಯ ಪ್ಲೇಬ್ಯಾಕ್ ಸಾಲಿನೊಳಗಿರುವುದಕ್ಕೆ ಅನುಮತಿಸುತ್ತದೆಯೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:991
+msgid "Enable CSS shaders"
+msgstr "CSS ಶೇಡರುಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:992
+msgid "Whether to enable css shaders"
+msgstr "CSS ಶೇಡರುಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:1007
+msgid "Enable display of insecure content"
+msgstr "ಅಸುರಕ್ಷಿತ ವಿಷಯವನ್ನು ತೋರಿಸುವುದನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:1008
+msgid "Whether non-HTTPS resources can display on HTTPS pages."
+msgstr "HTTPS ಪುಟಗಳಲ್ಲಿ  HTTPS ಯಲ್ಲದ ಸಂಪನ್ಮೂಲಗಳನ್ನು ತೋರಿಸಬಲ್ಲದೆ."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:1023
+msgid "Enable running of insecure content"
+msgstr "ಅಸುರಕ್ಷಿತ ವಿಷಯವನ್ನು ಚಲಾಯಿಸುವುದನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebsettings.cpp:1024
+msgid "Whether non-HTTPS resources can run on HTTPS pages."
+msgstr "HTTPS ಪುಟಗಳಲ್ಲಿ  HTTPS ಯಲ್ಲದ ಸಂಪನ್ಮೂಲಗಳನ್ನು ಚಲಾಯಿಸಬಲ್ಲದೆ."
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:1307
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:455
+msgid "Select Files"
+msgstr "ಕಡತಗಳನ್ನು ಆರಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:1307
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:455
+msgid "Select File"
+msgstr "ಕಡತವನ್ನು ಆರಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3225
+msgid "Returns the @web_view's document title"
+msgstr "@web_view ನ ದಸ್ತಾವೇಜಿನ ಶೀರ್ಷಿಕೆಗೆ ಮರಳುತ್ತದೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3239
+msgid "Returns the current URI of the contents displayed by the @web_view"
+msgstr "@web_view ಇಂದ ತೋರಿಸಲಾಗುವ ವಿಷಯಗಳ ಪ್ರಸಕ್ತ URI ಗೆ ಮರಳುತ್ತದೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3252
+msgid "Copy target list"
+msgstr "ಗುರಿಯ ಪಟ್ಟಿಯನ್ನು ಪ್ರತಿ ಮಾಡು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3253
+msgid "The list of targets this web view supports for clipboard copying"
+msgstr ""
+"ಈ ಜಾಲ ನೋಟವನ್ನು ಬೆಂಬಲಿಸುವ ನಕಲುಫಲಕಕ್ಕೆ ಕಾಪಿ ಮಾಡುವಿಕೆ ಬೆಂಬಲಿಸುವ ಗುರಿಗಳ ಪಟ್ಟಿ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3266
+msgid "Paste target list"
+msgstr "ನಿರ್ದೇಶಿತ ಪಟ್ಟಿಯನ್ನು ಅಂಟಿಸು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3267
+msgid "The list of targets this web view supports for clipboard pasting"
+msgstr "ಈ ಜಾಲ ನೋಟವನ್ನು ಬೆಂಬಲಿಸುವ ನಕಲುಫಲಕಕ್ಕೆ ಅಂಟಿಸುವಿಕೆ ಬೆಂಬಲಿಸುವ ಗುರಿಗಳ ಪಟ್ಟಿ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3273
+msgid "Settings"
+msgstr "ಸಿದ್ಧತೆಗಳು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3274
+msgid "An associated WebKitWebSettings instance"
+msgstr "ಸಂಬಂಧಿಸಿದ ಒಂದು WebKitWebSettings ಸನ್ನಿವೇಶ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3287
+#: ../../../../WebKit2/UIProcess/gtk/WebInspectorProxyGtk.cpp:92
+#: ../../../../WebKit2/UIProcess/gtk/WebInspectorProxyGtk.cpp:157
+msgid "Web Inspector"
+msgstr "ಜಾಲ ಮೇಲ್ವಿಚಾರಕ (ವೆಬ್ ಇನ್ಸ್‌ಪೆಕ್ಟರ್)"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3288
+msgid "The associated WebKitWebInspector instance"
+msgstr "ಸಂಬಂಧಿಸಿದ WebKitWebInspector ಸನ್ನಿವೇಶ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3301
+msgid "Viewport Attributes"
+msgstr "ವೀವ್‌ಪೋರ್ಟಿನ ಗುಣವಿಶೇಷಗಳು"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3302
+msgid "The associated WebKitViewportAttributes instance"
+msgstr "ಸಂಬಂಧಿಸಿದ WebKitViewportAttributes ಸನ್ನಿವೇಶ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3322
+msgid "Editable"
+msgstr "ಸಂಪಾದಿಸಬಹುದಾದ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3323
+msgid "Whether content can be modified by the user"
+msgstr "ವಿಷಯವನ್ನು ಬಳಕೆದಾರರು ಬದಲಾಯಿಸಬಹುದೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3329
+msgid "Transparent"
+msgstr "ಪಾರದರ್ಶಕ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3330
+msgid "Whether content has a transparent background"
+msgstr "ವಿಷಯವು ಪಾರದರ್ಶಕ ಹಿನ್ನಲೆಯನ್ನು ಹೊಂದಿದೆಯೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3343
+msgid "Zoom level"
+msgstr "ಹಿಗ್ಗಿಸುವ ಮಟ್ಟ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3344
+msgid "The level of zoom of the content"
+msgstr "ವಿಷಯದ ಗಾತ್ರ ಬದಲಾವಣೆಯ ಮಟ್ಟ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3359
+msgid "Full content zoom"
+msgstr "ಸಂಪೂಣ ವಿಷಯದ ಗಾತ್ರಬದಲಾವಣೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3360
+msgid "Whether the full content is scaled when zooming"
+msgstr "ಗಾತ್ರ ಬದಲಾವಣೆ ಮಾಡುವಾಗ ಸಂಪೂರ್ಣ ವಿಷಯದ ಅಳತೆಯನ್ನು ಬದಲಿಸಬೇಕೆ"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3374
+msgid "The default encoding of the web view"
+msgstr "ಜಾಲ ನೋಟದ ಪೂರ್ವನಿಯೋಜಿತ ಎನ್ಕೋಡಿಂಗ್"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3387
+msgid "Custom Encoding"
+msgstr "ಅಗತ್ಯಾನುಗುಣ ಎನ್ಕೋಡಿಂಗ್"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3388
+msgid "The custom encoding of the web view"
+msgstr "ಜಾಲ ನೋಟದ ಅಗತ್ಯಾನುಗುಣ ಎನ್ಕೋಡಿಂಗ್"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3440
+msgid "Icon URI"
+msgstr "ಚಿಹ್ನೆ URI"
+
+#: ../../../../WebKit/gtk/webkit/webkitwebview.cpp:3441
+msgid "The URI for the favicon for the #WebKitWebView."
+msgstr "#WebKitWebView ಗಾಗಿನ ಫೆವಿಕಾನ್‌ಗಾಗಿ URI."
+
+#: ../../../../WebKit2/Shared/Downloads/soup/DownloadSoup.cpp:89
+#, c-format
+msgid ""
+"Cannot determine destination URI for download with suggested filename %s"
+msgstr ""
+"ಇಳಿಸಿಕೊಳ್ಳಲು ಸಲಹೆ ಮಾಡಲಾಗುವ %s ಎಂಬ ಕಡತದ ಹೆಸರಿನೊಂದಿಗೆ ಗುರಿ URI ಅನ್ನು ನಿರ್ಧರಿಸಲು "
+"ಸಾಧ್ಯವಾಗಿಲ್ಲ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:139
+msgid "Destination"
+msgstr "ಗುರಿ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:140
+msgid "The local URI to where the download will be saved"
+msgstr "ಇಳಿಸಿಕೊಳ್ಳಲಾಗಿರುವುದನ್ನು ಎಲ್ಲಿ ಉಳಿಸಲಾಗುವುದೋ ಅದರ URI"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:152
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebResource.cpp:122
+msgid "Response"
+msgstr "ಪ್ರತಿಕ್ರಿಯೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:153
+msgid "The response of the download"
+msgstr "ಇಳಿಸುವಿಕೆಯ ಪ್ರತಿಕ್ರಿಯೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:170
+msgid "Estimated Progress"
+msgstr "ಅಂದಾಜು ಮಾಡಲಾದ ಪ್ರಗತಿ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:141
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:255
+#, c-format
+msgid "Unknown favicon for page %s"
+msgstr "ಪ್ರತಿ %s ಪುಟಕ್ಕಾಗಿ ಅಜ್ಞಾತ ಫೆವಿಕಾನ್"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:147
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:251
+#, c-format
+msgid "Page %s does not have a favicon"
+msgstr "%s ಪುಟವು ಒಂದು ಫೆವಿಕಾನ್ ಅನ್ನು ಹೊಂದಿಲ್ಲ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:247
+msgid "Favicons database not initialized yet"
+msgstr "ಫೆವಿಕಾನ್‌ಗಳ ದತ್ತಸಂಚಯಗಳನ್ನು ಇನ್ನೂ ಆರಂಭಿಸಲಾಗಿಲ್ಲ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:175
+msgid "Search text"
+msgstr "ಪಠ್ಯಕ್ಕಾಗಿ ಹುಡುಕು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:176
+msgid "Text to search for in the view"
+msgstr "ನೋಟದಲ್ಲಿ ಹುಡುಕಬೇಕಿರುವ ಪಠ್ಯ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:188
+msgid "Search Options"
+msgstr "ಹುಡುಕು ಆಯ್ಕೆಗಳು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:189
+msgid "Search options to be used in the search operation"
+msgstr "ಹುಡುಕು ಕಾರ್ಯಾಚರಣೆಯಲ್ಲಿ ಬಳಸಬೇಕಿರುವ ಹುಡುಕು ಆಯ್ಕೆಗಳು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:202
+msgid "Maximum matches count"
+msgstr "ಗರಿಷ್ಟ ಹೊಂದಿಕೆಯ ಎಣಿಕೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:203
+msgid "The maximum number of matches in a given text to report"
+msgstr "ವರದಿ ಮಾಡಲು ನೀಡಲಾದ ಪಠ್ಯದಲ್ಲಿನ ಗರಿಷ್ಟ ಸಂಖ್ಯೆಯ ಹೊಂದಿಕೆಗಳು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:215
+msgid "WebView"
+msgstr "WebView"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:216
+msgid "The WebView associated with this find controller"
+msgstr "ಈ ಹುಡುಕು ನಿಯಂತ್ರಕಕ್ಕೆ ಸಂಬಂಧಿಸಿದ WebView"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:153
+msgid "Flags with the context of the WebKitHitTestResult"
+msgstr "WebKitHitTestResult ದ ಸನ್ನಿವೇಶದೊಂದಿಗಿನ ಫ್ಲ್ಯಾಗ್‌ಗಳು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:167
+msgid "The link URI"
+msgstr "ಕೊಂಡಿ URI"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:179
+msgid "Link Title"
+msgstr "ಕೊಂಡಿ ಶೀರ್ಷಿಕೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:180
+msgid "The link title"
+msgstr "ಕೊಂಡಿ ಶೀರ್ಷಿಕೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:192
+msgid "Link Label"
+msgstr "ಕೊಂಡಿ ಲೇಬಲ್"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:193
+msgid "The link label"
+msgstr "ಕೊಂಡಿ ಲೇಬಲ್"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:206
+msgid "The image URI"
+msgstr "ಚಿತ್ರದ URI"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:219
+msgid "The media URI"
+msgstr "ಮಾಧ್ಯಮ URI"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:105
+msgid "Navigation type"
+msgstr "ನ್ಯಾವಿಗೇಶನ್ ಬಗೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:106
+msgid "The type of navigation triggering this decision"
+msgstr "ಈ ನಿರ್ಧಾರಕ್ಕೆ ಕಾರಣವಾಗುತ್ತಿರುವ ನ್ಯಾವಿಗೇಶನ್‌ನ ಬಗೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:123
+msgid "Mouse button"
+msgstr "ಮೌಸ್ ಗುಂಡಿ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:124
+msgid "The mouse button used if this decision was triggered by a mouse event"
+msgstr "ಈ ನಿರ್ಧಾರವು ಒಂದು ಮೌಸ್‌ ಘಟನೆಯಿಂದ ಆರಂಭಗೊಂಡಲ್ಲಿ ಬಳಸಲಾಗುವ ಮೌಟ್ ಗುಂಡಿ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:140
+msgid "Mouse event modifiers"
+msgstr "ಮೌಸ್‌ ಘಟನೆ ಮಾರ್ಪಡಕಗಳು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:141
+msgid "The modifiers active if this decision was triggered by a mouse event"
+msgstr "ಈ ನಿರ್ಧಾರವು ಒಂದು ಮೌಸ್‌ ಘಟನೆಯಿಂದ ಆರಂಭಗೊಂಡಲ್ಲಿ ಸಕ್ರಿಯವಾಗಿರುವ ಮಾರ್ಪಡಕಗಳು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:154
+msgid "Navigation URI request"
+msgstr "ನ್ಯಾವಿಗೇಶನ್ URI ಮನವಿ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:155
+msgid "The URI request that is associated with this navigation"
+msgstr "ಈ ನ್ಯಾವಿಗೇಶನ್‌ಗೆ ಸಂಬಂಧಿಸಿದ URI ಮನವಿ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:170
+msgid "Frame name"
+msgstr "ಚೌಕಟ್ಟಿನ ಹೆಸರು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:171
+msgid "The name of the new frame this navigation action targets"
+msgstr "ಈ ನ್ಯಾವಿಗೇಶನ್ ಕ್ರಿಯೆಯು ಗುರಿಯಾಗಿರಿಸಿಕೊಂಡಿರುವ ಚೌಕಟ್ಟಿನ ಹೆಸರು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:155
+msgid "The web view that will be printed"
+msgstr "ಮುದ್ರಿಸಲಾಗುವ ಜಾಲ ನೋಟ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:167
+msgid "Print Settings"
+msgstr "ಮುದ್ರಣದ ಸಿದ್ಧತೆಗಳು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:168
+msgid "The initial print settings for the print operation"
+msgstr "ಮುದ್ರಣ ಕಾರ್ಯಾಚರಣೆಗಾಗಿ ಆರಂಭಿಕ ಮುದ್ರಣ ಸಿದ್ಧತೆಗಳು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:179
+msgid "Page Setup"
+msgstr "ಪುಟದ ಸಿದ್ಧತೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:180
+msgid "The initial page setup for the print operation"
+msgstr "ಮುದ್ರಣ ಕಾರ್ಯಾಚರಣೆಗಾಗಿ ಆರಂಭಿಕ ಪುಟದ ಸಿದ್ಧತೆಗಳು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitResponsePolicyDecision.cpp:91
+msgid "Response URI request"
+msgstr "ಪ್ರತಿಕ್ರಿಯೆ URI ಮನವಿ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitResponsePolicyDecision.cpp:92
+msgid "The URI request that is associated with this policy decision"
+msgstr "ಈ ಪಾಲಿಸಿ ನಿರ್ಧಾರಕ್ಕೆ ಸಂಬಂಧಿಸಿದ URI ಮನವಿ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitResponsePolicyDecision.cpp:105
+msgid "URI response"
+msgstr "URI ಪ್ರತಿಕ್ರಿಯೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitResponsePolicyDecision.cpp:106
+msgid "The URI response that is associated with this policy decision"
+msgstr "ಈ ಪಾಲಿಸಿ ನಿರ್ಧಾರಕ್ಕೆ ಸಂಬಂಧಿಸಿದ URI ಪ್ರತಿಕ್ರಿಯೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:454
+msgid "Enable JavaScript"
+msgstr "ಜಾವಾಸ್ಕ್ರಿಪ್ಟನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:455
+msgid "Enable JavaScript."
+msgstr "ಜಾವಾಸ್ಕ್ರಿಪ್ಟನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:469
+msgid "Auto load images"
+msgstr "ಚಿತ್ರಗಳನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಲೋಡ್ ಮಾಡು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:483
+msgid "Load icons ignoring image load setting"
+msgstr "ಚಿತ್ರದ ಲೋಡ್ ಸಿದ್ಧತೆಯನ್ನು ಕಡೆಗಣಿಸಿಕೊಂಡು ತಾಣದ ಚಿಹ್ನೆಗಳನ್ನು ಲೋಡ್ ಮಾಡು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:484
+msgid "Whether to load site icons ignoring image load setting."
+msgstr "ಚಿತ್ರದ ಲೋಡ್ ಸಿದ್ಧತೆಯನ್ನು ಕಡೆಗಣಿಸಿಕೊಂಡು ತಾಣದ ಚಿಹ್ನೆಗಳನ್ನು ಲೋಡ್ ಮಾಡಬೇಕೆ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:502
+msgid "Whether to enable offline web application cache."
+msgstr "ಆಫ್‌ಲೈನ್ ಜಾಲ ಅನ್ವಯ ಕ್ಯಾಶೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:518
+msgid "Enable HTML5 local storage"
+msgstr "HTML5 ಸ್ಥಳೀಯ ಶೇಖರಣೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:519
+msgid "Whether to enable HTML5 Local Storage support."
+msgstr "HTML5 ಸ್ಥಳೀಯ ಶೇಖರಣೆ ಬೆಂಬಲವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:536
+msgid "Enable HTML5 database"
+msgstr "HTML5 ದತ್ತಸಂಚಯವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:537
+msgid "Whether to enable HTML5 database support."
+msgstr "HTML5 ದತ್ತಸಂಚಯ ಬೆಂಬಲವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:550
+msgid "Enable XSS auditor"
+msgstr "XSS ಆಡಿಟರ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:551
+msgid "Whether to enable the XSS auditor."
+msgstr "XSS ಆಡಿಟರ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:566
+msgid "Enable frame flattening"
+msgstr "ಚೌಕಟ್ಟು ಸಪಾಟುಗೊಳಿಸುವಿಕೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:567
+msgid "Whether to enable frame flattening."
+msgstr "ಚೌಕಟ್ಟು ಸಪಾಟುಗೊಳಿಸುವಿಕೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:579
+msgid "Enable plugins"
+msgstr "ಪ್ಲಗ್‌ಇನ್‌ಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:592
+msgid "Enable Java"
+msgstr "ಜಾವಾ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:593
+msgid "Whether Java support should be enabled."
+msgstr "ಜಾವಾ ಬೆಂಬಲವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:607
+msgid "Whether JavaScript can open windows automatically."
+msgstr "ಜಾವಾಸ್ಕ್ರಿಪ್ಟ್‍ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಕಿಟಕಿಯನ್ನು ತೆಗೆಯಬಹುದೆ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:622
+msgid "Enable hyperlink auditing"
+msgstr "ಹೈಪರ್ಲಿಂಕ್ ಆಡಿಟಿಂಗ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:623
+msgid "Whether <a ping> should be able to send pings."
+msgstr "<a ping> ಎನ್ನುವುದು ಪಿಂಗ್‌ಗಳನ್ನು ಕಳುಹಿಸಲು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:635
+msgid "Default font family"
+msgstr "ಪೂರ್ವನಿಯೋಜಿತ ಅಕ್ಷರಶೈಲಿಯ ಪರಿವಾರ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:636
+msgid ""
+"The font family to use as the default for content that does not specify a "
+"font."
+msgstr ""
+"ಒಂದು ಅಕ್ಷರಶೈಲಿಯನ್ನು ಸೂಚಿಸದೆ ಇರುವ ವಿಷಯಕ್ಕಾಗಿನ ಬಳಸಬೇಕಿರುವ ಪೂರ್ವನಿಯೋಜಿತ "
+"ಅಕ್ಷರಶೈಲಿ "
+"ಪರಿವಾರ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:649
+msgid "Monospace font family"
+msgstr "ಮೊನೊಸ್ಪೇಸ್ ಅಕ್ಷರಶೈಲಿ ಪರಿವಾರ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:650
+msgid "The font family used as the default for content using monospace font."
+msgstr ""
+"ಮಾನೋಸ್ಪೋಸ್ ಅಕ್ಷರಶೈಲಿಯನ್ನು ಬಳಸುವ ವಿಷಯಕ್ಕಾಗಿನ ಬಳಸಲಾಗುವ ಪೂರ್ವನಿಯೋಜಿತ ಅಕ್ಷರಶೈಲಿ "
+"ಪರಿವಾರ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:662
+msgid "Serif font family"
+msgstr "ಸೆರಿಫ್ ಅಕ್ಷರಶೈಲಿ ಪರಿವಾರ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:663
+msgid "The font family used as the default for content using serif font."
+msgstr ""
+"ಸೆರಿಫ್ ಅಕ್ಷರಶೈಲಿಯನ್ನು ಬಳಸುವ ವಿಷಯಕ್ಕಾಗಿನ ಬಳಸಲಾಗುವ ಪೂರ್ವನಿಯೋಜಿತ ಅಕ್ಷರಶೈಲಿ "
+"ಪರಿವಾರ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:675
+msgid "Sans-serif font family"
+msgstr "ಸಾನ್ಸ್‍ ಸೆರಿಫ್ ಅಕ್ಷರಶೈಲಿ ಪರಿವಾರ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:676
+msgid "The font family used as the default for content using sans-serif font."
+msgstr ""
+"ಸಾನ್ಸ್-ಸೆರಿಫ್ ಅಕ್ಷರಶೈಲಿಯನ್ನು ಬಳಸುವ ವಿಷಯಕ್ಕಾಗಿನ ಬಳಸಲಾಗುವ ಪೂರ್ವನಿಯೋಜಿತ "
+"ಅಕ್ಷರಶೈಲಿ "
+"ಪರಿವಾರ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:688
+msgid "Cursive font family"
+msgstr "ಕರ್ಸೀವ್ ಅಕ್ಷರಶೈಲಿಯ ಪರಿವಾರ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:689
+msgid "The font family used as the default for content using cursive font."
+msgstr ""
+"ಕರ್ಸೀವ್ ಅಕ್ಷರಶೈಲಿಯನ್ನು ಬಳಸುವ ವಿಷಯಕ್ಕಾಗಿನ ಬಳಸಲಾಗುವ ಪೂರ್ವನಿಯೋಜಿತ ಅಕ್ಷರಶೈಲಿ "
+"ಪರಿವಾರ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:701
+msgid "Fantasy font family"
+msgstr "ಫ್ಯಾಂಟಸಿ ಅಕ್ಷರಶೈಲಿಯ ಪರಿವಾರ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:702
+msgid "The font family used as the default for content using fantasy font."
+msgstr ""
+"ಫ್ಯಾಂಟಸಿ ಅಕ್ಷರಶೈಲಿಯನ್ನು ಬಳಸುವ ವಿಷಯಕ್ಕಾಗಿನ ಬಳಸಲಾಗುವ ಪೂರ್ವನಿಯೋಜಿತ ಅಕ್ಷರಶೈಲಿ "
+"ಪರಿವಾರ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:714
+msgid "Pictograph font family"
+msgstr "ಚಿತ್ರಲಿಪಿ ಅಕ್ಷರಶೈಲಿ ಸಮೂಹ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:715
+msgid "The font family used as the default for content using pictograph font."
+msgstr ""
+"ಚಿತ್ರಲಿಪಿ ಅಕ್ಷರಶೈಲಿಯನ್ನು ಬಳಸುವ ವಿಷಯಕ್ಕಾಗಿನ ಬಳಸಲಾಗುವ ಪೂರ್ವನಿಯೋಜಿತ ಅಕ್ಷರಶೈಲಿ "
+"ಪರಿವಾರ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:728
+msgid "Default font size"
+msgstr "ಪೂರ್ವನಿಯೋಜಿತ ಅಕ್ಷರಶೈಲಿ ಗಾತ್ರ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:742
+msgid "Default monospace font size"
+msgstr "ಪೂರ್ವನಿಯೋಜಿತ ಮೊನೊಸ್ಪೇಸ್ ಅಕ್ಷರಶೈಲಿ ಗಾತ್ರ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:757
+msgid "Minimum font size"
+msgstr "ಅಕ್ಷರಶೈಲಿಯ ಕನಿಷ್ಟ ಗಾತ್ರ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:770
+msgid "Default charset"
+msgstr "ಪೂರ್ವನಿಯೋಜಿತ ಕ್ಯಾರ್ಸೆಟ್"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:771
+msgid ""
+"The default text charset used when interpreting content with unspecified "
+"charset."
+msgstr ""
+"ಸೂಚಿಸದಿರುವ ಕ್ಯಾರ್ಸೆಟ್‌ನೊಂದಿಗೆ ವಿಷಯವನ್ನು ಅರ್ಥೈಸಿಕೊಳ್ಳುವಾಗ ಬಳಸಲಾಗುವ "
+"ಪೂರ್ವನಿಯೋಜಿತ ಪಠ್ಯ "
+"ಕ್ಯಾರ್ಸೆಟ್."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:784
+msgid "Enable private browsing"
+msgstr "ಖಾಸಗಿ ಜಾಲವೀಕ್ಷಣಾ ಕ್ರಮವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:785
+msgid "Whether to enable private browsing"
+msgstr "ಖಾಸಗಿ ಜಾಲವೀಕ್ಷಣಾ ಕ್ರಮವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:797
+msgid "Enable developer extras"
+msgstr "ವಿಕಸನೆಗಾರ ಹೆಚ್ಚುವರಿಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:798
+msgid "Whether to enable developer extras"
+msgstr "ವಿಕಸನೆಗಾರ ಹೆಚ್ಚುವರಿಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:810
+msgid "Enable resizable text areas"
+msgstr "ಮರುಗಾತ್ರಿಸಬಹುದಾದ ಪಠ್ಯ ಸ್ಥಳಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:811
+msgid "Whether to enable resizable text areas"
+msgstr "ಮರುಗಾತ್ರಿಸಬಹುದಾದ ಪಠ್ಯ ಸ್ಥಳಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:826
+msgid "Enable tabs to links"
+msgstr "ಕೊಂಡಿಗಳಿಗೆ ಟ್ಯಾಬ್‌ಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:827
+msgid "Whether to enable tabs to links"
+msgstr "ಕೊಂಡಿಗಳಿಗೆ ಟ್ಯಾಬ್‌ಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:840
+msgid "Enable DNS prefetching"
+msgstr "DNS ಪೂರ್ವತರುವಿಕೆಯನ್ನು (ಪ್ರಿಫೆಚಿಂಗ್) ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:841
+msgid "Whether to enable DNS prefetching"
+msgstr "DNS ಪೂರ್ವತರುವಿಕೆಯನ್ನು (ಪ್ರಿಫೆಚಿಂಗ್) ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:870
+msgid "Whether to enable the Javascriipt Fullscreen API"
+msgstr "Javascriipt Fullscreen API ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:883
+msgid "Whether background images should be drawn during printing"
+msgstr "ಮುದ್ರಿಸುವಾಗ ಹಿನ್ನಲೆ ಚಿತ್ರಗಳನ್ನು ಚಿತ್ರಿಸಬೇಕೆ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:934
+msgid "Allow modal dialogs"
+msgstr "ಮೋಡಲ್ ಸಂವಾದಗಳನ್ನು ಅನುಮತಿಸು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:935
+msgid "Whether it is possible to create modal dialogs"
+msgstr "ಮೋಡಲ್ ಸಂವಾದಗಳನ್ನು ರಚಿಸಲು ಸಾಧ್ಯವೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:950
+msgid "Zoom Text Only"
+msgstr "ಪಠ್ಯವನ್ನು ಮಾತ್ರ ಗಾತ್ರ ಬದಲಿಸು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:951
+msgid "Whether zoom level of web view changes only the text size"
+msgstr "ಜಾಲ ನೋಟದ ಗಾತ್ರ ಬದಲಾವಣೆ ಮಟ್ಟವು ಪಠ್ಯ ಗಾತ್ರವನ್ನು ಮಾತ್ರ ಬದಲಿಸುತ್ತದೆಯೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:965
+msgid "JavaScript can access clipboard"
+msgstr "JavaScript ನಕಲುಫಲಕದಿಂದ ನಿಲುಕಿಸಿಕೊಳ್ಳಬಹುದು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1012
+msgid "Draw compositing indicators"
+msgstr "ಸಮ್ಮಿಶ್ರಗೊಳಿಕೆ ಸೂಚಕಗಳನ್ನು ಚಿತ್ರಿಸು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1013
+msgid "Whether to draw compositing borders and repaint counters"
+msgstr ""
+"ಸಮ್ಮಿಶ್ರಗೊಳಿಕೆ ಅಂಚುಗಳನ್ನು ಚಿತ್ರಿಸಬೇಕೆ ಮತ್ತು ಕೌಂಟರುಗಳಿಗೆ ಮರುಬಣ್ಣ ಹಚ್ಚಬೇಕೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1071
+msgid "User agent string"
+msgstr "ಬಳಕೆದಾರ ಮಧ್ಯವರ್ತಿ ವಾಕ್ಯಾಂಶ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1072
+msgid "The user agent string"
+msgstr "ಬಳಕೆದಾರ ಮಧ್ಯವರ್ತಿ ವಾಕ್ಯಾಂಶ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1102
+#| msgid "Enable accelerated compositing"
+msgid "Enable accelerated 2D canvas"
+msgstr "ವೇಗವರ್ಧಿತ 2D ಕ್ಯಾನ್‌ವಾಸ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1103
+#| msgid "Whether to enable resizable text areas"
+msgid "Whether to enable accelerated 2D canvas"
+msgstr "ವೇಗವರ್ಧಿತ 2D ಕ್ಯಾನ್‌ವಾಸ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಬೇಕೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1118
+msgid "Write console messages on stdout"
+msgstr "ಕನ್ಸೋಲ್ ಸಂದೇಶಗಳನ್ನು stdout ಗೆ ಬರೆಯಿರಿ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1119
+#| msgid "Whether to load site icons ignoring image load setting."
+msgid "Whether to write console messages on stdout"
+msgstr "ಕನ್ಸೋಲ್ ಸಂದೇಶಗಳನ್ನು stdout ಗೆ ಬರೆಯಬೇಕೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:100
+msgid "The URI for which the response was made."
+msgstr "ಯಾವುದಕ್ಕೆ ಪ್ರತಿಕ್ರಿಯೆ ಮಾಡಲಾಗಿದೆಯೊ ಅಲ್ಲಿಯ URI."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:111
+msgid "Status Code"
+msgstr "ಸ್ಥಿತಿ ಸಂಕೇತ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:112
+msgid "The status code of the response as returned by the server."
+msgstr "ಪೂರೈಕೆಗಣಕದಿಂದ ಮರಳಿಸಲಾದ ಪ್ರತಿಕ್ರಿಯೆಯ ಸ್ಥಿತಿ ಸಂಕೇತ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:124
+msgid "Content Length"
+msgstr "ವಿಷಯದ ಗಾತ್ರ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:125
+msgid "The expected content length of the response."
+msgstr "ಪ್ರತಿಕ್ರಿಯೆಯ ವಿಷಯದ ನಿರೀಕ್ಷಿತ ಗಾತ್ರ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:138
+msgid "The MIME type of the response"
+msgstr "ಪ್ರತಿಕ್ರಿಯೆಯ MIME ಬಗೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:151
+msgid "The suggested filename for the URI response"
+msgstr "URI ಪ್ರತಿಕ್ರಿಯೆಗೆ ಸಲಹೆ ಮಾಡಲಾದ ಕಡತದ ಹೆಸರು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebInspector.cpp:134
+msgid "Attached Height"
+msgstr "ಲಗತ್ತಿಸಲಾದ ಎತ್ತರ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebInspector.cpp:135
+msgid "The height that the inspector view should have when it is attached"
+msgstr "ಪರಿವೀಕ್ಷಕ ನೋಟವನ್ನು ಲಗತ್ತಿಸಿದಾಗ ಅದು ಹೊಂದಿರಬೇಕಿರುವ ಎತ್ತರ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebResource.cpp:110
+msgid "The current active URI of the resource"
+msgstr "ಸಂಪನ್ಮೂಲದ ಪ್ರಸಕ್ತ ಸಕ್ರಿಯ URI"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebResource.cpp:123
+msgid "The response of the resource"
+msgstr "ಸಂಪನ್ಮೂಲದ ಪ್ರತಿಕ್ರಿಯೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:617
+msgid "Web Context"
+msgstr "ಜಾಲ ಸನ್ನಿವೇಶ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:618
+msgid "The web context for the view"
+msgstr "ನೋಟಕ್ಕಾಗಿನ ಜಾಲ ಸನ್ನಿವೇಶ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:631
+#| msgid "WebView"
+msgid "WebView Group"
+msgstr "WebView ಗುಂಪು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:632
+#| msgid "The device pixel ratio of the viewport."
+msgid "The WebKitWebViewGroup of the view"
+msgstr "ನೋಟದ WebKitWebViewGroup"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:646
+msgid "Main frame document title"
+msgstr "ಮುಖ್ಯ ಚೌಕಟ್ಟಿನ ದಾಖಲೆಯ ಶೀರ್ಷಿಕೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:664
+msgid "Estimated Load Progress"
+msgstr "ಲೋಡ್‌ ಮಾಡುವಿಕೆಯ ಅಂದಾಜು ಪ್ರಗತಿ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:665
+msgid "An estimate of the percent completion for a document load"
+msgstr "ದಸ್ತಾವೇಜು ಲೋಡ್ ಆಗುವುದಕ್ಕಾಗಿನ ಪೂರ್ಣಗೊಳಿಕೆ ಶೇಕಡಾದ ಒಂದು ಅಂದಾಜು"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:677
+msgid "Favicon"
+msgstr "ಫೆವಿಕಾನ್"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:678
+msgid "The favicon associated to the view, if any"
+msgstr "ಈ ನೋಟಕ್ಕೆ ಸಂಬಂಧಿಸಿದ ಯಾವುದಾದರೂ ಫೆವಿಕಾನ್"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:690
+msgid "The current active URI of the view"
+msgstr "ನೋಟದ ಪ್ರಸಕ್ತ ಸಕ್ರಿಯ URI"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:704
+msgid "The zoom level of the view content"
+msgstr "ನೋಟ ವಿಷಯದ ಗಾತ್ರ ಬದಲಾವಣೆಯ ಮಟ್ಟ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:722
+msgid "Whether the view is loading a page"
+msgstr "ನೋಟವು ಒಂದು ಪುಟವನ್ನು ಲೋಡ್ ಮಾಡುತ್ತಿದೆಯೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:736
+msgid "The view mode to display the web view contents"
+msgstr "ಜಾಲ ನೋಟದ ವಿಷಯಗಳನ್ನು ತೋರಿಸಲು ನೋಟದ ಕ್ರಮ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:2512
+msgid "An exception was raised in JavaScript"
+msgstr "ಜಾವಾಸ್ಕ್ರಿಪ್ಟಿನಲ್ಲಿ ಒಂದು ಆಕ್ಷೇಪಣೆಯು ಕಂಡುಬಂದಿದೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:3041
+msgid "There was an error creating the snapshot"
+msgstr "ಸ್ನ್ಯಾಪ್‌ಶಾಟ್ ಅನ್ನು ರಚಿಸುವಾಗ ದೋಷ ಉಂಟಾಗಿದೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:209
+msgid "Geometry"
+msgstr "ಜ್ಯಾಮಿತಿ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:210
+msgid "The size and position of the window on the screen."
+msgstr "ತೆರೆಯ ಮೇಲಿನ ಕಿಟಕಿಯ ಗಾತ್ರ ಮತ್ತು ಸ್ಥಾನ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:222
+msgid "Toolbar Visible"
+msgstr "ಉಪಕರಣ ಪಟ್ಟಿ ಕಾಣಿಸುತ್ತದೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:223
+msgid "Whether the toolbar should be visible for the window."
+msgstr "ಕಿಟಕಿಗಾಗಿನ ಉಪಕರಣ ಪಟ್ಟಿಯು ಕಾಣಿಸಿಕೊಳ್ಳಬೇಕೆ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:235
+msgid "Statusbar Visible"
+msgstr "ಸ್ಥಿತಿ ಪಟ್ಟಿಯು ಕಾಣಿಸುತ್ತದೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:236
+msgid "Whether the statusbar should be visible for the window."
+msgstr "ಕಿಟಕಿಗಾಗಿನ ಸ್ಥಿತಿ ಪಟ್ಟಿಯು ಕಾಣಿಸಿಕೊಳ್ಳಬೇಕೆ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:248
+msgid "Scrollbars Visible"
+msgstr "ಚಲನಪಟ್ಟಿಕೆಗಳು ಕಾಣಿಸುತ್ತದೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:249
+msgid "Whether the scrollbars should be visible for the window."
+msgstr "ಕಿಟಕಿಗಾಗಿನ ಚಲನಪಟ್ಟಿಕೆಯು ಕಾಣಿಸಿಕೊಳ್ಳಬೇಕೆ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:261
+msgid "Menubar Visible"
+msgstr "ಮೆನುಪಟ್ಟಿಯು ಕಾಣಿಸುತ್ತದೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:262
+msgid "Whether the menubar should be visible for the window."
+msgstr "ಕಿಟಕಿಗಾಗಿನ ಮೆನುಪಟ್ಟಿಯು ಕಾಣಿಸಿಕೊಳ್ಳಬೇಕೆ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:274
+msgid "Locationbar Visible"
+msgstr "ಸ್ಥಳಪಟ್ಟಿಯು ಕಾಣಿಸುತ್ತದೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:275
+msgid "Whether the locationbar should be visible for the window."
+msgstr "ಕಿಟಕಿಗಾಗಿನ ಸ್ಥಿತಿಪಟ್ಟಿಯು ಕಾಣಿಸಿಕೊಳ್ಳಬೇಕೆ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:286
+msgid "Resizable"
+msgstr "ಮರುಗಾತ್ರಿಸಬಹುದಾದ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:287
+msgid "Whether the window can be resized."
+msgstr "ಕಿಟಕಿಯನ್ನು ಮರುಗಾತ್ರಿಸಲು ಸಾಧ್ಯವೆ."
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:299
+msgid "Fullscreen"
+msgstr "ಪೂರ್ಣತೆರೆ"
+
+#: ../../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:300
+msgid "Whether window will be displayed fullscreen."
+msgstr "ಕಿಟಕಿಯನ್ನು ಪೂರ್ಣತೆರೆಯಲ್ಲಿ ತೋರಿಸಲು ಸಾಧ್ಯವೆ."
+
+#~ msgid "audio element controller"
+#~ msgstr "ಆಡಿಯೊ ಘಟಲ ನಿಯಂತ್ರಕ"
+
+#~ msgid "video element controller"
+#~ msgstr "ವೀಡಿಯೊ ಘಟಲ ನಿಯಂತ್ರಕ"
+
+#~ msgid "user-scalable"
+#~ msgstr "ಬಳಕೆದಾರರಿಂದ-ಬದಲಿಸಬಹುದಾದ"
+
+#~ msgid "valid"
+#~ msgstr "ಮಾನ್ಯವಾದ"

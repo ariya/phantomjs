@@ -31,6 +31,7 @@
 #include <cstdio>
 
 #include <mach/host_info.h>
+#include <mach/machine.h>
 #include <mach/vm_statistics.h>
 #include <mach-o/dyld.h>
 #include <mach-o/loader.h>
@@ -41,7 +42,7 @@
 
 #include "client/mac/handler/minidump_generator.h"
 
-#ifdef HAS_ARM_SUPPORT
+#if defined(HAS_ARM_SUPPORT) || defined(HAS_ARM64_SUPPORT)
 #include <mach/arm/thread_status.h>
 #endif
 #ifdef HAS_PPC_SUPPORT
@@ -61,7 +62,7 @@ using MacStringUtils::IntegerValueAtIndex;
 
 namespace google_breakpad {
 
-#if __LP64__
+#if defined(__LP64__) && __LP64__
 #define LC_SEGMENT_ARCH LC_SEGMENT_64
 #else
 #define LC_SEGMENT_ARCH LC_SEGMENT
@@ -77,6 +78,7 @@ MinidumpGenerator::MinidumpGenerator()
       crashing_task_(mach_task_self()),
       handler_thread_(mach_thread_self()),
       cpu_type_(DynamicImages::GetNativeCPUType()),
+      task_context_(NULL),
       dynamic_images_(NULL),
       memory_blocks_(&allocator_) {
   GatherSystemInformation();
@@ -94,6 +96,7 @@ MinidumpGenerator::MinidumpGenerator(mach_port_t crashing_task,
       crashing_task_(crashing_task),
       handler_thread_(handler_thread),
       cpu_type_(DynamicImages::GetNativeCPUType()),
+      task_context_(NULL),
       dynamic_images_(NULL),
       memory_blocks_(&allocator_) {
   if (crashing_task != mach_task_self()) {
@@ -166,6 +169,10 @@ void MinidumpGenerator::GatherSystemInformation() {
   os_major_version_ = IntegerValueAtIndex(product_str, 0);
   os_minor_version_ = IntegerValueAtIndex(product_str, 1);
   os_build_number_ = IntegerValueAtIndex(product_str, 2);
+}
+
+void MinidumpGenerator::SetTaskContext(breakpad_ucontext_t *task_context) {
+  task_context_ = task_context;
 }
 
 string MinidumpGenerator::UniqueNameInDirectory(const string &dir,
@@ -288,7 +295,7 @@ size_t MinidumpGenerator::CalculateStackSize(mach_vm_address_t start_addr) {
       mach_vm_address_t proposed_next_region_base = next_region_base;
       mach_vm_size_t next_region_size;
       nesting_level = 0;
-      mach_msg_type_number_t info_count = VM_REGION_SUBMAP_INFO_COUNT_64;
+      info_count = VM_REGION_SUBMAP_INFO_COUNT_64;
       result = mach_vm_region_recurse(crashing_task_, &next_region_base,
                                       &next_region_size, &nesting_level,
                                       region_info, &info_count);
@@ -362,6 +369,10 @@ bool MinidumpGenerator::WriteStack(breakpad_thread_state_data_t state,
     case CPU_TYPE_ARM:
       return WriteStackARM(state, stack_location);
 #endif
+#ifdef HAS_ARM64_SUPPORT
+    case CPU_TYPE_ARM64:
+      return WriteStackARM64(state, stack_location);
+#endif
 #ifdef HAS_PPC_SUPPORT
     case CPU_TYPE_POWERPC:
       return WriteStackPPC(state, stack_location);
@@ -386,6 +397,10 @@ bool MinidumpGenerator::WriteContext(breakpad_thread_state_data_t state,
     case CPU_TYPE_ARM:
       return WriteContextARM(state, register_location);
 #endif
+#ifdef HAS_ARM64_SUPPORT
+    case CPU_TYPE_ARM64:
+      return WriteContextARM64(state, register_location);
+#endif
 #ifdef HAS_PPC_SUPPORT
     case CPU_TYPE_POWERPC:
       return WriteContextPPC(state, register_location);
@@ -403,12 +418,16 @@ bool MinidumpGenerator::WriteContext(breakpad_thread_state_data_t state,
   }
 }
 
-u_int64_t MinidumpGenerator::CurrentPCForStack(
+uint64_t MinidumpGenerator::CurrentPCForStack(
     breakpad_thread_state_data_t state) {
   switch (cpu_type_) {
 #ifdef HAS_ARM_SUPPORT
     case CPU_TYPE_ARM:
       return CurrentPCForStackARM(state);
+#endif
+#ifdef HAS_ARM64_SUPPORT
+    case CPU_TYPE_ARM64:
+      return CurrentPCForStackARM64(state);
 #endif
 #ifdef HAS_PPC_SUPPORT
     case CPU_TYPE_POWERPC:
@@ -423,7 +442,7 @@ u_int64_t MinidumpGenerator::CurrentPCForStack(
       return CurrentPCForStackX86_64(state);
 #endif
     default:
-      assert("Unknown CPU type!");
+      assert(0 && "Unknown CPU type!");
       return 0;
   }
 }
@@ -437,7 +456,7 @@ bool MinidumpGenerator::WriteStackARM(breakpad_thread_state_data_t state,
   return WriteStackFromStartAddress(start_addr, stack_location);
 }
 
-u_int64_t
+uint64_t
 MinidumpGenerator::CurrentPCForStackARM(breakpad_thread_state_data_t state) {
   arm_thread_state_t *machine_state =
       reinterpret_cast<arm_thread_state_t *>(state);
@@ -479,7 +498,82 @@ bool MinidumpGenerator::WriteContextARM(breakpad_thread_state_data_t state,
   AddGPR(10);
   AddGPR(11);
   AddGPR(12);
-#undef AddReg
+#undef AddGPR
+
+  return true;
+}
+#endif
+
+#ifdef HAS_ARM64_SUPPORT
+bool MinidumpGenerator::WriteStackARM64(breakpad_thread_state_data_t state,
+                                        MDMemoryDescriptor *stack_location) {
+  arm_thread_state64_t *machine_state =
+      reinterpret_cast<arm_thread_state64_t *>(state);
+  mach_vm_address_t start_addr = REGISTER_FROM_THREADSTATE(machine_state, sp);
+  return WriteStackFromStartAddress(start_addr, stack_location);
+}
+
+uint64_t
+MinidumpGenerator::CurrentPCForStackARM64(breakpad_thread_state_data_t state) {
+  arm_thread_state64_t *machine_state =
+      reinterpret_cast<arm_thread_state64_t *>(state);
+
+  return REGISTER_FROM_THREADSTATE(machine_state, pc);
+}
+
+bool
+MinidumpGenerator::WriteContextARM64(breakpad_thread_state_data_t state,
+                                     MDLocationDescriptor *register_location)
+{
+  TypedMDRVA<MDRawContextARM64> context(&writer_);
+  arm_thread_state64_t *machine_state =
+      reinterpret_cast<arm_thread_state64_t *>(state);
+
+  if (!context.Allocate())
+    return false;
+
+  *register_location = context.location();
+  MDRawContextARM64 *context_ptr = context.get();
+  context_ptr->context_flags = MD_CONTEXT_ARM64_FULL;
+
+#define AddGPR(a) context_ptr->iregs[a] = \
+    REGISTER_FROM_THREADSTATE(machine_state, x[a])
+
+  context_ptr->iregs[29] = REGISTER_FROM_THREADSTATE(machine_state, fp);
+  context_ptr->iregs[30] = REGISTER_FROM_THREADSTATE(machine_state, lr);
+  context_ptr->iregs[31] = REGISTER_FROM_THREADSTATE(machine_state, sp);
+  context_ptr->iregs[32] = REGISTER_FROM_THREADSTATE(machine_state, pc);
+  context_ptr->cpsr = REGISTER_FROM_THREADSTATE(machine_state, cpsr);
+
+  AddGPR(0);
+  AddGPR(1);
+  AddGPR(2);
+  AddGPR(3);
+  AddGPR(4);
+  AddGPR(5);
+  AddGPR(6);
+  AddGPR(7);
+  AddGPR(8);
+  AddGPR(9);
+  AddGPR(10);
+  AddGPR(11);
+  AddGPR(12);
+  AddGPR(13);
+  AddGPR(14);
+  AddGPR(15);
+  AddGPR(16);
+  AddGPR(17);
+  AddGPR(18);
+  AddGPR(19);
+  AddGPR(20);
+  AddGPR(21);
+  AddGPR(22);
+  AddGPR(23);
+  AddGPR(24);
+  AddGPR(25);
+  AddGPR(26);
+  AddGPR(27);
+  AddGPR(28);
 #undef AddGPR
 
   return true;
@@ -503,7 +597,7 @@ bool MinidumpGenerator::WriteStackPPC64(breakpad_thread_state_data_t state,
   return WriteStackFromStartAddress(start_addr, stack_location);
 }
 
-u_int64_t
+uint64_t
 MinidumpGenerator::CurrentPCForStackPPC(breakpad_thread_state_data_t state) {
   ppc_thread_state_t *machine_state =
       reinterpret_cast<ppc_thread_state_t *>(state);
@@ -511,7 +605,7 @@ MinidumpGenerator::CurrentPCForStackPPC(breakpad_thread_state_data_t state) {
   return REGISTER_FROM_THREADSTATE(machine_state, srr0);
 }
 
-u_int64_t
+uint64_t
 MinidumpGenerator::CurrentPCForStackPPC64(breakpad_thread_state_data_t state) {
   ppc_thread_state64_t *machine_state =
       reinterpret_cast<ppc_thread_state64_t *>(state);
@@ -533,8 +627,11 @@ bool MinidumpGenerator::WriteContextPPC(breakpad_thread_state_data_t state,
   MDRawContextPPC *context_ptr = context.get();
   context_ptr->context_flags = MD_CONTEXT_PPC_BASE;
 
-#define AddReg(a) context_ptr->a = REGISTER_FROM_THREADSTATE(machine_state, a)
-#define AddGPR(a) context_ptr->gpr[a] = REGISTER_FROM_THREADSTATE(machine_state, r ## a)
+#define AddReg(a) context_ptr->a = static_cast<__typeof__(context_ptr->a)>( \
+    REGISTER_FROM_THREADSTATE(machine_state, a))
+#define AddGPR(a) context_ptr->gpr[a] = \
+    static_cast<__typeof__(context_ptr->a)>( \
+    REGISTER_FROM_THREADSTATE(machine_state, r ## a)
 
   AddReg(srr0);
   AddReg(cr);
@@ -596,8 +693,11 @@ bool MinidumpGenerator::WriteContextPPC64(
   MDRawContextPPC64 *context_ptr = context.get();
   context_ptr->context_flags = MD_CONTEXT_PPC_BASE;
 
-#define AddReg(a) context_ptr->a = REGISTER_FROM_THREADSTATE(machine_state, a)
-#define AddGPR(a) context_ptr->gpr[a] = REGISTER_FROM_THREADSTATE(machine_state, r ## a)
+#define AddReg(a) context_ptr->a = static_cast<__typeof__(context_ptr->a)>( \
+    REGISTER_FROM_THREADSTATE(machine_state, a))
+#define AddGPR(a) context_ptr->gpr[a] = \
+    static_cast<__typeof__(context_ptr->a)>( \
+    REGISTER_FROM_THREADSTATE(machine_state, r ## a)
 
   AddReg(srr0);
   AddReg(cr);
@@ -661,11 +761,12 @@ bool MinidumpGenerator::WriteStackX86_64(breakpad_thread_state_data_t state,
   x86_thread_state64_t *machine_state =
       reinterpret_cast<x86_thread_state64_t *>(state);
 
-  mach_vm_address_t start_addr = REGISTER_FROM_THREADSTATE(machine_state, rsp);
+  mach_vm_address_t start_addr = static_cast<mach_vm_address_t>(
+      REGISTER_FROM_THREADSTATE(machine_state, rsp));
   return WriteStackFromStartAddress(start_addr, stack_location);
 }
 
-u_int64_t
+uint64_t
 MinidumpGenerator::CurrentPCForStackX86(breakpad_thread_state_data_t state) {
   i386_thread_state_t *machine_state =
       reinterpret_cast<i386_thread_state_t *>(state);
@@ -673,7 +774,7 @@ MinidumpGenerator::CurrentPCForStackX86(breakpad_thread_state_data_t state) {
   return REGISTER_FROM_THREADSTATE(machine_state, eip);
 }
 
-u_int64_t
+uint64_t
 MinidumpGenerator::CurrentPCForStackX86_64(breakpad_thread_state_data_t state) {
   x86_thread_state64_t *machine_state =
       reinterpret_cast<x86_thread_state64_t *>(state);
@@ -694,7 +795,8 @@ bool MinidumpGenerator::WriteContextX86(breakpad_thread_state_data_t state,
   *register_location = context.location();
   MDRawContextX86 *context_ptr = context.get();
 
-#define AddReg(a) context_ptr->a = REGISTER_FROM_THREADSTATE(machine_state, a)
+#define AddReg(a) context_ptr->a = static_cast<__typeof__(context_ptr->a)>( \
+    REGISTER_FROM_THREADSTATE(machine_state, a))
 
   context_ptr->context_flags = MD_CONTEXT_X86;
   AddReg(eax);
@@ -733,7 +835,8 @@ bool MinidumpGenerator::WriteContextX86_64(
   *register_location = context.location();
   MDRawContextAMD64 *context_ptr = context.get();
 
-#define AddReg(a) context_ptr->a = REGISTER_FROM_THREADSTATE(machine_state, a)
+#define AddReg(a) context_ptr->a = static_cast<__typeof__(context_ptr->a)>( \
+    REGISTER_FROM_THREADSTATE(machine_state, a))
 
   context_ptr->context_flags = MD_CONTEXT_AMD64;
   AddReg(rax);
@@ -757,7 +860,7 @@ bool MinidumpGenerator::WriteContextX86_64(
   // not used in the flags register.  Since the minidump format
   // specifies 32 bits for the flags register, we can truncate safely
   // with no loss.
-  context_ptr->eflags = static_cast<u_int32_t>(REGISTER_FROM_THREADSTATE(machine_state, rflags));
+  context_ptr->eflags = static_cast<uint32_t>(REGISTER_FROM_THREADSTATE(machine_state, rflags));
   AddReg(cs);
   AddReg(fs);
   AddReg(gs);
@@ -770,11 +873,50 @@ bool MinidumpGenerator::WriteContextX86_64(
 bool MinidumpGenerator::GetThreadState(thread_act_t target_thread,
                                        thread_state_t state,
                                        mach_msg_type_number_t *count) {
+  if (task_context_ && target_thread == mach_thread_self()) {
+    switch (cpu_type_) {
+#ifdef HAS_ARM_SUPPORT
+      case CPU_TYPE_ARM:
+        size_t final_size =
+            std::min(static_cast<size_t>(*count), sizeof(arm_thread_state_t));
+        memcpy(state, &task_context_->breakpad_uc_mcontext->__ss, final_size);
+        *count = static_cast<mach_msg_type_number_t>(final_size);
+        return true;
+#endif
+#ifdef HAS_ARM64_SUPPORT
+      case CPU_TYPE_ARM64: {
+        size_t final_size =
+            std::min(static_cast<size_t>(*count), sizeof(arm_thread_state64_t));
+        memcpy(state, &task_context_->breakpad_uc_mcontext->__ss, final_size);
+        *count = static_cast<mach_msg_type_number_t>(final_size);
+        return true;
+      }
+#endif
+#ifdef HAS_X86_SUPPORT
+    case CPU_TYPE_I386:
+    case CPU_TYPE_X86_64: {
+        size_t state_size = cpu_type_ == CPU_TYPE_I386 ?
+            sizeof(i386_thread_state_t) : sizeof(x86_thread_state64_t);
+        size_t final_size =
+            std::min(static_cast<size_t>(*count), state_size);
+        memcpy(state, &task_context_->breakpad_uc_mcontext->__ss, final_size);
+        *count = static_cast<mach_msg_type_number_t>(final_size);
+        return true;
+      }
+#endif
+    }
+  }
+
   thread_state_flavor_t flavor;
   switch (cpu_type_) {
 #ifdef HAS_ARM_SUPPORT
     case CPU_TYPE_ARM:
       flavor = ARM_THREAD_STATE;
+      break;
+#endif
+#ifdef HAS_ARM64_SUPPORT
+    case CPU_TYPE_ARM64:
+      flavor = ARM_THREAD_STATE64;
       break;
 #endif
 #ifdef HAS_PPC_SUPPORT
@@ -878,26 +1020,25 @@ bool MinidumpGenerator::WriteMemoryListStream(
     mach_msg_type_number_t stateCount
       = static_cast<mach_msg_type_number_t>(sizeof(state));
 
-    if (thread_get_state(exception_thread_,
-                         BREAKPAD_MACHINE_THREAD_STATE,
-                         state,
-                         &stateCount) == KERN_SUCCESS) {
-      u_int64_t ip = CurrentPCForStack(state);
+    if (GetThreadState(exception_thread_, state, &stateCount)) {
+      uint64_t ip = CurrentPCForStack(state);
       // Bound it to the upper and lower bounds of the region
       // it's contained within. If it's not in a known memory region,
       // don't bother trying to write it.
-      mach_vm_address_t addr = ip;
+      mach_vm_address_t addr = static_cast<vm_address_t>(ip);
       mach_vm_size_t size;
       natural_t nesting_level = 0;
       vm_region_submap_info_64 info;
       mach_msg_type_number_t info_count = VM_REGION_SUBMAP_INFO_COUNT_64;
+      vm_region_recurse_info_t recurse_info;
+      recurse_info = reinterpret_cast<vm_region_recurse_info_t>(&info);
 
       kern_return_t ret =
         mach_vm_region_recurse(crashing_task_,
                                &addr,
                                &size,
                                &nesting_level,
-                               (vm_region_recurse_info_t)&info,
+                               recurse_info,
                                &info_count);
       if (ret == KERN_SUCCESS && ip >= addr && ip < (addr + size)) {
         // Try to get 128 bytes before and after the IP, but
@@ -908,8 +1049,9 @@ bool MinidumpGenerator::WriteMemoryListStream(
         uintptr_t end_of_range = 
           std::min(uintptr_t(ip + (kIPMemorySize / 2)),
                    uintptr_t(addr + size));
-        ip_memory_d.memory.data_size =
-          end_of_range - ip_memory_d.start_of_memory_range;
+        uintptr_t range_diff = end_of_range -
+            static_cast<uintptr_t>(ip_memory_d.start_of_memory_range);
+        ip_memory_d.memory.data_size = static_cast<uint32_t>(range_diff);
         have_ip_memory = true;
         // This needs to get appended to the list even though
         // the memory bytes aren't filled in yet so the entire
@@ -921,7 +1063,7 @@ bool MinidumpGenerator::WriteMemoryListStream(
   }
 
   // Now fill in the memory list and write it.
-  unsigned memory_count = memory_blocks_.size();
+  size_t memory_count = memory_blocks_.size();
   if (!list.AllocateObjectAndArray(memory_count,
                                    sizeof(MDMemoryDescriptor)))
     return false;
@@ -929,7 +1071,7 @@ bool MinidumpGenerator::WriteMemoryListStream(
   memory_list_stream->stream_type = MD_MEMORY_LIST_STREAM;
   memory_list_stream->location = list.location();
 
-  list.get()->number_of_memory_ranges = memory_count;
+  list.get()->number_of_memory_ranges = static_cast<uint32_t>(memory_count);
 
   unsigned int i;
   for (i = 0; i < memory_count; ++i) {
@@ -1027,6 +1169,11 @@ bool MinidumpGenerator::WriteSystemInfoStream(
       info_ptr->processor_architecture = MD_CPU_ARCHITECTURE_ARM;
       break;
 #endif
+#ifdef HAS_ARM64_SUPPORT
+    case CPU_TYPE_ARM64:
+      info_ptr->processor_architecture = MD_CPU_ARCHITECTURE_ARM64;
+      break;
+#endif
 #ifdef HAS_PPC_SUPPORT
     case CPU_TYPE_POWERPC:
     case CPU_TYPE_POWERPC64:
@@ -1078,9 +1225,9 @@ bool MinidumpGenerator::WriteSystemInfoStream(
       info_ptr->processor_level =
         (info_ptr->cpu.x86_cpu_info.version_information & 0xF00) >> 8;
       // 0xMMSS (Model, Stepping)
-      info_ptr->processor_revision =
-        (info_ptr->cpu.x86_cpu_info.version_information & 0xF) |
-        ((info_ptr->cpu.x86_cpu_info.version_information & 0xF0) << 4);
+      info_ptr->processor_revision = static_cast<uint16_t>(
+          (info_ptr->cpu.x86_cpu_info.version_information & 0xF) |
+          ((info_ptr->cpu.x86_cpu_info.version_information & 0xF0) << 4));
 
       // decode extended model info
       if (info_ptr->processor_level == 0xF ||
@@ -1103,7 +1250,7 @@ bool MinidumpGenerator::WriteSystemInfoStream(
       break;
   }
 
-  info_ptr->number_of_processors = number_of_processors;
+  info_ptr->number_of_processors = static_cast<uint8_t>(number_of_processors);
 #if TARGET_OS_IPHONE
   info_ptr->platform_id = MD_OS_IOS;
 #else
@@ -1142,13 +1289,13 @@ bool MinidumpGenerator::WriteModuleStream(unsigned int index,
       return false;
 
     module->base_of_image = image->GetVMAddr() + image->GetVMAddrSlide();
-    module->size_of_image = static_cast<u_int32_t>(image->GetVMSize());
+    module->size_of_image = static_cast<uint32_t>(image->GetVMSize());
     module->module_name_rva = string_location.rva;
 
     // We'll skip the executable module, because they don't have
     // LC_ID_DYLIB load commands, and the crash processing server gets
     // version information from the Plist file, anyway.
-    if (index != (uint32_t)FindExecutableModule()) {
+    if (index != static_cast<uint32_t>(FindExecutableModule())) {
       module->version_info.signature = MD_VSFIXEDFILEINFO_SIGNATURE;
       module->version_info.struct_version |= MD_VSFIXEDFILEINFO_VERSION;
       // Convert MAC dylib version format, which is a 32 bit number, to the
@@ -1208,7 +1355,7 @@ bool MinidumpGenerator::WriteModuleStream(unsigned int index,
             return false;
 
           module->base_of_image = seg->vmaddr + slide;
-          module->size_of_image = static_cast<u_int32_t>(seg->vmsize);
+          module->size_of_image = static_cast<uint32_t>(seg->vmsize);
           module->module_name_rva = string_location.rva;
 
           bool in_memory = false;
@@ -1267,7 +1414,7 @@ bool MinidumpGenerator::WriteCVRecord(MDRawModule *module, int cpu_type,
 
   size_t module_name_length = strlen(module_name);
 
-  if (!cv.AllocateObjectAndArray(module_name_length + 1, sizeof(u_int8_t)))
+  if (!cv.AllocateObjectAndArray(module_name_length + 1, sizeof(uint8_t)))
     return false;
 
   if (!cv.CopyIndexAfterObject(0, module_name, module_name_length))
@@ -1285,22 +1432,27 @@ bool MinidumpGenerator::WriteCVRecord(MDRawModule *module, int cpu_type,
     MacFileUtilities::MachoID macho(module_path,
         reinterpret_cast<void *>(module->base_of_image),
         static_cast<size_t>(module->size_of_image));
-    result = macho.UUIDCommand(cpu_type, identifier);
+    result = macho.UUIDCommand(cpu_type, CPU_SUBTYPE_MULTIPLE, identifier);
     if (!result)
-      result = macho.MD5(cpu_type, identifier);
+      result = macho.MD5(cpu_type, CPU_SUBTYPE_MULTIPLE, identifier);
   }
 
   if (!result) {
      FileID file_id(module_path);
-     result = file_id.MachoIdentifier(cpu_type, identifier);
+     result = file_id.MachoIdentifier(cpu_type, CPU_SUBTYPE_MULTIPLE,
+                                      identifier);
   }
 
   if (result) {
-    cv_ptr->signature.data1 = (uint32_t)identifier[0] << 24 |
-      (uint32_t)identifier[1] << 16 | (uint32_t)identifier[2] << 8 |
-      (uint32_t)identifier[3];
-    cv_ptr->signature.data2 = (uint32_t)identifier[4] << 8 | identifier[5];
-    cv_ptr->signature.data3 = (uint32_t)identifier[6] << 8 | identifier[7];
+    cv_ptr->signature.data1 =
+        static_cast<uint32_t>(identifier[0]) << 24 |
+        static_cast<uint32_t>(identifier[1]) << 16 |
+        static_cast<uint32_t>(identifier[2]) << 8 |
+        static_cast<uint32_t>(identifier[3]);
+    cv_ptr->signature.data2 =
+        static_cast<uint16_t>(identifier[4] << 8) | identifier[5];
+    cv_ptr->signature.data3 =
+        static_cast<uint16_t>(identifier[6] << 8) | identifier[7];
     cv_ptr->signature.data4[0] = identifier[8];
     cv_ptr->signature.data4[1] = identifier[9];
     cv_ptr->signature.data4[2] = identifier[10];
@@ -1318,8 +1470,8 @@ bool MinidumpGenerator::WriteModuleListStream(
     MDRawDirectory *module_list_stream) {
   TypedMDRVA<MDRawModuleList> list(&writer_);
 
-  size_t image_count = dynamic_images_ ?
-      static_cast<size_t>(dynamic_images_->GetImageCount()) :
+  uint32_t image_count = dynamic_images_ ?
+      dynamic_images_->GetImageCount() :
       _dyld_image_count();
 
   if (!list.AllocateObjectAndArray(image_count, MD_MODULE_SIZE))
@@ -1327,22 +1479,22 @@ bool MinidumpGenerator::WriteModuleListStream(
 
   module_list_stream->stream_type = MD_MODULE_LIST_STREAM;
   module_list_stream->location = list.location();
-  list.get()->number_of_modules = image_count;
+  list.get()->number_of_modules = static_cast<uint32_t>(image_count);
 
   // Write out the executable module as the first one
   MDRawModule module;
-  size_t executableIndex = FindExecutableModule();
+  uint32_t executableIndex = FindExecutableModule();
 
-  if (!WriteModuleStream(executableIndex, &module)) {
+  if (!WriteModuleStream(static_cast<unsigned>(executableIndex), &module)) {
     return false;
   }
 
   list.CopyIndexAfterObject(0, &module, MD_MODULE_SIZE);
   int destinationIndex = 1;  // Write all other modules after this one
 
-  for (size_t i = 0; i < image_count; ++i) {
+  for (uint32_t i = 0; i < image_count; ++i) {
     if (i != executableIndex) {
-      if (!WriteModuleStream(i, &module)) {
+      if (!WriteModuleStream(static_cast<unsigned>(i), &module)) {
         return false;
       }
 
@@ -1363,7 +1515,7 @@ bool MinidumpGenerator::WriteMiscInfoStream(MDRawDirectory *misc_info_stream) {
   misc_info_stream->location = info.location();
 
   MDRawMiscInfo *info_ptr = info.get();
-  info_ptr->size_of_info = static_cast<u_int32_t>(sizeof(MDRawMiscInfo));
+  info_ptr->size_of_info = static_cast<uint32_t>(sizeof(MDRawMiscInfo));
   info_ptr->flags1 = MD_MISCINFO_FLAGS1_PROCESS_ID |
     MD_MISCINFO_FLAGS1_PROCESS_TIMES |
     MD_MISCINFO_FLAGS1_PROCESSOR_POWER_INFO;
@@ -1376,18 +1528,18 @@ bool MinidumpGenerator::WriteMiscInfoStream(MDRawDirectory *misc_info_stream) {
   if (getrusage(RUSAGE_SELF, &usage) != -1) {
     // Omit the fractional time since the MDRawMiscInfo only wants seconds
     info_ptr->process_user_time =
-        static_cast<u_int32_t>(usage.ru_utime.tv_sec);
+        static_cast<uint32_t>(usage.ru_utime.tv_sec);
     info_ptr->process_kernel_time =
-        static_cast<u_int32_t>(usage.ru_stime.tv_sec);
+        static_cast<uint32_t>(usage.ru_stime.tv_sec);
   }
   int mib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_PID,
                  static_cast<int>(info_ptr->process_id) };
-  u_int mibsize = static_cast<u_int>(sizeof(mib) / sizeof(mib[0]));
+  uint mibsize = static_cast<uint>(sizeof(mib) / sizeof(mib[0]));
   struct kinfo_proc proc;
   size_t size = sizeof(proc);
   if (sysctl(mib, mibsize, &proc, &size, NULL, 0) == 0) {
     info_ptr->process_create_time =
-        static_cast<u_int32_t>(proc.kp_proc.p_starttime.tv_sec);
+        static_cast<uint32_t>(proc.kp_proc.p_starttime.tv_sec);
   }
 
   // Speed
@@ -1395,11 +1547,11 @@ bool MinidumpGenerator::WriteMiscInfoStream(MDRawDirectory *misc_info_stream) {
   const uint64_t kOneMillion = 1000 * 1000;
   size = sizeof(speed);
   sysctlbyname("hw.cpufrequency_max", &speed, &size, NULL, 0);
-  info_ptr->processor_max_mhz = static_cast<u_int32_t>(speed / kOneMillion);
-  info_ptr->processor_mhz_limit = static_cast<u_int32_t>(speed / kOneMillion);
+  info_ptr->processor_max_mhz = static_cast<uint32_t>(speed / kOneMillion);
+  info_ptr->processor_mhz_limit = static_cast<uint32_t>(speed / kOneMillion);
   size = sizeof(speed);
   sysctlbyname("hw.cpufrequency", &speed, &size, NULL, 0);
-  info_ptr->processor_current_mhz = static_cast<u_int32_t>(speed / kOneMillion);
+  info_ptr->processor_current_mhz = static_cast<uint32_t>(speed / kOneMillion);
 
   return true;
 }

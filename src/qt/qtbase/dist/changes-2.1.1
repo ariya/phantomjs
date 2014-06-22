@@ -1,0 +1,71 @@
+
+Qt 2.1.1 is a bugfix release. It keeps both forward and backward
+compatibility (source and binary) with Qt 2.1.
+
+
+****************************************************************************
+*			    General					   *
+****************************************************************************
+
+- Many documentation improvements
+
+- Various compilation problems relating to particular versions of xlC,
+MipsPRO, Solaris, Japanese Windows, old X11 libraries, and gcc 2.7.2
+fixed
+
+- 64bit HP build targets added
+
+- Qt OpenGL Extension updated; see details in qt/extensions/opengl/CHANGES
+
+- As usual, many minor bugfixes, too small to be mentioned here.
+
+
+****************************************************************************
+*			    Specific					   *
+****************************************************************************
+
+QToolbar:	fix of layout-saving when moving out of dock
+
+QAccel:		Support for non-alphanumeric keys
+
+QPrinter:	Better tolerance for PS interpreter peculiarities
+
+QPainter:	drawText() with rasterOp on Windows
+
+QIconView:	Drawing fixes
+
+QDate:		Ensure invalid status when created with invalid values
+
+Motif Dnd:	Fix possible crash
+
+QWorkSpace:	Proper minimize/maximize activation
+
+QListBox:	Optimization: better performance for lists with thousands of
+		elements. Selection problem fixed.
+		
+QFont:		Fontset matching fix for X11
+
+QMultiLineEdit:	Wordwrap/selection workaround
+
+QTabBar:	Refresh layout after style change. Optimization.
+
+QTimer:		Zero-timers on Windows speedup
+
+QFileDialog:	Correct caption on Windows
+
+QComboBox:	Accept only left button. Do proper font propagation.
+
+QMenuBar:	Accept only left button
+
+QDialog:	Modal dialogs after QApplication::exec() returns
+
+QWidget:	Optimization: fewer server round-trips
+
+QCheckBox:	Fixed mask drawing
+
+QSpinBox:	Accept '-' key, for negative values
+
+Dnd:		Allow disabling on X11
+	
+QFontDatabase:	Use QApplication's charset as default,
+		and fixed garbage on Win2000

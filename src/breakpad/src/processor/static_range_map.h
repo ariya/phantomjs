@@ -79,7 +79,7 @@ class StaticRangeMap {
                             const;
 
   // Returns the number of ranges stored in the RangeMap.
-  inline unsigned int GetCount() const { return map_.size(); }
+  inline int GetCount() const { return map_.size(); }
 
  private:
   friend class ModuleComparer;

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:Source/WTF/WTF.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Source/JavaScriptCore/JavaScriptCore.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Source/ThirdParty/ANGLE/ANGLE.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Source/WebCore/WebCore.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Source/WebInspectorUI/WebInspectorUI.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Source/WebKit/WebKit.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Source/WebKit2/WebKit2.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Source/ThirdParty/gtest/xcode/gtest.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Tools/DumpRenderTree/DumpRenderTree.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Tools/MiniBrowser/MiniBrowser.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Tools/TestWebKitAPI/TestWebKitAPI.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Tools/WebKitTestRunner/WebKitTestRunner.xcodeproj">
+   </FileRef>
+</Workspace>

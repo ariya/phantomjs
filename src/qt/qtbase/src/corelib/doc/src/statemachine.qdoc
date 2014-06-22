@@ -1,0 +1,574 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \group statemachine
+    \title State Machine Classes
+
+    These \l{Qt Core} classes are part of the \l{The State Machine Framework}{
+    State Machine Framework}.
+
+*/
+
+/*!
+  \page statemachine-api.html
+  \title The State Machine Framework
+  \brief An overview of the State Machine framework for constructing and executing state graphs.
+
+  \ingroup frameworks-technologies
+
+  \tableofcontents
+
+  The State Machine framework provides classes for creating and executing
+  state graphs. The concepts and notation are based on those from Harel's
+  \l{http://www.wisdom.weizmann.ac.il/~dharel/SCANNED.PAPERS/Statecharts.pdf}{Statecharts: A visual formalism for complex systems}, which
+  is also the basis of UML state diagrams. The semantics of state machine
+  execution are based on \l{State Chart XML: State Machine Notation for
+  Control Abstraction}{State Chart XML (SCXML)}.
+
+  Statecharts provide a graphical way of modeling how a system reacts to
+  stimuli. This is done by defining the possible \e states that the system can
+  be in, and how the system can move from one state to another (\e transitions
+  between states). A key characteristic of event-driven systems (such as Qt
+  applications) is that behavior often depends not only on the last or current
+  event, but also the events that preceded it. With statecharts, this
+  information is easy to express.
+
+  The State Machine framework provides an API and execution model that can be
+  used to effectively embed the elements and semantics of statecharts in Qt
+  applications. The framework integrates tightly with Qt's meta-object system;
+  for example, transitions between states can be triggered by signals, and
+  states can be configured to set properties and invoke methods on QObjects.
+  Qt's event system is used to drive the state machines.
+
+  The state graph in the State Machine framework is hierarchical. States can be nested inside of
+  other states, and the current configuration of the state machine consists of the set of states
+  which are currently active. All the states in a valid configuration of the state machine will
+  have a common ancestor.
+
+  \section1 Classes in the State Machine Framework
+
+  These classes are provided by qt for creating event-driven state machines.
+
+  \annotatedlist statemachine
+
+  \section1 A Simple State Machine
+
+  To demonstrate the core functionality of the State Machine API, let's look
+  at a small example: A state machine with three states, \c s1, \c s2 and \c
+  s3. The state machine is controlled by a single QPushButton; when the button
+  is clicked, the machine transitions to another state. Initially, the state
+  machine is in state \c s1. The statechart for this machine is as follows:
+
+    \image statemachine-button.png
+    \omit
+    \caption This is a caption
+    \endomit
+
+  The following snippet shows the code needed to create such a state machine.
+  First, we create the state machine and states:
+
+  \snippet statemachine/main.cpp 0
+
+  Then, we create the transitions by using the QState::addTransition()
+  function:
+
+  \snippet statemachine/main.cpp 1
+
+  Next, we add the states to the machine and set the machine's initial state:
+
+  \snippet statemachine/main.cpp 2
+
+  Finally, we start the state machine:
+
+  \snippet statemachine/main.cpp 3
+
+  The state machine executes asynchronously, i.e. it becomes part of your
+  application's event loop.
+
+  \section1 Doing Useful Work on State Entry and Exit
+
+  The above state machine merely transitions from one state to another, it
+  doesn't perform any operations. The QState::assignProperty() function can be
+  used to have a state set a property of a QObject when the state is
+  entered. In the following snippet, the value that should be assigned to a
+  QLabel's text property is specified for each state:
+
+  \snippet statemachine/main.cpp 4
+
+  When any of the states is entered, the label's text will be changed
+  accordingly.
+
+  The QState::entered() signal is emitted when the state is entered, and the
+  QState::exited() signal is emitted when the state is exited. In the
+  following snippet, the button's showMaximized() slot will be called when
+  state \c s3 is entered, and the button's showMinimized() slot will be called
+  when \c s3 is exited:
+
+  \snippet statemachine/main.cpp 5
+
+  Custom states can reimplement QAbstractState::onEntry() and
+  QAbstractState::onExit().
+
+  \section1 State Machines That Finish
+
+  The state machine defined in the previous section never finishes. In order
+  for a state machine to be able to finish, it needs to have a top-level \e
+  final state (QFinalState object). When the state machine enters a top-level
+  final state, the machine will emit the QStateMachine::finished() signal and
+  halt.
+
+  All you need to do to introduce a final state in the graph is create a
+  QFinalState object and use it as the target of one or more transitions.
+
+  \section1 Sharing Transitions By Grouping States
+
+  Assume we wanted the user to be able to quit the application at any time by
+  clicking a Quit button. In order to achieve this, we need to create a final
+  state and make it the target of a transition associated with the Quit
+  button's clicked() signal. We could add a transition from each of \c s1, \c
+  s2 and \c s3; however, this seems redundant, and one would also have to
+  remember to add such a transition from every new state that is added in the
+  future.
+
+  We can achieve the same behavior (namely that clicking the Quit button quits
+  the state machine, regardless of which state the state machine is in) by
+  grouping states \c s1, \c s2 and \c s3. This is done by creating a new
+  top-level state and making the three original states children of the new
+  state. The following diagram shows the new state machine.
+
+    \image statemachine-button-nested.png
+    \omit
+    \caption This is a caption
+    \endomit
+
+  The three original states have been renamed \c s11, \c s12 and \c s13 to
+  reflect that they are now children of the new top-level state, \c s1.  Child
+  states implicitly inherit the transitions of their parent state. This means
+  it is now sufficient to add a single transition from \c s1 to the final
+  state \c s2. New states added to \c s1 will also automatically inherit this
+  transition.
+
+  All that's needed to group states is to specify the proper parent when the
+  state is created. You also need to specify which of the child states is the
+  initial one (i.e. which child state the state machine should enter when the
+  parent state is the target of a transition).
+
+  \snippet statemachine/main2.cpp 0
+
+  \snippet statemachine/main2.cpp 1
+
+  In this case we want the application to quit when the state machine is
+  finished, so the machine's finished() signal is connected to the
+  application's quit() slot.
+
+  A child state can override an inherited transition. For example, the
+  following code adds a transition that effectively causes the Quit button to
+  be ignored when the state machine is in state \c s12.
+
+  \snippet statemachine/main2.cpp 2
+
+  A transition can have any state as its target, i.e. the target state does
+  not have to be on the same level in the state hierarchy as the source state.
+
+  \section1 Using History States to Save and Restore the Current State
+
+  Imagine that we wanted to add an "interrupt" mechanism to the example
+  discussed in the previous section; the user should be able to click a button
+  to have the state machine perform some non-related task, after which the
+  state machine should resume whatever it was doing before (i.e. return to the
+  old state, which is one of \c s11, \c s12 and \c s13 in this case).
+
+  Such behavior can easily be modeled using \e{history states}. A history
+  state (QHistoryState object) is a pseudo-state that represents the child
+  state that the parent state was in the last time the parent state was
+  exited.
+
+  A history state is created as a child of the state for which we wish to
+  record the current child state; when the state machine detects the presence
+  of such a state at runtime, it automatically records the current (real)
+  child state when the parent state is exited. A transition to the history
+  state is in fact a transition to the child state that the state machine had
+  previously saved; the state machine automatically "forwards" the transition
+  to the real child state.
+
+  The following diagram shows the state machine after the interrupt mechanism
+  has been added.
+
+    \image statemachine-button-history.png
+    \omit
+    \caption This is a caption
+    \endomit
+
+  The following code shows how it can be implemented; in this example we
+  simply display a message box when \c s3 is entered, then immediately return
+  to the previous child state of \c s1 via the history state.
+
+  \snippet statemachine/main2.cpp 3
+
+  \section1 Using Parallel States to Avoid a Combinatorial Explosion of States
+
+  Assume that you wanted to model a set of mutually exclusive properties of a
+  car in a single state machine. Let's say the properties we are interested in
+  are Clean vs Dirty, and Moving vs Not moving. It would take four mutually
+  exclusive states and eight transitions to be able to represent and freely
+  move between all possible combinations.
+
+    \image statemachine-nonparallel.png
+    \omit
+    \caption This is a caption
+    \endomit
+
+  If we added a third property (say, Red vs Blue), the total number of states
+  would double, to eight; and if we added a fourth property (say, Enclosed vs
+  Convertible), the total number of states would double again, to 16.
+
+  Using parallel states, the total number of states and transitions grows
+  linearly as we add more properties, instead of exponentially. Furthermore,
+  states can be added to or removed from the parallel state without affecting
+  any of their sibling states.
+
+    \image statemachine-parallel.png
+    \omit
+    \caption This is a caption
+    \endomit
+
+  To create a parallel state group, pass QState::ParallelStates to the QState
+  constructor.
+
+  \snippet statemachine/main3.cpp 0
+
+  When a parallel state group is entered, all its child states will be
+  simultaneously entered. Transitions within the individual child states
+  operate normally. However, any of the child states may take a transition which exits the parent
+  state. When this happens, the parent state and all of its child states are exited.
+
+  The parallelism in the State Machine framework follows an interleaved semantics. All parallel
+  operations will be executed in a single, atomic step of the event processing, so no event can
+  interrupt the parallel operations. However, events will still be processed sequentially, since
+  the machine itself is single threaded. As an example: Consider the situation where there are two
+  transitions that exit the same parallel state group, and their conditions become true
+  simultaneously. In this case, the event that is processed last of the two will not have any
+  effect, since the first event will already have caused the machine to exit from the parallel
+  state.
+
+  \section1 Detecting that a Composite State has Finished
+
+  A child state can be final (a QFinalState object); when a final child state
+  is entered, the parent state emits the QState::finished() signal. The
+  following diagram shows a composite state \c s1 which does some processing
+  before entering a final state:
+
+    \image statemachine-finished.png
+    \omit
+    \caption This is a caption
+    \endomit
+
+  When \c s1 's final state is entered, \c s1 will automatically emit
+  finished(). We use a signal transition to cause this event to trigger a
+  state change:
+
+  \snippet statemachine/main3.cpp 1
+
+  Using final states in composite states is useful when you want to hide the
+  internal details of a composite state; i.e. the only thing the outside world
+  should be able to do is enter the state, and get a notification when the
+  state has completed its work. This is a very powerful abstraction and
+  encapsulation mechanism when building complex (deeply nested) state
+  machines. (In the above example, you could of course create a transition
+  directly from \c s1 's \c done state rather than relying on \c s1 's
+  finished() signal, but with the consequence that implementation details of
+  \c s1 are exposed and depended on).
+
+  For parallel state groups, the QState::finished() signal is emitted when \e
+  all the child states have entered final states.
+
+  \section1 Targetless Transitions
+
+  A transition need not have a target state. A transition without a target can
+  be triggered the same way as any other transition; the difference is that
+  when a targetless transition is triggered, it doesn't cause any state
+  changes. This allows you to react to a signal or event when your machine is
+  in a certain state, without having to leave that state. Example:
+
+  \code
+    QStateMachine machine;
+    QState *s1 = new QState(&machine);
+
+    QPushButton button;
+    QSignalTransition *trans = new QSignalTransition(&button, SIGNAL(clicked()));
+    s1->addTransition(trans);
+
+    QMessageBox msgBox;
+    msgBox.setText("The button was clicked; carry on.");
+    QObject::connect(trans, SIGNAL(triggered()), &msgBox, SLOT(exec()));
+
+    machine.setInitialState(s1);
+  \endcode
+
+  The message box will be displayed each time the button is clicked, but the
+  state machine will remain in its current state (s1). If the target state
+  were explicitly set to s1, however, s1 would be exited and re-entered each
+  time (e.g. the QAbstractState::entered() and QAbstractState::exited()
+  signals would be emitted).
+
+  \section1 Events, Transitions and Guards
+
+  A QStateMachine runs its own event loop. For signal transitions
+  (QSignalTransition objects), QStateMachine automatically posts a
+  QStateMachine::SignalEvent to itself when it intercepts the corresponding
+  signal; similarly, for QObject event transitions (QEventTransition objects)
+  a QStateMachine::WrappedEvent is posted.
+
+  You can post your own events to the state machine using
+  QStateMachine::postEvent().
+
+  When posting a custom event to the state machine, you typically also have
+  one or more custom transitions that can be triggered from events of that
+  type. To create such a transition, you subclass QAbstractTransition and
+  reimplement QAbstractTransition::eventTest(), where you check if an event
+  matches your event type (and optionally other criteria, e.g. attributes of
+  the event object).
+
+  Here we define our own custom event type, \c StringEvent, for posting
+  strings to the state machine:
+
+  \snippet statemachine/main4.cpp 0
+
+  Next, we define a transition that only triggers when the event's string
+  matches a particular string (a \e guarded transition):
+
+  \snippet statemachine/main4.cpp 1
+
+  In the eventTest() reimplementation, we first check if the event type is the
+  desired one; if so, we cast the event to a StringEvent and perform the
+  string comparison.
+
+  The following is a statechart that uses the custom event and transition:
+
+    \image statemachine-customevents.png
+    \omit
+    \caption This is a caption
+    \endomit
+
+  Here's what the implementation of the statechart looks like:
+
+  \snippet statemachine/main4.cpp 2
+
+  Once the machine is started, we can post events to it.
+
+  \snippet statemachine/main4.cpp 3
+
+  An event that is not handled by any relevant transition will be silently
+  consumed by the state machine. It can be useful to group states and provide
+  a default handling of such events; for example, as illustrated in the
+  following statechart:
+
+    \image statemachine-customevents2.png
+    \omit
+    \caption This is a caption
+    \endomit
+
+  For deeply nested statecharts, you can add such "fallback" transitions at
+  the level of granularity that's most appropriate.
+
+  \section1 Using Restore Policy To Automatically Restore Properties
+
+  In some state machines it can be useful to focus the attention on assigning properties in states,
+  not on restoring them when the state is no longer active. If you know that a property should
+  always be restored to its initial value when the machine enters a state that does not explicitly
+  give the property a value, you can set the global restore policy to
+  QStateMachine::RestoreProperties.
+
+  \code
+    QStateMachine machine;
+    machine.setGlobalRestorePolicy(QStateMachine::RestoreProperties);
+  \endcode
+
+  When this restore policy is set, the machine will automatically restore all properties. If it
+  enters a state where a given property is not set, it will first search the hierarchy of ancestors
+  to see if the property is defined there. If it is, the property will be restored to the value
+  defined by the closest ancestor. If not, it will be restored to its initial value (i.e. the
+  value of the property before any property assignments in states were executed.)
+
+  Take the following code:
+
+  \snippet statemachine/main5.cpp 0
+
+  Lets say the property \c fooBar is 0.0 when the machine starts. When the machine is in state
+  \c s1, the property will be 1.0, since the state explicitly assigns this value to it. When the
+  machine is in state \c s2, no value is explicitly defined for the property, so it will implicitly
+  be restored to 0.0.
+
+  If we are using nested states, the parent defines a value for the property which is inherited by
+  all descendants that do not explicitly assign a value to the property.
+
+  \snippet statemachine/main5.cpp 2
+
+  Here \c s1 has two children: \c s2 and \c s3. When \c s2 is entered, the property \c fooBar
+  will have the value 2.0, since this is explicitly defined for the state. When the machine is in
+  state \c s3, no value is defined for the state, but \c s1 defines the property to be 1.0, so this
+  is the value that will be assigned to \c fooBar.
+
+  \section1 Animating Property Assignments
+
+  The State Machine API connects with the Animation API in Qt to allow automatically animating
+  properties as they are assigned in states.
+
+  Say we have the following code:
+
+  \snippet statemachine/main5.cpp 3
+
+  Here we define two states of a user interface. In \c s1 the \c button is small, and in \c s2
+  it is bigger. If we click the button to transition from \c s1 to \c s2, the geometry of the button
+  will be set immediately when a given state has been entered. If we want the transition to be
+  smooth, however, all we need to do is make a QPropertyAnimation and add this to the transition
+  object.
+
+  \snippet statemachine/main5.cpp 4
+
+  Adding an animation for the property in question means that the property assignment will no
+  longer take immediate effect when the state has been entered. Instead, the animation will start
+  playing when the state has been entered and smoothly animate the property assignment. Since we
+  do not set the start value or end value of the animation, these will be set implicitly. The
+  start value of the animation will be the property's current value when the animation starts, and
+  the end value will be set based on the property assignments defined for the state.
+
+  If the global restore policy of the state machine is set to QStateMachine::RestoreProperties,
+  it is possible to also add animations for the property restorations.
+
+  \section1 Detecting That All Properties Have Been Set In A State
+
+  When animations are used to assign properties, a state no longer defines the exact values that a
+  property will have when the machine is in the given state. While the animation is running, the
+  property can potentially have any value, depending on the animation.
+
+  In some cases, it can be useful to be able to detect when the property has actually been assigned
+  the value defined by a state.
+
+  Say we have the following code:
+
+  \snippet statemachine/main5.cpp 5
+
+  When \c button is clicked, the machine will transition into state \c s2, which will set the
+  geometry of the button, and then pop up a message box to alert the user that the geometry has
+  been changed.
+
+  In the normal case, where animations are not used, this will operate as expected. However, if
+  an animation for the \c geometry of \c button is set on the transition between \c s1 and \c s2,
+  the animation will be started when \c s2 is entered, but the \c geometry property will not
+  actually reach its defined value before the animation is finished running. In this case, the
+  message box will pop up before the geometry of the button has actually been set.
+
+  To ensure that the message box does not pop up until the geometry actually reaches its final
+  value, we can use the state's propertiesAssigned() signal. The propertiesAssigned() signal will be
+  emitted when the property is assigned its final value, whether this is done immediately or
+  after the animation has finished playing.
+
+  \snippet statemachine/main5.cpp 6
+
+  In this example, when \c button is clicked, the machine will enter \c s2. It will remain in state
+  \c s2 until the \c geometry property has been set to \c QRect(0, 0, 50, 50). Then it will
+  transition into \c s3. When \c s3 is entered, the message box will pop up. If the transition into
+  \c s2 has an animation for the \c geometry property, then the machine will stay in \c s2 until the
+  animation has finished playing. If there is no such animation, it will simply set the property and
+  immediately enter state \c s3.
+
+  Either way, when the machine is in state \c s3, you are guaranteed that the property \c geometry
+  has been assigned the defined value.
+
+  If the global restore policy is set to QStateMachine::RestoreProperties, the state will not emit
+  the propertiesAssigned() signal until these have been executed as well.
+
+  \section1 What Happens If A State Is Exited Before The Animation Has Finished
+
+  If a state has property assignments, and the transition into the state has animations for the
+  properties, the state can potentially be exited before the properties have been assigned to the
+  values defines by the state. This is true in particular when there are transitions out from the
+  state that do not depend on the propertiesAssigned signal, as described in the previous section.
+
+  The State Machine API guarantees that a property assigned by the state machine either:
+  \list
+  \li Has a value explicitly assigned to the property.
+  \li Is currently being animated into a value explicitly assigned to the property.
+  \endlist
+
+  When a state is exited prior to the animation finishing, the behavior of the state machine depends
+  on the target state of the transition. If the target state explicitly assigns a value to the
+  property, no additional action will be taken. The property will be assigned the value defined by
+  the target state.
+
+  If the target state does not assign any value to the property, there are two
+  options: By default, the property will be assigned the value defined by the state it is leaving
+  (the value it would have been assigned if the animation had been permitted to finish playing). If
+  a global restore policy is set, however, this will take precedence, and the property will be
+  restored as usual.
+
+  \section1 Default Animations
+
+  As described earlier, you can add animations to transitions to make sure property assignments
+  in the target state are animated. If you want a specific animation to be used for a given property
+  regardless of which transition is taken, you can add it as a default animation to the state
+  machine. This is in particular useful when the properties assigned (or restored) by specific
+  states is not known when the machine is constructed.
+
+  \code
+    QState *s1 = new QState();
+    QState *s2 = new QState();
+
+    s2->assignProperty(object, "fooBar", 2.0);
+    s1->addTransition(s2);
+
+    QStateMachine machine;
+    machine.setInitialState(s1);
+    machine.addDefaultAnimation(new QPropertyAnimation(object, "fooBar"));
+  \endcode
+
+  When the machine is in state \c s2, the machine will play the default animation for the
+  property \c fooBar since this property is assigned by \c s2.
+
+  Note that animations explicitly set on transitions will take precedence over any default
+  animation for the given property.
+
+  \section1 Nesting State Machines
+
+  QStateMachine is a subclass of QState. This allows for a state machine to be a child state of
+  another machine. QStateMachine reimplements QState::onEntry() and calls QStateMachine::start(),
+  so that when the child state machine is entered, it will automatically start running.
+
+  The parent state machine treats the child machine as an \e atomic state in the state machine
+  algorithm. The child state machine is self-contained; it maintains its own event queue and
+  configuration. In particular, note that the \l{QStateMachine::configuration()}{configuration}
+  of the child machine is not part of the parent machine's configuration (only the child machine
+  itself is).
+
+  States of the child state machine cannot be specified as targets of transitions in the parent
+  state machine; only the child state machine itself can. Conversely, states of the parent state
+  machine cannot be specified as targets of transitions in the child state machine. The child
+  state machine's \l{QState::finished()}{finished}() signal can be used to trigger a transition
+  in the parent machine.
+*/

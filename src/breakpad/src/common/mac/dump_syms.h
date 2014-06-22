@@ -47,13 +47,16 @@
 #include "common/byte_cursor.h"
 #include "common/mac/macho_reader.h"
 #include "common/module.h"
+#include "common/symbol_data.h"
 
 namespace google_breakpad {
 
 class DumpSymbols {
  public:
-  DumpSymbols()
-      : input_pathname_(),
+  DumpSymbols(SymbolData symbol_data, bool handle_inter_cu_refs)
+      : symbol_data_(symbol_data),
+        handle_inter_cu_refs_(handle_inter_cu_refs),
+        input_pathname_(),
         object_filename_(),
         contents_(),
         selected_object_file_(),
@@ -110,9 +113,14 @@ class DumpSymbols {
   }
 
   // Read the selected object file's debugging information, and write it out to
-  // |stream|. Write the CFI section if |cfi| is true. Return true on success;
-  // if an error occurs, report it and return false.
-  bool WriteSymbolFile(std::ostream &stream, bool cfi);
+  // |stream|. Return true on success; if an error occurs, report it and
+  // return false.
+  bool WriteSymbolFile(std::ostream &stream);
+
+  // As above, but simply return the debugging information in module
+  // instead of writing it to a stream. The caller owns the resulting
+  // module object and must delete it when finished.
+  bool ReadSymbolData(Module** module);
 
  private:
   // Used internally.
@@ -127,7 +135,8 @@ class DumpSymbols {
   // on failure, report the problem and return false.
   bool ReadDwarf(google_breakpad::Module *module,
                  const mach_o::Reader &macho_reader,
-                 const mach_o::SectionMap &dwarf_sections) const;
+                 const mach_o::SectionMap &dwarf_sections,
+                 bool handle_inter_cu_refs) const;
 
   // Read DWARF CFI or .eh_frame data from |section|, belonging to
   // |macho_reader|, and record it in |module|.  If |eh_frame| is true,
@@ -138,6 +147,12 @@ class DumpSymbols {
                const mach_o::Reader &macho_reader,
                const mach_o::Section &section,
                bool eh_frame) const;
+
+  // The selection of what type of symbol data to read/write.
+  const SymbolData symbol_data_;
+
+  // Whether to handle references between compilation units.
+  const bool handle_inter_cu_refs_;
 
   // The name of the file or bundle whose symbols this will dump.
   // This is the path given to Read, for use in error messages.

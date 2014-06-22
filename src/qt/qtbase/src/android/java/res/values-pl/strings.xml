@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="ministro_not_found_msg">Usługa Ministro nie została znaleziona.\nAplikacja nie może zostać uruchomiona.</string>
+    <string name="ministro_needed_msg">Aplikacja wymaga usługi Ministro. Czy chcesz ją zainstalować?</string>
+    <string name="fatal_error_msg">Wystąpił błąd krytyczny. Aplikacja zostanie zamknięta.</string>
+</resources>

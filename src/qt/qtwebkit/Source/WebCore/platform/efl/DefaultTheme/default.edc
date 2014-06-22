@@ -1,0 +1,67 @@
+/*
+    Copyright (C) 2008,2009 INdT - Instituto Nokia de Tecnologia
+    Copyright (C) 2009,2010 ProFUSION embedded systems
+    Copyright (C) 2009,2010 Samsung Electronics
+
+    This file is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Library General Public
+    License as published by the Free Software Foundation; either
+    version 2 of the License, or (at your option) any later version.
+
+    This file is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Library General Public License for more details.
+
+    You should have received a copy of the GNU Library General Public License
+    along with this library; see the file COPYING.LIB.  If not, write to
+    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+    Boston, MA 02110-1301, USA.
+*/
+
+color_classes {
+   color_class {
+      name: "webkit/selection/foreground";
+      color: 255 255 255 255; /* active */
+      color2: 255 255 255 255; /* inactive */
+   }
+   color_class {
+      name: "webkit/selection/background";
+      color: 86 86 209 255; /* active */
+      color2: 0 0 128 128; /* inactive */
+   }
+   color_class {
+      name: "webkit/focus_ring";
+      color: 26 26 226 255; /* foreground */
+      /* no background, consider transparent */
+   }
+}
+
+collections {
+   group { name: "webkit/base";
+      /* specific colors and all, used to listen for color_class changes */
+   }
+
+#include "widget/button/button.edc"
+#include "widget/check/check.edc"
+#include "widget/combo/combo.edc"
+#include "widget/cursor/cursor.edc"
+#include "widget/entry/entry.edc"
+#include "widget/file/file.edc"
+#include "widget/mediacontrol/fullscreenbutton/fullscreen_button.edc"
+#include "widget/mediacontrol/mutebutton/mute_button.edc"
+#include "widget/mediacontrol/playpausebutton/playpause_button.edc"
+#include "widget/mediacontrol/seekbackwardbutton/seekbackward_button.edc"
+#include "widget/mediacontrol/seekforwardbutton/seekforward_button.edc"
+#include "widget/mediacontrol/togglecaptionsbutton/toggle_captions_button.edc"
+#ifdef ENABLE_PROGRESS_ELEMENT
+#include "widget/progressbar/progressbar.edc"
+#endif
+#include "widget/radio/radio.edc"
+#include "widget/scrollbar/scrollbar.edc"
+#include "widget/search/cancel/search_cancel.edc"
+#include "widget/search/decoration/search_decoration.edc"
+#include "widget/search/field/search_field.edc"
+#include "widget/slider/slider.edc"
+#include "widget/spinner/spinner.edc"
+}

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug</title>
+    <link rel="stylesheet" href="codemirror.css">
+    <link rel="stylesheet" href="codemirror-additions.css">
+    <script src="codemirror.js"></script>
+    <script src="javascript.js"></script>
+    <script src="css.js"></script>
+    <script src="Utilities.js"></script>
+    <script src="Formatter.js"></script>
+    <script src="FormatterDebug.js"></script>
+    <script src="FormatterContentBuilder.js"></script>
+    <script src="CodeMirrorFormatters.js"></script>
+</head>
+<body>
+
+    <h1>Debug Pretty Printing</h1>
+
+    <!-- FIXME: There should be a "save" button that saves the mode and content, so reloading will restore that state -->
+
+    <!-- Controls -->
+    <select id="mode">
+        <option selected value="text/javascript">JavaScript</option>
+        <option value="text/css">CSS</option>
+    </select>
+    <button id="populate">Populate</button>
+    <button id="run-tests">Run Tests</button>
+    <button id="clear">Clear</button>
+    <button id="select-output">Select Output</button>
+    <button id="run-again">Run Again</button>
+    <small id="time"></small>
+
+    <br><br>
+
+    <!-- Editor -->
+    <textarea id="code" name="code"></textarea>
+
+    <!-- Output -->
+    <pre id="pretty"></pre>
+    <pre id="debug"></pre>
+
+    <script>
+    // Editor.
+    var cm = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+    });
+
+    // Initial value.
+    var str = "(function() { var a=1; return a+1; })();";
+    cm.setValue(str);
+
+    // Setup and changing the mode.
+    cm.setOption("mode", "text/javascript");
+    var modePicker = document.getElementById("mode");
+    modePicker.addEventListener("change", function(event) {
+        cm.setValue("");
+        cm.setOption("mode", modePicker.value);
+        refresh();
+    });
+
+    // Populate button to populate with some canned content.
+    document.getElementById("populate").addEventListener("click", function(event) {
+        switch (modePicker.value) {
+            case "text/javascript":
+                var url = "populate/jquery.min.js";
+                break;
+            case "text/css":
+                var url = "populate/apple.css";
+                break;
+        }
+
+        var xhr = new XMLHttpRequest;
+        xhr.open("GET", url, true);
+        xhr.onload = function() {
+            cm.setValue(xhr.responseText);
+            setTimeout(refresh);
+        }
+        xhr.send();
+    });
+
+    // Run Tests button.
+    document.getElementById("run-tests").addEventListener("click", function(event) {
+        cm.setValue("Running Tests...");
+        refresh();
+        runTests();
+    });
+
+    // Clear button.
+    document.getElementById("clear").addEventListener("click", function(event) {
+        cm.setValue("");
+        refresh();
+    });
+
+    // Select output button.
+    document.getElementById("select-output").addEventListener("click", function(event) {
+        var range = document.createRange();
+        range.selectNodeContents(document.getElementById("pretty"));
+        var selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+    });
+
+    // Run again button.
+    document.getElementById("run-again").addEventListener("click", function(event) {
+        refresh();
+    });
+
+    // Button helpers.
+    var buttons = ["mode", "populate", "run-tests", "clear", "select-output", "run-again"];
+    function disableButtons() {
+        console.log("disableButtons");
+        buttons.forEach(function(id) {
+            document.getElementById(id).disabled = true;
+        });
+    }
+    function enableButtons() {
+        console.log("enableButtons");
+        buttons.forEach(function(id) {
+            document.getElementById(id).disabled = false;
+        });
+    }
+
+    // Refresh after changes after a short delay.
+    var timer = null;
+    cm.on("change", function(codeMirror, change) {
+        if (timer)
+            clearTimeout(timer)
+        timer = setTimeout(function() {
+            clearTimeout(timer);
+            timer = null;
+            refresh();
+        }, 500);
+    });
+
+    // Output elements.
+    var timeOutput = document.getElementById("time");
+    var prettyPre = document.getElementById("pretty");
+    var debugPre = document.getElementById("debug");
+
+    function refresh() {
+        if (timer)
+            clearTimeout(timer);
+
+        const start = {line: 0, ch: 0};
+        const end = {line: cm.lineCount() - 1};
+
+        // Setup.
+        const indentString = "    ";
+        var originalLineEndings = [];
+        var formattedLineEndings = [];
+        var mapping = {original: [0], formatted: [0]};
+        var builder = new FormatterContentBuilder(mapping, originalLineEndings, formattedLineEndings, 0, 0, indentString);
+        var formatter = new Formatter(cm, builder);
+
+        // Time the formatter.
+        var startTime = Date.now();
+        formatter.format(start, end);
+        var endTime = Date.now();
+
+        // Gather debug information.
+        var debug = formatter.debug(start, end);
+
+        // Output the results.
+        timeOutput.innerText = (endTime - startTime) + "ms";
+        prettyPre.innerText = builder.formattedContent;
+        debugPre.innerText = debug;
+    }
+
+    setTimeout(refresh);
+
+    // Tests.
+    function runTests() {        
+        disableButtons();
+        function completedCallback() {
+            enableButtons();
+        }
+
+        if (modePicker.value === "text/javascript")
+            runJavaScriptTests(completedCallback);
+        else
+            runCSSTests(completedCallback);
+    }
+    function runJavaScriptTests(callback) {
+        _runTests(callback, [
+            "js-tests/block-comment.js",
+            "js-tests/single-statement-blocks.js",
+            "js-tests/switch-case-default.js",
+        ]);
+    }
+    function runCSSTests(callback) {
+        _runTests(callback, []);
+    }
+    function _runTests(callback, manifest) {
+        var index = -1;
+        var results = [];
+        setTimeout(runNextTest, 0);
+
+        function runNextTest() {
+            // Next test.
+            index++;
+
+            // Done.
+            if (index >= manifest.length) {
+                if (!index)
+                    results.push("/* No tests for mode: " + modePicker.value);
+                printResults();
+                return;
+            }
+
+            // Load test and expected results.
+            var test = manifest[index];
+            var expected = test.replace(/\.js$/, "-expected.js");
+            var xhr1 = new XMLHttpRequest;
+            xhr1.open("GET", test, false);
+            xhr1.send();
+            var testData = xhr1.responseText;
+            var xhr2 = new XMLHttpRequest;
+            xhr2.open("GET", expected, false);
+            xhr2.send();
+            var expectedData = xhr2.responseText;
+
+            // Run the test.
+            var editor = CodeMirror(document.createElement("div"));
+            editor.setOption("mode", modePicker.value);
+            editor.setValue(testData);
+            const start = {line: 0, ch: 0};
+            const end = {line: editor.lineCount() - 1};
+            const indentString = "    ";
+            var originalLineEndings = [];
+            var formattedLineEndings = [];
+            var mapping = {original: [0], formatted: [0]};
+            var builder = new FormatterContentBuilder(mapping, originalLineEndings, formattedLineEndings, 0, 0, indentString);
+            var formatter = new Formatter(editor, builder);
+            formatter.format(start, end);
+
+            // Compare results.
+            var pass = builder.formattedContent === expectedData;
+            results.push("/* " + (pass ? "PASS" : "FAIL") + ": " + test + " */");
+            runNextTest();
+        }
+
+        function printResults() {
+            cm.setValue(results.join("\n"));
+            cm.refresh();
+            callback();
+        }
+    }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+#!/bin/sh
+
+QMKSPEC=$1
+VERBOSE=$2
+SRCDIR=$3
+OUTDIR=$4
+RESULTFILE=$5
+TARGET=$6
+shift 6
+
+if [ "$TARGET" = "host" ]; then
+    VARPREFIX="CFG_HOST"
+    PROSUFFIX="_host"
+else
+    VARPREFIX="CFG"
+    PROSUFFIX=""
+fi
+
+LFLAGS="$SYSROOT_FLAG"
+CXXFLAGS="$SYSROOT_FLAG"
+
+while [ "$#" -gt 0 ]; do
+    PARAM=$1
+    case $PARAM in
+    -L*|-l*)
+        LFLAGS="$LFLAGS $PARAM"
+        ;;
+    -I*)
+        INC=`echo $PARAM | sed -e 's/^-I//'`
+        INCLUDEPATH="$INCLUDEPATH $INC"
+        ;;
+    -D*)
+        CXXFLAGS="$CXXFLAGS $PARAM"
+        ;;
+    *)  ;;
+    esac
+    shift
+done
+
+# debuggery
+[ "$VERBOSE" = "yes" ] && echo "Determining architecture... ($*)"
+
+# build a test program but don't run it
+test -d "$OUTDIR/config.tests/arch" || mkdir -p "$OUTDIR/config.tests/arch"
+cd "$OUTDIR/config.tests/arch"
+[ -f Makefile ] && $MAKE distclean >/dev/null 2>&1
+OUTDIR=$OUTDIR "$OUTDIR/bin/qmake" -nocache -spec "$QMKSPEC" "QT_BUILD_TREE=$OUTDIR" "LIBS+=$LFLAGS" "QMAKE_CXXFLAGS+=$CXXFLAGS" "INCLUDEPATH+=$INCLUDEPATH" "CONFIG-=app_bundle" "$SRCDIR/config.tests/arch/arch$PROSUFFIX.pro" >/dev/null 2>&1 || echo "qmake is broken" >&2
+
+
+ARCH=""
+[ "$VERBOSE" = "yes" ] && $MAKE || $MAKE >/dev/null 2>&1
+
+if [ -f ./arch.exe ]; then
+    binary=./arch.exe
+elif [ -f ./arch ]; then
+    binary=./arch
+elif [ -f ./libarch.so ]; then
+    binary=./libarch.so
+else
+    [ "$VERBOSE" = "yes" ] && echo "Unable to determine architecture!"
+    exit 2
+fi
+
+if strings - $binary 2>/dev/null | \
+    awk -F: '/\=\=Qt\=magic\=Qt\=\= Architecture/ { print "'$VARPREFIX'_ARCH=\"" $2 "\"" }
+             /\=\=Qt\=magic\=Qt\=\= Sub-architecture/ { print "'$VARPREFIX'_CPUFEATURES=\"" $2 "\"" }' > "$RESULTFILE"
+then
+    [ "$VERBOSE" = "yes" ] && echo "    Found architecture in binary" && \
+        cat "$RESULTFILE"
+else
+    [ "$VERBOSE" = "yes" ] && echo "Unable to determine architecture!"
+    exit 2
+fi
+
+$MAKE distclean >/dev/null 2>&1

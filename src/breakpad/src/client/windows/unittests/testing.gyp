@@ -1,5 +1,4 @@
-# Copyright (c) 2010, Google Inc.
-# All rights reserved.
+# Copyright 2010 Google Inc. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
@@ -29,14 +28,14 @@
 
 {
   'includes': [
-    '../build/common.gypi',
+    '../../../build/common.gypi',
   ],
   'target_defaults': {
   },
   'targets': [
     {
       'target_name': 'gtest',
-      'type': '<(library)',
+      'type': 'static_library',
       'include_dirs': [
         '<(DEPTH)/testing/include',
         '<(DEPTH)/testing/gtest',
@@ -49,12 +48,17 @@
         'include_dirs': [
           '<(DEPTH)/testing/include',
           '<(DEPTH)/testing/gtest/include',
-        ]
+        ],
+        # Visual C++ implements variadic templates strangely, and
+        # VC++2012 broke Google Test by lowering this value. See
+        # http://stackoverflow.com/questions/12558327/google-test-in-visual-studio-2012
+        'defines': ['_VARIADIC_MAX=10'],
       },
+      'defines': ['_VARIADIC_MAX=10'],
     },
     {
       'target_name': 'gmock',
-      'type': '<(library)',
+      'type': 'static_library',
       'include_dirs': [
         '<(DEPTH)/testing/include',
         '<(DEPTH)/testing/',
@@ -69,8 +73,10 @@
         'include_dirs': [
           '<(DEPTH)/testing/include',
           '<(DEPTH)/testing/gtest/include',
-        ]
+        ],
+        'defines': ['_VARIADIC_MAX=10'],
       },
+      'defines': ['_VARIADIC_MAX=10'],
     },
 
   ],

@@ -41,6 +41,7 @@ extern "C" { // needed to compile on Leopard
 #include <mach/task_info.h>
 #include <sys/sysctl.h>
 #include <TargetConditionals.h>
+#include <unistd.h>
 
 #include <algorithm>
 #include <string>
@@ -261,8 +262,8 @@ bool FindTextSection(DynamicImage& image) {
             reinterpret_cast<const mach_segment_command_type *>(cmd);
 
         if (!strcmp(seg->segname, "__TEXT")) {
-          image.vmaddr_ = seg->vmaddr;
-          image.vmsize_ = seg->vmsize;
+          image.vmaddr_ = static_cast<mach_vm_address_t>(seg->vmaddr);
+          image.vmsize_ = static_cast<mach_vm_size_t>(seg->vmsize);
           image.slide_ = 0;
 
           if (seg->fileoff == 0 && seg->filesize != 0) {
@@ -475,8 +476,6 @@ void ReadImageInfo(DynamicImages& images,
                          mach_header_bytes) != KERN_SUCCESS)
         continue;
 
-      header = reinterpret_cast<mach_header_type*>(&mach_header_bytes[0]);
-
       // Read the file name from the task's memory space.
       string file_path;
       if (info.file_path_) {
@@ -492,7 +491,7 @@ void ReadImageInfo(DynamicImages& images,
                                    header_size,
                                    info.load_address_,
                                    file_path,
-                                   info.file_mod_date_,
+                                   static_cast<uintptr_t>(info.file_mod_date_),
                                    images.task_,
                                    images.cpu_type_);
 
@@ -568,7 +567,7 @@ cpu_type_t DynamicImages::DetermineTaskCPUType(task_t task) {
 
     cpu_type_t cpu_type;
     size_t cpuTypeSize = sizeof(cpu_type);
-    sysctl(mib, mibLen, &cpu_type, &cpuTypeSize, 0, 0);
+    sysctl(mib, static_cast<u_int>(mibLen), &cpu_type, &cpuTypeSize, 0, 0);
     return cpu_type;
   }
 

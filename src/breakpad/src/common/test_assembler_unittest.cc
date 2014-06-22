@@ -36,12 +36,12 @@
 
 #include "breakpad_googletest_includes.h"
 #include "common/test_assembler.h"
+#include "common/using_std_string.h"
 
 using google_breakpad::test_assembler::Label;
 using google_breakpad::test_assembler::Section;
 using google_breakpad::test_assembler::kBigEndian;
 using google_breakpad::test_assembler::kLittleEndian;
-using std::string;
 using testing::Test;
 
 TEST(ConstructLabel, Simple) {
@@ -60,7 +60,7 @@ TEST(ConstructLabelDeathTest, Undefined) {
 
 TEST(ConstructLabel, Constant) {
   Label l(0x060b9f974eaf301eULL);
-  u_int64_t v;
+  uint64_t v;
   EXPECT_TRUE(l.IsKnownConstant(&v));
   EXPECT_EQ(v, 0x060b9f974eaf301eULL);
   EXPECT_EQ(l.Value(), 0x060b9f974eaf301eULL);
@@ -69,7 +69,7 @@ TEST(ConstructLabel, Constant) {
 TEST(ConstructLabel, Copy) {
   Label l;
   Label m(l);
-  u_int64_t v;
+  uint64_t v;
   EXPECT_TRUE(l.IsKnownOffsetFrom(m, &v));
   EXPECT_EQ(0U, v);
 }
@@ -82,7 +82,7 @@ TEST(Assignment, UnconstrainedToUnconstrained) {
   l = m;
   EXPECT_EQ(0U, l-m);
   EXPECT_TRUE(l.IsKnownOffsetFrom(m));
-  u_int64_t d;
+  uint64_t d;
   EXPECT_TRUE(l.IsKnownOffsetFrom(m, &d));
   EXPECT_EQ(0U, d);
   EXPECT_FALSE(l.IsKnownConstant());
@@ -94,7 +94,7 @@ TEST(Assignment, UnconstrainedToRelated) {
   l = m;
   EXPECT_EQ(0U, l-m);
   EXPECT_TRUE(l.IsKnownOffsetFrom(m));
-  u_int64_t d;
+  uint64_t d;
   EXPECT_TRUE(l.IsKnownOffsetFrom(m, &d));
   EXPECT_EQ(0U, d);
   EXPECT_FALSE(l.IsKnownConstant());
@@ -106,7 +106,7 @@ TEST(Assignment, UnconstrainedToKnown) {
   l = m;
   EXPECT_EQ(0U, l-m);
   EXPECT_TRUE(l.IsKnownOffsetFrom(m));
-  u_int64_t d;
+  uint64_t d;
   EXPECT_TRUE(l.IsKnownOffsetFrom(m, &d));
   EXPECT_EQ(0U, d);
   EXPECT_TRUE(m.IsKnownConstant());
@@ -119,7 +119,7 @@ TEST(Assignment, RelatedToUnconstrained) {
   l = m;
   EXPECT_EQ(0U, l-n);
   EXPECT_TRUE(l.IsKnownOffsetFrom(n));
-  u_int64_t d;
+  uint64_t d;
   EXPECT_TRUE(l.IsKnownOffsetFrom(n, &d));
   EXPECT_EQ(0U, d);
   EXPECT_FALSE(l.IsKnownConstant());
@@ -132,7 +132,7 @@ TEST(Assignment, RelatedToRelated) {
   l = m;
   EXPECT_EQ(0U, n-o);
   EXPECT_TRUE(n.IsKnownOffsetFrom(o));
-  u_int64_t d;
+  uint64_t d;
   EXPECT_TRUE(n.IsKnownOffsetFrom(o, &d));
   EXPECT_EQ(0U, d);
   EXPECT_FALSE(l.IsKnownConstant());
@@ -234,7 +234,7 @@ TEST(Addition, LabelConstant) {
   Label l, m;
   m = l + 0x5248d93e8bbe9497ULL;
   EXPECT_TRUE(m.IsKnownOffsetFrom(l));
-  u_int64_t d;
+  uint64_t d;
   EXPECT_TRUE(m.IsKnownOffsetFrom(l, &d));
   EXPECT_EQ(0x5248d93e8bbe9497ULL, d);
   EXPECT_FALSE(m.IsKnownConstant());
@@ -244,7 +244,7 @@ TEST(Addition, ConstantLabel) {
   Label l, m;
   m = 0xf51e94e00d6e3c84ULL + l;
   EXPECT_TRUE(m.IsKnownOffsetFrom(l));
-  u_int64_t d;
+  uint64_t d;
   EXPECT_TRUE(m.IsKnownOffsetFrom(l, &d));
   EXPECT_EQ(0xf51e94e00d6e3c84ULL, d);
   EXPECT_FALSE(m.IsKnownConstant());
@@ -255,7 +255,7 @@ TEST(Addition, KnownLabelConstant) {
   l = 0x16286307042ce0d8ULL;
   m = l + 0x3fdddd91306719d7ULL;
   EXPECT_TRUE(m.IsKnownOffsetFrom(l));
-  u_int64_t d;
+  uint64_t d;
   EXPECT_TRUE(m.IsKnownOffsetFrom(l, &d));
   EXPECT_EQ(0x3fdddd91306719d7ULL, d);
   EXPECT_TRUE(m.IsKnownConstant());
@@ -267,7 +267,7 @@ TEST(Addition, ConstantKnownLabel) {
   l = 0x50f62d0cdd1031deULL;
   m = 0x1b13462d8577c538ULL + l;
   EXPECT_TRUE(m.IsKnownOffsetFrom(l));
-  u_int64_t d;
+  uint64_t d;
   EXPECT_TRUE(m.IsKnownOffsetFrom(l, &d));
   EXPECT_EQ(0x1b13462d8577c538ULL, d);
   EXPECT_TRUE(m.IsKnownConstant());
@@ -278,7 +278,7 @@ TEST(Subtraction, LabelConstant) {
   Label l, m;
   m = l - 0x0620884d21d3138eULL;
   EXPECT_TRUE(m.IsKnownOffsetFrom(l));
-  u_int64_t d;
+  uint64_t d;
   EXPECT_TRUE(m.IsKnownOffsetFrom(l, &d));
   EXPECT_EQ(-0x0620884d21d3138eULL, d);
   EXPECT_FALSE(m.IsKnownConstant());
@@ -289,7 +289,7 @@ TEST(Subtraction, KnownLabelConstant) {
   l = 0x6237fbaf9ef7929eULL;
   m = l - 0x317730995d2ab6eeULL;
   EXPECT_TRUE(m.IsKnownOffsetFrom(l));
-  u_int64_t d;
+  uint64_t d;
   EXPECT_TRUE(m.IsKnownOffsetFrom(l, &d));
   EXPECT_EQ(-0x317730995d2ab6eeULL, d);
   EXPECT_TRUE(m.IsKnownConstant());
@@ -475,10 +475,10 @@ TEST(LabelChain, AssignEndRelationBeforeForward) {
   b = a + 0x1;
   c = b + 0x10;
   d = c + 0x100;
-  EXPECT_EQ(-(u_int64_t)0x111U, a-x);
-  EXPECT_EQ(-(u_int64_t)0x110U, b-x);
-  EXPECT_EQ(-(u_int64_t)0x100U, c-x);
-  EXPECT_EQ(-(u_int64_t)0U,     d-x);
+  EXPECT_EQ(-(uint64_t)0x111U, a-x);
+  EXPECT_EQ(-(uint64_t)0x110U, b-x);
+  EXPECT_EQ(-(uint64_t)0x100U, c-x);
+  EXPECT_EQ(-(uint64_t)0U,     d-x);
 }
 
 TEST(LabelChain, AssignEndRelationBeforeBackward) {
@@ -488,10 +488,10 @@ TEST(LabelChain, AssignEndRelationBeforeBackward) {
   d = c + 0x100;
   c = b + 0x10;
   b = a + 0x1;
-  EXPECT_EQ(-(u_int64_t)0x111U, a-x);
-  EXPECT_EQ(-(u_int64_t)0x110U, b-x);
-  EXPECT_EQ(-(u_int64_t)0x100U, c-x);
-  EXPECT_EQ(-(u_int64_t)0U,     d-x);
+  EXPECT_EQ(-(uint64_t)0x111U, a-x);
+  EXPECT_EQ(-(uint64_t)0x110U, b-x);
+  EXPECT_EQ(-(uint64_t)0x100U, c-x);
+  EXPECT_EQ(-(uint64_t)0U,     d-x);
 }
 
 TEST(LabelChain, AssignEndRelationAfterForward) {
@@ -501,10 +501,10 @@ TEST(LabelChain, AssignEndRelationAfterForward) {
   c = b + 0x10;
   d = c + 0x100;
   x = d;
-  EXPECT_EQ(-(u_int64_t)0x111U, a-x);
-  EXPECT_EQ(-(u_int64_t)0x110U, b-x);
-  EXPECT_EQ(-(u_int64_t)0x100U, c-x);
-  EXPECT_EQ(-(u_int64_t)0x000U, d-x);
+  EXPECT_EQ(-(uint64_t)0x111U, a-x);
+  EXPECT_EQ(-(uint64_t)0x110U, b-x);
+  EXPECT_EQ(-(uint64_t)0x100U, c-x);
+  EXPECT_EQ(-(uint64_t)0x000U, d-x);
 }
 
 TEST(LabelChain, AssignEndRelationAfterBackward) {
@@ -514,10 +514,10 @@ TEST(LabelChain, AssignEndRelationAfterBackward) {
   c = b + 0x10;
   b = a + 0x1;
   x = d;
-  EXPECT_EQ(-(u_int64_t)0x111U, a-x);
-  EXPECT_EQ(-(u_int64_t)0x110U, b-x);
-  EXPECT_EQ(-(u_int64_t)0x100U, c-x);
-  EXPECT_EQ(-(u_int64_t)0x000U, d-x);
+  EXPECT_EQ(-(uint64_t)0x111U, a-x);
+  EXPECT_EQ(-(uint64_t)0x110U, b-x);
+  EXPECT_EQ(-(uint64_t)0x100U, c-x);
+  EXPECT_EQ(-(uint64_t)0x000U, d-x);
 }
 
 TEST(LabelChain, AssignEndValueBeforeForward) {
@@ -623,10 +623,10 @@ TEST(LabelChain, ConstructEndRelationAfterForward) {
   Label c(b + 0x10);
   Label d(c + 0x100);
   x = d;
-  EXPECT_EQ(-(u_int64_t)0x111U, a-x);
-  EXPECT_EQ(-(u_int64_t)0x110U, b-x);
-  EXPECT_EQ(-(u_int64_t)0x100U, c-x);
-  EXPECT_EQ(-(u_int64_t)0x000U, d-x);
+  EXPECT_EQ(-(uint64_t)0x111U, a-x);
+  EXPECT_EQ(-(uint64_t)0x110U, b-x);
+  EXPECT_EQ(-(uint64_t)0x100U, c-x);
+  EXPECT_EQ(-(uint64_t)0x000U, d-x);
 }
 
 TEST(LabelChain, ConstructEndValueAfterForward) {
@@ -732,11 +732,11 @@ class SectionFixture {
  public:
   Section section;
   string contents;
-  static const u_int8_t data[];
+  static const uint8_t data[];
   static const size_t data_size;
 };
 
-const u_int8_t SectionFixture::data[] = {
+const uint8_t SectionFixture::data[] = {
   0x87, 0x4f, 0x43, 0x67, 0x30, 0xd0, 0xd4, 0x0e
 };
 
@@ -753,7 +753,7 @@ const u_int8_t SectionFixture::data[] = {
 #define ASSERT_BYTES(s, b)                                              \
   do                                                                    \
     {                                                                   \
-      static const u_int8_t expected_bytes[] = b;                       \
+      static const uint8_t expected_bytes[] = b;                       \
       ASSERT_EQ(sizeof(expected_bytes), s.size());                      \
       ASSERT_TRUE(memcmp(s.data(), (const char *) expected_bytes,       \
                          sizeof(expected_bytes)) == 0);                 \
@@ -1361,7 +1361,7 @@ TEST_F(Append, Variety) {
   ASSERT_EQ(8 * 18U, section.Size());
   ASSERT_TRUE(section.GetContents(&contents));
 
-  static const u_int8_t expected[] = {
+  static const uint8_t expected[] = {
     0x35,    0xa6, 0x6b, 0x28, 0xf7, 0xa8, 0x99, 0xa1, 0x61,
     0x8b,    0x39, 0x44, 0x8f, 0x44, 0x40, 0x65, 0xa5, 0x0e,
     0xc9, 0x1c,    0x5e, 0x87, 0xbf, 0xa4, 0x28, 0xb9, 0xf4,

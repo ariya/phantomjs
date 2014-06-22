@@ -30,7 +30,7 @@
 #ifndef CLIENT_WINDOWS_UNITTESTS_DUMP_ANALYSIS_H_
 #define CLIENT_WINDOWS_UNITTESTS_DUMP_ANALYSIS_H_
 
-#include "../crash_generation/minidump_generator.h"
+#include "client/windows/crash_generation/minidump_generator.h"
 
 // Convenience to get to the PEB pointer in a TEB.
 struct FakeTEB {

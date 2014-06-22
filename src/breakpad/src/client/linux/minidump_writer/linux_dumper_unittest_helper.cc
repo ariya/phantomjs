@@ -38,14 +38,19 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
+#include "common/scoped_ptr.h"
 #include "third_party/lss/linux_syscall_support.h"
 
 #if defined(__ARM_EABI__)
 #define TID_PTR_REGISTER "r3"
+#elif defined(__aarch64__)
+#define TID_PTR_REGISTER "x3"
 #elif defined(__i386)
 #define TID_PTR_REGISTER "ecx"
 #elif defined(__x86_64)
 #define TID_PTR_REGISTER "rcx"
+#elif defined(__mips__)
+#define TID_PTR_REGISTER "$1"
 #else
 #error This test has not been ported to this platform.
 #endif
@@ -77,7 +82,7 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "ERROR: number of threads is 0");
     return 1;
   }
-  pthread_t threads[num_threads];
+  google_breakpad::scoped_array<pthread_t> threads(new pthread_t[num_threads]);
   pthread_attr_t thread_attributes;
   pthread_attr_init(&thread_attributes);
   pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_DETACHED);

@@ -31,8 +31,8 @@
 #include <objbase.h>
 #include <dbghelp.h>
 
-#include "dump_analysis.h"  // NOLINT
-#include "gtest/gtest.h"
+#include "client/windows/unittests/dump_analysis.h"  // NOLINT
+#include "testing/gtest/include/gtest/gtest.h"
 
 DumpAnalysis::~DumpAnalysis() {
   if (dump_file_view_ != NULL) {

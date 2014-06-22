@@ -41,10 +41,10 @@ namespace google_breakpad {
 
 using dwarf2reader::DwarfPointerEncoding;
   
-CFISection &CFISection::CIEHeader(u_int64_t code_alignment_factor,
+CFISection &CFISection::CIEHeader(uint64_t code_alignment_factor,
                                   int data_alignment_factor,
                                   unsigned return_address_register,
-                                  u_int8_t version,
+                                  uint8_t version,
                                   const string &augmentation,
                                   bool dwarf64) {
   assert(!entry_length_);
@@ -73,8 +73,8 @@ CFISection &CFISection::CIEHeader(u_int64_t code_alignment_factor,
 }
 
 CFISection &CFISection::FDEHeader(Label cie_pointer,
-                                  u_int64_t initial_location,
-                                  u_int64_t address_range,
+                                  uint64_t initial_location,
+                                  uint64_t address_range,
                                   bool dwarf64) {
   assert(!entry_length_);
   entry_length_ = new PendingLength();
@@ -117,7 +117,7 @@ CFISection &CFISection::FinishEntry() {
   return *this;
 }
 
-CFISection &CFISection::EncodedPointer(u_int64_t address,
+CFISection &CFISection::EncodedPointer(uint64_t address,
                                        DwarfPointerEncoding encoding,
                                        const EncodedPointerBases &bases) {
   // Omitted data is extremely easy to emit.
@@ -131,7 +131,7 @@ CFISection &CFISection::EncodedPointer(u_int64_t address,
 
   // Find the base address to which this pointer is relative. The upper
   // nybble of the encoding specifies this.
-  u_int64_t base;
+  uint64_t base;
   switch (encoding & 0xf0) {
     case dwarf2reader::DW_EH_PE_absptr:  base = 0;                  break;
     case dwarf2reader::DW_EH_PE_pcrel:   base = bases.cfi + Size(); break;
@@ -189,10 +189,10 @@ CFISection &CFISection::EncodedPointer(u_int64_t address,
   return *this;
 };
 
-const u_int32_t CFISection::kDwarf64InitialLengthMarker;
-const u_int32_t CFISection::kDwarf32CIEIdentifier;
-const u_int64_t CFISection::kDwarf64CIEIdentifier;
-const u_int32_t CFISection::kEHFrame32CIEIdentifier;
-const u_int64_t CFISection::kEHFrame64CIEIdentifier;
+const uint32_t CFISection::kDwarf64InitialLengthMarker;
+const uint32_t CFISection::kDwarf32CIEIdentifier;
+const uint64_t CFISection::kDwarf64CIEIdentifier;
+const uint32_t CFISection::kEHFrame32CIEIdentifier;
+const uint64_t CFISection::kEHFrame64CIEIdentifier;
 
 } // namespace google_breakpad

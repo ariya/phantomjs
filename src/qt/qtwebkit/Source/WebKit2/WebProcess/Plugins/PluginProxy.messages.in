@@ -1,0 +1,85 @@
+# Copyright (C) 2010 Apple Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS'' AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS BE LIABLE FOR
+# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#if ENABLE(PLUGIN_PROCESS)
+
+messages -> PluginProxy LegacyReceiver {
+    # Asks the web process to load a URL.
+    LoadURL(uint64_t requestID, WTF::String method, WTF::String urlString, WTF::String target, WebCore::HTTPHeaderMap headerFields, Vector<uint8_t> httpBody, bool allowPopups);
+
+    # Called when the plug-in has painted into its backing store. The painted rect is in plug-in coordinates.
+    Update(WebCore::IntRect paintedRect)
+
+    # Returns a PAC style string with proxies for the given URL.
+    ProxiesForURL(WTF::String urlString) -> (WTF::String proxiesString)
+
+    # Returns the cookies for the given URL.
+    CookiesForURL(WTF::String urlString) -> (WTF::String cookieString)
+
+    # Sets the cookies for the given URL.
+    SetCookiesForURL(WTF::String urlString, WTF::String cookieString)
+
+    # Gets the authentication info for the given protection space.
+    GetAuthenticationInfo(WebCore::ProtectionSpace protectionSpace) -> (bool returnValue, WTF::String username, WTF::String password)
+
+    # Gets a reference to the plug-in element NPObject.
+    GetPluginElementNPObject() -> (uint64_t pluginElementNPObjectID)
+
+    # Evaluates the given JavaScript string.
+    Evaluate(WebKit::NPVariantData npObjectAsVariantData, WTF::String scriptString, bool allowPopups) -> (bool returnValue, WebKit::NPVariantData resultData)
+
+    # Cancels the given stream load.
+    CancelStreamLoad(uint64_t streamID)
+
+    # Cancel the manual stream load.
+    CancelManualStreamLoad()
+
+    # Set the status bar text.
+    SetStatusbarText(WTF::String statusbarText)
+
+#if PLATFORM(MAC)
+    # Called when the plug-in's focus or its containing window focus changes.
+    PluginFocusOrWindowFocusChanged(bool pluginHasFocusAndWindowHasFocus)
+
+    # Change whether complex text input is enabled for this plug-in.
+    SetComplexTextInputState(uint64_t complexTextInputState)
+
+    # Update the layer hosting context ID. Called whenever the layer hosting state changes.
+    SetLayerHostingContextID(uint32_t layerHostingContextID)
+#endif
+
+#if PLUGIN_ARCHITECTURE(X11)
+    # Create the plugin container for windowed plugins
+    CreatePluginContainer() -> (uint64_t windowID)
+
+    # Update geometry of windowed plugin widget
+    WindowedPluginGeometryDidChange(WebCore::IntRect frameRect, WebCore::IntRect clipRect, uint64_t windowID)
+#endif
+
+    # Tells the WebProcess that the plug-in was successfully initialized asynchronously
+    DidCreatePlugin(bool wantsWheelEvents, uint32_t remoteLayerClientID) -> ()
+    
+    # Tells the WebProcess that the plug-in failed to initialize.
+    DidFailToCreatePlugin() -> ()
+}
+
+#endif

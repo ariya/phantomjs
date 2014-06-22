@@ -32,6 +32,7 @@
 #include <cstring>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "common/linux/dump_symbols.h"
 
@@ -39,35 +40,46 @@ using google_breakpad::WriteSymbolFile;
 
 int usage(const char* self) {
   fprintf(stderr, "Usage: %s [OPTION] <binary-with-debugging-info> "
-          "[directory-for-debug-file]\n\n", self);
+          "[directories-for-debug-file]\n\n", self);
   fprintf(stderr, "Options:\n");
   fprintf(stderr, "  -c    Do not generate CFI section\n");
+  fprintf(stderr, "  -r    Do not handle inter-compilation unit references\n");
   return 1;
 }
 
 int main(int argc, char **argv) {
-  if (argc < 2 || argc > 4)
+  if (argc < 2)
     return usage(argv[0]);
 
   bool cfi = true;
-  if (strcmp("-c", argv[1]) == 0)
-    cfi = false;
-  if (!cfi && argc == 2)
+  bool handle_inter_cu_refs = true;
+  int arg_index = 1;
+  while (arg_index < argc && strlen(argv[arg_index]) > 0 &&
+         argv[arg_index][0] == '-') {
+    if (strcmp("-c", argv[arg_index]) == 0) {
+      cfi = false;
+    } else if (strcmp("-r", argv[arg_index]) == 0) {
+      handle_inter_cu_refs = false;
+    } else {
+      return usage(argv[0]);
+    }
+    ++arg_index;
+  }
+  if (arg_index == argc)
     return usage(argv[0]);
 
-  const char *binary;
-  std::string debug_dir;
-  if (cfi) {
-    binary = argv[1];
-    if (argc == 3)
-      debug_dir = argv[2];
-  } else {
-    binary = argv[2];
-    if (argc == 4)
-      debug_dir = argv[3];
+  const char* binary;
+  std::vector<string> debug_dirs;
+  binary = argv[arg_index];
+  for (int debug_dir_index = arg_index + 1;
+       debug_dir_index < argc;
+       ++debug_dir_index) {
+    debug_dirs.push_back(argv[debug_dir_index]);
   }
 
-  if (!WriteSymbolFile(binary, debug_dir, cfi, std::cout)) {
+  SymbolData symbol_data = cfi ? ALL_SYMBOL_DATA : NO_CFI;
+  google_breakpad::DumpOptions options(symbol_data, handle_inter_cu_refs);
+  if (!WriteSymbolFile(binary, debug_dirs, options, std::cout)) {
     fprintf(stderr, "Failed to write symbol file.\n");
     return 1;
   }

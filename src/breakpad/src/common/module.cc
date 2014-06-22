@@ -204,62 +204,62 @@ bool Module::WriteRuleMap(const RuleMap &rule_map, std::ostream &stream) {
   return stream.good();
 }
 
-bool Module::Write(std::ostream &stream, bool cfi) {
+bool Module::Write(std::ostream &stream, SymbolData symbol_data) {
   stream << "MODULE " << os_ << " " << architecture_ << " "
          << id_ << " " << name_ << endl;
   if (!stream.good())
     return ReportError();
 
-  AssignSourceIds();
+  if (symbol_data != ONLY_CFI) {
+    AssignSourceIds();
 
-  // Write out files.
-  for (FileByNameMap::iterator file_it = files_.begin();
-       file_it != files_.end(); ++file_it) {
-    File *file = file_it->second;
-    if (file->source_id >= 0) {
-      stream << "FILE " << file->source_id << " " <<  file->name << endl;
+    // Write out files.
+    for (FileByNameMap::iterator file_it = files_.begin();
+         file_it != files_.end(); ++file_it) {
+      File *file = file_it->second;
+      if (file->source_id >= 0) {
+        stream << "FILE " << file->source_id << " " <<  file->name << endl;
+        if (!stream.good())
+          return ReportError();
+      }
+    }
+
+    // Write out functions and their lines.
+    for (FunctionSet::const_iterator func_it = functions_.begin();
+         func_it != functions_.end(); ++func_it) {
+      Function *func = *func_it;
+      stream << "FUNC " << hex
+             << (func->address - load_address_) << " "
+             << func->size << " "
+             << func->parameter_size << " "
+             << func->name << dec << endl;
       if (!stream.good())
         return ReportError();
+
+      for (vector<Line>::iterator line_it = func->lines.begin();
+           line_it != func->lines.end(); ++line_it) {
+        stream << hex
+               << (line_it->address - load_address_) << " "
+               << line_it->size << " "
+               << dec
+               << line_it->number << " "
+               << line_it->file->source_id << endl;
+        if (!stream.good())
+          return ReportError();
+      }
+    }
+
+    // Write out 'PUBLIC' records.
+    for (ExternSet::const_iterator extern_it = externs_.begin();
+         extern_it != externs_.end(); ++extern_it) {
+      Extern *ext = *extern_it;
+      stream << "PUBLIC " << hex
+             << (ext->address - load_address_) << " 0 "
+             << ext->name << dec << endl;
     }
   }
 
-  // Write out functions and their lines.
-  for (FunctionSet::const_iterator func_it = functions_.begin();
-       func_it != functions_.end(); ++func_it) {
-    Function *func = *func_it;
-    stream << "FUNC " << hex
-           << (func->address - load_address_) << " "
-           << func->size << " "
-           << func->parameter_size << " "
-           << func->name << dec << endl;
-
-    if (!stream.good())
-      return ReportError();
-    for (vector<Line>::iterator line_it = func->lines.begin();
-         line_it != func->lines.end(); ++line_it) {
-      stream << hex
-             << (line_it->address - load_address_) << " "
-             << line_it->size << " "
-             << dec
-             << line_it->number << " "
-             << line_it->file->source_id << endl;
-      if (!stream.good())
-        return ReportError();
-    }
-  }
-
-  // Write out 'PUBLIC' records.
-  for (ExternSet::const_iterator extern_it = externs_.begin();
-       extern_it != externs_.end(); ++extern_it) {
-    Extern *ext = *extern_it;
-    stream << "PUBLIC " << hex
-           << (ext->address - load_address_) << " 0 "
-           << ext->name << dec << endl;
-    if (!stream.good())
-      return ReportError();
-  }
-
-  if (cfi) {
+  if (symbol_data != NO_CFI) {
     // Write out 'STACK CFI INIT' and 'STACK CFI' records.
     vector<StackFrameEntry *>::const_iterator frame_it;
     for (frame_it = stack_frame_entries_.begin();

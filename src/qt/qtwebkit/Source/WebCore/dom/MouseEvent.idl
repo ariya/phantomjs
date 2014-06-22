@@ -1,0 +1,65 @@
+/*
+ * Copyright (C) 2006, 2007 Apple Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+[
+    ConstructorConditional=DOM4_EVENTS_CONSTRUCTOR,
+    ConstructorTemplate=Event,
+] interface MouseEvent : UIEvent {
+    [InitializedByEventConstructor] readonly attribute long             screenX;
+    [InitializedByEventConstructor] readonly attribute long             screenY;
+    [InitializedByEventConstructor] readonly attribute long             clientX;
+    [InitializedByEventConstructor] readonly attribute long             clientY;
+    [InitializedByEventConstructor] readonly attribute boolean          ctrlKey;
+    [InitializedByEventConstructor] readonly attribute boolean          shiftKey;
+    [InitializedByEventConstructor] readonly attribute boolean          altKey;
+    [InitializedByEventConstructor] readonly attribute boolean          metaKey;
+    [InitializedByEventConstructor] readonly attribute unsigned short   button;
+    [InitializedByEventConstructor] readonly attribute EventTarget      relatedTarget;
+    [Conditional=POINTER_LOCK]      readonly attribute long             webkitMovementX;
+    [Conditional=POINTER_LOCK]      readonly attribute long             webkitMovementY;
+    
+    [ObjCLegacyUnnamedParameters] void initMouseEvent([Default=Undefined] optional DOMString type, 
+                                       [Default=Undefined] optional boolean canBubble, 
+                                       [Default=Undefined] optional boolean cancelable, 
+                                       [Default=Undefined] optional DOMWindow view, 
+                                       [Default=Undefined] optional long detail, 
+                                       [Default=Undefined] optional long screenX, 
+                                       [Default=Undefined] optional long screenY, 
+                                       [Default=Undefined] optional long clientX, 
+                                       [Default=Undefined] optional long clientY, 
+                                       [Default=Undefined] optional boolean ctrlKey, 
+                                       [Default=Undefined] optional boolean altKey, 
+                                       [Default=Undefined] optional boolean shiftKey, 
+                                       [Default=Undefined] optional boolean metaKey, 
+                                       [Default=Undefined] optional unsigned short button, 
+                                       [Default=Undefined] optional EventTarget relatedTarget);
+
+    // extensions
+    readonly attribute long             offsetX;
+    readonly attribute long             offsetY;
+    readonly attribute long             x;
+    readonly attribute long             y;
+    readonly attribute Node             fromElement;
+    readonly attribute Node             toElement;
+
+#if defined(LANGUAGE_JAVASCRIPT) && LANGUAGE_JAVASCRIPT
+    readonly attribute Clipboard        dataTransfer;
+#endif
+};
+

@@ -128,7 +128,7 @@ class linked_ptr {
   // Release ownership of the pointed object and returns it.
   // Sole ownership by this linked_ptr object is required.
   T* release() {
-    bool last = link_.depart();
+    link_.depart();
     T* v = value_;
     value_ = NULL;
     return v;

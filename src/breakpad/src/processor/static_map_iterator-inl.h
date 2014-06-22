@@ -48,7 +48,7 @@ StaticMapIterator<Key, Value, Compare>::StaticMapIterator(const char* base,
   // See static_map.h for documentation on
   // bytes format of serialized StaticMap data.
   num_nodes_ = *(reinterpret_cast<const int32_t*>(base_));
-  offsets_ = reinterpret_cast<const u_int32_t*>(base_ + sizeof(num_nodes_));
+  offsets_ = reinterpret_cast<const uint32_t*>(base_ + sizeof(num_nodes_));
   keys_ = reinterpret_cast<const Key*>(
       base_ + (1 + num_nodes_) * sizeof(num_nodes_));
 }

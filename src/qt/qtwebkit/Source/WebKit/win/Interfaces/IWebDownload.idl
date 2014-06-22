@@ -1,0 +1,158 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
+ *               2007 Apple Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+#ifndef DO_NO_IMPORTS
+import "oaidl.idl";
+import "ocidl.idl";
+import "IWebError.idl";
+import "IWebMutableURLRequest.idl";
+import "IWebURLAuthenticationChallenge.idl";
+import "IWebURLResponse.idl";
+import "IWebURLRequest.idl";
+#endif
+
+interface IWebDownloadDelegate;
+interface IWebError;
+interface IWebMutableURLRequest;
+interface IWebURLAuthenticationChallenge;
+interface IWebURLRequest;
+interface IWebURLResponse;
+
+/*!
+    @class WebDownload
+    @discussion A WebDownload works just like an NSURLDownload, with
+    one extra feature: if you do not implement the
+    authentication-related delegate methods, it will automatically
+    prompt for authentication using the standard WebKit authentication
+    panel, as either a sheet or window. It provides no extra methods,
+    but does have one additional delegate method.
+*/
+
+[
+    object,
+    oleautomation,
+    hidden,
+    uuid(65EFE83B-A9E4-4516-8F3B-BAA25DA90FFD),
+    pointer_default(unique)
+]
+interface IWebDownload : IUnknown
+{
+    /*
+        + (BOOL)canResumeDownloadDecodedWithEncodingMIMEType:(NSString *)MIMEType
+    */
+    HRESULT canResumeDownloadDecodedWithEncodingMIMEType([in] BSTR mimeType, [out, retval] BOOL* result);
+
+    /*
+        - (void)cancel
+    */
+    HRESULT cancel();
+
+    /*
+        - (void)cancelForResume();
+    */
+    HRESULT cancelForResume();
+
+    /*
+        - (void)start
+    */
+    HRESULT start();
+
+    /*
+        - (BOOL)deletesFileUponFailure
+    */
+    HRESULT deletesFileUponFailure([out, retval] BOOL* result);
+
+    /*
+        - (id)initWithRequest:(NSURLRequest *)request delegate:(id)delegate
+    */
+    HRESULT initWithRequest([in] IWebURLRequest* request, [in] IWebDownloadDelegate* delegate);
+
+    /*
+        - (id)initWithResumeData:(NSData *)resumeData delegate:(id)delegate path:(NSString *)path
+    */
+    HRESULT initToResumeWithBundle([in] BSTR bundlePath, [in] IWebDownloadDelegate* delegate);
+
+    /*
+        - (String)bundlePathForTargetPath:(String)targetPath
+    */
+    HRESULT bundlePathForTargetPath([in] BSTR target, [out, retval] BSTR* bundle);
+
+    /*
+        - (NSURLRequest *)request
+    */
+    HRESULT request([out, retval] IWebURLRequest** request);
+
+    /*
+        - (void)setDeletesFileUponFailure:(BOOL)deletesFileUponFailure
+    */
+    HRESULT setDeletesFileUponFailure([in] BOOL deletesFileUponFailure);
+
+    /*
+        - (void)setDestination:(NSString *)path allowOverwrite:(BOOL)allowOverwrite
+    */
+    HRESULT setDestination([in] BSTR path, [in] BOOL allowOverwrite);
+}
+
+
+/*!
+    @protocol WebDownloadDelegate
+    @discussion The WebDownloadDelegate delegate has one extra method used to choose
+    the right window when automatically prompting with a sheet.
+    @interface NSObject (WebDownloadDelegate)
+*/
+
+[
+    object,
+    oleautomation,
+    uuid(16A32AE6-C862-40cd-9225-2CAF823F40F9),
+    pointer_default(unique)
+]
+interface IWebDownloadDelegate : IUnknown
+{
+    HRESULT decideDestinationWithSuggestedFilename([in] IWebDownload* download, [in] BSTR filename);
+
+    HRESULT didCancelAuthenticationChallenge([in] IWebDownload* download, [in] IWebURLAuthenticationChallenge* challenge);
+
+    HRESULT didCreateDestination([in] IWebDownload* download, [in] BSTR destination);
+
+    HRESULT didFailWithError([in] IWebDownload* download, [in] IWebError* error);
+
+    HRESULT didReceiveAuthenticationChallenge([in] IWebDownload* download, [in] IWebURLAuthenticationChallenge* challenge);
+
+    HRESULT didReceiveDataOfLength([in] IWebDownload* download, [in] unsigned length);
+
+    HRESULT didReceiveResponse([in] IWebDownload* download, [in] IWebURLResponse* response);
+
+    HRESULT shouldDecodeSourceDataOfMIMEType([in] IWebDownload* download, [in] BSTR encodingType, [out, retval] BOOL* shouldDecode);
+
+    HRESULT willResumeWithResponse([in] IWebDownload* download, [in] IWebURLResponse* response, [in] long long fromByte);
+
+    HRESULT willSendRequest([in] IWebDownload* download, [in] IWebMutableURLRequest* request, [in] IWebURLResponse* redirectResponse, [out] IWebMutableURLRequest** finalRequest);
+
+    HRESULT didBegin([in] IWebDownload* download);
+
+    HRESULT didFinish([in] IWebDownload* download);
+}

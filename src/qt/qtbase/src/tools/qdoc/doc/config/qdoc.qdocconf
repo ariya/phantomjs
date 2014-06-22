@@ -1,0 +1,73 @@
+include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
+
+project          = QDoc
+description      = QDoc Manual
+url              = http://qt-project.org/doc/qt-$QT_VER
+version          = $QT_VERSION
+
+sourcedirs = ..
+
+exampledirs = .. \
+              ../examples
+
+imagedirs = ../images \
+            ../../../../widgets/doc/images
+#            ../../../doc/src/templates/images
+
+tagfile = ../html/qdoc.tags
+
+examples.fileextensions = "*.cpp *.h *.js *.xq *.svg *.xml *.ui *.qhp *.qhcp *.qml *.css *.qdoc *.qdocinc *.sample"
+
+qhp.projects            = QDoc
+
+qhp.QDoc.file                = qdoc.qhp
+qhp.QDoc.namespace           = org.qt-project.qdoc.$QT_VERSION_TAG
+qhp.QDoc.virtualFolder       = qdoc
+qhp.QDoc.indexTitle          = QDoc Manual
+qhp.QDoc.indexRoot           =
+
+qhp.QDoc.filterAttributes    = qdoc qtrefdoc
+qhp.QDoc.customFilters.QDoc.name = QDoc
+qhp.QDoc.customFilters.QDoc.filterAttributes = qdoc
+qhp.QDoc.subprojects         = overviews
+qhp.QDoc.subprojects.overviews.title = Overviews
+qhp.QDoc.subprojects.overviews.indexTitle = QDoc Manual
+qhp.QDoc.subprojects.overviews.selectors = fake:page,group,module
+
+depends += \
+    activeqt \
+    qtassistant \
+    qtbluetooth \
+    qtconcurrent \
+    qtcontacts \
+    qtcore \
+    qtdbus \
+    qtdesigner \
+    qtdoc \
+    qthelp \
+    qtimageformats \
+    qtgui \
+    qtlocation \
+    qtlinguist \
+    qtmultimedia \
+    qtnetwork \
+    qtopengl \
+    qtorganizer \
+    qtprintsupport \
+    qtqml \
+    qtquick \
+    qtscript \
+    qtscripttools \
+    qtsensors \
+    qtsql \
+    qtsvg \
+    qttestlib \
+    qtuitools \
+    qtversit \
+    qtwidgets \
+    qtwebkit \
+    qtwebkitexamples \
+    qtxml \
+    qtxmlpatterns
+
+navigation.landingpage = "QDoc Manual"

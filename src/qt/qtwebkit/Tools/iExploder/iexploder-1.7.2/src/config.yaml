@@ -1,0 +1,54 @@
+# iexploder configuration file
+
+# path to the data files (css-properties, css-values, etc.)
+mangle_data_path: .
+
+# This is only used by the webserver.py, not the cgi.
+access_log_path: ../access.log
+
+# Some basic tuning for maximum crashing power.
+html_tags_per_page: 100
+attributes_per_html_tag_max: 15
+properties_per_style_max: 15
+attributes_per_style_property_max: 3
+# URL's loaded by img/src/etc. get a max of this many fuzzed headers
+headers_per_page_max: 2
+
+# How many combinations should we try when generating subtests
+subtest_combinations_max: 5
+
+# How many lines wide should we start our subtesting at? Increase for faster/looser
+# subtesting.
+initial_subtest_width: 1
+
+# How much garbage do we send the client? If you really want to explore
+# buffer overflows, consider making this a much larger size (16K+)
+buffer_overflow_length: 1025
+max_garbage_text_size: 257
+
+# These tags are X% likely to overwrite one randomly selected tag per page load
+favor_html_tags:
+  script: 65
+  style: 75
+  img: 90
+  video: 90
+  object: 90
+  embed: 90
+
+# Exclude certain tag.parameter or tag.style.attribute combinations for a given regexp.
+# An asterisk is allowed in the first field. Valid forms include:
+#
+#  img.onloadbanana: "Bananarama 3000"
+#  dir.style.-webkit-banana-rule: "BananaWebKit\/532\.9 |BananaTron5K"
+#  *.style.-webkit-banana-rule: "BananaWebKit\/532\.9 |BananaTron5K"
+
+exclude:
+  # Hangs the test waiting for a prompt sometimes
+  iframe.src: "Firefox\/3.6"
+
+  # http://code.google.com/p/chromium/issues/detail?id=56207
+  *.style.content: "Chrome\/7\.0\.5"
+
+  # http://code.google.com/p/chromium/issues/detail?id=56208
+  progress.style.font: "Chrome\/7\.0\.5"
+

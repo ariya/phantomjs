@@ -1,0 +1,278 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>FreeType-2.3.12 API Reference</title>
+<style type="text/css">
+  body { font-family: Verdana, Geneva, Arial, Helvetica, serif;
+         color: #000000;
+         background: #FFFFFF; }
+
+  p { text-align: justify; }
+  h1 { text-align: center; }
+  li { text-align: justify; }
+  td { padding: 0 0.5em 0 0.5em; }
+  td.left { padding: 0 0.5em 0 0.5em;
+            text-align: left; }
+
+  a:link { color: #0000EF; }
+  a:visited { color: #51188E; }
+  a:hover { color: #FF0000; }
+
+  span.keyword { font-family: monospace;
+                 text-align: left;
+                 white-space: pre;
+                 color: darkblue; }
+
+  pre.colored { color: blue; }
+
+  ul.empty { list-style-type: none; }
+</style>
+</head>
+<body>
+
+<table align=center><tr><td><font size=-1>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-1>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+<center><h1>FreeType-2.3.12 API Reference</h1></center>
+
+<center><h1>
+Window FNT Files
+</h1></center>
+<h2>Synopsis</h2>
+<table align=center cellspacing=5 cellpadding=0 border=0>
+<tr><td></td><td><a href="#FT_WinFNT_ID_XXX">FT_WinFNT_ID_XXX</a></td><td></td><td><a href="#FT_WinFNT_Header">FT_WinFNT_Header</a></td><td></td><td></td></tr>
+<tr><td></td><td><a href="#FT_WinFNT_HeaderRec">FT_WinFNT_HeaderRec</a></td><td></td><td><a href="#FT_Get_WinFNT_Header">FT_Get_WinFNT_Header</a></td><td></td><td></td></tr>
+</table><br><br>
+
+<table align=center width="87%"><tr><td>
+<p>This section contains the declaration of Windows FNT specific functions.</p>
+</td></tr></table><br>
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_WinFNT_ID_XXX">FT_WinFNT_ID_XXX</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_WINFONTS_H (freetype/ftwinfnt.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+#define <a href="ft2-winfnt_fonts.html#FT_WinFNT_ID_XXX">FT_WinFNT_ID_CP1252</a>    0
+#define <a href="ft2-winfnt_fonts.html#FT_WinFNT_ID_XXX">FT_WinFNT_ID_DEFAULT</a>   1
+#define <a href="ft2-winfnt_fonts.html#FT_WinFNT_ID_XXX">FT_WinFNT_ID_SYMBOL</a>    2
+#define <a href="ft2-winfnt_fonts.html#FT_WinFNT_ID_XXX">FT_WinFNT_ID_MAC</a>      77
+#define <a href="ft2-winfnt_fonts.html#FT_WinFNT_ID_XXX">FT_WinFNT_ID_CP932</a>   128
+#define <a href="ft2-winfnt_fonts.html#FT_WinFNT_ID_XXX">FT_WinFNT_ID_CP949</a>   129
+#define <a href="ft2-winfnt_fonts.html#FT_WinFNT_ID_XXX">FT_WinFNT_ID_CP1361</a>  130
+#define <a href="ft2-winfnt_fonts.html#FT_WinFNT_ID_XXX">FT_WinFNT_ID_CP936</a>   134
+#define <a href="ft2-winfnt_fonts.html#FT_WinFNT_ID_XXX">FT_WinFNT_ID_CP950</a>   136
+#define <a href="ft2-winfnt_fonts.html#FT_WinFNT_ID_XXX">FT_WinFNT_ID_CP1253</a>  161
+#define <a href="ft2-winfnt_fonts.html#FT_WinFNT_ID_XXX">FT_WinFNT_ID_CP1254</a>  162
+#define <a href="ft2-winfnt_fonts.html#FT_WinFNT_ID_XXX">FT_WinFNT_ID_CP1258</a>  163
+#define <a href="ft2-winfnt_fonts.html#FT_WinFNT_ID_XXX">FT_WinFNT_ID_CP1255</a>  177
+#define <a href="ft2-winfnt_fonts.html#FT_WinFNT_ID_XXX">FT_WinFNT_ID_CP1256</a>  178
+#define <a href="ft2-winfnt_fonts.html#FT_WinFNT_ID_XXX">FT_WinFNT_ID_CP1257</a>  186
+#define <a href="ft2-winfnt_fonts.html#FT_WinFNT_ID_XXX">FT_WinFNT_ID_CP1251</a>  204
+#define <a href="ft2-winfnt_fonts.html#FT_WinFNT_ID_XXX">FT_WinFNT_ID_CP874</a>   222
+#define <a href="ft2-winfnt_fonts.html#FT_WinFNT_ID_XXX">FT_WinFNT_ID_CP1250</a>  238
+#define <a href="ft2-winfnt_fonts.html#FT_WinFNT_ID_XXX">FT_WinFNT_ID_OEM</a>     255
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A list of valid values for the &lsquo;charset&rsquo; byte in <a href="ft2-winfnt_fonts.html#FT_WinFNT_HeaderRec">FT_WinFNT_HeaderRec</a>. Exact mapping tables for the various cpXXXX encodings (except for cp1361) can be found at ftp://ftp.unicode.org in the MAPPINGS/VENDORS/MICSFT/WINDOWS subdirectory. cp1361 is roughly a superset of MAPPINGS/OBSOLETE/EASTASIA/KSC/JOHAB.TXT.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>values</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>FT_WinFNT_ID_DEFAULT</b></td><td>
+<p>This is used for font enumeration and font creation as a &lsquo;don't care&rsquo; value. Valid font files don't contain this value. When querying for information about the character set of the font that is currently selected into a specified device context, this return value (of the related Windows API) simply denotes failure.</p>
+</td></tr>
+<tr valign=top><td><b>FT_WinFNT_ID_SYMBOL</b></td><td>
+<p>There is no known mapping table available.</p>
+</td></tr>
+<tr valign=top><td><b>FT_WinFNT_ID_MAC</b></td><td>
+<p>Mac Roman encoding.</p>
+</td></tr>
+<tr valign=top><td><b>FT_WinFNT_ID_OEM</b></td><td>
+<p>From Michael Pöttgen &lt;michael@poettgen.de&gt;:</p>
+<p>The &lsquo;Windows Font Mapping&rsquo; article says that FT_WinFNT_ID_OEM is used for the charset of vector fonts, like &lsquo;modern.fon&rsquo;, &lsquo;roman.fon&rsquo;, and &lsquo;script.fon&rsquo; on Windows.</p>
+<p>The &lsquo;CreateFont&rsquo; documentation says: The FT_WinFNT_ID_OEM value specifies a character set that is operating-system dependent.</p>
+<p>The &lsquo;IFIMETRICS&rsquo; documentation from the &lsquo;Windows Driver Development Kit&rsquo; says: This font supports an OEM-specific character set. The OEM character set is system dependent.</p>
+<p>In general OEM, as opposed to ANSI (i.e., cp1252), denotes the second default codepage that most international versions of Windows have. It is one of the OEM codepages from</p>
+<p>http://www.microsoft.com/globaldev/reference/cphome.mspx,</p>
+<p>and is used for the &lsquo;DOS boxes&rsquo;, to support legacy applications. A German Windows version for example usually uses ANSI codepage 1252 and OEM codepage 850.</p>
+</td></tr>
+<tr valign=top><td><b>FT_WinFNT_ID_CP874</b></td><td>
+<p>A superset of Thai TIS 620 and ISO 8859-11.</p>
+</td></tr>
+<tr valign=top><td><b>FT_WinFNT_ID_CP932</b></td><td>
+<p>A superset of Japanese Shift-JIS (with minor deviations).</p>
+</td></tr>
+<tr valign=top><td><b>FT_WinFNT_ID_CP936</b></td><td>
+<p>A superset of simplified Chinese GB 2312-1980 (with different ordering and minor deviations).</p>
+</td></tr>
+<tr valign=top><td><b>FT_WinFNT_ID_CP949</b></td><td>
+<p>A superset of Korean Hangul KS&nbsp;C 5601-1987 (with different ordering and minor deviations).</p>
+</td></tr>
+<tr valign=top><td><b>FT_WinFNT_ID_CP950</b></td><td>
+<p>A superset of traditional Chinese Big&nbsp;5 ETen (with different ordering and minor deviations).</p>
+</td></tr>
+<tr valign=top><td><b>FT_WinFNT_ID_CP1250</b></td><td>
+<p>A superset of East European ISO 8859-2 (with slightly different ordering).</p>
+</td></tr>
+<tr valign=top><td><b>FT_WinFNT_ID_CP1251</b></td><td>
+<p>A superset of Russian ISO 8859-5 (with different ordering).</p>
+</td></tr>
+<tr valign=top><td><b>FT_WinFNT_ID_CP1252</b></td><td>
+<p>ANSI encoding. A superset of ISO 8859-1.</p>
+</td></tr>
+<tr valign=top><td><b>FT_WinFNT_ID_CP1253</b></td><td>
+<p>A superset of Greek ISO 8859-7 (with minor modifications).</p>
+</td></tr>
+<tr valign=top><td><b>FT_WinFNT_ID_CP1254</b></td><td>
+<p>A superset of Turkish ISO 8859-9.</p>
+</td></tr>
+<tr valign=top><td><b>FT_WinFNT_ID_CP1255</b></td><td>
+<p>A superset of Hebrew ISO 8859-8 (with some modifications).</p>
+</td></tr>
+<tr valign=top><td><b>FT_WinFNT_ID_CP1256</b></td><td>
+<p>A superset of Arabic ISO 8859-6 (with different ordering).</p>
+</td></tr>
+<tr valign=top><td><b>FT_WinFNT_ID_CP1257</b></td><td>
+<p>A superset of Baltic ISO 8859-13 (with some deviations).</p>
+</td></tr>
+<tr valign=top><td><b>FT_WinFNT_ID_CP1258</b></td><td>
+<p>For Vietnamese. This encoding doesn't cover all necessary characters.</p>
+</td></tr>
+<tr valign=top><td><b>FT_WinFNT_ID_CP1361</b></td><td>
+<p>Korean (Johab).</p>
+</td></tr>
+</table>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_WinFNT_HeaderRec">FT_WinFNT_HeaderRec</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_WINFONTS_H (freetype/ftwinfnt.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">struct</span>  FT_WinFNT_HeaderRec_
+  {
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  version;
+    <a href="ft2-basic_types.html#FT_ULong">FT_ULong</a>   file_size;
+    <a href="ft2-basic_types.html#FT_Byte">FT_Byte</a>    copyright[60];
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  file_type;
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  nominal_point_size;
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  vertical_resolution;
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  horizontal_resolution;
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  ascent;
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  internal_leading;
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  external_leading;
+    <a href="ft2-basic_types.html#FT_Byte">FT_Byte</a>    italic;
+    <a href="ft2-basic_types.html#FT_Byte">FT_Byte</a>    underline;
+    <a href="ft2-basic_types.html#FT_Byte">FT_Byte</a>    strike_out;
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  weight;
+    <a href="ft2-basic_types.html#FT_Byte">FT_Byte</a>    charset;
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  pixel_width;
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  pixel_height;
+    <a href="ft2-basic_types.html#FT_Byte">FT_Byte</a>    pitch_and_family;
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  avg_width;
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  max_width;
+    <a href="ft2-basic_types.html#FT_Byte">FT_Byte</a>    first_char;
+    <a href="ft2-basic_types.html#FT_Byte">FT_Byte</a>    last_char;
+    <a href="ft2-basic_types.html#FT_Byte">FT_Byte</a>    default_char;
+    <a href="ft2-basic_types.html#FT_Byte">FT_Byte</a>    break_char;
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  bytes_per_row;
+    <a href="ft2-basic_types.html#FT_ULong">FT_ULong</a>   device_offset;
+    <a href="ft2-basic_types.html#FT_ULong">FT_ULong</a>   face_name_offset;
+    <a href="ft2-basic_types.html#FT_ULong">FT_ULong</a>   bits_pointer;
+    <a href="ft2-basic_types.html#FT_ULong">FT_ULong</a>   bits_offset;
+    <a href="ft2-basic_types.html#FT_Byte">FT_Byte</a>    reserved;
+    <a href="ft2-basic_types.html#FT_ULong">FT_ULong</a>   flags;
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  A_space;
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  B_space;
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  C_space;
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  color_table_offset;
+    <a href="ft2-basic_types.html#FT_ULong">FT_ULong</a>   reserved1[4];
+
+  } <b>FT_WinFNT_HeaderRec</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Windows FNT Header info.</p>
+</td></tr></table><br>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_WinFNT_Header">FT_WinFNT_Header</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_WINFONTS_H (freetype/ftwinfnt.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">struct</span> FT_WinFNT_HeaderRec_*  <b>FT_WinFNT_Header</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A handle to an <a href="ft2-winfnt_fonts.html#FT_WinFNT_HeaderRec">FT_WinFNT_HeaderRec</a> structure.</p>
+</td></tr></table><br>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Get_WinFNT_Header">FT_Get_WinFNT_Header</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_WINFONTS_H (freetype/ftwinfnt.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Error">FT_Error</a> )
+  <b>FT_Get_WinFNT_Header</b>( <a href="ft2-base_interface.html#FT_Face">FT_Face</a>               face,
+                        <a href="ft2-winfnt_fonts.html#FT_WinFNT_HeaderRec">FT_WinFNT_HeaderRec</a>  *aheader );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Retrieve a Windows FNT font info header.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>face</b></td><td>
+<p>A handle to the input face.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>output</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>aheader</b></td><td>
+<p>The WinFNT header.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>FreeType error code. 0&nbsp;means success.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>This function only works with Windows FNT faces, returning an error otherwise.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+</body>
+</html>

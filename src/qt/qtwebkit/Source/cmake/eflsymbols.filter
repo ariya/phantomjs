@@ -1,0 +1,11 @@
+{
+        global:
+                ewk_*;
+
+                extern "C++" {
+                       DumpRenderTreeSupportEfl*;
+                };
+
+        local:
+                *;
+};

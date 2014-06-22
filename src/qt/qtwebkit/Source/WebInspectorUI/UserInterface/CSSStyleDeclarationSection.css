@@ -1,0 +1,153 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.style-declaration-section {
+    display: -webkit-flex;
+    -webkit-flex-direction: column;
+
+    padding: 5px;
+
+    background-color: white;
+}
+
+.style-declaration-section + .style-declaration-section {
+    border-top: 1px solid rgb(210, 210, 210);
+}
+
+.style-declaration-section.last-in-group {
+    margin-bottom: 15px;
+
+    box-shadow: rgba(0, 0, 0, 0.3) 0 2px 2px 0;
+}
+
+.style-declaration-section.last-in-group + .style-declaration-section {
+    margin-top: 15px;
+
+    border-top: none;
+
+    box-shadow: rgba(0, 0, 0, 0.3) 0 0 2px 0;
+}
+
+.style-declaration-section:first-child,
+div:not(.style-declaration-section) + .style-declaration-section,
+.style-declaration-section.last-in-group + .style-declaration-section.last-in-group,
+.style-declaration-section.last-in-group + .style-declaration-section:last-child {
+    box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px 1px;
+}
+
+.style-declaration-section:last-child {
+    margin-bottom: 0 !important;
+}
+
+.style-declaration-section > .header {
+    position: relative;
+
+    padding: 4px 5px 3px 25px;
+
+    font-size: 11px;
+    line-height: 12px;
+}
+
+.style-declaration-section > .header > .icon {
+    position: absolute;
+
+    top: 2px;
+    left: 4px;
+
+    width: 16px;
+    height: 16px;
+}
+
+.style-declaration-section > .header > .selector {
+    font-family: Menlo, monospace;
+    color: rgb(128, 128, 128);
+
+    outline: none;
+
+    cursor: text;
+
+    word-wrap: break-word;
+
+    -webkit-user-select: text;
+    -webkit-user-modify: read-write-plaintext-only;
+}
+
+.style-declaration-section > .header > .selector:empty {
+    /* This prevents the cursor from disappearing when empty. */
+    display: inline-block;
+    min-width: 1px;
+}
+
+.style-declaration-section > .header > .selector:empty::before {
+    /* This prevents the cursor from positioning badly when empty. */
+    content: "";
+}
+
+.style-declaration-section > .header > .selector:focus {
+    color: black;
+}
+
+.style-declaration-section.locked > .header > .selector,
+.style-declaration-section.selector-locked > .header > .selector {
+    -webkit-user-modify: read-only;
+}
+
+.style-declaration-section.locked > .header::before {
+    float: right;
+
+    content: "";
+
+    width: 8px;
+    height: 10px;
+
+    background-image: -webkit-canvas(style-lock-normal);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 8px 10px;
+
+    margin-left: 5px;
+}
+
+.style-declaration-section > .header > .selector > .matched {
+    color: black;
+}
+
+.style-declaration-section > .header > .origin {
+    line-height: 10px;
+    font-family: "Lucida Grande", sans-serif;
+
+    color: rgb(128, 128, 128);
+    
+    word-wrap: break-word;
+    white-space: nowrap;
+}
+
+.style-declaration-section > .header > .origin a {
+    white-space: normal;
+}
+
+.style-declaration-section > .header > .origin > .go-to-link {
+    color: inherit !important;
+}

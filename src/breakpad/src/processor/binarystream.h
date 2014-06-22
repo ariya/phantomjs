@@ -28,8 +28,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // binarystream implements part of the std::iostream interface as a
-// wrapper around std::stringstream to allow reading and writing
-// std::string and integers of known size.
+// wrapper around std::stringstream to allow reading and writing strings
+// and integers of known size.
 
 #ifndef GOOGLE_BREAKPAD_PROCESSOR_BINARYSTREAM_H_
 #define GOOGLE_BREAKPAD_PROCESSOR_BINARYSTREAM_H_
@@ -37,6 +37,7 @@
 #include <sstream>
 #include <string>
 
+#include "common/using_std_string.h"
 #include "google_breakpad/common/breakpad_types.h"
 
 namespace google_breakpad {
@@ -47,31 +48,31 @@ class binarystream {
  public:
   explicit binarystream(ios_base::openmode which = ios_base::out|ios_base::in)
     : stream_(which) {}
-  explicit binarystream(const std::string &str,
+  explicit binarystream(const string &str,
                         ios_base::openmode which = ios_base::out|ios_base::in)
     : stream_(str, which) {}
   explicit binarystream(const char *str, size_t size,
                         ios_base::openmode which = ios_base::out|ios_base::in)
-    : stream_(std::string(str, size), which) {}
+    : stream_(string(str, size), which) {}
 
-  binarystream &operator>>(std::string &str);
-  binarystream &operator>>(u_int8_t &u8);
-  binarystream &operator>>(u_int16_t &u16);
-  binarystream &operator>>(u_int32_t &u32);
-  binarystream &operator>>(u_int64_t &u64);
+  binarystream &operator>>(string &str);
+  binarystream &operator>>(uint8_t &u8);
+  binarystream &operator>>(uint16_t &u16);
+  binarystream &operator>>(uint32_t &u32);
+  binarystream &operator>>(uint64_t &u64);
 
   // Note: strings are truncated at 65535 characters
-  binarystream &operator<<(const std::string &str);
-  binarystream &operator<<(u_int8_t u8);
-  binarystream &operator<<(u_int16_t u16);
-  binarystream &operator<<(u_int32_t u32);
-  binarystream &operator<<(u_int64_t u64);
+  binarystream &operator<<(const string &str);
+  binarystream &operator<<(uint8_t u8);
+  binarystream &operator<<(uint16_t u16);
+  binarystream &operator<<(uint32_t u32);
+  binarystream &operator<<(uint64_t u64);
 
   // Forward a few methods directly from the stream object
   bool eof() const { return stream_.eof(); }
   void clear() { stream_.clear(); }
-  std::string str() const { return stream_.str(); }
-  void str(const std::string &s) { stream_.str(s); }
+  string str() const { return stream_.str(); }
+  void str(const string &s) { stream_.str(s); }
     
   // Seek both read and write pointers to the beginning of the stream.
   void rewind() {

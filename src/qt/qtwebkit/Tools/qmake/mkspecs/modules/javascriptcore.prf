@@ -1,0 +1,10 @@
+# -------------------------------------------------------------------
+# Module file for JavaScriptCore, used by targets that depend on
+# JavaScriptCore
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+WEBKIT.javascriptcore.root_source_dir = $${ROOT_WEBKIT_DIR}/Source/JavaScriptCore
+
+include($${WEBKIT.javascriptcore.root_source_dir}/JavaScriptCore.pri)

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE PosingFont SYSTEM "file://localhost/System/Library/DTDs/SplicedFont.dtd">
+
+<PosingFont name="HiraMaruMono-W4" version="1.0">
+	<Name type="1" string="Hiragino Maru Gothic Monospaced" language="en"/>
+	<Name type="2" string="W4" language="en"/>
+	<Name type="3" string="Composite Font Reference (Spliced Font) sample using Hiragino Maru Gothic W4 for Monospaced" language="en"/>
+	<Name type="4" string="Hiragino Maru Gothic Monospaced W4" language="en"/>
+	<FontMetrics
+		unitsPerEm="1000"
+		ascender="561.1"
+		descender="214.3"
+		lineGap="21.0"
+		italicAngle="0.0"
+		isFixedPitch="1"
+		vertTypoLineGap="4.2"
+		familyClass="1"
+	/>
+	<Components>
+		<ComponentDef name="HiraMaruPro-W4">
+			<Matrix
+				xx="1.0"
+				xy="0.0"
+				yx="0.0"
+				yy="1.0"
+				tx="0.0"
+				ty="0.0"
+			/>
+			<UnicodeCharSet
+				uset="[[\u0020-\u007E]|[\u00A0-\u00FC]|[\u02BB-\u0336]|[\u2010-\u2044]|[\u2212-\u223C]]"
+			/>
+			<cmapOverride>
+				<map charValue="u0020" charName="SPACE" glyphRefID="231"/>
+				<map charValue="u0021" charName="EXCLAMATION MARK" glyphRefID="232"/>
+				<map charValue="u0022" charName="QUOTATION MARK" glyphRefID="12087"/>
+				<map charValue="u0023" charName="NUMBER SIGN" glyphRefID="234"/>
+				<map charValue="u0024" charName="DOLLAR SIGN" glyphRefID="235"/>
+				<map charValue="u0025" charName="PERCENT SIGN" glyphRefID="236"/>
+				<map charValue="u0026" charName="AMPERSAND" glyphRefID="237"/>
+				<map charValue="u0027" charName="APOSTROPHE" glyphRefID="12086"/>
+				<map charValue="u0028" charName="LEFT PARENTHESIS" glyphRefID="239"/>
+				<map charValue="u0029" charName="RIGHT PARENTHESIS" glyphRefID="240"/>
+				<map charValue="u002A" charName="ASTERISK" glyphRefID="241"/>
+				<map charValue="u002B" charName="PLUS SIGN" glyphRefID="242"/>
+				<map charValue="u002C" charName="COMMA" glyphRefID="243"/>
+				<map charValue="u002D" charName="HYPHEN-MINUS" glyphRefID="244"/>
+				<map charValue="u002E" charName="FULL STOP" glyphRefID="245"/>
+				<map charValue="u002F" charName="SOLIDUS" glyphRefID="246"/>
+				<map charValue="u0030" charName="DIGIT ZERO" glyphRefID="247"/>
+				<map charValue="u0031" charName="DIGIT ONE" glyphRefID="248"/>
+				<map charValue="u0032" charName="DIGIT TWO" glyphRefID="249"/>
+				<map charValue="u0033" charName="DIGIT THREE" glyphRefID="250"/>
+				<map charValue="u0034" charName="DIGIT FOUR" glyphRefID="251"/>
+				<map charValue="u0035" charName="DIGIT FIVE" glyphRefID="252"/>
+				<map charValue="u0036" charName="DIGIT SIX" glyphRefID="253"/>
+				<map charValue="u0037" charName="DIGIT SEVEN" glyphRefID="254"/>
+				<map charValue="u0038" charName="DIGIT EIGHT" glyphRefID="255"/>
+				<map charValue="u0039" charName="DIGIT NINE" glyphRefID="256"/>
+				<map charValue="u003A" charName="COLON" glyphRefID="257"/>
+				<map charValue="u003B" charName="SEMICOLON" glyphRefID="258"/>
+				<map charValue="u003C" charName="LESS-THAN SIGN" glyphRefID="259"/>
+				<map charValue="u003D" charName="EQUALS SIGN" glyphRefID="260"/>
+				<map charValue="u003E" charName="GREATER-THAN SIGN" glyphRefID="261"/>
+				<map charValue="u003F" charName="QUESTION MARK" glyphRefID="262"/>
+				<map charValue="u0040" charName="COMMERCIAL AT" glyphRefID="263"/>
+				<map charValue="u0041" charName="LATIN CAPITAL LETTER A" glyphRefID="264"/>
+				<map charValue="u0042" charName="LATIN CAPITAL LETTER B" glyphRefID="265"/>
+				<map charValue="u0043" charName="LATIN CAPITAL LETTER C" glyphRefID="266"/>
+				<map charValue="u0044" charName="LATIN CAPITAL LETTER D" glyphRefID="267"/>
+				<map charValue="u0045" charName="LATIN CAPITAL LETTER E" glyphRefID="268"/>
+				<map charValue="u0046" charName="LATIN CAPITAL LETTER F" glyphRefID="269"/>
+				<map charValue="u0047" charName="LATIN CAPITAL LETTER G" glyphRefID="270"/>
+				<map charValue="u0048" charName="LATIN CAPITAL LETTER H" glyphRefID="271"/>
+				<map charValue="u0049" charName="LATIN CAPITAL LETTER I" glyphRefID="272"/>
+				<map charValue="u004A" charName="LATIN CAPITAL LETTER J" glyphRefID="273"/>
+				<map charValue="u004B" charName="LATIN CAPITAL LETTER K" glyphRefID="274"/>
+				<map charValue="u004C" charName="LATIN CAPITAL LETTER L" glyphRefID="275"/>
+				<map charValue="u004D" charName="LATIN CAPITAL LETTER M" glyphRefID="276"/>
+				<map charValue="u004E" charName="LATIN CAPITAL LETTER N" glyphRefID="277"/>
+				<map charValue="u004F" charName="LATIN CAPITAL LETTER O" glyphRefID="278"/>
+				<map charValue="u0050" charName="LATIN CAPITAL LETTER P" glyphRefID="279"/>
+				<map charValue="u0051" charName="LATIN CAPITAL LETTER Q" glyphRefID="280"/>
+				<map charValue="u0052" charName="LATIN CAPITAL LETTER R" glyphRefID="281"/>
+				<map charValue="u0053" charName="LATIN CAPITAL LETTER S" glyphRefID="282"/>
+				<map charValue="u0054" charName="LATIN CAPITAL LETTER T" glyphRefID="283"/>
+				<map charValue="u0055" charName="LATIN CAPITAL LETTER U" glyphRefID="284"/>
+				<map charValue="u0056" charName="LATIN CAPITAL LETTER V" glyphRefID="285"/>
+				<map charValue="u0057" charName="LATIN CAPITAL LETTER W" glyphRefID="286"/>
+				<map charValue="u0058" charName="LATIN CAPITAL LETTER X" glyphRefID="287"/>
+				<map charValue="u0059" charName="LATIN CAPITAL LETTER Y" glyphRefID="288"/>
+				<map charValue="u005A" charName="LATIN CAPITAL LETTER Z" glyphRefID="289"/>
+				<map charValue="u005B" charName="LEFT SQUARE BRACKET" glyphRefID="290"/>
+				<map charValue="u005C" charName="REVERSE SOLIDUS" glyphRefID="8719"/>
+				<map charValue="u005D" charName="RIGHT SQUARE BRACKET" glyphRefID="292"/>
+				<map charValue="u005E" charName="CIRCUMFLEX ACCENT" glyphRefID="293"/>
+				<map charValue="u005F" charName="LOW LINE" glyphRefID="294"/>
+				<map charValue="u0060" charName="GRAVE ACCENT" glyphRefID="390"/>
+				<map charValue="u0061" charName="LATIN SMALL LETTER A" glyphRefID="296"/>
+				<map charValue="u0062" charName="LATIN SMALL LETTER B" glyphRefID="297"/>
+				<map charValue="u0063" charName="LATIN SMALL LETTER C" glyphRefID="298"/>
+				<map charValue="u0064" charName="LATIN SMALL LETTER D" glyphRefID="299"/>
+				<map charValue="u0065" charName="LATIN SMALL LETTER E" glyphRefID="300"/>
+				<map charValue="u0066" charName="LATIN SMALL LETTER F" glyphRefID="301"/>
+				<map charValue="u0067" charName="LATIN SMALL LETTER G" glyphRefID="302"/>
+				<map charValue="u0068" charName="LATIN SMALL LETTER H" glyphRefID="303"/>
+				<map charValue="u0069" charName="LATIN SMALL LETTER I" glyphRefID="304"/>
+				<map charValue="u006A" charName="LATIN SMALL LETTER J" glyphRefID="305"/>
+				<map charValue="u006B" charName="LATIN SMALL LETTER K" glyphRefID="306"/>
+				<map charValue="u006C" charName="LATIN SMALL LETTER L" glyphRefID="307"/>
+				<map charValue="u006D" charName="LATIN SMALL LETTER M" glyphRefID="308"/>
+				<map charValue="u006E" charName="LATIN SMALL LETTER N" glyphRefID="309"/>
+				<map charValue="u006F" charName="LATIN SMALL LETTER O" glyphRefID="310"/>
+				<map charValue="u0070" charName="LATIN SMALL LETTER P" glyphRefID="311"/>
+				<map charValue="u0071" charName="LATIN SMALL LETTER Q" glyphRefID="312"/>
+				<map charValue="u0072" charName="LATIN SMALL LETTER R" glyphRefID="313"/>
+				<map charValue="u0073" charName="LATIN SMALL LETTER S" glyphRefID="314"/>
+				<map charValue="u0074" charName="LATIN SMALL LETTER T" glyphRefID="315"/>
+				<map charValue="u0075" charName="LATIN SMALL LETTER U" glyphRefID="316"/>
+				<map charValue="u0076" charName="LATIN SMALL LETTER V" glyphRefID="317"/>
+				<map charValue="u0077" charName="LATIN SMALL LETTER W" glyphRefID="318"/>
+				<map charValue="u0078" charName="LATIN SMALL LETTER X" glyphRefID="319"/>
+				<map charValue="u0079" charName="LATIN SMALL LETTER Y" glyphRefID="320"/>
+				<map charValue="u007A" charName="LATIN SMALL LETTER Z" glyphRefID="321"/>
+				<map charValue="u007B" charName="LEFT CURLY BRACKET" glyphRefID="322"/>
+				<map charValue="u007C" charName="VERTICAL LINE" glyphRefID="323"/>
+				<map charValue="u007D" charName="RIGHT CURLY BRACKET" glyphRefID="324"/>
+				<map charValue="u007E" charName="TILDE" glyphRefID="631"/>
+				<map charValue="u00A0" charName="NO-BREAK SPACE" glyphRefID="231"/>
+				<map charValue="u00A1" charName="INVERTED EXCLAMATION MARK" glyphRefID="612"/>
+				<map charValue="u00A2" charName="CENT SIGN" glyphRefID="608"/>
+				<map charValue="u00A3" charName="POUND SIGN" glyphRefID="609"/>
+				<map charValue="u00A5" charName="YEN SIGN" glyphRefID="291"/>
+				<map charValue="u00A6" charName="BROKEN BAR" glyphRefID="323"/>
+				<map charValue="u00A8" charName="DIAERESIS" glyphRefID="502"/>
+				<map charValue="u00AC" charName="NOT SIGN" glyphRefID="8718"/>
+				<map charValue="u00AD" charName="SOFT HYPHEN" glyphRefID="514"/>
+				<map charValue="u00AF" charName="MACRON" glyphRefID="325"/>
+				<map charValue="u00B4" charName="ACUTE ACCENT" glyphRefID="501"/>
+				<map charValue="u00B7" charName="MIDDLE DOT" glyphRefID="331"/>
+				<map charValue="u00BD" charName="VULGAR FRACTION ONE HALF" glyphRefID="614"/>
+				<map charValue="u00BF" charName="INVERTED QUESTION MARK" glyphRefID="613"/>
+				<map charValue="u00C4" charName="LATIN CAPITAL LETTER A WITH DIAERESIS" glyphRefID="599"/>
+				<map charValue="u00C7" charName="LATIN CAPITAL LETTER C WITH CEDILLA" glyphRefID="605"/>
+				<map charValue="u00D1" charName="LATIN CAPITAL LETTER N WITH TILDE" glyphRefID="606"/>
+				<map charValue="u00D6" charName="LATIN CAPITAL LETTER O WITH DIAERESIS" glyphRefID="615"/>
+				<map charValue="u00DC" charName="LATIN CAPITAL LETTER U WITH DIAERESIS" glyphRefID="616"/>
+				<map charValue="u00DF" charName="LATIN SMALL LETTER SHARP S" glyphRefID="603"/>
+				<map charValue="u00E0" charName="LATIN SMALL LETTER A WITH GRAVE" glyphRefID="627"/>
+				<map charValue="u00E1" charName="LATIN SMALL LETTER A WITH ACUTE" glyphRefID="630"/>
+				<map charValue="u00E2" charName="LATIN SMALL LETTER A WITH CIRCUMFLEX" glyphRefID="622"/>
+				<map charValue="u00E4" charName="LATIN SMALL LETTER A WITH DIAERESIS" glyphRefID="617"/>
+				<map charValue="u00E7" charName="LATIN SMALL LETTER C WITH CEDILLA" glyphRefID="604"/>
+				<map charValue="u00E8" charName="LATIN SMALL LETTER E WITH GRAVE" glyphRefID="628"/>
+				<map charValue="u00E9" charName="LATIN SMALL LETTER E WITH ACUTE" glyphRefID="601"/>
+				<map charValue="u00EA" charName="LATIN SMALL LETTER E WITH CIRCUMFLEX" glyphRefID="623"/>
+				<map charValue="u00EB" charName="LATIN SMALL LETTER E WITH DIAERESIS" glyphRefID="618"/>
+				<map charValue="u00ED" charName="LATIN SMALL LETTER I WITH ACUTE" glyphRefID="602"/>
+				<map charValue="u00EE" charName="LATIN SMALL LETTER I WITH CIRCUMFLEX" glyphRefID="624"/>
+				<map charValue="u00EF" charName="LATIN SMALL LETTER I WITH DIAERESIS" glyphRefID="619"/>
+				<map charValue="u00F1" charName="LATIN SMALL LETTER N WITH TILDE" glyphRefID="607"/>
+				<map charValue="u00F3" charName="LATIN SMALL LETTER O WITH ACUTE" glyphRefID="610"/>
+				<map charValue="u00F4" charName="LATIN SMALL LETTER O WITH CIRCUMFLEX" glyphRefID="625"/>
+				<map charValue="u00F6" charName="LATIN SMALL LETTER O WITH DIAERESIS" glyphRefID="620"/>
+				<map charValue="u00F9" charName="LATIN SMALL LETTER U WITH GRAVE" glyphRefID="600"/>
+				<map charValue="u00FA" charName="LATIN SMALL LETTER U WITH ACUTE" glyphRefID="611"/>
+				<map charValue="u00FB" charName="LATIN SMALL LETTER U WITH CIRCUMFLEX" glyphRefID="626"/>
+				<map charValue="u00FC" charName="LATIN SMALL LETTER U WITH DIAERESIS" glyphRefID="621"/>
+				<map charValue="u02BB" charName="MODIFIER LETTER TURNED COMMA" glyphRefID="295"/>
+				<map charValue="u02BC" charName="MODIFIER LETTER APOSTROPHE" glyphRefID="238"/>
+				<map charValue="u02DC" charName="SMALL TILDE" glyphRefID="631"/>
+				<map charValue="u0300" charName="COMBINING GRAVE ACCENT" glyphRefID="390"/>
+				<map charValue="u0301" charName="COMBINING ACUTE ACCENT" glyphRefID="501"/>
+				<map charValue="u0302" charName="COMBINING CIRCUMFLEX ACCENT" glyphRefID="293"/>
+				<map charValue="u0303" charName="COMBINING TILDE" glyphRefID="631"/>
+				<map charValue="u0304" charName="COMBINING MACRON" glyphRefID="325"/>
+				<map charValue="u0305" charName="COMBINING OVERLINE" glyphRefID="325"/>
+				<map charValue="u0308" charName="COMBINING DIAERESIS" glyphRefID="502"/>
+				<map charValue="u0332" charName="COMBINING LOW LINE" glyphRefID="294"/>
+				<map charValue="u0336" charName="COMBINING LONG STROKE OVERLAY" glyphRefID="514"/>
+				<map charValue="u2010" charName="HYPHEN" glyphRefID="244"/>
+				<map charValue="u2011" charName="NON-BREAKING HYPHEN" glyphRefID="244"/>
+				<map charValue="u2012" charName="FIGURE DASH" glyphRefID="244"/>
+				<map charValue="u2013" charName="EN DASH" glyphRefID="514"/>
+				<map charValue="u2014" charName="EM DASH" glyphRefID="514"/>
+				<map charValue="u2018" charName="LEFT SINGLE QUOTATION MARK" glyphRefID="295"/>
+				<map charValue="u2019" charName="RIGHT SINGLE QUOTATION MARK" glyphRefID="238"/>
+				<map charValue="u201C" charName="LEFT DOUBLE QUOTATION MARK" glyphRefID="503"/>
+				<map charValue="u201D" charName="RIGHT DOUBLE QUOTATION MARK" glyphRefID="233"/>
+				<map charValue="u2039" charName="SINGLE LEFT-POINTING ANGLE QUOTATION MARK" glyphRefID="259"/>
+				<map charValue="u203A" charName="SINGLE RIGHT-POINTING ANGLE QUOTATION MARK" glyphRefID="261"/>
+				<map charValue="u203E" charName="OVERLINE" glyphRefID="325"/>
+				<map charValue="u2044" charName="FRACTION SLASH" glyphRefID="246"/>
+				<map charValue="u2212" charName="MINUS SIGN" glyphRefID="514"/>
+				<map charValue="u2219" charName="BULETTE OPERATOR" glyphRefID="331"/>
+				<map charValue="u223C" charName="TILDE OPERATOR" glyphRefID="631"/>
+			</cmapOverride>
+		</ComponentDef>
+		<ComponentDef name="HiraMaruPro-W4">
+			<Matrix
+				xx="1.0"
+				xy="0.0"
+				yx="0.0"
+				yy="1.0"
+				tx="0.0"
+				ty="0.0"
+			/>
+			<Tracking trackingValue="1.0"/>
+			<ToUnicode fromEncoding="CID Japen1">
+				<mapChar fromCharValue="0x20" toCharValue="u20"/>
+				<mapChar fromCharValue="0x30" toCharValue="u30"/>
+				<mapChar fromCharValue="0x31" toCharValue="u31"/>
+				<mapChar fromCharValue="0x32" toCharValue="u32"/>
+				<mapChar fromCharValue="0x33" toCharValue="u33"/>
+				<mapChar fromCharValue="0x34" toCharValue="u34"/>
+				<mapChar fromCharValue="0x35" toCharValue="u35"/>
+				<mapChar fromCharValue="0x36" toCharValue="u36"/>
+				<mapChar fromCharValue="0x37" toCharValue="u37"/>
+				<mapChar fromCharValue="0x38" toCharValue="u38"/>
+				<mapChar fromCharValue="0x39" toCharValue="u39"/>
+			</ToUnicode>
+		</ComponentDef>
+	</Components>					
+</PosingFont>

@@ -36,52 +36,55 @@
 
 #include <string>
 #include <vector>
+
+#include "common/using_std_string.h"
 #include "google_breakpad/common/breakpad_types.h"
 #include "google_breakpad/processor/system_info.h"
 #include "google_breakpad/processor/minidump.h"
 
 namespace google_breakpad {
 
-using std::string;
 using std::vector;
 
 class CallStack;
 class CodeModules;
 
 enum ExploitabilityRating {
-  EXPLOITABILITY_HIGH,                    // The crash likely represents
-                                          // a exploitable memory corruption
-                                          // vulnerability.
+  EXPLOITABILITY_HIGH,                 // The crash likely represents
+                                       // a exploitable memory corruption
+                                       // vulnerability.
 
-  EXPLOITABLITY_MEDIUM,                   // The crash appears to corrupt
-                                          // memory in a way which may be
-                                          // exploitable in some situations.
+  EXPLOITABILITY_MEDIUM,               // The crash appears to corrupt
+                                       // memory in a way which may be
+                                       // exploitable in some situations.
 
-  EXPLOITABILITY_LOW,                     // The crash either does not corrupt
-                                          // memory directly or control over
-                                          // the effected data is limited. The
-                                          // issue may still be exploitable
-                                          // on certain platforms or situations.
+  EXPLOITABLITY_MEDIUM = EXPLOITABILITY_MEDIUM,  // an old misspelling
 
-  EXPLOITABILITY_INTERESTING,             // The crash does not appear to be
-                                          // directly exploitable. However it
-                                          // represents a condition which should
-                                          // be furthur analyzed.
+  EXPLOITABILITY_LOW,                  // The crash either does not corrupt
+                                       // memory directly or control over
+                                       // the affected data is limited. The
+                                       // issue may still be exploitable
+                                       // on certain platforms or situations.
 
-  EXPLOITABILITY_NONE,                    // The crash does not appear to represent
-                                          // an exploitable condition.
+  EXPLOITABILITY_INTERESTING,          // The crash does not appear to be
+                                       // directly exploitable. However it
+                                       // represents a condition which should
+                                       // be further analyzed.
 
-  EXPLOITABILITY_NOT_ANALYZED,            // The crash was not analyzed for
-                                          // exploitability because the engine
-                                          // was disabled.
+  EXPLOITABILITY_NONE,                 // The crash does not appear to represent
+                                       // an exploitable condition.
 
-  EXPLOITABILITY_ERR_NOENGINE,            // The supplied minidump's platform does
-                                          // not have a exploitability engine
-                                          // associated with it.
+  EXPLOITABILITY_NOT_ANALYZED,         // The crash was not analyzed for
+                                       // exploitability because the engine
+                                       // was disabled.
 
-  EXPLOITABILITY_ERR_PROCESSING           // An error occured within the
-                                          // exploitability engine and no rating
-                                          // was calculated.
+  EXPLOITABILITY_ERR_NOENGINE,         // The supplied minidump's platform does
+                                       // not have a exploitability engine
+                                       // associated with it.
+
+  EXPLOITABILITY_ERR_PROCESSING        // An error occured within the
+                                       // exploitability engine and no rating
+                                       // was calculated.
 };
 
 class ProcessState {
@@ -93,10 +96,10 @@ class ProcessState {
   void Clear();
 
   // Accessors.  See the data declarations below.
-  u_int32_t time_date_stamp() const { return time_date_stamp_; }
+  uint32_t time_date_stamp() const { return time_date_stamp_; }
   bool crashed() const { return crashed_; }
   string crash_reason() const { return crash_reason_; }
-  u_int64_t crash_address() const { return crash_address_; }
+  uint64_t crash_address() const { return crash_address_; }
   string assertion() const { return assertion_; }
   int requesting_thread() const { return requesting_thread_; }
   const vector<CallStack*>* threads() const { return &threads_; }
@@ -105,6 +108,12 @@ class ProcessState {
   }
   const SystemInfo* system_info() const { return &system_info_; }
   const CodeModules* modules() const { return modules_; }
+  const vector<const CodeModule*>* modules_without_symbols() const {
+    return &modules_without_symbols_;
+  }
+  const vector<const CodeModule*>* modules_with_corrupt_symbols() const {
+    return &modules_with_corrupt_symbols_;
+  }
   ExploitabilityRating exploitability() const { return exploitability_; }
 
  private:
@@ -112,7 +121,7 @@ class ProcessState {
   friend class MinidumpProcessor;
 
   // The time-date stamp of the minidump (time_t format)
-  u_int32_t time_date_stamp_;
+  uint32_t time_date_stamp_;
 
   // True if the process crashed, false if the dump was produced outside
   // of an exception handler.
@@ -128,7 +137,7 @@ class ProcessState {
   // the memory address that caused the crash.  For data access errors,
   // this will be the data address that caused the fault.  For code errors,
   // this will be the address of the instruction that caused the fault.
-  u_int64_t crash_address_;
+  uint64_t crash_address_;
 
   // If there was an assertion that was hit, a textual representation
   // of that assertion, possibly including the file and line at which
@@ -156,6 +165,12 @@ class ProcessState {
   // The modules that were loaded into the process represented by the
   // ProcessState.
   const CodeModules *modules_;
+
+  // The modules that didn't have symbols when the report was processed.
+  vector<const CodeModule*> modules_without_symbols_;
+
+  // The modules that had corrupt symbols when the report was processed.
+  vector<const CodeModule*> modules_with_corrupt_symbols_;
 
   // The exploitability rating as determined by the exploitability
   // engine. When the exploitability engine is not enabled this

@@ -1,0 +1,50 @@
+.ace_editor * {
+    -webkit-box-sizing: content-box;
+}
+
+.ace-editor-container {
+    height: 100%;
+}
+
+.webkit-execution-line {
+    background-color: rgb(171, 191, 254);
+    outline: 1px solid rgb(64, 115, 244);
+    position: absolute;
+}
+
+.webkit-gutter-execution-line {
+    color: transparent;
+    border-width: 0 10px 0px 2px;
+    -webkit-border-image: url(Images/programCounterBorder.png) 0 10 0 2;
+}
+
+.webkit-gutter-execution-line.webkit-breakpoint {
+    -webkit-border-image: url(Images/breakpointCounterBorder.png) 0 10 0 2;
+}
+
+.webkit-gutter-execution-line.webkit-breakpoint-conditional {
+    -webkit-border-image: url(Images/breakpointConditionalCounterBorder.png) 0 10 0 2;
+}
+
+.ace_gutter-cell.webkit-breakpoint {
+    color: white;
+    border-width: 0 10px 0px 2px;
+    -webkit-border-image: url(Images/breakpointBorder.png) 0 10 0 2;
+    padding-right: 0px !important;
+    padding-left: 4px !important;
+}
+
+.ace_gutter-cell.webkit-breakpoint-conditional {
+    color: transparent;
+    -webkit-border-image: url(Images/breakpointConditionalCounterBorder.png) 0 10 0 2;
+}
+
+.ace_gutter-cell.webkit-breakpoint-disabled {
+    opacity: 0.5;
+}
+
+.ace_gutter-cell {
+    padding-left: 6px !important;
+    padding-right: 10px !important;
+}
+

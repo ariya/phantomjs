@@ -35,6 +35,9 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
+#include <memory>
+#include <vector>
+
 #ifdef __APPLE__
 #define sys_mmap mmap
 #define sys_mmap2 mmap
@@ -64,7 +67,7 @@ class PageAllocator {
     FreeAll();
   }
 
-  void *Alloc(unsigned bytes) {
+  void *Alloc(size_t bytes) {
     if (!bytes)
       return NULL;
 
@@ -79,21 +82,35 @@ class PageAllocator {
       return ret;
     }
 
-    const unsigned pages =
+    const size_t pages =
         (bytes + sizeof(PageHeader) + page_size_ - 1) / page_size_;
     uint8_t *const ret = GetNPages(pages);
     if (!ret)
       return NULL;
 
-    page_offset_ = (page_size_ - (page_size_ * pages - (bytes + sizeof(PageHeader)))) % page_size_;
+    page_offset_ =
+        (page_size_ - (page_size_ * pages - (bytes + sizeof(PageHeader)))) %
+        page_size_;
     current_page_ = page_offset_ ? ret + page_size_ * (pages - 1) : NULL;
 
     return ret + sizeof(PageHeader);
   }
 
+  // Checks whether the page allocator owns the passed-in pointer.
+  // This method exists for testing pursposes only.
+  bool OwnsPointer(const void* p) {
+    for (PageHeader* header = last_; header; header = header->next) {
+      const char* current = reinterpret_cast<char*>(header);
+      if ((p >= current) && (p < current + header->num_pages * page_size_))
+        return true;
+    }
+
+    return false;
+  }
+
  private:
-  uint8_t *GetNPages(unsigned num_pages) {
-#ifdef __x86_64
+  uint8_t *GetNPages(size_t num_pages) {
+#if defined(__x86_64__) || defined(__aarch64__)
     void *a = sys_mmap(NULL, page_size_ * num_pages, PROT_READ | PROT_WRITE,
                        MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 #else
@@ -122,97 +139,63 @@ class PageAllocator {
 
   struct PageHeader {
     PageHeader *next;  // pointer to the start of the next set of pages.
-    unsigned num_pages;  // the number of pages in this set.
+    size_t num_pages;  // the number of pages in this set.
   };
 
-  const unsigned page_size_;
+  const size_t page_size_;
   PageHeader *last_;
   uint8_t *current_page_;
-  unsigned page_offset_;
+  size_t page_offset_;
 };
 
-// A wasteful vector is like a normal std::vector, except that it's very much
-// simplier and it allocates memory from a PageAllocator. It's wasteful
-// because, when resizing, it always allocates a whole new array since the
-// PageAllocator doesn't support realloc.
-template<class T>
-class wasteful_vector {
- public:
-  wasteful_vector(PageAllocator *allocator, unsigned size_hint = 16)
-      : allocator_(allocator),
-        a_((T*) allocator->Alloc(sizeof(T) * size_hint)),
-        allocated_(size_hint),
-        used_(0) {
+// Wrapper to use with STL containers
+template <typename T>
+struct PageStdAllocator : public std::allocator<T> {
+  typedef typename std::allocator<T>::pointer pointer;
+  typedef typename std::allocator<T>::size_type size_type;
+
+  explicit PageStdAllocator(PageAllocator& allocator): allocator_(allocator) {}
+  template <class Other> PageStdAllocator(const PageStdAllocator<Other>& other)
+      : allocator_(other.allocator_) {}
+
+  inline pointer allocate(size_type n, const void* = 0) {
+    return static_cast<pointer>(allocator_.Alloc(sizeof(T) * n));
   }
 
-  T& back() {
-    return a_[used_ - 1];
+  inline void deallocate(pointer, size_type) {
+    // The PageAllocator doesn't free.
   }
 
-  const T& back() const {
-    return a_[used_ - 1];
-  }
-
-  bool empty() const {
-    return used_ == 0;
-  }
-
-  void push_back(const T& new_element) {
-    if (used_ == allocated_)
-      Realloc(allocated_ * 2);
-    a_[used_++] = new_element;
-  }
-
-  size_t size() const {
-    return used_;
-  }
-
-  void resize(unsigned sz, T c = T()) {
-    // No need to test "sz >= 0", as "sz" is unsigned.
-    if (sz <= used_) {
-      used_ = sz;
-    } else {
-      unsigned a = allocated_;
-      if (sz > a) {
-        while (sz > a) {
-          a *= 2;
-        }
-        Realloc(a);
-      }
-      while (sz > used_) {
-        a_[used_++] = c;
-      }
-    }
-  }
-
-  T& operator[](size_t index) {
-    return a_[index];
-  }
-
-  const T& operator[](size_t index) const {
-    return a_[index];
-  }
+  template <typename U> struct rebind {
+    typedef PageStdAllocator<U> other;
+  };
 
  private:
-  void Realloc(unsigned new_size) {
-    T *new_array =
-        reinterpret_cast<T*>(allocator_->Alloc(sizeof(T) * new_size));
-    memcpy(new_array, a_, used_ * sizeof(T));
-    a_ = new_array;
-    allocated_ = new_size;
-  }
+  // Silly workaround for the gcc from Android's ndk (gcc 4.6), which will
+  // otherwise complain that `other.allocator_` is private in the constructor
+  // code.
+  template<typename Other> friend struct PageStdAllocator;
 
-  PageAllocator *const allocator_;
-  T *a_;  // pointer to an array of |allocated_| elements.
-  unsigned allocated_;  // size of |a_|, in elements.
-  unsigned used_;  // number of used slots in |a_|.
+  PageAllocator& allocator_;
+};
+
+// A wasteful vector is a std::vector, except that it allocates memory from a
+// PageAllocator. It's wasteful because, when resizing, it always allocates a
+// whole new array since the PageAllocator doesn't support realloc.
+template<class T>
+class wasteful_vector : public std::vector<T, PageStdAllocator<T> > {
+ public:
+  wasteful_vector(PageAllocator* allocator, unsigned size_hint = 16)
+      : std::vector<T, PageStdAllocator<T> >(PageStdAllocator<T>(*allocator)) {
+    std::vector<T, PageStdAllocator<T> >::reserve(size_hint);
+  }
 };
 
 }  // namespace google_breakpad
 
 inline void* operator new(size_t nbytes,
                           google_breakpad::PageAllocator& allocator) {
-   return allocator.Alloc(nbytes);
+  return allocator.Alloc(nbytes);
 }
 
 #endif  // GOOGLE_BREAKPAD_COMMON_MEMORY_H_

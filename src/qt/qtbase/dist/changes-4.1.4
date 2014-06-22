@@ -1,0 +1,125 @@
+Qt 4.1.4 is a bug-fix release. It maintains both forward and backward
+compatibility (source and binary) with Qt 4.1.0.
+
+The Qt version 4.1 series is binary compatible with the 4.0.x series.
+Applications compiled for 4.0 will continue to run with 4.1.
+
+****************************************************************************
+*                           General                                        *
+****************************************************************************
+
+Configure / Compilation
+	Compile with -no-qt3support on Windows.
+	Compile on Linux with icc 9.1.
+	Compile on tru64-g++.
+	Compile MySQL plugin with client libraries below MySQL 4.1.
+	Compile SQLite on Tru64 V5.1B with gcc 3.3.4.
+	Compile ODBC plugin on 64-bit Windows.
+	Disable fastcall calling convention on faulty gcc compilers.
+
+Demos / Examples
+	Fixed a crash in the Torrent example.
+	Container extension example: Fixed regression that caused Designer
+	to crash when previewing a MultiPageWidget and changing the page.
+
+Designer
+	Generate unique object names for splitters.
+
+****************************************************************************
+*                          Library                                         *
+****************************************************************************
+
+General improvements
+--------------------
+
+- Fixed crash in QGLWidget::makeCurrent() when called from a thread not
+  created with QThread.
+- Fixed a crash that occurred when writing a PNG image when Qt is built
+  statically.
+- Fixed Arabic shaping for some fonts.
+- Limited the character string to 255 characters when writing Type1 fonts to
+  a PostScript file, in accordance with the PostScript specification.
+- Fixed regression in painting of clipped, cosmetic lines with angles of
+  0-45 degrees.
+- Documented the rules for starting and stopping timers in multithreaded
+  applications.
+
+- QCommonStyle
+	Added protection against null pointer in pixelMetric() for
+	PM_TabBarTabVSpace.
+
+- QDirModel
+	Fixed crash when dragging and dropping a file into a directory.
+
+- QHeaderView
+	Fixed painting errors when scrolling a header that has a large
+	number of sections.
+
+- QListView
+	Fixed assert when hiding all the rows.
+	Fixed crash when setting the model to a null pointer.
+
+- QMainWindow
+	Fixed possible crash when calling setCentralWidget() multiple
+        times.
+
+- QPainter
+	Fixed a regression in drawPoint() that caused painting errors
+	when setting the pen width to 0 (e.g. cosmetic pen) and then
+	setting a scale.
+
+- QPlastiqueStyle
+	Fixed a regression that caused flat push buttons to be painted
+	like normal push buttons.
+
+- QSortFilterProxyModel
+	Emit modelReset() signal when setting a source model.
+
+- QTextEdit
+        Ensure that the cursor is visible after dragging & dropping text
+
+- QTreeView
+	Fixed potential assert when asking for the coordinates of a
+	non-existing item.
+	Fixed a regression that caused selections to be	painted
+	incorrectly when the last column was hidden.
+
+- QWidget
+	Fixed crash when deleting the widget in closeEvent().
+
+- QWorkspace
+	Fixed crash caused by setting the window title when windowWidget is
+        null.
+
+Platform-Specific changes
+-------------------------
+
+Windows:
+
+- Fixed a bug that caused application text to be absent in Qt applications
+  on Windows NT 4.0.
+- Fixed resource leak in non-accelerated GL contexts.
+
+
+X11:
+
+- Improved performance of clipped bitmaps on systems that don't use XRender.
+- Made QFont::setStretch() work when using FontConfig/FreeType fonts.
+- Documented scrolling of transparent/opaque widgets.
+
+
+QPaintEngine
+	Support OddEven fill rule.
+
+QPainter
+	Fixed a regression that caused drawImage() to ignore the width
+	and height of the source rectangle and draw the whole image without
+	any clipping.
+
+
+Qtopia Core:
+
+- Fixed crash due to incorrect assembly code in implementation of
+  q_atomic_swp() for ARM.
+- Set the Q_PACKED macro when using icc on ARM, so that the generated
+  code is binary compatible with gcc-generated code.

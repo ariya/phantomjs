@@ -1,0 +1,39 @@
+From e0469372be3870a5ad60b2c4586e9c281357bd28 Mon Sep 17 00:00:00 2001
+From: Werner Lemberg <wl@gnu.org>
+Date: Tue, 22 Jan 2013 10:07:07 +0000
+Subject: [truetype] Fix font height.
+
+* src/truetype/ttobjs.c (tt_size_reset): The Windows rendering
+engine uses rounded values of the ascender and descender to compute
+the TrueType font height.
+---
+diff --git a/src/truetype/ttobjs.c b/src/truetype/ttobjs.c
+index c61b218..590b66c 100644
+--- a/src/truetype/ttobjs.c
++++ b/src/truetype/ttobjs.c
+@@ -4,7 +4,7 @@
+ /*                                                                         */
+ /*    Objects manager (body).                                              */
+ /*                                                                         */
+-/*  Copyright 1996-2012                                                    */
++/*  Copyright 1996-2013                                                    */
+ /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
+ /*                                                                         */
+ /*  This file is part of the FreeType project, and may only be used,       */
+@@ -1177,11 +1177,12 @@
+         FT_PIX_ROUND( FT_MulFix( face->root.ascender, metrics->y_scale ) );
+       metrics->descender =
+         FT_PIX_ROUND( FT_MulFix( face->root.descender, metrics->y_scale ) );
+-      metrics->height =
+-        FT_PIX_ROUND( FT_MulFix( face->root.height, metrics->y_scale ) );
+       metrics->max_advance =
+         FT_PIX_ROUND( FT_MulFix( face->root.max_advance_width,
+                                  metrics->x_scale ) );
++
++      /* the height is derived from rounded values */
++      metrics->height = metrics->ascender - metrics->descender;
+     }
+ 
+     /* compute new transformation */
+--
+cgit v0.9.0.2

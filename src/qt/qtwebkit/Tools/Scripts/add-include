@@ -1,0 +1,135 @@
+#!/usr/bin/perl -w
+
+# Copyright 2009 Apple Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE INC. ``AS IS'' AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE INC. OR
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+# PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+# OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+
+# Helper script to add includes to source files.
+
+use strict;
+
+my $headerPattern = '[\"<][A-Za-z][A-Za-z0-9_/]+(\.h)?[\">]'; # " Make Xcode formatter happy.
+
+my $headerToAdd = shift @ARGV or die;
+$headerToAdd =~ /^([A-Za-z][A-Za-z0-9]+)\.h$/ or die "Header to add must be a .h file: $headerToAdd.\n";
+
+sub includesParagraph;
+
+FILE: for my $filename (@ARGV) {
+    unless ($filename =~ /(\w+)\.cpp$/) { print STDERR "Command line args must be .cpp files: $filename.\n"; next FILE; }
+
+    my $base = $1;
+
+    my $sawConfig = 0;
+    my $sawSelfInclude = 0;
+
+    my $pastIncludes = 0;
+    my %includes;
+
+    my $beforeIncludes = "";
+    my $afterIncludes = "";
+
+    my $currentCondition = "";
+
+    my $entireFileCondition = "";
+
+    unless (open INPUT, "<", $filename) { print STDERR "File does not exist: $filename\n"; next FILE; }
+    while (my $line = <INPUT>) {
+        if ($line =~ /^\s*#(include|import)\s*($headerPattern)\s*\n/) {
+            my $include = $2;
+            if ($pastIncludes) { print STDERR "Saw more includes after include section in $filename, line $.\n"; next FILE; }
+            if ($include eq "\"config.h\"") {
+                $sawConfig = 1;
+            } else {
+                unless ($sawConfig) { print STDERR "First include must be config.h in $filename, line $.\n"; next FILE; }
+                if ($include eq "\"$base.h\"") {
+                    $sawSelfInclude = 1;
+                } else {
+                    unless ($sawSelfInclude) { print STDERR "Second include must be $base.h in $filename, line $.\n"; next FILE; }
+                    $includes{$currentCondition}{$include} = 1;
+                }
+            }
+        } else {
+            if ($sawConfig && !$pastIncludes) {
+                if ($line =~ /^\s*#\s*if\s+(.+?)\s*$/) {
+                    my $condition = $1;
+                    if (!$sawSelfInclude) {
+                        $entireFileCondition = $1;
+                        next;
+                    }
+                    unless ($currentCondition eq "") { print STDERR "Nested #if in include section in $filename, line $.\n"; next FILE; }
+                    $currentCondition = $condition;
+                    next;
+                }
+                if ($line =~ /^\s*#\s*endif\s*$/) {
+                    unless ($currentCondition ne "") { print STDERR "Extra #endif in include section in $filename, line $.\n"; next FILE; }
+                    $currentCondition = "";
+                    next;
+                }
+            }
+            if (!$sawConfig) {
+                $beforeIncludes .= $line;
+            } else {
+                $pastIncludes = 1 if $line !~ /^\s*$/;
+                if ($pastIncludes) {
+                    unless ($currentCondition eq "") { print STDERR "Unterminated #if in include section in $filename, line $.\n"; next FILE; }
+                    $afterIncludes .= $line;
+                }
+            }
+        }
+    }
+    close INPUT or die;
+
+    $includes{""}{"\"$headerToAdd\""} = 1;
+
+    $beforeIncludes =~ s/\n+$//;
+    $afterIncludes =~ s/^\n+//;
+
+    my $contents = $beforeIncludes;
+    $contents .= "\n\n#include \"config.h\"\n";
+    $contents .= "\n#if $entireFileCondition\n" if $entireFileCondition ne "";
+    $contents .= "#include \"$base.h\"\n\n";
+    for my $condition (sort keys %includes) {
+        $contents .= "#if $condition\n" unless $condition eq "";
+        $contents .= includesParagraph($includes{$condition});
+        $contents .= "#endif\n" unless $condition eq "";
+        $contents .= "\n";
+    }
+    $contents .= $afterIncludes;
+
+    unless (open OUTPUT, ">", $filename) { print STDERR "Could not open file for writing: $filename\n"; next FILE; };
+    print OUTPUT $contents;
+    close OUTPUT or die;
+}
+
+sub includesParagraph()
+{
+    my ($includes) = @_;
+
+    my $paragraph = "";
+
+    for my $include (sort keys %{$includes}) {
+        $paragraph .= "#include $include\n";
+    }
+
+    return $paragraph;
+}

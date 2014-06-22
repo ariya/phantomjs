@@ -43,11 +43,10 @@
 
 #include <string>
 
+#include "common/using_std_string.h"
 #include "google_breakpad/processor/code_module.h"
 
 namespace google_breakpad {
-
-using std::string;
 
 class BasicCodeModule : public CodeModule {
  public:
@@ -64,7 +63,7 @@ class BasicCodeModule : public CodeModule {
         debug_identifier_(that->debug_identifier()),
         version_(that->version()) {}
 
-  BasicCodeModule(u_int64_t base_address, u_int64_t size,
+  BasicCodeModule(uint64_t base_address, uint64_t size,
 		  const string &code_file,
 		  const string &code_identifier,
 		  const string &debug_file,
@@ -82,8 +81,8 @@ class BasicCodeModule : public CodeModule {
 
   // See code_module.h for descriptions of these methods and the associated
   // members.
-  virtual u_int64_t base_address() const { return base_address_; }
-  virtual u_int64_t size() const { return size_; }
+  virtual uint64_t base_address() const { return base_address_; }
+  virtual uint64_t size() const { return size_; }
   virtual string code_file() const { return code_file_; }
   virtual string code_identifier() const { return code_identifier_; }
   virtual string debug_file() const { return debug_file_; }
@@ -92,8 +91,8 @@ class BasicCodeModule : public CodeModule {
   virtual const CodeModule* Copy() const { return new BasicCodeModule(this); }
 
  private:
-  u_int64_t base_address_;
-  u_int64_t size_;
+  uint64_t base_address_;
+  uint64_t size_;
   string code_file_;
   string code_identifier_;
   string debug_file_;

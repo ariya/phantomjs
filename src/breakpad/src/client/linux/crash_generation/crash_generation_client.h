@@ -30,40 +30,36 @@
 #ifndef CLIENT_LINUX_CRASH_GENERATION_CRASH_GENERATION_CLIENT_H_
 #define CLIENT_LINUX_CRASH_GENERATION_CRASH_GENERATION_CLIENT_H_
 
+#include "common/basictypes.h"
+
 #include <stddef.h>
 
 namespace google_breakpad {
 
+// CrashGenerationClient is an interface for implementing out-of-process crash
+// dumping.  The default implementation, accessed via the TryCreate() factory,
+// works in conjunction with the CrashGenerationServer to generate a minidump
+// via a remote process.
 class CrashGenerationClient {
-public:
-  ~CrashGenerationClient()
-  {
-  }
+ public:
+  CrashGenerationClient() {}
+  virtual ~CrashGenerationClient() {}
 
-  // Request the crash server to generate a dump.  |blob| is a hack,
-  // see exception_handler.h and minidump_writer.h
-  //
-  // Return true if the dump was successful; false otherwise.
-  bool RequestDump(const void* blob, size_t blob_size);
+  // Request the crash server to generate a dump.  |blob| is an opaque
+  // CrashContext pointer from exception_handler.h.
+  // Returns true if the dump was successful; false otherwise.
+  virtual bool RequestDump(const void* blob, size_t blob_size) = 0;
 
-  // Return a new CrashGenerationClient if |server_fd| is valid and
+  // Returns a new CrashGenerationClient if |server_fd| is valid and
   // connects to a CrashGenerationServer.  Otherwise, return NULL.
   // The returned CrashGenerationClient* is owned by the caller of
   // this function.
   static CrashGenerationClient* TryCreate(int server_fd);
 
-private:
-  CrashGenerationClient(int server_fd) : server_fd_(server_fd)
-  {
-  }
-
-  int server_fd_;
-
-  // prevent copy construction and assignment
-  CrashGenerationClient(const CrashGenerationClient&);
-  CrashGenerationClient& operator=(const CrashGenerationClient&);
+ private:
+  DISALLOW_COPY_AND_ASSIGN(CrashGenerationClient);
 };
 
-} // namespace google_breakpad
+}  // namespace google_breakpad
 
-#endif // CLIENT_LINUX_CRASH_GENERATION_CRASH_GENERATION_CLIENT_H_
+#endif  // CLIENT_LINUX_CRASH_GENERATION_CRASH_GENERATION_CLIENT_H_

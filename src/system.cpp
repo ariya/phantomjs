@@ -30,7 +30,6 @@
 
 #include "system.h"
 
-#include <QApplication>
 #include <QSslSocket>
 #include <QSysInfo>
 #include <QVariantMap>

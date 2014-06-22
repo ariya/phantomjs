@@ -1,0 +1,9 @@
+<span class="status-date">{{ status.date|timesince }} ago
+{% if status.bot_id %}
+(<a href="/queue-status/{{status.queue_name}}/bots/{{status.bot_id}}">{{ status.bot_id }}</a>)
+{% endif %}
+</span>
+<span class="status-message">{{ status.message|force_escape|urlize|webkit_linkify|safe }}</span>
+{% if status.results_file %}
+    <span class="status-results">[{{ status.key.id|results_link|safe }}]</span>
+{% endif %}

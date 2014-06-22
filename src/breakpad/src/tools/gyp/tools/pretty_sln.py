@@ -1,6 +1,8 @@
-#!/usr/bin/python2.5
-# Copyright 2009 Google Inc.
-# All Rights Reserved.
+#!/usr/bin/env python
+
+# Copyright (c) 2012 Google Inc. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
 
 """Prints the information in a sln file in a diffable way.
 
@@ -119,7 +121,7 @@ def PrintBuildOrder(projects, deps):
   print "--                                   --"
 
   built = []
-  for (project, dep_list) in sorted(deps.items()):  
+  for (project, _) in sorted(deps.items()):
     if project not in built:
       BuildProject(project, built, projects, deps)
 
@@ -139,7 +141,7 @@ def PrintVCProj(projects):
     project_path = os.path.abspath(os.path.join(os.path.dirname(sys.argv[1]),
                                                 projects[project][2]))
 
-    pretty = pretty_vcproj  
+    pretty = pretty_vcproj
     argv = [ '',
              project_path,
              '$(SolutionDir)=%s\\' % os.path.dirname(sys.argv[1]),
@@ -151,15 +153,16 @@ def main():
   # check if we have exactly 1 parameter.
   if len(sys.argv) < 2:
     print 'Usage: %s "c:\\path\\to\\project.sln"' % sys.argv[0]
-    return
+    return 1
 
   (projects, deps) = ParseSolution(sys.argv[1])
   PrintDependencies(projects, deps)
   PrintBuildOrder(projects, deps)
-  
+
   if '--recursive' in sys.argv:
     PrintVCProj(projects)
+  return 0
+
 
 if __name__ == '__main__':
-  main()
-  
+  sys.exit(main())

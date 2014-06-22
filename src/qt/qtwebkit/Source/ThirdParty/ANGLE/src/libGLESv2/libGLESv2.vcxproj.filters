@@ -1,0 +1,509 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Third Party">
+      <UniqueIdentifier>{dc1dac40-3563-41be-9e2d-c2588d8670fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Third Party\MurmurHash">
+      <UniqueIdentifier>{b0005d2f-9b4a-4659-a270-138811174f73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Renderer">
+      <UniqueIdentifier>{562e469d-1abb-44bc-b7fa-55eefbf75acc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{6dc0306f-6396-4e80-9ef9-09b58aa53c4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Compiled">
+      <UniqueIdentifier>{6332705b-1999-4292-a38b-dd47329734aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer">
+      <UniqueIdentifier>{93a76964-77a3-4b20-a6f5-e14e762d4e14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Renderer9">
+      <UniqueIdentifier>{3877f35e-845c-4e95-b9a5-c7d8b9f307c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Renderer11">
+      <UniqueIdentifier>{2d70fd60-6dea-489f-ac09-16890d325669}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer9">
+      <UniqueIdentifier>{60e14f04-2cf2-4a07-b3ef-7c68a82ba2d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer11">
+      <UniqueIdentifier>{72db61d3-e081-4b58-bc63-a04a8a70585f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Buffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Context.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\debug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Fence.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Float16ToFloat32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Framebuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HandleAllocator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libGLESv2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Program.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProgramBinary.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Query.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\RefCountObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderbuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utilities.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\Image.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\TextureStorage.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\Renderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\murmurhash\MurmurHash3.cpp">
+      <Filter>Third Party\MurmurHash</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\IndexDataManager.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\VertexDataManager.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\Image.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\ImageSSE2.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\VertexBuffer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\IndexBuffer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Uniform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\BufferStorage.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\BufferStorage11.cpp">
+      <Filter>Source Files\Renderer11</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\Fence11.cpp">
+      <Filter>Source Files\Renderer11</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\Image11.cpp">
+      <Filter>Source Files\Renderer11</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\IndexBuffer11.cpp">
+      <Filter>Source Files\Renderer11</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\Query11.cpp">
+      <Filter>Source Files\Renderer11</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\Renderer11.cpp">
+      <Filter>Source Files\Renderer11</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\renderer11_utils.cpp">
+      <Filter>Source Files\Renderer11</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\RenderTarget11.cpp">
+      <Filter>Source Files\Renderer11</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\ShaderExecutable11.cpp">
+      <Filter>Source Files\Renderer11</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\SwapChain11.cpp">
+      <Filter>Source Files\Renderer11</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\TextureStorage11.cpp">
+      <Filter>Source Files\Renderer11</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\VertexBuffer11.cpp">
+      <Filter>Source Files\Renderer11</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\BufferStorage9.cpp">
+      <Filter>Source Files\Renderer9</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\Fence9.cpp">
+      <Filter>Source Files\Renderer9</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\Image9.cpp">
+      <Filter>Source Files\Renderer9</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\IndexBuffer9.cpp">
+      <Filter>Source Files\Renderer9</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\Query9.cpp">
+      <Filter>Source Files\Renderer9</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\Renderer9.cpp">
+      <Filter>Source Files\Renderer9</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\renderer9_utils.cpp">
+      <Filter>Source Files\Renderer9</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\RenderTarget9.cpp">
+      <Filter>Source Files\Renderer9</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\ShaderExecutable9.cpp">
+      <Filter>Source Files\Renderer9</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\SwapChain9.cpp">
+      <Filter>Source Files\Renderer9</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\TextureStorage9.cpp">
+      <Filter>Source Files\Renderer9</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\VertexBuffer9.cpp">
+      <Filter>Source Files\Renderer9</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\Blit.cpp">
+      <Filter>Source Files\Renderer9</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\InputLayoutCache.cpp">
+      <Filter>Source Files\Renderer11</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\RenderStateCache.cpp">
+      <Filter>Source Files\Renderer11</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\VertexDeclarationCache.cpp">
+      <Filter>Source Files\Renderer9</Filter>
+    </ClCompile>
+    <ClCompile Include="precompiled.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BinaryStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Fence.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Framebuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\GLES2\gl2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\GLES2\gl2ext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\GLES2\gl2platform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HandleAllocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mathutil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Program.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProgramBinary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Query.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\RefCountObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderbuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utilities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="angletypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\murmurhash\MurmurHash3.h">
+      <Filter>Third Party\MurmurHash</Filter>
+    </ClInclude>
+    <ClInclude Include="Uniform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\shaders\compiled\passthrough11vs.h">
+      <Filter>Shaders\Compiled</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\shaders\compiled\passthroughps.h">
+      <Filter>Shaders\Compiled</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\shaders\compiled\standardvs.h">
+      <Filter>Shaders\Compiled</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\shaders\compiled\componentmaskps.h">
+      <Filter>Shaders\Compiled</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\shaders\compiled\flipyvs.h">
+      <Filter>Shaders\Compiled</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\shaders\compiled\luminanceps.h">
+      <Filter>Shaders\Compiled</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\shaders\compiled\passthroughrgba11ps.h">
+      <Filter>Shaders\Compiled</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\shaders\compiled\passthroughrgb11ps.h">
+      <Filter>Shaders\Compiled</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\shaders\compiled\passthroughlum11ps.h">
+      <Filter>Shaders\Compiled</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\shaders\compiled\passthroughlumalpha11ps.h">
+      <Filter>Shaders\Compiled</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\shaders\compiled\clear11vs.h">
+      <Filter>Shaders\Compiled</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\shaders\compiled\clearmultiple11ps.h">
+      <Filter>Shaders\Compiled</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\shaders\compiled\clearsingle11ps.h">
+      <Filter>Shaders\Compiled</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\BufferStorage.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\FenceImpl.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\generatemip.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\Image.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\IndexBuffer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\IndexDataManager.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\QueryImpl.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\Renderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RenderTarget.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\ShaderExecutable.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\SwapChain.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\TextureStorage.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\VertexBuffer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\vertexconversion.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\VertexDataManager.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\BufferStorage11.h">
+      <Filter>Header Files\Renderer11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\IndexBuffer11.h">
+      <Filter>Header Files\Renderer11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\Query11.h">
+      <Filter>Header Files\Renderer11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\Renderer11.h">
+      <Filter>Header Files\Renderer11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RenderTarget11.h">
+      <Filter>Header Files\Renderer11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\ShaderExecutable11.h">
+      <Filter>Header Files\Renderer11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\SwapChain11.h">
+      <Filter>Header Files\Renderer11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\TextureStorage11.h">
+      <Filter>Header Files\Renderer11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\VertexBuffer11.h">
+      <Filter>Header Files\Renderer11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\BufferStorage9.h">
+      <Filter>Header Files\Renderer9</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\Fence9.h">
+      <Filter>Header Files\Renderer9</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\Image9.h">
+      <Filter>Header Files\Renderer9</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\IndexBuffer9.h">
+      <Filter>Header Files\Renderer9</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\Query9.h">
+      <Filter>Header Files\Renderer9</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\Renderer9.h">
+      <Filter>Header Files\Renderer9</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderer9_utils.h">
+      <Filter>Header Files\Renderer9</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RenderTarget9.h">
+      <Filter>Header Files\Renderer9</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\ShaderExecutable9.h">
+      <Filter>Header Files\Renderer9</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\SwapChain9.h">
+      <Filter>Header Files\Renderer9</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\TextureStorage9.h">
+      <Filter>Header Files\Renderer9</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\VertexBuffer9.h">
+      <Filter>Header Files\Renderer9</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\Fence11.h">
+      <Filter>Header Files\Renderer11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\Image11.h">
+      <Filter>Header Files\Renderer11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderer11_utils.h">
+      <Filter>Header Files\Renderer11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\Fence9.h">
+      <Filter>Header Files\Renderer\Renderer9</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\Query11.h">
+      <Filter>Header Files\Renderer\Renderer11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\Blit.h">
+      <Filter>Header Files\Renderer9</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\ShaderCache.h">
+      <Filter>Header Files\Renderer9</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\InputLayoutCache.h">
+      <Filter>Header Files\Renderer11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RenderStateCache.h">
+      <Filter>Header Files\Renderer11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\VertexDeclarationCache.h">
+      <Filter>Header Files\Renderer9</Filter>
+    </ClInclude>
+    <ClInclude Include="constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="precompiled.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="renderer\shaders\Blit.ps">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="renderer\shaders\Blit.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="renderer\shaders\generate_shaders.bat">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="renderer\shaders\Passthrough11.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="renderer\shaders\Clear11.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="libGLESv2.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="libGLESv2.rc" />
+  </ItemGroup>
+</Project>

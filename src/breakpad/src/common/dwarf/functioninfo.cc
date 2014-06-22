@@ -36,17 +36,18 @@
 #include <map>
 #include <queue>
 #include <vector>
-#include <memory>
 
 #include "common/dwarf/functioninfo.h"
-
 #include "common/dwarf/bytereader.h"
+#include "common/scoped_ptr.h"
+#include "common/using_std_string.h"
 
+using google_breakpad::scoped_ptr;
 
 namespace dwarf2reader {
 
 CULineInfoHandler::CULineInfoHandler(std::vector<SourceFileInfo>* files,
-                                     std::vector<std::string>* dirs,
+                                     std::vector<string>* dirs,
                                      LineMap* linemap):linemap_(linemap),
                                                        files_(files),
                                                        dirs_(dirs) {
@@ -61,13 +62,13 @@ CULineInfoHandler::CULineInfoHandler(std::vector<SourceFileInfo>* files,
   files->push_back(s);
 }
 
-void CULineInfoHandler::DefineDir(const std::string& name, uint32 dir_num) {
+void CULineInfoHandler::DefineDir(const string& name, uint32 dir_num) {
   // These should never come out of order, actually
   assert(dir_num == dirs_->size());
   dirs_->push_back(name);
 }
 
-void CULineInfoHandler::DefineFile(const std::string& name,
+void CULineInfoHandler::DefineFile(const string& name,
                                    int32 file_num, uint32 dir_num,
                                    uint64 mod_time, uint64 length) {
   assert(dir_num >= 0);
@@ -75,7 +76,7 @@ void CULineInfoHandler::DefineFile(const std::string& name,
 
   // These should never come out of order, actually.
   if (file_num == (int32)files_->size() || file_num == -1) {
-    std::string dir = dirs_->at(dir_num);
+    string dir = dirs_->at(dir_num);
 
     SourceFileInfo s;
     s.lowpc = ULLONG_MAX;
@@ -100,11 +101,11 @@ void CULineInfoHandler::AddLine(uint64 address, uint64 length, uint32 file_num,
                        std::make_pair(files_->at(file_num).name.c_str(),
                                       line_num)));
 
-    if(address < files_->at(file_num).lowpc) {
+    if (address < files_->at(file_num).lowpc) {
       files_->at(file_num).lowpc = address;
     }
   } else {
-    fprintf(stderr,"error in AddLine");
+    fprintf(stderr, "error in AddLine");
   }
 }
 
@@ -122,8 +123,7 @@ bool CUFunctionInfoHandler::StartCompilationUnit(uint64 offset,
 // subroutines. For line info, the DW_AT_stmt_list lives in the
 // compile unit tag.
 
-bool CUFunctionInfoHandler::StartDIE(uint64 offset, enum DwarfTag tag,
-                                     const AttributeList& attrs) {
+bool CUFunctionInfoHandler::StartDIE(uint64 offset, enum DwarfTag tag) {
   switch (tag) {
     case DW_TAG_subprogram:
     case DW_TAG_inlined_subroutine: {
@@ -149,11 +149,11 @@ bool CUFunctionInfoHandler::StartDIE(uint64 offset, enum DwarfTag tag,
 void CUFunctionInfoHandler::ProcessAttributeString(uint64 offset,
                                                    enum DwarfAttribute attr,
                                                    enum DwarfForm form,
-                                                   const std::string &data) {
+                                                   const string &data) {
   if (current_function_info_) {
     if (attr == DW_AT_name)
       current_function_info_->name = data;
-    else if(attr == DW_AT_MIPS_linkage_name)
+    else if (attr == DW_AT_MIPS_linkage_name)
       current_function_info_->mangled_name = data;
   }
 }
@@ -166,10 +166,9 @@ void CUFunctionInfoHandler::ProcessAttributeUnsigned(uint64 offset,
     SectionMap::const_iterator iter = sections_.find("__debug_line");
     assert(iter != sections_.end());
 
-    // this should be a scoped_ptr but we dont' use boost :-(
-    std::auto_ptr<LineInfo> lireader(new LineInfo(iter->second.first + data,
-                                                  iter->second.second  - data,
-                                                  reader_, linehandler_));
+    scoped_ptr<LineInfo> lireader(new LineInfo(iter->second.first + data,
+                                               iter->second.second  - data,
+                                               reader_, linehandler_));
     lireader->Start();
   } else if (current_function_info_) {
     switch (attr) {
@@ -210,7 +209,10 @@ void CUFunctionInfoHandler::ProcessAttributeReference(uint64 offset,
           current_function_info_->mangled_name = iter->second->mangled_name;
         } else {
           // If you hit this, this code probably needs to be rewritten.
-          fprintf(stderr, "Error: DW_AT_specification was seen before the referenced DIE! (Looking for DIE at offset %08llx, in DIE at offset %08llx)\n", data, offset);
+          fprintf(stderr,
+                  "Error: DW_AT_specification was seen before the referenced "
+                  "DIE! (Looking for DIE at offset %08llx, in DIE at "
+                  "offset %08llx)\n", data, offset);
         }
         break;
       }

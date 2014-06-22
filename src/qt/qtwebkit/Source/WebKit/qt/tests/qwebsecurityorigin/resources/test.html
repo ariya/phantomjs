@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+   <head>
+       <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+       <title>QWebSecurityOrigin test page</title>
+       <script Language="JavaScript">
+           function runTest(url)
+           {
+               var result = "";
+                function trace(point)
+                {
+                    var el = document.createElement("P");
+                     el.innerHTML = point + ": Result is:\"" + result + "\""
+                     document.getElementById("Console").appendChild(el);
+                 }
+                 try {
+                     var xmlhttp = new XMLHttpRequest();
+                     xmlhttp.open('GET',url, false);
+                     xmlhttp.onreadystatechange = done;
+                     xmlhttp.onerror = error;
+                     xmlhttp.send(null);
+                     result = xmlhttp.responseText;
+                 } catch (e) {
+                     if (result == "") {
+                         result = e;
+                         trace("Catch1");
+                     } else
+                         trace("Catch2");
+                 }
+ 
+                 function done()
+                 {
+                     if (result.length < 5) {
+                         result = "" + xmlhttp.readyState;
+                         trace("Done1");
+                     } else
+                         trace("Done2");
+                 }
+                 function error()
+                 {
+                     result = "FAILED";
+                     trace("Error");
+                 }
+                 trace("Exit");
+                 return result == "Test";
+             }
+         </script>
+     </head>
+     <body>
+         <input type="button" onclick="javascript:alert(runTest('http://www.google.com'))" value="Run Test"/><br/>
+         <div id="Console"/>
+     </body>
+ </html>

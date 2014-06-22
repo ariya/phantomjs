@@ -61,7 +61,7 @@ class BasicCodeModules : public CodeModules {
 
   // See code_modules.h for descriptions of these methods.
   virtual unsigned int module_count() const;
-  virtual const CodeModule* GetModuleForAddress(u_int64_t address) const;
+  virtual const CodeModule* GetModuleForAddress(uint64_t address) const;
   virtual const CodeModule* GetMainModule() const;
   virtual const CodeModule* GetModuleAtSequence(unsigned int sequence) const;
   virtual const CodeModule* GetModuleAtIndex(unsigned int index) const;
@@ -69,11 +69,11 @@ class BasicCodeModules : public CodeModules {
 
  private:
   // The base address of the main module.
-  u_int64_t main_address_;
+  uint64_t main_address_;
 
   // The map used to contain each CodeModule, keyed by each CodeModule's
   // address range.
-  RangeMap<u_int64_t, linked_ptr<const CodeModule> > *map_;
+  RangeMap<uint64_t, linked_ptr<const CodeModule> > *map_;
 
   // Disallow copy constructor and assignment operator.
   BasicCodeModules(const BasicCodeModules &that);

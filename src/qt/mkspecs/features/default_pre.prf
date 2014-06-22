@@ -1,3 +1,0 @@
-load(exclusive_builds)
-### Qt 5: remove "uic" and "resources" - or add "qt"
-CONFIG = lex yacc warn_on debug uic resources $$CONFIG

@@ -1,0 +1,522 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>FreeType-2.3.12 API Reference</title>
+<style type="text/css">
+  body { font-family: Verdana, Geneva, Arial, Helvetica, serif;
+         color: #000000;
+         background: #FFFFFF; }
+
+  p { text-align: justify; }
+  h1 { text-align: center; }
+  li { text-align: justify; }
+  td { padding: 0 0.5em 0 0.5em; }
+  td.left { padding: 0 0.5em 0 0.5em;
+            text-align: left; }
+
+  a:link { color: #0000EF; }
+  a:visited { color: #51188E; }
+  a:hover { color: #FF0000; }
+
+  span.keyword { font-family: monospace;
+                 text-align: left;
+                 white-space: pre;
+                 color: darkblue; }
+
+  pre.colored { color: blue; }
+
+  ul.empty { list-style-type: none; }
+</style>
+</head>
+<body>
+
+<table align=center><tr><td><font size=-1>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-1>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+<center><h1>FreeType-2.3.12 API Reference</h1></center>
+
+<center><h1>
+Type 1 Tables
+</h1></center>
+<h2>Synopsis</h2>
+<table align=center cellspacing=5 cellpadding=0 border=0>
+<tr><td></td><td><a href="#PS_FontInfoRec">PS_FontInfoRec</a></td><td></td><td><a href="#T1_Private">T1_Private</a></td><td></td><td><a href="#CID_FaceInfo">CID_FaceInfo</a></td></tr>
+<tr><td></td><td><a href="#PS_FontInfo">PS_FontInfo</a></td><td></td><td><a href="#T1_Blend_Flags">T1_Blend_Flags</a></td><td></td><td><a href="#CID_Info">CID_Info</a></td></tr>
+<tr><td></td><td><a href="#T1_FontInfo">T1_FontInfo</a></td><td></td><td><a href="#CID_FaceDictRec">CID_FaceDictRec</a></td><td></td><td><a href="#FT_Has_PS_Glyph_Names">FT_Has_PS_Glyph_Names</a></td></tr>
+<tr><td></td><td><a href="#PS_PrivateRec">PS_PrivateRec</a></td><td></td><td><a href="#CID_FaceDict">CID_FaceDict</a></td><td></td><td><a href="#FT_Get_PS_Font_Info">FT_Get_PS_Font_Info</a></td></tr>
+<tr><td></td><td><a href="#PS_Private">PS_Private</a></td><td></td><td><a href="#CID_FaceInfoRec">CID_FaceInfoRec</a></td><td></td><td><a href="#FT_Get_PS_Font_Private">FT_Get_PS_Font_Private</a></td></tr>
+</table><br><br>
+
+<table align=center width="87%"><tr><td>
+<p>This section contains the definition of Type 1-specific tables, including structures related to other PostScript font formats.</p>
+</td></tr></table><br>
+<table align=center width="75%"><tr><td>
+<h4><a name="PS_FontInfoRec">PS_FontInfoRec</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_TYPE1_TABLES_H (freetype/t1tables.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">struct</span>  PS_FontInfoRec_
+  {
+    <a href="ft2-basic_types.html#FT_String">FT_String</a>*  version;
+    <a href="ft2-basic_types.html#FT_String">FT_String</a>*  notice;
+    <a href="ft2-basic_types.html#FT_String">FT_String</a>*  full_name;
+    <a href="ft2-basic_types.html#FT_String">FT_String</a>*  family_name;
+    <a href="ft2-basic_types.html#FT_String">FT_String</a>*  weight;
+    <a href="ft2-basic_types.html#FT_Long">FT_Long</a>     italic_angle;
+    <a href="ft2-basic_types.html#FT_Bool">FT_Bool</a>     is_fixed_pitch;
+    <a href="ft2-basic_types.html#FT_Short">FT_Short</a>    underline_position;
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>   underline_thickness;
+
+  } <b>PS_FontInfoRec</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A structure used to model a Type&nbsp;1 or Type&nbsp;2 FontInfo dictionary. Note that for Multiple Master fonts, each instance has its own FontInfo dictionary.</p>
+</td></tr></table><br>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="PS_FontInfo">PS_FontInfo</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_TYPE1_TABLES_H (freetype/t1tables.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">struct</span> PS_FontInfoRec_*  <b>PS_FontInfo</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A handle to a <a href="ft2-type1_tables.html#PS_FontInfoRec">PS_FontInfoRec</a> structure.</p>
+</td></tr></table><br>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="T1_FontInfo">T1_FontInfo</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_TYPE1_TABLES_H (freetype/t1tables.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <a href="ft2-type1_tables.html#PS_FontInfoRec">PS_FontInfoRec</a>  <b>T1_FontInfo</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>This type is equivalent to <a href="ft2-type1_tables.html#PS_FontInfoRec">PS_FontInfoRec</a>. It is deprecated but kept to maintain source compatibility between various versions of FreeType.</p>
+</td></tr></table><br>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="PS_PrivateRec">PS_PrivateRec</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_TYPE1_TABLES_H (freetype/t1tables.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">struct</span>  PS_PrivateRec_
+  {
+    <a href="ft2-basic_types.html#FT_Int">FT_Int</a>     unique_id;
+    <a href="ft2-basic_types.html#FT_Int">FT_Int</a>     lenIV;
+
+    <a href="ft2-basic_types.html#FT_Byte">FT_Byte</a>    num_blue_values;
+    <a href="ft2-basic_types.html#FT_Byte">FT_Byte</a>    num_other_blues;
+    <a href="ft2-basic_types.html#FT_Byte">FT_Byte</a>    num_family_blues;
+    <a href="ft2-basic_types.html#FT_Byte">FT_Byte</a>    num_family_other_blues;
+
+    <a href="ft2-basic_types.html#FT_Short">FT_Short</a>   blue_values[14];
+    <a href="ft2-basic_types.html#FT_Short">FT_Short</a>   other_blues[10];
+
+    <a href="ft2-basic_types.html#FT_Short">FT_Short</a>   family_blues      [14];
+    <a href="ft2-basic_types.html#FT_Short">FT_Short</a>   family_other_blues[10];
+
+    <a href="ft2-basic_types.html#FT_Fixed">FT_Fixed</a>   blue_scale;
+    <a href="ft2-basic_types.html#FT_Int">FT_Int</a>     blue_shift;
+    <a href="ft2-basic_types.html#FT_Int">FT_Int</a>     blue_fuzz;
+
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  standard_width[1];
+    <a href="ft2-basic_types.html#FT_UShort">FT_UShort</a>  standard_height[1];
+
+    <a href="ft2-basic_types.html#FT_Byte">FT_Byte</a>    num_snap_widths;
+    <a href="ft2-basic_types.html#FT_Byte">FT_Byte</a>    num_snap_heights;
+    <a href="ft2-basic_types.html#FT_Bool">FT_Bool</a>    force_bold;
+    <a href="ft2-basic_types.html#FT_Bool">FT_Bool</a>    round_stem_up;
+
+    <a href="ft2-basic_types.html#FT_Short">FT_Short</a>   snap_widths [13];  /* including std width  */
+    <a href="ft2-basic_types.html#FT_Short">FT_Short</a>   snap_heights[13];  /* including std height */
+
+    <a href="ft2-basic_types.html#FT_Fixed">FT_Fixed</a>   expansion_factor;
+
+    <a href="ft2-basic_types.html#FT_Long">FT_Long</a>    language_group;
+    <a href="ft2-basic_types.html#FT_Long">FT_Long</a>    password;
+
+    <a href="ft2-basic_types.html#FT_Short">FT_Short</a>   min_feature[2];
+
+  } <b>PS_PrivateRec</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A structure used to model a Type&nbsp;1 or Type&nbsp;2 private dictionary. Note that for Multiple Master fonts, each instance has its own Private dictionary.</p>
+</td></tr></table><br>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="PS_Private">PS_Private</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_TYPE1_TABLES_H (freetype/t1tables.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">struct</span> PS_PrivateRec_*  <b>PS_Private</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A handle to a <a href="ft2-type1_tables.html#PS_PrivateRec">PS_PrivateRec</a> structure.</p>
+</td></tr></table><br>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="T1_Private">T1_Private</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_TYPE1_TABLES_H (freetype/t1tables.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <a href="ft2-type1_tables.html#PS_PrivateRec">PS_PrivateRec</a>  <b>T1_Private</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>This type is equivalent to <a href="ft2-type1_tables.html#PS_PrivateRec">PS_PrivateRec</a>. It is deprecated but kept to maintain source compatibility between various versions of FreeType.</p>
+</td></tr></table><br>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="T1_Blend_Flags">T1_Blend_Flags</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_TYPE1_TABLES_H (freetype/t1tables.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">enum</span>  T1_Blend_Flags_
+  {
+    /*# required fields in a FontInfo blend dictionary */
+    T1_BLEND_UNDERLINE_POSITION = 0,
+    T1_BLEND_UNDERLINE_THICKNESS,
+    T1_BLEND_ITALIC_ANGLE,
+
+    /*# required fields in a Private blend dictionary */
+    T1_BLEND_BLUE_VALUES,
+    T1_BLEND_OTHER_BLUES,
+    T1_BLEND_STANDARD_WIDTH,
+    T1_BLEND_STANDARD_HEIGHT,
+    T1_BLEND_STEM_SNAP_WIDTHS,
+    T1_BLEND_STEM_SNAP_HEIGHTS,
+    T1_BLEND_BLUE_SCALE,
+    T1_BLEND_BLUE_SHIFT,
+    T1_BLEND_FAMILY_BLUES,
+    T1_BLEND_FAMILY_OTHER_BLUES,
+    T1_BLEND_FORCE_BOLD,
+
+    /*# never remove */
+    T1_BLEND_MAX
+
+  } <b>T1_Blend_Flags</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A set of flags used to indicate which fields are present in a given blend dictionary (font info or private). Used to support Multiple Masters fonts.</p>
+</td></tr></table><br>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="CID_FaceDictRec">CID_FaceDictRec</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_TYPE1_TABLES_H (freetype/t1tables.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">struct</span>  CID_FaceDictRec_
+  {
+    <a href="ft2-type1_tables.html#PS_PrivateRec">PS_PrivateRec</a>  private_dict;
+
+    <a href="ft2-basic_types.html#FT_UInt">FT_UInt</a>        len_buildchar;
+    <a href="ft2-basic_types.html#FT_Fixed">FT_Fixed</a>       forcebold_threshold;
+    <a href="ft2-basic_types.html#FT_Pos">FT_Pos</a>         stroke_width;
+    <a href="ft2-basic_types.html#FT_Fixed">FT_Fixed</a>       expansion_factor;
+
+    <a href="ft2-basic_types.html#FT_Byte">FT_Byte</a>        paint_type;
+    <a href="ft2-basic_types.html#FT_Byte">FT_Byte</a>        font_type;
+    <a href="ft2-basic_types.html#FT_Matrix">FT_Matrix</a>      font_matrix;
+    <a href="ft2-basic_types.html#FT_Vector">FT_Vector</a>      font_offset;
+
+    <a href="ft2-basic_types.html#FT_UInt">FT_UInt</a>        num_subrs;
+    <a href="ft2-basic_types.html#FT_ULong">FT_ULong</a>       subrmap_offset;
+    <a href="ft2-basic_types.html#FT_Int">FT_Int</a>         sd_bytes;
+
+  } <b>CID_FaceDictRec</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A structure used to represent data in a CID top-level dictionary.</p>
+</td></tr></table><br>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="CID_FaceDict">CID_FaceDict</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_TYPE1_TABLES_H (freetype/t1tables.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">struct</span> CID_FaceDictRec_*  <b>CID_FaceDict</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A handle to a <a href="ft2-type1_tables.html#CID_FaceDictRec">CID_FaceDictRec</a> structure.</p>
+</td></tr></table><br>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="CID_FaceInfoRec">CID_FaceInfoRec</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_TYPE1_TABLES_H (freetype/t1tables.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">struct</span>  CID_FaceInfoRec_
+  {
+    <a href="ft2-basic_types.html#FT_String">FT_String</a>*      cid_font_name;
+    <a href="ft2-basic_types.html#FT_Fixed">FT_Fixed</a>        cid_version;
+    <a href="ft2-basic_types.html#FT_Int">FT_Int</a>          cid_font_type;
+
+    <a href="ft2-basic_types.html#FT_String">FT_String</a>*      registry;
+    <a href="ft2-basic_types.html#FT_String">FT_String</a>*      ordering;
+    <a href="ft2-basic_types.html#FT_Int">FT_Int</a>          supplement;
+
+    <a href="ft2-type1_tables.html#PS_FontInfoRec">PS_FontInfoRec</a>  font_info;
+    <a href="ft2-basic_types.html#FT_BBox">FT_BBox</a>         font_bbox;
+    <a href="ft2-basic_types.html#FT_ULong">FT_ULong</a>        uid_base;
+
+    <a href="ft2-basic_types.html#FT_Int">FT_Int</a>          num_xuid;
+    <a href="ft2-basic_types.html#FT_ULong">FT_ULong</a>        xuid[16];
+
+    <a href="ft2-basic_types.html#FT_ULong">FT_ULong</a>        cidmap_offset;
+    <a href="ft2-basic_types.html#FT_Int">FT_Int</a>          fd_bytes;
+    <a href="ft2-basic_types.html#FT_Int">FT_Int</a>          gd_bytes;
+    <a href="ft2-basic_types.html#FT_ULong">FT_ULong</a>        cid_count;
+
+    <a href="ft2-basic_types.html#FT_Int">FT_Int</a>          num_dicts;
+    <a href="ft2-type1_tables.html#CID_FaceDict">CID_FaceDict</a>    font_dicts;
+
+    <a href="ft2-basic_types.html#FT_ULong">FT_ULong</a>        data_offset;
+
+  } <b>CID_FaceInfoRec</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A structure used to represent CID Face information.</p>
+</td></tr></table><br>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="CID_FaceInfo">CID_FaceInfo</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_TYPE1_TABLES_H (freetype/t1tables.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">struct</span> CID_FaceInfoRec_*  <b>CID_FaceInfo</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A handle to a <a href="ft2-type1_tables.html#CID_FaceInfoRec">CID_FaceInfoRec</a> structure.</p>
+</td></tr></table><br>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="CID_Info">CID_Info</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_TYPE1_TABLES_H (freetype/t1tables.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <a href="ft2-type1_tables.html#CID_FaceInfoRec">CID_FaceInfoRec</a>  <b>CID_Info</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>This type is equivalent to <a href="ft2-type1_tables.html#CID_FaceInfoRec">CID_FaceInfoRec</a>. It is deprecated but kept to maintain source compatibility between various versions of FreeType.</p>
+</td></tr></table><br>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Has_PS_Glyph_Names">FT_Has_PS_Glyph_Names</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_TYPE1_TABLES_H (freetype/t1tables.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Int">FT_Int</a> )
+  <b>FT_Has_PS_Glyph_Names</b>( <a href="ft2-base_interface.html#FT_Face">FT_Face</a>  face );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Return true if a given face provides reliable PostScript glyph names. This is similar to using the <a href="ft2-base_interface.html#FT_HAS_GLYPH_NAMES">FT_HAS_GLYPH_NAMES</a> macro, except that certain fonts (mostly TrueType) contain incorrect glyph name tables.</p>
+<p>When this function returns true, the caller is sure that the glyph names returned by <a href="ft2-base_interface.html#FT_Get_Glyph_Name">FT_Get_Glyph_Name</a> are reliable.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>face</b></td><td>
+<p>face handle</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>Boolean. True if glyph names are reliable.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Get_PS_Font_Info">FT_Get_PS_Font_Info</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_TYPE1_TABLES_H (freetype/t1tables.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Error">FT_Error</a> )
+  <b>FT_Get_PS_Font_Info</b>( <a href="ft2-base_interface.html#FT_Face">FT_Face</a>      face,
+                       <a href="ft2-type1_tables.html#PS_FontInfo">PS_FontInfo</a>  afont_info );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Retrieve the <a href="ft2-type1_tables.html#PS_FontInfoRec">PS_FontInfoRec</a> structure corresponding to a given PostScript font.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>face</b></td><td>
+<p>PostScript face handle.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>output</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>afont_info</b></td><td>
+<p>Output font info structure pointer.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>FreeType error code. 0&nbsp;means success.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>The string pointers within the font info structure are owned by the face and don't need to be freed by the caller.</p>
+<p>If the font's format is not PostScript-based, this function will return the &lsquo;FT_Err_Invalid_Argument&rsquo; error code.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Get_PS_Font_Private">FT_Get_PS_Font_Private</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_TYPE1_TABLES_H (freetype/t1tables.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Error">FT_Error</a> )
+  <b>FT_Get_PS_Font_Private</b>( <a href="ft2-base_interface.html#FT_Face">FT_Face</a>     face,
+                          <a href="ft2-type1_tables.html#PS_Private">PS_Private</a>  afont_private );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Retrieve the <a href="ft2-type1_tables.html#PS_PrivateRec">PS_PrivateRec</a> structure corresponding to a given PostScript font.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>face</b></td><td>
+<p>PostScript face handle.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>output</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>afont_private</b></td><td>
+<p>Output private dictionary structure pointer.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>FreeType error code. 0&nbsp;means success.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>The string pointers within the <a href="ft2-type1_tables.html#PS_PrivateRec">PS_PrivateRec</a> structure are owned by the face and don't need to be freed by the caller.</p>
+<p>If the font's format is not PostScript-based, this function returns the &lsquo;FT_Err_Invalid_Argument&rsquo; error code.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+</body>
+</html>

@@ -38,6 +38,7 @@
 
 #include "processor/postfix_evaluator-inl.h"
 
+#include "common/using_std_string.h"
 #include "google_breakpad/common/breakpad_types.h"
 #include "google_breakpad/processor/memory_region.h"
 #include "processor/logging.h"
@@ -47,7 +48,6 @@ namespace {
 
 
 using std::map;
-using std::string;
 using google_breakpad::MemoryRegion;
 using google_breakpad::PostfixEvaluator;
 
@@ -57,21 +57,21 @@ using google_breakpad::PostfixEvaluator;
 // the value.
 class FakeMemoryRegion : public MemoryRegion {
  public:
-  virtual u_int64_t GetBase() const { return 0; }
-  virtual u_int32_t GetSize() const { return 0; }
-  virtual bool GetMemoryAtAddress(u_int64_t address, u_int8_t  *value) const {
+  virtual uint64_t GetBase() const { return 0; }
+  virtual uint32_t GetSize() const { return 0; }
+  virtual bool GetMemoryAtAddress(uint64_t address, uint8_t  *value) const {
     *value = address + 1;
     return true;
   }
-  virtual bool GetMemoryAtAddress(u_int64_t address, u_int16_t *value) const {
+  virtual bool GetMemoryAtAddress(uint64_t address, uint16_t *value) const {
     *value = address + 1;
     return true;
   }
-  virtual bool GetMemoryAtAddress(u_int64_t address, u_int32_t *value) const {
+  virtual bool GetMemoryAtAddress(uint64_t address, uint32_t *value) const {
     *value = address + 1;
     return true;
   }
-  virtual bool GetMemoryAtAddress(u_int64_t address, u_int64_t *value) const {
+  virtual bool GetMemoryAtAddress(uint64_t address, uint64_t *value) const {
     *value = address + 1;
     return true;
   }

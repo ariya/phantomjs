@@ -39,17 +39,20 @@
 #include "common/test_assembler.h"
 
 #include <list>
+#include <vector>
 #include <map>
 #include <string>
 #include <utility>
+
+#include "common/using_std_string.h"
 
 namespace google_breakpad {
 namespace synth_elf {
 
 using std::list;
+using std::vector;
 using std::map;
 using std::pair;
-using std::string;
 using test_assembler::Endianness;
 using test_assembler::kLittleEndian;
 using test_assembler::kUnsetEndian;
@@ -101,6 +104,10 @@ class ELF : public Section {
                  uint32_t type, uint32_t flags = 0, uint64_t addr = 0,
                  uint32_t link = 0, uint64_t entsize = 0, uint64_t offset = 0);
                   
+  // Add a segment containing from section index start to section index end.
+  // The indexes must have been gotten from AddSection.
+  void AddSegment(int start, int end, uint32_t type, uint32_t flags = 0);
+
   // Write out all data. GetContents may be used after this.
   void Finish();
 
@@ -113,6 +120,8 @@ class ELF : public Section {
   // Number of entries in the program header table.
   int program_count_;
   Label program_count_label_;
+  // The program header table itself.
+  Section program_header_table_;
 
   // Offset to the section header table.
   Label section_header_label_;
@@ -127,6 +136,25 @@ class ELF : public Section {
   Label section_header_string_index_;
   // Section containing the names of section header table entries.
   StringTable section_header_strings_;
+
+  // Record of an added section
+  struct ElfSection : public Section {
+    ElfSection(const Section& section, uint32_t type, uint32_t addr,
+               uint32_t offset, Label offset_label, uint32_t size)
+    : Section(section), type_(type), addr_(addr), offset_(offset)
+    , offset_label_(offset_label), size_(size) {
+    }
+
+    uint32_t type_;
+    uint32_t addr_;
+    uint32_t offset_;
+    Label offset_label_;
+    uint32_t size_;
+  };
+
+  vector<ElfSection> sections_;
+
+  void AppendSection(ElfSection &section);
 };
 
 // A class to build .symtab or .dynsym sections.
@@ -149,13 +177,16 @@ class SymbolTable : public Section {
   StringTable& table_;
 };
 
-// A class to build GNU Build ID note sections
-class BuildIDNote : public Section {
+// A class for note sections
+class Notes : public Section {
 public:
-  BuildIDNote(const uint8_t* id_bytes, size_t id_size, Endianness endianness);
+  Notes(Endianness endianness)
+  : Section(endianness) {
+  }
 
-  // Append a new Build ID note section to |elf|.
-  static void AppendSection(ELF& elf, const uint8_t* id_bytes, size_t id_size);
+  // Add a note.
+  void AddNote(int type, const string &name, const uint8_t* desc_bytes,
+               size_t desc_size);
 };
 
 }  // namespace synth_elf

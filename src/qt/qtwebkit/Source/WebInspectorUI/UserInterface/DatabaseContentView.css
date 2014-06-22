@@ -1,0 +1,108 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.storage-view {    
+    /* Added so fonts look good */
+    font-family: Menlo, monospace;
+    font-size: 11px;
+}
+
+.storage-view .data-grid {
+    border: none;
+    height: 100%;
+}
+
+.storage-view .storage-table-error {
+    color: rgb(66%, 33%, 33%);
+}
+
+.storage-view.query {
+    padding: 2px 0;
+    overflow-y: overlay;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: auto;
+}
+
+.database-query-prompt {
+    position: relative;
+    padding: 4px 22px 4px 11px;
+    min-height: 16px;
+    white-space: pre-wrap;
+    -webkit-user-modify: read-write-plaintext-only;
+    -webkit-user-select: text;
+    
+    /* Added to remove outline */
+    outline: none;
+}
+
+.database-user-query::before, .database-query-prompt::before, .database-query-result::before {
+    position: absolute;
+    display: block;
+    z-index: 1;
+    content: "";
+    left: 4px;
+    top: 10px;
+    width: 10px;
+    height: 10px;
+    margin-top: -5px;
+    -webkit-user-select: none;
+}
+
+.database-query-prompt::before {
+    background-image: url(Images/UserInputPrompt.pdf);
+}
+
+.database-user-query {
+    position: relative;
+    border-bottom: 1px solid rgb(245, 245, 245);
+    padding: 4px 22px 4px 18px;
+    min-height: 16px;
+}
+
+.database-user-query::before {
+    background-image: url(Images/UserInputPromptPrevious.pdf);
+}
+
+.database-query-text {
+    color: rgb(0, 128, 255);
+    -webkit-user-select: text;
+}
+
+.database-query-result {
+    position: relative;
+    padding: 4px 0 1px 18px;
+    min-height: 16px;
+    margin-left: -18px;
+}
+
+.database-query-result.error {
+    color: red;
+    -webkit-user-select: text;
+}
+
+.database-query-result.error::before {
+    background-image: url(Images/ErrorSmall.pdf);
+    background-size: 10px 10px;
+}

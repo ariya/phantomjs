@@ -36,8 +36,8 @@
 
 #include "breakpad_googletest_includes.h"
 #include "common/dwarf_cfi_to_module.h"
+#include "common/using_std_string.h"
 
-using std::string;
 using std::vector;
 
 using google_breakpad::Module;
@@ -69,6 +69,7 @@ struct DwarfCFIToModuleFixture {
     register_names.push_back("reg7");
     register_names.push_back("sp");
     register_names.push_back("pc");
+    register_names.push_back("");
 
     EXPECT_CALL(reporter, UnnamedRegister(_, _)).Times(0);
     EXPECT_CALL(reporter, UndefinedNotSupported(_, _)).Times(0);
@@ -140,6 +141,17 @@ TEST_F(Rule, UndefinedRule) {
   EXPECT_EQ(0U, entries[0]->rule_changes.size());
 }
 
+TEST_F(Rule, RegisterWithEmptyName) {
+  EXPECT_CALL(reporter, UnnamedRegister(_, 10));
+  EXPECT_CALL(reporter, UndefinedNotSupported(_, "unnamed_register10"));
+  StartEntry();
+  ASSERT_TRUE(handler.UndefinedRule(entry_address, 10));
+  ASSERT_TRUE(handler.End());
+  CheckEntry();
+  EXPECT_EQ(0U, entries[0]->initial_rules.size());
+  EXPECT_EQ(0U, entries[0]->rule_changes.size());
+}
+
 TEST_F(Rule, SameValueRule) {
   StartEntry();
   ASSERT_TRUE(handler.SameValueRule(entry_address, 6));
@@ -178,17 +190,17 @@ TEST_F(Rule, OffsetRuleNegative) {
 
 TEST_F(Rule, ValOffsetRule) {
   // Use an unnamed register number, to exercise that branch of RegisterName.
-  EXPECT_CALL(reporter, UnnamedRegister(_, 10));
+  EXPECT_CALL(reporter, UnnamedRegister(_, 11));
   StartEntry();
   ASSERT_TRUE(handler.ValOffsetRule(entry_address + 0x5ab7,
                                     DwarfCFIToModule::kCFARegister,
-                                    10, 61812979));
+                                    11, 61812979));
   ASSERT_TRUE(handler.End());
   CheckEntry();
   EXPECT_EQ(0U, entries[0]->initial_rules.size());
   Module::RuleChangeMap expected_changes;
   expected_changes[entry_address + 0x5ab7][".cfa"] =
-      "unnamed_register10 61812979 +";
+      "unnamed_register11 61812979 +";
   EXPECT_THAT(entries[0]->rule_changes, ContainerEq(expected_changes));
 }
 

@@ -1,0 +1,114 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2005, 2006 Apple Computer, Inc.  All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+# 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# "report-include-statistics" script for WebKit Open Source Project
+
+use strict;
+use File::Find;
+
+find(\&wanted, @ARGV ? @ARGV : ".");
+
+my %paths;
+my %sources;
+my %includes;
+
+sub wanted
+{
+    my $file = $_;
+
+    if ($file eq "icu") {
+        $File::Find::prune = 1;
+        return;
+    }
+
+    if ($file !~ /^\./ && $file =~ /\.(h|cpp|c|mm|m)$/) {
+        $paths{$file} = $File::Find::name;
+        $sources{$file} = $File::Find::name if $file !~ /\.h/;
+        open FILE, $file or die;
+        while (<FILE>) {
+            if (m-^\s*#\s*(include|import)\s+["<]((\S+/)*)(\S+)[">]-) {
+                my $include = ($2 eq "sys/" ? $2 : "") . $4;
+                $includes{$file}{$include}++;
+            }
+        }
+        close FILE;
+    }
+}
+
+my %totalIncludes;
+
+sub fillOut
+{
+    my ($file) = @_;
+
+    return if defined $totalIncludes{$file};
+
+    for my $include (keys %{ $includes{$file} }) {
+        $totalIncludes{$file}{$include} = 1;
+        fillOut($include);
+        for my $i (keys %{ $totalIncludes{$include} }) {
+            $totalIncludes{$file}{$i} = 1;
+        }
+    }
+}
+
+my %inclusionCounts;
+for my $file (keys %includes) {
+    $inclusionCounts{$file} = 0;
+    fillOut($file);
+}
+
+for my $file (keys %sources) {
+    for my $include (keys %{ $totalIncludes{$file} }) {
+        $inclusionCounts{$include}++;
+    }
+}
+
+for my $file (sort mostincludedcmp keys %includes) {
+    next if !$paths{$file};
+    my $count = $inclusionCounts{$file};
+    my $numIncludes = keys %{ $includes{$file} };
+    my $numTotalIncludes = keys %{ $totalIncludes{$file} };
+    print "$file is included $count times, includes $numIncludes files directly, $numTotalIncludes files total.\n"
+}
+
+# Sort most-included files first.
+sub mostincludedcmp($$)
+{
+    my ($filea, $fileb) = @_;
+
+    my $counta = $inclusionCounts{$filea} || 0;
+    my $countb = $inclusionCounts{$fileb} || 0;
+    return $countb <=> $counta if $counta != $countb;
+
+    my $ta = keys %{ $totalIncludes{$filea} };
+    my $tb = keys %{ $totalIncludes{$fileb} };
+    return $ta <=> $tb if $ta != $tb;
+
+    return $filea cmp $fileb;
+}

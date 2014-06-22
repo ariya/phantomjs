@@ -1,0 +1,387 @@
+#!/usr/bin/perl -w
+#
+# Copyright (C) 2011 Apple Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS'' AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+# ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+use strict;
+use warnings;
+
+use File::Basename;
+use File::Temp ();
+use Getopt::Long;
+use POSIX;
+
+my $defaultReviewer = "NOBODY";
+
+sub addReviewer(\%);
+sub addReviewerToChangeLog($$$);
+sub addReviewerToCommitMessage($$$);
+sub changeLogsForCommit($);
+sub checkout($);
+sub cherryPick(\%);
+sub commit(;$);
+sub getConfigValue($);
+sub fail(;$);
+sub head();
+sub interactive();
+sub isAncestor($$);
+sub nonInteractive();
+sub rebaseOntoHead($$);
+sub requireCleanWorkTree();
+sub resetToCommit($);
+sub toCommit($);
+sub usage();
+sub writeCommitMessageToFile($);
+
+
+my $interactive = 0;
+my $showHelp = 0;
+
+my $programName = basename($0);
+my $usage = <<EOF;
+Usage: $programName -i|--interactive upstream
+       $programName commit-ish reviewer
+
+Adds a reviewer to a git commit in a repository with WebKit-style commit logs
+and ChangeLogs.
+
+When run in interactive mode, `upstream` specifies the commit after which
+reviewers should be added.
+
+When run in non-interactive mode, `commit-ish` specifies the commit to which
+the `reviewer` will be added.
+
+Options:
+  -h|--help          Display this message
+  -i|--interactive   Interactive mode
+EOF
+
+my $getOptionsResult = GetOptions(
+    'h|help' => \$showHelp,
+    'i|interactive' => \$interactive,
+);
+
+usage() if !$getOptionsResult || $showHelp;
+
+requireCleanWorkTree();
+$interactive ? interactive() : nonInteractive();
+exit;
+
+sub interactive()
+{
+    @ARGV == 1 or usage();
+
+    my $upstream = toCommit($ARGV[0]);
+    my $head = head();
+
+    isAncestor($upstream, $head) or die "$ARGV[0] is not an ancestor of HEAD.";
+
+    my @revlist = `git rev-list --reverse --pretty=oneline $upstream..`;
+    @revlist or die "Couldn't determine revisions";
+
+    my $tempFile = new File::Temp(UNLINK => 1);
+    foreach my $line (@revlist) {
+        print $tempFile "$defaultReviewer : $line";
+    }
+
+    print $tempFile <<EOF;
+
+# Change 'NOBODY' to the reviewer for each commit
+#
+# If any line starts with "rs" followed by one or more spaces, then the phrase
+# "Reviewed by" is changed to "Rubber-stamped by" in the ChangeLog(s)/commit
+# message for that commit.
+#
+# Commits may be reordered
+# Omitted commits will be lost
+EOF
+
+    close $tempFile;
+
+    my $editor = $ENV{GIT_EDITOR} || getConfigValue("core.editor") || $ENV{VISUAL} || $ENV{EDITOR} || "vi";
+    my $result = system "$editor \"" . $tempFile->filename . "\"";
+    !$result or die "Error spawning editor.";
+
+    my @todo = ();
+    open TEMPFILE, '<', $tempFile->filename or die "Error opening temp file.";
+    foreach my $line (<TEMPFILE>) {
+        next if $line =~ /^#/;
+        $line =~ /^(rs\s+)?(.*)\s+:\s+([0-9a-fA-F]+)/ or next;
+        push @todo, {rubberstamp => defined $1 && length $1, reviewer => $2, commit => $3};
+    }
+    close TEMPFILE;
+    @todo or die "No revisions specified.";
+
+    foreach my $item (@todo) {
+        $item->{changeLogs} = changeLogsForCommit($item->{commit});
+    }
+
+    $result = system "git", "checkout", $upstream;
+    !$result or die "Error checking out $ARGV[0].";
+
+    my $success = 1;
+    foreach my $item (@todo) {
+        $success = cherryPick(%{$item});
+        $success or last;
+        $success = addReviewer(%{$item});
+        $success or last;
+        $success = commit();
+        $success or last;
+    }
+
+    unless ($success) {
+        resetToCommit($head);
+        exit 1;
+    }
+
+    $result = system "git", "branch", "-f", $head;
+    !$result or die "Error updating $head.";
+    $result = system "git", "checkout", $head;
+    exit WEXITSTATUS($result);
+}
+
+sub nonInteractive()
+{
+    @ARGV == 2 or usage();
+
+    my $commit = toCommit($ARGV[0]);
+    my $reviewer = $ARGV[1];
+    my $head = head();
+    my $headCommit = toCommit($head);
+
+    isAncestor($commit, $head) or die "$ARGV[1] is not an ancestor of HEAD.";
+
+    my %item = (
+        reviewer => $reviewer,
+        commit => $commit,
+    );
+
+    $item{changeLogs} = changeLogsForCommit($commit);
+    $item{changeLogs} or die;
+
+    unless ((($commit eq $headCommit) or checkout($commit))
+            # FIXME: We need to use $ENV{GIT_DIR}/.git/MERGE_MSG
+            && writeCommitMessageToFile(".git/MERGE_MSG")
+            && addReviewer(%item)
+            && commit(1)
+            && (($commit eq $headCommit) or rebaseOntoHead($commit, $head))) {
+        resetToCommit($head);
+        exit 1;
+    }
+}
+
+sub usage()
+{
+    print STDERR $usage;
+    exit 1;
+}
+
+sub requireCleanWorkTree()
+{
+    my $result = system "git rev-parse --verify HEAD > /dev/null";
+    $result ||= system qw(git update-index --refresh);
+    $result ||= system qw(git diff-files --quiet);
+    $result ||= system qw(git diff-index --cached --quiet HEAD --);
+    !$result or die "Working tree is dirty"
+}
+
+sub fail(;$)
+{
+    my ($message) = @_;
+    print STDERR $message, "\n" if defined $message;
+    return 0;
+}
+
+sub cherryPick(\%)
+{
+    my ($item) = @_;
+
+    my $result = system "git cherry-pick -n $item->{commit} > /dev/null";
+    !$result or return fail("Failed to cherry-pick $item->{commit}");
+
+    return 1;
+}
+
+sub addReviewer(\%)
+{
+    my ($item) = @_;
+
+    return 1 if $item->{reviewer} eq $defaultReviewer;
+
+    foreach my $log (@{$item->{changeLogs}}) {
+        addReviewerToChangeLog($item->{reviewer}, $item->{rubberstamp}, $log) or return fail();
+    }
+
+    addReviewerToCommitMessage($item->{reviewer}, $item->{rubberstamp}, ".git/MERGE_MSG") or return fail();
+
+    return 1;
+}
+
+sub commit(;$)
+{
+    my ($amend) = @_;
+
+    my @command = qw(git commit -F .git/MERGE_MSG);
+    push @command, "--amend" if $amend;
+    my $result = system @command;
+    !$result or return fail("Failed to commit revision");
+
+    return 1;
+}
+
+sub addReviewerToChangeLog($$$)
+{
+    my ($reviewer, $rubberstamp, $log) = @_;
+
+    return addReviewerToFile($reviewer, $rubberstamp, $log, 0);
+}
+
+sub addReviewerToCommitMessage($$$)
+{
+    my ($reviewer, $rubberstamp, $log) = @_;
+
+    return addReviewerToFile($reviewer, $rubberstamp, $log, 1);
+}
+
+sub addReviewerToFile
+{
+    my ($reviewer, $rubberstamp, $log, $isCommitMessage) = @_;
+
+    my $tempFile = new File::Temp(UNLINK => 1);
+
+    open LOG, "<", $log or return fail("Couldn't open $log.");
+
+    my $finished = 0;
+    foreach my $line (<LOG>) {
+        if (!$finished && $line =~ /NOBODY \(OOPS!\)/) {
+            $line =~ s/NOBODY \(OOPS!\)/$reviewer/;
+            $line =~ s/Reviewed/Rubber-stamped/ if $rubberstamp;
+            $finished = 1 unless $isCommitMessage;
+        }
+
+        print $tempFile $line;
+    }
+
+    close $tempFile;
+    close LOG or return fail("Couldn't close $log");
+
+    my $result = system "mv", $tempFile->filename, $log;
+    !$result or return fail("Failed to rename $tempFile to $log");
+
+    unless ($isCommitMessage) {
+        my $result = system "git", "add", $log;
+        !$result or return fail("Failed to git add");
+    }
+
+    return 1;
+}
+
+sub head()
+{
+    my $head = `git symbolic-ref HEAD`;
+    $head =~ /^refs\/heads\/(.*)$/ or die "Couldn't determine current branch.";
+    $head = $1;
+
+    return $head;
+}
+
+sub isAncestor($$)
+{
+    my ($ancestor, $descendant) = @_;
+
+    chomp(my $mergeBase = `git merge-base $ancestor $descendant`);
+    return $mergeBase eq $ancestor;
+}
+
+sub toCommit($)
+{
+    my ($arg) = @_;
+
+    chomp(my $commit = `git rev-parse $arg`);
+    return $commit;
+}
+
+sub changeLogsForCommit($)
+{
+    my ($commit) = @_;
+
+    my @files = `git diff -r --name-status $commit^ $commit`;
+    @files or return fail("Couldn't determine changed files for $commit.");
+
+    my @changeLogs = map { /^[ACMR]\s*(.*)/; $1 } grep { /^[ACMR].*[^-]ChangeLog/ } @files;
+    return \@changeLogs;
+}
+
+sub resetToCommit($)
+{
+    my ($commit) = @_;
+
+    my $result = system "git", "checkout", "-f", $commit;
+    !$result or return fail("Error checking out $commit.");
+
+    return 1;
+}
+
+sub writeCommitMessageToFile($)
+{
+    my ($file) = @_;
+
+    open FILE, ">", $file or return fail("Couldn't open $file.");
+    open MESSAGE, "-|", qw(git rev-list --max-count=1 --pretty=format:%B HEAD) or return fail("Error running git rev-list.");
+    my $commitLine = <MESSAGE>;
+    foreach my $line (<MESSAGE>) {
+        print FILE $line;
+    }
+    close MESSAGE;
+    close FILE or return fail("Couldn't close $file.");
+
+    return 1;
+}
+
+sub rebaseOntoHead($$)
+{
+    my ($upstream, $branch) = @_;
+
+    my $result = system qw(git rebase --onto HEAD), $upstream, $branch;
+    !$result or return fail("Couldn't rebase.");
+
+    return 1;
+}
+
+sub checkout($)
+{
+    my ($commit) = @_;
+
+    my $result = system "git", "checkout", $commit;
+    !$result or return fail("Error checking out $commit.");
+
+    return 1;
+}
+
+sub getConfigValue($)
+{
+    my ($variable) = @_;
+
+    chomp(my $value = `git config --get "$variable"`);
+
+    return $value;
+}

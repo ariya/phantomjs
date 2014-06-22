@@ -19,7 +19,7 @@ elif [[ $OSTYPE = darwin* ]]; then
    # We only support modern Mac machines, they are at least using
    # hyperthreaded dual-core CPU.
    COMPILE_JOBS=4
-elif [[ $OSTYPE == freebsd* ]] || [[ $OSTYPE == openbsd* ]]; then
+elif [[ $OSTYPE == freebsd* ]]; then
    COMPILE_JOBS=`sysctl -n hw.ncpu`
 else
    CPU_CORES=`grep -c ^processor /proc/cpuinfo`
@@ -107,9 +107,14 @@ UNAME_MACHINE=`(uname -m) 2>/dev/null` || UNAME_MACHINE=unknown
 echo "System architecture... ($UNAME_SYSTEM $UNAME_RELEASE $UNAME_MACHINE)"
 echo
 
-cd src/qt && ./preconfig.sh --jobs $COMPILE_JOBS --qt-config "$QT_CFG" $SILENT && cd ../..
+cd src/qt && ./preconfig.sh --jobs $COMPILE_JOBS --qt-config "$QT_CFG" $SILENT
+export SQLITE3SRCDIR=$PWD/qtbase/3rdparty/sqlite/
+cd qtwebkit
+../qtbase/bin/qmake $QMAKE_ARGS
+make -j$COMPILE_JOBS
+cd ../../..
 
 echo "Building main PhantomJS application. Please wait..."
 echo
-src/qt/bin/qmake $QMAKE_ARGS
+src/qt/qtbase/bin/qmake $QMAKE_ARGS
 make -j$COMPILE_JOBS

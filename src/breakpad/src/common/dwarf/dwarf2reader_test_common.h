@@ -97,7 +97,7 @@ class TestCompilationUnit: public google_breakpad::test_assembler::Section {
 
   // The offset of the point in the compilation unit header immediately
   // after the initial length field.
-  u_int64_t post_length_offset_;
+  uint64_t post_length_offset_;
 
   // The length of the compilation unit, not including the initial length field.
   Label length_;

@@ -34,15 +34,10 @@
 #define COMMON_LINUX_ELF_CORE_DUMP_H_
 
 #include <elf.h>
-#if !defined(__ANDROID__)
 #include <link.h>
-#endif
 #include <stddef.h>
 
 #include "common/memory_range.h"
-#if defined(__ANDROID__)
-#include "common/linux/android_link.h"
-#endif
 
 namespace google_breakpad {
 

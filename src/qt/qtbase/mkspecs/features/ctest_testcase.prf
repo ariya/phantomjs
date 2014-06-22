@@ -1,0 +1,9 @@
+
+CMAKE_TEST_LOCATION = $$_PRO_FILE_PWD_
+
+for(d, $$list($$split($$list($$[QMAKE_MKSPECS]), $$DIRLIST_SEPARATOR))) {
+    CMAKE_PREFIX_PATH *= $$clean_path($$dirname(d))
+}
+CMAKE_PREFIX_PATH=\"$$join(CMAKE_PREFIX_PATH, ;)\"
+
+include(ctest_testcase_common.prf)

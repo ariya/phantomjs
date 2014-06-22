@@ -1,0 +1,46 @@
+/*
+ *  Copyright (C) 2012 Samsung Electronics
+ *
+ *  This library is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Library General Public
+ *  License as published by the Free Software Foundation; either
+ *  version 2 of the License, or (at your option) any later version.
+ *
+ *  This library is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Library General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Library General Public License
+ *  along with this library; see the file COPYING.LIB.  If not, write to
+ *  the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ *  Boston, MA 02110-1301, USA.
+ */
+
+// http://dev.w3.org/2009/dap/system-info/battery-status.html
+[
+    NoInterfaceObject,
+    Conditional=BATTERY_STATUS,
+    ActiveDOMObject,
+    EventTarget
+ ] interface BatteryManager {
+    readonly attribute boolean charging;
+    readonly attribute double chargingTime;
+    readonly attribute double dischargingTime;
+    readonly attribute double level;
+
+    attribute EventListener onchargingchange;
+    attribute EventListener onchargingtimechange;
+    attribute EventListener ondischargingtimechange;
+    attribute EventListener onlevelchange;
+
+    // EventTarget interface
+    void addEventListener(DOMString type,
+                          EventListener listener,
+                          optional boolean useCapture);
+    void removeEventListener(DOMString type,
+                             EventListener listener,
+                             optional boolean useCapture);
+    [RaisesException] boolean dispatchEvent(Event event);
+};
+

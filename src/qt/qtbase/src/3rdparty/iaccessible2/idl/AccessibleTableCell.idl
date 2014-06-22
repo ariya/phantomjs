@@ -1,0 +1,194 @@
+/*************************************************************************
+ *
+ *  File Name (AccessibleTableCell.idl)
+ *
+ *  IAccessible2 IDL Specification
+ *
+ *  Copyright (c) 2007, 2010 Linux Foundation
+ *  Copyright (c) 2006 IBM Corporation
+ *  Copyright (c) 2000, 2006 Sun Microsystems, Inc.
+ *  All rights reserved.
+ *
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   1. Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *
+ *   2. Redistributions in binary form must reproduce the above
+ *      copyright notice, this list of conditions and the following
+ *      disclaimer in the documentation and/or other materials
+ *      provided with the distribution.
+ *
+ *   3. Neither the name of the Linux Foundation nor the names of its
+ *      contributors may be used to endorse or promote products
+ *      derived from this software without specific prior written
+ *      permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+ *  CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ *  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ *  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ *  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ *  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ *  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *  This BSD License conforms to the Open Source Initiative "Simplified
+ *  BSD License" as published at:
+ *  http://www.opensource.org/licenses/bsd-license.php
+ *
+ *  IAccessible2 is a trademark of the Linux Foundation. The IAccessible2
+ *  mark may be used in accordance with the Linux Foundation Trademark
+ *  Policy to indicate compliance with the IAccessible2 specification.
+ *
+ ************************************************************************/
+
+import "objidl.idl";
+import "oaidl.idl";
+import "oleacc.idl";
+import "Accessible2.idl";
+
+/** @brief This interface gives access to the cells of a two-dimensional table.
+
+ Please also refer to the IAccessibleTable2 interface.
+
+*/
+[object, uuid(594116B1-C99F-4847-AD06-0A7A86ECE645)]
+interface IAccessibleTableCell : IUnknown
+{
+
+  /** @brief Returns the number of columns occupied by this cell accessible.
+
+   The result is greater than 1 if the specified cell spans multiple columns.
+   @param [out] nColumnsSpanned
+    Returns the 1 based column extent of the specified cell.
+   @retval S_OK
+  */
+  [propget] HRESULT columnExtent
+    (
+     [out, retval] long *nColumnsSpanned
+    );
+
+  /** @brief Returns the column headers as an array of cell accessibles.
+
+   @param [out] cellAccessibles
+    Pointer to an array of references to cell accessibles.  The array is allocated
+    by the server.  Free it with CoTaskMemFree.
+   @param [out] nColumnHeaderCells
+    The number of accessibles returned; the size of the returned array.
+   @retval S_OK
+   @retval S_FALSE if there is no header, [out] values are NULL and 0 respectively
+  */
+  [propget] HRESULT columnHeaderCells
+    (
+     [out, size_is(,*nColumnHeaderCells,)] IUnknown ***cellAccessibles,
+     [out, retval] long *nColumnHeaderCells
+    );
+
+  /** @brief Translates this cell accessible into the corresponding column index.
+
+   @param [out] columnIndex
+    Returns the 0 based column index of the cell of the specified cell or the index of
+    the first column if the cell spans multiple columns.
+   @retval S_OK
+  */
+  [propget] HRESULT columnIndex
+    (
+     [out, retval] long *columnIndex
+    );
+
+  /** @brief Returns the number of rows occupied by this cell accessible.
+
+   @param [out] nRowsSpanned
+    Returns the row extent of the specified cell.
+   @retval S_OK
+  */
+  [propget] HRESULT rowExtent
+    (
+     [out, retval] long *nRowsSpanned
+    );
+
+  /** @brief Returns the row headers as an array of cell accessibles.
+
+   @param [out] cellAccessibles
+    Pointer to an array of references to cell accessibles.  The array is allocated
+    by the server.  Free it with CoTaskMemFree.
+   @param [out] nRowHeaderCells
+    The number of accessibles returned; the size of the returned array.
+   @retval S_OK
+   @retval S_FALSE if there is no header, [out] values are NULL and 0 respectively
+  */
+  [propget] HRESULT rowHeaderCells
+    (
+     [out, size_is(,*nRowHeaderCells,)] IUnknown ***cellAccessibles,
+     [out, retval] long *nRowHeaderCells
+    );
+
+  /** @brief Translates this cell accessible into the corresponding row index.
+
+   @param [out] rowIndex
+    Returns the 0 based row index of the specified cell or the index of
+    the first row if the cell spans multiple rows.
+   @retval S_OK
+  */
+  [propget] HRESULT rowIndex
+    (
+     [out, retval] long *rowIndex
+    );
+
+  /** @brief Returns a boolean value indicating whether this cell is selected.
+
+   @param [out] isSelected
+    Returns TRUE if the specified cell is selected and FALSE otherwise.
+   @retval S_OK
+  */
+  [propget] HRESULT isSelected
+    (
+     [out, retval] boolean *isSelected
+    );
+
+  /** @brief Gets the row and column indexes and extents of this cell accessible
+    and whether or not it is selected.
+
+   This is a convenience function.  It is not mandatory to implement it.
+   @param [out] row
+    0 based row index.
+   @param [out] column
+    0 based column index.
+   @param [out] rowExtents
+    Number of cells spanned by this cell in this row.
+   @param [out] columnExtents
+    Number of cells spanned by this cell in this column.
+   @param [out] isSelected
+    Indicates if the specified cell is selected.
+   @retval S_OK
+  */
+  [propget] HRESULT rowColumnExtents
+    (
+     [out] long *row,
+     [out] long *column,
+     [out] long *rowExtents,
+     [out] long *columnExtents,
+     [out, retval] boolean *isSelected
+    );
+
+  /** @brief Returns a reference to the accessbile of the containing table.
+
+   @param [out] table
+    Returns a reference to the IUnknown of the containing table.
+   @retval S_OK
+  */
+  [propget] HRESULT table
+    (
+     [out, retval] IUnknown **table
+    );
+
+}

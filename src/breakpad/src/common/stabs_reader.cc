@@ -37,6 +37,10 @@
 #include <stab.h>
 #include <string.h>
 
+#include <string>
+
+#include "common/using_std_string.h"
+
 using std::vector;
 
 namespace google_breakpad {
@@ -225,7 +229,7 @@ bool StabsReader::ProcessFunction() {
   const char *name_end = strchr(stab_string, ':');
   if (! name_end)
     name_end = stab_string + strlen(stab_string);
-  std::string name(stab_string, name_end - stab_string);
+  string name(stab_string, name_end - stab_string);
   if (! handler_->StartFunction(name, function_address))
     return false;
   ++iterator_;

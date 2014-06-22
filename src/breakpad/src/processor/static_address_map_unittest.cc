@@ -39,13 +39,14 @@
 #include <sstream>
 
 #include "breakpad_googletest_includes.h"
+#include "common/using_std_string.h"
 #include "processor/address_map-inl.h"
 #include "processor/static_address_map-inl.h"
 #include "processor/simple_serializer-inl.h"
 #include "map_serializers-inl.h"
 
 typedef google_breakpad::StaticAddressMap<int, char> TestMap;
-typedef google_breakpad::AddressMap<int, std::string> AddrMap;
+typedef google_breakpad::AddressMap<int, string> AddrMap;
 
 class TestStaticAddressMap : public ::testing::Test {
  protected:
@@ -92,8 +93,8 @@ class TestStaticAddressMap : public ::testing::Test {
   void CompareRetrieveResult(int testcase, int target) {
     int address;
     int address_test;
-    std::string entry;
-    std::string entry_test;
+    string entry;
+    string entry_test;
     const char *entry_cstring = NULL;
     bool found;
     bool found_test;
@@ -147,7 +148,7 @@ class TestStaticAddressMap : public ::testing::Test {
   AddrMap addr_map[kNumberTestCases];
   TestMap test_map[kNumberTestCases];
   char *map_data[kNumberTestCases];
-  google_breakpad::AddressMapSerializer<int, std::string> serializer;
+  google_breakpad::AddressMapSerializer<int, string> serializer;
 };
 
 const int TestStaticAddressMap::testsize[] = {0, 1, 6, 1000};

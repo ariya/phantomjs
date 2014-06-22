@@ -41,7 +41,7 @@ static size_t WriteCallback(void *ptr, size_t size,
   if (!userp)
     return 0;
 
-  std::string *response = reinterpret_cast<std::string *>(userp);
+  string *response = reinterpret_cast<string *>(userp);
   size_t real_size = size * nmemb;
   response->append(reinterpret_cast<char *>(ptr), real_size);
   return real_size;
@@ -70,7 +70,17 @@ bool HTTPUpload::SendRequest(const string &url,
   if (!CheckParameters(parameters))
     return false;
 
-  void *curl_lib = dlopen("libcurl.so", RTLD_NOW);
+  // We may have been linked statically; if curl_easy_init is in the
+  // current binary, no need to search for a dynamic version.
+  void* curl_lib = dlopen(NULL, RTLD_NOW);
+  if (!curl_lib || dlsym(curl_lib, "curl_easy_init") == NULL) {
+    dlerror();  // Clear dlerror before attempting to open libraries.
+    dlclose(curl_lib);
+    curl_lib = NULL;
+  }
+  if (!curl_lib) {
+    curl_lib = dlopen("libcurl.so", RTLD_NOW);
+  }
   if (!curl_lib) {
     if (error_description != NULL)
       *error_description = dlerror();

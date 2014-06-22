@@ -1,0 +1,150 @@
+/*
+ * Copyright (C) 2006, 2007, 2008, 2009 Apple Inc. All rights reserved.
+ * Copyright (C) 2006 Samuel Weinig <sam.weinig@gmail.com>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+[
+    JSCustomHeader,
+    JSCustomMarkFunction,
+    JSCustomPushEventHandlerScope,
+    CustomIsReachable,
+    JSCustomFinalize,
+    CustomToJSObject,
+    EventTarget,
+    JSGenerateToNativeObject,
+    JSInlineGetOwnPropertySlot,
+    ObjCPolymorphic,
+] interface Node
+#if defined(LANGUAGE_OBJECTIVE_C) && LANGUAGE_OBJECTIVE_C
+    : Object, EventTarget
+#endif /* defined(LANGUAGE_OBJECTIVE_C) */
+ {
+    // NodeType
+    const unsigned short      ELEMENT_NODE                   = 1;
+    const unsigned short      ATTRIBUTE_NODE                 = 2;
+    const unsigned short      TEXT_NODE                      = 3;
+    const unsigned short      CDATA_SECTION_NODE             = 4;
+    const unsigned short      ENTITY_REFERENCE_NODE          = 5;
+    const unsigned short      ENTITY_NODE                    = 6;
+    const unsigned short      PROCESSING_INSTRUCTION_NODE    = 7;
+    const unsigned short      COMMENT_NODE                   = 8;
+    const unsigned short      DOCUMENT_NODE                  = 9;
+    const unsigned short      DOCUMENT_TYPE_NODE             = 10;
+    const unsigned short      DOCUMENT_FRAGMENT_NODE         = 11;
+    const unsigned short      NOTATION_NODE                  = 12;
+
+    [TreatReturnedNullStringAs=Null] readonly attribute DOMString        nodeName;
+
+    // FIXME: the spec says this can also raise on retrieval.
+    [TreatReturnedNullStringAs=Null, TreatNullAs=NullString, SetterRaisesException] attribute DOMString nodeValue;
+
+    readonly attribute unsigned short   nodeType;
+    readonly attribute Node             parentNode;
+    readonly attribute NodeList         childNodes;
+    readonly attribute Node             firstChild;
+    readonly attribute Node             lastChild;
+    readonly attribute Node             previousSibling;
+    readonly attribute Node             nextSibling;
+    readonly attribute Document         ownerDocument;
+
+    [ObjCLegacyUnnamedParameters, Custom, RaisesException] Node insertBefore([CustomReturn] Node newChild,
+                                                            Node refChild);
+    [ObjCLegacyUnnamedParameters, Custom, RaisesException] Node replaceChild(Node newChild,
+                                                            [CustomReturn] Node oldChild);
+    [Custom, RaisesException] Node removeChild([CustomReturn] Node oldChild);
+    [Custom, RaisesException] Node appendChild([CustomReturn] Node newChild);
+
+    boolean            hasChildNodes();
+    Node               cloneNode([Default=Undefined] optional boolean deep);
+    void               normalize();
+
+    // Introduced in DOM Level 2:
+
+    [ObjCLegacyUnnamedParameters] boolean isSupported([Default=Undefined] optional DOMString feature, 
+                                       [TreatNullAs=NullString,Default=Undefined] optional DOMString version);
+
+    [TreatReturnedNullStringAs=Null] readonly attribute DOMString        namespaceURI;
+    [TreatReturnedNullStringAs=Null, TreatNullAs=NullString, SetterRaisesException] attribute DOMString prefix;
+    [TreatReturnedNullStringAs=Null] readonly attribute DOMString        localName;
+
+#if defined(LANGUAGE_OBJECTIVE_C)
+    readonly attribute NamedNodeMap     attributes;
+    boolean            hasAttributes();
+#endif
+
+
+    // Introduced in DOM Level 3:
+
+    [TreatReturnedNullStringAs=Null] readonly attribute DOMString       baseURI;
+
+    // FIXME: the spec says this can also raise on retrieval.
+    [TreatReturnedNullStringAs=Null, TreatNullAs=NullString, SetterRaisesException] attribute DOMString textContent;
+
+    boolean            isSameNode([Default=Undefined] optional Node other);
+    boolean            isEqualNode([Default=Undefined] optional Node other);
+    [TreatReturnedNullStringAs=Null] DOMString          lookupPrefix([TreatNullAs=NullString,Default=Undefined] optional DOMString namespaceURI);
+    boolean            isDefaultNamespace([TreatNullAs=NullString,Default=Undefined] optional DOMString namespaceURI);
+    [TreatReturnedNullStringAs=Null] DOMString          lookupNamespaceURI([TreatNullAs=NullString,Default=Undefined] optional DOMString prefix);
+
+    // DocumentPosition
+    const unsigned short      DOCUMENT_POSITION_DISCONNECTED = 0x01;
+    const unsigned short      DOCUMENT_POSITION_PRECEDING    = 0x02;
+    const unsigned short      DOCUMENT_POSITION_FOLLOWING    = 0x04;
+    const unsigned short      DOCUMENT_POSITION_CONTAINS     = 0x08;
+    const unsigned short      DOCUMENT_POSITION_CONTAINED_BY = 0x10;
+    const unsigned short      DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC = 0x20;
+
+    unsigned short     compareDocumentPosition([Default=Undefined] optional Node other);
+
+    // Introduced in DOM4
+    boolean contains([Default=Undefined] optional Node other);
+
+    // IE extensions
+    readonly attribute Element          parentElement;
+
+#if defined(LANGUAGE_OBJECTIVE_C) && LANGUAGE_OBJECTIVE_C
+    // Objective-C extensions
+    readonly attribute boolean          isContentEditable;
+
+    void inspect();
+#endif /* defined(LANGUAGE_OBJECTIVE_C) */
+
+#if !defined(LANGUAGE_CPP) || !LANGUAGE_CPP
+#if !defined(LANGUAGE_OBJECTIVE_C) || !LANGUAGE_OBJECTIVE_C
+    void addEventListener(DOMString type, 
+                          EventListener listener, 
+                          optional boolean useCapture);
+    void removeEventListener(DOMString type, 
+                             EventListener listener, 
+                             optional boolean useCapture);
+    [RaisesException] boolean dispatchEvent(Event event);
+#endif
+#endif
+
+#if defined(LANGUAGE_CPP) && LANGUAGE_CPP
+    [Custom] void addEventListener(DOMString type, 
+                                      EventListener listener, 
+                                      boolean useCapture);
+    [Custom] void removeEventListener(DOMString type, 
+                                         EventListener listener, 
+                                         boolean useCapture);
+    [RaisesException] boolean dispatchEvent(Event event);
+#endif
+
+};
+

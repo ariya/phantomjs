@@ -1,0 +1,371 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2006, 2007, 2008, 2009, 2010 Apple Inc.  All rights reserved.
+# Copyright (C) 2009 Torch Mobile Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+# 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Script to put change log comments in as default check-in comment.
+
+use strict;
+use Getopt::Long;
+use File::Basename;
+use File::Spec;
+use FindBin;
+use lib $FindBin::Bin;
+use VCSUtils;
+use webkitdirs;
+
+sub createCommitMessage(@);
+sub loadTermReadKey();
+sub normalizeLineEndings($$);
+sub patchAuthorshipString($$$);
+sub removeLongestCommonPrefixEndingInDoubleNewline(\%);
+sub isCommitLogEditor($);
+
+my $endl = "\n";
+
+sub printUsageAndExit
+{
+    my $programName = basename($0);
+    print STDERR <<EOF;
+Usage: $programName [--regenerate-log] <log file>
+       $programName --print-log <ChangeLog file> [<ChangeLog file>...]
+       $programName --help
+EOF
+    exit 1;
+}
+
+my $help = 0;
+my $printLog = 0;
+my $regenerateLog = 0;
+
+my $getOptionsResult = GetOptions(
+    'help' => \$help,
+    'print-log' => \$printLog,
+    'regenerate-log' => \$regenerateLog,
+);
+
+if (!$getOptionsResult || $help) {
+    printUsageAndExit();
+}
+
+die "Can't specify both --print-log and --regenerate-log\n" if $printLog && $regenerateLog;
+
+if ($printLog) {
+    printUsageAndExit() unless @ARGV;
+    print createCommitMessage(@ARGV);
+    exit 0;
+}
+
+my $log = $ARGV[0];
+if (!$log) {
+    printUsageAndExit();
+}
+
+my $baseDir = baseProductDir();
+
+my $editor = $ENV{SVN_LOG_EDITOR};
+$editor = $ENV{CVS_LOG_EDITOR} if !$editor;
+$editor = "" if $editor && isCommitLogEditor($editor);
+
+my $splitEditor = 1;
+if (!$editor) {
+    my $builtEditorApplication = "$baseDir/Release/Commit Log Editor.app/Contents/MacOS/Commit Log Editor";
+    if (-x $builtEditorApplication) {
+        $editor = $builtEditorApplication;
+        $splitEditor = 0;
+    }
+}
+if (!$editor) {
+    my $builtEditorApplication = "$baseDir/Debug/Commit Log Editor.app/Contents/MacOS/Commit Log Editor";
+    if (-x $builtEditorApplication) {
+        $editor = $builtEditorApplication;
+        $splitEditor = 0;
+    }
+}
+if (!$editor) {
+    my $builtEditorApplication = "$ENV{HOME}/Applications/Commit Log Editor.app/Contents/MacOS/Commit Log Editor";
+    if (-x $builtEditorApplication) {
+        $editor = $builtEditorApplication;
+        $splitEditor = 0;
+    }
+}
+
+$editor = $ENV{EDITOR} if !$editor;
+$editor = "/usr/bin/vi" if !$editor;
+
+my @editor;
+if ($splitEditor) {
+    @editor = split ' ', $editor;
+} else {
+    @editor = ($editor);
+}
+
+my $inChangesToBeCommitted = !isGit();
+my @changeLogs = ();
+my $logContents = "";
+my $existingLog = 0;
+open LOG, $log or die "Could not open the log file.";
+while (my $curLine = <LOG>) {
+    if (isGit()) {
+        if ($curLine =~ /^# Changes to be committed:$/) {
+            $inChangesToBeCommitted = 1;
+        } elsif ($inChangesToBeCommitted && $curLine =~ /^# \S/) {
+            $inChangesToBeCommitted = 0;
+        }
+    }
+
+    if (!isGit() || $curLine =~ /^#/) {
+        $logContents .= $curLine;
+    } else {
+        # $_ contains the current git log message
+        # (without the log comment info). We don't need it.
+    }
+    $existingLog = isGit() && !($curLine =~ /^#/ || $curLine =~ /^\s*$/) unless $existingLog;
+    my $changeLogFileName = changeLogFileName();
+    push @changeLogs, makeFilePathRelative($1) if $inChangesToBeCommitted && ($curLine =~ /^(?:M|A)....(.*$changeLogFileName)\r?\n?$/ || $curLine =~ /^#\t(?:modified|new file):   (.*$changeLogFileName)$/) && $curLine !~ /-$changeLogFileName$/;
+}
+close LOG;
+
+# We want to match the line endings of the existing log file in case they're
+# different from perl's line endings.
+$endl = $1 if $logContents =~ /(\r?\n)/;
+
+my $keepExistingLog = 1;
+if ($regenerateLog && $existingLog && scalar(@changeLogs) > 0 && loadTermReadKey()) {
+    print "Existing log message detected, Use 'r' to regenerate log message from ChangeLogs, or any other key to keep the existing message.\n";
+    Term::ReadKey::ReadMode('cbreak');
+    my $key = Term::ReadKey::ReadKey(0);
+    Term::ReadKey::ReadMode('normal');
+    $keepExistingLog = 0 if ($key eq "r");
+}
+
+# Don't change anything if there's already a log message (as can happen with git-commit --amend).
+exec (@editor, @ARGV) if $existingLog && $keepExistingLog;
+
+my $first = 1;
+open NEWLOG, ">$log.edit" or die;
+if (isGit() && @changeLogs == 0) {
+    # populate git commit message with WebKit-format ChangeLog entries unless explicitly disabled
+    my $branch = gitBranch();
+    chomp(my $webkitGenerateCommitMessage = `git config --bool branch.$branch.webkitGenerateCommitMessage`);
+    if ($webkitGenerateCommitMessage eq "") {
+        chomp($webkitGenerateCommitMessage = `git config --bool core.webkitGenerateCommitMessage`);
+    }
+    if ($webkitGenerateCommitMessage ne "false") {
+        open CHANGELOG_ENTRIES, "-|", "$FindBin::Bin/prepare-ChangeLog --git-index --no-write" or die "prepare-ChangeLog failed: $!.\n";
+        while (<CHANGELOG_ENTRIES>) {
+            print NEWLOG normalizeLineEndings($_, $endl);
+        }
+        close CHANGELOG_ENTRIES;
+    }
+} else {
+    print NEWLOG createCommitMessage(@changeLogs);
+}
+print NEWLOG $logContents;
+close NEWLOG;
+
+system (@editor, "$log.edit");
+
+open NEWLOG, "$log.edit" or exit;
+my $foundComment = 0;
+while (<NEWLOG>) {
+    $foundComment = 1 if (/\S/ && !/^CVS:/);
+}
+close NEWLOG;
+
+if ($foundComment) {
+    open NEWLOG, "$log.edit" or die;
+    open LOG, ">$log" or die;
+    while (<NEWLOG>) {
+        print LOG;
+    }
+    close LOG;
+    close NEWLOG;
+}
+
+unlink "$log.edit";
+
+sub createCommitMessage(@)
+{
+    my @changeLogs = @_;
+
+    my $topLevel = determineVCSRoot();
+
+    my %changeLogSort;
+    my %changeLogContents;
+    for my $changeLog (@changeLogs) {
+        open CHANGELOG, $changeLog or die "Can't open $changeLog";
+        my $contents = "";
+        my $blankLines = "";
+        my $lineCount = 0;
+        my $date = "";
+        my $author = "";
+        my $email = "";
+        my $hasAuthorInfoToWrite = 0;
+        while (<CHANGELOG>) {
+            if (/^\S/) {
+                last if $contents;
+            }
+            if (/\S/) {
+                $contents .= $blankLines if $contents;
+                $blankLines = "";
+
+                my $line = $_;
+
+                # Remove indentation spaces
+                $line =~ s/^ {8}//;
+
+                # Grab the author and the date line
+                if ($line =~ m/^([0-9]{4}-[0-9]{2}-[0-9]{2})\s+(.*[^\s])\s+<(.*)>/ && $lineCount == 0) {
+                    $date = $1;
+                    $author = $2;
+                    $email = $3;
+                    $hasAuthorInfoToWrite = 1;
+                    next;
+                }
+
+                if ($hasAuthorInfoToWrite) {
+                    my $isReviewedByLine = $line =~ m/^(?:Reviewed|Rubber[ \-]?stamped) by/;
+                    my $isModifiedFileLine = $line =~ m/^\* .*:/;
+
+                    # Insert the authorship line if needed just above the "Reviewed by" line or the
+                    # first modified file (whichever comes first).
+                    if ($isReviewedByLine || $isModifiedFileLine) {
+                        $hasAuthorInfoToWrite = 0;
+                        my $authorshipString = patchAuthorshipString($author, $email, $date);
+                        if ($authorshipString) {
+                            $contents .= "$authorshipString\n";
+                            $contents .= "\n" if $isModifiedFileLine;
+                        }
+                    }
+                }
+
+
+                $lineCount++;
+                $contents .= $line;
+            } else {
+                $blankLines .= $_;
+            }
+        }
+        if ($hasAuthorInfoToWrite) {
+            # We didn't find anywhere to put the authorship info, so just put it at the end.
+            my $authorshipString = patchAuthorshipString($author, $email, $date);
+            $contents .= "\n$authorshipString\n" if $authorshipString;
+            $hasAuthorInfoToWrite = 0;
+        }
+
+        close CHANGELOG;
+
+        $changeLog = File::Spec->abs2rel(File::Spec->rel2abs($changeLog), $topLevel);
+
+        my $label = dirname($changeLog);
+        $label = "top level" unless length $label;
+
+        my $sortKey = lc $label;
+        if ($label eq "top level") {
+            $sortKey = "";
+        } elsif ($label eq "LayoutTests") {
+            $sortKey = lc "~, LayoutTests last";
+        }
+
+        $changeLogSort{$sortKey} = $label;
+        $changeLogContents{$label} = $contents;
+    }
+
+    my $commonPrefix = removeLongestCommonPrefixEndingInDoubleNewline(%changeLogContents);
+
+    my $first = 1;
+    my @result;
+    push @result, normalizeLineEndings($commonPrefix, $endl);
+    for my $sortKey (sort keys %changeLogSort) {
+        my $label = $changeLogSort{$sortKey};
+        if (keys %changeLogSort > 1) {
+            push @result, normalizeLineEndings("\n", $endl) if !$first;
+            $first = 0;
+            push @result, normalizeLineEndings("$label: ", $endl);
+        }
+        push @result, normalizeLineEndings($changeLogContents{$label}, $endl);
+    }
+
+    return join '', @result;
+}
+
+sub loadTermReadKey()
+{
+    eval { require Term::ReadKey; };
+    return !$@;
+}
+
+sub normalizeLineEndings($$)
+{
+    my ($string, $endl) = @_;
+    $string =~ s/\r?\n/$endl/g;
+    return $string;
+}
+
+sub patchAuthorshipString($$$)
+{
+    my ($authorName, $authorEmail, $authorDate) = @_;
+
+    return if $authorEmail eq changeLogEmailAddress();
+    return "Patch by $authorName <$authorEmail> on $authorDate";
+}
+
+sub removeLongestCommonPrefixEndingInDoubleNewline(\%)
+{
+    my ($hashOfStrings) = @_;
+
+    my @strings = values %{$hashOfStrings};
+    return "" unless @strings > 1;
+
+    my $prefix = shift @strings;
+    my $prefixLength = length $prefix;
+    foreach my $string (@strings) {
+        while ($prefixLength) {
+            last if substr($string, 0, $prefixLength) eq $prefix;
+            --$prefixLength;
+            $prefix = substr($prefix, 0, -1);
+        }
+        last unless $prefixLength;
+    }
+
+    return "" unless $prefixLength;
+
+    my $lastDoubleNewline = rindex($prefix, "\n\n");
+    return "" unless $lastDoubleNewline > 0;
+
+    foreach my $key (keys %{$hashOfStrings}) {
+        $hashOfStrings->{$key} = substr($hashOfStrings->{$key}, $lastDoubleNewline);
+    }
+    return substr($prefix, 0, $lastDoubleNewline + 2);
+}
+
+sub isCommitLogEditor($)
+{
+    my $editor = shift;
+    return $editor =~ m/commit-log-editor/;
+}

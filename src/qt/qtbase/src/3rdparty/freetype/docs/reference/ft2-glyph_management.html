@@ -1,0 +1,672 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>FreeType-2.3.12 API Reference</title>
+<style type="text/css">
+  body { font-family: Verdana, Geneva, Arial, Helvetica, serif;
+         color: #000000;
+         background: #FFFFFF; }
+
+  p { text-align: justify; }
+  h1 { text-align: center; }
+  li { text-align: justify; }
+  td { padding: 0 0.5em 0 0.5em; }
+  td.left { padding: 0 0.5em 0 0.5em;
+            text-align: left; }
+
+  a:link { color: #0000EF; }
+  a:visited { color: #51188E; }
+  a:hover { color: #FF0000; }
+
+  span.keyword { font-family: monospace;
+                 text-align: left;
+                 white-space: pre;
+                 color: darkblue; }
+
+  pre.colored { color: blue; }
+
+  ul.empty { list-style-type: none; }
+</style>
+</head>
+<body>
+
+<table align=center><tr><td><font size=-1>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-1>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+<center><h1>FreeType-2.3.12 API Reference</h1></center>
+
+<center><h1>
+Glyph Management
+</h1></center>
+<h2>Synopsis</h2>
+<table align=center cellspacing=5 cellpadding=0 border=0>
+<tr><td></td><td><a href="#FT_Glyph">FT_Glyph</a></td><td></td><td><a href="#FT_OutlineGlyphRec">FT_OutlineGlyphRec</a></td><td></td><td><a href="#ft_glyph_bbox_xxx">ft_glyph_bbox_xxx</a></td></tr>
+<tr><td></td><td><a href="#FT_GlyphRec">FT_GlyphRec</a></td><td></td><td><a href="#FT_Get_Glyph">FT_Get_Glyph</a></td><td></td><td><a href="#FT_Glyph_Get_CBox">FT_Glyph_Get_CBox</a></td></tr>
+<tr><td></td><td><a href="#FT_BitmapGlyph">FT_BitmapGlyph</a></td><td></td><td><a href="#FT_Glyph_Copy">FT_Glyph_Copy</a></td><td></td><td><a href="#FT_Glyph_To_Bitmap">FT_Glyph_To_Bitmap</a></td></tr>
+<tr><td></td><td><a href="#FT_BitmapGlyphRec">FT_BitmapGlyphRec</a></td><td></td><td><a href="#FT_Glyph_Transform">FT_Glyph_Transform</a></td><td></td><td><a href="#FT_Done_Glyph">FT_Done_Glyph</a></td></tr>
+<tr><td></td><td><a href="#FT_OutlineGlyph">FT_OutlineGlyph</a></td><td></td><td><a href="#FT_Glyph_BBox_Mode">FT_Glyph_BBox_Mode</a></td><td></td><td></td></tr>
+</table><br><br>
+
+<table align=center width="87%"><tr><td>
+<p>This section contains definitions used to manage glyph data through generic FT_Glyph objects. Each of them can contain a bitmap, a vector outline, or even images in other formats.</p>
+</td></tr></table><br>
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Glyph">FT_Glyph</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_GLYPH_H (freetype/ftglyph.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">struct</span> FT_GlyphRec_*  <b>FT_Glyph</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Handle to an object used to model generic glyph images. It is a pointer to the <a href="ft2-glyph_management.html#FT_GlyphRec">FT_GlyphRec</a> structure and can contain a glyph bitmap or pointer.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>Glyph objects are not owned by the library. You must thus release them manually (through <a href="ft2-glyph_management.html#FT_Done_Glyph">FT_Done_Glyph</a>) <i>before</i> calling <a href="ft2-base_interface.html#FT_Done_FreeType">FT_Done_FreeType</a>.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_GlyphRec">FT_GlyphRec</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_GLYPH_H (freetype/ftglyph.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">struct</span>  FT_GlyphRec_
+  {
+    <a href="ft2-base_interface.html#FT_Library">FT_Library</a>             library;
+    <span class="keyword">const</span> FT_Glyph_Class*  clazz;
+    <a href="ft2-basic_types.html#FT_Glyph_Format">FT_Glyph_Format</a>        format;
+    <a href="ft2-basic_types.html#FT_Vector">FT_Vector</a>              advance;
+
+  } <b>FT_GlyphRec</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>The root glyph structure contains a given glyph image plus its advance width in 16.16 fixed float format.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>fields</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>library</b></td><td>
+<p>A handle to the FreeType library object.</p>
+</td></tr>
+<tr valign=top><td><b>clazz</b></td><td>
+<p>A pointer to the glyph's class. Private.</p>
+</td></tr>
+<tr valign=top><td><b>format</b></td><td>
+<p>The format of the glyph's image.</p>
+</td></tr>
+<tr valign=top><td><b>advance</b></td><td>
+<p>A 16.16 vector that gives the glyph's advance width.</p>
+</td></tr>
+</table>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_BitmapGlyph">FT_BitmapGlyph</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_GLYPH_H (freetype/ftglyph.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">struct</span> FT_BitmapGlyphRec_*  <b>FT_BitmapGlyph</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A handle to an object used to model a bitmap glyph image. This is a sub-class of <a href="ft2-glyph_management.html#FT_Glyph">FT_Glyph</a>, and a pointer to <a href="ft2-glyph_management.html#FT_BitmapGlyphRec">FT_BitmapGlyphRec</a>.</p>
+</td></tr></table><br>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_BitmapGlyphRec">FT_BitmapGlyphRec</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_GLYPH_H (freetype/ftglyph.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">struct</span>  FT_BitmapGlyphRec_
+  {
+    <a href="ft2-glyph_management.html#FT_GlyphRec">FT_GlyphRec</a>  root;
+    <a href="ft2-basic_types.html#FT_Int">FT_Int</a>       left;
+    <a href="ft2-basic_types.html#FT_Int">FT_Int</a>       top;
+    <a href="ft2-basic_types.html#FT_Bitmap">FT_Bitmap</a>    bitmap;
+
+  } <b>FT_BitmapGlyphRec</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A structure used for bitmap glyph images. This really is a &lsquo;sub-class&rsquo; of <a href="ft2-glyph_management.html#FT_GlyphRec">FT_GlyphRec</a>.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>fields</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>root</b></td><td>
+<p>The root <a href="ft2-glyph_management.html#FT_Glyph">FT_Glyph</a> fields.</p>
+</td></tr>
+<tr valign=top><td><b>left</b></td><td>
+<p>The left-side bearing, i.e., the horizontal distance from the current pen position to the left border of the glyph bitmap.</p>
+</td></tr>
+<tr valign=top><td><b>top</b></td><td>
+<p>The top-side bearing, i.e., the vertical distance from the current pen position to the top border of the glyph bitmap. This distance is positive for upwards&nbsp;y!</p>
+</td></tr>
+<tr valign=top><td><b>bitmap</b></td><td>
+<p>A descriptor for the bitmap.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>You can typecast an <a href="ft2-glyph_management.html#FT_Glyph">FT_Glyph</a> to <a href="ft2-glyph_management.html#FT_BitmapGlyph">FT_BitmapGlyph</a> if you have &lsquo;glyph-&gt;format == FT_GLYPH_FORMAT_BITMAP&rsquo;. This lets you access the bitmap's contents easily.</p>
+<p>The corresponding pixel buffer is always owned by <a href="ft2-glyph_management.html#FT_BitmapGlyph">FT_BitmapGlyph</a> and is thus created and destroyed with it.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_OutlineGlyph">FT_OutlineGlyph</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_GLYPH_H (freetype/ftglyph.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">struct</span> FT_OutlineGlyphRec_*  <b>FT_OutlineGlyph</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A handle to an object used to model an outline glyph image. This is a sub-class of <a href="ft2-glyph_management.html#FT_Glyph">FT_Glyph</a>, and a pointer to <a href="ft2-glyph_management.html#FT_OutlineGlyphRec">FT_OutlineGlyphRec</a>.</p>
+</td></tr></table><br>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_OutlineGlyphRec">FT_OutlineGlyphRec</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_GLYPH_H (freetype/ftglyph.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">struct</span>  FT_OutlineGlyphRec_
+  {
+    <a href="ft2-glyph_management.html#FT_GlyphRec">FT_GlyphRec</a>  root;
+    <a href="ft2-outline_processing.html#FT_Outline">FT_Outline</a>   outline;
+
+  } <b>FT_OutlineGlyphRec</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A structure used for outline (vectorial) glyph images. This really is a &lsquo;sub-class&rsquo; of <a href="ft2-glyph_management.html#FT_GlyphRec">FT_GlyphRec</a>.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>fields</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>root</b></td><td>
+<p>The root <a href="ft2-glyph_management.html#FT_Glyph">FT_Glyph</a> fields.</p>
+</td></tr>
+<tr valign=top><td><b>outline</b></td><td>
+<p>A descriptor for the outline.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>You can typecast an <a href="ft2-glyph_management.html#FT_Glyph">FT_Glyph</a> to <a href="ft2-glyph_management.html#FT_OutlineGlyph">FT_OutlineGlyph</a> if you have &lsquo;glyph-&gt;format == FT_GLYPH_FORMAT_OUTLINE&rsquo;. This lets you access the outline's content easily.</p>
+<p>As the outline is extracted from a glyph slot, its coordinates are expressed normally in 26.6 pixels, unless the flag <a href="ft2-base_interface.html#FT_LOAD_XXX">FT_LOAD_NO_SCALE</a> was used in <a href="ft2-base_interface.html#FT_Load_Glyph">FT_Load_Glyph</a>() or <a href="ft2-base_interface.html#FT_Load_Char">FT_Load_Char</a>().</p>
+<p>The outline's tables are always owned by the object and are destroyed with it.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Get_Glyph">FT_Get_Glyph</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_GLYPH_H (freetype/ftglyph.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Error">FT_Error</a> )
+  <b>FT_Get_Glyph</b>( <a href="ft2-base_interface.html#FT_GlyphSlot">FT_GlyphSlot</a>  slot,
+                <a href="ft2-glyph_management.html#FT_Glyph">FT_Glyph</a>     *aglyph );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A function used to extract a glyph image from a slot. Note that the created <a href="ft2-glyph_management.html#FT_Glyph">FT_Glyph</a> object must be released with <a href="ft2-glyph_management.html#FT_Done_Glyph">FT_Done_Glyph</a>.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>slot</b></td><td>
+<p>A handle to the source glyph slot.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>output</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>aglyph</b></td><td>
+<p>A handle to the glyph object.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>FreeType error code. 0&nbsp;means success.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Glyph_Copy">FT_Glyph_Copy</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_GLYPH_H (freetype/ftglyph.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Error">FT_Error</a> )
+  <b>FT_Glyph_Copy</b>( <a href="ft2-glyph_management.html#FT_Glyph">FT_Glyph</a>   source,
+                 <a href="ft2-glyph_management.html#FT_Glyph">FT_Glyph</a>  *target );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A function used to copy a glyph image. Note that the created <a href="ft2-glyph_management.html#FT_Glyph">FT_Glyph</a> object must be released with <a href="ft2-glyph_management.html#FT_Done_Glyph">FT_Done_Glyph</a>.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>source</b></td><td>
+<p>A handle to the source glyph object.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>output</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>target</b></td><td>
+<p>A handle to the target glyph object. 0&nbsp;in case of error.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>FreeType error code. 0&nbsp;means success.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Glyph_Transform">FT_Glyph_Transform</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_GLYPH_H (freetype/ftglyph.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Error">FT_Error</a> )
+  <b>FT_Glyph_Transform</b>( <a href="ft2-glyph_management.html#FT_Glyph">FT_Glyph</a>    glyph,
+                      <a href="ft2-basic_types.html#FT_Matrix">FT_Matrix</a>*  matrix,
+                      <a href="ft2-basic_types.html#FT_Vector">FT_Vector</a>*  delta );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Transform a glyph image if its format is scalable.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>inout</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>glyph</b></td><td>
+<p>A handle to the target glyph object.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>matrix</b></td><td>
+<p>A pointer to a 2x2 matrix to apply.</p>
+</td></tr>
+<tr valign=top><td><b>delta</b></td><td>
+<p>A pointer to a 2d vector to apply. Coordinates are expressed in 1/64th of a pixel.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>FreeType error code (if not 0, the glyph format is not scalable).</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>The 2x2 transformation matrix is also applied to the glyph's advance vector.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Glyph_BBox_Mode">FT_Glyph_BBox_Mode</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_GLYPH_H (freetype/ftglyph.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">enum</span>  FT_Glyph_BBox_Mode_
+  {
+    <a href="ft2-glyph_management.html#FT_Glyph_BBox_Mode">FT_GLYPH_BBOX_UNSCALED</a>  = 0,
+    <a href="ft2-glyph_management.html#FT_Glyph_BBox_Mode">FT_GLYPH_BBOX_SUBPIXELS</a> = 0,
+    <a href="ft2-glyph_management.html#FT_Glyph_BBox_Mode">FT_GLYPH_BBOX_GRIDFIT</a>   = 1,
+    <a href="ft2-glyph_management.html#FT_Glyph_BBox_Mode">FT_GLYPH_BBOX_TRUNCATE</a>  = 2,
+    <a href="ft2-glyph_management.html#FT_Glyph_BBox_Mode">FT_GLYPH_BBOX_PIXELS</a>    = 3
+
+  } <b>FT_Glyph_BBox_Mode</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>The mode how the values of <a href="ft2-glyph_management.html#FT_Glyph_Get_CBox">FT_Glyph_Get_CBox</a> are returned.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>values</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>FT_GLYPH_BBOX_UNSCALED</b></td><td>
+<p>Return unscaled font units.</p>
+</td></tr>
+<tr valign=top><td colspan=0><b>FT_GLYPH_BBOX_SUBPIXELS</b></td></tr>
+<tr valign=top><td></td><td>
+<p>Return unfitted 26.6 coordinates.</p>
+</td></tr>
+<tr valign=top><td><b>FT_GLYPH_BBOX_GRIDFIT</b></td><td>
+<p>Return grid-fitted 26.6 coordinates.</p>
+</td></tr>
+<tr valign=top><td><b>FT_GLYPH_BBOX_TRUNCATE</b></td><td>
+<p>Return coordinates in integer pixels.</p>
+</td></tr>
+<tr valign=top><td><b>FT_GLYPH_BBOX_PIXELS</b></td><td>
+<p>Return grid-fitted pixel coordinates.</p>
+</td></tr>
+</table>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="ft_glyph_bbox_xxx">ft_glyph_bbox_xxx</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_GLYPH_H (freetype/ftglyph.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+#define <a href="ft2-glyph_management.html#ft_glyph_bbox_xxx">ft_glyph_bbox_unscaled</a>   <a href="ft2-glyph_management.html#FT_Glyph_BBox_Mode">FT_GLYPH_BBOX_UNSCALED</a>
+#define <a href="ft2-glyph_management.html#ft_glyph_bbox_xxx">ft_glyph_bbox_subpixels</a>  <a href="ft2-glyph_management.html#FT_Glyph_BBox_Mode">FT_GLYPH_BBOX_SUBPIXELS</a>
+#define <a href="ft2-glyph_management.html#ft_glyph_bbox_xxx">ft_glyph_bbox_gridfit</a>    <a href="ft2-glyph_management.html#FT_Glyph_BBox_Mode">FT_GLYPH_BBOX_GRIDFIT</a>
+#define <a href="ft2-glyph_management.html#ft_glyph_bbox_xxx">ft_glyph_bbox_truncate</a>   <a href="ft2-glyph_management.html#FT_Glyph_BBox_Mode">FT_GLYPH_BBOX_TRUNCATE</a>
+#define <a href="ft2-glyph_management.html#ft_glyph_bbox_xxx">ft_glyph_bbox_pixels</a>     <a href="ft2-glyph_management.html#FT_Glyph_BBox_Mode">FT_GLYPH_BBOX_PIXELS</a>
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>These constants are deprecated. Use the corresponding <a href="ft2-glyph_management.html#FT_Glyph_BBox_Mode">FT_Glyph_BBox_Mode</a> values instead.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>values</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>ft_glyph_bbox_unscaled</b></td><td>
+<p>See <a href="ft2-glyph_management.html#FT_Glyph_BBox_Mode">FT_GLYPH_BBOX_UNSCALED</a>.</p>
+</td></tr>
+<tr valign=top><td colspan=0><b>ft_glyph_bbox_subpixels</b></td></tr>
+<tr valign=top><td></td><td>
+<p>See <a href="ft2-glyph_management.html#FT_Glyph_BBox_Mode">FT_GLYPH_BBOX_SUBPIXELS</a>.</p>
+</td></tr>
+<tr valign=top><td><b>ft_glyph_bbox_gridfit</b></td><td>
+<p>See <a href="ft2-glyph_management.html#FT_Glyph_BBox_Mode">FT_GLYPH_BBOX_GRIDFIT</a>.</p>
+</td></tr>
+<tr valign=top><td><b>ft_glyph_bbox_truncate</b></td><td>
+<p>See <a href="ft2-glyph_management.html#FT_Glyph_BBox_Mode">FT_GLYPH_BBOX_TRUNCATE</a>.</p>
+</td></tr>
+<tr valign=top><td><b>ft_glyph_bbox_pixels</b></td><td>
+<p>See <a href="ft2-glyph_management.html#FT_Glyph_BBox_Mode">FT_GLYPH_BBOX_PIXELS</a>.</p>
+</td></tr>
+</table>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Glyph_Get_CBox">FT_Glyph_Get_CBox</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_GLYPH_H (freetype/ftglyph.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <span class="keyword">void</span> )
+  <b>FT_Glyph_Get_CBox</b>( <a href="ft2-glyph_management.html#FT_Glyph">FT_Glyph</a>  glyph,
+                     <a href="ft2-basic_types.html#FT_UInt">FT_UInt</a>   bbox_mode,
+                     <a href="ft2-basic_types.html#FT_BBox">FT_BBox</a>  *acbox );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Return a glyph's &lsquo;control box&rsquo;. The control box encloses all the outline's points, including Bézier control points. Though it coincides with the exact bounding box for most glyphs, it can be slightly larger in some situations (like when rotating an outline which contains Bézier outside arcs).</p>
+<p>Computing the control box is very fast, while getting the bounding box can take much more time as it needs to walk over all segments and arcs in the outline. To get the latter, you can use the &lsquo;ftbbox&rsquo; component which is dedicated to this single task.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>glyph</b></td><td>
+<p>A handle to the source glyph object.</p>
+</td></tr>
+<tr valign=top><td><b>mode</b></td><td>
+<p>The mode which indicates how to interpret the returned bounding box values.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>output</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>acbox</b></td><td>
+<p>The glyph coordinate bounding box. Coordinates are expressed in 1/64th of pixels if it is grid-fitted.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>Coordinates are relative to the glyph origin, using the y&nbsp;upwards convention.</p>
+<p>If the glyph has been loaded with <a href="ft2-base_interface.html#FT_LOAD_XXX">FT_LOAD_NO_SCALE</a>, &lsquo;bbox_mode&rsquo; must be set to <a href="ft2-glyph_management.html#FT_Glyph_BBox_Mode">FT_GLYPH_BBOX_UNSCALED</a> to get unscaled font units in 26.6 pixel format. The value <a href="ft2-glyph_management.html#FT_Glyph_BBox_Mode">FT_GLYPH_BBOX_SUBPIXELS</a> is another name for this constant.</p>
+<p>Note that the maximum coordinates are exclusive, which means that one can compute the width and height of the glyph image (be it in integer or 26.6 pixels) as:</p>
+<pre class="colored">
+  width  = bbox.xMax - bbox.xMin;                                  
+  height = bbox.yMax - bbox.yMin;                                  
+</pre>
+<p>Note also that for 26.6 coordinates, if &lsquo;bbox_mode&rsquo; is set to <a href="ft2-glyph_management.html#FT_Glyph_BBox_Mode">FT_GLYPH_BBOX_GRIDFIT</a>, the coordinates will also be grid-fitted, which corresponds to:</p>
+<pre class="colored">
+  bbox.xMin = FLOOR(bbox.xMin);                                    
+  bbox.yMin = FLOOR(bbox.yMin);                                    
+  bbox.xMax = CEILING(bbox.xMax);                                  
+  bbox.yMax = CEILING(bbox.yMax);                                  
+</pre>
+<p>To get the bbox in pixel coordinates, set &lsquo;bbox_mode&rsquo; to <a href="ft2-glyph_management.html#FT_Glyph_BBox_Mode">FT_GLYPH_BBOX_TRUNCATE</a>.</p>
+<p>To get the bbox in grid-fitted pixel coordinates, set &lsquo;bbox_mode&rsquo; to <a href="ft2-glyph_management.html#FT_Glyph_BBox_Mode">FT_GLYPH_BBOX_PIXELS</a>.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Glyph_To_Bitmap">FT_Glyph_To_Bitmap</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_GLYPH_H (freetype/ftglyph.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Error">FT_Error</a> )
+  <b>FT_Glyph_To_Bitmap</b>( <a href="ft2-glyph_management.html#FT_Glyph">FT_Glyph</a>*       the_glyph,
+                      <a href="ft2-base_interface.html#FT_Render_Mode">FT_Render_Mode</a>  render_mode,
+                      <a href="ft2-basic_types.html#FT_Vector">FT_Vector</a>*      origin,
+                      <a href="ft2-basic_types.html#FT_Bool">FT_Bool</a>         destroy );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Convert a given glyph object to a bitmap glyph object.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>inout</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>the_glyph</b></td><td>
+<p>A pointer to a handle to the target glyph.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>render_mode</b></td><td>
+<p>An enumeration that describes how the data is rendered.</p>
+</td></tr>
+<tr valign=top><td><b>origin</b></td><td>
+<p>A pointer to a vector used to translate the glyph image before rendering. Can be&nbsp;0 (if no translation). The origin is expressed in 26.6 pixels.</p>
+</td></tr>
+<tr valign=top><td><b>destroy</b></td><td>
+<p>A boolean that indicates that the original glyph image should be destroyed by this function. It is never destroyed in case of error.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>FreeType error code. 0&nbsp;means success.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>This function does nothing if the glyph format isn't scalable.</p>
+<p>The glyph image is translated with the &lsquo;origin&rsquo; vector before rendering.</p>
+<p>The first parameter is a pointer to an <a href="ft2-glyph_management.html#FT_Glyph">FT_Glyph</a> handle, that will be <i>replaced</i> by this function (with newly allocated data). Typically, you would use (omitting error handling):</p>
+<p></p>
+<pre class="colored">
+  FT_Glyph        glyph;                                         
+  FT_BitmapGlyph  glyph_bitmap;                                  
+                                                                 
+                                                                 
+  // load glyph                                                  
+  error = FT_Load_Char( face, glyph_index, FT_LOAD_DEFAUT );     
+                                                                 
+  // extract glyph image                                         
+  error = FT_Get_Glyph( face-&gt;glyph, &amp;glyph );                   
+                                                                 
+  // convert to a bitmap (default render mode + destroying old)  
+  if ( glyph-&gt;format != FT_GLYPH_FORMAT_BITMAP )                 
+  {                                                              
+    error = FT_Glyph_To_Bitmap( &amp;glyph, FT_RENDER_MODE_NORMAL,   
+                                0, 1 );                          
+    if ( error ) // `glyph' unchanged                            
+      ...                                                        
+  }                                                              
+                                                                 
+  // access bitmap content by typecasting                        
+  glyph_bitmap = (FT_BitmapGlyph)glyph;                          
+                                                                 
+  // do funny stuff with it, like blitting/drawing               
+  ...                                                            
+                                                                 
+  // discard glyph image (bitmap or not)                         
+  FT_Done_Glyph( glyph );                                        
+</pre>
+<p></p>
+<p>Here another example, again without error handling:</p>
+<p></p>
+<pre class="colored">
+  FT_Glyph  glyphs[MAX_GLYPHS]                                   
+                                                                 
+                                                                 
+  ...                                                            
+                                                                 
+  for ( idx = 0; i &lt; MAX_GLYPHS; i++ )                           
+    error = FT_Load_Glyph( face, idx, FT_LOAD_DEFAULT ) ||       
+            FT_Get_Glyph ( face-&gt;glyph, &amp;glyph[idx] );           
+                                                                 
+  ...                                                            
+                                                                 
+  for ( idx = 0; i &lt; MAX_GLYPHS; i++ )                           
+  {                                                              
+    FT_Glyph  bitmap = glyphs[idx];                              
+                                                                 
+                                                                 
+    ...                                                          
+                                                                 
+    // after this call, `bitmap' no longer points into           
+    // the `glyphs' array (and the old value isn't destroyed)    
+    FT_Glyph_To_Bitmap( &amp;bitmap, FT_RENDER_MODE_MONO, 0, 0 );    
+                                                                 
+    ...                                                          
+                                                                 
+    FT_Done_Glyph( bitmap );                                     
+  }                                                              
+                                                                 
+  ...                                                            
+                                                                 
+  for ( idx = 0; i &lt; MAX_GLYPHS; i++ )                           
+    FT_Done_Glyph( glyphs[idx] );                                
+</pre>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Done_Glyph">FT_Done_Glyph</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_GLYPH_H (freetype/ftglyph.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <span class="keyword">void</span> )
+  <b>FT_Done_Glyph</b>( <a href="ft2-glyph_management.html#FT_Glyph">FT_Glyph</a>  glyph );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Destroy a given glyph.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>glyph</b></td><td>
+<p>A handle to the target glyph object.</p>
+</td></tr>
+</table>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+</body>
+</html>

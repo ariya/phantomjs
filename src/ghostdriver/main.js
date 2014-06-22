@@ -1,7 +1,7 @@
 /*
 This file is part of the GhostDriver by Ivan De Marino <http://ivandemarino.me>.
 
-Copyright (c) 2014, Ivan De Marino <http://ivandemarino.me>
+Copyright (c) 2012-2014, Ivan De Marino <http://ivandemarino.me>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -35,7 +35,7 @@ ghostdriver = {
     hub     : require("./hub_register.js"),
     logger  : require("./logger.js"),
     config  : null,                         //< this will be set below
-    version : "1.1.1"
+    version : "1.2.0"
 };
 
 // create logger
@@ -72,11 +72,14 @@ try {
         // If a Selenium Grid HUB was provided, register to it!
         if (ghostdriver.config.hub !== null) {
             _log.info("Main", "registering to Selenium HUB"+
-                " '" + ghostdriver.config.hub + "'" +
-                " using '" + ghostdriver.config.ip + ":" + ghostdriver.config.port + "'");
+                " '" + ghostdriver.config.hub + "' version: " + ghostdriver.config.version +
+                " using '" + ghostdriver.config.ip + ":" + ghostdriver.config.port + "' with " +
+                ghostdriver.config.proxy + " as remote proxy.");
             ghostdriver.hub.register(ghostdriver.config.ip,
                 ghostdriver.config.port,
-                ghostdriver.config.hub);
+                ghostdriver.config.hub,
+                ghostdriver.config.proxy,
+                ghostdriver.config.version);
         }
     } else {
         throw new Error("Could not start Ghost Driver");

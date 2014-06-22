@@ -1,0 +1,77 @@
+#!/usr/bin/env ruby
+
+# Copyright (C) 2012 Apple Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+# BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+# THE POSSIBILITY OF SUCH DAMAGE.
+
+# This script checks that the given headers in the framework build product do
+# not contain Platform.h and Compiler.h macros such as PLATFORM, COMPILER, etc.
+# This is meant to limit the exposure of the WTF headers, ensuring that if
+# clients include these headers they would not also need WTF's Platform.h.
+
+base_directory = ENV['TARGET_BUILD_DIR'] or throw "Unable to find TARGET_BUILD_DIR in the environment!"
+project_name = ENV['PROJECT_NAME'] or throw "Unable to find PROJECT_NAME in the environment!"
+$is_shallow_bundle = (ENV['SHALLOW_BUNDLE'] || "NO").upcase == "YES"
+
+$error_printed = false
+
+def print_error(msg)
+  $error_printed = true
+  STDERR.puts "ERROR: #{msg}"
+end
+
+def framework_headers_for_path(framework, path)
+  full_path = File.join Dir.pwd, framework, $is_shallow_bundle ? "" : "Versions/A/", path
+  if File.directory? full_path
+    Dir.glob "#{full_path}/**/*.h"
+  elsif File.exists? full_path
+    [full_path]
+  else
+    print_error "path '#{full_path}' for argument '#{path}' does not exist."
+    [] # Return an empty list so we can continue to check the other paths.
+  end
+end
+
+def verify_macros_in_header(header)
+  File.open(header) do |file|
+    file.each_line.with_index do |line, index|
+      # Check for the common macros from Platform.h and Compiler.h.
+      # NOTE: Negative lookahead (?!error) prevents matching "#error WebKit was not available prior to Mac OS X 10.2".
+      # NOTE: Negative lookahead (?!:2) prevents matching OS2 in macros like "defined(__OS2__)".
+      if match = /^\s*#(?!error).*?\b(PLATFORM|CPU|HAVE|OS(?!2)|USE|ENABLE|COMPILER)/.match(line)
+        print_error "'#{header}:#{index+1}' included forbidden macro '#{match[1]}' => '#{line.chomp}'"
+      end
+    end
+  end
+end
+
+
+Dir.chdir base_directory
+
+framework = "#{project_name}.framework"
+ARGV.each do |path|
+  framework_headers_for_path(framework, path).each do |header|
+    verify_macros_in_header(header)
+  end
+end
+
+exit 1 if $error_printed

@@ -1,0 +1,326 @@
+# Copyright (C) 2010, 2011 Apple Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS'' AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS BE LIABLE FOR
+# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+messages -> WebPageProxy {
+    # UI messages
+    CreateNewPage(WebCore::ResourceRequest request, WebCore::WindowFeatures windowFeatures, uint32_t modifiers, int32_t mouseButton) -> (uint64_t newPageID, WebKit::WebPageCreationParameters newPageParameters)
+    ShowPage()
+    ClosePage(bool stopResponsivenessTimer)
+    RunJavaScriptAlert(uint64_t frameID, WTF::String message) -> ()
+    RunJavaScriptConfirm(uint64_t frameID, WTF::String message) -> (bool result)
+    RunJavaScriptPrompt(uint64_t frameID, WTF::String message, WTF::String defaultValue) -> (WTF::String result)
+    ShouldInterruptJavaScript() -> (bool shouldInterupt)
+    MouseDidMoveOverElement(WebKit::WebHitTestResult::Data hitTestResultData, uint32_t modifiers, WebKit::InjectedBundleUserMessageEncoder userData) Variadic
+    UnavailablePluginButtonClicked(uint32_t pluginUnavailabilityReason, WTF::String mimeType, WTF::String pluginURLString, WTF::String pluginspageAttributeURLString, WTF::String frameURLString, WTF::String pageURLString)
+    DidChangeViewportProperties(WebCore::ViewportAttributes attributes)
+    DidReceiveEvent(uint32_t type, bool handled)
+    StopResponsivenessTimer()
+    SetCursor(WebCore::Cursor cursor)
+    SetCursorHiddenUntilMouseMoves(bool hiddenUntilMouseMoves)
+    SetStatusText(WTF::String statusText)
+    SetToolTip(WTF::String toolTip)
+    SetFocus(bool focused)
+    TakeFocus(uint32_t direction)
+    FocusedFrameChanged(uint64_t frameID)
+    FrameSetLargestFrameChanged(uint64_t frameID)
+    SetRenderTreeSize(uint64_t treeSize)
+    SetToolbarsAreVisible(bool toolbarsAreVisible)
+    GetToolbarsAreVisible() -> (bool toolbarsAreVisible)
+    SetMenuBarIsVisible(bool menuBarIsVisible);
+    GetMenuBarIsVisible() -> (bool menuBarIsVisible);
+    SetStatusBarIsVisible(bool statusBarIsVisible)
+    GetStatusBarIsVisible() -> (bool statusBarIsVisible)
+    SetIsResizable(bool isResizable)
+    GetIsResizable() -> (bool isResizable)
+    SetWindowFrame(WebCore::FloatRect windowFrame)
+    GetWindowFrame() -> (WebCore::FloatRect windowFrame)
+    ScreenToWindow(WebCore::IntPoint screenPoint) -> (WebCore::IntPoint windowPoint)
+    WindowToScreen(WebCore::IntRect rect) -> (WebCore::IntRect screenFrame)
+    RunBeforeUnloadConfirmPanel(WTF::String message, uint64_t frameID) -> (bool shouldClose)
+    PageDidScroll()
+    RunOpenPanel(uint64_t frameID, WebCore::FileChooserSettings parameters)
+    PrintFrame(uint64_t frameID) -> ()
+    RunModal()
+    NotifyScrollerThumbIsVisibleInRect(WebCore::IntRect scrollerThumb)
+    RecommendedScrollbarStyleDidChange(int32_t newStyle)
+    DidChangeScrollbarsForMainFrame(bool hasHorizontalScrollbar, bool hasVerticalScrollbar)
+    DidChangeScrollOffsetPinningForMainFrame(bool pinnedToLeftSide, bool pinnedToRightSide, bool pinnedToTopSide, bool pinnedToBottomSide)
+    DidChangePageCount(unsigned pageCount);
+    DidFailToInitializePlugin(WTF::String mimeType, WTF::String frameURLString, WTF::String pageURLString)
+    DidBlockInsecurePluginVersion(WTF::String mimeType, WTF::String pluginURLString, WTF::String frameURLString, WTF::String pageURLString, bool replacementObscured)
+    SetCanShortCircuitHorizontalWheelEvents(bool canShortCircuitHorizontalWheelEvents)
+
+#if PLATFORM(EFL)
+    HandleInputMethodKeydown() -> (bool handled)
+#endif
+
+#if USE(TILED_BACKING_STORE)
+    PageDidRequestScroll(WebCore::IntPoint point)
+    PageTransitionViewportReady()
+#endif
+#if USE(COORDINATED_GRAPHICS)
+    DidFindZoomableArea(WebCore::IntPoint target, WebCore::IntRect area)
+#endif
+#if PLATFORM(QT)
+    AuthenticationRequiredRequest(WTF::String hostname, WTF::String realm, WTF::String prefilledUsername) -> (WTF::String username, WTF::String password)
+    CertificateVerificationRequest(WTF::String hostname) -> (bool ignoreErrors)
+    ProxyAuthenticationRequiredRequest(WTF::String hostname, uint16_t port, WTF::String prefilledUsername) -> (WTF::String username, WTF::String password)
+#endif
+
+#if PLATFORM(QT) || PLATFORM(EFL)
+    DidChangeContentsSize(WebCore::IntSize newSize)
+#endif
+
+#if ENABLE(TOUCH_EVENTS)
+    NeedTouchEvents(bool needTouchEvents)
+#endif
+
+#if ENABLE(INPUT_TYPE_COLOR)
+    ShowColorChooser(WebCore::Color initialColor, WebCore::IntRect elementRect);
+    SetColorChooserColor(WebCore::Color color);
+    EndColorChooser();
+#endif
+
+    # Policy messages
+    DecidePolicyForResponseSync(uint64_t frameID, WebCore::ResourceResponse response, WebCore::ResourceRequest request, uint64_t listenerID, WebKit::InjectedBundleUserMessageEncoder userData) -> (bool receivedPolicyAction, uint64_t policyAction, uint64_t downloadID) Variadic
+    DecidePolicyForNavigationAction(uint64_t frameID, uint32_t navigationType, uint32_t modifiers, int32_t mouseButton, WebCore::ResourceRequest request, uint64_t listenerID, WebKit::InjectedBundleUserMessageEncoder userData) -> (bool receivedPolicyAction, uint64_t policyAction, uint64_t downloadID) Variadic
+    DecidePolicyForNewWindowAction(uint64_t frameID, uint32_t navigationType, uint32_t modifiers, int32_t mouseButton, WebCore::ResourceRequest request, WTF::String frameName, uint64_t listenerID, WebKit::InjectedBundleUserMessageEncoder userData) Variadic
+    UnableToImplementPolicy(uint64_t frameID, WebCore::ResourceError error, WebKit::InjectedBundleUserMessageEncoder userData)  Variadic
+
+    # Progress messages
+    DidChangeProgress(double value)
+    DidFinishProgress()
+    DidStartProgress()
+
+    # Frame lifetime messages
+    DidCreateMainFrame(uint64_t frameID)
+    DidCreateSubframe(uint64_t frameID)
+
+    # Frame load messages
+    DidCommitLoadForFrame(uint64_t frameID, WTF::String mimeType, uint32_t loadType, WebKit::PlatformCertificateInfo certificateInfo, WebKit::InjectedBundleUserMessageEncoder userData) Variadic
+    DidFailLoadForFrame(uint64_t frameID, WebCore::ResourceError error, WebKit::InjectedBundleUserMessageEncoder userData) Variadic
+    DidFailProvisionalLoadForFrame(uint64_t frameID, WebCore::ResourceError error, WebKit::InjectedBundleUserMessageEncoder userData) Variadic
+    DidFinishDocumentLoadForFrame(uint64_t frameID, WebKit::InjectedBundleUserMessageEncoder userData) Variadic
+    DidFinishLoadForFrame(uint64_t frameID, WebKit::InjectedBundleUserMessageEncoder userData) Variadic
+    DidFirstLayoutForFrame(uint64_t frameID, WebKit::InjectedBundleUserMessageEncoder userData) Variadic
+    DidFirstVisuallyNonEmptyLayoutForFrame(uint64_t frameID, WebKit::InjectedBundleUserMessageEncoder userData) Variadic
+    DidNewFirstVisuallyNonEmptyLayout(WebKit::InjectedBundleUserMessageEncoder userData) Variadic
+    DidLayout(uint32_t type, WebKit::InjectedBundleUserMessageEncoder userData) Variadic
+    DidReceiveServerRedirectForProvisionalLoadForFrame(uint64_t frameID, WTF::String url, WebKit::InjectedBundleUserMessageEncoder userData) Variadic
+    DidRemoveFrameFromHierarchy(uint64_t frameID, WebKit::InjectedBundleUserMessageEncoder userData) Variadic
+    DidStartProvisionalLoadForFrame(uint64_t frameID, WTF::String url, WTF::String unreachableURL, WebKit::InjectedBundleUserMessageEncoder userData) Variadic
+    DidReceiveTitleForFrame(uint64_t frameID, WTF::String title, WebKit::InjectedBundleUserMessageEncoder userData) Variadic
+    DidDisplayInsecureContentForFrame(uint64_t frameID, WebKit::InjectedBundleUserMessageEncoder userData) Variadic
+    DidRunInsecureContentForFrame(uint64_t frameID, WebKit::InjectedBundleUserMessageEncoder userData) Variadic
+    DidDetectXSSForFrame(uint64_t frameID, WebKit::InjectedBundleUserMessageEncoder userData) Variadic
+    DidSameDocumentNavigationForFrame(uint64_t frameID, uint32_t type, WTF::String url, WebKit::InjectedBundleUserMessageEncoder userData) Variadic
+
+    FrameDidBecomeFrameSet(uint64_t frameID, bool value)
+
+#if PLATFORM(QT)
+    ResolveApplicationSchemeRequest(WebKit::QtNetworkRequestData request)
+#endif
+
+    # Forms messages
+    WillSubmitForm(uint64_t frameID, uint64_t sourceFrameID, WTF::Vector<std::pair<WTF::String, WTF::String> > textFieldValues, uint64_t listenerID, WebKit::InjectedBundleUserMessageEncoder userData) Variadic
+
+    # Callback messages
+    VoidCallback(uint64_t callbackID)
+    DataCallback(CoreIPC::DataReference resultData, uint64_t callbackID)
+    ImageCallback(WebKit::ShareableBitmap::Handle bitmapHandle, uint64_t callbackID)
+    StringCallback(WTF::String resultString, uint64_t callbackID)
+    ScriptValueCallback(CoreIPC::DataReference resultData, uint64_t callbackID)
+    ComputedPagesCallback(Vector<WebCore::IntRect> pageRects, double totalScaleFactorForPrinting, uint64_t callbackID)
+    ValidateCommandCallback(WTF::String command, bool isEnabled, int32_t state, uint64_t callbackID)
+#if PLATFORM(GTK)
+    PrintFinishedCallback(WebCore::ResourceError error, uint64_t callbackID)
+#endif
+
+    PageScaleFactorDidChange(double scaleFactor)
+    PageZoomFactorDidChange(double zoomFactor)
+
+#if PLATFORM(GTK)
+    # Support for GTK+ platform keybindings
+    GetEditorCommandsForKeyEvent(AtomicString eventType) -> (Vector<WTF::String> commandsList)
+
+    # Support for connecting the Accessibility worlds of the UI and the Web processes
+    BindAccessibilityTree(WTF::String plugID)
+
+    SetInputMethodState(bool enabled);
+#endif
+
+    # BackForward messages
+    BackForwardAddItem(uint64_t itemID)
+    BackForwardGoToItem(uint64_t itemID) -> (WebKit::SandboxExtension::Handle sandboxExtensionHandle)
+    BackForwardItemAtIndex(int32_t itemIndex) -> (uint64_t itemID)
+    BackForwardBackListCount() -> (int32_t count)
+    BackForwardForwardListCount() -> (int32_t count)
+    BackForwardClear()
+    ShouldGoToBackForwardListItem(uint64_t itemID) -> (bool shouldGoToBackForwardListItem)
+    WillGoToBackForwardListItem(uint64_t itemID, WebKit::InjectedBundleUserMessageEncoder userData) Variadic
+
+    # Undo/Redo messages
+    RegisterEditCommandForUndo(uint64_t commandID, uint32_t editAction)
+    ClearAllEditCommands()
+    CanUndoRedo(uint32_t action) -> (bool result)
+    ExecuteUndoRedo(uint32_t action) -> (bool result)
+
+    # Editor notifications
+    EditorStateChanged(WebKit::EditorState editorState)
+#if PLATFORM(QT)
+    WillSetInputMethodState()
+#endif
+    # Find messages
+    DidCountStringMatches(WTF::String string, uint32_t matchCount)
+    SetFindIndicator(WebCore::FloatRect selectionRect, Vector<WebCore::FloatRect> textRects, float contentImageScaleFactor, WebKit::ShareableBitmap::Handle contentImageHandle, bool fadeOut, bool animate)
+    DidFindString(WTF::String string, uint32_t matchCount)
+    DidFailToFindString(WTF::String string)
+    DidFindStringMatches(WTF::String string, Vector<Vector<WebCore::IntRect> > matches, int32_t firstIndexAfterSelection)
+    DidGetImageForFindMatch(WebKit::ShareableBitmap::Handle contentImageHandle, uint32_t matchIndex)
+
+    # PopupMenu messages
+    ShowPopupMenu(WebCore::IntRect rect, uint64_t textDirection, Vector<WebKit::WebPopupItem> items, int32_t selectedIndex, WebKit::PlatformPopupMenuData data)
+    HidePopupMenu()
+
+#if ENABLE(CONTEXT_MENUS)
+    # ContextMenu messages
+    ShowContextMenu(WebCore::IntPoint menuLocation, WebKit::WebHitTestResult::Data hitTestResultData, Vector<WebKit::WebContextMenuItemData> items, WebKit::InjectedBundleUserMessageEncoder userData) Variadic
+#endif
+
+    # Authentication messages
+    CanAuthenticateAgainstProtectionSpaceInFrame(uint64_t frameID, WebCore::ProtectionSpace protectionSpace) -> (bool canAuthenticate)
+    DidReceiveAuthenticationChallenge(uint64_t frameID, WebCore::AuthenticationChallenge challenge, uint64_t challengeID)
+
+    # Database messages
+    ExceededDatabaseQuota(uint64_t frameID, WTF::String originIdentifier, WTF::String databaseName, WTF::String databaseDisplayName, uint64_t currentQuota, uint64_t currentOriginUsage, uint64_t currentDatabaseUsage, uint64_t expectedUsage) -> (uint64_t newQuota) Delayed
+
+    # Geolocation messages
+    RequestGeolocationPermissionForFrame(uint64_t geolocationID, uint64_t frameID, WTF::String originIdentifier)
+    
+    # Notification messages
+    RequestNotificationPermission(uint64_t requestID, WTF::String originIdentifier)
+    ShowNotification(WTF::String title, WTF::String body, WTF::String iconURL, WTF::String tag, WTF::String lang, WTF::String dir, WTF::String originIdentifier, uint64_t notificationID)
+    CancelNotification(uint64_t notificationID)
+    ClearNotifications(Vector<uint64_t> notificationIDs)
+    DidDestroyNotification(uint64_t notificationID)
+
+    # Spelling and grammar messages
+#if USE(UNIFIED_TEXT_CHECKING)  
+    CheckTextOfParagraph(WTF::String text, uint64_t checkingTypes) -> (Vector<WebCore::TextCheckingResult> results)
+#endif
+    CheckSpellingOfString(WTF::String text) -> (int32_t misspellingLocation, int32_t misspellingLength)
+    CheckGrammarOfString(WTF::String text) -> (Vector<WebCore::GrammarDetail> results, int32_t badGrammarLocation, int32_t badGrammarLength)
+    SpellingUIIsShowing() -> (bool isShowing)
+    UpdateSpellingUIWithMisspelledWord(WTF::String misspelledWord)
+    UpdateSpellingUIWithGrammarString(WTF::String badGrammarPhrase, WebCore::GrammarDetail grammarDetail)
+    GetGuessesForWord(WTF::String word, WTF::String context) -> (Vector<WTF::String> guesses)
+    LearnWord(WTF::String word);
+    IgnoreWord(WTF::String word);
+    RequestCheckingOfString(uint64_t requestID, WebCore::TextCheckingRequestData request)
+
+    # Drag and drop messages
+#if ENABLE(DRAG_SUPPORT)
+    DidPerformDragControllerAction(WebCore::DragSession dragSession)
+#endif
+#if PLATFORM(MAC) && ENABLE(DRAG_SUPPORT)
+    SetDragImage(WebCore::IntPoint clientPosition, WebKit::ShareableBitmap::Handle dragImage, bool linkDrag)
+    SetPromisedData(WTF::String pasteboardName, WebKit::SharedMemory::Handle imageHandle, uint64_t imageSize, WTF::String filename, WTF::String extension, WTF::String title, WTF::String url, WTF::String visibleURL, WebKit::SharedMemory::Handle archiveHandle, uint64_t archiveSize)
+#endif
+#if (PLATFORM(QT) || PLATFORM(GTK)) && ENABLE(DRAG_SUPPORT)
+    StartDrag(WebCore::DragData dragData, WebKit::ShareableBitmap::Handle dragImage)
+#endif
+
+#if PLATFORM(MAC)
+    # Dictionary support.
+    DidPerformDictionaryLookup(WebKit::AttributedString text, WebKit::DictionaryPopupInfo dictionaryPopupInfo)
+
+    # Keyboard input support messages
+    InterpretQueuedKeyEvent(WebKit::EditorState state) -> (bool handled, Vector<WebCore::KeypressCommand> savedCommands)
+    ExecuteSavedCommandBySelector(WTF::String selector) -> (bool handled)
+
+    # Remote accessibility messages
+    RegisterWebProcessAccessibilityToken(CoreIPC::DataReference data)
+
+    # Plug-in complex text input support messages
+    PluginFocusOrWindowFocusChanged(uint64_t pluginComplexTextInputIdentifier, bool pluginHasFocusAndWindowHasFocus)
+    SetPluginComplexTextInputState(uint64_t pluginComplexTextInputIdentifier, uint64_t complexTextInputState)
+
+    # Speech messages
+    GetIsSpeaking() -> (bool isSpeaking)
+    Speak(WTF::String string)
+    StopSpeaking()
+
+    MakeFirstResponder()
+
+    # Spotlight
+    SearchWithSpotlight(WTF::String string)
+
+    SearchTheWeb(WTF::String string)
+#endif
+
+#if PLATFORM(MAC)
+    SubstitutionsPanelIsShowing() -> (bool isShowing)
+#endif
+#if PLATFORM(MAC)
+    # Autocorrection messages
+    ShowCorrectionPanel(int32_t panelType, WebCore::FloatRect boundingBoxOfReplacedString, String replacedString, String replacementString, Vector<String> alternativeReplacementStrings)
+    DismissCorrectionPanel(int32_t reason)
+    DismissCorrectionPanelSoon(int32_t reason) -> (String result)
+    RecordAutocorrectionResponse(int32_t responseType, String replacedString, String replacementString);
+#endif
+
+#if USE(DICTATION_ALTERNATIVES)
+    ShowDictationAlternativeUI(WebCore::FloatRect boundingBoxOfDictatedText, uint64_t dictationContext)
+    RemoveDictationAlternatives(uint64_t dictationContext)
+    DictationAlternatives(uint64_t dictationContext) -> (Vector<String> alternatives)
+#endif
+
+#if PLUGIN_ARCHITECTURE(X11)
+    # X11 windowed plugin messages
+    CreatePluginContainer() -> (uint64_t windowID)
+    WindowedPluginGeometryDidChange(WebCore::IntRect frameRect, WebCore::IntRect clipRect, uint64_t windowID)
+#endif
+
+    # Search popup menus
+    SaveRecentSearches(WTF::String name, Vector<String> searchItems)
+    LoadRecentSearches(WTF::String name) -> (Vector<String> result)
+
+#if USE(SOUP)
+    # Soup custom URI request messages
+    DidReceiveURIRequest(WTF::String uriString, uint64_t requestID);
+#endif
+
+    SavePDFToFileInDownloadsFolder(WTF::String suggestedFilename, WTF::String originatingURLString, CoreIPC::DataReference data)
+
+#if PLATFORM(MAC)
+    SavePDFToTemporaryFolderAndOpenWithNativeApplication(WTF::String suggestedFilename, WTF::String originatingURLString, CoreIPC::DataReference data, WTF::String pdfUUID)
+    OpenPDFFromTemporaryFolderWithNativeApplication(WTF::String pdfUUID)
+#endif
+
+#if ENABLE(NETSCAPE_PLUGIN_API)
+    FindPlugin(WTF::String mimeType, uint32_t processType, WTF::String urlString, WTF::String frameURLString, WTF::String pageURLString, bool allowOnlyApplicationPlugins) -> (uint64_t pluginProcessToken, WTF::String newMIMEType, uint32_t pluginLoadPolicy, WTF::String unavailabilityDescription)
+#endif
+
+    DidUpdateInWindowState()
+    
+    DidSaveToPageCache()
+}

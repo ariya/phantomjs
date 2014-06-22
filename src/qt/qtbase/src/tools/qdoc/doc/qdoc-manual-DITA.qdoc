@@ -1,0 +1,164 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page 21-0-qdoc-creating-dita-maps.html
+    \previouspage Miscellaneous
+    \contentspage QDoc Manual
+    \nextpage The QDoc Configuration File
+
+    \title Creating DITA Maps
+
+    You can create DITA map files using three new qdoc commands, the \l{ditamap-command}
+    {ditamap} command, the \l{topicref-command} {topicref} command, and the \l{mapref-command}
+    {mapref} command. How these DITA maps will be used automatically or manually by the
+    documentation build process is still under consideration. This section will be updated
+    as the decisions are made.
+
+    \section1 What is a DITA map?
+
+    A complete description of DITA can be found at the
+    \l{http://www.oasis-open.org/committees/tc_home.php?wg_abbrev=dita}
+    {OASIS Darwin Information Typing Architecture} site.
+
+    An explanation of the DITA map is found at that site
+    \l{http://docs.oasis-open.org/dita/v1.2/os/spec/langref/map.html}{here}.
+
+    \target ditamap-command
+    \section1 \\ditamap
+
+    The \\ditamap command is for creating a DITA map using qdoc commands.
+    The \\ditamap command is a kind of \\page command that produces a
+    \e{.ditamap} instead of a \e{.html} or \e{.xml} file. The file that
+    is created actually contains XML text, but the \e{.ditamap} suffix is
+    used to identify the file as containing a DITA MAP.
+
+    The argument is the name of the file to be created. In the following
+    example, the file \e{creator.ditamap} is output:
+    \code
+      \ditamap creator.ditamap
+    \endcode
+
+    \target topicref-command
+    \section1 \\topicref \\endtopicref
+
+    The \\topicref \\endtopicref commands are for creating a topicref
+    in the ditamap. The \\endtopicref command is required because
+    \\topicref commands can be nested.
+
+    \\topicref has two arguments. The first argument becomes the value
+    of the \e navtitle attribute. Normally, you use the title of the
+    topic being referenced. This title is often what will appear in a
+    table of contents constructed from the ditamap.
+
+    The second argument is the name of the page being referenced. The
+    second argument is actually optional, for example if you are using
+    a topicref as a container for other topicrefs and maprefs. It is
+    also optional if you want qdoc to find the page name for you by
+    looking up the title in its internal data structure. It is recommended
+    that you provide the second parameter if you know the page name.
+
+    \code
+      \topicref {QML Module QtQuick 2} {qtquick-2.xml}
+        \mapref {Creator Manual} {creator-manual.ditamap} \endmapref
+        \topicref {QML Mouse Events} {qtquick2-mouseevents.xml} \endtopicref
+        \topicref {Property Binding} {qtquick2-propertybinding.xml} \endtopicref
+      \endtopicref
+    \endcode
+
+    \target mapref-command
+    \section1 \\mapref
+
+    The \\mapref command is for creating a mapref in the ditamap. A
+    mapref refers to another ditamap, which you want to include in
+    your ditamap. Like the \\topicref command, the \\mapref command
+    has two arguments, but for the \\mapref command, both arguments
+    are required. The arguments are essentially the same as described
+    for \\topicref, but for \\mapref, the second command must be the
+    name of another ditamap, i.e. it must have the \e{.ditamap}
+    suffix. You must provide the file name. qdoc can't look up the
+    file name for you.
+
+    \code
+        \mapref {Creator Manual} {creator-manual.ditamap} \endmapref
+    \endcode
+
+    \section1 An example ditamap page
+
+    The following example uses the three qdoc ditamap commands described above.
+
+    \code
+      \ditamap creator.ditamap
+      \title The DITA Map for Creator
+
+      \topicref {QML Module QtQuick 1}
+        \topicref {QML Mouse Events} \endtopicref
+        \topicref {Property Binding} \endtopicref
+      \endtopicref
+
+      \topicref {QML Module QtQuick 2} {qtquick-2.xml}
+        \mapref {Creator Manual} {creator-manual.ditamap} \endmapref
+        \topicref {QML Mouse Events} {qtquick2-mouseevents.xml} \endtopicref
+        \topicref {Property Binding} {qtquick2-propertybinding.xml} \endtopicref
+      \endtopicref
+
+      \topicref {QML Module QtQuick.Particles 2} {qtquick-particles-2.xml}
+        \topicref {Age} {qml-qtquick-particles2-age.xml} \endtopicref
+      \endtopicref
+    \endcode
+
+    \section1 The resulting ditamap file
+
+    This is the \e{.ditamap} file you get when you input the qdoc
+    ditamap page shown above. Note that you can write ditamap files
+    directly in XML just as easily as you can write them using the
+    qdoc commands. The choice is yours.
+
+    \code
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE map PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
+      <map>
+        <topicmeta>
+          <shortdesc>The DITA Map for Creator</shortdesc>
+        </topicmeta>
+        <topicref navtitle="QML Module QtQuick 1" href="qtquick-1.xml">
+          <topicref navtitle="QML Mouse Events" href="qtquick2-mouseevents.xml"/>
+          <topicref navtitle="Property Binding" href="qtquick2-propertybinding.xml"/>
+        </topicref>
+        <topicref navtitle="QML Module QtQuick 2" href="qtquick-2.xml">
+          <mapref navtitle="Creator Manual" href="creator-manual.ditamap"/>
+          <topicref navtitle="QML Mouse Events" href="qtquick2-mouseevents.xml"/>
+          <topicref navtitle="Property Binding" href="qtquick2-propertybinding.xml"/>
+        </topicref>
+        <topicref navtitle="QML Module QtQuick.Particles 2" href="qtquick-particles-2.xml">
+          <topicref navtitle="Age" href="qml-qtquick-particles2-age.xml"/>
+        </topicref>
+      </map>
+    \endcode
+
+*/
+

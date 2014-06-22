@@ -1,0 +1,83 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.CodeMirror {
+    z-index: 0;
+}
+
+.CodeMirror,
+.CodeMirror * {
+    box-sizing: content-box;
+}
+
+.CodeMirror .CodeMirror-lines {
+ /* One pixel bottom padding needed to show the bottom border for matching brackets and search matches. */
+    padding: 0 0 1px 0;
+}
+
+.CodeMirror pre {
+    padding: 1px 3px 1px 7px;
+}
+
+.CodeMirror .CodeMirror-selected {
+    background-color: rgb(212, 212, 212);
+}
+
+.CodeMirror.CodeMirror-focused .CodeMirror-selected {
+    background-color: highlight;
+}
+
+.CodeMirror .CodeMirror-cursor {
+    pointer-events: none;
+}
+
+.CodeMirror .CodeMirror-lines .CodeMirror-matchingbracket {
+    color: inherit;
+    background-color: rgba(100, 130, 235, 0.2);
+    border-bottom: 1px dotted rgb(20, 20, 235);
+}
+
+.CodeMirror .CodeMirror-lines .CodeMirror-nonmatchingbracket {
+    color: inherit;
+    background-color: rgba(235, 30, 20, 0.2);
+    border-bottom: 1px dotted rgb(235, 30, 20);
+}
+
+.CodeMirror .CodeMirror-gutters {
+    background-color: rgb(247, 247, 247);
+    border-right: 1px solid rgb(231, 231, 231);
+}
+
+.CodeMirror .CodeMirror-linenumber {
+    padding: 0 2px;
+    min-width: 21px;
+
+    color: rgb(146, 146, 146);
+
+    font-size: 9px;
+    line-height: 13px;
+    font-family: "Lucida Grande", sans-serif;
+    text-align: right;
+}

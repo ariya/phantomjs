@@ -1,0 +1,163 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+\page qtwidgets-index.html
+\title Qt Widgets
+\brief A module which provides a set of C++ technologies for building user
+interfaces
+
+    The \l {Qt Widgets C++ Classes}{Qt Widgets Module} provides a set of UI
+    elements to create classic desktop-style user interfaces. See the
+    \l {User Interfaces} overview for more information on using widgets.
+
+\section1 Getting Started
+
+    To include the definitions of the module's classes, use the
+    following directive:
+
+    \snippet code/doc_src_qtwidgets.cpp 1
+
+    To link against the module, add this line to your \l qmake \c
+    .pro file:
+
+    \snippet code/doc_src_qtwidgets.pro 0
+
+
+
+
+    \section1 Widgets
+
+    Widgets are the primary elements for creating user interfaces in Qt.
+    \l{The Widget Classes}{Widgets} can display data and status information,
+    receive user input, and provide a container for other widgets that
+    should be grouped together. A widget that is not embedded in a
+    parent widget is called a \l{Window and Dialog Widgets} {window}.
+
+    \image parent-child-widgets.png A parent widget containing various child widgets.
+
+    The QWidget class provides the basic capability to render to the
+    screen, and to handle user input events. All UI elements that Qt
+    provides are either subclasses of QWidget, or are used in connection
+    with a QWidget subclass. Creating custom widgets is done by
+    subclassing QWidget or a suitable subclass and reimplementing the
+    virtual event handlers.
+
+    \list
+    \li \l{Window and Dialog Widgets}
+    \li \l{Application Main Window}
+    \li \l{Dialog Windows}
+    \li \l{Keyboard Focus in Widgets}
+    \endlist
+
+    \section1 Styles
+
+    \l{Styles and Style Aware Widgets}{Styles} draw on behalf of
+    widgets and encapsulate the look and feel of a GUI. Qt's built-in
+    widgets use the QStyle class to perform nearly all of their drawing,
+    ensuring that they look exactly like the equivalent native widgets.
+
+    \table
+    \row
+    \li \image windowsxp-tabwidget.png
+    \li \image fusion-tabwidget.png
+    \li \image macintosh-tabwidget.png
+    \endtable
+
+    \l{Qt Style Sheets} are a powerful mechanism that allows you to customize the
+    appearance of widgets, in addition to what is already possible by subclassing QStyle.
+
+
+    \section1 Layouts
+
+    \l{Layout Management}{Layouts} are an elegant and flexible way to
+    automatically arrange child widgets within their container. Each
+    widget reports its size requirements to the layout through the
+    \l{QWidget::}{sizeHint} and \l{QWidget::}{sizePolicy} properties,
+    and the layout distributes the available space accordingly.
+
+    \table
+    \row
+    \li \image qgridlayout-with-5-children.png
+    \li \image qformlayout-with-6-children.png
+    \endtable
+
+    \l {Qt Designer} is a powerful tool for interactively creating and
+    arranging widgets in layouts.
+
+
+
+    \section1 Model/View Classes
+
+    The \l{Model/View Programming}{model/view} architecture provides classes
+    that manage the way data is presented to the user. Data-driven applications
+    which use lists and tables are structured to separate the data and view
+    using models, views, and delegates.
+
+    \image windowsxp-treeview.png
+
+    \section1 Graphics View
+
+    The \l{Graphics View Framework} is for managing and interacting with a large
+    number of custom-made 2D graphical items, and a view widget for visualizing
+    the items, with support for zooming and rotation.
+
+    \image graphicsview-items.png
+
+    \section1 Related Information
+
+        \section2 Tutorials
+    \list
+        \li \l{Widgets Tutorial}
+        \li \l{Model/View Tutorial}
+    \endlist
+
+    \section2 Examples
+    \list
+        \li \l{Qt Widgets Examples}
+    \endlist
+
+    \section1 API Reference
+    These are links to the API reference materials.
+
+    \list
+        \li \l{Qt Widgets C++ Classes}
+        \list
+            \li \l{Basic Widget Classes}
+            \li \l{Advanced Widget Classes}
+            \li \l{Abstract Widget Classes}
+            \li \l{Organizer Widget Classes}
+            \li \l{Graphics View Classes}
+            \li \l{Model/View Classes}
+            \li \l{Main Window and Related Classes}
+            \li \l{Widget Appearance and Style Related Classes}
+            \li \l{Layout Classes}
+        \endlist
+        \li \l{Qt Style Sheets Reference}
+    \endlist
+
+*/

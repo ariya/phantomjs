@@ -1,0 +1,257 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    display: -webkit-flex;
+    -webkit-flex-direction: column;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    padding: 0;
+    margin: 0;
+
+    overflow: hidden;
+
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+
+    cursor: default;
+
+    -webkit-font-smoothing: subpixel-antialiased;
+
+    tab-size: 4; /* FIXME: This should be controlled by a setting. <rdar://problem/10593948> */
+}
+
+body.docked {
+    background-color: white;
+}
+
+body.docked.bottom {
+    border-top: 1px solid rgb(85, 85, 85);
+}
+
+body.docked.right {
+    border-left: 1px solid rgb(85, 85, 85);
+}
+
+#docked-resizer {
+    display: none;
+
+    z-index: 100;
+}
+
+body.docked #docked-resizer {
+    display: block;
+}
+
+body.docked.bottom #docked-resizer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+
+    cursor: row-resize;
+}
+
+body.docked.right #docked-resizer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 3px;
+
+    cursor: col-resize;
+}
+
+body.docked.bottom #toolbar {
+    cursor: row-resize;
+}
+
+body.docked.bottom #toolbar .item:not(.flexible-space) {
+    cursor: default;
+}
+
+#main {
+    display: -webkit-flex;
+    -webkit-flex: 1;
+
+    background-color: white;
+
+    /* The position and z-index are needed to make negative z-index work in the DOM tree. */
+    position: relative;
+    z-index: 0;
+}
+
+#navigation-sidebar {
+    width: 300px;
+}
+
+body.docked.right #navigation-sidebar.collapsed > .resizer {
+    pointer-events: none;
+}
+
+#content {
+    display: -webkit-flex;
+    -webkit-flex-direction: column;
+    -webkit-flex: 1;
+}
+
+#content-browser {
+    -webkit-flex: 1;
+}
+
+#split-content-browser {
+    border-top: 1px solid rgb(153, 153, 153);
+}
+
+#split-content-browser > .navigation-bar {
+    cursor: row-resize;
+
+    background-image: -webkit-linear-gradient(top, rgb(248, 248, 248), rgb(226, 226, 226));
+}
+
+#split-content-browser > .navigation-bar .item:not(.flexible-space) {
+    cursor: default;
+}
+
+#details-sidebar {
+    width: 300px;
+}
+
+.message-text-view {
+    display: -webkit-flex;
+    z-index: 1000;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    padding-left: 20%;
+    padding-right: 20%;
+
+    -webkit-justify-content: center;
+    -webkit-align-items: center;
+    
+    line-height: 20px;
+    white-space: pre-wrap;
+    text-align: center;
+
+    font-size: 18px;
+    font-weight: bold;
+    font-family: Lucida Grande, sans-serif;
+
+    color: rgb(75%, 75%, 75%);
+    background-color: white;
+}
+
+.message-text-view.error {
+    color: rgb(224, 16, 16);
+}
+
+.message-text-view.error::before {
+    display: inline-block;
+
+    width: 20px;
+    height: 20px;
+    margin-right: 4px;
+    vertical-align: bottom;
+
+    background-image: url(Images/Error.pdf);
+    background-size: 100% 100%;
+    content: "";
+}
+
+.go-to-link {
+    color: rgb(85, 85, 85) !important;
+    text-decoration: underline !important;
+    cursor: pointer;
+}
+
+.go-to-link:not(.dont-float) {
+    float: right;
+    margin-left: 5px;
+    max-width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.go-to-arrow {
+    -webkit-appearance: none;
+
+    padding: 0;
+    margin: 0;
+    border: none;
+
+    background-color: transparent;
+    background-image: -webkit-canvas(go-to-arrow-normal);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 10px 10px;
+
+    width: 16px;
+    height: 16px;
+
+ /* Workaround: for text boxes overlapping float:right. Give go-to arrows a z-index to ensure they are clickable.
+    <rdar://problem/11536832> Cannot access content view from Instruments navigator if name of file is truncated */
+    position: relative;
+    z-index: 1;
+}
+
+.go-to-arrow:active {
+    background-image: -webkit-canvas(go-to-arrow-normal-active);
+}
+
+:focus .selected .go-to-arrow {
+    background-image: -webkit-canvas(go-to-arrow-selected);
+}
+
+:focus .selected .go-to-arrow:active {
+    background-image: -webkit-canvas(go-to-arrow-selected-active);
+}
+
+.display-location {
+    font-style: italic !important;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.node-link {
+    text-decoration: underline;
+    cursor: pointer;
+}

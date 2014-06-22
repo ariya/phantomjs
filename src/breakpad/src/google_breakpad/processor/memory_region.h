@@ -50,10 +50,10 @@ class MemoryRegion {
   virtual ~MemoryRegion() {}
 
   // The base address of this memory region.
-  virtual u_int64_t GetBase() const = 0;
+  virtual uint64_t GetBase() const = 0;
 
   // The size of this memory region.
-  virtual u_int32_t GetSize() const = 0;
+  virtual uint32_t GetSize() const = 0;
 
   // Access to data of various sizes within the memory region.  address
   // is a pointer to read, and it must lie within the memory region as
@@ -63,10 +63,10 @@ class MemoryRegion {
   // program.  Returns true on success.  Fails and returns false if address
   // is out of the region's bounds (after considering the width of value),
   // or for other types of errors.
-  virtual bool GetMemoryAtAddress(u_int64_t address, u_int8_t*  value) const =0;
-  virtual bool GetMemoryAtAddress(u_int64_t address, u_int16_t* value) const =0;
-  virtual bool GetMemoryAtAddress(u_int64_t address, u_int32_t* value) const =0;
-  virtual bool GetMemoryAtAddress(u_int64_t address, u_int64_t* value) const =0;
+  virtual bool GetMemoryAtAddress(uint64_t address, uint8_t*  value) const = 0;
+  virtual bool GetMemoryAtAddress(uint64_t address, uint16_t* value) const = 0;
+  virtual bool GetMemoryAtAddress(uint64_t address, uint32_t* value) const = 0;
+  virtual bool GetMemoryAtAddress(uint64_t address, uint64_t* value) const = 0;
 };
 
 

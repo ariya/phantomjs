@@ -1,0 +1,63 @@
+/*
+ * Copyright (C) 2006, 2007, 2009, 2010 Apple Inc. All rights reserved.
+ * Copyright (C) 2006 Samuel Weinig <sam.weinig@gmail.com>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+[
+    CustomNamedSetter,
+    JSCustomGetOwnPropertySlotAndDescriptor,
+    CustomCall
+] interface HTMLObjectElement : HTMLElement {
+    readonly attribute HTMLFormElement form;
+    [Reflect] attribute DOMString code;
+    [Reflect] attribute DOMString align;
+    [Reflect] attribute DOMString archive;
+    [Reflect] attribute DOMString border;
+    [Reflect] attribute DOMString codeBase;
+    [Reflect] attribute DOMString codeType;
+    [Reflect, URL] attribute DOMString data;
+    [Reflect] attribute boolean declare;
+    [Reflect] attribute DOMString height;
+    [Reflect] attribute long hspace;
+    [Reflect] attribute DOMString name;
+    [Reflect] attribute DOMString standby;
+    [Reflect] attribute DOMString type;
+    [Reflect] attribute DOMString useMap;
+    [Reflect] attribute long vspace;
+    [Reflect] attribute DOMString width;
+    readonly attribute boolean willValidate;
+    readonly attribute ValidityState validity;
+    readonly attribute DOMString validationMessage;
+    boolean checkValidity();
+    void setCustomValidity([TreatNullAs=NullString, TreatUndefinedAs=NullString] DOMString error);
+
+    // Introduced in DOM Level 2:
+    [CheckSecurityForNode] readonly attribute Document contentDocument;
+
+#if defined(ENABLE_SVG) && ENABLE_SVG
+#if !defined(LANGUAGE_OBJECTIVE_C) || !LANGUAGE_OBJECTIVE_C
+    [CheckSecurityForNode, RaisesException] SVGDocument getSVGDocument();
+#endif
+#endif
+
+#if defined(LANGUAGE_OBJECTIVE_C) && LANGUAGE_OBJECTIVE_C
+    // Objective-C extension:
+    readonly attribute URL absoluteImageURL;
+#endif
+};
+

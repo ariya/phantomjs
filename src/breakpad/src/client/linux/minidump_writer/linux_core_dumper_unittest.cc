@@ -30,11 +30,13 @@
 // linux_core_dumper_unittest.cc:
 // Unit tests for google_breakpad::LinuxCoreDumoer.
 
+#include <string>
+
 #include "breakpad_googletest_includes.h"
 #include "client/linux/minidump_writer/linux_core_dumper.h"
 #include "common/linux/tests/crash_generator.h"
+#include "common/using_std_string.h"
 
-using std::string;
 using namespace google_breakpad;
 
 TEST(LinuxCoreDumperTest, BuildProcPath) {
@@ -72,20 +74,24 @@ TEST(LinuxCoreDumperTest, VerifyDumpWithMultipleThreads) {
   const unsigned kCrashThread = 1;
   const int kCrashSignal = SIGABRT;
   pid_t child_pid;
-  // TODO(benchan): Revert to use ASSERT_TRUE once the flakiness in
-  // CrashGenerator is identified and fixed.
-  if (!crash_generator.CreateChildCrash(kNumOfThreads, kCrashThread,
-                                        kCrashSignal, &child_pid)) {
-    fprintf(stderr, "LinuxCoreDumperTest.VerifyDumpWithMultipleThreads test "
-            "is skipped due to no core dump generated\n");
-    return;
-  }
+  ASSERT_TRUE(crash_generator.CreateChildCrash(kNumOfThreads, kCrashThread,
+                                               kCrashSignal, &child_pid));
 
-  pid_t pid = getpid();
   const string core_file = crash_generator.GetCoreFilePath();
   const string procfs_path = crash_generator.GetDirectoryOfProcFilesCopy();
+
+#if defined(__ANDROID__)
+  struct stat st;
+  if (stat(core_file.c_str(), &st) != 0) {
+    fprintf(stderr, "LinuxCoreDumperTest.VerifyDumpWithMultipleThreads test is "
+            "skipped due to no core file being generated");
+    return;
+  }
+#endif
+
   LinuxCoreDumper dumper(child_pid, core_file.c_str(), procfs_path.c_str());
-  dumper.Init();
+
+  EXPECT_TRUE(dumper.Init());
 
   EXPECT_TRUE(dumper.IsPostMortem());
 
@@ -95,7 +101,7 @@ TEST(LinuxCoreDumperTest, VerifyDumpWithMultipleThreads) {
 
   // LinuxCoreDumper cannot determine the crash address and thus it always
   // sets the crash address to 0.
-  EXPECT_EQ(0, dumper.crash_address());
+  EXPECT_EQ(0U, dumper.crash_address());
   EXPECT_EQ(kCrashSignal, dumper.crash_signal());
   EXPECT_EQ(crash_generator.GetThreadId(kCrashThread),
             dumper.crash_thread());
@@ -104,6 +110,9 @@ TEST(LinuxCoreDumperTest, VerifyDumpWithMultipleThreads) {
   for (unsigned i = 0; i < kNumOfThreads; ++i) {
     ThreadInfo info;
     EXPECT_TRUE(dumper.GetThreadInfoByIndex(i, &info));
+    const void* stack;
+    size_t stack_len;
+    EXPECT_TRUE(dumper.GetStackInfo(&stack, &stack_len, info.stack_pointer));
     EXPECT_EQ(getpid(), info.ppid);
   }
 }

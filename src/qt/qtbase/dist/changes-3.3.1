@@ -1,0 +1,141 @@
+Qt 3.3.1 is a bugfix release. It maintains both forward and backward
+compatibility (source and binary) with Qt 3.3.0
+
+
+****************************************************************************
+*                           General                                        *
+****************************************************************************
+
+Added support for animated cursors on Mac OS X.
+
+Compilers
+---------
+
+Fixed SQLite compilation on Solaris.
+
+Fixed problem with precompiled headers (PCH) and Platform SDK on
+Windows by removing winsock2.h dependency.
+
+
+****************************************************************************
+*                          Library                                         *
+****************************************************************************
+
+General Fixes
+-------------
+
+Fixed drag and drop for modal dialogs.
+
+- QAction
+	Propagate visibility state correctly to actions added to an
+	invisible actiongroup.
+	
+- QHttp
+	Handle both upper and lower case in response headers.
+
+- QLineEdit
+	Fixed drawing problems that affected very long strings and
+	the handling of trailing spaces.
+
+- QObject
+	Fixed connectNotify() and disconnectNotify() for some special
+	cases.
+
+- QPixmap
+	Avoid calling detach() when setting a null mask on a pixmap.
+
+- QString
+	sprintf() again interprets strings, %s, as UTF-8 strings, not
+	as Latin1 strings.
+
+- QTabBar
+	Tabbars are now correctly left aligned again.
+
+- QTable
+	Fixed shift selections after editing.
+	
+- QTextEdit
+	Emits cursorPositionChanged() when cursor position changes
+	when find() has been called.
+	LogText mode: Changing fonts after appending text now
+	recalculates the scrollbars properly.
+	Optimized createPopupMenu().
+
+- QVariant
+	Added missing detach() calls in QVariant::as...() functions
+	(e.g. asInt()).
+
+- QWidget
+	setWindowState() fixed for WindowMaximized and
+	WindowFullScreen. showMaximized() and showFullScreen() now
+	work for laid out widgets that have not been explicitly
+	resized.
+	windowOpacity() correctly initialized.
+
+Platform-Specific Issues
+------------------------
+
+Windows:
+
+Fixed overflow error that sometimes affected the font engine.
+Fixed font drawing problems for some international versions of Win9x;
+also improved handling of spaces before Chinese characters.
+
+- QApplication
+	Fixed libraryPaths() to return the correct location of the
+	application executable, independently of whether it has been
+	called before the QApplication constructor or afterwards.
+
+- QFileInfo
+	Fixed readLink() for special cases.
+
+- QSound
+	Fixed isFinished() to work correctly.
+
+- QStyle
+	Fixed QWindowsXPStyle drawing flat toggle buttons.
+
+- QWidget
+	Turn off layered painting if window opacity is set back to
+	1.0; making widget redrawing fast again.
+
+Mac:
+
+Fixed crash on exit problem with Qt Designer.
+Fixed compilation of networking modules for Professional edition. 
+Fixed overflow error that sometimes occurred in the font engine.
+Fixed modal dialogs and contextMenuRequested() signals.
+
+- QMenuBar
+	Add separator after the "Abouts".
+	Fixed memory corruption.
+
+- QMessageBox
+	Improved handling of text and button size.
+
+- QPainter
+	Improved raster operations when using colors.
+	Improved polygon region handling and drawPolyLine().
+
+- QStyle
+	Fixed QAquaStyle to use setWindowOpacity().
+	Fixed QMacStyle drawing of flat toggle buttons.
+
+- QWidget
+	Fixed showFullScreen() to not hide the toolbar.
+
+X11:
+
+Fixed skipping of certain (bitmap) fonts for Xft2 when building up the
+font database.
+
+- QPrinter
+	Fixed regression with margins and Landscape.
+
+Embedded:
+
+- QPixmap
+	Fixed crash bug with transformed driver when using masked
+	pixmaps where width > height.
+	In xForm(), pre-fill the resulting pixmap with a transparent
+	color instead of white.

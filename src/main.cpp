@@ -26,6 +26,9 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#ifdef _WIN32
+#define NOMINMAX
+#endif
 
 #include "consts.h"
 #include "utils.h"
@@ -42,24 +45,12 @@
 #include <QApplication>
 #include <QSslSocket>
 
-#if !defined(QT_SHARED) && !defined(QT_DLL)
-#include <QtPlugin>
-
-Q_IMPORT_PLUGIN(qcncodecs)
-Q_IMPORT_PLUGIN(qjpcodecs)
-Q_IMPORT_PLUGIN(qkrcodecs)
-Q_IMPORT_PLUGIN(qtwcodecs)
-#endif
-
 #ifdef Q_OS_WIN32
 using namespace google_breakpad;
 static google_breakpad::ExceptionHandler* eh;
-#if !defined(QT_SHARED) && !defined(QT_DLL)
-Q_IMPORT_PLUGIN(qico)
-#endif
 #endif
 
-#if QT_VERSION != QT_VERSION_CHECK(4, 8, 5)
+#if QT_VERSION != QT_VERSION_CHECK(5, 3, 0)
 #error Something is wrong with the setup. Please report to the mailing list!
 #endif
 
@@ -104,7 +95,7 @@ int main(int argc, char** argv, const char** envp)
     Env::instance()->parse(envp);
 
     // Registering an alternative Message Handler
-    qInstallMsgHandler(Utils::messageHandler);
+    qInstallMessageHandler(Utils::messageHandler);
 
 #if defined(Q_OS_LINUX)
     if (QSslSocket::supportsSsl()) {

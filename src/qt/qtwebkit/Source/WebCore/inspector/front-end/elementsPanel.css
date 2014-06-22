@@ -1,0 +1,600 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
+ * Copyright (C) 2009 Anthony Ricaud <rik@webkit.org>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1.  Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ * 2.  Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ * 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+ *     its contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#elements-content {
+    padding-left: 0;
+}
+
+#elements-content > ol {
+    display: inline-block;
+    min-height: 100%;
+}
+
+#elements-content .editing {
+    margin-left: 8px;
+}
+
+#elements-content .elements-gutter-decoration {
+    position: absolute;
+    left: 1px;
+    margin-top: 2px;
+    height: 8px;
+    width: 8px;
+    border-radius: 4px;
+    border: 1px solid orange;
+    background-color: orange;
+}
+
+#elements-content .elements-gutter-decoration.elements-has-decorated-children {
+    opacity: 0.5;
+}
+
+#elements-content .CodeMirror {
+    /* Consistent with the .editing class in inspector.css */
+    -webkit-box-shadow: rgba(0, 0, 0, .5) 3px 3px 4px;
+    outline: 1px solid rgb(66%, 66%, 66%) !important;
+    background-color: white;
+}
+
+#elements-content .CodeMirror pre {
+    padding: 0;
+}
+
+#elements-content .CodeMirror-lines {
+    padding: 0;
+}
+
+.elements-tree-editor {
+    -webkit-user-select: text;
+    -webkit-user-modify: read-write-plaintext-only;
+}
+
+.metrics {
+    padding: 8px;
+    font-size: 10px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.metrics .label {
+    position: absolute;
+    font-size: 10px;
+    color: black;
+    margin-left: 3px;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
+.metrics .position {
+    border: 1px rgb(66%, 66%, 66%) dotted;
+    background-color: white;
+    display: inline-block;
+    text-align: center;
+    padding: 3px;
+    margin: 3px;
+}
+
+.metrics .margin {
+    border: 1px dashed;
+    background-color: white;
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    padding: 3px;
+    margin: 3px;
+}
+
+.metrics .border {
+    border: 1px black solid;
+    background-color: white;
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    padding: 3px;
+    margin: 3px;
+}
+
+.metrics .padding {
+    border: 1px grey dashed;
+    background-color: white;
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    padding: 3px;
+    margin: 3px;
+}
+
+.metrics .content {
+    position: static;
+    border: 1px gray solid;
+    background-color: white;
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    padding: 3px;
+    margin: 3px;
+    min-width: 80px;
+    text-align: center;
+    overflow: visible;
+}
+
+.metrics .content span {
+    display: inline-block;
+}
+
+.metrics .editing {
+    position: relative;
+    z-index: 100;
+}
+
+.metrics .left {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.metrics .right {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.metrics .top {
+    display: inline-block;
+}
+
+.metrics .bottom {
+    display: inline-block;
+}
+
+
+.styles-section {
+    padding: 2px 2px 4px 4px;
+    min-height: 18px;
+    white-space: nowrap;
+    -webkit-background-origin: padding;
+    -webkit-background-clip: padding;
+    -webkit-user-select: text;
+}
+
+.styles-section:not(.first-styles-section) {
+    border-top: 1px solid rgb(191, 191, 191);
+}
+
+.styles-section.read-only {
+    background-color: rgb(240, 240, 240);
+}
+
+.styles-section .properties li.not-parsed-ok {
+    margin-left: 0px;
+}
+
+.styles-section.computed-style .properties li.not-parsed-ok {
+    margin-left: -6px;
+}
+
+.styles-section .properties li.not-parsed-ok img.exclamation-mark {
+    content: url(Images/warningIcon.png);
+    opacity: 0.75;
+    position: relative;
+    float: left;
+    width: 12px;
+    height: 10px;
+    margin: 0 6px 0 0;
+    left: -38px; /* outdent to compensate for the top-level property indent */
+    padding-left: 2px;
+    vertical-align: baseline;
+    -webkit-user-select: none;
+    cursor: default;
+    z-index: 1;
+}
+
+.styles-section.computed-style .properties li.not-parsed-ok img.exclamation-mark {
+    left: 0;
+}
+
+.styles-section .header {
+    white-space: nowrap;
+    -webkit-background-origin: padding;
+    -webkit-background-clip: padding;
+}
+
+.styles-section .header .title {
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+.styles-section .header .title .media, .styles-section .header .title .media .subtitle {
+    color: rgb(128, 128, 128);
+    overflow: hidden;
+}
+
+.styles-section .header .subtitle {
+    color: rgb(85, 85, 85);
+    float: right;
+    margin-left: 5px;
+    max-width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.styles-section .header .subtitle a {
+    color: inherit;
+}
+
+.styles-section .selector {
+    color: #777;
+}
+
+.styles-section .selector-matches {
+    color: black;
+}
+
+.styles-section a[data-uncopyable] {
+    display: inline-block;
+}
+
+.styles-section a[data-uncopyable]::before {
+    content: attr(data-uncopyable);
+    text-decoration: underline;
+}
+
+.styles-section .properties {
+    display: none;
+    margin: 0;
+    padding: 2px 4px 0 6px;
+    list-style: none;
+    clear: both;
+}
+
+.styles-section.matched-styles .properties {
+    padding-left: 0;
+}
+
+.styles-section.no-affect .properties li {
+    opacity: 0.5;
+}
+
+.styles-section.no-affect .properties li.editing {
+    opacity: 1.0;
+}
+
+.styles-section.expanded .properties {
+    display: block;
+}
+
+.styles-section .properties li {
+    margin-left: 12px;
+    padding-left: 22px;
+    white-space: normal;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    cursor: auto;
+}
+
+.styles-section.computed-style.expanded .properties > li {
+    padding-left: 0;
+}
+
+.styles-section.computed-style.expanded .properties > li .webkit-css-property {
+    margin-left: 0;
+}
+
+.styles-section .properties li .webkit-css-property {
+    margin-left: -22px; /* outdent the first line of longhand properties (in an expanded shorthand) to compensate for the "padding-left" shift in .styles-section .properties li */
+}
+
+.styles-section.expanded .properties > li {
+    padding-left: 38px;
+}
+
+.styles-section .properties > li .webkit-css-property {
+    margin-left: -38px; /* outdent the first line of the top-level properties to compensate for the "padding-left" shift in .styles-section .properties > li */
+}
+
+.styles-section .properties > li.child-editing {
+    padding-left: 8px;
+}
+
+.styles-section .properties > li.child-editing .webkit-css-property {
+    margin-left: 0;
+}
+
+.styles-section.matched-styles .properties li {
+    margin-left: 0 !important;
+}
+
+.styles-section .properties li.child-editing {
+    word-wrap: break-word !important;
+    white-space: normal !important;
+    padding-left: 0;
+}
+
+.styles-section .properties ol {
+    display: none;
+    margin: 0;
+    -webkit-padding-start: 12px;
+    list-style: none;
+}
+
+.styles-section .properties ol.expanded {
+    display: block;
+}
+
+.styles-section .properties li.parent::before {
+    content: none;
+}
+
+.styles-section .properties li.parent.expanded::before {
+    content: none;
+}
+
+.styles-section.matched-styles .properties li.parent .expand-element {
+    content: url(Images/treeRightTriangleBlack.png);
+    margin-right: 1px;
+    margin-left: -5px;
+    opacity: 0.6;
+}
+
+.styles-section.matched-styles .properties li.parent.expanded .expand-element {
+    content: url(Images/treeDownTriangleBlack.png);
+}
+
+.styles-section.computed-style .properties li.parent::before {
+    content: url(Images/treeRightTriangleBlack.png);
+    opacity: 0.75;
+    float: left;
+    width: 8px;
+    height: 8px;
+    margin-top: 0;
+    padding-right: 3px;
+    -webkit-user-select: none;
+    cursor: default;
+}
+
+.styles-section.computed-style .properties li.parent.expanded::before {
+    content: url(Images/treeDownTriangleBlack.png);
+    margin-top: 1px;
+}
+
+.styles-section .properties li .info {
+    padding-top: 4px;
+    padding-bottom: 3px;
+}
+
+.styles-section.matched-styles:not(.read-only):hover .properties .enabled-button {
+    visibility: visible;
+}
+
+.styles-section.matched-styles:not(.read-only) .properties li.disabled .enabled-button {
+    visibility: visible;
+}
+
+.styles-section .properties .enabled-button {
+    visibility: hidden;
+    float: left;
+    font-size: 10px;
+    margin: 0;
+    vertical-align: top;
+    position: relative;
+    z-index: 1;
+    width: 18px;
+    left: -40px; /* original -2px + (-38px) to compensate for the first line outdent */
+}
+
+.styles-section.matched-styles .properties ol.expanded {
+    margin-left: 16px;
+}
+
+.styles-section .properties .overloaded,
+.styles-section .properties .inactive,
+.styles-section .properties .disabled,
+.styles-section .properties .not-parsed-ok {
+    text-decoration: line-through;
+}
+
+.styles-section.computed-style .properties .disabled {
+    text-decoration: none;
+    opacity: 0.5;
+}
+
+.styles-section .properties .implicit, .styles-section .properties .inherited {
+    opacity: 0.5;
+}
+
+.styles-element-state-pane {
+    background-color: rgb(240, 240, 240);
+    overflow: hidden;
+    margin-top: -38px;
+    -webkit-transition: margin-top 0.1s ease-in-out;
+    padding-left: 2px;
+}
+
+.styles-element-state-pane.expanded {
+    border-bottom: 1px solid rgb(189, 189, 189);
+    margin-top: 0;
+}
+
+.styles-element-state-pane > table {
+    width: 100%;
+    border-spacing: 0;
+}
+
+.styles-element-state-pane input {
+    margin: 2px;
+    vertical-align: -2px;
+}
+
+.styles-selector {
+    cursor: text;
+}
+
+.body .styles-section .properties .inherited {
+    display: none;
+}
+
+.body.show-inherited .styles-section .properties .inherited {
+    display: block;
+}
+
+.add-attribute {
+    margin-left: 1px;
+    margin-right: 1px;
+    white-space: nowrap;
+}
+
+.section .event-bars {
+    display: none;
+}
+
+.section.expanded .event-bars {
+    display: block;
+}
+
+.event-bar {
+    position: relative;
+    margin-left: 10px;
+}
+
+.event-bar:first-child {
+    margin-top: 1px;
+}
+
+.event-bars .event-bar .header {
+    padding: 0 8px 0 18px;
+    min-height: 16px;
+    opacity: 1.0;
+    white-space: nowrap;
+    -webkit-background-origin: padding;
+    -webkit-background-clip: padding;
+}
+
+.event-bars .event-bar .header .title {
+    font-weight: normal;
+    color: black;
+    text-shadow: white 0 1px 0;
+}
+
+.event-bars .event-bar .header .subtitle {
+    color: rgba(90, 90, 90, 0.75);
+}
+
+.event-bars .event-bar .header::before {
+    position: absolute;
+    top: 2px;
+    left: 7px;
+    width: 8px;
+    height: 8px;
+    opacity: 0.75;
+    content: url(Images/treeRightTriangleBlack.png) !important;
+}
+
+.event-bars .event-bar.expanded .header::before {
+    content: url(Images/treeDownTriangleBlack.png) !important;
+}
+
+.image-preview-container {
+    background: transparent;
+    text-align: center;
+}
+
+.image-preview-container img {
+    margin: 2px auto;
+    max-width: 100px;
+    max-height: 100px;
+    background-image: url(Images/checker.png);
+    -webkit-user-select: text;
+    -webkit-user-drag: auto;
+}
+
+
+.sidebar-pane.composite {
+    overflow: hidden;
+    position: absolute;
+}
+
+.sidebar-pane.composite > .body {
+    height: 100%;
+}
+
+.sidebar-pane.composite .metrics {
+    border-bottom: 1px solid rgb(64%, 64%, 64%);
+    height: 206px;
+    display: -webkit-flex;
+    -webkit-flex-direction: column;
+    -webkit-align-items: center;
+    -webkit-justify-content: center;
+}
+
+.sidebar-pane.composite .metrics-and-computed .sidebar-pane-toolbar {
+    margin-top: 4px;
+    margin-bottom: -4px;
+    position: relative;
+}
+
+.sidebar-pane.composite .sidebar-pane-toolbar > .sidebar-pane-subtitle {
+    left: 8px;
+}
+
+.sidebar-pane.composite .styles-section.read-only {
+    background-color: inherit;
+}
+
+.panel.elements .sidebar-pane-toolbar > select {
+    float: right;
+    width: 23px;
+    height: 17px;
+    color: transparent;
+    background-color: transparent;
+    border: none;
+    background-repeat: no-repeat;
+    margin: 1px 0 0 0;
+    padding: 0;
+    -webkit-border-radius: 0;
+    -webkit-appearance: none;
+}
+
+.panel.elements .sidebar-pane-toolbar > select:hover {
+    background-position: -23px 0px;
+}
+
+.panel.elements .sidebar-pane-toolbar > select:active {
+    background-position: -46px 0px;
+}
+
+.panel.elements .sidebar-pane-toolbar > select.select-settings {
+    background-image: url(Images/paneSettingsButtons.png);
+}
+
+.panel.elements .sidebar-pane-toolbar > select.select-filter {
+    background-image: url(Images/paneFilterButtons.png);
+}
+
+.panel.elements .sidebar-pane-toolbar > select > option, .panel.elements .sidebar-pane-toolbar > select > hr {
+    color: black;
+}

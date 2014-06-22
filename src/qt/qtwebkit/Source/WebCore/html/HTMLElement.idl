@@ -1,0 +1,82 @@
+/*
+ * Copyright (C) 2006, 2007, 2009 Apple Inc. All rights reserved.
+ * Copyright (C) 2006 Samuel Weinig <sam.weinig@gmail.com>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+[
+    JSGenerateToNativeObject,
+    JSCustomPushEventHandlerScope,
+] interface HTMLElement : Element {
+             // iht.com relies on id returning the empty string when no id is present. 
+             // Other browsers do this as well. So we don't convert null to JS null.
+             [Reflect] attribute DOMString id;
+             [Reflect] attribute DOMString title;
+             [Reflect] attribute DOMString lang;
+             attribute boolean             translate;
+             [Reflect] attribute DOMString dir;
+
+             attribute long              tabIndex;
+             attribute boolean           draggable;
+             [Reflect] attribute DOMString webkitdropzone;
+             [Reflect] attribute boolean hidden;
+             [Reflect] attribute DOMString accessKey;
+
+    // Extensions
+             [TreatNullAs=NullString, SetterRaisesException] attribute DOMString innerHTML;
+             [TreatNullAs=NullString, SetterRaisesException] attribute DOMString innerText;
+             [TreatNullAs=NullString, SetterRaisesException] attribute DOMString outerHTML;
+             [TreatNullAs=NullString, SetterRaisesException] attribute DOMString outerText;
+
+    [RaisesException] Element insertAdjacentElement([Default=Undefined] optional DOMString where,
+                                  [Default=Undefined] optional Element element);
+    [RaisesException] void insertAdjacentHTML([Default=Undefined] optional DOMString where,
+                            [Default=Undefined] optional DOMString html);
+    [RaisesException] void insertAdjacentText([Default=Undefined] optional DOMString where,
+                            [Default=Undefined] optional DOMString text);
+
+    readonly attribute HTMLCollection children;
+
+             [TreatNullAs=NullString, SetterRaisesException] attribute DOMString contentEditable;
+    readonly attribute boolean isContentEditable;
+
+             attribute boolean spellcheck;
+
+#if !defined(LANGUAGE_OBJECTIVE_C) || !LANGUAGE_OBJECTIVE_C // No Objective-C bindings yet.
+             [Conditional=MICRODATA, Reflect] attribute boolean itemScope;
+    [Conditional=MICRODATA] readonly attribute DOMSettableTokenList itemType;
+             [Conditional=MICRODATA, Reflect, URL] attribute DOMString itemId;
+
+    [Conditional=MICRODATA] readonly attribute DOMSettableTokenList itemRef;
+    [Conditional=MICRODATA] readonly attribute DOMSettableTokenList itemProp;
+
+    [Conditional=MICRODATA] readonly attribute HTMLPropertiesCollection properties;
+#endif
+
+#if !defined(LANGUAGE_CPP) || !LANGUAGE_CPP
+#if !defined(LANGUAGE_OBJECTIVE_C) || !LANGUAGE_OBJECTIVE_C
+             [Conditional=MICRODATA, Custom, SetterRaisesException] attribute any itemValue;
+#endif
+#endif
+
+#if defined(LANGUAGE_OBJECTIVE_C) && LANGUAGE_OBJECTIVE_C
+    readonly attribute DOMString titleDisplayString;
+#endif
+
+    void click();
+};
+

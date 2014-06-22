@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "breakpad_googletest_includes.h"
 #include "common/memory.h"
-#include "testing/gtest/include/gtest/gtest.h"
 
 using namespace google_breakpad;
 
@@ -86,4 +86,12 @@ TEST(WastefulVectorTest, Simple) {
   ASSERT_EQ(v.size(), 256u);
   for (unsigned i = 0; i < 256; ++i)
     ASSERT_EQ(v[i], i);
+}
+
+TEST(WastefulVectorTest, UsesPageAllocator) {
+  PageAllocator allocator_;
+  wasteful_vector<unsigned> v(&allocator_);
+
+  v.push_back(1);
+  ASSERT_TRUE(allocator_.OwnsPointer(&v[0]));
 }

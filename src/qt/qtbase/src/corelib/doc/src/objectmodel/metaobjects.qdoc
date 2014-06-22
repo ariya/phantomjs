@@ -1,0 +1,137 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page metaobjects.html
+    \title The Meta-Object System
+    \brief An overview of Qt's meta-object system and introspection capabilities.
+
+    \ingroup qt-basic-concepts
+    \keyword meta-object
+    \target Meta-Object System
+
+    Qt's meta-object system provides the signals and slots mechanism for
+    inter-object communication, run-time type information, and the dynamic
+    property system.
+
+    The meta-object system is based on three things:
+
+    \list 1
+    \li The \l QObject class provides a base class for objects that can
+       take advantage of the meta-object system.
+    \li The Q_OBJECT macro inside the private section of the class
+       declaration is used to enable meta-object features, such as
+       dynamic properties, signals, and slots.
+    \li The \l{moc}{Meta-Object Compiler} (\c moc) supplies each
+       QObject subclass with the necessary code to implement
+       meta-object features.
+    \endlist
+
+    The \c moc tool reads a C++ source file. If it finds one or more
+    class declarations that contain the Q_OBJECT macro, it
+    produces another C++ source file which contains the meta-object
+    code for each of those classes. This generated source file is
+    either \c{#include}'d into the class's source file or, more
+    usually, compiled and linked with the class's implementation.
+
+    In addition to providing the \l{signals and slots} mechanism for
+    communication between objects (the main reason for introducing
+    the system), the meta-object code provides the following
+    additional features:
+
+    \list
+    \li QObject::metaObject() returns the associated
+       \l{QMetaObject}{meta-object} for the class.
+    \li QMetaObject::className() returns the class name as a
+       string at run-time, without requiring native run-time type information
+       (RTTI) support through the C++ compiler.
+    \li QObject::inherits() function returns whether an object is an
+       instance of a class that inherits a specified class within the
+       QObject inheritance tree.
+    \li QObject::tr() and QObject::trUtf8() translate strings for
+       \l{Internationalization with Qt}{internationalization}.
+    \li QObject::setProperty() and QObject::property()
+       dynamically set and get properties by name.
+    \li QMetaObject::newInstance() constructs a new instance of the class.
+    \endlist
+
+    \target qobjectcast
+    It is also possible to perform dynamic casts using qobject_cast()
+    on QObject classes. The qobject_cast() function behaves similarly
+    to the standard C++ \c dynamic_cast(), with the advantages
+    that it doesn't require RTTI support and it works across dynamic
+    library boundaries. It attempts to cast its argument to the pointer
+    type specified in angle-brackets, returning a non-zero pointer if the
+    object is of the correct type (determined at run-time), or 0
+    if the object's type is incompatible.
+
+    For example, let's assume \c MyWidget inherits from QWidget and
+    is declared with the Q_OBJECT macro:
+
+    \snippet qtcast/qtcast.cpp 0
+
+    The \c obj variable, of type \c{QObject *}, actually refers to a
+    \c MyWidget object, so we can cast it appropriately:
+
+    \snippet qtcast/qtcast.cpp 1
+
+    The cast from QObject to QWidget is successful, because the
+    object is actually a \c MyWidget, which is a subclass of QWidget.
+    Since we know that \c obj is a \c MyWidget, we can also cast it to
+    \c{MyWidget *}:
+
+    \snippet qtcast/qtcast.cpp 2
+
+    The cast to \c MyWidget is successful because qobject_cast()
+    makes no distinction between built-in Qt types and custom types.
+
+    \snippet qtcast/qtcast.cpp 3
+    \snippet qtcast/qtcast.cpp 4
+
+    The cast to QLabel, on the other hand, fails. The pointer is then
+    set to 0. This makes it possible to handle objects of different
+    types differently at run-time, based on the type:
+
+    \snippet qtcast/qtcast.cpp 5
+    \snippet qtcast/qtcast.cpp 6
+
+    While it is possible to use QObject as a base class without the
+    Q_OBJECT macro and without meta-object code, neither signals
+    and slots nor the other features described here will be available
+    if the Q_OBJECT macro is not used. From the meta-object
+    system's point of view, a QObject subclass without meta code is
+    equivalent to its closest ancestor with meta-object code. This
+    means for example, that QMetaObject::className() will not return
+    the actual name of your class, but the class name of this
+    ancestor.
+
+    Therefore, we strongly recommend that all subclasses of QObject
+    use the Q_OBJECT macro regardless of whether or not they
+    actually use signals, slots, and properties.
+
+    \sa QMetaObject, {Qt's Property System}, {Signals and Slots}
+*/

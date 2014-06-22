@@ -1,0 +1,194 @@
+/*************************************************************************
+ *
+ *  File Name (AccessibleAction.idl)
+ *
+ *  IAccessible2 IDL Specification
+ *
+ *  Copyright (c) 2007, 2010 Linux Foundation
+ *  Copyright (c) 2006 IBM Corporation
+ *  Copyright (c) 2000, 2006 Sun Microsystems, Inc.
+ *  All rights reserved.
+ *
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   1. Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *
+ *   2. Redistributions in binary form must reproduce the above
+ *      copyright notice, this list of conditions and the following
+ *      disclaimer in the documentation and/or other materials
+ *      provided with the distribution.
+ *
+ *   3. Neither the name of the Linux Foundation nor the names of its
+ *      contributors may be used to endorse or promote products
+ *      derived from this software without specific prior written
+ *      permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+ *  CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ *  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ *  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ *  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ *  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ *  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *  This BSD License conforms to the Open Source Initiative "Simplified
+ *  BSD License" as published at:
+ *  http://www.opensource.org/licenses/bsd-license.php
+ *
+ *  IAccessible2 is a trademark of the Linux Foundation. The IAccessible2
+ *  mark may be used in accordance with the Linux Foundation Trademark
+ *  Policy to indicate compliance with the IAccessible2 specification.
+ *
+ ************************************************************************/
+
+import "objidl.idl";
+import "oaidl.idl";
+import "oleacc.idl";
+
+/** @brief This interface gives access to actions that can be executed
+  for accessible objects.
+
+ Every accessible object that can be manipulated via the native GUI beyond the
+  methods available either in the MSAA IAccessible interface or in the set of
+  IAccessible2 interfaces (other than this IAccessibleAction interface) should
+  support the IAccessibleAction interface in order to provide Assistive Technology
+  access to all the actions that can be performed by the object.  Each action can
+  be performed or queried for a name, description or associated key bindings.
+  Actions are needed more for ATs that assist the mobility impaired, such as
+  on-screen keyboards and voice command software.  By providing actions directly,
+  the AT can present them to the user without the user having to perform the extra
+  steps to navigate a context menu.
+
+ The first action should be equivalent to the MSAA default action.  If there is
+  only one action, %IAccessibleAction should also be implemented.
+*/
+[object, uuid(B70D9F59-3B5A-4dba-AB9E-22012F607DF5)]
+interface IAccessibleAction : IUnknown
+{
+
+  /** @brief Returns the number of accessible actions available in this object.
+
+   If there are more than one, the first one is considered the
+    "default" action of the object.
+   @param [out] nActions
+    The returned value of the number of actions is zero if there are
+    no actions.
+   @retval S_OK
+   @note This method is missing a [propget] prefix in the IDL.  The result is the
+    method is named nActions in generated C++ code instead of get_nActions.
+  */
+  HRESULT nActions
+    (
+     [out,retval] long* nActions
+    );
+
+  /** @brief Performs the specified Action on the object.
+   @param [in] actionIndex
+    0 based index specifying the action to perform.  If it lies outside
+    the valid range no action is performed.
+   @retval S_OK
+   @retval S_FALSE if action could not be performed
+   @retval E_INVALIDARG if bad [in] passed
+    */
+  HRESULT doAction
+    (
+     [in] long actionIndex
+    );
+
+  /** @brief Returns a description of the specified action of the object.
+   @param [in] actionIndex
+    0 based index specifying which action's description to return.
+    If it lies outside the valid range an empty string is returned.
+   @param [out] description
+    The returned value is a localized string of the specified action.
+   @retval S_OK
+   @retval S_FALSE if there is nothing to return, [out] value is NULL
+   @retval E_INVALIDARG if bad [in] passed
+    */
+  [propget] HRESULT description
+    (
+     [in] long actionIndex,
+     [out, retval] BSTR *description
+    );
+
+  /** @brief Returns an array of BSTRs describing one or more key bindings, if
+   there are any, associated with the specified action.
+
+   The returned strings are the localized human readable key sequences to be
+   used to activate each action, e.g. "Ctrl+Shift+D".  Since these key
+   sequences are to be used when the object has focus, they are like
+   mnemonics (access keys), and not like shortcut (accelerator) keys.
+
+   There is no need to implement this method for single action controls since
+   that would be redundant with the standard MSAA programming practice of
+   getting the mnemonic from get_accKeyboardShortcut.
+
+   An AT such as an On Screen Keyboard might not expose these bindings but
+   provide alternative means of activation.
+
+   Note: the client allocates and passes in an array of pointers.  The server
+   allocates the BSTRs and passes back one or more pointers to these BSTRs into
+   the array of pointers allocated by the client.  The client is responsible
+   for deallocating the BSTRs.
+
+   @param [in] actionIndex
+    0 based index specifying which action's key bindings should be returned.
+   @param [in] nMaxBindings
+    This parameter is ignored. Refer to @ref _arrayConsideration
+    "Special Consideration when using Arrays" for more details.
+   @param [out] keyBindings
+    An array of BSTRs, allocated by the server, one for each key binding.
+    Free it with CoTaskMemFree.
+   @param [out] nBindings
+    The number of key bindings returned; the size of the returned array.
+   @retval S_OK
+   @retval S_FALSE if there are no key bindings, [out] values are NULL and 0 respectively
+   @retval E_INVALIDARG if bad [in] passed
+    */
+  [propget] HRESULT keyBinding
+    (
+     [in] long actionIndex,
+     [in] long nMaxBindings,
+     [out, size_is(,nMaxBindings), length_is(,*nBindings)] BSTR **keyBindings,
+     [out, retval] long *nBindings
+    );
+
+  /** @brief Returns the non-localized name of specified action.
+   @param [in] actionIndex
+    0 based index specifying which action's non-localized name should be returned.
+   @param [out] name
+   @retval S_OK
+   @retval S_FALSE if there is nothing to return, [out] value is NULL
+   @retval E_INVALIDARG if bad [in] passed
+   */
+  [propget] HRESULT name
+    (
+     [in] long actionIndex,
+     [out, retval] BSTR *name
+    );
+
+  /** @brief Returns the localized name of specified action.
+   @param [in] actionIndex
+    0 based index specifying which action's localized name should be returned.
+   @param [out] localizedName
+   @retval S_OK
+   @retval S_FALSE if there is nothing to return, [out] value is NULL
+   @retval E_INVALIDARG if bad [in] passed
+   */
+  [propget] HRESULT localizedName
+    (
+     [in] long actionIndex,
+     [out, retval] BSTR *localizedName
+    );
+
+}

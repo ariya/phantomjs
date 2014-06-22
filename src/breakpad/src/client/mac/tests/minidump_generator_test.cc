@@ -280,7 +280,7 @@ const MDCPUArchitecture kExpectedArchitecture =
   MD_CPU_ARCHITECTURE_AMD64
 #endif
   ;
-const u_int32_t kExpectedContext =
+const uint32_t kExpectedContext =
 #if defined(__i386__)
   MD_CONTEXT_AMD64
 #elif defined(__x86_64__)

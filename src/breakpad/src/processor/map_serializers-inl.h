@@ -55,7 +55,7 @@ template<typename Key, typename Value>
 size_t StdMapSerializer<Key, Value>::SizeOf(
     const std::map<Key, Value> &m) const {
   size_t size = 0;
-  size_t header_size = (1 + m.size()) * sizeof(u_int32_t);
+  size_t header_size = (1 + m.size()) * sizeof(uint32_t);
   size += header_size;
 
   typename std::map<Key, Value>::const_iterator iter;
@@ -77,10 +77,10 @@ char *StdMapSerializer<Key, Value>::Write(const std::map<Key, Value> &m,
 
   // Write header:
   // Number of nodes.
-  dest = SimpleSerializer<u_int32_t>::Write(m.size(), dest);
+  dest = SimpleSerializer<uint32_t>::Write(m.size(), dest);
   // Nodes offsets.
-  u_int32_t *offsets = reinterpret_cast<u_int32_t*>(dest);
-  dest += sizeof(u_int32_t) * m.size();
+  uint32_t *offsets = reinterpret_cast<uint32_t*>(dest);
+  dest += sizeof(uint32_t) * m.size();
 
   char *key_address = dest;
   dest += sizeof(Key) * m.size();
@@ -89,7 +89,7 @@ char *StdMapSerializer<Key, Value>::Write(const std::map<Key, Value> &m,
   typename std::map<Key, Value>::const_iterator iter;
   int index = 0;
   for (iter = m.begin(); iter != m.end(); ++iter, ++index) {
-    offsets[index] = static_cast<u_int32_t>(dest - start_address);
+    offsets[index] = static_cast<uint32_t>(dest - start_address);
     key_address = key_serializer_.Write(iter->first, key_address);
     dest = value_serializer_.Write(iter->second, dest);
   }
@@ -119,7 +119,7 @@ template<typename Address, typename Entry>
 size_t RangeMapSerializer<Address, Entry>::SizeOf(
     const RangeMap<Address, Entry> &m) const {
   size_t size = 0;
-  size_t header_size = (1 + m.map_.size()) * sizeof(u_int32_t);
+  size_t header_size = (1 + m.map_.size()) * sizeof(uint32_t);
   size += header_size;
 
   typename std::map<Address, Range>::const_iterator iter;
@@ -145,10 +145,10 @@ char *RangeMapSerializer<Address, Entry>::Write(
 
   // Write header:
   // Number of nodes.
-  dest = SimpleSerializer<u_int32_t>::Write(m.map_.size(), dest);
+  dest = SimpleSerializer<uint32_t>::Write(m.map_.size(), dest);
   // Nodes offsets.
-  u_int32_t *offsets = reinterpret_cast<u_int32_t*>(dest);
-  dest += sizeof(u_int32_t) * m.map_.size();
+  uint32_t *offsets = reinterpret_cast<uint32_t*>(dest);
+  dest += sizeof(uint32_t) * m.map_.size();
 
   char *key_address = dest;
   dest += sizeof(Address) * m.map_.size();
@@ -157,7 +157,7 @@ char *RangeMapSerializer<Address, Entry>::Write(
   typename std::map<Address, Range>::const_iterator iter;
   int index = 0;
   for (iter = m.map_.begin(); iter != m.map_.end(); ++iter, ++index) {
-    offsets[index] = static_cast<u_int32_t>(dest - start_address);
+    offsets[index] = static_cast<uint32_t>(dest - start_address);
     key_address = address_serializer_.Write(iter->first, key_address);
     dest = address_serializer_.Write(iter->second.base(), dest);
     dest = entry_serializer_.Write(iter->second.entry(), dest);
@@ -192,12 +192,12 @@ size_t ContainedRangeMapSerializer<AddrType, EntryType>::SizeOf(
   size_t size = 0;
   size_t header_size = addr_serializer_.SizeOf(m->base_)
                        + entry_serializer_.SizeOf(m->entry_)
-                       + sizeof(u_int32_t);
+                       + sizeof(uint32_t);
   size += header_size;
   // In case m.map_ == NULL, we treat it as an empty map:
-  size += sizeof(u_int32_t);
+  size += sizeof(uint32_t);
   if (m->map_) {
-    size += m->map_->size() * sizeof(u_int32_t);
+    size += m->map_->size() * sizeof(uint32_t);
     typename Map::const_iterator iter;
     for (iter = m->map_->begin(); iter != m->map_->end(); ++iter) {
       size += addr_serializer_.SizeOf(iter->first);
@@ -216,18 +216,18 @@ char *ContainedRangeMapSerializer<AddrType, EntryType>::Write(
     return NULL;
   }
   dest = addr_serializer_.Write(m->base_, dest);
-  dest = SimpleSerializer<u_int32_t>::Write(entry_serializer_.SizeOf(m->entry_),
+  dest = SimpleSerializer<uint32_t>::Write(entry_serializer_.SizeOf(m->entry_),
                                             dest);
   dest = entry_serializer_.Write(m->entry_, dest);
 
   // Write map<<AddrType, ContainedRangeMap*>:
   char *map_address = dest;
   if (m->map_ == NULL) {
-    dest = SimpleSerializer<u_int32_t>::Write(0, dest);
+    dest = SimpleSerializer<uint32_t>::Write(0, dest);
   } else {
-    dest = SimpleSerializer<u_int32_t>::Write(m->map_->size(), dest);
-    u_int32_t *offsets = reinterpret_cast<u_int32_t*>(dest);
-    dest += sizeof(u_int32_t) * m->map_->size();
+    dest = SimpleSerializer<uint32_t>::Write(m->map_->size(), dest);
+    uint32_t *offsets = reinterpret_cast<uint32_t*>(dest);
+    dest += sizeof(uint32_t) * m->map_->size();
 
     char *key_address = dest;
     dest += sizeof(AddrType) * m->map_->size();
@@ -236,7 +236,7 @@ char *ContainedRangeMapSerializer<AddrType, EntryType>::Write(
     typename Map::const_iterator iter;
     int index = 0;
     for (iter = m->map_->begin(); iter != m->map_->end(); ++iter, ++index) {
-      offsets[index] = static_cast<u_int32_t>(dest - map_address);
+      offsets[index] = static_cast<uint32_t>(dest - map_address);
       key_address = addr_serializer_.Write(iter->first, key_address);
       // Recursively write.
       dest = Write(iter->second, dest);

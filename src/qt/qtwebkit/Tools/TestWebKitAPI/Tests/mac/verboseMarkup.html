@@ -1,0 +1,19 @@
+<html>
+    <body contenteditable="true">
+        <div>Hello</div>
+        <div id="test1"><b><i>Hello</i></b></div>
+        <div><b><i><span style="font-weight: normal"><b><i>Hello</i></b></span></i></b></div>
+        <div><div><div>Hello</div></div></div>
+        <div><b><div><i>Hello</i></div></b></div>
+        <div><div style="text-align: center;"><b>Hello</b></div></div>
+        <div id="test2"><b><i><span style="font-weight: normal"><b><i>hello</i></b></span></i></b></div><div><b><i><span style="font-weight: normal"><b><i>world</i></b></span></i></b></div>
+        <div><b><i><span style="font-weight: normal;"><b><i>hello1</i></b><b><i> hello2</i></b></span></i></b></div>
+        <div><i style="margin: 10px;"><b><i style="margin: 10px;">hello</i></b></i></div>
+        <div><b><i><span style="font-weight: normal"><b><i>Hello <!-- comment -->world</i></b></span></i></b></div>
+        <div><b><i><span style="font-weight: normal">plain text<b><i>bold italic text</i></b></span></i></b></div>
+        <iframe id="test3" src="data:text/html,
+            <div>This is another document.</div>
+            ">
+        </iframe>
+     </body>
+</html>

@@ -1,0 +1,41 @@
+# -------------------------------------------------------------------
+# Win32 specific defaults
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+# Pick up 3rdparty libraries from INCLUDE/LIB just like with MSVC
+mingw {
+    TMPPATH            = $$quote($$(INCLUDE))
+    QMAKE_INCDIR_POST += $$split(TMPPATH,";")
+    TMPPATH            = $$quote($$(LIB))
+    QMAKE_LIBDIR_POST += $$split(TMPPATH,";")
+}
+
+# Disable a few warnings. The same warnings are also disabled
+# in WebKitLibraries/win/tools/vsprops/common.vsprops
+win32-msvc*|wince*: QMAKE_CXXFLAGS += -wd4291 -wd4344 -wd4396 -wd4503 -wd4800 -wd4819 -wd4996
+win32-icc: QMAKE_CXXFLAGS += -wd873
+
+load(default_post)
+
+# When creating the target DLL, extract exporting linker directives from
+# all static libraries we're linking into the DLL and make sure they are
+# also exported from the DLL.
+shared:contains(TEMPLATE, lib) {
+    for(target, POST_TARGETDEPS) {
+        libdep = $$find(target, .*\\.lib)
+        !isEmpty(libdep): LIBSWITHEXPORTS += $$libdep
+    }
+}
+
+!isEmpty(LIBSWITHEXPORTS) {
+    suffix =
+    CONFIG(debug, debug|release): suffix = d
+    forwarded_exports.target = forwarded-exports$${suffix}.cpp
+    forwarded_exports.commands = python $${ROOT_WEBKIT_DIR}$${QMAKE_DIR_SEP}Tools$${QMAKE_DIR_SEP}Scripts$${QMAKE_DIR_SEP}generate-win32-export-forwards $$LIBSWITHEXPORTS $$forwarded_exports.target
+    forwarded_exports.depends = $$LIBSWITHEXPORTS
+    QMAKE_EXTRA_TARGETS += forwarded_exports
+    GENERATED_SOURCES += $$forwarded_exports.target
+}
+

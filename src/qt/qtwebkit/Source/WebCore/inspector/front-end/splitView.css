@@ -1,0 +1,145 @@
+/*
+ * Copyright (C) 2011 Google Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY GOOGLE INC. AND ITS CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL GOOGLE INC.
+ * OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.split-view {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+}
+
+.split-view-contents {
+    position: absolute;
+    overflow: auto;
+    cursor: default;
+}
+
+.split-view-contents.maximized {
+    width: 100%;
+    height: 100%;
+}
+
+.split-view-vertical > .split-view-contents {
+    top: 0;
+    bottom: 0;
+}
+
+.split-view-vertical > .split-view-contents-first {
+    left: 0;
+}
+
+.split-view-vertical > .split-view-contents-first.maximized {
+    right: 0;
+}
+
+.split-view-vertical > .split-view-contents-second {
+    right: 0;
+}
+
+.split-view-vertical > .split-view-contents-second.maximized {
+    left: 0;
+}
+
+.split-view-horizontal > .split-view-contents {
+    left: 0;
+    right: 0;
+}
+
+.split-view-horizontal > .split-view-contents-first {
+    top: 0;
+}
+
+.split-view-horizontal > .split-view-contents-first.maximized {
+    bottom: 0;
+}
+
+.split-view-horizontal > .split-view-contents-second {
+    bottom: 0;
+}
+
+.split-view-horizontal > .split-view-contents-second.maximized {
+    top: 0;
+}
+
+.split-view-vertical > .split-view-sidebar.split-view-contents-first:not(.maximized) {
+    border-right: 1px solid rgb(64%, 64%, 64%);
+}
+
+.split-view-vertical > .split-view-sidebar.split-view-contents-second:not(.maximized) {
+    border-left: 1px solid rgb(64%, 64%, 64%);
+}
+
+.split-view-horizontal > .split-view-sidebar.split-view-contents-first:not(.maximized) {
+    border-bottom: 1px solid rgb(64%, 64%, 64%);
+}
+
+.split-view-horizontal > .split-view-sidebar.split-view-contents-second:not(.maximized) {
+    border-top: 1px solid rgb(64%, 64%, 64%);
+}
+
+.split-view-vertical > .split-view-resizer {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    z-index: 1500;
+    cursor: ew-resize;
+}
+
+.split-view-horizontal > .split-view-resizer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 5px;
+    z-index: 1500;
+    cursor: ns-resize;
+}
+
+.sidebar-overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    background-color: white;
+    border-right: 1px solid gray;
+    -webkit-box-shadow: rgb(90,90,90) 20px 0px 50px -25px;
+    display: -webkit-flex;
+    -webkit-flex-direction: column;
+}
+
+.sidebar-overlay-resizer {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    z-index: 500;
+    cursor: ew-resize;
+}

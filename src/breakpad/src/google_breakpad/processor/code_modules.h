@@ -53,7 +53,7 @@ class CodeModules {
   // address, returns NULL.  Ownership of the returned CodeModule is retained
   // by the CodeModules object; pointers returned by this method are valid for
   // comparison with pointers returned by the other Get methods.
-  virtual const CodeModule* GetModuleForAddress(u_int64_t address) const = 0;
+  virtual const CodeModule* GetModuleForAddress(uint64_t address) const = 0;
 
   // Returns the module corresponding to the main executable.  If there is
   // no main executable, returns NULL.  Ownership of the returned CodeModule

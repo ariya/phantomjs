@@ -5,12 +5,11 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "common/linux/elf_gnu_compat.h"
+#include "common/using_std_string.h"
+
 namespace google_breakpad {
 namespace synth_elf {
-
-#ifndef NT_GNU_BUILD_ID
-#define NT_GNU_BUILD_ID 3
-#endif
 
 ELF::ELF(uint16_t machine,
          uint8_t file_class,
@@ -18,6 +17,7 @@ ELF::ELF(uint16_t machine,
   : Section(endianness),
     addr_size_(file_class == ELFCLASS64 ? 8 : 4),
     program_count_(0),
+    program_header_table_(endianness),
     section_count_(0),
     section_header_table_(endianness),
     section_header_strings_(endianness) {
@@ -113,18 +113,75 @@ int ELF::AddSection(const string& name, const Section& section,
     // sh_entsize
     .Append(endianness(), addr_size_, entsize);
 
+  sections_.push_back(ElfSection(section, type, addr, offset, offset_label,
+                                 size));
+  return index;
+}
+
+void ELF::AppendSection(ElfSection &section) {
   // NULL and NOBITS sections have no content, so they
   // don't need to be written to the file.
-  if (type == SHT_NULL) {
-    offset_label = 0;
-  } else if (type == SHT_NOBITS) {
-    offset_label = offset;
+  if (section.type_ == SHT_NULL) {
+    section.offset_label_ = 0;
+  } else if (section.type_ == SHT_NOBITS) {
+    section.offset_label_ = section.offset_;
   } else {
-    Mark(&offset_label);
+    Mark(&section.offset_label_);
     Append(section);
     Align(4);
   }
-  return index;
+}
+
+void ELF::AddSegment(int start, int end, uint32_t type, uint32_t flags) {
+  assert(start > 0);
+  assert(size_t(start) < sections_.size());
+  assert(end > 0);
+  assert(size_t(end) < sections_.size());
+  ++program_count_;
+
+  // p_type
+  program_header_table_.D32(type);
+
+  if (addr_size_ == 8) {
+    // p_flags
+    program_header_table_.D32(flags);
+  }
+
+  size_t filesz = 0;
+  size_t memsz = 0;
+  bool prev_was_nobits = false;
+  for (int i = start; i <= end; ++i) {
+    size_t size = sections_[i].size_;
+    if (sections_[i].type_ != SHT_NOBITS) {
+      assert(!prev_was_nobits);
+      // non SHT_NOBITS sections are 4-byte aligned (see AddSection)
+      size = (size + 3) & ~3;
+      filesz += size;
+    } else {
+      prev_was_nobits = true;
+    }
+    memsz += size;
+  }
+
+  program_header_table_
+    // p_offset
+    .Append(endianness(), addr_size_, sections_[start].offset_label_)
+    // p_vaddr
+    .Append(endianness(), addr_size_, sections_[start].addr_)
+    // p_paddr
+    .Append(endianness(), addr_size_, sections_[start].addr_)
+    // p_filesz
+    .Append(endianness(), addr_size_, filesz)
+    // p_memsz
+    .Append(endianness(), addr_size_, memsz);
+
+  if (addr_size_ == 4) {
+    // p_flags
+    program_header_table_.D32(flags);
+  }
+
+  // p_align
+  program_header_table_.Append(endianness(), addr_size_, 0);
 }
 
 void ELF::Finish() {
@@ -134,10 +191,19 @@ void ELF::Finish() {
   AddSection(".shstrtab", section_header_strings_, SHT_STRTAB);
   //printf("section_count_: %ld, sections_.size(): %ld\n",
   //     section_count_, sections_.size());
+  if (program_count_) {
+    Mark(&program_header_label_);
+    Append(program_header_table_);
+  } else {
+    program_header_label_ = 0;
+  }
+
+  for (vector<ElfSection>::iterator it = sections_.begin();
+       it < sections_.end(); ++it) {
+    AppendSection(*it);
+  }
   section_count_label_ = section_count_;
   program_count_label_ = program_count_;
-  // TODO:  allow adding entries to program header table
-  program_header_label_ = 0;
 
   // Section header table starts here.
   Mark(&section_header_label_);
@@ -174,30 +240,21 @@ void SymbolTable::AddSymbol(const string& name, uint64_t value,
   D64(size);
 }
 
-BuildIDNote::BuildIDNote(const uint8_t* id_bytes,
-                         size_t id_size,
-                         Endianness endianness) : Section(endianness) {
-  const char kNoteName[] = "GNU";
+void Notes::AddNote(int type, const string &name, const uint8_t* desc_bytes,
+                    size_t desc_size) {
   // Elf32_Nhdr and Elf64_Nhdr are exactly the same.
   Elf32_Nhdr note_header;
   memset(&note_header, 0, sizeof(note_header));
-  note_header.n_namesz = sizeof(kNoteName);
-  note_header.n_descsz = id_size;
-  note_header.n_type = NT_GNU_BUILD_ID;
+  note_header.n_namesz = name.length() + 1;
+  note_header.n_descsz = desc_size;
+  note_header.n_type = type;
 
   Append(reinterpret_cast<const uint8_t*>(&note_header),
          sizeof(note_header));
-  AppendCString(kNoteName);
-  Append(id_bytes, id_size);
-}
-
-// static
-void BuildIDNote::AppendSection(ELF& elf,
-                                const uint8_t* id_bytes,
-                                size_t id_size) {
-  const char kBuildIDSectionName[] = ".note.gnu.build-id";
-  BuildIDNote note(id_bytes, id_size, elf.endianness());
-  elf.AddSection(kBuildIDSectionName, note, SHT_NOTE);
+  AppendCString(name);
+  Align(4);
+  Append(desc_bytes, desc_size);
+  Align(4);
 }
 
 }  // namespace synth_elf

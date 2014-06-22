@@ -31,7 +31,7 @@
  *
  * (This is C99 source, please don't corrupt it with C++.)
  *
- * This file ensures that types u_intN_t are defined for N = 8, 16, 32, and
+ * This file ensures that types uintN_t are defined for N = 8, 16, 32, and
  * 64.  Types of precise widths are crucial to the task of writing data
  * structures on one platform and reading them on another.
  *
@@ -42,36 +42,39 @@
 
 #ifndef _WIN32
 
-#include <sys/types.h>
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
 #endif  /* __STDC_FORMAT_MACROS */
 #include <inttypes.h>
 
-#if defined(__SUNPRO_CC) || (defined(__GNUC__) && defined(__sun__))
-typedef uint8_t u_int8_t;
-typedef uint16_t u_int16_t;
-typedef uint32_t u_int32_t;
-typedef uint64_t u_int64_t;
-#endif
-
 #else  /* !_WIN32 */
 
+#if _MSC_VER >= 1600
+#include <stdint.h>
+#elif defined(BREAKPAD_CUSTOM_STDINT_H)
+/* Visual C++ Pre-2010 did not ship a stdint.h, so allow
+ * consumers of this library to provide their own because
+ * there are often subtle type incompatibilities.
+ */
+#include BREAKPAD_CUSTOM_STDINT_H
+#else
 #include <WTypes.h>
 
-typedef unsigned __int8  u_int8_t;
-typedef unsigned __int16 u_int16_t;
-typedef unsigned __int32 u_int32_t;
-typedef unsigned __int64 u_int64_t;
+typedef unsigned __int8  uint8_t;
+typedef unsigned __int16 uint16_t;
+typedef __int32 int32_t;
+typedef unsigned __int32 uint32_t;
+typedef unsigned __int64 uint64_t;
+#endif
 
 #endif  /* !_WIN32 */
 
 typedef struct {
-  u_int64_t high;
-  u_int64_t low;
-} u_int128_t;
+  uint64_t high;
+  uint64_t low;
+} uint128_struct;
 
-typedef u_int64_t breakpad_time_t;
+typedef uint64_t breakpad_time_t;
 
 /* Try to get PRIx64 from inttypes.h, but if it's not defined, fall back to
  * llx, which is the format string for "long long" - this is a 64-bit

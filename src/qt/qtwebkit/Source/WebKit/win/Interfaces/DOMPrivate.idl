@@ -1,0 +1,141 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+#ifndef DO_NO_IMPORTS
+import "oaidl.idl";
+import "ocidl.idl";
+import "DOMCore.idl";
+#endif
+
+interface IDOMElement;
+
+typedef struct WebFontDescription WebFontDescription;
+
+[
+    object,
+    oleautomation,
+    uuid(7FF28EC8-6DA1-498d-9A43-7E67C2D3128F),
+    pointer_default(unique)
+]
+interface IDOMElementPrivate : IUnknown
+{
+    [local] HRESULT coreElement(void** element);
+    HRESULT isEqual([in] IDOMElement* other, [out, retval] BOOL* result);
+    HRESULT isFocused([out, retval] BOOL* result);
+    HRESULT innerText([out, retval] BSTR* result);
+    [local] HRESULT font(WebFontDescription* webFontDescription);
+    HRESULT renderedImage([out, retval] HBITMAP* image);
+    [local] HRESULT markerTextForListItem([out, retval] BSTR* markerText);
+    [local] HRESULT shadowPseudoId([out, retval] BSTR* result);
+}
+
+/*
+    All the methods in this category are used by Safari forms autofill and should not be used for any other purpose.
+    Each one should eventually be replaced by public DOM API, and when that happens Safari will switch to implementations 
+    using that public API, and these will be deleted.
+
+    @interface DOMHTMLInputElement(FormsAutoFillTransition)
+*/
+[
+    object,
+    oleautomation,
+    uuid(2DF339BC-B48E-4d35-B93A-299756ED0B4B),
+    pointer_default(unique)
+]
+interface IFormsAutoFillTransition : IUnknown
+{
+    /*
+        - (BOOL)_isTextField;
+    */
+    HRESULT isTextField([out, retval] BOOL* result);
+
+    /*
+        - (NSRect)_rectOnScreen; // bounding box of the text field, screen coordinates
+    */
+    HRESULT rectOnScreen([out, retval] LPRECT rect);
+
+    /*
+        - (void)_replaceCharactersInRange:(NSRange)targetRange withString:(NSString *)replacementString selectingFromIndex:(int)index;
+    */
+    HRESULT replaceCharactersInRange([in] int startTarget, [in] int endTarget, [in] BSTR replacementString, [in] int index);
+
+    /*
+        - (NSRange)_selectedRange;
+    */
+    HRESULT selectedRange([out] int* start, [out] int* end);
+
+    /*
+        - (void)_setAutofilled:(BOOL)filled;
+    */
+    HRESULT setAutofilled([in] BOOL filled);
+
+    /*
+        - (BOOL)_isAutofilled;
+    */
+    HRESULT isAutofilled([out, retval] BOOL* result);
+}
+
+/*
+    // These changes are necessary to detect whether a form input was modified by a user
+    // or javascript
+    @interface DOMHTMLInputElement (FormPromptAdditions)
+
+    @interface DOMHTMLTextAreaElement (FormPromptAdditions)
+*/
+[
+    object,
+    oleautomation,
+    uuid(C8C5F0CD-07B0-4a32-BFA8-AE465E80DD3C),
+    pointer_default(unique)
+]
+interface IFormPromptAdditions : IUnknown
+{
+    /*
+        - (BOOL)_isUserEdited;
+    */
+    HRESULT isUserEdited([out, retval] BOOL* result);
+}
+
+/*
+    All the methods in this category are used by Safari forms autofill and should not be used for any other purpose.
+    They are stopgap measures until we finish transitioning form controls to not use NSView. Each one should become
+    replaceable by public DOM API, and when that happens Safari will switch to implementations using that public API,
+    and these will be deleted.
+
+    @interface DOMHTMLSelectElement(FormsAutoFillTransition)
+*/
+[
+    object,
+    oleautomation,
+    uuid(6959F712-1563-4661-8D8C-F4C739C55839),
+    pointer_default(unique)
+]
+interface IFormsAutoFillTransitionSelect : IUnknown
+{
+    /*
+        - (void)_activateItemAtIndex:(int)index;
+    */
+    HRESULT activateItemAtIndex([in] int index);
+}

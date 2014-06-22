@@ -1,0 +1,15 @@
+<!doctype html>
+<html>
+<head>
+<script>
+    function initialize() {
+        navigator.qt.onmessage = function(ev) {
+            var reversed = ev.data.split("").reverse().join("");
+            navigator.qt.postMessage(reversed);
+        }
+    }
+</script>
+</head>
+<body onload="initialize();">
+</body>
+</html>

@@ -1,0 +1,19 @@
+<html>
+<head>
+  <title>Desktop Notification Permission test</title>
+  <script>
+    requestPermission = function(cb) {
+      window.webkitNotifications.requestPermission(function() {
+        if (cb)
+           cb(window.webkitNotifications.checkPermission() == 0);
+      });
+    }
+    requestPermission()
+  </script>
+</head>
+
+<body>
+  Desktop Notification test
+</body>
+
+</html>

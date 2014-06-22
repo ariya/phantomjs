@@ -1,0 +1,71 @@
+# This file contains the mapping of xlfds to mib enum (used to convert
+# unicode to the xlfd encoding) and the QFontDatabase::WritingSystem's
+# they support the format is 'xlfd mib script,...'
+#
+# Latin
+iso8859-1 4 Latin
+iso8859-2 5 Latin
+iso8859-3 6 Latin
+iso8859-4 7 Latin
+iso8859-9 12 Latin
+iso8859-10 13 Latin
+iso8859-13 109 Latin
+iso8859-14 110 Latin
+iso8859-15 111 Latin
+hp-roman8 2004 Latin
+#
+# Cyrillic
+iso8859-5 8 Cyrillic
+*-cp1251 2251 Cyrillic
+koi8-ru 2084 Cyrillic
+koi8-u 2088 Cyrillic
+koi8-r 2084 Cyrillic
+#
+# Greek
+iso8859-7 10 Greek
+#
+#
+# Hebrew
+iso8859-8 85 Hebrew
+#
+# China, Mainland
+gb18030-0 -114 SimplifiedChinese
+gb18030.2000-0 -113 SimplifiedChinese
+gbk-0 -113 SimplifiedChinese
+gb2312.*-0 57 SimplifiedChinese
+#
+# Japan
+jisx0201*-0 15 Japanese
+jisx0208*-0 63 Japanese
+#
+# Korea
+ksc5601*-* 36 Korean
+#
+# Hong Kong
+big5hkscs-0 -2101 TraditionalChinese
+hkscs-1 -2101 TraditionalChinese
+#
+# Taiwan
+big5*-* -2026 TraditionalChinese
+#
+# Tamil
+tscii-* 2028 Tamil
+#
+# Thai
+tis620*-* 2259 Thai
+iso8859-11 2259 Thai
+#
+# Lao
+mulelao-1 -4242 Lao
+#
+# Ethiopic
+ethiopic-unicode 0 Other
+#
+# Unicode
+iso10646-1 0 Latin,Greek,Cyrillic,Armenian,Hebrew,Arabic,Thai,Lao,Tibetan,Georgian,SimplifiedChinese,TraditionalChinese, Japanese,Korean,Vietnamese,Yi,Tagalog,Hanunoo,Buhid,Tagbanwa,Limbu,TaiLe,Braille,Other
+unicode-* 0 Latin,Greek,Cyrillic,Armenian,Hebrew,Arabic,Thai,Lao,Tibetan,Georgian,SimplifiedChinese,TraditionalChinese, Japanese,Korean,Vietnamese,Yi,Tagalog,Hanunoo,Buhid,Tagbanwa,Limbu,TaiLe,Braille,Other
+#
+# Other
+*-symbol 0 Other
+*-fontspecific 0 Other
+fontspecific-* 0 Other

@@ -55,6 +55,16 @@ template<typename MDType> class TypedMDRVA;
 // header->get()->signature = MD_HEADER_SIGNATURE;
 //  :
 // writer.Close();
+//
+// An alternative is to use SetFile and provide a file descriptor:
+// MinidumpFileWriter writer;
+// writer.SetFile(minidump_fd);
+// TypedMDRVA<MDRawHeader> header(&writer_);
+// header.Allocate();
+// header->get()->signature = MD_HEADER_SIGNATURE;
+//  :
+// writer.Close();
+
 class MinidumpFileWriter {
 public:
   // Invalid MDRVA (Minidump Relative Virtual Address)
@@ -64,13 +74,21 @@ public:
   MinidumpFileWriter();
   ~MinidumpFileWriter();
 
-  // Open |path| as the destination of the minidump data.  Any existing file
-  // will be overwritten.
-  // Return true on success, or false on failure
+  // Open |path| as the destination of the minidump data. If |path| already
+  // exists, then Open() will fail.
+  // Return true on success, or false on failure.
   bool Open(const char *path);
 
-  // Close the current file
-  // Return true on success, or false on failure
+  // Sets the file descriptor |file| as the destination of the minidump data.
+  // Can be used as an alternative to Open() when a file descriptor is
+  // available.
+  // Note that |fd| is not closed when the instance of MinidumpFileWriter is
+  // destroyed.
+  void SetFile(const int file);
+
+  // Close the current file (that was either created when Open was called, or
+  // specified with SetFile).
+  // Return true on success, or false on failure.
   bool Close();
 
   // Copy the contents of |str| to a MDString and write it to the file.
@@ -106,8 +124,11 @@ public:
   // unable to allocate the bytes.
   MDRVA Allocate(size_t size);
 
-  // The file descriptor for the output file
+  // The file descriptor for the output file.
   int file_;
+
+  // Whether |file_| should be closed when the instance is destroyed.
+  bool close_file_when_destroyed_;
 
   // Current position in buffer
   MDRVA position_;
@@ -151,7 +172,7 @@ class UntypedMDRVA {
 
   // Return size and position
   inline MDLocationDescriptor location() const {
-    MDLocationDescriptor location = { static_cast<u_int32_t>(size_),
+    MDLocationDescriptor location = { static_cast<uint32_t>(size_),
                                       position_ };
     return location;
   }

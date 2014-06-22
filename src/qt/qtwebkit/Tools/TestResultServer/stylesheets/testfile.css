@@ -1,0 +1,30 @@
+body {
+  font-family: Verdana, Helvetica, sans-serif;
+  padding: 0px;
+  color: #444;
+}
+h1 {
+  color: #444;
+  font-size: 14pt;
+  font-style: italic;
+  margin: 0px;
+  padding: 5px;
+}
+table {
+  border-spacing: 0px;
+}
+th {
+  background-color: #AAA;
+  color: white;
+  text-align: left;
+  padding: 5px;
+  font-size: 12pt;
+}
+td {
+  font-size: 11pt;
+  padding: 3px;
+  text-align: left;
+}
+tr:hover {
+  background-color: #EEE;
+}

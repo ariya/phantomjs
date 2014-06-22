@@ -40,13 +40,30 @@ class AutoCriticalSection {
  public:
   // Creates a new instance with the given critical section object
   // and enters the critical section immediately.
-  explicit AutoCriticalSection(CRITICAL_SECTION* cs) : cs_(cs) {
+  explicit AutoCriticalSection(CRITICAL_SECTION* cs) : cs_(cs), taken_(false) {
     assert(cs_);
-    EnterCriticalSection(cs_);
+    Acquire();
   }
 
   // Destructor: leaves the critical section.
   ~AutoCriticalSection() {
+    if (taken_) {
+      Release();
+    }
+  }
+
+  // Enters the critical section. Recursive Acquire() calls are not allowed.
+  void Acquire() {
+    assert(!taken_);
+    EnterCriticalSection(cs_);
+    taken_ = true;
+  }
+
+  // Leaves the critical section. The caller should not call Release() unless
+  // the critical seciton has been entered already.
+  void Release() {
+    assert(taken_);
+    taken_ = false;
     LeaveCriticalSection(cs_);
   }
 
@@ -56,6 +73,7 @@ class AutoCriticalSection {
   AutoCriticalSection& operator=(const AutoCriticalSection&);
 
   CRITICAL_SECTION* cs_;
+  bool taken_;
 };
 
 }  // namespace google_breakpad

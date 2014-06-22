@@ -1,0 +1,50 @@
+/*
+ * Copyright (C) 2004, 2005, 2008 Nikolas Zimmermann <zimmermann@kde.org>
+ * Copyright (C) 2004, 2005 Rob Buis <buis@kde.org>
+ * Copyright (C) 2006 Samuel Weinig <sam.weinig@gmail.com>
+ * Copyright (C) 2006 Apple Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+[
+    Conditional=SVG
+] interface SVGLength { 
+    // Length Unit Types
+    const unsigned short SVG_LENGTHTYPE_UNKNOWN    = 0;
+    const unsigned short SVG_LENGTHTYPE_NUMBER     = 1;
+    const unsigned short SVG_LENGTHTYPE_PERCENTAGE = 2;
+    const unsigned short SVG_LENGTHTYPE_EMS        = 3;
+    const unsigned short SVG_LENGTHTYPE_EXS        = 4;
+    const unsigned short SVG_LENGTHTYPE_PX         = 5;
+    const unsigned short SVG_LENGTHTYPE_CM         = 6;
+    const unsigned short SVG_LENGTHTYPE_MM         = 7;
+    const unsigned short SVG_LENGTHTYPE_IN         = 8;
+    const unsigned short SVG_LENGTHTYPE_PT         = 9;
+    const unsigned short SVG_LENGTHTYPE_PC         = 10;
+
+    readonly attribute unsigned short unitType;
+    [GetterRaisesException, SetterRaisesException, Custom, StrictTypeChecking] attribute float value;
+
+    [StrictTypeChecking] attribute float valueInSpecifiedUnits;
+    [TreatNullAs=NullString, StrictTypeChecking, SetterRaisesException] attribute DOMString valueAsString;
+
+    [StrictTypeChecking, RaisesException] void newValueSpecifiedUnits(unsigned short unitType, 
+                                                     float valueInSpecifiedUnits);
+
+    [Custom, StrictTypeChecking, RaisesException] void convertToSpecifiedUnits(unsigned short unitType);
+};
+

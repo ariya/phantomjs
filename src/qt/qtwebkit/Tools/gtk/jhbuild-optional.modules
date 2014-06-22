@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE moduleset SYSTEM "moduleset.dtd">
+<?xml-stylesheet type="text/xsl" href="moduleset.xsl"?>
+<moduleset>
+
+  <!-- This file contains a set of modules that are hard to get on
+       certain distributions. Feel free to add more here, within reason,
+       as long as they are not built by default. -->
+
+  <repository type="tarball" name="ftp.gnome.org"
+      href="http://ftp.gnome.org"/>
+
+  <autotools id="libsecret" autogen-sh="configure">
+    <branch repo="ftp.gnome.org"
+            module="/pub/GNOME/sources/libsecret/0.11/libsecret-0.11.tar.xz" version="0.11"
+            hash="sha256:e5399dfb61376a7500d20cb22715152780aa3a2c8a64281ec6bc8f0ebeb8b689"/>
+  </autotools>
+
+</moduleset>

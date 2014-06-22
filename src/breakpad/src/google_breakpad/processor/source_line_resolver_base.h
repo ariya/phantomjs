@@ -42,6 +42,7 @@
 #define GOOGLE_BREAKPAD_PROCESSOR_SOURCE_LINE_RESOLVER_BASE_H__
 
 #include <map>
+#include <set>
 #include <string>
 
 #include "google_breakpad/processor/source_line_resolver_interface.h"
@@ -49,6 +50,7 @@
 namespace google_breakpad {
 
 using std::map;
+using std::set;
 
 // Forward declaration.
 // ModuleFactory is a simple factory interface for creating a Module instance
@@ -62,7 +64,9 @@ class SourceLineResolverBase : public SourceLineResolverInterface {
   // LoadMap() method.
   // Place dynamically allocated heap buffer in symbol_data. Caller has the
   // ownership of the buffer, and should call delete [] to free the buffer.
-  static bool ReadSymbolFile(char **symbol_data, const string &file_name);
+  static bool ReadSymbolFile(const string &file_name,
+                             char **symbol_data,
+                             size_t *symbol_data_size);
 
  protected:
   // Users are not allowed create SourceLineResolverBase instance directly.
@@ -74,10 +78,12 @@ class SourceLineResolverBase : public SourceLineResolverInterface {
   virtual bool LoadModuleUsingMapBuffer(const CodeModule *module,
                                         const string &map_buffer);
   virtual bool LoadModuleUsingMemoryBuffer(const CodeModule *module,
-                                           char *memory_buffer);
+                                           char *memory_buffer,
+                                           size_t memory_buffer_size);
   virtual bool ShouldDeleteMemoryBufferAfterLoadModule();
   virtual void UnloadModule(const CodeModule *module);
   virtual bool HasModule(const CodeModule *module);
+  virtual bool IsModuleCorrupt(const CodeModule *module);
   virtual void FillSourceLineInfo(StackFrame *frame);
   virtual WindowsFrameInfo *FindWindowsFrameInfo(const StackFrame *frame);
   virtual CFIFrameInfo *FindCFIFrameInfo(const StackFrame *frame);
@@ -96,6 +102,10 @@ class SourceLineResolverBase : public SourceLineResolverInterface {
   // All of the modules that are loaded.
   typedef map<string, Module*, CompareString> ModuleMap;
   ModuleMap *modules_;
+
+  // The loaded modules that were detecting to be corrupt during load.
+  typedef set<string, CompareString> ModuleSet;
+  ModuleSet *corrupt_modules_;
 
   // All of heap-allocated buffers that are owned locally by resolver.
   typedef std::map<string, char*, CompareString> MemoryMap;

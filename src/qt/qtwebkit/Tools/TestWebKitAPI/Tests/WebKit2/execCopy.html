@@ -1,0 +1,15 @@
+<html>
+<head>
+<script type="text/javascript">
+  function doCopy() {
+      document.execCommand("selectAll", true);
+      document.execCommand("copy");
+  }
+</script>
+</head>
+<body onLoad="doCopy()">
+    <div>Hello world.</div>
+    <div><b>Hello</b><i> world</i></div>
+    <div style="border: solid red 1px">Hello world</div>
+</body>
+</html>

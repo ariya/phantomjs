@@ -1,0 +1,10 @@
+# -------------------------------------------------------------------
+# Windows specific defaults
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+load(default_pre)
+
+debug: CONFIG += use_all_in_one_files
+

@@ -27,13 +27,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#import <iostream>
-#import <mach/mach.h>
-#import <servers/bootstrap.h>
-#import <stdio.h>
-#import <stdlib.h>
-#import <sys/stat.h>
-#import <unistd.h>
+#include <mach/mach.h>
+#include <servers/bootstrap.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 //==============================================================================
 // class OnDemandServer :

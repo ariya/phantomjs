@@ -1,0 +1,126 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.timeline-data-grid-tree-outline {
+    position: relative;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    list-style: none;
+    font-family: "Lucida Grande", "Helvetica", sans-serif;
+    font-size: 11px;
+}
+
+.timeline-data-grid-tree-outline .item {
+    position: relative;
+    height: 36px;
+    line-height: 34px;
+    padding: 0 5px;
+    border-top: 1px solid transparent;
+    white-space: nowrap;
+}
+
+.timeline-data-grid-tree-outline > .children,
+.timeline-data-grid-tree-outline .disclosure-button,
+.timeline-data-grid-tree-outline .item .status {
+    display: none;
+}
+
+.timeline-data-grid-tree-outline .item .icon {
+    float: left;
+    width: 32px;
+    height: 32px;
+    margin-top: 1px;
+    margin-right: 3px;
+}
+
+.timeline-data-grid-tree-outline .item:hover {
+    color: white;
+    border-radius: 4px;
+    box-shadow: inset rgb(87, 152, 206) 0 1px 0;
+    background: -webkit-linear-gradient(top, rgb(110, 167, 216), rgb(36, 114, 181));
+    background-origin: padding-box;
+    background-clip: padding-box;
+    text-shadow: rgb(51, 88, 123) 0 1px 0;
+    -webkit-text-stroke: 0.4px;
+}
+
+.timeline-data-grid-tree-outline .item .titles {
+    position: relative;
+    top: 5px;
+    line-height: 11px;
+    padding-bottom: 1px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.timeline-data-grid-tree-outline .item .title::after {
+    content: "\A"; /* Newline */
+    white-space: pre;
+}
+
+.timeline-data-grid-tree-outline .item .subtitle {
+    font-size: 9px;
+    color: rgba(0, 0, 0, 0.7);
+}
+
+.timeline-data-grid-tree-outline .item:hover .subtitle {
+    color: white;
+}
+
+.timeline-data-grid-tree-outline .item .subtitle:empty {
+    display: none;
+}
+
+.timeline-data-grid-tree-outline .item.small {
+    height: 20px;
+}
+
+.timeline-data-grid-tree-outline .item.small .icon {
+    width: 16px;
+    height: 16px;
+}
+
+.timeline-data-grid-tree-outline .item.small .status {
+    margin-top: 1px;
+}
+
+.timeline-data-grid-tree-outline .item.small .titles {
+    top: 2px;
+    line-height: normal;
+}
+
+.timeline-data-grid-tree-outline .item.small .subtitle {
+    font-size: inherit;
+}
+
+.timeline-data-grid-tree-outline .item.small:not(.two-line) .title::after {
+    content: "";
+}
+
+.timeline-data-grid-tree-outline .item.small:not(.two-line) .subtitle::before {
+    content: " — ";
+}

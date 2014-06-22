@@ -1,0 +1,111 @@
+CommandOptions {
+	MOCCommandOptions {
+		MOCOutput {
+			{
+				name="-o"
+			}
+			delimiter="Space"
+			merge="Replace"
+			#flags={"OUTPUTNAME"}
+		}
+		MOCDefines {
+			{
+				name="-D"
+			}
+			delimiter="Touching"
+			merge="Concat"
+		}
+		MOCIncludes {
+			{
+				name="-I"
+			}
+			delimiter="Touching"
+			merge="Concat"
+			flags={"RELATIVEPATH"}
+		}
+	}
+	UICommandOptions {
+		UIOutput {
+			{
+				name="-o"
+			}
+			delimiter="Space"
+			merge="Replace"
+			flags={"OUTPUTNAME"}
+		}
+	}
+	RCCCommandOptions {
+		RCCOutput {
+			{
+				name="-o"
+			}
+			delimiter="Space"
+			merge="Replace"
+			flags={"OUTPUTNAME"}
+		}
+		RCCName {
+			{
+				name="-name"
+			}
+			delimiter="Space"
+			merge="Replace"
+		}
+	}
+}
+
+Commands {
+	MOCPreprocessor {
+		name="MOCPreprocessor"
+		exec="${QT_BUILD_DIR}/bin/moc"
+		options={ "MOCCommandOptions", "SpecialOptions" }
+	}
+	UIPreprocessor {
+		name="UIPreprocessor"
+		exec="${QT_BUILD_DIR}/bin/uic"
+		options={ "UICommandOptions" }
+	}
+	RCCPreprocessor {
+		name="RCCPreprocessor"
+		exec="${QT_BUILD_DIR}/bin/rcc"
+		options={ "RCCCommandOptions" }
+	}
+}
+
+FileTypes {
+	MocCPP {
+		name="MOC/Qt Header"
+		outputExtension="time"
+		outputType="SourceFile"
+		command="MOCPreprocessor"
+		commandLine="${QT_BUILD_DIR}/bin/moc -nn $OPTIONS $INPUTFILE"
+		progress="MOCing"
+		extraFiles="$(OUTPUTDIR)/moc_$(OUTPUTNAMEBASE).cpp"
+		#postExecSafe={"${GHS_TOOLS_DIR}/filechanged work/$(OUTPUTNAME)"}
+		color="#0020a0"
+		grepable=true
+	}
+	RCC {
+		name="Qt Resource"
+		outputExtension="time"
+		#extensions={"qrc"}
+		outputType="SourceFile"
+		command="RCCPreprocessor"
+		commandLine="${QT_BUILD_DIR}/bin/rcc $OPTIONS $INPUTFILE"
+		extraFiles="$(OUTPUTDIR)/qrc_$(OUTPUTNAMEBASE).cpp"
+		progress="Generating Resource source from"
+		action="Generate Resource source for"
+		grepable=true
+	}
+	UI {
+		name="Qt Dialog"
+		outputExtension="time"
+		#extensions={"ui"}
+		outputType="SourceFile"
+		command="UIPreprocessor"
+		commandLine="${QT_BUILD_DIR}/bin/uic $OPTIONS $INPUTFILE"
+		extraFiles="$(OUTPUTDIR)/ui_$(OUTPUTNAMEBASE).cpp"
+		progress="Generating Dialog source from"
+		action="Generate Dialog source for"
+		grepable=true
+	}
+}

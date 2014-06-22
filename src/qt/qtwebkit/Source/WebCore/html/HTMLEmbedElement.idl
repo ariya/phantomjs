@@ -1,0 +1,47 @@
+/*
+ * Copyright (C) 2006, 2007, 2010 Apple Inc. All rights reserved.
+ * Copyright (C) 2006 Samuel Weinig <sam.weinig@gmail.com>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+[
+    CustomNamedSetter,
+    JSCustomGetOwnPropertySlotAndDescriptor,
+    CustomCall,
+] interface HTMLEmbedElement : HTMLElement {
+[Reflect] attribute DOMString align;
+#if defined(LANGUAGE_JAVASCRIPT) && LANGUAGE_JAVASCRIPT
+[Reflect] attribute DOMString height;
+#else
+[Reflect] attribute long height;
+#endif
+[Reflect] attribute DOMString name;
+[Reflect, URL] attribute DOMString src;
+[Reflect] attribute DOMString type;
+#if defined(LANGUAGE_JAVASCRIPT) && LANGUAGE_JAVASCRIPT
+[Reflect] attribute DOMString width;
+#else
+[Reflect] attribute long width;
+#endif
+
+#if defined(ENABLE_SVG) && ENABLE_SVG
+#if !defined(LANGUAGE_OBJECTIVE_C) || !LANGUAGE_OBJECTIVE_C
+[CheckSecurityForNode, RaisesException] SVGDocument getSVGDocument();
+#endif
+#endif
+};
+

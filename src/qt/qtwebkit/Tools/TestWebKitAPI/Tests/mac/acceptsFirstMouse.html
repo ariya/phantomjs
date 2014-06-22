@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html style="height: 200%;">
+<head>
+    <style>
+        img.selectable {
+            width: 100px;
+            height: 100px;
+            display: block;
+            background-color: gray;
+        }
+    </style>
+</head>
+<body style="margin: 0;">
+    <img class="selectable">
+    <img class="selectable" id="target">
+    <img class="selectable">
+    <script>
+        var target = document.getElementById("target");
+        getSelection().setBaseAndExtent(target, 0, target, 1);
+        scrollBy(0, 100);
+    </script>
+</body>
+</html>

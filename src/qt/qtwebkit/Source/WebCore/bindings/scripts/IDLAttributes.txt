@@ -1,0 +1,106 @@
+#
+# This file describes all IDL attributes.
+# If any IDL file uses an IDL attribute not listed below, the WebKit build will fail.
+# If you want to add a new IDL attribute, you need to
+#     (1) add the IDL attribute to this file
+#     (2) add the explanation to the WebKit IDL document (https://trac.webkit.org/wiki/WebKitIDL)
+#     (3) add test cases to run-bindings-tests
+#
+# The syntax of this file is as follows:
+#     - You can write one IDL attribute per one line.
+#     - "ATTR" means that the IDL attribute ATTR does not take any argument; i.e. [ATTR].
+#     - "ATTR=X" means that the IDL attribute ATTR always takes one argument X; i.e. [ATTR=X].
+#     - "ATTR=X|Y|Z" means that the IDL attribute ATTR takes one or more arguments
+#       and the arguments are X, Y or Z; e.g. [ATTR=X], [ATTR=Y], [ATTR=X|Z], [ATTR=X|Y|Z].
+#     - "ATTR=|X|Y|Z" means that the IDL attribute ATTR can take arguments
+#       and the arguments are X, Y or Z; e.g. [ATTR], [ATTR=X], [ATTR=Y], [ATTR=X|Z], [ATTR=X|Y|Z].
+#     - "ATTR=*" means that the IDL attribute ATTR can take arbitrary arguments;
+#       e.g. [ATTR=INDEXED_DATABASE], [ATTR=deleteFunction].
+#
+
+ActiveDOMObject
+CPPPureInterface
+CachedAttribute
+CallWith=ScriptExecutionContext|ScriptState|ScriptArguments|CallStack
+CheckSecurity
+CheckSecurityForNode
+Clamp
+Conditional=*
+Constructor
+ConstructorCallWith=ScriptExecutionContext
+ConstructorConditional=*
+ConstructorRaisesException
+ConstructorTemplate=Event|TypedArray
+Custom
+CustomCall
+CustomConstructor
+CustomDeleteProperty
+CustomEnumerateProperty
+CustomGetOwnPropertySlot
+CustomGetter
+CustomIndexedSetter
+CustomIsReachable
+CustomNamedGetter
+CustomNamedSetter
+CustomPutFunction
+CustomReturn
+CustomSetter
+CustomToJSObject
+Default=NullString|Undefined
+Deletable
+DoNotCheckConstants
+DoNotCheckSecurity
+DoNotCheckSecurityOnGetter
+DoNotCheckSecurityOnSetter
+EnabledAtRuntime=*
+EnabledBySetting=*
+EnforceRange
+EventTarget
+GenerateIsReachable=|Impl|ImplContext|ImplDocument|ImplElementRoot|ImplFrame|ImplOwnerNodeRoot
+GetterRaisesException
+GlobalContext=DOMWindow|WorkerGlobalScope|SharedWorkerGlobalScope|DedicatedWorkerGlobalScope
+Immutable
+ImplementationLacksVTable
+ImplementationNamespace=*
+ImplementedAs=*
+InitializedByEventConstructor
+InterfaceName=*
+IsIndex
+JSCustomDefineOwnProperty
+JSCustomDefineOwnPropertyOnPrototype
+JSCustomFinalize
+JSCustomGetOwnPropertySlotAndDescriptor
+JSCustomHeader
+JSCustomMarkFunction
+JSCustomNamedGetterOnPrototype
+JSCustomPushEventHandlerScope
+JSCustomToNativeObject
+JSGenerateToJSObject
+JSGenerateToNativeObject
+JSInlineGetOwnPropertySlot
+JSLegacyParent=*
+JSNoStaticTables
+JSWindowEventListener
+MasqueradesAsUndefined
+NamedConstructor=*
+NoInterfaceObject
+NotEnumerable
+ObjCCustomImplementation
+ObjCLegacyUnnamedParameters
+ObjCPolymorphic
+ObjCProtocol
+PassContext
+RaisesException
+Reflect=*
+Replaceable
+ReplaceableConstructor
+ReturnNewObject
+SetterRaisesException
+SkipVTableValidation
+StrictTypeChecking
+SuppressToJSObject
+TreatNullAs=NullString
+TreatReturnedNullStringAs=Null|Undefined
+TreatUndefinedAs=NullString
+TypedArray=*
+URL

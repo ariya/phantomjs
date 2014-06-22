@@ -1,0 +1,11 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>resources/page1.html</file>
+    <file>resources/page2.html</file>    
+    <file>resources/page3.html</file>
+    <file>resources/page4.html</file>
+    <file>resources/page5.html</file>
+    <file>resources/page6.html</file>
+</qresource>
+</RCC>
+

@@ -34,7 +34,7 @@
 #include <string>
 #include "client/windows/common/ipc_protocol.h"
 #include "client/windows/crash_generation/minidump_generator.h"
-#include "processor/scoped_ptr.h"
+#include "common/scoped_ptr.h"
 
 namespace google_breakpad {
 class ClientInfo;
@@ -101,6 +101,10 @@ class CrashGenerationServer {
   //
   // Returns true if initialization is successful; false otherwise.
   bool Start();
+
+  void pre_fetch_custom_info(bool do_pre_fetch) {
+    pre_fetch_custom_info_ = do_pre_fetch;
+  }
 
  private:
   // Various states the client can be in during the handshake with
@@ -189,11 +193,8 @@ class CrashGenerationServer {
   // Callback for client process exit event.
   static void CALLBACK OnClientEnd(void* context, BOOLEAN timer_or_wait);
 
-  // Releases resources for a client.
-  static DWORD WINAPI CleanupClient(void* context);
-
-  // Cleans up for the given client.
-  void DoCleanup(ClientInfo* client_info);
+  // Handles client process exit.
+  void HandleClientProcessExit(ClientInfo* client_info);
 
   // Adds the given client to the list of registered clients.
   bool AddClient(ClientInfo* client_info);
@@ -217,7 +218,7 @@ class CrashGenerationServer {
   void EnterStateWhenSignaled(IPCServerState state);
 
   // Sync object for thread-safe access to the shared list of clients.
-  CRITICAL_SECTION clients_sync_;
+  CRITICAL_SECTION sync_;
 
   // List of clients.
   std::list<ClientInfo*> clients_;
@@ -264,17 +265,20 @@ class CrashGenerationServer {
   // Whether to generate dumps.
   bool generate_dumps_;
 
-  // Instance of a mini dump generator.
-  scoped_ptr<MinidumpGenerator> dump_generator_;
+  // Wether to populate custom information up-front.
+  bool pre_fetch_custom_info_;
+
+  // The dump path for the server.
+  const std::wstring dump_path_;
 
   // State of the server in performing the IPC with the client.
   // Note that since we restrict the pipe to one instance, we
   // only need to keep one state of the server. Otherwise, server
   // would have one state per client it is talking to.
-  volatile IPCServerState server_state_;
+  IPCServerState server_state_;
 
   // Whether the server is shutting down.
-  volatile bool shutting_down_;
+  bool shutting_down_;
 
   // Overlapped instance for async I/O on the pipe.
   OVERLAPPED overlapped_;
@@ -284,10 +288,6 @@ class CrashGenerationServer {
 
   // Client Info for the client that's connecting to the server.
   ClientInfo* client_info_;
-
-  // Count of clean-up work items that are currently running or are
-  // already queued to run.
-  volatile LONG cleanup_item_count_;
 
   // Disable copy ctor and operator=.
   CrashGenerationServer(const CrashGenerationServer& crash_server);

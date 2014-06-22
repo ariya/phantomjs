@@ -1,0 +1,143 @@
+# This performs basic variable replacement on the contents of the WinRT manifest template, as
+# specified by WINRT_MANIFEST. The resulting manifest file is written to the output directory.
+# While the most common options are covered by the default template, the developer is expected
+# to make an application-level copy of the template in order to customize the manifest further.
+# Afterwards, they can override the default template by assigning their template to WINRT_MANIFEST.
+#
+# All subkeys in WINRT_MANIFEST will be replaced if defined/found, so new variables can be easily
+# added. The following keys have default values and are present in the default templates:
+# WINRT_MANIFEST: The name of the input manifest file. Defaults to a file defined by the mkspec.
+# WINRT_MANIFEST.target: The name of the target (.exe). Defaults to TARGET.
+# WINRT_MANIFEST.identity: The unique ID of the app. Defaults to reusing the existing generated manifest's UUID, or generates a new UUID if none is present.
+# WINRT_MANIFEST.name: The name of the package as displayed to the user. Defaults to TARGET.
+# WINRT_MANIFEST.architecture: The target architecture. Defaults to VCPROJ_ARCH.
+# WINRT_MANIFEST.version: The version number of the package. Defaults to "1.0.0.0".
+# WINRT_MANIFEST.arguments: Allows arguments to be passed to the executable.
+# WINRT_MANIFEST.publisher: Display name of the publisher. Defaults to "Default publisher display name".
+# WINRT_MANIFEST.publisher_id: On Windows 8/RT, the publisher's distinguished name (default: CN=MyCN). On Windows Phone, the publisher's UUID (default: invalid UUID string).
+# WINRT_MANIFEST.description: Package description. Defaults to "Default package description".
+# WINRT_MANIFEST.author: Package author (Windows Phone only). Defaults to "Default package author".
+# WINRT_MANIFEST.genre: Package genre (Windows Phone only). Defaults to "apps.normal".
+# WINRT_MANIFEST.background: Tile background color. Defaults to "green".
+# WINRT_MANIFEST.foreground: Tile foreground (text) color (Windows 8/RT only). Defaults to "light".
+# WINRT_MANIFEST.logo_store: Logo image file for Windows Store. Default provided by the mkspec.
+# WINRT_MANIFEST.logo_small: Small logo image file. Default provided by the mkspec.
+# WINRT_MANIFEST.logo_medium: Medium logo image file. Default provided by the mkspec.
+# WINRT_MANIFEST.logo_large: Large logo image file. Default provided by the mkspec.
+# WINRT_MANIFEST.splash_screen: Splash screen image file. Default provided by the mkspec.
+# WINRT_MANIFEST.iconic_tile_icon: Image file for the "iconic" tile template icon. Default provided by the mkspec.
+# WINRT_MANIFEST.iconic_tile_small: Image file for the small "iconic" tile template logo. Default provided by the mkspec.
+# WINRT_MANIFEST.capabilities: Specifies capabilities to add to the capability list.
+# WINRT_MANIFEST.capabilities_device: Specifies device capabilities to add to the capability list. (location, webcam...)
+# WINRT_MANIFEST.dependencies: Specifies dependencies required by the package.
+
+# The manifest is generated for each build pass for normal apps, and only once for vcapps.
+# - Normal apps have their package root directory in the same place as the target (one for each build pass).
+# - Visual Studio requires a design-mode manifest in the same location as the vcproj.
+!isEmpty(WINRT_MANIFEST): \
+    if(build_pass:equals(TEMPLATE, "app"))| \
+    if(!build_pass:equals(TEMPLATE, "vcapp")) {
+
+    manifest_file.input = $$WINRT_MANIFEST
+
+    contains(TEMPLATE, "vc.*") {
+        BUILD_DIR = $$OUT_PWD
+    } else {
+        load(resolve_target)
+        BUILD_DIR = $$dirname(QMAKE_RESOLVED_TARGET)
+    }
+
+    winphone: \
+        manifest_file.output = $$BUILD_DIR/WMAppManifest.xml
+    else: contains(TEMPLATE, "vc.*"): \
+        manifest_file.output = $$BUILD_DIR/Package.appxmanifest
+    else: \
+        manifest_file.output = $$BUILD_DIR/AppxManifest.xml
+
+    # Provide the C-runtime dependency
+    equals(TEMPLATE, "app") {
+        VCLIBS = Microsoft.VCLibs.$$replace(MSVC_VER, \\., ).00
+        CONFIG(debug, debug|release): \
+            WINRT_MANIFEST.dependencies += $${VCLIBS}.Debug
+        else: \
+            WINRT_MANIFEST.dependencies += $$VCLIBS
+    }
+
+    # Provide default values for required variables
+    isEmpty(WINRT_MANIFEST.target): WINRT_MANIFEST.target = $$TARGET
+    isEmpty(WINRT_MANIFEST.identity) {
+        # Reuse the existing UUID if possible
+        UUID_CACHE = $$OUT_PWD/.qmake.winrt_uuid_$$TARGET
+        exists($$UUID_CACHE) {
+            include($$UUID_CACHE)
+        } else {
+            WINRT_UUID = "WINRT_MANIFEST.identity = $$system(uuidgen)"
+            write_file($$UUID_CACHE, WINRT_UUID)|error("Unable to write the UUID cache; aborting.")
+            eval($$WINRT_UUID)
+        }
+        winphone: WINRT_MANIFEST.identity = {$$WINRT_MANIFEST.identity}
+    }
+    isEmpty(WINRT_MANIFEST.name): WINRT_MANIFEST.name = $$TARGET
+    isEmpty(WINRT_MANIFEST.architecture): WINRT_MANIFEST.architecture = $$VCPROJ_ARCH
+    isEmpty(WINRT_MANIFEST.version): WINRT_MANIFEST.version = 1.0.0.0
+    isEmpty(WINRT_MANIFEST.publisher): WINRT_MANIFEST.publisher = Default publisher display name
+    isEmpty(WINRT_MANIFEST.publisherid) {
+        winphone: WINRT_MANIFEST.publisherid = {00000000-0000-0000-0000-000000000000}
+        else: WINRT_MANIFEST.publisherid = CN=$$(USERNAME)
+    }
+    isEmpty(WINRT_MANIFEST.description): WINRT_MANIFEST.description = Default package description
+    isEmpty(WINRT_MANIFEST.author): WINRT_MANIFEST.author = Default package author
+    isEmpty(WINRT_MANIFEST.genre): WINRT_MANIFEST.genre = apps.normal
+    isEmpty(WINRT_MANIFEST.background): WINRT_MANIFEST.background = green
+    isEmpty(WINRT_MANIFEST.foreground): WINRT_MANIFEST.foreground = light
+
+    winphone: INDENT = "$$escape_expand(\\r\\n)    "
+    else: INDENT = "$$escape_expand(\\r\\n)  "
+
+    # Capabilities are given as a string list and may change with the configuration (network, sensors, etc.)
+    WINRT_MANIFEST.capabilities = $$unique(WINRT_MANIFEST.capabilities)
+    WINRT_MANIFEST.capabilities_device = $$unique(WINRT_MANIFEST.capabilities_device)
+
+    !isEmpty(WINRT_MANIFEST.capabilities)|!isEmpty(WINRT_MANIFEST.capabilities_device)|winphone {
+        MANIFEST_CAPABILITIES += "<Capabilities>"
+        for(CAPABILITY, WINRT_MANIFEST.capabilities): \
+            MANIFEST_CAPABILITIES += "  <Capability Name=\"$$CAPABILITY\" />"
+        !winphone:for(CAPABILITY, WINRT_MANIFEST.capabilities_device): \
+            MANIFEST_CAPABILITIES += "  <DeviceCapability Name=\"$$CAPABILITY\" />"
+        MANIFEST_CAPABILITIES += "</Capabilities>"
+
+        WINRT_MANIFEST.capabilities = $$join(MANIFEST_CAPABILITIES, $$INDENT, $$INDENT)
+    }
+
+    # Dependencies are given as a string list. The CRT dependency is added automatically above.
+    WINRT_MANIFEST.dependencies = $$unique(WINRT_MANIFEST.dependencies)
+    !isEmpty(WINRT_MANIFEST.dependencies) {
+        MANIFEST_DEPENDENCIES += "<Dependencies>"
+        for(DEPENDENCY, WINRT_MANIFEST.dependencies): \
+            MANIFEST_DEPENDENCIES += "  <PackageDependency Name=\"$$DEPENDENCY\" />"
+        MANIFEST_DEPENDENCIES += "</Dependencies>"
+
+        WINRT_MANIFEST.dependencies = $$join(MANIFEST_DEPENDENCIES, $$INDENT, $$INDENT)
+    }
+
+    # Provide default icons where needed
+    isEmpty(WINRT_ASSETS_PATH): WINRT_ASSETS_PATH = $$[QT_HOST_DATA/get]/mkspecs/common/winrt_winphone/assets
+    TEMPLATE_CONTENTS = $$cat($$WINRT_MANIFEST, lines)
+    ICONS_FOUND = $$find(TEMPLATE_CONTENTS, \\\$\\\$\\{WINRT_MANIFEST\\.(logo|tile)_)
+    ICONS_FOUND ~= s/.*\\\$\\\$\\{WINRT_MANIFEST\\.((logo|tile)_[^\}]+)\\}.*/\\1/g
+    for (ICON_NAME, ICONS_FOUND) {
+        ICON_FILE = $$eval(WINRT_MANIFEST.$$ICON_NAME)
+        isEmpty(ICON_FILE) {
+            icon_$${ICON_NAME}.input = $$WINRT_ASSETS_PATH/$${ICON_NAME}.png
+            icon_$${ICON_NAME}.output = $$BUILD_DIR/assets/$${ICON_NAME}.png
+            WINRT_MANIFEST.$${ICON_NAME} = assets/$${ICON_NAME}.png
+        } else {
+            icon_$${ICON_NAME}.input = $$ICON_FILE
+            icon_$${ICON_NAME}.output = $$BUILD_DIR/$$ICON_FILE
+        }
+        icon_$${ICON_NAME}.CONFIG = verbatim
+        QMAKE_SUBSTITUTES += icon_$${ICON_NAME}
+    }
+
+    QMAKE_SUBSTITUTES += manifest_file
+}

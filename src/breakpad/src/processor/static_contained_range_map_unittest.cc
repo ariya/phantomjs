@@ -33,12 +33,11 @@
 // Author: Siyang Xie (lambxsy@google.com)
 
 #include "breakpad_googletest_includes.h"
+#include "common/scoped_ptr.h"
 #include "processor/contained_range_map-inl.h"
 #include "processor/static_contained_range_map-inl.h"
 #include "processor/simple_serializer-inl.h"
 #include "processor/map_serializers-inl.h"
-
-#include "processor/scoped_ptr.h"
 #include "processor/logging.h"
 
 namespace {

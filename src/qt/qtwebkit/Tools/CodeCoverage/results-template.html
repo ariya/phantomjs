@@ -1,0 +1,358 @@
+<!doctype html>
+<html>
+    <head>
+        <style type='text/css'>
+            table, tr, td
+            {
+                border-spacing: 1px;
+                padding: 0px;
+            }
+            td.textColumn
+            {
+                white-space: nowrap;
+                font-family: Courier, monospace;
+            }
+
+            #directories, #codeviewer
+            {
+                overflow: scroll;
+                background-color: white;
+                position: absolute;
+                width: 50%;
+                height: 100%;
+            }
+
+            #directories
+            {
+                left: 0%;
+            }
+
+            #codeviewer
+            {
+                left: 50%;
+            }
+
+            ul
+            {
+                padding: 1px 0px 1px 8px;
+                margin: 0px;
+                list-style-type: none;
+            }
+            
+            li.file
+            {
+                /* 8px is to match the width of downArrow and rightArrow because files don't have an image before them. */
+                padding: 0px 0px 0px 8px; 
+            }
+            
+            div.graphsContainer
+            {
+                right: 0px;
+                width: 300px;
+                position: absolute;
+                display: inline-block;            
+            }
+            div.codeCoverage
+            {
+                right: 0px;
+                width: 150px;
+                position: absolute;
+                display: inline-block;
+            }
+            div.branchCoverage
+            {
+                right: 150px;
+                width: 150px;
+                position: absolute;
+                display: inline-block;
+            }
+
+        </style>
+        <script type='text/javascript'>
+
+            // This is the contents of the images left of directories.
+            var downArrow = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3QYHFioBcCRLNAAAAJhJREFUGNOFzrEKwjAURuHTJHUspekDZGmhdlawCEqoUDK19O1cnX0dFxcnQXyIOAhKSsUzXr4Lf3Q8nf3leuNXy8IgBmeRYh5IAYOziDxLsdv1LNo3K/IsRQAcdhu0TgKgdUJnG4A3ipVk7NoAjV2LkvKLAKrSUBcGgLowVKX5PASTe2eJF4re2XCcn3R/PKcnH3nvPX96AbbuOGLOrLT1AAAAAElFTkSuQmCC';
+            var rightArrow = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3QYHFiojpUQK0AAAAKZJREFUGNNjmL1k/f+379//xweYlXXMGo6dvcDw/x8jg7y0OAMzMzMDOmBiYGBg+PP7P8OO/ccYOqctZLh2+x52RTDw9t0nhtlLNjDMWbqB4d2HD9gVwcDVW/cYumcsZXj56i0DAwMDAws2RdqqCgwBHo4MIiKCmIqEBPgYgrycGbTVFVE0sTAwMDCwMjMyONqYMbjYWjCwsmL6jmH24rX/37zBH04AHAxpneY+98AAAAAASUVORK5CYII=';
+
+            function getHeatBackgroundColor(hits, maxHits)
+            {
+                if (hits === -1)
+                    return 'white'; // Non-code lines are white.
+                else if (hits === 0)
+                    return 'orange'; // Unexecuted lines are orange.
+                else {
+                    // Executed lines are between red and green.
+                    var relativeHeat = Math.floor(hits / maxHits * 255);
+                    return 'rgb(' + relativeHeat + ',' + (255 - relativeHeat) + ', 0)';
+                }
+            }
+
+            function getCoverageBackgroundColor(coverage)
+            {
+                var value = Math.floor(coverage * 255);
+                return 'rgb(' + (255 - value) + ',' + value + ', 0)';
+            }
+            
+            function expandClicked(event)
+            {
+                var children = this.parentNode.lastChild;
+                if (children.style.display === '') {
+                    children.style.display = 'none';
+                    this.src = rightArrow;
+                } else {
+                    children.style.display = '';
+                    this.src = downArrow;
+                }
+            }
+
+            function processFile(fileData, contents)
+            {
+                var lines = contents.split('\n');
+                var hits = new Array();
+                var branchesNumerator = new Array();
+                var branchesDenominator = new Array();
+
+                for (var i = 0; i < lines.length; i++) {
+                    hits[i] = -1;
+                    branchesNumerator[i] = -1;
+                    branchesDenominator[i] = -1;
+                }
+                
+                for (var i = 0; i < fileData.hitLines.length; i++)
+                    hits[fileData.hitLines[i] - 1] = fileData.hits[i];
+                    
+                for (var i = 0; i < fileData.branchLines.length; i++) {
+                    branchesNumerator[fileData.branchLines[i] - 1] = fileData.branchesTaken[i];
+                    branchesDenominator[fileData.branchLines[i] - 1] = fileData.branchesPossible[i];
+                }
+
+                var table = document.createElement('table');
+
+                for (var i = 0; i < lines.length; i++) {
+                    var row = document.createElement('tr');
+                    
+                    var branchesColumn = document.createElement('td');
+                    if (branchesNumerator[i] != -1)
+                        branchesColumn.appendChild(document.createTextNode('(' + branchesNumerator[i] + '/' + branchesDenominator[i] + ')'));
+                    
+                    var hitsColumn = document.createElement('td');
+                    if (hits[i] != -1)
+                        hitsColumn.appendChild(document.createTextNode(hits[i]));
+                    
+                    var textColumn = document.createElement('td');
+                    textColumn.style.background = getHeatBackgroundColor(hits[i], fileData.maxHeat);
+                    textColumn.style.className = 'textColumn';
+                    textColumn.appendChild(document.createTextNode(lines[i]));
+                    
+                    row.appendChild(branchesColumn);
+                    row.appendChild(hitsColumn);
+                    row.appendChild(textColumn);
+                    table.appendChild(row);
+                }
+
+                return table;
+            }
+
+            function fileClicked(event)
+            {
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function()
+                {
+                    if (xhr.readyState === XMLHttpRequest.DONE) {
+                        var codeviewer = document.getElementById('codeviewer');
+                        codeviewer.replaceChild(processFile(xhr.fileData, xhr.responseText), codeviewer.firstChild);
+                    }
+                }
+                xhr.fileData = event.target.fileData;
+                xhr.open('GET', '../../' + event.target.fileData.filename.substring(1), true);
+                xhr.send();
+                event.stopPropagation();
+            }
+
+            function makeGraphs(dirOrFile)
+            {
+                var codeCoverage = document.createElement('div');
+                codeCoverage.className = 'codeCoverage';
+                var codeCoveragePercent = dirOrFile.totalLines ? Math.floor(dirOrFile.totalHitLines / dirOrFile.totalLines * 100) + '%' : '-';
+                var codeCoverageText = codeCoveragePercent + ' (' + dirOrFile.totalHitLines + '/' + dirOrFile.totalLines + ')';
+                codeCoverage.appendChild(document.createTextNode(codeCoverageText));
+                codeCoverage.style.backgroundColor = getCoverageBackgroundColor(dirOrFile.coverage);
+
+                var branchCoverage = document.createElement('div');
+                branchCoverage.className = 'branchCoverage';
+                var branchCoveragePercent = dirOrFile.totalBranchesPossible ? Math.floor(dirOrFile.totalBranchesTaken / dirOrFile.totalBranchesPossible * 100) + '%' : '-';
+                branchCoverage.appendChild(document.createTextNode(branchCoveragePercent + ' (' + dirOrFile.totalBranchesTaken + '/' + dirOrFile.totalBranchesPossible + ')'));
+                branchCoverage.style.backgroundColor = getCoverageBackgroundColor(dirOrFile.branchCoverage);
+
+                var graphsContainer = document.createElement('div');
+                graphsContainer.className = 'graphsContainer';
+                graphsContainer.appendChild(codeCoverage);
+                graphsContainer.appendChild(branchCoverage);
+                return graphsContainer;
+            }
+            
+            function makeFileListItem(fileData, filename)
+            {            
+                var li = document.createElement('li');
+                li.className = 'file';
+                var a = document.createElement('a');
+                a.appendChild(document.createTextNode(filename));
+                a.href = '#';
+                a.addEventListener('click', fileClicked.bind(a));
+                a.fileData = fileData;
+                li.appendChild(a);
+                li.appendChild(makeGraphs(fileData));
+                return li;
+            }
+
+            function makeDirectoryListItem(dir, dirName)
+            {
+                var li = document.createElement('li');
+                var children = document.createElement('ul');
+
+                // Recursively add all sorted subdirectories and files.
+                var fileNames = dir.files ? Object.keys(dir.files).sort() : [];
+                var subdirNames = dir.subdirs ? Object.keys(dir.subdirs).sort() : [];
+                for (var i = 0; i < subdirNames.length; i++) {
+                    var subdir = subdirNames[i];
+                    children.appendChild(makeDirectoryListItem(dir.subdirs[subdir], subdir));
+                }
+                for (var i = 0; i < fileNames.length; i++) {
+                    var file = fileNames[i];
+                    children.appendChild(makeFileListItem(dir.files[file], file, dir.maxHeat, dir.totalHeat));
+                }
+                
+                var img = document.createElement('img');
+                img.addEventListener('click', expandClicked.bind(img));
+                
+                // These four directories are expanded by default.
+                if (dirName === '' || dirName === 'Source' || dirName === 'Tools' || dirName === 'WebKitBuild') {
+                    img.src = downArrow;
+                    children.style.display = '';
+                } else {
+                    img.src = rightArrow;
+                    children.style.display = 'none';
+                }
+                    
+                li.appendChild(img);
+                li.appendChild(document.createTextNode(dirName));
+                li.appendChild(makeGraphs(dir));
+                li.appendChild(children);
+                return li;
+            }
+            
+            // Collect total coverage for a directory and its subdirectories.
+            function collectDirectoryTotals(directory)
+            {
+                directory.totalBranchesPossible = 0;
+                directory.totalBranchesTaken = 0;
+                directory.totalHitLines = 0;
+                directory.totalLines = 0;
+                directory.totalHeat = 0;
+                directory.maxHeat = 0;
+                if (directory.subdirs) {
+                    for (var subdirName in directory.subdirs) {
+                        var subdir = directory.subdirs[subdirName];
+
+                        collectDirectoryTotals(subdir);
+
+                        directory.totalBranchesPossible += subdir.totalBranchesPossible;
+                        directory.totalBranchesTaken += subdir.totalBranchesTaken;
+                        directory.totalHitLines += subdir.totalHitLines;
+                        directory.totalLines += subdir.totalLines;
+                        directory.totalHeat += subdir.totalHeat;
+                        directory.maxHeat = Math.max(directory.maxHeat, subdir.maxHeat);
+                    }
+                }
+                if (directory.files) {
+                    for (var fileName in directory.files) {
+                        var file = directory.files[fileName];
+
+                        file.totalBranchesPossible = 0;
+                        file.totalBranchesTaken = 0;
+                        file.totalHitLines = 0;
+                        file.totalLines = file.hitLines.length;
+                        file.totalHeat = 0;
+                        
+                        for (var i = 0; i < file.branchesPossible.length; i++) {
+                            file.totalBranchesPossible += file.branchesPossible[i];
+                            file.totalBranchesTaken += file.branchesTaken[i];
+                        }
+                        for (var i = 0; i < file.hits.length; i++) {
+                            file.totalHeat += file.hits[i];
+                            if (file.hits[i])
+                                file.totalHitLines++;
+                        }
+                        
+                        directory.totalBranchesPossible += file.totalBranchesPossible;
+                        directory.totalBranchesTaken += file.totalBranchesTaken;
+                        directory.totalHitLines += file.totalHitLines;
+                        directory.totalLines += file.totalLines;
+                        directory.totalHeat += file.totalHeat;
+                        directory.maxHeat = Math.max(directory.maxHeat, file.maxHeat);
+                    }
+                }
+                directory.coverage = directory.totalHitLines / directory.totalLines;
+                directory.branchCoverage = directory.totalBranchesPossible ? directory.totalBranchesTaken / directory.totalBranchesPossible : 1;
+            }
+            
+            function addFileToDirectory(filename, filedata, directory)
+            {
+                var slashIndex = filename.indexOf('/', 1);
+                if (slashIndex === -1) {
+                    if (!directory.files)
+                        directory.files = {};
+                    directory.files[filename.substring(1)] = filedata;
+                } else {
+                    if (!directory.subdirs)
+                        directory.subdirs = {};
+                    var subdirName = filename.substring(1, slashIndex);
+                    if (!directory.subdirs[subdirName])
+                        directory.subdirs[subdirName] = {};
+                    addFileToDirectory(filename.substring(slashIndex), filedata, directory.subdirs[subdirName]);
+                }
+            }
+            
+            function updateReport(data)
+            {
+                var rootDirectory = {};
+                for (var i = 0; i < data.length; i++)
+                    addFileToDirectory(data[i].filename, data[i], rootDirectory);
+            
+                collectDirectoryTotals(rootDirectory);
+            
+                var report = document.createElement('div');
+                var codeCoverageHeader = document.createElement('div');
+                codeCoverageHeader.className = 'codeCoverage';
+                codeCoverageHeader.appendChild(document.createTextNode('Code Coverage'));
+                var branchCoverageHeader = document.createElement('div');
+                branchCoverageHeader.className = 'branchCoverage';
+                branchCoverageHeader.appendChild(document.createTextNode('Branch Coverage'));
+                var ul = document.createElement('ul');
+                ul.appendChild(makeDirectoryListItem(rootDirectory, ''));
+                
+                report.appendChild(codeCoverageHeader);
+                report.appendChild(branchCoverageHeader);
+                report.appendChild(document.createTextNode('Directories'));
+                report.appendChild(ul);
+                
+                var directories = document.getElementById('directories');
+                directories.replaceChild(report, directories.firstChild);
+            }
+            
+            function bodyLoaded()
+            {
+                updateReport(JSON.parse(document.getElementById('json').textContent));
+            }
+            
+        </script>
+    </head>
+    <body onload='bodyLoaded();'>
+        <div id='directories'>
+            loading data...
+        </div>
+        <div id='codeviewer'>
+        </div>
+        <script id='json' type='application/json'>%CoverageDataJSON%</script>
+    </body>
+</html>

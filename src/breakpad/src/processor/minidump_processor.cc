@@ -11,7 +11,7 @@
 // copyright notice, this list of conditions and the following disclaimer
 // in the documentation and/or other materials provided with the
 // distribution.
-//     * Neither the name of Google Inc. nor the names of its
+//    * Neither the name of Google Inc. nor the names of its
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
@@ -32,30 +32,45 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include <string>
+
+#include "common/scoped_ptr.h"
+#include "common/using_std_string.h"
 #include "google_breakpad/processor/call_stack.h"
 #include "google_breakpad/processor/minidump.h"
 #include "google_breakpad/processor/process_state.h"
 #include "google_breakpad/processor/exploitability.h"
+#include "google_breakpad/processor/stack_frame_symbolizer.h"
 #include "processor/logging.h"
-#include "processor/scoped_ptr.h"
 #include "processor/stackwalker_x86.h"
 
 namespace google_breakpad {
 
 MinidumpProcessor::MinidumpProcessor(SymbolSupplier *supplier,
                                      SourceLineResolverInterface *resolver)
-    : supplier_(supplier), resolver_(resolver),
+    : frame_symbolizer_(new StackFrameSymbolizer(supplier, resolver)),
+      own_frame_symbolizer_(true),
       enable_exploitability_(false) {
 }
 
 MinidumpProcessor::MinidumpProcessor(SymbolSupplier *supplier,
                                      SourceLineResolverInterface *resolver,
                                      bool enable_exploitability)
-    : supplier_(supplier), resolver_(resolver),
+    : frame_symbolizer_(new StackFrameSymbolizer(supplier, resolver)),
+      own_frame_symbolizer_(true),
       enable_exploitability_(enable_exploitability) {
 }
 
+MinidumpProcessor::MinidumpProcessor(StackFrameSymbolizer *frame_symbolizer,
+                                     bool enable_exploitability)
+    : frame_symbolizer_(frame_symbolizer),
+      own_frame_symbolizer_(false),
+      enable_exploitability_(enable_exploitability) {
+  assert(frame_symbolizer_);
+}
+
 MinidumpProcessor::~MinidumpProcessor() {
+  if (own_frame_symbolizer_) delete frame_symbolizer_;
 }
 
 ProcessResult MinidumpProcessor::Process(
@@ -75,9 +90,9 @@ ProcessResult MinidumpProcessor::Process(
   bool has_cpu_info = GetCPUInfo(dump, &process_state->system_info_);
   bool has_os_info = GetOSInfo(dump, &process_state->system_info_);
 
-  u_int32_t dump_thread_id = 0;
+  uint32_t dump_thread_id = 0;
   bool has_dump_thread = false;
-  u_int32_t requesting_thread_id = 0;
+  uint32_t requesting_thread_id = 0;
   bool has_requesting_thread = false;
 
   MinidumpBreakpadInfo *breakpad_info = dump->GetBreakpadInfo();
@@ -107,6 +122,12 @@ ProcessResult MinidumpProcessor::Process(
   if (module_list)
     process_state->modules_ = module_list->Copy();
 
+  MinidumpMemoryList *memory_list = dump->GetMemoryList();
+  if (memory_list) {
+    BPLOG(INFO) << "Found " << memory_list->region_count()
+                << " memory regions.";
+  }
+
   MinidumpThreadList *threads = dump->GetThreadList();
   if (!threads) {
     BPLOG(ERROR) << "Minidump " << dump->path() << " has no thread list";
@@ -126,6 +147,10 @@ ProcessResult MinidumpProcessor::Process(
   bool interrupted = false;
   bool found_requesting_thread = false;
   unsigned int thread_count = threads->thread_count();
+
+  // Reset frame_symbolizer_ at the beginning of stackwalk for each minidump.
+  frame_symbolizer_->Reset();
+
   for (unsigned int thread_index = 0;
        thread_index < thread_count;
        ++thread_index) {
@@ -140,7 +165,7 @@ ProcessResult MinidumpProcessor::Process(
       return PROCESS_ERROR_GETTING_THREAD;
     }
 
-    u_int32_t thread_id;
+    uint32_t thread_id;
     if (!thread->GetThreadID(&thread_id)) {
       BPLOG(ERROR) << "Could not get thread ID for " << thread_string;
       return PROCESS_ERROR_GETTING_THREAD_ID;
@@ -189,10 +214,19 @@ ProcessResult MinidumpProcessor::Process(
       }
     }
 
+    // If the memory region for the stack cannot be read using the RVA stored
+    // in the memory descriptor inside MINIDUMP_THREAD, try to locate and use
+    // a memory region (containing the stack) from the minidump memory list.
     MinidumpMemoryRegion *thread_memory = thread->GetMemory();
+    if (!thread_memory && memory_list) {
+      uint64_t start_stack_memory_range = thread->GetStartOfStackMemoryRange();
+      if (start_stack_memory_range) {
+        thread_memory = memory_list->GetMemoryRegionForAddress(
+           start_stack_memory_range);
+      }
+    }
     if (!thread_memory) {
       BPLOG(ERROR) << "No memory region for " << thread_string;
-      return PROCESS_ERROR_NO_MEMORY_FOR_THREAD;
     }
 
     // Use process_state->modules_ instead of module_list, because the
@@ -208,18 +242,22 @@ ProcessResult MinidumpProcessor::Process(
                                        context,
                                        thread_memory,
                                        process_state->modules_,
-                                       supplier_,
-                                       resolver_));
-    if (!stackwalker.get()) {
-      BPLOG(ERROR) << "No stackwalker for " << thread_string;
-      return PROCESS_ERROR_NO_STACKWALKER_FOR_THREAD;
-    }
+                                       frame_symbolizer_));
 
     scoped_ptr<CallStack> stack(new CallStack());
-    if (!stackwalker->Walk(stack.get())) {
-      BPLOG(INFO) << "Stackwalker interrupt (missing symbols?) at " <<
-          thread_string;
-      interrupted = true;
+    if (stackwalker.get()) {
+      if (!stackwalker->Walk(stack.get(),
+                             &process_state->modules_without_symbols_,
+                             &process_state->modules_with_corrupt_symbols_)) {
+        BPLOG(INFO) << "Stackwalker interrupt (missing symbols?) at "
+                    << thread_string;
+        interrupted = true;
+      }
+    } else {
+      // Threads with missing CPU contexts will hit this, but
+      // don't abort processing the rest of the dump just for
+      // one bad thread.
+      BPLOG(ERROR) << "No stackwalker for " << thread_string;
     }
     process_state->threads_.push_back(stack.release());
     process_state->thread_memory_regions_.push_back(thread_memory);
@@ -287,6 +325,128 @@ static const MDRawSystemInfo* GetSystemInfo(Minidump *dump,
   return minidump_system_info->system_info();
 }
 
+// Extract CPU info string from ARM-specific MDRawSystemInfo structure.
+// raw_info: pointer to source MDRawSystemInfo.
+// cpu_info: address of target string, cpu info text will be appended to it.
+static void GetARMCpuInfo(const MDRawSystemInfo* raw_info,
+                          string* cpu_info) {
+  assert(raw_info != NULL && cpu_info != NULL);
+
+  // Write ARM architecture version.
+  char cpu_string[32];
+  snprintf(cpu_string, sizeof(cpu_string), "ARMv%d",
+           raw_info->processor_level);
+  cpu_info->append(cpu_string);
+
+  // There is no good list of implementer id values, but the following
+  // pages provide some help:
+  //   http://comments.gmane.org/gmane.linux.linaro.devel/6903
+  //   http://forum.xda-developers.com/archive/index.php/t-480226.html
+  const struct {
+    uint32_t id;
+    const char* name;
+  } vendors[] = {
+    { 0x41, "ARM" },
+    { 0x51, "Qualcomm" },
+    { 0x56, "Marvell" },
+    { 0x69, "Intel/Marvell" },
+  };
+  const struct {
+    uint32_t id;
+    const char* name;
+  } parts[] = {
+    { 0x4100c050, "Cortex-A5" },
+    { 0x4100c080, "Cortex-A8" },
+    { 0x4100c090, "Cortex-A9" },
+    { 0x4100c0f0, "Cortex-A15" },
+    { 0x4100c140, "Cortex-R4" },
+    { 0x4100c150, "Cortex-R5" },
+    { 0x4100b360, "ARM1136" },
+    { 0x4100b560, "ARM1156" },
+    { 0x4100b760, "ARM1176" },
+    { 0x4100b020, "ARM11-MPCore" },
+    { 0x41009260, "ARM926" },
+    { 0x41009460, "ARM946" },
+    { 0x41009660, "ARM966" },
+    { 0x510006f0, "Krait" },
+    { 0x510000f0, "Scorpion" },
+  };
+
+  const struct {
+    uint32_t hwcap;
+    const char* name;
+  } features[] = {
+    { MD_CPU_ARM_ELF_HWCAP_SWP, "swp" },
+    { MD_CPU_ARM_ELF_HWCAP_HALF, "half" },
+    { MD_CPU_ARM_ELF_HWCAP_THUMB, "thumb" },
+    { MD_CPU_ARM_ELF_HWCAP_26BIT, "26bit" },
+    { MD_CPU_ARM_ELF_HWCAP_FAST_MULT, "fastmult" },
+    { MD_CPU_ARM_ELF_HWCAP_FPA, "fpa" },
+    { MD_CPU_ARM_ELF_HWCAP_VFP, "vfpv2" },
+    { MD_CPU_ARM_ELF_HWCAP_EDSP, "edsp" },
+    { MD_CPU_ARM_ELF_HWCAP_JAVA, "java" },
+    { MD_CPU_ARM_ELF_HWCAP_IWMMXT, "iwmmxt" },
+    { MD_CPU_ARM_ELF_HWCAP_CRUNCH, "crunch" },
+    { MD_CPU_ARM_ELF_HWCAP_THUMBEE, "thumbee" },
+    { MD_CPU_ARM_ELF_HWCAP_NEON, "neon" },
+    { MD_CPU_ARM_ELF_HWCAP_VFPv3, "vfpv3" },
+    { MD_CPU_ARM_ELF_HWCAP_VFPv3D16, "vfpv3d16" },
+    { MD_CPU_ARM_ELF_HWCAP_TLS, "tls" },
+    { MD_CPU_ARM_ELF_HWCAP_VFPv4, "vfpv4" },
+    { MD_CPU_ARM_ELF_HWCAP_IDIVA, "idiva" },
+    { MD_CPU_ARM_ELF_HWCAP_IDIVT, "idivt" },
+  };
+
+  uint32_t cpuid = raw_info->cpu.arm_cpu_info.cpuid;
+  if (cpuid != 0) {
+    // Extract vendor name from CPUID
+    const char* vendor = NULL;
+    uint32_t vendor_id = (cpuid >> 24) & 0xff;
+    for (size_t i = 0; i < sizeof(vendors)/sizeof(vendors[0]); ++i) {
+      if (vendors[i].id == vendor_id) {
+        vendor = vendors[i].name;
+        break;
+      }
+    }
+    cpu_info->append(" ");
+    if (vendor) {
+      cpu_info->append(vendor);
+    } else {
+      snprintf(cpu_string, sizeof(cpu_string), "vendor(0x%x)", vendor_id);
+      cpu_info->append(cpu_string);
+    }
+
+    // Extract part name from CPUID
+    uint32_t part_id = (cpuid & 0xff00fff0);
+    const char* part = NULL;
+    for (size_t i = 0; i < sizeof(parts)/sizeof(parts[0]); ++i) {
+      if (parts[i].id == part_id) {
+        part = parts[i].name;
+        break;
+      }
+    }
+    cpu_info->append(" ");
+    if (part != NULL) {
+      cpu_info->append(part);
+    } else {
+      snprintf(cpu_string, sizeof(cpu_string), "part(0x%x)", part_id);
+      cpu_info->append(cpu_string);
+    }
+  }
+  uint32_t elf_hwcaps = raw_info->cpu.arm_cpu_info.elf_hwcaps;
+  if (elf_hwcaps != 0) {
+    cpu_info->append(" features: ");
+    const char* comma = "";
+    for (size_t i = 0; i < sizeof(features)/sizeof(features[0]); ++i) {
+      if (elf_hwcaps & features[i].hwcap) {
+        cpu_info->append(comma);
+        cpu_info->append(features[i].name);
+        comma = ",";
+      }
+    }
+  }
+}
+
 // static
 bool MinidumpProcessor::GetCPUInfo(Minidump *dump, SystemInfo *info) {
   assert(dump);
@@ -329,6 +489,11 @@ bool MinidumpProcessor::GetCPUInfo(Minidump *dump, SystemInfo *info) {
       break;
     }
 
+    case MD_CPU_ARCHITECTURE_PPC64: {
+      info->cpu = "ppc64";
+      break;
+    }
+
     case MD_CPU_ARCHITECTURE_SPARC: {
       info->cpu = "sparc";
       break;
@@ -336,6 +501,17 @@ bool MinidumpProcessor::GetCPUInfo(Minidump *dump, SystemInfo *info) {
 
     case MD_CPU_ARCHITECTURE_ARM: {
       info->cpu = "arm";
+      GetARMCpuInfo(raw_system_info, &info->cpu_info);
+      break;
+    }
+
+    case MD_CPU_ARCHITECTURE_ARM64: {
+      info->cpu = "arm64";
+      break;
+    }
+
+    case MD_CPU_ARCHITECTURE_MIPS: {
+      info->cpu = "mips";
       break;
     }
 
@@ -401,6 +577,21 @@ bool MinidumpProcessor::GetOSInfo(Minidump *dump, SystemInfo *info) {
       break;
     }
 
+    case MD_OS_ANDROID: {
+      info->os = "Android";
+      break;
+    }
+
+    case MD_OS_PS3: {
+      info->os = "PS3";
+      break;
+    }
+
+    case MD_OS_NACL: {
+      info->os = "NaCl";
+      break;
+    }
+
     default: {
       // Assign the numeric platform ID into the OS string.
       char os_string[11];
@@ -428,7 +619,7 @@ bool MinidumpProcessor::GetOSInfo(Minidump *dump, SystemInfo *info) {
 }
 
 // static
-string MinidumpProcessor::GetCrashReason(Minidump *dump, u_int64_t *address) {
+string MinidumpProcessor::GetCrashReason(Minidump *dump, uint64_t *address) {
   MinidumpException *exception = dump->GetException();
   if (!exception)
     return "";
@@ -445,8 +636,8 @@ string MinidumpProcessor::GetCrashReason(Minidump *dump, u_int64_t *address) {
   // map the codes to a string (because there's no system info, or because
   // it's an unrecognized platform, or because it's an unrecognized code.)
   char reason_string[24];
-  u_int32_t exception_code = raw_exception->exception_record.exception_code;
-  u_int32_t exception_flags = raw_exception->exception_record.exception_flags;
+  uint32_t exception_code = raw_exception->exception_record.exception_code;
+  uint32_t exception_flags = raw_exception->exception_record.exception_flags;
   snprintf(reason_string, sizeof(reason_string), "0x%08x / 0x%08x",
            exception_code, exception_flags);
   string reason = reason_string;
@@ -479,26 +670,64 @@ string MinidumpProcessor::GetCrashReason(Minidump *dump, u_int64_t *address) {
             case MD_EXCEPTION_CODE_MAC_MEMORY_ERROR:
               reason.append("KERN_MEMORY_ERROR");
               break;
-            // These are ppc only but shouldn't be a problem as they're
-            // unused on x86
-            case MD_EXCEPTION_CODE_MAC_PPC_VM_PROT_READ:
-              reason.append("EXC_PPC_VM_PROT_READ");
-              break;
-            case MD_EXCEPTION_CODE_MAC_PPC_BADSPACE:
-              reason.append("EXC_PPC_BADSPACE");
-              break;
-            case MD_EXCEPTION_CODE_MAC_PPC_UNALIGNED:
-              reason.append("EXC_PPC_UNALIGNED");
-              break;
             default:
-              reason.append(flags_string);
-              BPLOG(INFO) << "Unknown exception reason " << reason;
+              // arm and ppc overlap
+              if (raw_system_info->processor_architecture ==
+                  MD_CPU_ARCHITECTURE_ARM ||
+                  raw_system_info->processor_architecture ==
+                  MD_CPU_ARCHITECTURE_ARM64) {
+                switch (exception_flags) {
+                  case MD_EXCEPTION_CODE_MAC_ARM_DA_ALIGN:
+                    reason.append("EXC_ARM_DA_ALIGN");
+                    break;
+                  case MD_EXCEPTION_CODE_MAC_ARM_DA_DEBUG:
+                    reason.append("EXC_ARM_DA_DEBUG");
+                    break;
+                  default:
+                    reason.append(flags_string);
+                    BPLOG(INFO) << "Unknown exception reason " << reason;
+                    break;
+                }
+              } else if (raw_system_info->processor_architecture ==
+                         MD_CPU_ARCHITECTURE_PPC) {
+                switch (exception_flags) {
+                  case MD_EXCEPTION_CODE_MAC_PPC_VM_PROT_READ:
+                    reason.append("EXC_PPC_VM_PROT_READ");
+                    break;
+                  case MD_EXCEPTION_CODE_MAC_PPC_BADSPACE:
+                    reason.append("EXC_PPC_BADSPACE");
+                    break;
+                  case MD_EXCEPTION_CODE_MAC_PPC_UNALIGNED:
+                    reason.append("EXC_PPC_UNALIGNED");
+                    break;
+                  default:
+                    reason.append(flags_string);
+                    BPLOG(INFO) << "Unknown exception reason " << reason;
+                    break;
+                }
+              } else {
+                reason.append(flags_string);
+                BPLOG(INFO) << "Unknown exception reason " << reason;
+              }
               break;
           }
           break;
         case MD_EXCEPTION_MAC_BAD_INSTRUCTION:
           reason = "EXC_BAD_INSTRUCTION / ";
           switch (raw_system_info->processor_architecture) {
+            case MD_CPU_ARCHITECTURE_ARM:
+            case MD_CPU_ARCHITECTURE_ARM64: {
+              switch (exception_flags) {
+                case MD_EXCEPTION_CODE_MAC_ARM_UNDEFINED:
+                  reason.append("EXC_ARM_UNDEFINED");
+                  break;
+                default:
+                  reason.append(flags_string);
+                  BPLOG(INFO) << "Unknown exception reason " << reason;
+                  break;
+              }
+              break;
+            }
             case MD_CPU_ARCHITECTURE_PPC: {
               switch (exception_flags) {
                 case MD_EXCEPTION_CODE_MAC_PPC_INVALID_SYSCALL:
@@ -666,6 +895,25 @@ string MinidumpProcessor::GetCrashReason(Minidump *dump, u_int64_t *address) {
         case MD_EXCEPTION_MAC_BREAKPOINT:
           reason = "EXC_BREAKPOINT / ";
           switch (raw_system_info->processor_architecture) {
+            case MD_CPU_ARCHITECTURE_ARM:
+            case MD_CPU_ARCHITECTURE_ARM64: {
+              switch (exception_flags) {
+                case MD_EXCEPTION_CODE_MAC_ARM_DA_ALIGN:
+                  reason.append("EXC_ARM_DA_ALIGN");
+                  break;
+                case MD_EXCEPTION_CODE_MAC_ARM_DA_DEBUG:
+                  reason.append("EXC_ARM_DA_DEBUG");
+                  break;
+                case MD_EXCEPTION_CODE_MAC_ARM_BREAKPOINT:
+                  reason.append("EXC_ARM_BREAKPOINT");
+                  break;
+                default:
+                  reason.append(flags_string);
+                  BPLOG(INFO) << "Unknown exception reason " << reason;
+                  break;
+              }
+              break;
+            }
             case MD_CPU_ARCHITECTURE_PPC: {
               switch (exception_flags) {
                 case MD_EXCEPTION_CODE_MAC_PPC_BREAKPOINT:
@@ -838,6 +1086,7 @@ string MinidumpProcessor::GetCrashReason(Minidump *dump, u_int64_t *address) {
       break;
     }
 
+    case MD_OS_ANDROID:
     case MD_OS_LINUX: {
       switch (exception_code) {
         case MD_EXCEPTION_CODE_LIN_SIGHUP:
@@ -932,6 +1181,9 @@ string MinidumpProcessor::GetCrashReason(Minidump *dump, u_int64_t *address) {
           break;
         case MD_EXCEPTION_CODE_LIN_SIGSYS:
           reason = "SIGSYS";
+          break;
+      case MD_EXCEPTION_CODE_LIN_DUMP_REQUESTED:
+          reason = "DUMP_REQUESTED";
           break;
         default:
           BPLOG(INFO) << "Unknown exception reason " << reason;
@@ -1069,6 +1321,84 @@ string MinidumpProcessor::GetCrashReason(Minidump *dump, u_int64_t *address) {
       break;
     }
 
+    case MD_OS_PS3: {
+      switch (exception_code) {
+        case MD_EXCEPTION_CODE_PS3_UNKNOWN:
+          reason = "UNKNOWN";
+          break;
+        case MD_EXCEPTION_CODE_PS3_TRAP_EXCEP:
+          reason = "TRAP_EXCEP";
+          break;
+        case MD_EXCEPTION_CODE_PS3_PRIV_INSTR:
+          reason = "PRIV_INSTR";
+          break;
+        case MD_EXCEPTION_CODE_PS3_ILLEGAL_INSTR:
+          reason = "ILLEGAL_INSTR";
+          break;
+        case MD_EXCEPTION_CODE_PS3_INSTR_STORAGE:
+          reason = "INSTR_STORAGE";
+          break;
+        case MD_EXCEPTION_CODE_PS3_INSTR_SEGMENT:
+          reason = "INSTR_SEGMENT";
+          break;
+        case MD_EXCEPTION_CODE_PS3_DATA_STORAGE:
+          reason = "DATA_STORAGE";
+          break;
+        case MD_EXCEPTION_CODE_PS3_DATA_SEGMENT:
+          reason = "DATA_SEGMENT";
+          break;
+        case MD_EXCEPTION_CODE_PS3_FLOAT_POINT:
+          reason = "FLOAT_POINT";
+          break;
+        case MD_EXCEPTION_CODE_PS3_DABR_MATCH:
+          reason = "DABR_MATCH";
+          break;
+        case MD_EXCEPTION_CODE_PS3_ALIGN_EXCEP:
+          reason = "ALIGN_EXCEP";
+          break;
+        case MD_EXCEPTION_CODE_PS3_MEMORY_ACCESS:
+          reason = "MEMORY_ACCESS";
+          break;
+        case MD_EXCEPTION_CODE_PS3_COPRO_ALIGN:
+          reason = "COPRO_ALIGN";
+          break;
+        case MD_EXCEPTION_CODE_PS3_COPRO_INVALID_COM:
+          reason = "COPRO_INVALID_COM";
+          break;
+        case MD_EXCEPTION_CODE_PS3_COPRO_ERR:
+          reason = "COPRO_ERR";
+          break;
+        case MD_EXCEPTION_CODE_PS3_COPRO_FIR:
+          reason = "COPRO_FIR";
+          break;
+        case MD_EXCEPTION_CODE_PS3_COPRO_DATA_SEGMENT:
+          reason = "COPRO_DATA_SEGMENT";
+          break;
+        case MD_EXCEPTION_CODE_PS3_COPRO_DATA_STORAGE:
+          reason = "COPRO_DATA_STORAGE";
+          break;
+        case MD_EXCEPTION_CODE_PS3_COPRO_STOP_INSTR:
+          reason = "COPRO_STOP_INSTR";
+          break;
+        case MD_EXCEPTION_CODE_PS3_COPRO_HALT_INSTR:
+          reason = "COPRO_HALT_INSTR";
+          break;
+        case MD_EXCEPTION_CODE_PS3_COPRO_HALTINST_UNKNOWN:
+          reason = "COPRO_HALTINSTR_UNKNOWN";
+          break;
+        case MD_EXCEPTION_CODE_PS3_COPRO_MEMORY_ACCESS:
+          reason = "COPRO_MEMORY_ACCESS";
+          break;
+        case MD_EXCEPTION_CODE_PS3_GRAPHIC:
+          reason = "GRAPHIC";
+          break;
+        default:
+          BPLOG(INFO) << "Unknown exception reason "<< reason;
+          break;
+      }
+      break;
+    }
+
     default: {
       BPLOG(INFO) << "Unknown exception reason " << reason;
       break;
@@ -1098,7 +1428,8 @@ string MinidumpProcessor::GetAssertion(Minidump *dump) {
     break;
   default: {
     char assertion_type[32];
-    sprintf(assertion_type, "0x%08x", raw_assertion->type);
+    snprintf(assertion_type, sizeof(assertion_type),
+             "0x%08x", raw_assertion->type);
     assertion_string = "Unknown assertion type ";
     assertion_string += assertion_type;
     break;
@@ -1122,7 +1453,7 @@ string MinidumpProcessor::GetAssertion(Minidump *dump) {
 
   if (raw_assertion->line != 0) {
     char assertion_line[32];
-    sprintf(assertion_line, "%u", raw_assertion->line);
+    snprintf(assertion_line, sizeof(assertion_line), "%u", raw_assertion->line);
     assertion_string.append(" at line ");
     assertion_string.append(assertion_line);
   }

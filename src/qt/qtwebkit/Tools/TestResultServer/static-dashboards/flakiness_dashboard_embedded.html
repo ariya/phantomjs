@@ -1,0 +1,83 @@
+<!-- Copyright (C) 2011 Google Inc. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<!DOCTYPE HTML>
+<style>
+iframe {
+    width: 100%;
+    display: block;
+}
+#toolbar {
+    display: -webkit-flexbox;
+    -webkit-flex-align: baseline;
+}
+#tests {
+    -webkit-flex: 1;
+    /* WebKit bug. Don't properly wrap input elements for flexing. */
+    display: block;
+}
+</style>
+
+<div>This is a demo page for working on iframe embedding the flakiness dashboard.</div>
+<div id="toolbar">
+    <input id="chrome" type=checkbox></input><label>Hide chrome</label> | 
+    <label>Tests:</label><input id=tests placeholder="Type test name here to load a different test in the frame" ></input>
+</div>
+<iframe src="flakiness_dashboard.html"></iframe>
+
+<script>
+var timeoutId;
+document.querySelector('#tests').oninput = function(event) {
+    if (timeoutId)
+        clearTimeout(timeoutId);
+    timeoutId = setTimeout(setFrameSrc, 1000);
+};
+document.querySelector('#chrome').onchange = setFrameSrc;
+
+function setFrameSrc() {
+    var tests = document.querySelector('#tests').value;
+    var hideChrome = document.querySelector('#chrome').checked ? '&showChrome=false' : '';
+    var url = 'flakiness_dashboard.html#tests=' + tests + hideChrome;
+    document.querySelector('iframe').src = url;
+};
+
+function sizeIframeToContents() {
+    document.querySelector('iframe').contentWindow.postMessage({command: 'queryContentHeight'}, '*');
+};
+
+window.addEventListener('message', function(event) {
+    switch(event.data.command) {
+    case 'heightChanged':
+        document.querySelector('iframe').style.height = event.data.height + 'px';
+        break;
+
+    default:
+        console.error('Did not understand message: ' + event.data);
+    }
+});
+</script>

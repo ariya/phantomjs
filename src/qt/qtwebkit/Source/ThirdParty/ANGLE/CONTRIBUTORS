@@ -1,0 +1,76 @@
+# This is the official list of people who can contribute
+# (and who have contributed) code to the ANGLE project
+# repository.
+# The AUTHORS file lists the copyright holders; this file
+# lists people.  For example, Google employees are listed here
+# but not in AUTHORS, because Google holds the copyright.
+#
+
+TransGaming Inc.
+ Nicolas Capens
+ Daniel Koch
+ Geoff Lang
+ Andrew Lewycky
+ Jamie Madill
+ Gavriel State
+ Shannon Woods
+
+Google Inc.
+ Brent Austin
+ Michael Bai
+ John Bauman
+ Peter Beverloo
+ Steve Block
+ Rachel Blum
+ Eric Boren
+ Henry Bridge
+ Nat Duca
+ Peter Kasting
+ Vangelis Kokkevis
+ Zhenyao Mo
+ Daniel Nicoara
+ Alastair Patrick
+ Alok Priyadarshi
+ Kenneth Russell
+ Brian Salomon
+ Gregg Tavares
+ Jeff Timanus
+ Ben Vanik
+ Adrienne Walker
+ thestig@chromium.org
+ Justin Schuh
+
+Adobe Systems Inc.
+ Alexandru Chiculita
+ Steve Minns
+ Max Vujovic
+
+Autodesk, Inc.
+ Ranger Harke
+
+Cloud Party, Inc.
+ Conor Dickinson
+
+Intel Corporation
+ Jin Yang
+ Andy Chen
+ Josh Triplett
+
+Klarälvdalens Datakonsult AB
+ Milian Wolff
+
+Mozilla Corp.
+ Ehsan Akhgari
+ Jeff Gilbert
+ Mike Hommey
+ Benoit Jacob
+ Makoto Kato
+ Vladimir Vukicevic
+
+Turbulenz
+ Michael Braithwaite
+
+Ulrik Persson (ddefrostt)
+Mark Banner (standard8mbp)
+David Kilzer
+

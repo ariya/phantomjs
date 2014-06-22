@@ -1,0 +1,121 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page qtcore-index.html
+    \title Qt Core
+
+    \brief The Qt Core module is part of Qt's essential modules.
+
+    \section1 Getting Started
+    All other Qt modules rely on this module. To include the
+    definitions of the module's classes, use the following directive:
+
+    \snippet code/doc_src_qtcore.cpp 0
+
+    If you use \l qmake to build your projects, Qt Core is included by default.
+
+    \section1 Core Functionalities
+
+    Qt adds these features to C++:
+
+    \list
+    \li a very powerful mechanism for seamless object communication called
+    signals and slots
+    \li queryable and designable object properties
+    \li hierarchical and queryable object trees that organize
+    \li object ownership in a natural way with guarded pointers (QPointer)
+    \li a dynamic cast that works across library boundaries
+    \endlist
+
+    The following pages provide more information about Qt's core features:
+    \list
+    \li \l{The Meta-Object System}
+    \li \l{The Property System}
+    \li \l{Object Model}
+    \li \l{Object Trees & Ownership}
+    \li \l{Signals & Slots}
+    \endlist
+
+    \section1 Threading and Concurrent Programming
+
+    Qt provides thread support in the form of platform-independent \l{Threading
+    Classes}{threading classes}, a thread-safe way of posting events, and
+    signal-slot connections across threads. Multithreaded programming is also a
+    useful paradigm for performing time-consuming operations without freezing
+    the user interface of an application.
+
+    The \l{Thread Support in Qt} page contains information on implementing
+    threads in applications. Additional concurrent classes are provided by the
+    \l{Qt Concurrent} module.
+
+    \section1 Input/Output, Resources, and Containers
+
+    Qt provides a resource system for organizing application files and assets,
+    a set of containers, and classes for receiving input and printing output.
+    \list
+    \li \l{Container Classes}
+    \li \l{Serializing Qt Data Types}
+    \li \l{Implicit Sharing}
+    \endlist
+
+    In addition, Qt Core provides a platform-independent mechanism for storing
+    binary files in the application's executable.
+
+    \list
+    \li \l{The Qt Resource System}
+    \endlist
+
+    \section1 Additional Frameworks
+    Qt Core also provides some of Qt's key frameworks.
+
+    \list
+    \li \l{The Animation Framework}
+    \li \l{JSON Support in Qt}
+    \li \l{The State Machine Framework}
+    \li \l{How to Create Qt Plugins}
+    \li \l{The Event System}
+    \endlist
+
+    \section1 Related Information
+    \section1 Reference
+    These are links to the API reference materials.
+    \list
+    \li \l{Qt Core C++ Classes}{C++ Classes}
+        \list
+        \li \l{Animation Framework}{Animation Classes}
+        \li \l{Threading Classes}
+        \li \l{Container Classes}
+        \li \l{Plugin Classes}
+        \li \l{Implicitly Shared Classes}
+        \li \l{State Machine Classes}
+        \li \l{Input/Output and Networking}{Input/Output Classes}
+        \li \l{Event Classes}
+        \endlist
+    \endlist
+
+*/

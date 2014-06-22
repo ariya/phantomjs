@@ -1,0 +1,792 @@
+
+#else
+
+QOpenGLExtension_OES_EGL_image::QOpenGLExtension_OES_EGL_image()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_OES_EGL_imagePrivate))
+{
+}
+
+bool QOpenGLExtension_OES_EGL_image::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_OES_EGL_image);
+
+    d->EGLImageTargetTexture2DOES = (void (QOPENGLF_APIENTRYP)(GLenum target, GLeglImageOES image))context->getProcAddress("glEGLImageTargetTexture2DOES");
+    d->EGLImageTargetRenderbufferStorageOES = (void (QOPENGLF_APIENTRYP)(GLenum target, GLeglImageOES image))context->getProcAddress("glEGLImageTargetRenderbufferStorageOESs");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_OES_get_program_binary::QOpenGLExtension_OES_get_program_binary()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_OES_get_program_binaryPrivate))
+{
+}
+
+bool QOpenGLExtension_OES_get_program_binary::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_OES_get_program_binary);
+
+    d->GetProgramBinaryOES = (void (QOPENGLF_APIENTRYP)(GLuint program, GLsizei bufSize, GLsizei *length, GLenum *binaryFormat, GLvoid *binary))context->getProcAddress("glGetProgramBinaryOES");
+    d->ProgramBinaryOES = (void (QOPENGLF_APIENTRYP)(GLuint program, GLenum binaryFormat, const GLvoid *binary, GLint length))context->getProcAddress("glProgramBinaryOES");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_OES_mapbuffer::QOpenGLExtension_OES_mapbuffer()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_OES_mapbufferPrivate))
+{
+}
+
+bool QOpenGLExtension_OES_mapbuffer::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_OES_mapbuffer);
+
+    d->MapBufferOES = (void* (QOPENGLF_APIENTRYP)(GLenum target, GLenum access))context->getProcAddress("glMapBufferOES");
+    d->UnmapBufferOES = (GLboolean (QOPENGLF_APIENTRYP)(GLenum target))context->getProcAddress("glUnmapBufferOES");
+    d->GetBufferPointervOES = (void (QOPENGLF_APIENTRYP)(GLenum target, GLenum pname, GLvoid** params))context->getProcAddress("glGetBufferPointervOES");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_OES_texture_3D::QOpenGLExtension_OES_texture_3D()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_OES_texture_3DPrivate))
+{
+}
+
+bool QOpenGLExtension_OES_texture_3D::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_OES_texture_3D);
+
+    d->TexImage3DOES = (void (QOPENGLF_APIENTRYP)(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid* pixels))context->getProcAddress("glTexImage3DOES");
+    d->TexSubImage3DOES = (void (QOPENGLF_APIENTRYP)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const GLvoid* pixels))context->getProcAddress("glTexSubImage3DOES");
+    d->CopyTexSubImage3DOES = (void (QOPENGLF_APIENTRYP)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height))context->getProcAddress("glCopyTexSubImage3DOES");
+    d->CompressedTexImage3DOES = (void (QOPENGLF_APIENTRYP)(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, const GLvoid* data))context->getProcAddress("glCompressedTexImage3DOES");
+    d->CompressedTexSubImage3DOES = (void (QOPENGLF_APIENTRYP)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const GLvoid* data))context->getProcAddress("glCompressedTexSubImage3DOES");
+    d->FramebufferTexture3DOES = (void (QOPENGLF_APIENTRYP)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset))context->getProcAddress("glFramebufferTexture3DOES");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_OES_vertex_array_object::QOpenGLExtension_OES_vertex_array_object()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_OES_vertex_array_objectPrivate))
+{
+}
+
+bool QOpenGLExtension_OES_vertex_array_object::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_OES_vertex_array_object);
+
+    d->BindVertexArrayOES = (void (QOPENGLF_APIENTRYP)(GLuint array))context->getProcAddress("glBindVertexArrayOES");
+    d->DeleteVertexArraysOES = (void (QOPENGLF_APIENTRYP)(GLsizei n, const GLuint *arrays))context->getProcAddress("glDeleteVertexArraysOES");
+    d->GenVertexArraysOES = (void (QOPENGLF_APIENTRYP)(GLsizei n, GLuint *arrays))context->getProcAddress("glGenVertexArraysOES");
+    d->IsVertexArrayOES = (GLboolean (QOPENGLF_APIENTRYP)(GLuint array))context->getProcAddress("glIsVertexArrayOES");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_AMD_performance_monitor::QOpenGLExtension_AMD_performance_monitor()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_AMD_performance_monitorPrivate))
+{
+}
+
+bool QOpenGLExtension_AMD_performance_monitor::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_AMD_performance_monitor);
+
+    d->GetPerfMonitorGroupsAMD = (void (QOPENGLF_APIENTRYP)(GLint *numGroups, GLsizei groupsSize, GLuint *groups))context->getProcAddress("glGetPerfMonitorGroupsAMD");
+    d->GetPerfMonitorCountersAMD = (void (QOPENGLF_APIENTRYP)(GLuint group, GLint *numCounters, GLint *maxActiveCounters, GLsizei counterSize, GLuint *counters))context->getProcAddress("glGetPerfMonitorCountersAMD");
+    d->GetPerfMonitorGroupStringAMD = (void (QOPENGLF_APIENTRYP)(GLuint group, GLsizei bufSize, GLsizei *length, GLchar *groupString))context->getProcAddress("glGetPerfMonitorGroupStringAMD");
+    d->GetPerfMonitorCounterStringAMD = (void (QOPENGLF_APIENTRYP)(GLuint group, GLuint counter, GLsizei bufSize, GLsizei *length, GLchar *counterString))context->getProcAddress("glGetPerfMonitorCounterStringAMD");
+    d->GetPerfMonitorCounterInfoAMD = (void (QOPENGLF_APIENTRYP)(GLuint group, GLuint counter, GLenum pname, GLvoid *data))context->getProcAddress("glGetPerfMonitorCounterInfoAMD");
+    d->GenPerfMonitorsAMD = (void (QOPENGLF_APIENTRYP)(GLsizei n, GLuint *monitors))context->getProcAddress("glGenPerfMonitorsAMD");
+    d->DeletePerfMonitorsAMD = (void (QOPENGLF_APIENTRYP)(GLsizei n, GLuint *monitors))context->getProcAddress("glDeletePerfMonitorsAMD");
+    d->SelectPerfMonitorCountersAMD = (void (QOPENGLF_APIENTRYP)(GLuint monitor, GLboolean enable, GLuint group, GLint numCounters, GLuint *countersList))context->getProcAddress("glSelectPerfMonitorCountersAMD");
+    d->BeginPerfMonitorAMD = (void (QOPENGLF_APIENTRYP)(GLuint monitor))context->getProcAddress("glBeginPerfMonitorAMD");
+    d->EndPerfMonitorAMD = (void (QOPENGLF_APIENTRYP )(GLuint monitor))context->getProcAddress("glEndPerfMonitorAMD");
+    d->GetPerfMonitorCounterDataAMD = (void (QOPENGLF_APIENTRYP)(GLuint monitor, GLenum pname, GLsizei dataSize, GLuint *data, GLint *bytesWritten))context->getProcAddress("glGetPerfMonitorCounterDataAMD");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_ANGLE_framebuffer_blit::QOpenGLExtension_ANGLE_framebuffer_blit()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_ANGLE_framebuffer_blitPrivate))
+{
+}
+
+bool QOpenGLExtension_ANGLE_framebuffer_blit::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_ANGLE_framebuffer_blit);
+
+    d->BlitFramebufferANGLE = (void (QOPENGLF_APIENTRYP)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter))context->getProcAddress("glBlitFramebufferANGLE");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_ANGLE_framebuffer_multisample::QOpenGLExtension_ANGLE_framebuffer_multisample()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_ANGLE_framebuffer_multisamplePrivate))
+{
+}
+
+bool QOpenGLExtension_ANGLE_framebuffer_multisample::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_ANGLE_framebuffer_multisample);
+
+    d->RenderbufferStorageMultisampleANGLE = (void (QOPENGLF_APIENTRYP)(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height))context->getProcAddress("glRenderbufferStorageMultisampleANGLE");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_ANGLE_instanced_arrays::QOpenGLExtension_ANGLE_instanced_arrays()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_ANGLE_instanced_arraysPrivate))
+{
+}
+
+bool QOpenGLExtension_ANGLE_instanced_arrays::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_ANGLE_instanced_arrays);
+
+    d->DrawArraysInstancedANGLE = (void (QOPENGLF_APIENTRYP)(GLenum mode, GLint first, GLsizei count, GLsizei primcount))context->getProcAddress("glDrawArraysInstancedANGLE");
+    d->DrawElementsInstancedANGLE = (void (QOPENGLF_APIENTRYP)(GLenum mode, GLsizei count, GLenum type, const void *indices, GLsizei primcount))context->getProcAddress("glDrawElementsInstancedANGLE");
+    d->VertexAttribDivisorANGLE = (void (QOPENGLF_APIENTRYP)(GLuint index, GLuint divisor))context->getProcAddress("glVertexAttribDivisorANGLE");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_ANGLE_translated_shader_source::QOpenGLExtension_ANGLE_translated_shader_source()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_ANGLE_translated_shader_sourcePrivate))
+{
+}
+
+bool QOpenGLExtension_ANGLE_translated_shader_source::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_ANGLE_translated_shader_source);
+
+    d->GetTranslatedShaderSourceANGLE = (void (QOPENGLF_APIENTRYP)(GLuint shader, GLsizei bufsize, GLsizei *length, GLchar *source))context->getProcAddress("glGetTranslatedShaderSourceANGLE");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_APPLE_framebuffer_multisample::QOpenGLExtension_APPLE_framebuffer_multisample()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_APPLE_framebuffer_multisamplePrivate))
+{
+}
+
+bool QOpenGLExtension_APPLE_framebuffer_multisample::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_APPLE_framebuffer_multisample);
+
+    d->RenderbufferStorageMultisampleAPPLE = (void (QOPENGLF_APIENTRYP)(GLenum, GLsizei, GLenum, GLsizei, GLsizei))context->getProcAddress("glRenderbufferStorageMultisampleAPPLE");
+    d->ResolveMultisampleFramebufferAPPLE = (void (QOPENGLF_APIENTRYP)(void))context->getProcAddress("glResolveMultisampleFramebufferAPPLE");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_EXT_debug_label::QOpenGLExtension_EXT_debug_label()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_EXT_debug_labelPrivate))
+{
+}
+
+bool QOpenGLExtension_EXT_debug_label::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_EXT_debug_label);
+
+    d->LabelObjectEXT = (void (QOPENGLF_APIENTRYP)(GLenum type, GLuint object, GLsizei length, const GLchar *label))context->getProcAddress("glLabelObjectEXT");
+    d->GetObjectLabelEXT = (void (QOPENGLF_APIENTRYP)(GLenum type, GLuint object, GLsizei bufSize, GLsizei *length, GLchar *label))context->getProcAddress("glGetObjectLabelEXT");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_EXT_debug_marker::QOpenGLExtension_EXT_debug_marker()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_EXT_debug_markerPrivate))
+{
+}
+
+bool QOpenGLExtension_EXT_debug_marker::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_EXT_debug_marker);
+
+    d->InsertEventMarkerEXT = (void (QOPENGLF_APIENTRYP)(GLsizei length, const GLchar *marker))context->getProcAddress("glInsertEventMarkerEXT");
+    d->PushGroupMarkerEXT = (void (QOPENGLF_APIENTRYP)(GLsizei length, const GLchar *marker))context->getProcAddress("glPushGroupMarkerEXT");
+    d->PopGroupMarkerEXT = (void (QOPENGLF_APIENTRYP)(void))context->getProcAddress("glPopGroupMarkerEXT");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_EXT_discard_framebuffer::QOpenGLExtension_EXT_discard_framebuffer()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_EXT_discard_framebufferPrivate))
+{
+}
+
+bool QOpenGLExtension_EXT_discard_framebuffer::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_EXT_discard_framebuffer);
+
+    d->DiscardFramebufferEXT = (void (QOPENGLF_APIENTRYP)(GLenum target, GLsizei numAttachments, const GLenum *attachments))context->getProcAddress("glDiscardFramebufferEXT");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_EXT_multisampled_render_to_texture::QOpenGLExtension_EXT_multisampled_render_to_texture()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_EXT_multisampled_render_to_texturePrivate))
+{
+}
+
+bool QOpenGLExtension_EXT_multisampled_render_to_texture::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_EXT_multisampled_render_to_texture);
+
+    d->RenderbufferStorageMultisampleEXT = (void (QOPENGLF_APIENTRYP)(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height))context->getProcAddress("glRenderbufferStorageMultisampleEXT");
+    d->FramebufferTexture2DMultisampleEXT = (void (QOPENGLF_APIENTRYP)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLsizei samples))context->getProcAddress("glFramebufferTexture2DMultisampleEXT");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_EXT_multi_draw_arrays::QOpenGLExtension_EXT_multi_draw_arrays()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_EXT_multi_draw_arraysPrivate))
+{
+}
+
+bool QOpenGLExtension_EXT_multi_draw_arrays::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_EXT_multi_draw_arrays);
+
+    d->MultiDrawArraysEXT = (void (QOPENGLF_APIENTRYP)(GLenum mode, GLint *first, GLsizei *count, GLsizei primcount))context->getProcAddress("glMultiDrawArraysEXT");
+    d->MultiDrawElementsEXT = (void (QOPENGLF_APIENTRYP)(GLenum mode, const GLsizei *count, GLenum type, const GLvoid* *indices, GLsizei primcount))context->getProcAddress("glMultiDrawElementsEXT");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_EXT_occlusion_query_boolean::QOpenGLExtension_EXT_occlusion_query_boolean()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_EXT_occlusion_query_booleanPrivate))
+{
+}
+
+bool QOpenGLExtension_EXT_occlusion_query_boolean::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_EXT_occlusion_query_boolean);
+
+    d->GenQueriesEXT = (void (QOPENGLF_APIENTRYP)(GLsizei n, GLuint *ids))context->getProcAddress("glGenQueriesEXT");
+    d->DeleteQueriesEXT = (void (QOPENGLF_APIENTRYP)(GLsizei n, const GLuint *ids))context->getProcAddress("glDeleteQueriesEXT");
+    d->IsQueryEXT = (GLboolean (QOPENGLF_APIENTRYP)(GLuint id))context->getProcAddress("glIsQueryEXT");
+    d->BeginQueryEXT = (void (QOPENGLF_APIENTRYP)(GLenum target, GLuint id))context->getProcAddress("glBeginQueryEXT");
+    d->EndQueryEXT = (void (QOPENGLF_APIENTRYP)(GLenum target))context->getProcAddress("glEndQueryEXT");
+    d->GetQueryivEXT = (void (QOPENGLF_APIENTRYP)(GLenum target, GLenum pname, GLint *params))context->getProcAddress("glGetQueryivEXT");
+    d->GetQueryObjectuivEXT = (void (QOPENGLF_APIENTRYP)(GLuint id, GLenum pname, GLuint *params))context->getProcAddress("glGetQueryObjectuivEXT");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_EXT_robustness::QOpenGLExtension_EXT_robustness()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_EXT_robustnessPrivate))
+{
+}
+
+bool QOpenGLExtension_EXT_robustness::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_EXT_robustness);
+
+    d->GetGraphicsResetStatusEXT = (GLenum (QOPENGLF_APIENTRYP)(void))context->getProcAddress("glGetGraphicsResetStatusEXT");
+    d->ReadnPixelsEXT = (void (QOPENGLF_APIENTRYP)(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLsizei bufSize, void *data))context->getProcAddress("glReadnPixelsEXT");
+    d->GetnUniformfvEXT = (void (QOPENGLF_APIENTRYP)(GLuint program, GLint location, GLsizei bufSize, float *params))context->getProcAddress("glGetnUniformfvEXT");
+    d->GetnUniformivEXT = (void (QOPENGLF_APIENTRYP)(GLuint program, GLint location, GLsizei bufSize, GLint *params))context->getProcAddress("glGetnUniformivEXT");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_EXT_separate_shader_objects::QOpenGLExtension_EXT_separate_shader_objects()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_EXT_separate_shader_objectsPrivate))
+{
+}
+
+bool QOpenGLExtension_EXT_separate_shader_objects::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_EXT_separate_shader_objects);
+
+    d->UseProgramStagesEXT = (void (QOPENGLF_APIENTRYP)(GLuint pipeline, GLbitfield stages, GLuint program))context->getProcAddress("glUseProgramStagesEXT");
+    d->ActiveShaderProgramEXT = (void (QOPENGLF_APIENTRYP)(GLuint pipeline, GLuint program))context->getProcAddress("glActiveShaderProgramEXT");
+    d->CreateShaderProgramvEXT = (GLuint (QOPENGLF_APIENTRYP)(GLenum type, GLsizei count, const GLchar **strings))context->getProcAddress("glCreateShaderProgramvEXT");
+    d->BindProgramPipelineEXT = (void (QOPENGLF_APIENTRYP)(GLuint pipeline))context->getProcAddress("glBindProgramPipelineEXT");
+    d->DeleteProgramPipelinesEXT = (void (QOPENGLF_APIENTRYP)(GLsizei n, const GLuint *pipelines))context->getProcAddress("glDeleteProgramPipelinesEXT");
+    d->GenProgramPipelinesEXT = (void (QOPENGLF_APIENTRYP)(GLsizei n, GLuint *pipelines))context->getProcAddress("glGenProgramPipelinesEXT");
+    d->IsProgramPipelineEXT = (GLboolean (QOPENGLF_APIENTRYP)(GLuint pipeline))context->getProcAddress("glIsProgramPipelineEXT");
+    d->ProgramParameteriEXT = (void (QOPENGLF_APIENTRYP)(GLuint program, GLenum pname, GLint value))context->getProcAddress("glProgramParameteriEXT");
+    d->GetProgramPipelineivEXT = (void (QOPENGLF_APIENTRYP)(GLuint pipeline, GLenum pname, GLint *params))context->getProcAddress("glGetProgramPipelineivEXT");
+    d->ProgramUniform1iEXT = (void (QOPENGLF_APIENTRYP)(GLuint program, GLint location, GLint x))context->getProcAddress("glProgramUniform1iEXT");
+    d->ProgramUniform2iEXT = (void (QOPENGLF_APIENTRYP)(GLuint program, GLint location, GLint x, GLint y))context->getProcAddress("glProgramUniform2iEXT");
+    d->ProgramUniform3iEXT = (void (QOPENGLF_APIENTRYP)(GLuint program, GLint location, GLint x, GLint y, GLint z))context->getProcAddress("glProgramUniform3iEXT");
+    d->ProgramUniform4iEXT = (void (QOPENGLF_APIENTRYP)(GLuint program, GLint location, GLint x, GLint y, GLint z, GLint w))context->getProcAddress("glProgramUniform4iEXT");
+    d->ProgramUniform1fEXT = (void (QOPENGLF_APIENTRYP)(GLuint program, GLint location, GLfloat x))context->getProcAddress("glProgramUniform1fEXT");
+    d->ProgramUniform2fEXT = (void (QOPENGLF_APIENTRYP)(GLuint program, GLint location, GLfloat x, GLfloat y))context->getProcAddress("glProgramUniform2fEXT");
+    d->ProgramUniform3fEXT = (void (QOPENGLF_APIENTRYP)(GLuint program, GLint location, GLfloat x, GLfloat y, GLfloat z))context->getProcAddress("glProgramUniform3fEXT");
+    d->ProgramUniform4fEXT = (void (QOPENGLF_APIENTRYP)(GLuint program, GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w))context->getProcAddress("glProgramUniform4fEXT");
+    d->ProgramUniform1ivEXT = (void (QOPENGLF_APIENTRYP)(GLuint program, GLint location, GLsizei count, const GLint *value))context->getProcAddress("glProgramUniform1ivEXT");
+    d->ProgramUniform2ivEXT = (void (QOPENGLF_APIENTRYP)(GLuint program, GLint location, GLsizei count, const GLint *value))context->getProcAddress("glProgramUniform2ivEXT");
+    d->ProgramUniform3ivEXT = (void (QOPENGLF_APIENTRYP)(GLuint program, GLint location, GLsizei count, const GLint *value))context->getProcAddress("glProgramUniform3ivEXT");
+    d->ProgramUniform4ivEXT = (void (QOPENGLF_APIENTRYP)(GLuint program, GLint location, GLsizei count, const GLint *value))context->getProcAddress("glProgramUniform4ivEXT");
+    d->ProgramUniform1fvEXT = (void (QOPENGLF_APIENTRYP)(GLuint program, GLint location, GLsizei count, const GLfloat *value))context->getProcAddress("glProgramUniform1fvEXT");
+    d->ProgramUniform2fvEXT = (void (QOPENGLF_APIENTRYP)(GLuint program, GLint location, GLsizei count, const GLfloat *value))context->getProcAddress("glProgramUniform2fvEXT");
+    d->ProgramUniform3fvEXT = (void (QOPENGLF_APIENTRYP)(GLuint program, GLint location, GLsizei count, const GLfloat *value))context->getProcAddress("glProgramUniform3fvEXT");
+    d->ProgramUniform4fvEXT = (void (QOPENGLF_APIENTRYP)(GLuint program, GLint location, GLsizei count, const GLfloat *value))context->getProcAddress("glProgramUniform4fvEXT");
+    d->ProgramUniformMatrix2fvEXT = (void (QOPENGLF_APIENTRYP)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value))context->getProcAddress("glProgramUniformMatrix2fvEXT");
+    d->ProgramUniformMatrix3fvEXT = (void (QOPENGLF_APIENTRYP)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value))context->getProcAddress("glProgramUniformMatrix3fvEXT");
+    d->ProgramUniformMatrix4fvEXT = (void (QOPENGLF_APIENTRYP)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value))context->getProcAddress("glProgramUniformMatrix4fvEXT");
+    d->ValidateProgramPipelineEXT = (void (QOPENGLF_APIENTRYP)(GLuint pipeline))context->getProcAddress("glValidateProgramPipelineEXT");
+    d->GetProgramPipelineInfoLogEXT = (void (QOPENGLF_APIENTRYP)(GLuint pipeline, GLsizei bufSize, GLsizei *length, GLchar *infoLog))context->getProcAddress("glGetProgramPipelineInfoLogEXT");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_EXT_texture_storage::QOpenGLExtension_EXT_texture_storage()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_EXT_texture_storagePrivate))
+{
+}
+
+bool QOpenGLExtension_EXT_texture_storage::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_EXT_texture_storage);
+
+    d->TexStorage1DEXT = (void (QOPENGLF_APIENTRYP)(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width))context->getProcAddress("glTexStorage1DEXT");
+    d->TexStorage2DEXT = (void (QOPENGLF_APIENTRYP)(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height))context->getProcAddress("glTexStorage2DEXT");
+    d->TexStorage3DEXT = (void (QOPENGLF_APIENTRYP)(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth))context->getProcAddress("glTexStorage3DEXT");
+    d->TextureStorage1DEXT = (void (QOPENGLF_APIENTRYP)(GLuint texture, GLenum target, GLsizei levels, GLenum internalformat, GLsizei width))context->getProcAddress("glTextureStorage1DEXT");
+    d->TextureStorage2DEXT = (void (QOPENGLF_APIENTRYP)(GLuint texture, GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height))context->getProcAddress("glTextureStorage2DEXT");
+    d->TextureStorage3DEXT = (void (QOPENGLF_APIENTRYP)(GLuint texture, GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth))context->getProcAddress("glTextureStorage3DEXT");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_IMG_multisampled_render_to_texture::QOpenGLExtension_IMG_multisampled_render_to_texture()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_IMG_multisampled_render_to_texturePrivate))
+{
+}
+
+bool QOpenGLExtension_IMG_multisampled_render_to_texture::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_IMG_multisampled_render_to_texture);
+
+    d->RenderbufferStorageMultisampleIMG = (void (QOPENGLF_APIENTRYP)(GLenum, GLsizei, GLenum, GLsizei, GLsizei))context->getProcAddress("glRenderbufferStorageMultisampleIMG");
+    d->FramebufferTexture2DMultisampleIMG = (void (QOPENGLF_APIENTRYP)(GLenum, GLenum, GLenum, GLuint, GLint, GLsizei))context->getProcAddress("glFramebufferTexture2DMultisampleIMG");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_NV_coverage_sample::QOpenGLExtension_NV_coverage_sample()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_NV_coverage_samplePrivate))
+{
+}
+
+bool QOpenGLExtension_NV_coverage_sample::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_NV_coverage_sample);
+
+    d->CoverageMaskNV = (void (QOPENGLF_APIENTRYP)(GLboolean mask))context->getProcAddress("glCoverageMaskNV");
+    d->CoverageOperationNV = (void (QOPENGLF_APIENTRYP)(GLenum operation))context->getProcAddress("glCoverageOperationNV");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_NV_draw_buffers::QOpenGLExtension_NV_draw_buffers()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_NV_draw_buffersPrivate))
+{
+}
+
+bool QOpenGLExtension_NV_draw_buffers::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_NV_draw_buffers);
+
+    d->DrawBuffersNV = (void (QOPENGLF_APIENTRYP)(GLsizei n, const GLenum *bufs))context->getProcAddress("glDrawBuffersNV");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_NV_fence::QOpenGLExtension_NV_fence()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_NV_fencePrivate))
+{
+}
+
+bool QOpenGLExtension_NV_fence::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_NV_fence);
+
+    d->DeleteFencesNV = (void (QOPENGLF_APIENTRYP)(GLsizei n, const GLuint *fences))context->getProcAddress("glDeleteFencesNV");
+    d->GenFencesNV = (void (QOPENGLF_APIENTRYP)(GLsizei n, GLuint *fences))context->getProcAddress("glGenFencesNV");
+    d->IsFenceNV = (GLboolean (QOPENGLF_APIENTRYP)(GLuint fence))context->getProcAddress("glIsFenceNV");
+    d->TestFenceNV = (GLboolean (QOPENGLF_APIENTRYP)(GLuint fence))context->getProcAddress("glTestFenceNV");
+    d->GetFenceivNV = (void (QOPENGLF_APIENTRYP)(GLuint fence, GLenum pname, GLint *params))context->getProcAddress("glGetFenceivNV");
+    d->FinishFenceNV = (void (QOPENGLF_APIENTRYP)(GLuint fence))context->getProcAddress("glFinishFenceNV");
+    d->SetFenceNV = (void (QOPENGLF_APIENTRYP)(GLuint fence, GLenum condition))context->getProcAddress("glSetFenceNV");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_NV_read_buffer::QOpenGLExtension_NV_read_buffer()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_NV_read_bufferPrivate))
+{
+}
+
+bool QOpenGLExtension_NV_read_buffer::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_NV_read_buffer);
+
+    d->ReadBufferNV = (void (QOPENGLF_APIENTRYP)(GLenum mode))context->getProcAddress("glReadBufferNV");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_QCOM_alpha_test::QOpenGLExtension_QCOM_alpha_test()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_QCOM_alpha_testPrivate))
+{
+}
+
+bool QOpenGLExtension_QCOM_alpha_test::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_QCOM_alpha_test);
+
+    d->AlphaFuncQCOM = (void (QOPENGLF_APIENTRYP )(GLenum func, GLclampf ref))context->getProcAddress("glAlphaFuncQCOM");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_QCOM_driver_control::QOpenGLExtension_QCOM_driver_control()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_QCOM_driver_controlPrivate))
+{
+}
+
+bool QOpenGLExtension_QCOM_driver_control::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_QCOM_driver_control);
+
+    d->GetDriverControlsQCOM = (void (QOPENGLF_APIENTRYP)(GLint *num, GLsizei size, GLuint *driverControls))context->getProcAddress("glGetDriverControlsQCOM");
+    d->GetDriverControlStringQCOM = (void (QOPENGLF_APIENTRYP)(GLuint driverControl, GLsizei bufSize, GLsizei *length, GLchar *driverControlString))context->getProcAddress("glGetDriverControlStringQCOM");
+    d->EnableDriverControlQCOM = (void (QOPENGLF_APIENTRYP)(GLuint driverControl))context->getProcAddress("glEnableDriverControlQCOM");
+    d->DisableDriverControlQCOM = (void (QOPENGLF_APIENTRYP)(GLuint driverControl))context->getProcAddress("glDisableDriverControlQCOM");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_QCOM_extended_get::QOpenGLExtension_QCOM_extended_get()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_QCOM_extended_getPrivate))
+{
+}
+
+bool QOpenGLExtension_QCOM_extended_get::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_QCOM_extended_get);
+
+    d->ExtGetTexturesQCOM = (void (QOPENGLF_APIENTRYP)(GLuint *textures, GLint maxTextures, GLint *numTextures))context->getProcAddress("glExtGetTexturesQCOM");
+    d->ExtGetBuffersQCOM = (void (QOPENGLF_APIENTRYP)(GLuint *buffers, GLint maxBuffers, GLint *numBuffers))context->getProcAddress("glExtGetBuffersQCOM");
+    d->ExtGetRenderbuffersQCOM = (void (QOPENGLF_APIENTRYP)(GLuint *renderbuffers, GLint maxRenderbuffers, GLint *numRenderbuffers))context->getProcAddress("glExtGetRenderbuffersQCOM");
+    d->ExtGetFramebuffersQCOM = (void (QOPENGLF_APIENTRYP)(GLuint *framebuffers, GLint maxFramebuffers, GLint *numFramebuffers))context->getProcAddress("glExtGetFramebuffersQCOM");
+    d->ExtGetTexLevelParameterivQCOM = (void (QOPENGLF_APIENTRYP)(GLuint texture, GLenum face, GLint level, GLenum pname, GLint *params))context->getProcAddress("glExtGetTexLevelParameterivQCOM");
+    d->ExtTexObjectStateOverrideiQCOM = (void (QOPENGLF_APIENTRYP)(GLenum target, GLenum pname, GLint param))context->getProcAddress("glExtTexObjectStateOverrideiQCOM");
+    d->ExtGetTexSubImageQCOM = (void (QOPENGLF_APIENTRYP)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, GLvoid *texels))context->getProcAddress("glExtGetTexSubImageQCOM");
+    d->ExtGetBufferPointervQCOM = (void (QOPENGLF_APIENTRYP)(GLenum target, GLvoid **params))context->getProcAddress("glExtGetBufferPointervQCOM");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_QCOM_extended_get2::QOpenGLExtension_QCOM_extended_get2()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_QCOM_extended_get2Private))
+{
+}
+
+bool QOpenGLExtension_QCOM_extended_get2::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_QCOM_extended_get2);
+
+    d->ExtGetShadersQCOM = (void (QOPENGLF_APIENTRYP)(GLuint *shaders, GLint maxShaders, GLint *numShaders))context->getProcAddress("glExtGetShadersQCOM");
+    d->ExtGetProgramsQCOM = (void (QOPENGLF_APIENTRYP)(GLuint *programs, GLint maxPrograms, GLint *numPrograms))context->getProcAddress("glExtGetProgramsQCOM");
+    d->ExtIsProgramBinaryQCOM = (GLboolean (QOPENGLF_APIENTRYP)(GLuint program))context->getProcAddress("glExtIsProgramBinaryQCOM");
+    d->ExtGetProgramBinarySourceQCOM = (void (QOPENGLF_APIENTRYP)(GLuint program, GLenum shadertype, GLchar *source, GLint *length))context->getProcAddress("glExtGetProgramBinarySourceQCOM");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+QOpenGLExtension_QCOM_tiled_rendering::QOpenGLExtension_QCOM_tiled_rendering()
+    : QAbstractOpenGLExtension(*(new QOpenGLExtension_QCOM_tiled_renderingPrivate))
+{
+}
+
+bool QOpenGLExtension_QCOM_tiled_rendering::initializeOpenGLFunctions()
+{
+    if (isInitialized())
+        return true;
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qWarning("A current OpenGL context is required to resolve OpenGL extension functions");
+        return false;
+    }
+
+    // Resolve the functions
+    Q_D(QOpenGLExtension_QCOM_tiled_rendering);
+
+    d->StartTilingQCOM = (void (QOPENGLF_APIENTRYP)(GLuint x, GLuint y, GLuint width, GLuint height, GLbitfield preserveMask))context->getProcAddress("glStartTilingQCOM");
+    d->EndTilingQCOM = (void (QOPENGLF_APIENTRYP)(GLbitfield preserveMask))context->getProcAddress("glEndTilingQCOM");
+    return QAbstractOpenGLExtension::initializeOpenGLFunctions();
+}
+
+#endif
+
+QT_END_NAMESPACE
+

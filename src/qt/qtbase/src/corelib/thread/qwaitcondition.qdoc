@@ -1,0 +1,174 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \class QWaitCondition
+    \inmodule QtCore
+    \brief The QWaitCondition class provides a condition variable for
+    synchronizing threads.
+
+    \threadsafe
+
+    \ingroup thread
+
+    QWaitCondition allows a thread to tell other threads that some
+    sort of condition has been met. One or many threads can block
+    waiting for a QWaitCondition to set a condition with wakeOne() or
+    wakeAll(). Use wakeOne() to wake one randomly selected thread or
+    wakeAll() to wake them all.
+
+    For example, let's suppose that we have three tasks that should
+    be performed whenever the user presses a key. Each task could be
+    split into a thread, each of which would have a
+    \l{QThread::run()}{run()} body like this:
+
+    \snippet code/src_corelib_thread_qwaitcondition_unix.cpp 0
+
+    Here, the \c keyPressed variable is a global variable of type
+    QWaitCondition.
+
+    A fourth thread would read key presses and wake the other three
+    threads up every time it receives one, like this:
+
+    \snippet code/src_corelib_thread_qwaitcondition_unix.cpp 1
+
+    The order in which the three threads are woken up is undefined.
+    Also, if some of the threads are still in \c do_something() when
+    the key is pressed, they won't be woken up (since they're not
+    waiting on the condition variable) and so the task will not be
+    performed for that key press. This issue can be solved using a
+    counter and a QMutex to guard it. For example, here's the new
+    code for the worker threads:
+
+    \snippet code/src_corelib_thread_qwaitcondition_unix.cpp 2
+
+    Here's the code for the fourth thread:
+
+    \snippet code/src_corelib_thread_qwaitcondition_unix.cpp 3
+
+    The mutex is necessary because the results of two threads
+    attempting to change the value of the same variable
+    simultaneously are unpredictable.
+
+    Wait conditions are a powerful thread synchronization primitive.
+    The \l{Wait Conditions Example} example shows how
+    to use QWaitCondition as an alternative to QSemaphore for
+    controlling access to a circular buffer shared by a producer
+    thread and a consumer thread.
+
+    \sa QMutex, QSemaphore, QThread, {Wait Conditions Example}
+*/
+
+/*!
+    \fn QWaitCondition::QWaitCondition()
+
+    Constructs a new wait condition object.
+*/
+
+/*!
+    \fn QWaitCondition::~QWaitCondition()
+
+    Destroys the wait condition object.
+*/
+
+/*!
+    \fn void QWaitCondition::wakeOne()
+
+    Wakes one thread waiting on the wait condition. The thread that
+    is woken up depends on the operating system's scheduling
+    policies, and cannot be controlled or predicted.
+
+    If you want to wake up a specific thread, the solution is
+    typically to use different wait conditions and have different
+    threads wait on different conditions.
+
+    \sa wakeAll()
+*/
+
+/*!
+    \fn void QWaitCondition::wakeAll()
+
+    Wakes all threads waiting on the wait condition. The order in
+    which the threads are woken up depends on the operating system's
+    scheduling policies and cannot be controlled or predicted.
+
+    \sa wakeOne()
+*/
+
+/*!
+    \fn bool QWaitCondition::wait(QMutex *lockedMutex, unsigned long time)
+
+    Releases the \a lockedMutex and waits on the wait condition.  The
+    \a lockedMutex must be initially locked by the calling thread. If \a
+    lockedMutex is not in a locked state, the behavior is undefined. If
+    \a lockedMutex is a recursive mutex, this function
+    returns immediately. The \a lockedMutex will be unlocked, and the
+    calling thread will block until either of these conditions is met:
+
+    \list
+    \li Another thread signals it using wakeOne() or wakeAll(). This
+       function will return true in this case.
+    \li \a time milliseconds has elapsed. If \a time is \c ULONG_MAX
+       (the default), then the wait will never timeout (the event
+       must be signalled). This function will return false if the
+       wait timed out.
+    \endlist
+
+    The \a lockedMutex will be returned to the same locked state. This
+    function is provided to allow the atomic transition from the
+    locked state to the wait state.
+
+    \sa wakeOne(), wakeAll()
+*/
+
+/*!
+    \fn bool QWaitCondition::wait(QReadWriteLock *lockedReadWriteLock, unsigned long time)
+    \since 4.4
+
+    Releases the \a lockedReadWriteLock and waits on the wait
+    condition.  The \a lockedReadWriteLock must be initially locked by the
+    calling thread. If \a lockedReadWriteLock is not in a locked state, this
+    function returns immediately. The \a lockedReadWriteLock must not be
+    locked recursively, otherwise this function will not release the
+    lock properly. The \a lockedReadWriteLock will be unlocked, and the
+    calling thread will block until either of these conditions is met:
+
+    \list
+    \li Another thread signals it using wakeOne() or wakeAll(). This
+       function will return true in this case.
+    \li \a time milliseconds has elapsed. If \a time is \c ULONG_MAX
+       (the default), then the wait will never timeout (the event
+       must be signalled). This function will return false if the
+       wait timed out.
+    \endlist
+
+    The \a lockedReadWriteLock will be returned to the same locked
+    state. This function is provided to allow the atomic transition
+    from the locked state to the wait state.
+
+    \sa wakeOne(), wakeAll()
+*/

@@ -55,9 +55,17 @@
   // Whether or not crash reports should be uploaded.
   BOOL enableUploads_;
 
+  // Whether the controller has been started on the main thread. This is only
+  // used to assert the initialization order is correct.
+  BOOL started_;
+
   // The interval to wait between two uploads. Value is 0 if no upload must be
   // done.
   int uploadIntervalInSeconds_;
+
+  // The dictionary that contains additional server parameters to send when
+  // uploading crash reports.
+  NSDictionary* uploadTimeParameters_;
 }
 
 // Singleton.
@@ -66,6 +74,10 @@
 // Update the controller configuration. Merges its old configuration with the
 // new one. Merge is done by replacing the old values by the new values.
 - (void)updateConfiguration:(NSDictionary*)configuration;
+
+// Reset the controller configuration to its initial value, which is the
+// infoDictionary of the bundle of the application.
+- (void)resetConfiguration;
 
 // Configure the URL to upload the report to. This must be called at least once
 // if the URL is not in the bundle information.
@@ -76,8 +88,11 @@
 // will prevent uploads.
 - (void)setUploadInterval:(int)intervalInSeconds;
 
-// Specify a parameter that will be uploaded to the crash server. See
-// |BreakpadAddUploadParameter|.
+// Set additional server parameters to send when uploading crash reports.
+- (void)setParametersToAddAtUploadTime:(NSDictionary*)uploadTimeParameters;
+
+// Specify an upload parameter that will be added to the crash report when a
+// crash report is generated. See |BreakpadAddUploadParameter|.
 - (void)addUploadParameter:(NSString*)value forKey:(NSString*)key;
 
 // Remove a previously-added parameter from the upload parameter set. See
@@ -100,6 +115,12 @@
 // Enables or disables uploading of crash reports, but does not stop the
 // BreakpadController.
 - (void)setUploadingEnabled:(BOOL)enabled;
+
+// Check if there is currently a crash report to upload.
+- (void)hasReportToUpload:(void(^)(BOOL))callback;
+
+// Get the number of crash reports waiting to upload.
+- (void)getCrashReportCount:(void(^)(int))callback;
 
 @end
 

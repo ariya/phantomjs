@@ -1,0 +1,31 @@
+<html>
+<head>
+<title>Original Title</title>
+</head>
+<script type="text/javascript">
+function getTestId() {
+    url = document.location.href
+    var i, j = 0;
+    for (i = url.length - 1; i >= 0; --i) {
+        if (url[i] == '?')
+            break
+        else if (url[i] == '#')
+            j = i - 1
+    }
+    return url.substr(i + 1, j - i)
+}
+
+function getStyleForId(id, styleProp) {
+    return document.defaultView.getComputedStyle(document.getElementById(id), null).getPropertyValue(styleProp);
+}
+
+function changeTitle() {
+    document.title = getStyleForId(getTestId(), window.location.hash.substr(1))
+}
+</script>
+<body onload='setTimeout("changeTitle()", 100)'>
+<p id="standard">hello</p>
+<code id="fixed">hello</code>
+<p id="minimum" style="font-size: smaller">hello</p>
+</body>
+</html>

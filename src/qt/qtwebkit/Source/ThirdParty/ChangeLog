@@ -1,0 +1,640 @@
+2013-07-19  Alex Christensen  <achristensen@apple.com>
+
+        Added x64 configuration to Visual Studio build.
+        https://bugs.webkit.org/show_bug.cgi?id=118888
+
+        Reviewed by Brent Fulgham.
+
+        * gtest/msvc/gtest-md.vcxproj:
+
+2013-07-18  Roger Fong  <roger_fong@apple.com>
+
+        Make sure to link against _debug binaries when appropriate.
+        <rdar://problem/14473010>.
+
+        * gtest/msvc/gtest-md.vcxproj:
+
+2013-06-17  Darin Adler  <darin@apple.com>
+
+        Sort all the Xcode project files
+        https://bugs.webkit.org/show_bug.cgi?id=117696
+
+        Reviewed by Anders Carlsson.
+
+        * gtest/xcode/Samples/FrameworkSample/WidgetFramework.xcodeproj/project.pbxproj: Ran the sort-Xcode-project-file script.
+        * gtest/xcode/gtest.xcodeproj/project.pbxproj: Ran the sort-Xcode-project-file script.
+
+2013-06-18  Roger Fong  <roger_fong@apple.com>
+
+        Replace tools32 folder with tools and update WebKit Windows solution accordingly.
+        <rdar://problem/14118143>.
+
+        Rubberstamped by Brent Fulgham.
+
+        * gtest/msvc/gtest-md.vcxproj:
+
+2013-06-03  Roger Fong  <roger_fong@apple.com>
+
+        Nuke VS2005 files from the tree.
+        <rdar://problem/14042021>.
+
+        Rubberstamped by Brent Fulgham.
+
+        * gtest/msvc/gtest-md.sln: Removed.
+        * gtest/msvc/gtest-md.vcproj: Removed.
+        * gtest/msvc/gtest.sln: Removed.
+        * gtest/msvc/gtest.vcproj: Removed.
+        * gtest/msvc/gtest_main-md.vcproj: Removed.
+        * gtest/msvc/gtest_main.vcproj: Removed.
+        * gtest/msvc/gtest_prod_test-md.vcproj: Removed.
+        * gtest/msvc/gtest_prod_test.vcproj: Removed.
+        * gtest/msvc/gtest_unittest-md.vcproj: Removed.
+        * gtest/msvc/gtest_unittest.vcproj: Removed.
+
+2013-04-26  Roger Fong  <roger_fong@apple.com>
+
+        Make Apple Windows VS2010 build results into and get dependencies from __32 suffixed folders.
+        Make the DebugSuffix configuration use _debug dependencies.
+
+        * gtest/msvc/gtest-md.vcxproj:
+
+2013-04-09  Benjamin Poulain  <bpoulain@apple.com>
+
+        Remove the WebKit copy of GLU and the file using it
+        https://bugs.webkit.org/show_bug.cgi?id=114249
+
+        Reviewed by Darin Adler.
+
+        * glu/.gitignore: Removed.
+        * glu/LICENSE.txt: Removed.
+        * glu/README.webkit: Removed.
+        * glu/glu.gyp: Removed.
+        * glu/gluos.h: Removed.
+        * glu/internal_glu.h: Removed.
+        * glu/libtess/GNUmakefile: Removed.
+        * glu/libtess/Imakefile: Removed.
+        * glu/libtess/README: Removed.
+        * glu/libtess/alg-outline: Removed.
+        * glu/libtess/dict-list.h: Removed.
+        * glu/libtess/dict.c: Removed.
+        * glu/libtess/dict.h: Removed.
+        * glu/libtess/geom.c: Removed.
+        * glu/libtess/geom.h: Removed.
+        * glu/libtess/memalloc.c: Removed.
+        * glu/libtess/memalloc.h: Removed.
+        * glu/libtess/mesh.c: Removed.
+        * glu/libtess/mesh.h: Removed.
+        * glu/libtess/normal.c: Removed.
+        * glu/libtess/normal.h: Removed.
+        * glu/libtess/priorityq-heap.c: Removed.
+        * glu/libtess/priorityq-heap.h: Removed.
+        * glu/libtess/priorityq-sort.h: Removed.
+        * glu/libtess/priorityq.c: Removed.
+        * glu/libtess/priorityq.h: Removed.
+        * glu/libtess/render.c: Removed.
+        * glu/libtess/render.h: Removed.
+        * glu/libtess/sweep.c: Removed.
+        * glu/libtess/sweep.h: Removed.
+        * glu/libtess/tess.c: Removed.
+        * glu/libtess/tess.h: Removed.
+        * glu/libtess/tessmono.c: Removed.
+        * glu/libtess/tessmono.h: Removed.
+
+2013-04-08  Benjamin Poulain  <benjamin@webkit.org>
+
+        Remove gyp from ThirdParty
+        https://bugs.webkit.org/show_bug.cgi?id=114244
+
+        Rubberstamped by Ryosuke Niwa.
+
+        * gyp: Removed.
+
+2013-04-05  Geoffrey Garen  <ggaren@apple.com>
+
+        Made USE(JSC) unconditional
+        https://bugs.webkit.org/show_bug.cgi?id=114058
+
+        Reviewed by Anders Carlsson.
+
+        * gtest/include/gtest/internal/gtest-port.h:
+
+2013-03-29  Martin Robinson  <mrobinson@igalia.com>
+
+        Update the version of gyp in the repository
+        https://bugs.webkit.org/show_bug.cgi?id=113540
+
+        Reviewed by Nico Weber.
+
+        * gyp: Update gyp to r1605.
+
+2013-03-21  Zan Dobersek  <zdobersek@igalia.com>
+
+        [GTK] Move libLevelDB.la setup into a separate GNUmakefile.am
+        https://bugs.webkit.org/show_bug.cgi?id=112947
+
+        Reviewed by Martin Robinson.
+
+        * leveldb/GNUmakefile.am: Added, sets up the libLevelDB.la library.
+
+2013-03-20  Brent Fulgham  <bfulgham@webkit.org>
+
+        [WinCairo] Build WinCairo port under VS2010.
+        https://bugs.webkit.org/show_bug.cgi?id=112861
+
+        Reviewed by Tim Horton.
+
+        * gtest/msvc/gtest-md.vcxproj: Add WinCairo targets.
+
+2013-03-07  Andrew Bortz  <andrew@abortz.net>
+
+        Replace Mersenne Twister RNG with a simple but fast RNG
+        https://bugs.webkit.org/show_bug.cgi?id=111533
+
+        Reviewed by Adam Barth.
+
+        This code is no longer used.
+
+        * mt19937ar.c: Removed.
+
+2013-02-20  Roger Fong  <roger_fong@apple.com>
+
+       Get VS2010 Solution B&I ready.
+        <rdar://problem/1322988>
+
+        Rubberstamped by Timothy Horton.
+        
+        Add Production configuration. 
+
+        * gtest/msvc/gtest-md.vcxproj:
+
+2013-02-14  Tony Chang  <tony@chromium.org>
+
+        Unreviewed, set svn:eol-style native for .sln, .vcproj, and .vsprops files.
+        https://bugs.webkit.org/show_bug.cgi?id=96934
+
+        * gtest/msvc/gtest-md.sln: Modified property svn:eol-style.
+        * gtest/msvc/gtest.sln: Modified property svn:eol-style.
+
+2013-02-14  Tony Chang  <tony@chromium.org>
+
+        Unreviewed, set svn:eol-style CRLF for .sln files.
+
+        * gtest/msvc/gtest-md.sln: Added property svn:eol-style.
+        * gtest/msvc/gtest.sln: Added property svn:eol-style.
+
+2013-02-14  Roger Fong  <roger_fong@apple.com>
+
+        Add gtest-md VS2010 project files.
+        https://bugs.webkit.org/show_bug.cgi?id=107034.
+
+        Reviewed by Brent Fulgham.
+
+        * gtest/msvc/gtest-md.sln: Added property svn:eol-style.
+        * gtest/msvc/gtest.sln: Added property svn:eol-style.
+
+2013-02-05  Simon Hausmann  <simon.hausmann@digia.com>
+
+        [Qt] Compile WTF tests of TestWebKitAPI
+        https://bugs.webkit.org/show_bug.cgi?id=108935
+
+        Reviewed by Kenneth Rohde Christiansen.
+
+        Add qmake build system .pro file for building gtest as static library.
+
+        * gtest/gtest.pro: Added.
+
+2013-02-05  Paweł Forysiuk  <tuxator@o2.pl>
+
+        Building with MinGW compiler dies with gtest errors
+        https://bugs.webkit.org/show_bug.cgi?id=108470
+
+        Reviewed by Martin Robinson.
+
+        Variable Libraries_libgtest_la_CXXFLAGS blindly assumes that
+        pthreads will always be enabled. Make using pthreads for gtest
+        conditional on the build target.
+
+        * gtest/GNUmakefile.am: Set Libraries_libgtest_la_CXXFLAGS accordingly to the build target.
+
+2013-01-23  Tony Chang  <tony@chromium.org>
+
+        Unreviewed, set svn:eol-style to CRLF on Windows .sln files.
+
+        * gtest/msvc/gtest-md.sln: Added property svn:eol-style.
+        * gtest/msvc/gtest.sln: Added property svn:eol-style.
+
+2013-01-17  Martin Robinson  <mrobinson@igalia.com>
+
+        [GTK] Build with LevelDB when IndexedDB is enabled
+        https://bugs.webkit.org/show_bug.cgi?id=103220
+
+        Reviewed by Gustavo Noronha Silva.
+
+        Add the leveldb 1.9.0 source code to the ThirdParty dependencies.
+        We cannot depend on leveldb provided by the distribution, because
+        it sometimes breaks API compatibility.
+
+        * leveldb: Imported from the 1.9.0 leveldb source tarball.
+
+2013-01-09  David Farler  <dfarler@apple.com>
+
+        Change ARCHS to generic setting to work with multiple platforms.
+        https://bugs.webkit.org/show_bug.cgi?id=106478
+
+        Reviewed by Anders Carlsson.
+
+        * gtest/xcode/Config/General.xcconfig: ARCHS = $(ARCHS_STANDARD_32_64_BIT);
+
+2012-10-28  Mark Rowe  <mrowe@apple.com>
+
+        Simplify Xcode configuration settings that used to vary between OS versions.
+
+        Reviewed by Dan Bernstein.
+
+        * gtest/xcode/Config/General.xcconfig:
+
+2012-10-28  Mark Rowe  <mrowe@apple.com>
+
+        Remove references to unsupported OS and Xcode versions.
+
+        Reviewed by Anders Carlsson.
+
+        * gtest/xcode/Config/CompilerVersion.xcconfig: Removed.
+        * gtest/xcode/Config/General.xcconfig:
+
+2012-10-27  Dan Bernstein  <mitz@apple.com>
+
+        REAL_PLATFORM_NAME build setting is no longer needed
+        https://bugs.webkit.org/show_bug.cgi?id=100587
+
+        Reviewed by Mark Rowe.
+
+        Removed the definition of REAL_PLATFORM_NAME and replaced references to it with references
+        to PLATFORM_NAME.
+
+        * gtest/xcode/Config/CompilerVersion.xcconfig:
+        * gtest/xcode/Config/General.xcconfig:
+
+2012-08-23  Mark Rowe  <mrowe@apple.com>
+
+        Make gtest build with the latest version of clang.
+
+        Reviewed by Dan Bernstein.
+
+        * gtest/src/gtest-internal-inl.h:
+        (GTestFlagSaver): Remove an unused member.
+
+2012-07-03  Tony Chang  <tony@chromium.org>
+
+        [chromium] Unreviewed, update .gitignore to handle VS2010 files.
+
+        * glu/.gitignore:
+
+2012-06-27  Ryosuke Niwa  <rniwa@webkit.org>
+
+        Fix gcc build after r121302
+        https://bugs.webkit.org/show_bug.cgi?id=90055
+
+        Reviewed by Mark Rowe.
+
+        Assume RTTI is disabled so that gtest builds under XCode 3.2.6.
+
+        * gtest/xcode/Config/General.xcconfig:
+
+2012-04-30  Carlos Garcia Campos  <cgarcia@igalia.com>
+
+        Unreviewed. Fix make distcheck.
+
+        * gtest/GNUmakefile.am: Add source code files included by
+        gtest_all.cc to EXTRA_DIST.
+
+2012-04-26  Carlos Garcia Campos  <cgarcia@igalia.com>
+
+        [GTK] Build and run TestWebKitAPI WebKit2 unit tests
+        https://bugs.webkit.org/show_bug.cgi?id=84446
+
+        Reviewed by Philippe Normand.
+
+        * gtest/GNUmakefile.am: Do not build libgtestmain anymmore since
+        all tests use now a custom main to make sure WTF threads are
+        initialized.
+
+2012-04-24  Carlos Garcia Campos  <cgarcia@igalia.com>
+
+        [GTK] Build and run TestWebKitAPI unit tests
+        https://bugs.webkit.org/show_bug.cgi?id=84325
+
+        Reviewed by Philippe Normand.
+
+        * gtest/GNUmakefile.am: Added.
+
+2012-03-30  David Barr  <davidbarr@chromium.org>
+
+        Split up top-level .gitignore and .gitattributes
+        https://bugs.webkit.org/show_bug.cgi?id=82687
+
+        Reviewed by Tor Arne Vestbø.
+
+        * glu/.gitignore: Added.
+
+2012-03-09  Ashod Nakashian  <ashodnakashian@yahoo.com>
+
+        Bash scripts should support LF endings only
+        https://bugs.webkit.org/show_bug.cgi?id=79509
+
+        Reviewed by David Kilzer.
+
+        * gtest/xcode/Samples/FrameworkSample/runtests.sh: Added property svn:executable.
+        * gtest/xcode/Scripts/runtests.sh: Added property svn:executable.
+
+2012-03-08  Jessie Berlin  <jberlin@apple.com>
+
+        More Windows build fixing.
+
+        * gtest/msvc/gtest-md.vcproj:
+
+2012-03-07  Jessie Berlin  <jberlin@apple.com>
+
+        Clean Windows build fails after r110033
+        https://bugs.webkit.org/show_bug.cgi?id=80553
+
+        Rubber-stamped by Jon Honeycutt and Eric Seidel.
+
+        * gtest/msvc/gtest-md.vcproj:
+        Add the new JavaScriptCore include directory to the include path.
+
+2012-02-21  Sam Weinig  <sam@webkit.org>
+
+        Attempt to fix the Snow Leopard build.
+
+        * gtest/xcode/Config/General.xcconfig:
+
+2012-02-21  Sam Weinig  <sam@webkit.org>
+
+        Use libc++ when building with Clang on Mac
+        https://bugs.webkit.org/show_bug.cgi?id=78981
+
+        Reviewed by Dan Bernstein.
+
+        * gtest/xcode/Config/General.xcconfig:
+        In addition to enabling libc++ when building with Clang,
+        disable gtest's use of tr1::tuple, which doesn't exist in
+        libc++.
+
+2012-01-25  Mark Rowe  <mrowe@apple.com>
+
+        Build in to an alternate location when USE_STAGING_INSTALL_PATH is set.
+
+        <rdar://problem/10609417> Adopt USE_STAGING_INSTALL_PATH
+
+        Reviewed by David Kilzer.
+
+        * gtest/xcode/Config/ProductionProject.xcconfig: Ensure that the staged frameworks path
+        is in the framework search path when USE_STAGING_INSTALL_PATH is set. Look for the WebCore
+        framework in the staged frameworks directory when USE_STAGING_INSTALL_PATH is set.
+
+2012-01-06  Anders Carlsson  <andersca@apple.com>
+
+        Make JavaScriptCore.framework a reference and put it in a Frameworks group
+        https://bugs.webkit.org/show_bug.cgi?id=75740
+
+        Reviewed by Mark Rowe.
+
+        * gtest/xcode/gtest.xcodeproj/project.pbxproj:
+
+2012-01-05  Dan Bernstein  <mitz@apple.com>
+
+        Made Debug/Release builds of gtest build only for the active architecture.
+
+        Reviewed by Dave Kilzer.
+
+        * gtest/xcode/Config/DebugProject.xcconfig:
+        * gtest/xcode/Config/ProductionProject.xcconfig:
+        * gtest/xcode/Config/ReleaseProject.xcconfig:
+
+2012-01-04  David Kilzer  <ddkilzer@apple.com>
+
+        Remove HEADER_SEARCH_PATHS from Production configurations for gtest
+
+        Reviewed by Mark Rowe.
+
+        * gtest/xcode/gtest.xcodeproj/project.pbxproj: Remove
+        HEADER_SEARCH_PATHS from Production configurations to match
+        changes made for Debug and Release configurations in r104091.
+
+2012-01-04  David Kilzer  <ddkilzer@apple.com>
+
+        TestWebKitAPI has issues due to FastMalloc incompatibility
+        <http://webkit.org/b/66521>
+        <rdar://problem/10607911>
+
+        Reviewed by David Levin.
+
+        Original patch by Dmitry Lomov <dslomov@google.com>.
+
+        This patch ensures that gtest uses the FastMalloc new and delete
+        operators that are defined in JavaScriptCore.
+
+        * gtest/README.WebKit: Update with project changes.
+        * gtest/include/gtest/internal/gtest-port.h: Import necessary
+        headers to use FastMalloc in gtest.
+        * gtest/msvc/gtest-md.vcproj: Add include directories to find
+        WTF headers.
+        * gtest/xcode/Config/DebugProject.xcconfig: Define
+        WEBCORE_PRIVATE_HEADERS_DIR for Debug builds.
+        * gtest/xcode/Config/General.xcconfig: Define
+        HEADER_SEARCH_PATHS in terms of WEBCORE_PRIVATE_HEADERS_DIR.
+        * gtest/xcode/Config/ProductionProject.xcconfig: Define
+        WEBCORE_PRIVATE_HEADERS_DIR for Production builds.  This
+        overrides the value in ReleaseProject.xcconfig.
+        * gtest/xcode/Config/ReleaseProject.xcconfig: Define
+        WEBCORE_PRIVATE_HEADERS_DIR for Release builds.
+        * gtest/xcode/gtest.xcodeproj/project.pbxproj:
+        - Remove local HEADER_SEARCH_PATHS definitions.
+        - Link to JavaScriptCore.framework when building
+          gtest.framework.
+
+2012-01-03  David Kilzer  <ddkilzer@apple.com>
+
+        Add Production configuration to gtest Xcode project
+        <http://webkit.org/b/75153>
+
+        Reviewed by Adam Roben.
+
+        * gtest/README.WebKit: Updated.
+        * gtest/xcode/Config/ProductionProject.xcconfig: Added.
+        * gtest/xcode/gtest.xcodeproj/project.pbxproj:
+        - Added Production configuration based on Release configuration.
+        - Made Production the default configuration.
+
+2011-12-25  Darin Adler  <darin@apple.com>
+
+        * gtest/xcode/gtest.xcodeproj: Added property svn:ignore.
+
+2011-11-11  Csaba Osztrogonác  <ossy@webkit.org>
+
+        100,000 !!!
+
+        Reviewed by Zoltan Herczeg.
+
+        * ChangeLog: Point out revision 100,000.
+
+2011-08-25  Alexey Proskuryakov  <ap@apple.com>
+
+        Fix build when GCC 4.2 is not installed.
+
+        * gtest/xcode/Config/CompilerVersion.xcconfig: Copied from Source/WebCore/Configurations/CompilerVersion.xcconfig.
+        * gtest/xcode/Config/General.xcconfig:
+        Use the same compiler version as other projects do.
+
+2011-08-19  Sheriff Bot  <webkit.review.bot@gmail.com>
+
+        Unreviewed, rolling out r93426.
+        http://trac.webkit.org/changeset/93426
+        https://bugs.webkit.org/show_bug.cgi?id=66607
+
+        Broke the Mac build by not building gtest.framework anymore
+        (Requested by andersca on #webkit).
+
+        * gtest/README.WebKit:
+        * gtest/include/gtest/internal/gtest-port.h:
+        * gtest/msvc/gtest-md.vcproj:
+        * gtest/xcode/Config/General.xcconfig:
+        * gtest/xcode/gtest.xcodeproj/project.pbxproj:
+
+2011-08-18  Dmitry Lomov  <dslomov@google.com>
+
+        TestWebKitAPI breaks on Windows due to fast malloc incompatibility.
+        https://bugs.webkit.org/show_bug.cgi?id=66521
+
+        This patch ensures that gtest uses new and delete operators that are defined in JavaScriptCore.
+
+        Reviewed by David Levin.
+
+        * gtest/include/gtest/internal/gtest-port.h:
+        * gtest/msvc/gtest-md.vcproj:
+        * gtest/README.WebKit:
+        * gtest/xcode/Config/General.xcconfig:
+        * gtest/xcode/gtest.xcodeproj/project.pbxproj:
+
+2011-08-09  Mark Rowe  <mrowe@apple.com>
+
+        Fix gtest to compile in the release configuration with clang.
+
+        This change was made upstream in r443.
+
+        * gtest/src/gtest.cc:
+
+2011-08-04  Mark Rowe  <mrowe@apple.com>
+
+        Future-proof Xcode configuration settings.
+
+        * gtest/xcode/Config/General.xcconfig:
+
+2011-08-03  Dmitry Lomov  <dslomov@google.com>
+
+        https://bugs.webkit.org/show_bug.cgi?id=61812
+        TestWebKitApi breaks in release mode due to gtest incompatibility with fast malloc
+
+        Disable fast malloc for offending class (::std::strstream) in gtest.
+        This looks like the most non-intrusive solution.
+
+        Reviewed by David Levin.
+
+        * gtest/include/gtest/internal/gtest-port.h:
+        (testing::internal::StrStream::operator new):
+        (testing::internal::StrStream::operator new[]):
+        (testing::internal::StrStream::operator delete):
+        (testing::internal::StrStream::operator delete[]):
+
+2011-07-05  Adam Barth  <abarth@webkit.org>
+
+        Import qunit JavaScript unit testing framework
+        https://bugs.webkit.org/show_bug.cgi?id=63967
+
+        Reviewed by Eric Seidel.
+
+        We're going to use this unit testing framework to test garden-o-matic.
+
+        * qunit: Added.
+
+2011-06-04  Adam Barth  <abarth@webkit.org>
+
+        * glu: Added property svn:ignore.
+            - For glu.xcodeproj, which is generated from glu.gyp.
+
+2011-05-24  Stephen White  <senorblanco@chromium.org>
+
+        Reviewed by Kenneth Russell.
+
+        Unfork glu sources as much as possible.
+        https://bugs.webkit.org/show_bug.cgi?id=61365
+
+        Restore the glu sources closer to the original version on oss.sgi.com
+        by removing the WebKit-specific include paths, restoring the include
+        order, and renaming the glu* functions via #defines rather than in
+        the source.
+
+        * glu/README.webkit:
+        Update the README to reflect the changes from trunk.
+        * glu/glu.gyp:
+        Add Source/Thirdparty/glu as an include path, so we can remove the
+        hardcoded paths from the source files.
+        * glu/gluos.h:
+        Add #defines to rename the glu entry points to internal_*.
+        * glu/internal_glu.h:
+        * glu/libtess/dict.c:
+        * glu/libtess/geom.c:
+        * glu/libtess/geom.h:
+        * glu/libtess/memalloc.c:
+        * glu/libtess/mesh.c:
+        * glu/libtess/mesh.h:
+        * glu/libtess/normal.c:
+        * glu/libtess/normal.h:
+        * glu/libtess/priorityq-heap.c:
+        * glu/libtess/priorityq-sort.h:
+        * glu/libtess/priorityq.c:
+        * glu/libtess/priorityq.h:
+        * glu/libtess/render.c:
+        * glu/libtess/render.h:
+        * glu/libtess/sweep.c:
+        * glu/libtess/sweep.h:
+        * glu/libtess/tess.c:
+        * glu/libtess/tess.h:
+        * glu/libtess/tessmono.c:
+        Remove WebKit-specific include paths, and internal_ prefixes from glu
+        entry points.  Restore include order to original source order.
+
+2011-05-19  Evan Martin  <evan@chromium.org>
+
+        Reviewed by Tony Chang.
+
+        [chromium] remove <(library) variable
+        https://bugs.webkit.org/show_bug.cgi?id=61158
+
+        This was for a build experiment; we can just use the correct value now.
+
+        * glu/glu.gyp:
+        * gyp/test/library/src/library.gyp:
+
+2011-05-12  Jeff Miller  <jeffm@apple.com>
+
+        Ignore Visual Studio *.user files.
+
+        * gtest/msvc: Added property svn:ignore.
+
+2011-05-12  Adam Roben  <aroben@apple.com>
+
+        Windows production build fix
+
+        * gtest/msvc/gtest-md.vcproj: Fix the OutputDirectory and IntermediateDirectory attributes
+        for all configurations.
+
+2011-05-12  Adam Roben  <aroben@apple.com>
+
+        A little gtest cleanup after r86287
+
+        * gtest/msvc/gtest-md.vcproj: Added Debug_All and Production configurations to match our
+        other projects. (At some point all the settings should be moved into .vsprops files to match
+        our other projects, too.)
+

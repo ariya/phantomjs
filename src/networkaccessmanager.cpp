@@ -97,14 +97,14 @@ bool JsNetworkRequest::setHeader(const QString& name, const QVariant& value)
         return false;
 
     // Pass `null` as the second argument to remove a HTTP header
-    m_networkRequest->setRawHeader(name.toAscii(), value.toByteArray());
+    m_networkRequest->setRawHeader(name.toLatin1(), value.toByteArray());
     return true;
 }
 
 void JsNetworkRequest::changeUrl(const QString& address)
 {
     if (m_networkRequest) {
-        QUrl url = QUrl::fromEncoded(QByteArray(address.toAscii()));
+        QUrl url = QUrl::fromEncoded(address.toLatin1());
         m_networkRequest->setUrl(url);
     }
 }
@@ -122,7 +122,7 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
 {
     if (config->diskCacheEnabled()) {
         m_networkDiskCache = new QNetworkDiskCache(this);
-        m_networkDiskCache->setCacheDirectory(QDesktopServices::storageLocation(QDesktopServices::CacheLocation));
+        m_networkDiskCache->setCacheDirectory(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
         if (config->maxDiskCacheSize() >= 0)
             m_networkDiskCache->setMaximumCacheSize(config->maxDiskCacheSize() * 1024);
         setCache(m_networkDiskCache);
@@ -141,7 +141,7 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
         if (config->sslProtocol() == "sslv2") {
             m_sslConfiguration.setProtocol(QSsl::SslV2);
         } else if (config->sslProtocol() == "tlsv1") {
-            m_sslConfiguration.setProtocol(QSsl::TlsV1);
+            m_sslConfiguration.setProtocol(QSsl::TlsV1_0);
         } else if (config->sslProtocol() == "any") {
             m_sslConfiguration.setProtocol(QSsl::AnyProtocol);
         }
@@ -228,7 +228,7 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     // set custom HTTP headers
     QVariantMap::const_iterator i = m_customHeaders.begin();
     while (i != m_customHeaders.end()) {
-        req.setRawHeader(i.key().toAscii(), i.value().toByteArray());
+        req.setRawHeader(i.key().toLatin1(), i.value().toByteArray());
         ++i;
     }
 

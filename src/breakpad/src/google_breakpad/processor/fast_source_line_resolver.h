@@ -63,6 +63,7 @@ class FastSourceLineResolver : public SourceLineResolverBase {
   using SourceLineResolverBase::FindCFIFrameInfo;
   using SourceLineResolverBase::FindWindowsFrameInfo;
   using SourceLineResolverBase::HasModule;
+  using SourceLineResolverBase::IsModuleCorrupt;
   using SourceLineResolverBase::LoadModule;
   using SourceLineResolverBase::LoadModuleUsingMapBuffer;
   using SourceLineResolverBase::LoadModuleUsingMemoryBuffer;
