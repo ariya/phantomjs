@@ -128,3 +128,8 @@ make -j$COMPILE_JOBS $SILENT
 pushd src/plugins/codecs/
 make -j$COMPILE_JOBS $SILENT
 popd
+
+# Build bearer
+pushd src/plugins/bearer/
+make -j$COMPILE_JOBS $SILENT
+popd

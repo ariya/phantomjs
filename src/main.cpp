@@ -49,6 +49,10 @@ Q_IMPORT_PLUGIN(qcncodecs)
 Q_IMPORT_PLUGIN(qjpcodecs)
 Q_IMPORT_PLUGIN(qkrcodecs)
 Q_IMPORT_PLUGIN(qtwcodecs)
+#ifdef Q_OS_MAC
+Q_IMPORT_PLUGIN(qgenericbearer)
+Q_IMPORT_PLUGIN(qcorewlanbearer)
+#endif
 #endif
 
 #ifdef Q_OS_WIN32

@@ -76,6 +76,12 @@ linux*|mac|openbsd* {
         qtwcodecs
 }
 
+mac {
+    QTPLUGIN += \
+        qgenericbearer \
+        qcorewlanbearer
+}
+
 linux* {
     SOURCES += breakpad/src/client/linux/crash_generation/crash_generation_client.cc \
       breakpad/src/client/linux/handler/exception_handler.cc \
