@@ -221,6 +221,10 @@ QList<QByteArray> QSjisCodec::_aliases()
 {
     QList<QByteArray> list;
     list << "SJIS" // Qt 3 compat
+         << "Shift-JIS"
+         << "windows-31j"
+         << "Windows-31J"
+         << "MS932"
          << "MS_Kanji";
     return list;
 }

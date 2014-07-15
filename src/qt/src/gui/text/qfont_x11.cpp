@@ -169,6 +169,7 @@ void QFont::initialize()
 
     case 17: // SJIS
     case 18: // eucJP
+    case 2024: // Windows-31J
         mib = 63;
         break;
     }

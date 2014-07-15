@@ -99,6 +99,7 @@ QList<int> JPTextCodecs::mibEnums() const
     list += QEucJpCodec::_mibEnum();
     list += QJisCodec::_mibEnum();
     list += QSjisCodec::_mibEnum();
+    list += 2024; // Windows-31J
 #ifdef Q_WS_X11
     list += QFontJis0201Codec::_mibEnum();
     list += QFontJis0208Codec::_mibEnum();
@@ -112,7 +113,7 @@ QTextCodec *JPTextCodecs::createForMib(int mib)
         return new QEucJpCodec;
     if (mib == QJisCodec::_mibEnum())
         return new QJisCodec;
-    if (mib == QSjisCodec::_mibEnum())
+    if (mib == QSjisCodec::_mibEnum() || mib == 2024)
         return new QSjisCodec;
 #ifdef Q_WS_X11
     if (mib == QFontJis0208Codec::_mibEnum())
