@@ -10,7 +10,7 @@ permalink: related-projects.html
 The following projects are based on PhantomJS. They provide extra functionalities.
 
 * [Casper.js](http://casperjs.org) is useful to build scripted navigation and testing.
-* [Chutzpah](http://chutzpah.codeplex.com) is a JavaSscript test runner which runs from Visual Studio, the command line, TeamCity or your favorite CI server. It can run directly on JavaScript, CoffeeScript and TypeScript files and has built in code coverage support.
+* [Chutzpah](http://chutzpah.codeplex.com) is a JavaScript test runner which runs from Visual Studio, the command line, TeamCity or your favorite CI server. It can run directly on JavaScript, CoffeeScript and TypeScript files and has built in code coverage support.
 * [conjure](https://github.com/codeactual/conjure) lets you write CasperJS tests in BDD-style modules and run them with variable concurrency. Also provides additional stack tracing, helpers and module bootstrapping.
 * [Ghostbuster](https://github.com/joshbuddy/ghostbuster) simplifies the testing setup with more convenient wrappers.
 * [GhostDriver](https://github.com/detro/ghostdriver) implements Remote WebDriver Wire protocol for PhantomJS. Although it is developed separately, it has been a part of PhantomJS core since PhantomJS 1.8.
