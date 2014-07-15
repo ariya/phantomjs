@@ -91,6 +91,9 @@ public:
     int maxDiskCacheSize() const;
     void setMaxDiskCacheSize(int maxDiskCacheSize);
 
+    QString diskCachePath() const;
+    void setDiskCachePath(const QString &value);
+
     bool ignoreSslErrors() const;
     void setIgnoreSslErrors(const bool value);
 
@@ -196,6 +199,7 @@ private:
     int m_offlineStorageDefaultQuota;
     bool m_diskCacheEnabled;
     int m_maxDiskCacheSize;
+    QString m_diskCachePath;
     bool m_ignoreSslErrors;
     bool m_localToRemoteUrlAccessEnabled;
     QString m_outputEncoding;

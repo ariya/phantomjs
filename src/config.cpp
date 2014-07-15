@@ -58,6 +58,7 @@ static const struct QCommandLineConfigEntry flags[] =
     { QCommandLine::Option, '\0', "local-storage-quota", "Sets the maximum size of the offline local storage (in KB)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "local-to-remote-url-access", "Allows local content to access remote URL: 'true' or 'false' (default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "max-disk-cache-size", "Limits the size of the disk cache (in KB)", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "disk-cache-path", "Specifies the location for disk cache", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "output-encoding", "Sets the encoding for the terminal output, default is 'utf8'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "remote-debugger-port", "Starts the script in a debug harness and listens on the specified port", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "remote-debugger-autorun", "Runs the script in the debugger immediately: 'true' or 'false' (default)", QCommandLine::Optional },
@@ -236,6 +237,17 @@ int Config::maxDiskCacheSize() const
 void Config::setMaxDiskCacheSize(int maxDiskCacheSize)
 {
     m_maxDiskCacheSize = maxDiskCacheSize;
+}
+
+void Config::setDiskCachePath(const QString &value)
+{
+    QDir dir(value);
+    m_diskCachePath = dir.absolutePath();
+}
+
+QString Config::diskCachePath() const
+{
+    return m_diskCachePath;
 }
 
 bool Config::ignoreSslErrors() const
@@ -533,6 +545,7 @@ void Config::resetToDefaults()
     m_offlineStorageDefaultQuota = -1;
     m_diskCacheEnabled = false;
     m_maxDiskCacheSize = -1;
+    m_diskCachePath = QString();
     m_ignoreSslErrors = false;
     m_localToRemoteUrlAccessEnabled = false;
     m_outputEncoding = "UTF-8";
@@ -672,6 +685,10 @@ void Config::handleOption(const QString &option, const QVariant &value)
 
     if (option == "max-disk-cache-size") {
         setMaxDiskCacheSize(value.toInt());
+    }
+
+    if (option == "disk-cache-path") {
+        setDiskCachePath(value.toString());
     }
 
     if (option == "output-encoding") {
