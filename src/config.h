@@ -41,10 +41,16 @@ class QCommandLine;
 class Config: public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool appCacheEnabled READ appCacheEnabled WRITE setAppCacheEnabled)
+    Q_PROPERTY(QString appCachePath READ appCachePath WRITE setAppCachePath)
+    Q_PROPERTY(int appCacheDefaultQuota READ appCacheDefaultQuota WRITE setAppCacheDefaultQuota)
     Q_PROPERTY(QString cookiesFile READ cookiesFile WRITE setCookiesFile)
     Q_PROPERTY(bool diskCacheEnabled READ diskCacheEnabled WRITE setDiskCacheEnabled)
     Q_PROPERTY(int maxDiskCacheSize READ maxDiskCacheSize WRITE setMaxDiskCacheSize)
     Q_PROPERTY(bool ignoreSslErrors READ ignoreSslErrors WRITE setIgnoreSslErrors)
+    Q_PROPERTY(bool indexedDbEnabled READ indexedDbEnabled WRITE setIndexedDbEnabled)
+    Q_PROPERTY(QString indexedDbPath READ indexedDbPath WRITE setIndexedDbPath)
+    Q_PROPERTY(int indexedDbDefaultQuota READ indexedDbDefaultQuota WRITE setIndexedDbDefaultQuota)
     Q_PROPERTY(bool localToRemoteUrlAccessEnabled READ localToRemoteUrlAccessEnabled WRITE setLocalToRemoteUrlAccessEnabled)
     Q_PROPERTY(QString outputEncoding READ outputEncoding WRITE setOutputEncoding)
     Q_PROPERTY(QString proxyType READ proxyType WRITE setProxyType)
@@ -52,8 +58,8 @@ class Config: public QObject
     Q_PROPERTY(QString proxyAuth READ proxyAuth WRITE setProxyAuth)
     Q_PROPERTY(QString scriptEncoding READ scriptEncoding WRITE setScriptEncoding)
     Q_PROPERTY(bool webSecurityEnabled READ webSecurityEnabled WRITE setWebSecurityEnabled)
-    Q_PROPERTY(QString offlineStoragePath READ offlineStoragePath WRITE setOfflineStoragePath)
-    Q_PROPERTY(int offlineStorageDefaultQuota READ offlineStorageDefaultQuota WRITE setOfflineStorageDefaultQuota)
+    Q_PROPERTY(bool localStorageEnabled READ localStorageEnabled WRITE setLocalStorageEnabled)
+    Q_PROPERTY(QString localStoragePath READ localStoragePath WRITE setLocalStoragePath)
     Q_PROPERTY(bool printDebugMessages READ printDebugMessages WRITE setPrintDebugMessages)
     Q_PROPERTY(bool javascriptCanOpenWindows READ javascriptCanOpenWindows WRITE setJavascriptCanOpenWindows)
     Q_PROPERTY(bool javascriptCanCloseWindows READ javascriptCanCloseWindows WRITE setJavascriptCanCloseWindows)
@@ -76,14 +82,32 @@ public:
     bool autoLoadImages() const;
     void setAutoLoadImages(const bool value);
 
+    bool appCacheEnabled() const;
+    void setAppCacheEnabled(const bool value);
+
+    QString appCachePath() const;
+    void setAppCachePath(const QString &value);
+
+    int appCacheDefaultQuota() const;
+    void setAppCacheDefaultQuota(int appCacheDefaultQuota);
+
     QString cookiesFile() const;
     void setCookiesFile(const QString &cookiesFile);
 
-    QString offlineStoragePath() const;
-    void setOfflineStoragePath(const QString &value);
+    bool indexedDbEnabled() const;
+    void setIndexedDbEnabled(const bool value);
 
-    int offlineStorageDefaultQuota() const;
-    void setOfflineStorageDefaultQuota(int offlineStorageDefaultQuota);
+    QString indexedDbPath() const;
+    void setIndexedDbPath(const QString &value);
+
+    int indexedDbDefaultQuota() const;
+    void setIndexedDbDefaultQuota(int indexedDbDefaultQuota);
+
+    bool localStorageEnabled() const;
+    void setLocalStorageEnabled(const bool value);
+
+    QString localStoragePath() const;
+    void setLocalStoragePath(const QString &value);
 
     bool diskCacheEnabled() const;
     void setDiskCacheEnabled(const bool value);
@@ -192,8 +216,14 @@ private:
     QCommandLine *m_cmdLine;
     bool m_autoLoadImages;
     QString m_cookiesFile;
-    QString m_offlineStoragePath;
-    int m_offlineStorageDefaultQuota;
+    bool m_appCacheEnabled;
+    QString m_appCachePath;
+    int m_appCacheDefaultQuota;
+    bool m_indexedDbEnabled;
+    QString m_indexedDbPath;
+    int m_indexedDbDefaultQuota;
+    bool m_localStorageEnabled;
+    QString m_localStoragePath;
     bool m_diskCacheEnabled;
     int m_maxDiskCacheSize;
     bool m_ignoreSslErrors;
