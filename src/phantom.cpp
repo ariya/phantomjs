@@ -38,6 +38,7 @@
 #include <QDebug>
 #include <QMetaObject>
 #include <QMetaProperty>
+#include <QLibrary>
 
 #include "consts.h"
 #include "terminal.h"
@@ -375,6 +376,31 @@ void Phantom::loadModule(const QString &moduleSource, const QString &filename)
    m_page->mainFrame()->evaluateJavaScript(scriptSource, filename);
 }
 
+QObject* Phantom::loadNativeModule(const QString &modulePath)
+{
+    typedef QObject* (createExtensionFunction)();
+
+    qDebug() << "Phantom - loadNativeModule:" << modulePath;
+
+    QLibrary nativeModule(modulePath);
+
+    if (!nativeModule.load()) {
+        qDebug() << "Phantom - loadNativeModule: module could not be loaded: " << nativeModule.errorString();
+        return 0;
+    }
+
+    createExtensionFunction* createExtension = (createExtensionFunction *) nativeModule.resolve("createExtension");
+    if (createExtension == 0) {
+        qDebug() << "Phantom - loadNativeModule: module has no extern C createExtension function.";
+        return 0;
+    }
+
+    QObject* extensionObject = (*createExtension)();
+    m_nativeModules.append(extensionObject);
+
+    return extensionObject;
+}
+
 bool Phantom::injectJs(const QString &jsFilePath)
 {
     QString pre = "";
@@ -493,5 +519,7 @@ void Phantom::doExit(int code)
     qDeleteAll(m_pages);
     m_pages.clear();
     m_page = 0;
+    qDeleteAll(m_nativeModules);
+    m_nativeModules.clear();
     QApplication::instance()->exit(code);
 }

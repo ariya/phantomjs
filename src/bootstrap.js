@@ -129,6 +129,10 @@ phantom.callback = function(callback) {
 
         '.json': function(module, filename) {
             module.exports = JSON.parse(fs.read(filename));
+        },
+
+        '.phantom': function(module, filename) {
+            module.exports = phantom.loadNativeModule(filename);
         }
     };
 

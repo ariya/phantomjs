@@ -117,6 +117,7 @@ public slots:
     QObject *createCallback();
     void loadModule(const QString &moduleSource, const QString &filename);
     bool injectJs(const QString &jsFilePath);
+    QObject *loadNativeModule(const QString &modulePath);
 
     /**
      * Allows to set cookies into the CookieJar.
@@ -205,6 +206,7 @@ private:
     QList<QPointer<WebServer> > m_servers;
     Config m_config;
     CookieJar *m_defaultCookieJar;
+    QList<QPointer<QObject> > m_nativeModules;
 
     friend class CustomPage;
 };
