@@ -597,10 +597,7 @@ bool WebSocketHandshake::checkResponseHeaders()
         m_context->addMessage(JSMessageSource, LogMessageType, ErrorMessageLevel, "Error during WebSocket handshake: origin mismatch: " + clientOrigin() + " != " + serverWebSocketOrigin, 0, clientOrigin(), 0);
         return false;
     }
-    if (clientLocation() != serverWebSocketLocation) {
-        m_context->addMessage(JSMessageSource, LogMessageType, ErrorMessageLevel, "Error during WebSocket handshake: location mismatch: " + clientLocation() + " != " + serverWebSocketLocation, 0, clientOrigin(), 0);
-        return false;
-    }
+    
     if (!m_clientProtocol.isEmpty() && m_clientProtocol != serverWebSocketProtocol) {
         m_context->addMessage(JSMessageSource, LogMessageType, ErrorMessageLevel, "Error during WebSocket handshake: protocol mismatch: " + m_clientProtocol + " != " + serverWebSocketProtocol, 0, clientOrigin(), 0);
         return false;
