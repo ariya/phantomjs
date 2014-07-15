@@ -1,0 +1,358 @@
+Qt 4.8.6 is a bug-fix release. It maintains both forward and backward
+compatibility (source and binary) with Qt 4.8.0, 4.8.1, 4.8.2, 4.8.3,
+4.8.4, and 4.8.5.
+For more details, refer to the online documentation included in this
+distribution. The documentation is also available online:
+
+   http://qt-project.org/doc/qt-4.8/
+
+The Qt version 4.8 series is binary compatible with the 4.7.x series.
+Applications compiled for 4.7 will continue to run with 4.8.
+
+Some of the changes listed in this file include issue tracking numbers
+corresponding to tasks in the Qt Bug Tracker:
+
+   http://bugreports.qt-project.org/
+
+Each of these identifiers can be entered in the bug tracker to obtain
+more information about a particular change.
+
+****************************************************************************
+* General                                                                  *
+****************************************************************************
+
+General Improvements
+--------------------
+- Security Fix for XML Entity Expansion Denial of Service (the ‘Billion Laughs’ attack)
+- Better support for Mac OS X 10.9 Mavericks
+- Basque translation added and many other translations improved
+
+****************************************************************************
+* Library                                                                  *
+****************************************************************************
+
+QtGui
+-----
+- Fix selected tab text color regression on OS X 10.6 [QTBUG-34540]
+- QDockWidget: Keep position when undocking [QTBUG-31044]
+- QGtkStyle: add getIconThemeName() helper function
+- Recognize separator item in QMenu [QTBUG-31664]
+- Doc: remove the duplicate for in QStyle documentation [QTBUG-31739]
+- Fix drawing of 0-width polylines from outside the devicerect [QTBUG-31579]
+- Fix clipping of QTextList decorators [QTBUG-5111]
+- qpa: Fix memory leak of QFontEngineBox object
+- Sun CC: Fix QFileDialog compilation [QTBUG-21451]
+- Consider virtual screen when determining dock widget visibility [QTBUG-32260]
+- Move the declaration of QFileIconProviderPrivate to it's own file
+- Fix double transform for items ignoring parent transformations [QTBUG-21618]
+- Link to correct function in QApplication documentation [QTBUG-26123]
+- Add offset reading support in pnghandler [QTBUG-32674]
+- QPdfEngine - Remove Producer copyright notice [QTBUG-33853]
+- QWizard: give all buttons an objectName [QTBUG-29924]
+- QWizard: provoke 'enum value not handled in switch' warnings in object_name_for_button
+- When reparenting a widget, children need to reregister as a drop site [QTBUG-30276]
+- Fix compile when QT_NO_WARNING_OUTPUT defined without QT_NO_DEBUG_STREAM [QTBUG-33301]
+- Clean up a partially scrolled QRollEffect widget
+- QSpinBox: fix cursor jumping around when pressing up/down keys [QTBUG-15116]
+- Fix layouts with expanding items with maximum size [QTBUG-33104]
+- Add missing interpolator for unsigned int [QTBUG-33268]
+- Compilation fix for libjpeg release 9 [QTBUG-33166]
+- Add missing variables initialization before requesting png offset [QTBUG-32674]
+- Ensure lastPixel.y is also initialized to -1 when necessary [QTBUG-31579]
+- Properly paint QListView dragged item in icon mode [QTBUG-1180]
+- Correctly fix compilation of NEON_ASM sources [QTBUG-29765]
+- Fix misaligned selection region with text when centered [QTBUG-34218, QTBUG-34234]
+- Avoid floating point exceptions in rasterizeLine [QTBUG-16757]
+- Correct wordwrapped text handling in QListView icon mode [QTBUG-4714]
+- DontUseNativeDialog is not just for the Mac color dialog [QTBUG-14341]
+- Fix crash when using GTK 2.14 function in old gtk [QTBUG-23569]
+- Fix a crash when reparenting widgets on Windows [QTBUG-30276, QTBUG-37346]
+- Windows: Restore maximized/full screen widgets to correct screen [QTBUG-4397, QTBUG-21371]
+- QWindowsXP/VistaStyle: Fix detection of item view delegate line edits [QTBUG-37504]
+- QMenuPrivate: Make sloppyDelayTimer non-static
+- QMenu: Enable sloppy submenu mouse navigation
+- QPushButton: draw label using the stylesheet's font [QTBUG-8990]
+- QPrintDialog: document the modality on OS X and Windows [QTBUG-32464]
+- QPrintDialog OSX: don't crash if ApplicationModal and no parent [QTBUG-32464]
+- printsupport: set duplex setting correctly to CUPS printer
+- Pass events to QGestureManager from the main (GUI) thread only [QTBUG-20946]
+- Avoid out of bounds memory reads when scaling images [QTBUG-35927]
+
+QtNetwork
+---------
+- Network requests: do not access 1st byte of empty byte array [QTBUG-31667]
+- Fix various NTLM/Digest multi-threading and usage issues [QTBUG-15472,
+  QTBUG-17322, QTBUG-18794, QTBUG-13063, QTBUG-16585]
+- QNetwork: Check AuthenticationReuseAttribute when using credentials from url
+- QNetworkProxyFactory: check all the proxy environment variables
+- HTTP internals: do not access reply that was deleted already [QTBUG-32404]
+- Change default URL of http example to Qt Project page
+- QHttpMultiPart: fix data corruption in readData method [QTBUG-32534]
+- Network: fix multi-phased NTLM authentication (qauthenticator)
+- SSL: blacklist ANSSI intermediate certificate [QTBUG-35474]
+- Correct algorithm for digest auth when using the CONNECT verb
+- QDeclarativeTypeLoader doesn't close processed QNetworkReplies
+- Prevent spurious SSL errors from local certificates [QTBUG-7200, QTBUG-24234, QTBUG-33228]
+- Network: fix doc typo in QNetworkConfigurationManager
+
+QtCore
+------
+- Clear the current thread data for the main thread
+- Make sure QThreadData and QAdoptedThread object is destroyed at app exit [QTBUG-30134]
+- Fix crash when re-creating QThreadData after initially destroying it
+- Implement apostrophe in windows cmd args [QTBUG-15379]
+- QUrl stringprep: recalculate the current position if the size changes
+- QUrl stringprep: fix case folding from non-BMP to BMP
+- QUrl stringprep: fix handling of prohibited characters
+- QUrl stringprep: avoid recalculating the surrogates we already know
+- QUrl stringprep: fix handling of U+0080: it's prohibited
+- QString::normalize(): Fix assertion in some corner case [QTBUG-30931]
+- Accept defeat when select(2)ing without a monotonic clock [QTBUG-22301]
+- Fix warning when building objects with a Q_OBJECT macro
+- Add support for the Linux/m68k platform [QTBUG-28237]
+- Sun CC 5.10 supports Template-Template Parameters [QTBUG-18879]
+- Restore QProcessEnvironment shared data thread safety on unix [QTBUG-30779]
+- Fix crash in QProcess::waitForStarted() on Unix [QTBUG-32958]
+- Add Q_ASSERT in qAllocMore() function [QTBUG-33038]
+- Introduce Windows version 8.1 and detect by checking the version
+- Fix the assert failure in QShortcutMap::find [QTBUG-30871]
+- QLocale: Update Portuguese and Greek locales data
+- Backport of Qt5 applicationName handling
+- Fix sigchld-Handler [QTBUG-32979]
+- QThreadPool: fix typos [QTBUG-31919]
+- QThreadPool: fix data races in activeThreadCount()
+- QThreadPool: fix counting of waiting threads [QTBUG-21051]
+- QThreadPool: fix race at time of thread expiry [QTBUG-3786]
+- QObject: use per-thread storage for qFlagLocation() [QTBUG-3680]
+- QThread: Fix link to snippet in documentation
+- Don't use Standard Library routines in qthread_p.h [QTBUG-35424]
+- Fix the name of the arguments of qAtan2 to match std::atan2 [QTBUG-27090]
+- Qt 3 Support: Prevent double deletion of QObjectPrivate::threadData in QSettings [QTBUG-36908]
+- Doc: Discuss the concept of thread affinity in more detail
+- Doc: Update, and reduce duplication of, QThread-related info
+- Add AArch64 support to qfilesystemwatcher_inotify.cpp
+
+QtScript
+--------
+- Fix tab-completion for variables that have digits in them
+- qtscript: Add support for MIPS64 platforms [QTBUG-35030]
+- Fix recursive calling of QScriptProgram [QTBUG-37317]
+
+QtDBus
+------
+- Don't crash if the relayed signal was emitted from the wrong thread [QTBUG-31932]
+- QDBusPendingCall: add a missing QWaitCondition::wakeAll() call
+- Fix unprotected access to QDBusPendingCallPrivate::pending [QTBUG-27809]
+- Remove QDBusPendingCallPrivate::autoDelete logic [QTBUG-27809]
+- Change QDBusPendingCallPrivate to full reference counting for deletion [QTBUG-27809]
+
+QtWebkit
+--------
+- Bring in WebKit revisions 139553 and 139921
+- [Qt][WK1] navigator.plugins shows too few entries (WebPlatformStrategies)
+- [WK1] NPStream::headers not initialized [QTBUG-32181]
+- Fix WebKit TimerHeap implementaiton to work with more standard libraries
+- WebKit Nullptr type fixes when using libc++
+- Correct WebKit build path settings
+- qt webkit: add support for MIPS64 platforms [QTBUG-35394]
+- Ensure the webftp example works with newer versions of webkit
+- Remove -fuse-ld=gold from webkit's LFLAGS
+
+QtSql
+-----
+- Fix off-by-one index check (qsqlcachedresult)
+- Fix QByteArray memory corruption in QIBaseDriver::open() [QTBUG-37508]
+
+QtXml
+-----
+- Fully expand entities to ensure deep or widely nested ones fail parsing
+- Mitigate performance regression in isExpandedEntityValueTooLarge() [QTBUG-35919]
+
+Declarative
+-----------
+- Validate qmlEngine() in QDeclarativeItem::mapToItem() function [QTBUG-29572]
+- Use GET method for redirect in QDeclarativeXMLHttpRequest [QTBUG-32332]
+- Change domain used in cpp-extensions-example [QTBUG-32390]
+- Fixed rounding errors in QtQuick1 to int conversions [QTBUG-33625]
+
+OpenGL
+------
+- Set projection matrix for systems with OpenGL 3.1 [QTBUG-28284]
+
+Plugins
+-------
+- Add missing argument to QBasicUnixFontDatabase::fallbacksForFamily()
+- Accessibility: ComboBoxes should expose their line edits as text (complexwidgets)
+
+3rdParty
+--------
+- Compile with clang's libc++ (javascriptcore)
+- clucene: Compile with clang's libc++
+- Add AArch64 detection support to JavaScriptCore
+- Fix compilation of Qt Script with MSVC 2013 (JavaScriptCore\wtf\MathExtras.h)
+
+****************************************************************************
+* Platform Specific Changes                                                *
+****************************************************************************
+
+Qt for Linux/X11
+----------------
+- Fixes: ASSERT in qpaintengine_x11 when using native graphicssystem [QTBUG-32166]
+- evdev tablet support on Linux [QTBUG-25329]
+- Fix problem with QNetworkAddressEntry returning a invalid netmask [QTBUG-33911]
+
+Qt for Windows
+--------------
+- Only use Vista style for Wizards when on Vista or later
+- Cleanup QFileIconProviderPrivate::getWinIcon()
+- Include <new> instead of <ciso646> for libc++ detection [QTBUG-32773]
+- Active Qt: Remove invalid memset()-call [QTBUG-34722]
+- MinGW: Fix warnings about assigned but not used variables
+- Fix MinGW-warnings about narrowing/invalid conversions
+- qsimd: Fix compilation with MinGW 64
+- Kernel: Fix gcc warning in qsharedmemory_win.cpp
+- Do not send clipboard message to application under debugger (qclipboard_win.cpp)
+- Fix crash in QWidgetPrivate::unregisterOleDnd() when dropTarget->Release() decrements reference count to zero [QTBUG-13237]
+- Use correct mask constant in the Windows event dispatcher [QTBUG-18852, QTBUG-28513,
+  QTBUG-29097, QTBUG-29435, QTBUG-32257]
+- Fix scrollbar appearance on Win8 [QTBUG-26503]
+- Fix QOleDropTarget object leak
+- Windows: Introduce QFileDialog::DontUseCustomDirectoryIcons
+- Windows: Fix tablet position in relative (mouse) mode
+- Threads: Fix mingw-gcc warning about 'cast to pointer from integer of different size'
+- Fix signature of the waveInProc/waveOutProc callbacks
+- Multimedia: Fix MinGW-warning about assigning NULL to int-type
+- Fix virtual key mapping on MS Windows [QTBUG-8764, QTBUG-10032, QTBUG-33409]
+- Fix bug in updatePossibleKeyCodes() with dead keys and modifiers [QTBUG-33591]
+- Fixed assert in Windows key handling [QTBUG-35005]
+- QPrintDialog - Fix Windows Current Page option selection [QTBUG-32965]
+- Fixed various crashes in connection point enumerators [QTBUG-35136,
+  QTBUG-35262, QTBUG-35263, QTBUG-35264, QTBUG-35265, QTBUG-35266,
+  QTBUG-35267, QTBUG-35283, QTBUG-35284, QTBUG-35285, QTBUG-35286]
+- qthread_win.cpp: Fix warnings when waiting for adopted threads [QTBUG-35591]
+- Fixed another assert in qwindowskeymapper [QTBUG-35532]
+- QWizard: Fix frame when using Vista style/MSVC2012 [QTBUG-36192]
+- QWindowsVistaStyle: Fixed position of menu gutter when using a custom widget action [QTBUG-36218]
+- QWindowVistaStyle: Always initialize text color of menu items [QTBUG-36142]
+- Windows: Do not try to update keymap on WM_IME_CHAR messages [QTBUG-35806]
+- Win: Fixed assert in QKeyMapperPrivate::possibleKeys [QTBUG-36061]
+- Add MinGW-builds gcc 4.8.2 as Tier 2 platform
+
+Qt for Mac OS X
+---------------
+- CoreWLan bearer plugin now compiles and runs under OS X 10.9
+- Fix for OS X QFileDialog showing bundle as directory [QTBUG-31562]
+- Cleanup the QDrag when doing a drag with the right mouse button on Mac
+- Fix leak in QDragManager::drag on mac
+- Can show the Cocoa color panel repeatedly [QTBUG-11188]
+- qfilesystemengine_mac.cpp is empty => purge
+- Mac: Handle the maximizing of the window ourselves when it is frameless
+- Fix QListWidget item widget scroll bug [QTBUG-27043]
+- Make libtiff link on OS X 10.9
+- Don't assume that all CFPropertyListRef are CFArrayRefs [QTBUG-29776]
+- Make sure to also check for null CFPropertyLists [QTBUG-30760]
+- Remove a left over cast that is now semantically incorrect (qlocale)
+- Remove OS X unsupported warning (qglobal.h)
+- Fix unused private field warning in QMacMime
+- OSX: Disable window restoration for the Mac color panel [QTBUG-31750]
+- Mac: make windows not restorable on 10.7 and later [QTBUG-28281]
+- Keep web fontdata alive as long as CG uses it
+- QLocale - Fix Mac date format code translation [QTBUG-25057]
+- Make QCoreWlan plugin compile on 10.9
+- Correct QToolBar layout on retina displays
+- Cocoa File Dialog: Remove sandbox-ufriendly QDir::entryList() call [QTBUG-34012]
+- Use the correct system font on OS X Mavericks [QTBUG-32789]
+- Optimize macDisplayColorSpace [QTBUG-34358]
+- Mac style: Fix selected tab text color on 10.6 [QTBUG-34540]
+- CoreWLan: Fix potential unhandled exception assert [QTBUG-26844]
+- Keep the copied files as writable (macdeployqt)
+- Backported fix for WebKit libc++ support on OS X Mavricks
+- Respect the custom paper size settings on Mac [QTBUG-34700]
+- Enable building with clang / libc++ on OS X 10.9 Mavericks
+- Use qt_mac_effectiveview_for for setFocus_sys [QTBUG-34371]
+- WebKit: Remove video support on OS X [QTBUG-32237]
+- Cocoa: fix a typo for F9 in key mapping [QTBUG-34820]
+- Mac: Fix file dialog filters when filter doesn't start with '*' [QTBUG-17326]
+- Fix building of JSC for earlier versions of gcc on Mac
+- Fix building of WebKit's JSC for earlier versions of gcc on Mac
+- Fix Mac Bearer when machine has no wifi (qcorewlanengine)
+- Do not use fileno calls in forked child [QTBUG-37306]
+
+Qt for Blackberry\QNX
+---------------------
+- QSystemLocale: Fix the time format on BlackBerry 10
+- QNX: Changing the way JSC retrieves the current stack base pointer ()
+- BlackBerry: Increased loop level around bps_get_event (qeventdispatcher)
+- QNX: hardcode on-demand SSL root cert loading [QTBUG-32549]
+- QNX: adapt SSL lib file name lookup heuristics [QTBUG-32548]
+- BlackBerry: Fixed cover mode
+- BlackBerry: improve BPS event lifetime management
+- BlackBerry: Prevent superfluous removal of socket notifiers [QTBUG-34536]
+- QLocale: Fix infinite loop in error case
+- QNX: Make use of _readdir64_r
+- QBBSystemLocale: Do not set fixed buffer size when reading pps objects
+- BlackBerry: Improve platform specific documentation
+
+****************************************************************************
+* Tools                                                                    *
+****************************************************************************
+
+Assistant
+---------
+- Make sure .qch file is opened read-only [QTCREATORBUG-10697]
+- Assistant: Set the url on created QNetworkReply objects [QTCREATORBUG-8211]
+
+Designer
+--------
+- Designer: Fix morphing of widgets in QSplitters [QTBUG-31911]
+- Fix resetting of string properties [QTBUG-34171]
+- Qt Designer: Implement property() for QAxWidgetPropertySheet [QTBUG-34592]
+- Designer: remove dead code in QStackedWidgetPreviewEventFilter::updateButtonToolTip()
+- QUiLoader/Designer: Fix gcc 4.8 warnings about unused typedefs
+- Store changed status of the QAxWidget's "control" property correctly [QTBUG-37602]
+
+Linquist
+--------
+- lupdate: Fixing decoding of QML files
+- Execute some loops even in cumulative mode [QTBUG-8550]
+- Fix strings from #included sources not being collected [QTBUG-27974]
+- Correctly resolve INCLUDEPATH relative to current project [QTBUG-24587]
+- Ensure correct codec is used for Sources and Forms view
+
+Configure
+---------
+- configure: Add QtConcurrent support for Sun CC 5.1x
+- Cascade detection of SSE3 support and up [QTBUG-24773]
+- Make configure.exe only detect each compiler once
+- Fix detection of mingw gcc >=4.6
+- Remove incorrect check for mingw 64 bit
+- Fix compilation failure in configure.exe
+- Basic AArch64 (aka arm64) detection
+- rebuild configure.exe
+
+mkspecs
+--------
+- gdb_dwarf_index: Use a sed call that's more POSIX-compliant
+- Sun CC: Fix QtNetwork compilation (mkspecs\solaris-cc\qplatformdefs.h)
+- Add support for Visual Studio 2013 [QTBUG-36135]
+- win32-msvc2013: force synchronous writes to .pdb files [QTBUG-36398]
+- fix PlatformToolSet tag location in vcxproj files [QTBUG-30822]
+
+Other
+-----
+- Document the fact that QPA is experimental in Qt 4.8 [QTBUG-26912]
+- Documentation: Remove references to Nokia and obsolete QSA-product
+- Remove Nokia reference in Qt Test documentation [QTBUG-29307]
+- Doc: Update description of qmake LIBS variable [QTBUG-30229]
+- Expose QTest::currentAppName() and remove hard-coded argv[0] in tests
+- Doc: update description of qmake SUBDIRS variable [QTBUG-14139]
+- Remove duplicated contexts in qt_de.ts [QTBUG-33271]
+- Doc: update Project Options section in qmake Manual [QTBUG-25683]
+- Update Hebrew translation
+- Update Arabic translation
+- Completely bootstrap idc [QTBUG-35275]
+- Fix Japanese translation
+- qmlplugindump is missing --noinstantiate option on Qt 4.8 [QTBUG-36380]
+- Added Basque translation
+- Fix link to Tier 2 mingw-builds version (Docs)
+- Doc: Mention that MINGWM10.DLL only applies to MinGW 4.4

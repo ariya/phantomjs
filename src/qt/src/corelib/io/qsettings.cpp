@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -2319,6 +2319,10 @@ void QConfFileSettingsPrivate::ensureSectionParsed(QConfFile *confFile,
     stored in the following registry path:
     \c{HKEY_LOCAL_MACHINE\Software\WOW6432node}.
 
+    On BlackBerry only a single file is used (see \l{Platform Limitations}).
+    If the file format is NativeFormat, this is "Settings/MySoft/Star Runner.conf"
+    in the application's home directory.
+
     If the file format is IniFormat, the following files are
     used on Unix and Mac OS X:
 
@@ -2343,6 +2347,10 @@ void QConfFileSettingsPrivate::ensureSectionParsed(QConfFile *confFile,
     %COMMON_APPDATA% path is usually \tt{C:\\Documents and
     Settings\\All Users\\Application Data}.
 
+    On BlackBerry only a single file is used (see \l{Platform Limitations}).
+    If the file format is IniFormat, this is "Settings/MySoft/Star Runner.ini"
+    in the application's home directory.
+
     On Symbian, the following files are used for both IniFormat and
     NativeFormat (in this example, we assume that the application is
     installed on the \c e-drive and its Secure ID is \c{0xECB00931}):
@@ -2363,7 +2371,7 @@ void QConfFileSettingsPrivate::ensureSectionParsed(QConfFile *confFile,
     environments.
 
     The paths for the \c .ini and \c .conf files can be changed using
-    setPath(). On Unix and Mac OS X, the user can override them by by
+    setPath(). On Unix and Mac OS X, the user can override them by
     setting the \c XDG_CONFIG_HOME environment variable; see
     setPath() for details.
 
@@ -2514,7 +2522,8 @@ void QConfFileSettingsPrivate::ensureSectionParsed(QConfFile *confFile,
        allowed to read or write outside of this sandbox. This involves the
        following limitations:
        \list
-       \o As there is only a single scope the scope is simply ignored.
+       \o As there is only a single scope the scope is simply ignored,
+          i.e. there is no difference between SystemScope and UserScope.
        \o The \l{Fallback Mechanism} is not applied, i.e. only a single
           location is considered.
        \o It is advised against setting and using custom file paths.
@@ -3639,6 +3648,7 @@ void QSettings::setPath_helper(Scope scope, const QString &organization, const Q
     QSettingsPrivate *oldPriv = d;
     QSettingsPrivate *newPriv = QSettingsPrivate::create(oldPriv->format, scope, organization, application);
     static_cast<QObjectPrivate &>(*newPriv) = static_cast<QObjectPrivate &>(*oldPriv);  // copy the QObject stuff over (hack)
+    oldPriv->threadData = 0; //     QTBUG-36908, newPriv takes ownership.
     d_ptr.reset(newPriv);
 }
 

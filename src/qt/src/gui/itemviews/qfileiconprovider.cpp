@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -40,9 +40,10 @@
 ****************************************************************************/
 
 #include "qfileiconprovider.h"
+#include "qfileiconprovider_p.h"
 
 #ifndef QT_NO_FILEICONPROVIDER
-#include <qstyle.h>
+#include <qfileinfo.h>
 #include <qapplication.h>
 #include <qdir.h>
 #include <qpixmapcache.h>
@@ -87,41 +88,14 @@ QT_BEGIN_NAMESPACE
   \value File
 */
 
-class QFileIconProviderPrivate
-{
-    Q_DECLARE_PUBLIC(QFileIconProvider)
-
-public:
-    QFileIconProviderPrivate();
-    QIcon getIcon(QStyle::StandardPixmap name) const;
-#ifdef Q_WS_WIN
-    QIcon getWinIcon(const QFileInfo &fi) const;
-#elif defined(Q_WS_MAC)
-    QIcon getMacIcon(const QFileInfo &fi) const;
-#endif
-    QFileIconProvider *q_ptr;
-    const QString homePath;
-
-private:
-    mutable QIcon file;
-    mutable QIcon fileLink;
-    mutable QIcon directory;
-    mutable QIcon directoryLink;
-    mutable QIcon harddisk;
-    mutable QIcon floppy;
-    mutable QIcon cdrom;
-    mutable QIcon ram;
-    mutable QIcon network;
-    mutable QIcon computer;
-    mutable QIcon desktop;
-    mutable QIcon trashcan;
-    mutable QIcon generic;
-    mutable QIcon home;
-};
-
 QFileIconProviderPrivate::QFileIconProviderPrivate() :
-    homePath(QDir::home().absolutePath())
+    homePath(QDir::home().absolutePath()), useCustomDirectoryIcons(true)
 {
+}
+
+void QFileIconProviderPrivate::setUseCustomDirectoryIcons(bool enable)
+{
+    useCustomDirectoryIcons = enable;
 }
 
 QIcon QFileIconProviderPrivate::getIcon(QStyle::StandardPixmap name) const
@@ -244,22 +218,34 @@ static bool isCacheable(const QFileInfo &fi)
 QIcon QFileIconProviderPrivate::getWinIcon(const QFileInfo &fileInfo) const
 {
     QIcon retIcon;
-    const QString fileExtension = QLatin1Char('.') + fileInfo.suffix().toUpper();
+    static int defaultFolderIIcon = -1;
 
     QString key;
-    if (isCacheable(fileInfo))
-        key = QLatin1String("qt_") + fileExtension;
-
     QPixmap pixmap;
-    if (!key.isEmpty()) {
+    // If it's a file, non-{exe,lnk,ico} then we might have it cached already
+    if (isCacheable(fileInfo)) {
+        const QString fileExtension = QLatin1Char('.') + fileInfo.suffix().toUpper();
+        key = QLatin1String("qt_") + fileExtension;
         QPixmapCache::find(key, pixmap);
+        if (!pixmap.isNull()) {
+            retIcon.addPixmap(pixmap);
+            if (QPixmapCache::find(key + QLatin1Char('l'), pixmap))
+                retIcon.addPixmap(pixmap);
+            return retIcon;
+        }
     }
 
-    if (!pixmap.isNull()) {
-        retIcon.addPixmap(pixmap);
-        if (QPixmapCache::find(key + QLatin1Char('l'), pixmap))
+    const bool cacheableDirIcon = fileInfo.isDir() && !fileInfo.isRoot();
+    if (!useCustomDirectoryIcons && defaultFolderIIcon >= 0 && cacheableDirIcon) {
+        // We already have the default folder icon, just return it
+        key = QString::fromLatin1("qt_dir_%1").arg(defaultFolderIIcon);
+        QPixmapCache::find(key, pixmap);
+        if (!pixmap.isNull()) {
             retIcon.addPixmap(pixmap);
-        return retIcon;
+            if (QPixmapCache::find(key + QLatin1Char('l'), pixmap))
+                retIcon.addPixmap(pixmap);
+            return retIcon;
+        }
     }
 
     /* We don't use the variable, but by storing it statically, we
@@ -271,17 +257,28 @@ QIcon QFileIconProviderPrivate::getWinIcon(const QFileInfo &fileInfo) const
     unsigned long val = 0;
 
     //Get the small icon
+    unsigned int flags =
 #ifndef Q_OS_WINCE
-    val = SHGetFileInfo((const wchar_t *)QDir::toNativeSeparators(fileInfo.filePath()).utf16(), 0, &info,
-                        sizeof(SHFILEINFO), SHGFI_ICON|SHGFI_SMALLICON|SHGFI_SYSICONINDEX|SHGFI_ADDOVERLAYS|SHGFI_OVERLAYINDEX);
+        SHGFI_ICON|SHGFI_SYSICONINDEX|SHGFI_ADDOVERLAYS|SHGFI_OVERLAYINDEX;
 #else
-    val = SHGetFileInfo((const wchar_t *)QDir::toNativeSeparators(fileInfo.filePath()).utf16(), 0, &info,
-                        sizeof(SHFILEINFO), SHGFI_SMALLICON|SHGFI_SYSICONINDEX);
+        SHGFI_SYSICONINDEX;
 #endif
+
+    if (cacheableDirIcon && !useCustomDirectoryIcons) {
+        flags |= SHGFI_USEFILEATTRIBUTES;
+        val = SHGetFileInfo(L"dummy",
+                            FILE_ATTRIBUTE_DIRECTORY, &info,
+                            sizeof(SHFILEINFO), flags | SHGFI_SMALLICON);
+    } else {
+        val = SHGetFileInfo((const wchar_t *)QDir::toNativeSeparators(fileInfo.filePath()).utf16(),
+                            0, &info, sizeof(SHFILEINFO), flags | SHGFI_SMALLICON);
+    }
 
     // Even if GetFileInfo returns a valid result, hIcon can be empty in some cases
     if (val && info.hIcon) {
         if (fileInfo.isDir() && !fileInfo.isRoot()) {
+            if (!useCustomDirectoryIcons && defaultFolderIIcon < 0)
+                defaultFolderIIcon = info.iIcon;
             //using the unique icon index provided by windows save us from duplicate keys
             key = QString::fromLatin1("qt_dir_%1").arg(info.iIcon);
             QPixmapCache::find(key, pixmap);
@@ -312,13 +309,9 @@ QIcon QFileIconProviderPrivate::getWinIcon(const QFileInfo &fileInfo) const
     }
 
     //Get the big icon
-#ifndef Q_OS_WINCE
-    val = SHGetFileInfo((const wchar_t *)QDir::toNativeSeparators(fileInfo.filePath()).utf16(), 0, &info,
-                        sizeof(SHFILEINFO), SHGFI_ICON|SHGFI_LARGEICON|SHGFI_SYSICONINDEX|SHGFI_ADDOVERLAYS|SHGFI_OVERLAYINDEX);
-#else
-    val = SHGetFileInfo((const wchar_t *)QDir::toNativeSeparators(fileInfo.filePath()).utf16(), 0, &info,
-                        sizeof(SHFILEINFO), SHGFI_LARGEICON|SHGFI_SYSICONINDEX);
-#endif
+    val = SHGetFileInfo((const wchar_t *)QDir::toNativeSeparators(fileInfo.filePath()).utf16(),
+                0, &info, sizeof(SHFILEINFO), flags | SHGFI_LARGEICON);
+
     if (val && info.hIcon) {
         if (fileInfo.isDir() && !fileInfo.isRoot()) {
             //using the unique icon index provided by windows save us from duplicate keys

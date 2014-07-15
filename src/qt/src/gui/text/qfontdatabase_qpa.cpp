@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -384,8 +384,12 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
         req.family = *it;
 
         fe = QFontDatabase::findFont(script, d, req);
-        if (fe && (fe->type()==QFontEngine::Box) && !req.family.isEmpty())
+        if (fe && (fe->type()==QFontEngine::Box) && !req.family.isEmpty()) {
+            if (fe->ref == 0)
+                delete fe;
+
             fe = 0;
+        }
     }
 
     if (fe->symbol || (d->request.styleStrategy & QFont::NoFontMerging)) {

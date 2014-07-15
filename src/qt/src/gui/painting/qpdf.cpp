@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -1855,22 +1855,22 @@ void QPdfBaseEnginePrivate::closePrintDevice()
             options.append(QPair<QByteArray, QByteArray>("Collate", "True"));
         }
 
-        if (duplex != QPrinter::DuplexNone) {
-            switch(duplex) {
-            case QPrinter::DuplexNone: break;
-            case QPrinter::DuplexAuto:
-                if (orientation == QPrinter::Portrait)
-                    options.append(QPair<QByteArray, QByteArray>("sides", "two-sided-long-edge"));
-                else
-                    options.append(QPair<QByteArray, QByteArray>("sides", "two-sided-short-edge"));
-                break;
-            case QPrinter::DuplexLongSide:
+        switch (duplex) {
+        case QPrinter::DuplexNone:
+            options.append(QPair<QByteArray, QByteArray>("sides", "one-sided"));
+            break;
+        case QPrinter::DuplexAuto:
+            if (orientation == QPrinter::Portrait)
                 options.append(QPair<QByteArray, QByteArray>("sides", "two-sided-long-edge"));
-                break;
-            case QPrinter::DuplexShortSide:
+            else
                 options.append(QPair<QByteArray, QByteArray>("sides", "two-sided-short-edge"));
-                break;
-            }
+            break;
+        case QPrinter::DuplexLongSide:
+            options.append(QPair<QByteArray, QByteArray>("sides", "two-sided-long-edge"));
+            break;
+        case QPrinter::DuplexShortSide:
+            options.append(QPair<QByteArray, QByteArray>("sides", "two-sided-short-edge"));
+            break;
         }
 
         if (QCUPSSupport::cupsVersion() >= 10300 && orientation == QPrinter::Landscape) {

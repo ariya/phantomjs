@@ -9,7 +9,7 @@
     }
 
     QMAKE_GDB_INDEX += \
-      test \$\$(gdb --version | sed -e \'s,[^0-9]\\+\\([0-9]\\)\\.\\([0-9]\\).*,\\1\\2,;q\') -gt 72 && \
+      test \$\$(gdb --version | sed -e \'s,[^0-9][^0-9]*\\([0-9]\\)\\.\\([0-9]\\).*,\\1\\2,;q\') -gt 72 && \
       gdb --nx --batch --quiet -ex \'set confirm off\' -ex \"save gdb-index $$QMAKE_GDB_DIR\" -ex quit \'$(TARGET)\'  && \
       test -f $(TARGET).gdb-index && \
       $$QMAKE_OBJCOPY --add-section \'.gdb_index=$(TARGET).gdb-index\' --set-section-flags \'.gdb_index=readonly\' \'$(TARGET)\' \'$(TARGET)\' && \

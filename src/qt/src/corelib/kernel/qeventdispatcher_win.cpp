@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -326,11 +326,7 @@ static void resolveTimerAPI()
 #else
         QSystemLibrary library(QLatin1String("winmm"));
 #endif
-        if (
-#if defined(_MSC_VER) && _MSC_VER >= 1700 // QTBUG-27266, Disable when running MSVC2012-built code on pre-Windows
-            QSysInfo::WindowsVersion >= QSysInfo::WV_WINDOWS8 &&
-#endif
-            library.load()) {
+        if (library.load()) {
             qtimeSetEvent = (ptimeSetEvent)library.resolve("timeSetEvent");
             qtimeKillEvent = (ptimeKillEvent)library.resolve("timeKillEvent");
         }
@@ -509,6 +505,18 @@ LRESULT QT_WIN_CALLBACK qt_internal_proc(HWND hwnd, UINT message, WPARAM wp, LPA
     return DefWindowProc(hwnd, message, wp, lp);
 }
 
+static inline UINT inputTimerMask()
+{
+    UINT result = QS_TIMER | QS_INPUT | QS_RAWINPUT;
+    // QTBUG 28513, QTBUG-29097, QTBUG-29435: QS_TOUCH, QS_POINTER became part of
+    // QS_INPUT in Windows Kit 8. They should not be used when running on pre-Windows 8.
+#if defined(_MSC_VER) && _MSC_VER >= 1700
+    if (QSysInfo::WindowsVersion < QSysInfo::WV_WINDOWS8)
+        result &= ~(QS_TOUCH | QS_POINTER);
+#endif //  _MSC_VER >= 1700
+    return result;
+}
+
 LRESULT QT_WIN_CALLBACK qt_GetMessageHook(int code, WPARAM wp, LPARAM lp)
 {
     if (wp == PM_REMOVE) {
@@ -518,7 +526,8 @@ LRESULT QT_WIN_CALLBACK qt_GetMessageHook(int code, WPARAM wp, LPARAM lp)
             MSG *msg = (MSG *) lp;
             QEventDispatcherWin32Private *d = q->d_func();
             int localSerialNumber = d->serialNumber;
-            if (HIWORD(GetQueueStatus(QS_TIMER | QS_INPUT | QS_RAWINPUT)) == 0) {
+            static const UINT mask = inputTimerMask();
+            if (HIWORD(GetQueueStatus(mask)) == 0) {
                 // no more input or timer events in the message queue, we can allow posted events to be sent normally now
                 if (d->sendPostedEventsWindowsTimerId != 0) {
                     // stop the timer to send posted events, since we now allow the WM_QT_SENDPOSTEDEVENTS message

@@ -112,7 +112,7 @@ unix:x11 {
         OBJECTIVE_SOURCES += \
                 text/qfontengine_mac.mm
 }
-!embedded:!qpa:!x11:mac {
+!embedded:!x11:mac {
         OBJECTIVE_HEADERS += \
                 text/qfontengine_coretext_p.h
         OBJECTIVE_SOURCES += \
@@ -142,13 +142,14 @@ qpa {
 	SOURCES += \
                 text/qfont_qpa.cpp \
                 text/qfontengine_qpa.cpp \
-                text/qfontengine_ft.cpp \
                 text/qplatformfontdatabase_qpa.cpp \
                 text/qrawfont_qpa.cpp
 
 	HEADERS += \
-                text/qplatformfontdatabase_qpa.h \
-                text/qfontengine_ft_p.h
+                text/qplatformfontdatabase_qpa.h
+
+	DEFINES += QT_NO_FONTCONFIG
+        DEFINES += QT_NO_FREETYPE
 }
 
 symbian {

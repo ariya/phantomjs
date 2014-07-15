@@ -37,6 +37,7 @@ HEADERS += \
 	itemviews/qtreewidgetitemiterator.h \
     itemviews/qdatawidgetmapper.h \
     itemviews/qfileiconprovider.h \
+    itemviews/qfileiconprovider_p.h \
     itemviews/qcolumnviewgrip_p.h \
     itemviews/qcolumnview.h  \
     itemviews/qcolumnview_p.h \

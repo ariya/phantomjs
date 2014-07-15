@@ -1,7 +1,7 @@
 #!/bin/sh
 #############################################################################
 ##
-## Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ## Contact: http://www.qt-project.org/legal
 ##
 ## This file is the build configuration utility of the Qt Toolkit.
@@ -3082,7 +3082,7 @@ if [ '!' -f "${XQMAKESPEC}/qplatformdefs.h" ]; then
     echo
     echo "      $XQMAKESPEC/qplatformdefs.h"
     echo
-    echo "   Please contact qt-bugs@trolltech.com."
+    echo "   Please use the contact form at http://qt.digia.com/contact-us"
     echo
     exit 2
 fi
@@ -3125,9 +3125,9 @@ if [ "$CFG_RTOS_ENABLED" = "no" ]; then
             echo ""
             echo "You are not licensed for Qt for `basename $XPLATFORM`."
             echo ""
-            echo "Please contact qt-info@nokia.com to upgrade your license to"
-            echo "include this platform, or install the Qt Open Source Edition"
-            echo "if you intend to develop free software."
+            echo "Please use the contact form at http://qt.digia.com/contact-us"
+            echo "to upgrade your license to include this platform, or install"
+            echo "the Qt Open Source Edition if you intend to develop free software."
             exit 1
 	    ;;
     esac
@@ -3246,6 +3246,12 @@ if [ -z "${CFG_HOST_ARCH}" ]; then
             echo "    ARM (arm)"
         fi
         CFG_HOST_ARCH=arm
+        ;;
+    *:*:aarch64*)
+        if [ "$OPT_VERBOSE" = "yes" ]; then
+            echo "    AArch64 (aarch64)"
+        fi
+        CFG_HOST_ARCH=aarch64
         ;;
     Linux:*:sparc*)
         if [ "$OPT_VERBOSE" = "yes" ]; then
@@ -4664,9 +4670,10 @@ elif [ "$Edition" != "OpenSource" ]; then
                     echo
                     echo "  Your support and upgrade period has expired."
                     echo
-                    echo "  You are no longer licensed to use this version of Qt."
-                    echo "  Please contact qt-info@nokia.com to renew your support"
-                    echo "  and upgrades for this license."
+                    echo "  You are no longer licensed to use this software. Please"
+                    echo "  use the contact form at http://qt.digia.com/contact-us to"
+                    echo "  purchase license, or install the Qt Open Source Edition"
+                    echo "  if you intend to develop free software."
                     echo
                     echo "NOTICE  NOTICE  NOTICE  NOTICE"
                     echo
@@ -4683,8 +4690,8 @@ elif [ "$Edition" != "OpenSource" ]; then
                     echo "  support, nor are you entitled to use any more recent"
                     echo "  Qt releases."
                     echo
-                    echo "  Please contact qt-info@nokia.com to renew your"
-                    echo "  support and upgrades for this license."
+                    echo "  Please use the contact form at http://qt.digia.com/contact-us"
+                    echo "  to renew your support and upgrades for this license."
                     echo
                     echo "WARNING  WARNING  WARNING  WARNING"
                     echo
@@ -4698,9 +4705,9 @@ elif [ "$Edition" != "OpenSource" ]; then
                 echo "  Your Evaluation license has expired."
                 echo
                 echo "  You are no longer licensed to use this software. Please"
-                echo "  contact qt-info@nokia.com to purchase license, or install"
-                echo "  the Qt Open Source Edition if you intend to develop free"
-                echo "  software."
+                echo "  use the contact form at http://qt.digia.com/contact-us to"
+                echo "  purchase license, or install the Qt Open Source Edition"
+                echo "  if you intend to develop free software."
                 echo
                 echo "NOTICE  NOTICE  NOTICE  NOTICE"
                 echo
@@ -4997,7 +5004,16 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
             done
         fi
         if [ "$BUILD_ON_MAC" = "yes" ]; then
-            echo "export MACOSX_DEPLOYMENT_TARGET = 10.5" >> "$mkfile"
+            case "$PLATFORM" in
+            *macx-clang-libc++)
+                # Avoid overriding the default configuration settings when building with clang/libc++
+                ;;
+            *)
+                # For all other configurations require a minimum of 10.5
+                echo "export MACOSX_DEPLOYMENT_TARGET = 10.5" >> "$mkfile"
+                ;;
+            esac
+
             echo "CARBON_LFLAGS =-framework ApplicationServices" >>"$mkfile"
             echo "CARBON_CFLAGS =-fconstant-cfstrings" >>"$mkfile"
             EXTRA_LFLAGS="$EXTRA_LFLAGS \$(CARBON_LFLAGS)"
@@ -5153,6 +5169,9 @@ if [ "${CFG_MMX}" = "auto" ]; then
 fi
 
 # detect 3dnow support
+if [ "${CFG_MMX}" = "auto" ]; then
+    CFG_3DNOW=no
+fi
 if [ "${CFG_3DNOW}" = "auto" ]; then
     if compileTest unix/3dnow "3dnow" "-m3dnow"; then
 	CFG_3DNOW=yes
@@ -5162,6 +5181,9 @@ if [ "${CFG_3DNOW}" = "auto" ]; then
 fi
 
 # detect sse support
+if [ "${CFG_MMX}" = "auto" ]; then
+    CFG_SSE=no
+fi
 if [ "${CFG_SSE}" = "auto" ]; then
     if compileTest unix/sse "sse" "-msse"; then
 	CFG_SSE=yes
@@ -5171,6 +5193,9 @@ if [ "${CFG_SSE}" = "auto" ]; then
 fi
 
 # detect sse2 support
+if [ "${CFG_SSE}" = "auto" ]; then
+    CFG_SSE2=no
+fi
 if [ "${CFG_SSE2}" = "auto" ]; then
     if compileTest unix/sse2 "sse2" "-msse2"; then
        CFG_SSE2=yes
@@ -5180,6 +5205,9 @@ if [ "${CFG_SSE2}" = "auto" ]; then
 fi
 
 # detect sse3 support
+if [ "${CFG_SSE2}" = "no" ]; then
+    CFG_SSE3=no
+fi
 if [ "${CFG_SSE3}" = "auto" ]; then
     if compileTest unix/sse3 "sse3" "-msse3"; then
        CFG_SSE3=yes
@@ -5189,6 +5217,9 @@ if [ "${CFG_SSE3}" = "auto" ]; then
 fi
 
 # detect ssse3 support
+if [ "${CFG_SSE3}" = "no" ]; then
+    CFG_SSSE3=no
+fi
 if [ "${CFG_SSSE3}" = "auto" ]; then
     if compileTest unix/ssse3 "ssse3" "-mssse3"; then
        CFG_SSSE3=yes
@@ -5198,6 +5229,9 @@ if [ "${CFG_SSSE3}" = "auto" ]; then
 fi
 
 # detect sse4.1 support
+if [ "${CFG_SSSE3}" = "no" ]; then
+    CFG_SSE4_1=no
+fi
 if [ "${CFG_SSE4_1}" = "auto" ]; then
     if compileTest unix/sse4_1 "sse4_1" "-msse4.1"; then
        CFG_SSE4_1=yes
@@ -5207,6 +5241,9 @@ if [ "${CFG_SSE4_1}" = "auto" ]; then
 fi
 
 # detect sse4.2 support
+if [ "${CFG_SSE4_1}" = "no" ]; then
+    CFG_SSE4_2=no
+fi
 if [ "${CFG_SSE4_2}" = "auto" ]; then
     if compileTest unix/sse4_2 "sse4_2" "-msse4.2"; then
        CFG_SSE4_2=yes
@@ -5216,6 +5253,9 @@ if [ "${CFG_SSE4_2}" = "auto" ]; then
 fi
 
 # detect avx support
+if [ "${CFG_SSE4_2}" = "no" ]; then
+    CFG_AVX=no
+fi
 if [ "${CFG_AVX}" = "auto" ]; then
     if compileTest unix/avx "avx" "-mavx"; then
        CFG_AVX=yes
@@ -7180,14 +7220,17 @@ fi
 # set the global Mac deployment target. This is overridden on an arch-by-arch basis
 # in some cases, see code further down
 case "$PLATFORM,$CFG_MAC_COCOA" in
-    macx*,yes)
-	# Cocoa
-	QMakeVar set QMAKE_MACOSX_DEPLOYMENT_TARGET 10.5
-	;;
-    macx*,no)
-	# gcc, Carbon
-	QMakeVar set QMAKE_MACOSX_DEPLOYMENT_TARGET 10.4
-	;;
+*macx-clang-libc++,yes)
+    # Avoid overriding the default configuration setting when building with clang/libc++
+    ;;
+macx*,yes)
+    # Cocoa
+    QMakeVar set QMAKE_MACOSX_DEPLOYMENT_TARGET 10.5
+    ;;
+macx*,no)
+    # gcc, Carbon
+    QMakeVar set QMAKE_MACOSX_DEPLOYMENT_TARGET 10.4
+    ;;
 esac
 
 # disable Qt 3 support on VxWorks, Symbian and INTEGRITY
@@ -7703,9 +7746,12 @@ case "$XPLATFORM" in
                 canBuildQtXmlPatterns="no"
                 canBuildQtConcurrent="no"
                 ;;
-            5.*)
+            5.9)
                 canBuildWebKit="no"
                 canBuildQtConcurrent="no"
+                ;;
+            5.1*)
+                canBuildWebKit="no"
                 ;;
         esac
         ;;
@@ -7816,7 +7862,7 @@ else
 fi
 
 if [ "$canBuildWebKit" == "no" ]; then
-    CFG_WEBKIT="no"
+    CFG_WEBKIT="$canBuildWebKit"
 fi
 
 if [ "$CFG_WEBKIT" != "no" ]; then
@@ -7918,32 +7964,39 @@ fi
 # On Mac, set the minimum deployment target for the different architechtures 
 # using the Xarch compiler option when supported (10.5 and up).  On 10.4 the
 # deployment version is set to 10.4 globally using the QMAKE_MACOSX_DEPLOYMENT_TARGET
-# env. variable. 
-if [ "$PLATFORM_MAC" = "yes" ] && [ "$CFG_MAC_XARCH" != "no" ] ; then
-    if echo "$CFG_MAC_ARCHS" | grep '\<x86\>' > /dev/null 2>&1; then
-        QMakeVar add QMAKE_CFLAGS "-Xarch_i386 -mmacosx-version-min=10.4"
-        QMakeVar add QMAKE_CXXFLAGS "-Xarch_i386 -mmacosx-version-min=10.4"
-        QMakeVar add QMAKE_LFLAGS "-Xarch_i386 -mmacosx-version-min=10.4"
-        QMakeVar add QMAKE_OBJECTIVE_CFLAGS_X86 "-arch i386 -Xarch_i386 -mmacosx-version-min=10.4"
-    fi
-    if echo "$CFG_MAC_ARCHS" | grep '\<ppc\>' > /dev/null 2>&1; then
-        QMakeVar add QMAKE_CFLAGS "-Xarch_ppc -mmacosx-version-min=10.4"
-        QMakeVar add QMAKE_CXXFLAGS "-Xarch_ppc -mmacosx-version-min=10.4"
-        QMakeVar add QMAKE_LFLAGS "-Xarch_ppc -mmacosx-version-min=10.4"
-        QMakeVar add QMAKE_OBJECTIVE_CFLAGS_PPC "-arch ppc -Xarch_ppc -mmacosx-version-min=10.4"
-    fi
-    if echo "$CFG_MAC_ARCHS" | grep '\<x86_64\>' > /dev/null 2>&1; then
-        QMakeVar add QMAKE_CFLAGS "-Xarch_x86_64 -mmacosx-version-min=10.5"
-        QMakeVar add QMAKE_CXXFLAGS "-Xarch_x86_64 -mmacosx-version-min=10.5"
-        QMakeVar add QMAKE_LFLAGS "-Xarch_x86_64 -mmacosx-version-min=10.5"
-        QMakeVar add QMAKE_OBJECTIVE_CFLAGS_X86_64 "-arch x86_64 -Xarch_x86_64 -mmacosx-version-min=10.5"
-    fi
-    if echo "$CFG_MAC_ARCHS" | grep '\<ppc64\>' > /dev/null 2>&1; then
-        QMakeVar add QMAKE_CFLAGS "-Xarch_ppc64 -mmacosx-version-min=10.5"
-        QMakeVar add QMAKE_CXXFLAGS "-Xarch_ppc64 -mmacosx-version-min=10.5"
-        QMakeVar add QMAKE_LFLAGS "-Xarch_ppc64 -mmacosx-version-min=10.5"
-        QMakeVar add QMAKE_OBJECTIVE_CFLAGS_PPC_64 "-arch ppc64 -Xarch_ppc64 -mmacosx-version-min=10.5"
-    fi
+# env. variable.
+if [ "$PLATFORM_MAC" = "yes" ] && [ "$CFG_MAC_XARCH" != "no" ]; then
+    case "$PLATFORM" in
+    *macx-clang-libc++)
+        # Avoid overriding the default settings when building clang/libc++.
+        ;;
+    *)
+        if echo "$CFG_MAC_ARCHS" | grep '\<x86\>' > /dev/null 2>&1; then
+            QMakeVar add QMAKE_CFLAGS "-Xarch_i386 -mmacosx-version-min=10.4"
+            QMakeVar add QMAKE_CXXFLAGS "-Xarch_i386 -mmacosx-version-min=10.4"
+            QMakeVar add QMAKE_LFLAGS "-Xarch_i386 -mmacosx-version-min=10.4"
+            QMakeVar add QMAKE_OBJECTIVE_CFLAGS_X86 "-arch i386 -Xarch_i386 -mmacosx-version-min=10.4"
+        fi
+        if echo "$CFG_MAC_ARCHS" | grep '\<ppc\>' > /dev/null 2>&1; then
+            QMakeVar add QMAKE_CFLAGS "-Xarch_ppc -mmacosx-version-min=10.4"
+            QMakeVar add QMAKE_CXXFLAGS "-Xarch_ppc -mmacosx-version-min=10.4"
+            QMakeVar add QMAKE_LFLAGS "-Xarch_ppc -mmacosx-version-min=10.4"
+            QMakeVar add QMAKE_OBJECTIVE_CFLAGS_PPC "-arch ppc -Xarch_ppc -mmacosx-version-min=10.4"
+        fi
+        if echo "$CFG_MAC_ARCHS" | grep '\<x86_64\>' > /dev/null 2>&1; then
+            QMakeVar add QMAKE_CFLAGS "-Xarch_x86_64 -mmacosx-version-min=10.5"
+            QMakeVar add QMAKE_CXXFLAGS "-Xarch_x86_64 -mmacosx-version-min=10.5"
+            QMakeVar add QMAKE_LFLAGS "-Xarch_x86_64 -mmacosx-version-min=10.5"
+            QMakeVar add QMAKE_OBJECTIVE_CFLAGS_X86_64 "-arch x86_64 -Xarch_x86_64 -mmacosx-version-min=10.5"
+        fi
+        if echo "$CFG_MAC_ARCHS" | grep '\<ppc64\>' > /dev/null 2>&1; then
+            QMakeVar add QMAKE_CFLAGS "-Xarch_ppc64 -mmacosx-version-min=10.5"
+            QMakeVar add QMAKE_CXXFLAGS "-Xarch_ppc64 -mmacosx-version-min=10.5"
+            QMakeVar add QMAKE_LFLAGS "-Xarch_ppc64 -mmacosx-version-min=10.5"
+            QMakeVar add QMAKE_OBJECTIVE_CFLAGS_PPC_64 "-arch ppc64 -Xarch_ppc64 -mmacosx-version-min=10.5"
+        fi
+        ;;
+    esac
 fi
 
 #-------------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
@@ -53,6 +53,10 @@
 #include <qt_windows.h>
 #include <wininet.h>
 #include <private/qsystemlibrary_p.h>
+
+#ifdef Q_OS_WINCE
+#include "qnetworkfunctions_wince.h"
+#endif
 
 /*
  * Information on the WinHTTP DLL:

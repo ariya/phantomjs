@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -646,14 +646,7 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
             anim->paint(painter, option);
         } else {
             QPainter *p = painter;
-            QWidget *parentWidget = 0;
-            if (widget) {
-                parentWidget = widget->parentWidget();
-                if (parentWidget)
-                    parentWidget = parentWidget->parentWidget();
-            }
-            if (widget && widget->inherits("QLineEdit")
-                && parentWidget && parentWidget->inherits("QAbstractItemView")) {
+            if (QWindowsXPStylePrivate::isItemViewDelegateLineEdit(widget)) {
                 // we try to check if this lineedit is a delegate on a QAbstractItemView-derived class.
                 QPen oldPen = p->pen();
                 // Inner white border
@@ -747,7 +740,6 @@ void QWindowsVistaStyle::drawPrimitive(PrimitiveElement element, const QStyleOpt
                 if (cg == QPalette::Normal && !(vopt->state & QStyle::State_Active))
                     cg = QPalette::Inactive;
 
-                QRect textRect = subElementRect(QStyle::SE_ItemViewItemText, option, widget);
                 QRect itemRect = subElementRect(QStyle::SE_ItemViewItemFocusRect, option, widget).adjusted(-1, 0, 1, 0);
                 itemRect.setTop(vopt->rect.top());
                 itemRect.setBottom(vopt->rect.bottom());
@@ -1079,9 +1071,6 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
     case CE_ProgressBarContents:
         if (const QStyleOptionProgressBar *bar
                 = qstyleoption_cast<const QStyleOptionProgressBar *>(option)) {
-            int stateId = MBI_NORMAL;
-            if (disabled)
-                stateId = MBI_DISABLED;
             bool isIndeterminate = (bar->minimum == 0 && bar->maximum == 0);
             bool vertical = false;
             bool inverted = false;
@@ -1250,21 +1239,20 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
     case CE_MenuItem:
         if (const QStyleOptionMenuItem *menuitem = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
             // windows always has a check column, regardless whether we have an icon or not
-            int checkcol = 28;
+            int checkcol = 25;
             {
                 SIZE    size;
                 MARGINS margins;
                 XPThemeData theme(widget, 0, QLatin1String("MENU"), MENU_POPUPCHECKBACKGROUND, MBI_HOT);
                 pGetThemePartSize(theme.handle(), NULL, MENU_POPUPCHECK, 0, NULL,TS_TRUE, &size);
                 pGetThemeMargins(theme.handle(), NULL, MENU_POPUPCHECK, 0, TMT_CONTENTMARGINS, NULL, &margins);
-                checkcol = qMax(menuitem->maxIconWidth, int(6 + size.cx + margins.cxLeftWidth + margins.cxRightWidth));
+                checkcol = qMax(menuitem->maxIconWidth, int(3 + size.cx + margins.cxLeftWidth + margins.cxRightWidth));
             }
-            QColor darkLine = option->palette.background().color().darker(108);
-            QColor lightLine = option->palette.background().color().lighter(107);
             QRect rect = option->rect;
-            QStyleOptionMenuItem mbiCopy = *menuitem;
 
             //draw vertical menu line
+            if (option->direction == Qt::LeftToRight)
+                checkcol += rect.x();
             QPoint p1 = QStyle::visualPos(option->direction, menuitem->rect, QPoint(checkcol, rect.top()));
             QPoint p2 = QStyle::visualPos(option->direction, menuitem->rect, QPoint(checkcol, rect.bottom()));
             QRect gutterRect(p1.x(), p1.y(), 3, p2.y() - p1.y() + 1);
@@ -1349,11 +1337,9 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
 
             painter->setPen(menuitem->palette.buttonText().color());
 
-            QColor discol;
-            if (dis) {
-                discol = menuitem->palette.text().color();
-                painter->setPen(discol);
-            }
+            const QColor textColor = menuitem->palette.text().color();
+            if (dis)
+                painter->setPen(textColor);
 
             int xm = windowsItemFrame + checkcol + windowsItemHMargin;
             int xpos = menuitem->rect.x() + xm;
@@ -1377,7 +1363,7 @@ void QWindowsVistaStyle::drawControl(ControlElement element, const QStyleOption 
                 if (menuitem->menuItemType == QStyleOptionMenuItem::DefaultItem)
                     font.setBold(true);
                 painter->setFont(font);
-                painter->setPen(discol);
+                painter->setPen(textColor);
                 painter->drawText(vTextRect, text_flags, s.left(t));
                 painter->restore();
             }
@@ -1842,30 +1828,31 @@ void QWindowsVistaStyle::drawComplexControl(ComplexControl control, const QStyle
                     pGetThemePartSize(theme.handle(), 0, theme.partId, theme.stateId, 0, TS_TRUE, &size);
                     int gw = size.cx, gh = size.cy;
 
+                    if (QSysInfo::WindowsVersion < QSysInfo::WV_WINDOWS8) {
+                        QRect gripperBounds;
+                        if (flags & State_Horizontal && ((swidth - contentsMargin.cxLeftWidth - contentsMargin.cxRightWidth) > gw)) {
+                            gripperBounds.setLeft(theme.rect.left() + swidth/2 - gw/2);
+                            gripperBounds.setTop(theme.rect.top() + sheight/2 - gh/2);
+                            gripperBounds.setWidth(gw);
+                            gripperBounds.setHeight(gh);
+                        } else if ((sheight - contentsMargin.cyTopHeight - contentsMargin.cyBottomHeight) > gh) {
+                            gripperBounds.setLeft(theme.rect.left() + swidth/2 - gw/2);
+                            gripperBounds.setTop(theme.rect.top() + sheight/2 - gh/2);
+                            gripperBounds.setWidth(gw);
+                            gripperBounds.setHeight(gh);
+                        }
 
-                    QRect gripperBounds;
-                    if (flags & State_Horizontal && ((swidth - contentsMargin.cxLeftWidth - contentsMargin.cxRightWidth) > gw)) {
-                        gripperBounds.setLeft(theme.rect.left() + swidth/2 - gw/2);
-                        gripperBounds.setTop(theme.rect.top() + sheight/2 - gh/2);
-                        gripperBounds.setWidth(gw);
-                        gripperBounds.setHeight(gh);
-                    } else if ((sheight - contentsMargin.cyTopHeight - contentsMargin.cyBottomHeight) > gh) {
-                        gripperBounds.setLeft(theme.rect.left() + swidth/2 - gw/2);
-                        gripperBounds.setTop(theme.rect.top() + sheight/2 - gh/2);
-                        gripperBounds.setWidth(gw);
-                        gripperBounds.setHeight(gh);
-                    }
-
-                    // Draw gripper if there is enough space
-                    if (!gripperBounds.isEmpty() && flags & State_Enabled) {
-                        painter->save();
-                        XPThemeData grippBackground = theme;
-                        grippBackground.partId = flags & State_Horizontal ? SBP_LOWERTRACKHORZ : SBP_LOWERTRACKVERT;
-                        theme.rect = gripperBounds;
-                        painter->setClipRegion(d->region(theme));// Only change inside the region of the gripper
-                        d->drawBackground(grippBackground);// The gutter is the grippers background
-                        d->drawBackground(theme);          // Transparent gripper ontop of background
-                        painter->restore();
+                        // Draw gripper if there is enough space
+                        if (!gripperBounds.isEmpty() && flags & State_Enabled) {
+                            painter->save();
+                            XPThemeData grippBackground = theme;
+                            grippBackground.partId = flags & State_Horizontal ? SBP_LOWERTRACKHORZ : SBP_LOWERTRACKVERT;
+                            theme.rect = gripperBounds;
+                            painter->setClipRegion(d->region(theme));// Only change inside the region of the gripper
+                            d->drawBackground(grippBackground);// The gutter is the grippers background
+                            d->drawBackground(theme);          // Transparent gripper ontop of background
+                            painter->restore();
+                        }
                     }
                 }
             }

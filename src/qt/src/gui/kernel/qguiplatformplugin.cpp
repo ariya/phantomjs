@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -204,10 +204,12 @@ QString QGuiPlatformPlugin::systemIconThemeName()
     QString result;
 #ifdef Q_WS_X11
     if (X11->desktopEnvironment == DE_GNOME) {
-        result = QString::fromLatin1("gnome");
 #ifndef QT_NO_STYLE_GTK
-        result = QGtkStylePrivate::getGConfString(QLatin1String("/desktop/gnome/interface/icon_theme"), result);
+        result = QGtkStylePrivate::getIconThemeName();
 #endif
+        if (result.isEmpty()) {
+            result = QString::fromLatin1("gnome");
+        }
     } else if (X11->desktopEnvironment == DE_KDE) {
         result =  X11->desktopVersion >= 4 ? QString::fromLatin1("oxygen") : QString::fromLatin1("crystalsvg");
         QSettings settings(QKde::kdeHome() + QLatin1String("/share/config/kdeglobals"), QSettings::IniFormat);

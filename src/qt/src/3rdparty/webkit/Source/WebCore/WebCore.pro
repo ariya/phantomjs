@@ -2941,46 +2941,7 @@ contains(DEFINES, ENABLE_VIDEO=1) {
             bindings/js/JSAudioConstructor.cpp
     }
 
-    contains(DEFINES, WTF_USE_QTKIT=1) {
-        INCLUDEPATH += \
-            $$SOURCE_DIR/../WebKitLibraries/
-
-        HEADERS += \
-            platform/graphics/mac/MediaPlayerPrivateQTKit.h \
-            platform/mac/WebCoreObjCExtras.h \
-            platform/qt/WebCoreSystemInterface.h \
-            platform/mac/BlockExceptions.h \
-            platform/mac/WebCoreObjCExtras.h \
-            platform/mac/WebVideoFullscreenController.h \
-            platform/mac/WebVideoFullscreenHUDWindowController.h \
-            platform/mac/WebWindowAnimation.h
-
-        SOURCES += \
-            platform/graphics/cg/IntRectCG.cpp \
-            platform/graphics/cg/FloatSizeCG.cpp \
-            platform/cf/SharedBufferCF.cpp \
-            platform/cf/KURLCFNet.cpp
-
-         OBJECTIVE_SOURCES += \
-            platform/qt/WebCoreSystemInterface.mm \
-            platform/mac/BlockExceptions.mm \
-            platform/mac/WebCoreObjCExtras.mm \
-            platform/graphics/mac/MediaPlayerPrivateQTKit.mm \
-            platform/mac/SharedBufferMac.mm \
-            platform/mac/KURLMac.mm \
-            platform/text/mac/StringMac.mm \
-            platform/graphics/mac/FloatSizeMac.mm \
-            platform/graphics/mac/IntRectMac.mm \
-            platform/mac/WebVideoFullscreenController.mm \
-            platform/mac/WebVideoFullscreenHUDWindowController.mm \
-            platform/mac/WebWindowAnimation.mm
-
-        DEFINES+=NSGEOMETRY_TYPES_SAME_AS_CGGEOMETRY_TYPES
-        contains(CONFIG, "x86") {
-            DEFINES+=NS_BUILD_32_LIKE_64
-        }
-
-    } else: contains(DEFINES, WTF_USE_GSTREAMER=1) {
+    contains(DEFINES, WTF_USE_GSTREAMER=1) {
         HEADERS += \
             platform/graphics/gstreamer/GOwnPtrGStreamer.h \
             platform/graphics/gstreamer/GRefPtrGStreamer.h \

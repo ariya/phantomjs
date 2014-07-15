@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the qmake spec of the Qt Toolkit.
@@ -74,8 +74,15 @@
 #include <arpa/inet.h>
 
 #define QT_USE_XOPEN_LFS_EXTENSIONS
+#if !defined(__EXT_QNX__READDIR64_R)
 #define QT_NO_READDIR64
+#endif
 #include "../posix/qplatformdefs.h"
+#if defined(__EXT_QNX__READDIR64_R)
+#define QT_EXT_QNX_READDIR_R    ::_readdir64_r
+#elif defined(__EXT_QNX__READDIR_R)
+#define QT_EXT_QNX_READDIR_R    ::_readdir_r
+#endif
 
 #include <stdlib.h>
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -92,12 +92,7 @@ public:
     // reimplementations QPaintEngine
     bool begin(QPaintDevice *pdev);
     bool end();
-
-    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, const QByteArray * data=0);
-    void drawPixmap(const QRectF & rectangle, const QPixmap & pixmap, const QRectF & sr) {
-        drawPixmap(rectangle, pixmap, sr, 0);
-    }
-
+    void drawPixmap (const QRectF & rectangle, const QPixmap & pixmap, const QRectF & sr);
     void drawImage(const QRectF &r, const QImage &pm, const QRectF &sr,
                    Qt::ImageConversionFlags flags = Qt::AutoColor);
     void drawTiledPixmap (const QRectF & rectangle, const QPixmap & pixmap, const QPointF & point);
@@ -113,23 +108,12 @@ public:
 
     void setBrush();
 
-    virtual void addHyperlink(const QRectF &r, const QUrl &url);
-    virtual void addAnchor(const QRectF &r, const QString &name);
-    virtual void addLink(const QRectF &r, const QString &anchor);
-    virtual void addTextField(const QRectF &r, const QString &text, const QString &name, bool multiLine, bool password, bool readOnly, int maxLength);
-    virtual void addCheckBox(const QRectF &r, bool checked, const QString &name, bool readOnly);
-
     // ### unused, should have something for this in QPrintEngine
     void setAuthor(const QString &author);
     QString author() const;
 
     void setDevice(QIODevice* dev);
 
-    void beginSectionOutline(const QString &text, const QString &anchor);
-    void endSectionOutline();
-
-    void setProperty(PrintEnginePropertyKey key, const QVariant &value);
-    QVariant property(PrintEnginePropertyKey key) const;
 private:
     Q_DISABLE_COPY(QPdfEngine)
 
@@ -140,35 +124,6 @@ class QPdfEnginePrivate : public QPdfBaseEnginePrivate
 {
     Q_DECLARE_PUBLIC(QPdfEngine)
 public:
-  
-    class OutlineItem {
-    public:
-        OutlineItem *parent;
-        OutlineItem *next;
-        OutlineItem *prev;
-        OutlineItem *firstChild;
-        OutlineItem *lastChild;
-        uint obj;
-        QString text;
-        QString anchor;
-        
-        OutlineItem(const QString &t, const QString &a): 
-            parent(NULL), next(NULL), prev(NULL), firstChild(NULL), lastChild(NULL),
-            obj(0), text(t), anchor(a) {}
-        ~OutlineItem() {
-            OutlineItem *i = firstChild;
-            while(i != NULL) { 
-                OutlineItem *n = i->next;
-                delete i;
-                i=n;
-            }
-        }
-    };
-    
-    OutlineItem *outlineRoot;
-    OutlineItem *outlineCurrent;
-    void writeOutlineChildren(OutlineItem *node);
-    
     QPdfEnginePrivate(QPrinter::PrinterMode m);
     ~QPdfEnginePrivate();
 
@@ -186,9 +141,7 @@ public:
     void writeHeader();
     void writeTail();
 
-    void convertImage(const QImage & image, QByteArray & imageData);
-
-    int addImage(const QImage &image, bool *bitmap, qint64 serial_no, const QImage * noneScaled=0, const QByteArray * data=0, bool * useScaled=0);
+    int addImage(const QImage &image, bool *bitmap, qint64 serial_no);
     int addConstantAlphaObject(int brushAlpha, int penAlpha = 255);
     int addBrushPattern(const QTransform &matrix, bool *specifyColor, int *gStateObject);
 
@@ -208,24 +161,16 @@ private:
     void writeFonts();
     void embedFont(QFontSubset *font);
 
-    int formFieldList;
-    QVector<uint> formFields;
     QVector<int> xrefPositions;
     QDataStream* stream;
     int streampos;
-    bool doCompress;
-    int imageDPI;
-    int imageQuality;
 
     int writeImage(const QByteArray &data, int width, int height, int depth,
                    int maskObject, int softMaskObject, bool dct = false);
     void writePage();
 
     int addXrefEntry(int object, bool printostr = true);
-
     void printString(const QString &string);
-    void printAnchor(const QString &name);
-    
     void xprintf(const char* fmt, ...);
     inline void write(const QByteArray &data) {
         stream->writeRawData(data.constData(), data.size());
@@ -238,8 +183,6 @@ private:
 
     // various PDF objects
     int pageRoot, catalog, info, graphicsState, patternColorSpace;
-    QVector<uint> dests;
-    QHash<QString, uint> anchors;
     QVector<uint> pages;
     QHash<qint64, uint> imageCache;
     QHash<QPair<uint, uint>, uint > alphaCache;

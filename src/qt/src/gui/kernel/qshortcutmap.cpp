@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -330,6 +330,9 @@ QKeySequence::SequenceMatch QShortcutMap::state()
 bool QShortcutMap::tryShortcutEvent(QObject *o, QKeyEvent *e)
 {
     Q_D(QShortcutMap);
+
+    if (e->key() == Qt::Key_unknown)
+        return false;
 
     bool wasAccepted = e->isAccepted();
     bool wasSpontaneous = e->spont;

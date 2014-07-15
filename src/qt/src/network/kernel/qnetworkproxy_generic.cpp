@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
@@ -53,11 +53,26 @@
 
 QT_BEGIN_NAMESPACE
 
-QList<QNetworkProxy> QNetworkProxyFactory::systemProxyForQuery(const QNetworkProxyQuery &)
+QList<QNetworkProxy> QNetworkProxyFactory::systemProxyForQuery(const QNetworkProxyQuery &query)
 {
     QList<QNetworkProxy> proxyList;
 
-    QByteArray proxy_env = qgetenv("http_proxy");
+    const QString queryProtocol = query.protocolTag().toLower();
+    QByteArray proxy_env;
+
+    if (queryProtocol == QLatin1String("http"))
+        proxy_env = qgetenv("http_proxy");
+    else if (queryProtocol == QLatin1String("https"))
+        proxy_env = qgetenv("https_proxy");
+    else if (queryProtocol == QLatin1String("ftp"))
+        proxy_env = qgetenv("ftp_proxy");
+    else
+        proxy_env = qgetenv("all_proxy");
+
+    // Fallback to http_proxy is no protocol specific proxy was found
+    if (proxy_env.isEmpty())
+        proxy_env = qgetenv("http_proxy");
+
     if (!proxy_env.isEmpty()) {
         QUrl url = QUrl(QString::fromLocal8Bit(proxy_env));
         if (url.scheme() == QLatin1String("socks5")) {

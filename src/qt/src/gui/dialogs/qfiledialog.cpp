@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -58,6 +58,7 @@
 #include <qdebug.h>
 #include <qapplication.h>
 #include <qstylepainter.h>
+#include <itemviews/qfileiconprovider_p.h>
 #if !defined(Q_WS_WINCE) && !defined(Q_OS_SYMBIAN)
 #include "ui_qfiledialog.h"
 #else
@@ -240,6 +241,10 @@ Q_GUI_EXPORT _qt_filedialog_save_filename_hook qt_filedialog_save_filename_hook 
     static functions will always be an application modal dialog. If
     you want to use sheets, use QFileDialog::open() instead.
 
+    \value DontUseCustomDirectoryIcons Always use the default directory icon.
+    Some platforms allow the user to set a different icon. Custom icon lookup
+    cause a big performance impact over network or removable drives. Setting this
+    will affect the behavior of the icon provider. This enum value was added in Qt 4.8.6.
 */
 
 /*!
@@ -685,6 +690,9 @@ void QFileDialog::setOptions(Options options)
 
     if (changed & ShowDirsOnly)
         setFilter((options & ShowDirsOnly) ? filter() & ~QDir::Files : filter() | QDir::Files);
+
+    if (changed & DontUseCustomDirectoryIcons)
+        iconProvider()->d_ptr->setUseCustomDirectoryIcons(!(options & DontUseCustomDirectoryIcons));
 }
 
 QFileDialog::Options QFileDialog::options() const
@@ -895,7 +903,7 @@ Q_AUTOTEST_EXPORT QString qt_tildeExpansion(const QString &path, bool *expanded 
         char buf[200];
         const int bufSize = sizeof(buf);
         int err = 0;
-#if defined(Q_OS_SOLARIS) && (_POSIX_C_SOURCE - 0 < 199506L)
+#if defined(Q_OS_SOLARIS) && defined(_POSIX_C_SOURCE) && (_POSIX_C_SOURCE - 0 < 199506L)
         tmpPw = getpwnam_r(userName.toLocal8Bit().constData(), &pw, buf, bufSize);
 #else
         err = getpwnam_r(userName.toLocal8Bit().constData(), &pw, buf, bufSize, &tmpPw);

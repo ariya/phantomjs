@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -1284,8 +1284,11 @@ Qt::DropAction QDragManager::drag(QDrag *o)
         return Qt::IgnoreAction;
     /* At the moment it seems clear that Mac OS X does not want to drag with a non-left button
      so we just bail early to prevent it */
-    if(!(GetCurrentEventButtonState() & kEventMouseButtonPrimary))
+    if (!(GetCurrentEventButtonState() & kEventMouseButtonPrimary)) {
+        o->setMimeData(0);
+        o->deleteLater();
         return Qt::IgnoreAction;
+    }
 
     if(object) {
         dragPrivate()->source->removeEventFilter(this);
@@ -1342,7 +1345,6 @@ Qt::DropAction QDragManager::drag(QDrag *o)
 
     // Convert the image to NSImage:
     NSImage *image = (NSImage *)qt_mac_create_nsimage(pix);
-    [image retain];
 
     DnDParams *dndParams = macCurrentDnDParameters();
     QT_MANGLE_NAMESPACE(QCocoaView) *theView = static_cast<QT_MANGLE_NAMESPACE(QCocoaView) *>(dndParams->view);

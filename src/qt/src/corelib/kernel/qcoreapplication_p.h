@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -87,6 +87,8 @@ public:
     bool notify_helper(QObject *, QEvent *);
 
     virtual QString appName() const;
+    mutable QString applicationName;
+
     virtual void createEventDispatcher();
     static void removePostedEvent(QEvent *);
 #ifdef Q_OS_WIN

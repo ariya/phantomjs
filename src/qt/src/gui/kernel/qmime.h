@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -119,7 +119,7 @@ class Q_GUI_EXPORT QMacMime { //Obsolete
     char type;
 public:
     enum QMacMimeType { MIME_DND=0x01, MIME_CLIP=0x02, MIME_QT_CONVERTOR=0x04, MIME_ALL=MIME_DND|MIME_CLIP };
-    explicit QMacMime(char) { }
+    explicit QMacMime(char) { Q_UNUSED(type); }
     virtual ~QMacMime() { }
 
     static void initialize() { }

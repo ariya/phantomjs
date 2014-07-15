@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -47,7 +47,6 @@
 #include "qpixmapcache.h"
 #include "qstyleoption.h"
 #include "private/qstyle_p.h"
-#include "private/qapplication_p.h"
 #ifndef QT_NO_DEBUG
 #include "qdebug.h"
 #endif
@@ -289,7 +288,7 @@ static int unpackControlTypes(QSizePolicy::ControlTypes controls, QSizePolicy::C
     \section1 Styles in Item Views
 
     The painting of items in views is performed by a delegate. Qt's
-    default delegate, QStyledItemDelegate, is also used for for calculating bounding
+    default delegate, QStyledItemDelegate, is also used for calculating bounding
     rectangles of items, and their sub-elements for the various kind
     of item \l{Qt::ItemDataRole}{data roles}
     QStyledItemDelegate supports. See the QStyledItemDelegate class
@@ -1682,8 +1681,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SH_Menu_Scrollable Whether popup menus must support scrolling.
 
-    \value SH_Menu_SloppySubMenus Whether popupmenu's must support
-        sloppy submenu; as implemented on Mac OS.
+    \value SH_Menu_SloppySubMenus Whether popup menus must support
+        the user moving the mouse cursor to a submenu while crossing
+        other items of the menu. This is supported on most modern
+        desktop platforms.
 
     \value SH_ScrollView_FrameOnlyAroundContents  Whether scrollviews
         draw their frame only around contents (like Motif), or around
@@ -2230,7 +2231,7 @@ QPalette QStyle::standardPalette() const
 {
 #ifdef Q_WS_X11
     QColor background;
-    if (!qt_is_gui_used || QX11Info::appDepth() > 8)
+    if (QX11Info::appDepth() > 8)
         background = QColor(0xd4, 0xd0, 0xc8); // win 2000 grey
     else
         background = QColor(192, 192, 192);

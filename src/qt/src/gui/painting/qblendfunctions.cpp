@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -179,7 +179,7 @@ struct Blend_ARGB32_on_RGB16_SourceAndConstAlpha {
 };
 
 void qt_scale_image_rgb16_on_rgb16(uchar *destPixels, int dbpl,
-                                   const uchar *srcPixels, int sbpl,
+                                   const uchar *srcPixels, int sbpl, int sh,
                                    const QRectF &targetRect,
                                    const QRectF &sourceRect,
                                    const QRect &clip,
@@ -194,17 +194,17 @@ void qt_scale_image_rgb16_on_rgb16(uchar *destPixels, int dbpl,
 #endif
     if (const_alpha == 256) {
         Blend_RGB16_on_RGB16_NoAlpha noAlpha;
-        qt_scale_image_16bit<quint16>(destPixels, dbpl, srcPixels, sbpl,
+        qt_scale_image_16bit<quint16>(destPixels, dbpl, srcPixels, sbpl, sh,
                                       targetRect, sourceRect, clip, noAlpha);
     } else {
         Blend_RGB16_on_RGB16_ConstAlpha constAlpha(const_alpha);
-        qt_scale_image_16bit<quint16>(destPixels, dbpl, srcPixels, sbpl,
+        qt_scale_image_16bit<quint16>(destPixels, dbpl, srcPixels, sbpl, sh,
                                      targetRect, sourceRect, clip, constAlpha);
     }
 }
 
 void qt_scale_image_argb24_on_rgb16(uchar *destPixels, int dbpl,
-                                   const uchar *srcPixels, int sbpl,
+                                   const uchar *srcPixels, int sbpl, int sh,
                                    const QRectF &targetRect,
                                    const QRectF &sourceRect,
                                    const QRect &clip,
@@ -219,18 +219,18 @@ void qt_scale_image_argb24_on_rgb16(uchar *destPixels, int dbpl,
 #endif
     if (const_alpha == 256) {
         Blend_ARGB24_on_RGB16_SourceAlpha noAlpha;
-        qt_scale_image_16bit<qargb8565>(destPixels, dbpl, srcPixels, sbpl,
+        qt_scale_image_16bit<qargb8565>(destPixels, dbpl, srcPixels, sbpl, sh,
                                         targetRect, sourceRect, clip, noAlpha);
     } else {
         Blend_ARGB24_on_RGB16_SourceAndConstAlpha constAlpha(const_alpha);
-        qt_scale_image_16bit<qargb8565>(destPixels, dbpl, srcPixels, sbpl,
+        qt_scale_image_16bit<qargb8565>(destPixels, dbpl, srcPixels, sbpl, sh,
                                         targetRect, sourceRect, clip, constAlpha);
     }
 }
 
 
 void qt_scale_image_argb32_on_rgb16(uchar *destPixels, int dbpl,
-                                    const uchar *srcPixels, int sbpl,
+                                    const uchar *srcPixels, int sbpl, int sh,
                                     const QRectF &targetRect,
                                     const QRectF &sourceRect,
                                     const QRect &clip,
@@ -245,11 +245,11 @@ void qt_scale_image_argb32_on_rgb16(uchar *destPixels, int dbpl,
 #endif
     if (const_alpha == 256) {
         Blend_ARGB32_on_RGB16_SourceAlpha noAlpha;
-        qt_scale_image_16bit<quint32>(destPixels, dbpl, srcPixels, sbpl,
+        qt_scale_image_16bit<quint32>(destPixels, dbpl, srcPixels, sbpl, sh,
                                       targetRect, sourceRect, clip, noAlpha);
     } else {
         Blend_ARGB32_on_RGB16_SourceAndConstAlpha constAlpha(const_alpha);
-        qt_scale_image_16bit<quint32>(destPixels, dbpl, srcPixels, sbpl,
+        qt_scale_image_16bit<quint32>(destPixels, dbpl, srcPixels, sbpl, sh,
                                      targetRect, sourceRect, clip, constAlpha);
     }
 }
@@ -611,7 +611,7 @@ struct Blend_ARGB32_on_ARGB32_SourceAndConstAlpha {
 };
 
 void qt_scale_image_rgb32_on_rgb32(uchar *destPixels, int dbpl,
-                                   const uchar *srcPixels, int sbpl,
+                                   const uchar *srcPixels, int sbpl, int sh,
                                    const QRectF &targetRect,
                                    const QRectF &sourceRect,
                                    const QRect &clip,
@@ -626,17 +626,17 @@ void qt_scale_image_rgb32_on_rgb32(uchar *destPixels, int dbpl,
 #endif
     if (const_alpha == 256) {
         Blend_RGB32_on_RGB32_NoAlpha noAlpha;
-        qt_scale_image_32bit(destPixels, dbpl, srcPixels, sbpl,
+        qt_scale_image_32bit(destPixels, dbpl, srcPixels, sbpl, sh,
                              targetRect, sourceRect, clip, noAlpha);
     } else {
         Blend_RGB32_on_RGB32_ConstAlpha constAlpha(const_alpha);
-        qt_scale_image_32bit(destPixels, dbpl, srcPixels, sbpl,
+        qt_scale_image_32bit(destPixels, dbpl, srcPixels, sbpl, sh,
                              targetRect, sourceRect, clip, constAlpha);
     }
 }
 
 void qt_scale_image_argb32_on_argb32(uchar *destPixels, int dbpl,
-                                     const uchar *srcPixels, int sbpl,
+                                     const uchar *srcPixels, int sbpl, int sh,
                                      const QRectF &targetRect,
                                      const QRectF &sourceRect,
                                      const QRect &clip,
@@ -651,11 +651,11 @@ void qt_scale_image_argb32_on_argb32(uchar *destPixels, int dbpl,
 #endif
     if (const_alpha == 256) {
         Blend_ARGB32_on_ARGB32_SourceAlpha sourceAlpha;
-        qt_scale_image_32bit(destPixels, dbpl, srcPixels, sbpl,
+        qt_scale_image_32bit(destPixels, dbpl, srcPixels, sbpl, sh,
                              targetRect, sourceRect, clip, sourceAlpha);
     } else {
         Blend_ARGB32_on_ARGB32_SourceAndConstAlpha constAlpha(const_alpha);
-        qt_scale_image_32bit(destPixels, dbpl, srcPixels, sbpl,
+        qt_scale_image_32bit(destPixels, dbpl, srcPixels, sbpl, sh,
                              targetRect, sourceRect, clip, constAlpha);
     }
 }

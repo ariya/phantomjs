@@ -23,6 +23,8 @@ set QT_CFG=%QT_CFG% -qt-libpng
 set QT_CFG=%QT_CFG% -qt-libjpeg
 set QT_CFG=%QT_CFG% -no-libmng
 set QT_CFG=%QT_CFG% -no-libtiff
+set QT_CFG=%QT_CFG% -no-native-gestures
+set QT_CFG=%QT_CFG% -no-accessibility
 
 set QT_CFG=%QT_CFG% -D QT_NO_GRAPHICSVIEW
 set QT_CFG=%QT_CFG% -D QT_NO_GRAPHICSEFFECT

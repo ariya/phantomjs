@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
@@ -488,7 +488,8 @@ qint64 QHttpMultiPartIODevice::readData(char *data, qint64 maxSize)
 
     // skip the parts we have already read
     while (index < multiPart->parts.count() &&
-           readPointer >= partOffsets.at(index) + multiPart->parts.at(index).d->size())
+           readPointer >= partOffsets.at(index) + multiPart->parts.at(index).d->size()
+           + multiPart->boundary.count() + 6) // 6 == 2 boundary dashes, \r\n after boundary, \r\n after multipart
         index++;
 
     // read the data

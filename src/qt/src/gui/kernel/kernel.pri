@@ -268,25 +268,6 @@ qpa {
             HEADERS += \
                 kernel/qeventdispatcher_blackberry_qpa_p.h
         }
-
-	HEADERS += kernel/qminimalintegration.h
-	HEADERS += kernel/qminimalwindowsurface.h
-	SOURCES += kernel/qminimalintegration.cpp
-	SOURCES += kernel/qminimalwindowsurface.cpp
-}
-
-unix:qpa {
-    CONFIG += opentype
-
-    HEADERS += kernel/qbasicunixfontdatabase.h
-    HEADERS += kernel/qfontconfigdatabase.h
-    SOURCES += kernel/qbasicunixfontdatabase.cpp
-    SOURCES += kernel/qfontconfigdatabase.cpp
-
-    # pull in the proper freetype2 include directory
-    include($$QT_SOURCE_TREE/config.tests/unix/freetype/freetype.pri)
-
-    LIBS_PRIVATE += -lfreetype -lfontconfig
 }
 
 !embedded:!qpa:!x11:mac {

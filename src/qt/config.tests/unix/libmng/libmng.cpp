@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the config.tests of the Qt Toolkit.
@@ -46,8 +46,10 @@ int main(int, char **)
     mng_handle hMNG;
     mng_cleanup(&hMNG);
 
+#if defined(MNG_VERSION_MAJOR)
 #if MNG_VERSION_MAJOR < 1 || (MNG_VERSION_MAJOR == 1 && MNG_VERSION_MINOR == 0 && MNG_VERSION_RELEASE < 9)
 #error System libmng version is less than 1.0.9; using built-in version instead.
+#endif
 #endif
 
     return 0;

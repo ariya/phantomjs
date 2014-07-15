@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -427,6 +427,11 @@ QSize QToolButton::sizeHint() const
         QSize icon = opt.iconSize;
         w = icon.width();
         h = icon.height();
+#ifdef Q_WS_MAC
+        extern CGFloat qt_mac_get_scalefactor();
+        w /= qt_mac_get_scalefactor();
+        h /= qt_mac_get_scalefactor();
+#endif
     }
 
     if (opt.toolButtonStyle != Qt::ToolButtonIconOnly) {

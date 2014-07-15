@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -1996,7 +1996,9 @@ void QGtkStyle::drawComplexControl(ComplexControl control, const QStyleOptionCom
             if ((option->subControls & SC_SliderGroove) && groove.isValid()) {
 
                 GtkRange *range = (GtkRange*)scaleWidget;
-                GtkAdjustment *adjustment = d->gtk_range_get_adjustment(range);
+                GtkAdjustment *adjustment = 0;
+                if (d->gtk_adjustment_configure)
+                    adjustment = d->gtk_range_get_adjustment(range);
                 if (adjustment) {
                     d->gtk_adjustment_configure(adjustment,
                                                 slider->sliderPosition,

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -2243,11 +2243,11 @@ namespace {
 /*!
     \reimp
 */
-void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &_img, const QRectF &_sr,
+void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRectF &sr,
                                    Qt::ImageConversionFlags)
 {
 #ifdef QT_DEBUG_DRAW
-    qDebug() << " - QRasterPaintEngine::drawImage(), r=" << r << " sr=" << _sr << " image=" << _img.size() << "depth=" << img.depth();
+    qDebug() << " - QRasterPaintEngine::drawImage(), r=" << r << " sr=" << sr << " image=" << img.size() << "depth=" << img.depth();
 #endif
 
     if (r.isEmpty())
@@ -2255,17 +2255,6 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &_img, const QR
 
     Q_D(QRasterPaintEngine);
     QRasterPaintEngineState *s = state();
-    
-    QImage img;
-    QRectF sr=_sr;
-    if (s->matrix.isAffine()) {
-        img = _img.copy(sr.toRect()).scaled(
-            s->matrix.mapRect(r).size().toSize(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-        sr = img.rect();
-    } else {
-        img=_img;
-    }
- 
     int sr_l = qFloor(sr.left());
     int sr_r = qCeil(sr.right()) - 1;
     int sr_t = qFloor(sr.top());
@@ -2380,7 +2369,7 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &_img, const QR
                 SrcOverScaleFunc func = qScaleFunctions[d->rasterBuffer->format][img.format()];
                 if (func && (!clip || clip->hasRectClip)) {
                     func(d->rasterBuffer->buffer(), d->rasterBuffer->bytesPerLine(),
-                         img.bits(), img.bytesPerLine(),
+                         img.bits(), img.bytesPerLine(), img.height(),
                          qt_mapRect_non_normalizing(r, s->matrix), sr,
                          !clip ? d->deviceRect : clip->clipRect,
                          s->intOpacity);

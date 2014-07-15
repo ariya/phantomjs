@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -96,6 +96,11 @@ Q_DESTRUCTOR_FUNCTION(qt_free_tls)
 /*
     QThreadData
 */
+void QThreadData::clearCurrentThreadData()
+{
+    TlsSetValue(qt_current_thread_data_tls_index, 0);
+}
+
 QThreadData *QThreadData::current()
 {
     qt_create_tls();
@@ -125,7 +130,7 @@ QThreadData *QThreadData::current()
             threadData->deref();
         }
         threadData->isAdopted = true;
-        threadData->threadId = (Qt::HANDLE)GetCurrentThreadId();
+        threadData->threadId = reinterpret_cast<Qt::HANDLE>(GetCurrentThreadId());
 
         if (!QCoreApplicationPrivate::theMainThread) {
             QCoreApplicationPrivate::theMainThread = threadData->thread;
@@ -140,7 +145,7 @@ QThreadData *QThreadData::current()
                     FALSE,
                     DUPLICATE_SAME_ACCESS);
 #else
-                        realHandle = (HANDLE)GetCurrentThreadId();
+                        realHandle = reinterpret_cast<HANDLE>(GetCurrentThreadId());
 #endif
             qt_watch_adopted_thread(realHandle, threadData->thread);
         }
@@ -212,7 +217,11 @@ DWORD WINAPI qt_adopted_thread_watcher_function(LPVOID)
         qt_adopted_thread_watcher_mutex.unlock();
 
         DWORD ret = WAIT_TIMEOUT;
-        int loops = (handlesCopy.count() / MAXIMUM_WAIT_OBJECTS) + 1, offset, count;
+        int count;
+        int offset;
+        int loops = handlesCopy.size() / MAXIMUM_WAIT_OBJECTS;
+        if (handlesCopy.size() % MAXIMUM_WAIT_OBJECTS)
+            ++loops;
         if (loops == 1) {
             // no need to loop, no timeout
             offset = 0;
@@ -322,7 +331,7 @@ unsigned int __stdcall QT_ENSURE_STACK_ALIGNED_FOR_SSE QThreadPrivate::start(voi
 
     qt_create_tls();
     TlsSetValue(qt_current_thread_data_tls_index, data);
-    data->threadId = (Qt::HANDLE)GetCurrentThreadId();
+    data->threadId = reinterpret_cast<Qt::HANDLE>(GetCurrentThreadId());
 
     QThread::setTerminationEnabled(false);
 
@@ -397,7 +406,7 @@ void QThreadPrivate::finish(void *arg, bool lockAnyway)
 
 Qt::HANDLE QThread::currentThreadId()
 {
-    return (Qt::HANDLE)GetCurrentThreadId();
+    return reinterpret_cast<Qt::HANDLE>(GetCurrentThreadId());
 }
 
 int QThread::idealThreadCount()

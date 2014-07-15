@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -66,6 +66,8 @@ QT_BEGIN_HEADER
 #  include "QtCore/qatomic_i386.h"
 #elif defined(QT_ARCH_IA64)
 #  include "QtCore/qatomic_ia64.h"
+#elif defined(QT_ARCH_M68K)
+#  include "QtCore/qatomic_m68k.h"
 #elif defined(QT_ARCH_MACOSX)
 #  include "QtCore/qatomic_macosx.h"
 #elif defined(QT_ARCH_MIPS)

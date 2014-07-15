@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
@@ -68,8 +68,8 @@ class Q_AUTOTEST_EXPORT QAuthenticatorPrivate
 public:
     enum Method { None, Basic, Plain, Login, Ntlm, CramMd5, DigestMd5 };
     QAuthenticatorPrivate();
+    ~QAuthenticatorPrivate();
 
-    QAtomicInt ref;
     QString user;
     QString extractedUser;
     QString password;
@@ -107,7 +107,7 @@ public:
     void parseHttpResponse(const QHttpResponseHeader &, bool isProxy);
 #endif
     void parseHttpResponse(const QList<QPair<QByteArray, QByteArray> >&, bool isProxy);
-
+    void updateCredentials();
 };
 
 

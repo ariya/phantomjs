@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -63,12 +63,8 @@ QT_BEGIN_NAMESPACE
 static inline bool time_update(struct timeval *tv, const struct timeval &start,
                                const struct timeval &timeout)
 {
-    if (!QElapsedTimer::isMonotonic()) {
-        // we cannot recalculate the timeout without a monotonic clock as the time may have changed
-        return false;
-    }
-
-    // clock source is monotonic, so we can recalculate how much timeout is left
+    // clock source is (hopefully) monotonic, so we can recalculate how much timeout is left;
+    // if it isn't monotonic, we'll simply hope that it hasn't jumped, because we have no alternative
     struct timeval now = qt_gettime();
     *tv = timeout + start - now;
     return tv->tv_sec >= 0;

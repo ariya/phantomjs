@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -684,6 +684,28 @@ QString QGtkStylePrivate::getThemeName()
         themeName = getGConfString(QLS("/desktop/gnome/interface/gtk_theme"));
 
     return themeName;
+}
+
+QString QGtkStylePrivate::getIconThemeName() {
+    if (!gtk_settings_get_default) {
+        // enforce the "0" suffix, so we'll open libgtk-x11-2.0.so.0
+        QLibrary libgtk(QLS("gtk-x11-2.0"), 0, 0);
+        libgtk.setLoadHints(QLibrary::ImprovedSearchHeuristics);
+        gtk_init = (Ptr_gtk_init)libgtk.resolve("gtk_init");
+        gtk_settings_get_default = (Ptr_gtk_settings_get_default)libgtk.resolve("gtk_settings_get_default");
+    }
+    if (!gtk_settings_get_default) {
+        return QString();
+    }
+    x11ErrorHandler qt_x_errhandler = XSetErrorHandler(0);
+    gtk_init(NULL, NULL);
+    XSetErrorHandler(qt_x_errhandler);
+    GtkSettings *settings = gtk_settings_get_default();
+    gchararray value;
+    g_object_get(settings, "gtk-icon-theme-name", &value, NULL);
+    QString result = QString::fromUtf8(value);
+    g_free(value);
+    return result;
 }
 
 // Get size of the arrow controls in a GtkSpinButton

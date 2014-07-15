@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -285,6 +285,19 @@ void QWindowsXPStylePrivate::cleanupHandleMap()
         pCloseThemeData(it.value());
     delete handleMap;
     handleMap = 0;
+}
+
+bool QWindowsXPStylePrivate::isItemViewDelegateLineEdit(const QWidget *widget)
+{
+    if (!widget)
+        return false;
+    const QWidget *parent1 = widget->parentWidget();
+    // Exlude dialogs or other toplevels parented on item views.
+    if (!parent1 || parent1->isWindow())
+        return false;
+    const QWidget *parent2 = parent1->parentWidget();
+    return parent2 && widget->inherits("QLineEdit")
+        && parent2->inherits("QAbstractItemView");
 }
 
 /*! \internal
@@ -1466,13 +1479,7 @@ case PE_Frame:
     }
     case PE_FrameLineEdit: {
         // we try to check if this lineedit is a delegate on a QAbstractItemView-derived class.
-        QWidget *parentWidget = 0;
-        if (widget)
-            parentWidget = widget->parentWidget();
-        if (parentWidget)
-            parentWidget = parentWidget->parentWidget();
-        if (widget && widget->inherits("QLineEdit")
-            && parentWidget && parentWidget->inherits("QAbstractItemView")) {
+        if (QWindowsXPStylePrivate::isItemViewDelegateLineEdit(widget)) {
             QPen oldPen = p->pen();
             // Inner white border
             p->setPen(QPen(option->palette.base().color(), 1));
@@ -2397,7 +2404,6 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
         if (qstyleoption_cast<const QStyleOptionRubberBand *>(option)) {
             QColor highlight = option->palette.color(QPalette::Active, QPalette::Highlight);
             p->save();
-            QRect r = option->rect;
             p->setPen(highlight.darker(120));
             QColor dimHighlight(qMin(highlight.red()/2 + 110, 255),
                                 qMin(highlight.green()/2 + 110, 255),

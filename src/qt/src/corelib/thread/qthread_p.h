@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -215,6 +215,7 @@ public:
     ~QThreadData();
 
     static QThreadData *current();
+    static void clearCurrentThreadData();
     static QThreadData *get2(QThread *thread)
     { Q_ASSERT_X(thread != 0, "QThread", "internal error"); return thread->d_func()->data; }
 
@@ -227,6 +228,34 @@ public:
         QMutexLocker locker(&postEventList.mutex);
         return canWait;
     }
+
+    // This class provides per-thread (by way of being a QThreadData
+    // member) storage for qFlagLocation()
+    class FlaggedDebugSignatures
+    {
+        static const uint Count = 2;
+
+        uint idx;
+        const char* locations[Count];
+
+    public:
+        FlaggedDebugSignatures() : idx(0)
+        {
+            for (uint i = 0; i < Count; ++i)
+                locations[i] = 0;
+        }
+
+        void store(const char* method)
+        { locations[idx++ % Count] = method; }
+
+        bool contains(const char *method) const
+        {
+            for (uint i = 0; i < Count; ++i)
+                if (locations[i] == method)
+                    return true;
+            return false;
+        }
+    };
 
     QThread *thread;
     Qt::HANDLE threadId;
@@ -242,6 +271,8 @@ public:
 # ifdef Q_OS_SYMBIAN
     RThread symbian_thread_handle;
 # endif
+
+    FlaggedDebugSignatures flaggedSignatures;
 };
 
 class QScopedLoopLevelCounter

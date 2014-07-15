@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -51,6 +51,7 @@
 #include <QMainWindow>
 #include <QToolBar>
 #include <private/qmainwindowlayout_p.h>
+#include <private/qpaintengine_mac_p.h>
 
 QT_BEGIN_NAMESPACE
 extern QWidgetData *qt_qwidget_data(QWidget *); // qwidget.cpp
@@ -390,6 +391,12 @@ static void cleanupCocoaWindowDelegate()
     if (widget)
         [self resignDelegateForWindow:[[drawer contentView] window]];
     m_drawerHash->remove(drawer);
+}
+
+- (void)windowDidChangeScreen:(NSNotification*)notification
+{
+    QWidget *qwidget = m_windowHash->value([notification object]);
+    QCoreGraphicsPaintEngine::clearColorSpace(qwidget);
 }
 
 - (BOOL)window:(NSWindow *)window shouldPopUpDocumentPathMenu:(NSMenu *)menu

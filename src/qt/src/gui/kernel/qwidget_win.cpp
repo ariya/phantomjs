@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -631,7 +631,17 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
         dropSiteWasRegistered = true;
         q->setAttribute(Qt::WA_DropSiteRegistered, false); // ole dnd unregister (we will register again below)
     }
-
+    QList<QWidget *> registeredDropChildren;
+    if (QWidget *nativeParent = q->internalWinId() ? q : q->nativeParentWidget()) {
+        if (const QWExtra *extra = nativeParent->d_func()->extra) {
+            foreach (QWidget *w, extra->oleDropWidgets) {
+                if (w && q->isAncestorOf(w)) {
+                    registeredDropChildren.push_back(w);
+                    w->setAttribute(Qt::WA_DropSiteRegistered, false);
+                }
+            }
+        }
+    }
     if ((q->windowType() == Qt::Desktop))
         old_winid = 0;
     setWinId(0);
@@ -666,12 +676,26 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
         setWindowIcon_sys(true);
         setWindowTitle_helper(extra->topextra->caption);
     }
-    if (old_winid)
+    if (old_winid) {
+#ifndef QT_NO_DRAGANDDROP
+        if (extra && extra->dropTarget) {
+            // NOTE: It is possible that the current widget has already registered an ole drop target
+            // without Qt::WA_DropSiteRegistered being set. In this case we have to call RevokeDragDrop()
+            // to drop the reference count of the ole drop target object held by windows to prevent leak
+            // and re-register the old drop target object to the new window handle if possible
+            RevokeDragDrop(old_winid);
+            if (q->internalWinId())
+                RegisterDragDrop(q->internalWinId(), extra->dropTarget);
+        }
+#endif // !QT_NO_DRAGANDDROP
         DestroyWindow(old_winid);
+    }
 
     if (q->testAttribute(Qt::WA_AcceptDrops) || dropSiteWasRegistered
         || (!q->isWindow() && q->parentWidget() && q->parentWidget()->testAttribute(Qt::WA_DropSiteRegistered)))
         q->setAttribute(Qt::WA_DropSiteRegistered, true);
+    foreach (QWidget *w, registeredDropChildren)
+        w->setAttribute(Qt::WA_DropSiteRegistered, true);
 
 #ifdef Q_WS_WINCE
     // Show borderless toplevel windows in tasklist & NavBar
@@ -1796,10 +1820,10 @@ QOleDropTarget* QWidgetPrivate::registerOleDnd(QWidget *widget)
 
 void QWidgetPrivate::unregisterOleDnd(QWidget *widget, QOleDropTarget *dropTarget)
 {
-    dropTarget->releaseQt();
-    dropTarget->Release();
     Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
     if (!widget->internalWinId()) {
+        dropTarget->releaseQt();
+        dropTarget->Release();
         QWidget *nativeParent = widget->nativeParentWidget();
         while (nativeParent) {
             QWExtra *nativeExtra = nativeParent->d_func()->extra;
@@ -1815,6 +1839,8 @@ void QWidgetPrivate::unregisterOleDnd(QWidget *widget, QOleDropTarget *dropTarge
 #ifndef Q_OS_WINCE
                     CoLockObjectExternal(nativeExtra->dropTarget, false, true);
 #endif
+                    nativeExtra->dropTarget->releaseQt();
+                    nativeExtra->dropTarget->Release();
                     RevokeDragDrop(nativeParent->internalWinId());
                     nativeExtra->dropTarget = 0;
             }
@@ -1828,6 +1854,8 @@ void QWidgetPrivate::unregisterOleDnd(QWidget *widget, QOleDropTarget *dropTarge
 #ifndef Q_OS_WINCE
         CoLockObjectExternal(dropTarget, false, true);
 #endif
+        dropTarget->releaseQt();
+        dropTarget->Release();
         RevokeDragDrop(widget->internalWinId());
     }
 }
@@ -1896,7 +1924,7 @@ void QWidgetPrivate::setWindowOpacity_sys(qreal level)
 
     if (!isOpaque && ptrUpdateLayeredWindow && (data.window_flags & Qt::FramelessWindowHint)) {
         if (GetWindowLong(q->internalWinId(), GWL_EXSTYLE) & Q_WS_EX_LAYERED) {
-            BLENDFUNCTION blend = {AC_SRC_OVER, 0, (int)(255.0 * level), AC_SRC_ALPHA};
+            BLENDFUNCTION blend = {AC_SRC_OVER, 0, (BYTE)(255.0 * level), AC_SRC_ALPHA};
             ptrUpdateLayeredWindow(q->internalWinId(), NULL, NULL, NULL, NULL, NULL, 0, &blend, Q_ULW_ALPHA);
         }
         return;

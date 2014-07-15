@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
@@ -1063,6 +1063,9 @@ void QHttpNetworkConnectionChannel::_q_error(QAbstractSocket::SocketError socket
                 errorCode = QNetworkReply::RemoteHostClosedError;
             }
         } else if (state == QHttpNetworkConnectionChannel::ReadingState) {
+            if (!reply)
+                break;
+
             if (!reply->d_func()->expectContent()) {
                 // No content expected, this is a valid way to have the connection closed by the server
                 return;

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -1844,8 +1844,8 @@ QColorDialog::ColorDialogOptions QColorDialog::options() const
 
     \value ShowAlphaChannel Allow the user to select the alpha component of a color.
     \value NoButtons Don't display \gui{OK} and \gui{Cancel} buttons. (Useful for "live dialogs".)
-    \value DontUseNativeDialog Use Qt's standard color dialog on the Mac instead of Apple's
-                               native color panel.
+    \value DontUseNativeDialog Use Qt's standard color dialog on the Mac instead of the operating system
+                               native color dialog.
 
     \sa options, setOption(), testOption(), windowModality()
 */
@@ -1902,6 +1902,7 @@ void QColorDialog::setVisible(bool visible)
     } else {
         if (d->delegate) {
             d->closeCocoaColorPanel();
+            QColorDialogPrivate::sharedColorPanelAvailable = true;
             setAttribute(Qt::WA_DontShowOnScreen, false);
         }
     }

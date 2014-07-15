@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -186,7 +186,7 @@ void QRasterWindowSurface::flush(QWidget *widget, const QRegion &rgn, const QPoi
         SIZE size = {r.width(), r.height()};
         POINT ptDst = {r.x(), r.y()};
         POINT ptSrc = {0, 0};
-        BLENDFUNCTION blend = {AC_SRC_OVER, 0, (int)(255.0 * window()->windowOpacity()), Q_AC_SRC_ALPHA};
+        BLENDFUNCTION blend = {AC_SRC_OVER, 0, (BYTE)(255.0 * window()->windowOpacity()), Q_AC_SRC_ALPHA};
         RECT dirty = {dirtyRect.x(), dirtyRect.y(),
             dirtyRect.x() + dirtyRect.width(), dirtyRect.y() + dirtyRect.height()};
         Q_UPDATELAYEREDWINDOWINFO info = {sizeof(info), NULL, &ptDst, &size, d->image->hdc, &ptSrc, 0, &blend, Q_ULW_ALPHA, &dirty};

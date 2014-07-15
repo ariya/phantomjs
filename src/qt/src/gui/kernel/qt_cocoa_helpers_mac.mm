@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -609,7 +609,7 @@ static const KeyPair entries[NumEntries] = {
     { NSF6FunctionKey, Qt::Key_F6 },
     { NSF7FunctionKey, Qt::Key_F7 },
     { NSF8FunctionKey, Qt::Key_F8 },
-    { NSF9FunctionKey, Qt::Key_F8 },
+    { NSF9FunctionKey, Qt::Key_F9 },
     { NSF10FunctionKey, Qt::Key_F10 },
     { NSF11FunctionKey, Qt::Key_F11 },
     { NSF12FunctionKey, Qt::Key_F12 },

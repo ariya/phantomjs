@@ -84,9 +84,9 @@ private:
     ThreadIdentifier m_thread;
 #endif
 
-    friend class TimerHeapElement;
     friend class ThreadTimers;
-    friend bool operator<(const TimerHeapElement&, const TimerHeapElement&);
+    friend class TimerHeapLessThanFunction;
+    friend class TimerHeapReference;
 };
 
 template <typename TimerFiredClass> class Timer : public TimerBase {

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -53,9 +53,9 @@
 // We mean it.
 //
 
-QT_BEGIN_NAMESPACE
-
 #include <QtCore/qmutex.h>
+
+QT_BEGIN_NAMESPACE
 
 /*
   Locks 2 mutexes in a defined order, avoiding a recursive lock if

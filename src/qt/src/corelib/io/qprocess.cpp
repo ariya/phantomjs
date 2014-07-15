@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -259,7 +259,13 @@ QProcessEnvironment &QProcessEnvironment::operator=(const QProcessEnvironment &o
 */
 bool QProcessEnvironment::operator==(const QProcessEnvironment &other) const
 {
-    return d == other.d || (d && other.d && d->hash == other.d->hash);
+    if (d == other.d)
+        return true;
+    if (d && other.d) {
+        QProcessEnvironmentPrivate::OrderedMutexLocker locker(d, other.d);
+        return d->hash == other.d->hash;
+    }
+    return false;
 }
 
 /*!
@@ -270,6 +276,7 @@ bool QProcessEnvironment::operator==(const QProcessEnvironment &other) const
 */
 bool QProcessEnvironment::isEmpty() const
 {
+    // Needs no locking, as no hash nodes are accessed
     return d ? d->hash.isEmpty() : true;
 }
 
@@ -299,7 +306,10 @@ void QProcessEnvironment::clear()
 */
 bool QProcessEnvironment::contains(const QString &name) const
 {
-    return d ? d->hash.contains(d->prepareName(name)) : false;
+    if (!d)
+        return false;
+    QProcessEnvironmentPrivate::MutexLocker locker(d);
+    return d->hash.contains(d->prepareName(name));
 }
 
 /*!
@@ -320,7 +330,8 @@ bool QProcessEnvironment::contains(const QString &name) const
 */
 void QProcessEnvironment::insert(const QString &name, const QString &value)
 {
-    // d detaches from null
+    // our re-impl of detach() detaches from null
+    d.detach(); // detach before prepareName()
     d->hash.insert(d->prepareName(name), d->prepareValue(value));
 }
 
@@ -337,8 +348,10 @@ void QProcessEnvironment::insert(const QString &name, const QString &value)
 */
 void QProcessEnvironment::remove(const QString &name)
 {
-    if (d)
+    if (d) {
+        d.detach(); // detach before prepareName()
         d->hash.remove(d->prepareName(name));
+    }
 }
 
 /*!
@@ -357,6 +370,7 @@ QString QProcessEnvironment::value(const QString &name, const QString &defaultVa
     if (!d)
         return defaultValue;
 
+    QProcessEnvironmentPrivate::MutexLocker locker(d);
     QProcessEnvironmentPrivate::Hash::ConstIterator it = d->hash.constFind(d->prepareName(name));
     if (it == d->hash.constEnd())
         return defaultValue;
@@ -379,7 +393,10 @@ QString QProcessEnvironment::value(const QString &name, const QString &defaultVa
 */
 QStringList QProcessEnvironment::toStringList() const
 {
-    return d ? d->toList() : QStringList();
+    if (!d)
+        return QStringList();
+    QProcessEnvironmentPrivate::MutexLocker locker(d);
+    return d->toList();
 }
 
 /*!
@@ -390,7 +407,10 @@ QStringList QProcessEnvironment::toStringList() const
 */
 QStringList QProcessEnvironment::keys() const
 {
-    return d ? d->keys() : QStringList();
+    if (!d)
+        return QStringList();
+    QProcessEnvironmentPrivate::MutexLocker locker(d);
+    return d->keys();
 }
 
 /*!
@@ -405,7 +425,8 @@ void QProcessEnvironment::insert(const QProcessEnvironment &e)
     if (!e.d)
         return;
 
-    // d detaches from null
+    // our re-impl of detach() detaches from null
+    QProcessEnvironmentPrivate::MutexLocker locker(e.d);
     d->insert(*e.d);
 }
 
@@ -1681,10 +1702,10 @@ QProcessEnvironment QProcess::processEnvironment() const
 bool QProcess::waitForStarted(int msecs)
 {
     Q_D(QProcess);
-    if (d->processState == QProcess::Running)
-        return true;
+    if (d->processState == QProcess::Starting)
+        return d->waitForStarted(msecs);
 
-    return d->waitForStarted(msecs);
+    return d->processState == QProcess::Running;
 }
 
 /*! \reimp

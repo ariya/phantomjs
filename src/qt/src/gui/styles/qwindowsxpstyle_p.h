@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
@@ -320,6 +320,8 @@ public:
     bool hasAlphaChannel(const QRect &rect);
     bool fixAlphaChannel(const QRect &rect);
     bool swapAlphaChannel(const QRect &rect, bool allPixels = false);
+
+    static bool isItemViewDelegateLineEdit(const QWidget *widget);
 
     QRgb groupBoxTextColor;
     QRgb groupBoxTextColorDisabled;
