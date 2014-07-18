@@ -488,7 +488,7 @@ bool CookieJar::contains(const QNetworkCookie &cookie) const
     for (int i = cookiesList.length() -1; i >= 0; --i) {
         if (cookie.name() == cookiesList.at(i).name() &&
             cookie.value() == cookiesList.at(i).value() &&
-            (cookie.domain().isEmpty() || cookiesList.at(i).domain().prepend('.').endsWith(cookie.domain())) &&
+            (cookie.domain().isEmpty() || ('.' + cookiesList.at(i).domain()).endsWith(cookie.domain())) &&
             (cookie.path().isEmpty() || cookiesList.at(i).path() == cookie.path()) &&
             cookie.isSecure() == cookiesList.at(i).isSecure() &&
             cookie.isHttpOnly() == cookiesList.at(i).isHttpOnly() &&
