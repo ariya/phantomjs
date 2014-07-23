@@ -103,25 +103,10 @@ void Phantom::init()
     m_page->setCookieJar(m_defaultCookieJar);
     m_pages.append(m_page);
 
+    // Set up proxy if required
     QString proxyType = m_config.proxyType();
     if (proxyType != "none") {
-        if (m_config.proxyHost().isEmpty()) {
-            QNetworkProxyFactory::setUseSystemConfiguration(true);
-        } else {
-            QNetworkProxy::ProxyType networkProxyType = QNetworkProxy::HttpProxy;
-
-            if (proxyType == "socks5") {
-                networkProxyType = QNetworkProxy::Socks5Proxy;
-            }
-
-            if(!m_config.proxyAuthUser().isEmpty() && !m_config.proxyAuthPass().isEmpty()) {
-                QNetworkProxy proxy(networkProxyType, m_config.proxyHost(), m_config.proxyPort(), m_config.proxyAuthUser(), m_config.proxyAuthPass());
-                QNetworkProxy::setApplicationProxy(proxy);
-            } else {
-                QNetworkProxy proxy(networkProxyType, m_config.proxyHost(), m_config.proxyPort());
-                QNetworkProxy::setApplicationProxy(proxy);
-            }
-        }
+        setProxy(m_config.proxyHost(), m_config.proxyPort(), proxyType, m_config.proxyAuthUser(), m_config.proxyAuthPass());
     }
 
     // Set output encoding
@@ -405,6 +390,28 @@ bool Phantom::injectJs(const QString &jsFilePath)
         return false;
 
     return Utils::injectJsInFrame(pre + jsFilePath, libraryPath(), m_page->mainFrame());
+}
+
+void Phantom::setProxy(const QString &ip, const qint64 &port, const QString &proxyType, const QString &user, const QString &password)
+{
+    qDebug() << "Set " << proxyType << " proxy to: " << ip << ":" << port;
+    if (ip.isEmpty()) {
+        QNetworkProxyFactory::setUseSystemConfiguration(true);
+    } else {
+        QNetworkProxy::ProxyType networkProxyType = QNetworkProxy::HttpProxy;
+
+        if (proxyType == "socks5") {
+            networkProxyType = QNetworkProxy::Socks5Proxy;
+        }
+        // Checking for passed proxy user and password
+        if(!user.isEmpty() && !password.isEmpty()) {
+            QNetworkProxy proxy(networkProxyType, ip, port, user, password);
+            QNetworkProxy::setApplicationProxy(proxy);
+        } else {
+            QNetworkProxy proxy(networkProxyType, ip, port);
+            QNetworkProxy::setApplicationProxy(proxy);
+        }
+    }
 }
 
 void Phantom::exit(int code)

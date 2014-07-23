@@ -2,16 +2,28 @@ language: cpp
 compiler:
   - gcc
 cache: apt
+
 before_install:
   - sudo apt-get -yqq update    #< Suggested by the Travis CI doc
   - sudo apt-get -fyq install   #< Fixes inconsistency of packages installed previously
+
 install:
   - sudo apt-get -yq install build-essential chrpath libssl-dev libfontconfig1-dev  #< Build Dependencies
+
 before_script:
   - chmod +x ./build.sh
   - chmod +x ./test/run-tests.sh
   - chmod +x ./test/run-tests-ghostdriver.sh
+  
 script:
   - ./build.sh --confirm --silent   #< Build
   - ./test/run-tests.sh             #< Test (PhantomJS)
   - ./test/run-tests-ghostdriver.sh #< Test (GhostDriver / PhantomJSDriver)
+
+notifications:
+  irc:
+    channels:
+      - "irc.freenode.org#phantomjs"
+    on_success: always
+    on_failure: always
+    use_notice: true
