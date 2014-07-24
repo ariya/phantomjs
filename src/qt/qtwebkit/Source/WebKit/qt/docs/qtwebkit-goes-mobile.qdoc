@@ -1,0 +1,191 @@
+/*!
+    \inmodule QtWebKit
+    \page qtwebkit-goes-mobile.html
+    \title Qt WebKit Goes Mobile
+    \contentspage Qt WebKit
+    \section1 Overview
+
+    A lot of effort has been put into Qt WebKit to make it attractive for
+    use on mobile devices.
+
+    The goal of this tutorial is to help you understand the mobile
+    features and how to make the best of them, in other words, how to
+    create a good mobile web view that can be used on touch devices.
+
+    If you want to target mobile devices you should consider using \l{QGraphicsWebView}
+    instead of \l{QWebView}. Since \l{QWebView} is based on the \l{QWidget}
+    system, it cannot easily support rotation, overlays, hardware accelerated
+    compositing and tiling. If you need a \l{QWidget} anyway, you can always
+    construct a \l{QGraphicsView} (which is a \l{QWidget}) with a \l{QGraphicsWebView} inside.
+
+    So let's start with a very simple \l{QGraphicsWebView} based "browser":
+
+    \snippet webkitsnippets/qtwebkit_goes_mobile_snippets.cpp 0
+
+    Here we set up a \l{QGraphicsView} application and add a
+    \l{QGraphicsWebView} to the scene. Notice
+    that we're disabling the scrollbars on the QGraphicsView because Qt WebKit
+    handles scrolling and scrollbars automatically. This is to allow scrolling
+    optimizations and to enable web authors to interact with the scrollbars,
+    for instance, to style them differently.
+
+    On touch-based mobile devices a feature known as tiling is often used. It
+    is used due to the interaction model (touch) as well as a scrolling
+    optimization. With this optimization we will have to deal with scrolling
+    ourselves, and we will have to disable features like scroll bar styling.
+    This is not usually a problem, since mobile browsers do not usually show
+    scroll bars, but use scroll indicators instead.
+
+    Tiling basically means that the contents of the viewport is separated into
+    a grid of tiles, so that when you update an area, instead of just updating
+    the area, you actually update the whole tile or sub-regions of it.
+    This offers a few advantages for scrolling as, when you scroll, you do not need
+    to repaint the new visible area for each scroll step, but you simply update a row
+    of tiles each time; these tiles are often only partly on the screen.
+    This minimizes all the painting calls that we have to do and enables kinetic scrolling.
+
+    Loading, rendering, and laying out are blocking operations. Though barely
+    noticeable on desktop machines, these operations can block for a long time
+    on a mobile device, letting the user believe the application has become
+    unresponsive. Additionally, scrolling will also stall when the user uses
+    his fingers to scroll, leading to a bad user experience.
+
+    One way to overcome this issue, is to do all loading, laying out and
+    painting (basically all non-UI related work) in another thread or process, and
+    just blit the result from the web process/thread to the UI. There is research
+    in progress to enable this for a future version of Qt WebKit, using WebKit2, but for now,
+    freezing the backing store can help when performing a zooming operation, for instance.
+    This will be discussed later, in the \l{#Enabling the Tiling}{Enabling the Tiling} section.
+
+    When using tiles, you can blit any tile available when scrolling. When no tile is available you
+    can show a checkerboard tile instead, not letting the scrolling wait for the
+    tiles to be updated. This results in a responsive interface, with the only
+    disadvantage that you might see checkerboard tiles from time to time.
+
+    The use of tiles also helps with zooming. Repainting at each zoom level change during
+    a zoom animation is basically impossible on a mobile device (or desktop for
+    that matter) and thus, with tiling, you can stop the tiles from being updated and
+    just scale the existing tiles. Then, at the end of the animation, update
+    tiles on top of the scaled ones.  For now we will ignore the blocking
+    issue and concentrate on the tiling and the interaction model.
+    More information about Tiling can be found here: \l{http://doc.qt.nokia.com/4.7/qwebsettings.html#WebAttribute-enum} (see the entry for TiledBackingStoreEnabled).
+
+
+    \section1 Resize to Contents
+
+    When using tiling, we want the \l{QGraphicsWebView} to act as our
+    content, as it supports tiling. In order for this we need to make it
+    resize itself to the size of its contents. For this we will use
+    \l{QGraphicsWebView::resizesToContents}.
+
+    This setting removes the scroll bars for us on the main frame and
+    makes our \l{QGraphicsWebView} resize itself to the size of its content.
+
+    Enabling it is as easy as setting the property:
+
+    \snippet webkitsnippets/qtwebkit_goes_mobile_snippets.cpp 1
+
+    The property should be used in conjunction with the
+    QWebPage::preferredContentsSize property. If not explicitly set,
+    it is automatically set to a reasonable value.
+
+    If we expand our mobile web view to the size of the contents
+    of its contained page, the view will be bigger than the device screen.
+
+
+    \section1 Using a View as the Window onto the Contents
+
+    The idea is to have a custom widget which has a \l{QGraphicsWebView} as a
+    class member. Remember that the QGraphicsWebView will be as big as its
+    content's size, so this custom widget will serve as a viewport onto the
+    web view.
+
+    The following code snippet illustrates this:
+
+    \snippet webkitsnippets/qtwebkit_goes_mobile_snippets.cpp 2
+
+    In order to properly handle mouse events, you must install an event filter
+    on the web view or stack it behind its parent object
+    (\l{QGraphicsItem::ItemStacksBehindParent}). By doing this the mouse events will
+    reach a \c{MobileWebView} instance before they reach the member
+    \l{QGraphicsWebView}. Keep in mind that you'll need to add some logic in order
+    to distinguish between different mouse events and gestures, such as a
+    single click, double click and click-and-pan. Besides, scrolling and
+    zooming will have to be implemented manually.
+
+
+    \section1 Adjusting How Contents are Laid Out
+
+    When testing the above on a device, you will notice that many pages are not
+    laid out very nicely. In particular, the width of the content may be larger
+    than the width of the device. This is due to the way web contents are laid
+    out. First, the viewport width is used for fitting the contents. If the
+    contents do not fit due to a non-flexible element with a width larger than
+    the viewport width, the minimum possible width will be used. As most pages
+    are written with a desktop browser in mind, that makes only very few sites
+    fit into the width of a mobile device.
+
+    Qt WebKit has a way to force a layout to a given width or height. What really
+    matters here is the width. If you lay out a page to a given width, it will get
+    that width and images might be cropped. The width or height is also used for
+    laying out fixed elements, but when we resize the \l{QGraphicsWebView} to the
+    size of the contents, fixed elements will not be relative to the view, which is
+    the behavior found on most mobile browsers.
+
+    We saw that the QWebPage::preferredContentsSize property is automatically set
+    to a reasonable value when using \l{QGraphicsWebView::resizesToContents}.
+
+    As you can imagine, laying out with a smaller viewport can cause pages to
+    break, therefore a default value has been chosen so that it almost breaks no
+    pages while still making pages fit. This value is 960x800. If the device
+    has a greater resolution, this value can be changed like this:
+
+    \snippet webkitsnippets/qtwebkit_goes_mobile_snippets.cpp 3
+
+    You can play around with this and find a suitable size for your device,
+    but we will keep the default size for now.
+
+
+    \section1 The 'viewport' Meta-Tag
+
+    As some sites do not work with 960 pixels width or want to have control of
+    how the page is laid out, Qt WebKit, Android, Firefox Mobile and
+    the iPhone Safari browser support a meta-tag called \c viewport. This makes
+    it possible for a web page to let the browser know how it wants to be shown.
+    More info can be found in the
+    \l{http://developer.apple.com/safari/library/documentation/appleapplications/reference/safariwebcontent/usingtheviewport/usingtheviewport.html}{Safari Developer Library}.
+
+    You must connect the signal \c{QWebPage::viewportChangeRequested()}
+    to a slot of your mobile web view and use what
+    is provided by \l{QWebPage::ViewportAttributes} to update your viewport size, scale
+    range, and so on.
+
+
+    \section1 Enabling the Tiling
+
+    We haven't actually enabled tiling yet, so let's go ahead and do that. That
+    is very simple as it is basically a setting:
+
+    \snippet webkitsnippets/qtwebkit_goes_mobile_snippets.cpp 4
+
+    Note that, if you are going to add animations to your zooming or scaling
+    operations or want to implement fancy kinetic scrolling you might want to
+    take a look at \l{QGraphicsWebView::setTiledBackingStoreFrozen()}. With this,
+    you can avoid updates to your tiles during an animation, for instance.
+
+
+    \section1 Avoiding Scrollable Subelements
+
+    One big issue with the above is that, iframes and sites using frames can
+    contain scrollable subelements. That doesn't work well with the touch
+    interaction model, as you want a finger swipe to scroll the whole page and not
+    end up just scrolling a subframe. Most mobile browsers work around this by
+    enabling something called frame flattening. Going straight to the point:
+
+    \snippet webkitsnippets/qtwebkit_goes_mobile_snippets.cpp 5
+
+    This will make all frames from a web page expand themselves to the size of
+    their contents, keeping us free of scrollable subareas.
+
+
+*/

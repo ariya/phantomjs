@@ -1,7 +1,7 @@
 /*
 This file is part of the GhostDriver by Ivan De Marino <http://ivandemarino.me>.
 
-Copyright (c) 2014, Ivan De Marino <http://ivandemarino.me>
+Copyright (c) 2012-2014, Ivan De Marino <http://ivandemarino.me>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -112,25 +112,21 @@ ghostdriver.RequestHandler = function() {
             typeof(result) !== "object" ||
             typeof(result.status) === "undefined" ||
             typeof(result.value) === "undefined") {
-            _errors.handleFailedCommandEH(
-                _errors.FAILED_CMD_STATUS.UNKNOWN_ERROR,
+            _errors.handleFailedCommandEH(_errors.FAILED_CMD_STATUS_CODES.UnknownError,
                 "Command failed without producing the expected error report",
                 req,
                 this,
-                session,
-                "ReqHand");
+                session);
             return;
         }
 
         // An error occurred but we got an error report to use
         if (result.status !== 0) {
-            _errors.handleFailedCommandEH(
-                _errors.FAILED_CMD_STATUS_CODES_NAMES[result.status],
+            _errors.handleFailedCommandEH(result.status,
                 result.value.message,
                 req,
                 this,
-                session,
-                "ReqHand");
+                session);
             return;
         }
 
@@ -183,12 +179,7 @@ ghostdriver.RequestHandler = function() {
             "Window handle/name '"+handleOrName+"' is invalid (closed?)";
 
         // Report the error throwing the appropriate exception
-        throw _errors.createFailedCommandEH(
-                    _errors.FAILED_CMD_STATUS.NO_SUCH_WINDOW, //< error name
-                    errorMsg,                                 //< error message
-                    req,                                      //< request
-                    session,                                  //< session
-                    "SessionReqHand");                        //< class name
+        throw _errors.createFailedCommandEH(_errors.FAILED_CMD_STATUS_CODES.NoSuchWindow, errorMsg, req, session);
     };
 
     // public:

@@ -1,0 +1,23 @@
+.overview-container {
+    overflow: hidden;
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    height: 80px;
+}
+
+.chart-container {
+    overflow: hidden;
+    position: absolute;
+    top: 80px;
+    width: 100%;
+    bottom: 0px;
+}
+
+#flame-chart-overview-grid .resources-dividers-label-bar {
+    pointer-events: auto;
+}
+
+#flame-chart-overview-container {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}

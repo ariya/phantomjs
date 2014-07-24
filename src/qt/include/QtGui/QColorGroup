@@ -1,1 +1,0 @@
-#include "qpalette.h"

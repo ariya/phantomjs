@@ -1,0 +1,215 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>FreeType-2.3.12 API Reference</title>
+<style type="text/css">
+  body { font-family: Verdana, Geneva, Arial, Helvetica, serif;
+         color: #000000;
+         background: #FFFFFF; }
+
+  p { text-align: justify; }
+  h1 { text-align: center; }
+  li { text-align: justify; }
+  td { padding: 0 0.5em 0 0.5em; }
+  td.left { padding: 0 0.5em 0 0.5em;
+            text-align: left; }
+
+  a:link { color: #0000EF; }
+  a:visited { color: #51188E; }
+  a:hover { color: #FF0000; }
+
+  span.keyword { font-family: monospace;
+                 text-align: left;
+                 white-space: pre;
+                 color: darkblue; }
+
+  pre.colored { color: blue; }
+
+  ul.empty { list-style-type: none; }
+</style>
+</head>
+<body>
+
+<table align=center><tr><td><font size=-1>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td></tr></table>
+<center><h1>FreeType-2.3.12 API Reference</h1></center>
+
+<center><h1>Table of Contents</h1></center>
+<br><table align=center width="75%"><tr><td><h2>General Remarks</h2><ul class="empty"><li>
+<table cellpadding=5>
+<tr valign=top><td class="left">
+<a href="ft2-user_allocation.html">User allocation</a></td><td>
+<p>How client applications should allocate FreeType data structures.</p>
+</td></tr>
+</table>
+</li></ul></td></tr></table>
+<br><table align=center width="75%"><tr><td><h2>Core API</h2><ul class="empty"><li>
+<table cellpadding=5>
+<tr valign=top><td class="left">
+<a href="ft2-version.html">FreeType Version</a></td><td>
+<p>Functions and macros related to FreeType versions.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-basic_types.html">Basic Data Types</a></td><td>
+<p>The basic data types defined by the library.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-base_interface.html">Base Interface</a></td><td>
+<p>The FreeType&nbsp;2 base font interface.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-glyph_variants.html">Glyph Variants</a></td><td>
+<p>The FreeType&nbsp;2 interface to Unicode Ideographic Variation Sequences (IVS), using the SFNT cmap format&nbsp;14.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-glyph_management.html">Glyph Management</a></td><td>
+<p>Generic interface to manage individual glyph data.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-mac_specific.html">Mac Specific Interface</a></td><td>
+<p>Only available on the Macintosh.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-sizes_management.html">Size Management</a></td><td>
+<p>Managing multiple sizes per face.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-header_file_macros.html">Header File Macros</a></td><td>
+<p>Macro definitions used to #include specific header files.</p>
+</td></tr>
+</table>
+</li></ul></td></tr></table>
+<br><table align=center width="75%"><tr><td><h2>Format-Specific API</h2><ul class="empty"><li>
+<table cellpadding=5>
+<tr valign=top><td class="left">
+<a href="ft2-multiple_masters.html">Multiple Masters</a></td><td>
+<p>How to manage Multiple Masters fonts.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-truetype_tables.html">TrueType Tables</a></td><td>
+<p>TrueType specific table types and functions.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-type1_tables.html">Type 1 Tables</a></td><td>
+<p>Type&nbsp;1 (PostScript) specific font tables.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-sfnt_names.html">SFNT Names</a></td><td>
+<p>Access the names embedded in TrueType and OpenType files.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-bdf_fonts.html">BDF and PCF Files</a></td><td>
+<p>BDF and PCF specific API.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-cid_fonts.html">CID Fonts</a></td><td>
+<p>CID-keyed font specific API.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-pfr_fonts.html">PFR Fonts</a></td><td>
+<p>PFR/TrueDoc specific API.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-winfnt_fonts.html">Window FNT Files</a></td><td>
+<p>Windows FNT specific API.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-font_formats.html">Font Formats</a></td><td>
+<p>Getting the font format.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-gasp_table.html">Gasp Table</a></td><td>
+<p>Retrieving TrueType &lsquo;gasp&rsquo; table entries.</p>
+</td></tr>
+</table>
+</li></ul></td></tr></table>
+<br><table align=center width="75%"><tr><td><h2>Cache Sub-System</h2><ul class="empty"><li>
+<table cellpadding=5>
+<tr valign=top><td class="left">
+<a href="ft2-cache_subsystem.html">Cache Sub-System</a></td><td>
+<p>How to cache face, size, and glyph data with FreeType&nbsp;2.</p>
+</td></tr>
+</table>
+</li></ul></td></tr></table>
+<br><table align=center width="75%"><tr><td><h2>Support API</h2><ul class="empty"><li>
+<table cellpadding=5>
+<tr valign=top><td class="left">
+<a href="ft2-computations.html">Computations</a></td><td>
+<p>Crunching fixed numbers and vectors.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-list_processing.html">List Processing</a></td><td>
+<p>Simple management of lists.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-outline_processing.html">Outline Processing</a></td><td>
+<p>Functions to create, transform, and render vectorial glyph images.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-quick_advance.html">Quick retrieval of advance values</a></td><td>
+<p>Retrieve horizontal and vertical advance values without processing glyph outlines, if possible.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-bitmap_handling.html">Bitmap Handling</a></td><td>
+<p>Handling FT_Bitmap objects.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-raster.html">Scanline Converter</a></td><td>
+<p>How vectorial outlines are converted into bitmaps and pixmaps.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-glyph_stroker.html">Glyph Stroker</a></td><td>
+<p>Generating bordered and stroked glyphs.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-system_interface.html">System Interface</a></td><td>
+<p>How FreeType manages memory and i/o.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-module_management.html">Module Management</a></td><td>
+<p>How to add, upgrade, and remove modules from FreeType.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-gzip.html">GZIP Streams</a></td><td>
+<p>Using gzip-compressed font files.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-lzw.html">LZW Streams</a></td><td>
+<p>Using LZW-compressed font files.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-lcd_filtering.html">LCD Filtering</a></td><td>
+<p>Reduce color fringes of LCD-optimized bitmaps.</p>
+</td></tr>
+</table>
+</li></ul></td></tr></table>
+<br><table align=center width="75%"><tr><td><h2>Miscellaneous</h2><ul class="empty"><li>
+<table cellpadding=5>
+<tr valign=top><td class="left">
+<a href="ft2-ot_validation.html">OpenType Validation</a></td><td>
+<p>An API to validate OpenType tables.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-incremental.html">Incremental Loading</a></td><td>
+<p>Custom Glyph Loading.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-truetype_engine.html">The TrueType Engine</a></td><td>
+<p>TrueType bytecode support.</p>
+</td></tr>
+<tr valign=top><td class="left">
+<a href="ft2-gx_validation.html">TrueTypeGX/AAT Validation</a></td><td>
+<p>An API to validate TrueTypeGX/AAT tables.</p>
+</td></tr>
+</table>
+</li></ul></td></tr></table>
+<br><table align=center width="75%"><tr><td><h2><a href="ft2-index.html">Global Index</a></h2><ul class="empty"><li></li></ul></td></tr></table>
+<hr>
+<table><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+</tr></table>
+
+<center><font size=-2>generated on Sat Feb 13 08:32:30 2010</font></center></body>
+</html>

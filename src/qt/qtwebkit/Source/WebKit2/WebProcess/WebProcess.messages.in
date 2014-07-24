@@ -1,0 +1,92 @@
+# Copyright (C) 2010 Apple Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS'' AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS BE LIABLE FOR
+# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+messages -> WebProcess LegacyReceiver {
+    # Initialize the WebProcess. 
+    InitializeWebProcess(WebKit::WebProcessCreationParameters processCreationParameters, WebKit::WebContextUserMessageEncoder initializationUserData) Variadic
+
+    # Create a new page.
+    CreateWebPage(uint64_t newPageID, WebKit::WebPageCreationParameters pageCreationParameters)
+
+    # Visited link tracking.
+    SetVisitedLinkTable(WebKit::SharedMemory::Handle handle)
+    VisitedLinkStateChanged(Vector<WebCore::LinkHash> linkHashes)
+    AllVisitedLinkStateChanged()
+
+    # Global preferences.
+    SetShouldTrackVisitedLinks(bool shouldTrackVisitedLinks)
+    SetCacheModel(uint32_t cacheModel)
+    RegisterURLSchemeAsEmptyDocument(WTF::String scheme)
+    RegisterURLSchemeAsSecure(WTF::String scheme)
+    SetDomainRelaxationForbiddenForURLScheme(WTF::String scheme)
+    RegisterURLSchemeAsLocal(WTF::String scheme)
+    RegisterURLSchemeAsNoAccess(WTF::String scheme)
+    RegisterURLSchemeAsDisplayIsolated(WTF::String scheme)
+    RegisterURLSchemeAsCORSEnabled(WTF::String scheme)
+    SetDefaultRequestTimeoutInterval(double timeoutInterval)
+    SetAlwaysUsesComplexTextCodePath(bool alwaysUseComplexText)
+    SetShouldUseFontSmoothing(bool useFontSmoothing)
+    UserPreferredLanguagesChanged(Vector<WTF::String> languages)
+    FullKeyboardAccessModeChanged(bool fullKeyboardAccessEnabled)
+#if USE(SOUP)
+    SetIgnoreTLSErrors(bool ignoreTLSErrors)
+#endif
+
+    // Private browsing session is per process. Individual pages or page groups may use the private session or the default one as appropriate.
+    EnsurePrivateBrowsingSession()
+    DestroyPrivateBrowsingSession()
+
+    # Plug-ins.
+#if ENABLE(NETSCAPE_PLUGIN_API) && !ENABLE(PLUGIN_PROCESS)
+    GetSitesWithPluginData(Vector<WTF::String> pluginPaths, uint64_t callbackID)
+    ClearPluginSiteData(Vector<WTF::String> pluginPaths, Vector<WTF::String> sites, uint64_t flags, uint64_t maxAgeInSeconds, uint64_t callbackID)
+#endif
+    DidAddPlugInAutoStartOriginHash(uint32_t hash, double expirationTime)
+    ResetPlugInAutoStartOriginHashes(HashMap<uint32_t,double> hashes)
+
+    void StartMemorySampler(WebKit::SandboxExtension::Handle sampleLogFileHandle, WTF::String sampleLogFilePath, double interval);
+    void StopMemorySampler();
+
+    # Downloads. This should really be in a Download.messages.in, but it seemed unnecessary to create a new file just for
+    # two messages.
+    DownloadRequest(uint64_t downloadID, uint64_t initiatingPageID, WebCore::ResourceRequest request)
+    CancelDownload(uint64_t downloadID)
+#if PLATFORM(QT)
+    StartTransfer(uint64_t downloadID, WTF::String destination)
+#endif
+
+    SetTextCheckerState(WebKit::TextCheckerState textCheckerState)
+
+    SetEnhancedAccessibility(bool flag)
+
+    GetWebCoreStatistics(uint64_t callbackID)
+    GarbageCollectJavaScriptObjects()
+    SetJavaScriptGarbageCollectorTimerEnabled(bool enable)
+
+    PostInjectedBundleMessage(CoreIPC::DataReference messageData);
+
+    ReleasePageCache()
+
+#if PLATFORM(MAC)
+    SetProcessSuppressionEnabled(bool flag);
+#endif
+}

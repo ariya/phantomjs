@@ -1,0 +1,3 @@
+contains(QT_CONFIG, system-freetype) {
+    LIBS += -lfreetype
+}

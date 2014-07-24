@@ -1,0 +1,97 @@
+#!/usr/bin/perl
+
+# Copyright (C) 2005, 2006, 2007 Apple Inc.  All rights reserved.
+# Copyright (C) 2006 Alexey Proskuryakov (ap@nypop.com)
+# Copyright (C) 2011 Research In Motion Limited. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+# 3.  Neither the name of Apple Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Script to run Apache with the same configuration as used in http layout tests.
+
+use strict;
+use warnings;
+
+use Cwd;
+use File::Path;
+use File::Basename;
+use Getopt::Long;
+use FindBin;
+
+use lib $FindBin::Bin;
+use webkitperl::httpd;
+use webkitdirs;
+
+# FIXME: Dynamic HTTP-port configuration in this file is wrong.  The various
+# apache config files in LayoutTests/http/config govern the port numbers.
+# Dynamic configuration as-written will also cause random failures in
+# an IPv6 environment.  See https://bugs.webkit.org/show_bug.cgi?id=37104.
+# Argument handling
+my $httpdPort = 8000;
+my $allInterfaces = 0;
+my $showHelp;
+
+my $result = GetOptions(
+    'all-interfaces|a' => \$allInterfaces,
+    'help|h' => \$showHelp,
+    'port=i' => \$httpdPort,
+);
+
+if (!$result || @ARGV || $showHelp) {
+    print "Usage: " . basename($0) . " [options]\n";
+    print "  -a|--all-interfaces  Bind to all interfaces\n";
+    print "  -h|--help            Show this help message\n";
+    print "  -p|--port NNNN       Bind to port NNNN\n";
+    exit 1;
+}
+
+setConfiguration();
+my $productDir = productDir();
+chdirWebKit();
+my $testDirectory = File::Spec->catfile(getcwd(), "LayoutTests");
+my $listen = "127.0.0.1:$httpdPort";
+$listen = "$httpdPort" if ($allInterfaces);
+
+if ($allInterfaces) {
+    print "Starting httpd on port $httpdPort (all interfaces)...\n";
+} else {
+    print "Starting httpd on <http://$listen/>...\n";
+}
+setShouldWaitForUserInterrupt();
+print "Press Ctrl+C to stop it.\n\n";
+
+my @args = (
+    "-C", "Listen $listen",
+    "-c", "CustomLog |/usr/bin/tee common",
+    "-c", "ErrorLog |/usr/bin/tee",
+    # Run in single-process mode, do not detach from the controlling terminal.
+    "-X",
+    # Disable Keep-Alive support. Makes testing in multiple browsers easier (no need to wait
+    # for another browser's connection to expire).
+    "-c", "KeepAlive off"
+);
+
+my @defaultArgs = getDefaultConfigForTestDirectory($testDirectory);
+@args = (@defaultArgs, @args);
+openHTTPD(@args);

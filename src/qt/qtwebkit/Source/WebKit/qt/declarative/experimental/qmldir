@@ -1,0 +1,2 @@
+module QtWebKit.experimental
+plugin qmlwebkitexperimentalplugin

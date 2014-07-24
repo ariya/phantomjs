@@ -1,0 +1,203 @@
+# FreeType 2 top Jamfile.
+#
+# Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 by
+# David Turner, Robert Wilhelm, and Werner Lemberg.
+#
+# This file is part of the FreeType project, and may only be used, modified,
+# and distributed under the terms of the FreeType project license,
+# LICENSE.TXT.  By continuing to use, modify, or distribute this file you
+# indicate that you have read the license and understand and accept it
+# fully.
+
+
+# The HDRMACRO is already defined in FTJam and is used to add
+# the content of certain macros to the list of included header
+# files.
+#
+# We can compile FreeType 2 with classic Jam however thanks to
+# the following code
+#
+if ! $(JAM_TOOLSET)
+{
+  rule HDRMACRO
+  {
+    # nothing
+  }
+}
+
+
+# We need to invoke a SubDir rule if the FT2 source directory top is not the
+# current directory.  This allows us to build FreeType 2 as part of a larger
+# project easily.
+#
+if $(FT2_TOP) != $(DOT)
+{
+  SubDir  FT2_TOP ;
+}
+
+
+# The following macros define the include directory, the source directory,
+# and the final library name (without library extensions).  They can be
+# replaced by other definitions when the library is compiled as part of
+# a larger project.
+#
+
+# Name of FreeType include directory during compilation.
+# This is relative to FT2_TOP.
+#
+FT2_INCLUDE_DIR ?= include ;
+
+# Name of FreeType source directory during compilation.
+# This is relative to FT2_TOP.
+#
+FT2_SRC_DIR ?= src ;
+
+# Name of final library, without extension.
+#
+FT2_LIB ?= $(LIBPREFIX)freetype ;
+
+
+# Define FT2_BUILD_INCLUDE to point to your build-specific directory.
+# This is prepended to FT2_INCLUDE_DIR.  It can be used to specify
+# the location of a custom <ft2build.h> which will point to custom
+# versions of `ftmodule.h' and `ftoption.h', for example.
+#
+FT2_BUILD_INCLUDE ?= ;
+
+# The list of modules to compile on any given build of the library.
+# By default, this will contain _all_ modules defined in FT2_SRC_DIR.
+#
+# IMPORTANT: You'll need to change the content of `ftmodule.h' as well
+#            if you modify this list or provide your own.
+#
+FT2_COMPONENTS ?= autofit    # auto-fitter
+                  base       # base component (public APIs)
+                  bdf        # BDF font driver
+                  cache      # cache sub-system
+                  cff        # CFF/CEF font driver
+                  cid        # PostScript CID-keyed font driver
+                  gzip       # support for gzip-compressed files
+                  lzw        # support for LZW-compressed files
+                  pcf        # PCF font driver
+                  pfr        # PFR/TrueDoc font driver
+                  psaux      # common PostScript routines module
+                  pshinter   # PostScript hinter module
+                  psnames    # PostScript names handling
+                  raster     # monochrome rasterizer
+                  smooth     # anti-aliased rasterizer
+                  sfnt       # SFNT-based format support routines
+                  truetype   # TrueType font driver
+                  type1      # PostScript Type 1 font driver
+                  type42     # PostScript Type 42 (embedded TrueType) driver
+                  winfonts   # Windows FON/FNT font driver
+                  ;
+
+
+# Don't touch.
+#
+FT2_INCLUDE  = $(FT2_BUILD_INCLUDE)
+               [ FT2_SubDir $(FT2_INCLUDE_DIR) ] ;
+
+FT2_SRC      = [ FT2_SubDir $(FT2_SRC_DIR) ] ;
+
+# Location of API Reference Documentation
+#
+if $(DOC_DIR)
+{
+  DOC_DIR = $(DOCDIR:T) ;
+}
+else
+{
+  DOC_DIR = docs/reference ;
+}
+
+
+# Only used by FreeType developers.
+#
+if $(DEBUG_HINTER)
+{
+  CCFLAGS += -DDEBUG_HINTER ;
+}
+
+
+# We need `freetype2/include' in the current include path in order to
+# compile any part of FreeType 2.
+#: updating documentation for upcoming release
+
+HDRS += $(FT2_INCLUDE) ;
+
+
+# We need to #define FT2_BUILD_LIBRARY so that our sources find the
+# internal headers
+#
+DEFINES += FT2_BUILD_LIBRARY ;
+
+# Uncomment the following line if you want to build individual source files
+# for each FreeType 2 module.  This is only useful during development, and
+# is better defined as an environment variable anyway!
+#
+# FT2_MULTI = true ;
+
+
+# The file <freetype/config/ftheader.h> is used to define macros that are
+# later used in #include statements.  It needs to be parsed in order to
+# record these definitions.
+#
+HDRMACRO  [ FT2_SubDir  include freetype config ftheader.h ] ;
+HDRMACRO  [ FT2_SubDir  include freetype internal internal.h ] ;
+
+
+# Now include the Jamfile in `freetype2/src', used to drive the compilation
+# of each FreeType 2 component and/or module.
+#
+SubInclude  FT2_TOP $(FT2_SRC_DIR) ;
+
+# Handle the generation of the `ftexport.sym' file which contain the list
+# of exported symbols.  This can be used on Unix by libtool.
+#
+SubInclude FT2_TOP $(FT2_SRC_DIR) tools ;
+
+rule GenExportSymbols
+{
+  local  apinames = apinames$(SUFEXE) ;
+  local  headers  = [ Glob $(2) : *.h ] ;
+
+  LOCATE on $(1) = $(ALL_LOCATE_TARGET) ;
+
+  APINAMES on $(1) = apinames$(SUFEXE) ;
+
+  Depends            $(1) : $(apinames) $(headers) ;
+  GenExportSymbols1  $(1) : $(headers) ;
+  Clean              clean : $(1) ;
+}
+
+actions GenExportSymbols1 bind APINAMES
+{
+  $(APINAMES) $(2) > $(1)
+}
+
+GenExportSymbols  ftexport.sym : include/freetype include/freetype/cache ;
+
+# Test files (hinter debugging).  Only used by FreeType developers.
+#
+if $(DEBUG_HINTER)
+{
+  SubInclude FT2_TOP tests ;
+}
+
+rule RefDoc
+{
+  Depends  $1 : all ;
+  NotFile  $1 ;
+  Always   $1 ;
+}
+
+actions RefDoc
+{
+  python $(FT2_SRC)/tools/docmaker/docmaker.py --prefix=ft2 --title=FreeType-2.3.12 --output=$(DOC_DIR) $(FT2_INCLUDE)/freetype/*.h $(FT2_INCLUDE)/freetype/config/*.h
+}
+
+RefDoc  refdoc ;
+
+
+# end of top Jamfile

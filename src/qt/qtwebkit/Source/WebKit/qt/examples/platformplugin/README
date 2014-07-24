@@ -1,0 +1,14 @@
+Platform plugin example.
+
+This project will create a shared library named platformplugin in directory $$[QT_INSTALL_PLUGINS]/webkit
+that will provide combo boxes popups to QtWebKit.
+
+QtWebKit will look for the plugins automatically so there is no need to make any other configuration to
+put the plugin into use. To stop using the plugin just remove the directory $$[QT_INSTALL_PLUGINS]/webkit.
+
+A copy of qwebkitplatformplugin.h is provided with the example, as platform plugins should not depend
+on the precense of QtWebKit to build.
+
+This plugin can provide popups for <select multiple> elements but to use this feature QtWebKit must be
+compiled with NO_LISTBOX_RENDERING enabled.
+

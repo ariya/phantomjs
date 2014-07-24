@@ -1,0 +1,70 @@
+#!/usr/bin/env ruby
+
+# Copyright (C) 2010 Apple Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+# BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+# THE POSSIBILITY OF SUCH DAMAGE.
+
+base_directory = ENV['TARGET_BUILD_DIR'] or throw "Unable to find TARGET_BUILD_DIR in the environment!"
+project_name = ENV['PROJECT_NAME'] or throw "Unable to find PROJECT_NAME in the environment!"
+is_shallow_bundle = (ENV['SHALLOW_BUNDLE'] || "NO").upcase == "YES"
+
+$INAPPROPRIATE_FILES = { "WebCore" => { "Resources" => ["*.css", "*.in", "*.idl", "*.h"] },
+                         "WebKit2" => { "Resources" => ["*.in", "*.h"] },
+                       }
+
+Dir.chdir base_directory
+
+$error_printed = false
+
+def print_error msg
+  $error_printed = true
+  STDERR.puts "ERROR: #{msg}"
+end
+
+def print_inappropriate_file_error framework, relative_path
+  print_error "#{framework}.framework/#{relative_path} should not be present in the framework."
+end
+
+def check_framework framework, is_shallow_bundle
+  $INAPPROPRIATE_FILES[framework].each do |directory, patterns|
+    framework_bundle_path = is_shallow_bundle ? "#{framework}.framework" : "#{framework}.framework/Versions/A/#{directory}"
+    Dir.chdir framework_bundle_path do
+      patterns.each do |pattern|
+        Dir.glob(pattern).each do |inappropriate_file|
+          print_inappropriate_file_error framework, is_shallow_bundle ? inappropriate_file : "#{directory}/#{inappropriate_file}"
+          File.unlink inappropriate_file
+        end
+      end
+    end
+  end
+end
+
+check_framework project_name, is_shallow_bundle
+
+if $error_printed
+  STDERR.puts
+  STDERR.puts "    Inappropriate files were detected and have been removed from the framework."
+  STDERR.puts "    If this error continues to appear after building again then the build system needs"
+  STDERR.puts "    to be modified so that the inappropriate files are no longer copied in to the framework."
+  STDERR.puts
+  exit 1
+end

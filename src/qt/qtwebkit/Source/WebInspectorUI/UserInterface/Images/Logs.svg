@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright © 2013 Apple Inc. All rights reserved. -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+    <path d="M10.999,2h-6c-1.649,0-3,1.35-3,3v5c0,1.65,1.351,3,3,3v3l3-3h3c1.649,0,3-1.35,3-3V5C13.999,3.35,12.648,2,10.999,2
+     M10.999,10h-6V9h6V10z M10.999,8h-6V7h6V8z M10.999,6h-6V5h6V6z"/>
+</svg>

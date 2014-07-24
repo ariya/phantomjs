@@ -1,0 +1,282 @@
+/*
+ * Copyright (C) 2012 Google Inc. All rights reserved.
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1.  Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ * 2.  Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+[
+    NoInterfaceObject,
+] interface Internals {
+    DOMString address(Node node);
+
+    [RaisesException] DOMString elementRenderTreeAsText(Element element);
+    boolean isPreloaded(DOMString url);
+    boolean isLoadingFromMemoryCache(DOMString url);
+
+    [RaisesException] unsigned long numberOfScopedHTMLStyleChildren(Node scope);
+    [RaisesException] CSSStyleDeclaration computedStyleIncludingVisitedInfo(Node node);
+
+#if defined(ENABLE_SHADOW_DOM) && ENABLE_SHADOW_DOM
+    [RaisesException] ShadowRoot ensureShadowRoot(Element host);
+    [RaisesException] ShadowRoot createShadowRoot(Element host);
+    [RaisesException] ShadowRoot shadowRoot(Element host);
+#else
+    [RaisesException] Node ensureShadowRoot(Element host);
+    [RaisesException] Node createShadowRoot(Element host);
+    [RaisesException] Node shadowRoot(Element host);
+#endif
+    [RaisesException] DOMString shadowRootType(Node root);
+    [RaisesException] Element includerFor(Node node);
+    [RaisesException] DOMString shadowPseudoId(Element element);
+    [RaisesException] void setShadowPseudoId(Element element, DOMString id);
+    [RaisesException] Element createContentElement();
+    [RaisesException] boolean isValidContentSelect(Element contentElement);
+    [RaisesException] Node treeScopeRootNode(Node node);
+    [RaisesException] Node parentTreeScope(Node node);
+
+    // CSS Animation testing.
+    unsigned long numberOfActiveAnimations();
+    [RaisesException] void suspendAnimations(Document document);
+    [RaisesException] void resumeAnimations(Document document);
+    [RaisesException] boolean animationsAreSuspended(in Document document);
+    [RaisesException] boolean pauseAnimationAtTimeOnElement(DOMString animationName, double pauseTime, Element element);
+    [RaisesException] boolean pauseAnimationAtTimeOnPseudoElement(DOMString animationName, double pauseTime, Element element, DOMString pseudoId);
+
+    // CSS Transition testing.
+    [RaisesException] boolean pauseTransitionAtTimeOnElement(DOMString propertyName, double pauseTime, Element element);
+    [RaisesException] boolean pauseTransitionAtTimeOnPseudoElement(DOMString property, double pauseTime, Element element, DOMString pseudoId);
+
+    [RaisesException] Node nextSiblingByWalker(Node node);
+    [RaisesException] Node firstChildByWalker(Node node);
+    [RaisesException] Node lastChildByWalker(Node node);
+    [RaisesException] Node nextNodeByWalker(Node node);
+    [RaisesException] Node previousNodeByWalker(Node node);
+
+    [RaisesException] boolean attached(Node node);
+
+    DOMString visiblePlaceholder(Element element);
+#if defined(ENABLE_INPUT_TYPE_COLOR) && ENABLE_INPUT_TYPE_COLOR
+    void selectColorInColorChooser(Element element, DOMString colorValue);
+#endif
+    [RaisesException] DOMString[] formControlStateOfPreviousHistoryItem();
+    [RaisesException] void setFormControlStateOfPreviousHistoryItem(sequence<DOMString> values);
+
+    [RaisesException] ClientRect absoluteCaretBounds();
+
+    [RaisesException] ClientRect boundingBox(Element element);
+
+    [RaisesException] ClientRectList inspectorHighlightRects(Document document);
+
+    [RaisesException] unsigned long markerCountForNode(Node node, DOMString markerType);
+    [RaisesException] Range markerRangeForNode(Node node, DOMString markerType, unsigned long index);
+    [RaisesException] DOMString markerDescriptionForNode(Node node, DOMString markerType, unsigned long index);
+    void addTextMatchMarker(Range range, boolean isActive);
+
+    [RaisesException] void setScrollViewPosition(Document document, long x, long y);
+
+    [RaisesException] void setPagination(Document document, DOMString mode, long gap, optional long pageLength);
+
+    [RaisesException] DOMString configurationForViewport(Document document,
+                                       float devicePixelRatio,
+                                       long deviceWidth,
+                                       long deviceHeight,
+                                       long availableWidth,
+                                       long availableHeight);
+
+    [RaisesException] boolean wasLastChangeUserEdit(Element textField);
+    [RaisesException] boolean elementShouldAutoComplete(Element inputElement);
+    [RaisesException] DOMString suggestedValue(Element inputElement);
+    [RaisesException] void setSuggestedValue(Element inputElement, DOMString value);
+    [RaisesException] void setEditingValue(Element inputElement, DOMString value);
+    [RaisesException] void setAutofilled(Element inputElement, boolean enabled);
+
+    [RaisesException] void paintControlTints(Document document);
+
+    [RaisesException] void scrollElementToRect(Element element, long x, long y, long w, long h);
+
+    [RaisesException] Range rangeFromLocationAndLength(Element scope, long rangeLocation, long rangeLength);
+    [RaisesException] unsigned long locationFromRange(Element scope, Range range);
+    [RaisesException] unsigned long lengthFromRange(Element scope, Range range);
+    [RaisesException] DOMString rangeAsText(Range range);
+
+    [RaisesException] void setDelegatesScrolling(boolean enabled, Document document);
+#if defined(ENABLE_TOUCH_ADJUSTMENT) && ENABLE_TOUCH_ADJUSTMENT
+    [RaisesException] WebKitPoint touchPositionAdjustedToBestClickableNode(long x, long y, long width, long height, Document document);
+    [RaisesException] Node touchNodeAdjustedToBestClickableNode(long x, long y, long width, long height, Document document);
+    [RaisesException] WebKitPoint touchPositionAdjustedToBestContextMenuNode(long x, long y, long width, long height, Document document);
+    [RaisesException] Node touchNodeAdjustedToBestContextMenuNode(long x, long y, long width, long height, Document document);
+    [RaisesException] ClientRect bestZoomableAreaForTouchPoint(long x, long y, long width, long height, Document document);
+#endif
+
+    [RaisesException] long lastSpellCheckRequestSequence(Document document);
+    [RaisesException] long lastSpellCheckProcessedSequence(Document document);
+
+    sequence<DOMString> userPreferredLanguages();
+    void setUserPreferredLanguages(sequence<DOMString> languages);
+
+    [RaisesException] unsigned long wheelEventHandlerCount(Document document);
+    [RaisesException] unsigned long touchEventHandlerCount(Document document);
+#if defined(ENABLE_TOUCH_EVENT_TRACKING) && ENABLE_TOUCH_EVENT_TRACKING
+    [RaisesException] ClientRectList touchEventTargetClientRects(Document document);
+#endif
+
+    [RaisesException] NodeList nodesFromRect(Document document, long x, long y,
+        unsigned long topPadding, unsigned long rightPadding, unsigned long bottomPadding, unsigned long leftPadding,
+        boolean ignoreClipping, boolean allowShadowContent, boolean allowChildFrameContent);
+
+    void emitInspectorDidBeginFrame();
+    void emitInspectorDidCancelFrame();
+
+    [RaisesException] boolean hasSpellingMarker(Document document, long from, long length);
+    [RaisesException] boolean hasGrammarMarker(Document document, long from, long length);
+    [RaisesException] boolean hasAutocorrectedMarker(Document document, long from, long length);
+    [RaisesException] void setContinuousSpellCheckingEnabled(boolean enabled);
+    [RaisesException] void setAutomaticQuoteSubstitutionEnabled(boolean enabled);
+    [RaisesException] void setAutomaticLinkDetectionEnabled(boolean enabled);
+    [RaisesException] void setAutomaticDashSubstitutionEnabled(boolean enabled);
+    [RaisesException] void setAutomaticTextReplacementEnabled(boolean enabled);
+    [RaisesException] void setAutomaticSpellingCorrectionEnabled(boolean enabled);
+
+    [RaisesException] boolean isOverwriteModeEnabled(Document document);
+    [RaisesException] void toggleOverwriteModeEnabled(Document document);
+
+    [RaisesException] unsigned long numberOfScrollableAreas(Document document);
+
+    [RaisesException] boolean isPageBoxVisible(Document document, long pageNumber);
+
+    readonly attribute InternalSettings settings;
+    readonly attribute unsigned long workerThreadCount;
+
+    // Flags for layerTreeAsText.
+    const unsigned short LAYER_TREE_INCLUDES_VISIBLE_RECTS = 1;
+    const unsigned short LAYER_TREE_INCLUDES_TILE_CACHES = 2;
+    const unsigned short LAYER_TREE_INCLUDES_REPAINT_RECTS = 4;
+    const unsigned short LAYER_TREE_INCLUDES_PAINTING_PHASES = 8;
+    [RaisesException] DOMString layerTreeAsText(Document document, optional unsigned short flags);
+
+    [RaisesException] DOMString scrollingStateTreeAsText(Document document);
+    [RaisesException] DOMString mainThreadScrollingReasons(Document document);
+    [RaisesException] ClientRectList nonFastScrollableRects(Document document);
+
+    [RaisesException] DOMString repaintRectsAsText(Document document);
+
+    [RaisesException] void garbageCollectDocumentResources(Document document);
+
+    void allowRoundingHacks();
+
+    void insertAuthorCSS(Document document, DOMString css);
+    void insertUserCSS(Document document, DOMString css);
+
+#if defined(ENABLE_BATTERY_STATUS) && ENABLE_BATTERY_STATUS
+    [RaisesException] void setBatteryStatus(Document document, DOMString eventType, boolean charging, double chargingTime, double dischargingTime, double level);
+#endif
+
+#if defined(ENABLE_NETWORK_INFO) && ENABLE_NETWORK_INFO
+    [RaisesException] void setNetworkInformation(Document document, DOMString eventType, double bandwidth, boolean metered);
+#endif
+
+#if defined(ENABLE_PROXIMITY_EVENTS) && ENABLE_PROXIMITY_EVENTS
+    [RaisesException] void setDeviceProximity(Document document, DOMString eventType, double value, double min, double max);
+#endif
+
+    [Conditional=INSPECTOR] unsigned long numberOfLiveNodes();
+    [Conditional=INSPECTOR] unsigned long numberOfLiveDocuments();
+    [Conditional=INSPECTOR] sequence<DOMString> consoleMessageArgumentCounts(Document document);
+    [Conditional=INSPECTOR] DOMWindow openDummyInspectorFrontend(DOMString url);
+    [Conditional=INSPECTOR] void closeDummyInspectorFrontend();
+    [Conditional=INSPECTOR, RaisesException] void setInspectorResourcesDataSizeLimits(long maximumResourcesContentSize, long maximumSingleResourceContentSize);
+    [Conditional=INSPECTOR, RaisesException] void setJavaScriptProfilingEnabled(boolean creates);
+
+    DOMString counterValue(Element element);
+    long pageNumber(Element element, optional float pageWidth, optional float pageHeight);
+    DOMString[] shortcutIconURLs(Document document);
+    DOMString[] allIconURLs(Document document);
+    long numberOfPages(optional double pageWidthInPixels, optional double pageHeightInPixels);
+    [RaisesException] DOMString pageProperty(DOMString propertyName, long pageNumber);
+    [RaisesException] DOMString pageSizeAndMarginsInPixels(long pageIndex, long width, long height, long marginTop, long marginRight, long marginBottom, long marginLeft);
+
+    [RaisesException] void setPageScaleFactor(float scaleFactor, long x, long y);
+
+    void setHeaderHeight(Document document, float height);
+    void setFooterHeight(Document document, float height);
+
+#if defined(ENABLE_FULLSCREEN_API) && ENABLE_FULLSCREEN_API
+    void webkitWillEnterFullScreenForElement(Document document, Element element);
+    void webkitDidEnterFullScreenForElement(Document document, Element element);
+    void webkitWillExitFullScreenForElement(Document document, Element element);
+    void webkitDidExitFullScreenForElement(Document document, Element element);
+#endif
+
+    void registerURLSchemeAsBypassingContentSecurityPolicy(DOMString scheme);
+    void removeURLSchemeRegisteredAsBypassingContentSecurityPolicy(DOMString scheme);
+
+    MallocStatistics mallocStatistics();
+    TypeConversions typeConversions();
+    MemoryInfo memoryInfo();
+
+    DOMString[] getReferencedFilePaths();
+
+    // These functions both reset the tracked repaint rects. They are inteded to be used in the following order:
+    //  startTrackingRepaints, repaintRectsAsText, stopTrackingRepaints.
+    [RaisesException] void startTrackingRepaints(Document document);
+    [RaisesException] void stopTrackingRepaints(Document document);
+
+    // Returns a string with information about the mouse cursor used at the specified client location.
+    [RaisesException] DOMString getCurrentCursorInfo(Document document);
+
+    [RaisesException] DOMString markerTextForListItem(Element element);
+
+    SerializedScriptValue deserializeBuffer(ArrayBuffer buffer);
+    ArrayBuffer serializeObject(SerializedScriptValue obj);
+
+    void setUsesOverlayScrollbars(boolean enabled);
+
+    void forceReload(boolean endToEnd);
+
+    [Conditional=VIDEO] void simulateAudioInterruption(Node node);
+
+    [Conditional=ENCRYPTED_MEDIA_V2] void initializeMockCDM();
+
+    [Conditional=SPEECH_SYNTHESIS] void enableMockSpeechSynthesizer();
+
+    [RaisesException] DOMString getImageSourceURL(Element element);
+
+    [Conditional=VIDEO_TRACK, RaisesException] DOMString captionsStyleSheetOverride();
+    [Conditional=VIDEO_TRACK, RaisesException] void setCaptionsStyleSheetOverride(DOMString override);
+    [Conditional=VIDEO_TRACK, RaisesException] void setPrimaryAudioTrackLanguageOverride(DOMString language);
+    [Conditional=VIDEO_TRACK, RaisesException] void setCaptionDisplayMode(DOMString mode);
+
+    [Conditional=VIDEO] TimeRanges createTimeRanges(Float32Array startTimes, Float32Array
+     endTimes);
+    [Conditional=VIDEO] double closestTimeToTimeRanges(double time, TimeRanges ranges);
+
+    boolean isSelectPopupVisible(Node node);
+
+#if defined(ENABLE_VIBRATION) && ENABLE_VIBRATION
+    boolean isVibrating();
+#endif
+
+    [RaisesException] boolean isPluginUnavailabilityIndicatorObscured(Element element);
+
+    [RaisesException] ClientRect selectionBounds();
+};

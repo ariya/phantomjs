@@ -1,0 +1,70 @@
+/*
+ * Copyright (C) 2006 Apple Computer, Inc.  All rights reserved.
+ * Copyright (C) 2012, 2013 Adobe Systems Incorporated. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1.  Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ * 2.  Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+ * OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+ * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
+
+[
+    Constructor,
+    Constructor(DOMPath path),
+#if defined(ENABLE_SVG) && ENABLE_SVG
+    Constructor(DOMString text),
+#endif
+    Conditional=CANVAS_PATH,
+    InterfaceName=Path
+] interface DOMPath {
+
+    // FIXME: These methods should be shared with CanvasRenderingContext2D in the CanvasPathMethods interface.
+    void closePath();
+    void moveTo([Default=Undefined] optional float x,
+                [Default=Undefined] optional float y);
+    void lineTo([Default=Undefined] optional float x,
+                [Default=Undefined] optional float y);
+    void quadraticCurveTo([Default=Undefined] optional float cpx,
+                          [Default=Undefined] optional float cpy,
+                          [Default=Undefined] optional float x,
+                          [Default=Undefined] optional float y);
+    void bezierCurveTo([Default=Undefined] optional float cp1x,
+                       [Default=Undefined] optional float cp1y,
+                       [Default=Undefined] optional float cp2x,
+                       [Default=Undefined] optional float cp2y,
+                       [Default=Undefined] optional float x,
+                       [Default=Undefined] optional float y);
+    [RaisesException] void arcTo([Default=Undefined] optional float x1,
+               [Default=Undefined] optional float y1,
+               [Default=Undefined] optional float x2,
+               [Default=Undefined] optional float y2,
+               [Default=Undefined] optional float radius);
+    void rect([Default=Undefined] optional float x,
+              [Default=Undefined] optional float y,
+              [Default=Undefined] optional float width,
+              [Default=Undefined] optional float height);
+    [RaisesException] void arc([Default=Undefined] optional float x,
+             [Default=Undefined] optional float y,
+             [Default=Undefined] optional float radius,
+             [Default=Undefined] optional float startAngle,
+             [Default=Undefined] optional float endAngle,
+             [Default=Undefined] optional boolean anticlockwise);
+};

@@ -1,0 +1,318 @@
+# -------------------------------------------------------------------
+# QtWebKit defaults for qmake. These rules are parsed after the
+# actual project file.
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+# Flag that we're now done processing the project file. This allows
+# a feature to distinguish between being processed due to a load()
+# or include() and a CONFIG += feature.
+CONFIG += config_step
+
+# Enable dynamic instead of static libraries for development
+# Avoid it with debug_and_release, it can cause the application to load both the debug and release
+# dependent libraries when using frameworks on Mac.
+!production_build:!debug_and_release:!buildbot:!win*:!build?(webkit2): CONFIG += force_static_libs_as_shared
+
+# Don't create .prl files for intermediate libraries because their contents get used when linking against
+# them, breaking "-Wl,-whole-archive -lMyIntermediateLib --Wl,-no-whole-archive"
+staticlib: CONFIG -= create_prl
+
+root_project_file: finalizeConfigure()
+
+# Sanitize build config for single-configuration builds
+!debug|!release {
+    # Removing debug_and_release causes issues with lib suffixes when building debug on Windows.
+    # Work around it by only removing build_all, and still create the Makefiles for both configurations.
+    win32*: CONFIG -= build_all
+    else: {
+        CONFIG -= debug_and_release
+        # Default to release
+        !debug:!release: CONFIG += release
+    }
+} else:debug_and_release {
+    # Only build a single instance of each application
+    contains(TEMPLATE, app):!force_build_all {
+        CONFIG -= build_all
+    }
+}
+
+# General default build tweaks
+DEFINES += \
+    BUILDING_QT__=1
+
+CONFIG(release, debug|release): DEFINES *= NDEBUG
+
+DEFINES += $$configDefines()
+
+INCLUDEPATH += \
+    $${ROOT_WEBKIT_DIR}/Source \
+    $${ROOT_BUILD_DIR}/Source/include \
+    $${QT.script.includes}
+
+CONFIG -= warn_on
+
+!compiling_thirdparty_code:*-g++*: QMAKE_CXXFLAGS = \
+    -Wall \
+    -Wextra \
+    -Wreturn-type \
+    -fno-strict-aliasing \
+    -Wchar-subscripts \
+    -Wformat-security \
+    -Wreturn-type \
+    -Wno-unused-parameter \
+    -Wno-sign-compare \
+    -Wno-switch \
+    -Wno-switch-enum \
+    -Wundef \
+    -Wmissing-noreturn \
+    -Winit-self \
+    $$QMAKE_CXXFLAGS
+
+# Template configurations
+contains(TEMPLATE, derived) {
+    # A (mostly) no-op template
+    TEMPLATE = aux
+
+    # Trick qmake into not generating a default $(DEL_FILE) rule
+    CONFIG += compile_libtool
+
+    CONFIG -= debug_and_release
+
+    fake_debug.target = debug
+    fake_debug.depends = first
+    QMAKE_EXTRA_TARGETS += fake_debug
+    fake_release.target = release
+    fake_release.depends = first
+    QMAKE_EXTRA_TARGETS += fake_release
+
+    # A lot of our code generators require GNU tools, readily available
+    # on Linux and Mac OS X. On Windows we do have a convenience copy in
+    # Qt5's top-level repository, so let's add that to the PATH if we can
+    # find it.
+    win32 {
+        GNUTOOLS_DIR=$$[QT_HOST_DATA]/../gnuwin32/bin
+        exists($$GNUTOOLS_DIR/gperf.exe) {
+            GNUTOOLS = "(set $$escape_expand(\\\")PATH=$$toSystemPath($$GNUTOOLS_DIR);%PATH%$$escape_expand(\\\"))"
+        }
+    }
+
+    for(generator, GENERATORS) {
+        eval($${generator}.CONFIG = target_predeps no_link)
+        eval($${generator}.dependency_type = TYPE_C)
+
+        isEmpty($${generator}.output_function) {
+            prependEach($${generator}.output, $${GENERATED_SOURCES_DESTDIR}/)
+        }
+
+        script = $$eval($${generator}.script)
+        eval($${generator}.depends += $$script)
+
+        commands = $$eval($${generator}.commands)
+        !isEmpty(commands):!isEmpty(GNUTOOLS) {
+            eval($${generator}.commands = $${GNUTOOLS} && $$val_escape($${generator}.commands))
+        }
+
+        !isEmpty($${generator}.input) {
+            # Compiler-style generator
+            QMAKE_EXTRA_COMPILERS += $$generator
+            DEFAULT_TARGETS += compiler_$${generator}_make_all
+        } else {
+            # Regular target generator
+            QMAKE_EXTRA_TARGETS += $$generator
+            DEFAULT_TARGETS += $$generator
+        }
+    }
+} else {
+    # Make sure the generated sources are compiled as well
+    for(generator, GENERATORS) {
+        prependEach($${generator}.extra_sources, $${GENERATED_SOURCES_DESTDIR}/)
+        SOURCES += $$eval($${generator}.extra_sources)
+
+        isEqual($${generator}.add_output_to_sources, false): next()
+
+        output = $$eval($${generator}.output)
+        input = $$eval($${generator}.input)
+        input_files = $$eval($$input)
+        output_variable = $$eval($${generator}.variable_out)
+        isEmpty(output_variable): output_variable = SOURCES
+
+        isEmpty($${generator}.output_function) {
+            prependEach(output, $${GENERATED_SOURCES_DESTDIR}/)
+
+            for(input_file, input_files) {
+                base = $$basename(input_file)
+                base ~= s/\\..+//
+                output_file = $$replace(output,\\$\\{QMAKE_FILE_BASE\\}, $$base)
+
+                eval($$output_variable += $$output_file)
+            }
+        } else {
+            function = $$eval($${generator}.output_function)
+            for(input_file, input_files) {
+                eval(output_file = \$\$$$function\($$input_file\))
+                eval($$output_variable += $$output_file)
+            }
+        }
+    }
+}
+
+contains(QT, webkit)|contains(QT, webkitwidgets) {
+    # In addition to the main shared QtWebKit library we also
+    # need to link to any intermediate shared libraries.
+    force_static_libs_as_shared {
+        WEBKIT += wtf javascriptcore webcore
+        build?(webkit1): WEBKIT += webkit1
+        build?(webkit2): WEBKIT += webkit2
+    }
+
+    # FIXME: Replace this with putting the intermediate libraries in the prl file
+}
+
+defineTest(needToLink) {
+    # The main module dynamic library always needs to link in the intermediate libraries
+    isEqual(MODULE, webkit): return(true)
+
+    force_static_libs_as_shared {
+        # So do the individual libraries if they are dynamic
+        contains(libraries, $$TARGET): return(true)
+
+        # Or anything that uses QtWebKit in this special config
+        contains(QT, webkit)|contains(QT, webkitwidgets): return(true)
+    }
+
+    # Lastly, we allow apps (jsc) to link directly to the intermediate
+    # libraries intead of using the exported symbols from QtWebKit.
+    contains(TEMPLATE, app):!contains(QT, webkit):!contains(QT, webkitwidgets): return(true)
+
+    # Anything else should just get include paths, etc, not link
+    return(false)
+}
+
+# Make sure we have loaded the relevant modules, so the include paths,
+# etc, are correct, and we can use WEBKIT.foo.dependent_libs below.
+load(webkit_modules)
+
+# We might need to link against the WebKit intermediate libraries
+needToLink() {
+    for(library, WEBKIT) {
+        library_identifier = $$lower($$library)
+        linkAgainstLibrary($$library, $$eval(WEBKIT.$${library_identifier}.root_source_dir))
+        LIBS += $$eval(WEBKIT.$${library_identifier}.dependent_libs)
+    }
+}
+
+creating_module {
+    # Sanitize LIBS, as we don't want any of these libraries
+    # to end up in as public API dependenices in the QtWebKit prl file.
+    LIBS_PRIVATE += $$LIBS
+    unset(LIBS)
+    # Copy Qt module dependencies from QT to QT_PRIVATE to ensure the
+    # Qt libraries are linked after the private static libraries that
+    # depend on them
+    QT_PRIVATE += $$QT
+}
+
+equals(_PRO_FILE_, $${ROOT_WEBKIT_DIR}/WebKit.pro):!isEmpty(OVERRIDE_SUBDIRS) {
+    # The root WebKit project file is the only one that allows
+    # you to pass a set of subtargets on the comand line.
+    SUBDIRS = $$OVERRIDE_SUBDIRS
+}
+
+# Remove subdirs that do not exist
+for(subdir, SUBDIRS) {
+    path = $$eval($${subdir}.file)
+    isEmpty(path): path = $$eval($${subdir}.subdir)
+    isEmpty(path): path = $${subdir}
+    !exists($${_PRO_FILE_PWD_}$${QMAKE_DIR_SEP}$${path}) {
+        #message(Removing invalid subtarget $${subdir} $${path})
+        #SUBDIRS -= $${subdir}
+    }
+}
+
+root_project_file {
+    # Tweak documentation rules so that we only get documentation
+    # for the QtWebKit subdir, which means we don't have to run
+    # qmake_all and generate all the derived sources, just to
+    # build documentation.
+    previous_subdir =
+    doc_targets = docs install_docs uninstall_docs prepare_docs generate_docs
+    for(subdir, SUBDIRS) {
+        equals(subdir, QtWebKit) {
+            for(doc_target, doc_targets) {
+                # Since we use CONFIG += ordered, we need to provide a fake dummy
+                # doc-target for the immediate dependency of the QtWebKit target.
+                dummy_target = sub-$$replace($${previous_subdir}.file, [^a-zA-Z0-9_], -)-$${doc_target}_ordered
+                $${dummy_target}.target = $${dummy_target}
+                QMAKE_EXTRA_TARGETS += $${dummy_target}
+            }
+        } else {
+            previous_subdir = $$subdir # Save for later
+
+            # For all the other subdirs, we disable docs the regular way
+            for(doc_target, doc_targets): $${subdir}.CONFIG += no_$${doc_target}_target
+        }
+    }
+}
+
+incremental.target = incremental
+incremental.commands = $(MAKE) -f $(MAKEFILE) qmake_all && $(MAKE) -f $(MAKEFILE)
+QMAKE_EXTRA_TARGETS += incremental
+
+contains(TEMPLATE, lib) {
+    # Triggers the right export macros for WebKit internals
+    DEFINES += BUILDING_$${TARGET}
+
+    # Triggers the right export macro for the QtWebKit API (see qwebkitglobal.h)
+    !contains(QT, webkit)|equals(MODULE, webkitwidgets): DEFINES += BUILDING_WEBKIT
+
+    # Prevent name clashes when building both debug and release. Qt5's module
+    # system already takes care of this for the top level QtWebKit library.
+    !qt_install_module:debug_and_release: TARGET = $$qtLibraryTarget($$TARGET)
+
+    staticlib:gnu_thin_archives {
+        # Replace the hardcoded archiver command line
+        # options to use GNU ar's thin archive format.
+        AR_COMMAND = $$split(QMAKE_AR, " ")
+        QMAKE_AR = $$member(AR_COMMAND, 0) cruT
+    }
+
+    isEmpty(DESTDIR): DESTDIR = $$targetSubDir()
+
+    DEFINES += QT_ASCII_CAST_WARNINGS
+
+    !plugin {
+        contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
+        unix:contains(QT_CONFIG, reduce_relocations):CONFIG += bsymbolic_functions
+    }
+}
+
+# Remove duplicated sources
+SOURCES = $$unique(SOURCES)
+OBJECTIVE_SOURCES = $$unique(OBJECTIVE_SOURCES)
+
+# Someone might remove a header from the tree without touching
+# the corresponding project file, for example if the project
+# file never had the header in HEADERS. In that case we don't
+# want warnings from make about "No rule to make target".
+ignore_missing_headers.target = %.h
+ignore_missing_headers.commands = $${MAKEFILE_NOOP_COMMAND}
+QMAKE_EXTRA_TARGETS += ignore_missing_headers
+
+# Override default target
+build_pass:build_all:default_target.target = all
+else: default_target.target = first
+for(target, $$list($$unique(DEFAULT_TARGETS))) {
+    default_target.depends += $$target
+}
+!isEmpty(default_target.depends): QMAKE_EXTRA_TARGETS += default_target
+
+# Qt's debug_and_release config will replace every occurance of
+# Release or Debug in the destination dir. This fails when the
+# desination dir is absolute and contains a static path component
+# that also contains either of those two words, so we make DESTDIR
+# relative.
+DESTDIR = $$replace(DESTDIR, ^$$re_escape($${ROOT_BUILD_DIR}), $${BUILD_ROOT_RELATIVE_TO_OUT_PWD})
+
+load(default_post) # Load Qt's defaults

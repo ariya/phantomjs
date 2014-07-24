@@ -1,0 +1,810 @@
+doc/metaobjects.doc    2.9  warwick  +3 -3
+doc/tutorial.doc    2.13  warwick  +4 -4
+examples/aclock/aclock.h    2.3  warwick  +2 -2
+examples/aclock/main.cpp    2.3  warwick  +2 -2
+examples/application/application.cpp    1.12  warwick  +8 -8
+examples/application/main.cpp    1.6  warwick  +2 -2
+examples/biff/biff.cpp    2.3  warwick  +2 -2
+examples/biff/biff.h    2.3  warwick  +2 -2
+examples/biff/main.cpp    2.3  warwick  +2 -2
+examples/connect/connect.cpp    2.5  warwick  +2 -2
+examples/cursor/cursor.cpp    2.3  warwick  +2 -2
+examples/dclock/dclock.cpp    2.4  warwick  +2 -2
+examples/dclock/dclock.h    2.3  warwick  +2 -2
+examples/dclock/main.cpp    2.3  warwick  +2 -2
+examples/desktop/desktop.cpp    2.4  warwick  +2 -2
+examples/dirview/dirview.cpp    1.9  warwick  +2 -2
+examples/dirview/main.cpp    1.7  warwick  +2 -2
+examples/drawdemo/drawdemo.cpp    2.7  warwick  +5 -5
+examples/forever/forever.cpp    2.4  warwick  +2 -2
+examples/hello/hello.cpp    2.5  warwick  +2 -2
+examples/hello/main.cpp    2.6  warwick  +2 -2
+examples/layout/layout.cpp    1.6  warwick  +6 -6
+examples/layouts/layouts.cpp    1.5  warwick  +6 -6
+examples/layouts/qtbuttonrow.cpp    1.4  warwick  +4 -3
+examples/layouts/qthbox.cpp    1.4  warwick  +2 -2
+examples/life/life.cpp    2.5  warwick  +4 -4
+examples/life/lifedlg.cpp    2.8  warwick  +5 -5
+examples/life/main.cpp    2.3  warwick  +2 -2
+examples/menu/menu.cpp    2.15  warwick  +4 -4
+examples/movies/main.cpp    1.11  warwick  +4 -4
+examples/network/connection.cpp    1.7  warwick  +2 -2
+examples/network/finger.cpp    1.7  warwick  +6 -6
+examples/network/prime.cpp    1.6  warwick  +5 -5
+examples/network/primed.cpp    1.8  warwick  +4 -4
+examples/network/primespeed.cpp    1.5  warwick  +5 -5
+examples/network/server.cpp    1.8  warwick  +2 -2
+examples/network/share.cpp    1.6  warwick  +4 -4
+examples/picture/picture.cpp    1.6  warwick  +3 -3
+examples/pref/main.cpp    1.7  warwick  +2 -2
+examples/pref/pref.cpp    1.20  warwick  +5 -5
+examples/progress/progress.cpp    1.13  warwick  +4 -4
+examples/qdir/qdir.cpp    1.6  warwick  +3 -3
+examples/qmag/qmag.cpp    2.16  warwick  +5 -5
+examples/qwerty/main.cpp    1.6  warwick  +2 -2
+examples/qwerty/qwerty.cpp    1.11  warwick  +7 -7
+examples/qwerty/qwerty.h    1.8  warwick  +2 -2
+examples/scrollview/scrollview.cpp    1.15  warwick  +6 -6
+examples/sheet/main.cpp    2.5  warwick  +2 -2
+examples/sheet/sheet.cpp    2.5  warwick  +2 -2
+examples/sheet/sheetdlg.cpp    2.5  warwick  +2 -2
+examples/sheet/sheetdlg.h    2.3  warwick  +2 -2
+examples/sheet/table.cpp    2.4  warwick  +2 -2
+examples/sheet/table.h    2.4  warwick  +3 -3
+examples/showimg/main.cpp    2.18  warwick  +2 -2
+examples/showimg/showimg.cpp    2.24  warwick  +5 -5
+examples/table/main.cpp    1.4  warwick  +3 -3
+examples/table/table.h    1.5  warwick  +2 -2
+examples/tetrix/qdragapp.cpp    2.3  warwick  +5 -4
+examples/tetrix/qdragapp.h    2.3  warwick  +2 -2
+examples/tetrix/qtetrix.cpp    2.7  warwick  +3 -3
+examples/tetrix/qtetrix.h    2.4  warwick  +3 -3
+examples/tictac/main.cpp    2.3  warwick  +2 -2
+examples/tictac/tictac.cpp    2.8  warwick  +6 -6
+examples/tictac/tictac.h    2.3  warwick  +2 -2
+examples/timestmp/timestmp.cpp    2.4  warwick  +3 -3
+examples/tooltip/main.cpp    1.5  warwick  +2 -2
+examples/tooltip/tooltip.cpp    1.6  warwick  +2 -2
+examples/validator/main.cpp    1.5  warwick  +2 -2
+examples/validator/motor.cpp    1.9  warwick  +3 -3
+examples/validator/vw.cpp    1.8  warwick  +4 -4
+examples/widgets/widgets.cpp    2.43  warwick  +13 -13
+examples/xform/xform.cpp    2.9  warwick  +8 -8
+extensions/imageio/src/qjpegio.cpp    1.5  warwick  +2 -2
+extensions/imageio/src/qpngio.cpp    1.7  warwick  +2 -2
+extensions/nsplugin/examples/grapher/grapher.cpp    1.10  warwick  +3 -3
+extensions/nsplugin/examples/qtimage/qtimage.cpp    1.6  warwick  +2 -2
+extensions/nsplugin/examples/trivial/trivial.cpp    1.7  warwick  +1 -1
+extensions/nsplugin/src/qnp.cpp    1.19  warwick  +9 -9
+extensions/opengl/examples/box/globjwin.cpp    1.4  warwick  +4 -4
+extensions/opengl/examples/box/main.cpp    1.4  warwick  +1 -1
+extensions/opengl/examples/gear/gear.cpp    1.6  warwick  +1 -1
+extensions/opengl/examples/sharedbox/globjwin.cpp    1.2  warwick  +4 -4
+extensions/opengl/examples/sharedbox/main.cpp    1.2  warwick  +1 -1
+extensions/xt/examples/mainlyMotif/editor.cpp    1.3  warwick  +2 -2
+extensions/xt/examples/mainlyQt/editor.cpp    1.2  warwick  +2 -2
+extensions/xt/examples/mainlyXt/editor.cpp    1.2  warwick  +2 -2
+extensions/xt/src/qxt.cpp    1.3  warwick  +6 -6
+extensions/xt/src/qxt.h    1.2  warwick  +2 -2
+src/qt.pro    2.26  warwick  +110 -110
+src/qtinternal.pro    2.7  warwick  +5 -5
+src/dialogs/qfiledialog.cpp    2.71  warwick  +12 -12
+src/dialogs/qfiledialog.h    2.18  warwick  +4 -4
+src/dialogs/qfiledlg.cpp    2.71  warwick  +1 -1
+src/dialogs/qfiledlg.h    2.18  warwick  +2 -146
+src/dialogs/qfontdialog.cpp    2.13  warwick  +7 -7
+src/dialogs/qmessagebox.cpp    2.49  warwick  +5 -5
+src/dialogs/qmessagebox.h    2.26  warwick  +4 -4
+src/dialogs/qmsgbox.cpp    2.49  warwick  +1 -1
+src/dialogs/qmsgbox.h    2.26  warwick  +1 -132
+src/dialogs/qprintdialog.cpp    2.28  warwick  +10 -10
+src/dialogs/qprintdialog.h    2.9  warwick  +4 -4
+src/dialogs/qprndlg.cpp    2.28  warwick  +1 -1
+src/dialogs/qprndlg.h    2.9  warwick  +2 -63
+src/dialogs/qprogdlg.cpp    2.27  warwick  +1 -1
+src/dialogs/qprogdlg.h    2.14  warwick  +2 -75
+src/dialogs/qprogressdialog.cpp    2.27  warwick  +6 -6
+src/dialogs/qprogressdialog.h    2.14  warwick  +6 -6
+src/dialogs/qtabdialog.cpp    2.41  warwick  +7 -6
+src/dialogs/qtabdialog.h    2.19  warwick  +4 -4
+src/dialogs/qtabdlg.cpp    2.41  warwick  +1 -1
+src/dialogs/qtabdlg.h    2.19  warwick  +1 -84
+src/kernel/qaccel.cpp    2.13  warwick  +2 -2
+src/kernel/qapp.cpp    2.57  warwick  +1 -1
+src/kernel/qapp.h    2.27  warwick  +1 -205
+src/kernel/qapp_os2.cpp    2.5  warwick  +4 -3
+src/kernel/qapp_win.cpp    2.90  warwick  +1 -1
+src/kernel/qapp_x11.cpp    2.141  warwick  +1 -1
+src/kernel/qapplication.cpp    2.57  warwick  +13 -11
+src/kernel/qapplication.h    2.27  warwick  +5 -5
+src/kernel/qapplication_win.cpp    2.90  warwick  +9 -7
+src/kernel/qapplication_x11.cpp    2.141  warwick  +13 -11
+src/kernel/qasyncio.cpp    1.9  warwick  +2 -2
+src/kernel/qclb_win.cpp    2.7  warwick  +1 -1
+src/kernel/qclb_x11.cpp    2.13  warwick  +1 -1
+src/kernel/qclipboard.cpp    2.9  warwick  +4 -4
+src/kernel/qclipboard.h    2.5  warwick  +4 -4
+src/kernel/qclipboard_win.cpp    2.7  warwick  +4 -4
+src/kernel/qclipboard_x11.cpp    2.13  warwick  +5 -5
+src/kernel/qclipbrd.cpp    2.9  warwick  +1 -1
+src/kernel/qclipbrd.h    2.5  warwick  +2 -55
+src/kernel/qcol_win.cpp    2.18  warwick  +1 -1
+src/kernel/qcol_x11.cpp    2.31  warwick  +1 -1
+src/kernel/qcolor.cpp    2.15  warwick  +2 -2
+src/kernel/qcolor.h    2.10  warwick  +2 -2
+src/kernel/qcolor_win.cpp    2.18  warwick  +2 -2
+src/kernel/qcolor_x11.cpp    2.31  warwick  +4 -4
+src/kernel/qconnect.cpp    2.5  warwick  +1 -1
+src/kernel/qconnect.h    2.5  warwick  +2 -46
+src/kernel/qconnection.cpp    2.5  warwick  +3 -3
+src/kernel/qconnection.h    2.5  warwick  +4 -4
+src/kernel/qcur_os2.cpp    2.3  warwick  +2 -2
+src/kernel/qcur_win.cpp    2.7  warwick  +1 -1
+src/kernel/qcur_x11.cpp    2.11  warwick  +1 -1
+src/kernel/qcursor.cpp    2.8  warwick  +2 -2
+src/kernel/qcursor_win.cpp    2.7  warwick  +3 -3
+src/kernel/qcursor_x11.cpp    2.11  warwick  +3 -3
+src/kernel/qdialog.cpp    2.19  warwick  +5 -4
+src/kernel/qdnd_win.cpp    2.6  warwick  +2 -2
+src/kernel/qdnd_x11.cpp    2.18  warwick  +8 -7
+src/kernel/qdragobject.cpp    2.17  warwick  +4 -3
+src/kernel/qdrawutil.cpp    2.18  warwick  +3 -3
+src/kernel/qdrawutil.h    2.7  warwick  +4 -4
+src/kernel/qdrawutl.cpp    2.18  warwick  +1 -1
+src/kernel/qdrawutl.h    2.7  warwick  +2 -91
+src/kernel/qevent.h    2.17  warwick  +2 -2
+src/kernel/qfnt_win.cpp    2.30  warwick  +1 -1
+src/kernel/qfnt_x11.cpp    2.39  warwick  +1 -1
+src/kernel/qfont.cpp    2.35  warwick  +11 -11
+src/kernel/qfont.h    2.10  warwick  +2 -2
+src/kernel/qfont_win.cpp    2.30  warwick  +5 -5
+src/kernel/qfont_x11.cpp    2.39  warwick  +2 -2
+src/kernel/qfontdata.h    2.11  warwick  +4 -4
+src/kernel/qfontdta.h    2.11  warwick  +2 -65
+src/kernel/qfontinf.h    2.7  warwick  +1 -79
+src/kernel/qfontinfo.h    2.7  warwick  +4 -4
+src/kernel/qfontmet.h    2.14  warwick  +1 -95
+src/kernel/qfontmetrics.h    2.14  warwick  +4 -4
+src/kernel/qgmanager.cpp    2.36  warwick  +5 -5
+src/kernel/qgmanager.h    2.13  warwick  +4 -4
+src/kernel/qgmanagr.cpp    2.36  warwick  +1 -1
+src/kernel/qgmanagr.h    2.13  warwick  +2 -84
+src/kernel/qiconset.cpp    2.10  warwick  +2 -2
+src/kernel/qimage.cpp    2.91  warwick  +3 -3
+src/kernel/qlayout.h    2.18  warwick  +2 -2
+src/kernel/qmetaobj.cpp    2.9  warwick  +1 -1
+src/kernel/qmetaobj.h    2.4  warwick  +2 -66
+src/kernel/qmetaobject.cpp    2.9  warwick  +5 -4
+src/kernel/qmetaobject.h    2.4  warwick  +5 -5
+src/kernel/qmovie.cpp    1.33  warwick  +3 -3
+src/kernel/qmutex.h    1.5  warwick  +2 -2
+src/kernel/qnpsupport.cpp    2.11  warwick  +6 -6
+src/kernel/qobjcoll.h    2.6  warwick  +1 -1
+src/kernel/qobjdefs.h    2.4  warwick  +1 -78
+src/kernel/qobject.cpp    2.51  warwick  +5 -4
+src/kernel/qobject.h    2.10  warwick  +2 -2
+src/kernel/qobjectdefs.h    2.4  warwick  +4 -4
+src/kernel/qobjectdict.h    2.1  warwick  initial checkin
+src/kernel/qobjectlist.h    2.1  warwick  initial checkin
+src/kernel/qpaintd.h    2.7  warwick  +1 -170
+src/kernel/qpaintdc.h    2.6  warwick  +2 -97
+src/kernel/qpaintdevice.h    2.7  warwick  +6 -6
+src/kernel/qpaintdevice_win.cpp    2.10  warwick  +5 -5
+src/kernel/qpaintdevice_x11.cpp    2.15  warwick  +6 -6
+src/kernel/qpaintdevicedefs.h    2.6  warwick  +5 -5
+src/kernel/qpaintdevicemetrics.cpp    2.4  warwick  +3 -3
+src/kernel/qpaintdevicemetrics.h    2.3  warwick  +7 -7
+src/kernel/qpainter.cpp    2.53  warwick  +7 -7
+src/kernel/qpainter.h    2.26  warwick  +5 -5
+src/kernel/qpainter_win.cpp    2.37  warwick  +5 -5
+src/kernel/qpainter_x11.cpp    2.52  warwick  +4 -4
+src/kernel/qpalette.cpp    2.18  warwick  +2 -2
+src/kernel/qpalette.h    2.14  warwick  +2 -2
+src/kernel/qpdevmet.cpp    2.4  warwick  +1 -1
+src/kernel/qpdevmet.h    2.3  warwick  +2 -37
+src/kernel/qpic_win.cpp    2.3  warwick  +1 -1
+src/kernel/qpic_x11.cpp    2.3  warwick  +1 -1
+src/kernel/qpicture.cpp    2.6  warwick  +3 -3
+src/kernel/qpicture.h    2.5  warwick  +2 -2
+src/kernel/qpixmap.cpp    2.26  warwick  +2 -2
+src/kernel/qpixmap.h    2.20  warwick  +2 -2
+src/kernel/qpixmap_win.cpp    2.35  warwick  +3 -3
+src/kernel/qpixmap_x11.cpp    2.37  warwick  +3 -3
+src/kernel/qpixmapcache.cpp    2.7  warwick  +3 -3
+src/kernel/qpixmapcache.h    2.4  warwick  +4 -4
+src/kernel/qpm_win.cpp    2.35  warwick  +1 -1
+src/kernel/qpm_x11.cpp    2.37  warwick  +1 -1
+src/kernel/qpmcache.cpp    2.7  warwick  +1 -1
+src/kernel/qpmcache.h    2.4  warwick  +2 -31
+src/kernel/qpntarry.cpp    2.16  warwick  +1 -1
+src/kernel/qpntarry.h    2.7  warwick  +1 -155
+src/kernel/qpoint.cpp    2.4  warwick  +3 -3
+src/kernel/qpoint.h    2.3  warwick  +2 -2
+src/kernel/qpointarray.cpp    2.16  warwick  +6 -6
+src/kernel/qpointarray.h    2.7  warwick  +4 -4
+src/kernel/qprinter.cpp    2.9  warwick  +3 -3
+src/kernel/qprinter.h    2.7  warwick  +2 -2
+src/kernel/qprinter_win.cpp    2.11  warwick  +2 -2
+src/kernel/qprinter_x11.cpp    2.16  warwick  +6 -6
+src/kernel/qprn_win.cpp    2.11  warwick  +1 -1
+src/kernel/qprn_x11.cpp    2.16  warwick  +1 -1
+src/kernel/qpsprinter.cpp    2.26  warwick  +4 -4
+src/kernel/qpsprinter.h    2.8  warwick  +5 -5
+src/kernel/qpsprn.cpp    2.26  warwick  +1 -1
+src/kernel/qpsprn.h    2.8  warwick  +2 -70
+src/kernel/qptd_os2.cpp    2.3  warwick  +2 -2
+src/kernel/qptd_win.cpp    2.10  warwick  +1 -1
+src/kernel/qptd_x11.cpp    2.15  warwick  +1 -1
+src/kernel/qptr_os2.cpp    2.4  warwick  +2 -2
+src/kernel/qptr_win.cpp    2.37  warwick  +1 -1
+src/kernel/qptr_x11.cpp    2.52  warwick  +1 -1
+src/kernel/qrect.cpp    2.8  warwick  +3 -3
+src/kernel/qregion.cpp    2.14  warwick  +3 -3
+src/kernel/qregion_win.cpp    2.15  warwick  +2 -2
+src/kernel/qregion_x11.cpp    2.16  warwick  +2 -2
+src/kernel/qrgn_os2.cpp    2.4  warwick  +2 -2
+src/kernel/qrgn_win.cpp    2.15  warwick  +1 -1
+src/kernel/qrgn_x11.cpp    2.16  warwick  +1 -1
+src/kernel/qsemimodal.cpp    2.6  warwick  +2 -2
+src/kernel/qsignal.cpp    2.5  warwick  +2 -2
+src/kernel/qsize.cpp    2.9  warwick  +3 -3
+src/kernel/qsocketnotifier.cpp    2.7  warwick  +3 -3
+src/kernel/qsocketnotifier.h    2.4  warwick  +4 -4
+src/kernel/qsocknot.cpp    2.7  warwick  +1 -1
+src/kernel/qsocknot.h    2.4  warwick  +2 -60
+src/kernel/qt_x11.cpp    2.4  warwick  +1 -1
+src/kernel/qthread.h    1.5  warwick  +2 -2
+src/kernel/qtimer.cpp    2.9  warwick  +4 -3
+src/kernel/qwid_os2.cpp    2.6  warwick  +3 -2
+src/kernel/qwid_win.cpp    2.56  warwick  +1 -1
+src/kernel/qwid_x11.cpp    2.96  warwick  +1 -1
+src/kernel/qwidcoll.h    2.5  warwick  +1 -1
+src/kernel/qwidget.cpp    2.111  warwick  +10 -8
+src/kernel/qwidget.h    2.50  warwick  +5 -5
+src/kernel/qwidget_win.cpp    2.56  warwick  +11 -9
+src/kernel/qwidget_x11.cpp    2.96  warwick  +10 -8
+src/kernel/qwidgetintdict.h    2.1  warwick  initial checkin
+src/kernel/qwidgetlist.h    2.1  warwick  initial checkin
+src/kernel/qwindefs.h    2.23  warwick  +1 -313
+src/kernel/qwindowdefs.h    2.23  warwick  +5 -5
+src/kernel/qwmatrix.cpp    2.5  warwick  +3 -3
+src/kernel/qwmatrix.h    2.3  warwick  +3 -3
+src/moc/GNUmakefile    2.5  warwick  +13 -13
+src/moc/Makefile    2.10  warwick  +42 -42
+src/moc/moc.pro    1.10  warwick  +4 -4
+src/moc/moc.y    2.23  warwick  +5 -5
+src/tools/qbitarray.cpp    2.7  warwick  +5 -5
+src/tools/qbitarray.h    2.5  warwick  +4 -4
+src/tools/qbitarry.cpp    2.7  warwick  +1 -1
+src/tools/qbitarry.h    2.5  warwick  +2 -134
+src/tools/qbuffer.h    2.5  warwick  +2 -2
+src/tools/qcollect.cpp    2.5  warwick  +1 -1
+src/tools/qcollect.h    2.3  warwick  +2 -46
+src/tools/qcollection.cpp    2.5  warwick  +3 -3
+src/tools/qcollection.h    2.3  warwick  +4 -4
+src/tools/qdatastream.cpp    2.14  warwick  +3 -3
+src/tools/qdatastream.h    2.6  warwick  +5 -5
+src/tools/qdatetime.cpp    2.15  warwick  +6 -6
+src/tools/qdatetime.h    2.4  warwick  +4 -4
+src/tools/qdatetm.cpp    2.15  warwick  +1 -1
+src/tools/qdatetm.h    2.4  warwick  +2 -180
+src/tools/qdir.cpp    2.22  warwick  +3 -3
+src/tools/qdir.h    2.8  warwick  +2 -2
+src/tools/qdstream.cpp    2.14  warwick  +1 -1
+src/tools/qdstream.h    2.6  warwick  +2 -117
+src/tools/qfile.cpp    2.22  warwick  +2 -2
+src/tools/qfile.h    2.5  warwick  +2 -2
+src/tools/qfiledef.h    2.8  warwick  +3 -153
+src/tools/qfiledefs.h    2.8  warwick  +2 -2
+src/tools/qfileinf.cpp    2.11  warwick  +1 -1
+src/tools/qfileinf.h    2.3  warwick  +2 -96
+src/tools/qfileinfo.cpp    2.11  warwick  +6 -6
+src/tools/qfileinfo.h    2.3  warwick  +5 -5
+src/tools/qgcache.h    2.3  warwick  +2 -2
+src/tools/qgdict.cpp    2.16  warwick  +2 -2
+src/tools/qgdict.h    2.5  warwick  +2 -2
+src/tools/qglist.cpp    2.5  warwick  +2 -2
+src/tools/qglist.h    2.3  warwick  +2 -2
+src/tools/qglobal.cpp    2.15  warwick  +2 -2
+src/tools/qglobal.h    2.52  warwick  +2 -2
+src/tools/qgvector.cpp    2.7  warwick  +2 -2
+src/tools/qgvector.h    2.3  warwick  +2 -2
+src/tools/qintcach.h    2.3  warwick  +1 -168
+src/tools/qintcache.h    2.3  warwick  +4 -4
+src/tools/qiodev.cpp    2.11  warwick  +1 -1
+src/tools/qiodev.h    2.5  warwick  +2 -128
+src/tools/qiodevice.cpp    2.11  warwick  +3 -3
+src/tools/qiodevice.h    2.5  warwick  +4 -4
+src/tools/qstring.cpp    2.21  warwick  +2 -2
+src/tools/qstrlist.h    2.11  warwick  +2 -2
+src/tools/qstrvec.h    2.4  warwick  +2 -2
+src/tools/qtextstream.cpp    2.15  warwick  +4 -4
+src/tools/qtextstream.h    2.7  warwick  +5 -5
+src/tools/qtstream.cpp    2.15  warwick  +1 -1
+src/tools/qtstream.h    2.7  warwick  +2 -216
+src/widgets/qbttngrp.cpp    2.13  warwick  +1 -1
+src/widgets/qbttngrp.h    2.6  warwick  +2 -61
+src/widgets/qbutton.cpp    2.61  warwick  +3 -3
+src/widgets/qbutton.h    2.17  warwick  +2 -2
+src/widgets/qbuttongroup.cpp    2.13  warwick  +3 -3
+src/widgets/qbuttongroup.h    2.6  warwick  +5 -5
+src/widgets/qcheckbox.cpp    2.23  warwick  +5 -5
+src/widgets/qcheckbox.h    2.6  warwick  +4 -4
+src/widgets/qchkbox.cpp    2.23  warwick  +1 -1
+src/widgets/qchkbox.h    2.6  warwick  +2 -47
+src/widgets/qcombo.cpp    2.87  warwick  +1 -1
+src/widgets/qcombo.h    2.27  warwick  +2 -132
+src/widgets/qcombobox.cpp    2.87  warwick  +8 -8
+src/widgets/qcombobox.h    2.27  warwick  +3 -3
+src/widgets/qframe.cpp    2.19  warwick  +2 -2
+src/widgets/qgroupbox.cpp    2.12  warwick  +3 -3
+src/widgets/qgroupbox.h    2.4  warwick  +4 -4
+src/widgets/qgrpbox.cpp    2.12  warwick  +1 -1
+src/widgets/qgrpbox.h    2.4  warwick  +2 -46
+src/widgets/qheader.cpp    2.45  warwick  +3 -3
+src/widgets/qheader.h    2.19  warwick  +2 -2
+src/widgets/qlabel.cpp    2.32  warwick  +2 -2
+src/widgets/qlcdnum.cpp    2.13  warwick  +1 -1
+src/widgets/qlcdnum.h    2.8  warwick  +2 -95
+src/widgets/qlcdnumber.cpp    2.13  warwick  +4 -4
+src/widgets/qlcdnumber.h    2.8  warwick  +5 -5
+src/widgets/qlined.cpp    2.81  warwick  +1 -1
+src/widgets/qlined.h    2.28  warwick  +2 -138
+src/widgets/qlineedit.cpp    2.81  warwick  +7 -7
+src/widgets/qlineedit.h    2.28  warwick  +4 -4
+src/widgets/qlistbox.cpp    2.69  warwick  +4 -4
+src/widgets/qlistbox.h    2.16  warwick  +2 -2
+src/widgets/qlistview.cpp    2.117  warwick  +3 -3
+src/widgets/qmainwindow.cpp    2.27  warwick  +4 -3
+src/widgets/qmenubar.cpp    2.54  warwick  +3 -3
+src/widgets/qmenubar.h    2.11  warwick  +2 -2
+src/widgets/qmenudata.cpp    2.16  warwick  +5 -5
+src/widgets/qmenudata.h    2.11  warwick  +4 -4
+src/widgets/qmenudta.cpp    2.16  warwick  +1 -1
+src/widgets/qmenudta.h    2.11  warwick  +1 -182
+src/widgets/qmlined.cpp    2.93  warwick  +1 -1
+src/widgets/qmlined.h    2.36  warwick  +2 -189
+src/widgets/qmultilined.cpp    2.93  warwick  +6 -6
+src/widgets/qmultilined.h    2.36  warwick  +5 -5
+src/widgets/qpopmenu.cpp    2.78  warwick  +1 -1
+src/widgets/qpopmenu.h    2.14  warwick  +2 -110
+src/widgets/qpopupmenu.cpp    2.78  warwick  +6 -6
+src/widgets/qpopupmenu.h    2.14  warwick  +6 -6
+src/widgets/qprogbar.cpp    2.19  warwick  +1 -1
+src/widgets/qprogbar.h    2.9  warwick  +2 -65
+src/widgets/qprogressbar.cpp    2.19  warwick  +5 -5
+src/widgets/qprogressbar.h    2.9  warwick  +4 -4
+src/widgets/qpushbt.cpp    2.41  warwick  +1 -1
+src/widgets/qpushbt.h    2.8  warwick  +2 -70
+src/widgets/qpushbutton.cpp    2.41  warwick  +6 -6
+src/widgets/qpushbutton.h    2.8  warwick  +4 -4
+src/widgets/qradiobt.cpp    2.28  warwick  +1 -1
+src/widgets/qradiobt.h    2.8  warwick  +2 -55
+src/widgets/qradiobutton.cpp    2.28  warwick  +6 -6
+src/widgets/qradiobutton.h    2.8  warwick  +4 -4
+src/widgets/qrangecontrol.cpp    2.6  warwick  +3 -3
+src/widgets/qrangecontrol.h    2.3  warwick  +4 -4
+src/widgets/qrangect.cpp    2.6  warwick  +1 -1
+src/widgets/qrangect.h    2.3  warwick  +2 -76
+src/widgets/qscrbar.cpp    2.38  warwick  +1 -1
+src/widgets/qscrbar.h    2.6  warwick  +2 -115
+src/widgets/qscrollbar.cpp    2.38  warwick  +3 -3
+src/widgets/qscrollbar.h    2.6  warwick  +6 -6
+src/widgets/qscrollview.cpp    2.46  warwick  +5 -4
+src/widgets/qscrollview.h    2.21  warwick  +2 -2
+src/widgets/qslider.cpp    2.52  warwick  +2 -2
+src/widgets/qslider.h    2.23  warwick  +2 -2
+src/widgets/qspinbox.cpp    2.35  warwick  +3 -3
+src/widgets/qspinbox.h    2.20  warwick  +2 -2
+src/widgets/qsplitter.cpp    1.16  warwick  +2 -2
+src/widgets/qstatusbar.cpp    2.14  warwick  +3 -3
+src/widgets/qtableview.cpp    2.49  warwick  +5 -5
+src/widgets/qtableview.h    2.10  warwick  +4 -4
+src/widgets/qtablevw.cpp    2.49  warwick  +1 -1
+src/widgets/qtablevw.h    2.10  warwick  +2 -241
+src/widgets/qtoolbar.cpp    2.23  warwick  +5 -4
+src/widgets/qtoolbutton.cpp    2.28  warwick  +3 -3
+src/widgets/qtooltip.cpp    2.47  warwick  +4 -4
+src/widgets/qwellarray.cpp    1.4  warwick  +4 -3
+src/widgets/qwellarray.h    1.5  warwick  +2 -2
+src/widgets/qwhatsthis.cpp    2.15  warwick  +3 -3
+src/widgets/qwidgetstack.cpp    2.7  warwick  +3 -2
+tutorial/t1/main.cpp    2.1  warwick  +2 -2
+tutorial/t10/lcdrange.cpp    2.1  warwick  +2 -2
+tutorial/t10/main.cpp    2.3  warwick  +4 -4
+tutorial/t11/lcdrange.cpp    2.1  warwick  +2 -2
+tutorial/t11/main.cpp    2.3  warwick  +4 -4
+tutorial/t12/cannon.cpp    2.3  warwick  +1 -1
+tutorial/t12/lcdrange.cpp    2.1  warwick  +2 -2
+tutorial/t12/main.cpp    2.3  warwick  +4 -4
+tutorial/t13/cannon.cpp    2.3  warwick  +1 -1
+tutorial/t13/gamebrd.cpp    2.1  warwick  +3 -3
+tutorial/t13/lcdrange.cpp    2.1  warwick  +2 -2
+tutorial/t13/main.cpp    2.3  warwick  +1 -1
+tutorial/t14/cannon.cpp    2.3  warwick  +1 -1
+tutorial/t14/gamebrd.cpp    2.2  warwick  +3 -3
+tutorial/t14/lcdrange.cpp    2.1  warwick  +2 -2
+tutorial/t14/main.cpp    2.3  warwick  +1 -1
+tutorial/t2/main.cpp    2.1  warwick  +2 -2
+tutorial/t3/main.cpp    2.1  warwick  +2 -2
+tutorial/t4/main.cpp    2.1  warwick  +2 -2
+tutorial/t5/main.cpp    2.1  warwick  +4 -4
+tutorial/t6/main.cpp    2.1  warwick  +4 -4
+tutorial/t7/lcdrange.cpp    2.1  warwick  +2 -2
+tutorial/t7/main.cpp    2.1  warwick  +4 -4
+tutorial/t8/lcdrange.cpp    2.1  warwick  +2 -2
+tutorial/t8/main.cpp    2.1  warwick  +4 -4
+tutorial/t9/lcdrange.cpp    2.1  warwick  +2 -2
+tutorial/t9/main.cpp    2.3  warwick  +4 -4
+
+  The Big Renaming of '98
+
+
+doc/tutorial.doc    2.14  agulbra  +4 -4
+
+  new header files
+
+
+examples/validator/motor.cpp    1.8  agulbra  +2 -71
+examples/validator/motor.h    1.7  agulbra  +2 -29
+examples/validator/vw.cpp    1.7  agulbra  +11 -11
+examples/validator/vw.h    1.4  agulbra  +3 -3
+
+  some fixes for current QSpinBox
+
+
+extensions/nsplugin/src/qnp.pro    1.2  warwick  +1 -1
+
+  tmake workaround
+
+
+src/dialogs/qfiledialog.cpp    2.70  agulbra  +46 -1
+src/dialogs/qfiledialog.h    2.17  agulbra  +3 -1
+src/dialogs/qfiledlg.cpp    2.70  agulbra  +46 -1
+src/dialogs/qfiledlg.h    2.17  agulbra  +3 -1
+
+  support multile file types
+
+
+src/dialogs/qfiledlg.h    2.19  warwick  +0 -0
+src/dialogs/qmsgbox.h    2.27  warwick  +0 -0
+src/dialogs/qprndlg.h    2.10  warwick  +0 -0
+src/dialogs/qprogdlg.h    2.15  warwick  +0 -0
+src/dialogs/qtabdlg.h    2.20  warwick  +0 -0
+src/kernel/qapp.h    2.28  warwick  +0 -0
+src/kernel/qclipbrd.h    2.6  warwick  +0 -0
+src/kernel/qconnect.h    2.6  warwick  +0 -0
+src/kernel/qdrawutl.h    2.8  warwick  +0 -0
+src/kernel/qfontdta.h    2.12  warwick  +0 -0
+src/kernel/qfontinf.h    2.8  warwick  +0 -0
+src/kernel/qfontmet.h    2.15  warwick  +0 -0
+src/kernel/qgmanagr.h    2.14  warwick  +0 -0
+src/kernel/qmetaobj.h    2.5  warwick  +0 -0
+src/kernel/qobjdefs.h    2.5  warwick  +0 -0
+src/kernel/qpaintd.h    2.8  warwick  +0 -0
+src/kernel/qpaintdc.h    2.7  warwick  +0 -0
+src/kernel/qpdevmet.h    2.4  warwick  +0 -0
+src/kernel/qpmcache.h    2.5  warwick  +0 -0
+src/kernel/qpntarry.h    2.8  warwick  +0 -0
+src/kernel/qpsprn.h    2.9  warwick  +0 -0
+src/kernel/qsocknot.h    2.5  warwick  +0 -0
+src/kernel/qwindefs.h    2.24  warwick  +0 -0
+src/tools/qbitarry.h    2.6  warwick  +0 -0
+src/tools/qcollect.h    2.4  warwick  +0 -0
+src/tools/qdatetm.h    2.5  warwick  +0 -0
+src/tools/qdstream.h    2.7  warwick  +0 -0
+src/tools/qfiledef.h    2.9  warwick  +0 -0
+src/tools/qfileinf.h    2.4  warwick  +0 -0
+src/tools/qintcach.h    2.4  warwick  +0 -0
+src/tools/qiodev.h    2.6  warwick  +0 -0
+src/tools/qtstream.h    2.8  warwick  +0 -0
+src/widgets/qbttngrp.h    2.7  warwick  +0 -0
+src/widgets/qchkbox.h    2.7  warwick  +0 -0
+src/widgets/qcombo.h    2.28  warwick  +0 -0
+src/widgets/qgrpbox.h    2.5  warwick  +0 -0
+src/widgets/qlcdnum.h    2.9  warwick  +0 -0
+src/widgets/qlined.h    2.29  warwick  +0 -0
+src/widgets/qmenudta.h    2.12  warwick  +0 -0
+src/widgets/qmlined.h    2.37  warwick  +0 -0
+src/widgets/qpopmenu.h    2.15  warwick  +0 -0
+src/widgets/qprogbar.h    2.10  warwick  +0 -0
+src/widgets/qpushbt.h    2.9  warwick  +0 -0
+src/widgets/qradiobt.h    2.9  warwick  +0 -0
+src/widgets/qrangect.h    2.4  warwick  +0 -0
+src/widgets/qscrbar.h    2.7  warwick  +0 -0
+src/widgets/qtablevw.h    2.11  warwick  +0 -0
+
+  Move compatibility files out of the way.
+
+
+src/dialogs/qprintdialog.cpp    2.27  agulbra  +67 -1
+src/dialogs/qprndlg.cpp    2.27  agulbra  +67 -1
+
+  val's irix 6.3 printer discovery code
+
+
+src/kernel/qapp.cpp    2.56  agulbra  +14 -6
+src/kernel/qapplication.cpp    2.56  agulbra  +14 -6
+src/kernel/qasyncimageio.cpp    1.34  agulbra  +53 -15
+src/kernel/qregion.cpp    2.13  agulbra  +1 -8
+src/kernel/qregion.h    2.13  agulbra  +1 -4
+src/widgets/qheader.cpp    2.44  agulbra  +4 -5
+
+  Reginald Stadlbauer's alpha's egcs said to do this.  it doesn't like
+  static objects with non-default constructors.
+
+
+src/kernel/qapp_os2.cpp    2.6  warwick  +1 -1
+src/kernel/qcol_os2.cpp    2.4  warwick  +1 -1
+src/kernel/qcur_os2.cpp    2.4  warwick  +1 -1
+src/kernel/qfnt_os2.cpp    2.3  warwick  +1 -1
+src/kernel/qpic_os2.cpp    2.3  warwick  +1 -1
+src/kernel/qpm_os2.cpp    2.3  warwick  +1 -1
+src/kernel/qptd_os2.cpp    2.4  warwick  +1 -1
+src/kernel/qptr_os2.cpp    2.5  warwick  +1 -1
+src/kernel/qrgn_os2.cpp    2.5  warwick  +1 -1
+src/kernel/qwid_os2.cpp    2.7  warwick  +1 -1
+
+  Remove OS2 code.
+
+
+src/kernel/qapp_x11.cpp    2.139  hanord  +2 -4
+src/kernel/qapplication_x11.cpp    2.139  hanord  +2 -4
+
+  Fixed keyboard release event bug when the key press was done outside the
+  window (Morten Eriksen bug report).
+
+
+src/kernel/qapp_x11.cpp    2.140  warwick  +5 -5
+src/kernel/qapplication_x11.cpp    2.140  warwick  +5 -5
+src/kernel/qfnt_x11.cpp    2.37  warwick  +9 -23
+src/kernel/qfont_x11.cpp    2.37  warwick  +9 -23
+src/kernel/qimage.cpp    2.90  warwick  +13 -13
+src/kernel/qnpsupport.cpp    2.10  warwick  +2 -1
+src/kernel/qwidget.cpp    2.109  warwick  +17 -16
+
+  Fix pointer-to-int casts that 64-bit compiler don't like.
+
+
+src/kernel/qcol_x11.cpp    2.30  hanord  +2 -2
+src/kernel/qcolor_x11.cpp    2.30  hanord  +2 -2
+src/widgets/qheader.cpp    2.42  hanord  +2 -2
+
+  Don't do big changes in 1.40, wait until 1.49
+
+
+src/kernel/qdialog.cpp    2.18  warwick  +20 -4
+
+  Stay on-screen when centering relative to parent.  This code should
+  be shared.
+
+
+src/kernel/qdnd_x11.cpp    2.15  agulbra  +6 -9
+
+  comment out old debug messages; delete some
+
+
+src/kernel/qdnd_x11.cpp    2.16  agulbra  +8 -5
+
+  workaround for gcc/alpha brokenness.
+
+
+src/kernel/qdnd_x11.cpp    2.17  warwick  +9 -9
+src/kernel/qpainter.cpp    2.52  warwick  +14 -11
+src/kernel/qwid_x11.cpp    2.95  warwick  +2 -2
+src/kernel/qwidget_x11.cpp    2.95  warwick  +2 -2
+src/widgets/qwellarray.cpp    1.3  warwick  +10 -1
+src/widgets/qwellarray.h    1.4  warwick  +2 -1
+
+  Avoid HPUX warnings.
+
+
+src/kernel/qdragobject.cpp    2.15  agulbra  +4 -6
+
+  ignore totally unexpected events
+
+
+src/kernel/qdragobject.cpp    2.16  agulbra  +2 -2
+
+  stop warning
+
+
+src/kernel/qfnt_win.cpp    2.29  warwick  +3 -3
+src/kernel/qfnt_x11.cpp    2.38  warwick  +4 -4
+src/kernel/qfont_win.cpp    2.29  warwick  +3 -3
+src/kernel/qfont_x11.cpp    2.38  warwick  +4 -4
+
+  Fix width(char) for signed characters.
+
+
+src/kernel/qgmanager.cpp    2.35  paul  +48 -20
+src/kernel/qgmanager.h    2.12  paul  +3 -1
+src/kernel/qgmanagr.cpp    2.35  paul  +48 -20
+src/kernel/qgmanagr.h    2.12  paul  +3 -1
+src/kernel/qlayout.cpp    2.32  paul  +36 -22
+
+  Better debug output.
+
+
+src/kernel/qimage.cpp    2.92  warwick  +3 -3
+src/kernel/qlayout.cpp    2.34  agulbra  +10 -25
+src/kernel/qpainter.cpp    2.50  agulbra  +6 -12
+src/tools/qregexp.cpp    2.11  agulbra  +3 -3
+src/widgets/qstatusbar.cpp    2.12  agulbra  +4 -4
+
+  doc
+
+
+src/kernel/qlayout.cpp    2.31  agulbra  +75 -24
+src/widgets/qlistview.cpp    2.114  agulbra  +7 -2
+
+  some docs
+
+
+src/kernel/qlayout.cpp    2.33  agulbra  +183 -34
+src/widgets/qlistview.cpp    2.115  agulbra  +93 -22
+src/widgets/qlistview.h    2.50  agulbra  +4 -1
+src/widgets/qwhatsthis.cpp    2.14  agulbra  +152 -29
+
+  doc, doc, doc.  this round pushes qt over 3250 documented functions.
+  the next milestone is five megs of html doc (sixty-odd k left).
+
+
+src/kernel/qobjcoll.h    2.7  warwick  +4 -20
+src/kernel/qwidcoll.h    2.6  warwick  +3 -14
+
+  Broken in rename.
+
+
+src/kernel/qobjcoll.h    2.8  warwick  +1 -1
+src/kernel/qwidcoll.h    2.7  warwick  +1 -1
+
+  Moved.
+
+
+src/kernel/qpainter.cpp    2.51  warwick  +2 -2
+
+  Improve robustness.
+
+
+src/kernel/qprinter_x11.cpp    2.15  agulbra  +2 -1
+src/kernel/qprn_x11.cpp    2.15  agulbra  +2 -1
+
+  #include <errno.h>; necessary for some unixes
+
+
+src/kernel/qwidget.cpp    2.110  agulbra  +2 -2
+
+  make tab focus change work (at all!) in dialogs
+
+
+src/tools/qfileinf.cpp    2.10  agulbra  +17 -8
+src/tools/qfileinfo.cpp    2.10  agulbra  +17 -8
+
+  double the speed of isSymLink() (and hence the file dialog's repaint)
+  in one easy change.
+
+
+src/tools/qgdict.cpp    2.15  warwick  +2 -2
+
+  64-bit pointer to long fix.
+
+
+src/tools/qstring.cpp    2.20  warwick  +2 -2
+
+  Obscure safety improvement.
+
+
+src/widgets/qcombo.cpp    2.86  agulbra  +2 -2
+src/widgets/qcombobox.cpp    2.86  agulbra  +2 -2
+src/widgets/qlabel.cpp    2.31  agulbra  +2 -2
+
+  fix logic to decide when to locate the listbox above the combo itself
+  instead of below.
+
+
+src/widgets/qheader.cpp    2.43  agulbra  +2 -3
+
+  remove a "this should not happen" debug() because that situation
+  should happen.  can happen, anyway.
+
+
+src/widgets/qlined.cpp    2.80  warwick  +24 -6
+src/widgets/qlined.h    2.27  warwick  +2 -1
+src/widgets/qlineedit.cpp    2.80  warwick  +24 -6
+src/widgets/qlineedit.h    2.27  warwick  +2 -1
+src/widgets/qmlined.cpp    2.92  warwick  +36 -7
+src/widgets/qmlined.h    2.35  warwick  +2 -1
+src/widgets/qmultilined.cpp    2.92  warwick  +36 -7
+src/widgets/qmultilined.h    2.35  warwick  +2 -1
+
+  Make WindowsStyle under X11 still meet the X11 user's expectations
+  regarding auto-copy, while allowing the highlight-and-paste action
+  familiar to Windows users.  A compromise.
+  
+  Also make qmlined more similar to qlined.
+
+
+src/widgets/qlistbox.cpp    2.68  warwick  +2 -2
+
+  Use maximumSize() correctly.
+  (fixes kdisplay background problem)
+
+
+src/widgets/qlistview.cpp    2.116  agulbra  +25 -12
+
+  tweak mouse state machine a little.  make it harder to select a
+  non-selectable item.  doc fixes.
+
+
+src/widgets/qmainwindow.cpp    2.25  agulbra  +3 -5
+src/widgets/qmainwindow.cpp    2.24  agulbra  +245 -26
+src/widgets/qmainwindow.h    2.15  agulbra  +2 -1
+
+  if a dock contained only hidden toolbars, layout would be wrong.
+  also contains ifdef-ed out broken docking code.
+
+
+src/widgets/qmainwindow.cpp    2.26  warwick  +3 -1
+src/widgets/qsplitter.cpp    1.15  warwick  +3 -1
+src/widgets/qstatusbar.cpp    2.13  warwick  +3 -1
+
+  New documentation images.
+
+
+src/widgets/qmainwindow.h    2.16  agulbra  +2 -3
+
+  setRightJustification is now a slot
+
+
+src/widgets/qmenudata.cpp    2.15  warwick  +4 -2
+src/widgets/qmenudta.cpp    2.15  warwick  +4 -2
+
+  Warning about setCheckable in setItemChecked.
+
+
+src/widgets/qpopmenu.cpp    2.76  warwick  +4 -9
+src/widgets/qpopupmenu.cpp    2.76  warwick  +4 -9
+
+  Fix "need more than one off-menu click to cancel" bug.
+  Make Escape only pop down one popup (as per Windows and Motif).
+
+
+src/widgets/qpopmenu.cpp    2.77  warwick  +4 -2
+src/widgets/qpopupmenu.cpp    2.77  warwick  +4 -2
+
+  Correct drop-down-on-no-selection behaviour.
+
+
+src/widgets/qspinbox.cpp    2.33  agulbra  +5 -7
+
+  minor changes; this really need to take the validator into
+  consideration when the user has typed but I can't fix that now.
+
+
+src/widgets/qspinbox.cpp    2.34  agulbra  +18 -3
+src/widgets/qspinbox.h    2.19  agulbra  +3 -1
+
+  handle setEnabled() correctly
+
+
+src/widgets/qsplitter.cpp    1.14  paul  +10 -10
+
+  Fixed off-by-one error
+
+
+src/widgets/qtabbar.h    2.11  agulbra  +2 -1
+
+  one variable wasn't initialized.  initialize it.
+
+
+src/widgets/qtooltip.cpp    2.46  agulbra  +3 -3
+
+  stay up for ten seconds, not four.
+
+
+src/widgets/qvalidator.cpp    2.20  agulbra  +7 -4
+
+  "-" is a valid state for both validator; allows typing of -42 in the
+  natural way if -42 is valid.
+

@@ -1,0 +1,180 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page 01-qdoc-manual.html
+    \contentspage QDoc Manual
+    \previouspage QDoc Manual
+    \nextpage Command Index
+
+    \title Introduction to QDoc
+
+    QDoc is a tool used by Qt Developers to generate documentation for
+    software projects. It works by extracting \e {QDoc comments} from
+    project source files and then formatting these comments as HTML
+    pages or DITA XML documents. QDoc finds QDoc comments in \c
+    {.cpp} files and in \c {.qdoc} files. QDoc does not look for QDoc
+    comments in \c {.h} files. A QDoc comment always begins with an
+    exclamation mark (\b{!})). For example:
+
+    \code
+        / *!
+            \class QObject
+            \brief The QObject class is the base class of all Qt objects.
+
+            \ingroup objectmodel
+
+            \reentrant
+
+            QObject is the heart of the Qt \l{Object Model}. The
+            central feature in this model is a very powerful mechanism
+            for seamless object communication called \l{signals and
+            slots}. You can connect a signal to a slot with connect()
+            and destroy the connection with disconnect(). To avoid
+            never ending notification loops you can temporarily block
+            signals with blockSignals(). The protected functions
+            connectNotify() and disconnectNotify() make it possible to
+            track connections.
+
+            QObjects organize themselves in \l {Object Trees &
+            Ownership} {object trees}. When you create a QObject with
+            another object as parent, the object will automatically
+            add itself to the parent's \c children() list. The parent
+            takes ownership of the object. It will automatically
+            delete its children in its destructor. You can look for an
+            object by name and optionally type using findChild() or
+            findChildren().
+
+            Every object has an objectName() and its class name can be
+            found via the corresponding metaObject() (see
+            QMetaObject::className()). You can determine whether the
+            object's class inherits another class in the QObject
+            inheritance hierarchy by using the \c inherits() function.
+
+        ....
+    * /
+    \endcode
+
+    From the QDoc comment above, QDoc generates the HTML \l {QObject}
+    {QObject class reference} page.
+
+    This manual explains how to use the QDoc commands in QDoc comments
+    to embed good documentation in your source files. It also explains
+    how to make a \l {The QDoc Configuration File} {QDoc configuration
+    file}, which you will pass to QDoc on the command line.
+
+    \section1 Running QDoc
+
+    The current name of the QDoc program is \c {qdoc}. To run qdoc
+    from the command line, give it the name of a configuration file:
+
+    \quotation
+        \c {$ ../../bin/qdoc ./config.qdocconf}
+    \endquotation
+
+    QDoc recognizes the \c {.qdocconf} suffix as a \l{The QDoc
+    Configuration File} {QDoc configuration file}. The configuration
+    file is where you tell QDoc where to find the project source
+    files, header files, and \c {.qdoc} files. It is also where you
+    tell QDoc what kind of output to generate (HTML, DITA XML,...),
+    and where to put the generated documentation. The configuration
+    file also contains other information for QDoc.
+
+    See \l{The QDoc Configuration File} for instructions on how to
+    set up a QDoc configuration file.
+
+    \section1 How QDoc works
+
+    QDoc begins by reading the configuration file you specified on the
+    command line. It stores all the variables from the configuration
+    file for later use. One of the first variables it uses is \c
+    {outputformats}. This variable tells QDoc which output generators
+    it will run. The default value is \e {HTML}, so if you don't set
+    \c {outputformats} in your configuration file, QDoc will generate
+    HTML output. That's usually what you will want anyway, but you can
+    also specify \e {DITAXML} to get DITA XML output instead.
+
+    Next, QDoc uses the values of the
+    \l {headerdirs-variable}
+    {headerdirs} variable and/or the \l
+    {22-qdoc-configuration-generalvariables.html#headers-variable}
+    {headers} variable to find and parse all the header files for your
+    project. QDoc does \e not scan header files for QDoc comments. It
+    parses the header files to build a master tree of all the items
+    that should be documented, in other words, the items that QDoc should find
+    QDoc comments for.
+
+    After parsing all the header files and building the master tree of
+    items to be documented, QDoc uses the value of the \l
+    {22-qdoc-configuration-generalvariables.html#sourcedirs-variable}
+    {sourcedirs} variable and/or the value of the \l
+    {22-qdoc-configuration-generalvariables.html#sources-variable}
+    {sources} variable to find and parse all the \c {.cpp} and \c
+    {.qdoc} files for your project. These are the files QDoc scans for
+    \e {QDoc comments}. Remember that a QDoc comment begins with
+    an exclamation mark:  \b {/*!} .
+
+    For each QDoc comment it finds, it searches the master tree for
+    the item where the documentation belongs. Then it interprets the
+    qdoc commands in the comment and stores the interpreted commands
+    and the comment text in the tree node for the item.
+
+    Finally, QDoc traverses the master tree. For each node, if the
+    node has stored documentation, QDoc calls the output generator
+    specified by the \c {outputformats} variable to format and write
+    the documentation in the directory specified in the configuration
+    file in the \l
+    {22-qdoc-configuration-generalvariables.html#outputdir-variable}
+    {outputdir} variable.
+
+    \section1 Command Types
+
+    QDoc interprets three types of commands:
+
+    \list
+    \li \l {Topic Commands}
+    \li \l {Context Commands}
+    \li \l {Markup Commands}
+    \endlist
+
+    Topic commands identify the element you are documenting, for example
+    a C++ class, function, type, or an extra page of text
+    that doesn't map to an underlying C++ element.
+
+    Context commands tell QDoc how the element being documented
+    relates to other documented elements, for example, next and previous page
+    links, inclusion in page groups, or library modules. Context
+    commands can also provide information about the documented element
+    that QDoc can't get from the source files, for example, whether the
+    element is thread-safe, whether it is an overloaded or reimplemented function,
+    or whether it has been deprecated.
+
+    Markup commands tell QDoc how text and image elements in the
+    document should be rendered, or about the document's outline
+    structure.
+*/
+

@@ -1,0 +1,97 @@
+h3.fn,span.fn
+{
+  margin-left: 1cm;
+  text-indent: -1cm;
+}
+
+a:link
+{
+  color: #004faf;
+  text-decoration: none
+}
+
+a:visited
+{
+  color: #672967;
+  text-decoration: none
+}
+
+td.postheader
+{
+  font-family: sans-serif
+}
+
+tr.address
+{
+  font-family: sans-serif
+}
+
+body
+{
+  background: #ffffff;
+  color: black
+}
+
+table tr.odd {
+  background: #f0f0f0;
+  color: black;
+}
+
+table tr.even {
+  background: #e4e4e4;
+  color: black;
+}
+
+table.annotated {
+  border-spacing: 0px;
+}
+
+table.annotated th {
+  font-weight: bold;
+  padding: 3px;
+  text-align: left
+}
+
+table.annotated td {
+  padding: 3px;
+}
+
+table tr pre
+{
+  padding-top: none;
+  padding-bottom: none;
+  padding-left: none;
+  padding-right: none;
+  border: none;
+  background: none
+}
+
+tr.qt-style
+{
+  background: #a2c511;
+  color: black
+}
+
+body pre
+{
+  padding: 0.2em;
+  border: #e7e7e7 1px solid;
+  background: #f1f1f1;
+  color: black
+}
+
+span.preprocessor, span.preprocessor a
+{
+  color: darkblue;
+}
+
+span.comment
+{
+  color: darkred;
+  font-style: italic
+}
+
+span.string,span.char
+{
+  color: darkgreen;
+}

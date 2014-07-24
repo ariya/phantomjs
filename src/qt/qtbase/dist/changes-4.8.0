@@ -1,0 +1,220 @@
+Qt 4.8 introduces many new features and improvements as well as bugfixes
+over the 4.7.x series. For more details, refer to the online documentation
+included in this distribution. The documentation is also available online:
+
+  http://qt.nokia.com/doc/4.8
+
+The Qt version 4.8 series is binary compatible with the 4.7.x series.
+Applications compiled for 4.7 will continue to run with 4.8.
+
+Some of the changes listed in this file include issue tracking numbers
+corresponding to tasks in the Qt Bug Tracker:
+
+  http://bugreports.qt.nokia.com/
+
+Each of these identifiers can be entered in the bug tracker to obtain more
+information about a particular change.
+
+****************************************************************************
+*                           General                                        *
+****************************************************************************
+
+General Improvements
+--------------------
+
+- 
+
+Third party components
+----------------------
+
+ - Updated libpng to version x.y.z
+
+
+****************************************************************************
+*                          Library                                         *
+****************************************************************************
+
+QtCore
+------
+ - Removed support for QT_NO_THREAD define for QHostInfo.
+ - Optimized plugin loading on ELF platforms.
+   Print failure reason at runtime with QT_DEBUG_PLUGINS=1 in environment.
+ - QMutexLocker: improved performence of the non contended case by inlining some function
+ - QThreadStorage: Added possibility to store object by value instead of by pointer [QTBUG-15033]
+ - QThread: fixed few race conditions [QTBUG-17257, QTBUG-15030]
+ - QtConcurrent: added support for c++0x lambda in few functions
+ - QObject: Improved performence of the signal activation
+ - QObject: added ways to connect signals using QMetaMethod
+ - QObject: deprecated qFindChild and qFindChildren
+ - QObject: optimize constructions and destruction of objects
+ - QObject: Qt::BlockingQueuedConnection can handle the return value [QTBUG-10440]
+ - QList/QVector/QStringList: added C++0x initilizer lists constructors.
+ - QVarLenghtArray: added method for consistency with QVector
+ - QStringBuilder: added support for QByteArray
+ - qSwap now uses std::swap, specialized std::swap for our container to work better with stl algoritms
+ - QVariant: deprecated global function qVariantSetValue, qVariantValue, qVariantCanConvert, qVariantFromValue
+ - QUrl: add method for retrieving effective top level domain [QTBUG-13601] (MR-1205)
+
+QtGui
+-----
+
+ - QTabBar: reduced minimumSizeHint if ElideMode is set.
+ - QComboBox: Fixed a color propagation issue with the lineedit. [QTBUG-5950]
+ - Deprecate qGenericMatrixFromMatrix4x4 and qGenericMatrixToMatrix4x4
+ - QListView diverses optimisations [QTBUG-11438]
+ - QTreeWidget/QListWidget: use localeAwareCompare for string comparisons [QTBUG-10839]
+ - PNG image I/O: Much improved support for text annotations, including iTXt fields.
+ - QRawFont and QGlyphRun are introduced for low-level text rendering. [QTBUG-18252]
+ - QFont: hintingPreference() is introduced to control hinting in font rendering and
+   subpixel positioning of glyphs for Windows, Mac OS X and X11/raster. [QTBUG-10615]
+ - Subpixel positioned text layout is supported in raster and OpenGL paint engines.
+ - QFont: styleName() is added to allow selecting fonts with irregular style names
+   like UltraLight. [QTBUG-19366]
+ - Visual text cursor movement behavior is added to QTextEdit and QLineEdit controls,
+   which can be used as an optional mode for bi-directional text editing. [QTBUG-13859]
+ - Accessibility: Fix potential crash in QDockWidget.
+ - Accessibility: Fix crash when asking for relations of child accessibles.
+ - Accessibility: More consistency in reporting names (especially when widget is invisible).
+ - Accessibility: Make focus handling more consistent.
+ - Accessibility: Send updates when text changes.
+ - Accessibility: Add IAccessible2 events.
+ - Accessibility: Fix crash when accessing ItemViews during initialization.
+ - Accessibility: Make QTabWidget child hierarchy consistent.
+ - Accessibility: Report correct window title and application name.
+ - Accessibility: Return text attributes for QTextEdit.
+
+
+QtNetwork
+---------
+
+ - SSL: Switch default version to TLS 1.0
+ - SSL: enable Server Name Indication (SNI) by default
+ - QSslCertificate: report fraudulent certificates as invalid ("Comodogate") [QTBUG-18338]
+ - QSslCertificate: display non-ASCII names from subject and issuerInfo (MR-922)
+ - QSslCertificate: loat root certificates on demand on Unix (excluding Mac) [QTBUG-14016]
+ - QNetworkCookie: retain quotes in value attribute [QTBUG-17746]
+ - QNetworkCookie: allow spaces in unquoted values [QTBUG-18876]
+ - HTTP API: add support for HTTP multipart messages [QTBUG-6222]
+ - HTTP cache: do not load resources from cache that must be revalidated [QTBUG-18983]
+ - HTTP cache: change file organization (MR-2505)
+
+
+ QtOpenGL
+ --------
+ - Removed dependency of OpenGL Utility Library (GLU)
+ - Added QGLFunctions, which provides cross-platform access to the
+   OpenGL/ES 2.0 API.
+ - Including <QtOpenGL> will not work in combination with GLEW, as
+   QGLFunctions will undefine GLEW's defines.
+
+QtScript
+--------
+ - Deprecated qScriptValueFromQMetaObject, qScriptValueToValue, qScriptValueFromValue
+
+QtSql
+-----
+
+ - Update sqlite to 3.7.7.1
+****************************************************************************
+*                          Database Drivers                                *
+****************************************************************************
+
+
+****************************************************************************
+*                      Platform Specific Changes                           *
+****************************************************************************
+
+Qt for Linux/X11
+----------------
+ - Now takes font hinting settings from GConf by default if running in
+   GNOME desktop.
+ - Various fixes to FontConfig font matching code to make it consistent
+   with other X11 programs. [QTBUG-2148, QTBUG-19947, QTBUG-14269]
+
+Qt for Windows
+--------------
+ - DirectWrite experimental text shaping engine is added with subpixel
+   positioning support. [QTBUG-12678]
+
+Qt for Mac OS X
+---------------
+ - raster graphics system is now made as the default paint engine for
+   Mac OS X. [QTBUG-12615]
+ - HarfBuzz can now be used as an optional text layout engine on Mac OS X.
+   [QTBUG-17728]
+
+Qt for Embedded Linux
+---------------------
+
+
+Qt for Windows CE
+-----------------
+
+
+****************************************************************************
+*                      Compiler Specific Changes                           *
+****************************************************************************
+
+
+****************************************************************************
+*                          Tools                                           *
+****************************************************************************
+
+- Build System
+
+- Assistant
+
+- Designer
+    * [QTBUG-18631] Enabled the use of promoted QWidgets in the buddy editor.
+    * [QTBUG-18120] Fixed saving of the Z-order.
+    * [QTBUG-13683] Fixed saving of QGridLayout and QFormLayout
+      by QFormBuilder.
+    * [QTBUG-10890] Added a filter to the rich text editor dialog.
+      that simplifies the HTML markup generated.
+    * [QTBUG-7777] Added support for QIcon::fromTheme.
+    * [QTBUG-7169] Fixed QtUiTools to be built with the correct
+      lib-infix.
+    * [QTBUG-3120] Added support for alignment of box layout items.
+
+- Linguist
+  - Linguist GUI
+
+  - lupdate
+
+  - lrelease
+
+
+- rcc
+
+
+- moc
+
+
+- uic
+
+
+- uic3
+
+
+- qmake
+
+
+- configure
+
+
+- qtconfig
+  * removed Qt3support dependency
+
+
+- qt3to4
+
+
+****************************************************************************
+*                          Plugins                                         *
+****************************************************************************
+
+
+****************************************************************************
+*                   Important Behavior Changes                             *
+****************************************************************************
+

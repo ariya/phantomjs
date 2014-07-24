@@ -1,0 +1,310 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+
+\page qtgui-qdocconf.html
+\title qtgui.qdocconf with Comments
+
+\brief A walkthrough of a typical qdocconf file
+
+This document goes through a typical Qt 5 qdocconf file. The contents is taken from
+Qt GUI's \e qtgui.qdocconf file.
+
+Below you will find the full contents of qtgui.qdocconf. The subsequent section will discuss
+every statement in the qdocconf file.
+
+\code
+   include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
+
+   project                 = QtGui
+   description             = Qt GUI Reference Documentation
+   url                     = http://qt-project.org/doc/qt-$QT_VER/qtgui
+   version                 = $QT_VERSION
+
+   examplesinstallpath     = gui
+
+   qhp.projects            = QtGui
+
+   qhp.QtGui.file         = qtgui.qhp
+   qhp.QtGui.namespace           = org.qt-project.qtgui.$QT_VERSION_TAG
+   qhp.QtGui.virtualFolder       = qtgui
+   qhp.QtGui.indexTitle          = Qt GUI
+   qhp.QtGui.indexRoot           =
+
+   qhp.QtGui.filterAttributes    = qtgui $QT_VERSION qtrefdoc
+   qhp.QtGui.customFilters.Qt.name = Qtgui $QT_VERSION
+   qhp.QtGui.customFilters.Qt.filterAttributes = qtgui $QT_VERSION
+
+   qhp.QtGui.subprojects         = classes
+   qhp.QtGui.subprojects.classes.title = C++ Classes
+   qhp.QtGui.subprojects.classes.indexTitle = Qt GUI C++ Classes
+   qhp.QtGui.subprojects.classes.selectors = class fake:headerfile
+   qhp.QtGui.subprojects.classes.sortPages = true
+
+   tagfile                 = ../../../doc/qtgui/qtgui.tags
+
+   depends += \
+       qtcore \
+       qtnetwork \
+       qtopengl \
+       qtsvg \
+       qtqml \
+       qtquick \
+       qtwidgets \
+       qtdoc
+
+   headerdirs  += ..
+
+   sourcedirs  += .. \
+                  ../../../examples/gui/doc/src
+
+   excludedirs  = ../../../examples/gui/doc/src/tmp
+
+   exampledirs += ../../../examples/gui \
+                  snippets
+
+   imagedirs   += images \
+                  ../../../examples/gui/doc/images \
+                  ../../../doc/src/images \
+\endcode
+
+\title Qtgui.qdocconf with notes
+
+\code
+   include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
+\endcode
+
+QDoc inherits the default templates, macros, and settings from the directory
+specified from the \c $QT_INSTALL_DOCS variable. \c qmake prints the value of
+the variable.
+\code
+   qmake -query
+\endcode
+
+\sa include
+
+\code
+   project                 = QtGui
+\endcode
+
+The \c project variable sets the name of the QDoc build. This name is also
+used to form the index file, which, in this case, will be \e qtgui.index. The
+name of the index file doesn't adopt the uppercase letters of the project name.
+
+\sa project
+
+\code
+   description             = Qt GUI Reference Documentation
+\endcode
+
+A short description of the project concerned.
+
+\code
+   url                     = http://qt-project.org/doc/qt-$QT_VER/qtgui
+\endcode
+
+The \c url variable holds the base url of the project.
+
+The URL is stored in the generated index file for the project.
+QDoc will use this as the base URL when constructing links
+to content listed in the index.
+
+\note QDoc omits this value when the -installdir argument
+is specified when running QDoc.
+
+\keyword examplesinstallpath
+
+\code
+   examplesinstallpath     = gui
+\endcode
+
+This \e examplesinstallpath variable indicates that the examples will be installed
+in the \e gui directory under the parent examples directory (for Qt, this is
+$QT_INSTALL_EXAMPLES).
+
+\note The examplepath variable has to match the example directory specified in exampledirs.
+\sa exampledirs
+
+\code
+   qhp.projects    = QtGui
+   qhp.QtGui.file  = qtgui.qhp
+\endcode
+
+The following parameters are for creating a QHP file (\e .qhp). The qhelpgenerator
+program can convert the QHP file into a QCH file (\e .qch), which can be opened in
+Qt Assistant or Qt Creator.
+
+\code
+   qhp.QtGui.namespace           = org.qt-project.qtgui.$QT_VERSION_TAG
+\endcode
+
+A unique identifier which enables QHelpEngine to retrieve the helpfile
+from a given link. This namespace is also used as a base url for links
+to the helpfile.
+
+\code
+   qhp.QtGui.virtualFolder       = qtgui
+\endcode
+
+Virtual folders group documentation together into a single location. A
+virtual folder will become the root directory of all files referenced in a
+compressed help file.
+
+When two manuals are located in the same virtual folder, it is possible to refer
+ to sections of the other manual using relative paths.
+The virtual folder tag is mandatory and the folder must not contain any '/'.
+
+\code
+   qhp.QtGui.indexTitle          = Qt GUI  the title of the page that has the contents
+\endcode
+
+This is the title of the page that has the contents.
+
+\code
+   qhp.QtGui.indexRoot           =  to be checked
+\endcode
+
+Specifies the title of the root (namespace) page to generate the documentation for.
+Typically defined as an empty string.
+
+\code
+   qhp.QtGui.filterAttributes    = qtgui $QT_VERSION qtrefdoc
+   qhp.QtGui.customFilters.Qt.name = QtGui $QT_VERSION
+   qhp.QtGui.customFilters.Qt.filterAttributes = qtgui $QT_VERSION
+\endcode
+
+The documentation set (one per QDoc project) can have any number of filter
+attributes assigned to it. A filter attribute is an ordinary string which
+can be freely chosen. Additionally, custom filters that reference above
+attributes can be defined. Qt Assistant will display the name of the custom
+filter in its \gui{Filtered by} drop-down list. Only the documentation sets
+that have their filter attributes match the attributes of the selected
+custom filter will be shown.
+
+\code
+   qhp.QtGui.subprojects         = classes
+   qhp.QtGui.subprojects.classes.title = C++ Classes
+   qhp.QtGui.subprojects.classes.indexTitle = Qt GUI C++ Classes
+\endcode
+The subprojects specify the sections that are displayed in the table of contents
+for this project.  In this example, the subproject, which is displayed in
+the Assistant's sidebar, is named "C++ Classes" and its index is the page
+titled "QT GUI C++ Classes".
+
+\code
+   qhp.QtGui.subprojects.classes.selectors = class fake:headerfile
+\endcode
+
+Lists all headerfiles.
+
+A ‘fake’ type specifies a generic documentation node, and is followed by
+a c\ : and a \e subtype specifier.
+
+Possible values:
+\code
+    example
+    headerfile
+    file
+    group
+    module
+    page
+    externalpage
+    qmlclass
+    qmlpropertygroup
+    qmlbasictype
+\endcode
+
+tagfile                 = ../../../doc/qtgui/qtgui.tags
+This specifies the Doxygen tag file that needs to be written when the html is generated
+by QDoc.
+
+\code
+depends += \
+   qtcore \
+   qtnetwork \
+   qtopengl \
+   qtsvg \
+   qtqml \
+   qtquick \
+   qtwidgets \
+   qtdoc
+\endcode
+
+Specifies the modules QDoc needs to load for generating output for Qt GUI.
+QDoc loads the index files for all modules listed in the depends statement in
+order to enable linking to pages in these modules.
+
+\code
+   headerdirs  += ..
+\endcode
+
+Add the parent directory to the list of directories containing the header files
+associated with the \e .cpp source files.
+
+\code
+   sourcedirs  += .. \
+                  ../../../examples/gui/doc/src
+\endcode
+
+Add the specified directories to the list of directories containing the \e .cpp and
+\e .qdoc files used in the documentation.
+
+\code
+   excludedirs  = ../../../examples/gui/doc/src/tmp
+\endcode
+
+The \c excludedirs variable is for listing directories that should not be processed
+by qdoc, even if the same directories are included by the \c sourcedirs or \c headerdirs
+variables.
+
+When executed, QDoc will ignore the directories listed.
+\sa excludefiles
+
+\code
+   exampledirs += ../../../examples/gui \
+                  snippets
+\endcode
+\sa {examples-variable}{examples}
+\sa examplesinstallpath
+
+Add the two directories specified to the list of directories containing the source
+code of the example files.
+
+If QDoc encounters both \c exampledirs and \c examples, it will look first in the
+\c examples directory.  QDoc will accept the first matching file it finds. QDoc will
+search in the directories specified, not in their subdirectories.
+
+\code
+   imagedirs   += images \
+                  ../../../examples/gui/doc/images \
+                  ../../../doc/src/images \
+\endcode
+
+Add the directories specified above to the list of directories where the images
+can be found.
+*/

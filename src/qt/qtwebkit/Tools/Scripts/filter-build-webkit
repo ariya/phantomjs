@@ -1,0 +1,237 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2011, 2012, 2013 Apple Inc. All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+# 
+# THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS'' AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+# ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Filters the output of build-webkit into a more human-readable format.
+
+use strict;
+use warnings;
+
+use CGI qw(escapeHTML);
+use File::Basename;
+use FindBin;
+use lib $FindBin::Bin;
+use Getopt::Long;
+use VCSUtils;
+
+use constant {
+    STYLE_PLAIN => 0,
+    STYLE_HEADER => 1,
+    STYLE_SUCCESS => 2,
+    STYLE_ALERT => 3,
+
+    HTML_HEADER =><<HTMLHEADER,
+<html>
+    <head>
+        <title>Build Log</title>
+        <style>
+            body { font-family: Monaco, monospace; font-size: 10px; color: #666; line-height: 1.5em; }
+            h2 { margin: 1.5em 0 0 0; font-size: 1.0em; font-weight: bold; color: blue; }
+            p { margin: 0; padding-left: 1.5em; border-left: 3px solid #fff; }
+            p.alert { border-left-color: red; color: red; margin: 1.5em 0 0 0; }
+            p.alert + p { margin: 1.5em 0 0 0; }
+            p.alert + p.alert { margin: 0; }
+            p.success { color: green; }
+        </style>
+    </head>
+    <body>
+HTMLHEADER
+
+    HTML_FOOTER =><<HTMLFOOTER,
+    </body>
+</html>
+HTMLFOOTER
+};
+
+sub printLine($$);
+sub setLogfileOption($$);
+sub setOutputFormatOption($$);
+sub shouldIgnoreLine($$);
+sub usageAndExit();
+
+# Defined in VCSUtils.
+sub possiblyColored($$);
+
+# Global variables used only in global scope.
+my $outputPath = "&STDOUT";
+my $showHelp;
+
+# Global variables used in global and subroutine scope.
+our $logUnfilteredOutput;
+our $outputFormat = "text";
+our $unfilteredOutputPath = "build.log";
+our $useColor = -t STDOUT;
+
+sub usageAndExit()
+{
+    print STDERR <<__END__;
+Usage: @{[ basename($0) ]} [options] buildlog1 [buildlog2 ...]
+       build-webkit | @{[ basename($0) ]} [options]
+  -h|--help     Show this help message
+Output Options:
+  -o|--output   Path for output (default: STDOUT)
+  -f|--format   Output format (default: $outputFormat)
+                  text: Plain text
+                  html: Standalone HTML document
+  --[no-]color  ANSI color output for text (default: on, if -o is STDOUT)
+Unfiltered Logging Options:
+  -l|--log      Save unfiltered output to file (see --log-file)
+  --logfile     Path to save unfiltered output (implies --log, default: $unfilteredOutputPath)
+__END__
+    exit 1;
+}
+
+my $getOptionsResult = GetOptions(
+    'h|help'                => \$showHelp,
+    'o|output=s'            => \$outputPath,
+    'f|format=s'            => \&setOutputFormatOption,
+    'color!'                => \$useColor,
+    'l|log'                 => \$logUnfilteredOutput,
+    'logfile=s'             => \&setLogfileOption,
+);
+
+if (-t STDIN || $showHelp || !$getOptionsResult) {
+    usageAndExit();
+}
+
+open(OUTPUT_HANDLE, ">$outputPath") or die "Failed to open $outputPath : $!";
+if ($logUnfilteredOutput) {
+    open(UNFILTERED_OUTPUT_HANDLE, ">$unfilteredOutputPath") or die "Failed to open $unfilteredOutputPath : $!";
+}
+
+print OUTPUT_HANDLE HTML_HEADER if ($outputFormat eq "html");
+
+my $buildFinished;
+my $buildFailed = 0;
+for (my $previousLine = "", my $line = <>; $line; $previousLine = $line, $line = <>) {
+    print UNFILTERED_OUTPUT_HANDLE $line if $logUnfilteredOutput;
+
+    chomp($line);
+
+    next if shouldIgnoreLine($previousLine, $line);
+
+    if ($line =~ /^={10}/) {
+        printLine($line, STYLE_SUCCESS);
+        $buildFinished = 1;
+    } elsif ($line =~ /^===/) {
+        printLine($line, STYLE_HEADER);
+    } elsif ($line =~ /Checking Dependencies|Check dependencies/) {
+        printLine($line, STYLE_PLAIN);
+    } elsif ($line =~ /\*\* BUILD SUCCEEDED \*\*/) {
+        printLine("Build Succeeded", STYLE_SUCCESS);
+    } elsif ($line =~ /^(PhaseScriptExecution|CompileC|Distributed-CompileC|Ld|PBXCp|CpResource|CopyPNGFile|CopyTiffFile|CpHeader|Processing|ProcessInfoPlistFile|ProcessPCH|ProcessPCH\+\+|Touch|Libtool|CopyStringsFile|Mig|CreateUniversalBinary|Analyze|ProcessProductPackaging|CodeSign|SymLink|Updating|CompileXIB|StripNIB|CopyPlistFile|GenerateDSYMFile) ("[^"]+"|\S+)?/) {
+        my ($command, $path) = ($1, basename($2));
+        $path =~ s/"//g;
+        printLine("$command $path", STYLE_PLAIN);
+    } elsif ($line =~ /^\/\S+?(strip|WebCoreExportFileGenerator) .*?(\/|\> )(\S+)/) {
+        my ($command, $path) = (basename($1), basename($3));
+        printLine("$command $path", STYLE_PLAIN);
+    } elsif ($line =~ /^offlineasm\: /) {
+        printLine($line, STYLE_PLAIN);
+    } elsif ($line =~ /^Generating message.*(header|receiver) for (\S+)\.\.\./) {
+        my ($command, $path) = ($1, basename($2));
+        printLine("Generating message $command $path", STYLE_PLAIN);
+    } elsif ($line =~ /^(\S+\/cc).*?(\S+)\.(out|exp)/) {
+        my ($command, $path) = (basename($1), basename($2));
+        printLine("$command $path", STYLE_PLAIN);
+    } else {
+        # This only gets hit if stderr is redirected to stdout.
+        if ($line =~ /\*\* BUILD FAILED \*\*/) {
+            $buildFailed = 1;
+        }
+        printLine($line, $buildFinished ? STYLE_SUCCESS : STYLE_ALERT);
+    }
+}
+
+print OUTPUT_HANDLE HTML_FOOTER if ($outputFormat eq "html");
+
+close(OUTPUT_HANDLE);
+close(UNFILTERED_OUTPUT_HANDLE) if ($logUnfilteredOutput);
+
+exit $buildFailed;
+
+sub printLine($$)
+{
+    my ($line, $style) = @_;
+
+    if ($outputFormat eq "html") {
+        $line = escapeHTML($line);
+        if    ($style == STYLE_HEADER)  { print OUTPUT_HANDLE "<h2>$line</h2>"; }
+        elsif ($style == STYLE_SUCCESS) { print OUTPUT_HANDLE "<p class=\"success\">$line</p>"; }
+        elsif ($style == STYLE_ALERT)   { print OUTPUT_HANDLE "<p class=\"alert\">$line</p>"; }
+        else                            { print OUTPUT_HANDLE "<p>$line</p>"; }
+    } else {
+        if ($useColor) {
+            my $colors = "reset";
+            if ($style == STYLE_HEADER)  { $colors = "blue"; }
+            if ($style == STYLE_SUCCESS) { $colors = "green"; }
+            if ($style == STYLE_ALERT)   { $colors = "red"; }
+            print OUTPUT_HANDLE possiblyColored($colors, $line);
+        } else {
+            print OUTPUT_HANDLE $line;
+        }
+    }
+    print OUTPUT_HANDLE "\n";
+}
+
+sub setLogfileOption($$)
+{
+    my ($opt, $value) = @_;
+    $unfilteredOutputPath = $value;
+    $logUnfilteredOutput = 1;
+}
+
+sub setOutputFormatOption($$)
+{
+    my ($opt, $value) = @_;
+    $value = lc($value);
+    if ($value ne "html" && $value ne "text") {
+        die "The $opt option must be either \"html\" or \"text\"";
+    }
+    $outputFormat = $value;
+}
+
+sub shouldIgnoreLine($$)
+{
+    my ($previousLine, $line) = @_;
+
+    return 1 if $line =~ /^\s*$/;
+    return 1 if $line =~ /^Build settings from command line:/;
+    return 1 if $line =~ /make: Nothing to be done for `all'\./;
+    return 1 if $line =~ /^JavaScriptCore\/create_hash_table/;
+    return 1 if $line =~ /JavaScriptCore.framework\/PrivateHeaders\/create_hash_table/;
+    return 1 if $line =~ /^JavaScriptCore\/pcre\/dftables/;
+    return 1 if $line =~ /^Creating hashtable for /;
+    return 1 if $line =~ /^Wrote output to /;
+    return 1 if $line =~ /^(touch|perl|cat|rm -f|bison|flex|python|\/usr\/bin\/g\+\+|gperf|echo|sed|if \[ \-f|WebCore\/generate-export-file) /;
+    return 1 if $line =~ /^UNDOCUMENTED: /;
+    return 1 if $line =~ /libtool.*has no symbols/;
+    return 1 if $line =~ /^# Lower case all the values, as CSS values are case-insensitive$/;
+    return 1 if $line =~ /^if sort /;
+    return 1 if $line =~ /^    / && $previousLine !~ /referenced from:$/;
+    return 1 if $line =~ /^printf /;
+    return 1 if $line =~ /^offlineasm: Nothing changed/;
+    return 1 if $line =~ /^Showing first/;
+
+    return 0;
+}

@@ -71,7 +71,7 @@ QString Encoding::getName() const
 void Encoding::setEncoding(const QString &encoding)
 {
     if (!encoding.isEmpty()) {
-        QTextCodec *codec = QTextCodec::codecForName(qPrintable(encoding));
+        QTextCodec *codec = QTextCodec::codecForName(encoding.toLatin1());
 
         if ((QTextCodec *)NULL != codec) {
             m_codec = codec;

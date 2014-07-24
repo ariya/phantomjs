@@ -1,0 +1,59 @@
+include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
+
+project                 = QtWidgets
+description             = Qt Widgets Reference Documentation
+url                     = http://qt-project.org/doc/qt-$QT_VER
+version                 = $QT_VERSION
+
+examplesinstallpath     = widgets
+
+qhp.projects            = QtWidgets
+
+qhp.QtWidgets.file         = qtwidgets.qhp
+qhp.QtWidgets.namespace           = org.qt-project.qtwidgets.$QT_VERSION_TAG
+qhp.QtWidgets.virtualFolder       = qtwidgets
+qhp.QtWidgets.indexTitle          = Qt Widgets
+qhp.QtWidgets.indexRoot           =
+
+qhp.QtWidgets.filterAttributes    = qtwidgets $QT_VERSION qtrefdoc
+qhp.QtWidgets.customFilters.Qt.name = QtWidgets $QT_VERSION
+qhp.QtWidgets.customFilters.Qt.filterAttributes = qtwidgets $QT_VERSION
+
+qhp.QtWidgets.subprojects         = classes
+qhp.QtWidgets.subprojects.classes.title = C++ Classes
+qhp.QtWidgets.subprojects.classes.indexTitle = Qt Widgets C++ Classes
+qhp.QtWidgets.subprojects.classes.selectors = class fake:headerfile
+qhp.QtWidgets.subprojects.classes.sortPages = true
+
+tagfile                 = ../../../doc/qtwidgets/qtwidgets.tags
+
+depends                 += qtcore qtgui qtdoc qtsql qtdesigner qtquick
+
+headerdirs  += ..
+
+sourcedirs  += .. \
+               ../../../examples/widgets/doc/src
+
+excludefiles += ../widgets/qmacnativewidget_mac.h \
+                ../widgets/qmaccocoaviewcontainer_mac.h \
+                ../widgets/qcocoatoolbardelegate_mac_p.h \
+                ../widgets/qcocoamenu_mac_p.h \
+                ../widgets/qmaccocoaviewcontainer_mac.mm \
+                ../widgets/qcocoatoolbardelegate_mac.mm \
+                ../widgets/qmainwindowlayout_mac.mm \
+                ../widgets/qmacnativewidget_mac.mm
+
+exampledirs += ../../../examples/widgets \
+               ../../../doc/src/snippets \
+               ../ \
+               snippets
+
+excludedirs += snippets
+
+imagedirs   += images \
+               ../../../doc/src/images \
+               ../../../examples/widgets/doc/images \
+               ../../../examples/widgets
+
+navigation.landingpage = "Qt Widgets"
+navigation.cppclassespage = "Qt Widgets C++ Classes"

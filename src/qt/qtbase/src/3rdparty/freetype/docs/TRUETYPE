@@ -1,0 +1,40 @@
+How to enable the TrueType native hinter if you need it
+-------------------------------------------------------
+
+  The TrueType  bytecode interpreter is disabled in  all public releases
+  of the FreeType packages for patents reasons; see
+
+    http://www.freetype.org/patents.html
+
+  for more details.
+
+  However,  many Linux distributions  do enable  the interpreter  in the
+  FreeType packages (DEB/RPM/etc.) they produce for their platforms.  If
+  you are using TrueType fonts on your system, you most probably want to
+  enable it manually by doing the following:
+
+    - open the file `include/freetype/config/ftoption.h'
+
+    - locate a line that says:
+
+        /* #define TT_CONFIG_OPTION_BYTECODE_INTERPRETER */
+
+    - change it to:
+
+        #define TT_CONFIG_OPTION_BYTECODE_INTERPRETER
+
+  These steps must be done _before_ compiling the library.
+
+------------------------------------------------------------------------
+
+Copyright 2003, 2005, 2006 by
+David Turner, Robert Wilhelm, and Werner Lemberg.
+
+This  file is  part  of the  FreeType  project, and  may  only be  used,
+modified,  and  distributed under  the  terms  of  the FreeType  project
+license, LICENSE.TXT.  By continuing  to use, modify, or distribute this
+file  you indicate that  you have  read the  license and  understand and
+accept it fully.
+
+
+--- end of TRUETYPE ---

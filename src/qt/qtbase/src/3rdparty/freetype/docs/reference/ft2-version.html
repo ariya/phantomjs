@@ -1,0 +1,213 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>FreeType-2.3.12 API Reference</title>
+<style type="text/css">
+  body { font-family: Verdana, Geneva, Arial, Helvetica, serif;
+         color: #000000;
+         background: #FFFFFF; }
+
+  p { text-align: justify; }
+  h1 { text-align: center; }
+  li { text-align: justify; }
+  td { padding: 0 0.5em 0 0.5em; }
+  td.left { padding: 0 0.5em 0 0.5em;
+            text-align: left; }
+
+  a:link { color: #0000EF; }
+  a:visited { color: #51188E; }
+  a:hover { color: #FF0000; }
+
+  span.keyword { font-family: monospace;
+                 text-align: left;
+                 white-space: pre;
+                 color: darkblue; }
+
+  pre.colored { color: blue; }
+
+  ul.empty { list-style-type: none; }
+</style>
+</head>
+<body>
+
+<table align=center><tr><td><font size=-1>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-1>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+<center><h1>FreeType-2.3.12 API Reference</h1></center>
+
+<center><h1>
+FreeType Version
+</h1></center>
+<h2>Synopsis</h2>
+<table align=center cellspacing=5 cellpadding=0 border=0>
+<tr><td></td><td><a href="#FREETYPE_XXX">FREETYPE_XXX</a></td><td></td><td><a href="#FT_Face_CheckTrueTypePatents">FT_Face_CheckTrueTypePatents</a></td></tr>
+<tr><td></td><td><a href="#FT_Library_Version">FT_Library_Version</a></td><td></td><td><a href="#FT_Face_SetUnpatentedHinting">FT_Face_SetUnpatentedHinting</a></td></tr>
+</table><br><br>
+
+<table align=center width="87%"><tr><td>
+<p>Note that those functions and macros are of limited use because even a new release of FreeType with only documentation changes increases the version number.</p>
+</td></tr></table><br>
+<table align=center width="75%"><tr><td>
+<h4><a name="FREETYPE_XXX">FREETYPE_XXX</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_FREETYPE_H (freetype/freetype.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+#define <a href="ft2-version.html#FREETYPE_XXX">FREETYPE_MAJOR</a>  2
+#define <a href="ft2-version.html#FREETYPE_XXX">FREETYPE_MINOR</a>  3
+#define <a href="ft2-version.html#FREETYPE_XXX">FREETYPE_PATCH</a>  12
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>These three macros identify the FreeType source code version. Use <a href="ft2-version.html#FT_Library_Version">FT_Library_Version</a> to access them at runtime.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>values</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>FREETYPE_MAJOR</b></td><td>
+<p>The major version number.</p>
+</td></tr>
+<tr valign=top><td><b>FREETYPE_MINOR</b></td><td>
+<p>The minor version number.</p>
+</td></tr>
+<tr valign=top><td><b>FREETYPE_PATCH</b></td><td>
+<p>The patch level.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>The version number of FreeType if built as a dynamic link library with the &lsquo;libtool&rsquo; package is <i>not</i> controlled by these three macros.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Library_Version">FT_Library_Version</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_FREETYPE_H (freetype/freetype.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <span class="keyword">void</span> )
+  <b>FT_Library_Version</b>( <a href="ft2-base_interface.html#FT_Library">FT_Library</a>   library,
+                      <a href="ft2-basic_types.html#FT_Int">FT_Int</a>      *amajor,
+                      <a href="ft2-basic_types.html#FT_Int">FT_Int</a>      *aminor,
+                      <a href="ft2-basic_types.html#FT_Int">FT_Int</a>      *apatch );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Return the version of the FreeType library being used. This is useful when dynamically linking to the library, since one cannot use the macros <a href="ft2-version.html#FREETYPE_XXX">FREETYPE_MAJOR</a>, <a href="ft2-version.html#FREETYPE_XXX">FREETYPE_MINOR</a>, and <a href="ft2-version.html#FREETYPE_XXX">FREETYPE_PATCH</a>.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>library</b></td><td>
+<p>A source library handle.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>output</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>amajor</b></td><td>
+<p>The major version number.</p>
+</td></tr>
+<tr valign=top><td><b>aminor</b></td><td>
+<p>The minor version number.</p>
+</td></tr>
+<tr valign=top><td><b>apatch</b></td><td>
+<p>The patch version number.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>The reason why this function takes a &lsquo;library&rsquo; argument is because certain programs implement library initialization in a custom way that doesn't use <a href="ft2-base_interface.html#FT_Init_FreeType">FT_Init_FreeType</a>.</p>
+<p>In such cases, the library version might not be available before the library object has been created.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Face_CheckTrueTypePatents">FT_Face_CheckTrueTypePatents</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_FREETYPE_H (freetype/freetype.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Bool">FT_Bool</a> )
+  <b>FT_Face_CheckTrueTypePatents</b>( <a href="ft2-base_interface.html#FT_Face">FT_Face</a>  face );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Parse all bytecode instructions of a TrueType font file to check whether any of the patented opcodes are used. This is only useful if you want to be able to use the unpatented hinter with fonts that do <b>not</b> use these opcodes.</p>
+<p>Note that this function parses <b>all</b> glyph instructions in the font file, which may be slow.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>face</b></td><td>
+<p>A face handle.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>1&nbsp;if this is a TrueType font that uses one of the patented opcodes, 0&nbsp;otherwise.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>since</b></em></td></tr><tr><td>
+<p>2.3.5</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Face_SetUnpatentedHinting">FT_Face_SetUnpatentedHinting</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_FREETYPE_H (freetype/freetype.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Bool">FT_Bool</a> )
+  <b>FT_Face_SetUnpatentedHinting</b>( <a href="ft2-base_interface.html#FT_Face">FT_Face</a>  face,
+                                <a href="ft2-basic_types.html#FT_Bool">FT_Bool</a>  value );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Enable or disable the unpatented hinter for a given face. Only enable it if you have determined that the face doesn't use any patented opcodes (see <a href="ft2-version.html#FT_Face_CheckTrueTypePatents">FT_Face_CheckTrueTypePatents</a>).</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>face</b></td><td>
+<p>A face handle.</p>
+</td></tr>
+<tr valign=top><td><b>value</b></td><td>
+<p>New boolean setting.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>The old setting value. This will always be false if this is not an SFNT font, or if the unpatented hinter is not compiled in this instance of the library.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>since</b></em></td></tr><tr><td>
+<p>2.3.5</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+</body>
+</html>

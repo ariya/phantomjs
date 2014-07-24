@@ -1,0 +1,129 @@
+#!/usr/bin/perl
+
+# Copyright (C) 2007 Apple Inc.  All rights reserved.
+# Copyright (C) 2010 Holger Hans Peter Freyther
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+# 3.  Neither the name of Apple Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# This script updates Tools/iExploder/iExploder-1.3.2/htdocs/*.in based on
+# WebCore/css/CSSPropertyNames.in, WebCore/html/HTMLTagNames.in
+# and WebCore/html/HTMLAttributeNames.in
+
+use warnings;
+use strict;
+
+use FindBin;
+use lib $FindBin::Bin;
+use VCSUtils;
+use webkitdirs;
+
+use File::Spec;
+
+sub generateEntityListFromFile($);
+sub readiExploderFile($);
+sub update($$);
+sub writeiExploderFile($@);
+
+update("cssproperties.in", "css/CSSPropertyNames.in");
+update("htmlattrs.in", "html/HTMLAttributeNames.in");
+update("htmltags.in", "html/HTMLTagNames.in");
+print "Successfully updated!\n";
+
+exit 0;
+
+sub generateEntityListFromFile($)
+{
+    my ($filename) = @_;
+
+    my $revision = svnRevisionForDirectory(dirname($filename));
+    my $path = File::Spec->abs2rel($filename, sourceDir());
+    my $result = "# From WebKit svn r" . $revision . " (" . $path . ")\n";
+
+    my @entities = ();
+    my $in_namespace = 0;
+
+    open(IN, $filename) || die "$!";
+    while (my $l = <IN>) {
+        chomp $l;
+        if ($l =~ m/^namespace=\"/) {
+            $in_namespace = 1;
+        } elsif ($in_namespace && $l =~ m/^$/) {
+            $in_namespace = 0;
+        }
+
+        next if $in_namespace;
+        next if $l =~ m/^\s*#/ || $l =~ m/^\s*$/;
+
+        # For HTML Tags that can have additional information
+        if ($l =~ m/ /) {
+            my @split = split / /, $l;
+            $l = $split[0]
+        }
+
+        push(@entities, $l);
+    }
+    close(IN);
+
+    $result .= join("\n", sort { $a cmp $b } @entities) . "\n\n";
+
+    return $result;
+}
+
+sub readiExploderFile($)
+{
+    my ($filename) = @_;
+
+    my @sections = ();
+    local $/ = "\n\n";
+
+    open(IN, $filename) || die "$!";
+    @sections = <IN>;
+    close(IN);
+
+    return @sections;
+}
+
+sub update($$)
+{
+    my ($iexploderPath, $webcorePath) = @_;
+
+    $iexploderPath = File::Spec->catfile(sourceDir(), "Tools", "iExploder", "iExploder-1.3.2", "htdocs", split("/", $iexploderPath));
+    $webcorePath = File::Spec->catfile(sourceDir(), "Source", "WebCore", split("/", $webcorePath));
+
+    my @sections = readiExploderFile($iexploderPath);
+    $sections[0] = generateEntityListFromFile($webcorePath);
+    writeiExploderFile($iexploderPath, @sections);
+}
+
+
+sub writeiExploderFile($@)
+{
+    my ($filename, @sections) = @_;
+
+    open(OUT, "> $filename") || die "$!";
+    print OUT join("", @sections);
+    close(OUT);
+}
+

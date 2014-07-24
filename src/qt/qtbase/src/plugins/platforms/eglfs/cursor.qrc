@@ -1,0 +1,7 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+   <file>cursor-atlas.png</file>
+   <file>cursor.json</file>
+</qresource>
+</RCC>
+

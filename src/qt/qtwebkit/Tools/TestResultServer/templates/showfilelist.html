@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Test Results</title>
+<link type="text/css" rel="stylesheet" href="/stylesheets/testfile.css" />
+</head>
+<body>
+<h1>Test Results
+{% if builder or test_type or name %}
+- {{ builder }} {{test_type }} {{ name }}
+{% endif %}
+</h1>
+<div>
+    <table>
+        <tr>
+            <th>Master</th>
+            <th>Builder</th>
+            <th>Test Type</th>
+            <th>File</th>
+            <th>Date</th>
+            {% if admin %}
+            <th></th>
+            {% endif %}
+        {% for file in files %}
+        <tr>{% if file.builder and file.name %}
+            <td><a href="/testfile?master={{ file.master }}" >
+                {{ file.master }}
+                </a>
+            </td>
+            <td><a href="/testfile?builder={{ file.builder }}" >
+                {{ file.builder }}
+                </a>
+            </td>
+            <td>{% if file.test_type %}
+                <a href="/testfile?testtype={{ file.test_type }}" >
+                {{ file.test_type }}
+                </a>
+                {% endif %}
+            </td>
+            <td><a href="/testfile?builder={{ file.builder }}&name={{ file.name }}" >
+                {{ file.name }}
+                </a>
+            </td>
+            <td>{{ file.date|date:"d-M-Y H:i:s" }}
+            </td>
+            {% if admin %}
+            <td><a href="/testfile/delete?key={{ file.key }}&builder={{ builder }}&name={{ name }}" >
+                Delete
+                </a>
+            </td>
+            {% endif %}
+        {% endif %}
+        </tr>
+    {% endfor %}
+    </table>
+</div>
+</body>
+</html>

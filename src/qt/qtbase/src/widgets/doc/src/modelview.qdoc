@@ -1,0 +1,891 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page modelview.html
+    \ingroup tutorials
+    \startpage {index.html}{Qt Reference Documentation}
+
+    \title Model/View Tutorial
+    \brief An introduction to ModelView programming
+
+    Every UI developer should know about ModelView programming and the goal of
+    this tutorial is to provide you with an easily understandable introduction
+    to this topic.
+
+    Table, list and tree widgets are components frequently used in GUIs. There
+    are 2 different ways how these widgets can access their data. The
+    traditional way involves widgets which include internal containers for
+    storing data. This approach is very intuitive, however, in many non-trivial
+    applications, it leads to data synchronization issues.
+    The second approach is model/view programming, in
+    which widgets do not maintain internal data containers. They access external
+    data through a standardized interface and therefore avoid data duplication.
+    This may seem complicated at first, but once you take a closer look, it is
+    not only easy to grasp, but the many benefits of model/view programming also
+    become clearer.
+
+    \image treeview.png
+
+    In the process, we will learn about some basic technologies provided by Qt,
+    such as:
+
+    \list
+    \li The difference between standard and model/view widgets
+    \li Adapters between forms and models
+    \li Developing a simple model/view application
+    \li Predefined models
+    \li Intermediate topics such as:
+      \list
+      \li Tree views
+      \li Selection
+      \li Delegates
+      \li Debugging with model test
+      \endlist
+    \endlist
+
+    You will also learn whether your new application can be written easier with
+    model/view programming or if classic widgets will work just as well.
+
+    This tutorial includes example code for you to edit and integrate into your
+    project. The tutorial's source code is located in Qt's
+    \e examples/widgets/tutorials/modelview directory.
+
+    For more detailed information you may also want to look at the
+    \l{model-view-programming.html}{reference documentation}
+
+
+    \section1 1. Introduction
+
+    Model/View is a technology used to separate data from views in widgets that
+    handle data sets. Standard widgets are not designed for separating data
+    from views and this is why Qt 4 has two different types of widgets. Both
+    types of widgets look the same, but they interact with data differently.
+
+    \table
+        \row
+            \li  Standard widgets use data that is part of the widget.
+            \li  \image standardwidget.png
+        \row
+            \li  View classes operate on external data (the model)
+            \li  \image modelview.png
+    \endtable
+
+    \section2 1.1 Standard Widgets
+
+    Let's have a closer look at a standard table widget. A table widget is a 2D
+    array of the data elements that the user can change. The table widget can be
+    integrated into a program flow by reading and writing the data elements that
+    the table widget provides.
+    This method is very intuitive and useful in many applications, but displaying
+    and editing a database table with a standard table widget can be problematic.
+    Two copies of the data have to be coordinated: one outside the
+    widget; one inside the widget. The developer is responsible for
+    synchronizing both versions. Besides this, the tight coupling of presentation and data
+    makes it harder to write unit tests.
+
+    \section2 1.2 Model/View to the Rescue
+
+    Model/view stepped up to provide a solution that uses a more versatile
+    architecture. Model/view eliminates the data consistency problems that may
+    occur with standard widgets. Model/view also makes it easier to use more
+    than one view of the same data because one model can be passed on to many
+    views. The most important difference is that model/view widgets do not store
+    data behind the table cells. In fact, they operate directly from your data.
+    Since view classes do not know your data's structure, you need to provide a
+    wrapper to make your data conform to the QAbstractItemModel interface. A
+    view uses this interface to read from and write to your data. Any instance
+    of a class that implements QAbstractItemModel is said to be a model. Once
+    the view receives a pointer to a model, it will read and display its content
+    and be its editor.
+
+    \section2 1.3 Overview of the Model/View Widgets
+
+    Here is an overview of the model/view widgets and their corresponding
+    standard widgets.
+
+    \table
+        \header
+            \li  Widget
+            \li  Standard Widget\br
+                (an item based convenience class)
+            \li  Model/View View Class\br
+                (for use with external data)
+        \row
+            \li  \inlineimage listview.png
+            \li  \l QListWidget
+            \li  \l QListView
+        \row
+            \li  \inlineimage tableview.png
+            \li  \l QTableWidget
+            \li  \l QTableView
+        \row
+            \li  \inlineimage treeview.png
+            \li  \l QTreeWidget
+            \li  \l QTreeView
+        \row
+            \li  \inlineimage columnview.png
+            \li
+            \li  \l QColumnView shows a tree as a hierarchy of lists
+        \row
+            \li  \inlineimage modelview-combobox.png
+            \li {2, 1} \l QComboBox can work as both a view class and also
+                      as a traditional widget
+    \endtable
+
+    \section2 1.4 Using Adapters between Forms and Models
+
+    Having adapters between forms and models can come in handy.
+
+    We can edit data stored in tables directly from within the table itself, but
+    it's much more comfortable to edit data in text fields. There is no direct
+    model/view counterpart that separates data and views for widgets that
+    operate on one value (QLineEdit, QCheckBox ...) instead of a dataset, so we
+    need an adapter in order to connect the form to the source of data.
+
+    \l QDataWidgetMapper is a great solution because it maps form widgets to a
+    table row and makes it very easy to build forms for database tables.
+
+    \image widgetmapper.png
+
+    Another example of an adapter is \l QCompleter. Qt has \l QCompleter for
+    providing auto-completions in Qt widgets such as \l QComboBox and, as shown
+    below, \l QLineEdit. \l QCompleter uses a model as its data source.
+
+    \image qcompleter.png
+
+
+    \section1 2. A Simple Model/View Application
+    If you want to develop a model/view application, where should you start?
+    We recommend starting with a simple example and extending it step-by-step.
+    This makes understanding the architecture a lot easier. Trying to understand
+    the model/view architecture in detail before invoking the IDE has proven
+    to be less convenient for many developers. It is substantially easier to
+    start with a simple model/view application that has demo data. Give it a
+    try! Simply replace the data in the examples below with your own.
+
+    Below are 7 very simple and independent applications that show different
+    sides of model/view programming. The source code can be found inside the
+    \c{examples/widgets/tutorials/modelview} directory.
+
+    \section2 2.1 A Read Only Table
+
+    We start with an application that uses a QTableView to show data. We will
+    add editing capabilities later.
+
+    (file source: examples/widgets/tutorials/modelview/1_readonly/main.cpp)
+    \snippet tutorials/modelview/1_readonly/main.cpp Quoting ModelView Tutorial
+
+    We have the usual \l {modelview-part2-main-cpp.html}{main()} function:
+
+    Here is the interesting part: We create an instance of MyModel and use
+    \l{QTableView::setModel()}{tableView.setModel(&myModel);} to pass a
+    pointer of it to \l{QTableView}{tableView}. \l{QTableView}{tableView}
+    will invoke the methods of the pointer it has received to find out two
+    things:
+
+    \list
+       \li How many rows and columns should be displayed.
+       \li What content should be printed into each cell.
+    \endlist
+
+    The model needs some code to respond to this.
+
+    We have a table data set, so let's start with QAbstractTableModel since it
+    is easier to use than the more general QAbstractItemModel.
+
+    (file source: examples/widgets/tutorials/modelview/1_readonly/mymodel.h)
+    \snippet tutorials/modelview/1_readonly/mymodel.h Quoting ModelView Tutorial
+
+    QAbstractTableModel requires the implementation of three abstract methods.
+
+    (file source: examples/widgets/tutorials/modelview/1_readonly/mymodel.cpp)
+    \snippet tutorials/modelview/1_readonly/mymodel.cpp Quoting ModelView Tutorial
+
+    The number of rows and columns is provided by
+    \l{QAbstractItemModel::rowCount()}{MyModel::rowCount()} and
+    \l{QAbstractItemModel::columnCount()}{MyModel::columnCount()}. When the view
+    has to know what the cell's text is, it calls the method
+    \l{QAbstractItemModel::data()}{MyModel::data()}. Row and column information
+    is specified with parameter \c index and the role is set to
+    \l{Qt::ItemDataRole}{Qt::DisplayRole}. Other roles are covered in the next
+    section. In our example, the data that should be displayed is generated. In
+    a real application, \c MyModel would have a member called \c MyData, which
+    serves as the target for all reading and writing operations.
+
+    This small example demonstrates the passive nature of a model. The model
+    does not know when it will be used or which data is needed. It simply
+    provides data each time the view requests it.
+
+    What happens when the model's data needs to be changed? How does the view
+    realize that data has changed and needs to be read again? The model has to
+    emit a signal that indicates what range of cells has changed.  This will be
+    demonstrated in section 2.3.
+
+    \section2 2.2 Extending the Read Only Example with Roles
+
+    In addition to controlling what text the view displays, the model also
+    controls the text's appearance. When we slightly change the model, we get
+    the following result: \image readonlytable_role.png
+
+    In fact, nothing except for the \l{QAbstractItemModel::}{data()} method
+    needs to be changed to set fonts, background colour, alignment and a
+    checkbox.
+    Below is the \l{QAbstractItemModel::data()}{data()} method that produces the
+    result shown above. The difference is that this time we use parameter int
+    role to return different pieces of information depending on its value.
+
+    (file source: examples/widgets/tutorials/modelview/2_formatting/mymodel.cpp)
+    \snippet tutorials/modelview/2_formatting/mymodel.cpp Quoting ModelView Tutorial
+
+    Each formatting property will be requested from the model with a separate
+    call to the \l{QAbstractItemModel::data()}{data()} method. The \c role
+    parameter is used to let the model know which property is being requested:
+
+    \table
+        \header
+            \li \l{Qt::ItemDataRole}{enum Qt::ItemDataRole}
+            \li  Meaning
+            \li  Type
+        \row
+            \li \l{Qt::ItemDataRole}{}Qt::DisplayRole
+            \li  text
+            \li  QString
+        \row
+            \li \l{Qt::ItemDataRole}{Qt::FontRole}
+            \li  font
+            \li  QFont
+        \row
+            \li \l{Qt::ItemDataRole}{BackgroundRole}
+            \li  brush for the background of the cell
+            \li  QBrush
+        \row
+            \li \l{Qt::ItemDataRole}{Qt::TextAlignmentRole}
+            \li  text alignment
+            \li  \l{Qt::AlignmentFlag}{enum Qt::AlignmentFlag}
+        \row
+        \li {1, 3}  \l{Qt::ItemDataRole}{Qt::CheckStateRole}
+        \li {1, 3} suppresses checkboxes with \l{QVariant}{QVariant()},
+
+              sets checkboxes with \l{Qt::CheckState}{Qt::Checked}
+
+              or \l{Qt::CheckState}{Qt::Unchecked}
+        \li {1, 3}  \l{Qt::ItemDataRole}{enum Qt::ItemDataRole}
+    \endtable
+
+    Refer to the Qt namespace documentation to learn more about the
+    \l{Qt::ItemDataRole}{Qt::ItemDataRole} enum's capabilities.
+
+    Now we need to determine how using a separated model impacts the
+    application's performance, so let's trace how often the view calls the
+    \l{QAbstractItemModel::}{data()} method. In order to track how often the
+    view calls the model, we have put a debug statement in the
+    \l{QAbstractItemModel::}{data()} method, which logs onto the error output
+    stream. In our small example, \l{QAbstractItemModel::}{data()} will be
+    called 42 times.
+    Each time you hover the cursor over the field,
+    \l{QAbstractItemModel::}{data()} will be called again -- 7 times for
+    each cell. That's why it is important to make sure that your data is
+    available when \l{QAbstractItemModel::}{data()} is invoked and expensive
+    lookup operations are cached.
+
+    \section2 2.3 A Clock inside a Table Cell
+
+    \image clock.png
+
+    We still have a read only table, but this time the content changes every
+    second because we are showing the current time.
+
+    (file source: examples/widgets/tutorials/modelview/3_changingmodel/mymodel.cpp)
+    \snippet tutorials/modelview/3_changingmodel/mymodel.cpp quoting mymodel_QVariant
+
+    Something is missing to make the clock tick. We need to tell the view every
+    second that the time has changed and that it needs to be read again. We do
+    this with a timer. In the constructor, we set its interval to 1 second and
+    connect its timeout signal.
+
+    (file source: examples/widgets/tutorials/modelview/3_changingmodel/mymodel.cpp)
+    \snippet tutorials/modelview/3_changingmodel/mymodel.cpp quoting mymodel_a
+
+    Here is the corresponding slot:
+
+    (file source: examples/widgets/tutorials/modelview/3_changingmodel/mymodel.cpp)
+    \snippet tutorials/modelview/3_changingmodel/mymodel.cpp quoting mymodel_b
+
+    We ask the view to read the data in the top left cell again by emitting the
+    \l{QAbstractItemModel::}{dataChanged()} signal.  Note that we did not
+    explicitly connect the \l{QAbstractItemModel::}{dataChanged()} signal to the
+    view. This happened automatically when we called \l{QTableView::}{setModel()}.
+
+    \section2 2.4 Setting up Headers for Columns and Rows
+
+    Headers can be hidden via a view method: \c{tableView->verticalHeader()->hide();}
+    \image modelview-header.png
+
+    The header content, however, is set via the model, so we reimplement the
+    \l{QAbstractItemModel::headerData()}{headerData()} method:
+
+    (file source: examples/widgets/tutorials/modelview/4_headers/mymodel.cpp)
+    \snippet tutorials/modelview/4_headers/mymodel.cpp quoting mymodel_c
+
+    Note that method \l{QAbstractItemModel::headerData()}{headerData()} also has
+    a parameter role which has the same meaning as in
+    \l{QAbstractItemModel::data()}{MyModel::data()}.
+
+    \section2 2.5 The Minimal Editing Example
+
+    In this example, we are going to build an application that automatically
+    populates a window title with content by repeating values entered into table
+    cells. To be able to access the window title easily we put the QTableView in
+    a QMainWindow.
+
+    The model decides whether editing capabilities are available. We only have
+    to modify the model in order for the available editing capabilities to be
+    enabled. This is done by reimplementing the following virtual methods:
+    \l{QAbstractItemModel::}{setData()} and \l{QAbstractItemModel::}{flags()}.
+
+    (file source: examples/widgets/tutorials/modelview/5_edit/mymodel.h)
+    \snippet tutorials/modelview/5_edit/mymodel.h Quoting ModelView Tutorial
+
+    We use \c the two-dimensional array QString \c m_gridData to store our data.
+    This makes \c m_gridData the core of \c MyModel.  The rest of \c MyModel acts
+    like a wrapper and adapts \c m_gridData to the QAbstractItemModel
+    interface. We have also introduced the \c editCompleted() signal, which
+    makes it possible to transfer the modified text to the window title.
+
+    (file source: examples/widgets/tutorials/modelview/5_edit/mymodel.cpp)
+    \snippet tutorials/modelview/5_edit/mymodel.cpp quoting mymodel_e
+
+    \l{QAbstractItemModel::setData()}{setData()} will be called each time the
+    user edits a cell. The \c index parameter tells us which field has been
+    edited and \c value  provides the result of the editing process. The role
+    will always be set to \l Qt::EditRole because our cells only contain text.
+    If a checkbox were present and user permissions are set to allow the
+    checkbox to be selected, calls would also be made with the role set to
+    \l Qt::CheckStateRole.
+
+    (file source: examples/widgets/tutorials/modelview/5_edit/mymodel.cpp)
+    \snippet tutorials/modelview/5_edit/mymodel.cpp quoting mymodel_f
+
+    Various properties of a cell can be adjusted with
+    \l{QAbstractItemModel::flags()}{flags()}.
+
+    Returning \l{Qt::ItemFlag}{Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled}
+    is enough to show an editor that a cell can be selected.
+
+    If editing one cell modifies more data than the data in that particular
+    cell, the model must emit a \l{QAbstractItemModel::}{dataChanged()} signal
+    in order for the data that has been changed to be read.
+
+
+    \section1 3. Intermediate Topics
+
+    \section2 3.1 TreeView
+
+    You can convert the example above into an application with a tree view.
+    Simply replace QTableView with QTreeView, which results in a read/write
+    tree. No changes have to be made to the model. The tree won't have any
+    hierarchies because there aren't any hierarchies in the model itself.
+
+    \image dummy_tree.png
+
+    QListView, QTableView and QTreeView all use a model abstraction, which is a
+    merged list, table and tree. This makes it possible to use several different
+    types of view classes from the same model.
+
+    \image list_table_tree.png
+
+    This is how our example model looks so far:
+
+    \image example_model.png
+
+    We want to present a real tree. We have wrapped our data in the examples
+    above in order to make a model. This time we use QStandardItemModel, which
+    is a container for hierarchical data that also implements
+    QAbstractItemModel. To show a tree, QStandardItemModel must be populated
+    with \l{QStandardItem}s, which are able to hold all the standard properties
+    of items like text, fonts, checkboxes or brushes.
+
+    \image tree_2_with_algorithm.png
+
+    (file source: examples/widgets/tutorials/modelview/6_treeview/mainwindow.cpp)
+    \snippet tutorials/modelview/6_treeview/mainwindow.cpp Quoting ModelView Tutorial
+
+    We simply instantiate a QStandardItemModel and add a couple of
+    \l{QStandardItem}{QStandardItems} to the constructor. We can then make a
+    hierarchical data structure because a QStandardItem can hold other
+    \l{QStandardItem}{QStandardItems}. Nodes are collapsed and expanded within
+    the view.
+
+    \section2 3.2 Working with Selections
+
+    We want to access a selected item's content in order to output it into the
+    window title together with the hierarchy level.
+
+    \image selection2.png
+
+    So let's create a couple of items:
+
+    (file source: examples/widgets/tutorials/modelview/7_selections/mainwindow.cpp)
+    \snippet tutorials/modelview/7_selections/mainwindow.cpp quoting modelview_a
+
+    Views manage selections within a separate selection model, which can be
+    retrieved with the \l{QAbstractItemView::}{selectionModel()} method. We
+    retrieve the selection Model in order to connect a slot to its
+    \l{QAbstractItemView::}{selectionChanged()} signal.
+
+    (file source: examples/widgets/tutorials/modelview/7_selections/mainwindow.cpp)
+    \snippet tutorials/modelview/7_selections/mainwindow.cpp quoting modelview_b
+
+    We get the model index that corresponds to the selection by calling
+    \l{QItemSelectionModel::currentIndex()}{treeView->selectionModel()->currentIndex()}
+    and we get the field's string by using the model index. Then we just
+    calculate the item's \c hierarchyLevel.  Top level items do not have parents
+    and the \l{QAbstractItemModel::}{parent()} method will return a default
+    constructed \l{QModelIndex}{QModelIndex()}. This is why we use the
+    \l{QAbstractItemModel::}{parent()} method to iterate to the top level while
+    counting the steps performed during iteration.
+
+    The selection model (as shown above) can be retrieved, but it can also be
+    set with \l{QAbstractItemView}{QAbstractItemView::setSelectionModel}. This
+    is how it's possible to have 3 view classes with synchronized selections
+    because only one instance of a selection model is used. To share a selection
+    model between 3 views use \l{QAbstractItemView::}{selectionModel()} and
+    assign the result to the second and third view class with
+    \l{QAbstractItemView::}{setSelectionModel()}.
+
+    \section2 3.3 Predefined Models
+
+    The typical way to use model/view is to wrap specific data to make it usable
+    with view classes. Qt, however, also provides predefined models for common
+    underlying data structures. If one of the available data structures is
+    suitable for your application, a predefined model can be a good choice.
+
+    \table
+        \row
+            \li  QStringListModel
+            \li  Stores a list of strings
+        \row
+            \li  QStandardItemModel
+            \li  Stores arbitrary hierarchical items
+        \row
+            \li  QFileSystemModel\br
+                QDirModel
+            \li  Encapsulate the local file system
+        \row
+            \li  QSqlQueryModel
+            \li  Encapsulate an SQL result set
+        \row
+            \li  QSqlTableModel
+            \li  Encapsulates an SQL table
+        \row
+            \li  QSqlRelationalTableModel
+            \li  Encapsulates an SQL table with foreign keys
+        \row
+            \li  QSortFilterProxyModel
+            \li  Sorts and/or filters another model
+
+    \endtable
+
+    \section2 3.4 Delegates
+
+    In all examples so far, data is presented as text or a checkbox in a cell
+    and is edited as text or a checkbox. The component that provides these
+    presentation and editing services is called a \e delegate. We are only just
+    beginning to work with the delegate because the view uses a default
+    delegate. But imagine that we want to have a different editor (e.g., a
+    slider or a drop down list) Or imagine that we want to present data as
+    graphics.
+    Let's take a look at an example called \l{Star Delegate Example}{Star
+    Delegate}, in which stars are used to show a rating:
+
+    \image stardelegate.png
+
+    The view has a \l{QAbstractItemView::}{setItemDelegate()} method that
+    replaces the default delegate and installs a custom delegate.
+    A new delegate can be written by creating a class that inherits from
+    QStyledItemDelegate. In order to write a delegate that displays stars and
+    has no input capabilities, we only need to override 2 methods.
+
+    \code
+     class StarDelegate : public QStyledItemDelegate
+     {
+         Q_OBJECT
+     public:
+         StarDelegate(QWidget *parent = 0);
+         void paint(QPainter *painter, const QStyleOptionViewItem &option,
+                    const QModelIndex &index) const;
+         QSize sizeHint(const QStyleOptionViewItem &option,
+                        const QModelIndex &index) const;
+     };
+    \endcode
+
+    \l{QStyledItemDelegate::}{paint()} draws stars depending on the content of
+    the underlying data.  The data can be looked up by calling
+    \l{QModelIndex::data()}{index.data()}. The delegate's
+    \l{QAbstractItemDelegate::}{sizeHint()} method is used to obtain each
+    star's dimensions, so the cell will provide enough height and width to
+    accommodate the stars.
+
+    Writing custom delegates is the right choice if you want to show your data
+    with a custom graphical representation inside the grid of the view class. If
+    you want to leave the grid, you would not use a custom delegate but a custom
+    view class.
+
+    Other references to delegates in Qt Documentation:
+
+    \list
+    \li \l{Spin Box Delegate Example}
+    \li \l{QAbstractItemDelegate}{QAbstractItemDelegate Class Reference}
+    \li \l{QSqlRelationalDelegate}{QSqlRelationalDelegate Class Reference}
+    \li \l{QStyledItemDelegate}{QStyledItemDelegate Class Reference}
+    \li \l{QItemDelegate}{QItemDelegate Class Reference}
+    \endlist
+
+
+    \section2 3.5 Debugging with ModelTest
+
+    The passive nature of models provides new challenges for programmers.
+    Inconsistencies in the model can cause the application to crash. Since the
+    model is hit by numerous calls from the view, it is hard to find out which
+    call has crashed the application and which operation has introduced the
+    problem.
+
+    Qt Labs provides software called
+    \l{http://qt-project.org/wiki/Model_Test}{ModelTest},
+    which checks models while your programming is running. Every time the model
+    is changed, ModelTest scans the model and reports errors with an assert.
+    This is especially important for tree models, since their hierarchical
+    nature leaves many possibilities for subtle inconsistencies.
+
+    Unlike view classes, ModelTest uses out of range indexes to test the model.
+    This means your application may crash with ModelTest even if it runs
+    perfectly without it. So you also need to handle all of the indexes that are
+    out of range when using ModelTest.
+
+
+    \section1 4. Good Sources of Additional Information
+
+    \section2 4.1 Books
+
+    Model/View programming is covered quite extensively in the documentation of
+    Qt but also in several good books.
+
+    \list 1
+       \li \b{C++ GUI Programming with Qt 4} / Jasmin Blanchette, Mark Summerfield,
+          \e{Prentice Hall, 2nd edition}, ISBN 0-13-235416-0. Also available in
+          German: \b{C++ GUI Programmierung mit Qt 4: Die offizielle Einführung},
+          \e{Addison-Wesley}, ISBN 3-827327-29-6
+       \li \b{The Book of Qt4, The Art of Building Qt Applications} / Daniel Molkentin,
+          \e{Open Source Press}, ISBN 1-59327-147-6.
+          Translated from \b{Qt 4, Einführung in die Applikationsentwicklung},
+          \e{Open Source Press}, ISBN 3-937514-12-0.
+       \li \b{Foundations of Qt Development} / Johan Thelin, \e{Apress}, ISBN 1-59059-831-8.
+       \li \b{Advanced Qt Programming} / Mark Summerfield, \e{Prentice Hall}, ISBN 0-321-63590-6.
+          This book covers Model/View programming on more than 150 pages.
+    \endlist
+
+    The following list provides an overview of example programs contained in the first three
+    books listed above. Some of them make very good templates for developing similar
+    applications.
+
+    \table
+        \header
+            \li  Example name
+            \li  View class used
+            \li  Model used
+            \li  Aspects covered
+            \li
+        \row
+            \li  Team Leaders
+            \li  QListview
+            \li  QStringListModel
+            \li
+            \li  Book 1, Chapter 10, Figure 10.6
+        \row
+            \li  Directory Viewer
+            \li  QTreeView
+            \li  QDirModel
+            \li
+            \li  Book 1, Chapter 10, Figure 10.7
+        \row
+            \li  Color Names
+            \li  QListView
+            \li  QSortFilterProxyModel
+                applied to QStringListModel
+            \li
+            \li  Book 1, Chapter 10, Figure 10.8
+        \row
+            \li  Currencies
+            \li  QTableView
+            \li  custom model based on
+                QAbstractTableModel
+            \li  Read only
+            \li  Book 1, Chapter 10, Figure 10.10
+        \row
+            \li  Cities
+            \li  QTableView
+            \li  Custom model based on
+                QAbstractTableModel
+            \li  Read / write
+            \li  Book 1, Chapter 10, Figure 10.12
+        \row
+            \li  Boolean Parser
+            \li  QTreeView
+            \li  Custom model based on
+                QAbstractItemModel
+            \li  Read only
+            \li  Book 1, Chapter 10, Figure 10.14
+        \row
+            \li  Track Editor
+            \li  {2, 1} QTableWidget
+            \li  Custom delegate providing a custom editor
+            \li  Book 1, Chapter 10, Figure 10.15
+
+        \row
+            \li  Four directory views
+            \li  QListView
+                QTableView
+                QTreeView
+            \li  QDirModel
+            \li  Demonstrates the use of multiple views
+            \li  Book2, Chapter 8.2
+        \row
+            \li  Address Book
+            \li  QListView
+                QTableView
+                QTreeView
+            \li  Custom model based on
+                QAbstractTableModel
+            \li  Read / write
+            \li  Book2, Chapter 8.4
+        \row
+            \li  Address Book with sorting
+            \li
+            \li  QSortfilterProxyModel
+            \li  Introducing sort and filter capabilities
+            \li  Book2, Chapter 8.5
+        \row
+            \li  Address Book
+                with checkboxes
+            \li
+            \li
+            \li  Introducing checkboxes in model/view
+            \li  Book2, Chapter 8.6
+        \row
+            \li  Address Book with transposed grid
+            \li
+            \li  Custom proxy Model based on QAbstractProxyModel
+            \li  Introducing a custom model
+            \li  Book2, Chapter 8.7
+        \row
+            \li  Address Book with drag and drop
+            \li
+            \li
+            \li  Introducing drag and drop support
+            \li  Book2, Chapter 8.8
+        \row
+            \li  Address Book with custom editor
+            \li
+            \li
+            \li  Introducing custom delegates
+            \li  Book2, Chapter 8.9
+        \row
+            \li  Views
+            \li  QListView
+                QTableView
+                QTreeView
+            \li  QStandardItemModel
+            \li  Read only
+            \li  Book 3, Chapter 5, figure 5-3
+        \row
+            \li  Bardelegate
+            \li  QTableView
+            \li
+            \li  Custom delegate for presentation based on QAbstractItemDelegate
+            \li  Book 3, Chapter 5, figure 5-5
+        \row
+            \li  Editdelegate
+            \li  QTableView
+            \li
+            \li  Custom delegate for editing based on QAbstractItemDelegate
+            \li  Book 3, Chapter 5, figure 5-6
+        \row
+            \li  Singleitemview
+            \li  Custom view based on QAbstractItemView
+            \li
+            \li  Custom view
+            \li  Book 3,
+                Chapter 5,
+                figure 5-7
+        \row
+            \li  listmodel
+            \li  QTableView
+            \li  Custom Model based on QAbstractTableModel
+            \li  Read only
+            \li  Book 3, Chapter 5, Figure 5-8
+        \row
+            \li  treemodel
+            \li  QTreeView
+            \li  Custom Model based on QAbstractItemModel
+            \li  Read only
+            \li  Book 3, Chapter 5, Figure 5-10
+        \row
+            \li  edit integers
+            \li  QListView
+            \li  Custom Model based on QAbstractListModel
+            \li  Read / write
+            \li  Book 3, Chapter 5, Listing 5-37, Figure 5-11
+        \row
+            \li  sorting
+            \li  QTableView
+            \li  QSortFilterProxyModel applied to QStringListModel
+            \li  Demonstrates sorting
+            \li  Book 3, Chapter 5, Figure 5-12
+    \endtable
+
+
+    \section2 4.2 Qt Documentation
+
+    Qt 5.0 comes with 19 examples for model/view.
+    The examples can be found on the \l{Item Views Examples} page.
+
+    \table
+        \header
+            \li  Example name
+            \li  View class used
+            \li  Model used
+            \li  Aspects covered
+        \row
+            \li  Address Book
+            \li  QTableView
+            \li  QAbstractTableModel
+                QSortFilterProxyModel
+            \li  Usage of QSortFilterProxyModel to generate different
+                subsets from one data pool
+        \row
+            \li  Basic Sort/Filter Model
+            \li  QTreeView
+            \li  QStandardItemModel
+                QSortFilterProxyModel
+            \li
+        \row
+            \li  Chart
+            \li  Custom view
+            \li  QStandardItemModel
+            \li  Designing custom views that cooperate with selection models
+        \row
+            \li  Color Editor Factory
+            \li  {2, 1}  QTableWidget
+            \li  Enhancing the standard delegate with a new custom editor to choose colours
+        \row
+            \li  Combo Widget Mapper
+            \li  QDataWidgetMapper to map QLineEdit, QTextEdit and QComboBox
+            \li  QStandardItemModel
+            \li  Shows how a QComboBox can serve as a view class
+        \row
+            \li  Custom Sort/Filter Model
+            \li  QTreeView
+            \li  QStandardItemModel
+                QSortFilterProxyModel
+            \li  Subclass QSortFilterProxyModel for advanced sorting and filtering
+        \row
+            \li  Dir View
+            \li  QTreeView
+            \li  QFileSystemModel
+            \li  Very small example to demonstrate how to assign a model to a view
+        \row
+            \li  Editable Tree Model
+            \li  QTreeView
+            \li  Custom tree model
+            \li  Comprehensive example for working with trees, demonstrates
+                editing cells and tree structure with an underlying custom
+                model
+        \row
+            \li  Fetch More
+            \li  QListView
+            \li  Custom list model
+            \li  Dynamically changing model
+        \row
+            \li  Frozen Column
+            \li  QTableView
+            \li  QStandardItemModel
+            \li
+        \row
+            \li  Interview
+            \li  Multiple
+            \li  Custom item model
+            \li  Multiple views
+        \row
+            \li  Pixelator
+            \li  QTableView
+            \li  Custom table model
+            \li  Implementation of a custom delegate
+        \row
+            \li  Puzzle
+            \li  QListView
+            \li  Custom list model
+            \li  Model/view with drag and drop
+        \row
+            \li  Simple DOM Model
+            \li  QTreeView
+            \li  Custom tree model
+            \li  Read only example for a custom tree model
+        \row
+            \li  Simple Tree Model
+            \li  QTreeView
+            \li  Custom tree model
+            \li  Read only example for a custom tree model
+        \row
+            \li  Simple Widget Mapper
+            \li  QDataWidgetMapper to map QLineEdit, QTextEdit and QSpinBox
+            \li  QStandardItemModel
+            \li  Basic QDataWidgetMapper usage
+        \row
+            \li  Spin Box Delegate
+            \li  QTableView
+            \li  QStandardItemModel
+            \li  Custom delegate that uses a spin box as a cell editor
+        \row
+            \li  Spreadsheet
+            \li  {2, 1}  QTableView
+            \li  Custom delegates
+        \row
+            \li  Star Delegate
+            \li  {2, 1}  QTableWidget
+            \li  Comprehensive custom delegate example.
+    \endtable
+
+    A \l{Model/View Programming}{reference document} for model/view technology
+    is also available.
+*/
+
+/*!
+    \page modelview-part2-main-cpp.html
+    \title main.cpp
+    \quotefile tutorials/modelview/1_readonly/main.cpp
+*/

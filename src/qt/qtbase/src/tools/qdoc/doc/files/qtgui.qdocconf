@@ -1,0 +1,50 @@
+include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
+
+project                 = QtGui
+description             = Qt GUI Reference Documentation
+url                     = http://qt-project.org/doc/qt-$QT_VER
+version                 = $QT_VERSION
+
+examplesinstallpath     = gui
+
+qhp.projects            = QtGui
+
+qhp.QtGui.file         = qtgui.qhp
+qhp.QtGui.namespace           = org.qt-project.qtgui.$QT_VERSION_TAG
+qhp.QtGui.virtualFolder       = qtgui
+qhp.QtGui.indexTitle          = Qt GUI
+qhp.QtGui.indexRoot           =
+
+qhp.QtGui.filterAttributes    = qtgui $QT_VERSION qtrefdoc
+qhp.QtGui.customFilters.Qt.name = Qtgui $QT_VERSION
+qhp.QtGui.customFilters.Qt.filterAttributes = qtgui $QT_VERSION
+
+qhp.QtGui.subprojects         = classes
+qhp.QtGui.subprojects.classes.title = C++ Classes
+qhp.QtGui.subprojects.classes.indexTitle = Qt GUI C++ Classes
+qhp.QtGui.subprojects.classes.selectors = class fake:headerfile
+qhp.QtGui.subprojects.classes.sortPages = true
+
+tagfile                 = ../../../doc/qtgui/qtgui.tags
+
+depends += \
+    qtcore \
+    qtnetwork \
+    qtopengl \
+    qtsvg \
+    qtqml \
+    qtquick \
+    qtwidgets \
+    qtdoc
+
+headerdirs  += ..
+
+sourcedirs  += .. \
+               ../../../examples/gui/doc/src
+
+exampledirs += ../../../examples/gui \
+               snippets
+
+imagedirs   += images \
+               ../../../examples/gui/doc/images \
+               ../../../doc/src/images \

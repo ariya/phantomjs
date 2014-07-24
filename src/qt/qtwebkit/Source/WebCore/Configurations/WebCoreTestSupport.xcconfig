@@ -1,0 +1,48 @@
+// Copyright (C) 2011 Google Inc. All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+//
+// THIS SOFTWARE IS PROVIDED BY APPLE INC. ``AS IS'' AND ANY
+// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE INC. OR
+// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+
+#include "WebCore.xcconfig"
+
+PRIVATE_HEADERS_FOLDER_PATH = $(PRIVATE_HEADERS_FOLDER_PATH_$(CONFIGURATION));
+PRIVATE_HEADERS_FOLDER_PATH_Debug = WebCoreTestSupport;
+PRIVATE_HEADERS_FOLDER_PATH_Release = $(PRIVATE_HEADERS_FOLDER_PATH_Debug);
+PRIVATE_HEADERS_FOLDER_PATH_Production = /usr/local/include/WebCoreTestSupport;
+
+INSTALL_PATH = $(INSTALL_PATH_$(CONFIGURATION));
+INSTALL_PATH_Production = /usr/local/lib;
+
+SKIP_INSTALL = $(SKIP_INSTALL_$(FORCE_TOOL_INSTALL));
+SKIP_INSTALL_ = YES;
+SKIP_INSTALL_NO = YES;
+SKIP_INSTALL_YES = NO;
+
+DYLIB_INSTALL_NAME_BASE = $(DYLIB_INSTALL_NAME_BASE_$(CONFIGURATION));
+DYLIB_INSTALL_NAME_BASE_Production = $(INSTALL_PATH);
+DYLIB_INSTALL_NAME_BASE_Debug = @rpath;
+DYLIB_INSTALL_NAME_BASE_Release = $(DYLIB_INSTALL_NAME_BASE_Debug);
+
+PRODUCT_NAME = WebCoreTestSupport;
+EXECUTABLE_PREFIX = lib;
+EXPORTED_SYMBOLS_FILE = ;
+OTHER_LDFLAGS = ;
+SECTORDER_FLAGS = ;

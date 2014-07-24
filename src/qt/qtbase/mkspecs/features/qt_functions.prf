@@ -1,0 +1,355 @@
+defineReplace(qtPlatformTargetSuffix) {
+    ios:CONFIG(iphonesimulator, iphonesimulator|iphoneos): \
+        suffix = _iphonesimulator
+    else: \
+        suffix =
+
+    CONFIG(debug, debug|release) {
+        !debug_and_release|build_pass {
+            mac: return($${suffix}_debug)
+            win32: return($${suffix}d)
+        }
+    }
+    return($$suffix)
+}
+
+defineReplace(qtLibraryTarget) {
+   LIBRARY_NAME = $$1
+   mac:CONFIG(shared, static|shared):contains(QT_CONFIG, qt_framework) {
+      QMAKE_FRAMEWORK_BUNDLE_NAME = $$LIBRARY_NAME
+      export(QMAKE_FRAMEWORK_BUNDLE_NAME)
+   } else {
+       # insert the major version in the library name
+       # unless it's a framework build
+       MAJOR_VERSION = $$section(VERSION, ., 0, 0)
+       LIBRARY_NAME ~= s,^Qt,Qt$$MAJOR_VERSION,
+   }
+   return($$LIBRARY_NAME$$qtPlatformTargetSuffix())
+}
+
+defineTest(qtAddLibrary) {
+    warning("qtAddLibrary() is deprecated. Use QT+= instead.")
+
+    # Reverse-engineer the module name from the library name.
+    for(var, QT_MODULES) {
+        isEqual(QT.$${var}.name, $$1) {
+            qtAddModule($$var, LIBS)
+            return(true)
+        }
+    }
+    error("No module matching library '$$1' found.")
+}
+
+# target variable, flag source variable
+defineTest(qtProcessModuleFlags) {
+    for(flag, $$2) {
+        contains(flag, ^-.*): \
+            $$1 -= $$replace(flag, ^-, )
+        else: \
+            $$1 += $$flag
+    }
+    export($$1)
+}
+
+# qt module
+defineTest(qtHaveModule) {
+    !isEmpty(QT.$$replace(1, -, _).name): \
+        return(true)
+    return(false)
+}
+
+# qt module, libs variable
+defineTest(qtAddModule) {
+    MODULE_NAME = $$eval(QT.$${1}.name)
+    MODULE_INCLUDES = $$eval(QT.$${1}.includes)
+    MODULE_LIBS = $$eval(QT.$${1}.libs)
+    MODULE_CONFIG = $$eval(QT.$${1}.module_config)
+    MODULE_MAJOR_VERSION = $$eval(QT.$${1}.MAJOR_VERSION)
+
+    contains(MODULE_CONFIG, internal_module) {
+        using_privates = true
+        export(using_privates)
+    }
+
+    qtProcessModuleFlags(CONFIG, QT.$${1}.CONFIG)
+    qtProcessModuleFlags(DEFINES, QT.$${1}.DEFINES)
+
+    MODULE_INCLUDES -= $$QMAKE_DEFAULT_INCDIRS
+    MODULE_LIBS_ADD = $$MODULE_LIBS
+    MODULE_LIBS_ADD -= $$QMAKE_DEFAULT_LIBDIRS
+
+    unset(LINKAGE)
+    mac:contains(MODULE_CONFIG, lib_bundle) {
+          FRAMEWORK_INCLUDE = $${MODULE_LIBS}/$${MODULE_NAME}.framework/Headers
+          !qt_no_framework_direct_includes:exists($$FRAMEWORK_INCLUDE) {
+               INCLUDEPATH *= $$FRAMEWORK_INCLUDE
+          }
+          contains(MODULE_CONFIG, internal_module): \
+               INCLUDEPATH += \
+                    $$FRAMEWORK_INCLUDE/$$eval(QT.$${1}.VERSION) \
+                    $$FRAMEWORK_INCLUDE/$$eval(QT.$${1}.VERSION)/$$MODULE_NAME
+          QMAKE_FRAMEWORKPATH *= $${MODULE_LIBS}
+          export(QMAKE_FRAMEWORKPATH)
+          !contains(MODULE_CONFIG, no_link): \
+               LINKAGE += -framework $${MODULE_NAME}$${QT_LIBINFIX}
+    } else {
+          INCLUDEPATH *= $$MODULE_INCLUDES
+    }
+    export(INCLUDEPATH)
+
+    # Only link to this module if a libs directory is set, else this is just a module
+    # to give access to sources or include files, and not for linking.
+    !isEmpty(MODULE_LIBS):!contains(MODULE_CONFIG, no_link) {
+
+        # Re-insert the major version in the library name (cf qtLibraryTarget above)
+        # unless it's a framework build
+        !mac|!contains(MODULE_CONFIG, lib_bundle): \
+            MODULE_NAME ~= s,^Qt,Qt$$MODULE_MAJOR_VERSION,
+
+        win32 {
+            # Make sure the version number isn't appended again to the lib name
+            ver_var    = QMAKE_$${upper($$MODULE_NAME$$QT_LIBINFIX)}_VERSION_OVERRIDE
+            dver_var   = QMAKE_$${upper($$MODULE_NAME$$QT_LIBINFIX)}D_VERSION_OVERRIDE
+            $$ver_var  = 0
+            $$dver_var = 0
+            export($$ver_var)
+            export($$dver_var)
+        }
+
+        isEmpty(LINKAGE) {
+            !isEmpty(MODULE_LIBS_ADD): \
+                LINKAGE = -L$$MODULE_LIBS_ADD
+            lib = $${MODULE_NAME}$${QT_LIBINFIX}$$qtPlatformTargetSuffix()
+            LINKAGE += -l$$lib
+
+            contains(QT_CONFIG, rpath) {
+                QMAKE_RPATHDIR *= $$eval(QT.$${1}.rpath)
+                export(QMAKE_RPATHDIR)
+            }
+
+            contains(MODULE_CONFIG, staticlib) {
+                PRE_TARGETDEPS *= $$MODULE_LIBS/$${QMAKE_PREFIX_STATICLIB}$${lib}.$${QMAKE_EXTENSION_STATICLIB}
+                export(PRE_TARGETDEPS)
+            }
+        }
+
+        $$2 += $$LINKAGE
+        export($$2)
+
+        !isEmpty(QMAKE_LSB) {
+            !isEmpty(MODULE_LIBS_ADD): \
+                QMAKE_LFLAGS *= --lsb-libpath=$$MODULE_LIBS_ADD
+            QMAKE_LFLAGS *= --lsb-shared-libs=$${MODULE_NAME}$${QT_LIBINFIX}
+            QMAKE_LIBDIR *= /opt/lsb/lib
+            export(QMAKE_LFLAGS)
+            export(QMAKE_LIBDIR)
+        }
+    }
+}
+
+# qt variable, libs variable
+defineTest(qtAddModules) {
+    # qmake variables cannot contain dashes, so normalize the names first
+    $$1 = $$replace($$1, -private$, _private)
+    # Topological resolution of modules based on their QT.<module>.depends variable
+    $$1 = $$resolve_depends($$1, "QT.")
+    # Finally actually add the modules
+    unset(BAD_QT)
+    for(QTLIB, $$1) {
+        QTLIBNAME = $$eval(QT.$${QTLIB}.name)
+        isEmpty(QTLIBNAME) {
+            BAD_QT += $$QTLIB
+            next()
+        }
+
+        target_qt:isEqual(TARGET, $$QTLIBNAME) {
+            warning("$$TARGET cannot have a $$1 of $$QTLIB")
+            next()
+        }
+
+        qtAddModule($$QTLIB, $$2)
+    }
+    !isEmpty(BAD_QT):error("Unknown module(s) in $$1: $$replace(BAD_QT, _private$, -private)")
+}
+
+defineTest(qtAddRpathLink) {
+    # -rpath-link is used by the linker to find dependencies of dynamic
+    # libraries which were NOT specified on the command line.
+    # This means that paths of direct dependencies (QT & QT_PRIVATE)
+    # don't need to appear here. However, their private dependencies'
+    # paths OTOH need to be put there.
+    pubqt = $$replace(1, -private$, _private)
+    pubdep = $$resolve_depends(pubqt, "QT.")
+    privdep = $$resolve_depends(pubqt, "QT.", ".depends" ".private_depends" ".run_depends")
+    privdep -= $$pubdep
+    rpaths =
+    for(dep, privdep): \
+        rpaths += $$eval(QT.$${dep}.libs)
+    QMAKE_RPATHLINKDIR *= $$unique(rpaths)
+    export(QMAKE_RPATHLINKDIR)
+}
+
+# variable, default, [suffix for variable for system() use]
+defineTest(qtPrepareTool) {
+    $$1 = $$eval(QT_TOOL.$${2}.binary)
+    isEmpty($$1) {
+        $$1 = $$[QT_HOST_BINS]/$$2
+        exists($$eval($$1).pl) {
+            $$1 = perl -w $$eval($$1).pl
+        } else: contains(QMAKE_HOST.os, Windows) {
+            $$1 = $$eval($$1).exe
+        } else:contains(QMAKE_HOST.os, Darwin) {
+            BUNDLENAME = $$eval($$1).app/Contents/MacOS/$$2
+            exists($$BUNDLENAME) {
+                $$1 = $$BUNDLENAME
+            }
+        }
+    }
+    QT_TOOL_ENV += $$eval(QT_TOOL.$${2}.envvars)
+    !isEmpty(3) {
+        $$1$$3 = $$system_path($$eval($$1))
+        qtAddTargetEnv($$1$$3, QT_TOOL.$${2}.depends, system)
+    }
+    $$1 = $$shell_path($$eval($$1))
+    qtAddTargetEnv($$1, QT_TOOL.$${2}.depends, )
+}
+
+# target variable, list of env var names, [non-empty: prepare for system(), not make]
+defineTest(qtAddToolEnv) {
+    isEmpty(3): \
+        ds = $$QMAKE_DIR_SEP
+    else: \
+        ds = $$DIR_SEPARATOR
+    for(env, 2) {
+        value = $$eval($${env}.value)
+        !isEmpty(value) {
+            name = $$eval($${env}.name)
+            equals(ds, /) {
+                contains($${env}.CONFIG, prepend): infix = \${$$name:+:\$$$name}
+                else: infix =
+                val = "$$name=$$join(value, :)$$infix"
+            } else {
+                # Escape closing parens when expanding the variable, otherwise cmd confuses itself.
+                contains($${env}.CONFIG, prepend): infix = ;%$$name:)=^)%
+                else: infix =
+                val = "(set $$name=$$join(value, ;)$$infix) &"
+            }
+            isEmpty(3): !contains(TEMPLATE, vc.*) {
+                contains(MAKEFILE_GENERATOR, MS.*): val ~= s,%,%%,g
+                val ~= s,\\\$,\$\$,g
+            }
+            $$1 = "$$val $$eval($$1)"
+        }
+    }
+    export($$1)
+}
+
+# target variable, dependency var name, [non-empty: prepare for system(), not make]
+defineTest(qtAddTargetEnv) {
+    deps = $$replace($$2, -private$, _private)
+    deps = $$resolve_depends(deps, "QT.", ".depends" ".private_depends" ".run_depends")
+    !isEmpty(deps) {
+        for(dep, deps) {
+            isEmpty(3): \
+                deppath += $$shell_path($$eval(QT.$${dep}.libs))
+            else: \
+                deppath += $$system_path($$eval(QT.$${dep}.libs))
+        }
+        equals(QMAKE_HOST.os, Windows) {
+            deppath.name = PATH
+        } else:contains(QMAKE_HOST.os, Linux|FreeBSD|OpenBSD|NetBSD|DragonFly|SunOS|HP-UX|QNX|GNU) {
+            deppath.name = LD_LIBRARY_PATH
+        } else:equals(QMAKE_HOST.os, Darwin) {
+            contains(QT_CONFIG, qt_framework): \
+                deppath.name = DYLD_FRAMEWORK_PATH
+            else: \
+                deppath.name = DYLD_LIBRARY_PATH
+        } else:equals(QMAKE_HOST.os, AIX) {
+            deppath.name = LIBPATH
+        } else {
+            error("Operating system not supported.")
+        }
+        deppath.value = $$unique(deppath)
+        deppath.CONFIG = prepend
+
+        pluginpath.value =
+        for(qmod, QMAKEMODULES) {
+            qmod = $$section(qmod, /, 0, -3)/plugins
+            exists($$qmod) {
+                isEmpty(3): \
+                    pluginpath.value += $$shell_path($$qmod)
+                else: \
+                    pluginpath.value += $$system_path($$qmod)
+            }
+        }
+        pluginpath.name = QT_PLUGIN_PATH
+
+        QT_TOOL_ENV += deppath pluginpath
+    }
+    qtAddToolEnv($$1, $$QT_TOOL_ENV, $$3)
+}
+
+defineReplace(pkgConfigExecutable) {
+    isEmpty(PKG_CONFIG) {
+        PKG_CONFIG = pkg-config
+
+        !isEmpty(PKG_CONFIG_SYSROOT_DIR) {
+            win32:isEmpty(MINGW_IN_SHELL):PKG_CONFIG = set PKG_CONFIG_SYSROOT_DIR=$$PKG_CONFIG_SYSROOT_DIR& $$PKG_CONFIG
+            else:PKG_CONFIG = PKG_CONFIG_SYSROOT_DIR=\"$$PKG_CONFIG_SYSROOT_DIR\" $$PKG_CONFIG
+        }
+
+        !isEmpty(PKG_CONFIG_LIBDIR) {
+            win32:isEmpty(MINGW_IN_SHELL):PKG_CONFIG = set PKG_CONFIG_LIBDIR=$$PKG_CONFIG_LIBDIR& $$PKG_CONFIG
+            else:PKG_CONFIG = PKG_CONFIG_LIBDIR=\"$$PKG_CONFIG_LIBDIR\" $$PKG_CONFIG
+        }
+    }
+
+    equals(QMAKE_HOST.os, Windows): \
+        PKG_CONFIG += 2> NUL
+    else: \
+        PKG_CONFIG += 2> /dev/null
+
+    return($$PKG_CONFIG)
+}
+
+defineTest(packagesExist) {
+    contains(QT_CONFIG, no-pkg-config):return(false)
+
+    # this can't be done in global scope here because qt_functions is loaded
+    # before the .pro is parsed, so if the .pro set PKG_CONFIG, we wouldn't know it
+    # yet. oops.
+    pkg_config = $$pkgConfigExecutable()
+
+    for(package, ARGS) {
+        !system($$pkg_config --exists $$package):return(false)
+    }
+
+    return(true)
+}
+
+# Prepares target that will iterate through all subdirs (except those
+# with no_default_target or no_{name_of_target}_target. The prepared
+# target must still be manually added to QMAKE_EXTRA_TARGETS.
+defineTest(prepareRecursiveTarget) {
+    target = $$1
+    no_$${target}_target: return()
+
+    for(subdir, SUBDIRS) {
+        subdir_config = $$eval($${subdir}.CONFIG)
+        contains(subdir_config, no_default_target): next()
+        contains(subdir_config, no_$${target}_target): next()
+
+        $${target}.recurse += $$subdir
+    }
+
+    # Set up the recurse target only when there
+    # is something to recurse into.
+    isEmpty($${target}.recurse): return()
+
+    $${target}.CONFIG = recursive
+    $${target}.recurse_target = $${target}
+
+    export($${target}.recurse)
+    export($${target}.CONFIG)
+    export($${target}.recurse_target)
+}

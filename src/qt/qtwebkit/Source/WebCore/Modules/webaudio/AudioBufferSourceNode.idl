@@ -1,0 +1,59 @@
+/*
+ * Copyright (C) 2010, Google Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1.  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2.  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+// A cached (non-streamed), memory-resident audio source
+[
+    Conditional=WEB_AUDIO,
+    JSGenerateToJSObject
+] interface AudioBufferSourceNode : AudioNode {
+    [CustomSetter, SetterRaisesException] attribute AudioBuffer buffer;
+
+    const unsigned short UNSCHEDULED_STATE = 0;
+    const unsigned short SCHEDULED_STATE = 1;
+    const unsigned short PLAYING_STATE = 2;
+    const unsigned short FINISHED_STATE = 3;
+
+    readonly attribute unsigned short playbackState;
+
+    readonly attribute AudioParam gain;
+    readonly attribute AudioParam playbackRate;
+
+    attribute boolean loop; // This is the proper attribute name from the specification.
+
+    attribute double loopStart;
+    attribute double loopEnd;
+
+    [RaisesException] void start(double when);
+    [ImplementedAs=startGrain, RaisesException] void start(double when, double grainOffset);
+    [ImplementedAs=startGrain, RaisesException] void start(double when, double grainOffset, double grainDuration);
+    [RaisesException] void stop(double when);
+
+    [Conditional=LEGACY_WEB_AUDIO] attribute boolean looping; // This is an alias for the .loop attribute for backwards compatibility.
+
+    [Conditional=LEGACY_WEB_AUDIO, RaisesException] void noteOn(double when);
+    [Conditional=LEGACY_WEB_AUDIO, RaisesException] void noteGrainOn(double when, double grainOffset, double grainDuration);
+    [Conditional=LEGACY_WEB_AUDIO, RaisesException] void noteOff(double when);
+    
+    attribute EventListener onended;
+};

@@ -1,0 +1,11 @@
+<html>
+<body>Test search. Hello world, Hello crazy world, Hello!</body>
+<script>
+    var s = window.getSelection();
+    var r = document.createRange();
+
+    r.setStart(document.body.firstChild, 38);
+    r.setEnd(document.body.firstChild, 43);
+    s.addRange(r);
+</script>
+</html>

@@ -1,0 +1,15 @@
+diff --git a/src/3rdparty/xcb/include/xcb/xkb.h b/src/3rdparty/xcb/include/xcb/xkb.h
+index 44b0a8d..0180ec8 100644
+--- a/src/3rdparty/xcb/include/xcb/xkb.h
++++ b/src/3rdparty/xcb/include/xcb/xkb.h
+@@ -114,8 +114,8 @@ typedef enum xcb_xkb_control_t {
+     XCB_XKB_CONTROL_GROUPS_WRAP = 134217728,
+     XCB_XKB_CONTROL_INTERNAL_MODS = 268435456,
+     XCB_XKB_CONTROL_IGNORE_LOCK_MODS = 536870912,
+-    XCB_XKB_CONTROL_PER_KEY_REPEAT = 1073741824,
+-    XCB_XKB_CONTROL_CONTROLS_ENABLED = 2147483648
++    XCB_XKB_CONTROL_PER_KEY_REPEAT = 1073741824u,
++    XCB_XKB_CONTROL_CONTROLS_ENABLED = 2147483648u
+ } xcb_xkb_control_t;
+ 
+ typedef enum xcb_xkb_axfb_opt_t {

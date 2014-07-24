@@ -1,0 +1,219 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \class QCache
+    \inmodule QtCore
+    \brief The QCache class is a template class that provides a cache.
+
+    \ingroup tools
+    \ingroup shared
+
+    \reentrant
+
+    QCache\<Key, T\> defines a cache that stores objects of type T
+    associated with keys of type Key. For example, here's the
+    definition of a cache that stores objects of type Employee
+    associated with an integer key:
+
+    \snippet code/doc_src_qcache.cpp 0
+
+    Here's how to insert an object in the cache:
+
+    \snippet code/doc_src_qcache.cpp 1
+
+    The advantage of using QCache over some other key-based data
+    structure (such as QMap or QHash) is that QCache automatically
+    takes ownership of the objects that are inserted into the cache and
+    deletes them to make room for new objects, if necessary. When
+    inserting an object into the cache, you can specify a \e{cost},
+    which should bear some approximate relationship to the amount of
+    memory taken by the object. When the sum of all objects' costs
+    (totalCost()) exceeds the cache's limit (maxCost()), QCache starts
+    deleting objects in the cache to keep under the limit, starting with
+    less recently accessed objects.
+
+    By default, QCache's maxCost() is 100. You can specify a
+    different value in the QCache constructor:
+
+    \snippet code/doc_src_qcache.cpp 2
+
+    Each time you call insert(), you can specify a cost as third
+    argument (after the key and a pointer to the object to insert).
+    After the call, the inserted object is owned by the QCache, which
+    may delete it at any time to make room for other objects.
+
+    To look up objects in the cache, use object() or
+    operator[](). This function looks up an object by its key, and
+    returns either a pointer to the cached object (which is owned by
+    the cache) or 0.
+
+    If you want to remove an object from the cache for a particular key,
+    call remove(). This will also delete the object. If you want to
+    remove an object from the cache without the QCache deleting it, use
+    take().
+
+    \sa QPixmapCache, QHash, QMap
+*/
+
+/*! \fn QCache::QCache(int maxCost = 100)
+
+    Constructs a cache whose contents will never have a total cost
+    greater than \a maxCost.
+*/
+
+/*! \fn QCache::~QCache()
+
+    Destroys the cache. Deletes all the objects in the cache.
+*/
+
+/*! \fn int QCache::maxCost() const
+
+    Returns the maximum allowed total cost of the cache.
+
+    \sa setMaxCost(), totalCost()
+*/
+
+/*! \fn void QCache::setMaxCost(int cost)
+
+    Sets the maximum allowed total cost of the cache to \a cost. If
+    the current total cost is greater than \a cost, some objects are
+    deleted immediately.
+
+    \sa maxCost(), totalCost()
+*/
+
+/*! \fn int QCache::totalCost() const
+
+    Returns the total cost of the objects in the cache.
+
+    This value is normally below maxCost(), but QCache makes an
+    exception for Qt's \l{implicitly shared} classes. If a cached
+    object shares its internal data with another instance, QCache may
+    keep the object lying around, possibly contributing to making
+    totalCost() larger than maxCost().
+
+    \sa setMaxCost()
+*/
+
+/*! \fn int QCache::size() const
+
+    Returns the number of objects in the cache.
+
+    \sa isEmpty()
+*/
+
+/*! \fn int QCache::count() const
+
+    Same as size().
+*/
+
+/*! \fn bool QCache::isEmpty() const
+
+    Returns \c true if the cache contains no objects; otherwise
+    returns \c false.
+
+    \sa size()
+*/
+
+/*! \fn QList<Key> QCache::keys() const
+
+    Returns a list of the keys in the cache.
+*/
+
+/*! \fn void QCache::clear();
+
+    Deletes all the objects in the cache.
+
+    \sa remove(), take()
+*/
+
+
+/*! \fn bool QCache::insert(const Key &key, T *object, int cost = 1)
+
+    Inserts \a object into the cache with key \a key and
+    associated cost \a cost. Any object with the same key already in
+    the cache will be removed.
+
+    After this call, \a object is owned by the QCache and may be
+    deleted at any time. In particular, if \a cost is greater than
+    maxCost(), the object will be deleted immediately.
+
+    The function returns \c true if the object was inserted into the
+    cache; otherwise it returns \c false.
+
+    \sa take(), remove()
+*/
+
+/*! \fn T *QCache::object(const Key &key) const
+
+    Returns the object associated with key \a key, or 0 if the key does
+    not exist in the cache.
+
+    \warning The returned object is owned by QCache and may be
+    deleted at any time.
+
+    \sa take(), remove()
+*/
+
+/*! \fn bool QCache::contains(const Key &key) const
+
+    Returns \c true if the cache contains an object associated with key \a
+    key; otherwise returns \c false.
+
+    \sa take(), remove()
+*/
+
+/*! \fn T *QCache::operator[](const Key &key) const
+
+    Returns the object associated with key \a key, or 0 if the key does
+    not exist in the cache.
+
+    This is the same as object().
+
+    \warning The returned object is owned by QCache and may be
+    deleted at any time.
+*/
+
+/*! \fn bool QCache::remove(const Key &key)
+
+    Deletes the object associated with key \a key. Returns \c true if the
+    object was found in the cache; otherwise returns \c false.
+
+    \sa take(), clear()
+*/
+
+/*! \fn T *QCache::take(const Key &key)
+
+    Takes the object associated with key \a key out of the cache
+    without deleting it. Returns a pointer to the object taken out, or
+    0 if the key does not exist in the cache.
+
+    The ownership of the returned object is passed to the caller.
+
+    \sa remove()
+*/

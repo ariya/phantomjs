@@ -1,0 +1,115 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \headerfile <QtPlugin>
+    \title Defining Plugins
+    \target qtplugin-defining-plugins
+    \ingroup plugins
+
+    \brief The <QtPlugin> header file defines macros for defining plugins.
+
+    \sa {How to Create Qt Plugins}
+*/
+
+/*!
+    \macro Q_DECLARE_INTERFACE(ClassName, Identifier)
+    \relates <QtPlugin>
+
+    This macro associates the given \a Identifier (a string literal)
+    to the interface class called \a ClassName. The \a Identifier must
+    be unique. For example:
+
+    \snippet plugins/interfaces.h 3
+
+    This macro is normally used right after the class definition for
+    \a ClassName, in a header file. See the
+    \l{tools/plugandpaint}{Plug & Paint} example for details.
+
+    If you want to use Q_DECLARE_INTERFACE with interface classes
+    declared in a namespace then you have to make sure the Q_DECLARE_INTERFACE
+    is not inside a namespace though. For example:
+    \snippet code/doc_src_qplugin.cpp 0
+
+    \sa Q_INTERFACES(), {How to Create Qt Plugins}
+*/
+
+/*!
+    \macro Q_PLUGIN_METADATA(...)
+    \relates <QtPlugin>
+    \since 5.0
+
+    This macro is being used to declare meta data that is part of a plugin
+    that instantiates this object.
+
+    The macro needs to declare the IID of the interface implemented through
+    the object, and reference a file containing the meta data for the plugin.
+
+    There should be exactly one occurrence of this macro in the source code
+    for a Qt plugin.
+
+    Example:
+
+    \snippet code/doc_src_qplugin.cpp 1
+
+    See the \l{tools/plugandpaint}{Plug & Paint} example for details.
+
+    Note that the class this macro appears on must be default-constructible.
+
+    FILE is optional and points to a json file.
+
+    The json file must reside in one of the include directories specified
+    by the build-system.
+    moc exits with an error when it could not find the specified file.
+
+    \sa Q_DECLARE_INTERFACE(), {How to Create Qt Plugins}
+*/
+
+/*!
+    \macro Q_IMPORT_PLUGIN(PluginName)
+    \relates <QtPlugin>
+
+    This macro imports the plugin named \a PluginName, corresponding
+    to the \l{qmake Variable Reference#TARGET}{TARGET} specified in the
+    plugin's project file.
+
+    Inserting this macro into your application's source code will allow
+    you to make use of a static plugin.
+
+    Example:
+
+    \snippet code/doc_src_qplugin.cpp 2
+
+    Static plugins must also be included by the linker when your
+    application is built. For Qt's predefined plugins,
+    you can use the \c QTPLUGIN to add
+    the required plugins to your build. For example:
+
+    \snippet code/doc_src_qplugin.pro 3
+    \sa {Static Plugins}, {How to Create Qt Plugins}, {qmake-getting-started}{Getting Started with qmake}
+
+*/

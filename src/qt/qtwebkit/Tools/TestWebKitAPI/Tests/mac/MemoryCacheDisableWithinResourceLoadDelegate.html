@@ -1,0 +1,14 @@
+<script>
+
+function loaded()
+{
+    var request = new XMLHttpRequest();
+    request.open('GET', 'http://www.iana.org/domains/example/', true);
+    request.send(null);
+}
+
+</script>
+
+<body onload="loaded();">
+We will do some XHR'ing now!
+</body>

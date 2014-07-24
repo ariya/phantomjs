@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>{{ page_title }}</title>
+<link type="text/css" rel="stylesheet" href="/stylesheets/dashboard.css" />
+</head>
+<body>
+<h1>{{ page_title }}</h1>
+
+<h3>Summary</h3>
+<div>
+<div>[{{ queue_name|force_escape|queue_charts_link:"charts"|safe }}]</div>
+Last Pass: {% if last_pass %}{{ last_pass.date|timesince }} ago{% else %}never{% endif %}
+{% if not bot_id and last_pass.bot_id %}
+by <a href="/queue-status/{{last_pass.queue_name}}/bots/{{last_pass.bot_id}}">{{ last_pass.bot_id }}</a>
+{% endif %}
+</div>
+<div>
+Last Boot: {% if last_boot %}{{ last_boot.date|timesince }} ago{% else %}never{% endif %}
+{% if not bot_id and last_boot.bot_id %}
+by <a href="/queue-status/{{last_boot.queue_name}}/bots/{{last_boot.bot_id}}">{{ last_boot.bot_id }}</a>
+{% endif %}
+</div>
+<div>7-day "Pass" count: {{ trailing_week_pass_count }}</div>
+<div>30-day "Pass" count: {{ trailing_month_pass_count }}</div>
+
+<h3>Recent Status</h3>
+
+<div class="status-details">
+  <ul>
+    {% for status_group in status_groups %}
+        {% with status_group.0 as title_status %}
+            <li class="status-group">
+                {% if title_status.active_bug_id %}
+                    <span class="status-bug">
+                        Patch {{ title_status.active_patch_id|force_escape|webkit_attachment_id|safe }} from bug
+                        {{ title_status.active_bug_id|force_escape|webkit_bug_id|safe }}:
+                    </span>
+                {% endif %}
+                
+                {% ifequal status_group|length 1 %}
+                    {% with title_status as status %}
+                        {% include 'includes/singlequeuestatus.html' %}
+                    {% endwith %}
+                {% else %}
+                    <ul>
+                        {% for status in status_group %}
+                            <li class="status">
+                                {% include 'includes/singlequeuestatus.html' %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endifequal %}
+            </li>
+        {% endwith %}
+    {% endfor %}
+  </ul>
+</div>
+
+<h3>Patches in queue</h3>
+<table>
+    <tr><th>Position</th><th>Patch</th><th>Lock Acquired</th></tr>
+    {% for row in work_item_rows %}
+    <tr>
+        <td>#{{ forloop.counter }}</td>
+        <td>
+          {{ row.attachment_id|force_escape|webkit_attachment_id|safe }}
+        </td>
+        <td>
+            {% if row.lock_time %}
+                {{ row.lock_time|timesince }} ago
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>

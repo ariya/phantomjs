@@ -1,0 +1,71 @@
+/*
+ * Copyright (C) 2006, 2010 Apple Inc. All rights reserved.
+ * Copyright (C) 2006 Samuel Weinig <sam.weinig@gmail.com>
+ * Copyright (C) 2011 Motorola Mobility, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+interface HTMLTextAreaElement : HTMLElement {
+    [Reflect] attribute boolean autofocus;
+    attribute long cols;
+    [Reflect] attribute DOMString dirName;
+    [Reflect] attribute boolean disabled;
+    readonly attribute HTMLFormElement form;
+    [SetterRaisesException] attribute long maxLength;
+    [Reflect] attribute DOMString name;
+    [Reflect] attribute DOMString placeholder;
+    [Reflect] attribute boolean readOnly;
+    [Reflect] attribute boolean required;
+    attribute long rows;
+    [Reflect] attribute DOMString wrap;
+
+    readonly attribute DOMString type;
+    [TreatNullAs=NullString] attribute DOMString defaultValue;
+    [TreatNullAs=NullString] attribute DOMString value;
+    readonly attribute unsigned long textLength;
+
+    readonly attribute boolean willValidate;
+    readonly attribute ValidityState validity;
+    readonly attribute DOMString validationMessage;
+    boolean checkValidity();
+    void setCustomValidity([TreatNullAs=NullString, TreatUndefinedAs=NullString] DOMString error);
+
+    readonly attribute NodeList labels;
+
+    void select();
+    attribute long selectionStart;
+    attribute long selectionEnd;
+    attribute DOMString selectionDirection;
+
+    [RaisesException] void setRangeText(DOMString replacement);
+    [RaisesException] void setRangeText(DOMString replacement,
+                        unsigned long start,
+                        unsigned long end,
+                        [Default=NullString] optional DOMString selectionMode);
+
+#if defined(LANGUAGE_OBJECTIVE_C) && LANGUAGE_OBJECTIVE_C
+    void setSelectionRange(long start, long end);
+#else
+    void setSelectionRange([Default=Undefined] optional long start,
+                           [Default=Undefined] optional long end,
+                           optional DOMString direction);
+#endif
+
+#if defined(LANGUAGE_OBJECTIVE_C) && LANGUAGE_OBJECTIVE_C
+    [Reflect] attribute DOMString accessKey;
+#endif
+};

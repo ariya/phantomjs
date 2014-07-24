@@ -1,0 +1,496 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2007, 2008, 2009 Apple Inc.  All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+# 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Merge and resolve ChangeLog conflicts for svn and git repositories
+
+use strict;
+
+use FindBin;
+use lib $FindBin::Bin;
+
+use File::Basename;
+use File::Copy;
+use File::Path;
+use File::Spec;
+use Getopt::Long;
+use POSIX;
+use VCSUtils;
+
+sub canonicalRelativePath($);
+sub conflictFiles($);
+sub findChangeLog($);
+sub findUnmergedChangeLogs();
+sub fixMergedChangeLogs($;@);
+sub fixOneMergedChangeLog($);
+sub hasGitUnmergedFiles();
+sub isInGitFilterBranch();
+sub parseFixMerged($$;$);
+sub removeChangeLogArguments($);
+sub resolveChangeLog($);
+sub resolveConflict($);
+sub showStatus($;$);
+sub usageAndExit();
+
+my $isGit = isGit();
+my $isSVN = isSVN();
+
+my $SVN = "svn";
+my $GIT = "git";
+
+my $fixMerged;
+my $gitRebaseContinue = 0;
+my $mergeDriver = 0;
+my $printWarnings = 1;
+my $showHelp;
+
+sub usageAndExit()
+{
+    print STDERR <<__END__;
+Usage: @{[ basename($0) ]} [options] [path/to/ChangeLog] [path/to/another/ChangeLog ...]
+  -c|--[no-]continue               run "git rebase --continue" after fixing ChangeLog
+                                   entries (default: --no-continue)
+  -f|--fix-merged [revision-range] fix git-merged ChangeLog entries; if a revision-range
+                                   is specified, run git filter-branch on the range
+  -m|--merge-driver %O %A %B       act as a git merge-driver on files %O %A %B
+  -h|--help                        show this help message
+  -w|--[no-]warnings               show or suppress warnings (default: show warnings)
+__END__
+    exit 1;
+}
+
+my $getOptionsResult = GetOptions(
+    'c|continue!'     => \$gitRebaseContinue,
+    'f|fix-merged:s'  => \&parseFixMerged,
+    'm|merge-driver!' => \$mergeDriver,
+    'h|help'          => \$showHelp,
+    'w|warnings!'     => \$printWarnings,
+);
+
+if (!$getOptionsResult || $showHelp) {
+    usageAndExit();
+}
+
+my $relativePath = isInGitFilterBranch() ? '.' : chdirReturningRelativePath(determineVCSRoot());
+
+my @changeLogFiles = removeChangeLogArguments($relativePath);
+
+if (!defined $fixMerged && !$mergeDriver && scalar(@changeLogFiles) == 0) {
+    @changeLogFiles = findUnmergedChangeLogs();
+}
+
+if (!$mergeDriver && scalar(@ARGV) > 0) {
+    print STDERR "ERROR: Files listed on command-line that are not ChangeLogs.\n";
+    undef $getOptionsResult;
+} elsif (!defined $fixMerged && !$mergeDriver && scalar(@changeLogFiles) == 0) {
+    print STDERR "ERROR: No ChangeLog files listed on command-line or found unmerged.\n";
+    undef $getOptionsResult;
+} elsif ($gitRebaseContinue && !$isGit) {
+    print STDERR "ERROR: --continue may only be used with a git repository\n";
+    undef $getOptionsResult;
+} elsif (defined $fixMerged && !$isGit) {
+    print STDERR "ERROR: --fix-merged may only be used with a git repository\n";
+    undef $getOptionsResult;
+} elsif ($mergeDriver && !$isGit) {
+    print STDERR "ERROR: --merge-driver may only be used with a git repository\n";
+    undef $getOptionsResult;
+} elsif ($mergeDriver && scalar(@ARGV) < 3) {
+    print STDERR "ERROR: --merge-driver expects %O %A %B as arguments\n";
+    undef $getOptionsResult;
+}
+
+if (!$getOptionsResult) {
+    usageAndExit();
+}
+
+if (defined $fixMerged && length($fixMerged) > 0) {
+    my $commitRange = $fixMerged;
+    $commitRange = $commitRange . "..HEAD" if index($commitRange, "..") < 0;
+    fixMergedChangeLogs($commitRange, @changeLogFiles);
+} elsif ($mergeDriver) {
+    my ($base, $theirs, $ours) = @ARGV;
+    if (mergeChangeLogs($ours, $base, $theirs)) {
+        unlink($ours);
+        copy($theirs, $ours) or die $!;
+    } else {
+        exec qw(git merge-file -L THEIRS -L BASE -L OURS), $theirs, $base, $ours;
+    }
+} elsif (@changeLogFiles) {
+    for my $file (@changeLogFiles) {
+        if (defined $fixMerged) {
+            fixOneMergedChangeLog($file);
+        } else {
+            resolveChangeLog($file);
+        }
+    }
+} else {
+    print STDERR "ERROR: Unknown combination of switches and arguments.\n";
+    usageAndExit();
+}
+
+if ($gitRebaseContinue) {
+    if (hasGitUnmergedFiles()) {
+        print "Unmerged files; skipping '$GIT rebase --continue'.\n";
+    } else {
+        print "Running '$GIT rebase --continue'...\n";
+        print `$GIT rebase --continue`;
+    }
+}
+
+exit 0;
+
+sub canonicalRelativePath($)
+{
+    my ($originalPath) = @_;
+    my $absolutePath = Cwd::abs_path($originalPath);
+    return File::Spec->abs2rel($absolutePath, Cwd::getcwd());
+}
+
+sub conflictFiles($)
+{
+    my ($file) = @_;
+    my $fileMine;
+    my $fileOlder;
+    my $fileNewer;
+
+    if (-e $file && -e "$file.orig" && -e "$file.rej") {
+        return ("$file.rej", "$file.orig", $file);
+    }
+
+    if ($isSVN) {
+        my $escapedFile = escapeSubversionPath($file);
+        open STAT, "-|", $SVN, "status", $escapedFile or die $!;
+        my $status = <STAT>;
+        close STAT;
+        if (!$status || $status !~ m/^C\s+/) {
+            print STDERR "WARNING: ${file} is not in a conflicted state.\n" if $printWarnings;
+            return ();
+        }
+
+        $fileMine = "${file}.mine" if -e "${file}.mine";
+
+        my $currentRevision;
+        open INFO, "-|", $SVN, "info", $escapedFile or die $!;
+        while (my $line = <INFO>) {
+            if ($line =~ m/^Revision: ([0-9]+)/) {
+                $currentRevision = $1;
+                { local $/ = undef; <INFO>; }  # Consume rest of input.
+            }
+        }
+        close INFO;
+        $fileNewer = "${file}.r${currentRevision}" if -e "${file}.r${currentRevision}";
+
+        my @matchingFiles = grep { $_ ne $fileNewer } glob("${file}.r[0-9][0-9]*");
+        if (scalar(@matchingFiles) > 1) {
+            print STDERR "WARNING: Too many conflict files exist for ${file}!\n" if $printWarnings;
+        } else {
+            $fileOlder = shift @matchingFiles;
+        }
+    } elsif ($isGit) {
+        my $gitPrefix = `$GIT rev-parse --show-prefix`;
+        chomp $gitPrefix;
+        open GIT, "-|", $GIT, "ls-files", "--unmerged", $file or die $!;
+        while (my $line = <GIT>) {
+            my ($mode, $hash, $stage, $fileName) = split(' ', $line);
+            my $outputFile;
+            if ($stage == 1) {
+                $fileOlder = "${file}.BASE.$$";
+                $outputFile = $fileOlder;
+            } elsif ($stage == 2) {
+                $fileNewer = "${file}.LOCAL.$$";
+                $outputFile = $fileNewer;
+            } elsif ($stage == 3) {
+                $fileMine = "${file}.REMOTE.$$";
+                $outputFile = $fileMine;
+            } else {
+                die "Unknown file stage: $stage";
+            }
+            system("$GIT cat-file blob :${stage}:${gitPrefix}${file} > $outputFile");
+            die $! if WEXITSTATUS($?);
+        }
+        close GIT or die $!;
+    } else {
+        die "Unknown version control system";
+    }
+
+    if (!$fileMine && !$fileOlder && !$fileNewer) {
+        print STDERR "WARNING: ${file} does not need merging.\n" if $printWarnings;
+    } elsif (!$fileMine || !$fileOlder || !$fileNewer) {
+        print STDERR "WARNING: ${file} is missing some conflict files.\n" if $printWarnings;
+    }
+
+    return ($fileMine, $fileOlder, $fileNewer);
+}
+
+sub findChangeLog($)
+{
+    my $changeLogFileName = changeLogFileName();
+    return $_[0] if basename($_[0]) eq $changeLogFileName;
+
+    my $file = File::Spec->catfile($_[0], $changeLogFileName);
+    return $file if -d $_[0] and -e $file;
+
+    return undef;
+}
+
+sub findUnmergedChangeLogs()
+{
+    my $statCommand = "";
+
+    if ($isSVN) {
+        $statCommand = "$SVN stat | grep '^C'";
+    } elsif ($isGit) {
+        $statCommand = "$GIT diff -r --name-status --diff-filter=U -C -C -M";
+    } else {
+        return ();
+    }
+
+    my @results = ();
+    open STAT, "-|", $statCommand or die "The status failed: $!.\n";
+    while (<STAT>) {
+        if ($isSVN) {
+            my $matches;
+            my $file;
+            if (isSVNVersion16OrNewer()) {
+                $matches = /^([C]).{6} (.+?)[\r\n]*$/;
+                $file = $2;
+            } else {
+                $matches = /^([C]).{5} (.+?)[\r\n]*$/;
+                $file = $2;
+            }
+            if ($matches) {
+                $file = findChangeLog(normalizePath($file));
+                push @results, $file if $file;
+            } else {
+                print;  # error output from svn stat
+            }
+        } elsif ($isGit) {
+            if (/^([U])\t(.+)$/) {
+                my $file = findChangeLog(normalizePath($2));
+                push @results, $file if $file;
+            } else {
+                print;  # error output from git diff
+            }
+        }
+    }
+    close STAT;
+
+    return @results;
+}
+
+sub fixMergedChangeLogs($;@)
+{
+    my $revisionRange = shift;
+    my @changedFiles = @_;
+
+    if (scalar(@changedFiles) < 1) {
+        # Read in list of files changed in $revisionRange
+        open GIT, "-|", $GIT, "diff", "--name-only", $revisionRange or die $!;
+        push @changedFiles, <GIT>;
+        close GIT or die $!;
+        die "No changed files in $revisionRange" if scalar(@changedFiles) < 1;
+        chomp @changedFiles;
+    }
+
+    my @changeLogs = grep { defined $_ } map { findChangeLog($_) } @changedFiles;
+    die "No changed ChangeLog files in $revisionRange" if scalar(@changeLogs) < 1;
+
+    system("$GIT filter-branch --tree-filter 'PREVIOUS_COMMIT=\`$GIT rev-parse \$GIT_COMMIT^\` && MAPPED_PREVIOUS_COMMIT=\`map \$PREVIOUS_COMMIT\` \"$0\" -f \"" . join('" "', @changeLogs) . "\"' $revisionRange");
+
+    # On success, remove the backup refs directory
+    if (WEXITSTATUS($?) == 0) {
+        rmtree(qw(.git/refs/original));
+    }
+}
+
+sub fixOneMergedChangeLog($)
+{
+    my $file = shift;
+    my $patch;
+
+    # Read in patch for incorrectly merged ChangeLog entry
+    {
+        local $/ = undef;
+        open GIT, "-|", $GIT, "diff", ($ENV{GIT_COMMIT} || "HEAD") . "^", $file or die $!;
+        $patch = <GIT>;
+        close GIT or die $!;
+    }
+
+    # Always checkout the previous commit's copy of the ChangeLog
+    system($GIT, "checkout", $ENV{MAPPED_PREVIOUS_COMMIT} || "HEAD^", $file);
+    die $! if WEXITSTATUS($?);
+
+    # The patch must have 0 or more lines of context, then 1 or more lines
+    # of additions, and then 1 or more lines of context.  If not, we skip it.
+    if ($patch =~ /\n@@ -(\d+),(\d+) \+(\d+),(\d+) @@\n( .*\n)*((\+.*\n)+)( .*\n)+$/m) {
+        # Copy the header from the original patch.
+        my $newPatch = substr($patch, 0, index($patch, "@@ -${1},${2} +${3},${4} @@"));
+
+        # Generate a new set of line numbers and patch lengths.  Our new
+        # patch will start with the lines for the fixed ChangeLog entry,
+        # then have 3 lines of context from the top of the current file to
+        # make the patch apply cleanly.
+        $newPatch .= "@@ -1,3 +1," . ($4 - $2 + 3) . " @@\n";
+
+        # We assume that top few lines of the ChangeLog entry are actually
+        # at the bottom of the list of added lines (due to the way the patch
+        # algorithm works), so we simply search through the lines until we
+        # find the date line, then move the rest of the lines to the top.
+        my @patchLines = map { $_ . "\n" } split(/\n/, $6);
+        foreach my $i (0 .. $#patchLines) {
+            if ($patchLines[$i] =~ /^\+\d{4}-\d{2}-\d{2}  /) {
+                unshift(@patchLines, splice(@patchLines, $i, scalar(@patchLines) - $i));
+                last;
+            }
+        }
+
+        $newPatch .= join("", @patchLines);
+
+        # Add 3 lines of context to the end
+        open FILE, "<", $file or die $!;
+        for (my $i = 0; $i < 3; $i++) {
+            $newPatch .= " " . <FILE>;
+        }
+        close FILE;
+
+        # Apply the new patch
+        open(PATCH, "| patch -p1 $file > " . File::Spec->devnull()) or die $!;
+        print PATCH $newPatch;
+        close(PATCH) or die $!;
+
+        # Run "git add" on the fixed ChangeLog file
+        system($GIT, "add", $file);
+        die $! if WEXITSTATUS($?);
+
+        showStatus($file, 1);
+    } elsif ($patch) {
+        # Restore the current copy of the ChangeLog file since we can't repatch it
+        system($GIT, "checkout", $ENV{GIT_COMMIT} || "HEAD", $file);
+        die $! if WEXITSTATUS($?);
+        print STDERR "WARNING: Last change to ${file} could not be fixed and re-merged.\n" if $printWarnings;
+    }
+}
+
+sub hasGitUnmergedFiles()
+{
+    my $output = `$GIT ls-files --unmerged`;
+    return $output ne "";
+}
+
+sub isInGitFilterBranch()
+{
+    return exists $ENV{MAPPED_PREVIOUS_COMMIT} && $ENV{MAPPED_PREVIOUS_COMMIT};
+}
+
+sub parseFixMerged($$;$)
+{
+    my ($switchName, $key, $value) = @_;
+    if (defined $key) {
+        if (defined findChangeLog($key)) {
+            unshift(@ARGV, $key);
+            $fixMerged = "";
+        } else {
+            $fixMerged = $key;
+        }
+    } else {
+        $fixMerged = "";
+    }
+}
+
+sub removeChangeLogArguments($)
+{
+    my ($baseDir) = @_;
+    my @results = ();
+
+    for (my $i = 0; $i < scalar(@ARGV); ) {
+        my $file = findChangeLog(canonicalRelativePath(File::Spec->catfile($baseDir, $ARGV[$i])));
+        if (defined $file) {
+            splice(@ARGV, $i, 1);
+            push @results, $file;
+        } else {
+            $i++;
+        }
+    }
+
+    return @results;
+}
+
+sub resolveChangeLog($)
+{
+    my ($file) = @_;
+
+    my ($fileMine, $fileOlder, $fileNewer) = conflictFiles($file);
+
+    return unless $fileMine && $fileOlder && $fileNewer;
+
+    if (mergeChangeLogs($fileMine, $fileOlder, $fileNewer)) {
+        if ($file ne $fileNewer) {
+            unlink($file);
+            rename($fileNewer, $file) or die $!;
+        }
+        unlink($fileMine, $fileOlder);
+        resolveConflict($file);
+        showStatus($file, 1);
+    } else {
+        showStatus($file);
+        print STDERR "WARNING: ${file} could not be merged using fuzz level 3.\n" if $printWarnings;
+        unlink($fileMine, $fileOlder, $fileNewer) if $isGit;
+    }
+}
+
+sub resolveConflict($)
+{
+    my ($file) = @_;
+
+    if ($isSVN) {
+        my $escapedFile = escapeSubversionPath($file);
+        system($SVN, "resolved", $escapedFile);
+        die $! if WEXITSTATUS($?);
+    } elsif ($isGit) {
+        system($GIT, "add", $file);
+        die $! if WEXITSTATUS($?);
+    } else {
+        die "Unknown version control system";
+    }
+}
+
+sub showStatus($;$)
+{
+    my ($file, $isConflictResolved) = @_;
+
+    if ($isSVN) {
+        my $escapedFile = escapeSubversionPath($file);
+        system($SVN, "status", $escapedFile);
+    } elsif ($isGit) {
+        my @args = qw(--name-status);
+        unshift @args, qw(--cached) if $isConflictResolved;
+        system($GIT, "diff", @args, $file);
+    } else {
+        die "Unknown version control system";
+    }
+}
+

@@ -1,0 +1,179 @@
+# -------------------------------------------------------------------
+# This file does basic 'configure' style checks to determine the
+# set of enable/use/have defines and their values.
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+defineTest(detectFeatures) {
+
+    # -------------- Fill in static defaults --------------
+
+    include(features.pri)
+
+    for(feature, FEATURE_DEFAULTS) {
+        enabledFeature = $$find(feature, =1$)
+        !isEmpty(enabledFeature) {
+        line ~= s/^.+include \"(.*)\"/\\1/
+            enabledFeature ~= s/=1$//
+            enabledFeature ~= s/^ENABLE_//
+            WEBKIT_CONFIG += $$lower($$enabledFeature)
+        }
+    }
+
+    WEBKIT_CONFIG += use_tiled_backing_store
+    WEBKIT_CONFIG += use_cross_platform_context_menus
+
+    # ------------- Prepare for feature detection -------------
+
+    # ---------- Dynamically detect optional features -------------
+    #
+    # Please note: static feature defaults go in features.pri
+    #
+
+    qtHaveModule(quick): WEBKIT_CONFIG += have_qtquick
+    else: CONFIGURE_WARNINGS += "QtQuick module not found, QML APIs will not be built"
+
+    qtHaveModule(printsupport): WEBKIT_CONFIG += have_qtprintsupport
+    qtHaveModule(widgets): WEBKIT_CONFIG += have_qstyle
+    qtHaveModule(testlib): WEBKIT_CONFIG += have_qttestlib
+    qtHaveModule(positioning): WEBKIT_CONFIG += have_qtpositioning
+    qtHaveModule(sensors): WEBKIT_CONFIG += have_qtsensors
+
+    config_libxml2: WEBKIT_CONFIG += use_libxml2
+    config_libxslt: WEBKIT_CONFIG += xslt
+    config_libzlib: WEBKIT_CONFIG += use_zlib
+    config_libwebp: WEBKIT_CONFIG += use_webp
+    config_leveldb: WEBKIT_CONFIG += use_system_leveldb
+
+    # We can't use Qt's 3rdparty sources for libjpeg and libpng outside of qtbase, but if Qt
+    # is using the system libraries, use them to take advantage of the WebCore image decoders as well.
+    contains(QT_CONFIG, system-jpeg): WEBKIT_CONFIG += use_libjpeg
+    else: CONFIGURE_WARNINGS += "Qt not configured to use system libjpeg, QImageDecoder will decode JPEG images"
+
+    contains(QT_CONFIG, system-png): WEBKIT_CONFIG += use_libpng
+    else: CONFIGURE_WARNINGS += "Qt not configured to use system libpng, QImageDecoder will decode PNG images"
+
+    linux-* {
+        config_libXcomposite: WEBKIT_CONFIG += have_xcomposite
+        config_libXrender: WEBKIT_CONFIG += have_xrender
+
+        config_glx:!contains(QT_CONFIG, opengles2): WEBKIT_CONFIG += have_glx
+
+        # We need fontconfig to set up the test fonts for DumpRenderTree and WebKitTestRunner.
+        config_fontconfig: WEBKIT_CONFIG += have_fontconfig
+    }
+
+    # Nescape plugins support (NPAPI)
+    xlibAvailable() {
+        WEBKIT_CONFIG += \
+            netscape_plugin_api \
+            use_plugin_backend_xlib
+
+        # WebKit2
+        WEBKIT_CONFIG += \
+            plugin_architecture_x11 \
+            plugin_process
+
+    } else: mac|win32 {
+        # WEBKIT_CONFIG += netscape_plugin_api
+        # WebKit2
+        WEBKIT_CONFIG += plugin_architecture_unsupported
+    } else {
+        WEBKIT_CONFIG += plugin_architecture_unsupported
+    }
+
+    # Enable the USE(3D_GRAPHICS) flag when QtOpenGL is enabled.
+    # Disable on Windows CE for now, as ANGLE won't compile.
+    !wince*:contains(QT_CONFIG, opengl): WEBKIT_CONFIG += use_3d_graphics
+
+    # Temporarily disable FTPDIR on Windows CE (missing functions from time.h)
+    wince* {
+        WEBKIT_CONFIG -= ftpdir
+    }
+
+    # WebGL support - only enabled if we can use 3D graphics
+    use?(3d_graphics): WEBKIT_CONFIG += webgl
+
+    # HTML5 Media Support for builds with GStreamer
+    unix:!mac:!contains(QT_CONFIG, no-pkg-config) {
+        packagesExist("glib-2.0 gio-2.0 gstreamer-1.0 gstreamer-plugins-base-1.0") {
+            WEBKIT_CONFIG += video use_gstreamer
+        } else: packagesExist("glib-2.0 gio-2.0 \'gstreamer-0.10 >= 0.10.30\' \'gstreamer-plugins-base-0.10 >= 0.10.30\'") {
+            WEBKIT_CONFIG += video use_gstreamer use_gstreamer010
+        }
+        use?(gstreamer): WEBKIT_CONFIG += use_native_fullscreen_video
+    }
+
+    !enable?(video):qtHaveModule(multimediawidgets) {
+        WEBKIT_CONFIG += video use_qt_multimedia
+    }
+
+    !enable?(video) {
+        CONFIGURE_WARNINGS += "Missing GStreamer or QtMultimedia, disabling HTML5 media element support"
+    }
+
+    # Try to use an system wide SQlite installation
+    if(!contains(QT_CONFIG, no-pkg-config):packagesExist("sqlite3"))|mac {
+        WEBKIT_CONFIG += have_sqlite3
+    } else {
+        SQLITE3SRCDIR = $$(SQLITE3SRCDIR)
+        isEmpty(SQLITE3SRCDIR):isEmpty(_QMAKE_SUPER_CACHE_): error("WebKit requires SQLite. Either make it available via pkg-config, set $SQLITE3SRCDIR or build WebKit under qt5.git.")
+    }
+
+    # Gamepad API Support (depends on udev and linux/joystick.h)
+    linux:!android: WEBKIT_CONFIG += gamepad
+
+    # Support for Graphics Surface
+    # GraphicsSurface requires GraphicsContext3D and hence use_3d_graphics
+    use?(3d_graphics) {
+        mac: WEBKIT_CONFIG += use_graphics_surface
+        win32:contains(QT_CONFIG, opengles2): WEBKIT_CONFIG += use_graphics_surface
+        have?(glx):have?(xcomposite):have?(xrender): WEBKIT_CONFIG += use_graphics_surface use_glx
+    }
+
+    # Slider Touch is sensible to use when compiling WebKit2
+    enable?(touch_events): WEBKIT_CONFIG += touch_slider
+
+    # IndexedDB requires leveldb
+    enable?(indexed_database): WEBKIT_CONFIG += use_leveldb
+
+    export(WEBKIT_CONFIG)
+    export(CONFIGURE_WARNINGS)
+}
+
+# ---------------- Sanitize features -------------------
+
+defineTest(santizeFeatures) {
+    # If we are doing a production_build we should only enable Geolocation support if QtPositioning exists. In developer builds we can use Mock implementations.
+    production_build:!have?(qtpositioning): WEBKIT_CONFIG -= geolocation
+
+    # If we are doing a production_build we should only enable Orientation support if QtSensors exists. In developer builds we can use Mock implementations.
+    production_build:!have?(qtsensors): WEBKIT_CONFIG -= orientation_events device_orientation
+
+    # Disable SVG fonts if SVG is disabled
+    !enable?(svg): WEBKIT_CONFIG -= svg_fonts
+
+    # JavaScript debugger requires the inspector
+    !enable?(inspector): WEBKIT_CONFIG -= javascript_debugger inspector_server
+
+    # Disable animated smooth scrolling if request-animation-frame is disabled
+    !enable?(request_animation_frame): WEBKIT_CONFIG -= smooth_scrolling
+
+    # WK2's plugin process code requires NPAPI
+    !enable?(netscape_plugin_api): WEBKIT_CONFIG -= plugin_process
+
+    # Web Audio requires GStreamer.
+    !use?(gstreamer): WEBKIT_CONFIG -= web_audio
+
+    # GStreamer uses Glib
+    use?(gstreamer): WEBKIT_CONFIG += use_glib
+
+    # VideoTrack requires video
+    !enable?(video): WEBKIT_CONFIG -= video_track
+
+    # Minibrowser must be able to query for QtTestSupport
+    build?(qttestsupport): WEBKIT_CONFIG += have_qttestsupport
+
+    export(WEBKIT_CONFIG)
+}

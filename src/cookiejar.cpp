@@ -144,6 +144,11 @@ bool CookieJar::addCookie(const QNetworkCookie &cookie, const QString &url)
     return false;
 }
 
+void CookieJar::addCookie(const QVariantMap &cookie)
+{
+    addCookieFromMap(cookie);
+}
+
 bool CookieJar::addCookieFromMap(const QVariantMap &cookie, const QString &url)
 {
     QNetworkCookie newCookie;

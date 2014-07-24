@@ -1,0 +1,1 @@
+local_database is used to generate qlocale data from the Common Locale Data Repository (The database for localized names (like date formats, country names etc)).

@@ -1,0 +1,76 @@
+/*
+ * Copyright (C) 2007 Henry Mason <hmason@mac.com>
+ * Copyright (C) 2011 Google Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ *
+ */
+
+[
+    GlobalContext=DOMWindow&WorkerGlobalScope,
+    JSNoStaticTables,
+    ConstructorTemplate=Event
+] interface MessageEvent : Event {
+    [InitializedByEventConstructor] readonly attribute DOMString origin;
+    [InitializedByEventConstructor] readonly attribute DOMString lastEventId;
+    [InitializedByEventConstructor] readonly attribute DOMWindow source;
+#if defined(LANGUAGE_JAVASCRIPT) && LANGUAGE_JAVASCRIPT
+    [InitializedByEventConstructor, CachedAttribute, CustomGetter] readonly attribute any data;
+    [InitializedByEventConstructor] readonly attribute MessagePort[] ports;
+
+    [Custom] void initMessageEvent([Default=Undefined] optional DOMString typeArg, 
+                                   [Default=Undefined] optional boolean canBubbleArg, 
+                                   [Default=Undefined] optional boolean cancelableArg, 
+                                   [Default=Undefined] optional any dataArg, 
+                                   [Default=Undefined] optional DOMString originArg, 
+                                   [Default=Undefined] optional DOMString lastEventIdArg, 
+                                   [Default=Undefined] optional DOMWindow sourceArg, 
+                                   [Default=Undefined] optional Array messagePorts);
+
+    [Custom] void webkitInitMessageEvent([Default=Undefined] optional DOMString typeArg,
+                                         [Default=Undefined] optional boolean canBubbleArg,
+                                         [Default=Undefined] optional boolean cancelableArg,
+                                         [Default=Undefined] optional any dataArg,
+                                         [Default=Undefined] optional DOMString originArg,
+                                         [Default=Undefined] optional DOMString lastEventIdArg,
+                                         [Default=Undefined] optional DOMWindow sourceArg,
+                                         [Default=Undefined] optional Array transferables);
+#else
+    // Code generator for ObjC bindings does not support custom bindings, thus there is no good way to
+    // return a variant value. As workaround, expose the data attribute as SerializedScriptValue.
+    readonly attribute SerializedScriptValue data;
+
+    // There's no good way to expose an array via the ObjC bindings, so for now just expose a single port.
+    readonly attribute MessagePort messagePort;
+
+    void initMessageEvent([Default=Undefined] optional DOMString typeArg, 
+                          [Default=Undefined] optional boolean canBubbleArg, 
+                          [Default=Undefined] optional boolean cancelableArg, 
+                          [Default=Undefined] optional SerializedScriptValue dataArg, 
+                          [Default=Undefined] optional DOMString originArg, 
+                          [Default=Undefined] optional DOMString lastEventIdArg, 
+                          [Default=Undefined] optional DOMWindow sourceArg, 
+                          [Default=Undefined] optional MessagePort messagePort);
+#endif
+
+};
+

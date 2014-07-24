@@ -1,0 +1,75 @@
+#!/bin/bash
+
+# This script needs to be run with root rights.
+if [ $UID -ne 0 ]; then
+    sudo $0
+    exit 0
+fi
+
+function printNotSupportedMessageAndExit() {
+    echo
+    echo "Currently this script only works for distributions supporting apt-get."
+    echo "Please add support for your distribution."
+    echo
+    exit 1
+}
+
+function checkInstaller {
+    # apt-get - Debian based distributions
+    apt-get --version &> /dev/null
+    if [ $? -eq 0 ]; then
+        installDependenciesWithApt
+        exit 0
+    fi
+
+    printNotSupportedMessageAndExit
+}
+
+function installDependenciesWithApt {
+    # These are dependencies necessary for building WebKitEFL.
+    apt-get install \
+        bison \
+        cmake \
+        flex \
+        g++ \
+        gperf \
+        gtk-doc-tools \
+        subversion \
+        ruby \
+        libicu-dev \
+        libxslt1-dev \
+        libsqlite3-dev \
+        libjpeg-dev \
+        libpng-dev \
+        libxt-dev \
+        libgl1-mesa-dev \
+        libgnutls-dev \
+        libdbus-1-dev \
+        libudev-dev \
+        liblua5.1-0-dev \
+        ragel \
+        libfreetype6-dev \
+        libffi-dev \
+        libtiff4-dev \
+        libenchant-dev \
+        libxcomposite-dev \
+        libatk1.0-dev \
+        libtheora-dev \
+        libvorbis-dev \
+        libfaad-dev \
+        libpulse-dev \
+        libxrender-dev \
+        libp11-kit-dev \
+        libgpg-error-dev \
+        libgcrypt11-dev
+
+    # These are dependencies necessary for running tests.
+    apt-get install \
+        apache2 \
+        libapache2-mod-php5 \
+        libruby \
+        xvfb
+}
+
+checkInstaller
+

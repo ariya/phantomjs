@@ -1,0 +1,64 @@
+# Run qdoc from the directory that contains this file.
+
+project                 = qlalr
+description             = qlalr Reference Documentation
+url                     = http://qt.nokia.com/doc/
+
+language                = Cpp
+
+# sourcedirs              = $PWD/src
+sourcedirs              = src
+sources.fileextensions  = "*.qdoc"
+
+exampledirs             = ../examples
+
+imagedirs               = src/images
+outputdir               = html
+codeindent              = 1
+extraimages.HTML        = qt-logo
+
+macro.key               = "\\b"
+macro.menu              = "\\b"
+macro.gui               = "\\b"
+macro.reg.HTML          = "<sup>&reg;</sup>"
+macro.raisedaster.HTML  = "<sup>*</sup>"
+macro.BR.HTML           = "<br />"
+macro.br.HTML           = "<br />"
+macro.QD                = "\\e{Qt Designer}"
+macro.QA                = "\\e{Qt Assistant}"
+macro.eacute.HTML       = "&eacute;"
+macro.aring.HTML        = "&aring;"
+macro.oslash.HTML       = "&oslash;"
+macro.ouml.HTML         = "&ouml;"
+macro.Auml.HTML         = "&Auml;"
+macro.uuml.HTML         = "&uuml;"
+
+HTML.stylesheets        = src/classic.css
+HTML.postheader         = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">\n" \
+                          "<tr>\n" \
+                          "<td align=\"left\" valign=\"top\" width=\"32\">" \
+                          "<a href=\"http://qt.nokia.com/\"><img src=\"images/qt-logo.png\" align=\"left\" width=\"32\" height=\"32\" border=\"0\" /></a>" \
+                          "</td>\n" \
+                          "<td width=\"1\">&nbsp;&nbsp;</td>" \
+                          "<td class=\"postheader\" valign=\"center\">" \
+                          "<a href=\"index.html\">" \
+                          "<font color=\"#004faf\">Home</font></a>&nbsp;&middot;" \
+                          " <a href=\"classes.html\">" \
+                          "<font color=\"#004faf\">All&nbsp;Classes</font></a>&nbsp;&middot;" \
+                          " <a href=\"mainclasses.html\">" \
+                          "<font color=\"#004faf\">Main&nbsp;Classes</font></a>&nbsp;&middot;" \
+                          " <a href=\"groups.html\">" \
+                          "<font color=\"#004faf\">Grouped&nbsp;Classes</font></a>&nbsp;&middot;" \
+                          " <a href=\"modules.html\">" \
+                          "<font color=\"#004faf\">Modules</font></a>&nbsp;&middot;" \
+                          " <a href=\"functions.html\">" \
+                          "<font color=\"#004faf\">Functions</font></a>" \
+                          "</td>\n" \
+                          "<td align=\"right\" valign=\"top\" width=\"230\"><a href=\"http://qt.nokia.com\"><img src=\"images/qt-logo.png\" align=\"right\" width=\"203\" height=\"32\" border=\"0\" /></a></td></tr></table>"
+
+HTML.footer             = "<p /><address><hr /><div align=\"center\">\n" \
+                          "<table width=\"100%\" cellspacing=\"0\" border=\"0\"><tr class=\"address\">\n" \
+                          "<td width=\"30%\" align=\"left\">Copyright &copy; 2012 Digia Plc and/or its subsidiary(-ies)</td>\n" \
+                          "<td width=\"40%\" align=\"center\"><a href=\"trademarks.html\">Trademarks</a></td>\n" \
+                          "<td width=\"30%\" align=\"right\"><div align=\"right\">Qt \\version</div></td>\n" \
+                          "</tr></table></div></address>"

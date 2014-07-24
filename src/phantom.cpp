@@ -34,10 +34,11 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFile>
-#include <QWebPage>
+#include <QtWebKitWidgets/QWebPage>
 #include <QDebug>
 #include <QMetaObject>
 #include <QMetaProperty>
+#include <QStandardPaths>
 
 #include "consts.h"
 #include "terminal.h"
@@ -98,6 +99,16 @@ void Phantom::init()
 
     // Initialize the CookieJar
     m_defaultCookieJar = new CookieJar(m_config.cookiesFile());
+
+    QWebSettings::setOfflineWebApplicationCachePath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+    if (m_config.offlineStoragePath().isEmpty()) {
+        QWebSettings::setOfflineStoragePath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+    } else {
+        QWebSettings::setOfflineStoragePath(m_config.offlineStoragePath());
+    }
+    if (m_config.offlineStorageDefaultQuota() > 0) {
+        QWebSettings::setOfflineStorageDefaultQuota(m_config.offlineStorageDefaultQuota());
+    }
 
     m_page = new WebPage(this, QUrl::fromLocalFile(m_config.scriptFile()));
     m_page->setCookieJar(m_defaultCookieJar);
@@ -372,7 +383,7 @@ void Phantom::loadModule(const QString &moduleSource, const QString &filename)
       "require.cache['" + filename + "'].exports," +
       "require.cache['" + filename + "']" +
       "));";
-   m_page->mainFrame()->evaluateJavaScript(scriptSource, filename);
+   m_page->mainFrame()->evaluateJavaScript(scriptSource, "");
 }
 
 bool Phantom::injectJs(const QString &jsFilePath)
@@ -490,7 +501,8 @@ void Phantom::doExit(int code)
     emit aboutToExit(code);
     m_terminated = true;
     m_returnValue = code;
-    qDeleteAll(m_pages);
+    foreach (QPointer<WebPage> page, m_pages)
+      page->deleteLater();
     m_pages.clear();
     m_page = 0;
     QApplication::instance()->exit(code);

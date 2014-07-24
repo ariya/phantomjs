@@ -1,0 +1,142 @@
+#!/usr/bin/perl
+
+# Copyright (C) 2006 Alexey Proskuryakov (ap@nypop.com)
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+# 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# A script to semi-automatically run iExploder tests.
+
+use strict;
+use warnings;
+
+use Cwd;
+use File::Spec;
+use FindBin;
+use Getopt::Long;
+use IPC::Open2;
+
+use lib $FindBin::Bin;
+use webkitperl::httpd;
+use webkitdirs;
+
+sub configureAndOpenHTTPDIfNeeded();
+sub runSafariWithIExploder();
+
+# Argument handling
+my $guardMalloc = '';
+my $httpdPort = 8000;
+my $downloadTest;
+my $iExploderTestDirectory = "/tmp/iExploderTest";
+
+GetOptions(
+    'guard-malloc|g' => \$guardMalloc,
+    'get=s' => \$downloadTest,
+    'port=i' => \$httpdPort
+);
+
+
+setConfiguration();
+my $productDir = productDir();
+
+chdirWebKit();
+
+checkFrameworks();
+
+my $isHttpdOpen = 0;
+configureAndOpenHTTPDIfNeeded();
+
+if ($downloadTest) {
+    system "/usr/bin/curl -o ~/Desktop/iexploder$downloadTest.html \"http://127.0.0.1:$httpdPort/iexploder.cgi?lookup=1&test=$downloadTest\"";
+    print "Saved the test as iexploder$downloadTest.html on the desktop\n";
+} else {
+    runSafariWithIExploder();
+    print "Last generated tests:\n";
+    system "grep 'iexploder.cgi' $iExploderTestDirectory/access_log.txt | tail -n -5 | awk -F'[ =&\\?]' '{if (\$8 == \"lookup\") print \$11; else print \$9}'";
+}
+
+rmtree $iExploderTestDirectory;
+$isHttpdOpen = !closeHTTPD();
+
+sub runSafariWithIExploder()
+{
+    my $redirectTo;
+    if (@ARGV) {
+        $redirectTo = "http://127.0.0.1:$httpdPort/iexploder.cgi?lookup=1&test=$ARGV[0]";
+    } else {
+        $redirectTo = "http://127.0.0.1:$httpdPort/index.html";
+    }
+
+    open REDIRECT_HTML, ">", "$iExploderTestDirectory/redirect.html" or die;
+    print REDIRECT_HTML "<html>\n";
+    print REDIRECT_HTML "    <head>\n";
+    print REDIRECT_HTML "        <meta http-equiv=\"refresh\" content=\"1;URL=$redirectTo\" />\n";
+    print REDIRECT_HTML "        <script type=\"text/javascript\">\n";
+    print REDIRECT_HTML "            document.location = \"$redirectTo\";\n";
+    print REDIRECT_HTML "        </script>\n";
+    print REDIRECT_HTML "    </head>\n";
+    print REDIRECT_HTML "    <body>\n";
+    print REDIRECT_HTML "    </body>\n";
+    print REDIRECT_HTML "</html>\n";
+    close REDIRECT_HTML;
+    
+    if (!isAppleWebKit()) {
+        system "Tools/Scripts/run-launcher", "$iExploderTestDirectory/redirect.html";
+    } else {
+        local %ENV;
+        $ENV{DYLD_INSERT_LIBRARIES} = "/usr/lib/libgmalloc.dylib" if $guardMalloc;
+        system "Tools/Scripts/run-safari", "-NSOpen", "$iExploderTestDirectory/redirect.html";
+    }
+}
+
+sub configureAndOpenHTTPDIfNeeded()
+{
+    return if $isHttpdOpen;
+    mkdir $iExploderTestDirectory;
+    my $webkitDirectory = getcwd();
+    my $testDirectory = $webkitDirectory . "/LayoutTests";
+    my $iExploderDirectory = $webkitDirectory . "/Tools/iExploder/iExploder-1.3.2";
+
+    my $httpdConfig = getHTTPDConfigPathForTestDirectory($testDirectory);
+
+    my $documentRoot = "$iExploderDirectory/htdocs";
+    my $typesConfig = "$testDirectory/http/conf/mime.types";
+    my $sslCertificate = "$testDirectory/http/conf/webkit-httpd.pem";
+    my $listen = "127.0.0.1:$httpdPort";
+
+
+    my @args = (
+        "-f", "$httpdConfig",
+        "-C", "DocumentRoot \"$documentRoot\"",
+        "-C", "Listen $listen",
+        "-c", "TypesConfig \"$typesConfig\"",
+        "-c", "CustomLog \"$iExploderTestDirectory/access_log.txt\" common",
+        "-c", "ErrorLog \"$iExploderTestDirectory/error_log.txt\"",
+        "-c", "SSLCertificateFile \"$sslCertificate\"",
+        # Apache wouldn't run CGIs with permissions==700 otherwise
+        "-c", "User \"#$<\""
+    );
+
+    $isHttpdOpen = openHTTPD(@args);
+}

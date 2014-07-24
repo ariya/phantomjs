@@ -1,0 +1,11 @@
+# This file contains the expected SVN config for developing WebKit.
+# You may either copy it to ~/.subversion/config or merge it with your existing SVN configuration.
+
+[miscellany]
+enable-auto-props = yes
+
+[auto-props]
+*.png = svn:mime-type=image/png
+*.sln = svn:eol-style=native
+*.vcproj = svn:eol-style=native
+*.vsprops = svn:eol-style=native

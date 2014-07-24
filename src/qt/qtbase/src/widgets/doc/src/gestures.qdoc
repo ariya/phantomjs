@@ -1,0 +1,215 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page gestures-overview.html
+    \title Gestures in Widgets and Graphics View
+    \startpage index.html Qt Reference Documentation
+    \ingroup qt-gui-concepts
+
+    \brief An overview of Qt support for Gesture programming
+
+    Qt includes a framework for gesture programming that has the ability
+    to form gestures from a series of events, independently of the input methods
+    used. A gesture could be a particular movement of a mouse, a touch screen
+    action, or a series of events from some other source. The nature of the input,
+    the interpretation of the gesture and the action taken are the choice of the
+    developer.
+
+    \tableofcontents
+
+    \section1 Overview
+
+    QGesture is the central class in Qt's gesture framework, providing a container
+    for information about gestures performed by the user. QGesture exposes
+    properties that give general information that is common to all gestures, and
+    these can be extended to provide additional gesture-specific information.
+    Common panning, pinching and swiping gestures are represented by specialized
+    classes: QPanGesture, QPinchGesture and QSwipeGesture.
+
+    Developers can also implement new gestures by subclassing and extending the
+    QGestureRecognizer class. Adding support for a new gesture involves implementing
+    code to recognize the gesture from input events. This is described in the
+    \l{Creating Your Own Gesture Recognizer} section.
+
+    \section1 Using Standard Gestures with Widgets
+
+    Gestures can be enabled for instances of QWidget and QGraphicsObject subclasses.
+    An object that accepts gesture input is referred to throughout the documentation
+    as a \e{target object}.
+
+    To enable a gesture for a target object, call its QWidget::grabGesture() or
+    QGraphicsObject::grabGesture() function with an argument describing the
+    required gesture type. The standard types are defined by the Qt::GestureType
+    enum and include many commonly used gestures.
+
+    \snippet gestures/imagegestures/imagewidget.cpp enable gestures
+
+    In the above code, the gestures are set up in the constructor of the target object
+    itself.
+
+    \section1 Handling Events
+
+    When the user performs a gesture, QGestureEvent events will be delivered to the
+    target object, and these can be handled by reimplementing the QWidget::event()
+    handler function for widgets or QGraphicsItem::sceneEvent() for graphics objects.
+
+    As one target object can subscribe to more than one gesture type, the QGestureEvent
+    can contain more than one QGesture, indicating several possible gestures are active
+    at the same time. It is then up to the widget to determine how to handle those
+    multiple gestures and choose if some should be canceled in favor of others.
+
+    Each QGesture contained within a QGestureEvent object can be accepted() or ignored()
+    individually, or all together. Additionally, you can query the individual QGesture
+    data objects (the state) using several getters.
+
+    \section2 Standard Procedure for Event Handling
+
+    A QGesture is by default accepted when it arrives at your widget. However, it is good
+    practice to always explicitly accept or reject a gesture. The general rule is that, if
+    you accept a gesture, you are using it. If you are ignoring it you are not interested
+    in it. Ignoring a gesture may mean it gets offered to another target object, or it will
+    get canceled.
+
+    Each QGesture has several states it goes through; there is a well defined way to change
+    the state, typically the user input is the cause of state changes (by starting and
+    stopping interaction, for instance) but the widget can also cause state changes.
+
+    The first time a particular QGesture is delivered to a widget or graphics item, it will
+    be in the Qt::GestureStarted state. The way you handle the gesture at this point
+    influences whether you can interact with it later.
+
+    \list
+    \li Accepting the gesture means the widget acts on the gesture and there will follow
+       gestures with the Qt::GestureUpdatedstate.
+    \li Ignoring the gesture will mean the gesture will never be offered to you again.
+       It will be offered to a parent widget or item as well.
+    \li Calling setGestureCancelPolicy() on the gesture when it is in its starting state,
+       and is also accepted can cause other gestures to be canceled.
+    \endlist
+
+    Using QGesture::CancelAllInContext to cancel a gesture will cause all gestures, in any
+    state, to be canceled unless they are explicitly accepted. This means that active
+    gestures on children will get canceled. It also means that gestures delivered in the
+    same QGestureEvent will get canceled if the widget ignores them. This can be a useful
+    way to filter out all gestures except the one you are interested in.
+
+    \section2 Example Event Handling
+
+    For convenience, the \l{Image Gestures Example} reimplements the general
+    \l{QWidget::}{event()} handler function and delegates gesture events to a
+    specialized gestureEvent() function:
+
+    \snippet gestures/imagegestures/imagewidget.cpp event handler
+
+    The gesture events delivered to the target object can be examined individually
+    and dealt with appropriately:
+
+    \snippet gestures/imagegestures/imagewidget.cpp gesture event handler
+
+    Responding to a gesture is simply a matter of obtaining the QGesture object
+    delivered in the QGestureEvent sent to the target object and examining the
+    information it contains.
+
+    \snippet gestures/imagegestures/imagewidget.cpp swipe function
+
+    Here, we examine the direction in which the user swiped the widget and modify
+    its contents accordingly.
+
+
+    \section1 Creating Your Own Gesture Recognizer
+
+    Adding support for a new gesture involves creating and registering a new gesture
+    recognizer. Depending on the recognition process for the gesture, it may also
+    involve creating a new gesture object.
+
+    To create a new recognizer, you need to subclass QGestureRecognizer to create a
+    custom recognizer class. There is one virtual function that you must reimplement
+    and two others that can be reimplemented as required.
+
+    \section2 Filtering Input Events
+
+    The \l{QGestureRecognizer::}{recognize()} function must be reimplemented.
+    This function handles and filters the incoming input events for the target objects
+    and determines whether or not they correspond to the gesture the recognizer is
+    looking for.
+
+    Although the logic for gesture recognition is implemented in this function,
+    possibly using a state machine based on the Qt::GestureState enums, you can store
+    persistent information about the state of the recognition process in the QGesture
+    object supplied.
+
+    Your \l{QGestureRecognizer::}{recognize()} function must return a value of
+    QGestureRecognizer::Result that indicates the state of recognition for a given gesture and
+    target object. This determines whether or not a gesture event will be delivered
+    to a target object.
+
+    \section2 Custom Gestures
+
+    If you choose to represent a gesture by a custom QGesture subclass, you will need to
+    reimplement the \l{QGestureRecognizer::}{create()} function to construct
+    instances of your gesture class instead of standard QGesture instances. Alternatively,
+    you may want to use standard QGesture instances, but add additional dynamic properties
+    to them to express specific details of the gesture you want to handle.
+
+    \section2 Resetting Gestures
+
+    If you use custom gesture objects that need to be reset or otherwise specially
+    handled when a gesture is canceled, you need to reimplement the
+    \l{QGestureRecognizer::}{reset()} function to perform these special tasks.
+
+    Note that QGesture objects are only created once for each combination of target object
+    and gesture type, and they might be reused every time the user attempts to perform the
+    same gesture type on the target object. As a result, it can be useful to reimplement
+    the \l{QGestureRecognizer::}{reset()} function to clean up after each previous attempt
+    at recognizing a gesture.
+
+
+    \section1 Using a New Gesture Recognizer
+
+    To use a gesture recognizer, construct an instance of your QGestureRecognizer
+    subclass, and register it with the application with
+    QGestureRecognizer::registerRecognizer(). A recognizer for a given type of
+    gesture can be removed with QGestureRecognizer::unregisterRecognizer().
+
+
+    \section1 Further Reading
+
+    The \l{gestures/imagegestures}{Image Gestures Example} shows how to enable
+    gestures for a widget in a simple image viewer application.
+
+    \section2 Gestures in Qt Quick
+
+    Qt Quick does not have a generic global gesture recognizer; rather, individual
+    components can respond to touch events in their own ways.  For example
+    the \l PinchArea handles two-finger gestures, \l Flickable is for flicking
+    content with a single finger, and \l MultiPointTouchArea can handle an
+    arbitrary number of touch points and allow the application developer to
+    write custom gesture recognition code.
+*/
+
+// TODO mention Sensor Gestures when qtsensors becomes a maintained module

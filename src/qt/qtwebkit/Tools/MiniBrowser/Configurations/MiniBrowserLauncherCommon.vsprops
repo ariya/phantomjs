@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="MiniBrowserLauncherCommon"
+	>
+	<Tool
+		Name="VCLinkerTool"
+		AdditionalDependencies="shlwapi.lib"
+		OutputFile="$(OutDir)\MiniBrowser$(WebKitConfigSuffix).exe"
+		ProgramDatabaseFile="$(TargetDir)$(TargetName)Launcher.pdb"
+	/>
+</VisualStudioPropertySheet>

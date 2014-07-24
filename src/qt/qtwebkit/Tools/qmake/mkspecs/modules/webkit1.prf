@@ -1,0 +1,9 @@
+# -------------------------------------------------------------------
+# Module file for WebKit1, used by targets that depend on WebKit1
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+WEBKIT.webkit1.root_source_dir = $${ROOT_WEBKIT_DIR}/Source/WebKit
+
+include($${WEBKIT.webkit1.root_source_dir}/WebKit1.pri)

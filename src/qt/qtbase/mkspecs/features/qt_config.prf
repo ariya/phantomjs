@@ -1,0 +1,44 @@
+# This file is loaded as one of the last things by all qmakespecs.
+
+QMAKE_QT_CONFIG = $$[QT_HOST_DATA/get]/mkspecs/qconfig.pri
+!exists($$QMAKE_QT_CONFIG)|!include($$QMAKE_QT_CONFIG, "", true) {
+   debug(1, "Cannot load qconfig.pri!")
+} else {
+   debug(1, "Loaded .qconfig.pri from ($$QMAKE_QT_CONFIG)")
+   QMAKE_MODULE_PATH = $$split($$list($$(QMAKEMODULES)), $$DIRLIST_SEPARATOR)
+   QMAKE_MODULE_PATH += $$QMAKEMODULES
+   QMAKE_MODULE_PATH += $$split($$list($$[QMAKEMODULES]), $$DIRLIST_SEPARATOR)
+   QMAKE_MODULE_PATH += $$replace($$list($$split($$list($$[QMAKE_MKSPECS]), $$DIRLIST_SEPARATOR)), \
+                                  \$, /modules)
+   QMAKE_MODULE_PATH = $$unique(QMAKE_MODULE_PATH)
+   QMAKE_MODULE_PATH = $$reverse(QMAKE_MODULE_PATH)
+   for(dir, QMAKE_MODULE_PATH) {
+      debug(1, "Loading modules from $${dir}")
+      for(mod, $$list($$files($$dir/qt_*.pri))) {
+         # For installed Qt these paths will be common for all modules.
+         # For uninstalled prefix builds these will vary per module, via the
+         # forwarding module pri files. Keep qt_module_pris.prf in sync with this!
+         QT_MODULE_INCLUDE_BASE = $$[QT_INSTALL_HEADERS]
+         QT_MODULE_LIB_BASE = $$[QT_INSTALL_LIBS]
+         QT_MODULE_HOST_LIB_BASE = $$[QT_HOST_LIBS]
+         QT_MODULE_PLUGIN_BASE = $$[QT_INSTALL_PLUGINS]
+         QT_MODULE_LIBEXEC_BASE = $$[QT_INSTALL_LIBEXECS]
+         QT_MODULE_BIN_BASE = $$[QT_INSTALL_BINS]
+         QT_MODULE_IMPORT_BASE = $$[QT_INSTALL_IMPORTS]
+         QT_MODULE_QML_BASE = $$[QT_INSTALL_QML]
+         include($$mod)
+      }
+   }
+   QT_MODULES = $$unique(QT_MODULES)   # In case modules appear in multiple places
+   unset(QT_MODULE_INCLUDE_BASE)
+   unset(QT_MODULE_LIB_BASE)
+   unset(QT_MODULE_HOST_LIB_BASE)
+   unset(QT_MODULE_PLUGIN_BASE)
+   unset(QT_MODULE_LIBEXEC_BASE)
+   unset(QT_MODULE_BIN_BASE)
+   unset(QT_MODULE_IMPORT_BASE)
+   unset(QT_MODULE_QML_BASE)
+}
+
+load(qt_functions)
+

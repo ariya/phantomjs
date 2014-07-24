@@ -1,3 +1,0 @@
-# 
-# Blackfin architecture
-#

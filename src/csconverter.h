@@ -31,7 +31,7 @@
 #define CSCONVERTER_H
 
 #include <QObject>
-#include <QWebPage>
+#include <QtWebKitWidgets/QWebPage>
 
 class CSConverter: public QObject
 {

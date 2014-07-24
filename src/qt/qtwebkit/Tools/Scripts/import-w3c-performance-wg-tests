@@ -1,0 +1,84 @@
+#!/usr/bin/env python
+# Copyright (C) 2012 Google Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# This script imports the W3C Web Performance WG's test suite into WebKit.
+#
+# You must have checked out the 'webperf' repository from https://dvcs.w3.org/hg/
+#
+# This script will populate the LayoutTests directory with the new tests. If the
+# tests already exist, the script will refuse to run. Please clear out the
+# w3c/webperf directory first.
+#
+# The main step in importing the tests is updating all of the URLs to match our
+# directory layout.
+
+import os
+import sys
+
+if len(sys.argv) != 3:
+    print 'USAGE: %s path_to_webperf_checkout_root path_to_webkit_checkout_root' % sys.argv[0]
+    sys.exit(1)
+
+source_directory = os.path.join(sys.argv[1], 'tests')
+destination_directory = os.path.join(sys.argv[2], 'LayoutTests', 'http', 'tests', 'w3c', 'webperf')
+
+if os.path.exists(destination_directory):
+    print 'Refusing to overwrite existing directory: %s' % destination_directory
+    sys.exit(1)
+os.makedirs(destination_directory)
+
+directories_to_copy = ['approved', 'resources']
+directories_to_ignore = ['html5']                 # These are just duplicates of the sibling directory 'html'.
+replacements = [
+        ('www.w3c-test.org', 'localhost:8000'),   # This is the alternate host for cross-server requests.
+        ('w3c-test.org', '127.0.0.1:8000'),       # This is the primary test server.
+        ('webperf/tests', 'w3c/webperf'),         # We prepend /w3c to all of our paths.
+        ('/resources/testharness', '/w3c/resources/testharness'),
+        ('+ "(" + reloadTime[time] + ")"', ''),   # Remove dynamic values from the output. We'll still see PASS.
+        ('+ "(" + startingTime[time] + ")"', ''),
+        ('\r\n', '\n'),                           # Convert to *NIX format.
+]
+
+for directory_to_copy in directories_to_copy:
+    os.makedirs(os.path.join(destination_directory, directory_to_copy))
+    os.chdir(source_directory)
+    for root, dirs, files in os.walk(directory_to_copy):
+        for dirname in directories_to_ignore:
+            if dirname in dirs:
+                dirs.remove(dirname)
+        for dirname in dirs:
+            os.makedirs(os.path.join(destination_directory, root, dirname))
+        for filename in files:
+            with open(os.path.join(source_directory, root, filename), 'r') as in_file:
+                with open(os.path.join(destination_directory, root, filename), 'w') as out_file:
+                    for line in in_file:
+                        for to_find, replace_with in replacements:
+                            line = line.replace(to_find, replace_with)
+                        assert 'w3c-test.org' not in line, 'Imported test must not depend on live site. Bad line: "%s"' % line
+                        out_file.write(line)

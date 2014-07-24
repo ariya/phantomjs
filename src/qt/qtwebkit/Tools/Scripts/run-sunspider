@@ -1,0 +1,126 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2007 Apple Inc. All rights reserved.
+# Copyright (C) 2007 Eric Seidel <eric@webkit.org>
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+# PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+# OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+
+use strict;
+use FindBin;
+use Getopt::Long qw(:config pass_through);
+use lib $FindBin::Bin;
+use webkitdirs;
+use POSIX;
+
+# determine configuration, but default to "Release" instead of last-used configuration
+setConfiguration("Release");
+setConfiguration();
+my $configuration = configuration();
+
+my $root;
+my $testRuns = 10; # This number may be different from what sunspider defaults to (that's OK)
+my $runInstruments = 0;
+my $suite = "";
+my $ubench = 0;
+my $v8suite = 0;
+my $parseonly = 0;
+my $setBaseline = 0;
+my $showHelp = 0;
+my $testsPattern;
+my $noBuild = 0;
+
+my $programName = basename($0);
+my $usage = <<EOF;
+Usage: $programName [options] [options to pass to build system]
+  --help            Show this help message
+  --set-baseline    Set baseline for future comparisons
+  --root            Path to root tools build
+  --runs            Number of times to run tests (default: $testRuns)
+  --tests           Only run tests matching provided pattern
+  --instruments     Sample with the Mac OS X "Instruments" tool (Time Profile) (implies --runs=1)
+  --suite           Select a specific benchmark suite. The default is sunspider-0.9.1
+  --ubench          Use microbenchmark suite instead of regular tests. Same as --suite=ubench
+  --v8-suite        Use the V8 benchmark suite. Same as --suite=v8-v4
+  --parse-only      Use the parse-only benchmark suite. Same as --suite=parse-only
+  --no-build        Do not try to build JSC before running the tests.
+EOF
+
+GetOptions('root=s' => sub { my ($x, $value) = @_; $root = $value; setConfigurationProductDir(Cwd::abs_path($root)); },
+           'runs=i' => \$testRuns,
+           'set-baseline' => \$setBaseline,
+           'instruments' => \$runInstruments,
+           'suite=s' => \$suite,
+           'ubench' => \$ubench,
+           'v8-suite' => \$v8suite,
+           'parse-only' => \$parseonly,
+           'tests=s' => \$testsPattern,
+           'help' => \$showHelp,
+           'no-build' => \$noBuild);
+
+if ($showHelp) {
+   print STDERR $usage;
+   exit 1;
+}
+
+sub buildJSC
+{
+    if (!defined($root)){
+        push(@ARGV,  "--" . $configuration);
+        
+        chdirWebKit();
+        my $buildResult = system currentPerlPath(), "Tools/Scripts/build-jsc", @ARGV;
+        if ($buildResult) {
+            print STDERR "Compiling jsc failed!\n";
+            exit exitStatus($buildResult);
+        }
+    }
+}
+
+sub setupEnvironmentForExecution($)
+{
+    my ($productDir) = @_;
+    print "Starting sunspider with DYLD_FRAMEWORK_PATH set to point to built JavaScriptCore in $productDir.\n";
+    $ENV{DYLD_FRAMEWORK_PATH} = $productDir;
+    # FIXME: Other platforms may wish to augment this method to use LD_LIBRARY_PATH, etc.
+}
+
+unless ($noBuild) {
+    buildJSC();
+}
+
+chdirWebKit();
+chdir("PerformanceTests/SunSpider");
+
+my $productDir = jscProductDir();
+
+setupEnvironmentForExecution($productDir);
+my @args = ("--shell", jscPath($productDir), "--runs", $testRuns);
+# This code could be removed if we chose to pass extra args to sunspider instead of Xcode
+push @args, "--set-baseline" if $setBaseline;
+push @args, "--instruments" if $runInstruments;
+push @args, "--suite=${suite}" if $suite;
+push @args, "--ubench" if $ubench;
+push @args, "--v8-suite" if $v8suite;
+push @args, "--parse-only" if $parseonly;
+push @args, "--tests", $testsPattern if $testsPattern;
+
+exec currentPerlPath(), "./sunspider", @args;

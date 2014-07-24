@@ -1,0 +1,190 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+#ifndef DO_NO_IMPORTS
+import "oaidl.idl";
+import "ocidl.idl";
+import "IWebNotification.idl";
+import "DOMCore.idl";
+import "DOMCSS.idl";
+import "DOMRange.idl";
+import "IWebUndoManager.idl";
+import "IWebView.idl";
+#endif
+
+interface IDOMCSSStyleDeclaration;
+interface IDOMNode;
+interface IDOMRange;
+interface IWebView;
+interface IWebNotification;
+interface IWebUndoManager;
+
+typedef enum _WebViewInsertAction {
+    WebViewInsertActionTyped,
+    WebViewInsertActionPasted,
+    WebViewInsertActionDropped,
+} WebViewInsertAction;
+
+[
+    object,
+    oleautomation,
+    uuid(B0F960E7-FB81-447f-A958-E02DA02ADBB7),
+    pointer_default(unique)
+]
+interface IEnumSpellingGuesses : IUnknown
+{
+    HRESULT Next(ULONG celt, [out] BSTR* guess, [out] ULONG* pceltFetched);
+    HRESULT Skip(ULONG celt);
+    HRESULT Reset(void);
+    HRESULT Clone([out, retval] IEnumSpellingGuesses** ppenum);
+};
+
+[
+    object,
+    oleautomation,
+    uuid(8B95C1B3-E1B3-4f97-80D6-2240417E3E0C),
+    pointer_default(unique)
+]
+interface IWebGrammarDetail : IUnknown
+{
+    HRESULT location([out, retval] int* value);
+    HRESULT length([out, retval] int* value);
+    HRESULT userDescription([out, retval] BSTR* value);
+    HRESULT guesses([out, retval] IEnumSpellingGuesses** guesses);
+}
+
+[
+    object,
+    oleautomation,
+    uuid(FABCC69A-5917-4242-A19A-42E8B62227A7),
+    pointer_default(unique)
+]
+interface IEnumWebGrammarDetails : IUnknown
+{
+    HRESULT Next(ULONG celt, [out] IWebGrammarDetail** detail, [out] ULONG* pceltFetched);
+    HRESULT Skip(ULONG celt);
+    HRESULT Reset(void);
+    HRESULT Clone([out, retval] IEnumSpellingGuesses** ppenum);
+};
+
+/*
+    @interface NSObject (WebViewEditingDelegate)
+*/
+[
+    object,
+    oleautomation,
+    uuid(2C75A1E3-EE9D-45c8-A385-19DE68AC5675),
+    pointer_default(unique)
+]
+interface IWebEditingDelegate : IUnknown
+{
+    /*
+        - (BOOL)webView:(WebView *)webView shouldBeginEditingInDOMRange:(DOMRange *)range;
+    */
+    HRESULT shouldBeginEditingInDOMRange([in] IWebView* webView, [in] IDOMRange* range, [out, retval] BOOL* result);
+
+    /*
+        - (BOOL)webView:(WebView *)webView shouldEndEditingInDOMRange:(DOMRange *)range;
+    */
+    HRESULT shouldEndEditingInDOMRange([in] IWebView* webView, [in] IDOMRange* range, [out, retval] BOOL* result);
+
+    /*
+        - (BOOL)webView:(WebView *)webView shouldInsertNode:(DOMNode *)node replacingDOMRange:(DOMRange *)range givenAction:(WebViewInsertAction)action;
+    */
+    HRESULT shouldInsertNode([in] IWebView* webView, [in] IDOMNode* node, [in] IDOMRange* range, [in] WebViewInsertAction action);
+
+    /*
+        - (BOOL)webView:(WebView *)webView shouldInsertText:(NSString *)text replacingDOMRange:(DOMRange *)range givenAction:(WebViewInsertAction)action;
+    */
+    HRESULT shouldInsertText([in] IWebView* webView, [in] BSTR text, [in] IDOMRange* range, [in] WebViewInsertAction action, [out, retval] BOOL* result);
+
+    /*
+        - (BOOL)webView:(WebView *)webView shouldDeleteDOMRange:(DOMRange *)range;
+    */
+    HRESULT shouldDeleteDOMRange([in] IWebView* webView, [in] IDOMRange* range, [out, retval] BOOL* result);
+
+    /*
+        - (BOOL)webView:(WebView *)webView shouldChangeSelectedDOMRange:(DOMRange *)currentRange toDOMRange:(DOMRange *)proposedRange affinity:(NSSelectionAffinity)selectionAffinity stillSelecting:(BOOL)flag;
+    */
+    HRESULT shouldChangeSelectedDOMRange([in] IWebView* webView, [in] IDOMRange* currentRange, [in] IDOMRange* proposedRange, [in] WebSelectionAffinity selectionAffinity, [in] BOOL stillSelecting, [out, retval] BOOL* result);
+    /*
+        - (BOOL)webView:(WebView *)webView shouldApplyStyle:(DOMCSSStyleDeclaration *)style toElementsInDOMRange:(DOMRange *)range;
+    */
+    HRESULT shouldApplyStyle([in] IWebView* webView, [in] IDOMCSSStyleDeclaration* style, [in] IDOMRange* range, [out, retval] BOOL* result);
+
+    /*
+        - (BOOL)webView:(WebView *)webView shouldChangeTypingStyle:(DOMCSSStyleDeclaration *)currentStyle toStyle:(DOMCSSStyleDeclaration *)proposedStyle;
+    */
+    HRESULT shouldChangeTypingStyle([in] IWebView* webView, [in] IDOMCSSStyleDeclaration* currentStyle, [in] IDOMCSSStyleDeclaration* proposedStyle, [out, retval] BOOL* result);
+
+    /*
+        - (BOOL)webView:(WebView *)webView doCommandBySelector:(SEL)selector;
+    */
+    HRESULT doPlatformCommand([in] IWebView* webView, [in] BSTR command, [out, retval] BOOL* result);
+
+    /*
+        - (void)webViewDidBeginEditing:(NSNotification *)notification;
+    */
+    HRESULT webViewDidBeginEditing([in] IWebNotification* notification);
+
+    /*
+        - (void)webViewDidChange:(NSNotification *)notification;
+    */
+    HRESULT webViewDidChange([in] IWebNotification* notification);
+
+    /*
+        - (void)webViewDidEndEditing:(NSNotification *)notification;
+    */
+    HRESULT webViewDidEndEditing([in] IWebNotification* notification);
+
+    /*
+        - (void)webViewDidChangeTypingStyle:(NSNotification *)notification;
+    */
+    HRESULT webViewDidChangeTypingStyle([in] IWebNotification* notification);
+
+    /*
+        - (void)webViewDidChangeSelection:(NSNotification *)notification;
+    */
+    HRESULT webViewDidChangeSelection([in] IWebNotification* notification);
+
+    /*
+        - (NSUndoManager *)undoManagerForWebView:(WebView *)webView;
+    */
+    HRESULT undoManagerForWebView([in] IWebView* webView, [out, retval] IWebUndoManager** undoManager);
+
+    HRESULT ignoreWordInSpellDocument([in] IWebView* view, [in] BSTR word);
+    HRESULT learnWord([in] BSTR word);
+    HRESULT checkSpellingOfString([in] IWebView* view, [in] LPCTSTR text, [in] int length, [out] int* misspellingLocation, [out] int* misspellingLength);
+    HRESULT checkGrammarOfString([in] IWebView* view, [in] LPCTSTR text, [in] int length, [out] IEnumWebGrammarDetails** grammarDetails, [out] int* badGrammarLocation, [out] int* badGrammarLength);
+    HRESULT updateSpellingUIWithGrammarString([in] BSTR string, [in] int location, [in] int length, [in] BSTR userDescription, [in] BSTR* guesses, [in] int guessesCount);
+    HRESULT updateSpellingUIWithMisspelledWord([in] BSTR word);
+    HRESULT showSpellingUI([in] BOOL show);
+    HRESULT spellingUIIsShowing([out, retval] BOOL* result);
+    HRESULT guessesForWord([in] BSTR word, [out, retval] IEnumSpellingGuesses** guesses);
+    HRESULT closeSpellDocument([in] IWebView* view);
+    HRESULT sharedSpellCheckerExists([out, retval] BOOL* exists);
+    HRESULT preflightChosenSpellServer();
+    HRESULT updateGrammar();
+}

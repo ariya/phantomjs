@@ -1,0 +1,108 @@
+/*
+ * Copyright (C) 2009, 2010, 2011, 2012 Research In Motion Limited. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
+textarea {
+    font-family: monospace;
+}
+
+select {
+    border-radius: 0;
+}
+
+select[size="0"],
+select[size="1"] {
+    border-radius: 0;
+}
+
+::-webkit-validation-bubble-message {
+    padding-left: 10px;
+    padding-right: 10px;
+    background: #fafafa;
+    border-color: #ffffff;
+    border-width: 1px;
+    box-shadow: 2px 2px 4px rgba(100,100,100,0.3), 0 0 4px rgba(100,100,100,0.6);
+    -webkit-border-radius: 4px;
+    top: -1px;
+}
+
+::-webkit-validation-bubble-arrow {
+    left: 40px;
+    top: 3px;
+    background: #fafafa;
+    border-color: #ffffff;
+    border-width: 1px;
+    box-shadow: 0 0 4px rgba(100,100,100,0.6);
+}
+
+::-webkit-validation-bubble-heading {
+    font-weight: normal;
+}
+
+
+/* Suggestion Box */
+
+input::-webkit-suggestion-dropdown-box {
+    position: absolute;
+    z-index: 2147483647;
+    opacity: 0.98;
+    max-height: 200px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    border: 1px solid #e0e0e0;
+    border-top: none;
+    background-color: #fcfcfc;
+    -webkit-box-shadow: 0px 5px 5px -2px #606060 inset;
+    -webkit-box-shadow: 2px 0px 8px -5px #AEAEAE;
+}
+
+input::-webkit-suggestion-dropdown-box-item {
+    display: block;
+    width: 100%;
+    padding: 10px 5px;
+    color: #363636;
+    text-decoration: none;
+    border-bottom: 1px solid #e8e8e8;
+    text-overflow: -blackberry-fade;
+    overflow: hidden;
+}
+
+input::-webkit-suggestion-prefix-text {
+    font-weight: bold;
+}
+
+input::-webkit-suggestion-dropdown-box-item-last {
+    display: block;
+    width: 100%;
+    padding: 10px 5px;
+    color: #363636;
+    text-decoration: none;
+    text-overflow: -blackberry-fade;
+    overflow: hidden;
+    border-bottom: none;
+}
+
+input[type="date"], input[type="datetime"], input[type="datetime-local"], input[type="time"], input[type="month"] {
+    font-family: "Slate Pro";
+    -webkit-appearance: button;
+    text-align: center;
+    width:auto;
+}
+
+input::-webkit-date-and-time-value {
+    margin: 1px 6px 1px 6px;
+}

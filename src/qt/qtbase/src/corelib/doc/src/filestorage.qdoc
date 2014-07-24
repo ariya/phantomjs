@@ -1,0 +1,109 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+\page io-functions.html
+\title File and Datastream Functions
+
+The QIODevice class is the base interface class of all I/O devices in
+\l {Qt Core}.  QIODevice provides both a common implementation and an
+abstract interface for devices that support reading and writing of blocks
+of data. The device can be a memory buffer, a file, or a datastream.
+
+Some subclasses like QFile have been implemented using a memory buffer for
+intermediate storing of data. This speeds up programs by reducing
+read/write operations. Buffering makes functions like getChar() and putChar()
+fast, as they can operate on the memory buffer instead of directly on the
+device itself.
+
+The QFile class provides functions for reading from and writing to files.
+A QFile may be used by itself or, more conveniently, with a QTextStream or
+QDataStream.
+
+QBuffer allows you to access a QByteArray using the QIODevice interface.
+The QByteArray is treated just as a standard random-accessed file.
+An example:
+
+     QBuffer buffer;
+     char ch;
+
+     buffer.open(QBuffer::ReadWrite);
+     buffer.write("Qt rocks!");
+     buffer.seek(0);
+     buffer.getChar(&ch);  // ch == 'Q'
+     buffer.getChar(&ch);  // ch == 't'
+     buffer.getChar(&ch);  // ch == ' '
+     buffer.getChar(&ch);  // ch == 'r'
+
+Call open() to open the buffer. Then call write() or putChar() to write to
+the buffer, and read(), readLine(), readAll(), or getChar() to read from it.
+size() returns the current size of the buffer, and you can seek to arbitrary
+positions in the buffer by calling seek(). When you are done with accessing
+the buffer, call close().
+
+The QDataStream class provides serialization of binary data to a QIODevice.
+A data stream is a binary stream of encoded information which is 100% inde-
+pendent of the host computer's operating system, CPU or byte order. For
+example, a data stream that is written by a PC under Windows can be read
+by a Sun SPARC running Solaris. You can also use a data stream to read/write
+raw unencoded binary data.
+
+For more details on the datatypes that QDataStream can serialize, see
+{Serializing Qt Data Types}.
+
+The QTextStream class provides a convenient interface for reading and
+writing text. QTextStream can operate on a QIODevice, a QByteArray or
+a QString. Using QTextStream's streaming operators, you can conveniently read
+and write words, lines and numbers. It's also common to use QTextStream to
+read console input and write console output.
+
+There are three general ways to use QTextStream when reading text files:
+
+\list
+    \li Chunk by chunk, by calling readLine() or readAll().
+    \li Word by word. QTextStream supports streaming into QStrings, QByteArrays
+        and char* buffers. Words are delimited by space, and leading white space
+        is automatically skipped.
+    \li Character by character, by streaming into QChar or char types. This
+        method is often used for convenient input handling when parsing files,
+        independent of character encoding and end-of-line semantics. To skip
+        white space, call skipWhiteSpace().
+\endlist
+
+QByteArray can be used to store both raw bytes (including \c{\0}) and traditional
+8-bit '\\0'-terminated strings. Using QByteArray is much more convenient
+than using const char *. It always ensures that the data is followed by a '\\0'
+terminator, and uses \l{Implicit Sharing}{implicitly shared classes} (copy-on-write)
+to reduce memory usage and avoid needless copying of data.
+
+In addition to QByteArray, Qt also provides the QString class to store string
+data. For most purposes, QString is the most appropriate class to use. It stores
+16-bit Unicode characters. It is, however, a good idea to use QByteArray when you
+need to store raw binary data, and when memory conservation is critical (for
+example, with Qt for Embedded Linux).
+
+*/

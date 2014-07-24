@@ -1,0 +1,97 @@
+# This file is loaded by qmake right after loading the actual project file.
+
+contains(TEMPLATE, ".*(lib|app)"):CONFIG += have_target
+
+!have_target:!force_qt: CONFIG -= qt
+
+load(resolve_config)
+
+exclusive_builds: load(exclusive_builds_post)
+
+# If the TARGET looks like a path, split it into DESTDIR and the resulting TARGET
+target_dir_part = $$dirname(TARGET)
+!isEmpty(target_dir_part) {
+    isEmpty(DESTDIR): \
+        DESTDIR = $$target_dir_part
+    else: \
+        DESTDIR = $$DESTDIR/$$target_dir_part
+
+    TARGET = $$basename(TARGET)
+    DESTDIR = $$clean_path($$DESTDIR)
+}
+
+QT_BREAKPAD_ROOT_PATH = $$(QT_BREAKPAD_ROOT_PATH)
+!isEmpty(QT_BREAKPAD_ROOT_PATH): \   # quick test first whether requested ...
+        !static:release:have_target: \   # is it applicable?
+        !contains(TARGET, .*phony_target.*): \   # monster hack, you don't really see this here, right? ;)
+        system($$QT_BREAKPAD_ROOT_PATH/qtbreakpadsymbols --breakpad-exists) {    # do we really have it?
+    CONFIG += breakpad force_debug_info
+    CONFIG -= no_debug_info separate_debug_info
+}
+
+force_debug_info|debug: \
+    CONFIG += debug_info
+
+force_debug_info {
+    QMAKE_CFLAGS_RELEASE = $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
+    QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CXXFLAGS_RELEASE_WITH_DEBUGINFO
+    QMAKE_LFLAGS_RELEASE = $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
+}
+
+optimize_full {
+    !isEmpty(QMAKE_CFLAGS_OPTIMIZE):!isEmpty(QMAKE_CFLAGS_OPTIMIZE_FULL)  {
+        QMAKE_CFLAGS_RELEASE -= $$QMAKE_CFLAGS_OPTIMIZE
+        QMAKE_CXXFLAGS_RELEASE -= $$QMAKE_CFLAGS_OPTIMIZE
+        QMAKE_CFLAGS_RELEASE += $$QMAKE_CFLAGS_OPTIMIZE_FULL
+        QMAKE_CXXFLAGS_RELEASE += $$QMAKE_CFLAGS_OPTIMIZE_FULL
+    }
+}
+
+debug {
+    QMAKE_CFLAGS += $$QMAKE_CFLAGS_DEBUG
+    QMAKE_CXXFLAGS += $$QMAKE_CXXFLAGS_DEBUG
+    QMAKE_OBJECTIVE_CFLAGS += $$QMAKE_OBJECTIVE_CFLAGS_DEBUG
+    QMAKE_LFLAGS += $$QMAKE_LFLAGS_DEBUG
+    QMAKE_LIBFLAGS += $$QMAKE_LIBFLAGS_DEBUG
+} else {
+    QMAKE_CFLAGS += $$QMAKE_CFLAGS_RELEASE
+    QMAKE_CXXFLAGS += $$QMAKE_CXXFLAGS_RELEASE
+    QMAKE_OBJECTIVE_CFLAGS += $$QMAKE_OBJECTIVE_CFLAGS_RELEASE
+    QMAKE_LFLAGS += $$QMAKE_LFLAGS_RELEASE
+    QMAKE_LIBFLAGS += $$QMAKE_LIBFLAGS_RELEASE
+}
+
+dll:win32: QMAKE_LFLAGS += $$QMAKE_LFLAGS_DLL
+static:mac: QMAKE_LFLAGS += $$QMAKE_LFLAGS_STATIC_LIB
+staticlib:unix {
+    QMAKE_CFLAGS += $$QMAKE_CFLAGS_STATIC_LIB
+    QMAKE_CXXFLAGS += $$QMAKE_CXXFLAGS_STATIC_LIB
+}
+
+incredibuild_xge {
+    CONFIG -= incredibuild_xge
+    CONFIG = incredibuild_xge $$CONFIG
+}
+
+silent {
+    # Ensure that we process silent.prf last, as it will mangle QMAKE_CXX
+    # and friends in a way that some of the other features (sdk.prf and
+    # simd.prf eg) do not handle.
+    CONFIG -= silent
+    CONFIG = silent $$CONFIG
+}
+
+breakpad {
+    load(resolve_target)
+    DEBUGFILENAME = $$shell_quote($$shell_path($$QMAKE_RESOLVED_TARGET))
+    PROJECTPATH = $$shell_quote($$shell_path($$OUT_PWD))
+
+    !isEmpty(QMAKE_POST_LINK):QMAKE_POST_LINK = $$QMAKE_POST_LINK$$escape_expand(\\n\\t)
+    QMAKE_POST_LINK = $$QMAKE_POST_LINK$$quote($${QT_BREAKPAD_ROOT_PATH}$${QMAKE_DIR_SEP}qtbreakpadsymbols $$DEBUGFILENAME $$PROJECTPATH)
+    !isEmpty(QMAKE_STRIP):QMAKE_POST_LINK = $$QMAKE_POST_LINK$$escape_expand(\\n\\t)$$quote($$QMAKE_STRIP $$DEBUGFILENAME)
+}
+
+!precompile_header: SOURCES += $$NO_PCH_SOURCES
+
+QMAKE_INCDIR += $$QMAKE_INCDIR_POST
+QMAKE_LIBDIR += $$QMAKE_LIBDIR_POST

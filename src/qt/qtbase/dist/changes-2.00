@@ -1,0 +1,151 @@
+Qt 2.0 introduces a wide range of major new features as well as
+substantial improvements over the 1.x series.  The documentation has
+been significally extended and improved.
+
+This file will only give an overview of the main changes since version
+1.44.  A complete list would simply be too large to be useful.  For
+more detail see the online documentation which is included in this
+distribution, and also available on http://qt.nokia.com/doc/
+
+The Qt version 2.x series is not binary compatible with the 1.x
+series.  This means programs compiled with Qt version 1.x must be
+recompiled to work with Qt 2.0.
+
+Qt 2.0 is mostly, but not completely, source compatible with Qt 1.x.
+See the document "Porting from Qt 1.x to Qt 2.0" in the Online
+Reference Documentation for information on how to port an existing Qt
+1.x-based program to Qt 2.0.  Note in particular the automatic porting
+script included - it does a lot of the work for you.
+
+As for 1.x, the API and functionality of Qt is completely portable
+between Microsoft Windows and X11.  And between Windows 95, 98 and NT:
+Unlike most toolkits, Qt lets a single executable work on all three.
+
+****************************************************************************
+* 			   New major features				   *
+****************************************************************************
+
+
+* Support for international software development:
+    QTranslator and the QObject::tr() function
+    QTextCodec (and subclasses)
+    QString is now a 16-bit Unicode string with good support for
+	legacy 8-bit interoperation. (The old 8-bit string class
+	from Qt 1.x has been renamed to QCString.)
+    QChar - a Unicode character
+
+* Rich Text
+    QTextView - formatted text and images
+    QTextBrowser - navigate formatted text and images
+    QStyleSheet - define your own XML formatting tags
+    QSimpleRichText - display rich text anywhere
+
+* Convenient and powerful new collection classes:
+    QMap<Key,Type> - QDict with arbitrary keys
+    QValueList<Type> - QList of types other than pointers
+    QStringList - QValueList<QString> with helper functions
+
+* Dialogs
+    QColorDialog - user picks a color
+    QFontDialog - user picks a font
+    QWizard - framework for leading users through steps
+
+* Layout
+    QGrid/QHBox/QVBox - grid and boxes of widgets automatically assembled
+    QHGroupBox/QVGroupBox - easy framed groups of widgets
+    QSizePolicy - a widget's abilities to change size in different ways
+
+* Custom layouts
+    New, much simpler and more powerful API for creating custom layouts
+
+* PNG Support
+    PNG support is now included in the core library
+
+* Support for generalized configurable GUI styles:
+    QStyle and subclasses
+
+* Session management
+    QSessionManager - saving state when the system shuts down
+
+* Extended coordinate system
+    QPoint, QPointArray, QSize and QRect now have 32-bit coordinates
+
+* Cleaner namespace
+    Global functions, enums and macros now either start with a 'q' or
+    have been moved into the new namespace class "Qt"
+
+****************************************************************************
+* 			     List of removed classes			   *
+****************************************************************************
+
+* QGManager
+    Use the new custom layout API.
+
+* QPointVal, QPointData
+    Use QPoint.
+
+* QUrlDrag
+    Changed to QUriDrag
+
+* QWindow
+    Use QWidget
+
+****************************************************************************
+* 			     List of new classes			   *
+****************************************************************************
+
+* QCDEStyle
+* QChar
+* QColorDialog
+* QCommonStyle
+* QConstString
+* QCString
+* QDragEnterEvent
+* QDragLeaveEvent
+* QDropSite
+* QFontDialog
+* QGLayoutIterator
+* QGrid
+* QHBox
+* QHButtonGroup
+* QHGroupBox
+* QHideEvent
+* QLayoutItem
+* QLayoutIterator
+* QMimeSource
+* QMimeSourceFactory
+* QMotifStyle
+* QPlatinumStyle
+* QSessionManager
+* QShowEvent
+* QSimpleRichText
+* QSizeGrip
+* QSizePolicy
+* QSortedList
+* QSpacerItem
+* QStringList
+* QStyle
+* QStyleSheet
+* QStyleSheetItem
+* Qt
+* QTab
+* QTabWidget
+* QTextBrowser
+* QTextCodec
+* QTextDecoder
+* QTextEncoder
+* QTextIStream
+* QTextOStream
+* QTextView
+* QTranslator
+* QUriDrag
+* QVBox
+* QVButtonGroup
+* QVGroupBox
+* QWheelEvent
+* QWidgetItem
+* QWindowsStyle
+* QWizard
+
+For details, see e.g http://qt.nokia.com/doc/qcdestyle.html (or any
+other class name, lowercased).

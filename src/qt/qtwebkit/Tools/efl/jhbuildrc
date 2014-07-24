@@ -1,0 +1,80 @@
+#!/usr/bin/env python
+# Copyright (C) 2011 Igalia S.L.
+# Copyright (C) 2012 Intel Corporation
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+import multiprocessing
+import sys
+
+__efl_tools_directory = os.path.abspath(os.path.dirname(__file__))
+sys.path = [__efl_tools_directory] + sys.path
+import common
+
+build_policy = 'updated'
+
+# FIXME: move shared parts into ../jhbuild folder.
+
+__moduleset_file_uri = 'file://' + os.path.join(__efl_tools_directory, 'jhbuild.modules')
+__extra_modulesets = os.environ.get("WEBKIT_EXTRA_MODULESETS", "").split(",")
+moduleset = [ __moduleset_file_uri, ]
+if __extra_modulesets != ['']:
+    moduleset.extend(__extra_modulesets)
+
+__extra_modules = os.environ.get("WEBKIT_EXTRA_MODULES", "").split(",")
+modules = [ 'webkitefl-testing-dependencies', ]
+if __extra_modules != ['']:
+    modules.extend(__extra_modules)
+
+if os.environ.has_key('WEBKIT_OUTPUTDIR'):
+    checkoutroot = os.path.abspath(os.path.join(os.environ['WEBKIT_OUTPUTDIR'], 'Dependencies', 'Source'))
+    prefix = os.path.abspath(os.path.join(os.environ['WEBKIT_OUTPUTDIR'], 'Dependencies', 'Root'))
+else:
+    checkoutroot = os.path.abspath(common.top_level_path('WebKitBuild','Dependencies', 'Source'))
+    prefix = os.path.abspath(common.top_level_path('WebKitBuild','Dependencies', 'Root'))
+
+nonotify = True
+notrayicon = True
+
+if 'NUMBER_OF_PROCESSORS' in os.environ:
+    jobs = os.environ['NUMBER_OF_PROCESSORS']
+
+# Use system libraries while building.
+if use_lib64:
+    _libdir = 'lib64'
+else:
+    _libdir = 'lib'
+addpath('PKG_CONFIG_PATH', os.path.join(os.sep, 'usr', _libdir, 'pkgconfig'))
+addpath('PKG_CONFIG_PATH', os.path.join(os.sep, 'usr', 'share', 'pkgconfig'))
+
+addpath('XDG_DATA_DIRS', '/usr/share')
+addpath('XDG_CONFIG_DIRS', '/etc/xdg')
+
+addpath('CMAKE_PREFIX_PATH', prefix)
+
+# jhbuild installs libraries into lib64/ by default when building on
+# 64-bit Linux installations, while CMake does not look for libraries
+# in lib64/ if /etc/debian_version exists. For now we just pass the
+# lib64/ directory to the CMAKE_LIBRARY_PATH environment variable to
+# make sure the libraries installed by jhbuild are found by CMake on
+# Debian-based systems as well.
+if use_lib64:
+    addpath('CMAKE_LIBRARY_PATH', os.path.join(prefix, _libdir))
+
+partial_build = False
+
+# Avoid runtime conflicts with GStreamer system-wide plugins. We want
+# to use only the plugins we build in JHBuild.
+os.environ['GST_PLUGIN_SYSTEM_PATH'] = ''

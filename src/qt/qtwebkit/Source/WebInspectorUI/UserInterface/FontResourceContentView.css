@@ -1,0 +1,104 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.content-view.resource.font {
+    display: -webkit-flex;
+
+    -webkit-justify-content: center;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    display: -webkit-flex;
+
+    -webkit-justify-content: center;
+}
+
+.content-view.resource.font .preview {
+    font-size: 72px;
+    font-family: serif;
+
+    white-space: nowrap;
+
+ /* A border is used instead of padding or margin so when there is scrolling
+    overflow there will be space on all sides. It also avoids having to account
+    for the padding/margin in FontResourceContentView.siteToFit. */
+    border: 15px solid transparent;
+
+    margin: auto 0;
+}
+
+.content-view.resource.font .preview > .line {
+    border-left: 1px solid lightgrey;
+    border-right: 1px solid lightgrey;
+
+    margin-top: -1px; /* Causes adjacent .line elements to share one border instead of doubling up. */
+}
+
+.content-view.resource.font .preview > .line > .content {
+    display: inline-block;
+
+    width: 100%;
+
+    text-align: center;
+    text-rendering: optimizeLegibility;
+
+    -webkit-user-select: text;
+    cursor: text;
+}
+
+.content-view.resource.font .preview > .line > .metric {
+    display: inline-block;
+
+    width: 100%;
+    height: 1px;
+
+    margin-right: -100%; /* Causes this element to be zero width and draw behind the text. */
+}
+
+.content-view.resource.font .metric.top {
+    vertical-align: top;
+    background-color: lightgrey;
+}
+
+.content-view.resource.font .metric.baseline {
+    vertical-align: baseline;
+    background-color: lightblue;
+}
+
+.content-view.resource.font .metric.middle {
+    vertical-align: middle;
+    background-color: lightgreen;
+}
+
+.content-view.resource.font .metric.xheight {
+    vertical-align: 1ex;
+    background-color: pink;
+}
+
+.content-view.resource.font .metric.bottom {
+    vertical-align: bottom;
+    background-color: lightgrey;
+}

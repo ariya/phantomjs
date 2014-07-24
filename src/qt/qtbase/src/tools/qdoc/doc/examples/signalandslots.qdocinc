@@ -1,0 +1,9 @@
+\section1 Signals and Slots
+
+Signals and slots are used for communication between objects. The signals and
+slots mechanism is a central feature of Qt and probably the part that differs
+most from the features provided by other frameworks.
+
+\section2 Introduction
+
+In GUI programming, when we ...

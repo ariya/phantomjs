@@ -1,0 +1,606 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>FreeType-2.3.12 API Reference</title>
+<style type="text/css">
+  body { font-family: Verdana, Geneva, Arial, Helvetica, serif;
+         color: #000000;
+         background: #FFFFFF; }
+
+  p { text-align: justify; }
+  h1 { text-align: center; }
+  li { text-align: justify; }
+  td { padding: 0 0.5em 0 0.5em; }
+  td.left { padding: 0 0.5em 0 0.5em;
+            text-align: left; }
+
+  a:link { color: #0000EF; }
+  a:visited { color: #51188E; }
+  a:hover { color: #FF0000; }
+
+  span.keyword { font-family: monospace;
+                 text-align: left;
+                 white-space: pre;
+                 color: darkblue; }
+
+  pre.colored { color: blue; }
+
+  ul.empty { list-style-type: none; }
+</style>
+</head>
+<body>
+
+<table align=center><tr><td><font size=-1>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-1>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+<center><h1>FreeType-2.3.12 API Reference</h1></center>
+
+<center><h1>
+Scanline Converter
+</h1></center>
+<h2>Synopsis</h2>
+<table align=center cellspacing=5 cellpadding=0 border=0>
+<tr><td></td><td><a href="#FT_Raster">FT_Raster</a></td><td></td><td><a href="#FT_RASTER_FLAG_XXX">FT_RASTER_FLAG_XXX</a></td><td></td><td><a href="#FT_Raster_SetModeFunc">FT_Raster_SetModeFunc</a></td></tr>
+<tr><td></td><td><a href="#FT_Span">FT_Span</a></td><td></td><td><a href="#FT_Raster_Params">FT_Raster_Params</a></td><td></td><td><a href="#FT_Raster_RenderFunc">FT_Raster_RenderFunc</a></td></tr>
+<tr><td></td><td><a href="#FT_SpanFunc">FT_SpanFunc</a></td><td></td><td><a href="#FT_Raster_NewFunc">FT_Raster_NewFunc</a></td><td></td><td><a href="#FT_Raster_Funcs">FT_Raster_Funcs</a></td></tr>
+<tr><td></td><td><a href="#FT_Raster_BitTest_Func">FT_Raster_BitTest_Func</a></td><td></td><td><a href="#FT_Raster_DoneFunc">FT_Raster_DoneFunc</a></td><td></td><td></td></tr>
+<tr><td></td><td><a href="#FT_Raster_BitSet_Func">FT_Raster_BitSet_Func</a></td><td></td><td><a href="#FT_Raster_ResetFunc">FT_Raster_ResetFunc</a></td><td></td><td></td></tr>
+</table><br><br>
+
+<table align=center width="87%"><tr><td>
+<p>This section contains technical definitions.</p>
+</td></tr></table><br>
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Raster">FT_Raster</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_IMAGE_H (freetype/ftimage.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">struct</span> FT_RasterRec_*  <b>FT_Raster</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A handle (pointer) to a raster object. Each object can be used independently to convert an outline into a bitmap or pixmap.</p>
+</td></tr></table><br>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Span">FT_Span</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_IMAGE_H (freetype/ftimage.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">struct</span>  FT_Span_
+  {
+    <span class="keyword">short</span>           x;
+    <span class="keyword">unsigned</span> <span class="keyword">short</span>  len;
+    <span class="keyword">unsigned</span> <span class="keyword">char</span>   coverage;
+
+  } <b>FT_Span</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A structure used to model a single span of gray (or black) pixels when rendering a monochrome or anti-aliased bitmap.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>fields</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>x</b></td><td>
+<p>The span's horizontal start position.</p>
+</td></tr>
+<tr valign=top><td><b>len</b></td><td>
+<p>The span's length in pixels.</p>
+</td></tr>
+<tr valign=top><td><b>coverage</b></td><td>
+<p>The span color/coverage, ranging from 0 (background) to 255 (foreground). Only used for anti-aliased rendering.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>This structure is used by the span drawing callback type named <a href="ft2-raster.html#FT_SpanFunc">FT_SpanFunc</a> which takes the y&nbsp;coordinate of the span as a a parameter.</p>
+<p>The coverage value is always between 0 and 255. If you want less gray values, the callback function has to reduce them.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_SpanFunc">FT_SpanFunc</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_IMAGE_H (freetype/ftimage.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">void</span>
+  (*<b>FT_SpanFunc</b>)( <span class="keyword">int</span>             y,
+                  <span class="keyword">int</span>             count,
+                  <span class="keyword">const</span> <a href="ft2-raster.html#FT_Span">FT_Span</a>*  spans,
+                  <span class="keyword">void</span>*           user );
+
+#define FT_Raster_Span_Func  <b>FT_SpanFunc</b>
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A function used as a call-back by the anti-aliased renderer in order to let client applications draw themselves the gray pixel spans on each scan line.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>y</b></td><td>
+<p>The scanline's y&nbsp;coordinate.</p>
+</td></tr>
+<tr valign=top><td><b>count</b></td><td>
+<p>The number of spans to draw on this scanline.</p>
+</td></tr>
+<tr valign=top><td><b>spans</b></td><td>
+<p>A table of &lsquo;count&rsquo; spans to draw on the scanline.</p>
+</td></tr>
+<tr valign=top><td><b>user</b></td><td>
+<p>User-supplied data that is passed to the callback.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>This callback allows client applications to directly render the gray spans of the anti-aliased bitmap to any kind of surfaces.</p>
+<p>This can be used to write anti-aliased outlines directly to a given background bitmap, and even perform translucency.</p>
+<p>Note that the &lsquo;count&rsquo; field cannot be greater than a fixed value defined by the &lsquo;FT_MAX_GRAY_SPANS&rsquo; configuration macro in &lsquo;ftoption.h&rsquo;. By default, this value is set to&nbsp;32, which means that if there are more than 32&nbsp;spans on a given scanline, the callback is called several times with the same &lsquo;y&rsquo; parameter in order to draw all callbacks.</p>
+<p>Otherwise, the callback is only called once per scan-line, and only for those scanlines that do have &lsquo;gray&rsquo; pixels on them.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Raster_BitTest_Func">FT_Raster_BitTest_Func</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_IMAGE_H (freetype/ftimage.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">int</span>
+  (*<b>FT_Raster_BitTest_Func</b>)( <span class="keyword">int</span>    y,
+                             <span class="keyword">int</span>    x,
+                             <span class="keyword">void</span>*  user );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>THIS TYPE IS DEPRECATED. DO NOT USE IT.</p>
+<p>A function used as a call-back by the monochrome scan-converter to test whether a given target pixel is already set to the drawing &lsquo;color&rsquo;. These tests are crucial to implement drop-out control per-se the TrueType spec.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>y</b></td><td>
+<p>The pixel's y&nbsp;coordinate.</p>
+</td></tr>
+<tr valign=top><td><b>x</b></td><td>
+<p>The pixel's x&nbsp;coordinate.</p>
+</td></tr>
+<tr valign=top><td><b>user</b></td><td>
+<p>User-supplied data that is passed to the callback.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>1&nbsp;if the pixel is &lsquo;set&rsquo;, 0&nbsp;otherwise.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Raster_BitSet_Func">FT_Raster_BitSet_Func</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_IMAGE_H (freetype/ftimage.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">void</span>
+  (*<b>FT_Raster_BitSet_Func</b>)( <span class="keyword">int</span>    y,
+                            <span class="keyword">int</span>    x,
+                            <span class="keyword">void</span>*  user );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>THIS TYPE IS DEPRECATED. DO NOT USE IT.</p>
+<p>A function used as a call-back by the monochrome scan-converter to set an individual target pixel. This is crucial to implement drop-out control according to the TrueType specification.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>y</b></td><td>
+<p>The pixel's y&nbsp;coordinate.</p>
+</td></tr>
+<tr valign=top><td><b>x</b></td><td>
+<p>The pixel's x&nbsp;coordinate.</p>
+</td></tr>
+<tr valign=top><td><b>user</b></td><td>
+<p>User-supplied data that is passed to the callback.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>1&nbsp;if the pixel is &lsquo;set&rsquo;, 0&nbsp;otherwise.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_RASTER_FLAG_XXX">FT_RASTER_FLAG_XXX</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_IMAGE_H (freetype/ftimage.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+#define <a href="ft2-raster.html#FT_RASTER_FLAG_XXX">FT_RASTER_FLAG_DEFAULT</a>  0x0
+#define <a href="ft2-raster.html#FT_RASTER_FLAG_XXX">FT_RASTER_FLAG_AA</a>       0x1
+#define <a href="ft2-raster.html#FT_RASTER_FLAG_XXX">FT_RASTER_FLAG_DIRECT</a>   0x2
+#define <a href="ft2-raster.html#FT_RASTER_FLAG_XXX">FT_RASTER_FLAG_CLIP</a>     0x4
+
+  /* deprecated */
+#define ft_raster_flag_default  <a href="ft2-raster.html#FT_RASTER_FLAG_XXX">FT_RASTER_FLAG_DEFAULT</a>
+#define ft_raster_flag_aa       <a href="ft2-raster.html#FT_RASTER_FLAG_XXX">FT_RASTER_FLAG_AA</a>
+#define ft_raster_flag_direct   <a href="ft2-raster.html#FT_RASTER_FLAG_XXX">FT_RASTER_FLAG_DIRECT</a>
+#define ft_raster_flag_clip     <a href="ft2-raster.html#FT_RASTER_FLAG_XXX">FT_RASTER_FLAG_CLIP</a>
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A list of bit flag constants as used in the &lsquo;flags&rsquo; field of a <a href="ft2-raster.html#FT_Raster_Params">FT_Raster_Params</a> structure.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>values</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>FT_RASTER_FLAG_DEFAULT</b></td><td>
+<p>This value is 0.</p>
+</td></tr>
+<tr valign=top><td><b>FT_RASTER_FLAG_AA</b></td><td>
+<p>This flag is set to indicate that an anti-aliased glyph image should be generated. Otherwise, it will be monochrome (1-bit).</p>
+</td></tr>
+<tr valign=top><td><b>FT_RASTER_FLAG_DIRECT</b></td><td>
+<p>This flag is set to indicate direct rendering. In this mode, client applications must provide their own span callback. This lets them directly draw or compose over an existing bitmap. If this bit is not set, the target pixmap's buffer <i>must</i> be zeroed before rendering.</p>
+<p>Note that for now, direct rendering is only possible with anti-aliased glyphs.</p>
+</td></tr>
+<tr valign=top><td><b>FT_RASTER_FLAG_CLIP</b></td><td>
+<p>This flag is only used in direct rendering mode. If set, the output will be clipped to a box specified in the &lsquo;clip_box&rsquo; field of the <a href="ft2-raster.html#FT_Raster_Params">FT_Raster_Params</a> structure.</p>
+<p>Note that by default, the glyph bitmap is clipped to the target pixmap, except in direct rendering mode where all spans are generated if no clipping box is set.</p>
+</td></tr>
+</table>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Raster_Params">FT_Raster_Params</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_IMAGE_H (freetype/ftimage.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">struct</span>  FT_Raster_Params_
+  {
+    <span class="keyword">const</span> <a href="ft2-basic_types.html#FT_Bitmap">FT_Bitmap</a>*        target;
+    <span class="keyword">const</span> <span class="keyword">void</span>*             source;
+    <span class="keyword">int</span>                     flags;
+    <a href="ft2-raster.html#FT_SpanFunc">FT_SpanFunc</a>             gray_spans;
+    <a href="ft2-raster.html#FT_SpanFunc">FT_SpanFunc</a>             black_spans;  /* doesn't work! */
+    <a href="ft2-raster.html#FT_Raster_BitTest_Func">FT_Raster_BitTest_Func</a>  bit_test;     /* doesn't work! */
+    <a href="ft2-raster.html#FT_Raster_BitSet_Func">FT_Raster_BitSet_Func</a>   bit_set;      /* doesn't work! */
+    <span class="keyword">void</span>*                   user;
+    <a href="ft2-basic_types.html#FT_BBox">FT_BBox</a>                 clip_box;
+
+  } <b>FT_Raster_Params</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A structure to hold the arguments used by a raster's render function.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>fields</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>target</b></td><td>
+<p>The target bitmap.</p>
+</td></tr>
+<tr valign=top><td><b>source</b></td><td>
+<p>A pointer to the source glyph image (e.g., an <a href="ft2-outline_processing.html#FT_Outline">FT_Outline</a>).</p>
+</td></tr>
+<tr valign=top><td><b>flags</b></td><td>
+<p>The rendering flags.</p>
+</td></tr>
+<tr valign=top><td><b>gray_spans</b></td><td>
+<p>The gray span drawing callback.</p>
+</td></tr>
+<tr valign=top><td><b>black_spans</b></td><td>
+<p>The black span drawing callback. UNIMPLEMENTED!</p>
+</td></tr>
+<tr valign=top><td><b>bit_test</b></td><td>
+<p>The bit test callback. UNIMPLEMENTED!</p>
+</td></tr>
+<tr valign=top><td><b>bit_set</b></td><td>
+<p>The bit set callback. UNIMPLEMENTED!</p>
+</td></tr>
+<tr valign=top><td><b>user</b></td><td>
+<p>User-supplied data that is passed to each drawing callback.</p>
+</td></tr>
+<tr valign=top><td><b>clip_box</b></td><td>
+<p>An optional clipping box. It is only used in direct rendering mode. Note that coordinates here should be expressed in <i>integer</i> pixels (and not in 26.6 fixed-point units).</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>An anti-aliased glyph bitmap is drawn if the <a href="ft2-raster.html#FT_RASTER_FLAG_XXX">FT_RASTER_FLAG_AA</a> bit flag is set in the &lsquo;flags&rsquo; field, otherwise a monochrome bitmap is generated.</p>
+<p>If the <a href="ft2-raster.html#FT_RASTER_FLAG_XXX">FT_RASTER_FLAG_DIRECT</a> bit flag is set in &lsquo;flags&rsquo;, the raster will call the &lsquo;gray_spans&rsquo; callback to draw gray pixel spans, in the case of an aa glyph bitmap, it will call &lsquo;black_spans&rsquo;, and &lsquo;bit_test&rsquo; and &lsquo;bit_set&rsquo; in the case of a monochrome bitmap. This allows direct composition over a pre-existing bitmap through user-provided callbacks to perform the span drawing/composition.</p>
+<p>Note that the &lsquo;bit_test&rsquo; and &lsquo;bit_set&rsquo; callbacks are required when rendering a monochrome bitmap, as they are crucial to implement correct drop-out control as defined in the TrueType specification.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Raster_NewFunc">FT_Raster_NewFunc</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_IMAGE_H (freetype/ftimage.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">int</span>
+  (*<b>FT_Raster_NewFunc</b>)( <span class="keyword">void</span>*       memory,
+                        <a href="ft2-raster.html#FT_Raster">FT_Raster</a>*  raster );
+
+#define FT_Raster_New_Func  <b>FT_Raster_NewFunc</b>
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A function used to create a new raster object.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>memory</b></td><td>
+<p>A handle to the memory allocator.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>output</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>raster</b></td><td>
+<p>A handle to the new raster object.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>Error code. 0&nbsp;means success.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>The &lsquo;memory&rsquo; parameter is a typeless pointer in order to avoid un-wanted dependencies on the rest of the FreeType code. In practice, it is an <a href="ft2-system_interface.html#FT_Memory">FT_Memory</a> object, i.e., a handle to the standard FreeType memory allocator. However, this field can be completely ignored by a given raster implementation.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Raster_DoneFunc">FT_Raster_DoneFunc</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_IMAGE_H (freetype/ftimage.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">void</span>
+  (*<b>FT_Raster_DoneFunc</b>)( <a href="ft2-raster.html#FT_Raster">FT_Raster</a>  raster );
+
+#define FT_Raster_Done_Func  <b>FT_Raster_DoneFunc</b>
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A function used to destroy a given raster object.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>raster</b></td><td>
+<p>A handle to the raster object.</p>
+</td></tr>
+</table>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Raster_ResetFunc">FT_Raster_ResetFunc</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_IMAGE_H (freetype/ftimage.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">void</span>
+  (*<b>FT_Raster_ResetFunc</b>)( <a href="ft2-raster.html#FT_Raster">FT_Raster</a>       raster,
+                          <span class="keyword">unsigned</span> <span class="keyword">char</span>*  pool_base,
+                          <span class="keyword">unsigned</span> <span class="keyword">long</span>   pool_size );
+
+#define FT_Raster_Reset_Func  <b>FT_Raster_ResetFunc</b>
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>FreeType provides an area of memory called the &lsquo;render pool&rsquo;, available to all registered rasters. This pool can be freely used during a given scan-conversion but is shared by all rasters. Its content is thus transient.</p>
+<p>This function is called each time the render pool changes, or just after a new raster object is created.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>raster</b></td><td>
+<p>A handle to the new raster object.</p>
+</td></tr>
+<tr valign=top><td><b>pool_base</b></td><td>
+<p>The address in memory of the render pool.</p>
+</td></tr>
+<tr valign=top><td><b>pool_size</b></td><td>
+<p>The size in bytes of the render pool.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>Rasters can ignore the render pool and rely on dynamic memory allocation if they want to (a handle to the memory allocator is passed to the raster constructor). However, this is not recommended for efficiency purposes.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Raster_SetModeFunc">FT_Raster_SetModeFunc</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_IMAGE_H (freetype/ftimage.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">int</span>
+  (*<b>FT_Raster_SetModeFunc</b>)( <a href="ft2-raster.html#FT_Raster">FT_Raster</a>      raster,
+                            <span class="keyword">unsigned</span> <span class="keyword">long</span>  mode,
+                            <span class="keyword">void</span>*          args );
+
+#define FT_Raster_Set_Mode_Func  <b>FT_Raster_SetModeFunc</b>
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>This function is a generic facility to change modes or attributes in a given raster. This can be used for debugging purposes, or simply to allow implementation-specific &lsquo;features&rsquo; in a given raster module.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>raster</b></td><td>
+<p>A handle to the new raster object.</p>
+</td></tr>
+<tr valign=top><td><b>mode</b></td><td>
+<p>A 4-byte tag used to name the mode or property.</p>
+</td></tr>
+<tr valign=top><td><b>args</b></td><td>
+<p>A pointer to the new mode/property to use.</p>
+</td></tr>
+</table>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Raster_RenderFunc">FT_Raster_RenderFunc</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_IMAGE_H (freetype/ftimage.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">int</span>
+  (*<b>FT_Raster_RenderFunc</b>)( <a href="ft2-raster.html#FT_Raster">FT_Raster</a>                raster,
+                           <span class="keyword">const</span> <a href="ft2-raster.html#FT_Raster_Params">FT_Raster_Params</a>*  params );
+
+#define FT_Raster_Render_Func  <b>FT_Raster_RenderFunc</b>
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Invoke a given raster to scan-convert a given glyph image into a target bitmap.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>raster</b></td><td>
+<p>A handle to the raster object.</p>
+</td></tr>
+<tr valign=top><td><b>params</b></td><td>
+<p>A pointer to an <a href="ft2-raster.html#FT_Raster_Params">FT_Raster_Params</a> structure used to store the rendering parameters.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>Error code. 0&nbsp;means success.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>The exact format of the source image depends on the raster's glyph format defined in its <a href="ft2-raster.html#FT_Raster_Funcs">FT_Raster_Funcs</a> structure. It can be an <a href="ft2-outline_processing.html#FT_Outline">FT_Outline</a> or anything else in order to support a large array of glyph formats.</p>
+<p>Note also that the render function can fail and return a &lsquo;FT_Err_Unimplemented_Feature&rsquo; error code if the raster used does not support direct composition.</p>
+<p>XXX: For now, the standard raster doesn't support direct composition but this should change for the final release (see the files &lsquo;demos/src/ftgrays.c&rsquo; and &lsquo;demos/src/ftgrays2.c&rsquo; for examples of distinct implementations which support direct composition).</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Raster_Funcs">FT_Raster_Funcs</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_IMAGE_H (freetype/ftimage.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  <span class="keyword">typedef</span> <span class="keyword">struct</span>  FT_Raster_Funcs_
+  {
+    <a href="ft2-basic_types.html#FT_Glyph_Format">FT_Glyph_Format</a>        glyph_format;
+    <a href="ft2-raster.html#FT_Raster_NewFunc">FT_Raster_NewFunc</a>      raster_new;
+    <a href="ft2-raster.html#FT_Raster_ResetFunc">FT_Raster_ResetFunc</a>    raster_reset;
+    <a href="ft2-raster.html#FT_Raster_SetModeFunc">FT_Raster_SetModeFunc</a>  raster_set_mode;
+    <a href="ft2-raster.html#FT_Raster_RenderFunc">FT_Raster_RenderFunc</a>   raster_render;
+    <a href="ft2-raster.html#FT_Raster_DoneFunc">FT_Raster_DoneFunc</a>     raster_done;
+
+  } <b>FT_Raster_Funcs</b>;
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A structure used to describe a given raster class to the library.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>fields</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>glyph_format</b></td><td>
+<p>The supported glyph format for this raster.</p>
+</td></tr>
+<tr valign=top><td><b>raster_new</b></td><td>
+<p>The raster constructor.</p>
+</td></tr>
+<tr valign=top><td><b>raster_reset</b></td><td>
+<p>Used to reset the render pool within the raster.</p>
+</td></tr>
+<tr valign=top><td><b>raster_render</b></td><td>
+<p>A function to render a glyph into a given bitmap.</p>
+</td></tr>
+<tr valign=top><td><b>raster_done</b></td><td>
+<p>The raster destructor.</p>
+</td></tr>
+</table>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+</body>
+</html>

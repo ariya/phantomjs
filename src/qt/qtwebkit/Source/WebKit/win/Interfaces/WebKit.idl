@@ -1,0 +1,305 @@
+/*
+ * Copyright (C) 2006, 2007, 2008, 2009, 2010 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+cpp_quote("/*")
+cpp_quote(" * Copyright (C) 2006, 2007, 2008, 2009, 2010 Apple Inc. All rights reserved.")
+cpp_quote(" *")
+cpp_quote(" * Redistribution and use in source and binary forms, with or without")
+cpp_quote(" * modification, are permitted provided that the following conditions")
+cpp_quote(" * are met:")
+cpp_quote(" * 1. Redistributions of source code must retain the above copyright")
+cpp_quote(" *    notice, this list of conditions and the following disclaimer.")
+cpp_quote(" * 2. Redistributions in binary form must reproduce the above copyright")
+cpp_quote(" *    notice, this list of conditions and the following disclaimer in the")
+cpp_quote(" *    documentation and/or other materials provided with the distribution.")
+cpp_quote(" *")
+cpp_quote(" * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY")
+cpp_quote(" * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE")
+cpp_quote(" * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR")
+cpp_quote(" * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR")
+cpp_quote(" * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,")
+cpp_quote(" * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,")
+cpp_quote(" * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR")
+cpp_quote(" * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY")
+cpp_quote(" * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT")
+cpp_quote(" * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE")
+cpp_quote(" * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.")
+cpp_quote(" */")
+
+#include "autoversion.h"
+
+#define DO_NO_IMPORTS
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+import "AccessibleApplication.idl";
+
+#include "AccessibleComparable.idl"
+#include "AccessibilityDelegate.idl"
+#include "WebScrollbarTypes.idl"
+#include "JavaScriptCoreAPITypes.idl"
+#include "IWebScriptObject.idl"
+#include "DOMCSS.idl"
+#include "DOMCore.idl"
+#include "DOMEvents.idl"
+#include "DOMExtensions.idl"
+#include "DOMHTML.idl"
+#include "DOMPrivate.idl"
+#include "DOMRange.idl"
+#include "DOMWindow.idl"
+#include "IWebArchive.idl"
+#include "IWebBackForwardList.idl"
+#include "IWebBackForwardListPrivate.idl"
+#include "IWebCache.idl"
+#include "IWebCookieManager.idl"
+#include "IWebCoreStatistics.idl"
+#include "IWebDataSource.idl"
+#include "IWebDatabaseManager.idl"
+#include "IWebDesktopNotificationsDelegate.idl"
+#include "IWebDocument.idl"
+#include "IWebDownload.idl"
+#include "IWebEditingDelegate.idl"
+#include "IWebEmbeddedView.idl"
+#include "IWebError.idl"
+#include "IWebErrorPrivate.idl"
+#include "IWebFormDelegate.idl"
+#include "IWebFrame.idl"
+#include "IWebFrameLoadDelegate.idl"
+#include "IWebFrameLoadDelegatePrivate.idl"
+#include "IWebFrameLoadDelegatePrivate2.idl"
+#include "IWebFramePrivate.idl"
+#include "IWebFrameView.idl"
+#include "IWebGeolocationPolicyListener.idl"
+#include "IWebGeolocationPosition.idl"
+#include "IWebGeolocationProvider.idl"
+#include "IWebHTMLRepresentation.idl"
+#include "IWebHTTPURLResponse.idl"
+#include "IWebHistory.idl"
+#include "IWebHistoryDelegate.idl"
+#include "IWebHistoryItem.idl"
+#include "IWebHistoryItemPrivate.idl"
+#include "IWebHistoryPrivate.idl"
+#include "IWebIconDatabase.idl"
+#include "IWebInspector.idl"
+#include "IWebInspectorPrivate.idl"
+#include "IWebJavaScriptCollector.idl"
+#include "IWebKitStatistics.idl"
+#include "IWebMutableURLRequestPrivate.idl"
+#include "IWebNavigationData.idl"
+#include "IWebNotification.idl"
+#include "IWebNotificationCenter.idl"
+#include "IWebNotificationObserver.idl"
+#include "IWebPolicyDelegate.idl"
+#include "IWebPolicyDelegatePrivate.idl"
+#include "IWebPreferences.idl"
+#include "IWebPreferencesPrivate.idl"
+#include "IWebResource.idl"
+#include "IWebResourceLoadDelegate.idl"
+#include "IWebResourceLoadDelegatePrivate.idl"
+#include "IWebResourceLoadDelegatePrivate2.idl"
+#include "IWebScriptWorld.idl"
+#include "IWebScrollBarDelegatePrivate.idl"
+#include "IWebScrollBarPrivate.idl"
+#include "IWebSecurityOrigin.idl"
+#include "IWebSerializedJSValue.idl"
+#include "IWebSerializedJSValuePrivate.idl"
+#include "IWebTextRenderer.idl"
+#include "IWebUIDelegate.idl"
+#include "IWebUIDelegate2.idl"
+#include "IWebUIDelegatePrivate.idl"
+#include "IWebURLAuthenticationChallenge.idl"
+#include "IWebURLRequest.idl"
+#include "IWebMutableURLRequest.idl"
+#include "IWebURLResponse.idl"
+#include "IWebURLResponsePrivate.idl"
+#include "IWebUndoManager.idl"
+#include "IWebUndoTarget.idl"
+#include "IWebUserContentURLPattern.idl"
+#include "IWebView.idl"
+#include "IWebViewPrivate.idl"
+#include "IWebWorkersPrivate.idl"
+
+#define __TYPELIB_VERSION__ __BUILD_NUMBER_MAJOR__##.##__BUILD_NUMBER_MINOR__
+
+cpp_quote("void shutDownWebKit();")
+
+[
+    uuid(2a748656-625d-4207-b29f-40c95bfeb3a9),
+    helpstring("WebKit " __BUILD_NUMBER_SHORT__ " Type Library"),
+    version(__TYPELIB_VERSION__)
+]
+library WebKit
+{
+    // TLib : OLE Automation : {00020430-0000-0000-C000-000000000046}
+    importlib("STDOLE2.TLB");
+
+    [uuid(d6bca079-f61c-4e1e-b453-32a0477d02e3)]
+    coclass WebView {
+        [default] interface IWebView;
+        interface IWebIBActions;
+        interface IWebViewCSS;
+        interface IWebViewEditing;
+        interface IWebViewUndoableEditing;
+        interface IWebViewEditingActions;
+        interface IWebNotificationObserver;
+        interface IWebViewPrivate;
+    }
+
+    [uuid(66827ec1-3aef-4241-bac5-f776b44f030f)]
+    coclass WebIconDatabase {
+        [default] interface IWebIconDatabase;
+    }
+
+    [uuid(a062ecc3-bb1b-4694-a569-f59e0ad6be0c)]
+    coclass WebMutableURLRequest {
+        [default] interface IWebMutableURLRequest;
+    }
+
+    [uuid(ba590766-0a6f-46c7-b96e-743490d94cb7)]
+    coclass WebNotificationCenter {
+        [default] interface IWebNotificationCenter;
+    }
+
+    [uuid(a4b9b45d-949f-4c8c-9b92-6fbfcc1caaa2)]
+    coclass WebHistory {
+        [default] interface IWebHistory;
+    }
+
+    [uuid(dd653964-4d37-4fb2-9cb6-6a9a97719332)]
+    coclass CFDictionaryPropertyBag {
+        [default] interface IPropertyBag;
+    }
+
+    [uuid(6be190e9-1725-4e4a-88db-6a9fe242c9e5)]
+    coclass WebHistoryItem {
+        [default] interface IWebHistoryItem;
+    }
+
+    [uuid(f71071fd-a51b-4b69-9eb6-44374405e80c)]
+    coclass WebCache {
+        [default] interface IWebCache;
+    }
+
+    [uuid(1820D883-42FE-4b78-88C8-5456BB19D224)]
+    coclass WebJavaScriptCollector {
+        [default] interface IWebJavaScriptCollector;
+    }
+
+    [uuid(67B89F90-F778-438b-ABBF-34D1ACBF8651)]
+    coclass WebPreferences {
+        [default] interface IWebPreferences;
+    }
+
+    [uuid(E93AA8D7-F362-4a4a-A95D-325906BEB5F0)]
+    coclass WebKitStatistics {
+        [default] interface IWebKitStatistics;
+    }
+
+    [uuid(6C6AF3F9-36B4-4bf7-8BDE-74DCD4AD75A4)]
+    coclass WebError {
+        [default] interface IWebError;
+    }
+
+    [uuid(7433F53B-7FE9-484a-9432-72909457A646)]
+    coclass WebURLCredential {
+        [default] interface IWebURLCredential;
+    }
+
+    [uuid(C0F98BD9-3B1C-413d-904A-E2D1453EAF1F)]
+    coclass WebDownload {
+        [default] interface IWebDownload;
+    }
+
+    [uuid(2FB5499A-BB5D-4469-8517-789FEC8FD9BA)]
+    coclass WebURLRequest {
+        [default] interface IWebURLRequest;
+    }
+
+    [uuid(F366A6E8-E43C-4fd4-AAB0-8E6E79C73E6E)]
+    coclass WebURLProtectionSpace {
+        [default] interface IWebURLProtectionSpace;
+    }
+
+    [uuid(24A53AD5-AA9F-44e6-AA22-2C7C250B661A)]
+    coclass WebScrollBar {
+        [default] interface IWebScrollBarPrivate;
+    }
+
+    [uuid(AB201196-8DD2-4d45-AEBD-029B6A37AA27)]
+    coclass WebURLResponse {
+        [default] interface IWebURLResponse;
+    }
+
+    [uuid(24040cd6-aff4-4a51-9c8b-71539580ee76)]
+    coclass WebTextRenderer {
+        [default] interface IWebTextRenderer;
+    }
+
+    [uuid(C2A1BFC2-1E7C-49fe-8592-D0C7FB440BC0)]
+    coclass WebDatabaseManager {
+        [default] interface IWebDatabaseManager;
+    }
+
+    [uuid(1B63D781-9BC4-4a04-899F-C4B05BBD3BE5)]
+    coclass WebArchive{
+        [default] interface IWebArchive;
+    }
+
+    [uuid(96B93356-9D61-4b3f-A6CF-A78283AC9649)]
+    coclass WebCoreStatistics{
+        [default] interface IWebCoreStatistics;
+    }
+
+    [uuid(3F35F332-BB2B-49b3-AEDD-27B317687E07)]
+    coclass WebCookieManager{
+        [default] interface IWebCookieManager;
+    }
+
+    [uuid(0967AAFF-2FFE-4fcc-81F3-3FF2A9C6DCE2)]
+    coclass WebWorkersPrivate{
+        [default] interface IWebWorkersPrivate;
+    }
+
+    [uuid(D3C301EE-D59A-49c0-A43A-9EA01CDB1590)]
+    coclass WebScriptWorld {
+        [default] interface IWebScriptWorld;
+    }
+
+    [uuid(13C45703-A3B3-8797-276B-75632F6165C3)]
+    coclass WebSerializedJSValue {
+        [default] interface IWebSerializedJSValue;
+    }
+
+    [uuid(67712611-83CF-4703-89FC-07A0E2A19C0D)]
+    coclass WebGeolocationPosition {
+        [default] interface IWebGeolocationPosition;
+    }
+
+    [uuid(2D62AE25-DEAA-4945-A76E-CCE05E899664)]
+    coclass WebUserContentURLPattern {
+        [default] interface IWebUserContentURLPattern;
+    }
+}

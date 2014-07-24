@@ -1,0 +1,83 @@
+
+#global defaults
+qtPrepareTool(QMAKE_MOC, moc)
+isEmpty(MOC_DIR):MOC_DIR = .
+isEmpty(QMAKE_H_MOD_MOC):QMAKE_H_MOD_MOC = moc_
+isEmpty(QMAKE_EXT_CPP_MOC):QMAKE_EXT_CPP_MOC = .moc
+
+MOC_INCLUDEPATH =
+for (inc, INCLUDEPATH): \
+    MOC_INCLUDEPATH += $$absolute_path($$inc, $$_PRO_FILE_PWD_)
+!no_include_pwd:!isEqual(OUT_PWD, $$_PRO_FILE_PWD_): \
+    MOC_INCLUDEPATH += .
+MOC_INCLUDEPATH = $$QMAKESPEC $$_PRO_FILE_PWD_ $$MOC_INCLUDEPATH $$QMAKE_DEFAULT_INCDIRS
+
+# On Windows, put the includes into a .inc file which moc will read, if the project
+# has too many includes. We do this to overcome a command-line limit on Win < XP
+WIN_INCLUDETEMP=
+win32:count(MOC_INCLUDEPATH, 40, >) {
+    WIN_INCLUDETEMP = $$MOC_DIR/mocinclude.tmp
+
+    WIN_INCLUDETEMP_CONT =
+    for (inc, MOC_INCLUDEPATH): \
+        WIN_INCLUDETEMP_CONT += -I$$inc
+    write_file($$absolute_path($$WIN_INCLUDETEMP, $$OUT_PWD), WIN_INCLUDETEMP_CONT)|error("Aborting.")
+}
+
+defineReplace(mocCmdBase) {
+    RET =
+    !isEmpty(WIN_INCLUDETEMP) {
+        incvar = @$$WIN_INCLUDETEMP
+    } else {
+        incvar =
+        for (inc, MOC_INCLUDEPATH): \
+            incvar += -I$$shell_quote($$inc)
+        incvar += $$QMAKE_FRAMEWORKPATH_FLAGS
+    }
+    RET += $$QMAKE_MOC $(DEFINES) $$join(QMAKE_COMPILER_DEFINES, " -D", -D) $$incvar $$QMAKE_MOC_OPTIONS
+    return($$RET)
+}
+
+#moc headers
+moc_header.CONFIG = moc_verify
+moc_header.dependency_type = TYPE_C
+moc_header.commands = ${QMAKE_FUNC_mocCmdBase} ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+moc_header.output = $$MOC_DIR/$${QMAKE_H_MOD_MOC}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_CPP)}
+moc_header.input = HEADERS
+moc_header.variable_out = SOURCES
+moc_header.name = MOC ${QMAKE_FILE_IN}
+moc_header.depends += $$WIN_INCLUDETEMP
+silent:moc_header.commands = @echo moc ${QMAKE_FILE_IN} && $$moc_header.commands
+QMAKE_EXTRA_COMPILERS += moc_header
+INCREDIBUILD_XGE += moc_header
+
+#moc sources
+moc_source.CONFIG = no_link moc_verify
+moc_source.dependency_type = TYPE_C
+moc_source.commands = ${QMAKE_FUNC_mocCmdBase} ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+moc_source.output = $$MOC_DIR/$${QMAKE_CPP_MOD_MOC}${QMAKE_FILE_BASE}$${QMAKE_EXT_CPP_MOC}
+moc_source.input = SOURCES OBJECTIVE_SOURCES
+moc_source.name = MOC ${QMAKE_FILE_IN}
+moc_source.depends += $$WIN_INCLUDETEMP
+silent:moc_source.commands = @echo moc ${QMAKE_FILE_IN} && $$moc_source.commands
+QMAKE_EXTRA_COMPILERS += moc_source
+INCREDIBUILD_XGE += moc_source
+
+#make sure we can include these files
+INCLUDEPATH += $$absolute_path($$MOC_DIR, $$OUT_PWD)
+
+#auto depend on moc
+unix:!no_mocdepend {
+     moc_source.depends += $$first(QMAKE_MOC)
+     moc_header.depends += $$first(QMAKE_MOC)
+}
+
+#generate a mocclean
+build_pass|isEmpty(BUILDS):mocclean.depends = compiler_moc_header_clean compiler_moc_source_clean
+else:mocclean.CONFIG += recursive
+QMAKE_EXTRA_TARGETS += mocclean
+
+#generate a mocables
+build_pass|isEmpty(BUILDS):mocables.depends = compiler_moc_header_make_all compiler_moc_source_make_all
+else:mocables.CONFIG += recursive
+QMAKE_EXTRA_TARGETS += mocables

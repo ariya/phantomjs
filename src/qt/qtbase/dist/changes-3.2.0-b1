@@ -1,0 +1,296 @@
+
+Qt 3.2 introduces new features as well as many improvements over the
+3.1.x series. This file gives an overview of the main changes since
+version 3.1.2.  For more details, see the online documentation which
+is included in this distribution. The documentation is also available
+at http://qt.nokia.com/doc/
+
+The Qt version 3.2 series is binary compatible with the 3.1.x series.
+Applications compiled for 3.1 will continue to run with 3.2.
+
+****************************************************************************
+*			    General					   *
+****************************************************************************
+
+
+Qt library
+----------
+
+New classes have been added to the Qt Library including a
+class to add splash screens to applications (QSplashScreen), a toolbox
+widget that provides a column of tabbed widgets (QToolBox), and a
+class to manage per-thread data storage (QThreadStorage).
+
+The SQL module received a fair bit of attention this time. The most
+notable improvements include a native IBM DB2 driver, complete support
+for stored procedures including the possibility to access
+out-parameters, and native support for 64 bit fields without having to
+convert to or from strings. We also added support for setting
+connection parameters. This way you can, for example, conveniently
+open an SSL connection to a MySQL or PostgreSQL database. If you need
+even more customization, e.g. for an Oracle database, you can set up
+the connection yourself and instantiate a Qt driver object on top of
+it. An extended SQL cursor class has been added that makes it more
+convenient to display result sets from general SQL queries
+(QSqlSelectCursor). In addition, you can add custom database drivers
+without compiling them as plugins (see
+QSqlDatabase::registerSqlDriver()).
+
+QLineEdit, the one-line text editor, now supports validation input
+masks. The feature complements the previous QValidator concept and
+allows e.g. restriction of input to the IP address format (mask
+"990.990.990.990;_"), or to ISO date format (mask "0000-90-90;0").
+
+Qt's unicode code support has been extended. Most notably, full
+support for Indic scripts has been added, covering writing systems
+such as Devanagari, Tamil and Bengali. The group of right to left
+writing systems has been extended with support for Syriac. Both
+improvements are available on both Windows with Uniscribe installed,
+and on Unix/X11 when using XFT with OpenType fonts.
+
+All tool classes that support STL-like iterators with begin() and
+end(), contain two extra functions constBegin() and constEnd(). The
+const versions always return const iterators, and thus can be a little
+bit faster with Qt's implicitly shared containers.
+
+QPainter's complex drawText() function has been highly
+optimized. Despite its support for complex unicode scripts, it now
+performs better than its less unicode-capable counterpart in Qt 2.3.
+
+QPixmap now supports pixmaps with alpha channel (semi transparency) on
+all Windows versions except Windows 95 and Windows NT.
+
+The print dialog now supports "selection" as a print range as well as
+the possibility to enable/disable all different printer options
+individually.
+
+Many classes were improved; see the detailed overview that follows.
+
+Qt Motif Extension
+------------------
+
+Dialog handling has matured and has been extended since the
+extension's introduction in Qt 3.1.  The documentation and code
+examples have been improved, including a walkthrough that covers the
+complete migration of a real-world Motif example to Qt. The process
+contains four intermediate steps where the application utilizes both
+toolkits.
+
+ActiveQt Extension
+------------------
+
+Type handling has been extended on both the container and the server
+side. The new supported types are byte arrays and 64bit integers. The
+QAxServer module supports QObject subclasses as return and parameter
+types of slots, and allows error reporting through COM exceptions.
+The Designer integration has been extended to support property dialogs
+implemented by the control server.
+
+Qt Designer
+-----------
+
+The popup menu editor has been rewritten. The new editor provides the
+the ability to add, edit and remove menus and menu items directly in
+the menubar and in the popup menu. Navigation and editing can be done
+using either the mouse or the keyboard.
+
+The new QWidgetContainerPlugin class provides support for complex
+custom container widgets in Designer, such as the custom tab widget,
+etc.
+
+The property editor now allows editing of properties with or'd values
+(sets).
+
+Designer also supports the new QToolBox widget in a similar fashion to
+QTabWidget, etc.
+
+Qt Assistant
+------------
+
+Profiles have been introduced to allow applications to extend the use
+of Qt Assistant as a help system. Profiles describe the documentation
+to use so that only application specific documentation will be
+referenced in an end user installation. Profiles also allow some
+customization of the look in Qt Assistant. For detailed information,
+see the helpdemo example in $QTDIR/examples/helpdemo.
+
+Profiles replace the content files and categories system. The
+following command line options are removed since they no longer serve
+any purpose: addContentFile, removeContentFile, category, and
+disableFirstRun.
+
+Qt Assistant has multiple tabs for browsing, therefore enabling
+multiple pages to be browsed without opening a new window.
+
+It is possible to specify a default home page.
+
+It is possible to specify a PDF reader so that urls to PDF files can
+be opened from Qt Assistant.
+
+****************************************************************************
+*			   Library					   *
+****************************************************************************
+
+- QAction / QActionGroup
+	Simplified constructors so that it is no longer necessary to
+	specify texts for buttons and menu items separately.
+	For action groups, we fixed the enable/disable behavior. If
+	an action inside an action group is explicitly disabled, it is
+	no longer implicitly enabled together with the group.
+	This is identical to enabling/disabling widgets and their
+	children.
+
+- QApplication
+	Added the aboutQt() slot for convenience.
+
+- QAssistantClient
+	Added the new function, setArguments(), that invokes Qt
+	Assistant in different modes.
+
+- QAxBase
+	Added the new function, asVariant(), that passes a COM
+	object through dynamicCall().
+
+- QAxBindable
+	Added the new function, reportError(), that sends error
+	information to the ActiveX client.
+
+- QColor
+	Added the new static function, colorNames(), that retrieves a
+	list of all color names known to Qt.
+
+- QDeepCopy
+	Now also supports QDir, QFileInfo, and QStringList.
+
+- QDom
+	Now has long and ulong support for setAttribute() and
+	setAttributeNS().
+
+- QFont
+	Added the new properties: stretch and overline. Added the new
+	function, resolve(), that copies unspecified attributes from
+	one font to another.
+
+- QFontDataBase
+	Added a new overload for families() that restricts the
+	returned list to fonts supporting a specific QFont::Script,
+	e.g. QFont::Greek, QFont::Devanagari or QFont::Arabic.
+
+- QFontInfo / QFontMetrics
+	Added new constructors that force the info and metrics objects
+	to use a given QFont::Script.
+
+- QGLWidget
+	Added a new constructor that takes a QGLContext
+	parameter. Makes the undocumented setContext() obsolete.
+
+- QHeader
+	Added getters for the sort indicator (sortIndicatorSection()
+	and sortIndicatorOrder() ).
+
+- QImage
+	Added a new overload for save() that writes to a given
+	QIODevice*.
+
+- QListView
+	Added tristate support to check list items
+	(QCheckListItem::setTristate()). Added the new function,
+	setSelectionAnchor(), to set the list view's selection anchor
+	explicitly.
+
+- QLineEdit
+	Added input masks: setInputMask(), inputMask(), and
+	hasAcceptableInput().
+
+- QMessageBox
+	Added the new static function, question(), that complements
+	the existing information(), warning() and fatal() functions.
+
+- QMotifDialog [Qt Motif Extension]
+	Now has two distinct modes of operation: 1) it allows a Motif
+	dialog to have a Qt parent, and 2) it allows a Qt dialog to have
+	a Motif parent.
+
+- QPixmapCache
+	Added the new function, remove(), to explicitly remove a
+	pixmap from the cache.
+
+- QPrinter
+	Added the new functions: setPrintRange(), printRange(),
+	setOptionEnabled(), and optionEnabled(). For Windows only,
+	added the new function, setWinPageSize(), that allows setting
+	DEVMODE.dmPaperSize directly.
+
+- QPtrList
+	Added STL-like iterators with begin(), end(), and erase().
+
+- QScrollBar
+	Maintains a user defined size policy when the direction
+	changes.
+
+- QSplashScreen [new]
+	This new widget class provides a splash screen to be shown
+	during application startup.
+
+- QSplitter
+	Added the new properties: opaqueResize, childrenCollapsible,
+	and handleWidth.
+
+- QSqlError
+	Added a couple of convenience functions: text(), which returns
+	the concatenated database and driver texts. showMessage(),
+	which will pop up a QMessageBox with the text that text()
+	returns.
+
+- QSqlQuery
+	Added overloads for the bindValue() call which makes it
+	possible to specifiy what role a bound value should have: In,
+	Out or InOut.
+
+- QSqlSelectCursor [new]
+	This new QSqlCursor subclass provides browsing of general SQL
+	SELECT statements.
+
+- QString
+	Added 64 bit support. Added the new functions: multiArg(),
+	reserve(), capacity(), squeeze(). Added case insensitive
+	overloads for startsWith() and endsWidth().
+
+- QStringList
+	Added the new function gres().
+
+- QStyle
+	Added support for toolbox, header, MDI frame, table grid line
+	color, line edit password character, and message box question.
+
+- QSyntaxHighlighter
+	Added the new function, currentParagraph().
+
+- QTabWidget
+	Added support for custom widgets to be placed beside
+	the tab bar: setCornerWidget() and cornerWidget().
+
+- QTextEdit
+	In Log mode, added the new functions: setMaxLogLines() and
+	maxLogLines().
+
+- QThreadStorage [new]
+	This new tool class provides per-thread data storage, also
+	referred to as thread local storage or TLS.
+
+- QToolBox [new]
+	This new widget class provides a column of tabbed widgets, one
+	above the other, with the current page displayed below the
+	current tab.
+
+- QVariant
+	Added support for LongLong and ULongLong.
+
+- QWidget
+	Added a new widget flag, WNoAutoErase, that combines the now
+	obsolete WResizeNoErase and WRepaintNoErase flags.
+
+- QWidgetContainerPlugin [new]
+	This new plugin class complements QWidgetPlugin for custom
+	container widgets, i.e. widgets that can host child
+	widgets.

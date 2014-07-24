@@ -1,0 +1,206 @@
+Qt 5.1.1 is a bug-fix release. It maintains both forward and backward
+compatibility (source and binary) with Qt 5.1.0.
+
+For more details, refer to the online documentation included in this
+distribution. The documentation is also available online:
+
+  http://qt-project.org/doc/qt-5.1/
+
+The Qt version 5.1 series is binary compatible with the 5.0.x series.
+Applications compiled for 5.0 will continue to run with 5.1.
+
+Some of the changes listed in this file include issue tracking numbers
+corresponding to tasks in the Qt Bug Tracker:
+
+  http://bugreports.qt-project.org/
+
+Each of these identifiers can be entered in the bug tracker to obtain more
+information about a particular change.
+
+
+****************************************************************************
+*                           General                                        *
+****************************************************************************
+
+ - Add support for Visual Studio 2013
+ - Remove obsolete 'register' C keyword
+ - Speed up font database loading with fontconfig
+ - [QTBUG-32284] Fix incomplete override of QIODevice::open in QProcess and QLocalSocket
+
+****************************************************************************
+*                          Library                                         *
+****************************************************************************
+
+QtCore
+------
+
+ - Add basic conversion functions from QVariant(QJsonValue)
+ - Fix crash when re-creating QThreadData after initially destroying it
+ - Fix the host_bins variable in the QtCore pkg-config file
+ - QUrl stringprep: fix handling of U+0080: it's prohibited
+ - QUrl stringprep: avoid recalculating the surrogates we already know
+ - QUrl stringprep: fix handling of prohibited characters
+ - QUrl stringprep: fix case folding from non-BMP to BMP
+ - QUrl stringprep: recalculate the current position if the size changes
+ - [QTBUG-24345] Prevent negative size in QBitArray, QVector and QVarLengthArray ctors
+ - [QTBUG-25732] Mention QRect's int min/max constraints in detailed description
+ - [QTBUG-29391] fix infinite loop in QProcessPrivate::drainOutputPipes
+ - [QTBUG-29391] QWinOverlappedIoNotifier: fix race condition
+ - [QTBUG-31341] Fix watch of files/folders with special characters
+ - [QTBUG-31606] Fix dead lock in the Qt event handling
+ - [QTBUG-31926] Fix the number precision in QJsonDocument.toJson() again
+ - [QTBUG-32100] Remove default argument from declarations of qHash as friend
+ - [QTBUG-32314] QDir::mkpath shouldn't fail if parent directory denies access
+ - [QTBUG-32354] fix endless loop in QProcess/Win drainOutputPipes
+ - [QTBUG-32500] Ensure that the user codecs are listed in QTextCodec::availableCodecs
+
+QtDBus
+------
+
+ - [QTBUG-27973] Fix disconnectFrom{Peer,Bus} when the connection failed
+ - [QTBUG-31932] Don't crash if the relayed signal was emitted from the wrong thread
+ - [QTBUG-32374] Fix QDBusAbstractInterface::isValid() for peer connections
+
+QtGui
+-----
+
+ - Restore smooth-scaled drawing of 0.5x-2.0x scaled glyphs in the GL engine
+ - QIcon: Avoid fetching twice the same pixmap
+ - Fix FBO restoring in QOpenGLTextureGlyphCache
+ - [QTBUG-28284] Set projection matrix for systems with OpenGL 3.1
+ - [QTBUG-31443] QPdfWriter: Fix setting of paper size
+ - [QTBUG-32193] REG: Fix crash when mixing projected/unprojected text painting
+ - [QTBUG-32433] Detect popup window correctly in modal window blocked handling
+
+QtNetwork
+---------
+
+ - Correct algorithm for digest auth when using the CONNECT verb
+ - Add reconnect attempts in more cases in QHttpNetworkConnectionChannel
+ - [QTBUG-32404] HTTP internals: do not access reply that was deleted already
+ - [QTBUG-32534] QHttpMultiPart: fix data corruption in readData method
+
+QtPrintSupport
+--------------
+
+ - [QTBUG-31790] Initialize UI of widget-based dialog.
+
+QtWidgets
+---------
+
+ - Display sizegrip on QMdiSubWindows, even on OS X 10.7 and later
+ - Check if widget inherits from QTextEdit when drawing the frame
+ - Fix QWidget::isActiveWindow for window containers
+ - Hide placeholder text when QLineEdit has preedit text
+ - [QTBUG-19036] Make *ItemBoundingRect modes work with custom shapes.
+ - [QTBUG-29945] Fix dropshadow and blur graphics effects
+ - [QTBUG-31044] QDockWidget: Keep position when undocking
+ - [QTBUG-31569] If a QWidget is ignored for auto-quit, ignore its corresponding QWindow
+ - [QTBUG-31664] Recognize separator item in QMenu
+ - [QTBUG-31904] Fix rotation of text in vertical QDockWidget titlebars in QFusionStyle
+ - [QTBUG-32054] Set correct cell when selecting custom color cell with arrow keys
+ - [QTBUG-32061] Fix the cursor position of an empty QLineEdit with a placeholder text
+ - [QTBUG-32177] Search toplevel when setting the active window from focus window
+ - [QTBUG-32260] Consider virtual screen when determining dock widget visibility
+
+
+****************************************************************************
+*                      Platform Specific Changes                           *
+****************************************************************************
+
+Qt for Linux
+------------
+
+ - XCB: Don't use Xlib's XBell() function
+ - XCB: Append 0-character to atom name string
+ - Resolve modifier mask conflicts on X11
+ - Fix system tray icon on X11
+ - [QTBUG-31418] Fix for when we don't have XSettings
+ - [QTBUG-32274] Fix handling of non-latin1 shortcuts
+
+Qt for Mac
+----------
+
+ - Disable window restoration for the Mac font panel
+ - Simplify qt_mac_cgimage_to_nsimage code
+ - QMacStyle: fix auto-default button animation
+ - Make the macx-xcode spec a wrapper around the default spec
+ - Scope cached Mac SDK tool values by mkspec
+ - Further followup to Q_OS_MACX changes
+ - Fix QSpinBox clipping issue on Mac when frame=false
+ - QMacStyle: enable scroll style changes for non-QScrollBars
+ - Support Mac key equivalent Cmd+Period
+ - Re-establish platform menu QObject hierarchy
+ - [QTBUG-28336] Fixed broken prl files in debug-and-release framework builds of qt
+ - [QTBUG-31477] Let Cocoa pick the right pixmap for menu item icons
+ - [QTBUG-31532] Don't update the menubar when popups are shown
+ - [QTBUG-31619] Cocoa save file dialog behavior fix
+ - [QTBUG-31819] Fix shared color panel usage
+ - [QTBUG-31562] Fix for OS X QFileDialog showing bundle as directory
+ - [QTBUG-32440] Avoid a potential crash in unignoredChildren
+ - [QTBUG-32831] Don't release the printer after using it to change a property
+
+Qt for Windows
+--------------
+
+ - Clear window under mouse in destruction of platform window
+ - Prevent activation of windows with Qt::WindowDoesNotAcceptFocus
+ - Better errorhandling for the fontengine on WINCE
+ - Windows: Synthesize expose event for shrinking windows
+ - Windows font database: Resolve aliases for extra fonts
+ - Bugfix QDesktopServices on Windows
+ - ActiveQt: Pass native parent handle property from widget to widget window
+ - REG: Fix character size when exporting PDF on Windows
+ - Fix crash caused by ~QWindowsWindow flushing the event queue
+ - Show native file dialog on Windows XP Professional x64 Edition
+ - Fix detection of synthesized mouse events for MSVC / 64bit
+ - Display a message box if platform plugin cannot be found
+ - Fix auto-enabling of windows style
+ - Fixes QKeyEvent::count() on Windows
+
+Qt for BlackBerry
+-----------------
+
+ - Disable xkbcommon when building for QNX from Windows
+ - [QTBUG-32385] Handle Qt::WindowDoesNotAcceptFocus correctly
+
+Qt for Android
+--------------
+
+ - Get SSL root certificates from TrustManager
+ - Adjust to new SDK layout on Windows
+ - Make PCRE's JIT work on Android devices
+
+Qt for iOS
+----------
+
+ - iOS: Make sure we're deleting framebuffers in the right context
+
+****************************************************************************
+*                          Tools                                           *
+****************************************************************************
+
+- configure
+
+ * [QTBUG-5366] Complain about bad arguments to -make/-nomake
+ * [QTBUG-21778] Catch accidental use of -no-make
+ * [QTBUG-28763] Don't enable EGL support if OpenGL is disabled
+
+- cmake config files
+
+ * Use absolute path in the /usr move workaround if -libdir is specified
+ * Always use forward slashes in paths passed to cmake
+ * Make clients use the QT_NO_DEBUG flag when using QtCore in release mode
+ * [QTBUG-32134] Add path to the headers in frameworks to the include dirs
+ * [QTBUG-32466] Don't check for the existence of private include directories
+
+- qmake
+
+ * [QTBUG-5301] basic manifest tool support in vc(x)proj generator
+ * [QTBUG-19352] Resolve output of .depend_command relative to $$OUT_PWD
+ * [QTBUG-29826] Only add the res_file to the generated files if there is no rc_file
+ * [QTBUG-29988] VPATH resolution: don't crash when $(FOO) expands to nothing
+ * [QTBUG-30993] Changed project dependencies for solution files
+ * [QTBUG-31877] Make $$list() more backwards-compatible regarding backslashes
+ * [QTBUG-31975] MANIFEST:NO is not written to vcproj
+ * [QTBUG-32326] Escape paths coming from prl files

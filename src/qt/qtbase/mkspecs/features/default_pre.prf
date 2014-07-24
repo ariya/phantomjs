@@ -1,0 +1,9 @@
+# This file is loaded by qmake right before each actual project file.
+# Note that evaluating variable assignments from the command line
+# still happens in between these two steps.
+
+load(exclusive_builds)
+CONFIG = \
+    lex yacc debug exceptions depend_includepath \
+    testcase_targets import_plugins import_qpa_plugin \
+    $$CONFIG

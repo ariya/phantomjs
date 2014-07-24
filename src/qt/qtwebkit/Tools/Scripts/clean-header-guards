@@ -1,0 +1,53 @@
+#!/usr/bin/ruby
+
+require 'find'
+require 'optparse'
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: clean-header-guards [options]"
+  
+  opts.on("--prefix [PREFIX]", "Append a header prefix to all guards") do |prefix|
+    options[:prefix] = prefix
+  end
+end.parse!
+
+IgnoredFilenamePatterns = [
+  # ignore headers which are known not to have guard
+  /WebCorePrefix/, 
+  /ForwardingHeaders/,
+  %r|bindings/objc|, 
+  /vcproj/, # anything inside a vcproj is in the windows wasteland
+  
+  # we don't own any of these headers
+  %r|icu/unicode|,
+  %r|platform/graphics/cairo|,
+  %r|platform/image-decoders|,
+  
+  /config.h/ # changing this one sounds scary
+].freeze
+
+IgnoreFileNamesPattern = Regexp.union(*IgnoredFilenamePatterns).freeze
+
+Find::find(".") do |filename|
+  next unless filename =~ /\.h$/
+  next if filename.match(IgnoreFileNamesPattern)
+  
+  File.open(filename, "r+") do |file|
+    contents = file.read
+    match_results = contents.match(/#ifndef (\S+)\n#define \1/s)
+    if match_results
+      current_guard = match_results[1]
+      new_guard = File.basename(filename).sub('.', '_')
+      new_guard = options[:prefix] + '_' + new_guard  if options[:prefix]
+      contents.gsub!(/#{current_guard}\b/, new_guard)
+    else
+      puts "Ignoring #{filename}, failed to find existing header guards."
+    end
+    tmp_filename = filename + ".tmp"
+    File.open(tmp_filename, "w+") do |new_file|
+      new_file.write(contents)
+    end
+    File.rename tmp_filename, filename
+  end
+end

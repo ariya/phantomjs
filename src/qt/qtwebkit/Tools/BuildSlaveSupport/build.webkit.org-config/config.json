@@ -1,0 +1,319 @@
+{
+    "slaves":     [ { "name": "test-slave", "platform": "*" },
+
+                    { "name": "apple-macpro-4", "platform": "mac-lion" },
+                    { "name": "apple-macpro-5", "platform": "mac-lion" },
+                    { "name": "apple-macpro-6", "platform": "mac-lion" },
+                    { "name": "apple-macpro-8", "platform": "mac-lion" },
+                    { "name": "apple-xserve-2", "platform": "mac-lion" },
+                    { "name": "apple-xserve-3", "platform": "mac-lion" },
+                    { "name": "apple-xserve-10", "platform": "mac-lion" },
+                    { "name": "apple-xserve-11", "platform": "mac-lion" },
+
+                    { "name": "apple-mini-201", "platform": "mac-mountainlion"},
+                    { "name": "apple-mini-202", "platform": "mac-mountainlion"},
+                    { "name": "apple-mini-203", "platform": "mac-mountainlion"},
+                    { "name": "apple-mini-204", "platform": "mac-mountainlion"},
+                    { "name": "apple-mini-205", "platform": "mac-mountainlion"},
+                    { "name": "apple-mini-206", "platform": "mac-mountainlion"},
+                    { "name": "apple-mini-207", "platform": "mac-mountainlion"},
+                    { "name": "apple-mini-208", "platform": "mac-mountainlion"},
+                    { "name": "apple-mini-209", "platform": "mac-mountainlion"},
+                    { "name": "apple-mini-210", "platform": "mac-mountainlion"},
+                    { "name": "apple-mini-218", "platform": "mac-mountainlion"},
+
+                    { "name": "apple-windows-1", "platform": "win"},
+                    { "name": "apple-windows-2", "platform": "win"},
+                    { "name": "apple-windows-3", "platform": "win"},
+                    { "name": "apple-windows-4", "platform": "win"},
+                    { "name": "apple-windows-5", "platform": "win"},
+                    { "name": "apple-windows-6", "platform": "win"},
+
+                    { "name": "gtk-linux-slave-1", "platform": "gtk"},
+                    { "name": "gtk-linux-slave-2", "platform": "gtk"},
+                    { "name": "gtk-linux-slave-3", "platform": "gtk"},
+                    { "name": "gtk-linux-slave-4", "platform": "gtk"},
+
+                    { "name": "szeged-linux-1", "platform": "qt-5.0-wk1"},
+                    { "name": "szeged-linux-2", "platform": "qt-5.0-wk1"},
+                    { "name": "szeged-linux-3", "platform": "qt-5.0-wk1"},
+                    { "name": "szeged-linux-4", "platform": "qt-arm"},
+                    { "name": "szeged-linux-5", "platform": "qt-5.0-wk2"},
+
+                    { "name": "szeged-windows-1", "platform": "qt-win"},
+                    { "name": "szeged-windows-2", "platform": "qt-win"},
+
+                    { "name": "oslo-mountainlion", "platform": "qt-5.0-mac-wk2"},
+
+                    { "name": "wincairo-1", "platform": "wincairo" },
+
+                    { "name": "wince-1", "platform": "wince" },
+
+                    { "name": "efl-linux-slave-1", "platform": "efl" },
+                    { "name": "efl-linux-slave-2", "platform": "efl" },
+                    { "name": "efl-linux-slave-3", "platform": "efl" },
+
+                    { "name": "mips-1", "platform": "qt-mipsel"},
+
+                    { "name": "sh4-linux-1", "platform": "qt-sh4"}
+                  ],
+
+    "builders":   [ { "name": "Apple Lion Debug (Build)", "type": "Build", "builddir": "lion-debug",
+                      "platform": "mac-lion", "configuration": "debug", "architectures": ["x86_64"],
+                      "triggers": ["lion-debug-tests-wk1", "lion-debug-tests-wk2"],
+                      "slavenames": ["apple-xserve-2", "apple-xserve-10"]
+                    },
+                    { "name": "Apple Lion Release (Build)", "type": "Build", "builddir": "lion-release",
+                      "platform": "mac-lion", "configuration": "release", "architectures": ["x86_64"],
+                      "triggers": ["lion-release-tests-wk1", "lion-release-tests-wk2", "lion-release-perf"],
+                      "slavenames": ["apple-xserve-3"]
+                    },
+                    { "name": "Apple Lion Debug WK1 (Tests)", "type": "Test", "builddir": "lion-debug-tests-wk1",
+                      "platform": "mac-lion", "configuration": "debug", "architectures": ["x86_64"],
+                      "slavenames": ["apple-macpro-4"]
+                    },
+                    { "name": "Apple Lion Debug WK2 (Tests)", "type": "TestWebKit2", "builddir": "lion-debug-tests-wk2",
+                      "platform": "mac-lion", "configuration": "debug", "architectures": ["x86_64"],
+                      "slavenames": ["apple-macpro-8"]
+                    },
+                    { "name": "Apple Lion Release WK1 (Tests)", "type": "Test", "builddir": "lion-release-tests-wk1",
+                      "platform": "mac-lion", "configuration": "release", "architectures": ["x86_64"],
+                      "slavenames": ["apple-macpro-5"]
+                    },
+                    { "name": "Apple Lion Release WK2 (Tests)", "type": "TestWebKit2", "builddir": "lion-release-tests-wk2",
+                      "platform": "mac-lion", "configuration": "release", "architectures": ["x86_64"],
+                      "slavenames": ["apple-macpro-6"]
+                    },
+                    {
+                      "name": "Apple Lion Release (Perf)", "type": "DownloadAndPerfTest", "builddir": "lion-release-perf-tests",
+                      "platform": "mac-lion", "configuration": "release", "architectures": ["x86_64"],
+                      "slavenames": ["apple-xserve-11"]
+                    },
+                    { "name": "Apple MountainLion (Leaks)", "type": "TestLeaks", "builddir": "mountainlion-leaks",
+                      "platform": "mac-mountainlion", "configuration": "debug", "architectures": ["x86_64"],
+                      "slavenames": ["apple-mini-201"]
+                    },
+                    { "name": "Apple MountainLion Debug (Build)", "type": "Build", "builddir": "mountainlion-debug",
+                      "platform": "mac-mountainlion", "configuration": "debug", "architectures": ["x86_64"],
+                      "triggers": ["mountainlion-debug-tests-wk1", "mountainlion-debug-tests-wk2", "mountainlion-leaks"],
+                      "slavenames": ["apple-mini-202", "apple-mini-203"]
+                    },
+                    { "name": "Apple MountainLion Release (Build)", "type": "Build", "builddir": "mountainlion-release",
+                      "platform": "mac-mountainlion", "configuration": "release", "architectures": ["x86_64"],
+                      "triggers": ["mountainlion-release-tests-wk1", "mountainlion-release-tests-wk2", "mountainlion-release-perf"],
+                      "slavenames": ["apple-mini-204"]
+                    },
+                    { "name": "Apple MountainLion Release (32-bit Build)", "type": "Build", "builddir": "mountainlion-32bit-release",
+                      "platform": "mac-mountainlion", "configuration": "release", "architectures": ["i386"],
+                      "slavenames": ["apple-mini-218"]
+                    },
+                    { "name": "Apple MountainLion Debug WK1 (Tests)", "type": "Test", "builddir": "mountainlion-debug-tests-wk1",
+                      "platform": "mac-mountainlion", "configuration": "debug", "architectures": ["x86_64"],
+                      "slavenames": ["apple-mini-205"]
+                    },
+                    { "name": "Apple MountainLion Debug WK2 (Tests)", "type": "TestWebKit2", "builddir": "mountainlion-debug-tests-wk2",
+                      "platform": "mac-mountainlion", "configuration": "debug", "architectures": ["x86_64"],
+                      "slavenames": ["apple-mini-206", "apple-mini-207"]
+                    },
+                    { "name": "Apple MountainLion Release WK1 (Tests)", "type": "Test", "builddir": "mountainlion-release-tests-wk1",
+                      "platform": "mac-mountainlion", "configuration": "release", "architectures": ["x86_64"],
+                      "slavenames": ["apple-mini-208"]
+                    },
+                    { "name": "Apple MountainLion Release WK2 (Tests)", "type": "TestWebKit2", "builddir": "mountainlion-release-tests-wk2",
+                      "platform": "mac-mountainlion", "configuration": "release", "architectures": ["x86_64"],
+                      "slavenames": ["apple-mini-209"]
+                    },
+                    {
+                      "name": "Apple MountainLion Release (Perf)", "type": "DownloadAndPerfTest", "builddir": "mountainlion-release-perf-tests",
+                      "platform": "mac-mountainlion", "configuration": "release", "architectures": ["x86_64"],
+                      "slavenames": ["apple-mini-210"]
+                    },
+                    {
+                      "name": "Apple Win Release (Build)", "type": "Build", "builddir": "win-release",
+                      "platform": "win", "configuration": "release", "architectures": ["i386"],
+                      "triggers": ["win-release-tests"],
+                      "slavenames": ["apple-windows-2"]
+                    },
+                    {
+                      "name": "Apple Win 7 Release (Tests)", "type": "Test", "builddir": "win-release-tests",
+                      "platform": "win", "configuration": "release", "architectures": ["i386"],
+                      "slavenames": ["apple-windows-5", "apple-windows-6"]
+                    },
+                    {
+                      "name": "Apple Win Debug (Build)", "type": "Build", "builddir": "win-debug",
+                      "platform": "win", "configuration": "debug", "architectures": ["i386"],
+                      "triggers": ["win-debug-tests"],
+                      "slavenames": ["apple-windows-1"]
+                    },
+                    {
+                      "name": "Apple Win 7 Debug (Tests)", "type": "Test", "builddir": "win-debug-tests",
+                      "platform": "win", "configuration": "debug", "architectures": ["i386"],
+                      "slavenames": ["apple-windows-3", "apple-windows-4"]
+                    },
+                    {
+                      "name": "GTK Linux 32-bit Release", "type": "BuildAndAPITest", "builddir": "gtk-linux-32-release",
+                      "platform": "gtk", "configuration": "release", "architectures": ["i386"],
+                      "slavenames": ["gtk-linux-slave-1"]
+                    },
+                    {
+                      "name": "GTK Linux 64-bit Release", "type": "BuildAndTest", "builddir": "gtk-linux-64-release",
+                      "platform": "gtk", "configuration": "release", "architectures": ["x86_64"],
+                      "triggers": ["gtk-linux-64-release-tests-wk2"],
+                      "slavenames": ["gtk-linux-slave-2"]
+                    },
+                    {
+                      "name": "GTK Linux 64-bit Debug WK1", "type": "BuildAndTestWebKit1Only", "builddir": "gtk-linux-64-debug-wk1",
+                      "platform": "gtk", "configuration": "debug", "architectures": ["x86_64"],
+                      "slavenames": ["gtk-linux-slave-3"]
+                    },
+                    {
+                      "name": "GTK Linux 64-bit Release WK2 (Tests)", "type": "TestWebKit2", "builddir": "gtk-linux-64-release-tests-wk2",
+                      "platform": "gtk", "configuration": "release", "architectures": ["x86_64"],
+                      "slavenames": ["gtk-linux-slave-4"]
+                    },
+                    {
+                      "name": "Qt Linux Release", "type": "BuildAndTest", "builddir": "qt-linux-release",
+                      "platform": "qt-5.0-wk1", "configuration": "release", "architectures": ["i386"],
+                      "SVNMirror": "svn://webkit.inf.u-szeged.hu/webkit/",
+                      "slavenames": ["szeged-linux-1"]
+                    },
+                    {
+                      "name": "Qt Linux Release minimal", "type": "Build", "builddir": "qt-linux-release-minimal",
+                      "SVNMirror": "svn://webkit.inf.u-szeged.hu/webkit/",
+                      "platform": "qt-5.0-wk1", "configuration": "release", "architectures": ["i386"],
+                      "slavenames": ["szeged-linux-2"]
+                    },
+                    {
+                      "name": "Qt Linux 64-bit Release (Perf)", "type": "BuildAndPerfTest", "builddir": "qt-linux-64-release-perf-tests",
+                      "SVNMirror": "svn://webkit.inf.u-szeged.hu/webkit/",
+                      "platform": "qt-5.0-wk1", "configuration": "release", "architectures": ["x86_64"],
+                      "slavenames": ["szeged-linux-3"]
+                    },
+                    {
+                      "name": "Qt Linux 64-bit Release (WebKit2 Perf)", "type": "BuildAndPerfTestWebKit2", "builddir": "qt-linux-64-release-wk2-perf-tests",
+                      "SVNMirror": "svn://webkit.inf.u-szeged.hu/webkit/",
+                      "platform": "qt-5.0-wk2", "configuration": "release", "architectures": ["x86_64"],
+                      "slavenames": ["szeged-linux-5"]
+                    },
+                    {
+                      "name": "Qt Linux ARMv7 Release", "type": "Build", "builddir": "qt-linux-armv7-release",
+                      "SVNMirror": "svn://webkit.inf.u-szeged.hu/webkit:3389/",
+                      "platform": "qt-arm", "configuration": "release", "architectures": ["armv7"],
+                      "slavenames": ["szeged-linux-4"]
+                    },
+                    {
+                      "name": "Qt Linux MIPS32R2 LE Release", "type": "Build", "builddir": "qt-linux-mipsel-mips32r2-release",
+                      "platform": "qt-mipsel", "configuration": "release", "architectures": ["mipsel"],
+                      "slavenames": ["mips-1"]
+                    },
+                    {
+                      "name": "Qt Linux SH4 Release", "type": "Build", "builddir": "qt-linux-sh4-release",
+                      "platform": "qt-sh4", "configuration": "release", "architectures": ["sh4"],
+                      "slavenames": ["sh4-linux-1"]
+                    },
+                    {
+                      "name": "Qt Windows 32-bit Release", "type": "Build", "builddir": "qt-windows-32bit-release",
+                      "SVNMirror": "svn://webkit.inf.u-szeged.hu/webkit/",
+                      "platform": "qt-win", "configuration": "release", "architectures": ["i386"],
+                      "slavenames": ["szeged-windows-1"]
+                    },
+                    {
+                      "name": "Qt Windows 32-bit Debug", "type": "Build", "builddir": "qt-windows-32bit-debug",
+                      "SVNMirror": "svn://webkit.inf.u-szeged.hu/webkit/",
+                      "platform": "qt-win", "configuration": "debug", "architectures": ["i386"],
+                      "slavenames": ["szeged-windows-2"]
+                    },
+                    {
+                      "name": "Qt Mountain Lion Release", "type": "BuildAndTestWebKit2", "builddir": "qt-mountainlion-release",
+                      "platform": "qt-5.0-mac-wk2", "configuration": "release", "architectures": ["x86_64"],
+                      "slavenames": ["oslo-mountainlion"]
+                    },
+                    {
+                      "name": "WinCairo Release", "type": "BuildAndTest", "builddir": "win-cairo-release",
+                      "platform": "wincairo", "configuration": "release", "architectures": ["i386"],
+                      "slavenames": ["wincairo-1"]
+                    },
+                    {
+                      "name": "WinCE Release (Build)", "type": "Build", "builddir": "wince-release",
+                      "platform": "wince", "configuration": "release", "architectures": ["i386"],
+                      "slavenames": ["wince-1"]
+                    },
+                    {
+                      "name": "EFL Linux 64-bit Release WK1", "type": "BuildAndTestWebKit1Only", "builddir": "efl-linux-64-release-wk1",
+                      "platform": "efl", "configuration": "release", "architectures": ["x86_64"],
+                      "slavenames": ["efl-linux-slave-1"]
+                    },
+                    {
+                      "name": "EFL Linux 64-bit Release WK2", "type": "BuildAndTestWebKit2Only", "builddir": "efl-linux-64-release-wk2",
+                      "platform": "efl", "configuration": "release", "architectures": ["x86_64"],
+                      "slavenames": ["efl-linux-slave-2"]
+                    },
+                    {
+                      "name": "EFL Linux 32-bit Release (Build)", "type": "Build", "builddir": "efl-linux-32-release",
+                      "platform": "efl", "configuration": "release", "architectures": ["i386"],
+                      "slavenames": ["efl-linux-slave-3"]
+                    }
+                  ],
+
+    "schedulers": [ { "type": "AnyBranchScheduler", "name": "trunk", "change_filter": "trunk_filter", "treeStableTimer": 45.0,
+                      "builderNames": ["GTK Linux 32-bit Release", "GTK Linux 64-bit Release", "GTK Linux 64-bit Debug WK1",
+                                       "Qt Linux Release", "Qt Linux Release minimal", "Qt Linux 64-bit Release (Perf)",
+                                       "Qt Linux 64-bit Release (WebKit2 Perf)", "Qt Linux ARMv7 Release", "Qt Linux MIPS32R2 LE Release",
+                                       "Qt Linux SH4 Release",
+                                       "Qt Windows 32-bit Release", "Qt Windows 32-bit Debug", "Qt Mountain Lion Release",
+                                       "EFL Linux 64-bit Release WK1", "EFL Linux 64-bit Release WK2", "EFL Linux 32-bit Release (Build)",
+                                       "WinCairo Release", "WinCE Release (Build)"]
+                    },
+                    { "type": "PlatformSpecificScheduler", "platform": "mac-lion", "branch": "trunk", "treeStableTimer": 45.0,
+                      "builderNames": ["Apple Lion Release (Build)", "Apple Lion Debug (Build)"]
+                    },
+                    { "type": "PlatformSpecificScheduler", "platform": "mac-mountainlion", "branch": "trunk", "treeStableTimer": 45.0,
+                      "builderNames": ["Apple MountainLion Release (Build)", "Apple MountainLion Debug (Build)", "Apple MountainLion Release (32-bit Build)"]
+                    },
+                    { "type": "PlatformSpecificScheduler", "platform": "win", "branch": "trunk", "treeStableTimer": 45.0,
+                      "builderNames": ["Apple Win Release (Build)", "Apple Win Debug (Build)"]
+                    },
+                    { "type": "Triggerable", "name": "lion-release-tests-wk1",
+                      "builderNames": ["Apple Lion Release WK1 (Tests)"]
+                    },
+                    { "type": "Triggerable", "name": "lion-release-tests-wk2",
+                      "builderNames": ["Apple Lion Release WK2 (Tests)"]
+                    },
+                    { "type": "Triggerable", "name": "lion-release-perf",
+                      "builderNames": ["Apple Lion Release (Perf)"]
+                    },
+                    { "type": "Triggerable", "name": "lion-debug-tests-wk1",
+                      "builderNames": ["Apple Lion Debug WK1 (Tests)"]
+                    },
+                    { "type": "Triggerable", "name": "lion-debug-tests-wk2",
+                      "builderNames": ["Apple Lion Debug WK2 (Tests)"]
+                    },
+                    { "type": "Triggerable", "name": "mountainlion-release-tests-wk1",
+                      "builderNames": ["Apple MountainLion Release WK1 (Tests)"]
+                    },
+                    { "type": "Triggerable", "name": "mountainlion-release-tests-wk2",
+                      "builderNames": ["Apple MountainLion Release WK2 (Tests)"]
+                    },
+                    { "type": "Triggerable", "name": "mountainlion-release-perf",
+                      "builderNames": ["Apple MountainLion Release (Perf)"]
+                    },
+                    { "type": "Triggerable", "name": "mountainlion-debug-tests-wk1",
+                      "builderNames": ["Apple MountainLion Debug WK1 (Tests)"]
+                    },
+                    { "type": "Triggerable", "name": "mountainlion-debug-tests-wk2",
+                      "builderNames": ["Apple MountainLion Debug WK2 (Tests)"]
+                    },
+                    { "type": "Triggerable", "name": "mountainlion-leaks",
+                      "builderNames": ["Apple MountainLion (Leaks)"]
+                    },
+                    { "type": "Triggerable", "name": "win-release-tests",
+                      "builderNames": ["Apple Win 7 Release (Tests)"]
+                    },
+                    { "type": "Triggerable", "name": "win-debug-tests",
+                      "builderNames": ["Apple Win 7 Debug (Tests)"]
+                    },
+                    { "type": "Triggerable", "name": "gtk-linux-64-release-tests-wk2",
+                      "builderNames": ["GTK Linux 64-bit Release WK2 (Tests)"]
+                    }
+                  ]
+}

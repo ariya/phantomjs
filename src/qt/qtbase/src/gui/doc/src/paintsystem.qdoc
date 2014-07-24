@@ -1,0 +1,353 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \group painting
+    \title Painting Classes
+    \ingroup groups
+
+    \brief Classes that provide support for painting.
+
+    See also this introduction to the \l{coordsys.html}{Qt coordinate system.}
+*/
+
+/*!
+    \group painting-3D
+    \title Rendering in 3D
+    \ingroup groups
+
+    \brief Classes that provide support for rendering in 3D.
+*/
+
+/*!
+    \page paintsystem.html
+    \title Paint System
+    \brief A system for painting on the screen or on print devices using the same API
+    \ingroup qt-graphics
+    \ingroup frameworks-technologies
+    \ingroup qt-basic-concepts
+
+
+    Qt's paint system enables painting on screen and print devices
+    using the same API, and is primarily based on the QPainter,
+    QPaintDevice, and QPaintEngine classes.
+
+    QPainter is used to perform drawing operations, QPaintDevice is an
+    abstraction of a two-dimensional space that can be painted on
+    using a QPainter, and QPaintEngine provides the interface that the
+    painter uses to draw onto different types of devices. The
+    QPaintEngine class is used internally by QPainter and
+    QPaintDevice, and is hidden from application programmers unless
+    they create their own device type.
+
+    \image paintsystem-core.png
+
+    The main benefit of this approach is that all painting follows the
+    same painting pipeline making it easy to add support for new
+    features and providing default implementations for unsupported
+    ones.
+
+    \section1 Topics
+    \list
+        \li \l{Classes for Painting}
+        \li \l{Paint Devices and Backends}
+        \li \l{Drawing and Filling}
+        \li \l{Coordinate System}
+        \li \l{Reading and Writing Image Files}
+    \endlist
+
+    \section1 Classes for Painting
+
+    These classes provide support for painting onto a paint device.
+
+    \annotatedlist painting
+
+*/
+
+
+/*!
+    \page paintsystem-devices.html
+    \title Paint Devices and Backends
+
+    \contentspage The Paint System
+    \nextpage Drawing and Filling
+
+    \section1 Creating a Paint Device
+
+    The QPaintDevice class is the base class of objects that can be
+    painted, i.e. QPainter can draw on any QPaintDevice
+    subclass. QPaintDevice's drawing capabilities are among others
+    implemented by QWidget, QImage, QPixmap, QPicture, QPrinter, and
+    QOpenGLPaintDevice.
+
+    \table 100%
+
+    \row \li \b Widget
+
+    The QWidget class is the base class of user interface
+    elements in the \l {Qt Widgets} module. It receives mouse, keyboard
+    and other events from the window system, and paints a
+    representation of itself on the screen.
+
+    \row \li \b Image
+
+    The QImage class provides a hardware-independent image
+    representation which is designed and optimized for I/O, and for
+    direct pixel access and manipulation. QImage supports several
+    image formats including monochrome, 8-bit, 32-bit and
+    alpha-blended images.
+
+    One advantage of using QImage as a paint device is that it is
+    possible to guarantee the pixel exactness of any drawing operation
+    in a platform-independent way. Another benefit is that the
+    painting can be performed in another thread than the current GUI
+    thread.
+
+    \row \li \b Pixmap
+
+    The QPixmap class is an off-screen image representation which is
+    designed and optimized for showing images on screen. Unlike
+    QImage, the pixel data in a pixmap is internal and is managed by
+    the underlying window system, i.e. pixels can only be accessed
+    through QPainter functions or by converting the QPixmap to a
+    QImage.
+
+    To optimize drawing with QPixmap, Qt provides the QPixmapCache
+    class which can be used to store temporary pixmaps that are
+    expensive to generate without using more storage space than the
+    cache limit.
+
+    Qt also provides the QBitmap convenience class, inheriting
+    QPixmap. QBitmap guarantees monochrome (1-bit depth) pixmaps, and
+    is mainly used for creating custom QCursor and QBrush objects,
+    constructing QRegion objects.
+
+    \row \li \b {OpenGL Paint Device}
+
+    As mentioned previously, Qt is offering classes that makes it easy
+    to use OpenGL in Qt applications. For example, the QOpenGLPaintDevice
+    enables the OpenGL API for rendering with QPainter.
+
+    \row \li \b {Picture}
+
+    The QPicture class is a paint device that records and replays
+    QPainter commands. A picture serializes painter commands to an IO
+    device in a platform-independent format. QPicture is also
+    resolution independent, i.e. a QPicture can be displayed on
+    different devices (for example svg, pdf, ps, printer and screen)
+    looking the same.
+
+    Qt provides the QPicture::load() and QPicture::save() functions
+    as well as streaming operators for loading and saving pictures.
+
+
+
+    \row \li \b {Custom Backends}
+
+    Support for a new backend can be implemented by deriving from the
+    QPaintDevice class and reimplementing the virtual
+    QPaintDevice::paintEngine() function to tell QPainter which paint
+    engine should be used to draw on this particular device. To
+    actually be able to draw on the device, this paint engine must be
+    a custom paint engine created by deriving from the QPaintEngine
+    class.
+
+    \endtable
+
+*/
+
+/*!
+    \page paintsystem-drawing.html
+    \title Drawing and Filling
+
+    \previouspage Paint Devices and Backends
+    \contentspage The Paint System
+    \nextpage Coordinate System
+
+    \section1 Drawing
+
+    QPainter provides highly optimized functions to do most of the
+    drawing GUI programs require. It can draw everything from simple
+    graphical primitives (represented by the QPoint, QLine, QRect,
+    QRegion and QPolygon classes) to complex shapes like vector
+    paths. In Qt vector paths are represented by the QPainterPath
+    class. QPainterPath provides a container for painting operations,
+    enabling graphical shapes to be constructed and reused.
+
+    \table 100%
+    \row
+    \li \image paintsystem-painterpath.png
+    \li \b QPainterPath
+
+    A painter path is an object composed of lines and curves. For
+    example, a rectangle is composed by lines and an ellipse is
+    composed by curves.
+
+    The main advantage of painter paths over normal drawing operations
+    is that complex shapes only need to be created once; then they can
+    be drawn many times using only calls to the QPainter::drawPath()
+    function.
+
+    A QPainterPath object can be used for filling, outlining, and
+    clipping. To generate fillable outlines for a given painter path,
+    use the QPainterPathStroker class.
+
+    \endtable
+
+    Lines and outlines are drawn using the QPen class. A pen is
+    defined by its style (i.e. its line-type), width, brush, how the
+    endpoints are drawn (cap-style) and how joins between two
+    connected lines are drawn (join-style). The pen's brush is a
+    QBrush object used to fill strokes generated with the pen,
+    i.e. the QBrush class defines the fill pattern.
+
+    QPainter can also draw aligned text and pixmaps.
+
+    When drawing text, the font is specified using the QFont class. Qt
+    will use the font with the specified attributes, or if no matching
+    font exists, Qt will use the closest matching installed font. The
+    attributes of the font that is actually used can be retrieved
+    using the QFontInfo class. In addition, the QFontMetrics class
+    provides the font measurements, and the QFontDatabase class
+    provides information about the fonts available in the underlying
+    window system.
+
+    Normally, QPainter draws in a "natural" coordinate system, but it
+    is able to perform view and world transformations using the
+    QTransform class. For more information, see \l {Coordinate
+    System}, which also describes the rendering process, i.e. the
+    relation between the logical representation and the rendered
+    pixels, and the benefits of anti-aliased painting.
+
+    \table 100%
+    \row \li
+    \b {Anti-Aliased Painting}
+
+    When drawing, the pixel rendering is controlled by the
+    QPainter::Antialiasing render hint. The QPainter::RenderHint enum
+    is used to specify flags to QPainter that may or may not be
+    respected by any given engine.
+
+    The QPainter::Antialiasing value indicates that the engine should
+    antialias edges of primitives if possible, i.e. smoothing the
+    edges by using different color intensities.
+
+    \li \image paintsystem-antialiasing.png
+
+    \endtable
+
+    \section1 Filling
+
+    Shapes are filled using the QBrush class. A brush is defined
+    by its color and its style (i.e. its fill pattern).
+
+    Any color in Qt is represented by the QColor class which supports
+    the RGB, HSV and CMYK color models. QColor also support
+    alpha-blended outlining and filling (specifying the transparency
+    effect), and the class is platform and device independent (the
+    colors are mapped to hardware using the QColormap class). For more
+    information, see the QColor class documentation.
+
+    The available fill patterns are described by the Qt::BrushStyle
+    enum. These include basic patterns spanning from uniform color to
+    very sparse pattern, various line combinations, gradient fills and
+    textures. Qt provides the QGradient class to define custom
+    gradient fills, while texture patterns are specified using the
+    QPixmap class.
+
+    \table 100%
+    \row
+    \li \image paintsystem-fancygradient.png
+    \li \b QGradient
+
+    The QGradient class is used in combination with QBrush to specify
+    gradient fills.
+
+    \image paintsystem-gradients.png
+
+    Qt currently supports three types of gradient fills: Linear
+    gradients interpolate colors between start and end points, radial
+    gradients interpolate colors between a focal point and end points
+    on a circle surrounding it, and conical gradients interpolate
+    colors around a center point.
+
+    \endtable
+*/
+
+/*!
+    \page paintsystem-images.html
+    \title Reading and Writing Image Files
+
+    \previouspage Coordinate System
+    \contentspage The Paint System
+
+    The most common way to read images is through QImage and QPixmap's
+    constructors, or by calling the QImage::load() and QPixmap::load()
+    functions. In addition, Qt provides the QImageReader class which
+    gives more control over the process. Depending on the underlying
+    support in the image format, the functions provided by the class
+    can save memory and speed up loading of images.
+
+    Likewise, Qt provides the QImageWriter class which supports
+    setting format specific options, such as the gamma level,
+    compression level and quality, prior to storing the image. If you
+    do not need such options, you can use QImage::save() or
+    QPixmap::save() instead.
+
+    \table 100%
+    \row
+    \li \b QMovie
+
+    QMovie is a convenience class for displaying animations, using the
+    QImageReader class internally.  Once created, the QMovie class
+    provides various functions for both running and controlling the
+    given animation.
+
+    \li \image paintsystem-movie.png
+    \endtable
+
+    The QImageReader and QImageWriter classes rely on the
+    QImageIOHandler class which is the common image I/O interface for
+    all image formats in Qt. QImageIOHandler objects are used
+    internally by QImageReader and QImageWriter to add support for
+    different image formats to Qt.
+
+    A list of the supported file formats are available through the
+    QImageReader::supportedImageFormats() and
+    QImageWriter::supportedImageFormats() functions. Qt supports
+    several file formats by default, and in addition new formats can
+    be added as plugins. The currently supported formats are listed in
+    the QImageReader and QImageWriter class documentation.
+
+    Qt's plugin mechanism can also be used to write a custom image
+    format handler. This is done by deriving from the QImageIOHandler
+    class, and creating a QImageIOPlugin object which is a factory for
+    creating QImageIOHandler objects. When the plugin is installed,
+    QImageReader and QImageWriter will automatically load the plugin
+    and start using it.
+*/
+

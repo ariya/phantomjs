@@ -1,0 +1,284 @@
+Qt 3.3 introduces many new features as well as many improvements over
+the 3.2.x series. For more details, see the online documentation which
+is included in this distribution. The documentation is also available
+at http://qt.nokia.com/doc/
+
+The Qt version 3.3 series is binary compatible with the 3.2.x series.
+Applications compiled for 3.2 will continue to run with 3.3.
+
+****************************************************************************
+*			    General					   *
+****************************************************************************
+
+Qt library
+----------
+
+Qt 3.3 is .NET enabled. This release shows how to use classes
+developed with Qt in a .NET environment. It includes an analysis of
+the different interoperability infrastructures provided by the .NET
+framework. An example demonstrates how to use both a manual approach
+with Microsoft's managed extensions to the C++ language, and also
+automated solutions based on COM and the ActiveQt framework to reuse
+native Qt classes and widgets in .NET projects. To learn more about Qt
+and .NET read the "Using Qt objects in Microsoft .NET" walkthrough
+found in the ActiveQt framework documentation.
+
+Qt 3.3 now supports IPv6 in addition to IPv4. New functions have been
+added for IPv6 support to QSocketDevice, QHostAddress and QDNns.
+
+Qt now includes a new tool class called QLocale. This class converts
+between numbers and their string representations in various languages.
+QLocale supports the concept of a default locale which allows a locale
+to be set globally for the entire application.
+
+Support for new 64bit platforms and compilers has been added for Qt
+3.3.  Qt now supports Itanium on both Linux (Intel) and Windows
+(VC++). Qt 3.3 now also officially supports FreeBSD.
+
+Qt 3.3 also supports precompiled headers for both Windows and Mac OS
+X. To use precompiled headers when compiling your Qt application
+simply add PRECOMPH and then specify the header file to precompile in
+your .pro file. To learn more about precompiled headers see the
+"Using Precompiled Headers" chapter in the qmake User Guide.
+
+Two new database drivers have been added to the SQL module, InterBase
+and SQLite. This makes it possible to write database applications that
+do not require a database server. SQLite is provided in the Qt 3.3
+distribution and can be enabled with either -qt-sql-sqlite or
+-plugin-sql-sqlite. The InterBase plugin also works with Firebird, the
+open source version of InterBase.
+
+QWidget has a new function setWindowState() which is used to make a
+widget maximized, minimized, etc. This allows individual settings for
+the minimized/maximized/fullscreen properties.
+
+Support for semi-transparent top-level widgets on Mac OS X and Windows
+2000/XP has also been added.
+
+Qt 3.3 includes in addition to this, numerous bug fixes and
+improvements. Special thanks goes to KDE for their reports and
+suggestions.
+
+
+Qt/Embedded
+-----------
+
+Added support for SNAP graphics drivers from SciTech Software. This
+gives access to accelerated drivers for more than 150 graphics
+chipsets.
+
+
+Qt/Mac
+------
+
+Added support for Xcode project files in qmake.
+Added Tablet support for Mac OS X.
+Numerous visual improvements.
+
+
+Qt/X11
+------
+
+Added support for Xft2 client side fonts on X servers without the
+RENDER extension.
+
+Added a new configure option (-dlopen-opengl) which will remove the
+OpenGL and Xmu library dependencies in the Qt library. The functions
+used by Qt in those libraries are resolved manually using dlopen()
+when this option is used.
+
+Improved support for the Extended Window Manager Hints.
+
+
+Qt/Windows
+----------
+
+Added support for Windows Server 2003 (Win64/Itanium).
+
+
+Qt Motif Extension
+------------------
+
+Clipboard operations now work between Qt and Motif widgets in the same
+application. Click-to-focus works with Motif widgets that are children
+of a QMotifWidget.
+
+
+ActiveQt Extension
+------------------
+
+Two new functions, QAxFactory::startServer() and
+QAxFactory::stopServer(), can be used to start and stop an
+out-of-process ActiveQt server at runtime. The new functions
+QAxFactory::serverDirPath() and QAxFactory::serverFilePath() return
+the location of the COM server binary. Server binaries no longer
+need to implement a main() entry point function. A default
+implementation is used for out-of-process servers. IClassFactory2
+is supported for the development of licensed components, and
+QAxFactory supports the creation of non-visual COM objects. Class
+specific information can be provided directly in the C++ class
+declaration using the Q_CLASSINFO macro to control how objects and
+controls are registered and exposed. New helper classes and macros
+are avialable to make it even easier to expose object classes (see the
+QAxServer documentation for details).
+
+COM objects developed with ActiveQt are now supported in a wider range
+of clients, including Microsoft Office applications and .NET. Examples
+that demonstrate how to use the Qt objects from the examples in .NET
+languages like C# are included. QStringList is supported as a type,
+and QRect, QSize and QPoint are now supported datatypes for control
+properties and as reference parameters. Saving the controls to a
+storage or stream now includes the version number of the QDataStream
+used for the serialization (note that this might break existing
+storages).
+
+The QAxContainer library is now static even for shared configurations
+of Qt. This simplifies deployment and allows using both QAxServer and
+QAxContainer in one project, i.e. an OLE automatable application that
+uses COM objects itself. The semantics of QAxBase::setControl() have
+been extended to allow creating of COM objects on remote machines via
+DCOM, to create controls requiring a license key and to connect to
+already running objects. The implementation of QAxBase::dynamicCall()
+has been improved to support passing of parameter values directly in
+the function string. Three new classes, QAxScript, QAxScriptManager
+and QAxScriptEngine, can be used to script COM objects from within Qt
+applications using Windows Script Host.
+
+SAFEARRAY(BSTR) parameters are supported as QStringList. Calling COM
+object methods with out-parameters of type short is now supported (the
+parameters are of type int& in the Qt wrapper), and QVariants used for
+out-parameters don't have to be initialized to the expected type.
+Calling QByteArray functions in out-of-process controls no longer
+returns an error code. The control's client side is set to zero when
+the container releases the control.
+
+
+Qt Designer
+-----------
+
+Qt Designer, Qt's visual GUI builder, has received some speed
+optimizations, along with minor improvements to the menu editor.
+
+
+Qt Assistant
+------------
+
+Qt Assistant now saves the states of the tab bars between runs. This
+enables users to start browsing where they ended their previous
+assistant session.
+
+Shortcuts for Find Next (F3) and Find Previous (Shift+F3) have been
+implemented.
+
+
+Compilers
+---------
+
+Qt 3.3 adds support for two new compilers. The Intel C++ compiler is
+supported on Linux and FreeBSD. GNU gcc is supported on Windows using
+MinGW.
+
+Qt 3.3 no longer officially supports the Sun CC 5.0 compiler or the
+IRIX MIPSpro o32 mode.
+
+
+****************************************************************************
+*			   Library					   *
+****************************************************************************
+
+- QAction
+	Added a setDisabled() slot similar to QWidget::setDisabled.
+	Added an activate() slot which activates the action and
+	executes all connected slots.
+	Added showStatusMessage() and whatsThisClicked() signals.
+
+- QButtonGroup
+	Added QButtonGroup::selectedId property to allow mapping with
+	SQL property sets.
+
+- QCursor
+	Added new enum value Qt::BusyCursor.
+
+- QDom
+	The QDom classes are now reentrant.
+
+- QEvent
+	Added new event type WindowStateChange, obsoleting ShowNormal,
+	ShowMinimized, ShowMaximized and ShowFullScreen.
+
+- QHeader
+	The sizeChange() signal is emitted when the section sizes are
+	adjusted by double clicking.
+
+- QHostAddress
+	Added new constructor for IPv6 and new functions
+	isIPv6Address() and toIPv6Address(). Obsoleted the functions
+	isIp4Addr() and ip4Addr(), replacing them with isIPv4Address()
+	and toIPv4Address().
+
+- QListView
+	Improved alignment for text in QListViewItems. Right aligned
+	text now has the ellipsis on the left.
+	Keyboard search now uses the sort column as the column to
+	start searching in.
+	Improved branch drawing.
+
+- QLocale [new]
+	This new tool class converts between numbers and their string
+	representations in various languages.
+
+- QMacStyle
+	Allow disabling of size constraints.
+
+- QMovie
+	Added JNG support.
+
+- QPixmap
+	Support full alpha-maps for paletted (8-bit) images.
+	Support 16-bit grayscale PNG images with transparency.
+
+- QSocketDevice
+	Added setProtocol() and protocol() for IPv6 support.
+
+- QSound
+	Windows: Support loop related APIs.
+
+- QSplashScreen
+	Less intrusive stay-on-top policy.
+
+- QSql
+	Support for InterBase and SQLite.
+
+- QStatusBar
+	Draw messages with the foreground() color of the palette,
+	rather than with the text() color.
+
+- QString
+	Added support for %lc and %ls to sprintf(). %lc takes a
+	Unicode character of type ushort, %ls takes a zero-terminated
+	array of Unicode characters of type ushort (i.e. const
+	ushort*). Also added support for precision (e.g. "%.5s").
+	Changed arg() to support "%L1" for localized conversions.
+
+- QStyle
+	Add a new primitive element: PE_RubberBand.
+
+- QTextEdit
+	Reduced memory consumption by 20 bytes per line.
+	Added a getter for the currently set QSyntaxHighlighter.
+
+- QVariant
+	Comparison between variants where one of the variants is a
+	numeric value will compare on the numeric value. Type casting
+	between different variants is more consistent.
+
+- QWidget
+	Added setWindowOpacity() and windowOpacity() to support
+	transparent top-level widgets on Windows and Mac.
+	Added windowState() and setWindowState() to allow individual
+	setting of the minimized/maximized/fullscreen properties.
+
+- QWindowsStyle
+	Qt supports toggling of the accelerator underlines using the
+	Alt-key on Windows 98, 2000 and later. On other platforms this
+	change has no effect.

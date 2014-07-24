@@ -1,0 +1,59 @@
+/*
+    Copyright (C) 2009,2010 ProFUSION embedded systems
+    Copyright (C) 2011 Samsung Electronics
+
+    This file is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Library General Public
+    License as published by the Free Software Foundation; either
+    version 2 of the License, or (at your option) any later version.
+
+    This file is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Library General Public License for more details.
+
+    You should have received a copy of the GNU Library General Public License
+    along with this library; see the file COPYING.LIB.  If not, write to
+    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+    Boston, MA 02110-1301, USA.
+*/
+
+   group {
+      name: "webkit/widget/mediacontrol/fullscreen_button";
+
+      images {
+         image: "widget/mediacontrol/fullscreenbutton/enterfullscreenbutton.png" COMP;
+         image: "widget/mediacontrol/fullscreenbutton/exitfullscreenbutton.png" COMP;
+      }
+
+      parts {
+         part {
+            name: "fullscreen_button";
+            type: IMAGE;
+            description { state: "default" 0.0;
+               image.normal: "widget/mediacontrol/fullscreenbutton/enterfullscreenbutton.png";
+               min: 25 25;
+            }
+            description { state: "fullscreen_enter" 0.0;
+               inherit: "default" 0.0;
+            }
+            description { state: "fullscreen_exit" 0.0;
+               inherit: "default" 0.0;
+               image.normal: "widget/mediacontrol/fullscreenbutton/exitfullscreenbutton.png";
+            }
+         }
+      }
+
+      programs {
+         program {
+             signal: "fullscreen_enter";
+             action: STATE_SET "fullscreen_enter" 0.0;
+             target: "fullscreen_button";
+         }
+         program {
+             signal: "fullscreen_exit";
+             action: STATE_SET "fullscreen_exit" 0.0;
+             target: "fullscreen_button";
+         }
+      }
+   }

@@ -1,0 +1,187 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+\page qtwritingstyle-cpp.html
+\title C++ Documentation Style
+\brief Style guidelines for C++ documentation
+
+To generate the documentation, QDoc goes through the source code and generates
+documentation for C++ types such as classes. QDoc then associates member
+functions, properties, and other types to the appropriate class.
+
+Note that the documentation must be in the implementation files such as \c .cpp.
+
+\section1 Class Documentation
+
+Class documentation is generated using the \l{class-command}{\\class} command and
+the name of the class as the first argument.
+
+\snippet examples/cpp.qdoc.sample class
+
+\l{Context commands} add information about the class, such as its module or
+which version the class was added.
+
+Some common context commands are:
+\list
+\li \l{brief-command}{\\brief} - the class' brief description \b (mandatory)
+\li \l{since-command}{\\since} - the version to which the class was added \b (mandatory)
+\li \l{internal-command}{\\internal} - marks the class as internal. Internal
+classes do not appear in the public API documentation.
+\endlist
+
+
+\section2 The Brief and Detailed Description
+
+The \e{brief description} is marked with the \l{brief-command}{\\brief} command
+and it is for summarizing the purpose or functionality of the class. For C++
+classes, QDoc will take the class and create annotated information for the
+class. The annotated information appears in lists and tables which display the
+class.
+
+The C++ brief should start with:
+\code
+"The <C++ class name> class"
+\endcode
+
+The \e{detailed description} section starts after the brief description. It
+provides more information about the class. The detailed description may contain
+images, snippet code, or links to other relevant documents. There
+must be an empty line which separates the brief and detailed description.
+
+\section1 Member Functions
+
+Typically, function documentation immediately precedes the implementation of the
+function in the \c .cpp file. For function documentation that is not immediately
+above the implementation, the \l{fn-command}{\\fn} is needed.
+
+\snippet examples/cpp.qdoc.sample function
+
+The function documentation starts with a verb, indicating the operation the
+function performs. This also applies to constructors and destructors.
+
+Some common verbs for function documentation:
+\list
+\li "Constructs..." - for constructors
+\li "Destroys..." - for destructors
+\li "Returns..." - for accessor functions
+\endlist
+
+The function documentation must document:
+\list
+\li the return type
+\li the parameters
+\li the actions of the functions
+\endlist
+
+The \l{a-command}{\\a} command marks the parameter in the documentation.
+The return type documentation should link to the type documentation or be
+marked with the \l{c-command}{\\c} command in the case of boolean values.
+
+\snippet examples/cpp.qdoc.sample return
+
+\section1 Properties
+
+The property documentation resides immediately above the read function's
+implementation. The \l{writing-topic-commands}{topic command} for properties is
+\l{property-command}{\\property}.
+
+\snippet examples/cpp.qdoc.sample property
+
+Property documentation usually starts with "This property...", but these are
+alternate expressions:
+\list
+\li "This property holds..."
+\li "This property describes..."
+\li "This property represents..."
+\li "Returns \c true when... and \c false when..." - for properties that
+are read.
+\li "Sets the..." - for properties that configure a type.
+\endlist
+
+Property documentation must include:
+\list
+\li description and behavior of the property
+\li accepted values for the property
+\li the default value of the property
+\endlist
+Similar to \l{Member Functions}{functions}, the default type may be linked
+or marked with the \c{\c} command.
+
+An example of a value range style is:
+\quotation
+The values range from 0.0 (no blur) to maximumRadius (maximum blur). By default, the property is set to 0.0 (no blur).
+\endquotation
+
+\section1 Signals, Notifiers, and Slots
+The \l{writing-topic-commands}{topic command} for signals, notifiers, and slots
+is \l{fn-command}{\\fn}. Signal documentation state when they are triggered
+or emitted.
+
+\snippet examples/cpp.qdoc.sample signals
+
+Signal documentation typically begin with "This signal is triggered when...".
+Here are alternate styles:
+\list
+\li "This signal is triggered when..."
+\li "Triggered when..."
+\li "Emitted when..."
+\endlist
+
+For slots or notifiers, the condition when they are executed or triggered by
+a signal should be documented.
+\list
+\li "Executed when..."
+\li "This slot is executed when..."
+\endlist
+
+For properties that have overloaded signals, QDoc groups the overloaded
+notifiers together. To refer to a specific version of a notifier or signal,
+simply refer to the property and mention that there are different versions of
+the notifier.
+
+\snippet examples/cpp.qdoc.sample overloaded notifier
+
+\section1 Enums, Namespaces, and other Types
+
+Enums, namespaces, and macros have a \l{writing-topic-commands}{topic command} for their documentation:
+\list
+\li \l{enum-command}{\\enum}
+\li \l{typedef-command}{\\typedef}
+\li \l{macro-command}{\\macro}
+\endlist
+
+The language style for these types mention that they are an enum or a macro and
+continues with the type description.
+
+For enumerations, the \l{value-command}{\\value} command is for listing the
+values. QDoc creates a table of values for the enum.
+
+\snippet examples/cpp.qdoc.sample enums
+
+*/
+

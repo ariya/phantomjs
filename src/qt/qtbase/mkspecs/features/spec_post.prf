@@ -1,0 +1,58 @@
+# This file is loaded by qmake right after loading the qmakespec.
+# Afterwards, the project's .qmake.conf and .qmake.cache are loaded
+# (if present).
+# Note that up to this point, nothing specific to a particular SUBDIRS
+# project or build pass can be done.
+
+isEmpty(MAKEFILE_GENERATOR):error("Qmake spec does not set MAKEFILE_GENERATOR.")
+isEmpty(QMAKE_PLATFORM) {
+    isEmpty(TARGET_PLATFORM) {
+        equals(MAKEFILE_GENERATOR, UNIX) {
+            equals(QMAKE_HOST.os, Darwin): \
+                TARGET_PLATFORM = macx # backwards compatibility; cannot change
+            else: \
+                TARGET_PLATFORM = unix
+        } else:if(equals(MAKEFILE_GENERATOR, MSVC.NET) \
+                 |equals(MAKEFILE_GENERATOR, BMAKE) \
+                 |equals(MAKEFILE_GENERATOR, MSBUILD) \
+                 |equals(MAKEFILE_GENERATOR, MINGW)) {
+            TARGET_PLATFORM = win32
+        } else:if(equals(MAKEFILE_GENERATOR, PROJECTBUILDER) \
+                 |equals(MAKEFILE_GENERATOR, XCODE)) {
+        } else:equals(MAKEFILE_GENERATOR, GBUILD) {
+            TARGET_PLATFORM = unix
+        } else {
+            error("Qmake spec sets an invalid MAKEFILE_GENERATOR.")
+        }
+    }
+    equals(TARGET_PLATFORM, unix): \
+        QMAKE_PLATFORM = unix
+    else:equals(TARGET_PLATFORM, macx): \
+        QMAKE_PLATFORM = osx macx mac darwin unix
+    else:equals(TARGET_PLATFORM, win32): \
+        QMAKE_PLATFORM = win32
+    else: \
+        error("Qmake spec sets an invalid TARGET_PLATFORM.")
+}
+
+contains(QMAKE_PLATFORM, macx):!contains(QMAKE_PLATFORM, osx) {
+    warning("qmake spec specifies platform macx, but not osx.")
+    QMAKE_PLATFORM = osx $$QMAKE_PLATFORM
+}
+
+CONFIG += $$QMAKE_PLATFORM
+
+isEmpty(QMAKE_COMPILER) {
+    *-g++*: \
+        QMAKE_COMPILER = gcc
+    else:*-llvm*: \
+        QMAKE_COMPILER = gcc llvm
+    else:*-clang*: \
+        QMAKE_COMPILER = gcc clang llvm
+    else:*-msvc*: \
+        QMAKE_COMPILER = msvc
+    else: \
+        error("qmake spec does not announce the compiler family, and it cannot be guessed.")
+    warning("qmake spec does not announce the compiler family. Guessed $${QMAKE_COMPILER}.")
+}
+CONFIG += $$QMAKE_COMPILER

@@ -1,0 +1,65 @@
+Qt for S60 4.4.4 Temple introduces new ported modules and few other improvements.
+It guarantees no source or binary compatibility between any other versions.
+
+Some of the changes listed in this file include internal issue tracking 
+numbers.
+
+This file only lists changes specific to Qt for S60.
+
+
+****************************************************************************
+*                      Platform Specific Changes                           *
+****************************************************************************
+
+Qt for S60
+----------
+   * Changes to qmake:
+      * [228860] Fixed bld.inf and .mmp generation when not under Qt src tree,
+        i.e. when the makespec is default.
+      * [231121] Added no_icon CONFIG keyword to suppress showing application
+        icon in the application menu.
+      * [233497] EPOCROOT is no longer required as environment variable as long
+        as a Symbian device can be determined. 
+      * [234551] Generated .pkg files no longer include Qt libraries directly, 
+        instead they have a dependency to a separate QtLibs package.
+      * [234555] Added support for generic mmp file content in form of 
+        MMP_RULES variable. Also, EXPORTUNFROZEN is now defined using this 
+        variable instead of being hardcoded.  
+      * [234557] Improved user ability to control include order via INCLUDEPATH
+        variable.
+      * [234557] Support for STDDLL, STDEXE and STDLIB Open C target types via
+        stdbinary CONFIG keyword.
+      * [235975] The -r switch is no longer required with qmake to recurse 
+        subdirs template.
+      * Fixed: Resources with similar basenames corrupted makefile.
+
+   * [230751] Improved Elastic Nodes application stability.
+   * [230752] Mouse drag events work now.
+   * [234558] Ported QSharedMemory.
+   * [234559] Ported QSystemSemaphore.
+   * [234560] Ported all of QtXml.
+   * [234561] Ported all of QtScript.
+   * [234562] Ported all of QtSvg.
+   * [234869] QFileDialog no longer uses desktop layout in Qt for S60.    
+   * QtNetwork now supports SSL.
+   * If current path returned by Open C doesn't exist when queried, it is 
+     created.
+   * All supported libs and plugins built under src dir now have proper UIDs.
+   * Fixed GCCE build breaking on atomics.
+   * Improved fonts support:
+      * Anti aliasing
+      * Italic/bold
+      * Higher text layout precision
+   * QPixmapCache size limited to 2MB.
+   * Createpackage script looks for RnD certs in Qt installation root instead 
+     of EPOCROOT.
+   * Iconengines plugins included in the default build.
+   * More examples and demos added in the default build to showcase newly 
+     ported modules.
+   * QFileSystemWatcher thread stack size increased to avoid crashing when
+     entering directories that need AllFiles capability.
+   * Createpackage will now support signing with custom certificates in 
+     addition to default ones.
+   * A perl script patch_capabilities.pl is provided for changing capabilities
+     of all binaries specified in a single .pkg file.
+   

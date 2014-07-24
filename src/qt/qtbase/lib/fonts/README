@@ -1,0 +1,21 @@
+Copyright statements and the source of the qpf fonts are located in ../../src/3rdparty/fonts
+
+The fonts here are in various formats:
+
+    *.ttf - TrueType fonts, requires QT_FEATURE_TRUETYPE
+    *.pfa - PostScript fonts, used as source material for some QPF fonts
+    *.qpf - Qt prerendered fonts (QPF format) rendered from above fonts.
+
+QPF is the portable, endian-independent format used by Qt/Embedded 2.x and 3.x.
+
+The prerendered fonts are generated from various sources:
+
+    fixed*        - Fixed font.
+    helvetica*    - Helvetica BDF format font distributed with X11
+                    - Latin-1 characters (about 250 characters).
+    japanese*     - Helvetica BDF format font distributed with X11
+                    - ISO 10646-1 encoding.
+    micro*        - Micro font (see micro.bdf).
+    unifont*      - Unifont (see unifont.bdf)
+                    - full unicode range (about 50000 characters).
+

@@ -1,0 +1,249 @@
+/*
+ * QtWebKit specific overrides for HTML5 media elements.
+ *
+ * Copyright (C) 2009, 2011 Apple Inc.  All rights reserved.
+ * Copyright (C) 2008 Nokia Corporation and/or its subsidiary(-ies)
+ * Copyright (C) 2013 Digia Plc. and/or its subsidiary(-ies)
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+ /* QtWebKit media controls. Extends mediaControls.css */
+
+audio {
+    height: 34px;
+    width: 400px;
+}
+
+audio::-webkit-media-controls-panel, video::-webkit-media-controls-panel {
+    overflow: visible;
+    height: 34px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+audio::-webkit-media-controls-mute-button, video::-webkit-media-controls-mute-button  {
+    width: 12px;
+    height: 12px;
+    padding: 6px;
+    margin-left: 6px;
+    margin-right: 3px;
+    border: none !important;
+
+    position: relative;
+    z-index: 1;
+}
+
+audio::-webkit-media-controls-play-button, video::-webkit-media-controls-play-button {
+    width: 9px;
+    height: 12px;
+    padding: 6px 12px 6px 11px;
+    margin-left: 5px;
+    margin-right: 3px;
+    border: none !important;
+}
+
+audio::-webkit-media-controls-timeline-container, video::-webkit-media-controls-timeline-container {
+    height: 34px;
+}
+
+audio::-webkit-media-controls-current-time-display, video::-webkit-media-controls-current-time-display {
+    -webkit-appearance: media-current-time-display;
+    -webkit-user-select: none;
+    display: inline-block;
+    height: 12px;
+    padding: 6px;
+    margin-left: 3px;
+    margin-right: 5px;
+
+    overflow: hidden;
+    cursor: default;
+
+    text-align: center;
+    font: -webkit-small-control;
+    font-size: 10px;
+    font-weight: bold;
+    color: white;
+}
+
+audio::-webkit-media-controls-time-remaining-display, video::-webkit-media-controls-time-remaining-display {
+    display: none;
+}
+
+audio::-webkit-media-controls-timeline, video::-webkit-media-controls-timeline {
+    display: -webkit-flex;
+    -webkit-flex: 1 1;
+    height: 12px; /* See RenderThemeQt::adjustSliderThumbSize(). */
+    padding: 6px 8px;
+}
+
+audio::-webkit-media-controls-volume-slider-container, video::-webkit-media-controls-volume-slider-container  {
+    -webkit-appearance: media-volume-slider-container;
+    position: absolute;
+    bottom: 29px;
+    z-index: 2;
+
+    width: 24px;
+    height: 103px;
+}
+
+audio::-webkit-media-controls-volume-slider, video::-webkit-media-controls-volume-slider  {
+    -webkit-appearance: media-volume-slider;
+    display: inline;
+    position: absolute;
+
+    top: 0px;
+    left: 6px;
+
+    width: 12px; /* See RenderThemeQt::adjustSliderThumbSize(). */
+    padding: 6px;
+    height: 88px;
+
+}
+
+audio::-webkit-media-controls-seek-back-button, video::-webkit-media-controls-seek-back-button {
+    display: none;
+}
+
+audio::-webkit-media-controls-seek-forward-button, video::-webkit-media-controls-seek-forward-button {
+    display: none;
+}
+
+audio::-webkit-media-controls-fullscreen-button {
+    display: none;
+}
+
+video::-webkit-media-controls-fullscreen-button {
+    top: 0px;
+    right: 0px;
+    width: 12px;
+    height: 12px;
+    padding: 6px;
+    margin: 5px 5px 5px 3px;
+    border: none !important;
+}
+
+audio::-webkit-media-controls-rewind-button, video::-webkit-media-controls-rewind-button {
+    display: none;
+}
+
+audio::-webkit-media-controls-return-to-realtime-button, video::-webkit-media-controls-return-to-realtime-button {
+    display: none;
+}
+
+audio::-webkit-media-controls-toggle-closed-captions-button, video::-webkit-media-controls-toggle-closed-captions-button {
+    -webkit-appearance: media-toggle-closed-captions-button;
+    width: 12px;
+    height: 12px;
+    padding: 6px;
+    margin: 5px 5px 5px 3px;
+    -webkit-order: 3; /* between mute and fullscreen */
+    border: none !important;
+}
+
+video::-webkit-media-controls-closed-captions-container {
+    -webkit-appearance: media-closed-captions-container;
+    position: absolute;
+    display: block;
+    right: 38px;
+    bottom: 29px;
+    max-width: -webkit-calc(100% - 48px); /* right + 10px */
+    max-height: -webkit-calc(100% - 39px); /* bottom + 10px */
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: rgba(0, 0, 0, 0.85);
+    border-radius: 10px;
+    cursor: default;
+    z-index: 2;
+}
+
+video::-webkit-media-controls-closed-captions-track-list {
+    display: block;
+    font-size: 10pt;
+}
+
+video::-webkit-media-controls-closed-captions-track-list h3 {
+    margin: 0;
+    color: #757575;
+    text-shadow: 0 1px 0 black;
+    -webkit-margin-start: 23px;
+    padding-top: 4px;
+    font-weight: bold;
+    font-size: 10pt;
+}
+
+video::-webkit-media-controls-closed-captions-track-list ul {
+    list-style-type: none;
+    margin: 0 0 4px 0;
+    padding: 0;
+    font-weight: bold;
+}
+
+video::-webkit-media-controls-closed-captions-track-list li {
+    position: relative;
+    color: white;
+    background-image: none;
+    text-shadow: 0 1px 0 black;
+    margin: 0;
+    padding-left: 37px;
+    padding-right: 35px;
+    padding-top: 0.15em;
+    padding-bottom: 0.2em;
+    box-sizing: border-box;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    border-top: 1px solid rgba(0, 0, 0, 0);
+    border-bottom: 1px solid rgba(0, 0, 0, 0);
+}
+
+video::-webkit-media-controls-closed-captions-track-list li:hover {
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #4f70f6), color-stop(1, #1a44f3));
+    border-top: 1px solid #4667ea;
+    border-bottom: 1px solid #0336e5;
+}
+
+video::-webkit-media-controls-closed-captions-track-list li.selected::before {
+    display: block;
+    content: "";
+    position: absolute;
+    top: 0.25em;
+    width: 1.1em;
+    height: 1.1em;
+    -webkit-margin-start: -20px;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300"><polygon fill="#a3a3a3" points="252.301,4.477 126.667,194.104 43.358,108.3 6.868,161.408 132.515,290.814 297.732,49.926"/></svg>');
+    background-repeat: no-repeat;
+}
+
+video::-webkit-media-controls-closed-captions-track-list li.selected:hover::before {
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300"><polygon fill="white" points="252.301,4.477 126.667,194.104 43.358,108.3 6.868,161.408 132.515,290.814 297.732,49.926"/></svg>');
+}
+
+::-webkit-media-controls-mute-button,
+::-webkit-media-controls-play-button,
+::-webkit-media-controls-timeline,
+::-webkit-media-controls-volume-slider,
+::-webkit-media-controls-fullscreen-button,
+::-webkit-media-controls-toggle-closed-captions-button
+{
+    box-sizing: content-box !important;
+}

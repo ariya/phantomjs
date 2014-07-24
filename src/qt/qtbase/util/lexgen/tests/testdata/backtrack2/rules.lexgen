@@ -1,0 +1,4 @@
+[Tokens]
+TOK_LET = LET
+TOK_LETXX = LETXX
+TOK_XTRA = XTRA

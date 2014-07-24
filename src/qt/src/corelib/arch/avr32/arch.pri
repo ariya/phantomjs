@@ -1,3 +1,0 @@
-#
-# AVR32 architecture
-#

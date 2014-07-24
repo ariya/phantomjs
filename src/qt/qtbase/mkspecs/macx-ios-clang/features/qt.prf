@@ -1,0 +1,49 @@
+
+equals(TEMPLATE, app):contains(QT, gui(-private)?) {
+    LIBS *= -L$$[QT_INSTALL_PLUGINS/get]/platforms
+
+    lib_name = qios
+    lib_path_and_base = $$[QT_INSTALL_PLUGINS/get]/platforms/lib$${lib_name}$$qtPlatformTargetSuffix()
+    LIBS += -l$${lib_name}$$qtPlatformTargetSuffix() $$fromfile($${lib_path_and_base}.prl, QMAKE_PRL_LIBS)
+
+    # By marking qt_registerPlatformPlugin as undefined, we ensure that
+    # the plugin.o translation unit is considered for inclusion in
+    # the final binary, which in turn ensures that the plugin's
+    # static initializer is included and run.
+    QMAKE_LFLAGS += -u _qt_registerPlatformPlugin
+
+    # We do link and dependency resolution for the platform plugin
+    # manually, since we know we always need the plugin, so we don't
+    # need to generate an import for it.
+    QTPLUGIN.platforms = -
+
+    !no_main_wrapper {
+        # We use ld to rename the _main symbol to _qt_main, so that we don't get a symbol clash
+        # with the _main we provide that calls UIApplicationMain. We need to make a copy of the
+        # original object file, as ld will not copy over DWARF debug information to the output
+        # file. Instead, it will inject a reference back to the original object file, so when
+        # Xcode runs dsymutil to make the final dSYM file it will still find the debug info
+        # for the object file that provided the original _main. This back-reference has the
+        # interesting side-effect of the debug information still referring to the original
+        # symbol name, so stack-traces will show both our wrapper main and the original
+        # user main as 'main', and adding a symbolic breakpoint for 'main' will break on
+        # both functions. Although a bit weird, it's a good thing, as the user will still be
+        # able to add symbolic breakpoints for 'main', not caring that the symbol is actually
+        # called 'qt_main' now.
+
+        macx-xcode {
+            objects_dir = "${OBJECT_FILE_DIR}-${CURRENT_VARIANT}/${CURRENT_ARCH}"
+        } else {
+            objects_dir = $$OBJECTS_DIR
+            isEmpty(objects_dir): \
+                objects_dir = .
+        }
+
+        !isEmpty(QMAKE_PRE_LINK): \
+            QMAKE_PRE_LINK += ";"
+
+        QMAKE_PRE_LINK += $$QMAKESPEC/rename_main.sh $${objects_dir}
+    }
+}
+
+load(qt)

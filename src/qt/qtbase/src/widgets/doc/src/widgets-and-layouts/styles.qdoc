@@ -1,0 +1,2087 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+/*!
+    \page style-reference.html
+    \title Styles and Style Aware Widgets
+    \ingroup qt-gui-concepts
+    \brief Styles and the styling of widgets.
+
+    Styles (classes that inherit QStyle) draw on behalf of widgets
+    and encapsulate the look and feel of a GUI. The QStyle class is
+    an abstract base class that encapsulates the look and feel of a
+    GUI. Qt's built-in widgets use it to perform nearly all of their
+    drawing, ensuring that they look exactly like the equivalent
+    native widgets.
+
+    Qt comes with a selection of built-in styles. Some styles are only
+    available on specific platforms (such as the Mac, GTK+ and Windows
+    Vista styles). Custom styles are made available as plugins or by
+    creating an instance of a specific style class with
+    QStyleFactory::create() and setting it with QApplication::setStyle().
+
+    \section1 Customizing a Style
+
+    In order to customize an existing style, inherit QProxyStyle and
+    reimplement the desired virtual methods. QProxyStyle allows one
+    to specify a certain base style, or it will automatically use the
+    application style when the base style is left unspecified. The
+    former gives a full control on the base style and works best if
+    the customization expects a certain style behavior, whereas the
+    latter provides a platform agnostic way to customize the application
+    style that defaults to the native platform style.
+
+    \section1 Implementing a Custom Style
+
+    QCommonStyle provides a convenient base for full custom style
+    implementations. The approach is same than with QProxyStyle, but
+    inherit QCommonStyle instead and reimplement the appropriate virtual
+    methods. Implementing a full custom style is somewhat involved, and
+    we therefore provide this overview. We give a step-by-step walkthrough
+    of how to style individual Qt widgets. We will examine the QStyle
+    virtual functions, member variables, and enumerations.
+
+    The part of this document that does not concern the styling of
+    individual widgets is meant to be read sequentially because later
+    sections tend to depend on earlier ones. The description of the
+    widgets can be used for reference while implementing a style.
+    However, you may need to consult the Qt source code in some cases.
+    The sequence in the styling process should become clear after
+    reading this document, which will aid you in locating relevant code.
+
+    To develop style aware widgets (i.e., widgets that conform to
+    the style in which they are drawn), you need to draw them using the
+    current style. This document shows how widgets draw themselves
+    and which possibilities the style gives them.
+
+    \section1 Classes for Widget Styling
+
+    These classes are used to customize an application's appearance and
+    style.
+
+    \annotatedlist appearance
+
+    \section1 The QStyle implementation
+
+    The API of QStyle contains functions that draw the widgets, static
+    helper functions to do common and difficult tasks (e.g.,
+    calculating the position of slider handles) and functions to do
+    the various calculations necessary while drawing (e.g., for the
+    widgets to calculate their size hints). The style also helps some
+    widgets with the layout of their contents. In addition, it creates
+    a QPalette that contains \l{QBrush}es to draw with.
+
+    QStyle draws graphical elements; an element is a widget or a
+    widget part like a push button bevel, a window frame, or a scroll
+    bar. Most draw functions now take four arguments:
+
+    \list
+    \li an enum value specifying which graphical element to draw
+    \li a QStyleOption specifying how and where to render that element
+    \li a QPainter that should be used to draw the element
+    \li a QWidget on which the drawing is performed (optional)
+    \endlist
+
+    When a widget asks a style to draw an element, it provides the style
+    with a QStyleOption, which is a class that contains the information
+    necessary for drawing. Thanks to QStyleOption, it is possible to make
+    QStyle draw widgets without linking in any code for the widget. This
+    makes it possible to use \l{QStyle}'s draw functions on any paint
+    device, i.e., you can draw a combobox on any widget, not just on a
+    QComboBox.
+
+    The widget is passed as the last argument in case the style needs
+    it to perform special effects (such as animated default buttons on
+    Mac OS X), but it isn't mandatory.
+
+    In the course of this section, we will look at the style elements,
+    the style options, and the functions of QStyle. Finally, we describe
+    how the palette is used.
+
+    Items in item views are drawn by \l{Delegate Classes}{delegates} in
+    Qt. The item view headers are still drawn by the style. Qt's
+    default delegate, QStyledItemDelegate, draws its items partially
+    through the current style; it draws the check box indicators and
+    calculates bounding rectangles for the elements of which the item
+    consists. In this document, we only describe how to implement a
+    QStyle subclass. If you wish to add support for other datatypes
+    than those supported by the QStyledItemDelegate, you need to
+    implement a custom delegate. Note that delegates must be set
+    programmatically for each individual widget (i.e., default
+    delegates cannot be provided as plugins).
+
+    \section2 The Style Elements
+
+    A style element is a graphical part of a GUI. A widget consists
+    of a hierarchy (or tree) of style elements. For instance, when a
+    style receives a request to draw a push button (from QPushButton,
+    for example), it draws a label (text and icon), a button bevel,
+    and a focus frame. The button bevel, in turn, consists of a frame
+    around the bevel and two other elements, which we will look at
+    later. Below is a conceptual illustration of the push button
+    element tree. We will see the actual tree for QPushButton when we
+    go through the individual widgets.
+
+    \image javastyle/conceptualpushbuttontree.png
+
+    Widgets are not necessarily drawn by asking the style to draw
+    only one element. Widgets can make several calls to the style to
+    draw different elements. An example is QTabWidget, which draws its
+    tabs and frame individually.
+
+    There are three element types: primitive elements, control
+    elements, and complex control elements. The elements are defined
+    by the \l{QStyle::}{ComplexControl}, \l{QStyle::}{ControlElement},
+    and \l{QStyle::}{PrimitiveElement} enums. The values of
+    each element enum has a prefix to identify their type: \c{CC_} for
+    complex elements, \c{CE_} for control elements, and \c{PE_} for
+    primitive elements. We will in the following three sections see what
+    defines the different elements and see examples of widgets that use
+    them.
+
+    The QStyle class description contains a list of these elements and
+    their roles in styling widgets. We will see how they are used when
+    we style individual widgets.
+
+    \section3 Primitive Elements
+
+    Primitive elements are GUI elements that are common and often used
+    by several widgets. Examples of these are frames, button bevels,
+    and arrows for spin boxes, scroll bars, and combo boxes.
+    Primitive elements cannot exist on their own: they are always part
+    of a larger construct. They take no part in the interaction with
+    the user, but are passive decorations in the GUI.
+
+    \section3 Control Elements
+
+    A control element performs an action or displays information
+    to the user. Examples of control elements are push buttons, check
+    boxes, and header sections in tables and tree views. Control
+    elements are not necessarily complete widgets such as push
+    buttons, but can also be widget parts such as tab bar tabs and
+    scroll bar sliders. They differ from primitive elements in that
+    they are not passive, but fill a function in the interaction with
+    the user. Controls that consist of several elements often use the
+    style to calculate the bounding rectangles of the elements. The
+    available sub elements are defined by the \l{QStyle::}{SubElement}
+    enum. This enum is only used for calculating bounding rectangles;
+    sub elements are not graphical elements to be drawn like primitive,
+    control, and complex elements.
+
+    \section3 Complex Control Elements
+
+    Complex control elements contain sub controls. Complex controls
+    behave differently depending on where the user handles them with
+    the mouse and which keyboard keys are pressed. This is dependent
+    on which sub control (if any) the mouse is over or pressed on.
+    Examples of complex controls are scroll bars and
+    combo boxes. With a scroll bar, you can use the mouse to move the
+    slider and press the line up and line down buttons. The available
+    sub controls are defined by the \l{QStyle}{SubControl} enum.
+
+    In addition to drawing, the style needs to provide the widgets
+    with information on which sub control (if any) a mouse press was
+    made on. For instance, a QScrollBar needs to know if the user
+    pressed the slider, the slider groove, or one of the buttons.
+
+    Note that sub controls are not the same as the control elements
+    described in the previous section. You cannot use the style to
+    draw a sub control; the style will only calculate the bounding
+    rectangle in which the sub control should be drawn. It is common,
+    though, that complex elements use control and primitive elements
+    to draw their sub controls, which is an approach that is
+    frequently used by the built-in styles in Qt and also the Java
+    style. For instance, the Java style uses PE_IndicatorCheckBox to
+    draw the check box in group boxes (which is a sub control of
+    \c CC_GroupBox). Some sub controls have an equivalent control element,
+    e.g., the scroll bar slider (\c SC_SCrollBarSlider and
+    \c CE_ScrollBarSlider).
+
+    \section3 Other QStyle Tasks
+
+    The style elements and widgets, as mentioned, use the style to
+    calculate bounding rectangles of sub elements and sub controls.
+    Pixel metrics, which are style-dependent sizes in screen
+    pixels, are also used for measurements when drawing. The available
+    rectangles and pixel metrics are represented by three enums in
+    QStyle: \l{QStyle::}{SubElement}, \l{QStyle::}{SubControl}, and
+    \l{QStyle::}{PixelMetric}. Values of the enums can easily by
+    identified as they start with SE_, SC_ and PM_.
+
+    The style also contains a set of style hints, which is
+    represented as values in the \l{QStyle::}{StyleHint} enum. All
+    widgets do not have the same functionality and look in the
+    different styles. For instance, when the menu items in a menu do not
+    fit in a single column on the screen, some styles support
+    scrolling while others draw more than one column to fit all items.
+
+    A style usually has a set of standard images (such as a warning, a
+    question, and an error image) for message boxes, file dialogs,
+    etc. QStyle provides the \l{QStyle::}{StandardPixmap} enum. Its
+    values represent the standard images. Qt's widgets use these, so
+    when you implement a custom style you should supply the images
+    used by the style that is being implemented.
+
+    The style calculates the spacing between widgets in layouts. There
+    are two ways the style can handle these calculations. You can set
+    the \c PM_LayoutHorizontalSpacing and \c PM_LayoutVerticalSpacing, which
+    is the way the Java style does it (through QCommonStyle).
+    Alternatively, you can implement QStyle::layoutSpacing() and
+    QStyle::layoutSpacingImplementation() if you need more control over
+    this part of the layout. In these functions you can calculate the
+    spacing based on control types (QSizePolicy::ControlType) for
+    different size policies (QSizePolicy::Policy) and also the style
+    option for the widget in question.
+
+    \section2 Style Options
+
+    The sub-classes of QStyleOption contain all information necessary
+    to style the individual elements. Style options are instantiated -
+    usually on the stack - and filled out by the caller of the QStyle
+    function. Depending on what is drawn the style will expect
+    different a different style option class. For example, the
+    \c QStyle::PE_FrameFocusRect element expects a QStyleOptionFocusRect
+    argument, and it's possible to create custom subclasses that a
+    custom style can use. The style options keep public variables
+    for performance reasons.
+
+    The widgets can be in a number of different states, which are
+    defined by the \l{QStyle::}{State} enum. Some of the state flags have
+    different meanings depending on the widget, but others are common
+    for all widgets like \c State_Disabled. It is QStyleOption that sets
+    the common states with QStyleOption::initFrom(); the rest of the
+    states are set by the individual widgets.
+
+    Most notably, the style options contain the palette and bounding
+    rectangles of the widgets to be drawn. Most widgets have
+    specialized style options. QPushButton and QCheckBox, for
+    instance, use QStyleOptionButton as their style option, which contains
+    the text, icon, and the size of their icon. The exact contents of
+    all options are described when we go through the individual widgets.
+
+    When reimplementing QStyle functions that take a
+    QStyleOption parameter, you often need to cast the
+    QStyleOption to a subclass (e.g., QStyleOptionFocusRect). For
+    safety, you can use qstyleoption_cast() to ensure that the
+    pointer type is correct. If the object isn't of the right type,
+    qstyleoption_cast() returns 0. For example:
+
+    \snippet code/doc_src_qt4-styles.cpp 0
+
+    The following code snippet illustrates how to use QStyle to
+    draw the focus rectangle from a custom widget's paintEvent():
+
+    \snippet code/doc_src_qt4-styles.cpp 1
+
+    The next example shows how to derive from an existing style to
+    customize the look of a graphical element:
+
+    \snippet customstyle/customstyle.h 0
+    \codeline
+    \snippet customstyle/customstyle.cpp 2
+    \snippet customstyle/customstyle.cpp 3
+    \snippet customstyle/customstyle.cpp 4
+
+    \section2 QStyle Functions
+
+    The QStyle class defines three functions for drawing the primitive,
+    control, and complex elements:
+    \l{QStyle::}{drawPrimitive()},
+    \l{QStyle::}{drawControl()}, and
+    \l{QStyle::}{drawComplexControl()}. The functions takes the
+    following parameters:
+
+    \list
+        \li the enum value of the element to draw.
+        \li a QStyleOption which contains the information needed to
+           draw the element.
+        \li a QPainter with which to draw the element.
+        \li a pointer to a QWidget, typically the widget
+           that the element is painted on.
+    \endlist
+
+    Not all widgets send a pointer to themselves. If the style
+    option sent to the function does not contain the information you
+    need, you should check the widget implementation to see if it
+    sends a pointer to itself.
+
+    The QStyle class also provides helper functions that are used
+    when drawing the elements. The \l{QStyle::}{drawItemText()}
+    function draws text within a specified rectangle, taking a
+    QPalette as a parameter. The \l{QStyle::}{drawItemPixmap()}
+    function helps to align a pixmap within a specified bounding
+    rectangle.
+
+    Other QStyle functions do various calculations for the
+    functions that do drawing. The widgets also use these functions for
+    calculating size hints and bounding rectangles if they draw several
+    style elements themselves. As with the functions that draw elements,
+    the helper functions typically take the same arguments.
+
+    \list
+        \li The \l{QStyle::}{subElementRect()} function takes a
+        \l{QStyle::}{SubElement} enum value and calculates a bounding
+        rectangle for a sub element. The style uses this function to
+        know where to draw the different parts of an element. This is
+        mainly done for reuse; if you create a new style, you can use
+        the same location of sub elements as the super class.
+
+        \li The \l{QStyle::}{subControlRect()} function is used to
+        calculate bounding rectangles for sub controls in complex
+        controls. When you implement a new style, you reimplement \c
+        subControlRect() and calculate the rectangles that are different
+        from the super class.
+
+        \li The \l{QStyle::}{pixelMetric()} function returns a pixel
+        metric, which is a style-dependent size given in screen
+        pixels. It takes a value of the \l{QStyle::}{PixelMetric} enum
+        and returns the correct measurement. Note that pixel metrics do
+        not necessarily have to be static measurements, but can be
+        calculated with, for example, the style option.
+
+        \li The \l{QStyle::}{hitTestComplexControl()} function returns the
+        sub control that the mouse pointer is over in a complex control.
+        Usually, this is simply a matter of using
+        \l{QStyle::}{subControlRect()} to get the bounding rectangles of
+        the sub controls, and then seeing which rectangle contains the
+        position of the cursor.
+    \endlist
+
+    QStyle also has the functions \l{QStyle::}{polish()} and
+    \l{QStyle::}{unpolish()}. All widgets are sent to the \c polish()
+    function before being shown and to \c unpolish() when they
+    are hidden. You can use these functions to set attributes on the
+    widgets or do other work that is required by your style. For
+    instance, if you need to know when the mouse is hovering over the
+    widget, you need to set the \l{Qt::}{WA_Hover} widget attribute.
+    The \c State_MouseOver state flag will then be set in the widget's
+    style options.
+
+    QStyle has a few static helper functions that do some common and
+    difficult tasks. They can calculate the position of a slider
+    handle from the value of the slider and transform rectangles
+    and draw text considering reverse layouts; see the QStyle
+    class documentation for more details.
+
+    The usual approach when one reimplements QStyle virtual
+    functions is to do work on elements that are different from the
+    super class; for all other elements, you can simply use the super
+    class implementation.
+
+    \section2 The Palette
+
+    Each style provides a color - that is, QBrush - palette that
+    should be used for drawing the widgets. There is one set of colors
+    for the different widget states (QPalette::ColorGroup): active
+    (widgets in the window that have keyboard focus), inactive (widgets
+    used for other windows), and disabled (widgets that are disabled).
+    The states can be found by querying the \c State_Active
+    and \c State_Enabled state flags. Each set contains certain color
+    roles given by the QPalette::ColorRole enum. The roles describe in
+    which situations the colors should be used (e.g., for painting
+    widget backgrounds, text, or buttons).
+
+    How the color roles are used is up to the style. For instance, if
+    the style uses gradients, one can use a palette color and make it
+    darker or lighter with QColor::darker() and QColor::lighter() to
+    create the gradient. In general, if you need a brush that is not
+    provided by the palette, you should try to derive it from one.
+
+    QPalette, which provides the palette, stores colors for
+    different widget states and color roles. The palette for a style
+    is returned by \l{QStyle::}{standardPalette()}. The standard
+    palette is not installed automatically when a new style is set
+    on the application (QApplication::setStyle()) or widget
+    (QWidget::setStyle()), so you must set the palette yourself
+    with (QApplication::setPalette()) or (QWidget::setPalette()).
+
+    It is not recommended to hard-code colors, as applications and
+    individual widgets can set their own palette and also use their
+    style's palette for drawing. Note that none of Qt's widgets set
+    their own palette. The Java style does hard-code some colors, but
+    only as a decision of the author; it is not advised. Of course,
+    it is not intended that the style should look good with any palette.
+
+    \section2 Implementation Issues
+
+    When you implement styles, there are several issues to
+    consider. We will give some hints and advice on implementation
+    here.
+
+    When implementing styles, it is necessary to look through the
+    code of the widgets and code of the base class and its ancestors.
+    This is because the widgets use the style differently, because the
+    implementation in the different styles' virtual functions can
+    affect the state of the drawing (e.g., by altering the QPainter
+    state without restoring it and drawing some elements without using
+    the appropriate pixel metrics and sub elements).
+
+    It is recommended that the styles do not alter the proposed size
+    of widgets with the QStyle::sizeFromContents() function, but let
+    the QCommonStyle implementation handle it instead. If changes need
+    to be made, you should try to keep them small; application development
+    may be difficult if the layout of widgets looks considerably
+    different in the various styles.
+
+    \section1 Java Style
+
+    We have implemented a style that resembles the Java default look
+    and feel (previously known as Metal). We have done this as it is
+    relatively simple to implement and we wanted to build a style for
+    this overview document. To keep it simple and not too extensive, we
+    have simplified the style somewhat, but Qt is perfectly able to
+    make an exact copy of the style. However, there are no concrete
+    plans to implement the style as a part of Qt.
+
+    In this section we will have a look at some implementation
+    issues. Finally, we will see a complete example on the styling of
+    a Java widget. We will continue to use the Java style
+    throughout the document for examples and widget images. The
+    implementation itself is somewhat involved, and it is not
+    intended that you should read through it.
+
+    \section2 Design and Implementation
+
+    The first step in designing the style was to select the base
+    class. We chose to subclass QCommonStyle. This class implements
+    most of the functionality we need, other than performing the actual
+    drawing.
+
+    The style is implemented in one class. We have done this
+    because we find it convenient to keep all code in one file. Also,
+    it is an advantage with regards to optimization as we instantiate
+    less objects. We also keep the number of functions at a minimum by
+    using switches to identify which element to draw in the functions.
+    This results in large functions, but since we divide the code for
+    each element in the switches, the code should still be easy to
+    read.
+
+    \section2 Limitations and Differences from Java
+
+    We have not fully implemented every element in the Java style.
+    This way, we have reduced the amount and complexity of the code.
+    In general, the style was intended as a practical example for
+    this style overview document, and not to be a part of Qt
+    itself.
+
+    Not all widgets have every state implemented. This goes for
+    states that are common, e.g., \c State_Disabled. Each state is,
+    however, implemented for at least one widget.
+
+    We have only implemented ticks below the slider. Flat push
+    buttons are also left out. We do not handle the case where the
+    title bars and dock window titles grow too small for their
+    contents, but simply draw sub controls over each other.
+
+    We have not tried to emulate the Java fonts. Java and Qt use very
+    different font engines, so we don't consider it worth the effort
+    as we only use the style as an example for this overview.
+
+    We have hard-coded the colors (we don't use the QPalette) for
+    the linear gradients, which are used, for example, for button
+    bevels, tool bars, and check boxes. This is because the Java
+    palette cannot produce these colors. Java does not change these
+    colors based on widget color group or role anyway (they are not
+    dependent on the palette), so it does not present a problem in any
+    case.
+
+    It is Qt's widgets that are styled. Some widgets do not exist
+    at all in Java, e.g., QToolBox. Others contain elements that the
+    Java widgets don't. The tree widget is an example of the latter in
+    which Java's JTree does not have a header.
+
+    The style does not handle reverse layouts. We assume that the
+    layout direction is left to right. QCommonStyle handles reverse
+    widgets; if we implemented reverse layouts, widgets that we change
+    the position of sub elements, or handle text alignment in labels
+    ourselves would need to be updated.
+
+    \section2 Styling Java Check Boxes
+
+    As an example, we will examine the styling of check boxes in the
+    Java style. We describe the complete process and print all code in
+    both the Java style and Qt classes involved. In the rest of this
+    document, we will not examine the source code of the individual
+    widgets. Hopefully, this will give you an idea on how to search
+    through the code if you need to check specific implementation
+    details; most widgets follow the same structure as the check
+    boxes. We have edited the QCommonStyle code somewhat to remove
+    code that is not directly relevant for check box styling.
+
+    We start with a look at how QCheckBox builds its style option,
+    which is QStyleOptionButton for checkboxes:
+
+    \snippet code/doc_src_styles.cpp 0
+
+    First we let QStyleOption set up the option with the information
+    that is common for all widgets with \c initFrom().  We will look at
+    this shortly.
+
+    QStyleOption's \c down variable is \c true when the user presses the box down;
+    this is true of the checkbox whether the box is checked or not. The
+    \c State_NoChange state is set when we have a tri-state checkbox and
+    it is partially checked. It has \c State_On if the box is checked and
+    \c State_Off if it is unchecked. \c State_MouseOver is set if the mouse
+    hovers over the checkbox and the widget has attribute \c Qt::WA_Hover
+    set - you set this in QStyle::polish(). In addition, the style
+    option also contains the text, icon, and icon size of the button.
+
+    \l{QStyleOption::}{initFrom()} sets up the style option with the
+    attributes that are common for all widgets. We print its
+    implementation here:
+
+    \snippet code/doc_src_styles.cpp 1
+
+    The \c State_Enabled is set when the widget is enabled. When the
+    widget has focus the \c State_HasFocus flag is set. Equally, the
+    \c State_Active flag is set when the widget is a child of the active
+    window. The \c State_MouseOver will only be set if the widget has
+    the \c WA_HoverEnabled windows flag set. Notice that keypad
+    navigation must be enabled in Qt for the \c State_HasEditFocus to
+    be included; it is not included by default.
+
+    In addition to setting state flags the QStyleOption contains
+    other information about the widget: \c direction is the layout
+    direction of the layout, \c rect is the bounding rectangle of the
+    widget (the area in which to draw), \c palette is the QPalette
+    that should be used for drawing the widget, and \c fontMetrics is
+    the metrics of the font that is used by the widget.
+
+    We give an image of a checkbox and the style option to match
+    it.
+
+    \image javastyle/checkboxexample.png A Java style checkbox
+
+    The above checkbox will have the following state flags in its
+    style option:
+
+    \table 90%
+    \header
+        \li State flag
+        \li Set
+    \row
+        \li \c State_Sunken
+        \li Yes
+    \row
+        \li \c State_NoChange
+        \li No
+    \row
+        \li \c State_On
+        \li Yes
+    \row
+        \li \c State_Off
+        \li No
+    \row
+        \li \c State_MouseOver
+        \li Yes
+    \row
+        \li \c State_Enabled
+        \li Yes
+    \row
+        \li \c State_HasFocus
+        \li Yes
+    \row
+        \li \c State_KeyboardFocusChange
+        \li No
+    \row
+        \li \c State_Active
+        \li Yes
+    \endtable
+
+    The QCheckBox paints itself in QWidget::paintEvent() with
+    style option \c opt and QStylePainter \c p. The QStylePainter
+    class is a convenience class to draw style elements. Most
+    notably, it wraps the methods in QStyle used for painting. The
+    QCheckBox draws itself as follows:
+
+    \snippet code/doc_src_styles.cpp 2
+
+    QCommonStyle handles the CE_CheckBox element. The QCheckBox
+    has two sub elements: SE_CheckBoxIndicator (the checked indicator)
+    and SE_CheckBoxContents (the contents, which are used for the
+    checkbox label). QCommonStyle also implements these sub element
+    bounding rectangles. Next, we'll have a look at the QCommonStyle code:
+
+    \snippet code/doc_src_styles.cpp 3
+
+    As can be seen from the code extract, the common style gets
+    the bounding rectangles of the two sub elements of
+    CE_CheckBox, and then draws them. If the checkbox has focus,
+    the focus frame is also drawn.
+
+    The Java style draws CE_CheckBoxIndicator, while QCommonStyle
+    handles CE_CheckboxLabel. We will examine each implementation and
+    start with CE_CheckBoxLabel:
+
+    \snippet code/doc_src_styles.cpp 4
+
+    \l{QStyle::}{visualAlignment()} adjusts the alignment of text
+    according to the layout direction. We then draw an icon if it
+    exists, and adjust the space left for the text.
+    \l{QStyle::}{drawItemText()} draws the text, taking alignment,
+    layout direction, and the mnemonic into account. It also uses the
+    palette to draw the text in the right color.
+
+    The drawing of labels often gets somewhat involved. Luckily, it
+    can usually be handled by the base class. The Java style
+    implements its own push button label, since Java centers button
+    contents also when the button has an icon. You can examine that
+    implementation if you need an example of reimplementing label
+    drawing.
+
+    We'll now take a look at the Java implementation
+    of CE_CheckBoxIndicator in \c drawControl():
+
+    \snippet javastyle.cpp 0
+
+    We first save the state of the painter. This is not always
+    necessary, but in this case the QCommonStyle needs the painter in
+    the same state as it was when PE_IndicatorCheckBox was called (We
+    could also set the state with function calls, of course). We then
+    use \c drawButtonBackground() to draw the background of the check
+    box indicator. This is a helper function that draws the background
+    and also the frame of push buttons and check boxes. We take a look
+    at that function below. We then check if the mouse is hovering
+    over the checkbox. If it is, we draw the frame that Java checkboxes
+    have when the box is not pressed down and the mouse is over it.
+    You may note that Java does not handle tri-state boxes, so we have
+    not implemented it.
+
+    Here we use a PNG image for our indicator. We could also check
+    if the widget is disabled. We would then have to use
+    another image with the indicator in the disabled color.
+
+    \snippet javastyle.cpp 1
+
+    We have seen how check boxes are styled in the Java style from the
+    time the widget gets a paint request to the time the style is
+    finished painting. To learn in detail how each widget is painted,
+    you need to go through the code step-by-step as we have done here.
+    However, it is usually enough to know which style elements the
+    widgets draw. The widget builds a style option and calls on the
+    style one or more times to draw the style elements of which it
+    consists. Usually, it is also sufficient to know the states a widget
+    can be in and the other contents of the style option, i.e., what we
+    list in the next section.
+
+    \section1 Widget Walkthrough
+
+    In this section, we will examine how most of Qt's widgets are
+    styled. Hopefully, this will save you some time and effort while
+    developing your own styles and widgets. You will not find
+    information here that is not attainable elsewhere (i.e., by
+    examining the source code or the class descriptions for the style
+    related classes).
+
+    We mostly use Java style widgets as examples. The Java style does not
+    draw every element in the element trees. This is because they are
+    not visible for that widget in the Java style. We still make sure
+    that all elements are implemented in a way that conforms with the
+    Java style, as custom widgets might need them (this does not
+    exclude leaving implementations to QCommonStyle though).
+
+    The following is given for each widget:
+
+    \list
+        \li A table with the members (variables, etc.) of its style option.
+        \li A table of the state flags (QStyle::StateFlag) that
+           can be set on the widget and when the states are set.
+        \li Its element tree (see section \l{The Style Elements}).
+        \li An image of the widget in which the elements are outlined.
+        \omit This is not written yet - probably never will be
+              either
+        \li A list of style hints that should be checked for the
+           widget.
+        \li A list of standard pixmaps that could be used by the
+           elements.
+        \endomit
+    \endlist
+
+    The element tree contains the primitive, control, and complex
+    style elements. By doing a top-down traversal of the element tree,
+    you get the sequence in which the elements should be drawn. In the
+    nodes, we have written the sub element rectangles, sub control
+    elements, and pixel metrics that should be considered when drawing
+    the element of the node.
+
+    Our approach on styling centers on the drawing of the widgets. The
+    calculations of sub elements rectangles, sub controls, and pixel
+    metrics used \b during drawing is only listed as contents in
+    the element trees. Note that there are rectangles and pixel
+    metrics that are only used by widgets. This leaves these
+    calculations untreated in the walkthrough. For instance, the
+    \l{QStyle::}{subControlRect()} and
+    \l{QStyle::}{sizeFromContents()} functions often call
+    \l{QStyle::}{subElementRect()} to calculate their bounding
+    rectangles. We could draw trees for this as well. However, how
+    these calculations are done is completely up to the individual
+    styles, and they do not have to follow a specific structure (Qt
+    does not impose a specific structure). You should still make sure
+    that you use the appropriate pixel metrics, though. To limit the
+    size of the document, we have therefore chosen not to include
+    trees or describe the calculations made by the Java (or any other)
+    style.
+
+    You may be confused about how the different pixel metrics, sub
+    element rectangles, and sub control rectangles should be used when
+    examining the trees. If you are in doubt after reading the QStyle
+    enum descriptions, we suggest that you examine the QCommonStyle
+    implementation.
+
+    Some of the bounding rectangles that we outline in the widget
+    images are equal. Reasons for this are that some elements draw
+    backgrounds while others draw frames and labels. If in doubt,
+    check the description of each element in QStyle. Also, some
+    elements are there to layout, i.e., decide where to draw, other
+    elements.
+
+    \section2 Common Widget Properties
+
+    Some states and variables are common for all widgets. These are
+    set with QStyleOption::initFrom(). Not all elements use this function;
+    it is the widgets that create the style options, and for some
+    elements the information from \l{QStyleOption::}{initFrom()} is not
+    necessary.
+
+    A table with the common states follows:
+
+    \table 90%
+        \header
+            \li State
+            \li State Set When
+        \row
+            \li \c State_Enabled
+            \li Set if the widget is not disabled (see
+               QWidget::setEnabled())
+        \row
+            \li \c State_Focus
+            \li Set if the widget has focus (see
+               QWidget::hasFocus())
+        \row
+            \li \c State_KeyobordFocusChange
+            \li Set when the user changes focus with the keyboard
+               (see Qt::WA_KeyboardFocusChange)
+        \row
+            \li \c State_MouseOver
+            \li Set if the mouse cursor is over the widget
+        \row
+            \li \c State_Active
+            \li Set if the widget is a child of the active window.
+        \row
+            \li \c State_HasEditFocus
+            \li Set if the widget has the edit focus
+    \endtable
+
+    The other common members for widgets are:
+
+    \table 90%
+        \header
+            \li Member
+            \li Content
+        \row
+            \li rect
+            \li The bounding rectangle of the element to draw. This
+               is set to the widget bounding rectangle
+               (QWidget::rect()).
+        \row
+            \li direction
+            \li The layout direction; a value of the
+               Qt::LayoutDirection enum.
+        \row
+            \li palette
+            \li The QPalette to use when drawing the element. This
+               is set to the widgets palette (QWidget::palette()).
+        \row
+            \li fontMetrics
+            \li The QFontMetrics to use when drawing text on the
+               widget.
+    \endtable
+
+    The complex style options (classes that inherit
+    QStyleOptionComplex) used for complex style elements share two
+    variables: \l{QStyleOptionComplex::}{subControls} and
+    \l{QStyleOptionComplex::}{activeSubControls}. Both variables are
+    an OR'ed combination of QStyle::SubControl enum values. They
+    indicate which sub controls the complex control consists of and
+    which of these controls are currently active.
+
+    As mentioned, the style calculates the size of the widget's
+    contents, which the widgets calculate their size hints from. In
+    addition, complex controls also use the style to test which
+    sub-controls the mouse is over.
+
+    \section2 Widget Reference
+
+    Without further delay, we present the widget walkthrough; each
+    widget has its own sub-section.
+
+    \section3 Push Buttons
+
+    The style structure for push buttons is shown below. By doing a
+    top-down traversal of the tree, you get the sequence in which the
+    elements should be drawn.
+
+    \image javastyle/pushbutton.png The style structure for push buttons
+
+    The layout of the buttons, with regard to element bounds, varies from
+    style to style. This makes it difficult to show conceptual images
+    of this. Also, elements may - even be intended to - have the same
+    bounds; the \c PE_PushButtonBevel, for instance, is used in
+    QCommonStyle to draw the elements that it contains:
+    \c PE_FrameDefaultButton, \c PE_FrameButtonBevel, and
+    \c PE_PanelButtonCommand, all of which have the same bounds in common
+    style. \c PE_PushButtonBevel is also responsible for drawing the menu
+    indicator (QCommonStyle draws \c PE_IndicatorArrowDown).
+
+    An image of a push button in the Java style that shows the bounding
+    rectangles of the elements is given below. Colors are used to
+    separate the bounding rectangles in the image; they do not fill
+    any other purpose. This is also true for similar images for the
+    other widgets.
+
+    \image javastyle/button.png
+
+    The Java style, as well as all other styles implemented in Qt,
+    does not use \c PE_FrameButtonBevel. It is usual that a button
+    with a \c PE_DefaultFrame adjusts the \c PE_PanelButtonCommand's
+    rectangle by \c PM_ButtonDefaultIndicator. The \c CE_PushButtonLabel
+    is found by adjusting the rect by \c PM_DefaultFrameWidth.
+
+    We will now examine the style option for push
+    buttons - QStyleOptionButton. A table for the states that
+    QPushButton can set on the style option follows:
+
+    \table 90%
+        \header
+            \li State
+            \li State Set When
+        \row
+            \li \c State_Sunken
+            \li Button is down or menu is pressed shown
+        \row
+            \li \c State_On
+            \li Button is checked
+        \row
+            \li \c State_Raised
+            \li Button is not flat and not pressed down
+    \endtable
+
+    Other members of QStyleOptionButton is:
+
+    \table 90%
+        \header
+            \li Member
+            \li Content
+        \row
+            \li features
+            \li Flags of the QStyleOptionButton::ButtonFeatures enum,
+               which describes various button properties (see enum)
+        \row
+            \li icon
+            \li The buttons QIcon (if any)
+        \row
+            \li iconSize
+            \li The QSize of the icon
+        \row
+            \li text
+            \li a QString with the buttons text
+    \endtable
+
+    \section3 Check and Radio Buttons
+
+    The structures for radio and check buttons are identical.
+    We show the structure using QCheckBox element and pixel
+    metric names:
+
+    \image javastyle/checkbox.png
+
+    QStyleOptionButton is used as the style option for both check
+    and radio buttons. We first give a table of the states that
+    can be set in the option:
+
+    \table 90%
+        \header
+            \li State
+            \li State Set When
+        \row
+            \li \c State_sunken
+            \li The box is pressed down
+        \row
+            \li \c State_NoChange
+            \li The box is partially checked (for tri-state
+               checkboxes.)
+        \row
+            \li \c State_On
+            \li The box is checked
+        \row
+            \li \c State_Off
+            \li The box is unchecked
+    \endtable
+
+    See \l{Push Buttons} for a table over other members in the
+    QStyleOptionButtonClass.
+
+    \section3 Tabs
+
+    In Qt, QTabBar uses the style to draw its tabs. Tabs exist either
+    in a QTabWidget, which contains a QTabBar, or as a separate bar.
+    If the bar is not part of a tab widget, it draws its own base.
+
+    QTabBar lays out the tabs, so the style does not have control over
+    tab placement. However, while laying out its tabs, the bar asks
+    the style for \c PM_TabBarTabHSpace and \c PM_TabBarTabVSpace, which is
+    extra width and height over the minimum size of the tab bar tab
+    label (icon and text). The style can also further influence the
+    tab size before it is laid out, as the tab bar asks for
+    \c CT_TabBarTab. The bounding rectangle of the bar is decided by the
+    tab widget when it is part of the widget (still considering
+    \c CT_TabBarTab).
+
+    The tab bar is responsible for drawing the buttons that appear on
+    the tab bar when all tabs do not fit. Their placement is not
+    controlled by the style, but the buttons are \l{QToolButton}s
+    and are therefore drawn by the style.
+
+    Here is the style structure for QTabWidget and QTabBar:
+
+    \image javastyle/tab.png
+
+    The dotted lines indicate that the QTabWidget contains a tab bar,
+    but does not draw it itself. QTabBar only draws its base line
+    when not part of a tab widget, and it keeps two tool
+    buttons that scroll the bar when all tabs do not fit; see \l{Tool
+    Buttons} for their element tree. Also note that since the buttons
+    are children of the tab bar, they are drawn after the bar. The
+    tabs' bounding rectangles overlap the base by \c PM_TabBarBaseOverlap.
+
+    Here is a tab widget in the Java style:
+
+    \image javastyle/tabwidget.png
+
+    In the Java style, the tab bar shape and label have the same bounding
+    rectangle as \c CE_TabBarTab. Notice that the tabs overlap with the
+    tab widget frame. The base of the tab bar (if drawn) is the area where
+    the tabs and frame overlap.
+
+    The style option for tabs (QStyleOptionTab) contains the necessary
+    information for drawing tabs. The option contains the position of
+    the tab in the tab bar, the position of the selected tab, the
+    shape of the tab, the text, and the icon. After Qt 4.1, the option
+    should be cast to a QStyleOptionTabV2, which also contains the
+    icon's size.
+
+    As the Java style tabs don't overlap, we also present an image of
+    a tab widget in the common style. Note that if you want the tabs
+    to overlap horizontally, you do that when drawing the tabs in
+    \c CE_TabBarTabShape; the tabs bounding rectangles will not be
+    altered by the tab bar. The tabs are drawn from left to right in a
+    north tab bar shape, top to bottom in an east tab bar shape, etc.
+    The selected tab is drawn last, so that it is easy to draw it over
+    the other tabs (if it is to be bigger).
+
+    \image javastyle/windowstabimage.png
+
+    A table of the states a tab bar can set on its tabs follows:
+
+    \table 90%
+        \header
+            \li State
+            \li State Set When
+        \row
+            \li \c State_Sunken
+            \li The tab is pressed on with the mouse.
+        \row
+            \li \c State_Selected
+            \li If it is the current tab.
+        \row
+            \li \c State_HasFocus
+            \li The tab bar has focus and the tab is selected.
+    \endtable
+
+    Note that individual tabs may be disabled even if the tab bar
+    is not. The tab will be active if the tab bar is active.
+
+    Here follows a table of QStyleOptionTabV2's members:
+
+    \table 90%
+        \header
+            \li Member
+            \li Content
+        \row
+            \li cornerWidgets
+            \li Flags of the CornerWidget enum, which indicate
+               if and which corner widgets the tab bar has.
+        \row
+            \li icon
+            \li The QIcon of the tab.
+        \row
+            \li iconSize
+            \li The QSize of the icon.
+        \row
+            \li position
+            \li A TabPosition enum value that indicates the tab's
+               position on the bar relative to the other tabs.
+        \row
+            \li row
+            \li Holds which row the tab is in.
+        \row
+            \li selectedPosition
+            \li A value of the SelectedPosition enum that indicates
+               whether the selected tab is adjacent to or is the
+               tab.
+        \row
+            \li shape
+            \li A value of the QTabBar::Shape enum indicating
+               whether the tab has rounded or triangular corners
+               and the orientation of the tab.
+        \row
+            \li text
+            \li The tab text.
+    \endtable
+
+    The frame for tab widgets use QStyleOptionTabWidgetFrame as
+    style option. We list its members here. It does not have
+    states set besides the common flags.
+
+    \table 90%
+        \header
+            \li Member
+            \li content
+        \row
+            \li leftCornerWidgetSize
+            \li The QSize of the left corner widget (if any).
+        \row
+            \li rightCornerWidgetSize
+            \li The QSize of the right corner widget (if any).
+        \row
+            \li lineWidth
+            \li Holds the line with for drawing the panel.
+        \row
+            \li midLineWith
+            \li This value is currently always 0.
+        \row
+            \li shape
+            \li The shape of the tabs on the tab bar.
+        \row
+            \li tabBarSize
+            \li The QSize of the tab bar.
+    \endtable
+
+    \section3 Scroll Bars
+
+    Here is the style structure for scrollbars:
+
+    \image javastyle/scrollbar.png
+
+    QScrollBar simply creates its style option and then draws
+    \c CC_ScrollBar. Some styles draw the background of add page and sub
+    page with \c PE_PanelButtonBevel, and also use indicator arrows to
+    draw the arrows in the next and previous line indicators; we have
+    not included these in the tree as their use is up to the
+    individual style. The style's \c PM_MaximumDragDistance is the
+    maximum distance in pixels the mouse can move from the bounds
+    of the scroll bar and still move the handle.
+
+    Here is an image of a scrollbar in the Java style:
+
+    \image javastyle/scrollbarimage.png
+
+    You may notice that the scrollbar is slightly different from
+    Java's, as it has two line up indicators. We have done this to show
+    that you can have two separate bounding rectangles for a
+    single sub control. The scroll bar is an example of a widget that
+    is entirely implemented by the Java style - QCommonStyle is not
+    involved in the drawing.
+
+    We have a look at the different states a scroll bar can set on
+    the style option:
+
+    \table 90%
+        \header
+            \li State
+            \li State Set When
+        \row
+            \li \c State_Horizontal
+            \li The scroll bar is horizontal.
+    \endtable
+
+    The style option of QScrollBar is QStyleOptionSlider. Its
+    members are listed in the following table. The option is used
+    by all \l{QAbstractSlider}s; we only describe the members
+    relevant for scroll bars here.
+
+    \table 90%
+        \header
+            \li Member
+            \li Content
+        \row
+            \li maximum
+            \li The maximum value of the scroll bar.
+        \row
+            \li minimum
+            \li The minimum value of the scroll bar.
+        \row
+            \li notchTarget
+            \li The number of pixels between notches.
+        \row
+            \li orientation
+            \li A value of the Qt::Orientation enum that specifies
+               whether the scroll bar is vertical or horizontal.
+        \row
+            \li pageStep
+            \li The number by which to increase or decrease the slider's
+               value (relative to the size of the slider and its value
+               range) on page steps.
+        \row
+            \li singleStep
+            \li The number by which to increase or decrease the slider's
+               value on single (or line) steps.
+        \row
+            \li sliderValue
+            \li The value of the slider.
+        \row
+            \li sliderPosition
+            \li The position of the slider handle. This is the same
+               as \c sliderValue if the scroll bar is
+               QAbstractSlider::tracking. If not, the scroll
+               bar does not update its value before the mouse
+               releases the handle.
+        \row
+            \li upsideDown
+            \li Holds the direction in which the scroll bar
+               increases its value. This is used instead of
+               QStyleOption::direction for all abstract sliders.
+    \endtable
+
+    \section3 Sliders
+
+    When calculating the slider's size hint, \c PM_SliderThickness and
+    \c PM_SliderLength are queried from the style. As with scroll bars,
+    the QSlider only lets the user move the handle if the mouse is
+    within \c PM_MaximumDragDistance from the slider bounds. When it
+    draws itself, it creates the style option and calls \c
+    drawComplexControl() with \c CC_Slider:
+
+    \image javastyle/slider.png
+
+    We also show a picture of a slider in the Java style. We show
+    the bounding rectangles of the sub elements, as all drawing is done
+    in \c CC_Slider.
+
+    \image javastyle/sliderimage.png
+
+    QSlider uses QStyleOptionSlider as all \l{QAbstractSlider}s do. We
+    present a table with the members that affect QSlider:
+
+    \table 90%
+        \header
+            \li Member
+            \li Content
+        \row
+            \li maximum
+            \li The maximum value of the slider.
+        \row
+            \li minimum
+            \li The minimum value of the slider.
+        \row
+            \li notchTarget
+            \li This is the number of pixels between each notch.
+        \row
+            \li orientation
+            \li A Qt::Orientation enum value that indicates whether the
+               slider is vertical or horizontal.
+        \row
+            \li pageStep
+            \li The number by which to increase or decrease the slider's
+               value on page steps.
+        \row
+            \li singleStep
+            \li The number by which to increase or decrease the slider's
+               value on single (or line) steps.
+        \row
+            \li sliderValue
+            \li The value of the slider.
+        \row
+            \li sliderPosition
+            \li The position of the slider given as a slider value.
+               This  will be equal to the \c sliderValue if the
+               slider is \l{QAbstractSlider::}{tracking}; if
+               not, the slider's value will not change until the handle is
+               released with the mouse.
+        \row
+            \li upsideDown
+            \li This member is used instead of QStyleOption::direction
+                for all abstract sliders.
+    \endtable
+
+    You should note that the slider does not use direction for
+    reverse layouts; it uses \c upsideDown.
+
+    \section3 Spin Boxes
+
+    When QSpinBox paints itself, it creates a QStyleOptionSpinBox and
+    asks the style to draw \c CC_SpinBox. The edit field is a line
+    edit that is a child of the spin box. The dimensions of the
+    field are calculated by the style with \c SC_SpinBoxEditField.
+
+    Here follows the style tree for spin boxes. It is not
+    required that a style uses the button panel primitive to paint
+    the indicator backgrounds. You can see an image below the tree
+    showing the sub elements in QSpinBox in the Java style.
+
+    \image javastyle/spinbox.png
+
+    \image javastyle/spinboximage.png
+
+    The QStyleOptionSpinBox, which is the style option for spin
+    boxes. It can set the following states on the spin box:
+
+    \table 90%
+        \header
+            \li State
+            \li State Set When
+        \row
+            \li \c State_Sunken
+            \li Is set if one of the sub controls \c CC_SpinUp or
+               \c CC_SpinDown is pressed on with the mouse.
+    \endtable
+
+    The rest of the members in the spin box style options are:
+
+    \table 90%
+        \header
+            \li Property
+            \li Function
+        \row
+            \li frame
+            \li Boolean that is \c true if the spin box is to draw a
+               frame.
+        \row
+            \li buttonSymbols
+            \li Value of the ButtonSymbols enum that decides the
+               symbol on the up/down buttons.
+        \row
+            \li stepEnabled
+            \li A value of the StepEnabled enum, indicating which of the
+               spin box buttons are pressed down.
+    \endtable
+
+    \section3 Title Bar
+
+    The title bar complex control, \c CC_TitleBar, is used to draw
+    the title bars of internal windows in QMdiArea. It typically
+    consists of a window title, and close, minimize, system menu, and
+    maximize buttons. Some styles also provide buttons for shading
+    the window, as well as a button for context sensitive help.
+
+    The bar is drawn in \c CC_TitleBar without using any sub elements.
+    How the individual styles draw their buttons is up to them, but
+    there are standard pixmaps for the buttons that the style should
+    provide.
+
+    \image javastyle/titlebar.png
+
+    In an image over a title bar in the Java style, we show the
+    bounding rectangles of the sub elements supported by the Java style
+    (all of which are drawn with standard pixmaps). It is usual to
+    draw the button backgrounds using \c PE_PanelButtonTool, but it's not
+    mandatory.
+
+    \image javastyle/titlebarimage.png
+
+    The style option for title bars is QStyleOptionTitleBar. Its
+    members are:
+
+    \table 90%
+        \header
+            \li Member
+            \li Content
+        \row
+            \li icon
+            \li The title bar's icon.
+        \row
+            \li text
+            \li The text for the title bar's label.
+        \row
+            \li windowFlags
+            \li Flags of the Qt::WindowFlag enum. The window flags
+               used by QMdiArea for window management.
+        \row
+            \li titleBarState
+            \li This is the QWidget::windowState() of the window
+               that contains the title bar.
+    \endtable
+
+    \section3 Combo Box
+
+    A QComboBox uses the style to draw the button and label of
+    non-editable boxes with \c CC_ComboBox and \c CE_ComboBoxLabel.
+
+    The list that pops up when the user clicks on the combo box is
+    drawn by a \l{Delegate Classes}{delegate}, which we do not cover
+    in this overview. You can, however, use the style to control the
+    list's size and position with the sub element
+    \c SC_ComboBoxListBoxPopup. The style also decides where the edit
+    field for editable boxes should be with \c SC_ComboBoxEditField; the
+    field itself is a QLineEdit that is a child of the combo box.
+
+    \image javastyle/combobox.png
+
+    We show an image over a Java style combo box in which we have
+    outlined its sub elements and sub element rectangles:
+
+    \image javastyle/comboboximage.png
+
+    Java combo boxes do not use the focus rect; it changes its
+    background color when it has focus. The \c SC_ComboBoxEdit field is
+    used both by QComboBox to calculate the size of the edit field and
+    the style for calculating the size of the combo box label.
+
+    The style option for combo boxes is QStyleOptionComboBox. It
+    can set the following states:
+
+    \table 90%
+        \header
+            \li State
+            \li Set When
+        \row
+            \li \c State_Selected
+            \li The box is not editable and has focus.
+        \row
+            \li \c State_Sunken
+            \li \c SC_ComboBoxArrow is active.
+        \row
+            \li \c State_on
+            \li The container (list) of the box is visible.
+    \endtable
+
+    The style options other members are:
+
+    \table
+        \header
+            \li Member
+            \li Content
+        \row
+            \li currentIcon
+            \li The icon of the current (selected) item of the
+               combo box.
+        \row
+            \li currentText
+            \li The text of the current item in the box.
+        \row
+            \li editable
+            \li Holds whether the combo box is editable or not.
+        \row
+            \li frame
+            \li Holds whether the combo box has a frame or not.
+        \row
+            \li iconSize
+            \li The size of the current items icon.
+        \row
+            \li popupRect
+            \li The bounding rectangle of the combo box's popup
+               list.
+    \endtable
+
+    \section3 Group Boxes
+
+    When calculating the size hint, QGroupBox fetches three pixel
+    metrics from the style: \c PM_IndicatorWidth,
+    \c PM_CheckBoxLabelSpacing, and \c PM_IndicatorHeight. QGroupBox has
+    the following style element tree:
+
+    \image javastyle/groupbox.png
+
+    Qt does not impose restrictions on how the check box is drawn; the
+    Java style draws it with \c CE_IndicatorCheckBox. See \l{Check and
+    Radio Buttons} for the complete tree.
+
+    We also give an image of the widget with the sub controls and
+    sub control rectangles drawn:
+
+    \image javastyle/groupboximage.png
+
+    The style option for group boxes is QStyleOptionGroupBox. The
+    following states can be set on it:
+
+    \table 90%
+        \header
+            \li State
+            \li Set When
+        \row
+            \li \c State_On
+            \li The check box is checked.
+        \row
+            \li \c State_Sunken
+            \li The check box is pressed down.
+        \row
+            \li \c State_Off
+            \li The check box is unchecked (or there is no check box).
+    \endtable
+
+    The remaining members of QStyleOptionGroupBox are:
+
+    \table
+        \header
+            \li Member
+            \li Content
+        \row
+            \li features
+            \li Flags of the QStyleOptionFrameV2::FrameFeatures
+               enum describing the frame of the group box.
+        \row
+            \li lineWidth
+            \li The line width with which to draw the panel. This
+               is always 1.
+        \row
+            \li text
+            \li The text of the group box.
+        \row
+            \li textAlignment
+            \li The alignment of the group box title.
+        \row
+            \li textColor
+            \li The QColor of the text.
+    \endtable
+
+    \section3 Splitters
+
+    As the structure of splitters are simple and do not contain any
+    sub elements, we do not include any images of splitters. \c CE_Splitter
+    does not use any other elements or metrics.
+
+    For its style option, the splitter uses the base class QStyleOption.
+    It can set the following state flags on it:
+
+    \table 90%
+        \header
+            \li State
+            \li Set When
+        \row
+            \li \c State_Horizontal
+            \li Set if it is a horizontal splitter.
+    \endtable
+
+    QSplitter does not use \l{QStyleOption::}{initFrom()} to set up its
+    option; it sets the \c State_MouseOver and \c State_Disabled flags
+    itself.
+
+    \section3 Progress Bar
+
+    The \c CE_ProgressBar element is used by QProgressBar, and it is the
+    only element used by this widget. We start with the style structure:
+
+    \image javastyle/progressbar.png
+
+    Here is a progress bar in the common style (the Java style
+    bounding rectangles are equal):
+
+    \image javastyle/progressbarimage.png
+
+    The style option for QProgressBar is QStyleOptionProgressBarV2.
+    The bar does not set any state flags, but the other members of the
+    option are:
+
+    \table 90%
+        \header
+            \li Member
+            \li Content
+        \row
+            \li minimum
+            \li The minimum value of the bar.
+        \row
+            \li maximum
+            \li The maximum value of the bar.
+        \row
+            \li progress
+            \li The current value of the bar.
+        \row
+            \li textAlignment
+            \li How the text is aligned in the label.
+        \row
+            \li textVisible
+            \li Whether the label is drawn.
+        \row
+            \li text
+            \li The label text.
+        \row
+            \li orientation
+            \li Progress bars can be vertical or horizontal.
+        \row
+            \li invertedAppearance
+            \li The progress is inverted (i.e., right to left in a
+               horizontal bar).
+        \row
+            \li bottomToTop
+            \li Boolean, that, if \c true, turns the label of vertical
+               progress bars 90 degrees.
+    \endtable
+
+    \section3 Tool Buttons
+
+    Tool buttons exist either independently or as part of tool bars.
+    They are drawn equally either way. The QToolButton draws only one
+    style element: \c CC_ToolButton.
+
+    Below is a tree of the widget's style structure:
+
+    \image javastyle/toolbutton.png
+
+    Note that \c PE_FrameButtonTool and \c PE_IndicatorArrowDown are
+    included in the tree as the Java style draws them, but they can
+    safely be omitted if you prefer it. The structure may also be
+    different. QCommonStyle, for instance, draws both
+    \c PE_IndicatorButtonDropDown and \c PE_IndicatorArrowDown in
+    \c CE_ToolButton.
+
+    We also have an image of a tool button where we have outlined
+    the sub element bounding rectangles and sub controls.
+
+    \image javastyle/toolbuttonimage.png
+
+    Here is the states table for tool buttons:
+
+    \table 90%
+        \header
+            \li State
+            \li Set When
+        \row
+            \li \c State_AutoRise
+            \li The tool button has the autoRise property set.
+        \row
+            \li \c State_Raised
+            \li The button is not sunken (i.e., by being checked or
+               pressed on with the mouse).
+        \row
+            \li \c State_Sunken
+            \li The button is down.
+        \row
+            \li \c State_On
+            \li The button is checkable and checked.
+    \endtable
+
+    QStyleOptionToolButton also contains the following members:
+
+    \table
+        \header
+            \li Member
+            \li Content
+        \row
+            \li arrowType
+            \li A Qt::ArrowType enum value, which contains the
+                 direction of the buttons arrow (if an arrow is to
+                 be used in place of an icon).
+        \row
+            \li features
+            \li Flags of the QStyleOptionToolButton::ButtonFeature
+               enum describing if the button has an arrow, a menu,
+               and/or has a popup-delay.
+        \row
+            \li font
+            \li The QFont of the buttons label.
+        \row
+            \li icon
+            \li The QIcon of the tool button.
+        \row
+            \li iconSize
+            \li The icon size of the button's icon.
+        \row
+            \li pos
+            \li The position of the button, as given by
+               QWidget::pos()
+        \row
+            \li text
+            \li The text of the button.
+        \row
+            \li toolButtonStyle
+            \li A Qt::ToolButtonStyle enum value which decides
+               whether the button shows the icon, the text, or both.
+    \endtable
+
+    \section3 Toolbars
+
+    Toolbars are part of the \l{QMainWindow}{main window framework},
+    and cooperate with the QMainWindow to which they belong while it
+    builds its style option. A main window has 4 areas that toolbars
+    can be placed in. They are positioned next to the four sides of
+    the window (i.e., north, south, east and west). Within each area
+    there can be more than one line of toolbars; a line consists of
+    toolbars with equal orientation (vertical or horizontal) placed
+    next to each other.
+
+    \l{QToolBar}{Toolbars} in Qt consist of three elements:
+    \c CE_ToolBar, \c PE_IndicatorToolBarHandle, and
+    \c PE_IndicatorToolBarSeparator. It is QMainWindowLayout that
+    calculates the bounding rectangles (i.e., position and size of the
+    toolbars and their contents. The main window also uses the \c
+    sizeHint() of the items in the toolbars when calculating the size
+    of the bars.
+
+    Here is the element tree for QToolBar:
+
+    \image javastyle/toolbar.png
+
+    The dotted lines indicate that the QToolBar keeps an instance of
+    QToolBarLayout and that QToolBarSeparators are kept by
+    QToolBarLayout. When the toolbar is floating (i.e., has its own
+    window) the \c PE_FrameMenu element is drawn, else QToolBar draws
+    \c CE_ToolBar.
+
+    Here is an image of a toolbar in the Java style:
+
+    \image javastyle/toolbarimage.png
+
+    QToolBarSaparator uses QStyleOption for its style option. It
+    sets the \c State_Horizontal flag if the toolbar it lives in is
+    horizontal. Other than that, they use \l{QStyleOption::}{initFrom()}.
+
+    The style option for QToolBar is QStyleOptionToolBar. The only
+    state flag set (besides the common flags) is \c State_Horizontal
+    if the bar is horizontal (i.e., in the north or south toolbar area).
+    The member variables of the style option are:
+
+    \table 90%
+        \header
+            \li Member
+            \li Content
+        \row
+            \li features
+            \li Holds whether the bar is movable in a value of the
+               ToolBarFeature, which is either Movable or None.
+        \row
+            \li lineWidth
+            \li The width of the tool bar frame.
+        \row
+            \li midLineWidth
+            \li This variable is currently not used and is always 0.
+        \row
+            \li positionOfLine
+            \li The position of the toolbar line within the toolbar
+               area to which it belongs.
+        \row
+            \li positionWithinLine
+            \li The position of the toolbar within the toolbar line.
+        \row
+            \li toolBarArea
+            \li The toolbar area in which the toolbar lives.
+    \endtable
+
+    \section3 Menus
+
+    Menus in Qt are implemented in QMenu. The QMenu keeps a list of
+    actions, which it draws as menu items. When QMenu receives paint
+    events, it calculates the size of each menu item and draws them
+    individually with \c CE_MenuItem. Menu items do not have a separate
+    element for their label (contents), so all drawing is done in
+    \c CE_MenuItem. The menu also draws the frame of the menu with
+    \c PE_FrameMenu. It also draws \c CE_MenuScroller if the style supports
+    scrolling. \c CE_MenuTearOff is drawn if the menu is too large for its
+    bounding rectangle.
+
+    In the style structure tree, we also include QMenu as it also does
+    styling related work. The bounding rectangles of menu items are
+    calculated for the menu's size hint and when the menu is displayed
+    or resized.
+
+    \image javastyle/menu.png
+
+    The \c CE_MenuScroller and \c CE_MenuTearOff elements are handled by
+    QCommonStyle and are not shown unless the menu is too large to fit
+    on the screen. \c PE_FrameMenu is only drawn for pop-up menus.
+
+    QMenu calculates rectangles based on its actions and calls
+    \c CE_MenuItem and \c CE_MenuScroller if the style supports that.
+
+    It is also usual to use \c PE_IndicatorCheckBox (instead of using
+    \c PE_IndicatorMenuCheckMark) and \c PE_IndicatorRadioButton for drawing
+    checkable menu items; we have not included them in the style tree
+    as this is optional and varies from style to style.
+
+    \image javastyle/menuimage.png
+
+    The style option for menu items is QStyleOptionMenuItem. The
+    following tables describe its state flags and other members.
+
+    \table 90%
+        \header
+            \li State
+            \li Set When
+        \row
+            \li \c State_Selected
+            \li The mouse is over the action and the action is not
+               a separator.
+        \row
+            \li \c State_Sunken
+            \li The mouse is pressed down on the menu item.
+        \row
+            \li \c State_DownArrow
+            \li Set if the menu item is a menu scroller and it scrolls
+               the menu downwards.
+    \endtable
+
+    \table 90%
+        \header
+            \li Member
+            \li Content
+        \row
+            \li checkType
+            \li A value of the \l{QStyleOptionMenuItem::}{CheckType} enum,
+               which is either NotCheckable, Exclusive, or
+               NonExclusive.
+        \row
+            \li checked
+            \li Boolean that is \c true if the menu item is checked.
+        \row
+            \li font
+            \li The QFont to use for the menu item's text.
+        \row
+            \li icon
+            \li The QIcon of the menu item.
+        \row
+            \li maxIconWidth
+            \li The maximum width allowed for the icon.
+        \row
+            \li menuHasChecableItem
+            \li Boolean which is \c true if at least one item in the
+               menu is checkable.
+        \row
+            \li menuItemType
+            \li The type of the menu item. This a value of the
+               \l{QStyleOptionMenuItem::}{MenuItemType}.
+        \row
+            \li menuRect
+            \li The bounding rectangle for the QMenu that the menu
+               item lives in.
+        \row
+            \li tabWidth
+            \li This is the distance between the text of the menu
+               item and the shortcut.
+        \row
+            \li text
+            \li The text of the menu item.
+    \endtable
+
+    The setup of the style option for \c CE_MenuTearOff and
+    \c CE_MenuScroller also uses QStyleOptionMenuItem; they only set the
+    \c menuRect variable in addition to the common settings with
+    QStyleOption's \l{QStyleOption::}{initFrom()}.
+
+    \section3 Menu Bar
+
+    QMenuBar uses the style to draw each menu bar item and the empty
+    area of the menu bar. The pull-down menus themselves are
+    \l{QMenu}s (see \l{Menus}). The style element tree for the menu
+    bar follows:
+
+    \image javastyle/menubar.png
+
+    The panel and empty area are drawn after the menu items. The
+    QPainter that the QMenuBar sends to the style has the bounding
+    rectangles of the items clipped out (i.e., clip region), so you
+    don't need to worry about drawing over the items. The pixel
+    metrics in QMenuBar are used when the bounding rectangles of the
+    menu bar items are calculated.
+
+    \image javastyle/menubarimage.png
+
+    QStyleOptionMenuItem is used for menu bar items. The members that
+    are used by QMenuBar are described in the following table:
+
+    \table
+        \header
+            \li Member
+            \li Content
+        \row
+            \li menuRect
+            \li The bounding rectangle of the entire menu bar to
+               which the item belongs.
+        \row
+            \li text
+            \li The text of the item.
+        \row
+            \li icon
+            \li The icon of the menu item (it is not common that
+               styles draw this icon).
+    \endtable
+
+    QStyleOptionMenuItem is also used for drawing \c CE_EmptyMenuBarArea.
+
+    QStyleOptionFrame is used for drawing the panel frame. The
+    \l{QStyleOptionFrame::}{lineWidth} is set to \c PM_MenuBarPanelWidth.
+    The \l{QStyleOptionFrame::}{midLineWidth} is currently always set
+    to 0.
+
+    \section3 Item View Headers
+
+    It is the style that draws the headers of Qt's item views. The
+    item views keep the dimensions on individual sections. Also
+    note that the delegates may use the style to paint decorations
+    and frames around items. QItemDelegate, for instance, draws
+    \c PE_FrameFocusRect and \c PE_IndicatorViewItemCheck.
+
+    \image javastyle/header.png
+
+    Here is a QTableWidget showing the bounding rects of a Java
+    header:
+
+    \image javastyle/headerimage.png
+
+    The QHeaderView uses \c CT_HeaderSection, \c PM_HeaderMargin and
+    \c PM_HeaderGripMargin for size and hit test calculations. The
+    \c PM_HeaderMarkSize is currently not used by Qt. QTableView draws
+    the button in the top-left corner (i.e., the area where the
+    vertical and horizontal headers intersect) as a \c CE_Header.
+
+    The style option for header views is QStyleOptionHeader. The view
+    paints one header section at a time, so the data is for the
+    section being drawn. Its contents are:
+
+    \table 90%
+        \header
+            \li Member
+            \li Content
+        \row
+            \li icon
+            \li The icon of the header (for section that is being drawn).
+        \row
+            \li iconAlignment
+            \li The alignment (Qt::Alignment) of the icon in the header.
+        \row
+            \li orientation
+            \li A Qt::Orientation value deciding whether the header
+               is the horizontal header above the view or the
+               vertical header on the left.
+        \row
+            \li position
+            \li A QStyleOptionHeader::SectionPosition value
+               giving the header section's position relative to
+               the other sections.
+        \row
+            \li section
+            \li Holds the section that is being drawn.
+        \row
+            \li selectedPosition
+            \li A QStyleOptionHeader::SelectedPosition value giving
+               the selected section's position relative to the
+               section that is being painted.
+        \row
+            \li sortIndicator
+            \li A QStyleOptionHeader::SortIndicator value that
+               describes the direction in which the section's sort
+               indicator should be drawn.
+        \row
+            \li text
+            \li The text of the currently drawn section.
+        \row
+            \li textAlignment
+            \li The Qt::Alignment of the text within the header section.
+    \endtable
+
+    \section3 Tree Branch Indicators
+
+    The branch indicators in a tree view are drawn by the style with
+    \c PE_IndicatorBranch. We think of indicators here as the indicators
+    that describe the relationship of the nodes in the tree. The
+    generic QStyleOption is sent to the style for drawing these
+    elements. The various branch types are described by states. Since
+    there is no specific style option, we simply present the states
+    table:
+
+    \table 90%
+        \header
+            \li State
+            \li Set When
+        \row
+            \li \c State_Sibling
+            \li The node in the tree has a sibling (i.e., there is
+               another node in the same column).
+        \row
+            \li \c State_Item
+            \li This branch indicator has an item.
+        \row
+            \li \c State_Children
+            \li The branch has children (i.e., a new sub-tree can
+               be opened at the branch).
+        \row
+            \li \c State_Open
+            \li The branch indicator has an opened sub-tree.
+    \endtable
+
+    The tree view (and tree widget) use the style to draw the branches
+    (nodes) of the tree.
+
+    QStyleOption is used as the style for \c PE_IndicatorBranch has state
+    flags set depending on what type of branch it is.
+
+    Since there is no tree structure for branch indicators, we only
+    present an image of a tree in the Java style. Each state is marked
+    in the image with a rectangle in a specific color (i.e., the
+    rectangles are not bounding rectangles). All combinations of
+    states you must be aware of are represented in the image.
+
+    \image javastyle/branchindicatorimage.png
+
+    \section3 Tool Boxes
+
+    \c PM_SmallIconSize for sizeHints.
+
+    QToolBox is a container that keeps a collection of widgets. It has
+    one tab for each widget and displays one of them at a time. The
+    tool box lays the components it displays (the tool box buttons
+    and selected widget) in a QVBoxLayout. The style tree for tool
+    boxes looks like this:
+
+    \image javastyle/toolbox.png
+
+    We show an image of a tool box in the Plastique style:
+
+    \image javastyle/toolboximage.png
+
+    All elements have the same bounding rectangles in the
+    Plastique style as well as the other built-in Qt styles.
+
+    The style option for tool boxes is QStyleOptionToolBox. It
+    contains the text and icon of the tool box contents. The only
+    state set by QToolBox is \c State_Sunken, which is set when the user
+    presses a tab down with the mouse. The rest of the
+    QStyleOptionToolBox members are:
+
+    \table 90%
+        \header
+            \li Member
+            \li Content
+        \row
+            \li icon
+            \li The icon on the toolbox tab.
+        \row
+            \li text
+            \li The text on the toolbox tab.
+    \endtable
+
+    \section3 Size Grip
+
+    The size grip calculates its size hint with \c CT_SizeGrip. The pixel
+    metric \c PM_SizeGripSize is currently unused by Qt. The element tree
+    for an image in the Plastique style of QSizeGrip follows:
+
+    \image javastyle/sizegrip.png
+
+    \image javastyle/sizegripimage.png
+
+    We show the size grip in \l{QMainWindow}'s bottom right
+    corner.
+
+    The size grip style option, QStyleOptionSizeGrip, has one
+    member besides the common members from QStyleOption:
+
+    \table 90%
+        \header
+            \li Member
+            \li Content
+        \row
+            \li corner
+            \li A Qt::Corner value that describes which corner in a
+               window (or equivalent) the grip is located.
+    \endtable
+
+    \section3 Rubber Band
+
+    The \l{QRubberBand}'s style tree consists of two nodes.
+
+    \image javastyle/rubberband.png
+
+    We present an image of a Java style window being moved in a
+    QMdiArea with a rubber band:
+
+    \image javastyle/rubberbandimage.png
+
+    The style option for rubber bands is QStyleOptionRubberBand.
+    Its members are:
+
+    \table
+        \header
+            \li Member
+            \li Content
+        \row
+            \li opaque
+            \li Boolean that is \c true if the rubber band must be
+               drawn in an opaque style (i.e., color).
+        \row
+            \li shape
+            \li A QRubberBand::Shape enum value that holds the
+               shape of the band (which is either a rectangle or a
+               line).
+    \endtable
+
+    \section3 Dock Widgets
+
+    When the dock widget lays out its contents it asks the style for
+    these pixel metrics: \c PM_DockWidgetSeparatorExtent,
+    \c PM_DockWidgetTitleBarButtonMargin, \c PM_DockWidgetFrameWidth, and
+    \c PM_DockWidgetTitleMargin. It also calculates the bounding
+    rectangles of the float and close buttons with
+    \c SE_DockWidgetCloseButton and \c SE_DockWidgetFloatButton.
+
+    \image javastyle/dockwidget.png
+
+    The dotted lines indicate that the sender keeps instances of the
+    recipient of the arrow (i.e., it is not a style element to draw).
+    The dock widget only draws \c PE_frameDockWidget when it is detached
+    from its main window (i.e., it is a top level window). If it is
+    docked it draws the indicator dock widget resize handle. We show a
+    dock widget in both docked and floating state in the plastique
+    style:
+
+    \image javastyle/dockwidgetimage.png
+
+    The style option is QStyleOptionDockWidget:
+
+    \table 90%
+        \header
+            \li Member
+            \li Content
+        \row
+            \li closeable
+            \li Boolean that holds whether the dock window can be
+               closed.
+        \row
+            \li floatable
+            \li Boolean that holds whether the dock window can
+               float (i.e., detach from the main window in which
+               it lives).
+        \row
+            \li movable
+            \li Boolean that holds whether the window is movable
+               (i.e., can move to other dock widget areas).
+        \row
+            \li title
+            \li The title text of the dock window.
+    \endtable
+
+    For the buttons, QStyleOptionButton is used (see \l{Tool Buttons}
+    for content description). The dock widget resize handle has a
+    plain QStyleOption.
+*/

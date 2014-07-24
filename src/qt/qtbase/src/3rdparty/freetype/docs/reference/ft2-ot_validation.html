@@ -1,0 +1,208 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>FreeType-2.3.12 API Reference</title>
+<style type="text/css">
+  body { font-family: Verdana, Geneva, Arial, Helvetica, serif;
+         color: #000000;
+         background: #FFFFFF; }
+
+  p { text-align: justify; }
+  h1 { text-align: center; }
+  li { text-align: justify; }
+  td { padding: 0 0.5em 0 0.5em; }
+  td.left { padding: 0 0.5em 0 0.5em;
+            text-align: left; }
+
+  a:link { color: #0000EF; }
+  a:visited { color: #51188E; }
+  a:hover { color: #FF0000; }
+
+  span.keyword { font-family: monospace;
+                 text-align: left;
+                 white-space: pre;
+                 color: darkblue; }
+
+  pre.colored { color: blue; }
+
+  ul.empty { list-style-type: none; }
+</style>
+</head>
+<body>
+
+<table align=center><tr><td><font size=-1>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-1>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+<center><h1>FreeType-2.3.12 API Reference</h1></center>
+
+<center><h1>
+OpenType Validation
+</h1></center>
+<h2>Synopsis</h2>
+<table align=center cellspacing=5 cellpadding=0 border=0>
+<tr><td></td><td><a href="#FT_VALIDATE_OTXXX">FT_VALIDATE_OTXXX</a></td><td></td><td><a href="#FT_OpenType_Validate">FT_OpenType_Validate</a></td><td></td><td><a href="#FT_OpenType_Free">FT_OpenType_Free</a></td></tr>
+</table><br><br>
+
+<table align=center width="87%"><tr><td>
+<p>This section contains the declaration of functions to validate some OpenType tables (BASE, GDEF, GPOS, GSUB, JSTF, MATH).</p>
+</td></tr></table><br>
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_VALIDATE_OTXXX">FT_VALIDATE_OTXXX</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_OPENTYPE_VALIDATE_H (freetype/ftotval.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+#define <a href="ft2-ot_validation.html#FT_VALIDATE_OTXXX">FT_VALIDATE_BASE</a>  0x0100
+#define <a href="ft2-ot_validation.html#FT_VALIDATE_OTXXX">FT_VALIDATE_GDEF</a>  0x0200
+#define <a href="ft2-ot_validation.html#FT_VALIDATE_OTXXX">FT_VALIDATE_GPOS</a>  0x0400
+#define <a href="ft2-ot_validation.html#FT_VALIDATE_OTXXX">FT_VALIDATE_GSUB</a>  0x0800
+#define <a href="ft2-ot_validation.html#FT_VALIDATE_OTXXX">FT_VALIDATE_JSTF</a>  0x1000
+#define <a href="ft2-ot_validation.html#FT_VALIDATE_OTXXX">FT_VALIDATE_MATH</a>  0x2000
+
+#define <a href="ft2-ot_validation.html#FT_VALIDATE_OTXXX">FT_VALIDATE_OT</a>  <a href="ft2-ot_validation.html#FT_VALIDATE_OTXXX">FT_VALIDATE_BASE</a> | \
+                        <a href="ft2-ot_validation.html#FT_VALIDATE_OTXXX">FT_VALIDATE_GDEF</a> | \
+                        <a href="ft2-ot_validation.html#FT_VALIDATE_OTXXX">FT_VALIDATE_GPOS</a> | \
+                        <a href="ft2-ot_validation.html#FT_VALIDATE_OTXXX">FT_VALIDATE_GSUB</a> | \
+                        <a href="ft2-ot_validation.html#FT_VALIDATE_OTXXX">FT_VALIDATE_JSTF</a> | \
+                        <a href="ft2-ot_validation.html#FT_VALIDATE_OTXXX">FT_VALIDATE_MATH</a>
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>A list of bit-field constants used with <a href="ft2-ot_validation.html#FT_OpenType_Validate">FT_OpenType_Validate</a> to indicate which OpenType tables should be validated.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>values</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>FT_VALIDATE_BASE</b></td><td>
+<p>Validate BASE table.</p>
+</td></tr>
+<tr valign=top><td><b>FT_VALIDATE_GDEF</b></td><td>
+<p>Validate GDEF table.</p>
+</td></tr>
+<tr valign=top><td><b>FT_VALIDATE_GPOS</b></td><td>
+<p>Validate GPOS table.</p>
+</td></tr>
+<tr valign=top><td><b>FT_VALIDATE_GSUB</b></td><td>
+<p>Validate GSUB table.</p>
+</td></tr>
+<tr valign=top><td><b>FT_VALIDATE_JSTF</b></td><td>
+<p>Validate JSTF table.</p>
+</td></tr>
+<tr valign=top><td><b>FT_VALIDATE_MATH</b></td><td>
+<p>Validate MATH table.</p>
+</td></tr>
+<tr valign=top><td><b>FT_VALIDATE_OT</b></td><td>
+<p>Validate all OpenType tables (BASE, GDEF, GPOS, GSUB, JSTF, MATH).</p>
+</td></tr>
+</table>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_OpenType_Validate">FT_OpenType_Validate</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_OPENTYPE_VALIDATE_H (freetype/ftotval.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Error">FT_Error</a> )
+  <b>FT_OpenType_Validate</b>( <a href="ft2-base_interface.html#FT_Face">FT_Face</a>    face,
+                        <a href="ft2-basic_types.html#FT_UInt">FT_UInt</a>    validation_flags,
+                        <a href="ft2-basic_types.html#FT_Bytes">FT_Bytes</a>  *BASE_table,
+                        <a href="ft2-basic_types.html#FT_Bytes">FT_Bytes</a>  *GDEF_table,
+                        <a href="ft2-basic_types.html#FT_Bytes">FT_Bytes</a>  *GPOS_table,
+                        <a href="ft2-basic_types.html#FT_Bytes">FT_Bytes</a>  *GSUB_table,
+                        <a href="ft2-basic_types.html#FT_Bytes">FT_Bytes</a>  *JSTF_table );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Validate various OpenType tables to assure that all offsets and indices are valid. The idea is that a higher-level library which actually does the text layout can access those tables without error checking (which can be quite time consuming).</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>face</b></td><td>
+<p>A handle to the input face.</p>
+</td></tr>
+<tr valign=top><td><b>validation_flags</b></td><td>
+<p>A bit field which specifies the tables to be validated. See <a href="ft2-ot_validation.html#FT_VALIDATE_OTXXX">FT_VALIDATE_OTXXX</a> for possible values.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>output</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>BASE_table</b></td><td>
+<p>A pointer to the BASE table.</p>
+</td></tr>
+<tr valign=top><td><b>GDEF_table</b></td><td>
+<p>A pointer to the GDEF table.</p>
+</td></tr>
+<tr valign=top><td><b>GPOS_table</b></td><td>
+<p>A pointer to the GPOS table.</p>
+</td></tr>
+<tr valign=top><td><b>GSUB_table</b></td><td>
+<p>A pointer to the GSUB table.</p>
+</td></tr>
+<tr valign=top><td><b>JSTF_table</b></td><td>
+<p>A pointer to the JSTF table.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>FreeType error code. 0&nbsp;means success.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>This function only works with OpenType fonts, returning an error otherwise.</p>
+<p>After use, the application should deallocate the five tables with <a href="ft2-ot_validation.html#FT_OpenType_Free">FT_OpenType_Free</a>. A NULL value indicates that the table either doesn't exist in the font, or the application hasn't asked for validation.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_OpenType_Free">FT_OpenType_Free</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_OPENTYPE_VALIDATE_H (freetype/ftotval.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <span class="keyword">void</span> )
+  <b>FT_OpenType_Free</b>( <a href="ft2-base_interface.html#FT_Face">FT_Face</a>   face,
+                    <a href="ft2-basic_types.html#FT_Bytes">FT_Bytes</a>  table );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Free the buffer allocated by OpenType validator.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>face</b></td><td>
+<p>A handle to the input face.</p>
+</td></tr>
+<tr valign=top><td><b>table</b></td><td>
+<p>The pointer to the buffer that is allocated by <a href="ft2-ot_validation.html#FT_OpenType_Validate">FT_OpenType_Validate</a>.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>This function must be used to free the buffer allocated by <a href="ft2-ot_validation.html#FT_OpenType_Validate">FT_OpenType_Validate</a> only.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+</body>
+</html>

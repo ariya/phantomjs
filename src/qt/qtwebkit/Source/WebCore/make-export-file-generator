@@ -1,0 +1,79 @@
+#!/usr/bin/env ruby
+
+# Copyright (C) 2010 Apple Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+# BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+# THE POSSIBILITY OF SUCH DAMAGE.
+
+input_file = ARGV[0]
+output_file = ARGV[1]
+
+require 'erb'
+
+def line_for_output line
+  return line.chomp if line =~ /#/
+  "    validateAndPrint(\"#{line.chomp}\");"
+end
+
+TEMPLATE = <<-EOF
+#include "config.h"
+#include <stdio.h>
+#include <wtf/Assertions.h>
+
+#if !OS(WINDOWS)
+#include <cxxabi.h>
+#endif
+
+static void validateAndPrint(const char* symbol)
+{
+#if !OS(WINDOWS)
+    if (!strncmp(symbol, "__Z", strlen("__Z"))) {
+      char* demangledName = abi::__cxa_demangle(symbol + 1, nullptr, nullptr, nullptr);
+      if (!demangledName) {
+        fprintf(stderr, "ERROR: \\"%s\\" is not a valid C++ mangled name.\\n", symbol);
+        exit(EXIT_FAILURE);
+      }
+      
+      free(demangledName);
+    }
+#endif
+
+    printf("%s\\n", symbol);
+}
+
+int main(int, char**)
+{
+<%- input.each_line do |line| -%>
+<%= line_for_output line %>
+<%- end -%>
+
+    return 0;
+}
+EOF
+
+File.open(output_file, "w") do |output|
+  File.open(input_file) do |input|
+    renderer = ERB.new(TEMPLATE, 0, "-")
+    output << renderer.result(binding)
+  end
+end
+
+STDERR.puts "Wrote output to #{output_file}"

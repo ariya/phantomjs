@@ -1,0 +1,19 @@
+<html>
+<head>
+  <script>
+    function clickLink()
+    {
+      var evt = document.createEvent("MouseEvent");
+      evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+      var link = document.querySelector('a');
+      link.dispatchEvent(evt);
+    }
+  </script>
+</head>
+<body>
+  <a href="#anchor">Link to anchor</a><br>
+  In between.<br>
+  <span id="anchor">Anchor</span><br>
+  After the anchor.<br>
+  </body>
+</html>

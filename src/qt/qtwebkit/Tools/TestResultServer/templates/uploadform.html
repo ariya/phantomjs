@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Upload Test Result File</title>
+<link type="text/css" rel="stylesheet" href="/stylesheets/form.css" />
+</head>
+<body>
+<h1>Upload Test Result File</h1>
+<form id="uploadForm" name="test_result_upload" accept="text/html" action="{{ upload_url }}" enctype="multipart/form-data" method="post">
+    <br>
+    <table>
+    <tr>
+        <td class=label><label>Master:</label></td>
+        <td><input class=inputtext type="text" name="master" placeholder="Chromium"/></td>
+    </tr>
+    <tr>
+        <td class=label><label>Builder:</label></td>
+        <td><input class=inputtext type="text" name="builder" placeholder="Webkit"/></td>
+    </tr>
+    <tr>
+        <td class=label><label>Test Type:</label></td>
+        <td><input class=inputtext type="text" name="testtype" placeholder="layout-tests"/></td>
+    </tr>
+    </table>
+    <br>
+    <div><input class=button type="checkbox" name="incremental">Incremental results, merge with server file.</div>
+    <br>
+    <div><input class=button type="file" name="file" multiple></div>
+    <br>
+    <div><input class=button type="submit" value="Upload"></div>
+</form>
+</body>
+</html>

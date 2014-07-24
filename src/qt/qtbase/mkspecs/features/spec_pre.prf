@@ -1,0 +1,47 @@
+# This file is loaded by qmake right before loading the qmakespec.
+# At this point, the built-in variables have been set up and the project's
+# .qmake.super was read (if present).
+
+QMAKE_DIR_SEP           = $$DIR_SEPARATOR
+QMAKE_DIRLIST_SEP       = $$DIRLIST_SEPARATOR
+
+QMAKE_EXT_C             = .c
+QMAKE_EXT_CPP           = .cpp .cc .cxx
+QMAKE_EXT_CPP_MOC       = .moc
+QMAKE_EXT_H             = .h .hpp .hh .hxx
+QMAKE_EXT_H_MOC         = .cpp
+QMAKE_EXT_JS            = .js
+QMAKE_EXT_LEX           = .l
+QMAKE_EXT_LIBTOOL       = .la
+QMAKE_EXT_PKGCONFIG     = .pc
+QMAKE_EXT_PRL           = .prl
+QMAKE_EXT_UI            = .ui
+QMAKE_EXT_YACC          = .y
+
+QMAKE_CPP_MOD_MOC       =
+QMAKE_H_MOD_MOC         = moc_
+QMAKE_MOD_LEX           = _lex
+QMAKE_MOD_YACC          = _yacc
+
+equals(QMAKE_HOST.os, Windows) {
+    QMAKE_EXT_OBJ       = .obj
+    QMAKE_EXT_RES       = .res
+    QMAKE_SH            =
+    PATH = $$(PATH)
+    PATH = $$split(PATH, ;)
+    for(dir, PATH) {
+        exists($$dir/sh.exe) {
+            QMAKE_SH = $$dir/sh.exe
+            break()
+        }
+    }
+    unset(PATH)
+} else {
+    QMAKE_EXT_CPP      += .C
+    QMAKE_EXT_H        += .H
+    QMAKE_EXT_OBJ       = .o
+    QMAKE_SH            = sh
+}
+
+CONFIG = qt warn_on release link_prl
+QT = core gui

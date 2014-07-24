@@ -1,0 +1,62 @@
+/*** BEGIN file-header ***/
+/*
+ * Copyright (C) 2013 Igalia S.L.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public License
+ * along with this library; see the file COPYING.LIB.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ */
+
+#include <config.h>
+#include "WebKitEnumTypes.h"
+
+#include <webkit2/webkit2.h>
+extern "C" {
+/*** END file-header ***/
+
+
+/*** BEGIN file-production ***/
+// Enumerations from @filename@.
+/*** END file-production ***/
+
+
+/*** BEGIN value-header ***/
+GType @enum_name@_get_type()
+{
+    static const G@Type@Value values[] = {
+/*** END value-header ***/
+
+
+/*** BEGIN value-production ***/
+        { @VALUENAME@, "@VALUENAME@", "@valuenick@" },
+/*** END value-production ***/
+
+
+/*** BEGIN value-tail ***/
+        { 0, NULL, NULL }
+    };
+
+    static GType type = 0;
+    if (G_UNLIKELY(!type))
+        type = g_@type@_register_static("@EnumName@", values);
+
+    return type;
+}
+
+/*** END value-tail ***/
+
+
+/*** BEGIN file-tail ***/
+}
+/*** END file-tail ***/

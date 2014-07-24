@@ -1,0 +1,22 @@
+# -------------------------------------------------------------------
+# Feature to allow speeding up link times for debug builds by avoiding
+# re-linking the static libraries into the one big shared library.
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+contains(TEMPLATE, lib) {
+    contains(CONFIG, staticlib) {
+        CONFIG -= hide_symbols
+        CONFIG -= staticlib
+        CONFIG += rpath
+        QMAKE_CXXFLAGS -= $$QMAKE_CXXFLAGS_HIDESYMS
+        QMAKE_CFLAGS -= $$QMAKE_CFLAGS_HIDESYMS
+        QMAKE_LFLAGS -= $$QMAKE_LFLAGS_HIDESYMS
+        QMAKE_OBJECTIVE_CFLAGS -= $$QMAKE_OBJECTIVE_CFLAGS_HIDESYMS
+        DESTDIR = $${ROOT_BUILD_DIR}/lib
+
+        # Ensure the install-name of the libraries are correct on Mac OS
+        macx: QMAKE_LFLAGS_SONAME = $$QMAKE_LFLAGS_SONAME$${DESTDIR}/
+    }
+}

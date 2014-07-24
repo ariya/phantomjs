@@ -1,0 +1,1417 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \class QListIterator
+    \inmodule QtCore
+
+    \brief The QListIterator class provides a Java-style const iterator for QList and QQueue.
+
+    QList has both \l{Java-style iterators} and \l{STL-style
+    iterators}. The Java-style iterators are more high-level and
+    easier to use than the STL-style iterators; on the other hand,
+    they are slightly less efficient.
+
+    An alternative to using iterators is to use index positions. Most
+    QList member functions take an index as their first parameter,
+    making it possible to access, modify, and remove items without
+    using iterators.
+
+    QListIterator\<T\> allows you to iterate over a QList\<T\> (or a
+    QQueue\<T\>). If you want to modify the list as you iterate over
+    it, use QMutableListIterator\<T\> instead.
+
+    The QListIterator constructor takes a QList as argument. After
+    construction, the iterator is located at the very beginning of
+    the list (before the first item). Here's how to iterate over all
+    the elements sequentially:
+
+    \snippet code/doc_src_qiterator.cpp 0
+
+    The next() function returns the next item in the list and
+    advances the iterator. Unlike STL-style iterators, Java-style
+    iterators point \e between items rather than directly \e at
+    items. The first call to next() advances the iterator to the
+    position between the first and second item, and returns the first
+    item; the second call to next() advances the iterator to the
+    position between the second and third item, and returns the second
+    item; and so on.
+
+    \image javaiterators1.png
+
+    Here's how to iterate over the elements in reverse order:
+
+    \snippet code/doc_src_qiterator.cpp 1
+
+    If you want to find all occurrences of a particular value, use
+    findNext() or findPrevious() in a loop.
+
+    Multiple iterators can be used on the same list. If the list is
+    modified while a QListIterator is active, the QListIterator will
+    continue iterating over the original list, ignoring the modified
+    copy.
+
+    \sa QMutableListIterator, QList::const_iterator
+*/
+
+/*!
+    \class QLinkedListIterator
+    \inmodule QtCore
+
+    \brief The QLinkedListIterator class provides a Java-style const iterator for QLinkedList.
+
+    QLinkedList has both \l{Java-style iterators} and
+    \l{STL-style iterators}. The Java-style iterators are more
+    high-level and easier to use than the STL-style iterators; on the
+    other hand, they are slightly less efficient.
+
+    QLinkedListIterator\<T\> allows you to iterate over a
+    QLinkedList\<T\>. If you want to modify the list as you iterate
+    over it, use QMutableLinkedListIterator\<T\> instead.
+
+    The QLinkedListIterator constructor takes a QLinkedList as
+    argument. After construction, the iterator is located at the very
+    beginning of the list (before the first item). Here's how to
+    iterate over all the elements sequentially:
+
+    \snippet code/doc_src_qiterator.cpp 2
+
+    The next() function returns the next item in the list and
+    advances the iterator. Unlike STL-style iterators, Java-style
+    iterators point \e between items rather than directly \e at
+    items. The first call to next() advances the iterator to the
+    position between the first and second item, and returns the first
+    item; the second call to next() advances the iterator to the
+    position between the second and third item, and returns the second
+    item; and so on.
+
+    \image javaiterators1.png
+
+    Here's how to iterate over the elements in reverse order:
+
+    \snippet code/doc_src_qiterator.cpp 3
+
+    If you want to find all occurrences of a particular value, use
+    findNext() or findPrevious() in a loop.
+
+    Multiple iterators can be used on the same list. If the list is
+    modified while a QLinkedListIterator is active, the
+    QLinkedListIterator will continue iterating over the original
+    list, ignoring the modified copy.
+
+    \sa QMutableLinkedListIterator, QLinkedList::const_iterator
+*/
+
+/*!
+    \class QVectorIterator
+    \inmodule QtCore
+    \brief The QVectorIterator class provides a Java-style const iterator for QVector and QStack.
+
+    QVector has both \l{Java-style iterators} and \l{STL-style
+    iterators}. The Java-style iterators are more high-level and
+    easier to use than the STL-style iterators; on the other hand,
+    they are slightly less efficient.
+
+    An alternative to using iterators is to use index positions. Most
+    QVector member functions take an index as their first parameter,
+    making it possible to access, insert, and remove items without
+    using iterators.
+
+    QVectorIterator\<T\> allows you to iterate over a QVector\<T\>
+    (or a QStack\<T\>). If you want to modify the vector as you
+    iterate over it, use QMutableVectorIterator\<T\> instead.
+
+    The QVectorIterator constructor takes a QVector as argument.
+    After construction, the iterator is located at the very beginning
+    of the vector (before the first item). Here's how to iterate over
+    all the elements sequentially:
+
+    \snippet code/doc_src_qiterator.cpp 4
+
+    The next() function returns the next item in the vector and
+    advances the iterator. Unlike STL-style iterators, Java-style
+    iterators point \e between items rather than directly \e at
+    items. The first call to next() advances the iterator to the
+    position between the first and second item, and returns the first
+    item; the second call to next() advances the iterator to the
+    position between the second and third item, returning the second
+    item; and so on.
+
+    \image javaiterators1.png
+
+    Here's how to iterate over the elements in reverse order:
+
+    \snippet code/doc_src_qiterator.cpp 5
+
+    If you want to find all occurrences of a particular value, use
+    findNext() or findPrevious() in a loop.
+
+    Multiple iterators can be used on the same vector. If the vector
+    is modified while a QVectorIterator is active, the QVectorIterator
+    will continue iterating over the original vector, ignoring the
+    modified copy.
+
+    \sa QMutableVectorIterator, QVector::const_iterator
+*/
+
+/*!
+    \class QSetIterator
+    \inmodule QtCore
+    \brief The QSetIterator class provides a Java-style const iterator for QSet.
+
+    QSet supports both \l{Java-style iterators} and \l{STL-style
+    iterators}. The Java-style iterators are more high-level and
+    easier to use than the STL-style iterators; on the other hand,
+    they are slightly less efficient.
+
+    QSetIterator\<T\> allows you to iterate over a QSet\<T\>. If you
+    want to modify the set as you iterate over it, use
+    QMutableSetIterator\<T\> instead.
+
+    The constructor takes a QSet as argument. After construction, the
+    iterator is located at the very beginning of the set (before
+    the first item). Here's how to iterate over all the elements
+    sequentially:
+
+    \snippet code/doc_src_qiterator.cpp 6
+
+    The next() function returns the next item in the set and
+    advances the iterator. Unlike STL-style iterators, Java-style
+    iterators point \e between items rather than directly \e at
+    items. The first call to next() advances the iterator to the
+    position between the first and second item, and returns the first
+    item; the second call to next() advances the iterator to the
+    position between the second and third item, returning the second
+    item; and so on.
+
+    \image javaiterators1.png
+
+    Here's how to iterate over the elements in reverse order:
+
+    \snippet code/doc_src_qiterator.cpp 7
+
+    If you want to find all occurrences of a particular value, use
+    findNext() or findPrevious() in a loop.
+
+    Multiple iterators can be used on the same set. If the set
+    is modified while a QSetIterator is active, the QSetIterator
+    will continue iterating over the original set, ignoring the
+    modified copy.
+
+    \sa QMutableSetIterator, QSet::const_iterator
+*/
+
+/*!
+    \class QMutableListIterator
+    \inmodule QtCore
+
+    \brief The QMutableListIterator class provides a Java-style non-const iterator for QList and QQueue.
+
+    QList has both \l{Java-style iterators} and \l{STL-style
+    iterators}. The Java-style iterators are more high-level and
+    easier to use than the STL-style iterators; on the other hand,
+    they are slightly less efficient.
+
+    An alternative to using iterators is to use index positions. Most
+    QList member functions take an index as their first parameter,
+    making it possible to access, insert, and remove items without
+    using iterators.
+
+    QMutableListIterator\<T\> allows you to iterate over a QList\<T\>
+    (or a QQueue\<T\>) and modify the list. If you don't want to
+    modify the list (or have a const QList), use the slightly faster
+    QListIterator\<T\> instead.
+
+    The QMutableListIterator constructor takes a QList as argument.
+    After construction, the iterator is located at the very beginning
+    of the list (before the first item). Here's how to iterate over
+    all the elements sequentially:
+
+    \snippet code/doc_src_qiterator.cpp 8
+
+    The next() function returns the next item in the list and
+    advances the iterator. Unlike STL-style iterators, Java-style
+    iterators point \e between items rather than directly \e at
+    items. The first call to next() advances the iterator to the
+    position between the first and second item, and returns the first
+    item; the second call to next() advances the iterator to the
+    position between the second and third item, returning the second
+    item; and so on.
+
+    \image javaiterators1.png
+
+    Here's how to iterate over the elements in reverse order:
+
+    \snippet code/doc_src_qiterator.cpp 9
+
+    If you want to find all occurrences of a particular value, use
+    findNext() or findPrevious() in a loop.
+
+    If you want to remove items as you iterate over the list, use
+    remove(). If you want to modify the value of an item, use
+    setValue(). If you want to insert a new item in the list, use
+    insert().
+
+    Example:
+    \snippet code/doc_src_qiterator.cpp 10
+
+    The example traverses a list, replacing negative numbers with
+    their absolute values, and eliminating zeroes.
+
+    Only one mutable iterator can be active on a given list at any
+    time. Furthermore, no changes should be done directly to the list
+    while the iterator is active (as opposed to through the
+    iterator), since this could invalidate the iterator and lead to
+    undefined behavior.
+
+    \sa QListIterator, QList::iterator
+*/
+
+/*!
+    \class QMutableLinkedListIterator
+    \inmodule QtCore
+
+    \brief The QMutableLinkedListIterator class provides a Java-style non-const iterator for QLinkedList.
+
+    QLinkedList has both \l{Java-style iterators} and
+    \l{STL-style iterators}. The Java-style iterators are more
+    high-level and easier to use than the STL-style iterators; on the
+    other hand, they are slightly less efficient.
+
+    QMutableLinkedListIterator\<T\> allows you to iterate over a
+    QLinkedList\<T\> and modify the list. If you don't want to modify
+    the list (or have a const QLinkedList), use the slightly faster
+    QLinkedListIterator\<T\> instead.
+
+    The QMutableLinkedListIterator constructor takes a QLinkedList as
+    argument. After construction, the iterator is located at the very
+    beginning of the list (before the first item). Here's how to
+    iterate over all the elements sequentially:
+
+    \snippet code/doc_src_qiterator.cpp 11
+
+    The next() function returns the next item in the list and
+    advances the iterator. Unlike STL-style iterators, Java-style
+    iterators point \e between items rather than directly \e at
+    items. The first call to next() advances the iterator to the
+    position between the first and second item, and returns the first
+    item; the second call to next() advances the iterator to the
+    position between the second and third item, returning the second
+    item; and so on.
+
+    \image javaiterators1.png
+
+    Here's how to iterate over the elements in reverse order:
+
+    \snippet code/doc_src_qiterator.cpp 12
+
+    If you want to find all occurrences of a particular value, use
+    findNext() or findPrevious() in a loop.
+
+    If you want to remove items as you iterate over the list, use
+    remove(). If you want to modify the value of an item, use
+    setValue(). If you want to insert a new item in the list, use
+    insert().
+
+    Example:
+    \snippet code/doc_src_qiterator.cpp 13
+
+    The example traverses a list, replacing negative numbers with
+    their absolute values, and eliminating zeroes.
+
+    Only one mutable iterator can be active on a given list at any
+    time. Furthermore, no changes should be done directly to the list
+    while the iterator is active (as opposed to through the
+    iterator), since this could invalidate the iterator and lead to
+    undefined behavior.
+
+    \sa QLinkedListIterator, QLinkedList::iterator
+*/
+
+/*!
+    \class QMutableVectorIterator
+    \inmodule QtCore
+
+    \brief The QMutableVectorIterator class provides a Java-style non-const iterator for QVector and QStack.
+
+    QVector has both \l{Java-style iterators} and \l{STL-style
+    iterators}. The Java-style iterators are more high-level and
+    easier to use than the STL-style iterators; on the other hand,
+    they are slightly less efficient.
+
+    An alternative to using iterators is to use index positions. Most
+    QVector member functions take an index as their first parameter,
+    making it possible to access, insert, and remove items without
+    using iterators.
+
+    QMutableVectorIterator\<T\> allows you to iterate over a
+    QVector\<T\> and modify the vector. If you don't want to modify
+    the vector (or have a const QVector), use the slightly faster
+    QVectorIterator\<T\> instead.
+
+    The QMutableVectorIterator constructor takes a QVector as
+    argument. After construction, the iterator is located at the very
+    beginning of the list (before the first item). Here's how to
+    iterate over all the elements sequentially:
+
+    \snippet code/doc_src_qiterator.cpp 14
+
+    The next() function returns the next item in the vector and
+    advances the iterator. Unlike STL-style iterators, Java-style
+    iterators point \e between items rather than directly \e at
+    items. The first call to next() advances the iterator to the
+    position between the first and second item, and returns the first
+    item; the second call to next() advances the iterator to the
+    position between the second and third item, returning the second
+    item; and so on.
+
+    \image javaiterators1.png
+
+    Here's how to iterate over the elements in reverse order:
+
+    \snippet code/doc_src_qiterator.cpp 15
+
+    If you want to find all occurrences of a particular value, use
+    findNext() or findPrevious() in a loop.
+
+    If you want to remove items as you iterate over the vector, use
+    remove(). If you want to modify the value of an item, use
+    setValue(). If you want to insert a new item in the vector, use
+    insert().
+
+    Example:
+    \snippet code/doc_src_qiterator.cpp 16
+
+    The example traverses a vector, replacing negative numbers with
+    their absolute values, and eliminating zeroes.
+
+    Only one mutable iterator can be active on a given vector at any
+    time. Furthermore, no changes should be done directly to the
+    vector while the iterator is active (as opposed to through the
+    iterator), since this could invalidate the iterator and lead to
+    undefined behavior.
+
+    \sa QVectorIterator, QVector::iterator
+*/
+
+/*!
+    \class QMutableSetIterator
+    \inmodule QtCore
+    \since 4.2
+
+    \brief The QMutableSetIterator class provides a Java-style non-const iterator for QSet.
+
+    QSet has both \l{Java-style iterators} and \l{STL-style
+    iterators}. The Java-style iterators are more high-level and
+    easier to use than the STL-style iterators; on the other hand,
+    they are slightly less efficient.
+
+    QMutableSetIterator\<T\> allows you to iterate over a QSet\<T\>
+    and remove items from the set as you iterate. If you don't want
+    to modify the set (or have a const QSet), use the slightly faster
+    QSetIterator\<T\> instead.
+
+    The QMutableSetIterator constructor takes a QSet as argument.
+    After construction, the iterator is located at the very beginning
+    of the set (before the first item). Here's how to iterate over
+    all the elements sequentially:
+
+    \snippet code/doc_src_qiterator.cpp 17
+
+    The next() function returns the next item in the set and
+    advances the iterator. Unlike STL-style iterators, Java-style
+    iterators point \e between items rather than directly \e at
+    items. The first call to next() advances the iterator to the
+    position between the first and second item, and returns the first
+    item; the second call to next() advances the iterator to the
+    position between the second and third item, returning the second
+    item; and so on.
+
+    \image javaiterators1.png
+
+    Here's how to iterate over the elements in reverse order:
+
+    \snippet code/doc_src_qiterator.cpp 18
+
+    If you want to remove items as you iterate over the set, use
+    remove().
+
+    Only one mutable iterator can be active on a given set at any
+    time. Furthermore, no changes should be done directly to the set
+    while the iterator is active (as opposed to through the
+    iterator), since this could invalidate the iterator and lead to
+    undefined behavior.
+
+    \sa QSetIterator, QSet::iterator
+*/
+
+/*!
+    \fn QListIterator::QListIterator(const QList<T> &list)
+    \fn QLinkedListIterator::QLinkedListIterator(const QLinkedList<T> &list)
+    \fn QMutableListIterator::QMutableListIterator(QList<T> &list)
+    \fn QMutableLinkedListIterator::QMutableLinkedListIterator(QLinkedList<T> &list)
+
+    Constructs an iterator for traversing \a list. The iterator is
+    set to be at the front of the list (before the first item).
+
+    \sa operator=()
+*/
+
+/*!
+    \fn QVectorIterator::QVectorIterator(const QVector<T> &vector)
+    \fn QMutableVectorIterator::QMutableVectorIterator(QVector<T> &vector)
+
+    Constructs an iterator for traversing \a vector. The iterator is
+    set to be at the front of the vector (before the first item).
+
+    \sa operator=()
+*/
+
+/*!
+    \fn QSetIterator::QSetIterator(const QSet<T> &set)
+    \fn QMutableSetIterator::QMutableSetIterator(QSet<T> &set)
+
+    Constructs an iterator for traversing \a set. The iterator is
+    set to be at the front of the set (before the first item).
+
+    \sa operator=()
+*/
+
+/*!
+    \fn QMutableListIterator::~QMutableListIterator()
+    \fn QMutableLinkedListIterator::~QMutableLinkedListIterator()
+    \fn QMutableVectorIterator::~QMutableVectorIterator()
+    \fn QMutableSetIterator::~QMutableSetIterator()
+
+    Destroys the iterator.
+
+    \sa operator=()
+*/
+
+/*! \fn QMutableListIterator &QMutableListIterator::operator=(QList<T> &list)
+    \fn QMutableLinkedListIterator &QMutableLinkedListIterator::operator=(QLinkedList<T> &list)
+    \fn QListIterator &QListIterator::operator=(const QList<T> &list)
+    \fn QLinkedListIterator &QLinkedListIterator::operator=(const QLinkedList<T> &list)
+
+    Makes the iterator operate on \a list. The iterator is set to be
+    at the front of the list (before the first item).
+
+    \sa toFront(), toBack()
+*/
+
+/*! \fn QVectorIterator &QVectorIterator::operator=(const QVector<T> &vector)
+    \fn QMutableVectorIterator &QMutableVectorIterator::operator=(QVector<T> &vector)
+
+    Makes the iterator operate on \a vector. The iterator is set to be
+    at the front of the vector (before the first item).
+
+    \sa toFront(), toBack()
+*/
+
+/*! \fn QSetIterator &QSetIterator::operator=(const QSet<T> &set)
+    \fn QMutableSetIterator &QMutableSetIterator::operator=(QSet<T> &set)
+
+    Makes the iterator operate on \a set. The iterator is set to be
+    at the front of the set (before the first item).
+
+    \sa toFront(), toBack()
+*/
+
+/*! \fn void QListIterator::toFront()
+    \fn void QLinkedListIterator::toFront()
+    \fn void QVectorIterator::toFront()
+    \fn void QSetIterator::toFront()
+    \fn void QMutableListIterator::toFront()
+    \fn void QMutableLinkedListIterator::toFront()
+    \fn void QMutableVectorIterator::toFront()
+    \fn void QMutableSetIterator::toFront()
+
+    Moves the iterator to the front of the container (before the
+    first item).
+
+    \sa toBack(), next()
+*/
+
+/*! \fn void QListIterator::toBack()
+    \fn void QLinkedListIterator::toBack()
+    \fn void QVectorIterator::toBack()
+    \fn void QSetIterator::toBack()
+    \fn void QMutableListIterator::toBack()
+    \fn void QMutableLinkedListIterator::toBack()
+    \fn void QMutableVectorIterator::toBack()
+    \fn void QMutableSetIterator::toBack()
+
+    Moves the iterator to the back of the container (after the last
+    item).
+
+    \sa toFront(), previous()
+*/
+
+/*! \fn bool QListIterator::hasNext() const
+    \fn bool QLinkedListIterator::hasNext() const
+    \fn bool QVectorIterator::hasNext() const
+    \fn bool QSetIterator::hasNext() const
+    \fn bool QMutableListIterator::hasNext() const
+    \fn bool QMutableLinkedListIterator::hasNext() const
+    \fn bool QMutableVectorIterator::hasNext() const
+    \fn bool QMutableSetIterator::hasNext() const
+
+    Returns \c true if there is at least one item ahead of the iterator,
+    i.e. the iterator is \e not at the back of the container;
+    otherwise returns \c false.
+
+    \sa hasPrevious(), next()
+*/
+
+/*! \fn const T &QListIterator::next()
+    \fn const T &QLinkedListIterator::next()
+    \fn const T &QVectorIterator::next()
+    \fn const T &QSetIterator::next()
+    \fn const T &QMutableSetIterator::next()
+
+    Returns the next item and advances the iterator by one position.
+
+    Calling this function on an iterator located at the back of the
+    container leads to undefined results.
+
+    \sa hasNext(), peekNext(), previous()
+*/
+
+/*! \fn T &QMutableListIterator::next()
+    \fn T &QMutableLinkedListIterator::next()
+    \fn T &QMutableVectorIterator::next()
+
+    Returns a reference to the next item, and advances the iterator
+    by one position.
+
+    Calling this function on an iterator located at the back of the
+    container leads to undefined results.
+
+    \sa hasNext(), peekNext(), previous()
+*/
+
+/*! \fn const T &QListIterator::peekNext() const
+    \fn const T &QLinkedListIterator::peekNext() const
+    \fn const T &QVectorIterator::peekNext() const
+    \fn const T &QSetIterator::peekNext() const
+    \fn const T &QMutableSetIterator::peekNext() const
+
+    Returns the next item without moving the iterator.
+
+    Calling this function on an iterator located at the back of the
+    container leads to undefined results.
+
+    \sa hasNext(), next(), peekPrevious()
+*/
+
+/*! \fn T &QMutableListIterator::peekNext() const
+    \fn T &QMutableLinkedListIterator::peekNext() const
+    \fn T &QMutableVectorIterator::peekNext() const
+
+    Returns a reference to the next item, without moving the iterator.
+
+    Calling this function on an iterator located at the back of the
+    container leads to undefined results.
+
+    \sa hasNext(), next(), peekPrevious()
+*/
+
+/*! \fn bool QListIterator::hasPrevious() const
+    \fn bool QLinkedListIterator::hasPrevious() const
+    \fn bool QVectorIterator::hasPrevious() const
+    \fn bool QSetIterator::hasPrevious() const
+    \fn bool QMutableListIterator::hasPrevious() const
+    \fn bool QMutableLinkedListIterator::hasPrevious() const
+    \fn bool QMutableVectorIterator::hasPrevious() const
+    \fn bool QMutableSetIterator::hasPrevious() const
+
+    Returns \c true if there is at least one item behind the iterator,
+    i.e. the iterator is \e not at the front of the container;
+    otherwise returns \c false.
+
+    \sa hasNext(), previous()
+*/
+
+/*! \fn const T &QListIterator::previous()
+    \fn const T &QLinkedListIterator::previous()
+    \fn const T &QVectorIterator::previous()
+    \fn const T &QSetIterator::previous()
+    \fn const T &QMutableSetIterator::previous()
+
+    Returns the previous item and moves the iterator back by one
+    position.
+
+    Calling this function on an iterator located at the front of the
+    container leads to undefined results.
+
+    \sa hasPrevious(), peekPrevious(), next()
+*/
+
+/*! \fn T &QMutableListIterator::previous()
+    \fn T &QMutableLinkedListIterator::previous()
+    \fn T &QMutableVectorIterator::previous()
+
+    Returns a reference to the previous item and moves the iterator
+    back by one position.
+
+    Calling this function on an iterator located at the front of the
+    container leads to undefined results.
+
+    \sa hasPrevious(), peekPrevious(), next()
+*/
+
+/*! \fn const T &QListIterator::peekPrevious() const
+    \fn const T &QLinkedListIterator::peekPrevious() const
+    \fn const T &QVectorIterator::peekPrevious() const
+    \fn const T &QSetIterator::peekPrevious() const
+    \fn const T &QMutableSetIterator::peekPrevious() const
+
+    Returns the previous item without moving the iterator.
+
+    Calling this function on an iterator located at the front of the
+    container leads to undefined results.
+
+    \sa hasPrevious(), previous(), peekNext()
+*/
+
+/*! \fn T &QMutableListIterator::peekPrevious() const
+    \fn T &QMutableLinkedListIterator::peekPrevious() const
+    \fn T &QMutableVectorIterator::peekPrevious() const
+
+    Returns a reference to the previous item, without moving the iterator.
+
+    Calling this function on an iterator located at the front of the
+    container leads to undefined results.
+
+    \sa hasPrevious(), previous(), peekNext()
+*/
+
+/*! \fn bool QListIterator::findNext(const T &value)
+    \fn bool QLinkedListIterator::findNext(const T &value)
+    \fn bool QVectorIterator::findNext(const T &value)
+    \fn bool QSetIterator::findNext(const T &value)
+    \fn bool QMutableListIterator::findNext(const T &value)
+    \fn bool QMutableLinkedListIterator::findNext(const T &value)
+    \fn bool QMutableVectorIterator::findNext(const T &value)
+    \fn bool QMutableSetIterator::findNext(const T &value)
+
+    Searches for \a value starting from the current iterator position
+    forward. Returns \c true if \a value is found; otherwise returns \c false.
+
+    After the call, if \a value was found, the iterator is positioned
+    just after the matching item; otherwise, the iterator is
+    positioned at the back of the container.
+
+    \sa findPrevious()
+*/
+
+/*! \fn bool QListIterator::findPrevious(const T &value)
+    \fn bool QLinkedListIterator::findPrevious(const T &value)
+    \fn bool QVectorIterator::findPrevious(const T &value)
+    \fn bool QSetIterator::findPrevious(const T &value)
+    \fn bool QMutableListIterator::findPrevious(const T &value)
+    \fn bool QMutableLinkedListIterator::findPrevious(const T &value)
+    \fn bool QMutableVectorIterator::findPrevious(const T &value)
+    \fn bool QMutableSetIterator::findPrevious(const T &value)
+
+    Searches for \a value starting from the current iterator position
+    backward. Returns \c true if \a value is found; otherwise returns
+    false.
+
+    After the call, if \a value was found, the iterator is positioned
+    just before the matching item; otherwise, the iterator is
+    positioned at the front of the container.
+
+    \sa findNext()
+*/
+
+/*! \fn void QMutableListIterator::remove()
+
+    Removes the last item that was jumped over using one of the
+    traversal functions (next(), previous(), findNext(), findPrevious()).
+
+    Example:
+    \snippet code/doc_src_qiterator.cpp 19
+
+    \sa insert(), setValue()
+*/
+
+/*! \fn void QMutableLinkedListIterator::remove()
+
+    Removes the last item that was jumped over using one of the
+    traversal functions (next(), previous(), findNext(), findPrevious()).
+
+    Example:
+    \snippet code/doc_src_qiterator.cpp 20
+
+    \sa insert(), setValue()
+*/
+
+/*! \fn void QMutableVectorIterator::remove()
+
+    Removes the last item that was jumped over using one of the
+    traversal functions (next(), previous(), findNext(), findPrevious()).
+
+    Example:
+    \snippet code/doc_src_qiterator.cpp 21
+
+    \sa insert(), setValue()
+*/
+
+/*! \fn void QMutableSetIterator::remove()
+
+    Removes the last item that was jumped over using one of the
+    traversal functions (next(), previous(), findNext(), findPrevious()).
+
+    Example:
+    \snippet code/doc_src_qiterator.cpp 22
+
+    \sa value()
+*/
+
+/*! \fn void QMutableListIterator::setValue(const T &value) const
+
+    Replaces the value of the last item that was jumped over using
+    one of the traversal functions with \a value.
+
+    The traversal functions are next(), previous(), findNext(), and
+    findPrevious().
+
+    Example:
+    \snippet code/doc_src_qiterator.cpp 23
+
+    \sa value(), remove(), insert()
+*/
+
+/*! \fn void QMutableLinkedListIterator::setValue(const T &value) const
+
+    Replaces the value of the last item that was jumped over using
+    one of the traversal functions with \a value.
+
+    The traversal functions are next(), previous(), findNext(), and
+    findPrevious().
+
+    Example:
+    \snippet code/doc_src_qiterator.cpp 24
+
+    \sa value(), remove(), insert()
+*/
+
+/*! \fn void QMutableVectorIterator::setValue(const T &value) const
+
+    Replaces the value of the last item that was jumped over using
+    one of the traversal functions with \a value.
+
+    The traversal functions are next(), previous(), findNext(), and
+    findPrevious().
+
+    Example:
+    \snippet code/doc_src_qiterator.cpp 25
+
+    \sa value(), remove(), insert()
+*/
+
+/*! \fn const T &QMutableListIterator::value() const
+    \fn const T &QMutableLinkedListIterator::value() const
+    \fn const T &QMutableVectorIterator::value() const
+    \fn const T &QMutableSetIterator::value() const
+
+    Returns the value of the last item that was jumped over using one
+    of the traversal functions (next(), previous(), findNext(),
+    findPrevious()).
+
+    After a call to next() or findNext(), value() is equivalent to
+    peekPrevious(). After a call to previous() or findPrevious(), value() is
+    equivalent to peekNext().
+*/
+
+/*!
+    \fn T &QMutableListIterator::value()
+    \fn T &QMutableLinkedListIterator::value()
+    \fn T &QMutableVectorIterator::value()
+    \overload
+
+    Returns a non-const reference to the value of the last item that
+    was jumped over using one of the traversal functions.
+*/
+
+/*! \fn void QMutableListIterator::insert(const T &value)
+    \fn void QMutableLinkedListIterator::insert(const T &value)
+    \fn void QMutableVectorIterator::insert(const T &value)
+
+    Inserts \a value at the current iterator position. After the
+    call, the iterator is located just after the inserted item.
+
+    \sa remove(), setValue()
+*/
+
+/*!
+    \class QMapIterator
+    \inmodule QtCore
+
+    \brief The QMapIterator class provides a Java-style const iterator for QMap and QMultiMap.
+
+    QMap has both \l{Java-style iterators} and \l{STL-style
+    iterators}. The Java-style iterators are more high-level and
+    easier to use than the STL-style iterators; on the other hand,
+    they are slightly less efficient.
+
+    QMapIterator\<Key, T\> allows you to iterate over a QMap (or a
+    QMultiMap). If you want to modify the map as you iterate over
+    it, use QMutableMapIterator instead.
+
+    The QMapIterator constructor takes a QMap as argument. After
+    construction, the iterator is located at the very beginning of
+    the map (before the first item). Here's how to iterate over all
+    the elements sequentially:
+
+    \snippet code/doc_src_qiterator.cpp 26
+
+    The next() function returns the next item in the map and
+    advances the iterator. The key() and value() functions return the
+    key and value of the last item that was jumped over.
+
+    Unlike STL-style iterators, Java-style iterators point \e between
+    items rather than directly \e at items. The first call to next()
+    advances the iterator to the position between the first and
+    second item, and returns the first item; the second call to
+    next() advances the iterator to the position between the second
+    and third item; and so on.
+
+    \image javaiterators1.png
+
+    Here's how to iterate over the elements in reverse order:
+
+    \snippet code/doc_src_qiterator.cpp 27
+
+    If you want to find all occurrences of a particular value, use
+    findNext() or findPrevious() in a loop. For example:
+
+    \snippet code/doc_src_qiterator.cpp 28
+
+    Multiple iterators can be used on the same map. If the map is
+    modified while a QMapIterator is active, the QMapIterator will
+    continue iterating over the original map, ignoring the modified
+    copy.
+
+    \sa QMutableMapIterator, QMap::const_iterator
+*/
+
+/*!
+    \class QHashIterator
+    \inmodule QtCore
+
+    \brief The QHashIterator class provides a Java-style const iterator for QHash and QMultiHash.
+
+    QHash has both \l{Java-style iterators} and \l{STL-style
+    iterators}. The Java-style iterators are more high-level and
+    easier to use than the STL-style iterators; on the other hand,
+    they are slightly less efficient.
+
+    QHashIterator\<Key, T\> allows you to iterate over a QHash (or a
+    QMultiHash). If you want to modify the hash as you iterate over
+    it, use QMutableHashIterator instead.
+
+    The QHashIterator constructor takes a QHash as argument. After
+    construction, the iterator is located at the very beginning of
+    the hash (before the first item). Here's how to iterate over all
+    the elements sequentially:
+
+    \snippet code/doc_src_qiterator.cpp 29
+
+    The next() function returns the next item in the hash and
+    advances the iterator. The key() and value() functions return the
+    key and value of the last item that was jumped over.
+
+    Unlike STL-style iterators, Java-style iterators point \e between
+    items rather than directly \e at items. The first call to next()
+    advances the iterator to the position between the first and
+    second item, and returns the first item; the second call to
+    next() advances the iterator to the position between the second
+    and third item; and so on.
+
+    \image javaiterators1.png
+
+    Here's how to iterate over the elements in reverse order:
+
+    \snippet code/doc_src_qiterator.cpp 30
+
+    If you want to find all occurrences of a particular value, use
+    findNext() or findPrevious() in a loop. For example:
+
+    \snippet code/doc_src_qiterator.cpp 31
+
+    Multiple iterators can be used on the same hash. If the hash is
+    modified while a QHashIterator is active, the QHashIterator will
+    continue iterating over the original hash, ignoring the modified
+    copy.
+
+    \sa QMutableHashIterator, QHash::const_iterator
+*/
+
+/*!
+    \class QMutableMapIterator
+    \inmodule QtCore
+
+    \brief The QMutableMapIterator class provides a Java-style non-const iterator for QMap and QMultiMap.
+
+    QMap has both \l{Java-style iterators} and \l{STL-style
+    iterators}. The Java-style iterators are more high-level and
+    easier to use than the STL-style iterators; on the other hand,
+    they are slightly less efficient.
+
+    QMutableMapIterator\<Key, T\> allows you to iterate over a QMap
+    (or a QMultiMap) and modify the map. If you don't want to modify
+    the map (or have a const QMap), use the slightly faster
+    QMapIterator instead.
+
+    The QMutableMapIterator constructor takes a QMap as argument.
+    After construction, the iterator is located at the very beginning
+    of the map (before the first item). Here's how to iterate over
+    all the elements sequentially:
+
+    \snippet code/doc_src_qiterator.cpp 32
+
+    The next() function returns the next item in the map and
+    advances the iterator. The key() and value() functions return the
+    key and value of the last item that was jumped over.
+
+    Unlike STL-style iterators, Java-style iterators point \e between
+    items rather than directly \e at items. The first call to next()
+    advances the iterator to the position between the first and
+    second item, and returns the first item; the second call to
+    next() advances the iterator to the position between the second
+    and third item; and so on.
+
+    \image javaiterators1.png
+
+    Here's how to iterate over the elements in reverse order:
+
+    \snippet code/doc_src_qiterator.cpp 33
+
+    If you want to find all occurrences of a particular value, use
+    findNext() or findPrevious() in a loop. For example:
+
+    \snippet code/doc_src_qiterator.cpp 34
+
+    If you want to remove items as you iterate over the map, use
+    remove(). If you want to modify the value of an item, use
+    setValue().
+
+    Example:
+
+    \snippet code/doc_src_qiterator.cpp 35
+
+    The example removes all (key, value) pairs where the key and the
+    value are the same.
+
+    Only one mutable iterator can be active on a given map at any
+    time. Furthermore, no changes should be done directly to the map
+    while the iterator is active (as opposed to through the
+    iterator), since this could invalidate the iterator and lead to
+    undefined behavior.
+
+    \sa QMapIterator, QMap::iterator
+*/
+
+/*!
+    \class QMutableHashIterator
+    \inmodule QtCore
+
+    \brief The QMutableHashIterator class provides a Java-style non-const iterator for QHash and QMultiHash.
+
+    QHash has both \l{Java-style iterators} and \l{STL-style
+    iterators}. The Java-style iterators are more high-level and
+    easier to use than the STL-style iterators; on the other hand,
+    they are slightly less efficient.
+
+    QMutableHashIterator\<Key, T\> allows you to iterate over a QHash
+    (or a QMultiHash) and modify the hash. If you don't want to modify
+    the hash (or have a const QHash), use the slightly faster
+    QHashIterator instead.
+
+    The QMutableHashIterator constructor takes a QHash as argument.
+    After construction, the iterator is located at the very beginning
+    of the hash (before the first item). Here's how to iterate over
+    all the elements sequentially:
+
+    \snippet code/doc_src_qiterator.cpp 36
+
+    The next() function returns the next item in the hash and
+    advances the iterator. The key() and value() functions return the
+    key and value of the last item that was jumped over.
+
+    Unlike STL-style iterators, Java-style iterators point \e between
+    items rather than directly \e at items. The first call to next()
+    advances the iterator to the position between the first and
+    second item, and returns the first item; the second call to
+    next() advances the iterator to the position between the second
+    and third item; and so on.
+
+    \image javaiterators1.png
+
+    Here's how to iterate over the elements in reverse order:
+
+    \snippet code/doc_src_qiterator.cpp 37
+
+    If you want to find all occurrences of a particular value, use
+    findNext() or findPrevious() in a loop. For example:
+
+    \snippet code/doc_src_qiterator.cpp 38
+
+    If you want to remove items as you iterate over the hash, use
+    remove(). If you want to modify the value of an item, use
+    setValue().
+
+    Example:
+
+    \snippet code/doc_src_qiterator.cpp 39
+
+    The example removes all (key, value) pairs where the key and the
+    value are the same.
+
+    Only one mutable iterator can be active on a given hash at any
+    time. Furthermore, no changes should be done directly to the hash
+    while the iterator is active (as opposed to through the
+    iterator), since this could invalidate the iterator and lead to
+    undefined behavior.
+
+    \sa QHashIterator, QHash::iterator
+*/
+
+/*! \fn QMapIterator::QMapIterator(const QMap<Key, T> &map)
+    \fn QMutableMapIterator::QMutableMapIterator(QMap<Key, T> &map)
+
+    Constructs an iterator for traversing \a map. The iterator is set
+    to be at the front of the map (before the first item).
+
+    \sa operator=()
+*/
+
+/*! \fn QHashIterator::QHashIterator(const QHash<Key, T> &hash)
+    \fn QMutableHashIterator::QMutableHashIterator(QHash<Key, T> &hash)
+
+    Constructs an iterator for traversing \a hash. The iterator is
+    set to be at the front of the hash (before the first item).
+
+    \sa operator=()
+*/
+
+/*!
+    \fn QMutableMapIterator::~QMutableMapIterator()
+    \fn QMutableHashIterator::~QMutableHashIterator()
+
+    Destroys the iterator.
+
+    \sa operator=()
+*/
+
+/*! \fn QMapIterator &QMapIterator::operator=(const QMap<Key, T> &map)
+    \fn QMutableMapIterator &QMutableMapIterator::operator=(QMap<Key, T> &map)
+
+    Makes the iterator operate on \a map. The iterator is set to be
+    at the front of the map (before the first item).
+
+    \sa toFront(), toBack()
+*/
+
+/*! \fn QHashIterator &QHashIterator::operator=(const QHash<Key, T> &hash)
+    \fn QMutableHashIterator &QMutableHashIterator::operator=(QHash<Key, T> &hash)
+
+    Makes the iterator operate on \a hash. The iterator is set to be
+    at the front of the hash (before the first item).
+
+    \sa toFront(), toBack()
+*/
+
+/*! \fn void QMapIterator::toFront()
+    \fn void QHashIterator::toFront()
+    \fn void QMutableMapIterator::toFront()
+    \fn void QMutableHashIterator::toFront()
+
+    Moves the iterator to the front of the container (before the
+    first item).
+
+    \sa toBack(), next()
+*/
+
+/*! \fn void QMapIterator::toBack()
+    \fn void QHashIterator::toBack()
+    \fn void QMutableMapIterator::toBack()
+    \fn void QMutableHashIterator::toBack()
+
+    Moves the iterator to the back of the container (after the last
+    item).
+
+    \sa toFront(), previous()
+*/
+
+/*! \fn bool QMapIterator::hasNext() const
+    \fn bool QHashIterator::hasNext() const
+    \fn bool QMutableMapIterator::hasNext() const
+    \fn bool QMutableHashIterator::hasNext() const
+
+    Returns \c true if there is at least one item ahead of the iterator,
+    i.e. the iterator is \e not at the back of the container;
+    otherwise returns \c false.
+
+    \sa hasPrevious(), next()
+*/
+
+/*! \fn QMapIterator::Item QMapIterator::next()
+    \fn QHashIterator::Item QHashIterator::next()
+
+    Returns the next item and advances the iterator by one position.
+
+    Call key() on the return value to obtain the item's key, and
+    value() to obtain the value.
+
+    Calling this function on an iterator located at the back of the
+    container leads to undefined results.
+
+    \sa hasNext(), peekNext(), previous()
+*/
+
+/*! \fn QMutableMapIterator::Item QMutableMapIterator::next()
+    \fn QMutableHashIterator::Item QMutableHashIterator::next()
+
+    Returns the next item and advances the iterator by one position.
+
+    Call key() on the return value to obtain the item's key, and
+    value() to obtain the value.
+
+    Calling this function on an iterator located at the back of the
+    container leads to undefined results.
+
+    \sa hasNext(), peekNext(), previous()
+*/
+
+/*! \fn QMapIterator::Item QMapIterator::peekNext() const
+    \fn QHashIterator::Item QHashIterator::peekNext() const
+
+    Returns the next item without moving the iterator.
+
+    Call key() on the return value to obtain the item's key, and
+    value() to obtain the value.
+
+    Calling this function on an iterator located at the back of the
+    container leads to undefined results.
+
+    \sa hasNext(), next(), peekPrevious()
+*/
+
+/*! \fn QMutableMapIterator::Item QMutableMapIterator::peekNext() const
+    \fn QMutableHashIterator::Item QMutableHashIterator::peekNext() const
+
+    Returns a reference to the next item without moving the iterator.
+
+    Call key() on the return value to obtain the item's key, and
+    value() to obtain the value.
+
+    Calling this function on an iterator located at the back of the
+    container leads to undefined results.
+
+    \sa hasNext(), next(), peekPrevious()
+*/
+
+/*! \fn bool QMapIterator::hasPrevious() const
+    \fn bool QHashIterator::hasPrevious() const
+    \fn bool QMutableMapIterator::hasPrevious() const
+    \fn bool QMutableHashIterator::hasPrevious() const
+
+    Returns \c true if there is at least one item behind the iterator,
+    i.e. the iterator is \e not at the front of the container;
+    otherwise returns \c false.
+
+    \sa hasNext(), previous()
+*/
+
+/*! \fn QMapIterator::Item QMapIterator::previous()
+    \fn QHashIterator::Item QHashIterator::previous()
+
+    Returns the previous item and moves the iterator back by one
+    position.
+
+    Call key() on the return value to obtain the item's key, and
+    value() to obtain the value.
+
+    Calling this function on an iterator located at the front of the
+    container leads to undefined results.
+
+    \sa hasPrevious(), peekPrevious(), next()
+*/
+
+/*! \fn QMutableMapIterator::Item QMutableMapIterator::previous()
+    \fn QMutableHashIterator::Item QMutableHashIterator::previous()
+
+    Returns the previous item and moves the iterator back by one
+    position.
+
+    Call key() on the return value to obtain the item's key, and
+    value() to obtain the value.
+
+    Calling this function on an iterator located at the front of the
+    container leads to undefined results.
+
+    \sa hasPrevious(), peekPrevious(), next()
+*/
+
+/*! \fn QMapIterator::Item QMapIterator::peekPrevious() const
+    \fn QHashIterator::Item QHashIterator::peekPrevious() const
+
+    Returns the previous item without moving the iterator.
+
+    Call key() on the return value to obtain the item's key, and
+    value() to obtain the value.
+
+    Calling this function on an iterator located at the front of the
+    container leads to undefined results.
+
+    \sa hasPrevious(), previous(), peekNext()
+*/
+
+/*! \fn QMutableMapIterator::Item QMutableMapIterator::peekPrevious() const
+    \fn QMutableHashIterator::Item QMutableHashIterator::peekPrevious() const
+
+    Returns the previous item without moving the iterator.
+
+    Call key() on the return value to obtain the item's key, and
+    value() to obtain the value.
+
+    Calling this function on an iterator located at the front of the
+    container leads to undefined results.
+
+    \sa hasPrevious(), previous(), peekNext()
+*/
+
+/*! \fn const T &QMapIterator::value() const
+    \fn const T &QHashIterator::value() const
+
+    Returns the value of the last item that was jumped over using one
+    of the traversal functions (next(), previous(), findNext(),
+    findPrevious()).
+
+    After a call to next() or findNext(), value() is
+    equivalent to peekPrevious().value(). After a call to previous()
+    or findPrevious(), value() is equivalent to peekNext().value().
+
+    \sa key()
+*/
+
+/*!
+    \fn const T &QMutableMapIterator::value() const
+    \fn const T &QMutableHashIterator::value() const
+
+    Returns the value of the last item that was jumped over using one
+    of the traversal functions (next(), previous(), findNext(),
+    findPrevious()).
+
+    After a call to next() or findNext(), value() is
+    equivalent to peekPrevious().value(). After a call to previous()
+    or findPrevious(), value() is equivalent to peekNext().value().
+
+    \sa key(), setValue()
+*/
+
+/*!
+    \fn T &QMutableMapIterator::value()
+    \fn T &QMutableHashIterator::value()
+    \overload
+
+    Returns a non-const reference to the value of
+    the last item that was jumped over using one
+    of the traversal functions.
+*/
+
+/*! \fn const Key &QMapIterator::key() const
+    \fn const Key &QHashIterator::key() const
+    \fn const Key &QMutableMapIterator::key() const
+    \fn const Key &QMutableHashIterator::key() const
+
+    Returns the key of the last item that was jumped over using one
+    of the traversal functions (next(), previous(), findNext(),
+    findPrevious()).
+
+    After a call to next() or findNext(), key() is
+    equivalent to peekPrevious().key(). After a call to previous() or
+    findPrevious(), key() is equivalent to peekNext().key().
+
+    \sa value()
+*/
+
+/*! \fn bool QMapIterator::findNext(const T &value)
+    \fn bool QHashIterator::findNext(const T &value)
+    \fn bool QMutableMapIterator::findNext(const T &value)
+    \fn bool QMutableHashIterator::findNext(const T &value)
+
+    Searches for \a value starting from the current iterator position
+    forward. Returns \c true if a (key, value) pair with value \a value
+    is found; otherwise returns \c false.
+
+    After the call, if \a value was found, the iterator is positioned
+    just after the matching item; otherwise, the iterator is
+    positioned at the back of the container.
+
+    \sa findPrevious()
+*/
+
+/*! \fn bool QMapIterator::findPrevious(const T &value)
+    \fn bool QHashIterator::findPrevious(const T &value)
+    \fn bool QMutableMapIterator::findPrevious(const T &value)
+    \fn bool QMutableHashIterator::findPrevious(const T &value)
+
+    Searches for \a value starting from the current iterator position
+    backward. Returns \c true if a (key, value) pair with value \a value
+    is found; otherwise returns \c false.
+
+    After the call, if \a value was found, the iterator is positioned
+    just before the matching item; otherwise, the iterator is
+    positioned at the front of the container.
+
+    \sa findNext()
+*/
+
+/*! \fn void QMutableMapIterator::remove()
+    \fn void QMutableHashIterator::remove()
+
+    Removes the last item that was jumped over using one of the
+    traversal functions (next(), previous(), findNext(), findPrevious()).
+
+    \sa setValue()
+*/
+
+/*! \fn void QMutableMapIterator::setValue(const T &value)
+    \fn void QMutableHashIterator::setValue(const T &value)
+
+    Replaces the value of the last item that was jumped over using
+    one of the traversal functions with \a value.
+
+    The traversal functions are next(), previous(), findNext(), and
+    findPrevious().
+
+    \sa key(), value(), remove()
+*/

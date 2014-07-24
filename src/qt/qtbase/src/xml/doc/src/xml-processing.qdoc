@@ -1,0 +1,612 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \group xml-tools
+    \title XML Classes
+
+    \brief Classes that support XML, via, for example DOM and SAX.
+
+    These classes are relevant to XML users.
+
+    \generatelist{related}
+*/
+
+/*!
+    \page xml-processing.html
+    \title XML Processing
+
+    \brief An Overview of the XML processing facilities in Qt.
+
+    In addition to core XML support, classes for higher level querying
+    and manipulation of XML data are provided by the Qt XML Patterns
+    module. In the Qt SVG module, the QSvgRenderer and QSvgGenerator
+    classes can read and write a subset of SVG, an XML-based file
+    format. Qt also provides helper functions that may be useful to
+    those working with XML and XHTML: see Qt::escape() and
+    Qt::convertFromPlainText().
+
+    \section1 Topics:
+
+    \list
+    \li \l {Classes for XML Processing}
+    \li \l {An Introduction to Namespaces}
+    \li \l {XML Streaming}
+    \li \l {The SAX Interface}
+    \li \l {Working with the DOM Tree}
+    \endlist
+
+    \section1 Classes for XML Processing
+
+    These classes are relevant to XML users.
+
+    \annotatedlist xml-tools
+*/
+
+/*!
+    \page xml-namespaces.html
+    \title An Introduction to Namespaces
+    \target namespaces
+
+    \contentspage XML Processing
+    \nextpage XML Streaming
+
+    Parts of the Qt XML module documentation assume that you are familiar
+    with XML namespaces. Here we present a brief introduction; skip to
+    \l{#namespacesConventions}{Qt XML documentation conventions}
+    if you already know this material.
+
+    Namespaces are a concept introduced into XML to allow a more modular
+    design. With their help data processing software can easily resolve
+    naming conflicts in XML documents.
+
+    Consider the following example:
+
+    \snippet code/doc_src_qtxml.qdoc 6
+
+    Here we find three different uses of the name \e title. If you wish to
+    process this document you will encounter problems because each of the
+    \e titles should be displayed in a different manner -- even though
+    they have the same name.
+
+    The solution would be to have some means of identifying the first
+    occurrence of \e title as the title of a book, i.e. to use the \e
+    title element of a book namespace to distinguish it from, for example,
+    the chapter title, e.g.:
+    \snippet code/doc_src_qtxml.qdoc 7
+
+    \e book in this case is a \e prefix denoting the namespace.
+
+    Before we can apply a namespace to element or attribute names we must
+    declare it.
+
+    Namespaces are URIs like \e http://www.example.com/fnord/book/. This
+    does not mean that data must be available at this address; the URI is
+    simply used to provide a unique name.
+
+    We declare namespaces in the same way as attributes; strictly speaking
+    they \e are attributes. To make for example \e
+    http://www.example.com/fnord/ the document's default XML namespace \e
+    xmlns we write
+
+    \snippet code/doc_src_qtxml.qdoc 8
+
+    To distinguish the \e http://www.example.com/fnord/book/ namespace from
+    the default, we must supply it with a prefix:
+
+    \snippet code/doc_src_qtxml.qdoc 9
+
+    A namespace that is declared like this can be applied to element and
+    attribute names by prepending the appropriate prefix and a ":"
+    delimiter. We have already seen this with the \e book:title element.
+
+    Element names without a prefix belong to the default namespace. This
+    rule does not apply to attributes: an attribute without a prefix does
+    not belong to any of the declared XML namespaces at all. Attributes
+    always belong to the "traditional" namespace of the element in which
+    they appear. A "traditional" namespace is not an XML namespace, it
+    simply means that all attribute names belonging to one element must be
+    different. Later we will see how to assign an XML namespace to an
+    attribute.
+
+    Due to the fact that attributes without prefixes are not in any XML
+    namespace there is no collision between the attribute \e title (that
+    belongs to the \e author element) and for example the \e title element
+    within a \e chapter.
+
+    Let's clarify this with an example:
+    \snippet code/doc_src_qtxml.qdoc 10
+
+    Within the \e document element we have two namespaces declared. The
+    default namespace \e http://www.example.com/fnord/ applies to the \e
+    book element, the \e chapter element, the appropriate \e title element
+    and of course to \e document itself.
+
+    The \e book:author and \e book:title elements belong to the namespace
+    with the URI \e http://www.example.com/fnord/book/.
+
+    The two \e book:author attributes \e title and \e name have no XML
+    namespace assigned. They are only members of the "traditional"
+    namespace of the element \e book:author, meaning that for example two
+    \e title attributes in \e book:author are forbidden.
+
+    In the above example we circumvent the last rule by adding a \e title
+    attribute from the \e http://www.example.com/fnord/ namespace to \e
+    book:author: the \e fnord:title comes from the namespace with the
+    prefix \e fnord that is declared in the \e book:author element.
+
+    Clearly the \e fnord namespace has the same namespace URI as the
+    default namespace. So why didn't we simply use the default namespace
+    we'd already declared? The answer is quite complex:
+    \list
+    \li attributes without a prefix don't belong to any XML namespace at
+    all, not even to the default namespace;
+    \li additionally omitting the prefix would lead to a \e title-title clash;
+    \li writing it as \e xmlns:title would declare a new namespace with the
+    prefix \e title instead of applying the default \e xmlns namespace.
+    \endlist
+
+    With the Qt XML classes elements and attributes can be accessed in two
+    ways: either by referring to their qualified names consisting of the
+    namespace prefix and the "real" name (or \e local name) or by the
+    combination of local name and namespace URI.
+
+    More information on XML namespaces can be found at
+    \l http://www.w3.org/TR/REC-xml-names/.
+
+    \target namespacesConventions
+    \section1 Conventions Used in the Qt XML Documentation
+
+    The following terms are used to distinguish the parts of names within
+    the context of namespaces:
+    \list
+    \li  The \e {qualified name}
+        is the name as it appears in the document. (In the above example \e
+        book:title is a qualified name.)
+    \li  A \e {namespace prefix} in a qualified name
+        is the part to the left of the ":". (\e book is the namespace prefix in
+        \e book:title.)
+    \li  The \e {local part} of a name (also referred to as the \e {local
+        name}) appears to the right of the ":". (Thus \e title is the
+        local part of \e book:title.)
+    \li  The \e {namespace URI} ("Uniform Resource Identifier") is a unique
+        identifier for a namespace. It looks like a URL
+        (e.g. \e http://www.example.com/fnord/ ) but does not require
+        data to be accessible by the given protocol at the named address.
+    \endlist
+
+    Elements without a ":" (like \e chapter in the example) do not have a
+    namespace prefix. In this case the local part and the qualified name
+    are identical (i.e. \e chapter).
+
+    \sa {DOM Bookmarks Example}, {SAX Bookmarks Example}
+*/
+
+/*!
+    \page xml-streaming.html
+    \title XML Streaming
+
+    \previouspage An Introduction to Namespaces
+    \contentspage XML Processing
+    \nextpage The SAX Interface
+
+    Since version 4.3, Qt provides two new classes for reading and
+    writing XML: QXmlStreamReader and QXmlStreamWriter.
+
+    The QXmlStreamReader and QXmlStreamWriter are two new classes provided
+    in Qt 4.3 and later. A stream reader reports an XML document as a stream
+    of tokens. This differs from SAX as SAX applications provide handlers to
+    receive XML events from the parser whereas the QXmlStreamReader drives the
+    loop, pulling tokens from the reader when they are needed.
+    This pulling approach makes it possible to build recursive descent parsers,
+    allowing XML parsing code to be split into different methods or classes.
+
+    QXmlStreamReader is a well-formed XML 1.0 parser that excludes external
+    parsed entities. Hence, data provided by the stream reader adheres to the
+    W3C's criteria for well-formed XML, as long as no error occurs. Otherwise,
+    functions such as \l{QXmlStreamReader::atEnd()}{atEnd()},
+    \l{QXmlStreamReader::error()}{error()} and \l{QXmlStreamReader::hasError()}
+    {hasError()} can be used to check and view the errors.
+
+    An example of QXmlStreamReader implementation would be the \c XbelReader in
+    \l{QXmlStream Bookmarks Example}, which wraps a QXmlStreamReader.
+    The constructor takes \a treeWidget as a parameter and the class has Xbel
+    specific functions:
+
+    \snippet streambookmarks/xbelreader.h 1
+
+    \dots
+    \snippet streambookmarks/xbelreader.h 2
+    \dots
+
+    The \c read() function accepts a QIODevice and sets it with
+    \l{QXmlStreamReader::setDevice()}{setDevice()}. The
+    \l{QXmlStreamReader::raiseError()}{raiseError()} function is used to
+    display a custom error message, inidicating that the file's version
+    is incorrect.
+
+    \snippet streambookmarks/xbelreader.cpp 1
+
+    The pendent to QXmlStreamReader is QXmlStreamWriter, which provides an XML
+    writer with a simple streaming API. QXmlStreamWriter operates on a
+    QIODevice and has specialized functions for all XML tokens or events you
+    want to write, such as \l{QXmlStreamWriter::writeDTD()}{writeDTD()},
+    \l{QXmlStreamWriter::writeCharacters()}{writeCharacters()},
+    \l{QXmlStreamWriter::writeComment()}{writeComment()} and so on.
+
+    To write XML document with QXmlStreamWriter, you start a document with the
+    \l{QXmlStreamWriter::writeStartDocument()}{writeStartDocument()} function
+    and end it with \l{QXmlStreamWriter::writeEndDocument()}
+    {writeEndDocument()}, which implicitly closes all remaining open tags.
+    Element tags are opened with \l{QXmlStreamWriter::writeStartDocument()}
+    {writeStartDocument()} and followed by
+    \l{QXmlStreamWriter::writeAttribute()}{writeAttribute()} or
+    \l{QXmlStreamWriter::writeAttributes()}{writeAttributes()},
+    element content, and then \l{QXmlStreamWriter::writeEndDocument()}
+    {writeEndDocument()}. Also, \l{QXmlStreamWriter::writeEmptyElement()}
+    {writeEmptyElement()} can be used to write empty elements.
+
+    Element content comprises characters, entity references or nested elements.
+    Content can be written with \l{QXmlStreamWriter::writeCharacters()}
+    {writeCharacters()}, a function that also takes care of escaping all
+    forbidden characters and character sequences,
+    \l{QXmlStreamWriter::writeEntityReference()}{writeEntityReference()},
+    or subsequent calls to \l{QXmlStreamWriter::writeStartElement()}
+    {writeStartElement()}.
+
+    The \c XbelWriter class from \l{QXmlStream Bookmarks Example} wraps a
+    QXmlStreamWriter. Its \c writeFile() function illustrates the core
+    functions of QXmlStreamWriter mentioned above:
+
+    \snippet streambookmarks/xbelwriter.cpp 1
+*/
+
+/*!
+    \page xml-sax.html
+    \title The SAX interface
+
+    \previouspage XML Streaming
+    \contentspage XML Processing
+    \nextpage Working with the DOM Tree
+
+    SAX is an event-based standard interface for XML parsers.
+    The Qt interface follows the design of the SAX2 Java implementation.
+    Its naming scheme was adapted to fit the Qt naming conventions.
+    Details on SAX2 can be found at \l{http://www.saxproject.org}.
+
+    Support for SAX2 filters and the reader factory are under
+    development. The Qt implementation does not include the SAX1
+    compatibility classes present in the Java interface.
+
+    \section1 Introduction to SAX2
+
+    The SAX2 interface is an event-driven mechanism to provide the user with
+    document information. An "event" in this context means something
+    reported by the parser, for example, it has encountered a start tag,
+    or an end tag, etc.
+
+    To make it less abstract consider the following example:
+    \snippet code/doc_src_qtxml.qdoc 3
+
+    Whilst reading (a SAX2 parser is usually referred to as "reader")
+    the above document three events would be triggered:
+    \list 1
+    \li A start tag occurs (\c{<quote>}).
+    \li Character data (i.e. text) is found, "A quotation.".
+    \li An end tag is parsed (\c{</quote>}).
+    \endlist
+
+    Each time such an event occurs the parser reports it; you can set up
+    event handlers to respond to these events.
+
+    Whilst this is a fast and simple approach to read XML documents,
+    manipulation is difficult because data is not stored, simply handled
+    and discarded serially. The \l{Working with the DOM Tree}{DOM interface}
+    reads in and stores the whole document in a tree structure;
+    this takes more memory, but makes it easier to manipulate the
+    document's structure.
+
+    The Qt XML module provides an abstract class, \l QXmlReader, that
+    defines the interface for potential SAX2 readers. Qt includes a reader
+    implementation, \l QXmlSimpleReader, that is easy to adapt through
+    subclassing.
+
+    The reader reports parsing events through special handler classes:
+    \table
+    \header \li Handler class \li Description
+    \row \li \l QXmlContentHandler
+         \li Reports events related to the content of a document (e.g. the start tag
+            or characters).
+    \row \li \l QXmlDTDHandler
+         \li Reports events related to the DTD (e.g. notation declarations).
+    \row \li \l QXmlErrorHandler
+         \li Reports errors or warnings that occurred during parsing.
+    \row \li \l QXmlEntityResolver
+         \li Reports external entities during parsing and allows users to resolve
+            external entities themselves instead of leaving it to the reader.
+    \row \li \l QXmlDeclHandler
+         \li Reports further DTD related events (e.g. attribute declarations).
+    \row \li \l QXmlLexicalHandler
+         \li Reports events related to the lexical structure of the
+            document (the beginning of the DTD, comments etc.).
+    \endtable
+
+    These classes are abstract classes describing the interface. The \l
+    QXmlDefaultHandler class provides a "do nothing" default
+    implementation for all of them. Therefore users only need to overload
+    the QXmlDefaultHandler functions they are interested in.
+
+    To read input XML data a special class \l QXmlInputSource is used.
+
+    Apart from those already mentioned, the following SAX2 support classes
+    provide additional useful functionality:
+    \table
+    \header \li Class \li Description
+    \row \li \l QXmlAttributes
+         \li Used to pass attributes in a start element event.
+    \row \li \l QXmlLocator
+         \li Used to obtain the actual parsing position of an event.
+    \row \li \l QXmlNamespaceSupport
+         \li Used to implement namespace support for a reader. Note that
+            namespaces do not change the parsing behavior. They are only
+            reported through the handler.
+    \endtable
+
+    The \l{SAX Bookmarks example} illustrates how to subclass
+    QXmlDefaultHandler to read an XML bookmark file (XBEL) and
+    how to generate XML by hand.
+
+    \section1 SAX2 Features
+
+    The behavior of an XML reader depends on its support for certain
+    optional features. For example, a reader may have the feature "report
+    attributes used for namespace declarations and prefixes along with
+    the local name of a tag". Like every other feature this has a unique
+    name represented by a URI: it is called
+    \e http://xml.org/sax/features/namespace-prefixes.
+
+    The Qt SAX2 implementation can report whether the reader has
+    particular functionality using the QXmlReader::hasFeature()
+    function. Available features can be tested with QXmlReader::feature(),
+    and switched on or off using QXmlReader::setFeature().
+
+    Consider the example
+    \snippet code/doc_src_qtxml.qdoc 4
+    A reader that does not support the \e
+    http://xml.org/sax/features/namespace-prefixes feature would report
+    the element name \e document but not its attributes \e xmlns:book and
+    \e xmlns with their values. A reader with the feature \e
+    http://xml.org/sax/features/namespace-prefixes reports the namespace
+    attributes if the \l{QXmlReader::feature()}{feature} is
+    switched on.
+
+    Other features include \e http://xml.org/sax/features/namespace
+    (namespace processing, implies \e
+    http://xml.org/sax/features/namespace-prefixes) and \e
+    http://xml.org/sax/features/validation (the ability to report
+    validation errors).
+
+    Whilst SAX2 leaves it to the user to define and implement whatever
+    features are required, support for \e
+    http://xml.org/sax/features/namespace (and thus \e
+    http://xml.org/sax/features/namespace-prefixes) is mandantory.
+    The \l QXmlSimpleReader implementation of \l QXmlReader,
+    supports them, and can do namespace processing.
+
+    \l QXmlSimpleReader is not validating, so it
+    does not support \e http://xml.org/sax/features/validation.
+
+    \section1 Namespace Support via Features
+
+    As we have seen in the previous section, we can configure the
+    behavior of the reader when it comes to namespace
+    processing. This is done by setting and unsetting the
+    \e http://xml.org/sax/features/namespaces and
+    \e http://xml.org/sax/features/namespace-prefixes features.
+
+    They influence the reporting behavior in the following way:
+    \list 1
+    \li Namespace prefixes and local parts of elements and attributes can
+    be reported.
+    \li The qualified names of elements and attributes are reported.
+    \li \l QXmlContentHandler::startPrefixMapping() and \l
+    QXmlContentHandler::endPrefixMapping() are called by the reader.
+    \li Attributes that declare namespaces (i.e. the attribute \e xmlns and
+    attributes starting with \e{xmlns:}) are reported.
+    \endlist
+
+    Consider the following element:
+    \snippet code/doc_src_qtxml.qdoc 5
+    With \e http://xml.org/sax/features/namespace-prefixes set to true
+    the reader will report four attributes; but with the \e
+    namespace-prefixes feature set to false only three, with the \e
+    xmlns:fnord attribute defining a namespace being "invisible" to the
+    reader.
+
+    The \e http://xml.org/sax/features/namespaces feature is responsible
+    for reporting local names, namespace prefixes and URIs. With \e
+    http://xml.org/sax/features/namespaces set to true the parser will
+    report \e title as the local name of the \e fnord:title attribute, \e
+    fnord being the namespace prefix and \e http://example.com/fnord/ as
+    the namespace URI. When \e http://xml.org/sax/features/namespaces is
+    false none of them are reported.
+
+    In the current implementation the Qt XML classes follow the definition
+    that the prefix \e xmlns itself isn't associated with any namespace at all
+    (see \l{http://www.w3.org/TR/1999/REC-xml-names-19990114/#ns-using}).
+    Therefore even with \e http://xml.org/sax/features/namespaces and
+    \e http://xml.org/sax/features/namespace-prefixes both set to true
+    the reader won't return either a local name, a namespace prefix or
+    a namespace URI for \e xmlns:fnord.
+
+    This might be changed in the future following the W3C suggestion
+    \l{http://www.w3.org/2000/xmlns/}
+    to associate \e xmlns with the namespace \e http://www.w3.org/2000/xmlns.
+
+    As the SAX2 standard suggests, \l QXmlSimpleReader defaults to having
+    \e http://xml.org/sax/features/namespaces set to true and
+    \e http://xml.org/sax/features/namespace-prefixes set to false.
+    When changing this behavior using \l QXmlSimpleReader::setFeature()
+    note that the combination of both features set to
+    false is illegal.
+
+    \section2 Summary
+
+    \l QXmlSimpleReader implements the following behavior:
+
+    \table
+    \header \li (namespaces, namespace-prefixes)
+            \li Namespace prefix and local part
+            \li Qualified names
+            \li Prefix mapping
+            \li xmlns attributes
+    \row \li (true, false) \li Yes \li Yes* \li Yes \li No
+    \row \li (true, true) \li Yes \li Yes \li Yes \li Yes
+    \row \li (false, true) \li No* \li Yes \li No* \li Yes
+    \row \li (false, false) \li {4,1} Illegal
+    \endtable
+
+    The behavior of the entries marked with an asterisk (*) is not specified by SAX.
+
+    \section1 Properties
+
+    Properties are a more general concept. They have a unique name,
+    represented as an URI, but their value is \c void*. Thus nearly
+    anything can be used as a property value. This concept involves some
+    danger, though: there is no means of ensuring type-safety; the user
+    must take care that they pass the right type. Properties are
+    useful if a reader supports special handler classes.
+
+    The URIs used for features and properties often look like URLs, e.g.
+    \c http://xml.org/sax/features/namespace. This does not mean that the
+    data required is at this address. It is simply a way of defining
+    unique names.
+
+    Anyone can define and use new SAX2 properties for their readers.
+    Property support is not mandatory.
+
+    To set or query properties the following functions are provided: \l
+    QXmlReader::setProperty(), \l QXmlReader::property() and \l
+    QXmlReader::hasProperty().
+*/
+
+/*!
+    \page xml-dom.tml
+    \title Working with the DOM Tree
+    \target dom
+
+    \previouspage The SAX Interface
+    \contentspage XML Processing
+
+    DOM Level 2 is a W3C Recommendation for XML interfaces that maps the
+    constituents of an XML document to a tree structure. The specification
+    of DOM Level 2 can be found at \l{http://www.w3.org/DOM/}.
+
+    \target domIntro
+    \section1 Introduction to DOM
+
+    DOM provides an interface to access and change the content and
+    structure of an XML file. It makes a hierarchical view of the document
+    (a tree view). Thus -- in contrast to the SAX2 interface -- an object
+    model of the document is resident in memory after parsing which makes
+    manipulation easy.
+
+    All DOM nodes in the document tree are subclasses of \l QDomNode. The
+    document itself is represented as a \l QDomDocument object.
+
+    Here are the available node classes and their potential child classes:
+
+    \list
+    \li \l QDomDocument: Possible children are
+            \list
+            \li \l QDomElement (at most one)
+            \li \l QDomProcessingInstruction
+            \li \l QDomComment
+            \li \l QDomDocumentType
+            \endlist
+    \li \l QDomDocumentFragment: Possible children are
+            \list
+            \li \l QDomElement
+            \li \l QDomProcessingInstruction
+            \li \l QDomComment
+            \li \l QDomText
+            \li \l QDomCDATASection
+            \li \l QDomEntityReference
+            \endlist
+    \li \l QDomDocumentType: No children
+    \li \l QDomEntityReference: Possible children are
+            \list
+            \li \l QDomElement
+            \li \l QDomProcessingInstruction
+            \li \l QDomComment
+            \li \l QDomText
+            \li \l QDomCDATASection
+            \li \l QDomEntityReference
+            \endlist
+    \li \l QDomElement: Possible children are
+            \list
+            \li \l QDomElement
+            \li \l QDomText
+            \li \l QDomComment
+            \li \l QDomProcessingInstruction
+            \li \l QDomCDATASection
+            \li \l QDomEntityReference
+            \endlist
+    \li \l QDomAttr: Possible children are
+            \list
+            \li \l QDomText
+            \li \l QDomEntityReference
+            \endlist
+    \li \l QDomProcessingInstruction: No children
+    \li \l QDomComment: No children
+    \li \l QDomText: No children
+    \li \l QDomCDATASection: No children
+    \li \l QDomEntity: Possible children are
+            \list
+            \li \l QDomElement
+            \li \l QDomProcessingInstruction
+            \li \l QDomComment
+            \li \l QDomText
+            \li \l QDomCDATASection
+            \li \l QDomEntityReference
+            \endlist
+    \li \l QDomNotation: No children
+    \endlist
+
+    With \l QDomNodeList and \l QDomNamedNodeMap two collection classes
+    are provided: \l QDomNodeList is a list of nodes,
+    and \l QDomNamedNodeMap is used to handle unordered sets of nodes
+    (often used for attributes).
+
+    The \l QDomImplementation class allows the user to query features of the
+    DOM implementation.
+
+    To get started please refer to the \l QDomDocument documentation.
+    You might also want to take a look at the \l{DOM Bookmarks example},
+    which illustrates how to read and write an XML bookmark file (XBEL)
+    using DOM.
+*/

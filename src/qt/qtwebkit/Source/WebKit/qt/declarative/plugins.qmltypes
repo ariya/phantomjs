@@ -1,0 +1,199 @@
+import QtQuick.tooling 1.1
+
+// This file describes the plugin-supplied types contained in the library.
+// It is used for QML tooling purposes only.
+//
+// This file was auto-generated with the command 'qmlplugindump -noinstantiate -nonrelocatable QtWebKit 3.0'.
+
+Module {
+    Component {
+        name: "QIODevice"
+        prototype: "QObject"
+        Signal { name: "readyRead" }
+        Signal {
+            name: "bytesWritten"
+            Parameter { name: "bytes"; type: "qlonglong" }
+        }
+        Signal { name: "aboutToClose" }
+        Signal { name: "readChannelFinished" }
+    }
+    Component {
+        name: "QNetworkReply"
+        prototype: "QIODevice"
+        exports: ["QtWebKit/NetworkReply 3.0"]
+        exportMetaObjectRevisions: [0]
+        Enum {
+            name: "NetworkError"
+            values: {
+                "NoError": 0,
+                "ConnectionRefusedError": 1,
+                "RemoteHostClosedError": 2,
+                "HostNotFoundError": 3,
+                "TimeoutError": 4,
+                "OperationCanceledError": 5,
+                "SslHandshakeFailedError": 6,
+                "TemporaryNetworkFailureError": 7,
+                "NetworkSessionFailedError": 8,
+                "BackgroundRequestNotAllowedError": 9,
+                "UnknownNetworkError": 99,
+                "ProxyConnectionRefusedError": 101,
+                "ProxyConnectionClosedError": 102,
+                "ProxyNotFoundError": 103,
+                "ProxyTimeoutError": 104,
+                "ProxyAuthenticationRequiredError": 105,
+                "UnknownProxyError": 199,
+                "ContentAccessDenied": 201,
+                "ContentOperationNotPermittedError": 202,
+                "ContentNotFoundError": 203,
+                "AuthenticationRequiredError": 204,
+                "ContentReSendError": 205,
+                "UnknownContentError": 299,
+                "ProtocolUnknownError": 301,
+                "ProtocolInvalidOperationError": 302,
+                "ProtocolFailure": 399
+            }
+        }
+        Signal { name: "metaDataChanged" }
+        Signal { name: "finished" }
+        Signal {
+            name: "error"
+            Parameter { type: "QNetworkReply::NetworkError" }
+        }
+        Signal { name: "encrypted" }
+        Signal {
+            name: "sslErrors"
+            Parameter { name: "errors"; type: "QList<QSslError>" }
+        }
+        Signal {
+            name: "uploadProgress"
+            Parameter { name: "bytesSent"; type: "qlonglong" }
+            Parameter { name: "bytesTotal"; type: "qlonglong" }
+        }
+        Signal {
+            name: "downloadProgress"
+            Parameter { name: "bytesReceived"; type: "qlonglong" }
+            Parameter { name: "bytesTotal"; type: "qlonglong" }
+        }
+        Method { name: "abort" }
+        Method { name: "ignoreSslErrors" }
+    }
+    Component {
+        name: "QQuickWebPage"
+        defaultProperty: "data"
+        prototype: "QQuickItem"
+        exports: ["QtWebKit/WebPage 3.0"]
+        exportMetaObjectRevisions: [0]
+    }
+    Component {
+        name: "QQuickWebView"
+        defaultProperty: "flickableData"
+        prototype: "QQuickFlickable"
+        exports: ["QtWebKit/WebView 3.0"]
+        exportMetaObjectRevisions: [0]
+        attachedType: "QQuickWebViewAttached"
+        Enum {
+            name: "NavigationRequestAction"
+            values: {
+                "AcceptRequest": 0,
+                "IgnoreRequest": 255
+            }
+        }
+        Enum {
+            name: "LoadStatus"
+            values: {
+                "LoadStartedStatus": 0,
+                "LoadStoppedStatus": 1,
+                "LoadSucceededStatus": 2,
+                "LoadFailedStatus": 3
+            }
+        }
+        Enum {
+            name: "ErrorDomain"
+            values: {
+                "NoErrorDomain": 0,
+                "InternalErrorDomain": 1,
+                "NetworkErrorDomain": 2,
+                "HttpErrorDomain": 3,
+                "DownloadErrorDomain": 4
+            }
+        }
+        Enum {
+            name: "NavigationType"
+            values: {
+                "LinkClickedNavigation": 0,
+                "FormSubmittedNavigation": 1,
+                "BackForwardNavigation": 2,
+                "ReloadNavigation": 3,
+                "FormResubmittedNavigation": 4,
+                "OtherNavigation": 5
+            }
+        }
+        Property { name: "title"; type: "string"; isReadonly: true }
+        Property { name: "url"; type: "QUrl" }
+        Property { name: "icon"; type: "QUrl"; isReadonly: true }
+        Property { name: "canGoBack"; type: "bool"; isReadonly: true }
+        Property { name: "canGoForward"; type: "bool"; isReadonly: true }
+        Property { name: "loading"; type: "bool"; isReadonly: true }
+        Property { name: "loadProgress"; type: "int"; isReadonly: true }
+        Signal { name: "navigationHistoryChanged" }
+        Signal {
+            name: "loadingChanged"
+            Parameter { name: "loadRequest"; type: "QWebLoadRequest"; isPointer: true }
+        }
+        Signal {
+            name: "linkHovered"
+            Parameter { name: "hoveredUrl"; type: "QUrl" }
+            Parameter { name: "hoveredTitle"; type: "string" }
+        }
+        Signal {
+            name: "navigationRequested"
+            Parameter { name: "request"; type: "QWebNavigationRequest"; isPointer: true }
+        }
+        Method {
+            name: "loadHtml"
+            Parameter { name: "html"; type: "string" }
+            Parameter { name: "baseUrl"; type: "QUrl" }
+            Parameter { name: "unreachableUrl"; type: "QUrl" }
+        }
+        Method {
+            name: "loadHtml"
+            Parameter { name: "html"; type: "string" }
+            Parameter { name: "baseUrl"; type: "QUrl" }
+        }
+        Method {
+            name: "loadHtml"
+            Parameter { name: "html"; type: "string" }
+        }
+        Method { name: "goBack" }
+        Method { name: "goForward" }
+        Method { name: "stop" }
+        Method { name: "reload" }
+    }
+    Component {
+        name: "QQuickWebViewAttached"
+        prototype: "QObject"
+        Property { name: "view"; type: "QQuickWebView"; isReadonly: true; isPointer: true }
+    }
+    Component {
+        name: "QWebLoadRequest"
+        prototype: "QObject"
+        exports: ["QtWebKit/WebLoadRequest 3.0"]
+        exportMetaObjectRevisions: [0]
+        Property { name: "url"; type: "QUrl"; isReadonly: true }
+        Property { name: "status"; type: "QQuickWebView::LoadStatus"; isReadonly: true }
+        Property { name: "errorString"; type: "string"; isReadonly: true }
+        Property { name: "errorDomain"; type: "QQuickWebView::ErrorDomain"; isReadonly: true }
+        Property { name: "errorCode"; type: "int"; isReadonly: true }
+    }
+    Component {
+        name: "QWebNavigationRequest"
+        prototype: "QObject"
+        exports: ["QtWebKit/NavigationRequest 3.0"]
+        exportMetaObjectRevisions: [0]
+        Property { name: "url"; type: "QUrl"; isReadonly: true }
+        Property { name: "mouseButton"; type: "int"; isReadonly: true }
+        Property { name: "keyboardModifiers"; type: "int"; isReadonly: true }
+        Property { name: "action"; type: "QQuickWebView::NavigationRequestAction" }
+        Property { name: "navigationType"; type: "QQuickWebView::NavigationType"; isReadonly: true }
+    }
+}

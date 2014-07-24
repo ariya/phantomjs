@@ -1,0 +1,674 @@
+/*************************************************************************
+ *
+ *  File Name (AccessibleText.idl)
+ *
+ *  IAccessible2 IDL Specification
+ *
+ *  Copyright (c) 2007, 2010 Linux Foundation
+ *  Copyright (c) 2006 IBM Corporation
+ *  Copyright (c) 2000, 2006 Sun Microsystems, Inc.
+ *  All rights reserved.
+ *
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   1. Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *
+ *   2. Redistributions in binary form must reproduce the above
+ *      copyright notice, this list of conditions and the following
+ *      disclaimer in the documentation and/or other materials
+ *      provided with the distribution.
+ *
+ *   3. Neither the name of the Linux Foundation nor the names of its
+ *      contributors may be used to endorse or promote products
+ *      derived from this software without specific prior written
+ *      permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+ *  CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ *  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ *  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ *  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ *  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ *  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *  This BSD License conforms to the Open Source Initiative "Simplified
+ *  BSD License" as published at:
+ *  http://www.opensource.org/licenses/bsd-license.php
+ *
+ *  IAccessible2 is a trademark of the Linux Foundation. The IAccessible2
+ *  mark may be used in accordance with the Linux Foundation Trademark
+ *  Policy to indicate compliance with the IAccessible2 specification.
+ *
+ ************************************************************************/
+
+import "objidl.idl";
+import "oaidl.idl";
+import "oleacc.idl";
+import "IA2CommonTypes.idl";
+
+/** A structure containing a substring and the start and end offsets in the enclosing string.
+
+ IAccessibleText::newText and IAccessibleText::oldText return this struct.
+*/
+typedef struct IA2TextSegment {
+  BSTR text;    ///< A copy of a segment of text taken from an enclosing paragraph.
+  long start;    ///< Index of the first character of the segment in the enclosing text.
+  long end;        ///< Index of the character following the last character of the segment in the enclosing text.
+} IA2TextSegment;
+
+/** This enum defines values which specify a text boundary type.
+
+ IA2_TEXT_BOUNDARY_SENTENCE is optional.  When a method doesn't implement this
+ method it must return S_FALSE.  Typically this feature would not be implemented
+ by an application.  However, if the application developer was not satisfied with
+ how screen readers have handled the reading of sentences this boundary type
+ could be implemented and screen readers could use the application's version of a
+ sentence rather than the screen reader's.
+
+ The rest of the boundary types must be supported.
+
+ This enum is used in IAccessibleText::textBeforeOffset, IAccessibleText::textAtOffset,
+ and IAccessibleText::textAfterOffset.
+*/
+
+enum IA2TextBoundaryType {
+  IA2_TEXT_BOUNDARY_CHAR,        /**< Typically, a single character is returned.  In some cases more than
+                                 one character is returned, for example, when a document contains field
+                                 data such as a field containing a date, time, or footnote reference.
+                                 In this case the caret can move over several characters in one movement
+                                 of the caret.  Note that after the caret moves, the caret offset changes
+                                 by the number of characters in the field, e.g. by 8 characters in the
+                                 following date: 03/26/07. */
+  IA2_TEXT_BOUNDARY_WORD,        /**< The range provided matches the range observed when the application
+                                 processes the Ctrl + left arrow and Ctrl + right arrow key sequences.
+                                 Typically this is from the start of one word to the start of the next, but
+                                 various applications are inconsistent in the handling of the end of a line. */
+  IA2_TEXT_BOUNDARY_SENTENCE,    ///< Range is from start of one sentence to the start of another sentence.
+  IA2_TEXT_BOUNDARY_PARAGRAPH,    ///< Range is from start of one paragraph to the start of another paragraph.
+  IA2_TEXT_BOUNDARY_LINE,        /**< Range is from start of one line to the start of another line. This
+                                 often means that an end-of-line character will appear at the end of the
+                                 range. However in the case of some applications an end-of-line character
+                                 indicates the end of a paragraph and the lines composing the paragraph,
+                                 other than the last line, do not contain an end of line character. */
+  IA2_TEXT_BOUNDARY_ALL            ///< Using this value will cause all text to be returned.
+};
+
+/** @brief This interface gives read-only access to text.
+
+ The %IAccessibleText interface should be implemented by all components
+  that present textual information on the display like  buttons,
+  text entry fields, or text portions of the document window.  The interface
+  provides access to the text's content, attributes, and spatial location.
+  However, text can not be modified with this interface.  That is the task
+  of the IAccessibleEditableText interface.
+
+ The text length, i.e. the number of characters in the text, is
+  returned by IAccessibleText::nCharacters. All methods that operate
+  on particular characters (e.g. IAccessibleText::textAtOffset) use character
+  indices from 0 to length-1. All methods that operate on character positions
+  (e.g. IAccessibleText::text) use indices from 0 to length.
+
+ Please note that accessible text does not necessarily support selection.
+  In this case it should behave as if there where no selection.  An empty
+  selection is used for example to express the current cursor position.
+
+ Refer to @ref _specialOffsets
+  "Special Offsets for use in the IAccessibleText and IAccessibleEditableText Methods"
+  for information about special offsets that can be used in %IAccessibleText methods.
+
+ E_FAIL is returned in the following cases
+ @li endOffset < startOffset
+ @li endoffset > length
+*/
+[object, uuid(24FD2FFB-3AAD-4a08-8335-A3AD89C0FB4B)]
+interface IAccessibleText : IUnknown
+{
+
+  /** @brief Adds a text selection
+   @param [in] startOffset
+    Starting offset ( 0 based).
+   @param [in] endOffset
+    Offset of first character after new selection (0 based).
+   @retval S_OK
+   @retval E_INVALIDARG if bad [in] passed
+   @note  Refer to @ref _specialOffsets
+    "Special Offsets for use in the IAccessibleText and IAccessibleEditableText Methods"
+    for information about special offsets that can be used in %IAccessibleText methods.
+  */
+  HRESULT addSelection
+    (
+     [in] long startOffset,
+     [in] long endOffset
+    );
+
+  /** @brief Returns text attributes.
+   @param [in] offset
+    Text offset (0 based).  Refer to @ref _specialOffsets
+    "Special Offsets for use in the IAccessibleText and IAccessibleEditableText Methods"
+    for information about special offsets that can be used in %IAccessibleText methods.
+   @param [out] startOffset
+    The starting offset of the character range over which all text attributes match
+    those of offset. (0 based)
+   @param [out] endOffset
+    The offset of the first character past the character range over which all text
+    attributes match those of offset. (0 based)
+   @param [out] textAttributes
+    A string of attributes describing the text.  The attributes are described in the
+    <a href="http://www.linuxfoundation.org/en/Accessibility/IAccessible2/TextAttributes">
+    text attributes specification</a> on the %IAccessible2 web site.
+   @retval S_OK
+   @retval S_FALSE if there is nothing to return, [out] values are 0s and NULL respectively
+   @retval E_INVALIDARG if bad [in] passed
+  */
+  [propget] HRESULT attributes
+    (
+     [in] long offset,
+     [out] long *startOffset,
+     [out] long *endOffset,
+     [out, retval] BSTR *textAttributes
+    );
+
+  /** @brief Returns the position of the caret.
+
+   Returns the 0-based offset of the caret within the text.  If the text is
+   implemented as a tree of text objects with embed characters in higher levels
+   representing substrings of child text objects and the caret is in one of the
+   child text objects, then the offset in the higher level text object would be
+   at the embed character representing child text object that contains the caret.
+
+   For example, if the string "one two three" is implemented as a two text objects,
+   with a top level text object containing an embed character "one ? three" and a
+   child text object containing "two" and if the caret is in the descendant object
+   just before the 'o' in "two", then:
+   <ul>
+   <li>the caretOffset for the "one ? three" object would be 4, matching the embed character</li>
+   <li>the caretOffset for "two" would be 2, matching the "o"</li>
+   </ul>
+   The caret position/offset is that of the character logically following it, e.g.
+   to the right of it in a left to right language, or to the left of it in a right
+   to left language.
+   @param [out] offset
+    The returned offset is relative to the text represented by this object.
+   @retval S_OK
+   @retval S_FALSE if the caret is not currently active on this object, i.e. the
+    caret is located on some other object.  The returned offset value will be -1.
+   @note S_FALSE (and an offset of -1) will not be returned if the caret is somewhere
+   in the text object or one of its descendants.
+  */
+  [propget] HRESULT caretOffset
+    (
+     [out, retval] long *offset
+    );
+
+
+  /** @brief Returns the bounding box of the specified position.
+
+   The virtual character after the last character of the represented
+    text, i.e. the one at position length is a special case. It represents the
+    current input position and will therefore typically be queried by AT more
+    often than other positions.  Because it does not represent an existing character
+    its bounding box is defined in relation to preceding characters.  It should be
+    roughly equivalent to the bounding box of some character when inserted at the
+    end of the text.  Its height typically being the maximal height of all the
+    characters in the text or the height of the preceding character, its width being
+    at least one pixel so that the bounding box is not degenerate.
+
+   Note that the index 'length' is not always valid.  Whether it is or not is
+    implementation dependent.  It typically is when text is editable or otherwise
+    when on the screen the caret can be placed behind the text.  You can be sure
+    that the index is valid after you have received a ::IA2_EVENT_TEXT_CARET_MOVED
+    event for this index.
+   @param [in] offset
+    Index of the character for which to return its bounding box. The valid range
+    is 0..length.  Refer to @ref _specialOffsets
+    "Special Offsets for use in the IAccessibleText and IAccessibleEditableText Methods"
+    for information about special offsets that can be used in %IAccessibleText methods.
+   @param [in] coordType
+    Specifies if the coordinates are relative to the screen or to the parent window.
+   @param [out] x
+    X coordinate of the top left corner of the bounding box of the referenced character.
+   @param [out] y
+    Y coordinate of the top left corner of the bounding box of the referenced character.
+   @param [out] width
+    Width of the bounding box of the referenced character.
+   @param [out] height
+    Height of the bounding box of the referenced character.
+   @retval S_OK
+   @retval E_INVALIDARG if bad [in] passed
+  */
+  [propget] HRESULT characterExtents
+    (
+     [in] long offset,
+     [in] enum IA2CoordinateType coordType,
+     [out] long *x,
+     [out] long *y,
+     [out] long *width,
+     [out, retval] long *height
+    );
+
+
+  /** @brief Returns the number of active non-contiguous selections
+   @param [out] nSelections
+   @retval S_OK
+  */
+  [propget] HRESULT nSelections
+    (
+     [out, retval] long *nSelections
+    );
+
+  /** @brief Returns the text position for the specified screen position.
+
+   Given a point return the zero-based index of the character under that
+   point.  The same functionality could be achieved by using the bounding
+   boxes for each character as returned by IAccessibleText::characterExtents.
+   The method IAccessibleText::offsetAtPoint, however, can be implemented
+   more efficiently.
+
+   @param [in] x
+    The position's x value for which to look up the index of the character that
+    is rendered on to the display at that point.
+   @param [in] y
+    The position's y value for which to look up the index of the character that
+    is rendered on to the display at that point.
+   @param [in] coordType
+    Screen coordinates or window coordinates.
+   @param [out] offset
+    Index of the character under the given point or -1 if the point
+    is invalid or there is no character under the point.
+   @retval S_OK
+   @retval S_FALSE if nothing to return, [out] value is -1
+
+   @retval E_INVALIDARG if bad [in] passed
+    */
+  [propget] HRESULT offsetAtPoint
+    (
+     [in] long x,
+     [in] long y,
+     [in] enum IA2CoordinateType coordType,
+     [out, retval] long *offset
+    );
+
+  /** @brief Returns the character offsets of Nth active text selection
+
+   Returns the 0-based starting and ending offsets of the Nth selection.  If the
+   text is implemented as a tree of text objects with embed characters in higher
+   levels representing substrings of child text objects, consider the following.
+   If the starting selection offset is in one of the child text objects, then the
+   starting offset in the higher level text object would be at the embed character
+   representing the child text object that contains the starting selection offset.
+   If the ending selection offset is in one of the child text objects, then the
+   ending offset in the higher level text object would be just after the embed
+   character representing the child text object that contains the ending selection
+   offset.
+
+   For example, if the string "one two three" is implemented as a two text objects,
+   with a top level text object containing an embed character "one ? three" and a
+   child text object containing "two" and if the selection is the string "two" then:
+   <ul>
+   <li>the startOffset for the "one ? three" object would be 4, matching the embed character and the endOffset would be 5.</li>
+   <li>the startOffset for the "two" object would be 0, and the endOffset would be 3</li>
+   </ul>
+   Selection offsets are that of the character logically following it, e.g.
+   to the right of it in a left to right language or to the left of it in a right to left language.
+   @param [in] selectionIndex
+    Index of selection (0 based).
+   @param [out] startOffset
+    0 based offset of first selected character
+   @param [out] endOffset
+    0 based offset of one past the last selected character.
+   @retval S_OK
+   @retval E_INVALIDARG if bad [in] passed
+  */
+  [propget] HRESULT selection
+    (
+     [in] long selectionIndex,
+     [out] long *startOffset,
+     [out, retval] long *endOffset
+    );
+
+  /** @brief Returns the substring between the two given indices.
+
+   The substring starts with the character at startOffset (inclusive) and up to
+    the character at endOffset (exclusive), if startOffset is less or equal
+    endOffset.  If endOffset is lower than startOffset, the result is the same
+    as a call with the two arguments being exchanged.
+
+   The whole text can be requested by passing the indices zero and
+    IAccessibleText::nCharacters. If both indices have the same value, an empty
+    string is returned.
+   @param [in] startOffset
+    Index of the first character to include in the returned string. The valid range
+    is 0..length.
+   @param [in] endOffset
+    Index of the last character to exclude in the returned string. The valid range
+    is 0..length.
+   @param [out] text
+    Returns the substring starting with the character at startOffset (inclusive)
+    and up to the character at endOffset (exclusive), if startOffset is less than
+    or equal to endOffset.
+   @retval S_OK
+   @retval E_INVALIDARG if bad [in] passed
+   @note
+   @li The returned string may be longer than endOffset-startOffset bytes if text
+    contains multi-byte characters.
+   @li Refer to @ref _specialOffsets
+    "Special Offsets for use in the IAccessibleText and IAccessibleEditableText Methods"
+    for information about special offsets that can be used in %IAccessibleText methods.
+  */
+  [propget] HRESULT text
+    (
+     [in] long startOffset,
+     [in] long endOffset,
+     [out, retval] BSTR *text
+    );
+
+  /** @brief Returns a text portion before the given position.
+
+   Returns the substring of the specified text type that is located before the
+    given character and does not include it. The result of this method should be
+    same as a result for IAccessibleText::textAtOffset with a suitably decreased
+    index value.
+
+   For example, if text type is ::IA2_TEXT_BOUNDARY_WORD, then the complete
+    word that is closest to and located before offset is returned.
+
+   If the index is valid, but no suitable word (or other boundary type) is found, a
+    NULL pointer is returned.
+
+   @param [in] offset
+    Index of the character for which to return the text part before it.  The index
+    character will not be part of the returned string. The valid range is 0..length.
+    Refer to @ref _specialOffsets
+    "Special Offsets for use in the IAccessibleText and IAccessibleEditableText Methods"
+    for information about special offsets that can be used in %IAccessibleText methods.
+   @param [in] boundaryType
+    The type of the text portion to return.  See ::IA2TextBoundaryType for the
+    complete list.
+   @param [out] startOffset
+    0 based offset of first character.
+   @param [out] endOffset
+    0 based offset of one past the last character.
+   @param [out] text
+    Returns the requested text portion.  This portion may be empty or invalid when
+    no appropriate text portion is found or text type is invalid.
+   @retval S_OK
+   @retval S_FALSE if the requested boundary type is not implemented, such as
+    ::IA2_TEXT_BOUNDARY_SENTENCE, or if there is nothing to return;
+    [out] values are 0s and NULL respectively
+   @retval E_INVALIDARG if bad [in] passed
+  */
+  [propget] HRESULT textBeforeOffset
+    (
+     [in] long offset,
+     [in] enum IA2TextBoundaryType boundaryType,
+     [out] long *startOffset,
+     [out] long *endOffset,
+     [out, retval] BSTR *text
+    );
+
+  /** @brief Returns a text portion after the given position.
+
+   Returns the substring of the specified text type that is located after the
+    given character and does not include it. The result of this method should be
+    same as a result for IAccessibleText::textAtOffset with a suitably increased
+    index value.
+
+   For example, if text type is ::IA2_TEXT_BOUNDARY_WORD, then the complete
+    word that is closest to and located after offset is returned.
+
+   If the index is valid, but no suitable word (or other text type) is found, a
+    NULL pointer is returned.
+
+   @param [in] offset
+    Index of the character for which to return the text part after it.  The index
+    character will not be part of the returned string. The valid range is 0..length.
+    Refer to @ref _specialOffsets
+    "Special Offsets for use in the IAccessibleText and IAccessibleEditableText Methods"
+    for information about special offsets that can be used in %IAccessibleText methods.
+   @param [in] boundaryType
+    The type of the text portion to return.  See ::IA2TextBoundaryType for the complete
+    list.
+   @param [out] startOffset
+    0 based offset of first character.
+   @param [out] endOffset
+    0 based offset of one past the last character.
+   @param [out] text
+    Returns the requested text portion.  This portion may be empty or invalid when
+    no appropriate text portion is found or text type is invalid.
+   @retval S_OK
+   @retval S_FALSE if the requested boundary type is not implemented, such as
+    ::IA2_TEXT_BOUNDARY_SENTENCE, or if there is nothing to return;
+    [out] values are 0s and NULL respectively
+   @retval E_INVALIDARG if bad [in] passed
+  */
+  [propget] HRESULT textAfterOffset
+    (
+     [in] long offset,
+     [in] enum IA2TextBoundaryType boundaryType,
+     [out] long *startOffset,
+     [out] long *endOffset,
+     [out, retval] BSTR *text
+    );
+
+  /** @brief Returns a text portion that spans the given position.
+
+   Returns the substring of the specified text type at the specified offset.
+
+   If the index is valid, but no suitable word (or other text type) is found, a
+    NULL pointer is returned.
+
+   @param [in] offset
+    Index of the character for which to return the text part before it.  The index
+    character will not be part of the returned string. The valid range is 0..length.
+    Refer to @ref _specialOffsets
+    "Special Offsets for use in the IAccessibleText and IAccessibleEditableText Methods"
+    for information about special offsets that can be used in %IAccessibleText methods.
+   @param [in] boundaryType
+    The type of the text portion to return.  See ::IA2TextBoundaryType for the complete
+    list.
+   @param [out] startOffset
+    0 based offset of first character.
+   @param [out] endOffset
+    0 based offset of one past the last character.
+   @param [out] text
+    Returns the requested text portion.  This portion may be empty or invalid when
+    no appropriate text portion is found or text type is invalid.
+   @retval S_OK
+   @retval S_FALSE if the requested boundary type is not implemented, such as
+    ::IA2_TEXT_BOUNDARY_SENTENCE, or if there is nothing to return;
+    [out] values are 0s and NULL respectively
+   @retval E_INVALIDARG if bad [in] passed
+  */
+  [propget] HRESULT textAtOffset
+    (
+     [in] long offset,
+     [in] enum IA2TextBoundaryType boundaryType,
+     [out] long *startOffset,
+     [out] long *endOffset,
+     [out, retval] BSTR *text
+    );
+
+  /** @brief Unselects a range of text.
+   @param [in] selectionIndex
+    Index of selection to remove (0 based).
+   @retval S_OK
+   @retval E_INVALIDARG if bad [in] passed
+  */
+  HRESULT removeSelection
+    (
+     [in] long selectionIndex
+    );
+
+  /** @brief Sets the position of the caret.
+
+   The caret position/offset is that of the character logically following it,
+   e.g. to the right of it in a left to right language.
+
+   Setting the caret position may or may not alter the current selection.  A
+    change of the selection is notified to the accessibility event listeners with
+    an ::IA2_EVENT_TEXT_SELECTION_CHANGED event.
+
+   When the new caret position differs from the old one (which, of course, is the
+    standard case) this is notified to the accessibility event listeners with an
+    ::IA2_EVENT_TEXT_CARET_MOVED event.
+   @param [in] offset
+    The new index of the caret.  This caret is actually placed to the left side of
+    the character with that index.  An index of 0 places the caret so that the next
+    insertion goes before the first character.  An index of IAccessibleText::nCharacters
+    leads to insertion after the last character.  Refer to @ref _specialOffsets
+    "Special Offsets for use in the IAccessibleText and IAccessibleEditableText Methods"
+    for information about special offsets that can be used in %IAccessibleText methods.
+   @retval S_OK
+   @retval E_FAIL if the caret cannot be set
+   @retval E_INVALIDARG if bad [in] passed
+  */
+  HRESULT setCaretOffset
+    (
+     [in] long offset
+    );
+
+  /** @brief Changes the bounds of an existing selection.
+   @param [in] selectionIndex
+    Index of selection to change (0 based)
+   @param [in] startOffset
+    New starting offset (0 based)
+   @param [in] endOffset
+    New ending offset (0 based) - the offset of the character just past the last character of the selection.
+   @retval S_OK
+   @retval E_INVALIDARG if bad [in] passed
+   @note Refer to @ref _specialOffsets
+    "Special Offsets for use in the IAccessibleText and IAccessibleEditableText Methods"
+    for information about special offsets that can be used in %IAccessibleText methods.
+  */
+  HRESULT setSelection
+    (
+     [in] long selectionIndex,
+     [in] long startOffset,
+     [in] long endOffset
+    );
+
+  /** @brief Returns total number of characters.
+
+   Note that this may be different than the total number of bytes required to store the
+    text, if the text contains multi-byte characters.
+   @param [out] nCharacters
+   @retval S_OK
+  */
+  [propget] HRESULT nCharacters
+    (
+     [out, retval] long *nCharacters
+    );
+
+  /** @brief Makes a specific part of string visible on screen.
+   @param [in] startIndex
+    0 based character offset.
+   @param [in] endIndex
+    0 based character offset - the offset of the character just past the last character of the string.
+   @param [in] scrollType
+    Defines where the object should be placed on the screen.
+   @retval S_OK
+   @retval E_INVALIDARG if bad [in] passed
+   @note Refer to @ref _specialOffsets
+    "Special Offsets for use in the IAccessibleText and IAccessibleEditableText Methods"
+    for information about special offsets that can be used in %IAccessibleText methods.
+  */
+  HRESULT scrollSubstringTo
+    (
+     [in] long startIndex,
+     [in] long endIndex,
+     [in] enum IA2ScrollType scrollType
+    );
+
+  /** @brief Moves the top left of a substring to a specified location.
+
+   @param [in] startIndex
+    0 based character offset.
+   @param [in] endIndex
+    0 based character offset - the offset of the character just past the last character of the string.
+   @param [in] coordinateType
+    Specifies whether the coordinates are relative to the screen or the parent object.
+   @param [in] x
+    Defines the x coordinate.
+   @param [in] y
+    Defines the y coordinate.
+   @retval S_OK
+   @retval S_FALSE if the object is already at the specified location.
+   @retval E_INVALIDARG if bad [in] passed
+   @note Refer to @ref _specialOffsets
+    "Special Offsets for use in the IAccessibleText and IAccessibleEditableText Methods"
+    for information about special offsets that can be used in %IAccessibleText methods.
+  */
+  HRESULT scrollSubstringToPoint
+    (
+     [in] long startIndex,
+     [in] long endIndex,
+     [in] enum IA2CoordinateType coordinateType,
+     [in] long x,
+     [in] long y
+    );
+
+  /** @brief Returns any inserted text.
+
+   Provided for use by the ::IA2_EVENT_TEXT_INSERTED and ::IA2_EVENT_TEXT_UPDATED
+    event handlers.
+
+   This data is only guaranteed to be valid while the thread notifying the event
+   continues. Once the handler has returned, the validity of the data depends on
+   how the server manages the life cycle of its objects. Also, note that the server
+   may have different life cycle management strategies for controls depending on
+   whether or not a control manages its children. Lists, trees, and tables can have
+   a large number of children and thus it's possible that the child objects for those
+   controls would only be created as needed. Servers should document their life cycle
+   strategy as this will be of interest to assistive technology or script engines
+   accessing data out of process or from other threads. Servers only need to save the
+   last inserted block of text and a scope of the entire application is adequate.
+
+   @param [out] newText
+    The text that was just inserted.
+   @retval S_OK
+   @retval S_FALSE If there is nothing to return, the values of IA2TextSegment
+    struct are set as follows:  text = NULL, start = 0, end = 0.
+
+  */
+  [propget] HRESULT newText
+    (
+     [out, retval] IA2TextSegment *newText
+    );
+
+  /** @brief Returns any removed text.
+
+   Provided for use by the IA2_EVENT_TEXT_REMOVED/UPDATED event handlers.
+
+   This data is only guaranteed to be valid while the thread notifying the event
+   continues. Once the handler has returned, the validity of the data depends on
+   how the server manages the life cycle of its objects. Also, note that the server
+   may have different life cycle management strategies for controls depending on
+   whether or not a control manages its children. Lists, trees, and tables can have
+   a large number of children and thus it's possible that the child objects for those
+   controls would only be created as needed. Servers should document their life cycle
+   strategy as this will be of interest to assistive technology or script engines
+   accessing data out of process or from other threads. Servers only need to save the
+   last removed block of text and a scope of the entire application is adequate.
+
+   @param [out] oldText
+    The text that was just removed.
+   @retval S_OK
+   @retval S_FALSE If there is nothing to return, the values of IA2TextSegment
+    struct are set as follows:  text = NULL, start = 0, end = 0.
+  */
+  [propget] HRESULT oldText
+    (
+     [out, retval] IA2TextSegment *oldText
+    );
+
+}

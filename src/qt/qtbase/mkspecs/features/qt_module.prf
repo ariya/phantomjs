@@ -1,0 +1,229 @@
+#
+#  W A R N I N G
+#  -------------
+#
+# This file is not part of the Qt API.  It exists purely as an
+# implementation detail.  It may change from version to version
+# without notice, or even be removed.
+#
+# We mean it.
+#
+
+!no_qt_module_warning:!contains(QMAKE_INTERNAL_INCLUDED_FILES, .*qmodule\\.pri) {
+    QMAKE_ACTUAL_PRO_FILE = $$basename(_PRO_FILE_)
+    isEmpty(QMAKE_ACTUAL_PRO_FILE): QMAKE_ACTUAL_PRO_FILE=.pro
+    warning("You should probably load(qt_build_config) first in $$QMAKE_ACTUAL_PRO_FILE for $$TARGET, as the latter also load()s qt_module.")
+    message("Not doing so may lead to qt_module.prf overriding compiler/linker options in your .pro file.")
+    message("Ignore this warning with CONFIG+=no_qt_module_warning if you know what you are doing.")
+    unset(QMAKE_ACTUAL_PRO_FILE)
+}
+load(qt_build_config) # loads qmodule.pri if hasn't been loaded already
+
+isEmpty(MODULE):MODULE = $$section($$list($$basename(_PRO_FILE_)), ., 0, 0)
+isEmpty(VERSION): VERSION = $$MODULE_VERSION
+isEmpty(VERSION): error("Module does not define version.")
+
+# Compile as shared/DLL or static according to the option given to configure
+# unless overridden. Host builds are always static
+host_build|staticlib: CONFIG += static
+
+host_build {
+    QT -= gui   # no host module will ever use gui
+    force_bootstrap {
+        !build_pass: CONFIG += release
+        contains(QT, core(-private)?|xml) {
+            QT -= core core-private xml
+            QT += bootstrap-private
+        }
+    } else {
+        !build_pass:contains(QT_CONFIG, build_all): CONFIG += release
+    }
+}
+
+ucmodule = $$upper($$MODULE)
+
+isEmpty(MODULE_INCNAME): MODULE_INCNAME = $$TARGET
+
+internal_module: \
+    MODULE_DEPENDS = $$replace(QT, -private$, _private)
+else: \
+    MODULE_DEPENDS = $$replace(QT, -private$, )
+MODULE_DEPENDS = $$unique(MODULE_DEPENDS)
+
+contains(TARGET, QtAddOn.*): \
+    MODULE_DEFINE = QT_ADDON_$${ucmodule}_LIB
+else: \
+    MODULE_DEFINE = QT_$${ucmodule}_LIB
+MODULE_DEFINES = $$MODULE_DEFINE $$MODULE_DEFINES
+
+load(qt_module_pris)
+
+INCLUDEPATH *= $$eval(QT.$${MODULE}.includes) $$eval(QT.$${MODULE}_private.includes)
+
+!no_module_headers: load(qt_module_headers)
+
+#other
+TEMPLATE         = lib
+DESTDIR          = $$eval(QT.$${MODULE_ID}.libs)
+win32:!wince*:!prefix_build: DLLDESTDIR = $$eval(QT.$${MODULE_ID}.bins)
+
+CONFIG          += qmake_cache target_qt
+
+QMAKE_DOCS_TARGETDIR = qt$${MODULE}
+
+# If Qt was configured with -debug-and-release then build the module the same way
+# - unless this is a host library
+!host_build:if(win32|mac):!macx-xcode {
+    contains(QT_CONFIG, debug_and_release):CONFIG += debug_and_release
+    contains(QT_CONFIG, build_all):CONFIG += build_all
+}
+
+linux*:QMAKE_LFLAGS += $$QMAKE_LFLAGS_NOUNDEF
+
+QT += $$QT_FOR_PRIVATE
+unset(QT_FOR_PRIVATE)
+
+!internal_module:CONFIG += create_cmake
+
+contains(TARGET, QtAddOn.*): \
+    DEFINES += QT_BUILD_ADDON_$${ucmodule}_LIB
+else: \
+    DEFINES += QT_BUILD_$${ucmodule}_LIB
+
+# OS X and iOS frameworks
+mac:CONFIG(shared, static|shared):contains(QT_CONFIG, qt_framework) {
+   #QMAKE_FRAMEWORK_VERSION = 4.0
+   CONFIG += lib_bundle sliced_bundle qt_framework
+   CONFIG -= qt_install_headers #no need to install these as well
+   !debug_and_release|!build_all|CONFIG(release, debug|release) {
+        FRAMEWORK_HEADERS.version = Versions
+        FRAMEWORK_HEADERS.files = $$SYNCQT.HEADER_FILES $$SYNCQT.HEADER_CLASSES
+        FRAMEWORK_HEADERS.path = Headers
+        FRAMEWORK_PRIVATE_HEADERS.files = $$SYNCQT.PRIVATE_HEADER_FILES
+        FRAMEWORK_PRIVATE_HEADERS.path = Headers/$$VERSION/$$MODULE_INCNAME/private
+        FRAMEWORK_QPA_HEADERS.files = $$SYNCQT.QPA_HEADER_FILES
+        FRAMEWORK_QPA_HEADERS.path = Headers/$$VERSION/$$MODULE_INCNAME/qpa
+        QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS FRAMEWORK_PRIVATE_HEADERS FRAMEWORK_QPA_HEADERS
+   }
+}
+
+mac {
+   CONFIG += explicitlib
+   macx-g++ {
+       QMAKE_CFLAGS += -fconstant-cfstrings
+       QMAKE_CXXFLAGS += -fconstant-cfstrings
+   }
+}
+
+DEFINES += QT_BUILDING_QT
+win32 {
+    INCLUDEPATH += tmp
+    CONFIG += skip_target_version_ext
+    # If the code is really "unsafe" then it is unsafe on
+    # other platforms as well; so fixing these warnings just
+    # for MSVC builds, would clutter the code and wouldn't help
+    # in fixing issues that might exist on other platforms.
+    # Using the same functions across all supported platforms
+    # keeps the code clean and helps in writing code that is
+    # safe across all platforms.
+    DEFINES *= _CRT_SECURE_NO_WARNINGS
+}
+
+aix-g++* {
+     QMAKE_CFLAGS   += -mminimal-toc
+     QMAKE_CXXFLAGS += -mminimal-toc
+}
+
+sse2:!contains(QT_CPU_FEATURES.$$QT_ARCH, sse2):!host_build:!if(static:contains(QT_CONFIG, shared)) {
+    # If the compiler supports SSE2, enable it unconditionally in all of Qt shared libraries
+    # (and only the libraries). This is not expected to be a problem because:
+    # - on Windows, sharing of libraries is uncommon
+    # - on Mac OS X, all x86 CPUs already have SSE2 support (we won't even reach here)
+    # - on Linux, the dynamic loader can find the libraries on LIBDIR/sse2/
+    # The last guarantee does not apply to executables and plugins, so we can't enable for them.
+    QT_CPU_FEATURES.$$QT_ARCH += sse sse2
+    QMAKE_CFLAGS += $$QMAKE_CFLAGS_SSE2
+    QMAKE_CXXFLAGS += $$QMAKE_CFLAGS_SSE2
+}
+
+clang {
+    apple_clang_ver = $${QT_APPLE_CLANG_MAJOR_VERSION}.$${QT_APPLE_CLANG_MINOR_VERSION}
+    reg_clang_ver = $${QT_CLANG_MAJOR_VERSION}.$${QT_CLANG_MINOR_VERSION}
+    !lessThan(apple_clang_ver, "5.1")|!lessThan(reg_clang_ver, "3.4"): \
+        CONFIG += compiler_supports_fpmath
+} else: gcc {
+    CONFIG += compiler_supports_fpmath
+}
+
+equals(QT_ARCH, i386):contains(QT_CPU_FEATURES.$$QT_ARCH, sse2):compiler_supports_fpmath {
+    # Turn on SSE-based floating-point math
+    QMAKE_CFLAGS += -mfpmath=sse
+    QMAKE_CXXFLAGS += -mfpmath=sse
+}
+
+android: CONFIG += qt_android_deps
+
+#install directives
+load(qt_installs)
+
+!isEmpty(_QMAKE_SUPER_CACHE_): \
+    rplbase = $$dirname(_QMAKE_SUPER_CACHE_)/[^/][^/]*
+else: \
+    rplbase = $$MODULE_BASE_OUTDIR
+include_replace.match = $$rplbase/include
+include_replace.replace = $$[QT_INSTALL_HEADERS/raw]
+include_replace.CONFIG = path
+lib_replace.match = $$rplbase/lib
+host_build: \
+    lib_replace.replace = $$[QT_HOST_LIBS]
+else: \
+    lib_replace.replace = $$[QT_INSTALL_LIBS/raw]
+lib_replace.CONFIG = path
+QMAKE_PRL_INSTALL_REPLACE += include_replace lib_replace
+
+unix|mingw {
+   CONFIG += create_pc
+   QMAKE_PKGCONFIG_LIBDIR = $$lib_replace.replace
+   QMAKE_PKGCONFIG_INCDIR = $$include_replace.replace
+   QMAKE_PKGCONFIG_CFLAGS = -I${includedir}/$$MODULE_INCNAME
+   QMAKE_PKGCONFIG_DESTDIR = pkgconfig
+   QMAKE_PKGCONFIG_INSTALL_REPLACE += include_replace lib_replace
+}
+
+unix {
+   CONFIG += create_libtool explicitlib
+   QMAKE_LIBTOOL_LIBDIR = $$lib_replace.replace
+   QMAKE_LIBTOOL_INSTALL_REPLACE += include_replace lib_replace
+}
+
+unix|mingw {
+    QMAKE_PKGCONFIG_NAME = $$replace(TARGET, ^Qt, "Qt$$section(VERSION, ., 0, 0) ")
+    QMAKE_PKGCONFIG_FILE = $$replace(TARGET, ^Qt, Qt$$section(VERSION, ., 0, 0))
+    for(i, MODULE_DEPENDS): \
+        QMAKE_PKGCONFIG_REQUIRES += $$replace(QT.$${i}.name, ^Qt, Qt$$eval(QT.$${i}.MAJOR_VERSION))
+    isEmpty(QMAKE_PKGCONFIG_DESCRIPTION): \
+        QMAKE_PKGCONFIG_DESCRIPTION = $$replace(TARGET, ^Qt, "Qt ") module
+}
+
+contains(QT_PRODUCT, OpenSource.*):DEFINES *= QT_OPENSOURCE
+DEFINES *= QT_NO_CAST_TO_ASCII QT_ASCII_CAST_WARNINGS
+DEFINES *= QT_MOC_COMPAT #we don't need warnings from calling moc code in our generated code
+DEFINES *= QT_USE_QSTRINGBUILDER
+DEFINES *= QT_DEPRECATED_WARNINGS
+
+win32 {
+    # On Windows, due to the way DLLs work, we need to export all functions,
+    # including the inlines
+    DEFINES *= QT_DISABLE_DEPRECATED_BEFORE=0x040800
+} else {
+    # On other platforms, Qt's own compilation goes needs to compile the Qt 5.0 API
+    DEFINES *= QT_DISABLE_DEPRECATED_BEFORE=0x050000
+}
+
+TARGET = $$qtLibraryTarget($$TARGET$$QT_LIBINFIX) #do this towards the end
+
+load(qt_targets)
+load(qt_common)
+
+win32:DEFINES+=_USE_MATH_DEFINES
+

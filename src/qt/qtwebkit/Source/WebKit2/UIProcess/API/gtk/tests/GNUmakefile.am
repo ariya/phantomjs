@@ -1,0 +1,271 @@
+if ENABLE_WEBKIT2
+
+TEST_PROGS += \
+	Programs/WebKit2APITests/InspectorTestServer \
+	Programs/WebKit2APITests/TestBackForwardList \
+	Programs/WebKit2APITests/TestContextMenu \
+	Programs/WebKit2APITests/TestCookieManager \
+	Programs/WebKit2APITests/TestDownloads \
+	Programs/WebKit2APITests/TestInspector \
+	Programs/WebKit2APITests/TestInspectorServer \
+	Programs/WebKit2APITests/TestLoaderClient \
+	Programs/WebKit2APITests/TestPrinting \
+	Programs/WebKit2APITests/TestResources \
+	Programs/WebKit2APITests/TestSSL \
+	Programs/WebKit2APITests/TestWebExtensions \
+	Programs/WebKit2APITests/TestWebKitVersion \
+	Programs/WebKit2APITests/TestWebKitFaviconDatabase \
+	Programs/WebKit2APITests/TestWebKitFindController \
+	Programs/WebKit2APITests/TestWebKitPolicyClient \
+	Programs/WebKit2APITests/TestWebKitSettings \
+	Programs/WebKit2APITests/TestWebKitWebContext \
+	Programs/WebKit2APITests/TestWebKitWebView \
+	Programs/WebKit2APITests/TestWebKitWebViewGroup \
+	Programs/WebKit2APITests/TestWebViewEditor
+
+noinst_PROGRAMS += $(TEST_PROGS)
+
+if HAVE_ATSPI2
+TEST_PROGS += Programs/WebKit2APITests/TestWebKitAccessibility
+
+noinst_PROGRAMS += Programs/WebKit2APITests/AccessibilityTestServer
+endif
+
+webkit2_tests_cppflags = \
+	-DWEBKIT_EXEC_PATH=\"${shell pwd}/$(top_builddir)/Programs\" \
+	-DWEBKIT_SRC_DIR=\"${shell pwd}/${srcdir}\" \
+	-DWEBKIT_DERIVED_SRC_DIR=\"${shell pwd}/${top_builddir}/DerivedSources\" \
+	-DWEBKIT_TEST_PLUGIN_DIR=\"${shell pwd}/${top_builddir}/TestNetscapePlugin/.libs\" \
+	-DWEBKIT_TEST_WEB_EXTENSIONS_DIR=\"${shell pwd}/${top_builddir}/Libraries/WebExtensions/.libs\" \
+	-DWEBKIT_INJECTED_BUNDLE_PATH=\"${shell pwd}/$(top_builddir)/.libs\" \
+	$(javascriptcore_cppflags) \
+	-I$(srcdir)/Source/JavaScriptCore \
+	-I$(srcdir)/Source \
+	-I$(srcdir)/Source/WebKit2 \
+	-I$(top_builddir)/DerivedSources/WebKit2/include \
+	-I$(top_builddir)/DerivedSources/WebKit2/webkit2gtk \
+	-I$(top_builddir)/DerivedSources/WebKit2/webkit2gtk/include \
+	-I$(srcdir)/Source/WebKit2/UIProcess/API/gtk \
+	$(global_cppflags) \
+	$(FREETYPE_CFLAGS) \
+	$(GLIB_CFLAGS) \
+	$(GTK_CFLAGS) \
+	$(LIBSOUP_CFLAGS)
+
+webkit2_tests_ldadd = \
+	Libraries/libWebKit2APITestCore.la \
+	libjavascriptcoregtk-@WEBKITGTK_API_MAJOR_VERSION@.@WEBKITGTK_API_MINOR_VERSION@.la \
+	libwebkit2gtk-@WEBKITGTK_API_MAJOR_VERSION@.@WEBKITGTK_API_MINOR_VERSION@.la \
+	$(FREETYPE_LIBS) \
+	$(GEOCLUE_LIBS) \
+	$(GLIB_LIBS) \
+	$(GTK_LIBS) \
+	$(LIBSOUP_LIBS)
+
+webkit2_tests_ldflags = \
+	-no-install \
+	-no-fast-install
+
+Programs/resources/webkit2gtk-tests-resources.gresource: Source/WebKit2/UIProcess/API/gtk/tests/resources/webkit2gtk-tests.gresource.xml $(shell $(GLIB_COMPILE_RESOURCES) --sourcedir=$(srcdir) --generate-dependencies $(srcdir)/Source/WebKit2/UIProcess/API/gtk/tests/resources/webkit2gtk-tests.gresource.xml)
+	$(AM_V_at)mkdir -p ${GENPROGRAMS}/resources
+	$(AM_V_GEN) $(GLIB_COMPILE_RESOURCES) --target=$@ --sourcedir=$(srcdir) $<
+
+Programs/resources/inspector/inspectorPageIndex.html: Source/WebKit2/UIProcess/InspectorServer/front-end/inspectorPageIndex.html
+	$(AM_V_at)mkdir -p ${GENPROGRAMS}/resources/inspector
+	$(AM_V_GEN)cp $(srcdir)/Source/WebKit2/UIProcess/InspectorServer/front-end/inspectorPageIndex.html ${GENPROGRAMS}/resources/inspector
+
+DISTCLEANFILES += \
+	Programs/resources/webkit2gtk-tests-resources.gresource \
+	Programs/resources/inspector/inspectorPageIndex.html
+
+noinst_DATA += \
+	Programs/resources/webkit2gtk-tests-resources.gresource \
+	Programs/resources/inspector/inspectorPageIndex.html
+
+noinst_LTLIBRARIES += Libraries/libWebKit2APITestCore.la
+Libraries_libWebKit2APITestCore_la_SOURCES = \
+	Source/WebKit2/UIProcess/API/gtk/tests/LoadTrackingTest.cpp \
+	Source/WebKit2/UIProcess/API/gtk/tests/LoadTrackingTest.h \
+	Source/WebKit2/UIProcess/API/gtk/tests/WebKitTestBus.cpp \
+	Source/WebKit2/UIProcess/API/gtk/tests/WebKitTestBus.h \
+	Source/WebKit2/UIProcess/API/gtk/tests/WebKitTestServer.cpp \
+	Source/WebKit2/UIProcess/API/gtk/tests/WebKitTestServer.h \
+	Source/WebKit2/UIProcess/API/gtk/tests/TestMain.cpp \
+	Source/WebKit2/UIProcess/API/gtk/tests/TestMain.h \
+	Source/WebKit2/UIProcess/API/gtk/tests/WebViewTest.cpp \
+	Source/WebKit2/UIProcess/API/gtk/tests/WebViewTest.h
+Libraries_libWebKit2APITestCore_la_CPPFLAGS = $(webkit2_tests_cppflags)
+
+noinst_LTLIBRARIES += Libraries/WebExtensions/libWebExtensionTest.la
+Libraries_WebExtensions_libWebExtensionTest_la_SOURCES = \
+	Source/WebKit2/UIProcess/API/gtk/tests/WebExtensionTest.cpp
+
+Libraries_WebExtensions_libWebExtensionTest_la_LDFLAGS = \
+	-rpath ${shell pwd}/$(top_builddir)/Libraries/WebExtensions/.libs \
+	$(no_undefined) \
+	-avoid-version \
+	-module
+
+Libraries_WebExtensions_libWebExtensionTest_la_CPPFLAGS = \
+	-I$(srcdir)/Source/WebKit2/WebProcess/InjectedBundle/API/gtk \
+	-I$(top_builddir)/DerivedSources \
+	-I$(top_builddir)/DerivedSources/WebKit2/webkit2extension/include \
+	-DWEBKIT2_COMPILATION \
+	$(webkit2_tests_cppflags)
+
+Libraries_WebExtensions_libWebExtensionTest_la_CXXFLAGS = \
+        $(global_cxxflags)
+
+Libraries_WebExtensions_libWebExtensionTest_la_CFLAGS = \
+        $(global_cflags)
+
+
+EXTRA_DIST += \
+	Source/WebKit2/UIProcess/API/gtk/tests/resources/test-cert.pem \
+	Source/WebKit2/UIProcess/API/gtk/tests/resources/test-key.pem \
+	Source/WebKit2/UIProcess/API/gtk/tests/resources/webkit2gtk-tests.gresource.xml \
+	Source/WebKit2/UIProcess/API/gtk/tests/resources/link-title.js
+
+Programs_WebKit2APITests_TestWebKitWebContext_SOURCES = \
+	Source/WebKit2/UIProcess/API/gtk/tests/TestWebKitWebContext.cpp
+Programs_WebKit2APITests_TestWebKitWebContext_CPPFLAGS = $(webkit2_tests_cppflags)
+Programs_WebKit2APITests_TestWebKitWebContext_LDADD = $(webkit2_tests_ldadd)
+Programs_WebKit2APITests_TestWebKitWebContext_LDFLAGS = $(webkit2_tests_ldflags)
+
+Programs_WebKit2APITests_TestWebKitWebView_SOURCES = \
+	Source/WebKit2/UIProcess/API/gtk/tests/TestWebKitWebView.cpp
+Programs_WebKit2APITests_TestWebKitWebView_CPPFLAGS = $(webkit2_tests_cppflags)
+Programs_WebKit2APITests_TestWebKitWebView_LDADD = $(webkit2_tests_ldadd)
+Programs_WebKit2APITests_TestWebKitWebView_LDFLAGS = $(webkit2_tests_ldflags)
+
+Programs_WebKit2APITests_TestLoaderClient_SOURCES = \
+	Source/WebKit2/UIProcess/API/gtk/tests/TestLoaderClient.cpp
+Programs_WebKit2APITests_TestLoaderClient_CPPFLAGS = $(webkit2_tests_cppflags)
+Programs_WebKit2APITests_TestLoaderClient_LDADD = $(webkit2_tests_ldadd)
+Programs_WebKit2APITests_TestLoaderClient_LDFLAGS = $(webkit2_tests_ldflags)
+
+Programs_WebKit2APITests_TestWebKitSettings_SOURCES = \
+	Source/WebKit2/UIProcess/API/gtk/tests/TestWebKitSettings.cpp
+Programs_WebKit2APITests_TestWebKitSettings_CPPFLAGS = $(webkit2_tests_cppflags)
+Programs_WebKit2APITests_TestWebKitSettings_LDADD = $(webkit2_tests_ldadd)
+Programs_WebKit2APITests_TestWebKitSettings_LDFLAGS = $(webkit2_tests_ldflags)
+
+Programs_WebKit2APITests_InspectorTestServer_SOURCES = \
+	Source/WebKit2/UIProcess/API/gtk/tests/InspectorTestServer.cpp
+Programs_WebKit2APITests_InspectorTestServer_CPPFLAGS = $(webkit2_tests_cppflags)
+Programs_WebKit2APITests_InspectorTestServer_LDADD = $(webkit2_tests_ldadd)
+Programs_WebKit2APITests_InspectorTestServer_LDFLAGS = $(webkit2_tests_ldflags)
+
+Programs_WebKit2APITests_TestBackForwardList_SOURCES = \
+        Source/WebKit2/UIProcess/API/gtk/tests/TestBackForwardList.cpp
+Programs_WebKit2APITests_TestBackForwardList_CPPFLAGS = $(webkit2_tests_cppflags)
+Programs_WebKit2APITests_TestBackForwardList_LDADD = $(webkit2_tests_ldadd)
+Programs_WebKit2APITests_TestBackForwardList_LDFLAGS = $(webkit2_tests_ldflags)
+
+Programs_WebKit2APITests_TestWebKitPolicyClient_SOURCES = \
+        Source/WebKit2/UIProcess/API/gtk/tests/TestWebKitPolicyClient.cpp
+Programs_WebKit2APITests_TestWebKitPolicyClient_CPPFLAGS = $(webkit2_tests_cppflags)
+Programs_WebKit2APITests_TestWebKitPolicyClient_LDADD = $(webkit2_tests_ldadd)
+Programs_WebKit2APITests_TestWebKitPolicyClient_LDFLAGS = $(webkit2_tests_ldflags)
+
+if HAVE_ATSPI2
+Programs_WebKit2APITests_AccessibilityTestServer_SOURCES = \
+	Source/WebKit2/UIProcess/API/gtk/tests/AccessibilityTestServer.cpp
+Programs_WebKit2APITests_AccessibilityTestServer_CPPFLAGS = $(webkit2_tests_cppflags)
+Programs_WebKit2APITests_AccessibilityTestServer_LDADD = $(webkit2_tests_ldadd)
+Programs_WebKit2APITests_AccessibilityTestServer_LDFLAGS = $(webkit2_tests_ldflags)
+
+Programs_WebKit2APITests_TestWebKitAccessibility_SOURCES = \
+	Source/WebKit2/UIProcess/API/gtk/tests/TestWebKitAccessibility.cpp
+Programs_WebKit2APITests_TestWebKitAccessibility_CPPFLAGS = $(webkit2_tests_cppflags) $(ATSPI2_CFLAGS)
+Programs_WebKit2APITests_TestWebKitAccessibility_LDADD = $(webkit2_tests_ldadd) $(ATSPI2_LIBS)
+Programs_WebKit2APITests_TestWebKitAccessibility_LDFLAGS = $(webkit2_tests_ldflags)
+endif
+
+Programs_WebKit2APITests_TestDownloads_SOURCES = \
+        Source/WebKit2/UIProcess/API/gtk/tests/TestDownloads.cpp
+Programs_WebKit2APITests_TestDownloads_CPPFLAGS = $(webkit2_tests_cppflags)
+Programs_WebKit2APITests_TestDownloads_LDADD = $(webkit2_tests_ldadd)
+Programs_WebKit2APITests_TestDownloads_LDFLAGS = $(webkit2_tests_ldflags)
+
+Programs_WebKit2APITests_TestWebViewEditor_SOURCES = \
+        Source/WebKit2/UIProcess/API/gtk/tests/TestWebViewEditor.cpp
+Programs_WebKit2APITests_TestWebViewEditor_CPPFLAGS = $(webkit2_tests_cppflags)
+Programs_WebKit2APITests_TestWebViewEditor_LDADD = $(webkit2_tests_ldadd)
+Programs_WebKit2APITests_TestWebViewEditor_LDFLAGS = $(webkit2_tests_ldflags)
+
+Programs_WebKit2APITests_TestPrinting_SOURCES = \
+        Source/WebKit2/UIProcess/API/gtk/tests/TestPrinting.cpp
+Programs_WebKit2APITests_TestPrinting_CPPFLAGS = $(webkit2_tests_cppflags) $(GTK_UNIX_PRINTING_CFLAGS)
+Programs_WebKit2APITests_TestPrinting_LDADD = $(webkit2_tests_ldadd) $(GTK_UNIX_PRINTING_LIBS)
+Programs_WebKit2APITests_TestPrinting_LDFLAGS = $(webkit2_tests_ldflags)
+
+Programs_WebKit2APITests_TestWebKitFaviconDatabase_SOURCES = \
+	Source/WebKit2/UIProcess/API/gtk/tests/TestWebKitFaviconDatabase.cpp
+Programs_WebKit2APITests_TestWebKitFaviconDatabase_CPPFLAGS = $(webkit2_tests_cppflags)
+Programs_WebKit2APITests_TestWebKitFaviconDatabase_LDADD = $(webkit2_tests_ldadd)
+Programs_WebKit2APITests_TestWebKitFaviconDatabase_LDFLAGS = $(webkit2_tests_ldflags)
+
+Programs_WebKit2APITests_TestWebKitFindController_SOURCES = \
+	Source/WebKit2/UIProcess/API/gtk/tests/TestWebKitFindController.cpp
+Programs_WebKit2APITests_TestWebKitFindController_CPPFLAGS = $(webkit2_tests_cppflags)
+Programs_WebKit2APITests_TestWebKitFindController_LDADD = $(webkit2_tests_ldadd)
+Programs_WebKit2APITests_TestWebKitFindController_LDFLAGS = $(webkit2_tests_ldflags)
+
+Programs_WebKit2APITests_TestResources_SOURCES = \
+        Source/WebKit2/UIProcess/API/gtk/tests/TestResources.cpp
+Programs_WebKit2APITests_TestResources_CPPFLAGS = $(webkit2_tests_cppflags)
+Programs_WebKit2APITests_TestResources_LDADD = $(webkit2_tests_ldadd)
+Programs_WebKit2APITests_TestResources_LDFLAGS = $(webkit2_tests_ldflags)
+
+Programs_WebKit2APITests_TestCookieManager_SOURCES = \
+        Source/WebKit2/UIProcess/API/gtk/tests/TestCookieManager.cpp
+Programs_WebKit2APITests_TestCookieManager_CPPFLAGS = $(webkit2_tests_cppflags)
+Programs_WebKit2APITests_TestCookieManager_LDADD = $(webkit2_tests_ldadd)
+Programs_WebKit2APITests_TestCookieManager_LDFLAGS = $(webkit2_tests_ldflags)
+
+Programs_WebKit2APITests_TestInspector_SOURCES = \
+        Source/WebKit2/UIProcess/API/gtk/tests/TestInspector.cpp
+Programs_WebKit2APITests_TestInspector_CPPFLAGS = \
+	-DWEBKIT_INSPECTOR_PATH=\"${shell pwd}/${top_builddir}/resources/inspector\" \
+	$(webkit2_tests_cppflags)
+Programs_WebKit2APITests_TestInspector_LDADD = $(webkit2_tests_ldadd)
+Programs_WebKit2APITests_TestInspector_LDFLAGS = $(webkit2_tests_ldflags)
+
+Programs_WebKit2APITests_TestInspectorServer_SOURCES = \
+	Source/WebKit2/UIProcess/API/gtk/tests/TestInspectorServer.cpp
+Programs_WebKit2APITests_TestInspectorServer_CPPFLAGS = $(webkit2_tests_cppflags)
+Programs_WebKit2APITests_TestInspectorServer_LDADD = $(webkit2_tests_ldadd)
+Programs_WebKit2APITests_TestInspectorServer_LDFLAGS = $(webkit2_tests_ldflags)
+
+Programs_WebKit2APITests_TestWebKitVersion_SOURCES = \
+        Source/WebKit2/UIProcess/API/gtk/tests/TestWebKitVersion.cpp
+Programs_WebKit2APITests_TestWebKitVersion_CPPFLAGS = $(webkit2_tests_cppflags)
+Programs_WebKit2APITests_TestWebKitVersion_LDADD = $(webkit2_tests_ldadd)
+Programs_WebKit2APITests_TestWebKitVersion_LDFLAGS = $(webkit2_tests_ldflags)
+
+Programs_WebKit2APITests_TestContextMenu_SOURCES = \
+        Source/WebKit2/UIProcess/API/gtk/tests/TestContextMenu.cpp
+Programs_WebKit2APITests_TestContextMenu_CPPFLAGS = $(webkit2_tests_cppflags)
+Programs_WebKit2APITests_TestContextMenu_LDADD = $(webkit2_tests_ldadd)
+Programs_WebKit2APITests_TestContextMenu_LDFLAGS = $(webkit2_tests_ldflags)
+
+Programs_WebKit2APITests_TestSSL_SOURCES = \
+        Source/WebKit2/UIProcess/API/gtk/tests/TestSSL.cpp
+Programs_WebKit2APITests_TestSSL_CPPFLAGS = $(webkit2_tests_cppflags)
+Programs_WebKit2APITests_TestSSL_LDADD = $(webkit2_tests_ldadd)
+Programs_WebKit2APITests_TestSSL_LDFLAGS = $(webkit2_tests_ldflags)
+
+Programs_WebKit2APITests_TestWebExtensions_SOURCES = \
+        Source/WebKit2/UIProcess/API/gtk/tests/TestWebExtensions.cpp
+Programs_WebKit2APITests_TestWebExtensions_CPPFLAGS = $(webkit2_tests_cppflags)
+Programs_WebKit2APITests_TestWebExtensions_LDADD = $(webkit2_tests_ldadd)
+Programs_WebKit2APITests_TestWebExtensions_LDFLAGS = $(webkit2_tests_ldflags)
+
+Programs_WebKit2APITests_TestWebKitWebViewGroup_SOURCES = \
+        Source/WebKit2/UIProcess/API/gtk/tests/TestWebKitWebViewGroup.cpp
+Programs_WebKit2APITests_TestWebKitWebViewGroup_CPPFLAGS = $(webkit2_tests_cppflags)
+Programs_WebKit2APITests_TestWebKitWebViewGroup_LDADD = $(webkit2_tests_ldadd)
+Programs_WebKit2APITests_TestWebKitWebViewGroup_LDFLAGS = $(webkit2_tests_ldflags)
+
+endif # ENABLE_WEBKIT2

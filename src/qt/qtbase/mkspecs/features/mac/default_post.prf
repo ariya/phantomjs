@@ -1,0 +1,54 @@
+load(default_post)
+!no_objective_c:CONFIG += objective_c
+
+qt:!isEmpty(QT_CONFIG) {
+    # Pick a suitable default architecture for qmake-based applications.
+    # If the Qt package contains one of x86 and x86_64, pick that one. If it
+    # contains both then use the compiler default. Make a similar decision for
+    # PowerPC-based systems. Note that this logic assumes that Qt has been
+    # configured with an architecture that is usable on the system.
+    contains(QMAKE_HOST.arch, ppc)|contains(QMAKE_HOST.arch, "Power Macintosh") {
+        !contains(QT_CONFIG, ppc64):contains(QT_CONFIG, ppc):CONFIG += ppc
+        contains(QT_CONFIG, ppc64):!contains(QT_CONFIG, ppc):CONFIG += ppc64
+    } else {
+        !contains(QT_CONFIG, x86_64):contains(QT_CONFIG, x86):CONFIG += x86
+        contains(QT_CONFIG, x86_64):!contains(QT_CONFIG, x86):CONFIG += x86_64
+    }
+
+    contains(QT_CONFIG, static) {
+        # C++11 support means using libc++ instead of libstd++. As the
+        # two libraries are incompatible we need to ensure the end user
+        # project is built using the same C++11 support/no support as Qt.
+        contains(QT_CONFIG, c++11) {
+            CONFIG += c++11
+        } else: c++11 {
+            warning("Qt was not built with C++11 enabled, disabling feature")
+            CONFIG -= c++11
+        }
+
+        !c++11 {
+            # Explicitly use libstdc++ if C++11 support is not enabled,
+            # as otherwise the compiler will choose the standard library
+            # based on the deployment target, which for iOS 7 and OS X 10.9
+            # is libc++, and we can't mix and match the two.
+            QMAKE_CXXFLAGS += -stdlib=libstdc++
+            QMAKE_LFLAGS   += -stdlib=libstdc++
+        }
+    }
+}
+
+macx-xcode:!isEmpty(QMAKE_XCODE_DEBUG_INFORMATION_FORMAT) {
+    debug_information_format.name = DEBUG_INFORMATION_FORMAT
+    debug_information_format.value = $$QMAKE_XCODE_DEBUG_INFORMATION_FORMAT
+    debug_information_format.build = debug
+    QMAKE_MAC_XCODE_SETTINGS += debug_information_format
+}
+
+cache(QMAKE_XCODE_DEVELOPER_PATH, stash)
+cache(QMAKE_XCODE_VERSION, stash)
+
+QMAKE_XCODE_LIBRARY_SUFFIX = $$qtPlatformTargetSuffix()
+
+# Ensure that we process sdk.prf first, as it will update QMAKE_CXX
+# and friends that other features/extra compilers may depend on.
+sdk: load(sdk)

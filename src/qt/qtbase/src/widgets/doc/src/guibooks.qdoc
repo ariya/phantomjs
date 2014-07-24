@@ -1,0 +1,104 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page guibooks.html
+    \title Books about GUI Design
+    \ingroup best-practices
+    \brief Some recommended books about GUI design.
+
+    This is not a comprehensive list -- there are many other books worth
+    buying. Here we mention just a few user interface books that don't
+    gather dust on our shelves.
+
+    \b{\l{http://www.amazon.com/gp/product/0132354160/ref=ase_trolltech/}{C++
+    GUI Programming with Qt 4, Second Edition}}
+    by Jasmin Blanchette and Mark
+    Summerfield, ISBN 0-13-235416-0. This is the official Qt book written
+    by two veteran Qt Developers. The first edition, which is based on Qt 4.1, is
+    \l{http://www.qtrac.eu/C++-GUI-Programming-with-Qt-4-1st-ed.zip}{available for free online}.
+    The second edition, based on Qt 4.3, is
+    \l{http://www.informit.com/store/product.aspx?isbn=0132354160}{available for purchase as an eBook}.
+    The book predates QML and only covers widget based user interfaces.
+
+    \b{\l{http://www.amazon.com/exec/obidos/ASIN/0385267746/trolltech/t}{The Design of Everyday Things}}
+    by Donald Norman, ISBN 0-38526774-6, is one of the classics of human
+    interface design. Norman shows how badly something as simple as a
+    kitchen stove can be designed, and everyone should read it who will
+    design a dialog box, write an error message, or design just about
+    anything else humans are supposed to use.
+
+    \target fowler
+    \b{\l{http://www.amazon.com/exec/obidos/ASIN/0070592748/trolltech/t}{GUI Design Handbook}}
+    by Susan Fowler, ISBN 0-07-059274-8, is an
+    alphabetical dictionary of widgets and other user interface elements,
+    with comprehensive coverage of each. Each chapter covers one widget
+    or other element, contains the most important recommendation from the
+    Macintosh, Windows and Motif style guides, notes about common
+    problems, comparison with other widgets that can serve some of the
+    same roles as this one, etc.
+
+    \target Design Patterns
+    \b{\l{http://www.amazon.com/exec/obidos/ASIN/0201633612/103-8144203-3273444}
+    {Design Patterns - Elements of Reusable Object-Oriented Software}}
+    by Gamma, Helm, Johnson, and Vlissides, ISBN 0-201-63361-2, provides
+    more information on the Model-View-Controller (MVC) paradigm, explaining
+    MVC and its sub-patterns in detail.
+
+    \b{\l{http://www.amazon.com/exec/obidos/ASIN/0201622165/trolltech/t}{Macintosh
+    Human Interface Guidelines}}, Second Edition, ISBN
+    0-201-62216-5, is worth buying for the \e {don't}s alone. Even
+    if you're not writing Macintosh software, avoiding most of what it
+    advises against will produce more easily comprehensible software.
+    Doing what it tells you to do may also help.
+
+    \b{\l{http://www.amazon.com/exec/obidos/ASIN/047159900X/trolltech/t}{The
+    Microsoft Windows User Experience}}, ISBN 1-55615-679-0,
+    is Microsoft's look and feel bible. Indispensable for everyone who
+    has customers that worship Microsoft, and it's quite good, too.
+
+    \b{\l{http://www.amazon.com/exec/obidos/ASIN/047159900X/trolltech/t}{The Icon Book}}
+    by William Horton, ISBN 0-471-59900-X, is perhaps the only thorough
+    coverage of icons and icon use in software. In order for icons to be
+    successful, people must be able to do four things with them: decode,
+    recognize, find and activate them. This book explains these goals
+    from scratch and how to reach them, both with single icons and icon
+    families. Some 500 examples are scattered throughout the text.
+
+
+    \section1 Buying these Books from Amazon.com
+
+    These books are made available in association with Amazon.com, our
+    favorite online bookstore. Here is more information about
+    \link http://www.amazon.com/exec/obidos/subst/help/shipping-policy.html/t
+    Amazon.com's shipping options\endlink and its
+    \link http://www.amazon.com/exec/obidos/subst/help/desk.html/t
+    customer service.\endlink When you buy a book by following one of these
+    links, Amazon.com gives about 15% of the purchase price to
+    \link http://www.amnesty.org/ Amnesty International.\endlink
+
+*/

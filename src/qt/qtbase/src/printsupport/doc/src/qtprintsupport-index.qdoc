@@ -1,0 +1,186 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+  \page qtprintsupport-index.html
+  \title Qt Print Support
+  \brief A guide to producing printed output with Qt's paint system and widgets.
+  \ingroup qt-graphics
+
+
+  Qt provides extensive cross-platform support for printing. Using the printing
+  systems on each platform, Qt applications can print to attached printers and
+  across networks to remote printers. Qt's printing system also supports
+  PDF file generation, providing the foundation for basic report
+  generation facilities.
+
+  \tableofcontents
+
+  \section1 Classes Supporting Printing
+
+  The following classes support the selecting and setting up of printers and
+  printing output.
+
+  \annotatedlist printing
+
+  \section1 Paint Devices and Printing
+
+  In Qt, printers are represented by QPrinter, a paint device that provides
+  functionality specific to printing, such as support for multiple pages and
+  double-sided output. As a result, printing involves using a QPainter to paint
+  onto a series of pages in the same way that you would paint onto a custom
+  widget or image.
+
+  \section2 Creating a QPrinter
+
+  Although QPrinter objects can be constructed and set up without requiring user
+  input, printing is often performed as a result of a request by the user;
+  for example, when the user selects the \uicontrol{File|Print...} menu item in a GUI
+  application. In such cases, a newly-constructed QPrinter object is supplied to
+  a QPrintDialog, allowing the user to specify the printer to use, paper size, and
+  other printing properties.
+
+  \snippet widgetprinting.cpp 1
+
+  It is also possible to set certain default properties by modifying the QPrinter
+  before it is supplied to the print dialog. For example, applications that
+  generate batches of reports for printing may set up the QPrinter to
+  \l{QPrinter::setOutputFileName()}{write to a local file} by default rather than
+  to a printer.
+
+  \section2 Painting onto a Page
+
+  Once a QPrinter object has been constructed and set up, a QPainter can be used
+  to perform painting operations on it. We can construct and set up a painter in
+  the following way:
+
+  \snippet printing-qprinter/object.cpp 0
+
+  Since the QPrinter starts with a blank page, we only need to call the
+  \l{QPrinter::}{newPage()} function after drawing each page, except for the
+  last page.
+
+  The document is sent to the printer, or written to a local file, when we call
+  \l{QPainter::}{end()}.
+
+  \section2 Coordinate Systems
+
+  QPrinter provides functions that can be used to obtain information about the
+  dimensions of the paper (the paper rectangle) and the dimensions of the
+  printable area (the page rectangle). These are given in logical device
+  coordinates that may differ from the physical coordinates used by the device
+  itself, indicating that the printer is able to render text and graphics at a
+  (typically higher) resolution than the user's display.
+
+  Although we do not need to handle the conversion between logical and physical
+  coordinates ourselves, we still need to apply transformations to painting
+  operations because the pixel measurements used to draw on screen are often
+  too small for the higher resolutions of typical printers.
+
+  \table
+  \row \li \b{Printer and Painter Coordinate Systems}
+
+  The \l{QPrinter::}{paperRect()} and \l{QPrinter::}{pageRect()} functions
+  provide information about the size of the paper used for printing and the
+  area on it that can be painted on.
+
+  The rectangle returned by \l{QPrinter::}{pageRect()} usually lies inside
+  the rectangle returned by \l{QPrinter::}{paperRect()}. You do not need to
+  take the positions and sizes of these area into account when using a QPainter
+  with a QPrinter as the underlying paint device; the origin of the painter's
+  coordinate system will coincide with the top-left corner of the page
+  rectangle, and painting operations will be clipped to the bounds of the
+  drawable part of the page.
+
+  \li \inlineimage printer-rects.png
+  \endtable
+
+  The paint system automatically uses the correct device metrics when painting
+  text but, if you need to position text using information obtained from
+  font metrics, you need to ensure that the print device is specified when
+  you construct QFontMetrics and QFontMetricsF objects, or ensure that each QFont
+  used is constructed using the form of the constructor that accepts a
+  QPaintDevice argument.
+
+  \section1 Printing Widgets
+
+  To print a widget, you can use the QWidget::render() function. As mentioned,
+  the printer's resolution is usually higher than the screen resolution, so you
+  will have to scale the painter. You may also want to position the widget on the
+  page. The following code sample shows how this may look.
+
+  \snippet widgetprinting.cpp 0
+
+  This will center the widget on the page and scale it so that it fits the page.
+
+  \section1 Printing from Complex Widgets
+
+  Certain widgets, such as QTextEdit and QGraphicsView, display rich content
+  that is typically managed by instances of other classes, such as QTextDocument
+  and QGraphicsScene. As a result, it is these content handling classes that
+  usually provide printing functionality, either via a function that can be used
+  to perform the complete task, or via a function that accepts an existing
+  QPainter object. Some widgets provide convenience functions to expose underlying
+  printing features, avoiding the need to obtain the content handler just to call
+  a single function.
+
+  The following table shows which class and function are responsible for
+  printing from a selection of different widgets. For widgets that do not expose
+  printing functionality directly, the content handling classes containing this
+  functionality can be obtained via a function in the corresponding widget's API.
+
+  \table
+  \header \li Widget         \li Printing function        \li Accepts
+  \row    \li QGraphicsView  \li QGraphicsView::render()  \li QPainter
+  \row    \li QSvgWidget     \li QSvgRenderer::render()   \li QPainter
+  \row    \li QTextEdit      \li QTextDocument::print()   \li QPrinter
+  \row    \li QTextLayout    \li QTextLayout::draw()      \li QPainter
+  \row    \li QTextLine      \li QTextLine::draw()        \li QPainter
+  \endtable
+
+  QTextEdit requires a QPrinter rather than a QPainter because it uses information
+  about the configured page dimensions in order to insert page breaks at the most
+  appropriate places in printed documents.
+*/
+
+/*!
+  \page pdf-licensing.html
+  \title Notes about PDF Licensing
+  \ingroup licensing
+  \brief Details of restrictions on the use of PDF-related trademarks.
+
+  Please note that Adobe\reg places restrictions on the use of its trademarks
+  (including logos) in conjunction with PDF; e.g. "Adobe PDF". Please refer
+  to \l{http://www.adobe.com}{www.adobe.com} for guidelines.
+*/
+
+/*!
+  \group printing
+  \title Printer and Printing APIs
+  \brief Classes for producing printed output
+  \ingroup groups
+*/

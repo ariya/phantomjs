@@ -1,0 +1,67 @@
+ /*!
+     \page basicqt.html
+     \contentspage {Basic Qt} {Contents}
+     \nextpage Getting Started
+
+     \indexpage Index
+     \startpage Basic Qt
+
+     \title Basic Qt
+
+     The Qt toolkit is a C++ class library and a set of tools for
+     building multiplatform GUI programs using a "write once,
+     compile anywhere approach".
+
+     Table of contents:
+
+     \list
+     \li \l {Getting Started}
+     \li \l {Creating Dialogs}
+     \li \l {Creating Main Windows}
+     \endlist
+ */
+
+ /*!
+    \page gettingstarted.html
+    \previouspage Basic Qt
+    \contentspage {Basic Qt} {Contents}
+    \nextpage Creating Dialogs
+
+    \indexpage Index
+    \startpage Basic Qt
+
+    \title Getting Started
+
+    This chapter shows how to combine basic C++ with the
+    functionality provided by Qt to create a few small graphical
+    interface (GUI) applications.
+*/
+
+/ *!
+    \page creatingdialogs.html
+    \previouspage Getting Started
+    \contentspage {Basic Qt} {Contents}
+
+    \indexpage Index
+    \startpage Basic Qt
+
+    \title Creating Dialogs
+
+    This chapter will teach you how to create dialog boxes using Qt.
+*/
+
+/*!
+    \page index.html
+
+    \indexpage Index
+    \startpage Basic Qt
+
+    \title Index
+
+    \list
+        \li \l {Basic Qt}
+        \li \l {Creating Dialogs}
+        \li \l {Getting Started}
+    \endlist
+*/
+

@@ -1,0 +1,46 @@
+<!--
+    The page contains elements used to check context menu spelling suggestions.
+    There are also available functions which select specific part of misspelled word/sentence.
+-->
+<html>
+<head>
+    <title>Testing selection for Spelling</title>
+    <script>
+    // Select all text inside element.
+    function selectText(element)
+    {
+        var text = document.getElementById(element);
+        var selection = window.getSelection();
+        var range = document.createRange();
+        range.selectNodeContents(text);
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+
+    // Select part of text inside element.
+    function selectSubText(element)
+    {
+        var text = document.getElementById(element);
+        var startNode = text.firstChild;
+        var endNode = text.firstChild;
+        var range = document.createRange();
+        range.setStart(startNode, 2);
+        range.setEnd(endNode, 6);
+        // Select "llco" from Wellcome word.
+        var selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+    </script>
+</head>
+
+<body>
+    <!-- element used to count context menu items, without spellcheck suggestions -->
+    <div contenteditable="true" id="elementWithoutSpellcheck" spellcheck="false">Wellcome home</div>
+    <div contenteditable="true" id="elementWithSpellcheck" spellcheck="true">Wellcome home</div>
+
+    <button onclick="selectText('elementWithSpellcheck')">Select all words</button>
+    <button onclick="selectSubText('elementWithSpellcheck')">Select sub word</button>
+    <button onclick="selectText('elementWithoutSpellcheck')">Select all words in field without spellcheck</button>
+</body>
+</html>

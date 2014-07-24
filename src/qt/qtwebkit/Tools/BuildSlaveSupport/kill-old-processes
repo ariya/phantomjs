@@ -1,0 +1,119 @@
+#!/usr/bin/python
+# Copyright (C) 2010 Apple Inc.  All rights reserved.
+# Copyright (C) 2011 Google Inc.  All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import os, sys
+
+
+def main():
+    tasksToKillWin = [
+        "cl.exe",
+        "devenv.com",
+        "devenv.exe",
+        "DumpRenderTree.exe",
+        "DumpRenderTree_debug.exe",
+        "httpd.exe",
+        "imagediff.exe",
+        "imagediff_debug.exe",
+        "jsc.exe",
+        "jsc_debug.exe",
+        "LightTPD.exe",
+        "link.exe",
+        "midl.exe",
+        "perl.exe",
+        "Safari.exe",
+        "svn.exe",
+        "testapi.exe",
+        "testapi_debug.exe",
+        "VcBuildHelper.exe",
+        "wdiff.exe",
+        "WebKit2WebProcess.exe",
+        "WebKit2WebProcess_debug.exe",
+        "WebKitTestRunner.exe",
+        "WebKitTestRunner_debug.exe",
+    ]
+
+    tasksToKillMac = [
+        "apache2",
+        "cc1plus",
+        "cc1objplus",
+        "clang",
+        r"clang\\+\\+",
+        "gcc-4.2",
+        "httpd",
+        "i686-apple-darwin10-gcc-4.2.1",
+        "jsc",
+        "make",
+        "pboard", # FIXME: https://bugs.webkit.org/show_bug.cgi?id=81012
+        "per5.12",
+        "perl",
+        "Problem Reporter",
+        "ruby",
+        "Safari Web Content",
+        "Safari",
+        "svn",
+        "DumpRenderTree",
+        "TestWebKitAPI Web Content",
+        "TestWebKitAPI",
+        "WebKitPluginAgen", # FIXME: Why no 't'?
+        "WebKitTestRunner Web Content",
+        "WebKitTestRunner",
+        "WebProcess",
+        "xcodebuild",
+    ]
+
+    taskToKillUnix = [
+        "apache2",
+        "cc1plus",
+        "DumpRenderTree",
+        "gold",
+        "httpd",
+        "ld",
+        "make",
+        "ruby",
+        "svn",
+        "webkit_unit_tests",
+        "WebKitTestRunner",
+        "Xvfb",
+    ]
+
+    if sys.platform == 'darwin':
+        for task in tasksToKillMac:
+            os.system("killall -9 -v -m " + task)
+        # Kill all instances of python executing run-webkit-tests
+        os.system("ps aux | grep -E '.+/Python .+(run_webkit_tests|run-webkit-tests)' | grep -v grep | awk '{print $2}' | xargs kill")
+    elif sys.platform == 'cygwin' or sys.platform == 'win32':
+        for task in tasksToKillWin:
+            os.system("taskkill /t /f /im " + task)
+    elif sys.platform.startswith('linux'):
+        for task in taskToKillUnix:
+            os.system("killall -9 -v " + task)
+        os.system("ps aux | grep -P '.+/python .+(run_webkit_tests|run-webkit-tests)' | grep -v grep | awk '{print $2}' | xargs kill")
+    else:
+        sys.exit()
+        # FIXME: Should we return an exit code based on how the kills went?
+
+
+if __name__ == '__main__':
+    sys.exit(main())

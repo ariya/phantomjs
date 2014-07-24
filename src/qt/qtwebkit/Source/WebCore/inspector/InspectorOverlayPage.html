@@ -1,0 +1,582 @@
+<!--
+ Copyright (C) 2012 Google Inc. All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+
+ 1.  Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+ 2.  Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+ 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+     its contributors may be used to endorse or promote products derived
+     from this software without specific prior written permission.
+
+ THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+ EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body.platform-mac {
+    font-size: 11px;
+    font-family: Menlo, Monaco;
+}
+
+body.platform-windows {
+    font-size: 12px;
+    font-family: Consolas, Lucida Console;
+}
+
+body.platform-linux {
+    font-size: 11px;
+    font-family: dejavu sans mono;
+}
+
+.fill {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.dimmed {
+    background-color: rgba(0, 0, 0, 0.31);
+}
+
+.message-line {
+    margin: 10px 0;
+    text-align: center;
+}
+
+.message-box {
+    background-color: rgb(255, 255, 194);
+    border: 1px solid rgb(128, 128, 128);
+    display: inline-block;
+    padding: 2px 4px;
+}
+
+.px {
+    color: rgb(128, 128, 128);
+}
+
+#element-title {
+    position: absolute;
+    z-index: 10;
+}
+
+#tag-name {
+    /* Keep this in sync with view-source.css (.webkit-html-tag-name) */
+    color: rgb(136, 18, 128);
+}
+
+#node-id {
+    /* Keep this in sync with view-source.css (.webkit-html-attribute-value) */
+    color: rgb(26, 26, 166);
+}
+
+#class-name {
+    /* Keep this in sync with view-source.css (.webkit-html-attribute-name) */
+    color: rgb(153, 69, 0);
+}
+
+#right-gutter {
+    display: none;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    position: absolute;
+    background-color: darkgray;
+}
+
+#bottom-gutter {
+    display: none;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: absolute;
+    background-color: darkgray;
+}
+</style>
+<script>
+const lightGridColor = "rgba(0,0,0,0.2)";
+const darkGridColor = "rgba(0,0,0,0.5)";
+const transparentColor = "rgba(0, 0, 0, 0)";
+const gridBackgroundColor = "rgba(255, 255, 255, 0.6)";
+
+function drawPausedInDebuggerMessage(message)
+{
+    var pausedInDebugger = document.getElementById("paused-in-debugger");
+    pausedInDebugger.textContent = message;
+    pausedInDebugger.style.visibility = "visible";
+    document.body.classList.add("dimmed");
+}
+
+function _drawGrid(highlight, rulerAtRight, rulerAtBottom)
+{
+    if (!highlight.showRulers)
+        return;
+    context.save();
+
+    var width = canvas.width;
+    var height = canvas.height;
+
+    const gridSubStep = 5;
+    const gridStep = 50;
+
+    {
+        // Draw X grid background
+        context.save();
+        context.fillStyle = gridBackgroundColor;
+        if (rulerAtBottom)
+            context.fillRect(0, height - 15, width, height);
+        else
+            context.fillRect(0, 0, width, 15);
+
+        // Clip out backgrounds intersection
+        context.globalCompositeOperation = "destination-out";
+        context.fillStyle = "red";
+        if (rulerAtRight)
+            context.fillRect(width - 15, 0, width, height);
+        else
+            context.fillRect(0, 0, 15, height);
+        context.restore();
+
+        // Draw Y grid background
+        context.fillStyle = gridBackgroundColor;
+        if (rulerAtRight)
+            context.fillRect(width - 15, 0, width, height);
+        else
+            context.fillRect(0, 0, 15, height);
+    }
+
+    context.lineWidth = 1;
+    context.strokeStyle = darkGridColor;
+    context.fillStyle = darkGridColor;
+    {
+        // Draw labels.
+        context.save();
+        context.translate(-highlight.scrollX, 0.5 - highlight.scrollY);
+        for (var y = 2 * gridStep; y < height + highlight.scrollY; y += 2 * gridStep) {
+            context.save();
+            context.translate(highlight.scrollX, y);
+            context.rotate(-Math.PI / 2);
+            context.fillText(y, 2, rulerAtRight ? width - 7 : 13);
+            context.restore();
+        }
+        context.translate(0.5, -0.5);
+        for (var x = 2 * gridStep; x < width + highlight.scrollX; x += 2 * gridStep) {
+            context.save();
+            context.fillText(x, x + 2, rulerAtBottom ? highlight.scrollY + height - 7 : highlight.scrollY + 13);
+            context.restore();
+        }
+        context.restore();
+    }
+
+    {   
+        // Draw vertical grid
+        context.save();
+        if (rulerAtRight) {
+            context.translate(width, 0);
+            context.scale(-1, 1);
+        }
+        context.translate(-highlight.scrollX, 0.5 - highlight.scrollY);
+        for (var y = gridStep; y < height + highlight.scrollY; y += gridStep) {
+            context.beginPath();
+            context.moveTo(highlight.scrollX, y);
+            var markLength = (y % (gridStep * 2)) ? 5 : 8;
+            context.lineTo(highlight.scrollX + markLength, y);
+            context.stroke();
+        }  
+        context.strokeStyle = lightGridColor;
+        for (var y = gridSubStep; y < highlight.scrollY + height; y += gridSubStep) {
+            if (!(y % gridStep))
+                continue;
+            context.beginPath();
+            context.moveTo(highlight.scrollX, y);
+            context.lineTo(highlight.scrollX + gridSubStep, y);
+            context.stroke();
+        }
+        context.restore();
+    }
+
+    {
+        // Draw horizontal grid
+        context.save();
+        if (rulerAtBottom) {
+            context.translate(0, height);
+            context.scale(1, -1);
+        }
+        context.translate(0.5 - highlight.scrollX, -highlight.scrollY);
+        for (var x = gridStep; x < width + highlight.scrollX; x += gridStep) {
+            context.beginPath();
+            context.moveTo(x, highlight.scrollY);
+            var markLength = (x % (gridStep * 2)) ? 5 : 8;
+            context.lineTo(x, highlight.scrollY + markLength);
+            context.stroke();
+        }
+        context.strokeStyle = lightGridColor;
+        for (var x = gridSubStep; x < highlight.scrollX + width; x += gridSubStep) {
+            if (!(x % gridStep))
+                continue;
+            context.beginPath();
+            context.moveTo(x, highlight.scrollY);
+            context.lineTo(x, highlight.scrollY + gridSubStep);
+            context.stroke();
+        }
+        context.restore();
+    }
+
+    context.restore();
+}
+
+function quadToPath(quad)
+{
+    context.beginPath();
+    context.moveTo(quad[0].x, quad[0].y);
+    context.lineTo(quad[1].x, quad[1].y);
+    context.lineTo(quad[2].x, quad[2].y);
+    context.lineTo(quad[3].x, quad[3].y);
+    context.closePath();
+    return context;
+}
+
+function drawOutlinedQuad(quad, fillColor, outlineColor)
+{
+    context.save();
+    context.lineWidth = 2;
+    quadToPath(quad).clip();
+    context.fillStyle = fillColor;
+    context.fill();
+    if (outlineColor) {
+        context.strokeStyle = outlineColor;
+        context.stroke();
+    }
+    context.restore();
+}
+
+function drawOutlinedQuadWithClip(quad, clipQuad, fillColor)
+{
+    var canvas = document.getElementById("canvas");
+    context.fillStyle = fillColor;
+    context.save();
+    context.lineWidth = 0;
+    quadToPath(quad).fill();
+    context.globalCompositeOperation = "destination-out";
+    context.fillStyle = "red";
+    quadToPath(clipQuad).fill();
+    context.restore();
+}
+
+function quadEquals(quad1, quad2)
+{
+    return quad1[0].x === quad2[0].x && quad1[0].y === quad2[0].y &&
+        quad1[1].x === quad2[1].x && quad1[1].y === quad2[1].y &&
+        quad1[2].x === quad2[2].x && quad1[2].y === quad2[2].y &&
+        quad1[3].x === quad2[3].x && quad1[3].y === quad2[3].y;
+}
+
+function drawGutter()
+{
+    var frameWidth = frameViewFullSize.width;
+    var frameHeight = frameViewFullSize.height;
+
+    if (!frameWidth || document.body.offsetWidth <= frameWidth)
+        rightGutter.style.removeProperty("display");
+    else {
+        rightGutter.style.display = "block";
+        rightGutter.style.left = frameWidth + "px";
+    }
+
+    if (!frameHeight || document.body.offsetHeight <= frameHeight)
+        bottomGutter.style.removeProperty("display");
+    else {
+        bottomGutter.style.display = "block";
+        bottomGutter.style.top = frameHeight + "px";
+    }
+}
+
+function reset(resetData)
+{
+    var deviceScaleFactor = resetData.deviceScaleFactor;
+    var viewportSize = resetData.viewportSize;
+    window.frameViewFullSize = resetData.frameViewFullSize;
+
+    window.canvas = document.getElementById("canvas");
+    window.context = canvas.getContext("2d");
+    window.rightGutter = document.getElementById("right-gutter");
+    window.bottomGutter = document.getElementById("bottom-gutter");
+
+    canvas.width = deviceScaleFactor * viewportSize.width;
+    canvas.height = deviceScaleFactor * viewportSize.height;
+    canvas.style.width = viewportSize.width + "px";
+    canvas.style.height = viewportSize.height + "px";
+    context.scale(deviceScaleFactor, deviceScaleFactor);
+
+    document.getElementById("paused-in-debugger").style.visibility = "hidden";
+    document.getElementById("element-title").style.visibility = "hidden";
+    document.body.classList.remove("dimmed");
+}
+
+function _drawElementTitle(highlight)
+{
+    var elementInfo = highlight.elementInfo;
+    if (!highlight.elementInfo)
+        return;
+
+    document.getElementById("tag-name").textContent = elementInfo.tagName;
+    document.getElementById("node-id").textContent = elementInfo.idValue ? "#" + elementInfo.idValue : "";
+    var className = elementInfo.className;
+    if (className && className.length > 50)
+       className = className.substring(0, 50) + "\u2026";
+    document.getElementById("class-name").textContent = className || "";
+    document.getElementById("node-width").textContent = elementInfo.nodeWidth;
+    document.getElementById("node-height").textContent = elementInfo.nodeHeight;
+    var elementTitle = document.getElementById("element-title");
+
+    var marginQuad = highlight.quads[0];
+
+    var titleWidth = elementTitle.offsetWidth + 6;
+    var titleHeight = elementTitle.offsetHeight + 4;
+
+    var anchorTop = marginQuad[0].y;
+    var anchorBottom = marginQuad[3].y
+
+    const arrowHeight = 7;
+    var renderArrowUp = false;
+    var renderArrowDown = false;
+
+    var boxX = Math.max(2, marginQuad[0].x);
+    if (boxX + titleWidth > canvas.width)
+        boxX = canvas.width - titleWidth - 2;
+
+    var boxY;
+    if (anchorTop > canvas.height) {
+        boxY = canvas.height - titleHeight - arrowHeight;
+        renderArrowDown = true;
+    } else if (anchorBottom < 0) {
+        boxY = arrowHeight;
+        renderArrowUp = true;
+    } else if (anchorBottom + titleHeight + arrowHeight < canvas.height) {
+        boxY = anchorBottom + arrowHeight - 4;
+        renderArrowUp = true;
+    } else if (anchorTop - titleHeight - arrowHeight > 0) {
+        boxY = anchorTop - titleHeight - arrowHeight + 3;
+        renderArrowDown = true;
+    } else
+        boxY = arrowHeight;
+
+    context.save();
+    context.translate(0.5, 0.5);
+    context.beginPath();
+    context.moveTo(boxX, boxY);
+    if (renderArrowUp) {
+        context.lineTo(boxX + 2 * arrowHeight, boxY);
+        context.lineTo(boxX + 3 * arrowHeight, boxY - arrowHeight);
+        context.lineTo(boxX + 4 * arrowHeight, boxY);
+    }
+    context.lineTo(boxX + titleWidth, boxY);
+    context.lineTo(boxX + titleWidth, boxY + titleHeight);
+    if (renderArrowDown) {
+        context.lineTo(boxX + 4 * arrowHeight, boxY + titleHeight);
+        context.lineTo(boxX + 3 * arrowHeight, boxY + titleHeight + arrowHeight);
+        context.lineTo(boxX + 2 * arrowHeight, boxY + titleHeight);
+    }
+    context.lineTo(boxX, boxY + titleHeight);
+    context.closePath();
+    context.fillStyle = "rgb(255, 255, 194)";
+    context.fill();
+    context.strokeStyle = "rgb(128, 128, 128)";
+    context.stroke();
+
+    context.restore();
+
+    elementTitle.style.visibility = "visible";
+    elementTitle.style.top = (boxY + 3) + "px";
+    elementTitle.style.left = (boxX + 3) + "px";
+}
+
+function _drawRulers(highlight, rulerAtRight, rulerAtBottom)
+{
+    if (!highlight.showRulers)
+        return;
+    context.save();
+    var width = canvas.width;
+    var height = canvas.height;
+    context.strokeStyle = "rgba(128, 128, 128, 0.3)";
+    context.lineWidth = 1;
+    context.translate(0.5, 0.5);
+    var leftmostXForY = {};
+    var rightmostXForY = {};
+    var topmostYForX = {};
+    var bottommostYForX = {};
+
+    for (var i = 0; i < highlight.quads.length; ++i) {
+        var quad = highlight.quads[i];
+        for (var j = 0; j < quad.length; ++j) {
+            var x = quad[j].x;
+            var y = quad[j].y;
+            leftmostXForY[Math.round(y)] = Math.min(leftmostXForY[y] || Number.MAX_VALUE, Math.round(quad[j].x));
+            rightmostXForY[Math.round(y)] = Math.max(rightmostXForY[y] || Number.MIN_VALUE, Math.round(quad[j].x));
+            topmostYForX[Math.round(x)] = Math.min(topmostYForX[x] || Number.MAX_VALUE, Math.round(quad[j].y));
+            bottommostYForX[Math.round(x)] = Math.max(bottommostYForX[x] || Number.MIN_VALUE, Math.round(quad[j].y));
+        }
+    }
+
+    if (rulerAtRight) {
+        for (var y in rightmostXForY) {
+            context.beginPath();
+            context.moveTo(width, y);
+            context.lineTo(rightmostXForY[y], y);
+            context.stroke();
+        }
+    } else {
+        for (var y in leftmostXForY) {
+            context.beginPath();
+            context.moveTo(0, y);
+            context.lineTo(leftmostXForY[y], y);
+            context.stroke();
+        }
+    }
+
+    if (rulerAtBottom) {
+        for (var x in bottommostYForX) {
+            context.beginPath();
+            context.moveTo(x, height);
+            context.lineTo(x, topmostYForX[x]);
+            context.stroke();
+        }
+    } else {
+        for (var x in topmostYForX) {
+            context.beginPath();
+            context.moveTo(x, 0);
+            context.lineTo(x, topmostYForX[x]);
+            context.stroke();
+        }
+    }
+
+    context.restore();
+}
+
+function drawNodeHighlight(highlight)
+{
+    if (!highlight.quads.length) {
+        _drawGrid(highlight, false, false);
+        return;
+    }
+
+    context.save();
+
+    for (var i = 0; i < highlight.quads.length; ++i) {
+        var quad = highlight.quads[i];
+        for (var j = 0; j < quad.length; ++j) {
+            quad[j].x -= highlight.scrollX;
+            quad[j].y -= highlight.scrollY;
+        }
+    }
+
+    var quads = highlight.quads.slice();
+    var contentQuad = quads.pop();
+    var paddingQuad = quads.pop();
+    var borderQuad = quads.pop();
+    var marginQuad = quads.pop();
+
+    var hasContent = contentQuad && highlight.contentColor !== transparentColor || highlight.contentOutlineColor !== transparentColor;
+    var hasPadding = paddingQuad && highlight.paddingColor !== transparentColor;
+    var hasBorder = borderQuad && highlight.borderColor !== transparentColor;
+    var hasMargin = marginQuad && highlight.marginColor !== transparentColor;
+
+    var clipQuad;
+    if (hasMargin && (!hasBorder || !quadEquals(marginQuad, borderQuad))) {
+        drawOutlinedQuadWithClip(marginQuad, borderQuad, highlight.marginColor);
+        clipQuad = borderQuad;
+    }
+    if (hasBorder && (!hasPadding || !quadEquals(borderQuad, paddingQuad))) {
+        drawOutlinedQuadWithClip(borderQuad, paddingQuad, highlight.borderColor);
+        clipQuad = paddingQuad;
+    }
+    if (hasPadding && (!hasContent || !quadEquals(paddingQuad, contentQuad))) {
+        drawOutlinedQuadWithClip(paddingQuad, contentQuad, highlight.paddingColor);
+        clipQuad = contentQuad;
+    }
+    if (hasContent)
+        drawOutlinedQuad(contentQuad, highlight.contentColor, highlight.contentOutlineColor);
+
+    var width = canvas.width;
+    var height = canvas.height;
+    var minX = Number.MAX_VALUE, minY = Number.MAX_VALUE, maxX = Number.MIN_VALUE; maxY = Number.MIN_VALUE;
+    for (var i = 0; i < highlight.quads.length; ++i) {
+        var quad = highlight.quads[i];
+        for (var j = 0; j < quad.length; ++j) {
+            minX = Math.min(minX, quad[j].x);
+            maxX = Math.max(maxX, quad[j].x);
+            minY = Math.min(minY, quad[j].y);
+            maxY = Math.max(maxY, quad[j].y);
+        }
+    }
+
+    var rulerAtRight = minX < 20 && maxX + 20 < width;
+    var rulerAtBottom = minY < 20 && maxY + 20 < height;
+
+    _drawGrid(highlight, rulerAtRight, rulerAtBottom);
+    _drawRulers(highlight, rulerAtRight, rulerAtBottom);
+    _drawElementTitle(highlight);
+    context.restore();
+}
+
+function drawQuadHighlight(highlight)
+{
+    context.save();
+    drawOutlinedQuad(highlight.quads[0], highlight.contentColor, highlight.contentOutlineColor);
+    context.restore();
+}
+
+function setPlatform(platform)
+{
+    document.body.classList.add("platform-" + platform);
+}
+
+function dispatch(message)
+{
+    var functionName = message.shift();
+    window[functionName].apply(null, message);
+}
+
+function log(text)
+{
+    var logEntry = document.createElement("div");
+    logEntry.textContent = text;
+    document.getElementById("log").appendChild(logEntry);
+}
+
+</script>
+</head>
+<body class="fill">
+<div class="message-line"><span class="message-box" id="paused-in-debugger"></span></div>
+</body>
+<canvas id="canvas" class="fill"></canvas>
+<div id="element-title">
+  <span id="tag-name"></span><span id="node-id"></span><span id="class-name"></span>
+  <span id="node-width"></span><span class="px">px</span><span class="px"> &#xD7; </span><span id="node-height"></span><span class="px">px</span>
+</div>
+<div id="right-gutter"></div>
+<div id="bottom-gutter"></div>
+<div id="log"></div>
+</html>

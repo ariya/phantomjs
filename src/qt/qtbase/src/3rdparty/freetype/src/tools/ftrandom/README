@@ -1,0 +1,48 @@
+ftrandom
+--------
+
+This program expects a set of directories containing good fonts, and a set
+of extensions of fonts to be tested.  It will randomly pick a font, copy it,
+introduce and error and then test it.
+
+The FreeType tests are quite basic:
+
+  For each erroneous font it
+    forks off a new tester;
+    initializes the library;
+    opens each font in the file;
+    loads each glyph;
+      (optionally reviewing the contours of the glyph)
+      (optionally rasterizing)
+    closes the face.
+
+If the tester exits with a signal, or takes longer than 20 seconds then
+ftrandom saves the erroneous font and continues.  If the tester exits
+normally or with an error, then the superstructure removes the test font and
+continues.
+
+Arguments are:
+
+  --all                    Test every font in the directory(ies) no matter
+                           what its extension (some CID-keyed fonts have no
+                           extension).
+  --check-outlines         Call FT_Outline_Decompose on each glyph.
+  --dir <dir>              Append <dir> to the list of directories to search
+                           for good fonts.
+  --error-count <cnt>      Introduce <cnt> single-byte errors into the
+                           erroneous fonts.
+  --error-fraction <frac>  Multiply the file size of the font by <frac> and
+                           introduce that many errors into the erroneous
+                           font file.
+  --ext <ext>              Add <ext> to the set of font types tested.  Known
+                           extensions are `ttf', `otf', `ttc', `cid', `pfb',
+                           `pfa', `bdf', `pcf', `pfr', `fon', `otb', and
+                           `cff'.
+  --help                   Print out this list of options.
+  --nohints                Specify FT_LOAD_NO_HINTING when loading glyphs.
+  --rasterize              Call FT_Render_Glyph as well as loading it.
+  --result <dir>           This is the directory in which test files are
+                           placed.
+  --test <file>            Run a single test on a pre-generated testcase. 
+                           Done in the current process so it can be debugged
+                           more easily.

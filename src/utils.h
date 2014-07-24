@@ -32,7 +32,7 @@
 #define UTILS_H
 
 #include <QtGlobal>
-#include <QWebFrame>
+#include <QtWebKitWidgets/QWebFrame>
 #include <QFile>
 
 #include "csconverter.h"
@@ -51,7 +51,7 @@ class QTemporaryFile;
 class Utils
 {
 public:
-    static void messageHandler(QtMsgType type, const char *msg);
+    static void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 #ifdef Q_OS_WIN32
     static bool exceptionHandler(const wchar_t* dump_path, const wchar_t* minidump_id, void* context, EXCEPTION_POINTERS* exinfo, MDRawAssertionInfo *assertion, bool succeeded);
 #else

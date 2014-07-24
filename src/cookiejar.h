@@ -32,6 +32,7 @@
 #define COOKIEJAR_H
 
 #include <QSettings>
+#include <QNetworkCookie>
 #include <QNetworkCookieJar>
 #include <QVariantList>
 #include <QVariantMap>
@@ -40,6 +41,7 @@ class CookieJar: public QNetworkCookieJar
 {
     Q_OBJECT
 
+    Q_PROPERTY(QVariantList cookies READ cookiesToMap WRITE addCookiesFromMap)
 
 public:
     CookieJar(QString cookiesFile, QObject *parent = NULL);
@@ -55,6 +57,7 @@ public:
 
     QNetworkCookie cookie(const QString &name, const QString &url = QString()) const;
 
+    using QNetworkCookieJar::deleteCookie;
     bool deleteCookies(const QString &url = QString());
 
     void enable();
@@ -62,6 +65,7 @@ public:
     bool isEnabled() const;
 
 public slots:
+    void addCookie(const QVariantMap &cookie);
     bool addCookieFromMap(const QVariantMap &cookie, const QString &url = QString());
     bool addCookiesFromMap(const QVariantList &cookiesList, const QString &url = QString());
     QVariantList cookiesToMap(const QString &url = QString()) const;

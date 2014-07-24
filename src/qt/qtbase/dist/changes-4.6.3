@@ -1,0 +1,394 @@
+Qt 4.6.3 is a bug-fix release. It maintains both forward and backward
+compatibility (source and binary) with Qt 4.6.0.  For more details,
+refer to the online documentation included in this distribution. The
+documentation is also available online:
+
+  http://qt.nokia.com/doc/4.6
+
+The Qt version 4.6 series is binary compatible with the 4.5.x series.
+Applications compiled for 4.5 will continue to run with 4.6.
+
+Some of the changes listed in this file include issue tracking numbers
+corresponding to tasks in the Qt Bug Tracker, the (now obsolete) Task
+Tracker, or the Merge Request queue of the public source repository.
+
+Qt Bug Tracker: http://bugreports.qt.nokia.com
+Task Tracker:   http://qt.nokia.com/developer/task-tracker
+Merge Request:  http://qt.gitorious.org
+
+****************************************************************************
+*                           General                                        *
+****************************************************************************
+
+Examples and Demos
+------------------
+
+ - Added Spectrum analyzer demo application.
+ - Added exit softkey to Wiggly example.
+ - Added close button to Anomaly demo.
+ - [QTBUG-10635]: Fixed Anomaly demo controlstrip icon placement for very
+   small screens.
+
+
+****************************************************************************
+*                          Library                                         *
+****************************************************************************
+
+QtCore
+------
+
+ - QStateMachine
+    * [QTBUG-8842] Ensure history configuration is cleared when a state
+      machine is restarted.
+
+ - QXmlStreamReader
+    * [QTBUG-9196] Fixed crash when parsing.
+
+QtGui
+-----
+
+ - QComboBox
+    * [QTBUG-10403] Fixed QComboBox ignoring the item data background role 
+      for some styles.
+
+ - QCommonStyle
+    * [QTBUG-7137] Fixed a bug that led to missing text pixels in QTabBar when
+      using small font sizes.
+
+ - QCUPSSupport
+    * [QTBUG-10512] Fixed a potential crash with misconfigured CUPS printers.
+    * [QTBUG-6419] Make QCUPSSupport::printerHasPPD() release temporary file
+      handles.
+
+ - qDrawPixmaps()
+    * [QTBUG-8455] Fixed qDrawPixmaps() to draw on integer coordinates under
+      Mac OS X.
+
+ - QFontEngine
+    * [QTBUG-3976] Fixed a leak for QFont objects used in threads.
+
+ - QGifHandler
+    * [QTBUG-7037] Fixed QGifHandler::loopCount().
+    * [QTBUG-6696] Cache the sizes of images in an animated GIF.
+
+ - QGraphicsEffect
+    * [QTBUG-5358] Fixed warnings and crash when painting graphics effects
+      outside scene.
+
+ - QGraphicsItem
+    * [QTBUG-9391] Avoid a useless repaint when setting the cache mode to
+      DeviceCoordinateMode while already using that mode.
+    * [QTBUG-8475] Fixed crash and loss of focus when deleting a child of a
+      focus scope.
+
+ - QGraphicsProxyWidget
+    * [QTBUG-5349] Fixed tooltips not being shown for QGraphicsProxyWidget.
+    * [QTBUG-2883] Fixed tooltips appearing at wrong location.
+    * [QTBUG-7296] Fixed painting artifacts on a scaled proxy when the view
+      is scrolled.
+
+ - QGraphicsScene
+    * [QTBUG-7863] Fixed incorrect blending when using
+      QGraphicsItem::DeviceCoordinateCache and when the item is semi-
+      transparent. If the item is transformed, the cache is now always fully
+      repainted to avoid artifacts.
+
+ - QGraphicsView
+    * Item tooltips are not clipped by the view anymore.
+
+ - QImageReader
+    * [QTBUG-7980] Fixed QImageReader::setAutoDetectImageFormat() to work with
+      plugins.
+
+ - QPainter
+    * [QTBUG-8140] Speed up custom bitmap brushes under X11 without Xrender
+      support.
+    * [QTBUG-8032] Fixed drawing pixmaps onto bitmaps on X11 without Xrender
+      support.
+    * [QTBUG-10421] Fixed WebKit-specific justification bug for text containing
+      more than one script.
+
+ - QPDFBaseEngine
+    * [QTBUG-8451] Fixed line and point drawing in the PS and PDF generators.
+
+ - QPixmap
+    * [QTBUG-8606] Fixed QPixmap::load() to not modify referenced copies.
+
+ - QPSPrintEngine
+    * [QTBUG-10121] Fixed incorrect version setting for EPS files.
+    * [QTBUG-10140] Fixed generation of the %%BoundingBox operator to output
+      integer values instead of floating point values.
+
+ - QRasterPaintEngine
+    * [QTBUG-9036] Fixed ClearType text rendering on translucent surfaces under
+      Windows.
+
+ - QRegion
+    * [QTBUG-7699] Prevented crash on large x-coordinates.
+
+ - QTextDocument
+    * [QTBUG-10301] Fixed a leak in QTextDocument::print().
+
+ - QTextEdit
+    * [QTBUG-9599] Fixed crash when copying the current text cursor as a result
+      of deleting a character.
+
+ - QTextEngine
+    * [QTBUG-9374] Fixed possible crash in QTextEngine::boundingBox() when using
+      multiscripted text.
+
+ - QTextLayout
+    * [QTBUG-9074] Fixed performance regression that was introduced in Qt 4.6.0.
+
+ - QTransform
+    * [QTBUG-8557] Fixed bug in QTransform::type() potentially occuring
+      after using operator/ or operator* or their overloads.
+
+ - QTriangulatingStroker
+    * [QTBUG-9548] Fixed possible data corruption when certain paths were
+      triangulated.
+
+ - QWin32PrintEngine
+    * [QTBUG-9938] Fixed a crash on Windows 7 systems with invalid PrinterPorts
+      registry entries.
+
+ - Improved scrolling horizontally with a mouse wheel over sliders.
+ - [QTBUG-7451] Gestures respect panels on QGraphicsView.
+
+QtOpenGL
+--------
+
+ - QOpenGLPaintEngine
+    * [QTBUG-10529] Fixed an issue where bound pixmaps were not released
+      correctly in the GL 1 engine.
+
+ - QGL2PaintEngineEx
+    * [QTBUG-8681] Fixed an application exit crash that could occur in the GL2
+      engine under X11.
+
+ - QGLContext
+    * [QTBUG-5732] Fixed a GLX warning that occured with some Intel chipsets
+      under X11.
+
+ - QGLPixelBuffer
+    * [QTBUG-8047] Fixed usage of QGLPixelBuffer with share widgets on other
+      X11 screens.
+
+ - QGLWidget
+    * [QTBUG-7545] Fixed QGLWidget::grabFrameBuffer() to honor the 'withAlpha' flag.
+    * [QTBUG-8054] Fixed drawing QPixmaps onto QGLWidgets on different X11 screens.
+    * [QTBUG-7865] Fixed bug where GL widgets were not fully updated on
+      Windows Vista/7 with Aero disabled.
+    * [QTBUG-8753] Worked around driver bug causing clipping errors on the N900.
+    * [QTBUG-10510] Workaround ATI driver bug when using QGraphicsEffect with GL.
+
+QtScript
+--------
+
+ - [QTBUG-7066] Fixed regression introduced in 4.6.0 that made it impossible to
+   change the prototype of the global object.
+ - [QTBUG-8366] Fixed regression introduced in 4.6.0 that caused the instanceof
+   operator to throw an error when the right-hand-side is generated by
+   QScriptEngine::newQMetaObject().
+ - [QTBUG-8400] Fixed memory leak when lazily binding QScriptValue to an engine.
+ - [QTBUG-9775] Fixed regression introduced in 4.6.0 that caused the qsTr()
+   function not to resolve the translation context correctly when invoked in
+   the global scope.
+ - [QTBUG-8364] Fixed regression introduced in QScriptclass in 4.6.0 that could
+   cause the Callable extension to crash.
+ - [QTBUG-6437] Fixed regression introduced in QScriptEngine in 4.6.0 that made
+   installTranslatorFunctions() not work with custom global object.
+
+QtXml
+-----
+
+ - [QTBUG-8398] QDom: prevent infinite loop when cloning a DTD.
+
+QtXmlPatterns
+-------------
+  - [QTBUG-8920] fixed crash with anonymous types in XsdSchemaChecker.
+  - [QTBUG-8394] include/import/redefine schemas only once.
+  - QXmlSchema: fix crash with referencing elements.
+
+****************************************************************************
+*                      Platform Specific Changes                           *
+****************************************************************************
+
+Qt for Linux/X11
+----------------
+
+ - [MR 458] Improved handling of Shift-Tab with VNC on X11.
+ - [QTBUG-7063] Changed key bindings (XF86XK_MyComputer, Qt::Key_Launch0,
+   Key_Calculator) on X11 back to how it was in Qt 4.5 before MR 1742
+   accidentally changed it.
+ - [QTBUG-8666] Fixed a crash when using QIcon::fromTheme with icons declared 
+   static.
+ - QGtkStyle
+   * [QTBUG-9240] Fixed a potensial crash in QGtkStyle when the gtk 
+     theme engine is not unavaliable. 
+   * [QTBUG-8537] Fixed a Glib-GObject-WARNING on application startup with
+     certain versions of GTK+.
+   * [QTBUG-8226] Fixed an atk_object_set_name assertion warning with certain
+     versions of GTK+.
+
+Qt for Windows
+--------------
+
+ - [QTBUG-6007] On Windows we query if there is a touch screen and do not try
+   to enable gestures otherwise.
+ - QLocalSocket
+    * [QTBUG-7815] Pipe handle leak fixed, when closing a QLocalSocket that
+      still has unwritten data.
+    * [QTBUG-9681] Fixed closing state for local sockets with unwritten data.
+    * [QTBUG-8418] Detection of Windows Mobile 6.5 fixed.
+
+ - [QTBUG-7662] Fixed an issue with clipped icon text.
+ - [QTBUG-7663] QFileIconProvider now show overlays when fetching native 
+   filesystem icons.
+ - [QTBUG-8324] Fixed a potential crash when fetching native icons.
+
+Qt for Windows CE
+-----------------
+
+- Core changes
+   * [QTBUG-8754] Fixed menu handling on Windows mobile.
+   * [QTBUG-7943] Fixed a crash when receiving a certain type of
+     WM_SETTINGSCHANGE message.
+
+- QWindowsMobileStyle
+   * [QTBUG-8419] Huge performance penalty for QTabWidget fixed for
+     Windows Mobile 6.5.
+   * [QTBUG-8757] QTabBar scroll button size has been fixed.
+
+Qt for Mac
+-----------------
+
+ - [QTBUG-8461] Fixed incorrect text rendering with document mode tabs.
+
+
+Qt for Symbian
+--------------
+
+ - Multimedia
+   * [QT-567] Implementation of QtMultimedia QAudio* APIs.
+   * [QTBUG-8919] Modified Phonon MMF backend to support video playback on
+     platforms which use graphics surfaces (i.e. platforms using the
+     New Graphics Architecture a.k.a. ScreenPlay).
+
+ - mkspecs
+   * Changed pkg_prerules to not use default_deployment for vendor ID.
+   * Added forwarding headers for qplatformdefs.h in Symbian mkspecs.
+   * Added some missing IBY export paths to platform_path.prf.
+   * Fixed libstdcpp.dll version autodetection for Symbian.
+   * [QTBUG-7836]: Removed unnecessary dependency to moc.exe from Symbian
+     builds.
+   * [QT-1171]: Fixed libstdcpp.dll version autodetection.
+   * [QTBUG-8513]: Fixed misc FLM issues.
+   * [QT-2909]: Support for adding conditional MMP_RULES.
+   * [QT-3253]: Export .flm files always if they are different.
+   * [QTBUG-9279]: Made it possible to define more than one language using
+     pkg_prerules.
+   * [QTBUG-6795]: Made sure target path exists in qmake_extra_pre_targetdep.flm.
+   * [QTBUG-7883]: Only use unix-like tools when not building for Symbian
+     in Windows.
+
+ - configure
+   * [QTBUG-7942]: Fix QT_BUILD_KEY for Symbian in Windows builds.
+
+     IMPORTANT NOTE: The build key change causes all Qt for Symbian plugins
+                     made with Qt 4.6.2 or earlier version incompatible with
+                     Qt 4.6.3 and later.
+
+   * [QTBUG-9065]: Support for -qtlibinfix parameter in Symbian.
+
+ - qmake
+   * Changed canonical paths to absolute paths in symmake.
+   * Basic deployment support for ROM in Symbian.
+   * Add '.' dir as the first include directory in Symbian.
+   * [QT-3017]: Support for conditional subdirs.
+   * [QT-3083]: Expanded support for RSS_RULES.
+   * [QTBUG-8685]: RVCT 4 support to Symbian builds.
+   * [QT-3147]: Changed Symbian pkg files to deploy from under epoc32.
+   * [QT-2985]: Fix extensions section in bld.inf when CONFIG contains
+     symbian_test.
+
+ - S60installs
+   * Export qtdemoapps.iby to proper location.
+   * [QT-3163]: Removed QtDeclarative.dll deployment from qt.iby.
+
+ - QProcess
+   * [QTBUG-7735]: Fixed crash at application exit when QProcess was used in
+     Symbian.
+   * [QTBUG-8906]: Removed extra space from the command line passed to
+     QProcess in Symbian.
+
+ - QtGui
+   * QUnixPrintWidget is no longer declared in Symbian.
+   * [QTBUG-10207]: Fixed long menu item texts causing crash.
+   * [QTBUG-9910] Fixed incorrect dialog position when native AVKON combined
+     status-and-control pane is in use.
+   * [QTBUG-4875] Made QMessageBox match size with native Symbian messageBox.
+   * [QTBUG-5539] Fixed QMessageBox to stretch to screen width with very small
+     content.
+   * [QTBUG-7828] Fixed Virtual keyboard closing issue with Sym^3.
+   * [QTBUG-9480] Use focus widget palette colors to show T9 suggested or
+     autocompletion words in QCoeFepInputContext.
+   * [QTBUG-10006] Changed default supported text modes to all, instead of just
+     lower and upper cases in QCoeFepInputContext.
+   * [QT-3277] Support text selection in QCoeFepInputContext for Sym^3.
+   * [QT-3008] Fixed crash in QGraphicsScenePrivate::setFocusItemHelper.
+
+ - QS60Style
+    * [QTBUG-10697] Support native-like selection in item views.
+    * [QTBUG-10454] Made styled sliders match in size to native sliders.
+    * [QTBUG-10073] Fixed QMenu with a lot of menu items.
+    * [QTBUG-3102] Fixed QTabWidget icon size issue.
+    * [QTBUG-5001] Show combobox list as a popup instead of dropdown list.
+    * [QTBUG-7258] Fixed calculations of PM_FocusFrameVMargin and
+      PM_FocusFrameHMargin pixel metrics.
+    * [QTBUG-7996] Fixed squeezed scrollbar handle and groove ends.
+    * [QTBUG-8193] Fixed drag-n-drop drop area drawing issue.
+    * [QTBUG-8194] Removed scrollbar context menu support.
+    * [QTBUG-8704] Fixed palette issues when drawing highlighted text.
+    * [QTBUG-9212] Fixed itemview multiselection issues.
+    * [QTBUG-9321] Fixed very large spinboxes drawing issues.
+    * [QTBUG-9837] Fixed text cutting issues with narrow QComboBoxes.
+    * [QTBUG-9844] Fixed QTreeView branch drawing issues in right to left
+      UI layout.
+    * [QTBUG-9927] Fixed transparent list higlight to show up correctly for
+      S60 3rd edition FP1 devices.
+    * [QTBUG-10064] Removed focus frame drawing for context menus and popups.
+    * [QTBUG-10487] Fixed QToolButton to be drawn pressed when context menu
+      for that button is open.
+    * [QTBUG-10549] Fixed style to honor stylesheet when drawing focus frame
+      for QPushButtons.
+    * [QT-3295] Made QMenu to look more native-like.
+    * [QT-3185] Fixed border frames to be drawn transparent for Sym^3 devices.
+    * [QT-3148] Draw application background correctly when animated wallpaper
+      is used in Sym^3 device.
+    * [QT-3137] Launch virtual keyboard with single tap.
+    * [QT-3104] Re-locate QTabWidget's scrollbuttons to either side of widget.
+    * [QT-2179] Fixed QPushButton with text and QPushButton with standard icon
+      to be of same size.
+
+ - Examples & demos:
+   * Enabled more examples by default in Symbian builds.
+
+ - Documentation
+   * [QTBUG-9277]: Clarified pkg_prerules usage documentation.
+
+ - Plugins:
+   * Fixed sqlite3_v9.2.zip to export sqlite3.iby to correct location.
+
+ - General
+   * [QT-3055]: Fixed filename cases to support building Qt for Symbian in
+     Linux.
+
+
+****************************************************************************
+*                          Tools                                           *
+****************************************************************************
+
+ - qmake
+    * Fixed qmake.pro for using with mingw
+

@@ -1,0 +1,76 @@
+/*
+ * Copyright (C) Research In Motion Limited 2012. All rights reserved.
+ */
+
+#popup-content-time {
+    display: -webkit-box;
+    -webkit-box-orient: horizontal;
+    position: relative;
+    max-height: 495px; /* 5 rows of 99px each */
+}
+
+.column {
+    -webkit-box-flex: 1;
+    overflow: hidden;
+    -webkit-border-end: 2px solid #b7b8b9;
+}
+
+.column:not(:last-child) {
+    border: 0;
+}
+
+.cell {
+    height: 99px;
+    text-align: center;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-box-pack: center;
+}
+
+.yearmonthdate .cell div:last-child {
+    font-size: 0.5em;
+    color: #555555;
+}
+
+.row-highlight-container {
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-box-pack: center;
+}
+
+.row-highlight-filler {
+    -webkit-box-flex: 1;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.row-highlight {
+    height: 99px;
+    border-width: 4px 0;
+    border-color: #00a8df;
+    border-style: solid;
+}
+
+.tall-bit {
+    overflow: hidden;
+}
+
+@media only screen and (width: 720px) and (height: 720px) {
+    #popup-content-time {
+        max-height: 455px; /* 5 rows of 91px each */
+    }
+
+    .cell {
+        height: 91px;
+    }
+
+    .row-highlight {
+        height: 91px;
+    }
+}

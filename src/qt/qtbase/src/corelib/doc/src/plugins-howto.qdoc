@@ -1,0 +1,333 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \group plugins
+    \title Plugin Classes
+    \ingroup groups
+
+    \brief Plugin related classes.
+
+    These \l{Qt Core} classes deal with shared libraries, (e.g. .so and DLL
+    files), and with Qt plugins.
+
+    See the \l{How to Create Qt Plugins} page for more information.
+*/
+
+/*!
+    \page plugins-howto.html
+    \title How to Create Qt Plugins
+    \brief A guide to creating plugins to extend Qt applications and
+    functionality provided by Qt.
+
+    \ingroup frameworks-technologies
+    \ingroup qt-basic-concepts
+
+
+    \keyword QT_DEBUG_PLUGINS
+    \keyword QT_NO_PLUGIN_CHECK
+
+    Qt provides two APIs for creating plugins:
+
+    \list
+    \li A higher-level API for writing extensions to Qt itself: custom database
+       drivers, image formats, text codecs, custom styles, etc.
+    \li A lower-level API for extending Qt applications.
+    \endlist
+
+    For example, if you want to write a custom QStyle subclass and
+    have Qt applications load it dynamically, you would use the
+    higher-level API.
+
+    Since the higher-level API is built on top of the lower-level API,
+    some issues are common to both.
+
+    If you want to provide plugins for use with Qt Designer, see the Qt Designer
+    module documentation.
+
+    Topics:
+
+    \tableofcontents
+
+    \section1 The Higher-Level API: Writing Qt Extensions
+
+    Writing a plugin that extends Qt itself is achieved by
+    subclassing the appropriate plugin base class, implementing a few
+    functions, and adding a macro.
+
+    There are several plugin base classes. Derived plugins are stored
+    by default in sub-directories of the standard plugin directory. Qt
+    will not find plugins if they are not stored in the right
+    directory.
+
+    \table
+    \header \li Base Class              \li Directory Name      \li Key Case Sensitivity
+    \row    \li QAccessibleBridgePlugin \li \c accessiblebridge \li Case Sensitive
+    \row    \li QAccessiblePlugin       \li \c accessible       \li Case Sensitive
+    \row    \li QDecorationPlugin       \li \c decorations      \li Case Insensitive
+    \row    \li QFontEnginePlugin       \li \c fontengines      \li Case Insensitive
+    \row    \li QIconEnginePlugin       \li \c iconengines      \li Case Insensitive
+    \row    \li QImageIOPlugin          \li \c imageformats     \li Case Sensitive
+    \row    \li QInputContextPlugin     \li \c inputmethods     \li Case Sensitive
+    \row    \li QKbdDriverPlugin        \li \c kbddrivers       \li Case Insensitive
+    \row    \li QMouseDriverPlugin      \li \c mousedrivers     \li Case Insensitive
+    \row    \li QScreenDriverPlugin     \li \c gfxdrivers       \li Case Insensitive
+    \row    \li QScriptExtensionPlugin  \li \c script           \li Case Sensitive
+    \row    \li QSqlDriverPlugin        \li \c sqldrivers       \li Case Sensitive
+    \row    \li QStylePlugin            \li \c styles           \li Case Insensitive
+    \row    \li QTextCodecPlugin        \li \c codecs           \li Case Sensitive
+    \endtable
+
+    Suppose that you have a new style class called \c MyStyle that you
+    want to make available as a plugin. The required code is
+    straightforward, here is the class definition (\c
+    mystyleplugin.h):
+
+    \snippet code/doc_src_plugins-howto.cpp 0
+
+    Ensure that the class implementation is located in a \c .cpp file:
+
+    \snippet code/doc_src_plugins-howto.cpp 1
+
+    (Note that QStylePlugin is case insensitive, and the lower-case
+    version of the key is used in our
+    \l{QStylePlugin::create()}{create()} implementation; most other
+    plugins are case sensitive.)
+
+    In addition a \c mystyleplugin.json file containing meta data
+    describing the plugin is required for most plugins. For style
+    plugins it simply contains a list of styles that can be created
+    by the plugin:
+
+    \snippet code/doc_src_plugins-howto.qdoc 6
+
+    The type of information that needs to be provided in the json file
+    is plugin dependent, please see the class documentation for
+    details on the information that needs to be contained in the
+    file.
+
+    For database drivers, image formats, text codecs, and most other
+    plugin types, no explicit object creation is required. Qt will
+    find and create them as required. Styles are an exception, since
+    you might want to set a style explicitly in code. To apply a
+    style, use code like this:
+
+    \snippet code/doc_src_plugins-howto.cpp 2
+
+    Some plugin classes require additional functions to be
+    implemented. See the class documentation for details of the
+    virtual functions that must be reimplemented for each type of
+    plugin.
+
+    The \l{Style Plugin Example} shows how to implement a plugin
+    that extends the QStylePlugin base class.
+
+    \section1 The Lower-Level API: Extending Qt Applications
+
+    Not only Qt itself but also Qt application can be extended
+    through plugins. This requires the application to detect and load
+    plugins using QPluginLoader. In that context, plugins may provide
+    arbitrary functionality and are not limited to database drivers,
+    image formats, text codecs, styles, and the other types of plugin
+    that extend Qt's functionality.
+
+    Making an application extensible through plugins involves the
+    following steps:
+
+    \list 1
+    \li Define a set of interfaces (classes with only pure virtual
+       functions) used to talk to the plugins.
+    \li Use the Q_DECLARE_INTERFACE() macro to tell Qt's
+       \l{meta-object system} about the interface.
+    \li Use QPluginLoader in the application to load the plugins.
+    \li Use qobject_cast() to test whether a plugin implements a given
+       interface.
+    \endlist
+
+    Writing a plugin involves these steps:
+
+    \list 1
+    \li Declare a plugin class that inherits from QObject and from the
+       interfaces that the plugin wants to provide.
+    \li Use the Q_INTERFACES() macro to tell Qt's \l{meta-object
+       system} about the interfaces.
+    \li Export the plugin using the Q_PLUGIN_METADATA() macro.
+    \li Build the plugin using a suitable \c .pro file.
+    \endlist
+
+    For example, here's the definition of an interface class:
+
+    \snippet plugins/interfaces.h 2
+
+    Here's the definition of a plugin class that implements that
+    interface:
+
+    \snippet plugins/extrafiltersplugin.h 0
+
+    The \l{tools/plugandpaint}{Plug & Paint} example documentation
+    explains this process in detail. See also \l{Creating Custom
+    Widgets for Qt Designer} for information about issues that are
+    specific to Qt Designer. You can also take a look at the
+    \l{Echo Plugin Example} which is a more trivial example on
+    how to implement a plugin that extends Qt applications.
+    Please note that a QCoreApplication must have been initialized
+    before plugins can be loaded.
+
+    \section1 Locating Plugins
+
+    Qt applications automatically know which plugins are available,
+    because plugins are stored in the standard plugin subdirectories.
+    Because of this applications don't require any code to find and load
+    plugins, since Qt handles them automatically.
+
+    During development, the directory for plugins is \c{QTDIR/plugins}
+    (where \c QTDIR is the directory where Qt is installed), with each
+    type of plugin in a subdirectory for that type, e.g. \c styles. If
+    you want your applications to use plugins and you don't want to use
+    the standard plugins path, have your installation process
+    determine the path you want to use for the plugins, and save the
+    path, e.g. using QSettings, for the application to read when it
+    runs. The application can then call
+    QCoreApplication::addLibraryPath() with this path and your
+    plugins will be available to the application. Note that the final
+    part of the path (e.g., \c styles) cannot be changed.
+
+    If you want the plugin to be loadable then one approach is to
+    create a subdirectory under the application and place the plugin
+    in that directory. If you distribute any of the plugins that come
+    with Qt (the ones located in the \c plugins directory), you must
+    copy the sub-directory under \c plugins where the plugin is
+    located to your applications root folder (i.e., do not include the
+    \c plugins directory).
+
+    For more information about deployment,
+    see the \l {Deploying Qt Applications} and \l {Deploying Plugins}
+    documentation.
+
+    \section1 Static Plugins
+
+    The normal and most flexible way to include a plugin with an
+    application is to compile it into a dynamic library that is shipped
+    separately, and detected and loaded at runtime.
+
+    Plugins can be linked statically into your application. If you
+    build the static version of Qt, this is the only option for
+    including Qt's predefined plugins. Using static plugins makes the
+    deployment less error-prone, but has the disadvantage that no
+    functionality from plugins can be added without a complete rebuild
+    and redistribution of the application.
+
+    When compiled as a static library, Qt provides the following
+    static plugins:
+
+    \table
+    \header \li Plugin name                  \li Type               \li Description
+    \row    \li \c qtaccessiblewidgets       \li Accessibility      \li Accessibility for Qt widgets
+    \row    \li \c qgif                      \li Image formats      \li GIF
+    \row    \li \c qjpeg                     \li Image formats      \li JPEG
+    \row    \li \c qmng                      \li Image formats      \li MNG
+    \row    \li \c qico                      \li Image formats      \li ICO
+    \row    \li \c qsvg                      \li Image formats      \li SVG
+    \row    \li \c qtiff                     \li Image formats      \li TIFF
+    \row    \li \c qsqldb2                   \li SQL driver         \li IBM DB2
+    \row    \li \c qsqlibase                 \li SQL driver         \li Borland InterBase
+    \row    \li \c qsqlite                   \li SQL driver         \li SQLite version 3
+    \row    \li \c qsqlite2                  \li SQL driver         \li SQLite version 2
+    \row    \li \c qsqlmysql                 \li SQL driver         \li MySQL
+    \row    \li \c qsqloci                   \li SQL driver         \li Oracle (OCI)
+    \row    \li \c qsqlodbc                  \li SQL driver         \li Open Database Connectivity (ODBC)
+    \row    \li \c qsqlpsql                  \li SQL driver         \li PostgreSQL
+    \row    \li \c qsqltds                   \li SQL driver         \li Sybase Adaptive Server (TDS)
+    \endtable
+
+    To link those plugins statically, you need to add
+    the required plugins to your build using \c QTPLUGIN.
+
+    In the \c .pro file for your application, you need the following
+    entry:
+
+    \snippet code/doc_src_plugins-howto.pro 5
+
+    qmake automatically adds the plugins to QTPLUGIN that are typically
+    needed by the used Qt modules (see \c QT), while more specialized
+    plugins need to be added manually.
+    The default list of automatically added plugins can be overridden
+    per type.
+    For example, to link the minimal plugin instead of the default Qt
+    platform adaptation plugin, use:
+
+    \snippet code/doc_src_plugins-howto.pro 4
+
+    If you want neither the default nor the minimal QPA plugin to be
+    linked automatically, use:
+
+    \snippet code/doc_src_plugins-howto.pro 6
+
+    The defaults are tuned towards an optimal out-of-the-box experience,
+    but may unnecessarily bloat the application.
+    It is recommended to inspect the linker command line built by qmake
+    and eliminate unnecessary plugins.
+
+    \section2 Details of Linking Static Plugins
+
+    To cause static plugins actually being linked and instantiated,
+    Q_IMPORT_PLUGIN() macros are also needed in application code,
+    but those are automatically generated by qmake and added to
+    your application project.
+
+    If you do not want all plugins added to QTPLUGIN to be automatically
+    linked, remove \c import_plugins from the \c CONFIG variable:
+
+    \snippet code/doc_src_plugins-howto.pro 7
+
+    \section2 Creating Static Plugins
+
+    It is also possible to create your own static plugins, by
+    following these steps:
+
+    \list 1
+    \li Add \c{CONFIG += static} to your plugin's \c .pro file.
+    \li Use the Q_IMPORT_PLUGIN() macro in your application.
+    \li Link your application with your plugin library using \c LIBS
+       in the \c .pro file.
+    \endlist
+
+    See the \l{tools/plugandpaint}{Plug & Paint} example and the
+    associated \l{tools/plugandpaintplugins/basictools}{Basic Tools}
+    plugin for details on how to do this.
+
+    \note If you are not using qmake to build your plugin you need
+    to make sure that the \c{QT_STATICPLUGIN} preprocessor macro is
+    defined.
+
+    \section1 Deploying and Debugging Plugins
+
+    The \l{Deploying Plugins} document covers the process of deploying
+    plugins with applications and debugging them when problems arise.
+
+    \sa QPluginLoader, QLibrary, {Plug & Paint Example}
+*/

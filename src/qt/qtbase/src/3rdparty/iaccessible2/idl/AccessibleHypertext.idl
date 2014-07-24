@@ -1,0 +1,123 @@
+/*************************************************************************
+ *
+ *  File Name (AccessibleHypertext.idl)
+ *
+ *  IAccessible2 IDL Specification
+ *
+ *  Copyright (c) 2007, 2010 Linux Foundation
+ *  Copyright (c) 2006 IBM Corporation
+ *  Copyright (c) 2000, 2006 Sun Microsystems, Inc.
+ *  All rights reserved.
+ *
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   1. Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *
+ *   2. Redistributions in binary form must reproduce the above
+ *      copyright notice, this list of conditions and the following
+ *      disclaimer in the documentation and/or other materials
+ *      provided with the distribution.
+ *
+ *   3. Neither the name of the Linux Foundation nor the names of its
+ *      contributors may be used to endorse or promote products
+ *      derived from this software without specific prior written
+ *      permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+ *  CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ *  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ *  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ *  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ *  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ *  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *  This BSD License conforms to the Open Source Initiative "Simplified
+ *  BSD License" as published at:
+ *  http://www.opensource.org/licenses/bsd-license.php
+ *
+ *  IAccessible2 is a trademark of the Linux Foundation. The IAccessible2
+ *  mark may be used in accordance with the Linux Foundation Trademark
+ *  Policy to indicate compliance with the IAccessible2 specification.
+ *
+ ************************************************************************/
+
+import "objidl.idl";
+import "oaidl.idl";
+import "oleacc.idl";
+import "AccessibleText.idl";
+import "AccessibleHyperlink.idl";
+
+/** @brief This interface exposes information about hypertext in a document.
+
+ The %IAccessibleHypertext interface is the main interface to expose
+  hyperlinks in a document, typically a text document, that are used
+  to reference other documents.  A typical implementation is to implement
+  this interface on the smallest text object such as a paragraph of text.
+*/
+[object, uuid(6B4F8BBF-F1F2-418a-B35E-A195BC4103B9)]
+interface IAccessibleHypertext : IAccessibleText
+{
+
+  /** @brief Returns the number of links and link groups contained within this hypertext
+    paragraph.
+   @param [out] hyperlinkCount
+    The number of links and link groups within this hypertext paragraph.
+    Returns 0 if there is no link.
+   @retval S_OK
+  */
+  [propget] HRESULT nHyperlinks
+    (
+     [out, retval] long *hyperlinkCount
+    );
+
+  /** @brief Returns the specified link.
+
+   The returned IAccessibleHyperlink object encapsulates the hyperlink and
+    provides several kinds of information describing it.
+   @param [in] index
+    This 0 based index specifies the hyperlink to return.
+   @param [out] hyperlink
+    If the given index is valid, i.e. lies in the interval from 0 to the number
+    of links minus one, a reference to the specified hyperlink object is returned.
+    If the index is invalid then a NULL pointer is returned.
+   @retval S_OK
+   @retval E_INVALIDARG if bad [in] passed
+  */
+  [propget] HRESULT hyperlink
+    (
+     [in] long index,
+     [out, retval] IAccessibleHyperlink **hyperlink
+    );
+
+  /** @brief Returns the index of the hyperlink that is associated with this character index.
+
+   This is the case when a link spans the given character index.
+   @param [in] charIndex
+    A 0 based index of the character for which to return the link index.  If
+    IAccessibleText is used to represent the text containing the link, then the
+    character index is only  valid if it is greater than or equal to zero and
+    lower than the number of characters in the text.
+   @param [out] hyperlinkIndex
+    Returns the 0 based index of the hyperlink that is associated with this
+    character index, or -1 if charIndex is not on a link.
+   @retval S_OK
+   @retval S_FALSE if there is nothing to return, [out] value is -1
+   @retval E_INVALIDARG if bad [in] passed
+  */
+  [propget] HRESULT hyperlinkIndex
+    (
+     [in] long charIndex,
+     [out, retval] long *hyperlinkIndex
+    );
+
+}

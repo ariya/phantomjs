@@ -1,0 +1,314 @@
+#
+#  W A R N I N G
+#  -------------
+#
+# This file is not part of the Qt API.  It exists purely as an
+# implementation detail.  It may change from version to version
+# without notice, or even be removed.
+#
+# We mean it.
+#
+
+# Get the SIMD flags
+load(qt_build_config)
+
+# Set QT_CPU_FEATURES for convenience
+QT_CPU_FEATURES = $$eval(QT_CPU_FEATURES.$$QT_ARCH)
+
+#
+# Set up compilers for SIMD (SSE/AVX, NEON etc)
+#
+*-g++*|intel_icc|*-clang*|*-qcc* {
+    sse2 {
+        HEADERS += $$SSE2_HEADERS
+
+        sse2_compiler.commands = $$QMAKE_CXX -c $(CXXFLAGS)
+        !contains(QT_CPU_FEATURES, sse2):sse2_compiler.commands += $$QMAKE_CFLAGS_SSE2
+        sse2_compiler.commands += $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+        sse2_compiler.dependency_type = TYPE_C
+        sse2_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        sse2_compiler.input = SSE2_SOURCES
+        sse2_compiler.variable_out = OBJECTS
+        sse2_compiler.name = compiling[sse2] ${QMAKE_FILE_IN}
+        silent:sse2_compiler.commands = @echo compiling[sse2] ${QMAKE_FILE_IN} && $$sse2_compiler.commands
+        QMAKE_EXTRA_COMPILERS += sse2_compiler
+    }
+    sse3 {
+        HEADERS += $$SSE3_HEADERS
+
+        sse3_compiler.commands = $$QMAKE_CXX -c $(CXXFLAGS)
+        !contains(QT_CPU_FEATURES, sse3):sse3_compiler.commands += $$QMAKE_CFLAGS_SSE3
+        sse3_compiler.commands += $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+        sse3_compiler.dependency_type = TYPE_C
+        sse3_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        sse3_compiler.input = SSE3_SOURCES
+        sse3_compiler.variable_out = OBJECTS
+        sse3_compiler.name = compiling[sse3] ${QMAKE_FILE_IN}
+        silent:sse3_compiler.commands = @echo compiling[sse3] ${QMAKE_FILE_IN} && $$sse3_compiler.commands
+        QMAKE_EXTRA_COMPILERS += sse3_compiler
+    }
+    ssse3 {
+        HEADERS += $$SSSE3_HEADERS
+
+        ssse3_compiler.commands = $$QMAKE_CXX -c $(CXXFLAGS)
+        !contains(QT_CPU_FEATURES, ssse3):ssse3_compiler.commands += $$QMAKE_CFLAGS_SSSE3
+        ssse3_compiler.commands += $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+        ssse3_compiler.dependency_type = TYPE_C
+        ssse3_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        ssse3_compiler.input = SSSE3_SOURCES
+        ssse3_compiler.variable_out = OBJECTS
+        ssse3_compiler.name = compiling[ssse3] ${QMAKE_FILE_IN}
+        silent:ssse3_compiler.commands = @echo compiling[ssse3] ${QMAKE_FILE_IN} && $$ssse3_compiler.commands
+        QMAKE_EXTRA_COMPILERS += ssse3_compiler
+    }
+    sse4_1 {
+        HEADERS += $$SSE4_1_HEADERS
+
+        sse4_1_compiler.commands = $$QMAKE_CXX -c $(CXXFLAGS)
+        !contains(QT_CPU_FEATURES, sse4_1):sse4_1_compiler.commands += $$QMAKE_CFLAGS_SSE4_1
+        sse4_1_compiler.commands += $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+        sse4_1_compiler.dependency_type = TYPE_C
+        sse4_1_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        sse4_1_compiler.input = SSE4_1_SOURCES
+        sse4_1_compiler.variable_out = OBJECTS
+        sse4_1_compiler.name = compiling[sse4_1] ${QMAKE_FILE_IN}
+        silent:sse4_1_compiler.commands = @echo compiling[sse4_1] ${QMAKE_FILE_IN} && $$sse4_1_compiler.commands
+        QMAKE_EXTRA_COMPILERS += sse4_1_compiler
+    }
+    sse4_2 {
+        HEADERS += $$SSE4_2_HEADERS
+
+        sse4_2_compiler.commands = $$QMAKE_CXX -c $(CXXFLAGS)
+        !contains(QT_CPU_FEATURES, sse4_2):sse4_2_compiler.commands += $$QMAKE_CFLAGS_SSE4_2
+        sse4_2_compiler.commands += $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+        sse4_2_compiler.dependency_type = TYPE_C
+        sse4_2_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        sse4_2_compiler.input = SSE4_2_SOURCES
+        sse4_2_compiler.variable_out = OBJECTS
+        sse4_2_compiler.name = compiling[sse4_2] ${QMAKE_FILE_IN}
+        silent:sse4_2_compiler.commands = @echo compiling[sse4_2] ${QMAKE_FILE_IN} && $$sse4_2_compiler.commands
+        QMAKE_EXTRA_COMPILERS += sse4_2_compiler
+    }
+    avx {
+        HEADERS += $$AVX_HEADERS
+
+        avx_compiler.commands = $$QMAKE_CXX -c $(CXXFLAGS)
+        !contains(QT_CPU_FEATURES, avx):avx_compiler.commands += $$QMAKE_CFLAGS_AVX
+        avx_compiler.commands += $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+        avx_compiler.dependency_type = TYPE_C
+        avx_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        avx_compiler.input = AVX_SOURCES
+        avx_compiler.variable_out = OBJECTS
+        avx_compiler.name = compiling[avx] ${QMAKE_FILE_IN}
+        silent:avx_compiler.commands = @echo compiling[avx] ${QMAKE_FILE_IN} && $$avx_compiler.commands
+        QMAKE_EXTRA_COMPILERS += avx_compiler
+    }
+    avx2 {
+        HEADERS += $$AVX2_HEADERS
+
+        avx2_compiler.commands = $$QMAKE_CXX -c $(CXXFLAGS)
+        !contains(QT_CPU_FEATURES, avx2):avx2_compiler.commands += $$QMAKE_CFLAGS_AVX2
+        avx2_compiler.commands += $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+        avx2_compiler.dependency_type = TYPE_C
+        avx2_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        avx2_compiler.input = AVX2_SOURCES
+        avx2_compiler.variable_out = OBJECTS
+        avx2_compiler.name = compiling[avx2] ${QMAKE_FILE_IN}
+        silent:avx2_compiler.commands = @echo compiling[avx2] ${QMAKE_FILE_IN} && $$avx2_compiler.commands
+        QMAKE_EXTRA_COMPILERS += avx2_compiler
+    }
+    contains(QT_CPU_FEATURES.$$QT_ARCH, neon) {
+        HEADERS += $$NEON_HEADERS
+
+        neon_compiler.commands = $$QMAKE_CXX -c $(CXXFLAGS)
+        !contains(QT_CPU_FEATURES, neon):neon_compiler.commands += $$QMAKE_CFLAGS_NEON
+        neon_compiler.commands += $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+        neon_compiler.dependency_type = TYPE_C
+        neon_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        neon_compiler.input = NEON_SOURCES
+        neon_compiler.variable_out = OBJECTS
+        neon_compiler.name = compiling[neon] ${QMAKE_FILE_IN}
+        silent:neon_compiler.commands = @echo compiling[neon] ${QMAKE_FILE_IN} && $$neon_compiler.commands
+        neon_assembler.commands = $$QMAKE_CC -c $(CFLAGS)
+        !contains(QT_CPU_FEATURES, neon):neon_assembler.commands += $$QMAKE_CFLAGS_NEON
+        neon_assembler.commands += $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+        neon_assembler.dependency_type = TYPE_C
+        neon_assembler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        neon_assembler.input = NEON_ASM
+        neon_assembler.variable_out = OBJECTS
+        neon_assembler.name = assembling[neon] ${QMAKE_FILE_IN}
+        silent:neon_assembler.commands = @echo assembling[neon] ${QMAKE_FILE_IN} && $$neon_assembler.commands
+        QMAKE_EXTRA_COMPILERS += neon_compiler neon_assembler
+    }
+    iwmmxt {
+        HEADERS += $$IWMMXT_HEADERS
+
+        iwmmxt_compiler.commands = $$QMAKE_CXX -c $(CXXFLAGS)
+        iwmmxt_compiler.commands += $$QMAKE_CFLAGS_IWMMXT
+        iwmmxt_compiler.commands += $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+        iwmmxt_compiler.dependency_type = TYPE_C
+        iwmmxt_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        iwmmxt_compiler.input = IWMMXT_SOURCES
+        iwmmxt_compiler.variable_out = OBJECTS
+        iwmmxt_compiler.name = compiling[iwmmxt] ${QMAKE_FILE_IN}
+        silent:iwmmxt_compiler.commands = @echo compiling[iwmmxt] ${QMAKE_FILE_IN} && $$iwmmxt_compiler.commands
+        QMAKE_EXTRA_COMPILERS += iwmmxt_compiler
+    }
+    mips_dsp {
+        HEADERS += $$MIPS_DSP_HEADERS
+
+        mips_dsp_compiler.commands = $$QMAKE_CXX -c
+        mips_dsp_compiler.commands += $(CXXFLAGS) $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+        mips_dsp_compiler.dependency_type = TYPE_C
+        mips_dsp_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        mips_dsp_compiler.input = MIPS_DSP_SOURCES
+        mips_dsp_compiler.variable_out = OBJECTS
+        mips_dsp_compiler.name = compiling[mips_dsp] ${QMAKE_FILE_IN}
+        silent:mips_dsp_compiler.commands = @echo compiling[mips_dsp] ${QMAKE_FILE_IN} && $$mips_dsp_compiler.commands
+        mips_dsp_assembler.commands = $$QMAKE_CC -c
+        mips_dsp_assembler.commands += $(CFLAGS) $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+        mips_dsp_assembler.dependency_type = TYPE_C
+        mips_dsp_assembler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        mips_dsp_assembler.input = MIPS_DSP_ASM
+        mips_dsp_assembler.variable_out = OBJECTS
+        mips_dsp_assembler.name = assembling[mips_dsp] ${QMAKE_FILE_IN}
+        silent:mips_dsp_assembler.commands = @echo assembling[mips_dsp] ${QMAKE_FILE_IN} && $$mips_dsp_assembler.commands
+        QMAKE_EXTRA_COMPILERS += mips_dsp_compiler
+        QMAKE_EXTRA_COMPILERS += mips_dsp_assembler
+    }
+    mips_dspr2 {
+        HEADERS += $$MIPS_DSP_HEADERS
+
+        mips_dspr2_compiler.commands = $$QMAKE_CXX -c
+        mips_dspr2_compiler.commands += $(CXXFLAGS) $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+        mips_dspr2_compiler.dependency_type = TYPE_C
+        mips_dspr2_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        mips_dspr2_compiler.input = MIPS_DSPR2_SOURCES
+        mips_dspr2_compiler.variable_out = OBJECTS
+        mips_dspr2_compiler.name = compiling[mips_dspr2] ${QMAKE_FILE_IN}
+        silent:mips_dspr2_compiler.commands = @echo compiling[mips_dspr2] ${QMAKE_FILE_IN} && $$mips_dspr2_compiler.commands
+        mips_dspr2_assembler.commands = $$QMAKE_CC -c
+        mips_dspr2_assembler.commands += $(CFLAGS) $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+        mips_dspr2_assembler.dependency_type = TYPE_C
+        mips_dspr2_assembler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        mips_dspr2_assembler.input = MIPS_DSPR2_ASM
+        mips_dspr2_assembler.variable_out = OBJECTS
+        mips_dspr2_assembler.name = assembling[mips_dspr2] ${QMAKE_FILE_IN}
+        silent:mips_dspr2_assembler.commands = @echo assembling[mips_dspr2] ${QMAKE_FILE_IN} && $$mips_dspr2_assembler.commands
+        QMAKE_EXTRA_COMPILERS += mips_dspr2_compiler
+        QMAKE_EXTRA_COMPILERS += mips_dspr2_assembler
+    }
+} else:win32-msvc*|winrt {
+    sse2 {
+        HEADERS += $$SSE2_HEADERS
+
+        sse2_compiler.commands = $$QMAKE_CXX -c $(CXXFLAGS)
+        !contains(QT_CPU_FEATURES, sse2):sse2_compiler.commands += $$QMAKE_CFLAGS_SSE2
+        sse2_compiler.commands += $(INCPATH) ${QMAKE_FILE_IN} -Fo${QMAKE_FILE_OUT}
+        sse2_compiler.dependency_type = TYPE_C
+        sse2_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        sse2_compiler.input = SSE2_SOURCES
+        sse2_compiler.variable_out = OBJECTS
+        sse2_compiler.name = compiling[sse2] ${QMAKE_FILE_IN}
+        silent:sse2_compiler.commands = @echo compiling[sse2] ${QMAKE_FILE_IN} && $$sse2_compiler.commands
+        QMAKE_EXTRA_COMPILERS += sse2_compiler
+    }
+    # MSVC doesn't have an option for anything higher than SSE2 specifically, so check if SSE2 is
+    # already enabled instead (this is for code generation - intrinsics should still be supported)
+    sse3 {
+        HEADERS += $$SSE3_HEADERS
+
+        sse3_compiler.commands = $$QMAKE_CXX -c $(CXXFLAGS)
+        !contains(QT_CPU_FEATURES, sse2):sse3_compiler.commands += $$QMAKE_CFLAGS_SSE3
+        sse3_compiler.commands += $(INCPATH) ${QMAKE_FILE_IN} -Fo${QMAKE_FILE_OUT}
+        sse3_compiler.dependency_type = TYPE_C
+        sse3_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        sse3_compiler.input = SSE3_SOURCES
+        sse3_compiler.variable_out = OBJECTS
+        sse3_compiler.name = compiling[sse3] ${QMAKE_FILE_IN}
+        silent:sse3_compiler.commands = @echo compiling[sse3] ${QMAKE_FILE_IN} && $$sse3_compiler.commands
+        QMAKE_EXTRA_COMPILERS += sse3_compiler
+    }
+    ssse3 {
+        HEADERS += $$SSSE3_HEADERS
+
+        ssse3_compiler.commands = $$QMAKE_CXX -c $(CXXFLAGS)
+        !contains(QT_CPU_FEATURES, sse2):ssse3_compiler.commands += $$QMAKE_CFLAGS_SSSE3
+        ssse3_compiler.commands += $(INCPATH) ${QMAKE_FILE_IN} -Fo${QMAKE_FILE_OUT}
+        ssse3_compiler.dependency_type = TYPE_C
+        ssse3_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        ssse3_compiler.input = SSSE3_SOURCES
+        ssse3_compiler.variable_out = OBJECTS
+        ssse3_compiler.name = compiling[ssse3] ${QMAKE_FILE_IN}
+        silent:ssse3_compiler.commands = @echo compiling[ssse3] ${QMAKE_FILE_IN} && $$ssse3_compiler.commands
+        QMAKE_EXTRA_COMPILERS += ssse3_compiler
+    }
+    sse4_1 {
+        HEADERS += $$SSE4_1_HEADERS
+
+        sse4_1_compiler.commands = $$QMAKE_CXX -c $(CXXFLAGS)
+        !contains(QT_CPU_FEATURES, sse2):sse4_1_compiler.commands += $$QMAKE_CFLAGS_SSE4_1
+        sse4_1_compiler.commands += $(INCPATH) ${QMAKE_FILE_IN} -Fo${QMAKE_FILE_OUT}
+        sse4_1_compiler.dependency_type = TYPE_C
+        sse4_1_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        sse4_1_compiler.input = SSE4_1_SOURCES
+        sse4_1_compiler.variable_out = OBJECTS
+        sse4_1_compiler.name = compiling[sse4_1] ${QMAKE_FILE_IN}
+        silent:sse4_1_compiler.commands = @echo compiling[sse4_1] ${QMAKE_FILE_IN} && $$sse4_1_compiler.commands
+        QMAKE_EXTRA_COMPILERS += sse4_1_compiler
+    }
+    sse4_2 {
+        HEADERS += $$SSE4_2_HEADERS
+
+        sse4_2_compiler.commands = $$QMAKE_CXX -c $(CXXFLAGS)
+        !contains(QT_CPU_FEATURES, sse2):sse4_2_compiler.commands += $$QMAKE_CFLAGS_SSE4_2
+        sse4_2_compiler.commands += $(INCPATH) ${QMAKE_FILE_IN} -Fo${QMAKE_FILE_OUT}
+        sse4_2_compiler.dependency_type = TYPE_C
+        sse4_2_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        sse4_2_compiler.input = SSE4_2_SOURCES
+        sse4_2_compiler.variable_out = OBJECTS
+        sse4_2_compiler.name = compiling[sse4_2] ${QMAKE_FILE_IN}
+        silent:sse4_2_compiler.commands = @echo compiling[sse4_2] ${QMAKE_FILE_IN} && $$sse4_2_compiler.commands
+        QMAKE_EXTRA_COMPILERS += sse4_2_compiler
+    }
+    # Similarly for AVX2 - just uses AVX
+    avx {
+        HEADERS += $$AVX_HEADERS
+
+        avx_compiler.commands = $$QMAKE_CXX -c $(CXXFLAGS) -D_M_AVX
+        !contains(QT_CPU_FEATURES, avx):avx_compiler.commands += $$QMAKE_CFLAGS_AVX
+        avx_compiler.commands += $(INCPATH) ${QMAKE_FILE_IN} -Fo${QMAKE_FILE_OUT}
+        avx_compiler.dependency_type = TYPE_C
+        avx_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        avx_compiler.input = AVX_SOURCES
+        avx_compiler.variable_out = OBJECTS
+        avx_compiler.name = compiling[avx] ${QMAKE_FILE_IN}
+        silent:avx_compiler.commands = @echo compiling[avx] ${QMAKE_FILE_IN} && $$avx_compiler.commands
+        QMAKE_EXTRA_COMPILERS += avx_compiler
+    }
+    avx2 {
+        HEADERS += $$AVX2_HEADERS
+
+        avx2_compiler.commands = $$QMAKE_CXX -c $(CXXFLAGS)
+        !contains(QT_CPU_FEATURES, avx):avx2_compiler.commands += $$QMAKE_CFLAGS_AVX2
+        avx2_compiler.commands += $(INCPATH) ${QMAKE_FILE_IN} -Fo${QMAKE_FILE_OUT}
+        avx2_compiler.dependency_type = TYPE_C
+        avx2_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+        avx2_compiler.input = AVX2_SOURCES
+        avx2_compiler.variable_out = OBJECTS
+        avx2_compiler.name = compiling[avx2] ${QMAKE_FILE_IN}
+        silent:avx2_compiler.commands = @echo compiling[avx2] ${QMAKE_FILE_IN} && $$avx2_compiler.commands
+        QMAKE_EXTRA_COMPILERS += avx2_compiler
+    }
+} else:false {
+    # This allows an IDE like Creator to know that these files are part of the sources
+    SOURCES += \
+        $$SSE2_SOURCES $$SSE3_SOURCES $$SSSE3_SOURCES $$SSE4_1_SOURCES $$SSE4_2_SOURCES \
+        $$AVX_SOURCES $$AVX2_SOURCES \
+        $$NEON_SOURCES $$NEON_ASM \
+        $$IWMMXT_SOURCES \
+        $$MIPS_DSP_SOURCES $$MIPS_DSPR2_SOURCES $$MIPS_DSP_ASM $$MIPS_DSPR2_ASM
+
+    # Headers are already done in the above sections.
+}
+

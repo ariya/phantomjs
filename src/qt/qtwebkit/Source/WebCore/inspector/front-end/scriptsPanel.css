@@ -1,0 +1,332 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
+ * Copyright (C) 2009 Anthony Ricaud <rik@webkit.org>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1.  Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ * 2.  Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ * 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+ *     its contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.scripts-pause-on-exceptions-status-bar-item .glyph {
+    -webkit-mask-position: -256px 0;
+}
+
+.scripts-pause-on-exceptions-status-bar-item.toggled-all .glyph {
+    background-color: rgb(66, 129, 235);
+}
+
+.scripts-pause-on-exceptions-status-bar-item.toggled-uncaught .glyph {
+    background-color: purple;
+}
+
+.scripts-toggle-pretty-print-status-bar-item .glyph {
+    -webkit-mask-position: -256px -24px;
+}
+
+.scripts-toggle-pretty-print-status-bar-item.toggled .glyph {
+    background-color: rgb(66, 129, 235);
+}
+
+.evaluate-snippet-status-bar-item .glyph {
+    -webkit-mask-position: -64px -48px;
+}
+
+.evaluate-snippet-status-bar-item.toggled .glyph {
+    background-color: rgb(66, 129, 235);
+}
+
+#scripts-debug-toolbar {
+    position: relative;
+    margin-top: -1px;
+    height: 24px;
+    border-bottom: 1px solid rgb(202, 202, 202);
+}
+
+#scripts-editor-toolbar {
+    position: relative;
+    margin-top: -1px;
+    height: 24px;
+}
+
+#scripts-files {
+    max-width: 250px;
+}
+
+#scripts-files option.extension-script {
+    color: rgb(70, 134, 240);
+}
+
+#scripts-functions {
+    max-width: 150px;
+}
+
+#scripts-status-bar .status-bar-item img {
+    margin-top: 2px;
+}
+
+#scripts-pause img {
+    content: url(Images/debuggerPause.png);
+}
+
+#scripts-pause.paused img {
+    content: url(Images/debuggerContinue.png);
+}
+
+#scripts-step-over img {
+    content: url(Images/debuggerStepOver.png);
+}
+
+#scripts-step-into img {
+    content: url(Images/debuggerStepInto.png);
+}
+
+#scripts-step-out img {
+    content: url(Images/debuggerStepOut.png);
+}
+
+.toggle-breakpoints .glyph {
+    -webkit-mask-image: url(Images/statusbarButtonGlyphs.png);
+    -webkit-mask-position: -32px 0;
+    -webkit-mask-size: 320px 72px;
+    background-color: rgb(96, 96, 96) !important;
+}
+
+@media (-webkit-min-device-pixel-ratio: 1.5) {
+.toggle-breakpoints .glyph {
+    -webkit-mask-image: url(Images/statusbarButtonGlyphs2x.png);        
+}
+}
+
+.toggle-breakpoints.toggled-on .glyph {
+    -webkit-mask-position: 0 -24px;
+}
+
+#scripts-debugger-status {
+    position: absolute;
+    line-height: 24px;
+    top: 0;
+    right: 8px;
+}
+
+#scripts-debug-sidebar-resizer-widget {
+    position: absolute;
+    top: 0;
+    height: 23px;
+    right: 0;
+    width: 16px;
+    cursor: ew-resize;
+    background-image: url(Images/statusbarResizerHorizontal.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 13;
+}
+
+.scripts-navigator-resizer-widget {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 24px;
+    width: 16px;
+    cursor: ew-resize;
+    background-image: url(Images/statusbarResizerHorizontal.png);
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.status-bar-item.scripts-navigator-show-hide-button > .glyph {
+    background-color: rgba(0, 0, 0, 0.5);
+    -webkit-mask-image: url(Images/navigatorShowHideButton.png);
+    -webkit-mask-position: 0 0;
+    -webkit-mask-size: 48px 32px;
+}
+
+.status-bar-item.scripts-navigator-show-hide-button.toggled-pinned > .glyph {
+    -webkit-mask-position: -16px 0;
+}
+
+.status-bar-item.scripts-navigator-show-hide-button.toggled-overlay > .glyph {
+    -webkit-mask-position: -32px 0;
+}
+
+button.status-bar-item.scripts-navigator-show-hide-button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-image: none;
+    height: 16px;
+    width: 16px;
+    margin: 4px 2px 2px 2px;
+    border: none;
+}
+
+button.status-bar-item.scripts-navigator-show-hide-button:active {
+    top: 1px;
+    left: 1px;
+}
+
+button.status-bar-item.scripts-navigator-show-hide-button.toggled-overlay
+{
+    left: auto;
+    right: 15px;
+}
+
+.scripts-views-container {
+    position: absolute;
+    top: 23px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.script-view {
+    display: none;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.script-view.visible {
+    display: block;
+}
+
+.dedicated-worker-item {
+    margin: 5px 0px 5px 1px;
+}
+
+#shared-workers-list {
+    margin: 5px 0px 5px 20px;
+    font-style:italic;
+}
+
+#pause-workers-checkbox > input {
+    position: relative;
+    top: 2px;
+}
+
+#scripts-editor-container-tabbed-pane .tabbed-pane-header {
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#F5F5F5), to(#E5E5E5));
+}
+
+#scripts-editor-container-tabbed-pane .tabbed-pane-header-contents {
+    margin-left: 20px;
+    margin-right: 36px;
+}
+
+#scripts-editor-container-tabbed-pane .tabbed-pane-header-tab {
+    border-bottom: 1px solid #BBB;
+}
+
+.function-location-link {
+    float: right;
+    margin-left: 10px;
+}
+
+.function-popover-title {
+    border-bottom: 1px solid #AAA;
+    margin-bottom: 3px;
+    padding-bottom: 2px;
+}
+
+.function-popover-title .function-name {
+    font-weight: bold;
+}
+
+button.status-bar-item.scripts-debugger-show-hide-button {
+    position: absolute;
+    top: 0;
+    background-image: none;
+    height: 16px;
+    width: 16px;
+    margin: 4px 2px 2px 2px;
+    border: none;
+}
+
+.split-view-horizontal button.status-bar-item.scripts-debugger-show-hide-button,
+.split-view-horizontal #scripts-debug-sidebar-resizer-widget {
+    display: none;
+}
+
+button.status-bar-item.scripts-debugger-show-hide-button:active {
+    top: 1px;
+}
+
+.status-bar-item.scripts-debugger-show-hide-button > .glyph {
+    background-color: rgba(0, 0, 0, 0.5);
+    -webkit-mask-image: url(Images/navigatorShowHideButton.png);
+    -webkit-mask-position: 0 0;
+    -webkit-mask-size: 48px 32px;
+}
+
+button.status-bar-item.scripts-debugger-show-hide-button.toggled-shown {
+    right: 16px;
+}
+
+button.status-bar-item.scripts-debugger-show-hide-button.toggled-shown:active {
+    right: 15px;
+}
+
+.status-bar-item.scripts-debugger-show-hide-button.toggled-shown > .glyph {
+    -webkit-mask-position: 0 -16px;
+}
+
+button.status-bar-item.scripts-debugger-show-hide-button.toggled-hidden {
+    right: 1px;
+}
+
+button.status-bar-item.scripts-debugger-show-hide-button.toggled-hidden:active {
+    right: 0px;
+}
+
+.status-bar-item.scripts-debugger-show-hide-button.toggled-hidden > .glyph {
+    -webkit-mask-position: -16px -16px;
+}
+
+div.sidebar-pane-stack#scripts-debug-sidebar-contents, #scripts-sidebar-stack-pane {
+    top: 23px;
+    overflow: auto;
+}
+
+.workers-list > li {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-left: 1em;
+    font-size: 12px;
+}
+
+a.worker-item {
+    color: rgb(33%, 33%, 33%);
+    cursor: pointer;
+    text-decoration: none;
+}
+
+a.worker-item:hover {
+    color: rgb(15%, 15%, 15%);
+}
+
+.source-frame-debugger-script {
+    background-color: rgba(255, 255, 194, 0.5);
+}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>WebKit Bot Status</title>
+<link type="text/css" rel="stylesheet" href="/stylesheets/dashboard.css" />
+<script>
+function statusDetail(patch_id) {
+  // FIXME: We'd like to use AJAX to show the details on this page.
+  window.location = "/patch/" + patch_id
+}
+</script>
+</head>
+<body>
+<h1>WebKit Bot Status</h1>
+<table>
+  <thead>
+    <tr>
+      <th>Bug</th>
+      <th>Attachment</th>
+      {% for header in headers %}
+      <th>{{ header }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>{% for row in rows %}
+    <tr>
+      <td class="status-cell">
+        {{ row.bug_id|force_escape|webkit_bug_id|safe }}
+      </td>
+      <td class="status-cell">
+        {{ row.attachment_id|force_escape|webkit_attachment_id|safe }}
+      </td>
+      {% for bubble in row.bubbles %}
+      <td class="status-cell {{ bubble.status_class }}"
+        {% if bubble.status %}
+          onclick="statusDetail({{ row.attachment_id }})"
+          title="{{ bubble.status_date|timesince }}"
+        {% endif %}>
+      </td>
+      {% endfor %}
+    </tr>{% endfor %}
+  </tbody>
+</table>
+</html>

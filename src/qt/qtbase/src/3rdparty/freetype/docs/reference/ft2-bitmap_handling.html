@@ -1,0 +1,302 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>FreeType-2.3.12 API Reference</title>
+<style type="text/css">
+  body { font-family: Verdana, Geneva, Arial, Helvetica, serif;
+         color: #000000;
+         background: #FFFFFF; }
+
+  p { text-align: justify; }
+  h1 { text-align: center; }
+  li { text-align: justify; }
+  td { padding: 0 0.5em 0 0.5em; }
+  td.left { padding: 0 0.5em 0 0.5em;
+            text-align: left; }
+
+  a:link { color: #0000EF; }
+  a:visited { color: #51188E; }
+  a:hover { color: #FF0000; }
+
+  span.keyword { font-family: monospace;
+                 text-align: left;
+                 white-space: pre;
+                 color: darkblue; }
+
+  pre.colored { color: blue; }
+
+  ul.empty { list-style-type: none; }
+</style>
+</head>
+<body>
+
+<table align=center><tr><td><font size=-1>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-1>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+<center><h1>FreeType-2.3.12 API Reference</h1></center>
+
+<center><h1>
+Bitmap Handling
+</h1></center>
+<h2>Synopsis</h2>
+<table align=center cellspacing=5 cellpadding=0 border=0>
+<tr><td></td><td><a href="#FT_Bitmap_New">FT_Bitmap_New</a></td><td></td><td><a href="#FT_Bitmap_Embolden">FT_Bitmap_Embolden</a></td><td></td><td><a href="#FT_GlyphSlot_Own_Bitmap">FT_GlyphSlot_Own_Bitmap</a></td></tr>
+<tr><td></td><td><a href="#FT_Bitmap_Copy">FT_Bitmap_Copy</a></td><td></td><td><a href="#FT_Bitmap_Convert">FT_Bitmap_Convert</a></td><td></td><td><a href="#FT_Bitmap_Done">FT_Bitmap_Done</a></td></tr>
+</table><br><br>
+
+<table align=center width="87%"><tr><td>
+<p>This section contains functions for converting FT_Bitmap objects.</p>
+</td></tr></table><br>
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Bitmap_New">FT_Bitmap_New</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_BITMAP_H (freetype/ftbitmap.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <span class="keyword">void</span> )
+  <b>FT_Bitmap_New</b>( <a href="ft2-basic_types.html#FT_Bitmap">FT_Bitmap</a>  *abitmap );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Initialize a pointer to an <a href="ft2-basic_types.html#FT_Bitmap">FT_Bitmap</a> structure.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>inout</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>abitmap</b></td><td>
+<p>A pointer to the bitmap structure.</p>
+</td></tr>
+</table>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Bitmap_Copy">FT_Bitmap_Copy</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_BITMAP_H (freetype/ftbitmap.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Error">FT_Error</a> )
+  <b>FT_Bitmap_Copy</b>( <a href="ft2-base_interface.html#FT_Library">FT_Library</a>        library,
+                  <span class="keyword">const</span> <a href="ft2-basic_types.html#FT_Bitmap">FT_Bitmap</a>  *source,
+                  <a href="ft2-basic_types.html#FT_Bitmap">FT_Bitmap</a>        *target);
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Copy a bitmap into another one.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>library</b></td><td>
+<p>A handle to a library object.</p>
+</td></tr>
+<tr valign=top><td><b>source</b></td><td>
+<p>A handle to the source bitmap.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>output</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>target</b></td><td>
+<p>A handle to the target bitmap.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>FreeType error code. 0&nbsp;means success.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Bitmap_Embolden">FT_Bitmap_Embolden</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_BITMAP_H (freetype/ftbitmap.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Error">FT_Error</a> )
+  <b>FT_Bitmap_Embolden</b>( <a href="ft2-base_interface.html#FT_Library">FT_Library</a>  library,
+                      <a href="ft2-basic_types.html#FT_Bitmap">FT_Bitmap</a>*  bitmap,
+                      <a href="ft2-basic_types.html#FT_Pos">FT_Pos</a>      xStrength,
+                      <a href="ft2-basic_types.html#FT_Pos">FT_Pos</a>      yStrength );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Embolden a bitmap. The new bitmap will be about &lsquo;xStrength&rsquo; pixels wider and &lsquo;yStrength&rsquo; pixels higher. The left and bottom borders are kept unchanged.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>library</b></td><td>
+<p>A handle to a library object.</p>
+</td></tr>
+<tr valign=top><td><b>xStrength</b></td><td>
+<p>How strong the glyph is emboldened horizontally. Expressed in 26.6 pixel format.</p>
+</td></tr>
+<tr valign=top><td><b>yStrength</b></td><td>
+<p>How strong the glyph is emboldened vertically. Expressed in 26.6 pixel format.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>inout</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>bitmap</b></td><td>
+<p>A handle to the target bitmap.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>FreeType error code. 0&nbsp;means success.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>The current implementation restricts &lsquo;xStrength&rsquo; to be less than or equal to&nbsp;8 if bitmap is of pixel_mode <a href="ft2-basic_types.html#FT_Pixel_Mode">FT_PIXEL_MODE_MONO</a>.</p>
+<p>If you want to embolden the bitmap owned by a <a href="ft2-base_interface.html#FT_GlyphSlotRec">FT_GlyphSlotRec</a>, you should call <a href="ft2-bitmap_handling.html#FT_GlyphSlot_Own_Bitmap">FT_GlyphSlot_Own_Bitmap</a> on the slot first.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Bitmap_Convert">FT_Bitmap_Convert</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_BITMAP_H (freetype/ftbitmap.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Error">FT_Error</a> )
+  <b>FT_Bitmap_Convert</b>( <a href="ft2-base_interface.html#FT_Library">FT_Library</a>        library,
+                     <span class="keyword">const</span> <a href="ft2-basic_types.html#FT_Bitmap">FT_Bitmap</a>  *source,
+                     <a href="ft2-basic_types.html#FT_Bitmap">FT_Bitmap</a>        *target,
+                     <a href="ft2-basic_types.html#FT_Int">FT_Int</a>            alignment );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Convert a bitmap object with depth 1bpp, 2bpp, 4bpp, or 8bpp to a bitmap object with depth 8bpp, making the number of used bytes per line (a.k.a. the &lsquo;pitch&rsquo;) a multiple of &lsquo;alignment&rsquo;.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>library</b></td><td>
+<p>A handle to a library object.</p>
+</td></tr>
+<tr valign=top><td><b>source</b></td><td>
+<p>The source bitmap.</p>
+</td></tr>
+<tr valign=top><td><b>alignment</b></td><td>
+<p>The pitch of the bitmap is a multiple of this parameter. Common values are 1, 2, or 4.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>output</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>target</b></td><td>
+<p>The target bitmap.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>FreeType error code. 0&nbsp;means success.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>It is possible to call <a href="ft2-bitmap_handling.html#FT_Bitmap_Convert">FT_Bitmap_Convert</a> multiple times without calling <a href="ft2-bitmap_handling.html#FT_Bitmap_Done">FT_Bitmap_Done</a> (the memory is simply reallocated).</p>
+<p>Use <a href="ft2-bitmap_handling.html#FT_Bitmap_Done">FT_Bitmap_Done</a> to finally remove the bitmap object.</p>
+<p>The &lsquo;library&rsquo; argument is taken to have access to FreeType's memory handling functions.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_GlyphSlot_Own_Bitmap">FT_GlyphSlot_Own_Bitmap</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_BITMAP_H (freetype/ftbitmap.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Error">FT_Error</a> )
+  <b>FT_GlyphSlot_Own_Bitmap</b>( <a href="ft2-base_interface.html#FT_GlyphSlot">FT_GlyphSlot</a>  slot );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Make sure that a glyph slot owns &lsquo;slot-&gt;bitmap&rsquo;.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>slot</b></td><td>
+<p>The glyph slot.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>FreeType error code. 0&nbsp;means success.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>This function is to be used in combination with <a href="ft2-bitmap_handling.html#FT_Bitmap_Embolden">FT_Bitmap_Embolden</a>.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+<table align=center width="75%"><tr><td>
+<h4><a name="FT_Bitmap_Done">FT_Bitmap_Done</a></h4>
+<table align=center width="87%"><tr><td>
+Defined in FT_BITMAP_H (freetype/ftbitmap.h).
+</td></tr></table><br>
+<table align=center width="87%"><tr bgcolor="#D6E8FF"><td><pre>
+
+  FT_EXPORT( <a href="ft2-basic_types.html#FT_Error">FT_Error</a> )
+  <b>FT_Bitmap_Done</b>( <a href="ft2-base_interface.html#FT_Library">FT_Library</a>  library,
+                  <a href="ft2-basic_types.html#FT_Bitmap">FT_Bitmap</a>  *bitmap );
+
+</pre></table><br>
+<table align=center width="87%"><tr><td>
+<p>Destroy a bitmap object created with <a href="ft2-bitmap_handling.html#FT_Bitmap_New">FT_Bitmap_New</a>.</p>
+</td></tr></table><br>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>input</b></em></td></tr><tr><td>
+<p></p>
+<table cellpadding=3 border=0>
+<tr valign=top><td><b>library</b></td><td>
+<p>A handle to a library object.</p>
+</td></tr>
+<tr valign=top><td><b>bitmap</b></td><td>
+<p>The bitmap object to be freed.</p>
+</td></tr>
+</table>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>return</b></em></td></tr><tr><td>
+<p>FreeType error code. 0&nbsp;means success.</p>
+</td></tr></table>
+<table align=center width="87%" cellpadding=5><tr bgcolor="#EEEEFF"><td><em><b>note</b></em></td></tr><tr><td>
+<p>The &lsquo;library&rsquo; argument is taken to have access to FreeType's memory handling functions.</p>
+</td></tr></table>
+</td></tr></table>
+<hr width="75%">
+<table align=center width="75%"><tr><td><font size=-2>[<a href="ft2-index.html">Index</a>]</font></td>
+<td width="100%"></td>
+<td><font size=-2>[<a href="ft2-toc.html">TOC</a>]</font></td></tr></table>
+
+</body>
+</html>

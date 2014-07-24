@@ -1,0 +1,266 @@
+/*
+ * Copyright (C) 2009 Google Inc. All rights reserved.
+ * Copyright (C) 2010 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary formstrArg, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1.  Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ * 2.  Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ * 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+ *     its contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIEstrArg, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+// This IDL file is for testing the bindings code generator and for tracking
+// changes in its ouput.
+
+enum TestEnumType { "", "EnumValue1", "EnumValue2", "EnumValue3" };
+
+[
+    Constructor(TestCallback testCallback),
+    InterfaceName=TestObject
+] interface TestObj {
+    // Attributes
+    readonly attribute long            readOnlyLongAttr;
+    readonly attribute DOMString       readOnlyStringAttr;
+    readonly attribute TestObj         readOnlyTestObjAttr;
+    static readonly attribute long     staticReadOnlyLongAttr;
+    static attribute DOMString         staticStringAttr;
+    static readonly attribute TestSubObjConstructor TestSubObj;
+    [EnabledBySetting=TestSetting] attribute TestSubObjConstructor TestSubObjEnabledBySetting;
+    attribute TestEnumType             enumAttr;
+    attribute byte                     byteAttr;
+    attribute octet                    octetAttr;
+    attribute short                    shortAttr;
+    attribute unsigned short           unsignedShortAttr;
+    attribute long                     longAttr;
+    attribute long long                longLongAttr;
+    attribute unsigned long long       unsignedLongLongAttr;
+    attribute DOMString                stringAttr;
+    attribute TestObj testObjAttr;
+
+    // WK_ucfirst, WK_lcfirst exceptional cases.
+    attribute TestObj                  XMLObjAttr;
+    attribute boolean                  create;
+
+    // Reflected DOM attributes
+    [Reflect] attribute DOMString reflectedStringAttr;
+    [Reflect] attribute long reflectedIntegralAttr;
+    [Reflect] attribute unsigned long reflectedUnsignedIntegralAttr;
+    [Reflect] attribute boolean reflectedBooleanAttr;
+    [Reflect, URL] attribute DOMString reflectedURLAttr;
+    [Reflect=customContentStringAttr] attribute DOMString reflectedStringAttr;
+    [Reflect=customContentIntegralAttr] attribute long reflectedCustomIntegralAttr;
+    [Reflect=customContentBooleanAttr] attribute boolean reflectedCustomBooleanAttr;
+    [Reflect=customContentURLAttr, URL] attribute DOMString reflectedCustomURLAttr;
+
+    // TypedArray attribute
+    attribute Float32Array typedArrayAttr;
+
+    // Methods
+    void    voidMethod();
+    void    voidMethodWithArgs(long longArg, DOMString strArg, TestObj objArg);
+    byte    byteMethod();
+    byte    byteMethodWithArgs(byte byteArg, DOMString strArg, TestObj objArg);
+    octet   octetMethod();
+    octet   octetMethodWithArgs(octet octetArg, DOMString strArg, TestObj objArg);
+    long    longMethod();
+    long    longMethodWithArgs(long longArg, DOMString strArg, TestObj objArg);
+    TestObj objMethod();
+    TestObj objMethodWithArgs(long longArg, DOMString strArg, TestObj objArg);
+
+    void methodWithSequenceArg(sequence<ScriptProfile> sequenceArg);
+    sequence<ScriptProfile> methodReturningSequence(long longArg);
+
+    void methodWithEnumArg(TestEnumType enumArg);
+    [RaisesException] TestObj methodThatRequiresAllArgsAndThrows(DOMString strArg, TestObj objArg);
+
+    void serializedValue(SerializedScriptValue serializedArg);
+    void optionsObject(Dictionary oo, optional Dictionary ooo);
+
+    // Exceptions
+    [RaisesException] void methodWithException();
+    [GetterRaisesException] attribute long attrWithGetterException;
+    [SetterRaisesException] attribute long attrWithSetterException;
+    [GetterRaisesException] attribute DOMString stringAttrWithGetterException;
+    [SetterRaisesException] attribute DOMString stringAttrWithSetterException;
+
+    // 'Custom' extended attribute
+    [Custom] attribute long            customAttr;
+    [Custom] void customMethod();
+    [Custom] void customMethodWithArgs(long longArg, DOMString strArg, TestObj objArg);
+
+    void addEventListener(DOMString type, 
+                          EventListener listener, 
+                          optional boolean useCapture);
+    void removeEventListener(DOMString type, 
+                             EventListener listener, 
+                             optional boolean useCapture);
+
+    // 'CallWith' extended attribute
+    [CallWith=ScriptState] void withScriptStateVoid();
+    [CallWith=ScriptState] TestObj withScriptStateObj();
+    [CallWith=ScriptState, RaisesException] void withScriptStateVoidException();
+    [CallWith=ScriptState, RaisesException] TestObj withScriptStateObjException();
+    [CallWith=ScriptExecutionContext] void withScriptExecutionContext();
+    [CallWith=ScriptExecutionContext&ScriptState] void withScriptExecutionContextAndScriptState();
+    [CallWith=ScriptExecutionContext&ScriptState, RaisesException] TestObj withScriptExecutionContextAndScriptStateObjException();
+    [CallWith=  ScriptExecutionContext  &  ScriptState  ] TestObj withScriptExecutionContextAndScriptStateWithSpaces();
+    [CallWith=ScriptArguments&CallStack] void withScriptArgumentsAndCallStack();
+
+    [CallWith=ScriptState] attribute long withScriptStateAttribute;
+    [CallWith=ScriptExecutionContext] attribute TestObj withScriptExecutionContextAttribute;
+    [CallWith=ScriptState, GetterRaisesException] attribute TestObj withScriptStateAttributeRaises;
+    [CallWith=ScriptExecutionContext, GetterRaisesException] attribute TestObj withScriptExecutionContextAttributeRaises;
+    [CallWith=ScriptExecutionContext&ScriptState] attribute TestObj withScriptExecutionContextAndScriptStateAttribute;
+    [CallWith=ScriptExecutionContext&ScriptState,GetterRaisesException] attribute TestObj withScriptExecutionContextAndScriptStateAttributeRaises;
+    [CallWith=  ScriptExecutionContext  &  ScriptState  ] attribute TestObj withScriptExecutionContextAndScriptStateWithSpacesAttribute;
+    [CallWith=ScriptArguments&CallStack] attribute TestObj withScriptArgumentsAndCallStackAttribute;
+
+    // 'Optional' extended attribute
+    void    methodWithOptionalArg(optional long opt);
+    void    methodWithNonOptionalArgAndOptionalArg(long nonOpt, optional long opt);
+    void    methodWithNonOptionalArgAndTwoOptionalArgs(long nonOpt, optional long opt1, optional long opt2);
+    void    methodWithOptionalString(optional DOMString str);
+    void    methodWithOptionalStringIsUndefined([Default=Undefined] optional DOMString str);
+    void    methodWithOptionalStringIsNullString([Default=NullString] optional DOMString str);
+
+#if defined(TESTING_JS)
+    // 'Callback' extended attribute
+    void    methodWithCallbackArg(TestCallback callback);
+    void    methodWithNonCallbackArgAndCallbackArg(long nonCallback, TestCallback callback);
+    void    methodWithCallbackAndOptionalArg(optional TestCallback callback);
+    // static methods with 'Callback' extended attribute
+    static void    staticMethodWithCallbackAndOptionalArg(optional TestCallback callback);
+    static void    staticMethodWithCallbackArg(TestCallback callback);
+#endif
+
+    // 'Conditional' extended attribute
+    [Conditional=Condition1] attribute long conditionalAttr1;
+    [Conditional=Condition1&Condition2] attribute long conditionalAttr2;
+    [Conditional=Condition1|Condition2] attribute long conditionalAttr3;
+
+    // 'Conditional' extended method
+    [Conditional=Condition1] DOMString conditionalMethod1();
+    [Conditional=Condition1&Condition2] void conditionalMethod2();
+    [Conditional=Condition1|Condition2] void conditionalMethod3();
+
+    [Conditional=Condition1] attribute TestObjectAConstructor conditionalAttr4;
+    [Conditional=Condition1&Condition2] attribute TestObjectBConstructor conditionalAttr5;
+    [Conditional=Condition1|Condition2] attribute TestObjectCConstructor conditionalAttr6;
+
+    [Conditional=Condition1] const unsigned short CONDITIONAL_CONST = 0;
+
+#if defined(TESTING_JS)
+    [CachedAttribute] readonly attribute any cachedAttribute1;
+    [CachedAttribute] readonly attribute any cachedAttribute2;
+#endif
+    
+    attribute any anyAttribute;
+
+#if defined(TESTING_JS)
+    // Overloads
+    void    overloadedMethod(TestObj? objArg, [StrictTypeChecking] DOMString strArg);
+    void    overloadedMethod(TestObj? objArg, optional long longArg);
+    void    overloadedMethod([StrictTypeChecking] DOMString strArg);
+    void    overloadedMethod(long longArg);
+    void    overloadedMethod(TestCallback callback);
+    void    overloadedMethod(DOMStringList? listArg);
+    void    overloadedMethod(DOMString[]? arrayArg);
+    void    overloadedMethod(TestObj objArg);
+    void    overloadedMethod(DOMString[] arrayArg);
+    void    overloadedMethod(sequence<unsigned long> arrayArg);
+    void    overloadedMethod(DOMString strArg);
+#endif
+
+    // Class methods within JavaScript (like what's used for IDBKeyRange).
+    static void classMethod();
+    static long classMethodWithOptional(optional long arg);
+    [Custom] static void classMethod2(long arg);
+
+    // Static method with conditional on overloaded methods
+    [Conditional=Condition1] static void overloadedMethod1(long arg);
+    [Conditional=Condition1] static void overloadedMethod1([StrictTypeChecking] DOMString type);
+
+    void classMethodWithClamp([Clamp] unsigned short objArgsShort, [Clamp] unsigned long objArgsLong);
+
+#if defined(TESTING_JS)
+    void methodWithUnsignedLongSequence(sequence<unsigned long> unsignedLongSequence);
+    [RaisesException] DOMString[] stringArrayFunction(DOMString[] values);
+    [RaisesException] DOMStringList domStringListFunction(DOMStringList values);
+#endif
+
+    [CheckSecurityForNode] readonly attribute Document contentDocument;
+    [CheckSecurityForNode, RaisesException] SVGDocument getSVGDocument();
+
+    void convert1([TreatReturnedNullStringAs=Null] TestNode value);
+    void convert2([TreatReturnedNullStringAs=Undefined] TestNode value);
+    void convert4([TreatNullAs=NullString] TestNode value);
+    void convert5([TreatNullAs=NullString, TreatUndefinedAs=NullString] TestNode value);
+
+    attribute SVGPoint mutablePoint;
+    [Immutable] attribute SVGPoint immutablePoint;
+    SVGPoint mutablePointFunction();
+    [Immutable] SVGPoint immutablePointFunction();
+
+    [ImplementedAs=banana] void orange();
+    [ImplementedAs=blueberry] attribute long strawberry;
+
+    [StrictTypeChecking] attribute float strictFloat;
+    [StrictTypeChecking, RaisesException] bool strictFunction(DOMString str, float a, long b);
+
+    // ObjectiveC reserved words.
+    readonly attribute long      description;
+    attribute long               id;
+    readonly attribute DOMString hash;
+
+    // Check constants and enums.
+    const unsigned short CONST_VALUE_0 = 0;
+    const unsigned short CONST_VALUE_1 = 1;
+    const unsigned short CONST_VALUE_2 = 2;
+    const unsigned short CONST_VALUE_4 = 4;
+    const unsigned short CONST_VALUE_8 = 8;
+    const short CONST_VALUE_9 = -1;
+    const DOMString CONST_VALUE_10 = "my constant string";
+    const unsigned short CONST_VALUE_11 = 0xffffffff;
+    const unsigned short CONST_VALUE_12 = 0x01;
+    const unsigned short CONST_VALUE_13 = 0X20;
+    const unsigned short CONST_VALUE_14 = 0x1abc;
+    [Reflect=CONST_IMPL] const unsigned short CONST_JAVASCRIPT = 15;
+
+    [Replaceable] readonly attribute long replaceableAttribute;
+
+    void variadicStringMethod(DOMString head, DOMString... tail);
+    void variadicDoubleMethod(double head, double... tail);
+    void variadicNodeMethod(Node head, Node... tail);
+
+    // Nullable attributes.
+    readonly attribute double? nullableDoubleAttribute;
+    readonly attribute long? nullableLongAttribute;
+    readonly attribute boolean? nullableBooleanAttribute;
+    readonly attribute DOMString? nullableStringAttribute;
+
+    attribute long? nullableLongSettableAttribute;
+
+    [GetterRaisesException] attribute long? nullableStringValue;
+};
+
+// The following comment should not generate any code.
+// TestObj implements TestImplements;
+

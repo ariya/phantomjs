@@ -1,0 +1,145 @@
+/*
+ * Copyright (C) 2007, 2008, 2009 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1.  Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer. 
+ * 2.  Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution. 
+ * 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+ *     its contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission. 
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#ifndef DO_NO_IMPORTS
+import "oaidl.idl";
+import "ocidl.idl";
+#endif
+
+[
+    object,
+    oleautomation,
+    hidden,
+    uuid(1380DE41-42CF-4170-9D5D-7840EDE5B36C),
+    pointer_default(unique)
+]
+interface IWebPreferencesPrivate : IUnknown
+{
+    HRESULT setDeveloperExtrasEnabled([in] BOOL enabled);
+    HRESULT developerExtrasEnabled([out, retval] BOOL* enabled);
+
+    HRESULT setAutomaticallyDetectsCacheModel([in] BOOL automaticallyDetectsCacheModel);
+    HRESULT automaticallyDetectsCacheModel([out, retval] BOOL* automaticallyDetectsCacheModel);
+
+    HRESULT setAuthorAndUserStylesEnabled([in] BOOL enabled);
+    HRESULT authorAndUserStylesEnabled([out, retval] BOOL* enabled);
+
+    HRESULT inApplicationChromeMode([out, retval] BOOL *allowed);
+    HRESULT setApplicationChromeMode([in] BOOL allowed);
+
+    HRESULT setOfflineWebApplicationCacheEnabled([in] BOOL enabled);
+    HRESULT offlineWebApplicationCacheEnabled([out, retval] BOOL *enabled);
+
+    HRESULT localStorageDatabasePath([out, retval] BSTR* location);
+    HRESULT setLocalStorageDatabasePath([in] BSTR location);
+
+    HRESULT setShouldPaintNativeControls([in] BOOL shouldPaint);
+    HRESULT shouldPaintNativeControls([out, retval] BOOL* enabled);
+
+    HRESULT setDatabasesEnabled([in] BOOL enabled);
+    HRESULT databasesEnabled([out, retval] BOOL *enabled);
+
+    HRESULT setLocalStorageEnabled([in] BOOL enabled);
+    HRESULT localStorageEnabled([out, retval] BOOL* enabled);
+
+    HRESULT setFontSmoothingContrast([in] float contrast);
+    HRESULT fontSmoothingContrast([out, retval] float* contrast);
+
+    HRESULT isWebSecurityEnabled([out, retval] BOOL* enabled);
+    HRESULT setWebSecurityEnabled([in] BOOL enabled);
+
+    HRESULT allowUniversalAccessFromFileURLs([out, retval] BOOL *allowAccess);
+    HRESULT setAllowUniversalAccessFromFileURLs([in] BOOL allowAccess);
+
+    HRESULT isXSSAuditorEnabled([out, retval] BOOL *enabled);
+    HRESULT setXSSAuditorEnabled([in] BOOL enabled);
+
+    HRESULT isFrameFlatteningEnabled([out, retval] BOOL *enabled);
+    HRESULT setFrameFlatteningEnabled([in] BOOL enabled);
+
+    HRESULT experimentalNotificationsEnabled([out, retval] BOOL *enabled);
+    HRESULT setExperimentalNotificationsEnabled([in] BOOL enabled);
+
+    HRESULT setShouldUseHighResolutionTimers([in] BOOL useHighResolutionTimers);
+    HRESULT shouldUseHighResolutionTimers([out, retval] BOOL* useHighResolutionTimers);
+
+    // Used to set preference specified by a test via TestRunner.overridePreference(..).
+    // Used by DumpRenderTree.
+    HRESULT setPreferenceForTest([in] BSTR key, [in] BSTR value);
+
+    HRESULT unused1();
+    HRESULT unused2();
+
+    HRESULT setAcceleratedCompositingEnabled([in] BOOL);
+    HRESULT acceleratedCompositingEnabled([out, retval] BOOL*);
+
+    HRESULT setCustomDragCursorsEnabled([in] BOOL);
+    HRESULT customDragCursorsEnabled([out, retval] BOOL*);
+
+    HRESULT allowFileAccessFromFileURLs([out, retval] BOOL *allowAccess);
+    HRESULT setAllowFileAccessFromFileURLs([in] BOOL allowAccess);
+
+    HRESULT setShowDebugBorders([in] BOOL);
+    HRESULT showDebugBorders([out, retval] BOOL*);
+
+    HRESULT setShowRepaintCounter([in] BOOL);
+    HRESULT showRepaintCounter([out, retval] BOOL*);
+
+    HRESULT javaScriptCanAccessClipboard([out, retval] BOOL *enabled);
+    HRESULT setJavaScriptCanAccessClipboard([in] BOOL enabled);
+
+    HRESULT isDNSPrefetchingEnabled([out, retval] BOOL *enabled);
+    HRESULT setDNSPrefetchingEnabled([in] BOOL enabled);
+
+    HRESULT hyperlinkAuditingEnabled(BOOL *hyperlinkAuditingEnabled);
+    HRESULT setHyperlinkAuditingEnabled(BOOL hyperlinkAuditingEnabled);
+
+    HRESULT setLoadsSiteIconsIgnoringImageLoadingPreference([in] BOOL enabled);
+    HRESULT loadsSiteIconsIgnoringImageLoadingPreference([out, retval] BOOL* enabled);
+
+    HRESULT setFullScreenEnabled([in] BOOL enabled);
+    HRESULT isFullScreenEnabled([out, retval] BOOL* enabled);
+
+    HRESULT setHixie76WebSocketProtocolEnabled([in] BOOL enabled);
+    HRESULT hixie76WebSocketProtocolEnabled([out, retval] BOOL* enabled);
+
+    HRESULT setMediaPlaybackRequiresUserGesture([in] BOOL);
+    HRESULT mediaPlaybackRequiresUserGesture([out, retval] BOOL*);
+
+    HRESULT setMediaPlaybackAllowsInline([in] BOOL);
+    HRESULT mediaPlaybackAllowsInline([out, retval] BOOL*);
+
+    HRESULT setShowsToolTipOverTruncatedText([in] BOOL);
+    HRESULT showsToolTipOverTruncatedText([out, retval] BOOL*);
+
+    HRESULT setShouldInvertColors([in] BOOL);
+    HRESULT shouldInvertColors([out, retval] BOOL*);
+
+    HRESULT setRequestAnimationFrameEnabled([in] BOOL);
+    HRESULT requestAnimationFrameEnabled([out, retval] BOOL*);
+}

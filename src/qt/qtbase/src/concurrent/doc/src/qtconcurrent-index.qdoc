@@ -1,0 +1,127 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page qtconcurrent-index.html
+    \title Qt Concurrent
+
+    \brief The Qt Concurrent module contains functionality to support concurrent execution of program code.
+
+    \section1 Getting Started
+
+    The QtConcurrent namespace provides high-level APIs that make it
+    possible to write multi-threaded programs without using low-level
+    threading primitives such as mutexes, read-write locks, wait
+    conditions, or semaphores. Programs written with QtConcurrent
+    automatically adjust the number of threads used according to the
+    number of processor cores available. This means that applications
+    written today will continue to scale when deployed on multi-core
+    systems in the future.
+
+    QtConcurrent includes functional programming style APIs for
+    parallel list processing, including a MapReduce and FilterReduce
+    implementation for shared-memory (non-distributed) systems, and
+    classes for managing asynchronous computations in GUI
+    applications:
+
+    \list
+
+    \li QtConcurrent::map() applies a function to every item in a container,
+    modifying the items in-place.
+
+    \li QtConcurrent::mapped() is like map(), except that it returns a new
+    container with the modifications.
+
+    \li QtConcurrent::mappedReduced() is like mapped(), except that the
+    modified results are reduced or folded into a single result.
+
+    \li QtConcurrent::filter() removes all items from a container based on the
+    result of a filter function.
+
+    \li QtConcurrent::filtered() is like filter(), except that it returns a new
+    container with the filtered results.
+
+    \li QtConcurrent::filteredReduced() is like filtered(), except that the
+    filtered results are reduced or folded into a single result.
+
+    \li QtConcurrent::run() runs a function in another thread.
+
+    \li QFuture represents the result of an asynchronous computation.
+
+    \li QFutureIterator allows iterating through results available via QFuture.
+
+    \li QFutureWatcher allows monitoring a QFuture using signals-and-slots.
+
+    \li QFutureSynchronizer is a convenience class that automatically
+    synchronizes several QFutures.
+
+    \endlist
+
+    Qt Concurrent supports several STL-compatible container and iterator types,
+    but works best with Qt containers that have random-access iterators, such as
+    QList or QVector. The map and filter functions accept both containers and begin/end iterators.
+
+    STL Iterator support overview:
+
+    \table
+    \header
+        \li Iterator Type
+        \li Example classes
+        \li Support status
+    \row
+        \li Input Iterator
+        \li
+        \li Not Supported
+    \row
+        \li Output Iterator
+        \li
+        \li Not Supported
+    \row
+        \li Forward Iterator
+        \li std::slist
+        \li Supported
+    \row
+        \li Bidirectional Iterator
+        \li QLinkedList, std::list
+        \li Supported
+    \row
+        \li Random Access Iterator
+        \li QList, QVector, std::vector
+        \li Supported and Recommended
+    \endtable
+
+    Random access iterators can be faster in cases where Qt Concurrent is iterating
+    over a large number of lightweight items, since they allow skipping to any point
+    in the container. In addition, using random access iterators allows Qt Concurrent
+    to provide progress information trough QFuture::progressValue() and
+    QFutureWatcher::progressValueChanged().
+
+    The non in-place modifying functions such as mapped() and filtered() makes a
+    copy of the container when called. If you are using STL containers this copy operation
+    might take some time, in this case we recommend specifying the begin and end iterators
+    for the container instead.
+*/

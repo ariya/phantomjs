@@ -1,0 +1,106 @@
+/****************************************************************************
+**
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page qlalr.html
+    \title qlalr
+    \nextpage qlalr - Writing Grammars
+
+    \section1 Table of Contents
+
+    \list
+    \li \l{qlalr - Writing Grammars}
+      \tableofcontents{1 qlalr - Writing Grammars}
+    \li \l{qlalr - Generating Code from Grammar Specifications}
+      \tableofcontents{1 qlalr - Generating Code from Grammar Specifications}
+    \li \l{qlalr - qlalr Grammar Specification}
+      \tableofcontents{1 qlalr - qlalr Grammar Specification}
+    \li \l{qlalr - Handling Conflicts}
+      \tableofcontents{1 qlalr - Handling Conflicts}
+    \li \l{qlalr - Error Handling and Recovery}
+      \tableofcontents{1 qlalr - Error Handling and Recovery}
+    \li \l{qlalr - References to External Information}
+      \tableofcontents{1 qlalr - References to External Information}
+    \endlist
+
+*/
+
+/*!
+    \page qlalr-files.html
+    \title qlalr - Writing Grammars
+
+    \contentspage qlalr
+    \previouspage qlalr
+    \nextpage qlalr - Generating Code from Grammar Specifications
+
+*/
+
+/*!
+    \page qlalr-generating.html
+    \title qlalr - Generating Code from Grammar Specifications
+
+    \contentspage qlalr
+    \previouspage qlalr - Writing Grammars
+    \nextpage qlalr - qlalr Grammar Specification
+*/
+
+/*!
+    \page qlalr-grammar-specification.html
+    \title qlalr - qlalr Grammar Specification
+
+    \contentspage qlalr
+    \previouspage qlalr - Generating Code from Grammar Specifications
+    \nextpage qlalr - Handling Conflicts
+
+*/
+
+/*!
+    \page qlalr-handling-conflicts.html
+    \title qlalr - Handling Conflicts
+
+    \contentspage qlalr
+    \previouspage qlalr - qlalr Grammar Specification
+    \nextpage qlalr - Error Handling and Recovery
+*/
+
+/*!
+    \page qlalr-handling-errors.html
+    \title qlalr - Error Handling and Recovery
+
+    \contentspage qlalr
+    \previouspage qlalr - Handling Conflicts
+    \nextpage qlalr - References to External Information
+*/
+
+/*!
+    \page qlalr-external-references.html
+    \title qlalr - References to External Information
+
+    \contentspage qlalr
+    \previouspage qlalr - Error Handling and Recovery
+*/
+

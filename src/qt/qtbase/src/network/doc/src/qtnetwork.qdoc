@@ -1,0 +1,80 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page qtnetwork-index.html
+    \title Qt Network
+    \brief Provides networking capabilities
+
+    Qt Network provides a set of APIs for programming applications that use
+    TCP/IP. Operations such as requests, cookies, and sending data over HTTP
+    are handled by various C++ classes.
+
+    \section1 Getting Started
+
+    To use Qt Network classes,add this directive into the C++ files:
+    \code
+    #include <QtNetwork>
+    \endcode
+    To link against the Qt Network module, add this line to the project file:
+    \code
+    QT += network
+    \endcode
+
+    \section1 Articles and Guides
+
+    These articles contain information about Qt Network setup and about
+    applications with networking capabilities.
+    \list
+    \li \l{Network Programming with Qt} - Programming applications with networking capabilities
+    \li \l{Bearer Management} - An API to control the system's connectivity state
+    \li \l{Secure Sockets Layer (SSL) Classes} - Classes for secure communication over network sockets
+    \endlist
+
+    \section1 API Reference
+    These are links to the API reference materials.
+    \list
+    \li \l{Qt Network C++ Classes}{C++ Classes}
+    \endlist
+*/
+/*!
+    \module QtNetwork
+    \title Qt Network C++ Classes
+    \ingroup modules
+    \qtvariable network
+    \brief Provides classes to make network programming easier and portable
+
+    To include the definitions of the module's classes, use the
+    following directive:
+
+    \snippet code/doc_src_qtnetwork.cpp 1
+
+    To link against the module, add this line to your \l qmake \c
+    .pro file:
+
+    \snippet code/doc_src_qtnetwork.pro 0
+*/

@@ -1,0 +1,314 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+#ifndef DO_NO_IMPORTS
+import "oaidl.idl";
+import "ocidl.idl";
+#endif
+
+interface IWebInvocation;
+interface IWebMethodSignature;
+
+[
+    object,
+    oleautomation,
+    uuid(D25D748C-6C1E-478d-9832-FDA26E8F7EE4),
+    pointer_default(unique)
+]
+interface IWebUndoManager : IUnknown
+{
+    /*
+        - (void)beginUndoGrouping
+    */
+    HRESULT beginUndoGrouping();
+
+    /*
+        - (BOOL)canRedo
+    */
+    HRESULT canRedo([out, retval] BOOL* result);
+
+    /*
+        - (BOOL)canUndo
+    */
+    HRESULT canUndo([out, retval] BOOL* result);
+
+    /*
+        - (void)disableUndoRegistration
+    */
+    HRESULT disableUndoRegistration();
+
+    /*
+        - (void)enableUndoRegistration
+    */
+    HRESULT enableUndoRegistration();
+
+    /*
+        - (void)endUndoGrouping
+    */
+    HRESULT endUndoGrouping();
+
+    /*
+        - (void)forwardInvocation:(NSInvocation *)anInvocation
+    */
+    HRESULT forwardInvocation([in] IWebInvocation* anInvocation);
+
+    /*
+        - (int)groupingLevel
+    */
+    HRESULT groupingLevel([out, retval] int* groupingLevel);
+
+    /*
+        - (BOOL)groupsByEvent
+    */
+    HRESULT groupsByEvent([out, retval] BOOL* result);
+
+    /*
+        - (BOOL)isRedoing
+    */
+    HRESULT isRedoing([out, retval] BOOL* result);
+
+    /*
+        - (BOOL)isUndoing
+    */
+    HRESULT isUndoing([out, retval] BOOL* result);
+
+    /*
+        - (BOOL)isUndoRegistrationEnabled
+    */
+    HRESULT isUndoRegistrationEnabled([out, retval] BOOL* result);
+
+    /*
+        - (unsigned)levelsOfUndo
+    */
+    HRESULT levelsOfUndo([out, retval] UINT* result);
+
+    /*
+        - (id)prepareWithInvocationTarget:(id)target
+    */
+    HRESULT prepareWithInvocationTarget([in] IUnknown* target, [out, retval] IUnknown** result);
+
+    /*
+        - (void)redo
+    */
+    HRESULT redo();
+
+    /*
+        - (NSString *)redoActionName
+    */
+    HRESULT redoActionName([out, retval] BSTR* result);
+
+    /*
+        - (NSString *)redoMenuItemTitle
+    */
+    HRESULT redoMenuItemTitle([out, retval] BSTR* result);
+
+    /*
+        - (NSString *)redoMenuTitleForUndoActionName:(NSString *)actionName
+    */
+    HRESULT redoMenuTitleForUndoActionName([in] BSTR actionName, [out, retval] BSTR* result);
+
+    /*
+        - (void)registerUndoWithTarget:(id)target selector:(SEL)aSelector object:(id)anObject
+    */
+    HRESULT registerUndoWithTarget([in] IUnknown* target, [in] UINT aSelector, [in] IUnknown* anObject);
+
+    /*
+        - (void)removeAllActions
+    */
+    HRESULT removeAllActions();
+
+    /*
+        - (void)removeAllActionsWithTarget:(id)target
+    */
+    HRESULT removeAllActionsWithTarget([in] IUnknown* target);
+
+    /*
+        - (NSArray *)runLoopModes
+    */
+    HRESULT runLoopModes([out, retval] IEnumVARIANT** enumModes);
+
+    /*
+        - (void)setActionName:(NSString *)actionName
+    */
+    HRESULT setActionName([in] BSTR actionName);
+
+    /*
+        - (void)setGroupsByEvent:(BOOL)flag
+    */
+    HRESULT setGroupsByEvent([in] BOOL flag);
+
+    /*
+        - (void)setLevelsOfUndo:(unsigned)anInt
+    */
+    HRESULT setLevelsOfUndo([in] UINT anInt);
+
+    /*
+        - (void)setRunLoopModes:(NSArray *)modes
+    */
+    HRESULT setRunLoopModes([in] int cModes, [in, size_is(cModes)] BSTR* modes);
+
+    /*
+        - (void)undo
+    */
+    HRESULT undo();
+
+    /*
+        - (NSString *)undoActionName
+    */
+    HRESULT undoActionName([out, retval] BSTR* result);
+
+    /*
+        - (NSString *)undoMenuItemTitle
+    */
+    HRESULT undoMenuItemTitle([out, retval] BSTR* result);
+
+    /*
+        - (NSString *)undoMenuTitleForUndoActionName:(NSString *)actionName
+    */
+    HRESULT undoMenuTitleForUndoActionName([in] BSTR actionName, [out, retval] BSTR* result);
+
+    /*
+        - (void)undoNestedGroup
+    */
+    HRESULT undoNestedGroup();
+}
+
+[
+    object,
+    oleautomation,
+    uuid(67B067BE-4DE6-45c2-AD39-A91DFA84FF4E),
+    pointer_default(unique)
+]
+interface IWebInvocation : IUnknown
+{
+    /*
+        + (NSInvocation *)invocationWithMethodSignature:(NSMethodSignature *)signature
+    */
+    HRESULT invocationWithMethodSignature([in] IWebMethodSignature* signature);
+
+    /*
+        - (BOOL)argumentsRetained
+    */
+    HRESULT argumentsRetained([out, retval] BOOL* result);
+
+    /*
+        - (void)getArgument:(void *)buffer atIndex:(int)index
+    */
+    [local] HRESULT getArgument([in] void* buffer, [in] int index);
+
+    /*
+        - (void)getReturnValue:(void *)buffer
+    */
+    [local] HRESULT getReturnValue([in] void* buffer);
+
+    /*
+        - (void)invoke
+    */
+    HRESULT invoke();
+
+    /*
+        - (void)invokeWithTarget:(id)anObject
+    */
+    HRESULT invokeWithTarget([in] IUnknown* anObject);
+
+    /*
+        - (NSMethodSignature *)methodSignature
+    */
+    HRESULT methodSignature([out, retval] IWebMethodSignature** result);
+
+    /*
+        - (void)retainArguments
+    */
+    HRESULT retainArguments();
+
+    /*
+        - (SEL)selector
+    */
+    HRESULT selector([out, retval] UINT* result);
+
+    /*
+        - (void)setArgument:(void *)buffer atIndex:(int)index
+    */
+    [local] HRESULT setArgument([in] void* buffer, [in] int atIndex);
+
+    /*
+        - (void)setReturnValue:(void *)buffer
+    */
+    [local] HRESULT setReturnValue([in] void* buffer);
+
+    /*
+        - (void)setSelector:(SEL)selector
+    */
+    HRESULT setSelector([in] UINT selector);
+
+    /*
+        - (void)setTarget:(id)anObject
+    */
+    HRESULT setTarget([in] IUnknown* anObject);
+
+    /*
+        - (id)target
+    */
+    HRESULT target([out, retval] IUnknown** result);
+}
+
+[
+    object,
+    oleautomation,
+    uuid(431DD6B2-56BF-4f48-943B-78CCEAC418E4),
+    pointer_default(unique)
+]
+interface IWebMethodSignature : IUnknown
+{
+    /*
+        - (unsigned)frameLength
+    */
+    HRESULT frameLength([out, retval] UINT* result);
+
+    /*
+        - (const char *)getArgumentTypeAtIndex:(unsigned)index
+    */
+    HRESULT getArgumentTypeAtIndex([in] UINT index, [out, retval] BSTR* result);
+
+    /*
+        - (BOOL)isOneway
+    */
+    HRESULT isOneway([out, retval] BOOL* result);
+
+    /*
+        - (unsigned)methodReturnLength
+    */
+    HRESULT methodReturnLength([out, retval] UINT* result);
+
+    /*
+        - (const char *)methodReturnType
+    */
+    HRESULT methodReturnType([out, retval] BSTR* result);
+
+    /*
+        - (unsigned)numberOfArguments
+    */
+    HRESULT numberOfArguments([out, retval] UINT* result);
+}

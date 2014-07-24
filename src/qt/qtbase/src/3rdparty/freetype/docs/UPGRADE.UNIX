@@ -1,0 +1,137 @@
+
+SPECIAL NOTE FOR UNIX USERS
+===========================
+
+  If  you are  installing  this release  of  FreeType on  a system  that
+  already uses  release 2.0.5  (or even an  older version), you  have to
+  perform a few special steps to ensure that everything goes well.
+
+
+  1. Enable the TrueType bytecode hinter if you need it
+  -----------------------------------------------------
+
+    See the instructions in the file `TRUETYPE' of this directory.
+
+    Note  that FreeType  supports  TrueType fonts  without the  bytecode
+    interpreter through its  auto-hinter, which now generates relatively
+    good results with most fonts.
+
+
+  2. Determine the correct installation path
+  ------------------------------------------
+
+    By   default,  the   configure  script   installs  the   library  in
+    `/usr/local'.   However,  many Unix  distributions  now install  the
+    library  in `/usr',  since FreeType  is becoming  a  critical system
+    component.
+
+    If FreeType is already installed on your system, type
+
+      freetype-config --prefix
+
+    on  the command  line.   This should  return  the installation  path
+    (e.g.,  `/usr'  or `/usr/local').   To  avoid  problems of  parallel
+    FreeType  versions, use  this path  for the  --prefix option  of the
+    configure script.
+
+    Otherwise, simply use `/usr' (or  whatever you think is adequate for
+    your installation).
+
+
+  3. Ensure that you are using GNU Make
+  -------------------------------------
+
+    The FreeType build  system _exclusively_ works with GNU  Make (as an
+    exception you  can use make++ which emulates  GNU Make sufficiently;
+    see http://makepp.sourceforge.net).  You will not be able to compile
+    the library with the  instructions below using any other alternative
+    (including BSD Make).
+
+    Trying to  compile the library with  a different Make  tool prints a
+    message like:
+
+      Sorry, GNU make is required to build FreeType2.
+
+    and the build process is aborted.  If this happens, install GNU Make
+    on your system, and use the GNUMAKE environment variable to name it.
+
+
+  4. Build and install the library
+  --------------------------------
+
+    The  following should  work on  all  Unix systems  where the  `make'
+    command invokes GNU Make:
+
+      ./configure --prefix=<yourprefix>
+      make
+      make install           (as root)
+
+    where `<yourprefix>' must be replaced  by the prefix returned by the
+    `freetype-config' command.
+
+    When using a  different command to invoke GNU  Make, use the GNUMAKE
+    variable.  For  example, if  `gmake' is the  command to use  on your
+    system, do something like:
+
+      GNUMAKE=gmake ./configure --prefix=<yourprefix>
+      gmake
+      gmake install            (as root)
+
+
+  5. Take care of XFree86 version 4
+  ---------------------------------
+
+    Certain Linux  distributions install _several_  versions of FreeType
+    on your  system.  For example, on  a fresh Mandrake  8.1 system, you
+    can find the following files:
+
+      /usr/lib/libfreetype.so             which links to
+      /usr/lib/libfreetype.6.1.0.so
+
+    and
+
+      /usr/X11R6/lib/libfreetype.so       which links to
+      /usr/X11R6/lib/libfreetype.6.0.so
+
+    Note that  these files  correspond to two  distinct versions  of the
+    library!  It seems that this  surprising issue is due to the install
+    scripts of  recent XFree86 servers (from 4.1.0)  which install their
+    own (dated) version of the library in `/usr/X11R6/lib'.
+
+    In certain  _rare_ cases  you may experience  minor problems  if you
+    install this  release of  the library in  `/usr' only,  namely, that
+    certain applications do not benefit from the bug fixes and rendering
+    improvements you would expect.
+
+    There are two good ways to deal with this situation:
+
+      - Install the library _twice_,  in `/usr' and in `/usr/X11R6' (you
+        have to  do that  each time you  install a new  FreeType release
+        though).
+
+      - Change the link in /usr/X11R6/lib/libfreetype.so to point to
+
+          /usr/lib/libfreetype.so,
+
+        and get rid of
+
+          /usr/X11R6/lib/libfreetype.6.0.so
+
+    The FreeType  Team is  not responsible for  this problem,  so please
+    contact  either   the  XFree86   development  team  or   your  Linux
+    distributor to help  clear this issue in case  the information given
+    here doesn't help.
+
+------------------------------------------------------------------------
+
+Copyright 2003, 2005 by
+David Turner, Robert Wilhelm, and Werner Lemberg.
+
+This  file is  part  of the  FreeType  project, and  may  only be  used,
+modified,  and  distributed under  the  terms  of  the FreeType  project
+license, LICENSE.TXT.  By continuing  to use, modify, or distribute this
+file  you indicate that  you have  read the  license and  understand and
+accept it fully.
+
+
+---- end of UPGRADE.UNIX ---

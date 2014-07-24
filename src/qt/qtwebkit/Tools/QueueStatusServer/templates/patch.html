@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Patch Status</title>
+<link type="text/css" rel="stylesheet" href="/stylesheets/dashboard.css" />
+</head>
+<body>
+<h1>
+  Patch {{ attachment_id|force_escape|webkit_attachment_id|safe }} (Bug {{ bug_id|force_escape|webkit_bug_id|safe }})
+</h1>{% for queue_name, statuses in queue_status.items %}
+<div class="status-details">
+  <h2>{{ queue_name }}</h2>
+  <ul>{% for status in statuses %}
+    <li>
+      <span class="status-message">{{ status.message|force_escape|urlize|webkit_linkify|safe }}</span>{% if status.results_file %}
+      <span class="status-results">[{{ status.key.id|results_link|safe }}]</span>{% endif %}
+      <span class="status-date">{{ status.date|timesince }} ago</span>
+    </li>{% endfor %}
+  </ul>
+</div>{% endfor %}
+</html>

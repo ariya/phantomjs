@@ -1,0 +1,38 @@
+include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
+
+project     = QtWebKit
+description = Qt WebKit Reference Documentation
+url         = http://qt-project.org/doc/qt-$QT_VER
+version     = $QT_VERSION
+
+# Defines the name of the project. You cannot use operators (+, =, -) in
+# the name. Properties for this project are set using a qhp.<projectname>.property
+# format.
+qhp.projects = QtWebKit
+qhp.QtWebKit.file = qtwebkit.qhp
+qhp.QtWebKit.namespace = org.qt-project.qtwebkit.$QT_VERSION_TAG
+qhp.QtWebKit.indexTitle = Qt WebKit
+qhp.QtWebKit.virtualFolder  = qtwebkit
+
+# create a filter for Qt Creator/Assistant
+qhp.QtWebKit.filterAttributes    = qtwebkit $QT_VERSION qtrefdoc
+qhp.QtWebKit.customFilters.Qt.name = QtWebKit $QT_VERSION
+qhp.QtWebKit.customFilters.Qt.filterAttributes = qtwebkit $QT_VERSION
+
+# For listing child nodes in Qt Creator or Assistant.
+qhp.QtWebKit.subprojects = classes qmltypes
+qhp.QtWebKit.subprojects.classes.title = Qt WebKit Widgets
+qhp.QtWebKit.subprojects.classes.indexTitle = Qt WebKit Widgets
+qhp.QtWebKit.subprojects.classes.selectors = class fake:headerfile
+qhp.QtWebKit.subprojects.classes.sortPages = true
+qhp.QtWebKit.subprojects.qmltypes.title = QML Types
+qhp.QtWebKit.subprojects.qmltypes.indexTitle = Qt WebKit QML Types
+qhp.QtWebKit.subprojects.qmltypes.selectors = fake:qmlclass
+qhp.QtWebKit.subprojects.qmltypes.sortPages = true
+
+headerdirs = WebKit/qt/Api WebKit/qt/WidgetApi WebKit2/UIProcess/API/qt
+sourcedirs = WebKit/qt/Api WebKit/qt/WidgetApi WebKit/qt/docs Source/JavaScriptCore/qt/api WebKit2/UIProcess/API/qt
+exampledirs = WebKit/qt/docs
+imagedirs = WebKit/qt/docs
+
+depends += qtcore qtwidgets qtgui qtscript qtdoc qtprintsupport qtxml qtwebkitexamples qtquickcontrols

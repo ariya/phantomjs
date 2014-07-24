@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<script>
+    var mouseMoved = false;
+
+    function mouseMoveHandler()
+    {
+        mouseMoved = true;
+    }
+    
+    function didMoveMouse()
+    {
+        return mouseMoved;
+    }
+   
+    addEventListener("mousemove", mouseMoveHandler);
+</script>

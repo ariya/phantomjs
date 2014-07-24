@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright © 2013 Apple Inc. All rights reserved. -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 16 16">
+    <style>
+        * {
+            fill: white;
+        }
+    </style>
+    <g>
+        <defs>
+            <rect id="SVGID_1_" x="2.5" y="0.3" width="11" height="13.2"/>
+        </defs>
+        <clipPath id="SVGID_2_">
+            <use xlink:href="#SVGID_1_" overflow="visible"/>
+        </clipPath>
+        <path clip-path="url(#SVGID_2_)" d="M8,11.3c-1.823,0-3.3-1.478-3.3-3.3c0-1.822,1.477-3.3,3.3-3.3V2.5C4.962,2.5,2.5,4.962,2.5,8
+        s2.462,5.5,5.5,5.5s5.5-2.462,5.5-5.5h-2.2C11.3,9.822,9.822,11.3,8,11.3"/>
+    </g>
+    <g>
+        <defs>
+            <rect id="SVGID_3_" x="2.5" y="0.3" width="11" height="13.2"/>
+        </defs>
+        <clipPath id="SVGID_4_">
+            <use xlink:href="#SVGID_3_" overflow="visible"/>
+        </clipPath>
+        <polygon clip-path="url(#SVGID_4_)" points="13.5,3.6 8,6.9 8,0.3"/>
+    </g>
+</svg>

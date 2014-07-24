@@ -1,0 +1,78 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+#ifndef DO_NO_IMPORTS
+import "oaidl.idl";
+import "ocidl.idl";
+import "IWebDocument.idl";
+#endif
+
+/*!
+    @class WebFrameView
+    @interface WebFrameView : NSView
+*/
+interface IWebFrame;
+interface IWebDocumentView;
+
+[
+    object,
+    oleautomation,
+    uuid(E23E1B15-78F6-4e89-AD2E-49992A040A35),
+    pointer_default(unique)
+]
+interface IWebFrameView : IUnknown
+{
+    /*!
+        @method webFrame
+        @abstract Returns the WebFrame associated with this WebFrameView
+        @result The WebFrameView's frame.
+        - (WebFrame *)webFrame;
+   */
+   HRESULT webFrame([out, retval] IWebFrame** frame);
+ 
+    /*!
+        @method documentView
+        @abstract Returns the WebFrameView's document subview
+        @result The subview that renders the WebFrameView's contents
+        - (NSView <WebDocumentView> *)documentView;
+    */
+   HRESULT documentView([out, retval] IWebDocumentView** view);
+
+    /*!
+        @method setAllowsScrolling:
+        @abstract Sets whether the WebFrameView allows its document to be scrolled
+        @param flag YES to allow the document to be scrolled, NO to disallow scrolling
+        - (void)setAllowsScrolling:(BOOL)flag;
+    */
+   HRESULT setAllowsScrolling([in] BOOL flag);
+
+    /*!
+        @method allowsScrolling
+        @abstract Returns whether the WebFrameView allows its document to be scrolled
+        @result YES if the document is allowed to scroll, otherwise NO
+        - (BOOL)allowsScrolling;
+    */
+   HRESULT allowsScrolling([out, retval] BOOL* flag);
+}

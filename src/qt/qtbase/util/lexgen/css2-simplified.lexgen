@@ -1,0 +1,93 @@
+[Options]
+case-sensitive
+classname = QCssScanner_Generated
+
+[Code Generator Options]
+MapToCode[a-z] = (ch.unicode() >= 'a' && ch.unicode() <= 'z') || (ch.unicode() >= 'A' && ch.unicode() <= 'Z') || ch.unicode() >= 256
+TokenPrefix = QCss::
+FileHeader = ../moc/licenseheader.txt
+
+[Macros]
+escape          = \\[^\r\n\f0-9a-f]
+nmstart         = [_a-z]|{escape}
+nmchar          = [_a-z0-9-]|{escape}
+nl              = \n|\r\n|\r|\f
+string1         = \"([^\n\r\f\\"]|\\{nl}|{escape})*\"
+string2         = \'([^\n\r\f\\']|\\{nl}|{escape})*\'
+invalid1        = \"([^\n\r\f\\"]|\\{nl}|{escape})*
+invalid2        = \'([^\n\r\f\\']|\\{nl}|{escape})*
+
+ident           = -?{nmstart}{nmchar}*
+name            = {nmchar}+
+num             = [0-9]+|[0-9]*"."[0-9]+
+string          = {string1}|{string2}
+invalid         = {invalid1}|{invalid2}
+url             = ([!#$%&*-~]|{escape})*
+s               = [ \t\r\n\f]
+w               = {s}*
+
+[Tokens]
+
+S = {s}+
+
+handleCommentStart() = \/\*
+
+CDO = "<!--"
+CDC = "-->"
+INCLUDES = "~="
+DASHMATCH = "|="
+
+LBRACE = {w}"{"
+PLUS = {w}"+"
+GREATER = {w}">"
+COMMA = {w}","
+
+STRING = {string}
+INVALID = {invalid}
+
+IDENT = {ident}
+
+HASH = "#"{name}
+
+ATKEYWORD_SYM = "@"{ident}
+
+EXCLAMATION_SYM = "!"
+
+#EMS = {num}em
+#EXS = {num}ex
+#LENGTH = {num}px
+#LENGTH = {num}cm
+#LENGTH = {num}mm
+#LENGTH = {num}in
+#LENGTH = {num}pt
+#LENGTH = {num}pc
+#ANGLE = {num}deg
+#ANGLE = {num}rad
+#ANGLE = {num}grad
+#TIME = {num}ms
+#TIME = {num}s
+#FREQ = {num}hz
+#FREQ = {num}khz
+#DIMENSION = {num}{ident}
+LENGTH = {num}{ident}
+
+PERCENTAGE = {num}%
+NUMBER = {num}
+
+#URI = "url("{w}{string}{w}")"
+#URI = "url("{w}{url}{w}")"
+FUNCTION = {ident}"("
+
+COLON = :
+SEMICOLON = ;
+RBRACE = \}
+SLASH = /
+MINUS = -
+DOT = \.
+STAR = \*
+LBRACKET = \[
+RBRACKET = \]
+EQUAL = \=
+LPAREN = \(
+RPAREN = \)
+OR = \|

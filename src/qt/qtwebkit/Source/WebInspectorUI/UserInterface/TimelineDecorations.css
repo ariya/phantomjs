@@ -1,0 +1,106 @@
+/*
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.timeline-decorations {
+    position: relative;
+    pointer-events: none;
+}
+
+.timeline-decorations > .header {
+    border-top: 1px solid rgb(200, 200, 200);
+
+    height: 22px;
+
+    position: relative;
+}
+
+.timeline-decorations > .header > .divider {
+    position: absolute;
+    width: 1px;
+    top: 0;
+    bottom: 0;
+    background-image: -webkit-linear-gradient(top, rgba(200, 200, 200, 1), rgba(200, 200, 200, 0) 85%);
+}
+
+.timeline-decorations > .header > .divider:first-child,
+.timeline-decorations > .header > .divider:last-child {
+    background-image: none;
+}
+
+.timeline-decorations > .header > .divider > .label {
+    position: absolute;
+    top: 3px;
+    right: 4px;
+    font-size: 9px;
+    font-family: "Lucida Grande", sans-serif;
+    color: rgb(128, 128, 128);
+    white-space: nowrap;
+}
+
+.timeline-decorations > .header > .divider:first-child > .label {
+    display: none;
+}
+
+.timeline-decorations > .event-markers {
+    position: absolute;
+    top: 22px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.timeline-decorations > .event-markers > .event-marker-tooltip {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+
+    width: 9px;
+
+    pointer-events: auto;
+}
+
+.timeline-decorations > .event-markers > .event-marker {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+
+    margin-left: 4px;
+
+    border-left-width: 1px;
+    border-left-style: dashed;
+    border-left-color: rgba(128, 128, 128, 0.5);
+}
+
+.timeline-decorations > .event-markers > .event-marker.load-event {
+    border-left-color: rgba(255, 0, 0, 0.5);
+}
+
+.timeline-decorations > .event-markers > .event-marker.dom-content-event {
+    border-left-color: rgba(0, 0, 255, 0.5);
+}
+
+.timeline-decorations > .event-markers > .event-marker.timestamp {
+    border-left-color: rgba(0, 110, 0, 0.5);
+}

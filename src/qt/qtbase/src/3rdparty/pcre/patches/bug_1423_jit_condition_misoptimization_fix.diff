@@ -1,0 +1,15 @@
+Index: pcre_jit_compile.c
+===================================================================
+--- pcre_jit_compile.c	(revision 1413)
++++ pcre_jit_compile.c	(working copy)
+@@ -3546,7 +3546,9 @@
+       }
+     return TRUE;
+     }
+-  if ((ranges[3] - ranges[2]) == (ranges[5] - ranges[4]) && is_powerof2(ranges[4] - ranges[2]))
++  if ((ranges[3] - ranges[2]) == (ranges[5] - ranges[4])
++      && (ranges[2] | (ranges[4] - ranges[2])) == ranges[4]
++      && is_powerof2(ranges[4] - ranges[2]))
+     {
+     if (readch)
+       read_char(common);

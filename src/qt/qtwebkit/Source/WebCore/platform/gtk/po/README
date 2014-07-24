@@ -1,0 +1,11 @@
+=======================
+WebKitGTK+ Localization
+=======================
+
+WebKitGTK+'s build system is very unorthodox. This means that you will
+not get to run the usual make commands in the po directory.
+
+To refresh the .pot file, go to the root of the build directory, and
+run `make webkit.pot-update'. To update the .po files using the new
+.pot file run `make update-po'. This will also build the .mo files.
+

@@ -1,0 +1,108 @@
+#!/usr/bin/python
+# Copyright (C) 2011 Igalia S.L.
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+import common
+import os
+import subprocess
+import sys
+
+def is_source_file_listing(line):
+    return line.strip().startswith('Source')
+
+def get_listed_makefile_headers():
+    makefile_text = open(os.path.join(common.build_path('GNUmakefile'))).read()
+
+    # Automake often places separate includes on the same line.
+    makefile_text = makefile_text.replace(' ', '\n')
+
+    headers = []
+    for line in makefile_text.splitlines():
+        # $(srcdir)/ is the same as an empty string in a source file listing.
+        line = line.replace('$(srcdir)/', '')
+
+        # If the line doesn't start with 'Source' it isn't listing for
+        # a source file.
+        if not is_source_file_listing(line):
+            continue
+
+        # Most source listings end with \ indicating that the listing
+        # continues onto the next line.
+        line = line.replace('\\', '')
+
+        # We only care about header files. Source files result in build
+        # breakage, so we will detect them without this script.
+        line = line.strip()
+        if not line.endswith('.h'):
+            continue
+
+        # If the line contains a makefile variable we do not care about it.
+        if line.find('$') != -1:
+            continue
+
+        headers.append(line)
+
+    return headers
+
+def scan_headers_from_dependency_files():
+    process = subprocess.Popen(['find . -name *.Plo | xargs cat | grep .h:$'],
+                               cwd=common.build_path(),
+                               stdout=subprocess.PIPE,
+                               shell=True)
+    sanitized_lines = set()
+    for line in process.communicate()[0].splitlines():
+        # Paths in Plo files are relative to the build directory so they might contain
+        # ../.. if the build directory is something like WebKitBuild/Release.
+        line = line.replace('../../', '')
+        if not is_source_file_listing(line):
+            continue
+
+        # The lines we care about end with ':'.
+        line = line.replace(':', '')
+        line = line.strip()
+        sanitized_lines.add(line)
+    return sanitized_lines
+
+def get_unlisted_headers(listed_makefile_headers):
+    unlisted = set()
+    for header in scan_headers_from_dependency_files():
+        if not header in listed_makefile_headers:
+            unlisted.add(header)
+    return unlisted
+
+def get_missing_headers(listed_makefile_headers):
+    missing = set()
+    for header in listed_makefile_headers:
+        if not os.path.exists(common.top_level_path(header)):
+            missing.add(header)
+    return missing
+
+listed_makefile_headers = get_listed_makefile_headers()
+unlisted_headers = get_unlisted_headers(listed_makefile_headers)
+missing_headers = get_missing_headers(listed_makefile_headers)
+if unlisted_headers:
+    print 'Headers not listed in the GNUmakefiles:'
+    for header in sorted(unlisted_headers):
+        print '\t%s' % header
+    print
+
+if missing_headers:
+    print 'Headers listed in the GNUmakefiles that do not exist:'
+    for header in sorted(missing_headers):
+        print '\t%s' % header
+    print
+
+sys.exit(len(unlisted_headers) + len(missing_headers))

@@ -1,0 +1,103 @@
+#
+#  W A R N I N G
+#  -------------
+#
+# This file is not part of the Qt API.  It exists purely as an
+# implementation detail.  It may change from version to version
+# without notice, or even be removed.
+#
+# We mean it.
+#
+
+defineTest(addInstallFiles) {
+    for(sf, 2) {
+        sf = $$relative_path($$sf, $$_PRO_FILE_PWD_)
+        contains(sf, \\..*) {
+            check_examples: message("Notice: $$_PRO_FILE_ refers to $$sf")
+        } else {
+            sfp = $$replace(sf, /.*, )
+            !equals(sfp, $$sf): \
+                $$1 *= $$sfp
+            else: \
+                $$1 += $$sf
+        }
+    }
+    export($$1)
+}
+
+probase = $$relative_path($$_PRO_FILE_PWD_, $$dirname(_QMAKE_CONF_)/examples)
+!isEmpty(probase):!contains(probase, ^\\..*):!isEmpty(_QMAKE_CACHE_) {
+    for(ex, EXAMPLE_FILES): \
+        sourcefiles += $$files($$absolute_path($$ex, $$_PRO_FILE_PWD_))
+    for(res, RESOURCES) {
+        rfile = $$cat($$absolute_path($$res, $$_PRO_FILE_PWD_), lines)
+        for(rline, rfile) {
+            resrc = $$replace(rline, ^[ \\t]*<file[^>]*>([^<]+)</file>[ \\t]*$, \\1)
+            !equals(resrc, $$rline): \
+                sourcefiles += $$resrc
+        }
+    }
+    for(res, RC_FILE) {
+        rfile = $$cat($$absolute_path($$res, $$_PRO_FILE_PWD_), lines)
+        for(rline, rfile) {
+            resrc = $$replace(rline, "^\\d+\\s+ICON\\s+[^\"]*\"([^\"]+)\"\$", \\1)
+            !equals(resrc, $$rline): \
+                sourcefiles += $$resrc
+        }
+    }
+    extras = \
+        $$_PRO_FILE_PWD_/README \
+        $$files($$_PRO_FILE_PWD_/*.pri) \
+        $$replace(_PRO_FILE_, \\.pro$, .qmlproject) \
+        $$replace(_PRO_FILE_, \\.pro$, .json) \
+        $$replace(_PRO_FILE_, \\.pro$, .inf)
+    for(extra, extras): \
+        exists($$extra): \
+            sourcefiles += $$extra
+
+    # Just for Qt Creator
+    OTHER_FILES += $$sourcefiles
+
+    sourcefiles += \
+        $$_PRO_FILE_ $$RC_FILE $$DEF_FILE \
+        $$SOURCES $$HEADERS $$FORMS $$RESOURCES $$TRANSLATIONS \
+        $$DBUS_ADAPTORS $$DBUS_INTERFACES
+    addInstallFiles(sources.files, $$sourcefiles)
+    sources.path = $$[QT_INSTALL_EXAMPLES]/$$probase
+    INSTALLS += sources
+
+    check_examples {
+        srcfiles = $$sources.files
+        for(inst, INSTALLS): \
+            !equals(inst, target):!contains($${inst}.CONFIG, no_check_exist): \
+                for(file, $${inst}.files): \
+                    instfiles += $$files($$absolute_path($$file, $$_PRO_FILE_PWD_))
+        addInstallFiles(srcfiles, $$instfiles)
+
+        thefiles = $$files($$_PRO_FILE_PWD_/*)
+        for(i, thefiles): \
+            allfiles += $$relative_path($$i, $$_PRO_FILE_PWD_)
+        for(i, srcfiles): \
+            allfiles -= $$relative_path($$i, $$_PRO_FILE_PWD_)
+        for(i, SUBDIRS) {
+            sd = $$eval($${i}.file)
+            !isEmpty(sd) {
+                sd ~= s,/.*,,
+            } else {
+                sd = $$eval($${i}.subdir)
+                isEmpty(sd): sd = $$i
+            }
+            allfiles -= $$sd
+        }
+        allfiles -= doc
+        !isEmpty(allfiles): warning("remaining files in $$_PRO_FILE_PWD_: $$allfiles")
+    }
+
+    !equals(TEMPLATE, subdirs):!compile_examples {
+        TEMPLATE = aux
+        CONFIG -= have_target qt staticlib dll
+        SOURCES =
+        OBJECTIVE_SOURCES =
+        INSTALLS -= target
+    }
+}

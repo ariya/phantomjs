@@ -1,0 +1,224 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+#ifndef DO_NO_IMPORTS
+import "oaidl.idl";
+import "ocidl.idl";
+import "IWebError.idl";
+import "IWebURLResponse.idl";
+#endif
+
+interface IWebError;
+interface IWebURLAuthenticationChallengeSender;
+interface IWebURLCredential;
+interface IWebURLProtectionSpace;
+interface IWebURLResponse;
+
+typedef enum {
+    WebURLCredentialPersistenceNone,
+    WebURLCredentialPersistenceForSession,
+    WebURLCredentialPersistencePermanent
+} WebURLCredentialPersistence;
+
+[
+    object,
+    oleautomation,
+    uuid(5382DABA-C3C3-40c5-AA40-04079F11A844),
+    pointer_default(unique)
+]
+interface IWebURLAuthenticationChallenge : IUnknown
+{
+    /*
+        - (NSError *)error
+    */
+    HRESULT error([out, retval] IWebError** result);
+
+    /*
+        - (NSURLResponse *)failureResponse
+    */
+    HRESULT failureResponse([out, retval] IWebURLResponse** result);
+
+    /*
+        - (id)initWithAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge sender:(id<NSURLAuthenticationChallengeSender>)sender
+    */
+    HRESULT initWithAuthenticationChallenge([in] IWebURLAuthenticationChallenge* challenge, [in] IWebURLAuthenticationChallengeSender* sender);
+
+    /*
+        - (id)initWithProtectionSpace:(NSURLProtectionSpace *)space proposedCredential:(NSURLCredential *)credential previousFailureCount:(int)count failureResponse:(NSURLResponse *)response error:(NSError *)error sender:(id <NSURLAuthenticationChallengeSender>)sender
+    */
+    HRESULT initWithProtectionSpace([in] IWebURLProtectionSpace* space, [in] IWebURLCredential* proposedCredential, [in] int previousFailureCount, [in] IWebURLResponse* failureResponse, [in] IWebError* error, [in] IWebURLAuthenticationChallengeSender* sender);
+
+    /*
+        -(unsigned)previousFailureCount
+    */
+    HRESULT previousFailureCount([out, retval] UINT* result);
+
+    /*
+        -(NSURLCredential *)proposedCredential
+    */
+    HRESULT proposedCredential([out, retval] IWebURLCredential** result);
+
+    /*
+        - (NSURLProtectionSpace *)protectionSpace
+    */
+    HRESULT protectionSpace([out, retval] IWebURLProtectionSpace** result);
+
+    /*
+        - (id<NSURLAuthenticationChallengeSender>)sender
+    */
+    HRESULT sender([out, retval] IWebURLAuthenticationChallengeSender** sender);
+}
+
+[
+    object,
+    oleautomation,
+    uuid(9360D6FB-186C-4ff7-AE57-D1B973DA0D1C),
+    pointer_default(unique)
+]
+interface IWebURLAuthenticationChallengeSender : IUnknown
+{
+    /*
+        - (void)cancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
+    */
+    HRESULT cancelAuthenticationChallenge([in] IWebURLAuthenticationChallenge* challenge);
+
+    /*
+        - (void)continueWithoutCredentialForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
+    */
+    HRESULT continueWithoutCredentialForAuthenticationChallenge([in] IWebURLAuthenticationChallenge* challenge);
+
+    /*
+        - (void)useCredential:(NSURLCredential *)credential forAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
+    */
+    HRESULT useCredential([in] IWebURLCredential* credential, [in] IWebURLAuthenticationChallenge* challenge);
+}
+
+cpp_quote("#define WebURLProtectionSpaceHTTP TEXT(\"http\")")
+cpp_quote("#define WebURLProtectionSpaceHTTPS TEXT(\"https\")")
+cpp_quote("#define WebURLProtectionSpaceFTP TEXT(\"ftp\")")
+cpp_quote("#define WebURLProtectionSpaceFTPS TEXT(\"ftps\")")
+cpp_quote("#define WebURLProtectionSpaceHTTPProxy TEXT(\"http\")")
+cpp_quote("#define WebURLProtectionSpaceHTTPSProxy TEXT(\"https\")")
+cpp_quote("#define WebURLProtectionSpaceFTPProxy TEXT(\"ftp\")")
+cpp_quote("#define WebURLProtectionSpaceSOCKSProxy TEXT(\"SOCKS\")")
+cpp_quote("#define WebURLAuthenticationMethodDefault TEXT(\"WebURLAuthenticationMethodDefault\")")
+cpp_quote("#define WebURLAuthenticationMethodHTTPBasic TEXT(\"WebURLAuthenticationMethodHTTPBasic\")")
+cpp_quote("#define WebURLAuthenticationMethodHTTPDigest TEXT(\"WebURLAuthenticationMethodHTTPDigest\")")
+cpp_quote("#define WebURLAuthenticationMethodHTMLForm TEXT(\"WebURLAuthenticationMethodHTMLForm\")")
+
+[
+    object,
+    oleautomation,
+    hidden,
+    uuid(71D2622A-3FF2-404b-BD45-C60659C901AF),
+    pointer_default(unique)
+]
+interface IWebURLProtectionSpace : IUnknown
+{
+    /*
+        -(NSString *)authenticationMethod
+    */
+    HRESULT authenticationMethod([out, retval] BSTR* result);
+
+    /*
+        -(NSString *)host
+    */
+    HRESULT host([out, retval] BSTR* result);
+
+    /*
+        -(id)initWithHost:(NSString *)host port:(int)port protocol:(NSString *)protocol realm:(NSString *)realm authenticationMethod:(NSString *)authenticationMethod
+    */
+    HRESULT initWithHost([in] BSTR host, [in] int port, [in] BSTR protocol, [in] BSTR realm, [in] BSTR authenticationMethod);
+
+    /*
+        -(id)initWithProxyHost:(NSString *)host port:(int)port type:(NSString *)proxyType realm:(NSString *)realm authenticationMethod:(NSString *)authenticationMethod
+    */
+    HRESULT initWithProxyHost([in] BSTR host, [in] int port, [in] BSTR proxyType, [in] BSTR realm, [in] BSTR authenticationMethod);
+
+    /*
+        -(BOOL)isProxy
+    */
+    HRESULT isProxy([out, retval] BOOL* result);
+
+    /*
+        -(int)port
+    */
+    HRESULT port([out, retval] int* result);
+
+    /*
+        -(NSString *)protocol
+    */
+    HRESULT protocol([out, retval] BSTR* result);
+
+    /*
+        -(NSString *)proxyType
+    */
+    HRESULT proxyType([out, retval] BSTR* result);
+
+    /*
+        -(NSString *)realm
+    */
+    HRESULT realm([out, retval] BSTR* result);
+
+    /*
+        -(BOOL)receivesCredentialSecurely
+    */
+    HRESULT receivesCredentialSecurely([out, retval] BOOL* result);
+}
+
+[
+    object,
+    oleautomation,
+    hidden,
+    uuid(A1E9D765-FACE-4189-BBE3-AED7EBF65EBD),
+    pointer_default(unique)
+]
+interface IWebURLCredential : IUnknown
+{
+    /*
+        -(BOOL)hasPassword
+    */
+    HRESULT hasPassword([out, retval] BOOL* result);
+
+    /*
+        -(id)initWithUser:(NSString *)user password:(NSString *)password persistence:(NSURLCredentialPersistence)persistence
+    */
+    HRESULT initWithUser([in] BSTR user, [in] BSTR password, [in] WebURLCredentialPersistence persistence);
+
+    /*
+        -(NSString *)password
+    */
+    HRESULT password([out, retval] BSTR* password);
+
+    /*
+        -(NSURLCredentialPersistence)persistence
+    */
+    HRESULT persistence([out, retval] WebURLCredentialPersistence* result);
+
+    /*
+        -(NSString *)user
+    */
+    HRESULT user([out, retval] BSTR* result);
+}

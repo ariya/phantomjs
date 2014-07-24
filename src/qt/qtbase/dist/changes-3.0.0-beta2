@@ -1,0 +1,363 @@
+Qt 3.0 Beta2 is not binary compatible with Beta1, this means that any
+programs linked with Beta1 must be recompiled.
+
+Below you'll find a description of general changes in the Qt Library
+and Qt Designer followed by a detailed list of changes in the
+programming API.
+
+
+The Qt Library
+========================================
+
+Wacom Tablet Support
+--------------------
+
+Support for Wacom brand tablets has been introduced on Irix and
+Windows.  These devices generate a QTabletEvent that can be handled by
+QWidget::tabletEvent(). The QTabletEvent holds information about
+pressure, X and Y tilt, and which device is being used (e.g. stylus or
+eraser).  Note: at present, there are known issues with the Windows
+version.
+
+Documentation
+-------------
+
+Overall enhancements including fixed typos and the addition of several
+images and code examples.
+
+QStyle (and derived classes)
+----------------------------
+
+The style API has been completely rewritten in Qt 3.0. The main reason
+for doing this was because it was getting inconsistent, hard to
+maintain and extend. Most of the old 2.x functions have been replaced
+by a small set of more general functions. The new API is:
+
+ - much more consistent
+ - less work have to be done to create custom styles
+ - easier to extend and maintain binary compatibility
+
+The old API relied upon a host of virtual functions that were
+re-implemented in the different styles. These functions were used to
+draw parts of, or entire widgets. The new API uses a small set of more
+general functions. Enumerated values are passed as parameters to these
+functions to specify which parts of a control or widget is to be drawn
+(e.g drawPrimitive( PE_ArrowUp, ...)).
+
+To create custom styles with the new API, simply subclass from the
+preferred base style and re-implement the function that draws the part
+of the widget you want to change. If you for example want to change
+the look of the arrows that are used in QWindowsStyle, subclass from
+it and re-implement the drawPrimitive() function. Your drawPrimitive()
+function may look something like this:
+
+void QMyStyle::drawPrimitive( PrimitiveElement pe, ... )
+{
+        switch( pe ) {
+        case PE_ArrowUp:
+                // draw up arrow
+                break;
+        case PE_ArrowDown:
+                // draw down arrow
+                break;
+        default:
+                // let the base class handle the rest of the drawing
+                QWindowsStyle::drawPrimitive( ... );
+                break;
+        }
+}
+
+For more information about the new style API, please read the QStyle
+documentation.
+
+
+Qt Designer
+========================================
+
+ - Improved indentation algorithm for the code editor.
+ - Allow multiple code editors to be open. This makes copy and paste
+   much easier.
+
+
+Qt Functions
+========================================
+
+QCanvas
+-------
+
+ - QCanvas does not react on windowActivationChange() anymore.
+ - 64 bit cleanup.
+
+QChar
+-----
+
+ - The Unicode character is stored host ordered now. Main advantage is
+   that you can directly cast a QChar array to an array of unsigned shorts.
+
+QCom
+----
+
+ - Introduced QS_OK, QS_FALSE, QE_NOINTERFACE, QE_INVALIDARG and
+   QE_NOIMPL as possible QRESULT return values.
+
+QDate, QTime and QDateTime
+--------------------------
+
+ - New function for outputting free form strings and new DateFormat
+   enum Qt::LocalDate.
+
+New functions:
+	QString	toString( const QString& format );
+
+QDir
+----
+
+ - entryInfoList() returns 0 for non-existing directories on Windows
+   as the documentation claims and the Unix version already does.
+ - On Windows, QDir tries a more failsafe way to determine the home
+   directory.
+
+QDom
+----
+
+ - QDomNode::hasChildNodes() now works as documented.
+ - QDomDocument::toString() includes now namespaces in its output.
+ - QDomDocument::QDomDocument() constructor now allows adding children
+   to the document.
+
+QFileDialog
+-----------
+
+ - Various fixes in file type filter and handling of file names and
+ directories.
+
+QEvent
+------
+
+ - New event type DeferredDelete. See QObject changes below.
+
+QGL
+---
+
+ - Fix for Irix in respect of installing colormaps.
+ - Swapped arguments of QGLColormap::setEntries() in order to be able
+   to use a meaningful default argument.
+
+New class:
+	QGLColormap - class for manipulating colormaps in GL index mode.
+
+QGridView
+---------
+
+A new class that provides an abstract base for fixed-size grids.
+
+QIconSet
+--------
+
+New function:
+	void clearGenerated();
+
+QImage
+------
+
+ - Handlers for image formats can be dynamically loaded as a plug-in by
+ using the QImageFormatInterface.
+
+QLabel
+------
+
+ - setIndent() behaves like documented.
+
+QLineEdit
+---------
+
+New function:
+	int characterAt( int xpos, QChar *chr ) const;
+
+QLibrary
+--------
+
+Enabled plug-in loading with static Qt library (Windows).
+
+QMovie
+------
+
+ - Does pixmap caching now. Reduces load e.g. on the X Server in the
+ case of animated gifs.
+
+QObject
+-------
+
+ - Added a deferredDelete() function that will cause the object to
+ delete itself once the event loop is entered again.
+
+ - A second type of destroyed signal - one that passes a pointer to
+ the destroyed object as a parameter - will be emitted in QObject's
+ destructor.
+
+New signal:
+	void destroyed( QObject* obj );
+
+New slot:
+	void deferredDelete();
+
+QPainter
+--------
+
+ - So far clipping had always been done in the device coordinate
+   system. The newly introduced ClipMode allows clipping regions to be
+   set via setClipRect() and setClipRegion() in painter coordinates.
+
+New enum:
+	enum ClipMode { ClipDevice, ClipPainter };
+
+Extended functions:
+	QRegion clipRegion( ClipMode = ClipDevice ) const;
+	void setClipRect( const QRect &, ClipMode = ClipDevice )
+	void setClipRect( int x, int y, int w, int h, ClipMode = ClipDevice );
+	void setClipRegion( const QRegion &, ClipMode = ClipDevice );
+
+QPrintDialog
+------------
+
+ - Allow overriding the default print dialog. This way it's possible
+   to better cope with the variety of existing print systems (API not
+   finalized, yet).
+ - The dialog reads current QPrinter on every invocation now.
+
+New functions:
+	static void setGlobalPrintDialog( QPrintDialog * );
+	virtual bool setupPrinters ( QListView *printers );
+
+QPrinter
+--------
+
+ - X11 version only: Introduced Qt settings switch 'embedFonts' that
+   allows disabling font embedding to reduce size of PostScript output.
+
+QProcess
+--------
+
+ - Added function to retrieve the pid (Unix) or PROCESS_INFORMATION
+   (Windows) from a running process.
+ - Extra parameter for environment settings in start() and launch()
+   functions.
+
+New/extended functions:
+	PID processIdentifier();
+	virtual bool start( QStringList *env=0 );
+	virtual bool launch( const QString& buf, QStringList *env=0  );
+	virtual bool launch( const QByteArray& buf, QStringList *env=0  );
+
+New signal:
+	void launchFinished();
+
+QServerSocket
+-------------
+
+ - Set the SO_REUSEADDR option so that the server can be restarted.
+
+QSocket
+-------
+
+ - Make deletion of QSocket instances safe if it is in response to a
+   signal emitted by the object itself.
+
+SocketDevice
+------------
+
+ - Optional boolean parameter to be able to distinguish between
+   timeout and connection closed by peer when waitForMore() returns.
+
+Extended functions:
+	int waitForMore( int msecs, bool *timeout=0 ) const;
+
+QStyleSheet
+-----------
+
+ - Added helper function that escapes HTML meta-characters.
+
+New function:
+	QString escape( const QString& plain);
+
+QSql
+----
+
+ - The source of the SQL driver plug-ins have been moved to
+   $QTDIR/plugins/src/sqldrivers/.
+ - The postgres driver checks the version number of the server. So there is
+   no need for different drivers: QPSQL6 no longer exists -- use QPSQL7
+   instead.
+ - Postgres driver supports now 3 PostgreSQL back ends: 6.x, 7.0.x and 7.1.x
+ - Better handling of errors coming from the database.
+ - SQL driver for Microsoft SQL Server and Sybase Adaptive Server (TDS).
+ - Added caching for forward-only cursors.
+ - Avoid crashes on the unloading of SQL plugins that occurred on some
+   platforms.
+ - QSqlResults can be forward only to improve performance
+   (QSqlResult::setForwardOnly()).
+ - QSqlDatabase passes the port number to the SQL driver.
+
+QTable
+------
+
+ - No longer calls processEvents() in columnWidthChanged() and
+   rowHeightChanged() in order to avoid any side effects.
+ - Ensure that mousePressEvent doesn't emit contextMenuRequested(),
+   unless it is called from the contextMenu event handler.
+ - For more useful subclassing the new functions listed below have
+   been added.
+
+New functions:
+	bool isEditing() const;
+	EditMode editMode() const;
+	int currEditRow() const;
+	int currEditCol() const;
+
+QTextCodec
+----------
+
+ - Fixes for characters in the 0x80..0xff range.
+
+QTextEdit
+---------
+
+ - The rich text engine has seen many internal improvements and
+   additions to the QTextEdit class.
+
+New functions:
+	virtual void scrollToBottom();
+	virtual void removeSelection( int selNum = 0 );
+	virtual bool getParagraphFormat(...);
+	virtual void insertParagraph( const QString &text, int para );
+	virtual void removeParagraph( int para );
+	virtual void insertAt( const QString &text, int para, int index );
+	QRect paragraphRect( int para ) const;
+	int paragraphAt( const QPoint &pos ) const;
+	int charAt( const QPoint &pos, int *para ) const;
+	
+QUrlOperator
+------------
+
+ - More precise error messages.
+
+QWidget
+-------
+
+ - Added a read-only property containing the widget's background brush.
+
+New function:
+	virtual const QBrush& backgroundBrush() const;
+
+QWMatrix
+--------
+
+ - New functions for mapping of geometric elements via matrix
+   multiplication semantics.
+
+New functions:
+	QRect mapRect( const QRect & );
+	QPoint operator * (const QPoint & ) const;
+	QRegion operator * (const QRect & ) const;
+	QRegion operator * (const QRegion & ) const;
+	QPointArray operator *  ( const QPointArray &a ) const;

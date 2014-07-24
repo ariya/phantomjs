@@ -1,0 +1,112 @@
+# -------------------------------------------------------------------
+# QtWebKit defaults for qmake. These rules are parsed before the
+# actual project file.
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+# Allow environment tweaks to pre-loaded .qmake.cache content
+env_cache = $$(QMAKE_CACHE_EVAL)
+eval($$env_cache)
+
+load(functions)
+
+# FIXME: In this case we probably want to exit early so that we
+# don't load all of the custom build tweaks needlessly.
+pro_file = $$_PRO_FILE_ # Checking the variable directly does not work
+isEmpty(pro_file): CONFIG += recursive_include
+
+# Resolve root directories for source and build
+ROOT_WEBKIT_DIR = $$replace(PWD, /Tools/qmake/mkspecs/features$,)
+WEBKIT_SUBDIR = $$replace(_PRO_FILE_PWD_, $$re_escape($${ROOT_WEBKIT_DIR}),)
+ROOT_BUILD_DIR = $$replace(OUT_PWD, $$re_escape($${WEBKIT_SUBDIR})$,)
+
+# Now we're ready to load default_pre from Qt
+load(default_pre)
+
+equals(OUT_PWD, $${ROOT_BUILD_DIR}) {
+    !recursive_include:CONFIG += root_project_file
+    BUILD_ROOT_RELATIVE_TO_OUT_PWD = .
+} else {
+    subdir_parts = $$replace(OUT_PWD, ^$$re_escape($${ROOT_BUILD_DIR})/,)
+    subdir_parts = $$split(subdir_parts, /)
+    for(subdir, subdir_parts) {
+        BUILD_ROOT_RELATIVE_TO_OUT_PWD += ..
+    }
+    BUILD_ROOT_RELATIVE_TO_OUT_PWD = $$join(BUILD_ROOT_RELATIVE_TO_OUT_PWD, /)
+}
+
+# Try to detect if we're running under Windows cmd.exe or not
+win32:isEmpty(MINGW_IN_SHELL): CONFIG += win_cmd_shell
+
+# Default location of generated sources
+GENERATED_SOURCES_DESTDIR = generated
+
+QUOTE = ""
+DOUBLE_ESCAPED_QUOTE = ""
+ESCAPE = ""
+win_cmd_shell {
+    ESCAPE = "^"
+} else {
+    QUOTE = "\'"
+    DOUBLE_ESCAPED_QUOTE = "\\\'"
+}
+EOL = $$escape_expand(\\n)
+EOC = $$escape_expand(\\n\\t)
+TAB = $$escape_expand(\\t)
+
+MAKEFILE_NOOP_COMMAND = @echo -n
+win32-msvc*: MAKEFILE_NOOP_COMMAND = @echo >NUL
+
+# Set up a default python version
+scratchbox: PYTHON = python2.6
+else: PYTHON = python
+
+# We use private_tests to detect developer build, since the destdir will
+# always be our webkit build dir. This might change as configure changes.
+contains(QT_CONFIG, private_tests): CONFIG += qt_developer_build
+
+# By default we enable "production build", and build-webkit, which is
+# used by bots and developers, will disable it, to enable warnings etc.
+CONFIG += production_build
+
+# Run configure before making decisions that depend on the result
+root_project_file {
+    load(configure)
+    runConfigure()
+}
+
+unix:config_gccdepends {
+    # We have a compiler that supports the -MD option (and neither
+    # teambuilder nor icecream is messing up the .d file output).
+    CONFIG += GNUmake gcc_MD_depends
+}
+
+# Set some defaults for specific platforms
+CONFIG += include_webinspector
+
+# Make sure we process the PKGCONFIG variable if applicable
+!mac: CONFIG += link_pkgconfig
+
+# Make sure the static libraries are compiled with the same C++11 setting
+# as the module will be linked with. This is particular important on mac
+# since otherwise the libraries can be compiled against libstdc++, but
+# linked against libc++.
+contains(QT_CONFIG, c++11): CONFIG += c++11
+
+# Limit the creation of thin archives to Linux, since only GNU's ar supports it.
+!debug_and_release:linux-g++*:!contains(QT_CONFIG, static) CONFIG += gnu_thin_archives
+
+# Pick up Qt's defaults for debug/release/debug_and_release
+if(win32|mac):!macx-xcode {
+    contains(QT_CONFIG, debug_and_release): CONFIG += debug_and_release
+    contains(QT_CONFIG, build_all): CONFIG += build_all
+}
+
+# A newer version of flex is required on Windows. At the moment the only
+# one that appears to provide binaries and is not cygwin is winflex.
+FLEX = flex
+win32: FLEX = win_flex
+
+BIN_EXTENSION =
+win32: BIN_EXTENSION = .exe

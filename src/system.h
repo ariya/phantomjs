@@ -31,6 +31,7 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
+#include <QApplication>
 #include <QObject>
 #include <QStringList>
 #include <QMap>

@@ -1,0 +1,53 @@
+Changes for Qt/CE 4.3.x "Feierabend" release.
+
+****************************************************************************
+*                           Features                                       *
+****************************************************************************
+
+- Added precompiled platform tools to package
+
+- Added/Updated documentation
+
+- Added/Updated examples
+
+****************************************************************************
+*                           Bug fixes                                      *
+****************************************************************************
+
+- cetest
+   * cleanup directory hierarchy in case user specified.
+   * fixed libpath option which was not case-insensitive.
+
+- configure.exe
+   * fixed order of c-runtime deployment.
+   * fixed --(xy)prefix options to work in Windows Command Prompt.
+
+- QDesktopWidget
+   * fixed SIP handling bug.
+
+- QFeatures
+   * fixed custom configuration build issues.
+
+- QFileDialog
+   * updated UI to fit on embedded screen.
+   * in case no native dialog exists on device, use Qt FileDialog instead.
+   * fixed file extension bug.
+
+- QFSFileEngine
+   * workaround for Windows Mobile for taking MAX_PATH not into account.
+
+- QGraphicsView
+   * fixed bug when qreal is not double.
+
+- QLibraryInfo
+   * fixed legacy bug about not finding the plugins path.
+
+- QSysInfo
+   * added Windows CE 6.
+
+- QWidget
+   * fixed potential minimize/maximize bug.
+
+- QPaintEngine
+   * detect bitdepth on startup and create 16bit buffers, if possible.
+

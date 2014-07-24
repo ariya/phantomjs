@@ -1,0 +1,237 @@
+/*
+ * Copyright (C) 2009 Apple Inc.  All rights reserved.
+ * Copyright (C) 2009 Google Inc.
+ * Copyright (C) 2012 Zan Dobersek <zandobersek@gmail.com>
+ * Copyright (C) 2012 Igalia S.L.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/* These are based on the Chromium media controls */
+
+body:-webkit-full-page-media {
+    background-color: rgb(0, 0, 0);
+}
+
+audio {
+    width: 300px;
+    height: 30px;
+}
+
+audio:-webkit-full-page-media, video:-webkit-full-page-media {
+    max-height: 100%;
+    max-width: 100%;
+}
+
+audio:-webkit-full-page-media::-webkit-media-controls-panel,
+video:-webkit-full-page-media::-webkit-media-controls-panel {
+    bottom: 0px;
+}
+
+::-webkit-media-controls {
+    display: -webkit-flex;
+    -webkit-flex-direction: column;
+    -webkit-justify-content: flex-end;
+    -webkit-align-items: center;
+}
+
+audio::-webkit-media-controls-enclosure, video::-webkit-media-controls-enclosure {
+    width: 100%;
+    max-width: 800px;
+    height: 30px;
+    bottom: 0;
+    text-indent: 0;
+    padding: 0;
+    box-sizing: border-box;
+    overflow: visible;
+}
+
+video::-webkit-media-controls-enclosure {
+    padding: 5px;
+    height: 40px;
+}
+
+audio::-webkit-media-controls-panel, video::-webkit-media-controls-panel {
+    display: -webkit-flex;
+    -webkit-flex-direction: row;
+    -webkit-align-items: center;
+    -webkit-justify-content: flex-start;
+    bottom: auto;
+    height: 30px;
+    background-color: rgba(20, 20, 20, 0.8);
+    border-radius: 5px;
+    overflow: visible;
+}
+
+audio::-webkit-media-controls-mute-button, video::-webkit-media-controls-mute-button {
+    -webkit-appearance: media-mute-button;
+    display: -webkit-flex;
+    -webkit-flex: none;
+    border: none;
+    box-sizing: border-box;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    margin: 0 9px 0 -7px;
+}
+
+audio::-webkit-media-controls-play-button, video::-webkit-media-controls-play-button {
+    -webkit-appearance: media-play-button;
+    display: -webkit-flex;
+    -webkit-flex: none;
+    border: none;
+    box-sizing: border-box;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    margin: 0 9px;
+}
+
+audio::-webkit-media-controls-current-time-display, video::-webkit-media-controls-current-time-display,
+audio::-webkit-media-controls-time-remaining-display, video::-webkit-media-controls-time-remaining-display {
+    -webkit-appearance: media-current-time-display;
+    -webkit-user-select: none;
+    -webkit-flex: none;
+    display: block;
+    border: none;
+    cursor: default;
+
+    height: 30px;
+    margin: 0 15px 0 0;
+
+    line-height: 30px;
+    font-family: -webkit-small-control;
+    font-size: 13px;
+    font-weight: normal;
+    font-style: normal;
+    color: white;
+
+    letter-spacing: normal;
+    word-spacing: normal;
+    text-transform: none;
+    text-indent: 0;
+    text-shadow: none;
+    text-decoration: none;
+}
+
+audio::-webkit-media-controls-timeline, video::-webkit-media-controls-timeline {
+    -webkit-appearance: media-slider;
+    display: -webkit-flex;
+    -webkit-flex: 1 1 auto;
+    height: 8px;
+    margin: 0 15px 0 1px;
+    padding: 0;
+    background-color: transparent;
+    min-width: 25px;
+    border-radius: 4px;
+    color: rgba(230, 230, 230, 0.35);
+}
+
+audio::-webkit-media-controls-volume-slider-container, video::-webkit-media-controls-volume-slider-container {
+    -webkit-appearance: media-volume-slider-container;
+    position: absolute;
+    padding: 0;
+    height: 100px;
+    width: 30px;
+    bottom: 30px;
+    z-index: 2;
+    background-color: rgba(20, 20, 20, 0.8);
+    right: 9px;
+    border-radius: 5px 5px 0px 0px;
+}
+
+audio::-webkit-media-controls-volume-slider, video::-webkit-media-controls-volume-slider {
+    -webkit-appearance: media-volume-slider;
+    display: -webkit-flex;
+    -webkit-align-items: center;
+    -webkit-flex-direction: column;
+    box-sizing: border-box;
+    height: 80px;
+    width: 8px;
+    margin: 10px auto;
+    border-radius: 4px;
+    background-color: transparent;
+    color: rgba(230, 230, 230, 0.35);
+}
+
+audio::-webkit-media-controls-volume-slider-container input[type="range"]::-webkit-media-slider-container > div, video::-webkit-media-controls-volume-slider-container input[type="range"]::-webkit-media-slider-container > div {
+    margin: -7px 0;
+}
+
+audio::-webkit-media-controls-volume-slider-container input[type="range"]::-webkit-media-slider-thumb, video::-webkit-media-controls-volume-slider-container input[type="range"]::-webkit-media-slider-thumb {
+    -webkit-appearance: media-volume-sliderthumb;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    color: white;
+    margin: 0;
+}
+
+input[type="range"]::-webkit-media-slider-container {
+    display: -webkit-flex;
+    -webkit-align-items: center;
+    -webkit-flex-direction: row; /* This property is updated by C++ code. */
+    box-sizing: border-box;
+    height: 100%;
+    width: 100%;
+    border: 1px solid rgba(230, 230, 230, 0.35);
+    border-radius: 4px;
+    background-color: transparent;
+}
+
+/* The negative right margin causes the track to overflow its container. */
+input[type="range"]::-webkit-media-slider-container > div {
+    margin-right: -14px;
+}
+
+input[type="range"]::-webkit-media-slider-thumb {
+    -webkit-appearance: media-sliderthumb;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    color: white;
+    margin-left: -7px;
+    margin-right: -7px;
+}
+
+audio::-webkit-media-controls-toggle-closed-captions-button, video::-webkit-media-controls-toggle-closed-captions-button {
+    -webkit-appearance: media-toggle-closed-captions-button;
+    display: -webkit-flex;
+    -webkit-flex: none;
+    border: none;
+    box-sizing: border-box;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    margin: 0 9px 0 -7px;
+}
+
+audio::-webkit-media-controls-fullscreen-button, video::-webkit-media-controls-fullscreen-button {
+    -webkit-appearance: media-enter-fullscreen-button;
+    display: -webkit-flex;
+    -webkit-flex: none;
+    border: none;
+    box-sizing: border-box;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    margin: 0 9px 0 -7px;
+}

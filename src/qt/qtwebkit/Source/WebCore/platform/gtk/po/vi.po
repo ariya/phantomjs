@@ -1,0 +1,2541 @@
+# Vietnamese translation for WebKit.
+# This file is put in the public domain.
+# Nguyễn Thái Ngọc Duy <pclouds@gmail.com>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: webkit 1.1.4\n"
+"Report-Msgid-Bugs-To: http://bugs.webkit.org/\n"
+"POT-Creation-Date: 2013-03-15 17:34-0300\n"
+"PO-Revision-Date: 2010-03-01 20:49+0700\n"
+"Last-Translator: Nguyễn Thái Ngọc Duy <pclouds@gmail.com>\n"
+"Language-Team: Vietnamese <vi-VN@googlegroups.com>\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ErrorsGtk.cpp:37
+msgid "Load request cancelled"
+msgstr ""
+
+#: ErrorsGtk.cpp:43
+msgid "Not allowed to use restricted network port"
+msgstr ""
+
+#: ErrorsGtk.cpp:49
+msgid "URL cannot be shown"
+msgstr ""
+
+#: ErrorsGtk.cpp:55
+msgid "Frame load was interrupted"
+msgstr ""
+
+#: ErrorsGtk.cpp:61
+msgid "Content with the specified MIME type cannot be shown"
+msgstr ""
+
+#: ErrorsGtk.cpp:67
+msgid "File does not exist"
+msgstr ""
+
+#: ErrorsGtk.cpp:73
+msgid "Plugin will handle load"
+msgstr ""
+
+#: ErrorsGtk.cpp:85
+msgid "User cancelled the download"
+msgstr "Người dùng đã huỷ tải về"
+
+#: ErrorsGtk.cpp:105
+msgid "Printer not found"
+msgstr ""
+
+#: ErrorsGtk.cpp:112
+#, fuzzy
+msgid "Invalid page range"
+msgstr "Bật page cache"
+
+#: GtkAuthenticationDialog.cpp:171
+#, c-format
+msgid "The site %s:%i requests a username and password"
+msgstr ""
+
+#: GtkAuthenticationDialog.cpp:175
+msgid "_Remember password"
+msgstr "_Nhớ mật khẩu"
+
+#: GtkAuthenticationDialog.cpp:201
+msgid "Server message:"
+msgstr "Thông điệp máy chủ:"
+
+#: GtkAuthenticationDialog.cpp:202 GtkAuthenticationDialog.cpp:210
+msgid "Username:"
+msgstr "Tên người dùng:"
+
+#: GtkAuthenticationDialog.cpp:203 GtkAuthenticationDialog.cpp:211
+msgid "Password:"
+msgstr "Mật khẩu:"
+
+#: LocalizedStringsGtk.cpp:56 LocalizedStringsGtk.cpp:61
+msgid "Submit"
+msgstr "Gửi"
+
+#: LocalizedStringsGtk.cpp:66
+msgid "Reset"
+msgstr "Phục hồi"
+
+#: LocalizedStringsGtk.cpp:71
+msgid "Details"
+msgstr ""
+
+#: LocalizedStringsGtk.cpp:76
+msgid "This is a searchable index. Enter search keywords: "
+msgstr "Đây là chỉ mục tìm kiếm được. Hãy nhập từ khoá cần tìm: "
+
+#: LocalizedStringsGtk.cpp:81
+msgid "Choose File"
+msgstr "Chọn tập tin"
+
+#: LocalizedStringsGtk.cpp:86
+#, fuzzy
+msgid "Choose Files"
+msgstr "Chọn tập tin"
+
+#: LocalizedStringsGtk.cpp:91 LocalizedStringsGtk.cpp:96
+msgid "(None)"
+msgstr "(Không)"
+
+#: LocalizedStringsGtk.cpp:101
+msgid "Open Link in New _Window"
+msgstr "_Mở liên kết trong cửa sổ mới"
+
+#: LocalizedStringsGtk.cpp:106
+msgid "_Download Linked File"
+msgstr "_Tải tập tin được liên kết"
+
+#: LocalizedStringsGtk.cpp:111
+msgid "Copy Link Loc_ation"
+msgstr "Chép vị trí _liên kết"
+
+#: LocalizedStringsGtk.cpp:116
+msgid "Open _Image in New Window"
+msgstr "Mở ả_nh trong cửa sổ mới"
+
+#: LocalizedStringsGtk.cpp:121
+msgid "Sa_ve Image As"
+msgstr "Lưu ảnh _là"
+
+#: LocalizedStringsGtk.cpp:126
+msgid "Cop_y Image"
+msgstr "Chép ả_nh"
+
+#: LocalizedStringsGtk.cpp:131
+#, fuzzy
+msgid "Copy Image _Address"
+msgstr "Chép ả_nh"
+
+#: LocalizedStringsGtk.cpp:136
+#, fuzzy
+msgid "Open _Video in New Window"
+msgstr "Mở ả_nh trong cửa sổ mới"
+
+#: LocalizedStringsGtk.cpp:141
+#, fuzzy
+msgid "Open _Audio in New Window"
+msgstr "_Mở liên kết trong cửa sổ mới"
+
+#: LocalizedStringsGtk.cpp:146
+#, fuzzy
+msgid "Cop_y Video Link Location"
+msgstr "Chép vị trí _liên kết"
+
+#: LocalizedStringsGtk.cpp:151
+#, fuzzy
+msgid "Cop_y Audio Link Location"
+msgstr "Chép vị trí _liên kết"
+
+#: LocalizedStringsGtk.cpp:156
+msgid "_Toggle Media Controls"
+msgstr ""
+
+#: LocalizedStringsGtk.cpp:161
+msgid "Toggle Media _Loop Playback"
+msgstr ""
+
+#: LocalizedStringsGtk.cpp:166
+msgid "Switch Video to _Fullscreen"
+msgstr ""
+
+#: LocalizedStringsGtk.cpp:171
+msgid "_Play"
+msgstr ""
+
+#: LocalizedStringsGtk.cpp:176
+#, fuzzy
+msgid "_Pause"
+msgstr "tạm dừng"
+
+#: LocalizedStringsGtk.cpp:181
+msgid "_Mute"
+msgstr ""
+
+#: LocalizedStringsGtk.cpp:186
+msgid "Open _Frame in New Window"
+msgstr "Mở _khung trong cửa sổ mới"
+
+#: LocalizedStringsGtk.cpp:209
+msgid "_Insert Unicode Control Character"
+msgstr "_Chèn kí tự Unicode"
+
+#: LocalizedStringsGtk.cpp:214
+msgid "Input _Methods"
+msgstr "Kiểu _nhập"
+
+#: LocalizedStringsGtk.cpp:237
+msgid "_Reload"
+msgstr "Nạp _lại"
+
+#: LocalizedStringsGtk.cpp:254
+msgid "No Guesses Found"
+msgstr "Không đoán ra"
+
+#: LocalizedStringsGtk.cpp:259
+msgid "_Ignore Spelling"
+msgstr "_Bỏ qua lỗi chính tả"
+
+#: LocalizedStringsGtk.cpp:264
+msgid "_Learn Spelling"
+msgstr "_Học lỗi chính tả"
+
+#: LocalizedStringsGtk.cpp:269
+msgid "_Search the Web"
+msgstr "_Tìm trên Web"
+
+#: LocalizedStringsGtk.cpp:274
+msgid "_Look Up in Dictionary"
+msgstr "_Tra từ điển"
+
+#: LocalizedStringsGtk.cpp:279
+msgid "_Open Link"
+msgstr "_Mở liên kết"
+
+#: LocalizedStringsGtk.cpp:284
+msgid "Ignore _Grammar"
+msgstr "Bỏ qua _ngữ pháp"
+
+#: LocalizedStringsGtk.cpp:289
+msgid "Spelling and _Grammar"
+msgstr "Chính tả và _Ngữ pháp"
+
+#: LocalizedStringsGtk.cpp:294
+msgid "_Show Spelling and Grammar"
+msgstr "_Hiện lỗi chính tả và ngữ pháp"
+
+#: LocalizedStringsGtk.cpp:294
+msgid "_Hide Spelling and Grammar"
+msgstr "Ẩ_n Chính tả và Ngữ pháp"
+
+#: LocalizedStringsGtk.cpp:299
+msgid "_Check Document Now"
+msgstr "_Kiểm tra tài liệu ngay"
+
+#: LocalizedStringsGtk.cpp:304
+msgid "Check Spelling While _Typing"
+msgstr "Kiểm tra khi đang _gõ"
+
+#: LocalizedStringsGtk.cpp:309
+msgid "Check _Grammar With Spelling"
+msgstr "Kiểm tra lỗi _ngữ pháp kèm chính tả"
+
+#: LocalizedStringsGtk.cpp:314
+msgid "_Font"
+msgstr "_Phông"
+
+#: LocalizedStringsGtk.cpp:337
+msgid "_Outline"
+msgstr "_Nét ngoài"
+
+#: LocalizedStringsGtk.cpp:342
+msgid "Inspect _Element"
+msgstr "Thanh tra _yếu tố"
+
+#: LocalizedStringsGtk.cpp:347
+msgid "LRM _Left-to-right mark"
+msgstr "LRM Đánh dấu _Trái-sang-phải"
+
+#: LocalizedStringsGtk.cpp:352
+msgid "RLM _Right-to-left mark"
+msgstr "RLM Đánh dấu _Phải-sang-trái"
+
+#: LocalizedStringsGtk.cpp:357
+msgid "LRE Left-to-right _embedding"
+msgstr "LRE _Nhúng Trái-sang-phải"
+
+#: LocalizedStringsGtk.cpp:362
+msgid "RLE Right-to-left e_mbedding"
+msgstr "RLE N_húng Phải-sang-trái"
+
+#: LocalizedStringsGtk.cpp:367
+msgid "LRO Left-to-right _override"
+msgstr "LRO Đè T_rái-sang-phải"
+
+#: LocalizedStringsGtk.cpp:372
+msgid "RLO Right-to-left o_verride"
+msgstr "RLO Đè P_hải-sang-trái"
+
+#: LocalizedStringsGtk.cpp:377
+msgid "PDF _Pop directional formatting"
+msgstr "PDF Định dạng hướng _Pop"
+
+#: LocalizedStringsGtk.cpp:382
+msgid "ZWS _Zero width space"
+msgstr "ZWS khoảng trống không kích thước"
+
+#: LocalizedStringsGtk.cpp:387
+msgid "ZWJ Zero width _joiner"
+msgstr "ZWJ _Kết nối không kích thước"
+
+#: LocalizedStringsGtk.cpp:392
+msgid "ZWNJ Zero width _non-joiner"
+msgstr "ZWNJ _Phi kết nối không kích thước"
+
+#: LocalizedStringsGtk.cpp:397
+msgid "No recent searches"
+msgstr "Không có tìm kiếm gần đây"
+
+#: LocalizedStringsGtk.cpp:402
+msgid "Recent searches"
+msgstr "Tìm kiếm gần đây"
+
+#: LocalizedStringsGtk.cpp:407
+msgid "_Clear recent searches"
+msgstr "_Xoá tìm kiếm gần đây"
+
+#: LocalizedStringsGtk.cpp:412
+msgid "definition"
+msgstr "định nghĩa"
+
+#: LocalizedStringsGtk.cpp:417
+msgid "term"
+msgstr "thuật ngữ"
+
+#: LocalizedStringsGtk.cpp:422
+#, fuzzy
+msgid "description"
+msgstr "định nghĩa"
+
+#: LocalizedStringsGtk.cpp:427
+msgid "footer"
+msgstr ""
+
+#: LocalizedStringsGtk.cpp:432
+msgid "press"
+msgstr "nhấn"
+
+#: LocalizedStringsGtk.cpp:437
+msgid "select"
+msgstr "chọn"
+
+#: LocalizedStringsGtk.cpp:442
+msgid "activate"
+msgstr "kích hoạt"
+
+#: LocalizedStringsGtk.cpp:447
+msgid "uncheck"
+msgstr "bỏ chọn"
+
+#: LocalizedStringsGtk.cpp:452
+msgid "check"
+msgstr "chọn"
+
+#: LocalizedStringsGtk.cpp:457
+msgid "jump"
+msgstr "nhảy"
+
+#: LocalizedStringsGtk.cpp:472
+msgid "Missing Plug-in"
+msgstr ""
+
+#: LocalizedStringsGtk.cpp:478
+msgid "Plug-in Failure"
+msgstr ""
+
+#: LocalizedStringsGtk.cpp:502
+msgid " files"
+msgstr " tập tin"
+
+#: LocalizedStringsGtk.cpp:507
+msgid "Unknown"
+msgstr "Không biết"
+
+#: LocalizedStringsGtk.cpp:524
+msgid "Loading..."
+msgstr "Đang nạp"
+
+#: LocalizedStringsGtk.cpp:529
+msgid "Live Broadcast"
+msgstr "Phát trực tiếp"
+
+#: LocalizedStringsGtk.cpp:535
+msgid "audio element controller"
+msgstr "bộ điều khiển phần tử âm thanh"
+
+#: LocalizedStringsGtk.cpp:537
+msgid "video element controller"
+msgstr "bộ điều khiển phần tử hình ảnh"
+
+#: LocalizedStringsGtk.cpp:539
+msgid "mute"
+msgstr "tắt tiếng"
+
+#: LocalizedStringsGtk.cpp:541
+msgid "unmute"
+msgstr "không tắt tiếng"
+
+#: LocalizedStringsGtk.cpp:543
+msgid "play"
+msgstr "phát"
+
+#: LocalizedStringsGtk.cpp:545
+msgid "pause"
+msgstr "tạm dừng"
+
+#: LocalizedStringsGtk.cpp:547
+msgid "movie time"
+msgstr "thời lượng phim"
+
+#: LocalizedStringsGtk.cpp:549
+msgid "timeline slider thumb"
+msgstr "con chạy thời gian"
+
+#: LocalizedStringsGtk.cpp:551
+msgid "back 30 seconds"
+msgstr "lùi 30 giây"
+
+#: LocalizedStringsGtk.cpp:553
+msgid "return to realtime"
+msgstr "trở về thời gian thực"
+
+#: LocalizedStringsGtk.cpp:555
+msgid "elapsed time"
+msgstr "thời gian đã qua"
+
+#: LocalizedStringsGtk.cpp:557
+msgid "remaining time"
+msgstr "thời gian còn lại"
+
+#: LocalizedStringsGtk.cpp:559
+msgid "status"
+msgstr "tình trạng"
+
+#: LocalizedStringsGtk.cpp:561
+#, fuzzy
+msgid "enter fullscreen"
+msgstr "toàn màn hình"
+
+#: LocalizedStringsGtk.cpp:563
+#, fuzzy
+msgid "exit fullscreen"
+msgstr "toàn màn hình"
+
+#: LocalizedStringsGtk.cpp:565
+msgid "fast forward"
+msgstr "tới nhanh"
+
+#: LocalizedStringsGtk.cpp:567
+msgid "fast reverse"
+msgstr "lùi lại"
+
+#: LocalizedStringsGtk.cpp:569
+msgid "show closed captions"
+msgstr "xay đầu đề"
+
+#: LocalizedStringsGtk.cpp:571
+msgid "hide closed captions"
+msgstr "ẩn đầu đề"
+
+#: LocalizedStringsGtk.cpp:573
+msgid "media controls"
+msgstr ""
+
+#: LocalizedStringsGtk.cpp:582
+msgid "audio element playback controls and status display"
+msgstr "bộ điều khiển phần tử phát tiếng và hiển thị tình trạng"
+
+#: LocalizedStringsGtk.cpp:584
+msgid "video element playback controls and status display"
+msgstr "bộ điều khiển phần tử phát hình và hiển thị tình trạng"
+
+#: LocalizedStringsGtk.cpp:586
+msgid "mute audio tracks"
+msgstr "tắt tiếng"
+
+#: LocalizedStringsGtk.cpp:588
+msgid "unmute audio tracks"
+msgstr "không tắt tiếng"
+
+#: LocalizedStringsGtk.cpp:590
+msgid "begin playback"
+msgstr "bắt đầu phát"
+
+#: LocalizedStringsGtk.cpp:592
+msgid "pause playback"
+msgstr "tạm dừng phát"
+
+#: LocalizedStringsGtk.cpp:594
+msgid "movie time scrubber"
+msgstr ""
+
+#: LocalizedStringsGtk.cpp:596
+msgid "movie time scrubber thumb"
+msgstr ""
+
+#: LocalizedStringsGtk.cpp:598
+msgid "seek movie back 30 seconds"
+msgstr "quay lùi phim 30 giây"
+
+#: LocalizedStringsGtk.cpp:600
+msgid "return streaming movie to real time"
+msgstr "trở về luồng thời gian thực"
+
+#: LocalizedStringsGtk.cpp:602
+msgid "current movie time in seconds"
+msgstr "thời gian của phim theo giây"
+
+#: LocalizedStringsGtk.cpp:604
+msgid "number of seconds of movie remaining"
+msgstr "số giây còn lại"
+
+#: LocalizedStringsGtk.cpp:606
+msgid "current movie status"
+msgstr "tình trạng phim hiện thời"
+
+#: LocalizedStringsGtk.cpp:608
+msgid "seek quickly back"
+msgstr "lùi ngược nhanh"
+
+#: LocalizedStringsGtk.cpp:610
+msgid "seek quickly forward"
+msgstr "chạy tới nhanh"
+
+#: LocalizedStringsGtk.cpp:612
+msgid "Play movie in fullscreen mode"
+msgstr "Xem phim toàn màn hình"
+
+#: LocalizedStringsGtk.cpp:614
+#, fuzzy
+msgid "Exit fullscreen mode"
+msgstr "Xem phim toàn màn hình"
+
+#: LocalizedStringsGtk.cpp:616
+msgid "start displaying closed captions"
+msgstr "bắt đầu hiển thị đầu đề"
+
+#: LocalizedStringsGtk.cpp:618
+msgid "stop displaying closed captions"
+msgstr "ngưng hiển thị đầu đề"
+
+#: LocalizedStringsGtk.cpp:627
+msgid "indefinite time"
+msgstr "vô hạn"
+
+#: LocalizedStringsGtk.cpp:657
+msgid "value missing"
+msgstr "thiếu giá trị"
+
+#: LocalizedStringsGtk.cpp:693
+msgid "type mismatch"
+msgstr "kiểu không khớp"
+
+#: LocalizedStringsGtk.cpp:716
+msgid "pattern mismatch"
+msgstr "mẫu không khớp"
+
+#: LocalizedStringsGtk.cpp:721
+msgid "too long"
+msgstr "quá dài"
+
+#: LocalizedStringsGtk.cpp:726
+msgid "range underflow"
+msgstr "phạm vi quá ngắn"
+
+#: LocalizedStringsGtk.cpp:731
+msgid "range overflow"
+msgstr "phạm vi quá dài"
+
+#: LocalizedStringsGtk.cpp:736
+msgid "step mismatch"
+msgstr "nhảy bước không khớp"
+
+#: LocalizedStringsGtk.cpp:741
+msgid "Unacceptable TLS certificate"
+msgstr ""
+
+#: ../graphics/gtk/FullscreenVideoControllerGtk.cpp:328
+msgid "Play"
+msgstr ""
+
+#: ../graphics/gtk/FullscreenVideoControllerGtk.cpp:330
+#, fuzzy
+msgid "Pause"
+msgstr "tạm dừng"
+
+#: ../graphics/gtk/FullscreenVideoControllerGtk.cpp:410
+msgid "Play / Pause"
+msgstr ""
+
+#: ../graphics/gtk/FullscreenVideoControllerGtk.cpp:410
+msgid "Play or pause the media"
+msgstr ""
+
+#: ../graphics/gtk/FullscreenVideoControllerGtk.cpp:416
+msgid "Time:"
+msgstr ""
+
+#: ../graphics/gtk/FullscreenVideoControllerGtk.cpp:442
+#, fuzzy
+msgid "Exit Fullscreen"
+msgstr "toàn màn hình"
+
+#: ../graphics/gtk/FullscreenVideoControllerGtk.cpp:442
+#, fuzzy
+msgid "Exit from fullscreen mode"
+msgstr "Xem phim toàn màn hình"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:276
+msgid "Network Request"
+msgstr "Yêu cầu mạng"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:277
+msgid "The network request for the URI that should be downloaded"
+msgstr "Yêu cầu mạng cho URI cần tải về"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:291
+msgid "Network Response"
+msgstr "Hồi đáp mạng"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:292
+msgid "The network response for the URI that should be downloaded"
+msgstr "Hồi đáp mạng cho URI cần tải về"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:306
+msgid "Destination URI"
+msgstr "URI đích"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:307
+msgid "The destination URI where to save the file"
+msgstr "URI đích nơi lưu tập tin"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:321
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:150
+msgid "Suggested Filename"
+msgstr "Tên tập tin đề nghị"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:322
+msgid "The filename suggested as default when saving"
+msgstr "Tên tập tin đề nghị mặc định khi lưu"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:339
+msgid "Progress"
+msgstr "Tiến trình"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:340
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:171
+msgid "Determines the current progress of the download"
+msgstr "Xác định tiến độ tải về hiện thời"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:353
+msgid "Status"
+msgstr "Tình trạng"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:354
+msgid "Determines the current status of the download"
+msgstr "Xác định tình trạng tải về hiện thời"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:369
+msgid "Current Size"
+msgstr "Kích thước hiện thời"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:370
+msgid "The length of the data already downloaded"
+msgstr "Lượng dữ liệu đã tải về"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:384
+msgid "Total Size"
+msgstr "Kích thước tổng cộng"
+
+#: ../../../WebKit/gtk/webkit/webkitdownload.cpp:385
+msgid "The total size of the file"
+msgstr "Kích thước của toàn bộ tập tin"
+
+#: ../../../WebKit/gtk/webkit/webkitfavicondatabase.cpp:144
+#: ../../../WebKit/gtk/webkit/webkitfavicondatabase.cpp:579
+msgid "Operation was cancelled"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitfavicondatabase.cpp:253
+#: ../../../WebKit/gtk/webkit/webkiticondatabase.cpp:148
+msgid "Path"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitfavicondatabase.cpp:254
+#: ../../../WebKit/gtk/webkit/webkiticondatabase.cpp:149
+#, fuzzy
+msgid "The absolute path of the icon database folder"
+msgstr "Lượng dữ liệu đã tải về"
+
+#: ../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:129
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:128
+msgid "MIME types filter"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:130
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:129
+msgid "The filter currently associated with the request"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:145
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:142
+msgid "MIME types"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:146
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:143
+msgid "The list of MIME types associated with the request"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:161
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:157
+msgid "Select multiple files"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:162
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:158
+msgid "Whether the file chooser should allow selecting multiple files"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:177
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:171
+#, fuzzy
+msgid "Selected files"
+msgstr " tập tin"
+
+#: ../../../WebKit/gtk/webkit/webkitfilechooserrequest.cpp:178
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFileChooserRequest.cpp:172
+msgid "The list of selected files associated with the request"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:175
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:152
+msgid "Context"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:176
+msgid "Flags indicating the kind of target that received the event."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:190
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:166
+#, fuzzy
+msgid "Link URI"
+msgstr "URI biểu tượng"
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:191
+msgid "The URI to which the target that received the event points, if any."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:204
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:205
+msgid "Image URI"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:205
+msgid ""
+"The URI of the image that is part of the target that received the event, if "
+"any."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:218
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:218
+msgid "Media URI"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:219
+msgid ""
+"The URI of the media that is part of the target that received the event, if "
+"any."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:240
+msgid "Inner node"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:241
+msgid "The inner DOM node associated with the hit test result."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:254
+msgid "X coordinate"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:255
+msgid "The x coordinate of the event relative to the view's window."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:268
+msgid "Y coordinate"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkithittestresult.cpp:269
+msgid "The y coordinate of the event relative to the view's window."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitnetworkrequest.cpp:134
+#: ../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:143
+#: ../../../WebKit/gtk/webkit/webkitwebframe.cpp:466
+#: ../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:176
+#: ../../../WebKit/gtk/webkit/webkitwebresource.cpp:209
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3238
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIRequest.cpp:93
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:99
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebResource.cpp:109
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:635
+msgid "URI"
+msgstr "URI"
+
+#: ../../../WebKit/gtk/webkit/webkitnetworkrequest.cpp:135
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIRequest.cpp:94
+msgid "The URI to which the request will be made."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitnetworkrequest.cpp:148
+#: ../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:157
+msgid "Message"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitnetworkrequest.cpp:149
+msgid "The SoupMessage that backs the request."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:144
+msgid "The URI to which the response will be made."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:158
+msgid "The SoupMessage that backs the response."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:171
+#, fuzzy
+msgid "Suggested filename"
+msgstr "Tên tập tin đề nghị"
+
+#: ../../../WebKit/gtk/webkit/webkitnetworkresponse.cpp:172
+#, fuzzy
+msgid "The suggested filename for the response."
+msgstr "Khung đích để xem"
+
+#: ../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:150
+msgid "Protocol"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:151
+msgid "The protocol of the security origin"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:164
+msgid "Host"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:165
+#, fuzzy
+msgid "The host of the security origin"
+msgstr "Tựa đề mục lược sử"
+
+#: ../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:178
+msgid "Port"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:179
+#, fuzzy
+msgid "The port of the security origin"
+msgstr "Tựa đề mục lược sử"
+
+#: ../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:192
+msgid "Web Database Usage"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:193
+msgid "The cumulative size of all web databases in the security origin"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:205
+msgid "Web Database Quota"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitsecurityorigin.cpp:206
+msgid "The web database quota of the security origin in bytes"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:138
+msgid "Device Width"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:139
+#, fuzzy
+msgid "The width of the screen."
+msgstr "Tựa đề mục lược sử"
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:160
+msgid "Device Height"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:161
+#, fuzzy
+msgid "The height of the screen."
+msgstr "Tên khung"
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:184
+msgid "Available Width"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:185
+#, fuzzy
+msgid "The width of the visible area."
+msgstr "Tựa đề mục lược sử"
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:208
+msgid "Available Height"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:209
+#, fuzzy
+msgid "The height of the visible area."
+msgstr "Tựa đề mục lược sử"
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:230
+msgid "Desktop Width"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:231
+msgid ""
+"The width of viewport that works well for most web pages designed for "
+"desktop."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:253
+msgid "Device DPI"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:254
+msgid "The number of dots per inch of the screen."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:272
+msgid "Width"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:273
+#, fuzzy
+msgid "The width of the viewport."
+msgstr "Tựa đề mục lược sử"
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:291
+msgid "Height"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:292
+#, fuzzy
+msgid "The height of the viewport."
+msgstr "Tựa đề mục lược sử"
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:310
+msgid "Initial Scale Factor"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:311
+#, fuzzy
+msgid "The initial scale of the viewport."
+msgstr "Kích thước của toàn bộ tập tin"
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:329
+#, fuzzy
+msgid "Minimum Scale Factor"
+msgstr "Cỡ phông logic tối thiểu"
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:330
+#, fuzzy
+msgid "The minimum scale of the viewport."
+msgstr "Tựa đề mục lược sử"
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:348
+msgid "Maximum Scale Factor"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:349
+#, fuzzy
+msgid "The maximum scale of the viewport."
+msgstr "Tựa đề mục lược sử"
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:367
+msgid "Device Pixel Ratio"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:368
+msgid "The device pixel ratio of the viewport."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:386
+msgid "user-scalable"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:387
+msgid "User Scalable"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:388
+msgid "Determines whether or not the user can zoom in and out."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:405
+msgid "valid"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:406
+msgid "Valid"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitviewportattributes.cpp:407
+msgid "Determines whether or not the attributes are valid, and can be used."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:176
+msgid "Security Origin"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:177
+#, fuzzy
+msgid "The security origin of the database"
+msgstr "Bảng mã tự chọn cho khung xem Web"
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:190
+#: ../../../WebKit/gtk/webkit/webkitwebframe.cpp:452
+msgid "Name"
+msgstr "Tên"
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:191
+#, fuzzy
+msgid "The name of the Web Database database"
+msgstr "Tên khung"
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:204
+msgid "Display Name"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:205
+msgid "The display name of the Web Storage database"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:218
+msgid "Expected Size"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:219
+msgid "The expected size of the Web Database database"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:231
+msgid "Size"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:232
+msgid "The current size of the Web Database database"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:244
+#, fuzzy
+msgid "Filename"
+msgstr "Tên tập tin đề nghị"
+
+#: ../../../WebKit/gtk/webkit/webkitwebdatabase.cpp:245
+msgid "The absolute filename of the Web Storage database"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebframe.cpp:453
+msgid "The name of the frame"
+msgstr "Tên khung"
+
+#: ../../../WebKit/gtk/webkit/webkitwebframe.cpp:459
+#: ../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:144
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3224
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:591
+msgid "Title"
+msgstr "Tựa đề"
+
+#: ../../../WebKit/gtk/webkit/webkitwebframe.cpp:460
+msgid "The document title of the frame"
+msgstr "Tựa đề tài liệu của khung"
+
+#: ../../../WebKit/gtk/webkit/webkitwebframe.cpp:467
+msgid "The current URI of the contents displayed by the frame"
+msgstr "URI hiện thời của nội dung khung đang hiển thị"
+
+#: ../../../WebKit/gtk/webkit/webkitwebframe.cpp:498
+msgid "Horizontal Scrollbar Policy"
+msgstr "Quy tắc thanh cuộn ngang"
+
+#: ../../../WebKit/gtk/webkit/webkitwebframe.cpp:499
+msgid ""
+"Determines the current policy for the horizontal scrollbar of the frame."
+msgstr "Xác định quy tắc hiện thời cho thanh cuộn ngang của khung."
+
+#: ../../../WebKit/gtk/webkit/webkitwebframe.cpp:516
+msgid "Vertical Scrollbar Policy"
+msgstr "Quy tắc thanh cuộn dọc"
+
+#: ../../../WebKit/gtk/webkit/webkitwebframe.cpp:517
+msgid "Determines the current policy for the vertical scrollbar of the frame."
+msgstr "Xác định quy tắc hiện thời cho thanh cuộn dọc của khung."
+
+#: ../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:145
+msgid "The title of the history item"
+msgstr "Tựa đề mục lược sử"
+
+#: ../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:160
+msgid "Alternate Title"
+msgstr "Tựa đề thay thế"
+
+#: ../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:161
+msgid "The alternate title of the history item"
+msgstr "Tựa đề thay thế cho mục lược sử"
+
+#: ../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:177
+msgid "The URI of the history item"
+msgstr "URI cho mục lược sử"
+
+#: ../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:192
+#: ../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:163
+msgid "Original URI"
+msgstr "URI gốc"
+
+#: ../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:193
+msgid "The original URI of the history item"
+msgstr "URI gốc của mục lược sử"
+
+#: ../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:208
+msgid "Last visited Time"
+msgstr "Lần xem cuối"
+
+#: ../../../WebKit/gtk/webkit/webkitwebhistoryitem.cpp:209
+msgid "The time at which the history item was last visited"
+msgstr "Thời điểm xem mục lược sử lần cuối"
+
+#: ../../../WebKit/gtk/webkit/webkitwebinspector.cpp:273
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:154
+msgid "Web View"
+msgstr "Khung xem Web"
+
+#: ../../../WebKit/gtk/webkit/webkitwebinspector.cpp:274
+msgid "The Web View that renders the Web Inspector itself"
+msgstr "Khung xem Web dùng để hiển thị bản thân Thanh tra Web"
+
+#: ../../../WebKit/gtk/webkit/webkitwebinspector.cpp:287
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebInspector.cpp:122
+msgid "Inspected URI"
+msgstr "URI được điều tra"
+
+#: ../../../WebKit/gtk/webkit/webkitwebinspector.cpp:288
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebInspector.cpp:123
+msgid "The URI that is currently being inspected"
+msgstr "URI đang được điều tra"
+
+#: ../../../WebKit/gtk/webkit/webkitwebinspector.cpp:304
+msgid "Enable JavaScript profiling"
+msgstr "Bật kiểm định JavaScript"
+
+#: ../../../WebKit/gtk/webkit/webkitwebinspector.cpp:305
+msgid "Profile the executed JavaScript."
+msgstr "Kiểm định JavaScript được thực thi."
+
+#: ../../../WebKit/gtk/webkit/webkitwebinspector.cpp:320
+msgid "Enable Timeline profiling"
+msgstr "Bật kiểm định trục thời gian"
+
+#: ../../../WebKit/gtk/webkit/webkitwebinspector.cpp:321
+msgid "Profile the WebCore instrumentation."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:148
+msgid "Reason"
+msgstr "Nguyên nhân"
+
+#: ../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:149
+msgid "The reason why this navigation is occurring"
+msgstr "Lý do duyệt gặp lỗi"
+
+#: ../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:164
+msgid "The URI that was requested as the target for the navigation"
+msgstr "URI được yêu cầu làm đích duyệt"
+
+#: ../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:178
+msgid "Button"
+msgstr "Nút"
+
+#: ../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:179
+msgid "The button used to click"
+msgstr "Nút được dùng để nhấn"
+
+#: ../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:194
+msgid "Modifier state"
+msgstr "Trạng thái phím bổ trợ"
+
+#: ../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:195
+msgid "A bitmask representing the state of the modifier keys"
+msgstr "Bitmask đại diện trạng thái phím bổ trợ"
+
+#: ../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:210
+msgid "Target frame"
+msgstr "Khung đích"
+
+#: ../../../WebKit/gtk/webkit/webkitwebnavigationaction.cpp:211
+msgid "The target frame for the navigation"
+msgstr "Khung đích để xem"
+
+#: ../../../WebKit/gtk/webkit/webkitwebplugin.cpp:115
+#, fuzzy
+msgid "Enabled"
+msgstr "Có thể thay đổi"
+
+#: ../../../WebKit/gtk/webkit/webkitwebplugin.cpp:116
+#, fuzzy
+msgid "Whether the plugin is enabled"
+msgstr "Có bật tính năng page cache không"
+
+#: ../../../WebKit/gtk/webkit/webkitwebresource.cpp:210
+#, fuzzy
+msgid "The URI of the resource"
+msgstr "URI cho mục lược sử"
+
+#: ../../../WebKit/gtk/webkit/webkitwebresource.cpp:224
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:137
+msgid "MIME Type"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebresource.cpp:225
+#, fuzzy
+msgid "The MIME type of the resource"
+msgstr "Tựa đề mục lược sử"
+
+#: ../../../WebKit/gtk/webkit/webkitwebresource.cpp:239
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3373
+msgid "Encoding"
+msgstr "Bảng mã"
+
+#: ../../../WebKit/gtk/webkit/webkitwebresource.cpp:240
+#, fuzzy
+msgid "The text encoding name of the resource"
+msgstr "Bảng mã mặc định cho khung xem Web"
+
+#: ../../../WebKit/gtk/webkit/webkitwebresource.cpp:255
+msgid "Frame Name"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebresource.cpp:256
+#, fuzzy
+msgid "The frame name of the resource"
+msgstr "Tên khung"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:150
+msgid "Default Encoding"
+msgstr "Bảng mã mặc định"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:151
+msgid "The default encoding used to display text."
+msgstr "Bảng mã mặc định để hiển thị văn bản."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:159
+msgid "Cursive Font Family"
+msgstr "Họ phông Cursive"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:160
+msgid "The default Cursive font family used to display text."
+msgstr "Họ phông Cursive mặc định để hiển thị văn bản."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:168
+msgid "Default Font Family"
+msgstr "Họ phông mặc định"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:169
+msgid "The default font family used to display text."
+msgstr "Họ phông mặc định để hiển thị văn bản."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:177
+msgid "Fantasy Font Family"
+msgstr "Họ phông Fantasy"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:178
+msgid "The default Fantasy font family used to display text."
+msgstr "Họ phông Fantasy mặc định để hiển thị văn bản."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:186
+msgid "Monospace Font Family"
+msgstr "Họ phông Monospace"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:187
+msgid "The default font family used to display monospace text."
+msgstr "Họ phông Monospace mặc định để hiển thị văn bản."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:195
+msgid "Sans Serif Font Family"
+msgstr "Họ phông Sans Serif"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:196
+msgid "The default Sans Serif font family used to display text."
+msgstr "Họ phông Sans Serif mặc định để hiển thị văn bản."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:204
+msgid "Serif Font Family"
+msgstr "Họ phông Serif"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:205
+msgid "The default Serif font family used to display text."
+msgstr "Họ phông Serif mặc định để hiển thị văn bản."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:213
+msgid "Default Font Size"
+msgstr "Cỡ phông mặc định"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:214
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:717
+msgid "The default font size used to display text."
+msgstr "Cỡ phông mặc định để hiển thị văn bản."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:222
+msgid "Default Monospace Font Size"
+msgstr "Cỡ phông Monospace mặc định"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:223
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:731
+msgid "The default font size used to display monospace text."
+msgstr "Cỡ phông Monospace mặc định để hiển thị văn bản."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:231
+msgid "Minimum Font Size"
+msgstr "Cỡ phông tối thiểu"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:232
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:746
+msgid "The minimum font size used to display text."
+msgstr "Cỡ phông tối thiểu để hiển thị văn bản."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:240
+msgid "Minimum Logical Font Size"
+msgstr "Cỡ phông logic tối thiểu"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:241
+msgid "The minimum logical font size used to display text."
+msgstr "Cỡ phông logic tối thiểu dùng để hiển thị văn bản."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:260
+msgid "Enforce 96 DPI"
+msgstr "Ép 96 DPI"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:261
+msgid "Enforce a resolution of 96 DPI"
+msgstr "Ép độ phân giảii 96 DPI"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:269
+msgid "Auto Load Images"
+msgstr "Tự động nạp ảnh"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:270
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:458
+msgid "Load images automatically."
+msgstr "Nạp ảnh tự động."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:278
+msgid "Auto Shrink Images"
+msgstr "Tự động co ảnh."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:279
+msgid "Automatically shrink standalone images to fit."
+msgstr "Tự động co ảnh độc lập cho khít."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:287
+msgid "Respect Image Orientation"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:288
+msgid "Whether WebKit should respect image orientation."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:296
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:870
+msgid "Print Backgrounds"
+msgstr "In ảnh nền"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:297
+msgid "Whether background images should be printed."
+msgstr "Có in ảnh nền hay không."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:305
+msgid "Enable Scripts"
+msgstr "Bật script"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:306
+msgid "Enable embedded scripting languages."
+msgstr "Bật ngôn ngữ nhúng dạng script."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:314
+msgid "Enable Plugins"
+msgstr "Bật phần mở rộng"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:315
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:568
+msgid "Enable embedded plugin objects."
+msgstr "Bật phần mở rộng,"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:323
+msgid "Resizable Text Areas"
+msgstr "Ô văn bản có thể thay đổi kích thước."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:324
+msgid "Whether text areas are resizable."
+msgstr "Ô văn bản có thể thay đổi kích thước hay không."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:331
+msgid "User Stylesheet URI"
+msgstr "URI stylesheet người dùng"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:332
+msgid "The URI of a stylesheet that is applied to every page."
+msgstr "URI của stylesheet áp dụng cho mọi trang."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:347
+msgid "Zoom Stepping Value"
+msgstr "Giá trị bước thu/phóng"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:348
+msgid "The value by which the zoom level is changed when zooming in or out."
+msgstr "Giá trị thay đổi mức thu phóng mỗi lần."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:366
+msgid "Enable Developer Extras"
+msgstr "Bật Developer Extras"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:367
+msgid "Enables special extensions that help developers"
+msgstr "Bật các phần mở rộng đặc biệt, hữu dụng cho người phát triển"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:387
+msgid "Enable Private Browsing"
+msgstr "Bật duyệt riêng tư"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:388
+msgid "Enables private browsing mode"
+msgstr "Bật chế độ duyệt riêng tư"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:403
+msgid "Enable Spell Checking"
+msgstr "Bật kiểm lỗi chính tả"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:404
+msgid "Enables spell checking while typing"
+msgstr "Kiểm lỗi chính tả khi đang gõ"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:427
+msgid "Languages to use for spell checking"
+msgstr "Ngôn ngữ kiểm lỗi chính tả"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:428
+msgid "Comma separated list of languages to use for spell checking"
+msgstr "Danh sách ngôn ngữ kiểm lỗi chính tả, cách nhau bằng dấu phẩy"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:442
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:841
+msgid "Enable Caret Browsing"
+msgstr "Bật con nháy"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:443
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:842
+msgid "Whether to enable accessibility enhanced keyboard navigation"
+msgstr "Có bật khả năng duyệt tăng cường bằng bàn phím không"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:458
+msgid "Enable HTML5 Database"
+msgstr "Bật Cơ sở dữ liệu HTML5"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:459
+msgid "Whether to enable HTML5 database support"
+msgstr "Có bật hỗ trợ Cơ sở dữ liệu HTML5 không"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:474
+msgid "Enable HTML5 Local Storage"
+msgstr "Bật Kho chứa HTML5 cục bộ"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:475
+msgid "Whether to enable HTML5 Local Storage support"
+msgstr "Có bật hỗ trợ Kho chứa HTML5 cục bộ không"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:490
+msgid "Local Storage Database Path"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:491
+#, fuzzy
+msgid "The path to where HTML5 Local Storage databases are stored."
+msgstr "Có bật hỗ trợ Kho chứa HTML5 cục bộ không"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:505
+msgid "Enable XSS Auditor"
+msgstr "Bật kiểm tra XSS"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:506
+#, fuzzy
+msgid "Whether to enable the XSS auditor"
+msgstr "Có bật kiểm tra XSS không"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:524
+msgid "Enable Spatial Navigation"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:525
+#, fuzzy
+msgid "Whether to enable Spatial Navigation"
+msgstr "Có bật kiểm tra XSS không"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:543
+#, fuzzy
+msgid "Enable Frame Flattening"
+msgstr "Bật duyệt riêng tư"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:544
+#, fuzzy
+msgid "Whether to enable Frame Flattening"
+msgstr "Có cho dán DOM không"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:561
+msgid "User Agent"
+msgstr "Đại diện người dùng"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:562
+msgid "The User-Agent string used by WebKitGtk"
+msgstr "Chuỗi User-Agent WebKitGtk sẽ dùng"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:577
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:594
+msgid "JavaScript can open windows automatically"
+msgstr "JavaScript được phép mở cửa sổ"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:578
+msgid "Whether JavaScript can open windows automatically"
+msgstr "JavaScript có được phép tự động mở cửa sổ không"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:592
+msgid "JavaScript can access Clipboard"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:593
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:954
+#, fuzzy
+msgid "Whether JavaScript can access Clipboard"
+msgstr "JavaScript có được phép tự động mở cửa sổ không"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:609
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:489
+msgid "Enable offline web application cache"
+msgstr "Bật lưu tạm ứng dụng web ngoại tuyến"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:610
+msgid "Whether to enable offline web application cache"
+msgstr "Có bật lưu tạm ứng dụng web ngoại tuyến không"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:635
+msgid "Editing behavior"
+msgstr "Cách sửa đổi"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:636
+msgid "The behavior mode to use in editing mode"
+msgstr "Cách sửa đổi được sử dụng trong chế độ sửa đổi"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:652
+msgid "Enable universal access from file URIs"
+msgstr "Bật truy cập thống nhất từ URI của tập tin"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:653
+msgid "Whether to allow universal access from file URIs"
+msgstr "Có cho phép truy cập thống nhất từ URI của tập tin không"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:668
+msgid "Enable DOM paste"
+msgstr "Cho dán DOM"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:669
+msgid "Whether to enable DOM paste"
+msgstr "Có cho dán DOM không"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:687
+msgid "Tab key cycles through elements"
+msgstr "Xoay vòng phím Tab qua các thành phần"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:688
+msgid "Whether the tab key cycles through elements on the page."
+msgstr "Có xoay vòng phím Tab trên các thành phần của trang không"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:710
+msgid "Enable Default Context Menu"
+msgstr "Bật menu ngữ cảnh mặc định"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:711
+msgid ""
+"Enables the handling of right-clicks for the creation of the default context "
+"menu"
+msgstr "Cho phép phím chuột phải tạo menu ngữ cảnh mặc định"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:731
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1018
+msgid "Enable Site Specific Quirks"
+msgstr "Bật khắc phục đặc thù cho các trang"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:732
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1019
+msgid "Enables the site-specific compatibility workarounds"
+msgstr "Khắc phục những nhược điểm đặc thù của một số trang web"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:754
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1039
+msgid "Enable page cache"
+msgstr "Bật page cache"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:755
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1040
+msgid "Whether the page cache should be used"
+msgstr "Có bật tính năng page cache không"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:775
+msgid "Auto Resize Window"
+msgstr "Tự động đổi kích thước cửa sổ"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:776
+msgid "Automatically resize the toplevel window when a page requests it"
+msgstr "Tự động thay đổi kích thước cửa sổ trên cùng khi trang yêu cầu"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:808
+msgid "Enable Java Applet"
+msgstr "Bật tiểu dụng Java"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:809
+msgid "Whether Java Applet support through <applet> should be enabled"
+msgstr "Cho phép hỗ trợ tiểu dụng Java bằng <applet>"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:823
+#, fuzzy
+msgid "Enable Hyperlink Auditing"
+msgstr "Bật kiểm định trục thời gian"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:824
+#, fuzzy
+msgid "Whether <a ping> should be able to send pings"
+msgstr "Có bật tính năng page cache không"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:832
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:857
+#, fuzzy
+msgid "Enable Fullscreen"
+msgstr "toàn màn hình"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:833
+#, fuzzy
+msgid "Whether the Mozilla style API should be enabled."
+msgstr "Có bật tính năng page cache không"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:848
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:904
+msgid "Enable WebGL"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:849
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:905
+#, fuzzy
+msgid "Whether WebGL content should be rendered"
+msgstr "Có in ảnh nền hay không."
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:865
+#, fuzzy
+msgid "Enable accelerated compositing"
+msgstr "Bật duyệt riêng tư"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:866
+#, fuzzy
+msgid "Whether accelerated compositing should be enabled"
+msgstr "Cho phép hỗ trợ tiểu dụng Java bằng <applet>"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:884
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:889
+#, fuzzy
+msgid "Enable WebAudio"
+msgstr "Bật kiểm tra XSS"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:885
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:890
+#, fuzzy
+msgid "Whether WebAudio content should be handled"
+msgstr "Có bật tính năng page cache không"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:901
+msgid "WebKit prefetches domain names"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:902
+msgid "Whether WebKit prefetches domain names"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:920
+#, fuzzy
+msgid "Enable Media Stream"
+msgstr "Cho dán DOM"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:921
+#, fuzzy
+msgid "Whether Media Stream should be enabled"
+msgstr "Có bật tính năng page cache không"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:936
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1072
+#, fuzzy
+msgid "Enable smooth scrolling"
+msgstr "Bật con nháy"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:937
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1073
+#, fuzzy
+msgid "Whether to enable smooth scrolling"
+msgstr "Có bật kiểm tra XSS không"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:955
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:970
+msgid "Media playback requires user gesture"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:956
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:971
+msgid "Whether media playback requires user gesture"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:972
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:985
+msgid "Media playback allows inline"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:973
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:986
+msgid "Whether media playback allows inline"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:991
+#, fuzzy
+msgid "Enable CSS shaders"
+msgstr "Bật kiểm tra XSS"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:992
+#, fuzzy
+msgid "Whether to enable css shaders"
+msgstr "Có cho dán DOM không"
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:1007
+msgid "Enable display of insecure content"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:1008
+msgid "Whether non-HTTPS resources can display on HTTPS pages."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:1023
+msgid "Enable running of insecure content"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebsettings.cpp:1024
+msgid "Whether non-HTTPS resources can run on HTTPS pages."
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:1314
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:425
+msgid "Select Files"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:1314
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:425
+msgid "Select File"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3225
+msgid "Returns the @web_view's document title"
+msgstr "Trả về tiêu đề tài liệu của @web_view"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3239
+msgid "Returns the current URI of the contents displayed by the @web_view"
+msgstr "Trả về URI hiện thời của tài liệu được @web_view hiển thị"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3252
+msgid "Copy target list"
+msgstr "Danh sách đích chép"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3253
+msgid "The list of targets this web view supports for clipboard copying"
+msgstr "Danh sách đích mà khung xem web này hỗ trợ khi chép vào clipboard."
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3266
+msgid "Paste target list"
+msgstr "Danh sách đích dán"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3267
+msgid "The list of targets this web view supports for clipboard pasting"
+msgstr "Danh sách đích mà khung xem web này hỗ trợ khi dán clipboard."
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3273
+msgid "Settings"
+msgstr "Thiết lập"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3274
+msgid "An associated WebKitWebSettings instance"
+msgstr "Một thể hiện WebKitWebSettings liên kết"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3287
+#: ../../../WebKit2/UIProcess/gtk/WebInspectorProxyGtk.cpp:93
+#: ../../../WebKit2/UIProcess/gtk/WebInspectorProxyGtk.cpp:153
+msgid "Web Inspector"
+msgstr "Thanh tra Web"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3288
+msgid "The associated WebKitWebInspector instance"
+msgstr "Một thể hiện WebKitWebInspector liên kết"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3301
+msgid "Viewport Attributes"
+msgstr ""
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3302
+#, fuzzy
+msgid "The associated WebKitViewportAttributes instance"
+msgstr "Một thể hiện WebKitWebInspector liên kết"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3322
+msgid "Editable"
+msgstr "Có thể thay đổi"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3323
+msgid "Whether content can be modified by the user"
+msgstr "Nội dung có thể bị người dùng thay đổi hay không"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3329
+msgid "Transparent"
+msgstr "Trong suốt"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3330
+msgid "Whether content has a transparent background"
+msgstr "Nội dung có ảnh nền trong suốt không."
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3343
+msgid "Zoom level"
+msgstr "Mức phóng"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3344
+msgid "The level of zoom of the content"
+msgstr "Mức phóng to/thu nhỏ nội dung"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3359
+msgid "Full content zoom"
+msgstr "Phóng nội dung đầy đủ"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3360
+msgid "Whether the full content is scaled when zooming"
+msgstr "Toàn bộ nội dung có bị co lại không."
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3374
+msgid "The default encoding of the web view"
+msgstr "Bảng mã mặc định cho khung xem Web"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3387
+msgid "Custom Encoding"
+msgstr "Bảng mã tự chọn"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3388
+msgid "The custom encoding of the web view"
+msgstr "Bảng mã tự chọn cho khung xem Web"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3440
+msgid "Icon URI"
+msgstr "URI biểu tượng"
+
+#: ../../../WebKit/gtk/webkit/webkitwebview.cpp:3441
+msgid "The URI for the favicon for the #WebKitWebView."
+msgstr "URI của biểu tượng trang (favicon) cho #WebKitWebView."
+
+#: ../../../WebKit2/Shared/Downloads/soup/DownloadSoup.cpp:89
+#, c-format
+msgid ""
+"Cannot determine destination URI for download with suggested filename %s"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:139
+#, fuzzy
+msgid "Destination"
+msgstr "URI đích"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:140
+msgid "The local URI to where the download will be saved"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:152
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebResource.cpp:122
+#, fuzzy
+msgid "Response"
+msgstr "Hồi đáp mạng"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:153
+#, fuzzy
+msgid "The response of the download"
+msgstr "Xác định tiến độ tải về hiện thời"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitDownload.cpp:170
+#, fuzzy
+msgid "Estimated Progress"
+msgstr "Tiến trình"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:141
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:255
+#, c-format
+msgid "Unknown favicon for page %s"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:147
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:251
+#, c-format
+msgid "Page %s does not have a favicon"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFaviconDatabase.cpp:247
+msgid "Favicons database not initialized yet"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:174
+#, fuzzy
+msgid "Search text"
+msgstr "_Tìm trên Web"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:175
+#, fuzzy
+msgid "Text to search for in the view"
+msgstr "Bảng mã tự chọn cho khung xem Web"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:187
+msgid "Search Options"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:188
+msgid "Search options to be used in the search operation"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:201
+msgid "Maximum matches count"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:202
+#, fuzzy
+msgid "The maximum number of matches in a given text to report"
+msgstr "Tựa đề mục lược sử"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:214
+#, fuzzy
+msgid "WebView"
+msgstr "Khung xem Web"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitFindController.cpp:215
+msgid "The WebView associated with this find controller"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:153
+msgid "Flags with the context of the WebKitHitTestResult"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:167
+#, fuzzy
+msgid "The link URI"
+msgstr "URI biểu tượng"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:179
+#, fuzzy
+msgid "Link Title"
+msgstr "Tựa đề"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:180
+msgid "The link title"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:192
+msgid "Link Label"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:193
+msgid "The link label"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:206
+msgid "The image URI"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitHitTestResult.cpp:219
+msgid "The media URI"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:105
+msgid "Navigation type"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:106
+msgid "The type of navigation triggering this decision"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:123
+msgid "Mouse button"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:124
+msgid "The mouse button used if this decision was triggered by a mouse event"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:140
+msgid "Mouse event modifiers"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:141
+msgid "The modifiers active if this decision was triggered by a mouse event"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:154
+msgid "Navigation URI request"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:155
+#, fuzzy
+msgid "The URI request that is associated with this navigation"
+msgstr "URI được yêu cầu làm đích duyệt"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:170
+#, fuzzy
+msgid "Frame name"
+msgstr "Tên tập tin đề nghị"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitNavigationPolicyDecision.cpp:171
+msgid "The name of the new frame this navigation action targets"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:155
+msgid "The web view that will be printed"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:167
+#, fuzzy
+msgid "Print Settings"
+msgstr "Thiết lập"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:168
+msgid "The initial print settings for the print operation"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:179
+msgid "Page Setup"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitPrintOperation.cpp:180
+#, fuzzy
+msgid "The initial page setup for the print operation"
+msgstr "Kích thước của toàn bộ tập tin"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitResponsePolicyDecision.cpp:91
+msgid "Response URI request"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitResponsePolicyDecision.cpp:92
+msgid "The URI request that is associated with this policy decision"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitResponsePolicyDecision.cpp:105
+msgid "URI response"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitResponsePolicyDecision.cpp:106
+msgid "The URI response that is associated with this policy decision"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:442
+#, fuzzy
+msgid "Enable JavaScript"
+msgstr "Bật script"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:443
+#, fuzzy
+msgid "Enable JavaScript."
+msgstr "Bật script"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:457
+#, fuzzy
+msgid "Auto load images"
+msgstr "Tự động nạp ảnh"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:471
+msgid "Load icons ignoring image load setting"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:472
+msgid "Whether to load site icons ignoring image load setting."
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:490
+#, fuzzy
+msgid "Whether to enable offline web application cache."
+msgstr "Có bật lưu tạm ứng dụng web ngoại tuyến không"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:506
+#, fuzzy
+msgid "Enable HTML5 local storage"
+msgstr "Bật Kho chứa HTML5 cục bộ"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:507
+#, fuzzy
+msgid "Whether to enable HTML5 Local Storage support."
+msgstr "Có bật hỗ trợ Kho chứa HTML5 cục bộ không"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:524
+#, fuzzy
+msgid "Enable HTML5 database"
+msgstr "Bật Cơ sở dữ liệu HTML5"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:525
+#, fuzzy
+msgid "Whether to enable HTML5 database support."
+msgstr "Có bật hỗ trợ Cơ sở dữ liệu HTML5 không"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:538
+#, fuzzy
+msgid "Enable XSS auditor"
+msgstr "Bật kiểm tra XSS"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:539
+#, fuzzy
+msgid "Whether to enable the XSS auditor."
+msgstr "Có bật kiểm tra XSS không"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:554
+#, fuzzy
+msgid "Enable frame flattening"
+msgstr "Bật duyệt riêng tư"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:555
+#, fuzzy
+msgid "Whether to enable frame flattening."
+msgstr "Có cho dán DOM không"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:567
+#, fuzzy
+msgid "Enable plugins"
+msgstr "Bật phần mở rộng"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:580
+#, fuzzy
+msgid "Enable Java"
+msgstr "Bật tiểu dụng Java"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:581
+#, fuzzy
+msgid "Whether Java support should be enabled."
+msgstr "Có bật tính năng page cache không"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:595
+#, fuzzy
+msgid "Whether JavaScript can open windows automatically."
+msgstr "JavaScript có được phép tự động mở cửa sổ không"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:610
+#, fuzzy
+msgid "Enable hyperlink auditing"
+msgstr "Bật kiểm định trục thời gian"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:611
+#, fuzzy
+msgid "Whether <a ping> should be able to send pings."
+msgstr "Có bật tính năng page cache không"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:623
+#, fuzzy
+msgid "Default font family"
+msgstr "Họ phông mặc định"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:624
+msgid ""
+"The font family to use as the default for content that does not specify a "
+"font."
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:637
+#, fuzzy
+msgid "Monospace font family"
+msgstr "Họ phông Monospace"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:638
+#, fuzzy
+msgid "The font family used as the default for content using monospace font."
+msgstr "Họ phông Monospace mặc định để hiển thị văn bản."
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:650
+#, fuzzy
+msgid "Serif font family"
+msgstr "Họ phông Serif"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:651
+msgid "The font family used as the default for content using serif font."
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:663
+#, fuzzy
+msgid "Sans-serif font family"
+msgstr "Họ phông Sans Serif"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:664
+msgid "The font family used as the default for content using sans-serif font."
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:676
+#, fuzzy
+msgid "Cursive font family"
+msgstr "Họ phông Cursive"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:677
+msgid "The font family used as the default for content using cursive font."
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:689
+#, fuzzy
+msgid "Fantasy font family"
+msgstr "Họ phông Fantasy"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:690
+msgid "The font family used as the default for content using fantasy font."
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:702
+msgid "Pictograph font family"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:703
+msgid "The font family used as the default for content using pictograph font."
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:716
+#, fuzzy
+msgid "Default font size"
+msgstr "Cỡ phông mặc định"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:730
+#, fuzzy
+msgid "Default monospace font size"
+msgstr "Cỡ phông Monospace mặc định"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:745
+#, fuzzy
+msgid "Minimum font size"
+msgstr "Cỡ phông tối thiểu"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:758
+msgid "Default charset"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:759
+msgid ""
+"The default text charset used when interpreting content with unspecified "
+"charset."
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:772
+#, fuzzy
+msgid "Enable private browsing"
+msgstr "Bật duyệt riêng tư"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:773
+#, fuzzy
+msgid "Whether to enable private browsing"
+msgstr "Có cho dán DOM không"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:785
+#, fuzzy
+msgid "Enable developer extras"
+msgstr "Bật Developer Extras"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:786
+#, fuzzy
+msgid "Whether to enable developer extras"
+msgstr "Bật Developer Extras"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:798
+#, fuzzy
+msgid "Enable resizable text areas"
+msgstr "Ô văn bản có thể thay đổi kích thước."
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:799
+#, fuzzy
+msgid "Whether to enable resizable text areas"
+msgstr "Có cho dán DOM không"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:814
+#, fuzzy
+msgid "Enable tabs to links"
+msgstr "Bật phần mở rộng"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:815
+#, fuzzy
+msgid "Whether to enable tabs to links"
+msgstr "Có bật kiểm tra XSS không"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:828
+#, fuzzy
+msgid "Enable DNS prefetching"
+msgstr "Bật kiểm lỗi chính tả"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:829
+#, fuzzy
+msgid "Whether to enable DNS prefetching"
+msgstr "Có cho dán DOM không"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:858
+#, fuzzy
+msgid "Whether to enable the Javascriipt Fullscreen API"
+msgstr "Có bật kiểm tra XSS không"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:871
+#, fuzzy
+msgid "Whether background images should be drawn during printing"
+msgstr "Có in ảnh nền hay không."
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:922
+msgid "Allow modal dialogs"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:923
+msgid "Whether it is possible to create modal dialogs"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:938
+msgid "Zoom Text Only"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:939
+msgid "Whether zoom level of web view changes only the text size"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:953
+#, fuzzy
+msgid "JavaScript can access clipboard"
+msgstr "JavaScript có được phép tự động mở cửa sổ không"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1000
+msgid "Draw compositing indicators"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1001
+msgid "Whether to draw compositing borders and repaint counters"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1059
+#, fuzzy
+msgid "User agent string"
+msgstr "Đại diện người dùng"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitSettings.cpp:1060
+#, fuzzy
+msgid "The user agent string"
+msgstr "Chuỗi User-Agent WebKitGtk sẽ dùng"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:100
+#, fuzzy
+msgid "The URI for which the response was made."
+msgstr "URI cho mục lược sử"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:111
+#, fuzzy
+msgid "Status Code"
+msgstr "Tình trạng"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:112
+msgid "The status code of the response as returned by the server."
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:124
+msgid "Content Length"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:125
+#, fuzzy
+msgid "The expected content length of the response."
+msgstr "Khung đích để xem"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:138
+#, fuzzy
+msgid "The MIME type of the response"
+msgstr "Tựa đề mục lược sử"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitURIResponse.cpp:151
+#, fuzzy
+msgid "The suggested filename for the URI response"
+msgstr "Khung đích để xem"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebInspector.cpp:134
+msgid "Attached Height"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebInspector.cpp:135
+msgid "The height that the inspector view should have when it is attached"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebResource.cpp:110
+#, fuzzy
+msgid "The current active URI of the resource"
+msgstr "URI cho mục lược sử"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebResource.cpp:123
+#, fuzzy
+msgid "The response of the resource"
+msgstr "Tên khung"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:577
+msgid "Web Context"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:578
+#, fuzzy
+msgid "The web context for the view"
+msgstr "Tựa đề mục lược sử"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:592
+msgid "Main frame document title"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:610
+msgid "Estimated Load Progress"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:611
+msgid "An estimate of the percent completion for a document load"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:623
+msgid "Favicon"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:624
+msgid "The favicon associated to the view, if any"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:636
+#, fuzzy
+msgid "The current active URI of the view"
+msgstr "Tựa đề tài liệu của khung"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:650
+#, fuzzy
+msgid "The zoom level of the view content"
+msgstr "Mức phóng to/thu nhỏ nội dung"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:668
+#, fuzzy
+msgid "Whether the view is loading a page"
+msgstr "Có bật tính năng page cache không"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:682
+msgid "The view mode to display the web view contents"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWebView.cpp:2416
+msgid "An exception was raised in JavaScript"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:209
+msgid "Geometry"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:210
+msgid "The size and position of the window on the screen."
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:222
+msgid "Toolbar Visible"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:223
+#, fuzzy
+msgid "Whether the toolbar should be visible for the window."
+msgstr "Có bật tính năng page cache không"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:235
+msgid "Statusbar Visible"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:236
+#, fuzzy
+msgid "Whether the statusbar should be visible for the window."
+msgstr "Có bật tính năng page cache không"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:248
+msgid "Scrollbars Visible"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:249
+#, fuzzy
+msgid "Whether the scrollbars should be visible for the window."
+msgstr "Có bật tính năng page cache không"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:261
+msgid "Menubar Visible"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:262
+#, fuzzy
+msgid "Whether the menubar should be visible for the window."
+msgstr "Có bật tính năng page cache không"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:274
+msgid "Locationbar Visible"
+msgstr ""
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:275
+#, fuzzy
+msgid "Whether the locationbar should be visible for the window."
+msgstr "Có bật tính năng page cache không"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:286
+#, fuzzy
+msgid "Resizable"
+msgstr "Ô văn bản có thể thay đổi kích thước."
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:287
+#, fuzzy
+msgid "Whether the window can be resized."
+msgstr "Ô văn bản có thể thay đổi kích thước hay không."
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:299
+#, fuzzy
+msgid "Fullscreen"
+msgstr "toàn màn hình"
+
+#: ../../../WebKit2/UIProcess/API/gtk/WebKitWindowProperties.cpp:300
+msgid "Whether window will be displayed fullscreen."
+msgstr ""
+
+#~ msgid "Upload File"
+#~ msgstr "Tải tập tin lên"
+
+#~ msgid "A username and password are being requested by the site %s"
+#~ msgstr "Trang %s đang yêu cầu tên người dùng và mật khẩu"
+
+#~ msgid "_Searchable Index"
+#~ msgstr "Chỉ mục _tìm được"

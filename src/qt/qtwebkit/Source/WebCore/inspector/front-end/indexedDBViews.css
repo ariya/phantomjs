@@ -1,0 +1,124 @@
+/*
+ * Copyright (C) 2012 Google Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+.indexed-db-database-view {
+    -webkit-user-select: text;
+    margin-top: 5px;
+}
+
+.indexed-db-database-view .outline-disclosure {
+    padding-left: 0;
+}
+
+.indexed-db-database-view .outline-disclosure li {
+    white-space: nowrap;
+}
+
+.indexed-db-database-view .outline-disclosure .attribute-name {
+    color: rgb(33%, 33%, 33%);
+    display: inline-block;
+    margin-right: 0.5em;
+    font-weight: bold;
+    vertical-align: top;
+}
+
+.indexed-db-database-view .outline-disclosure .attribute-value {
+    display: inline;
+    margin-top: 1px;
+}
+
+.indexed-db-data-view .data-view-toolbar {
+    position: relative;
+    margin-top: -1px;
+    height: 24px;
+}
+
+.indexed-db-data-view .data-view-toolbar .back-button img {
+    content: url(Images/back.png);
+}
+
+.indexed-db-data-view .data-view-toolbar .forward-button img {
+    content: url(Images/forward.png);
+}
+
+.indexed-db-data-view .data-view-toolbar .key-input {
+    font-size: 10px;
+    margin-top: 3px;
+    margin-left: 3px;
+    width: 200px;
+}
+
+.indexed-db-data-view .data-grid-container {
+    top: 23px;
+}
+
+.indexed-db-data-view .data-grid {
+    height: 100%;
+    border: 0;
+}
+
+.indexed-db-data-view .data-grid .data-container tr:nth-child(even) {
+    background-color: white;
+}
+
+.indexed-db-data-view .data-grid .data-container tr:nth-child(odd) {
+    background-color: #EAF3FF;
+}
+
+.indexed-db-data-view .data-grid .data-container tr:nth-last-child(1) {
+    background-color: white;
+}
+
+.indexed-db-data-view .data-grid .data-container tr:nth-last-child(1) td {
+    border: 0;
+}
+
+.indexed-db-data-view .data-grid .data-container td {
+    height: 18px;
+}
+
+.indexed-db-data-view .data-grid .data-container td.value-column,
+.indexed-db-data-view .data-grid .data-container td.key-column,
+.indexed-db-data-view .data-grid .data-container td.primaryKey-column {
+    padding: 0;
+}
+
+.indexed-db-data-view .data-grid .data-container td.value-column div.primitive-value,
+.indexed-db-data-view .data-grid .data-container td.key-column div.primitive-value,
+.indexed-db-data-view .data-grid .data-container td.primaryKey-column div.primitive-value {
+    padding-left: 5px;
+    margin-top: 1px;
+}
+
+.indexed-db-data-view .data-grid .data-container td .section .header .title {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}

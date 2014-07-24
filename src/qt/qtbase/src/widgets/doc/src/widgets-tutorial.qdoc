@@ -1,0 +1,249 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page widgets-tutorial.html
+    \ingroup tutorials
+    \title Widgets Tutorial
+    \brief This tutorial covers basic usage of widgets and layouts, showing how
+    they are used to build GUI applications.
+
+    \section1 Introduction
+
+    Widgets are the basic building blocks for graphical user interface
+    (GUI) applications built with Qt. Each GUI component (e.g.
+    buttons, labels, text editor) is a \l{QWidget}{widget} that is
+    placed somewhere within a user interface window, or is displayed
+    as an independent window. Each type of widge is provided by a
+    subclass of QWidget, which is itself a subclass of QObject.
+
+    QWidget is not an abstract class. It can be used as a container
+    for other widgets, and it can be subclassed with minimal effort to
+    create new, custom widgets. QWidget is often used to create a
+    window inside which other \l{QWidget}s are placed.
+
+    As with \l{QObject}s, \l{QWidget}s can be created with parent
+    objects to indicate ownership, ensuring that objects are deleted
+    when they are no longer used. With widgets, these parent-child
+    relationships have an additional meaning: Each child widget is
+    displayed within the screen area occupied by its parent widget.
+    This means that when you delete a window widget, all the child
+    widgets it contains are also deleted.
+
+    \section1 Writing a main Function
+
+    Many of the GUI examples provided with Qt follow the pattern of
+    having a \c{main.cpp} file, which contains the standard code to
+    initialize the application, plus any number of other source/header
+    files that contain the application logic and custom GUI components.
+
+    A typical \c main() function in \c{main.cpp} looks like this:
+
+    \snippet widgets-tutorial/template.cpp main.cpp body
+
+    First, a QApplication object is constructed, which can be
+    configured with arguments passed in from the command line. After
+    the widgets have been created and shown, QApplication::exec() is
+    called to start Qt's event loop.  Control passes to Qt until this
+    function returns. Finally, \c{main()} returns the value returned
+    by QApplication::exec().
+
+    \section1 Simple widget examples
+
+    Each of theses simple widget examples is written entirely within
+    the \c main() function.
+
+    \list
+    \li \l {tutorials/widgets/toplevel} {Creating a window}
+
+    \li \l {tutorials/widgets/childwidget} {Creating child widgets}
+
+    \li \l {tutorials/widgets/windowlayout} {Using layouts}
+
+    \li \l {tutorials/widgets/nestedlayouts} {Nested layouts}
+    \endlist
+
+    \section1 Real world widget examples
+
+    In these \l{Qt Widgets Examples} {more advanced examples}, the code
+    that creates the widgets and layouts is stored in other files. For
+    example, the GUI for a main window may be created in the
+    constructor of a QMainWindow subclass.
+
+    \section1 Building The Examples
+
+    If you installed a binary package to get Qt, or if you compiled Qt
+    yourself, the examples described in this tutorial should already
+    be built and ready to run. If you wish to modify and recompile
+    them, follow these steps:
+
+    \list 1
+
+    \li From a command prompt, enter the directory containing the
+       example you have modified.
+
+    \li Type \c qmake and press \uicontrol{Return}. If this doesn't work,
+       make sure that the executable is on your path, or enter its
+       full location.
+
+    \li On Linux/Unix and Mac OS X, type \c make and press
+       \uicontrol{Return}; on Windows with Visual Studio, type \c nmake and
+       press \uicontrol{Return}.
+
+    \endlist
+
+    An executable file is created in the current directory.  On
+    Windows, this file may be located in a \c debug or \c release
+    subdirectory. You can run this executable to see the example code
+    at work.
+*/
+
+/*!
+    \example tutorials/widgets/toplevel
+    \title Widgets Tutorial - Creating a Window
+
+    If a widget is created without a parent, it is treated as a window, or
+    \e{top-level widget}, when it is shown. Since it has no parent object to
+    ensure that it is deleted when no longer needed, it is up to the
+    developer to keep track of the top-level widgets in an application.
+
+    In the following example, we use QWidget to create and show a window with
+    a default size:
+
+    \div {class="qt-code"}
+    \table
+    \row
+    \li \snippet tutorials/widgets/toplevel/main.cpp main program
+    \li \inlineimage widgets-tutorial-toplevel.png
+    \endtable
+    \enddiv
+
+    To create a real GUI, we need to place widgets inside the window. To do
+    this, we pass a QWidget instance to a widget's constructor, as we will
+    demonstrate in the next part of this tutorial.
+
+*/
+
+/*!
+    \example tutorials/widgets/childwidget
+    \title Widgets Tutorial - Child Widgets
+
+    We can add a child widget to the window created in the previous example by
+    passing \c window as the parent to its constructor. In this case, we add a
+    button to the window and place it in a specific location:
+
+    \div {class="qt-code"}
+    \table
+    \row
+    \li \snippet tutorials/widgets/childwidget/main.cpp main program
+    \li \inlineimage widgets-tutorial-childwidget.png
+    \endtable
+    \enddiv
+
+    The button is now a child of the window and will be deleted when the
+    window is destroyed. Note that hiding or closing the window does not
+    automatically destroy it. It will be destroyed when the example exits.
+*/
+
+/*!
+    \example tutorials/widgets/windowlayout
+    \title Widgets Tutorial - Using Layouts
+
+    Usually, child widgets are arranged inside a window using layout objects
+    rather than by specifying positions and sizes explicitly. Here, we
+    construct a label and line edit widget that we would like to arrange
+    side-by-side.
+
+    \div {class="qt-code"}
+    \table
+    \row
+    \li \snippet tutorials/widgets/windowlayout/main.cpp main program
+    \li \inlineimage widgets-tutorial-windowlayout.png
+    \endtable
+    \enddiv
+
+    The \c layout object we construct manages the positions and sizes of
+    widgets supplied to it with the \l{QHBoxLayout::}{addWidget()} function.
+    The layout itself is supplied to the window itself in the call to
+    \l{QWidget::}{setLayout()}. Layouts are only visible through the effects
+    they have on the widgets (and other layouts) they are responsible for
+    managing.
+
+    In the example above, the ownership of each widget is not immediately
+    clear. Since we construct the widgets and the layout without parent
+    objects, we would expect to see an empty window and two separate windows
+    containing a label and a line edit. However, when we tell the layout to
+    manage the label and line edit and set the layout on the window, both the
+    widgets and the layout itself are ''reparented'' to become children of
+    the window.
+*/
+
+/*!
+    \example tutorials/widgets/nestedlayouts
+    \title Widgets Tutorial - Nested Layouts
+
+    Just as widgets can contain other widgets, layouts can be used to provide
+    different levels of grouping for widgets. Here, we want to display a
+    label alongside a line edit at the top of a window, above a table view
+    showing the results of a query.
+
+    We achieve this by creating two layouts: \c{queryLayout} is a QHBoxLayout
+    that contains QLabel and QLineEdit widgets placed side-by-side;
+    \c{mainLayout} is a QVBoxLayout that contains \c{queryLayout} and a
+    QTableView arranged vertically.
+
+    \div {class="qt-code"}
+    \table
+    \row
+    \li \snippet tutorials/widgets/nestedlayouts/main.cpp first part
+       \snippet tutorials/widgets/nestedlayouts/main.cpp last part
+    \li \inlineimage widgets-tutorial-nestedlayouts.png
+    \endtable
+    \enddiv
+
+    Note that we call the \c{mainLayout}'s \l{QBoxLayout::}{addLayout()}
+    function to insert the \c{queryLayout} above the \c{resultView} table.
+
+    We have omitted the code that sets up the model containing the data shown
+    by the QTableView widget, \c resultView. For completeness, we show this below.
+
+    As well as QHBoxLayout and QVBoxLayout, Qt also provides QGridLayout
+    and QFormLayout classes to help with more complex user interfaces.
+    These can be seen if you run Qt Designer.
+
+    \section1 Setting up the Model
+
+    In the code above, we did not show where the table's data came from
+    because we wanted to concentrate on the use of layouts. Here, we see
+    that the model holds a number of items corresponding to rows, each of
+    which is set up to contain data for two columns.
+
+    \snippet tutorials/widgets/nestedlayouts/main.cpp set up the model
+
+    The use of models and views is covered in the
+    \l{Item Views Examples} and in the \l{Model/View Programming} overview.
+*/

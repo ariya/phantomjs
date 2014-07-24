@@ -1,0 +1,170 @@
+#!/usr/bin/env python
+#
+# Copyright (C) 2011 Google Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#    * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#    * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import codecs
+import logging
+import os
+import os.path
+import re
+import sys
+
+from webkitpy.common.checkout.scm import SCMDetector
+from webkitpy.common.system.filesystem import FileSystem
+from webkitpy.common.system.executive import Executive
+from webkitpy.common.system.logutils import configure_logging
+from webkitpy.style.checker import ProcessorBase
+from webkitpy.style.filereader import TextFileReader
+from webkitpy.style.main import change_directory
+
+_inspector_directory = "Source/WebCore/inspector/front-end"
+_localized_strings = "Source/WebCore/English.lproj/localizedStrings.js"
+
+_log = logging.getLogger("check-inspector-strings")
+
+class StringsExtractor(ProcessorBase):
+    def __init__(self, patterns):
+        self._patterns = patterns
+        self.strings = []
+        for p in self._patterns:
+            self.strings.append([])
+
+    def should_process(self, file_path):
+        return file_path.endswith(".js") and (not file_path.endswith("InjectedScript.js"))
+
+    def process(self, lines, file_path, line_numbers=None):
+        for line in lines:
+            comment_start = line.find("//")
+            if comment_start != -1:
+                line = line[:comment_start]
+            index = 0
+            for pattern in self._patterns:
+                line_strings = re.findall(pattern, line)
+                for string in line_strings:
+                    self.strings[index].append(string)
+                index += 1
+
+class LocalizedStringsExtractor:
+    def __init__(self):
+        self.localized_strings = []
+
+    def process_file(self, file_path):
+        localized_strings_file = codecs.open(file_path, encoding="utf-8", mode="r")
+        try:
+            contents = localized_strings_file.read()
+            lines = contents.split("\n")
+            for line in lines:
+                match = re.match(r"localizedStrings\[\"((?:[^\"\\]|\\.)*?)\"", line)
+                if match:
+                    self.localized_strings.append(match.group(1))
+        finally:
+            localized_strings_file.close()
+
+def extract_ui_strings(str, out):
+    line_unrecognized = False
+    idx = 0
+    while idx < len(str):
+        idx = str.find("WebInspector.UIString(", idx)
+        if idx == -1:
+            break
+        idx = idx + len("WebInspector.UIString(")
+        balance = 1
+        item_recognized = False
+        while idx < len(str):
+            if str[idx] == ')':
+                balance = balance - 1
+                if balance == 0:
+                    break
+            elif str[idx] == '(':
+                balance = balance + 1
+            elif balance == 1:
+                if str[idx] == ',':
+                    break
+                elif str[idx] == '"':
+                    str_idx = idx + 1
+                    while str_idx < len(str):
+                        if str[str_idx] == '\\':
+                            str_idx = str_idx + 1
+                        elif str[str_idx] == '"':
+                            out.add(str[idx + 1 : str_idx])
+                            idx = str_idx
+                            item_recognized = True
+                            break
+                        str_idx = str_idx + 1
+            idx = idx + 1
+        if not item_recognized:
+            line_unrecognized = True
+    if line_unrecognized:
+        _log.info("Unrecognized: %s" % str)
+
+if __name__ == "__main__":
+    configure_logging()
+
+    cwd = os.path.abspath(os.curdir)
+    filesystem = FileSystem()
+    scm = SCMDetector(filesystem, Executive()).detect_scm_system(cwd)
+
+    if scm is None:
+        _log.error("WebKit checkout not found: You must run this script "
+                   "from within a WebKit checkout.")
+        sys.exit(1)
+
+    checkout_root = scm.checkout_root
+    _log.debug("WebKit checkout found with root: %s" % checkout_root)
+    change_directory(filesystem, checkout_root=checkout_root, paths=None)
+
+    strings_extractor = StringsExtractor([r"(WebInspector\.UIString\(.*)", r"\"((?:[^\"\\]|\\.)*?)\""])
+    file_reader = TextFileReader(filesystem, strings_extractor)
+    file_reader.process_paths([_inspector_directory])
+    localized_strings_extractor = LocalizedStringsExtractor()
+    localized_strings_extractor.process_file(_localized_strings)
+    raw_ui_strings = frozenset(strings_extractor.strings[0])
+    ui_strings = set()
+    for s in raw_ui_strings:
+        extract_ui_strings(s, ui_strings)
+    strings = frozenset(strings_extractor.strings[1])
+    localized_strings = frozenset(localized_strings_extractor.localized_strings)
+
+    new_strings = ui_strings - localized_strings
+    for s in new_strings:
+        _log.info("New: \"%s\"" % (s))
+    old_strings = localized_strings - ui_strings
+    suspicious_strings = strings & old_strings
+    for s in suspicious_strings:
+        _log.info("Suspicious: \"%s\"" % (s))
+    unused_strings = old_strings - strings
+    for s in unused_strings:
+        _log.info("Unused: \"%s\"" % (s))
+
+    localized_strings_duplicates = {}
+    for s in localized_strings_extractor.localized_strings:
+        if s in localized_strings_duplicates:
+            _log.info("Duplicate: \"%s\"" % (s))
+        else:
+            localized_strings_duplicates.setdefault(s)

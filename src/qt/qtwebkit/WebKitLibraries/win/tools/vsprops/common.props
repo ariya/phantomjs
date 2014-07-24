@@ -1,0 +1,222 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="UserMacros">
+    <CONFIGURATIONBUILDDIR>$(WEBKIT_OUTPUTDIR)\$(Configuration)</CONFIGURATIONBUILDDIR>
+    <DEBUGSUFFIX>
+    </DEBUGSUFFIX>
+  </PropertyGroup>
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir>$(ConfigurationBuildDir)\bin32\</OutDir>
+    <IntDir>$(ConfigurationBuildDir)\obj32\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <NMakeBuildCommandLine>%SystemDrive%\cygwin\bin\which.exe bash
+if errorlevel 1 set PATH=%SystemDrive%\cygwin\bin;%PATH%
+nmake /nologo -f $(ProjectName).make</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>%SystemDrive%\cygwin\bin\which.exe bash
+if errorlevel 1 set PATH=%SystemDrive%\cygwin\bin;%PATH%
+nmake /nologo -f $(ProjectName).make clean
+nmake /nologo -f $(ProjectName).make</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>%SystemDrive%\cygwin\bin\which.exe bash
+if errorlevel 1 set PATH=%SystemDrive%\cygwin\bin;%PATH%
+
+set PATH=$(VSInstallDir)\VC\bin;%PATH%
+
+REM VS2010 has a known bug where the clean command does not recognize environment variables properly unless explicitly set here
+set CONFIGURATIONBUILDDIR=$(ConfigurationBuildDir)
+nmake /nologo -f $(ProjectName).make clean</NMakeCleanCommandLine>
+    <TargetName>$(ProjectName)$(DebugSuffix)</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalOptions>/bigobj /GS %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>_WINDOWS;WINVER=0x502;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_HAS_EXCEPTIONS=0;BUILDING_$(ProjectName);WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="$(Platform)=='Win32'">WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="$(Platform)=='Win64'">x64</PreprocessorDefinitions>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4018;4068;4099;4100;4127;4138;4146;4180;4189;4201;4244;4251;4267;4275;4288;4291;4305;4344;4355;4389;4396;4481;4503;4505;4510;4512;4610;4706;4800;4819;4951;4952;4996;6011;6031;6211;6246;6255;6387;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <OpenMPSupport>false</OpenMPSupport>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>
+      </AssemblerListingLocation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <StringPooling>false</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <Lib>
+      <AdditionalOptions>/ignore:4221 %(AdditionalOptions)</AdditionalOptions>
+      <UseUnicodeResponseFiles>true</UseUnicodeResponseFiles>
+    </Lib>
+    <Midl>
+      <WarnAsError>true</WarnAsError>
+      <HeaderFileName>$(OutDir)%(Filename).h</HeaderFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Command>REM Do not edit from the Visual Studio IDE! Customize via a $(ProjectName)PostBuild.cmd file.
+if not exist "$(ProjectDir)$(ProjectName)PostBuild.cmd" exit /b
+
+set CONFIGURATIONBUILDDIR=$(ConfigurationBuildDir)
+set CONFIGURATIONNAME=$(ConfigurationName)
+set INPUTDIR=$(InputDir)
+set INPUTFILENAME=$(InputFileName)
+set INPUTPATH=$(InputPath)
+set INTDIR=$(IntDir)
+set OUTDIR=$(OutDir)
+set PLATFORMNAME=$(PlatformName)
+set PROJECTDIR=$(ProjectDir)
+set PROJECTFILENAME=$(ProjectFileName)
+set PROJECTNAME=$(ProjectName)
+set PROJECTPATH=$(ProjectPath)
+set SOLUTIONDIR=$(SolutionDir)
+set SOLUTIONFILENAME=$(SolutionFileName)
+set SOLUTIONNAME=$(SolutionName)
+set SOLUTIONPATH=$(SolutionPath)
+set TARGETDIR=$(TargetDir)
+set TARGETEXT=$(TargetExt)
+set TARGETFILENAME=$(TargetFileName)
+set TARGETPATH=$(TargetPath)
+set DEBUGSUFFIX=$(DebugSuffix)
+
+REM If any of the above variables didn't exist previously and
+REM were set to an empty string, set will set the errorlevel to 1,
+REM which will cause the project-specific script to think the build
+REM has failed. This cmd /c call will clear the errorlevel.
+cmd /c
+
+"$(ProjectDir)$(ProjectName)PostBuild.cmd"
+</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>REM Do not edit from the Visual Studio IDE! Customize via a $(ProjectName)PreBuild.cmd file.
+if not exist "$(ProjectDir)$(ProjectName)PreBuild.cmd" exit /b
+
+set CONFIGURATIONBUILDDIR=$(ConfigurationBuildDir)
+set CONFIGURATIONNAME=$(ConfigurationName)
+set INPUTDIR=$(InputDir)
+set INPUTFILENAME=$(InputFileName)
+set INPUTPATH=$(InputPath)
+set INTDIR=$(IntDir)
+set OUTDIR=$(OutDir)
+set PLATFORMNAME=$(PlatformName)
+set PROJECTDIR=$(ProjectDir)
+set PROJECTFILENAME=$(ProjectFileName)
+set PROJECTNAME=$(ProjectName)
+set PROJECTPATH=$(ProjectPath)
+set SOLUTIONDIR=$(SolutionDir)
+set SOLUTIONFILENAME=$(SolutionFileName)
+set SOLUTIONNAME=$(SolutionName)
+set SOLUTIONPATH=$(SolutionPath)
+set TARGETDIR=$(TargetDir)
+set TARGETEXT=$(TargetExt)
+set TARGETFILENAME=$(TargetFileName)
+set TARGETPATH=$(TargetPath)
+set DEBUGSUFFIX=$(DebugSuffix)
+
+REM If any of the above variables didn't exist previously and
+REM were set to an empty string, set will set the errorlevel to 1,
+REM which will cause the project-specific script to think the build
+REM has failed. This cmd /c call will clear the errorlevel.
+cmd /c
+
+"$(ProjectDir)$(ProjectName)PreBuild.cmd"
+</Command>
+    </PreBuildEvent>
+    <PreLinkEvent>
+      <Command>REM Do not edit from the Visual Studio IDE! Customize via a $(ProjectName)PreLink.cmd file.
+if not exist "$(ProjectDir)$(ProjectName)PreLink.cmd" exit /b
+
+set CONFIGURATIONBUILDDIR=$(ConfigurationBuildDir)
+set CONFIGURATIONNAME=$(ConfigurationName)
+set INPUTDIR=$(InputDir)
+set INPUTFILENAME=$(InputFileName)
+set INPUTPATH=$(InputPath)
+set INTDIR=$(IntDir)
+set OUTDIR=$(OutDir)
+set PLATFORMNAME=$(PlatformName)
+set PROJECTDIR=$(ProjectDir)
+set PROJECTFILENAME=$(ProjectFileName)
+set PROJECTNAME=$(ProjectName)
+set PROJECTPATH=$(ProjectPath)
+set SOLUTIONDIR=$(SolutionDir)
+set SOLUTIONFILENAME=$(SolutionFileName)
+set SOLUTIONNAME=$(SolutionName)
+set SOLUTIONPATH=$(SolutionPath)
+set TARGETDIR=$(TargetDir)
+set TARGETEXT=$(TargetExt)
+set TARGETFILENAME=$(TargetFileName)
+set TARGETPATH=$(TargetPath)
+set DEBUGSUFFIX=$(DebugSuffix)
+
+REM If any of the above variables didn't exist previously and
+REM were set to an empty string, set will set the errorlevel to 1,
+REM which will cause the project-specific script to think the build
+REM has failed. This cmd /c call will clear the errorlevel.
+cmd /c
+
+"$(ProjectDir)$(ProjectName)PreLink.cmd"
+</Command>
+    </PreLinkEvent>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(IntDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <BuildLog />
+    <Link>
+      <AdditionalLibraryDirectories>$(IntDir)lib32;$(ConfigurationBuildDir)\lib32;$(WEBKIT_LIBRARIES)\lib32</AdditionalLibraryDirectories>
+      <LinkErrorReporting>PromptImmediately</LinkErrorReporting>
+      <CLRUnmanagedCodeCheck>false</CLRUnmanagedCodeCheck>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <AssemblyDebug>false</AssemblyDebug>
+      <SubSystem>Windows</SubSystem>
+      <HeapReserveSize>0</HeapReserveSize>
+      <HeapCommitSize>0</HeapCommitSize>
+      <StackReserveSize>0</StackReserveSize>
+      <StackCommitSize>0</StackCommitSize>
+      <LargeAddressAware>
+      </LargeAddressAware>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <EnableUAC>
+      </EnableUAC>
+      <UACExecutionLevel>
+      </UACExecutionLevel>
+      <UACUIAccess>
+      </UACUIAccess>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <CLRThreadAttribute>DefaultThreadingAttribute</CLRThreadAttribute>
+      <ImportLibrary>$(ConfigurationBuildDir)\lib32\$(TargetName).lib</ImportLibrary>
+    </Link>
+    <Bscmake />
+    <Xdcmake />
+    <ManifestResourceCompile>
+      <ResourceOutputFileName>$(IntDir)\$(TargetName)$(TargetExt).embed.manifest.res</ResourceOutputFileName>
+    </ManifestResourceCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <BuildLog>
+      <Path>$(IntDir)BuildLog.htm</Path>
+    </BuildLog>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="CONFIGURATIONBUILDDIR">
+      <Value>$(CONFIGURATIONBUILDDIR)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="DEBUGSUFFIX">
+      <Value>$(DEBUGSUFFIX)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

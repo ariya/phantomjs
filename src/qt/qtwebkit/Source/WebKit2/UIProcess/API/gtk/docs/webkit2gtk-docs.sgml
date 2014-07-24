@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+]>
+<book id="index" xmlns:xi="http://www.w3.org/2003/XInclude">
+  <bookinfo>
+    <title>WebKit2GTK+ Reference Manual</title>
+    <releaseinfo>for WebKit2GTK+ &version;</releaseinfo>
+  </bookinfo>
+
+  <chapter>
+    <title>Class Overview</title>
+    <xi:include href="xml/WebKitWebContext.xml"/>
+    <xi:include href="xml/WebKitWebView.xml"/>
+    <xi:include href="xml/WebKitBackForwardList.xml"/>
+    <xi:include href="xml/WebKitBackForwardListItem.xml"/>
+    <xi:include href="xml/WebKitSettings.xml"/>
+    <xi:include href="xml/WebKitURIRequest.xml"/>
+    <xi:include href="xml/WebKitURIResponse.xml"/>
+    <xi:include href="xml/WebKitWindowProperties.xml"/>
+    <xi:include href="xml/WebKitDownload.xml"/>
+    <xi:include href="xml/WebKitPermissionRequest.xml"/>
+    <xi:include href="xml/WebKitGeolocationPermissionRequest.xml"/>
+    <xi:include href="xml/WebKitPolicyDecision.xml"/>
+    <xi:include href="xml/WebKitNavigationPolicyDecision.xml"/>
+    <xi:include href="xml/WebKitResponsePolicyDecision.xml"/>
+    <xi:include href="xml/WebKitHitTestResult.xml"/>
+    <xi:include href="xml/WebKitPrintOperation.xml"/>
+    <xi:include href="xml/WebKitWebResource.xml"/>
+    <xi:include href="xml/WebKitError.xml"/>
+    <xi:include href="xml/WebKitFaviconDatabase.xml"/>
+    <xi:include href="xml/WebKitFileChooserRequest.xml"/>
+    <xi:include href="xml/WebKitFindController.xml"/>
+    <xi:include href="xml/WebKitCookieManager.xml"/>
+    <xi:include href="xml/WebKitPlugin.xml"/>
+    <xi:include href="xml/WebKitWebInspector.xml"/>
+    <xi:include href="xml/WebKitURISchemeRequest.xml"/>
+    <xi:include href="xml/WebKitVersion.xml"/>
+    <xi:include href="xml/WebKitContextMenu.xml"/>
+    <xi:include href="xml/WebKitContextMenuItem.xml"/>
+    <xi:include href="xml/WebKitFormSubmissionRequest.xml"/>
+    <xi:include href="xml/WebKitSecurityManager.xml"/>
+    <xi:include href="xml/WebKitWebViewGroup.xml"/>
+  </chapter>
+
+  <chapter>
+    <title>Web Extensions</title>
+    <xi:include href="xml/WebKitWebExtension.xml"/>
+    <xi:include href="xml/WebKitWebPage.xml"/>
+  </chapter>
+
+  <index id="index-all">
+    <title>Index</title>
+  </index>
+  <xi:include href="xml/annotation-glossary.xml"><xi:fallback /></xi:include>
+</book>

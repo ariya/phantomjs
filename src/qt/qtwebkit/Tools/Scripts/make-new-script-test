@@ -1,0 +1,120 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2011 Apple Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Script to create a new HTML file for a monolithic test using js-test machinery.
+
+use strict;
+
+use FindBin;
+use lib $FindBin::Bin;
+
+use File::Basename;
+use Getopt::Long;
+use webkitdirs;
+
+sub makePathToSharedSources;
+sub openTestInEditor;
+sub writeTestFile;
+
+my $showHelp;
+
+my $result = GetOptions(
+    "help"       => \$showHelp,
+);
+
+if (!$result || $showHelp || !scalar(@ARGV) || $ARGV[0] !~ m/\.html$/) {
+    print STDERR "Usage: " . basename($0) . " [-h|--help] pathname\n";
+    print STDERR "\nExamples:\n";
+    print STDERR "    " . basename($0) . " new-test.html (will create the test in current directory)\n";
+    print STDERR "    " . basename($0) . " fast/loader/new-test.html (a relative path is always from LayoutTests directory)\n";
+    print STDERR "    " . basename($0) . " /Volumes/Data/WebKit/LayoutTests/fast/loader/new-test.html\n";
+    exit 1;
+}
+
+my $providedPath = $ARGV[0];
+
+my $testAbsolutePath;
+
+# If only a file name is provided, create the test in current directory.
+$testAbsolutePath = File::Spec->rel2abs($providedPath) if (!(File::Spec->splitpath($providedPath))[1]);
+
+# Otherwise, it's either absolute, or relative to LayoutTests directory.
+chdirWebKit();
+chdir "LayoutTests";
+$testAbsolutePath = File::Spec->rel2abs($providedPath) if (!$testAbsolutePath);
+
+writeTestFile();
+
+print "$testAbsolutePath\n";
+openTestInEditor();
+
+exit 0;
+
+sub makePathToSharedSources
+{
+    my $layoutTestsPath = getcwd();
+    $testAbsolutePath =~ m/^$layoutTestsPath/ or die "Path $testAbsolutePath is not in LayoutTests directory.\n";
+    my $isHTTPTest = $testAbsolutePath =~ m/^$layoutTestsPath\/http/;
+    if ($isHTTPTest) {
+        return "/js-test-resources";
+    } else {
+        return File::Spec->abs2rel("fast/js/resources/", dirname($testAbsolutePath));
+    }
+}
+
+sub writeTestFile
+{
+    die "Test $testAbsolutePath already exists.\n" if (-e $testAbsolutePath);
+
+    my $pathToSharedSources = makePathToSharedSources();
+
+    open TEST, ">", ${testAbsolutePath} or die "Cannot create test file at $testAbsolutePath.\n";
+    print TEST << "EOF";
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="$pathToSharedSources/js-test-pre.js"></script>
+</head>
+<body>
+<script>
+
+description("TEST DESCRIPTION HERE");
+
+// Your test script here. Feel free to modify surrounding HTML code if necessary.
+
+</script>
+<script src="$pathToSharedSources/js-test-post.js"></script>
+</body>
+</html>
+EOF
+    close TEST;
+}
+
+sub openTestInEditor()
+{
+    my $editor = $ENV{EDITOR};
+    exec ($editor, $testAbsolutePath) if ($editor);
+}

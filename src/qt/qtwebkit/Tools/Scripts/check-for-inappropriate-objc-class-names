@@ -1,0 +1,114 @@
+#!/usr/bin/perl
+
+# Copyright (C) 2006, 2007, 2008, 2010, 2011 Apple Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+# 
+# THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+# BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+# THE POSSIBILITY OF SUCH DAMAGE.
+
+# "check-for-inappropriate-objc-class-names" script for WebKit Open Source Project
+
+# Intended to be invoked from an Xcode build step to check if a framework
+# defines any Objective-C class whose name does not have one of the prefixes
+# the framework is allowed to use.
+
+use warnings;
+use strict;
+
+use File::Basename;
+
+sub touch($);
+
+my @allowedPrefixes = @ARGV;
+
+# Xcode will automatically link ObjC binaries against libarclite in some cases, which defines a class called __ARCLite__.
+push(@allowedPrefixes, "__ARCLite");
+
+die "No allowed prefixes passed on the command line" if !@allowedPrefixes;
+
+my $arch = $ENV{'CURRENT_ARCH'};
+my $target = $ENV{'TARGET_NAME'};
+my $variant = $ENV{'CURRENT_VARIANT'};
+my $coverageBuild = $ENV{'WEBKIT_COVERAGE_BUILD'};
+
+my $executablePath = "$ENV{'TARGET_BUILD_DIR'}/$ENV{'EXECUTABLE_PATH'}";
+
+my $buildTimestampPath = $ENV{'TARGET_TEMP_DIR'} . "/" . basename($0) . join('-', @allowedPrefixes) . ".timestamp";
+my $buildTimestampAge = -M $buildTimestampPath;
+my $executablePathAge = -M $executablePath;
+my $scriptAge = -M $0;
+
+my $pattern = "^(" . join('|', @allowedPrefixes) . ")";
+
+my $sawError = 0;
+
+if (!defined $executablePathAge || !defined $buildTimestampAge || $executablePathAge < $buildTimestampAge || $scriptAge < $buildTimestampAge) {
+    if (!open NM, "(nm -Ugjp '$executablePath' | sed 's/^/STDOUT:/') 2>&1 |") {
+        print "ERROR: Could not open $executablePath\n";
+        $sawError = 1;
+        next;
+    }
+    my @badNames;
+    while (<NM>) {
+        if (/^STDOUT:/) {
+            next unless /^STDOUT:_OBJC_CLASS_\$_/;
+            chomp;
+            my $className = substr($_, 21);
+            push(@badNames, $className) unless $className =~ /$pattern/;
+        } else {
+            print STDERR if $_ ne "nm: no name list\n";
+        }
+    }
+    close NM;
+
+    if (@badNames) {
+
+        my $shortName = $executablePath;
+        $shortName =~ s/.*\///;
+
+        print "ERROR: $shortName defines one or more Objective-C classes with inappropriate names. ($executablePath)\n";
+        for my $className (@badNames) {
+            print "ERROR: Inappropriate Objective-C class name: $className.\n";
+        }
+
+        if (@allowedPrefixes > 1) {
+            print "ERROR: Objective-C class names in $target must have one of these prefixes: " . join(", ", map('"' . $_ . '"', @allowedPrefixes)) . ".\n";
+        } else {
+            print "ERROR: Objective-C class names in $target must have the prefix \"" . $allowedPrefixes[0] . "\".\n";
+        }
+
+        $sawError = 1;
+    }
+}
+
+if ($sawError and !$coverageBuild) {
+    unlink $executablePath;
+    exit 1;
+}
+
+touch($buildTimestampPath);
+exit 0;
+
+sub touch($)
+{
+    my ($path) = @_;
+    open(TOUCH, ">", $path) or die "$!";
+    close(TOUCH);
+}

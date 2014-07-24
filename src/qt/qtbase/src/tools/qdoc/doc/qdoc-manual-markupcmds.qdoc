@@ -1,0 +1,3958 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page 03-qdoc-commands-markup.html
+    \contentspage QDoc Manual
+    \previouspage Naming Things
+    \nextpage Text Markup
+
+    \title Markup Commands
+
+    The markup commands indicate the generated documentation's visual
+    appearance and logical structure.
+
+    \list
+    \li \l {a-command} {\\a}
+    \li \l {abstract-command} {\\abstract}
+    \li \l {annotatedlist-command} {\\annotatedlist}
+    \li \l {b-command} {\\b} \span {class="newStuff"}
+    \li \l {b-command} {\\bold} {(deprecated, use \\b)}
+    \li \l {brief-command} {\\brief}
+    \li \l {c-command} {\\c}
+    \li \l {caption-command} {\\caption}
+    \li \l {chapter-command} {\\chapter}
+    \li \l {code-command} {\\code}
+    \li \l {codeline-command} {\\codeline}
+    \li \l {div-command} {\\div}
+    \li \l {dots-command} {\\dots}
+    \li \l {e-command} {\\e} \span {class="newStuff"}
+    \li \l {else-command} {\\else}
+    \li \l {endif-command} {\\endif}
+    \li \l {footnote-command} {\\footnote}
+    \li \l {generatelist-command} {\\generatelist}
+    \li \l {header-command} {\\header}
+    \li \l {e-command} {\\i} \span {class="newStuff"} {(deprecated, use \\e)}
+    \li \l {if-command} {\\if}
+    \li \l {image-command} {\\image}
+    \li \l {include-command} {\\include}
+    \li \l {include-command} {\\input}
+    \li \l {inlineimage-command} {\\inlineimage}
+    \li \l {keyword-command} {\\keyword}
+    \li \l {l-command} {\\l}
+    \li \l {legalese-command} {\\legalese}
+    \li \l {li-command} {\\li} \span {class="newStuff"}
+    \li \l {list-command} {\\list}
+    \li \l {meta-command} {\\meta}
+    \li \l {newcode-command} {\\newcode}
+    \li \l {li-command} {\\o} \span {class="newStuff"} {(deprecated, use \\li)}
+    \li \l {note-command} {\\note}
+    \li \l {oldcode-command} {\\oldcode}
+    \li \l {omit-command} {\\omit}
+    \li \l {part-command} {\\part}
+    \li \l {printline-command} {\\printline}
+    \li \l {printto-command} {\\printto}
+    \li \l {printuntil-command} {\\printuntil}
+    \li \l {quotation-command} {\\quotation}
+    \li \l {quotefile-command} {\\quotefile}
+    \li \l {quotefromfile-command} {\\quotefromfile}
+    \li \l {raw-command} {\\raw}
+    \li \l {row-command} {\\row}
+    \li \l {sa-command} {\\sa}
+    \li \l {sectionOne-command} {\\section1}
+    \li \l {sectionTwo-command} {\\section2}
+    \li \l {sectionThree-command} {\\section3}
+    \li \l {sectionFour-command} {\\section4}
+    \li \l {skipline-command} {\\skipline}
+    \li \l {skipto-command} {\\skipto}
+    \li \l {skipuntil-command} {\\skipuntil}
+    \li \l {snippet-command} {\\snippet}
+    \li \l {span-command} {\\span}
+    \li \l {sub-command} {\\sub}
+    \li \l {sup-command} {\\sup}
+    \li \l {table-command} {\\table}
+    \li \l {tableofcontents-command} {\\tableofcontents}
+    \li \l {target-command} {\\target}
+    \li \l {tt-command} {\\tt}
+    \li \l {uicontrol-command} {\\uicontrol} {(new 25/3/2012)}
+    \li \l {underline-command} {\\underline}
+    \li \l {raw-command} {\\unicode}
+    \li \l {warning-command} {\\warning}
+    \li \l {backslash-command} {\\\\}
+    \endlist
+*/
+
+
+/*!
+    \page 04-qdoc-commands-textmarkup.html
+    \contentspage QDoc Manual
+    \previouspage Markup Commands
+    \nextpage Document Structure
+
+    \title Text Markup
+
+    The text formatting commands indicate how text is to be rendered.
+
+    \target a-command
+    \section1 \\a (parameter marker)
+
+    The \\a command tells QDoc the next word is a formal parameter name.
+
+    A warning is emitted when a formal parameter is not documented or
+    is misspelled, so when you document a function you should mention
+    each formal parameter by name in the function description,
+    preceded by the \\a command. The parameter name is then rendered
+    in italics.
+
+    \code
+      / *!
+         Constructs a line edit containing the text
+         \a contents. The \a parent parameter is sent
+         to the QWidget constructor.
+      * /
+
+      QLineEdit::QLineEdit(const QString &contents, QWidget *parent) :QWidget(parent)
+      {
+         ...
+      }
+
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+        \b {QLineEdit::QLineEdit ( const QString &
+        contents, QWidget *parent )}
+
+        Constructs a line edit containing the text \a contents.
+        The \a parent parameter is sent to the QWidget constructor.
+    \endquotation
+
+    The formal parameter name may be enclosed between curly brackets,
+    but that isn't required.
+
+    \target c-command
+    \section1 \\c (code font)
+
+    The \\c command is used for rendering variable names, user-defined
+    class names, and C++ keywords (for example, \c int and \c for) in the code
+    font.
+
+    The command renders its argument using a monospace font. For
+    example:
+
+    \code
+      / *!
+        The \c AnalogClock class provides a clock widget with hour
+        and minute hands that is automatically updated every
+        few seconds.
+      * /
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+        The \c AnalogClock class provides a clock widget with hour
+        and minute hands, which are automatically updated every
+        few seconds.
+    \endquotation
+
+    If the text to be rendered in the code font contains spaces, enclose the
+    entire text in curly brackets.
+
+    \code
+      \c {QLineEdit::QLineEdit(const QString &contents, QWidget *parent) :QWidget(parent)}
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+      \c {QLineEdit::QLineEdit(const QString &contents, QWidget *parent) :QWidget(parent)}
+    \endquotation
+
+    The \\c command accepts the special character \c \ within its
+    argument, which renders it as a normal character. So if you want
+    to use nested commands, you must use the \l {tt-command} {teletype
+    (\\tt)} command instead.
+
+    See also \l {tt-command} {\\tt} and \l {code-command} {\\code}.
+
+    \target div-command
+    \section1 \\div
+
+    The \\div and \\enddiv commands delimit a large or small block of
+    text (which may include other QDoc commands) to which special
+    formatting attributes should be applied.
+
+    An argument must be provided in curly braces, as in the qdoc
+    comment shown below. The argument is not interpreted but is used
+    as attribute(s) of the tag that is output by qdoc.
+
+    For example, we might want to render an inline image so that it
+    floats to the right of the current block of text:
+
+    \code
+      / *!
+         \div {class="float-right"}
+           \inlineimage qml-column.png
+         \enddiv
+
+      * /
+    \endcode
+
+    If qdoc is generating HTML, it will translate these commands to:
+
+    \code
+      <div class="float-right"><p><img src="images/qml-column.png" /></p></div>
+    \endcode
+
+    For HTML, the attribute value \e {float-right} then will refer to
+    a clause in the style.css file, which in this case could be:
+
+    \code
+       div.float-right
+       {
+          float: right; margin-left: 2em
+       }
+    \endcode
+
+    If qdoc is generating DITA XML, it will translate the commands to:
+
+    \code
+        <sectiondiv outputclass="float-right">
+            <p>
+                <fig>
+                    <image href="images/qml-column.png" placement="inline"/>
+                </fig>
+            </p>
+        </sectiondiv>
+    \endcode
+
+    Your DITA XML publishing program must then recognize the \e
+    {outputclass} attribute value.
+
+    \note Note that the \b {\\div} command can be nested.
+
+    Below you can find an example taken from the index.qdoc file used to
+    generate index.html for Qt 4.7:
+
+    \code
+        \div {class="indexbox guide"}
+            \div {class="heading"}
+                Qt Developer Guide
+        \enddiv
+            \div {class="indexboxcont indexboxbar"}
+                \div {class="section indexIcon"} \emptyspan
+                \enddiv
+                \div {class="section"}
+                    Qt is a cross-platform application and UI
+                    framework. Using Qt, you can write web-enabled
+                    applications once and deploy them across desktop,
+                    mobile and embedded operating systems without
+                    rewriting the source code.
+                \enddiv
+                \div {class="section sectionlist"}
+                    \list
+                       \li \l{Getting Started}
+                       \li \l{Installation} {Installation}
+                       \li \l{how-to-learn-qt.html} {How to learn Qt}
+                       \li \l{tutorials.html} {Tutorials}
+                       \li \l{Qt Examples} {Examples}
+                       \li \l{qt4-7-intro.html} {What's new in Qt 4.7}
+                    \endlist
+                \enddiv
+            \enddiv
+        \enddiv
+    \endcode
+
+    When all the class attribute values are defined as they are in the
+    style.css file that is used for rendering the Qt documentation,
+    the above example is rendered as:
+
+          \div {class="indexbox guide"}
+            \div {class="heading"}
+              Qt Developer Guide
+        \enddiv
+            \div {class="indexboxcont indexboxbar"}
+              \div {class="section indexIcon"} \emptyspan
+              \enddiv
+              \div {class="section"}
+                Qt is a cross-platform application and UI
+                framework. Using Qt, you can write web-enabled
+                applications once and deploy them across desktop,
+                mobile and embedded operating systems without
+                rewriting the source code.
+              \enddiv
+              \div {class="section sectionlist"}
+                \list
+                  \li Getting Started
+                  \li Installation
+                  \li How to learn Qt
+                  \li Tutorials
+                  \li Examples
+                  \li What's new in Qt 4.7
+                \endlist
+             \enddiv
+            \enddiv
+          \enddiv
+
+    When generating DITA XML, qdoc outputs the nested \e {div} commands as:
+
+    \code
+      <sectiondiv outputclass="indexbox guide">
+          <sectiondiv outputclass="heading">
+              <p>Qt Developer Guide</p>
+          </sectiondiv>
+          <sectiondiv outputclass="indexboxcont indexboxbar">
+              <sectiondiv outputclass="section indexIcon"/>
+              <sectiondiv outputclass="section">
+                  <p>Qt is a cross-platform application and UI
+                     framework. Using Qt, you can write
+                     web-enabled applications once and deploy
+                     them across desktop, mobile and embedded
+                     operating systems without rewriting the
+                     source code.
+                  </p>
+              </sectiondiv>
+              <sectiondiv outputclass="section sectionlist">
+                  <ul>
+                      <li>
+                          <xref href="gettingstarted.xml#id-606ee7a8-219b-47b7-8f94-91bc8c76e54c">Getting started</xref>
+                      </li>
+                      <li>
+                          <xref href="installation.xml#id-075c20e2-aa1e-4f88-a316-a46517e50443">Installation</xref>
+                      </li>
+                      <li>
+                          <xref href="how-to-learn-qt.xml#id-49f509b5-52f9-4cd9-9921-74217b9a5182">How to learn Qt</xref>
+                      </li>
+                      <li>
+                          <xref href="tutorials.xml#id-a737f955-a904-455f-b4aa-0dc69ed5a64f">Tutorials</xref>
+                      </li>
+                      <li>
+                          <xref href="all-examples.xml#id-98d95159-d65b-4706-b08f-13d80080448d">Examples</xref>
+                      </li>
+                      <li>
+                          <xref href="qt4-7-intro.xml#id-519ae0e3-4242-4c2a-b2be-e05d1e95f177">What's new in Qt 4.7</xref>
+                      </li>
+                  </ul>
+              </sectiondiv>
+          </sectiondiv>
+      </sectiondiv>
+    \endcode
+
+    Your DITA XML publishing program must recognize the values of the
+    \e {outputclass} attribute.
+
+    See also \l {span-command} {\\span}.
+
+    \target span-command
+    \section1 \\span
+
+    The \\span command applies special formatting to a small block of text.
+
+    Two arguments must be provided, each argument in curly braces, as
+    shown in the QDoc comment below. The first argument is not
+    interpreted, but specifies the formatting attribute(s) of the tag
+    output by QDoc. The second argument is the text to be rendered with
+    the special formatting attributes.
+
+    For example, we might want to render the first word of each
+    element in a numeric list in blue.
+
+    \code
+        / *!
+            Global variables with complex types:
+        \list 1
+                \li \span {class="variableName"} {mutableComplex1} in globals.cpp at line 14
+                \li \span {class="variableName"} {mutableComplex2} in globals.cpp at line 15
+                \li \span {class="variableName"} {constComplex1} in globals.cpp at line 16
+                \li \span {class="variableName"} {constComplex2} in globals.cpp at line 17
+            \endlist
+        * /
+    \endcode
+
+    Class \e {variableName} refers to a clause in your style.css.
+
+    \code
+        .variableName
+        {
+            font-family: courier;
+        color: blue
+        }
+    \endcode
+
+    Using the \e {variableName} clause shown above, the example is rendered as:
+
+    Global variables with complex types:
+    \list 1
+        \li \span {class="variableName"} {mutableComplex1} in globals.cpp at line 14
+        \li \span {class="variableName"} {mutableComplex2} in globals.cpp at line 15
+        \li \span {class="variableName"} {constComplex1} in globals.cpp at line 16
+        \li \span {class="variableName"} {constComplex2} in globals.cpp at line 17
+    \endlist
+
+    \note The \b span command does not cause a new paragraph to be
+    started.
+
+    See also \l {div-command} {\\div}.
+
+    \target tt-command
+    \section1 \\tt (teletype font)
+
+    The \\tt command renders its argument in a monospace font. This
+    command behaves just like the \l {c-command} {\\c} command, except
+    that \\tt allows you to nest QDoc commands within the argument
+    (e.g. \l {e-command} {\\e}, \l {b-command} {\\b} and \l
+    {underline-command} {\\underline}).
+
+    \code
+       / *!
+           After having populated the main container with
+           child widgets, \c setupUi() scans the main container's list of
+           slots for names with the form
+           \tt{on_\e{objectName}_\e{signalName}().}
+       * /
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+       After having populated the main container with
+       child widgets, \c setupUi() scans the main container's list of
+       slots for names with the form
+       \tt{on_\e{objectName}_\e{signalName}().}
+    \endquotation
+
+    If the text to be rendered in the code font contains spaces, enclose the
+    entire text in curly brackets.
+
+    \code
+      \tt {QLineEdit::QLineEdit(const QString &contents, QWidget *parent) :QWidget(parent)}
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+      \tt {QLineEdit::QLineEdit(const QString &contents, QWidget *parent) :QWidget(parent)}
+    \endquotation
+
+    See also \l {c-command} {\\c}.
+
+    \target b-command
+    \section1 \\b
+
+    The \\b command renders its argument in bold font. This command used
+    to be called \\bold.
+
+    \code
+    / *!
+        This is regular text; \b {this text is
+        rendered using the \\b command}.
+    * /
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+    This is regular text; \b {this text is rendered using
+    the \\b command}.
+    \endquotation
+
+    \target e-command
+    \section1 \\e (emphasis, italics) \span {class="newStuff"} {(new 5/3/2012)}
+
+    The \\e command renders its argument in a special font, normally italics. This
+    command used to be called \\i, which is now deprecated. Use \e for italics.
+
+    If the argument contains spaces or other punctuation, enclose the
+    argument in curly brackets.
+
+    \code
+    / *!
+        Here, we render \e {a few words} in italics.
+    * /
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+        Here, we render \e {a few words} in italics.
+    \endquotation
+
+    If you want to use other QDoc commands within an argument that
+    contains spaces, you always need to enclose the argument in
+    braces. But QDoc is smart enough to count parentheses [3], so you
+    don't need braces in cases like this:
+
+    \code
+    / *!
+        An argument can sometimes contain whitespaces,
+        for example: \e QPushButton(tr("A Brand New Button"))
+    * /
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+       An argument can sometimes contain whitespaces,
+       for example: \e QPushButton(tr("A Brand New Button"))
+    \endquotation
+
+    Finally, trailing punctuation is not included in an argument [4],
+    nor is "'s" [5]
+
+    \raw HTML
+        <table align="center" cellpadding="2"
+           cellspacing="1" border="0">
+        <tr valign="top" bgcolor="#a2c511">
+            <th></th>
+            <th>QDoc Syntax</th>
+            <th>Generated Documentation</th>
+        </tr>
+
+        <tr valign="top" bgcolor="#d0d0d0">
+           <td>1</td>
+            <td>A variation of a command button is a \e menu
+                button.</td>
+            <td>A variation of a command button is a <i>menu</i>
+                button.</td>
+        </tr>
+
+        <tr valign="top" bgcolor="#c0c0c0">
+            <td>2</td>
+            <td>The QPushButton widget provides a
+                \e {command button}.</td>
+            <td>The QPushButton widget provides a
+                <i>command button</i>.</td>
+        </tr>
+
+        <tr valign="top" bgcolor="#d0d0d0">
+            <td>3</td>
+            <td>Another class of buttons are option buttons
+                \e (see QRadioButton).</td>
+            <td>Another class of buttons are option buttons
+                <i> (see QRadioButton)</i>.</td>
+        </tr>
+
+        <tr valign="top" bgcolor="#c0c0c0">
+            <td>4</td>
+            <td>A push button emits the signal \e clicked().</td>
+            <td>A push button emits the signal <i>clicked</i>().</td>
+        </tr>
+
+        <tr valign="top" bgcolor="#d0d0d0">
+            <td>5</td>
+            <td>The \e QPushButton's checked property is
+                false by default.</td>
+            <td>The <i>QPushButton</i>'s checked property is
+                false by default.</td>
+        </tr>
+
+        </table>
+    \endraw
+
+    \target sub-command
+    \section1 \\sub
+
+    The \\sub command renders its argument lower than the baseline of
+    the regular text, using a smaller font.
+
+    \code
+    / *!
+        Definition (Range): Consider the sequence
+        {x\sub n}\sub {n > 1} . The set
+
+        {x\sub 2, x\sub 3, x\sub 4, ...} = {x\sub n ; n = 2, 3, 4, ...}
+
+        is called the range of the sequence.
+    * /
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+        Definition (Range): Consider the sequence
+        {x\sub n}\sub {n > 1} . The set
+
+        {x\sub 2, x\sub 3, x\sub 4, ...} = {x\sub n ; n = 2, 3, 4, ...}
+
+        is called the range of the sequence.
+    \endquotation
+
+    If the argument contains spaces or other punctuation, enclose the
+    argument in curly brackets.
+
+    \target sup-command
+    \section1 \\sup
+
+    The \\sup command renders its argument higher than
+    the baseline of the regular text, using a smaller font.
+
+    \code
+    / *!
+        The series
+
+        1 + a + a\sup 2 + a\sup 3 + a\sup 4 + ...
+
+        is called the \i {geometric series}.
+    * /
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+        The series
+
+        1 + a + a\sup 2 + a\sup 3 + a\sup 4 + ...
+
+        is called the \e {geometric series}.
+    \endquotation
+
+    If the argument contains spaces or other punctuation, enclose the
+    argument in curly brackets.
+
+    \target uicontrol-command
+    \section1 \\uicontrol
+
+    The \\uicontrol command is used to mark content as being used for UI
+    control elements. When using HTML, the output is rendered in bold.
+    When using DITA XML the content is enclosed in a \c{uicontrol} tag.
+
+    \sa \\b
+
+    \target underline-command
+    \section1 \\underline
+
+    The \\underline command renders its argument underlined.
+
+    \code
+    / *!
+        The \underline {F}ile menu gives the users the possibility
+        to edit an existing file, or save a new or modified
+        file, and exit the application.
+    * /
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+        The \underline {F}ile menu gives the users the possibility
+        to edit an existing file, or save a new or modified
+        file, and exit the application.
+    \endquotation
+
+    If the argument contains spaces or other punctuation, enclose the
+    argument in curly brackets.
+
+    \target backslash-command
+    \section1 \\\\ (double backslash)
+
+    The \\\\ command expands to a double backslash.
+
+    QDoc commands always start with a single backslash. To display a
+    single backslash in the text you need to type two backslashes. If
+    you want to display two backslashes, you need to type four.
+
+    \code
+    / *!
+        The \\\\ command is useful if you want a
+        backslash to appear verbatim, for example,
+        writing C:\\windows\\home\\.
+    * /
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+        The \\\\ command is useful if you want a
+        backslash to appear verbatim, for example,
+        writing C:\\windows\\home\\.
+    \endquotation
+
+    However, if you want your text to appear in a monospace font as
+    well, you can use the \l {c-command} {\\c} command instead, which
+    accepts and renders the backslash as any other character. For
+    example:
+
+    \code
+    / *!
+        The \\c command is useful if you want a
+        backslash to appear verbatim, and the word
+        that contains it written in a monospace font,
+        like this: \c {C:\windows\home\}.
+    * /
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+        The \\c command is useful if you want a
+        backslash to appear verbatim, and the word
+        that contains it written in a monospace font,
+        like this: \c {C:\windows\home\}.
+    \endquotation
+
+*/
+
+
+/*!
+    \page 05-qdoc-commands-documentstructure.html
+    \previouspage Text Markup
+    \contentspage QDoc Manual
+    \nextpage Including Code Inline
+
+    \title Document Structure
+
+    The document structuring commands are for dividing your document
+    into sections. QDoc supports six kinds of sections: \c \part, \c
+    \chapter, \c \section1, \c \section2, \c \section3, and \c
+    \section4. The \c \section1..4 commands are the most useful. They
+    correspond to the traditional section, subsection, etc used in
+    outlining.
+
+    \target part-command
+    \section1 \\part
+
+    The \\part command is intended for use in a large document, like a
+    book.
+
+    In general a document structuring command considers everything
+    that follows it until the first line break as its argument. The
+    argument is rendered as the unit's title. If the title needs to be
+    spanned over several lines, make sure that each line (except the
+    last one) is ended with a backslash.
+
+    In total, there are six levels of sections in QDoc: \c \part, \c
+    \chapter, \c \section1, \c \section2, \c \section3 and \c
+    \section4. \c \section1 to \c \section4 correspond to the
+    traditional section, subsection, subsubsection and
+    subsubsubsection.
+
+    There is a strict ordering of the section units:
+
+           \code
+           part
+              |
+              chapter
+                    |
+                    section1
+                           |
+                           section2
+                                  |
+                                  section3
+                                         |
+                                         section4
+           \endcode
+
+    For example, a \c section1 unit can only appear as the top level
+    section or inside a \c chapter unit. Skipping a section unit, for
+    example from \c part to \c section1, is not allowed.
+
+    You can \e begin with either of the three: \c part, \c chapter or
+    \c section1.
+
+
+           \code
+           / *!
+               \part Basic Qt
+
+               This is the first part.
+
+
+                   \chapter Getting Started
+
+                   This is the first part's first chapter.
+
+
+                       \section1 Hello Qt
+
+                       This is the first chapter's first section.
+
+
+                       \section1 Making Connections
+
+                       This is the first chapter's second section.
+
+
+                       \section1 Using the Reference Documentation
+
+                       This is the first chapter's third section.
+
+
+                   \chapter Creating Dialogs
+
+                   This is the first part's second chapter.
+
+
+                       \section1 Subclassing QDialog
+
+                       This is the second chapter's first section.
+
+                       ...
+
+
+               \part Intermediate Qt
+
+               This is the second part.
+
+
+                   \chapter Layout Management
+
+                   This is the second part's first chapter.
+
+
+                       \section1 Basic Layouts
+
+                       This is the first chapter's first section.
+
+               ...
+           * /
+           \endcode
+
+    QDoc renders this as:
+
+           \quotation
+           \raw HTML
+               <a name="Basic Qt">
+               <h1>Basic Qt</h1>
+               </a>
+               <p>This is the first part.</p>
+
+                   <a name="Getting started">
+                   <h2>Getting Started</h2>
+                   </a>
+                   This is the first part's first chapter.</p>
+
+                       <a name="Hello Qt">
+                       <h3>Hello Qt</h3>
+                       </a>
+                       <p>This is the first chapter's first section.</p>
+
+                       <a name="Making Connections">
+                       <h3>Making Connections</h3>
+                       </a>
+                       <p>This is the first chapter's second section.</p>
+
+                       <a name="Using the Reference Documentation">
+                       <h3>Using the Reference Documentation</h3>
+                       </a>
+                       <p>This is the first chapter's third section.</p>
+
+                   <a name="Creating Dialogs">
+                   <h2>Creating Dialogs</h2>
+                   </a>
+                   <p>This is the first part's second chapter.</p>
+
+                       <a name="Subclassing QDialog">
+                       <h3>Subclassing QDialog</h3>
+                       </a>
+                       <p>This is the second chapter's first section.</p>
+
+                       ...
+
+               <a name="Intermediate Qt">
+               <h1>Intermediate Qt</h1>
+               </a>
+               <p>This is the second part.</p>
+
+                   <a name="Layout Management">
+                   <h2>Layout Management</h2>
+                   </a>
+                   <p>This is the second part's first chapter.</p>
+
+                       <a name="Basic Layouts">
+                       <h3>Basic Layouts</h3>
+                       </a>
+                       <p>This is the first chapter's first section.</p>
+
+               ...
+
+           \endraw
+           \endquotation
+
+    Each section is a logical unit in the document. The section
+    heading appears in the automatically generated table of contents
+    that normally appears in the upper right-hand corner of the page.
+
+    \target chapter-command
+    \section1 \\chapter
+
+    The \\chapter command is intended for use in
+    larger documents, and divides the document into chapters.
+
+    See \l{part} {\\part} for an explanation of the various
+    section units, command argument, and rendering.
+
+    \target sectionOne-command
+    \section1 \\section1
+
+    The \\section1 command starts a new section.
+
+    See \l{part} {\\part} for an explanation of the various
+    section units, command argument, and rendering.
+
+    \target sectionTwo-command
+    \section1 \\section2
+
+    The \\section2 command starts a new section.
+
+    See \l{part} {\\part} for an explanation of the various
+    section units, command argument, and rendering.
+
+    \target sectionThree-command
+    \section1 \\section3
+
+    The \\section3 command starts a new section.
+
+    See \l{part} {\\part} for an explanation of the various
+    section units, command argument, and rendering.
+
+    \target sectionFour-command
+    \section1 \\section4
+
+    The \\section4 command starts a new section.
+
+    See \l{part} {\\part} for an explanation of the various
+    section units, command argument, and rendering.
+
+*/
+
+
+/*!
+    \page 06-qdoc-commands-includecodeinline.html
+    \previouspage Document Structure
+    \contentspage QDoc Manual
+    \nextpage Including External Code
+
+    \title Including Code Inline
+
+    The following commands are used to render source code without
+    formatting. The source code begins on a new line, rendered in the
+    code.
+
+    \b{Note:} Although all these commands are for rendering C++
+    code, the
+    \l{07-0-qdoc-commands-includingexternalcode.html#snippet-command}
+    {\\snippet} and
+    \l{07-0-qdoc-commands-includingexternalcode.html#codeline-command}
+    {\\codeline} commands are preferred over the others. These
+    commands allow equivalent code snippets for other Qt language
+    bindings to be substituted for the C++ snippets in the
+    documentation.
+
+    \target code-command
+    \section1 \\code
+
+    The \\code and \\endcode commands enclose a snippet of source code.
+
+    \note The \l {c-command} {\\c} command can be used for short code
+    fragments within a sentence. The \\code command is for longer code
+    snippets. It renders the code verbatim in a separate paragraph in
+    the code font.
+
+    When processing any of the \\code, \l {newcode-command} {\\newcode} or \l
+    {oldcode-command} {\\oldcode} commands, QDoc removes all
+    indentation that is common for the verbatim code blocks within a
+    \c{/}\c{*!} ... \c{*}\c{/} comment before it adds the standard
+    indentation. For that reason the recommended style is to use 8
+    spaces for the verbatim code contained within these commands
+
+    \note This doesn't apply to externally quoted code using the \l
+    {quotefromfile-command} {\\quotefromfile} or \l
+    {quotefile-command} {\\quotefile} command.
+
+           \code
+           / *!
+               \code
+                   #include <QApplication>
+                   #include <QPushButton>
+
+                   int main(int argc, char *argv[])
+                   {
+                       ...
+                   }
+               \ endcode
+           * /
+           \endcode
+
+           QDoc renders this as:
+
+           \code
+               #include <QApplication>
+               #include <QPushButton>
+
+               int main(int argc, char *argv[])
+               {
+                   ...
+               }
+           \endcode
+
+    Other QDoc commands are disabled within \\code... \\endcode, and
+    the special character '\\' is accepted and rendered like the rest
+    of the code.
+
+    To include code snippets from an external file, use the
+    \l{07-0-qdoc-commands-includingexternalcode.html#snippet-command}
+    {\\snippet} and
+    \l{07-0-qdoc-commands-includingexternalcode.html#codeline-command}
+    {\\codeline} commands.
+
+    See also \l {c-command} {\\c}, \l
+    {07-0-qdoc-commands-includingexternalcode.html#quotefromfile-command}
+    {\\quotefromfile}, \l{newcode-command} {\\newcode}, and \l {oldcode-command}
+    {\\oldcode}.
+
+    \target newcode-command
+    \section1 \\newcode
+
+    The \\newcode, \\oldcode, and \\endcode commands enable you to
+    show how to port a snippet of code to a new version of an API.
+
+    The \\newcode command and its companion the \\oldcode command are
+    a convenience combination of the \l {code-command} {\\code} commands:
+    this combination provides a text relating the two code snippets to each
+    other.
+
+    The \\newcode command requires a preceding \\oldcode statement.
+
+    Like the \l{code-command}{\\code} command, the \\newcode command renders its
+    code on a new line in the documentation using a monospace font and the
+    standard indentation.
+
+           \code
+           / *!
+               \oldcode
+                   if (printer->setup(parent))
+                       ...
+               \newcode
+                   QPrintDialog dialog(printer, parent);
+                       if (dialog.exec())
+                           ...
+               \ endcode
+           * /
+           \endcode
+
+    QDoc renders this as:
+
+           \quotation
+               \oldcode
+                   if (printer->setup(parent))
+                       ...
+               \newcode
+                   QPrintDialog dialog(printer, parent);
+                       if (dialog.exec())
+                           ...
+               \endcode
+           \endquotation
+
+    Other QDoc commands are disabled within \\oldcode ... \\endcode,
+    and the '\\' character doesn't need to be escaped.
+
+    \target oldcode-command
+    \section1 \\oldcode
+
+    The \\oldcode command requires a corresponding
+    \\newcode statement; otherwise QDoc fails to parse the command
+    and emits a warning.
+
+    See also \l {newcode-command} {\\newcode}.
+
+    \target qml-command
+    \section1 \\qml
+
+    The \\qml and \\endqml commands enclose a snippet of QML source
+    code. Currently, QDoc handles \\qml and \\endqml in exactly the same
+    way as \\code and \\endcode.
+
+    \code
+    / *!
+        \qml
+            import QtQuick 1.0
+
+            Row {
+                Rectangle {
+                    width: 100; height: 100
+                    color: "blue"
+                    transform: Translate { y: 20 }
+                }
+                Rectangle {
+                    width: 100; height: 100
+                    color: "red"
+                    transform: Translate { y: -20 }
+                }
+            }
+        \endqml
+    * /
+    \endcode
+
+    QDoc renders this as:
+
+    \qml
+        import QtQuick 1.0
+
+        Row {
+            Rectangle {
+                width: 100; height: 100
+                color: "blue"
+                transform: Translate { y: 20 }
+            }
+            Rectangle {
+                width: 100; height: 100
+                color: "red"
+                transform: Translate { y: -20 }
+            }
+        }
+    \endqml
+*/
+
+
+/*!
+    \page 07-0-qdoc-commands-includingexternalcode.html
+    \previouspage Including Code Inline
+    \contentspage QDoc Manual
+    \nextpage Creating Links
+
+    \title Including External Code
+
+    The following commands enable you to include code snippets from
+    external files. You can make QDoc include the complete contents of
+    a file, or you can quote specific parts of the file and skip
+    others. The typical use of the latter is to quote a file chunk by
+    chunk.
+
+    \b{Note:} Although all these commands are for rendering C++
+    code, the
+    \l{07-0-qdoc-commands-includingexternalcode.html#snippet-command}
+    {\\snippet} and
+    \l{07-0-qdoc-commands-includingexternalcode.html#codeline-command}
+    {\\codeline} commands are preferred over the others. These
+    commands allow equivalent code snippets for other Qt language
+    bindings to be substituted for the C++ snippets in the
+    documentation.
+
+    \target quotefile-command
+    \section1 \\quotefile
+
+    The \\quotefile command expands to the complete contents of the
+    file given as argument.
+
+    The command considers the rest of the line as part of its
+    argument, make sure to follow the file name with a line break.
+
+    The file's contents is rendered in a separate paragraph, using a
+    monospace font and the standard indentation. The code is shown
+    verbatim.
+
+           \code
+           / *!
+               This is a simple "Hello world" example:
+
+               \quotefile examples/main.cpp
+
+               It contains only the bare minimum you need
+               to get a Qt application up and running.
+           * /
+           \endcode
+
+    QDoc renders this as:
+
+           \quotation
+               This is a simple "Hello world" example:
+
+               \quotefile examples/main.cpp
+
+               It contains only the bare minimum you need to get a Qt
+               application up and running.
+           \endquotation
+
+    See also \l {quotefromfile-command} {\\quotefromfile} and
+    \l {code-command} {\\code}.
+
+
+    \target quotefromfile-command
+    \section1 \\quotefromfile
+
+    The \\quotefromfile command opens the file given as argument for
+    quoting.
+
+    The command considers the rest of the line as part of its
+    argument, make sure to follow the file name with a line break.
+
+    The command is intended for use when quoting parts from file with
+    the walkthrough commands: \l {printline-command} {\\printline}, \l
+    {printto-command} {\\printto}, \l {printuntil-command}
+    {\\printuntil}, \l {skipline-command} {\\skipline}, \l
+    {skipto-command} {\\skipto}, \l {skipuntil-command}
+    {\\skipuntil}. This enables you to quote specific portions of a
+    file.
+
+           \code
+           / *!
+               The whole application is contained within
+               the \c main() function:
+
+               \quotefromfile examples/main.cpp
+
+               \skipto main
+               \printuntil app(argc, argv)
+
+               First we create a QApplication object using
+               the \c argc and \c argv parameters.
+
+               \skipto QPushButton
+               \printuntil resize
+
+               Then we create a QPushButton, and give it a reasonable
+               size using the QWidget::resize() function.
+
+               ...
+           * /
+           \endcode
+
+    QDoc renders this as:
+
+           \quotation
+               The whole application is contained within
+               the \c main() function:
+
+               \quotefromfile examples/main.cpp
+
+               \skipto main
+               \printuntil app(argc, argv)
+
+               First we create a QApplication object using the \c argc
+               and \c argv parameters.
+
+               \skipto QPushButton
+               \printuntil resize
+
+               Then we create a QPushButton, and give it a reasonable
+               size using the QWidget::resize() function.
+
+               ...
+           \endquotation
+
+    QDoc remembers which file it is quoting from, and the current
+    position in that file (see \l {file} {\\printline} for more
+    information). There is no need to "close" the file.
+
+    See also \l {quotefile-command} {\\quotefile}, \l {code-command}
+    {\\code} and \l {dots} {\\dots}.
+
+    \target printline-command
+    \section1 \\printline
+
+    The \\printline command expands to the line from the current
+    position to the next non-blank line of the current source file.
+
+    To ensure that the documentation remains synchronized with the
+    source file, a substring of the line must be specified as an
+    argument to the command. Note that the command considers the rest
+    of the line as part of its argument, make sure to follow the
+    substring with a line break.
+
+    The line from the source file is rendered as a separate paragraph,
+    using a monospace font and the standard indentation. The code is
+    shown verbatim.
+
+           \code
+           / *!
+               There has to be exactly one QApplication object
+               in every GUI application that uses Qt.
+
+               \quotefromfile examples/main.cpp
+
+               \printline QApplication
+
+               This line includes the QApplication class
+               definition. QApplication manages various
+               application-wide resources, such as the
+               default font and cursor.
+
+               \printline QPushButton
+
+               This line includes the QPushButton class
+               definition. The QPushButton widget provides a command
+               button.
+
+               \printline main
+
+               The main function...
+           * /
+           \endcode
+
+    QDoc renders this as:
+
+           \quotation
+               There has to be exactly one QApplication object
+               in every GUI application that uses Qt.
+
+               \quotefromfile examples/main.cpp
+
+               \skipto QApplication
+               \printline QApplication
+
+               This line includes the QApplication class
+               definition. QApplication manages various
+               application-wide resources, such as the
+               default font and cursor.
+
+               \printline QPushButton
+
+               This line includes the QPushButton class
+               definition. The QPushButton widget provides a command
+               button.
+
+               \printline main
+
+               The main function...
+           \endquotation
+
+    \target file
+
+    QDoc reads the file sequentially. To move the current position
+    forward you can use either of the \l {skipline-command}
+    {\\skip...} commands. To move the current position backward, you
+    can use the \l {quotefromfile-command} {\\quotefromfile} command
+    again.
+
+    \target substring
+
+    If the substring argument is surrounded by slashes it is
+    interpreted as a \l {QRegExp}{regular expression}.
+
+           \code
+           / *!
+               \quotefromfile examples/mainwindow.cpp
+
+               \skipto closeEvent
+               \printuntil /^\}/
+
+               Close events are sent to widgets that the users want to
+               close, usually by clicking \c File|Exit or by clicking
+               the \c X title bar button. By reimplementing the event
+               handler, we can intercept attempts to close the
+               application.
+           * /
+           \endcode
+
+    QDoc renders this as:
+
+           \quotation
+               \quotefromfile examples/mainwindow.cpp
+
+               \skipto closeEvent
+               \printuntil /^\}/
+
+               Close events are sent to widgets that the users want to
+               close, usually by clicking \c File|Exit or by clicking
+               the \c X title bar button. By reimplementing the event
+               handler, we can intercept attempts to close the
+               application.
+           \endquotation
+
+    (\l {widgets/scribble} {The complete example file...})
+
+    The regular expression \c /^\}/ makes QDoc print until the first
+    '}' character occurring at the beginning of the line without
+    indentation. /.../ encloses the regular expression, and '^' means
+    the beginning of the line. The '}' character must be escaped since
+    it is a special character in regular expressions.
+
+    QDoc will emit a warning if the specified substring or regular
+    expression cannot be located, i.e. if the source code has changed.
+
+    See also \l {printto-command} {\\printto} and \l
+    {printuntil-command} {\\printuntil}.
+
+    \target printto-command
+    \section1 \\printto
+
+    The \\printto command expands to all the lines from the current
+    position up to and \e excluding the next line containing a given
+    substring.
+
+    The command considers the rest of the line as part of its
+    argument, make sure to follow the substring with a line break. The
+    command also follows the same conventions for \l {file}
+    {positioning} and \l {substring} {argument} as the \l
+    {printline-command} {\\printline} command.
+
+    The lines from the source file are rendered in a separate
+    paragraph, using a monospace font and the standard
+    indentation. The code is shown verbatim.
+
+           \code
+           / *!
+               The whole application is contained within the
+               \c main() function:
+
+               \quotefromfile examples/main.cpp
+               \printto hello
+
+               First we create a QApplication object using the \c argc and
+               \c argv parameters...
+           * /
+           \endcode
+
+    QDoc renders this as:
+
+           \quotation
+               The whole application is contained within the
+               \c main() function:
+
+               \quotefromfile examples/main.cpp
+               \skipto main
+               \printto hello
+
+               First we create a QApplication object using the \c argc
+               and \c argv parameters...
+           \endquotation
+
+    See also \l {printline-command} {\\printline} and \l
+    {printuntil-command} {\\printuntil}.
+
+    \target printuntil-command
+    \section1 \\printuntil
+
+    The \\printuntil command expands to all the lines from the current
+    position up to and \e including the next line containing a given
+    substring.
+
+    The command considers the rest of the line as part of its
+    argument, make sure to follow the substring with a line break. The
+    command also follows the same conventions for \l {file}
+    {positioning} and \l {substring} {argument} as the \l
+    {printline-command} {\\printline} command.
+
+    The lines from the source file are rendered in a separate
+    paragraph, using a monospace font and the standard
+    indentation. The code is shown verbatim.
+
+           \code
+           / *!
+               The whole application is contained within the
+               \c main() function:
+
+               \quotefromfile examples/main.cpp
+               \skipto main
+               \printuntil hello
+
+               First we create a QApplication object using the
+               \c argc and \c argv parameters, then we create
+               a QPushButton.
+           * /
+           \endcode
+
+    QDoc renders this as:
+
+           \quotation
+               The whole application is contained within the
+               \c main() function:
+
+               \quotefromfile examples/main.cpp
+               \skipto main
+               \printuntil hello
+
+               First we create a \l
+               {http://qt-project.org/doc/qt-5.0/qtwidgets/qapplication.html} {QApplication}
+               object using the \c argc and \c argv parameters, then we
+               create a \l
+               {http://qt-project.org/doc/qt-5.0/qtwidgets/qpushbutton.html} {QPushButton}.
+           \endquotation
+
+    See also \l {printline-command} {\\printline} and \l
+    {printto-command} {\\printto}.
+
+    \target skipline-command
+    \section1 \\skipline
+
+    The \\skipline command ignores the next non-blank line in the
+    current source file.
+
+    Doc reads the file sequentially, and the \\skipline command is
+    used to move the current position (omitting a line of the source
+    file). See the remark about \l {file} {file positioning} above.
+
+    The command considers the rest of the line as part of its
+    argument, make sure to follow the substring with a line break. The
+    command also follows the same conventions for \l {substring}
+    {argument} as the \l {printline-command} {\\printline} command,
+    and it is used in conjunction with the \l {quotefromfile-command}
+    {\\quotefromfile} command.
+
+           \code
+           / *!
+               QPushButton is a GUI push button that the user
+               can press and release.
+
+               \quotefromfile examples/main.cpp
+               \skipline QApplication
+               \printline QPushButton
+
+               This line includes the QPushButton class
+               definition. For each class that is part of the
+               public Qt API, there exists a header file of
+               the same name that contains its definition.
+           * /
+           \endcode
+
+    QDoc renders this as:
+
+           \quotation
+               \l
+               QPushButton is a GUI push button that the user
+               can press and release.
+
+               \quotefromfile examples/main.cpp
+               \skipto QApplication
+               \skipline QApplication
+               \printline QPushButton
+
+               This line includes the QPushButton class
+               definition. For each class that is part of the public
+               Qt API, there exists a header file of the same name
+               that contains its definition.
+           \endquotation
+
+    See also \l {skipto-command} {\\skipto}, \l {skipuntil-command}
+    {\\skipuntil} and \l {dots} {\\dots}.
+
+    \target skipto-command
+    \section1 \\skipto
+
+    The \\skipto command ignores all the lines from the current
+    position up to and \e excluding the next line containing a given
+    substring.
+
+    QDoc reads the file sequentially, and the \\skipto command is used
+    to move the current position (omitting one or several lines of the
+    source file). See the remark about \l {file} {file positioning}
+    above.
+
+    The command considers the rest of the line as part of its
+    argument, make sure to follow the substring with a line break.
+
+    The command also follows the same conventions for \l {substring}
+    {argument} as the \l {printline-command} {\\printline} command,
+    and it is used in conjunction with the \l {quotefromfile-command}
+    {\\quotefromfile} command.
+
+           \code
+           / *!
+               The whole application is contained within
+               the \c main() function:
+
+               \quotefromfile examples/main.cpp
+               \skipto main
+               \printuntil }
+
+               First we create a QApplication object. There
+               has to be exactly one such object in
+               every GUI application that uses Qt. Then
+               we create a QPushButton, resize it to a reasonable
+               size...
+           * /
+           \endcode
+
+    QDoc renders this as:
+
+           \quotation
+               The whole application is contained within
+               the \c main() function:
+
+               \quotefromfile examples/main.cpp
+               \skipto main
+               \printuntil }
+
+               First we create a QApplication object. There has to be
+               exactly one such object in every GUI application that
+               uses Qt. Then we create a QPushButton, resize it to a
+               reasonable size ...
+           \endquotation
+
+    See also \l {skipline-command} {\\skipline}, \l
+    {skipuntil-command} {\\skipuntil} and \l {dots} {\\dots}.
+
+    \target skipuntil-command
+    \section1 \\skipuntil
+
+    The \\skipuntil command ignores all the lines from the current
+    position up to and \e including the next line containing a given
+    substring.
+
+    QDoc reads the file sequentially, and the \\skipuntil command is
+    used to move the current position (omitting one or several lines
+    of the source file). See the remark about \l {file} {file
+    positioning} above.
+
+    The command considers the rest of the line as part of its
+    argument, make sure to follow the substring with a line break.
+
+    The command also follows the same conventions for \l {substring}
+    {argument} as the \l {printline-command} {\\printline} command,
+    and it is used in conjunction with the \l {quotefromfile-command}
+    {\\quotefromfile} command.
+
+           \code
+           / *!
+               The first thing we did in the \c main() function
+               was to create a QApplication object \c app.
+
+               \quotefromfile examples/main.cpp
+               \skipuntil show
+               \dots
+               \printuntil }
+
+               In the end we must remember to make \c main() pass the
+               control to Qt. QCoreApplication::exec() will return when
+               the application exits...
+           * /
+           \endcode
+
+    QDoc renders this as:
+
+           \quotation
+               The first thing we did in the \c main() function was to
+               create a QApplication object \c app.
+
+               \quotefromfile examples/main.cpp
+               \skipuntil show
+               \dots
+               \printuntil }
+
+               In the end we must remember to make \c main() pass the
+               control to Qt. QCoreApplication::exec()
+               will return when the application exits...
+           \endquotation
+
+    See also \l {skipline-command} {\\skipline}, \l {skipto-command}
+    {\\skipto} and \l {dots} {\\dots}.
+
+    \target dots-command
+    \section1 \\dots
+
+    The \\dots command indicates that parts of the source file have
+    been omitted when quoting a file.
+
+    The command is used in conjunction with the \l
+    {quotefromfile-command} {\\quotefromfile} command, and should be
+    stated on its own line. The dots are rendered on a new line, using
+    a monospace font.
+
+           \code
+           / *!
+               \quotefromfile examples/main.cpp
+               \skipto main
+               \printuntil {
+               \dots
+               \skipuntil exec
+               \printline }
+           * /
+           \endcode
+
+    QDoc renders this as:
+
+           \quotefromfile examples/main.cpp
+           \skipto main
+           \printuntil {
+           \dots
+           \skipuntil exec
+           \printline }
+
+    The default indentation is 4 spaces, but this can be adjusted
+    using the command's optional argument.
+
+    \code
+    / *!
+        \dots 0
+        \dots
+        \dots 8
+        \dots 12
+        \dots 16
+    * /
+    \endcode
+
+    QDoc renders this as:
+
+    \dots 0
+    \dots
+    \dots 8
+    \dots 12
+    \dots 16
+
+    See also \l {skipline-command} {\\skipline}, \l {skipto-command}
+    {\\skipto} and \l {skipuntil-command} {\\skipuntil}.
+
+    \target snippet-command
+    \section1 \\snippet
+
+    The \\snippet command causes a code snippet to be included
+    verbatim as preformatted text, which may be syntax highlighted.
+
+    Each code snippet is referenced by the file that holds it and by
+    a unique identifier for that file. Snippet files are typically
+    stored in a \c{snippets} directory inside the documentation
+    directory (for example, \c{$QTDIR/doc/src/snippets}).
+
+    For example, the following documentation references a snippet in a
+    file residing in a subdirectory of the documentation directory:
+
+           \code
+           \snippet snippets/textdocument-resources/main.cpp Adding a resource
+           \endcode
+
+    The text following the file name is the unique identifier for the
+    snippet. This is used to delimit the quoted code in the relevant
+    snippet file, as shown in the following example that corresponds to
+    the above \c{\\snippet} command:
+
+           \dots
+           \code
+               QImage image(64, 64, QImage::Format_RGB32);
+               image.fill(qRgb(255, 160, 128));
+
+           //! [Adding a resource]
+               document->addResource(QTextDocument::ImageResource,
+                   QUrl("mydata://image.png"), QVariant(image));
+           //! [Adding a resource]
+           \endcode
+           \dots
+
+    \target codeline-command
+    \section1 \\codeline
+
+    The \\codeline command inserts a blank line of preformatted
+    text. It is used to insert gaps between snippets without closing
+    the current preformatted text area and opening a new one.
+
+*/
+
+
+/*!
+    \page 08-qdoc-commands-creatinglinks.html
+    \previouspage Including External Code
+    \contentspage QDoc Manual
+    \nextpage Including Images
+
+    \title Creating Links
+
+    These commands are for creating hyperlinks to classes, functions,
+    examples, and other targets.
+
+    \target l-command
+    \section1 \\l (link)
+
+    The \\l link command is used to create a hyperlink to many
+    different kinds of targets. The command's general syntax is:
+
+    \code
+      \l {link target} {link text}
+    \endcode
+
+    \code
+       / *!
+          Read the \l {http://qt-project.org/doc/qt-5.0/}
+          {Qt 5.0 Documentation} carefully.
+       * /
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+       Read the \l {http://qt-project.org/doc/qt-5.0/}
+       {Qt 5.0 Documentation} carefully.
+    \endquotation
+
+    If the link target is equivalent to the link text, the second
+    argument can be omitted.
+
+    For example, if you have documentation like:
+
+    \code
+      / *!
+         \target assertions
+
+         Assertions make some statement about the text at the
+         point where they occur in the regexp, but they do not
+         match any characters.
+
+         ...
+
+         Regexps are built up from expressions, quantifiers, and
+         \l {assertions} {assertions}.
+      * /
+    \endcode
+
+    You can simplify this as follows:
+
+    \code
+      / *!
+        \target assertions
+
+        Assertions make some statement about the text at the
+        point where they occur in the regexp, but they do not
+        match any characters.
+
+        ...
+
+        Regexps are built up from expressions, quantifiers, and
+        \l assertions.
+      * /
+    \endcode
+
+    For the one-parameter version, the braces can often be omitted.
+    The \\l command supports several ways of linking:
+
+    \list
+
+    \li \c {\l QWidget} - The name of a class documented with the \l
+    {class-command} {\\class} command.
+
+    \li \c {\l QWidget::sizeHint()} - The name of a member function,
+    documented with or without an \l {fn-command} {\\fn} command.
+
+    \li \c {\l <QtGlobal>} - The subject of a \l {headerfile-command}
+    {\\headerfile} command.
+
+    \li \c {\l widgets/wiggly} - The relative path used in an \l
+    {example-command} {\\example} command.
+
+    \li \c {\l {QWidget Class Reference}} - The title used in a
+    \l {title-command} {\\title} command.
+
+    \li \c {\l {Introduction to QDoc}}- The text from one of the
+    \l{part-command} {\\part}, \l{chapter} {\\chapter}, or \l
+    {sectionOne-command} {\\section} commands.
+
+    \li \c {\l fontmatching} - The argument of a \l {target-command}
+    {\\target} command.
+
+    \li \c {\l {Shared Classes}} - A keyword named in a \l
+    {keyword-command} {\\keyword} command.
+
+    \li \c {\l http://qt-project.org/} - A URL.
+
+    \endlist
+
+    QDoc also tries to make a link out of any word that doesn't
+    resemble a normal English word, for example, Qt class names or
+    functions, like QWidget or QWidget::sizeHint(). In these cases,
+    the \\l command can actually be omitted, but by using the command,
+    you ensure that QDoc will emit a warning if it cannot find the
+    link target. In addition, if you only want the function name to
+    appear in the link, you can use the following syntax:
+
+    \list
+        \li \c {\l {QWidget::} {sizeHint()}}
+    \endlist
+
+    QDoc renders this as:
+
+    \quotation
+    \l {QWidget::} {sizeHint()}
+    \endquotation
+
+    See also \l {sa-command} {\\sa}, \l {target-command} {\\target},
+    and \l {keyword-command} {\\keyword}.
+
+
+    \target sa-command
+    \section1 \\sa (see also)
+
+    The \\sa command defines a list of links that will be rendered in
+    a separate "See also" section at the bottom of the documentation
+    unit.
+
+    The command takes a comma-separated list of links as its
+    argument. If the line ends with a comma, you can continue
+    the list on the next line. The general syntax is:
+
+    \code
+    \sa {the first link}, {the second link},
+        {the third link}, ...
+    \endcode
+
+    QDoc will automatically try to generate "See also" links
+    interconnecting a property's various functions. For example, a
+    setVisible() function will automatically get a link to visible()
+    and vice versa.
+
+    In general, QDoc will generate "See also" links that interconnect
+    the functions that access the same property. It recognizes four
+    different syntax versions:
+
+    \list
+      \li \c property()
+      \li \c setProperty()
+      \li \c isProperty()
+      \li \c hasProperty()
+    \endlist
+
+    The \\sa command supports the same kind of links as the \l
+    {l-command} {\\l} command.
+
+    \code
+      / *!
+         Appends the actions \a actions to this widget's
+         list of actions.
+
+         \sa removeAction(), QMenu, addAction()
+      * /
+      void QWidget::addActions(QList<QAction *> actions)
+      {
+      ...
+      }
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+        \b {void QWidget::addActions ( QList<QAction*>
+        \e actions )}
+
+        Appends the actions \e actions to this widget's list of
+        actions.
+
+        See also \l {QWidget::removeAction()} {removeAction()},
+        \l QMenu, and \l {QWidget::addAction()} {addAction()}.
+    \endquotation
+
+    See also \l {l-command} {\\l}, \l {target-command} {\\target} and
+    \l {keyword-command} {\\keyword}.
+
+
+    \target target-command
+    \section1 \\target
+
+    The \\target command names a place in the documentation that you
+    can link to using the \l {l-command} {\\l (link)} and \l
+    {sa-command} {\\sa (see also)} commands.
+
+    The text up to the line break becomes the target name. Be sure to
+    follow the target name with a line break. Curly brackets are not
+    required around the target name, but they may be required when the
+    target name is used in a link command. See below.
+
+    \code
+    / *!
+        \target capturing parentheses
+        \section1 Capturing Text
+
+        Parentheses allow us to group elements together so that
+        we can quantify and capture them.
+
+        ...
+    * /
+    \endcode
+
+    The target name \e{capturing parentheses} can be linked from
+    within the same document containing the target in the following way:
+
+    \list
+      \li \c {\l {capturing parentheses}} (from within the same QDoc comment)
+    \endlist
+
+    \note The brackets in the link example are required because the
+    target name contains spaces.
+
+    See also \l {l-command} {\\l}, \l {sa-command} {\\sa} and \l
+    {keyword-command} {\\keyword}.
+
+    \target keyword-command
+    \section1 \\keyword
+
+    The \\keyword command names a place in the documentation that you
+    can link to using the \l {l-command} {\\l (link)} and \l
+    {sa-command} {\\sa (see also)} commands.
+
+    The \\keyword command is like the \l {target-command} {\\target}
+    command, but stronger. A keyword can be linked from anywhere using
+    a simple syntax.
+
+    Keywords must be unique over all the documents processed during
+    the QDoc run. The command uses the rest of the line as its
+    argument. Be sure to follow the keyword with a line break.
+
+
+    \code
+    / *!
+        \class QRegExp
+        \reentrant
+        \brief The QRegExp class provides pattern
+               matching using regular expressions.
+        \ingroup tools
+        \ingroup misc
+        \ingroup shared
+        \mainclass
+
+        \keyword regular expression
+
+        Regular expressions, or "regexps", provide a way to
+        find patterns within text.
+
+        ...
+    * /
+    \endcode
+
+    The location marked with the keyword can be linked to with:
+
+    \code
+    / *!
+        When a string is surrounded by slashes, it is
+        interpreted as a \l {QRegExp}{regular expression}.
+    * /
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+        When a string is surrounded by slashes, it is
+        interpreted as a \l {regular expression}.
+    \endquotation
+
+    If the keyword text contains spaces, the brackets are required.
+
+    See also \l {l-command} {\\l (link)}, \l {sa-command} {\\sa (see
+    also)} and \l {target-command} {\\target}.
+
+*/
+
+
+/*!
+    \page 09-qdoc-commands-includingimages.html
+    \previouspage Creating Links
+    \contentspage QDoc Manual
+    \nextpage Tables and Lists
+
+    \title Including Images
+
+    The graphic commands makes it possible to include images in the
+    documentation. The images can be rendered as separate paragraphs,
+    or within running text.
+
+    \target image-command
+    \section1 \\image
+
+    The \\image command expands to the image specified by its first
+    argument, and renders it centered as a separate paragraph.
+
+    The command takes two arguments. The first argument is the name of
+    the image file. The second argument is optional and is a simple
+    description of the image, equivalent to the HTML alt="" in an image
+    tag. The description is used for tooltips and for browsers that don't
+    support images, like the Lynx text browser.
+
+    The remaining text \e{after} the file name is the optional,
+    description argument. Be sure to follow the file name or the
+    description with a line break. Curly brackets are required if the
+    description argument spans multiple lines.
+
+    \code
+    / *!
+        Qt is a C++ toolkit for cross-platform GUI application development.
+
+        \image happyguy.jpg "Happy guy"
+
+        Qt provides single-source portability across Microsoft
+        Windows, Mac OS X, Linux, and all major commercial Unix
+        variants. It is also available for embedded devices.
+    * /
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+        Qt is a C++ toolkit for cross-platform GUI application development.
+
+        \image happyguy.jpg image "Happy guy"
+
+        Qt provides single-source portability across Microsoft
+        Windows, Mac OS X, Linux, and all major commercial Unix
+        variants. It is also available for embedded devices.
+        \endquotation
+
+    See also \l {inlineimage-command} {\\inlineimage} and \l
+    {caption-command} {\\caption}.
+
+    \target inlineimage-command
+    \section1 \\inlineimage
+
+    The \\inlineimage command expands to the image specified by its
+    argument. The image is rendered inline with the rest of the text.
+
+    The command takes two arguments. The first argument is the name of
+    the image file. The second argument is optional and is a simple
+    description of the image, equivalent to the HTML alt="" in an image
+    tag. The description is used for tooltips, and for when a browser
+    doesn't support images, like the Lynx text browser.
+
+    The most common use of the \\inlineimage command is in lists and
+    tables. Here is an example of including inline images in a list:
+
+    \code
+    / *!
+        \list 1
+          \li \inlineimage happy.gif Oh so happy!
+          \li \inlineimage happy.gif Oh so happy!
+          \li \inlineimage happy.gif Oh so happy!
+        \endlist
+    * /
+    \endcode
+
+    QDoc renders this as:
+
+    \list 1
+      \li \inlineimage happy.gif Oh so happy!
+      \li \inlineimage happy.gif Oh so happy!
+      \li \inlineimage happy.gif Oh so happy!
+    \endlist
+
+    Here is an example of including inline images in a table:
+
+    \code
+    / *!
+        \table
+        \header
+            \li Qt
+            \li Qt Creator
+        \row
+            \li \inlineimage happy.gif Oh so happy!
+            \li \inlineimage happy.gif Oh so happy!
+        \row
+            \li \inlineimage happy.gif Oh so happy!
+            \li \inlineimage happy.gif Oh so happy!
+        \endtable
+    * /
+    \endcode
+
+    QDoc renders this as:
+
+    \raw HTML
+        <table align="center" cellpadding="2"
+            cellspacing="1" border="0">
+        <tr valign="top" bgcolor="#a2c511">
+            <th>Qt</th>
+            <th>Qt Creator</th>
+        </tr>
+        <tr valign="top" bgcolor="#f0f0f0">
+            <td><img src="images/happy.gif" alt="Oh so happy!" />
+            </td>
+            <td><img src="images/happy.gif" alt="Oh so happy!" />
+            </td>
+        </tr>
+        <tr valign="top" bgcolor="#f0f0f0">
+            <td><img src="images/happy.gif" alt="Oh so happy!"/>
+            </td>
+            <td><img src="images/happy.gif" alt="Oh so happy!" />
+            </td>
+        </tr>
+        </table>
+    \endraw
+
+    The command can also be used to insert an image inline with the
+    text.
+
+    \code
+    / *!
+        \inlineimage training.jpg Qt Training
+        The Qt Programming course is offered as a
+        five day Open Enrollment Course. The classes
+        are open to the public. Although the course is open
+        to anyone who wants to learn, attendees should
+        have significant experience in C++ development
+        to derive maximum benefit from the course.
+    * /
+    \endcode
+
+    QDoc renders this as:
+
+    \quotation
+       \inlineimage training.jpg Qt Training
+        The Qt Programming course is offered as a
+        five day Open Enrollment Course. The classes
+        are open to the public. Although the course is open
+        to anyone who wants to learn, attendees should
+        have significant experience in C++ development
+        to derive maximum benefit from the course.
+    \endquotation
+
+    See also \l {image-command} {\\image} and \l {caption-command} {\\caption}.
+
+    \target caption-command
+    \section1 \\caption
+
+    The \\caption command provides a caption for an image.
+
+    The command takes all the text up to the end of the paragraph to
+    be the caption. Experiment until you get the effect you want.
+
+    \code
+    / *!
+      \table 100%
+        \row
+          \li \image windowsvista-pushbutton.png
+             \caption The QPushButton widget provides a command button.
+          \li \image windowsvista-toolbutton.png
+             \caption The QToolButton class provides a quick-access button to commands
+             or options, usually used inside a QToolBar.
+       \endtable
+    * /
+    \endcode
+
+    QDoc renders this as:
+
+    \table 100%
+      \row
+        \li \image windowsvista-pushbutton.png
+           \caption The QPushButton widget provides a command button.
+        \li \image windowsvista-toolbutton.png
+           \caption The QToolButton class provides a quick-access button to commands
+           or options, usually used inside a QToolBar.
+    \endtable
+
+    See also \l {image-command} {\\image} and \l {inlineimage-command}
+    {\\inlineimage}
+*/
+
+
+/*!
+    \page 10-qdoc-commands-tablesandlists.html
+    \previouspage Including Images
+    \contentspage QDoc Manual
+    \nextpage Special Content
+
+    \title Tables and Lists
+
+    These commands enable creating lists and tables. A list is
+    rendered left aligned as a separate paragraph. A table is rendered
+    centered as a separate paragraph. The table width depends on the
+    width of its contents.
+
+    \target table-command
+    \section1 \\table
+
+    The \\table and \\endtable commands delimit the contents of a
+    table.
+
+    The command accepts a single argument specifying the table's width
+    as a percentage of the page width:
+
+           \code
+           / *!
+               \table 100 %
+
+                  ...
+
+               \endtable
+           * /
+           \endcode
+
+    The code above ensures that the table will fill all available
+    space. If the table's width is smaller than 100 %, the table will
+    be centered in the generated documentation.
+
+    A table can contain headers, rows and columns. A row starts with a
+    \l {row-command} {\\row} command and consists of cells, each of which
+    starts with an \l {li-command} {\\li} command. There is also a \l
+    {header-command} {\\header} command which is a special kind of row
+    that has a special format.
+
+           \code
+           / *!
+               \table
+               \header
+                   \li Qt Core Feature
+                   \li Brief Description
+               \row
+                   \li \l {Signal and Slots}
+                   \li Signals and slots are used for communication
+                      between objects.
+               \row
+                   \li \l {Layout Management}
+                   \li The Qt layout system provides a simple
+                      and powerful way of specifying the layout
+                      of child widgets.
+               \row
+                   \li \l {Drag and Drop}
+                   \li Drag and drop provides a simple visual
+                      mechanism which users can use to transfer
+                      information between and within applications.
+               \endtable
+           * /
+           \endcode
+
+    QDoc renders this as:
+
+           \raw HTML
+               <table align="center" cellpadding="2"
+                   cellspacing="1" border="0">
+               <tr valign="top" bgcolor="#a2c511">
+                   <th>Qt Core Feature</th>
+                   <th>Brief Description</th>
+               </tr>
+
+               <tr valign="top" bgcolor="#d0d0d0">
+                   <td>
+                   <a href="http://qt-project.org/doc/qt-5.0/qtcore/signalsandslots.html">
+                       Signals and Slots</a>
+                   </td>
+                   <td>Signals and slots are used for communication
+                       between objects.</td>
+               </tr>
+
+               <tr valign="top" bgcolor="#c0c0c0">
+                   <td>
+                   <a href="http://qt-project.org/doc/qt-5.0/qtwidgets/layout.html">
+                       Layout Management</a></td>
+                   <td>The Qt layout system provides a simple
+                       and powerful way of specifying the layout
+                       of child widgets.</td>
+               </tr>
+
+               <tr valign="top" bgcolor="#d0d0d0">
+                   <td>
+                   <a href="http://qt-project.org/doc/qt-5.0/qtgui/dnd.html">
+                       Drag and Drop</a></td>
+                   <td>Drag and drop provides a simple visual
+                       mechanism which users can use to transfer
+                       information between and within applications.</td>
+               </tr>
+
+               </table>
+           \endraw
+
+    You can also make cells span several rows and columns. For
+    example:
+
+           \code
+           / *!
+               \table
+               \header
+                   \li {3,1} This header cell spans three columns,
+                      but only one row.
+               \row
+                   \li {2, 1} This table cell spans two columns,
+                      but only one row
+                   \li {1, 2} This table cell spans only one column,
+                   but two rows.
+               \row
+                   \li A regular table cell
+                   \li A regular table cell
+               \endtable
+           * /
+           \endcode
+
+    QDoc renders this as:
+
+           \raw HTML
+               <table align="center" cellpadding="2" cellspacing="1"
+                border="0">
+
+               <tr valign="top" bgcolor="#a2c511">
+                   <th colspan="3" rowspan=" 1">
+                   This header cell spans three columns, but only one row.
+                   </th>
+               </tr>
+
+               <tr valign="top" bgcolor="#d0d0d0">
+                   <td colspan="2" rowspan=" 1">
+                   This table cell spans two columns, but only one row.
+                   </td>
+                   <td rowspan=" 2">
+                   This table cell spans only one column, but two rows.
+                   </td>
+               </tr>
+
+               <tr valign="top" bgcolor="#c0c0c0">
+                   <td>A regular table cell</td>
+                   <td>A regular table cell</td>
+               </tr>
+
+               </table>
+           \endraw
+
+    See also \l {header-command} {\\header}, \l {row-command} {\\row} and \l {li-command} {\\li}.
+
+    \target header-command
+    \section1 \\header
+
+    The \\header command indicates that the following table cells are
+    the current table's column headers.
+
+    The command can only be used within the \l{table-command}
+    {\\table...\\endtable} commands. A header can contain several
+    cells. A cell is created with the \l {li-command} {\\li} command.
+
+    A header cell's text is centered within the table cell and
+    rendered using a bold font.
+
+           \code
+           / *!
+               \table
+               \header
+                   \li Qt Core Feature
+                   \li Brief Description
+               \row
+                   \li \l {Signal and Slots}
+                   \li Signals and slots are used for communication
+                      between objects.
+               \endtable
+           * /
+           \endcode
+
+    QDoc renders this as:
+
+           \raw HTML
+               <table align="center" cellpadding="2"
+                   cellspacing="1" border="0">
+               <tr valign="top" bgcolor="#a2c511">
+                   <th>Qt Core Feature</th>
+                   <th>Brief Description</th>
+               </tr>
+
+               <tr valign="top" bgcolor="#d0d0d0">
+                   <td>
+                   <a href="http://qt-project.org/doc/qt-5.0/qtcore/signalsandslots.html">
+                       Signals and Slots</a>
+                   </td>
+                   <td>Signals and slots are used for communication
+                       between objects.</td>
+               </tr>
+               </table>
+           \endraw
+
+    See also \l {table-command} {\\table}, \l {row-command} {\\row} and \l {li-command} {\\li}.
+
+    \target row-command
+    \section1 \\row
+
+    The \\row command begins a new row in a table. The \l {li-command}
+    {\\li items} that belong in the new row will immediately follow the
+    \\row.
+
+    The command can only be used within the \l{table-command}
+    {\\table...\\endtable} commands. A row can contain several
+    cells. A cell is created with the \l {li-command} {\\li} command.
+
+    The background cell color of each row alternates between two
+    shades of grey, making it easier to distinguish the rows from each
+    other. The cells' contents is left aligned.
+
+           \code
+           / *!
+               \table
+               \header
+                   \li Qt Core Feature
+                   \li Brief Description
+               \row
+                   \li \l {Signal and Slots}
+                   \li Signals and slots are used for communication
+                      between objects.
+               \row
+                   \li \l {Layout Management}
+                   \li The Qt layout system provides a simple
+                      and powerful way of specifying the layout
+                      of child widgets.
+               \row
+                   \li \l {Drag and Drop}
+                   \li Drag and drop provides a simple visual
+                      mechanism which users can use to transfer
+                      information between and within applications.
+               \endtable
+           * /
+           \endcode
+
+    QDoc renders this as:
+
+           \raw HTML
+               <table align="center" cellpadding="2"
+                   cellspacing="1" border="0">
+               <tr valign="top" bgcolor="#a2c511">
+                   <th>Qt Core Feature</th>
+                   <th>Brief Description</th>
+               </tr>
+
+               <tr valign="top" bgcolor="#d0d0d0">
+                   <td>
+                   <a href="http://qt-project.org/doc/qt-5.0/qtcore/signalsandslots.html">
+                       Signals and Slots</a>
+                   </td>
+                   <td>Signals and slots are used for communication
+                       between objects.</td>
+               </tr>
+
+               <tr valign="top" bgcolor="#c0c0c0">
+                   <td>
+                   <a href="http://qt-project.org/doc/qt-5.0/qtwidgets/layout.html">
+                       Layout Management</a></td>
+                   <td>The Qt layout system provides a simple
+                       and powerful way of specifying the layout
+                       of child widgets.</td>
+               </tr>
+
+               <tr valign="top" bgcolor="#d0d0d0">
+                   <td>
+                   <a href="http://qt-project.org/doc/qt-5.0/qtgui/dnd.html">
+                       Drag and Drop</a></td>
+                   <td>Drag and drop provides a simple visual
+                       mechanism which users can use to transfer
+                       information between and within applications.</td>
+               </tr>
+
+               </table>
+           \endraw
+
+    See also \l {table-command} {\\table}, \l {header-command}
+    {\\header}, and \l {li-command} {\\li}.
+
+    \target value-command
+    \section1 \\value
+
+    The \\value command starts the documentation of a C++ enum item.
+
+    The command's first argument is the enum item. Then follows its
+    associated description. The description argument ends at the next
+    blank line or \\value. The arguments are rendered within a table.
+
+    The documentation will be located in the associated class, header
+    file or namespace documentation. See the \l {enum-command}
+    {\\enum} documentation for an example.
+
+    See also \l {enum-command} {\\enum} and \l {omitvalue-command} {\\omitvalue}.
+
+    \target omitvalue-command
+    \section1 \\omitvalue
+
+    The \\omitvalue command excludes a C++ enum item from the
+    documentation.
+
+    The command's only argument is the name of the enum item that will
+    be omitted. See the \l {enum-command} {\\enum} documentation for
+    an example.
+
+    See also \l {enum-command} {\\enum} and \l {value-command}
+    {\\value}.
+
+    \target list-command
+    \section1 \\list
+
+    The \\list and \\endlist commands delimit a list of items.
+
+    Create each list item with the \l {li-command} {\\li} command. A
+    list always contains one or more items. Lists can be nested. For
+    example:
+
+           \code
+           / *!
+               \list
+               \li Qt Reference Documentation: Getting Started
+                   \list
+                   \li How to Learn Qt
+                   \li Installation
+                       \list
+                       \li Qt/X11
+                       \li Qt/Windows
+                       \li Qt/Mac
+                       \li Qt/Embedded
+                       \endlist
+                   \li Tutorial and Examples
+                   \endlist
+               \endlist
+           * /
+           \endcode
+
+    QDoc renders this as:
+
+           \list
+           \li Qt Reference Documentation: Getting Started
+               \list
+               \li How to Learn Qt
+               \li Installation
+                   \list
+                   \li Qt/X11
+                   \li Qt/Windows
+                   \li Qt/Mac
+                   \li Qt/Embedded
+                   \endlist
+               \li Tutorial and Examples
+               \endlist
+           \endlist
+
+    The \\list command takes an optional argument providing
+    alternative appearances for the list items.
+
+           \code
+           / *!
+               \list
+                   \li How to Learn Qt
+                   \li Installation
+                   \li Tutorial and Examples
+               \endlist
+           * /
+           \endcode
+
+     QDoc renders the list items with bullets (the default):
+
+           \list
+               \li How to Learn Qt
+               \li Installation
+               \li Tutorial and Examples
+           \endlist
+
+    \warning There appears to be a bug in qdoc here. If you include
+    any of the argument types, you get a numeric list. We're looking
+    into it.
+
+    If you provide 'A' as an argument to the \\list command, the
+    bullets are replaced with characters in alphabetical order:
+
+           \list A
+               \li How to Learn Qt
+               \li Installation
+               \li Tutorial and Examples
+           \endlist
+
+     If you replace 'A' with '1', the list items are numbered in
+     ascending order:
+
+           \list 1
+               \li How to Learn Qt
+               \li Installation
+               \li Tutorial and Examples
+
+           \endlist
+
+    If you provide 'i' as the argument, the bullets are replaced with
+    roman numerals:
+
+           \list i
+               \li How to Learn Qt
+               \li Installation
+               \li Tutorial and Examples
+           \endlist
+
+    Finally, you can make the list items appear with roman numbers
+    following in ascending order if you provide 'I' as the optional
+    argument:
+
+           \list I
+               \li How to Learn Qt
+               \li Installation
+               \li Tutorial and Examples
+           \endlist
+
+    You can also make the listing start at any character or number by
+    simply provide the number or character you want to start at. For
+    example:
+
+           \code
+           / *!
+               \list G
+                   \li How to Learn Qt
+                   \li Installation
+                   \li Tutorial and Examples
+               \endlist
+           * /
+           \endcode
+
+    \note This doesn't work in DITA XML, so don't use it because it
+    produces a DITA XML file that doesn't validate. There probably is
+    a way to do this in DITA, so if we figure it out, we will put it
+    in. But this capability is not used anywhere other than right
+    here, so it probably isn't important. For now, if you use this
+    option, qdoc will ignore it and produce a list without it.
+
+    QDoc renders this as:
+
+           \list G
+               \li How to Learn Qt
+               \li Installation
+               \li Tutorial and Examples
+           \endlist
+
+    See also \l {li-command} {\\li}.
+
+    \target li-command
+    \section1 \\li (table cell, list item)
+
+    The \\li command marks a table cell or a list item. This command
+    is only used in \l{table-command} {tables} and \l{list-command}
+    {lists}.
+
+    It considers everything as its argument until the next \\li command, until the
+    next \l {table-command} {\\endtable}, or \l {list-command} {\\endlist}
+    command. See \l {table-command} {\\table} and \l {list-command} {\\list}
+   for examples.
+
+    If the command is used within a table, you can also specify
+    how many rows or columns the item should span.
+
+           \code
+           / *!
+               \table
+               \header
+                   \li {3,1} This header cell spans three columns
+                      but only one row.
+               \row
+                   \li {2, 1} This table item spans two columns
+                      but only one row
+                   \li {1, 2} This table item spans only one column,
+                   but two rows.
+               \row
+                   \li A regular table item
+                   \li A regular table item
+               \endtable
+           * /
+           \endcode
+
+    QDoc renders this as:
+
+           \raw HTML
+               <table align="center" cellpadding="2" cellspacing="1"
+                border="0">
+
+               <tr valign="top" bgcolor="#a2c511">
+                   <th colspan="3" rowspan=" 1">
+                   This header cell spans three columns, but only one row.
+                   </th>
+               </tr>
+
+               <tr valign="top" bgcolor="#d0d0d0">
+                   <td colspan="2" rowspan=" 1">
+                   This table item spans two columns, but only one row.
+                   </td>
+                   <td rowspan=" 2">
+                   This table item spans only one column, but two rows.
+                   </td>
+               </tr>
+
+               <tr valign="top" bgcolor="#c0c0c0">
+                   <td>A regular table item</td>
+                   <td>A regular table item</td>
+               </tr>
+
+               </table>
+           \endraw
+
+    If not specified, the item will span one column and one row.
+
+    See also \l {table-command} {\\table}, \l {header-command}
+    {\\header}, and \l {list-command} {\\list}.
+
+*/
+
+
+/*!
+    \page 11-qdoc-commands-specialcontent.html
+    \previouspage Tables and Lists
+    \contentspage QDoc Manual
+    \nextpage Miscellaneous
+
+    \title Special Content
+
+    The document contents commands identify parts of the documentation,
+    parts with a special rendering, conceptual meaning or
+    function.
+
+    \target abstract-command
+    \section1 \\abstract
+
+    The \\abstract and \\endabstract commands delimit a
+    document's abstract section.
+
+    The abstract section is rendered as an indented italicized
+    paragraph.
+
+    \warning The \b{\\abstract} and \b{\\endabstract} commands
+    have not been implemented. The abstract section is rendered as a
+    regular HTML paragraph.
+
+    \target quotation-command
+    \section1 \\quotation
+
+    The \\quotation and \\endquotation commands delimit a long quotation.
+
+    The text in the delimited block is surrounded by
+    \b{<blockquote>} and \b{</blockquote>} in the html output,
+    e.g.:
+
+        \code
+        / *!
+          Although the prospect of a significantly broader market is
+          good news for Firstlogic, the notion also posed some
+          challenges. Dave Dobson, director of technology for the La
+          Crosse, Wisconsin-based company, said:
+
+          \quotation
+             As our solutions were being adopted into new
+             environments, we saw an escalating need for easier
+             integration with a wider range of enterprise
+             applications.
+          \endquotation
+        * /
+        \endcode
+
+    The text in the \b{\\quotation} block will appear in the generated HTML as:
+
+    \code
+    <blockquote>
+      <p>As our solutions were being adopted into new environments,
+      we saw an escalating need for easier integration with a wider
+      range of enterprise applications.</p>
+        </blockquote>
+    \endcode
+
+    The built-in style sheet for most browsers will render the
+    contents of the <blockquote> tag with left and right
+    indentations. The example above would be rendered as:
+
+          \quotation
+             As our solutions were being adopted into new
+             environments, we saw an escalating need for easier
+             integration with a wider range of enterprise
+             applications.
+          \endquotation
+
+    But you can redefine the \b{<blockquote>} tag in your style.css file.
+
+    \target footnote-command
+    \section1 \\footnote
+
+    The \\footnote and \\endfootnote commands delimit a footnote.
+
+    The footnote is rendered at the bottom of the page.
+
+    \warning The \b{\\footnote} and \b{\\endfootnote} commands
+    have not been implemented. The footnote is rendered as a regular
+    HTML paragraph.
+
+    \target note-command
+    \section1 \\note
+
+    The \\note command defines a new paragraph preceded by "Note:"
+    in bold.
+
+    \target tableofcontents-command
+    \section1 \\tableofcontents
+
+    The \\tableofcontents command has been disabled because QDoc
+    now generates a table of contents automatically.
+
+    The automatically generated table of contents appears in the upper
+    righthand corner of the page.
+
+    \target brief-command
+    \section1 \\brief
+
+    The \\brief command introduces a one-sentence description of a
+    class, namespace, header file, property, or variable.
+
+    The brief text is used to introduce the documentation of the
+    associated object, and in lists generated using the \l
+    {generatelist-command} {\\generatelist} command and the \l
+    {annotatedlist-command} {\\annotatedlist} command.
+
+    The \\brief command can be used in two significant different ways:
+    \l {brief class} {One for classes, namespaces and header files},
+    and \l {brief-property} {one for properties and variables}.
+
+    \target brief-property
+
+    When the \\brief command is used to describe a property or a
+    variable, the brief text must be a sentence fragment starting with
+    "whether" (for a boolean property or variable) or starting with
+    "the" (for any other property or variable).
+
+    For example the boolean QWidget::isWindow property:
+
+           \code
+           / *!
+               \property QWidget::isActiveWindow
+               \brief Whether this widget's window is the active window
+
+               The active window is the window that contains the widget that
+               has keyboard focus.
+
+               When popup windows are visible, this property is \c true
+               for both the active window \e and the popup.
+
+               \sa activateWindow(), QApplication::activeWindow()
+           * /
+           \endcode
+
+           and the QWidget::geometry property
+
+           \code
+           / *!
+               \property QWidget::geometry
+               \brief The geometry of the widget relative to its parent and
+               excluding the window frame
+
+               When changing the geometry, the widget, if visible,
+               receives a move event (moveEvent()) and/or a resize
+               event (resizeEvent()) immediately.
+
+               ...
+
+              \sa frameGeometry(), rect(), ...
+           * /
+           \endcode
+
+    QDoc renders this as:
+
+           \quotation
+               \raw HTML
+                   <h3>geometry :
+                   <a href="http://qt-project.org/doc/qt-5.0/qtcore/qrect.html">QRect</a>
+                   </h3>
+               \endraw
+
+               This property holds the geometry of the widget relative
+               to its parent and excluding the window frame.
+
+               ...
+
+               Access functions:
+               \list
+                   \li \b {const QRect & geometry () const}
+                   \li \b {void setGeometry ( int x, int y, int w, int h )}
+                   \li \b {void setGeometry ( const QRect & )}
+               \endlist
+
+               See also \l
+               {QWidget::frameGeometry()} {frameGeometry()}, \l
+               {QWidget::rect()} {rect()}, ...
+           \endquotation
+
+    \target brief class
+
+    When the \\brief command is used to describe a class, we recommend
+    using a complete sentence like this:
+
+           \code
+           The <classname> class is|provides|contains|specifies...
+           \endcode
+
+    \warning Do not repeat your detailed description with the same sentence as
+    the brief statement will be the first paragraph of the detailed
+    description.
+
+           \code
+           / *!
+               \class PreviewWindow
+               \brief The PreviewWindow class is a custom widget
+                      displaying the names of its currently set
+                      window flags in a read-only text editor.
+
+               The PreviewWindow class inherits QWidget. The widget
+               displays the names of its window flags set with the
+               setWindowFlags() function. It is also provided with a
+               QPushButton that closes the window.
+
+               ...
+
+               \sa QWidget
+           * /
+           \endcode
+
+    QDoc renders this as:
+
+           \quotation
+               \raw HTML
+                   <h1>PreviewWindow Class Reference</h1>
+               \endraw
+
+               The PreviewWindow class is a custom widget displaying
+               the names of its currently set window flags in a
+               read-only text editor. \l {preview window} {More...}
+
+               \raw HTML
+                   <h3>Properties</h3>
+               \endraw
+
+               \list
+                   \li 52 properties inherited from QWidget
+                   \li 1 property inherited from QObject
+               \endlist
+
+               \raw HTML
+                   <h3>Public Functions</h3>
+               \endraw
+
+               \list
+                   \li \l {constructor} {PreviewWindow}(QWidget *parent = 0)
+                   \li void \l {function} {setWindowFlags}(Qt::WindowFlags flags)
+               \endlist
+
+               \list
+                   \li 183 public functions inherited from QWidget
+                   \li 28 public functions inherited from QObject
+               \endlist
+
+               \raw HTML
+                   <h3>Public Slots</h3>
+               \endraw
+
+               \list
+                   \li 17 public slots inherited from QWidget
+                   \li 1 public slot inherited from QObject
+               \endlist
+
+               \raw HTML
+                   <h3>Additional Inherited Members</h3>
+               \endraw
+
+               \list
+                   \li 1 signal inherited from QWidget
+                   \li 1 signal inherited from QObject
+                   \li 4 static public members inherited from QWidget
+                   \li 4 static public members inherited from QObject
+                   \li 39 protected functions inherited from QWidget
+                   \li 7 protected functions inherited from QObject
+               \endlist
+
+               \target preview window
+
+               \raw HTML
+                   <hr />
+                   <h2>Detailed Description</h2>
+               \endraw
+
+               The PreviewWindow class is a custom widget displaying
+               the names of its currently set window flags in a
+               read-only text editor.
+
+               The PreviewWindow class inherits QWidget. The widget
+               displays the names of its window flags set with the \l
+               {function} {setWindowFlags()} function. It is also
+               provided with a QPushButton that closes the window.
+
+               ...
+
+               See also QWidget.
+
+               \raw HTML
+                   <hr />
+                   <h2>Member Function Documentation</h2>
+               \endraw
+
+               \target constructor
+               \raw HTML
+                   <h3>PreviewWindow(QWidget *parent = 0)</h3>
+               \endraw
+
+               Constructs a preview window widget with \e parent.
+
+               \target function
+               \raw HTML
+                   <h3>setWindowFlags(Qt::WindowFlags flags)</h3>
+               \endraw
+
+               Sets the widgets flags using the
+               QWidget::setWindowFlags() function.
+
+               Then runs through the available window flags,
+               creating a text that contains the names of the flags
+               that matches the flags parameter, displaying
+               the text in the widgets text editor.
+           \endquotation
+
+    Using \\brief in a \l{namespace-command}{\\namespace}:
+
+           \code
+           / *!
+               \namespace Qt
+
+               \brief The Qt namespace contains miscellaneous identifiers
+               used throughout the Qt library.
+           * /
+           \endcode
+
+    Using \\brief in a \l{headerfile-command}{\\headerfile}:
+
+           \code
+           / *!
+               \headerfile <QtGlobal>
+               \title Global Qt Declarations
+
+               \brief The <QtGlobal> header file provides basic
+               declarations and is included by all other Qt headers.
+
+               \sa <QtAlgorithms>
+           * /
+           \endcode
+
+    See also \l{property-command} {\\property}, \l{class-command}
+    {\\class}, \l{namespace-command} {\\namespace} and
+    \l{headerfile-command} {\\headerfile}.
+
+    \target legalese-command
+    \section1 \\legalese
+
+    The \\legalese and \\endlegalese commands delimit a license agreement.
+
+    In the generated HTML, the delimited text is surrounded by a \b
+    {<div class="LegaleseLeft">} and \b {</div>} tags.
+
+    An example of a license agreement enclosed in \\legalese
+    and \\endlegalese:
+
+        \code
+    / *!
+      \legalese
+          Copyright 1996 Daniel Dardailler.
+
+          Permission to use, copy, modify, distribute, and sell this
+          software for any purpose is hereby granted without fee,
+          provided that the above copyright notice appear in all
+          copies and that both that copyright notice and this
+          permission notice appear in supporting documentation, and
+          that the name of Daniel Dardailler not be used in
+          advertising or publicity pertaining to distribution of the
+          software without specific, written prior permission. Daniel
+          Dardailler makes no representations about the suitability of
+          this software for any purpose. It is provided "as is"
+          without express or implied warranty.
+
+      Modifications Copyright 1999 Matt Koss, under the same
+          license as above.
+          \endlegalese
+        * /
+        \endcode
+
+        It will appear in the generated HTML as:
+
+       \code
+     <div class="LegaleseLeft">
+       <p>Copyright 1996 Daniel Dardailler.</p>
+           <p>Permission to use, copy, modify, distribute, and sell
+           this software for any purpose is hereby granted without fee,
+           provided that the above copyright notice appear in all
+           copies and that both that copyright notice and this
+           permission notice appear in supporting documentation, and
+           that the name of Daniel Dardailler not be used in
+           advertising or publicity pertaining to distribution of the
+           software without specific, written prior permission. Daniel
+           Dardailler makes no representations about the suitability of
+           this software for any purpose. It is provided "as is"
+           without express or implied warranty.</p>
+
+       <p>Modifications Copyright 1999 Matt Koss, under the same
+           license as above.</p>
+     </div>
+       \endcode
+
+    If the \\endlegalese command is omitted, QDoc will process the
+    \\legalese command but considers the rest of the documentation
+    page as the license agreement.
+
+    Ideally, the license text is located with the licensed code.
+
+   Elsewhere, the documentation identified as \e{\\legalese} command
+   can be accumulated using \l {generatelist-command} {\\generatelist}
+   with \c {legalese-command} as the argument. This is useful for
+   generating an overview of the license agreements associated with
+   the source code.
+
+    \target warning-command
+    \section1 \\warning
+
+    The \\warning command prepends "Warning:" to the command's
+    argument, in bold font.
+
+           \code
+           / *!
+               Qt::HANDLE is a platform-specific handle type
+               for system objects. This is  equivalent to
+               \c{void *} on Windows and Mac OS X, and to
+               \c{unsigned long} on X11.
+
+               \warning Using this type is not portable.
+           * /
+           \endcode
+
+    QDoc renders this as:
+
+           \quotation
+               Qt::HANDLE is a platform-specific handle type
+               for system objects. This is  equivalent to
+               \c{void *} on Windows and Mac OS X, and to
+               \c{unsigned long} on X11.
+
+               \warning Using this type is not portable.
+           \endquotation
+
+*/
+
+
+/*!
+    \page 12-0-qdoc-commands-miscellaneous.html
+    \previouspage Special Content
+    \contentspage QDoc Manual
+    \nextpage Creating DITA Maps
+
+    \title Miscellaneous
+
+    These commands provide miscellaneous functions connected to the
+    visual appearance of the documentation, and to the process of
+    generating the documentation.
+
+    \target annotatedlist-command
+    \section1 \\annotatedlist
+
+    The \\annotatedlist command expands to a list of the members of a
+    group, each member listed with its \e {brief} text. Below is an
+    example from the Qt Reference Documentation:
+
+           \code
+           / *!
+               ...
+               \section1 Drag and Drop Classes
+
+               These classes deal with drag and drop and the necessary mime type
+               encoding and decoding.
+
+               \annotatedlist draganddrop
+
+           * /
+           \endcode
+
+    This generates a list of all the C++ classes and/or QML types in
+    the \e{draganddrop} group. A C++ class or QML type in the
+    \e{draganddrop} group will have \e{\\ingroup draganddrop} in its
+    \e{\\class} or \e{\\qmltype} comment.
+
+
+    \target generatelist-command
+    \section1 \\generatelist
+
+    The \\generatelist command expands to a list of various
+    documentation or links to documentation. Below is an example from
+    the Qt Reference Documentation:
+
+           \code
+           / *!
+               \page classes.html
+               \title All Classes
+
+               For a shorter list that only includes the most
+               frequently used classes, see \l{Qt's Main Classes}.
+
+               \generatelist classes
+           * /
+           \endcode
+
+    This generates the \e {All Classes} page. The command accepts the
+    following arguments:
+
+    \target table example
+    \section2 \c annotatedclasses
+
+    The \c annotatedclasses argument provides a table containing the
+    names of all the classes, and a description of each class. Each
+    class name is a link to the class's reference documentation. For
+    example:
+
+    \table
+      \row
+        \li QDial
+    \li Rounded range control (like a speedometer or potentiometer)
+      \row
+        \li QDialog
+    \li The base class of dialog windows
+      \row
+        \li QDir
+        \li Access to directory structures and their contents
+    \endtable
+
+    A C++ class is documented with the \l {class-command} {\\class}
+    command. The annotation for the class is taken from the argument
+    of the class comment's \l {brief-command} {\\brief} command.
+
+    \target list example
+    \section2 \c classes
+
+    The \c classes argument provides a complete alphabetical list of
+    the classes. Each class name is a link to the class's reference
+    documentation. This command is used to generate the
+    \e {All Classes} page this way:
+
+    \code
+    / *!
+        \page classes.html
+        \title All Classes
+        \ingroup classlists
+
+        \brief Alphabetical list of classes.
+
+        This is a list of all Qt classes. For a list of the classes
+        provided for compatibility with Qt3, see \l{Qt3 Support
+        Classes}. For classes that have been deprecated, see the
+        \l{Obsolete Classes} list.
+
+        \generatelist classes
+    * /
+    \endcode
+
+    A C++ class is documented with the \l {class-command} {\\class}
+    command.
+
+    \section2 \c classesbymodule
+
+    When this argument is used, a second argument is required, which
+    specifies the module whose classes are to be listed. QDoc
+    generates a table containing those classes. Each class is listed
+    with the text of its \l{brief-command} {\\brief} command.
+
+    For example, this command can be used on a module page as follows:
+
+    \code
+      / *!
+          \page phonon-module.html
+          \module Phonon
+          \title Phonon Module
+          \ingroup modules
+
+          \brief Contains namespaces and classes for multimedia functionality.
+
+          \generatelist{classesbymodule Phonon}
+
+      ...
+
+      * /
+    \endcode
+
+    Each class that is a member of the specified module must be marked
+    with the \l {inmodule-command} {\\inmodule} command in its \\class
+    comment.
+
+    \section2 \c compatclasses
+
+    The \c compatclasses argument generates a list in alphabetical
+    order of the support classes. It is normally used only to
+    generate the Qt3 Support Classes page this way:
+
+    \code
+    / *!
+        \page compatclasses.html
+        \title Qt3 Support Classes
+        \ingroup classlists
+
+        \brief Enable porting of code from Qt 3 to Qt 4.
+
+        These are the classes that Qt provides for compatibility with Qt
+        3. Most of these are provided by the Qt3Support module.
+
+        \generatelist compatclasses
+    * /
+    \endcode
+
+    A support class is identified in the \\class comment with the \l
+    {compat-command} {\\compat} command.
+
+    \section2 \c functionindex
+
+    The \c functionindex argument provides a complete alphabetical
+    list of all the documented member functions. It is normally used
+    only to generate the \e {Qt function index} page
+    this way:
+
+    \code
+    / *!
+        \page functions.html
+        \title All Functions
+        \ingroup funclists
+
+        \brief All documented Qt functions listed alphabetically with a
+        link to where each one is declared.
+
+        This is the list of all documented member functions and global
+        functions in the Qt API. Each function has a link to the
+        class or header file where it is declared and documented.
+
+        \generatelist functionindex
+    * /
+    \endcode
+
+    \section2 \c legalese
+
+    The \c legalese argument tells QDoc to generate a complete list of
+    licenses in the documentation. Each license is identified using
+    the \l {legalese-command} {\\legalese} command. This command is
+    used to generate the \e {Qt license information}
+    page this way:
+
+    \code
+    / *!
+        \page licenses.html
+        \title Other Licenses Used in Qt
+        \ingroup licensing
+        \brief Information about other licenses used for Qt components and third-party code.
+
+        Qt contains some code that is not provided under the
+        \l{GNU General Public License (GPL)},
+        \l{GNU Lesser General Public License (LGPL)} or the
+        \l{Qt Commercial Edition}{Qt Commercial License Agreement}, but rather under
+        specific licenses from the original authors. Some pieces of code were developed
+        by Digia and others originated from third parties.
+        This page lists the licenses used, names the authors, and links
+        to the places where it is used.
+
+        Digia gratefully acknowledges these and other contributions
+        to Qt. We recommend that programs that use Qt also acknowledge
+        these contributions, and quote these license statements in an
+        appendix to the documentation.
+
+        See also: \l{Licenses for Fonts Used in Qt for Embedded Linux}
+
+        \generatelist legalese
+    * /
+    \endcode
+
+    \section2 \c mainclasses
+
+    The \c mainclasses argument tells QDoc to generate an alphabetical
+    list of the main classes. A class is marked as a main class by
+    including a \l {mainclass-command} {\\mainclass} command in the
+    \\class comment.
+
+    \note The Qt documentation no longer includes a main classes page,
+    but you can generate one for your main classes if you want it.
+
+    \section2 \c overviews
+
+    The \c overviews argument is used to tell QDoc to generate a list
+    by concatenating the contents of all the \l {group-command}
+    {\\group} pages. Qt uses it to generate the \e {overviews} page
+    this way:
+
+    \code
+    / *!
+        \page overviews.html
+
+        \title All Overviews and HOWTOs
+
+        \generatelist overviews
+    * /
+    \endcode
+
+    \section2 \c related
+
+    The \c related argument is used in combination with the \l
+    {group-command} {\\group} and \l {ingroup-command} {\\ingroup}
+    commands to list all the overviews related to a specified
+    group. For example, the page for the \e {Programming with Qt}
+    page is generated this way:
+
+    \code
+    / *!
+        \group qt-basic-concepts
+        \title Programming with Qt
+
+        \brief The basic architecture of the Qt cross-platform application and UI framework.
+
+        Qt is a cross-platform application and UI framework for
+        writing web-enabled applications for desktop, mobile, and
+        embedded operating systems. This page contains links to
+        articles and overviews explaining key components and
+        techniuqes used in Qt development.
+
+        \generatelist {related}
+    * /
+    \endcode
+
+    Each page listed on this group page contains the command:
+
+    \code
+        \ingroup qt-basic-concepts
+    \endcode
+
+    \section2 \c service
+
+    The \c service argument tells QDoc to generate an alphabetical
+    list of the services. Each service name is a link to the service's
+    reference documentation.
+
+    A service is identified with the \l {service-command} {\\service}
+    command.
+
+    \note This command and the \l {service-command} {\\service}
+    command are not used in the Qt documentation.
+
+    \target if-command
+    \section1 \\if
+
+    The \\if command and the corresponding \\endif command
+    enclose parts of a QDoc comment that only will be included if
+    the condition specified by the command's argument is true.
+
+    The command reads the rest of the line and parses it as an C++ #if
+    statement.
+
+           \code
+           / *!
+               \if defined(opensourceedition)
+
+               \b{Note:} This edition is for the development of
+               \l{Qt Open Source Edition} {Free and Open Source}
+               software only; see \l{Qt Commercial Editions}.
+
+               \endif
+           * /
+           \endcode
+
+    This QDoc comment will only be rendered if the \c
+    opensourceedition preprocessor symbol is defined, and specified in
+    the \l {defines-variable} {defines} variable in the configuration
+    file to make QDoc process the code within #ifdef and #endif:
+
+           \code
+               defines = opensourceedition
+           \endcode
+
+    You can also define the preprocessor symbol manually on the
+    command line. For more information see the documentation of the \l
+    {defines-variable} {defines} variable.
+
+    See also \l{endif-command} {\\endif}, \l{else-command} {\\else},
+    \l {defines-variable} {defines} and \l {falsehoods-variable}
+    {falsehoods}.
+
+    \target endif-command
+    \section1 \\endif
+
+    The \\endif command and the corresponding \\if command
+    enclose parts of a QDoc comment that will be included if
+    the condition specified by the \l {if-command} {\\if} command's
+    argument is true.
+
+    For more information, see the documentation of the \l {if-command}
+    {\\if} command.
+
+    See also \l{if-command} {\\if}, \l{else-command} {\\else}, \l
+    {defines-variable} {defines} and \l {falsehoods-variable}
+    {falsehoods}.
+
+    \target else-command
+    \section1 \\else
+
+    The \\else command specifies an alternative if the
+    condition in the \l {if-command} {\\if} command is false.
+
+    The \\else command can only be used within \l {if-command}
+    {\\if...\\endif} commands, but is useful when there is only two
+    alternatives.
+
+           \code
+           / *!
+               The Qt 3 support library is provided to keep old
+               source code working.
+
+               In addition to the \c Qt3Support classes, Qt 4 provides
+               compatibility functions when it's possible for an old
+               API to cohabit with the new one.
+
+               \if !defined(QT3_SUPPORT)
+                   \if defined(QT3_SUPPORTWARNINGS)
+                       The compiler emits a warning when a
+                       compatibility function is called. (This works
+                       only with GCC 3.2+ and MSVC 7.)
+                   \else
+                       To use the Qt 3 support library, you need to
+                       have the line QT += qt3support in your .pro
+                       file (qmake automatically define the
+                       QT3_SUPPORT symbol, turning on compatibility
+                       function support).
+
+                       You can also define the symbol manually (for example,
+                       if you don't want to link against the \c
+                       Qt3Support library), or you can define \c
+                       QT3_SUPPORT_WARNINGS instead, telling the
+                       compiler to emit a warning when a compatibility
+                       function is called. (This works only with GCC
+                       3.2+ and MSVC 7.)
+                   \endif
+               \endif
+           * /
+           \endcode
+
+    If the \c QT3_SUPPORT is defined, the comment will be rendered
+    like this:
+
+           \quotation
+               The Qt 3 support library is provided to keep old source
+               code working.
+
+               In addition to the Qt3Support classes, Qt 4 provides
+               compatibility functions when it's possible for an old
+               API to cohabit with the new one.
+           \endquotation
+
+    If \c QT3_SUPPORT is not defined but \c QT3_SUPPORT_WARNINGS is
+    defined, the comment will be rendered like this:
+
+           \quotation
+               The Qt 3 support library is provided to keep old source
+               code working.
+
+               In addition to the Qt3Support classes, Qt 4 provides
+               compatibility functions when it's possible for an old
+               API to cohabit with the new one.
+
+               The compiler emits a warning when a compatibility
+               function is called. (This works only with GCC 3.2+ and
+               MSVC 7.)
+           \endquotation
+
+           If none of the symbols are defined, the comment will be
+           rendered as
+
+           \quotation
+               The Qt 3 support library is provided to keep old
+               source code working.
+
+               In addition to the \c Qt3Support classes, Qt 4 provides
+               compatibility functions when it's possible for an old
+               API to cohabit with the new one.
+
+               To use the Qt 3 support library, you need to have the
+               line QT += qt3support in your .pro file (qmake
+               automatically define the QT3_SUPPORT symbol, turning on
+               compatibility function support).
+
+               You can also define the symbol manually (e.g., if you
+               don't want to link against the \c Qt3Support library),
+               or you can define \c QT3_SUPPORT_WARNINGS instead,
+               telling the compiler to emit a warning when a
+               compatibility function is called. (This works only with
+               GCC 3.2+ and MSVC 7.)
+           \endquotation
+
+           See also \l{if-command} {\\if}, \l{endif-command} {\\endif}, \l
+           {defines-variable} {defines} and \l {falsehoods-variable}
+           {falsehoods}.
+
+    \target include-command
+    \section1 \\include
+
+    The \\include command sends all or part of the file specified by
+    its first argument to the QDoc input stream to be processed as a
+    QDoc comment snippet. This command is often assigned the alias,
+    \e {input}, in the QDoc configuration file, for example \e {alias.include
+    = input}.
+
+    The command is useful when some snippet of commands and text is to
+    be used in multiple places in the documentation. In that case,
+    move the snippet into a separate file and use the \\include
+    command wherever you want to insert the snippet into the
+    documentation. To prevent QDoc from reading the file as a
+    stand-alone page of documentation, we recommend that you use the
+    \c .qdocinc extension for these \e {include} files.
+
+    The command can have either one or two arguments. The first
+    argument is always a file name. The contents of the file must be
+    QDoc input, in other words, a sequence of QDoc commands and text, but
+    without the enclosing QDoc comment \c{/}\c{*!} ... \c{*}\c{/} delimiters.
+    If you want to include the entire named file, don't use the second
+    argument. If you want to include only part of the file, see the
+    \l{2-argument-form}{two argument form} below. Here is an example
+    of the one argument form:
+
+            \code
+            / *!
+                \page corefeatures.html
+                \title Core Features
+
+                \include examples/signalandslots.qdocinc
+                \include examples/objectmodel.qdocinc
+                \include examples/layoutmanagement.qdocinc
+            * /
+            \endcode
+
+    QDoc renders this page \l{corefeatures.html} {as shown here}.
+
+    \target 2-argument-form}
+    \section2 \\include filename snippet-identifier
+
+    It is a waste of time to make a separate \c .qdocinc file for every
+    QDoc include snippet you want to use in multiple places in the
+    documentation, especially given that you probably have to put the
+    copyright/license notice in every one of these files. So if you
+    have a large number of snippets to be included, you can put them all in a
+    single file if you want, and surround each one with:
+    \code
+        //! [snippet-id1]
+
+           QDoc commands and text...
+
+    //! [snippet-id1]
+
+        //! [snippet-id2]
+
+           More QDoc commands and text...
+
+    //! [snippet-id2]
+    \endcode
+
+    Then you can use the two-argument form of the command:
+
+    \code
+        \input examples/signalandslots.qdocinc snippet-id2
+        \input examples/objectmodel.qdocinc another-snippet-id
+    \endcode
+
+    It works as expected. The sequence of QDoc commands and text found
+    between the two tags with the same name as the second argument is
+    sent to the QDoc input stream. You can even nest these snippets,
+    although it's not clear why you would want to do that.
+
+    \target meta-command
+    \section1 \\meta
+
+    The \\meta command is mainly used for including metadata in DITA
+    XML files. It is also used when generating HTML output for specifying
+    the \e maintainer(s) of a C++ class.
+
+    The command has two arguments: the first argument is the name of the
+    metadata attribute, and the second argument is the
+    value for the attribute. Each argument should be enclosed in curly
+    brackets, as shown in this example:
+
+    \code
+    / *!
+        \class QWidget
+        \brief The QWidget class is the base class of all user interface objects.
+
+        \ingroup basicwidgets
+
+        \meta {technology} {User Interface}
+        \meta {platform} {OS X 10.6}
+        \meta {platform} {Symbian}
+        \meta {platform} {MeeGo}
+        \meta {audience} {user}
+        \meta {audience} {programmer}
+        \meta {audience} {designer}
+    * /
+    \endcode
+
+    When running QDoc to generate HTML, the example above will have no
+    effect on the generated output, but if you run QDoc to generate
+    DITA XML, the example will generate the following:
+
+    \code
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE cxxClass PUBLIC "-//NOKIA//DTD DITA C++ API Class Reference Type v0.6.0//EN" "dtd/cxxClass.dtd">
+    <!--qwidget.cpp-->
+    <cxxClass id="id-9a14268e-6b09-4eee-b940-21a00a0961df">
+       <apiName>QWidget</apiName>
+       <shortdesc>the QWidget class is the base class of all user interface objects.</shortdesc>
+       <prolog>
+           <author>Qt Development Frameworks</author>
+           <publisher>Qt Project</publisher>
+           <copyright>
+               <copyryear year="2014"/>
+               <copyrholder>Qt Project</copyrholder>
+           </copyright>
+           <permissions view="all"/>
+           <metadata>
+               <audience type="designer"/>
+               <audience type="programmer"/>
+               <audience type="user"/>
+               <category>Class reference</category>
+               <prodinfo>
+                   <prodname>Qt Reference Documentation</prodname>
+                   <vrmlist>
+                       <vrm version="4" release="7" modification="3"/>
+                   </vrmlist>
+                   <component>QtGui</component>
+               </prodinfo>
+               <othermeta name="platform" content="MeeGo"/>
+               <othermeta name="platform" content="Symbian"/>
+               <othermeta name="platform" content="OS X 10.6"/>
+               <othermeta name="technology" content="User Interface"/>
+           </metadata>
+       </prolog>
+    \endcode
+
+    In the example output, several values have been set using default
+    values obtained from the QDoc configuration file. See \l
+    {Generating DITA XML Output} for details.
+
+    \target omit-command
+    \section1 \\omit
+
+    The \\omit command and the corresponding \\endomit command
+    delimit parts of the documentation that you want QDoc to skip. For
+    example:
+
+            \code
+            / *!
+                \table
+                \row
+                    \li Basic Widgets
+                    \li Basic GUI widgets such as buttons, comboboxes
+                       and scrollbars.
+
+                \omit
+                \row
+                    \li Component Model
+                    \li Interfaces and helper classes for the Qt
+                       Component Model.
+                \endomit
+
+                \row
+                    \li Database Classes
+                    \li Database related classes, e.g. for SQL databases.
+                \endtable
+            * /
+            \endcode
+
+    QDoc renders this as:
+
+            \raw HTML
+                <table align="center" cellpadding="2"
+                    cellspacing="1" border="0">
+
+                <tr valign="top" bgcolor="#d0d0d0">
+                    <td>Basic Widgets</td>
+                    <td>Basic GUI widgets such as buttons, comboboxes
+                       and scrollbars.</td>
+                </tr>
+
+                <tr valign="top" bgcolor="#c0c0c0">
+                    <td>Database Classes</td>
+                    <td>Database related classes, e.g. for SQL databases.</td>
+                </tr>
+                </table>
+            \endraw
+
+    \target raw-command
+    \section1 \\raw \span {class="newStuff"} {(avoid)}
+
+    The \\raw command and the corresponding
+    \\endraw command delimit a block of raw mark-up language code.
+
+    \note Avoid using this command if possible, because it generates
+    DITA XML code that causes problems. If you are trying to generate
+    special table or list behavior, try to get the behavior you want
+    using the \l {span-command} {\\span} and \l {div-command} {\\div}
+    commands in your \l {table-command} {\\table} or \l {list-command}
+    {\\list}.
+
+    The command takes an argument specifying the code's format.
+    Currently, the only supported format is HTML.
+
+    The \\raw command is useful if you want some special HTML effects
+    in your documentation.
+
+           \code
+           / *!
+               Qt has some predefined QColor objects.
+
+               \raw HTML
+               <style type="text/css" id="colorstyles">
+               #color-blue { background-color: #0000ff; color: #ffffff }
+               #color-darkBlue { background-color: #000080; color: #ffffff }
+               #color-cyan { background-color: #00ffff; color: #000000 }
+               </style>
+
+               <p>
+               <tt id="color-blue">Blue(#0000ff)</tt>,
+               <tt id="color-darkBlue">dark blue(#000080)</tt> and
+               <tt id="color-cyan">cyan(#00ffff)</tt>.
+           </p>
+               \endraw
+           * /
+           \endcode
+
+    QDoc renders this as:
+
+           \quotation
+               Qt has some predefined QColor objects.
+
+               \raw HTML
+               <style type="text/css" id="colorstyles">
+               #color-blue { background-color: #0000ff; color: #ffffff }
+               #color-darkBlue { background-color: #000080; color: #ffffff }
+               #color-cyan { background-color: #00ffff; color: #000000 }
+               </style>
+
+               <p>
+               <tt id="color-blue">Blue(#0000ff)</tt>,
+               <tt id="color-darkBlue">dark blue(#000080)</tt> and
+               <tt id="color-cyan">cyan(#00ffff)</tt>.
+           </p>
+               \endraw
+           \endquotation
+
+    \note But you can achieve the exact same thing using qdoc
+    commands. In this case, all you have to do is include the color
+    styles in your style.css file. Then you can write:
+
+       \code
+           \tt {\span {id="color-blue"} {Blue(#0000ff)}},
+           \tt {\span {id="color-darkBlue"} {dark blue(#000080)}} and
+           \tt {\span {id="color-cyan"} {cyan(#00ffff)}}.
+       \endcode
+
+       ...which is rendered as:
+
+           \tt {\span {id="color-blue"} {Blue(#0000ff)}},
+           \tt {\span {id="color-darkBlue"} {dark blue(#000080)}} and
+           \tt {\span {id="color-cyan"} {cyan(#00ffff)}}.
+
+    \target unicode-command
+    \section1 \\unicode
+
+    The \\unicode command allows you to insert an arbitrary Unicode
+    character in the document.
+
+    The command takes an argument specifying the character as an
+    integer. By default, base 10 is assumed, unless a '0x' or '0'
+    prefix is specified (for base 16 and 8, respectively). For
+    example:
+
+           \code
+                O G\unicode{0xEA}nio e as Rosas
+
+                \unicode 0xC0 table en famille avec 15 \unicode 0x20AC par jour
+
+                \unicode 0x3A3 \e{a}\sub{\e{i}}
+           \endcode
+
+    QDoc renders this as:
+
+           \quotation
+                O G\unicode{0xEA}nio e as Rosas
+
+                \unicode 0xC0 table en famille avec 15 \unicode 0x20AC par jour
+
+                \unicode 0x3A3 \e{a}\sub{\e{i}}
+           \endquotation
+*/
+

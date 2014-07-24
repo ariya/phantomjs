@@ -1,0 +1,5 @@
+
+# Disable tests for anything but qtbase for now
+!equals(TARGET, qtbase): QT_BUILD_PARTS -= tests
+
+load(qt_parts)

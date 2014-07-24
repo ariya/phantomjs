@@ -1,0 +1,51 @@
+# -------------------------------------------------------------------
+# Used for applying the content of the WEBKIT variable into the
+# effect each library/module has on variables such as LIBS and QT.
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+# Reorder libraries so that the link and include order is correct,
+# and make sure the case matches the original case.
+libraries = WebKit1 WebKit2 WebCore ANGLE leveldb JavaScriptCore WTF
+for(library, libraries) {
+    contains(WEBKIT, $$lower($$library)) {
+        WEBKIT -= $$lower($$library)
+        WEBKIT *= $$library
+    }
+}
+
+# Load the .pri file for each library, to pick up LIBS, INCLUDES,
+# and other dependencies the library adds.
+for(library, WEBKIT) {
+    # Juggle LIBS to keep the static link order correct
+    existing_libs = $$LIBS
+    unset(LIBS)
+
+    # We definitly need include paths and such (this will set
+    # SOURCE_DIR to the right path so we can use it below).
+    library_identifier = $$lower($$library)
+    include(../modules/$${library_identifier}.prf)
+
+    # More juggling, so that we can add the dependent libs later
+    # on if we decide that we need to link to the library.
+    eval(WEBKIT.$${library_identifier}.dependent_libs = $$LIBS)
+    LIBS = $$existing_libs
+
+    # Anything not linking dynamically to QtWebKit should make sure to have its export
+    # macros synchronized with the code that it will be linked with statically.
+    !contains(QT, webkit): DEFINES += STATICALLY_LINKED_WITH_$$library
+}
+
+creating_module {
+    # Sanitize PKGCONFIG as we don't want any of these libraries
+    # to end up in as public API dependenices in the QtWebKit prl file.
+    PKGCONFIG_PRIVATE *= $$PKGCONFIG
+    unset(PKGCONFIG)
+
+    # We do have a limited subset of Qt modules as dependencies for using
+    # the public QtWebKit API. The rest of the modules go into QT_PRIVATE.
+    QT_PRIVATE *= $$QT
+    QT = $$QT_API_DEPENDS
+    QT_PRIVATE -= $$QT
+}

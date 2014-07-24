@@ -1,0 +1,77 @@
+#! /bin/bash
+#
+# Copyright (C) 2010 Igalia S.L. All rights reserved.
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Library General Public
+# License as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Library General Public License for more details.
+#
+# You should have received a copy of the GNU Library General Public License
+# along with this library; see the file COPYING.LIB.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+# Boston, MA 02110-1301, USA.
+
+exec 2>&1
+
+: ${BUILDBOT_CONFIG:=/etc/daemontools-buildbot.conf}
+
+# Read configuration file
+[ -r "${BUILDBOT_CONFIG}" ] && . "${BUILDBOT_CONFIG}"
+
+# Expand all "env_*" environment variables
+for varname in ${!env_*} ; do
+	eval "export ${varname#env_}=\${${varname}}"
+done
+
+
+if ! [ "${buildbot_path}" ] ; then
+	echo "No \${buildbot_path} defined! (will sleep for 5 minutes)"
+	sleep 300
+	exit 111
+fi
+
+
+if ! [ "${WEBKIT_TESTFONTS}" ] ; then
+	echo "No \${WEBKIT_TESTFONTS} environment variable! (will sleep for 5 minutes)"
+	sleep 300
+	exit 111
+fi
+
+
+if [ "${coredump_output:=''}" ] ; then
+	# Ensure that the output directory exists.
+	if [[ ! -d ${crashmon_output} ]] ; then
+		mkdir -p "${crashmon_output}"
+	fi
+
+	ulimit -c "${crashmon_max_size:=unlimited}"
+fi
+
+
+if [ "${ccache_path}" ] ; then
+	export PATH="${ccache_path}:${PATH}"
+fi
+
+: ${buildbot_user:=${USER}}
+
+cd "${buildbot_path}"
+exec /usr/bin/env -          \
+		TERM=dumb                 \
+		TZ=PST8PDT                 \
+		PATH="${PATH}"              \
+		SHELL=/bin/bash              \
+		LANG=en_US.UTF-8              \
+		USER="${buildbot_user}"        \
+		LOGNAME="${buildbot_user}"      \
+		HOME="/home/${buildbot_user}"    \
+		DISPLAY="${xvfb_display:-':10'}"  \
+		MAIL="/var/mail/${buildbot_user}"  \
+	/usr/bin/setuidgid "${buildbot_user}" \
+	/usr/bin/twistd -noy buildbot.tac
+

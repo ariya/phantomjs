@@ -1,0 +1,208 @@
+
+# In case the user sets the SDK manually
+contains(QMAKE_MAC_SDK, ^iphonesimulator.*) {
+    iphonesimulator_and_iphoneos: \
+        error("iOS simulator is handled automatically for iphonesimulator_and_iphoneos")
+
+    CONFIG += iphonesimulator
+}
+
+iphonesimulator_and_iphoneos:iphonesimulator: \
+    QMAKE_MAC_SDK ~= s,^iphoneos,iphonesimulator,
+
+# Resolve config so we don't need to use CONFIG() later on
+CONFIG(iphonesimulator, iphonesimulator|iphoneos) {
+    CONFIG -= iphoneos
+} else {
+    CONFIG -= iphonesimulator
+    CONFIG += iphoneos
+}
+
+equals(TEMPLATE, app) {
+    # If the application uses Qt, it needs to be an application bundle
+    # to be able to deploy and run on iOS. The only exception to this
+    # is if you're working with a jailbroken device and can run the
+    # resulting binary from the console/over SSH, but that's not a
+    # use-case we care about, so no need to complicate the logic.
+    qt: CONFIG *= app_bundle
+
+    app_bundle {
+        macx-xcode {
+            # There is no way to genereate Xcode projects that are limited to either
+            # simulator or device builds, so iphonesimulator_and_iphoneos is always
+            # effectivly active, even if the user disabled it explicitly.
+            # The Xcode generator doesn't support multiple BUILDS though (exclusive
+            # builds), so we have to manually set up the simulator suffix.
+            library_suffix_iphonesimulator.name = "$${QMAKE_XCODE_LIBRARY_SUFFIX_SETTING}[sdk=iphonesimulator*]"
+            library_suffix_iphonesimulator.value = "_iphonesimulator$($${QMAKE_XCODE_LIBRARY_SUFFIX_SETTING})"
+            QMAKE_MAC_XCODE_SETTINGS += library_suffix_iphonesimulator
+            CONFIG *= xcode_dynamic_library_suffix
+        } else {
+            # For Qt applications we want Xcode project files as the generated output,
+            # but since qmake doesn't handle the transition between makefiles and Xcode
+            # project files (which happens when using subdirs), we create a wrapper
+            # makefile that takes care of generating the Xcode project, and allows
+            # building by calling out to xcodebuild.
+            TEMPLATE = aux
+
+            SOURCES =
+            OBJECTIVE_SOURCES =
+            RESOURCES =
+            INSTALLS =
+            QMAKE_EXTRA_COMPILERS =
+            QMAKE_EXTRA_TARGETS =
+
+            !build_pass {
+                CONFIG += debug_and_release
+                load(resolve_config)
+
+                CONFIG += iphonesimulator_and_iphoneos
+                iphonesimulator.name = Simulator
+                iphoneos.name = Device
+                addExclusiveBuilds(iphonesimulator, iphoneos)
+
+                load(exclusive_builds_post)
+
+                xcode_distclean.commands = "$(DEL_FILE) -R $${TARGET}.xcodeproj"
+                xcode_distclean.depends = \
+                    debug-iphonesimulator-distclean debug-iphoneos-distclean \
+                    release-iphonesimulator-distclean release-iphoneos-distclean
+                QMAKE_EXTRA_TARGETS += xcode_distclean
+                distclean.depends = xcode_distclean
+                QMAKE_EXTRA_TARGETS += distclean
+
+                mkpath($$OUT_PWD)|error("Aborting.")
+                args =
+                for(arg, QMAKE_ARGS): \
+                    args += $$system_quote($$arg)
+                system("cd $$system_quote($$OUT_PWD) && $$QMAKE_QMAKE $$args $$system_quote($$_PRO_FILE_) -spec macx-xcode")
+
+            } else {
+                load(resolve_config)
+
+                iphonesimulator: \
+                    sdk = iphonesimulator
+                else: \
+                    sdk = iphoneos
+
+                debug: \
+                    cfg = debug
+                else: \
+                    cfg = release
+
+                for(action, $$list(build install clean)) {
+                    equals(action, build) {
+                        action_target_suffix =
+                        action_target = all
+                    } else {
+                        action_target_suffix = -$$action
+                        action_target = $$action
+                    }
+
+                    target = $${sdk}-$${cfg}$${action_target_suffix}
+
+                    $${target}.commands = "@bash -o pipefail -c 'xcodebuild $$action -sdk $$sdk -configuration $$title($$cfg) | grep -v setenv'"
+                    QMAKE_EXTRA_TARGETS += $$target
+
+                    $${action_target}.depends += $$target
+                    QMAKE_EXTRA_TARGETS *= $${action_target}
+                }
+
+                xcode_build_dir_distclean.commands = "$(DEL_FILE) -R $$title($$cfg)-$${sdk}"
+                xcode_build_dir_distclean.depends = clean
+                QMAKE_EXTRA_TARGETS += xcode_build_dir_distclean
+                distclean.depends = xcode_build_dir_distclean
+                QMAKE_EXTRA_TARGETS += distclean
+            }
+
+            CONFIG =
+        }
+    }
+} else: equals(TEMPLATE, lib) {
+    iphonesimulator.name = Simulator
+    iphoneos.name = Device
+    addExclusiveBuilds(iphonesimulator, iphoneos)
+} else: equals(TEMPLATE, subdirs) {
+    # Prevent recursion into host_builds
+    for(subdir, SUBDIRS) {
+        contains($${subdir}.CONFIG, host_build) {
+            $${subdir}.CONFIG += no_iphoneos_target no_iphonesimulator_target
+
+            # Other targets which we do want to recurse into may depend on this target,
+            # for example corelib depends on moc, rcc, bootstrap, etc, and other libs
+            # may depend on host-tools that are needed to build the lib, so we resolve
+            # the final target name and redirect it to the base target, so that the
+            # dependency chain is not broken for the other targets.
+
+            !isEmpty($${subdir}.target) {
+                target = $$eval($${subdir}.target)
+            } else {
+                !isEmpty($${subdir}.file): \
+                    file = $$eval($${subdir}.file)
+                else: !isEmpty($${subdir}.subdir): \
+                    file = $$eval($${subdir}.subdir)
+                else: \
+                    file = $$subdir
+
+                target = sub-$$file
+            }
+
+            target ~= s,[^a-zA-Z0-9_],-,
+
+            $${target}-iphonesimulator.depends = $$target
+            $${target}-iphoneos.depends = $$target
+            QMAKE_EXTRA_TARGETS += $${target}-iphonesimulator $${target}-iphoneos
+        }
+    }
+
+    prepareRecursiveTarget(iphonesimulator)
+    prepareRecursiveTarget(iphoneos)
+    QMAKE_EXTRA_TARGETS += iphonesimulator iphoneos
+
+} else: equals(TEMPLATE, aux) {
+    # Dummy targets for the 'aux' TEMPLATE, so we can always recurse
+    QMAKE_EXTRA_TARGETS *= iphonesimulator iphoneos
+}
+
+macx-xcode {
+    ios_device_family.name = TARGETED_DEVICE_FAMILY
+    ios_device_family.value = $$QMAKE_IOS_TARGETED_DEVICE_FAMILY
+    QMAKE_MAC_XCODE_SETTINGS += ios_device_family
+
+    # Set up default 4-inch iPhone/iPod launch image so that our apps
+    # support the full screen resolution of those devices.
+    launch_image = Default-568h@2x.png
+    copy_image.input = $$QMAKESPEC/$$launch_image
+    copy_image.output = $$OUT_PWD/$${TARGET}.xcodeproj/$$launch_image
+    copy_image.CONFIG = verbatim
+    QMAKE_SUBSTITUTES += copy_image
+    launch_images.files = $$copy_image.output
+    QMAKE_BUNDLE_DATA += launch_images
+}
+
+macx-xcode {
+    arch_iphoneos.name = "ARCHS[sdk=iphoneos*]"
+    arch_iphoneos.value = $$QMAKE_IOS_DEVICE_ARCHS
+    arch_iphonesimulator.name = "ARCHS[sdk=iphonesimulator*]"
+    arch_iphonesimulator.value = $$QMAKE_IOS_SIMULATOR_ARCHS
+
+    QMAKE_MAC_XCODE_SETTINGS += arch_iphoneos arch_iphonesimulator
+    unset(QMAKE_XCODE_ARCHS)
+} else {
+# Be more specific about which architecture we're targeting
+    equals(QT_ARCH, arm): \
+        actual_archs = $$QMAKE_IOS_DEVICE_ARCHS
+    else: \
+        actual_archs = $$QMAKE_IOS_SIMULATOR_ARCHS
+
+    for(arch, actual_archs): \
+        arch_flags += -arch $$arch
+
+    QMAKE_CFLAGS           += $$arch_flags
+    QMAKE_CXXFLAGS         += $$arch_flags
+    QMAKE_OBJECTIVE_CFLAGS += $$arch_flags
+    QMAKE_LFLAGS           += $$arch_flags
+}
+unset(actual_archs)
+
+load(default_post)

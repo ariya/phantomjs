@@ -1,0 +1,402 @@
+<!--
+ * Copyright (C) 2013 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS''
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src *; connect-src *; media-src *; font-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
+
+    <link rel="stylesheet" href="External/CodeMirror/codemirror.css">
+
+    <link rel="stylesheet" href="Main.css">
+    <link rel="stylesheet" href="NavigationBar.css">
+    <link rel="stylesheet" href="FlexibleSpaceNavigationItem.css">
+    <link rel="stylesheet" href="DividerNavigationItem.css">
+    <link rel="stylesheet" href="ButtonNavigationItem.css">
+    <link rel="stylesheet" href="RadioButtonNavigationItem.css">
+    <link rel="stylesheet" href="HierarchicalPathComponent.css">
+    <link rel="stylesheet" href="FilterBar.css">
+    <link rel="stylesheet" href="ScopeBar.css">
+    <link rel="stylesheet" href="SearchBar.css">
+    <link rel="stylesheet" href="Sidebar.css">
+    <link rel="stylesheet" href="ContentBrowser.css">
+    <link rel="stylesheet" href="NavigationSidebarPanel.css">
+    <link rel="stylesheet" href="ResourceIcons.css">
+    <link rel="stylesheet" href="FolderIcon.css">
+    <link rel="stylesheet" href="ContentViewContainer.css">
+    <link rel="stylesheet" href="ClusterContentView.css">
+    <link rel="stylesheet" href="ContentView.css">
+    <link rel="stylesheet" href="ImageResourceContentView.css">
+    <link rel="stylesheet" href="FontResourceContentView.css">
+    <link rel="stylesheet" href="Popover.css">
+    <link rel="stylesheet" href="TextEditor.css">
+    <link rel="stylesheet" href="SyntaxHighlightingDefaultTheme.css">
+    <link rel="stylesheet" href="TextResourceContentView.css">
+    <link rel="stylesheet" href="DOMStorageContentView.css">
+    <link rel="stylesheet" href="CookieStorageContentView.css">
+    <link rel="stylesheet" href="DatabaseTableContentView.css">
+    <link rel="stylesheet" href="DatabaseContentView.css">
+    <link rel="stylesheet" href="TextContentView.css">
+    <link rel="stylesheet" href="CookieIcon.css">
+    <link rel="stylesheet" href="DatabaseIcon.css">
+    <link rel="stylesheet" href="DatabaseTableIcon.css">
+    <link rel="stylesheet" href="DOMStorageIcons.css">
+    <link rel="stylesheet" href="DOMTreeOutline.css">
+    <link rel="stylesheet" href="PathComponentIcons.css">
+    <link rel="stylesheet" href="DataGrid.css">
+    <link rel="stylesheet" href="Editing.css">
+    <link rel="stylesheet" href="DOMTreeContentView.css">
+    <link rel="stylesheet" href="SearchIcons.css">
+    <link rel="stylesheet" href="LogContentView.css">
+    <link rel="stylesheet" href="Section.css">
+    <link rel="stylesheet" href="DetailsSidebarPanel.css">
+    <link rel="stylesheet" href="DetailsSection.css">
+    <link rel="stylesheet" href="LogIcon.css">
+    <link rel="stylesheet" href="BoxModelDetailsSectionRow.css">
+    <link rel="stylesheet" href="IndeterminateProgressSpinner.css">
+    <link rel="stylesheet" href="ApplicationCacheFrameContentView.css">
+    <link rel="stylesheet" href="ApplicationCacheIcons.css">
+    <link rel="stylesheet" href="ResourceTreeElement.css">
+    <link rel="stylesheet" href="InstrumentSidebarPanel.css">
+    <link rel="stylesheet" href="InstrumentIcons.css">
+    <link rel="stylesheet" href="TimelinesContentView.css">
+    <link rel="stylesheet" href="TimelineDecorations.css">
+    <link rel="stylesheet" href="NetworkDataGrid.css">
+    <link rel="stylesheet" href="TimelineDataGrid.css">
+    <link rel="stylesheet" href="TimelineOverview.css">
+    <link rel="stylesheet" href="ProfileView.css">
+    <link rel="stylesheet" href="JavaScriptProfileView.css">
+    <link rel="stylesheet" href="NetworkTimeline.css">
+    <link rel="stylesheet" href="CSSStyleDetailsSidebarPanel.css">
+    <link rel="stylesheet" href="LayerTreeSidebarPanel.css">
+    <link rel="stylesheet" href="EventListenerSectionGroup.css">
+    <link rel="stylesheet" href="Breakpoint.css">
+    <link rel="stylesheet" href="BreakpointIcons.css">
+    <link rel="stylesheet" href="BreakpointTreeElement.css">
+    <link rel="stylesheet" href="QuickConsole.css">
+    <link rel="stylesheet" href="CallFrameIcons.css">
+    <link rel="stylesheet" href="SourceCodeTextEditor.css">
+    <link rel="stylesheet" href="ScriptContentView.css">
+    <link rel="stylesheet" href="FindBanner.css">
+    <link rel="stylesheet" href="Toolbar.css">
+    <link rel="stylesheet" href="ButtonToolbarItem.css">
+    <link rel="stylesheet" href="ControlToolbarItem.css">
+    <link rel="stylesheet" href="ResourceSidebarPanel.css">
+    <link rel="stylesheet" href="DebuggerSidebarPanel.css">
+    <link rel="stylesheet" href="DashboardView.css">
+    <link rel="stylesheet" href="CSSStyleDeclarationTextEditor.css">
+    <link rel="stylesheet" href="CSSStyleDeclarationSection.css">
+    <link rel="stylesheet" href="RulesStyleDetailsPanel.css">
+    <link rel="stylesheet" href="StyleRuleIcons.css">
+    <link rel="stylesheet" href="CodeMirrorCompletionController.css">
+    <link rel="stylesheet" href="CodeMirrorTokenTrackingController.css">
+    <link rel="stylesheet" href="CompletionSuggestionsView.css">
+    <link rel="stylesheet" href="CodeMirrorOverrides.css">
+    <link rel="stylesheet" href="ConsolePrompt.css">
+    <link rel="stylesheet" href="CSSColorPicker.css">
+    <link rel="stylesheet" href="CodeMirrorDragToAlterNumberController.css">
+
+    <script src="External/CodeMirror/codemirror.js"></script>
+    <script src="External/CodeMirror/comment.js"></script>
+    <script src="External/CodeMirror/matchbrackets.js"></script>
+    <script src="External/CodeMirror/closebrackets.js"></script>
+    <script src="External/CodeMirror/runmode.js"></script>
+    <script src="External/CodeMirror/searchcursor.js"></script>
+    <script src="External/CodeMirror/placeholder.js"></script>
+    <script src="External/CodeMirror/overlay.js"></script>
+    <script src="External/CodeMirror/xml.js"></script>
+    <script src="External/CodeMirror/htmlmixed.js"></script>
+    <script src="External/CodeMirror/css.js"></script>
+    <script src="External/CodeMirror/javascript.js"></script>
+    <script src="External/CodeMirror/clojure.js"></script>
+    <script src="External/CodeMirror/coffeescript.js"></script>
+    <script src="External/CodeMirror/livescript.js"></script>
+    <script src="External/CodeMirror/sass.js"></script>
+    <script src="External/CodeMirror/less.js"></script>
+    <script src="External/CodeMirror/sql.js"></script>
+
+    <script src="Utilities.js"></script>
+    <script src="WebInspector.js"></script>
+    <script src="Object.js"></script>
+    <script src="CodeMirrorDragToAlterNumberController.js"></script>
+    <script src="CodeMirrorAdditions.js"></script>
+    <script src="Setting.js"></script>
+    <script src="InspectorBackend.js"></script>
+    <script src="InspectorFrontendHostStub.js"></script>
+    <script src="LoadInspectorBackendCommands.js"></script>
+    <script src="InspectorFrontendAPI.js"></script>
+    <script src="ContextMenu.js"></script>
+    <script src="RemoteObject.js"></script>
+    <script src="InspectorObserver.js"></script>
+    <script src="PageObserver.js"></script>
+    <script src="ConsoleObserver.js"></script>
+    <script src="NetworkObserver.js"></script>
+    <script src="CSSObserver.js"></script>
+    <script src="DOMObserver.js"></script>
+    <script src="DebuggerObserver.js"></script>
+    <script src="DatabaseObserver.js"></script>
+    <script src="ProfilerObserver.js"></script>
+    <script src="LayerTreeObserver.js"></script>
+    <script src="RuntimeObserver.js"></script>
+    <script src="ImageUtilities.js"></script>
+    <script src="DataGrid.js"></script>
+    <script src="ProfileDataGridTree.js"></script>
+    <script src="BottomUpProfileDataGridTree.js"></script>
+    <script src="TopDownProfileDataGridTree.js"></script>
+    <script src="CookieStorageObject.js"></script>
+    <script src="DatabaseObject.js"></script>
+    <script src="DatabaseTableObject.js"></script>
+    <script src="DOMStorageObject.js"></script>
+    <script src="DOMStorageObserver.js"></script>
+    <script src="StorageManager.js"></script>
+    <script src="ApplicationCacheFrame.js"></script>
+    <script src="ApplicationCacheManifest.js"></script>
+    <script src="ApplicationCacheManager.js"></script>
+    <script src="ApplicationCacheObserver.js"></script>
+    <script src="TimelineObserver.js"></script>
+    <script src="TimelineManager.js"></script>
+    <script src="TimelineRecord.js"></script>
+    <script src="TimelineEventMarker.js"></script>
+    <script src="ResourceTimelineRecord.js"></script>
+    <script src="FrameResourceManager.js"></script>
+    <script src="IssueManager.js"></script>
+    <script src="Frame.js"></script>
+    <script src="SourceCode.js"></script>
+    <script src="Resource.js"></script>
+    <script src="ResourceCollection.js"></script>
+    <script src="BinarySearch.js"></script>
+    <script src="EditingSupport.js"></script>
+    <script src="KeyboardShortcut.js"></script>
+    <script src="NavigationBar.js"></script>
+    <script src="NavigationItem.js"></script>
+    <script src="FlexibleSpaceNavigationItem.js"></script>
+    <script src="DividerNavigationItem.js"></script>
+    <script src="ButtonNavigationItem.js"></script>
+    <script src="RadioButtonNavigationItem.js"></script>
+    <script src="ToggleButtonNavigationItem.js"></script>
+    <script src="ActivateButtonNavigationItem.js"></script>
+    <script src="HierarchicalPathNavigationItem.js"></script>
+    <script src="HierarchicalPathComponent.js"></script>
+    <script src="GeneralTreeElementPathComponent.js"></script>
+    <script src="ScopeBarItem.js"></script>
+    <script src="ScopeBar.js"></script>
+    <script src="SearchBar.js"></script>
+    <script src="FilterBar.js"></script>
+    <script src="Sidebar.js"></script>
+    <script src="SidebarPanel.js"></script>
+    <script src="TreeOutline.js"></script>
+    <script src="NavigationSidebarPanel.js"></script>
+    <script src="DetailsSidebarPanel.js"></script>
+    <script src="GeneralTreeElement.js"></script>
+    <script src="SourceCodeTreeElement.js"></script>
+    <script src="FolderTreeElement.js"></script>
+    <script src="ResourceSidebarPanel.js"></script>
+    <script src="ResourceDetailsSidebarPanel.js"></script>
+    <script src="ResourceTreeElement.js"></script>
+    <script src="SourceMapResourceTreeElement.js"></script>
+    <script src="StorageTreeElement.js"></script>
+    <script src="CookieStorageTreeElement.js"></script>
+    <script src="DatabaseHostTreeElement.js"></script>
+    <script src="DatabaseTreeElement.js"></script>
+    <script src="DatabaseTableTreeElement.js"></script>
+    <script src="DOMStorageTreeElement.js"></script>
+    <script src="ApplicationCacheFrameTreeElement.js"></script>
+    <script src="ApplicationCacheManifestTreeElement.js"></script>
+    <script src="IssueMessage.js"></script>
+    <script src="FrameTreeElement.js"></script>
+    <script src="CSSCompletions.js"></script>
+    <script src="CSSKeywordCompletions.js"></script>
+    <script src="SyntaxHighlightingSupport.js"></script>
+    <script src="Geometry.js"></script>
+    <script src="Popover.js"></script>
+    <script src="TextEditor.js"></script>
+    <script src="EventHandler.js"></script>
+    <script src="SourceCodeTextEditor.js"></script>
+    <script src="ContentViewContainer.js"></script>
+    <script src="ContentView.js"></script>
+    <script src="ClusterContentView.js"></script>
+    <script src="QuickConsoleNavigationBar.js"></script>
+    <script src="QuickConsole.js"></script>
+    <script src="ContentBrowser.js"></script>
+    <script src="FrameContentView.js"></script>
+    <script src="ResourceClusterContentView.js"></script>
+    <script src="ResourceContentView.js"></script>
+    <script src="GenericResourceContentView.js"></script>
+    <script src="TextResourceContentView.js"></script>
+    <script src="ImageResourceContentView.js"></script>
+    <script src="FontResourceContentView.js"></script>
+    <script src="DOMStorageContentView.js"></script>
+    <script src="CookieStorageContentView.js"></script>
+    <script src="DatabaseTableContentView.js"></script>
+    <script src="DatabaseContentView.js"></script>
+    <script src="ApplicationCacheFrameContentView.js"></script>
+    <script src="TextContentView.js"></script>
+    <script src="ApplicationCacheDetailsSidebarPanel.js"></script>
+    <script src="DOMTreeManager.js"></script>
+    <script src="DOMNode.js"></script>
+    <script src="DOMUtilities.js"></script>
+    <script src="DOMTree.js"></script>
+    <script src="DOMTreeOutline.js"></script>
+    <script src="DOMTreeUpdater.js"></script>
+    <script src="DOMTreeElement.js"></script>
+    <script src="DOMTreeElementPathComponent.js"></script>
+    <script src="DOMTreeContentView.js"></script>
+    <script src="LayerTreeManager.js"></script>
+    <script src="DOMSearchMatchObject.js"></script>
+    <script src="ResourceSearchMatchObject.js"></script>
+    <script src="SearchResultTreeElement.js"></script>
+    <script src="TextRange.js"></script>
+    <script src="ConsoleMessage.js"></script>
+    <script src="ConsoleMessageImpl.js"></script>
+    <script src="ConsoleGroup.js"></script>
+    <script src="ConsoleCommand.js"></script>
+    <script src="ConsoleCommandResult.js"></script>
+    <script src="JavaScriptLogViewController.js"></script>
+    <script src="LogContentView.js"></script>
+    <script src="Section.js"></script>
+    <script src="PropertiesSection.js"></script>
+    <script src="ObjectPropertiesSection.js"></script>
+    <script src="LogManager.js"></script>
+    <script src="LogObject.js"></script>
+    <script src="DetailsSection.js"></script>
+    <script src="DetailsSectionGroup.js"></script>
+    <script src="DetailsSectionRow.js"></script>
+    <script src="DetailsSectionSimpleRow.js"></script>
+    <script src="DetailsSectionDataGridRow.js"></script>
+    <script src="DetailsSectionPropertiesRow.js"></script>
+    <script src="DOMDetailsSidebarPanel.js"></script>
+    <script src="EventListenerSectionGroup.js"></script>
+    <script src="EventListenerSection.js"></script>
+    <script src="DOMNodeDetailsSidebarPanel.js"></script>
+    <script src="LayerTreeDataGridNode.js"></script>
+    <script src="LayerTreeDataGrid.js"></script>
+    <script src="LayerTreeSidebarPanel.js"></script>
+    <script src="LogTreeElement.js"></script>
+    <script src="CSSStyleManager.js"></script>
+    <script src="CSSStyleSheet.js"></script>
+    <script src="CSSMedia.js"></script>
+    <script src="CSSRule.js"></script>
+    <script src="CSSStyleDeclaration.js"></script>
+    <script src="CSSProperty.js"></script>
+    <script src="DOMNodeStyles.js"></script>
+    <script src="Color.js"></script>
+    <script src="CSSStyleDetailsSidebarPanel.js"></script>
+    <script src="BoxModelDetailsSectionRow.js"></script>
+    <script src="StyleDetailsPanel.js"></script>
+    <script src="ComputedStyleDetailsPanel.js"></script>
+    <script src="RulesStyleDetailsPanel.js"></script>
+    <script src="MetricsStyleDetailsPanel.js"></script>
+    <script src="CSSColorPicker.js"></script>
+    <script src="CSSStyleDeclarationTextEditor.js"></script>
+    <script src="CSSStyleDeclarationSection.js"></script>
+    <script src="IndeterminateProgressSpinner.js"></script>
+    <script src="InstrumentSidebarPanel.js"></script>
+    <script src="NetworkGraphCalculator.js"></script>
+    <script src="TimelineDecorations.js"></script>
+    <script src="TimelinesObject.js"></script>
+    <script src="TimelineDataGrid.js"></script>
+    <script src="NetworkDataGrid.js"></script>
+    <script src="LayoutTimelineDataGrid.js"></script>
+    <script src="ScriptTimelineDataGrid.js"></script>
+    <script src="TimelinesContentView.js"></script>
+    <script src="ResourceTimelineDataGridNode.js"></script>
+    <script src="ResourceTimelineDataGridNodePathComponent.js"></script>
+    <script src="LayoutTimelineRecord.js"></script>
+    <script src="LayoutTimelineDataGridNode.js"></script>
+    <script src="ScriptTimelineRecord.js"></script>
+    <script src="ScriptTimelineDataGridNode.js"></script>
+    <script src="TimelineOverview.js"></script>
+    <script src="ProfileManager.js"></script>
+    <script src="ProfileType.js"></script>
+    <script src="ProfileView.js"></script>
+    <script src="JavaScriptProfileType.js"></script>
+    <script src="JavaScriptProfileView.js"></script>
+    <script src="CSSSelectorProfileType.js"></script>
+    <script src="CSSSelectorProfileView.js"></script>
+    <script src="ProfileObject.js"></script>
+    <script src="JavaScriptProfileObject.js"></script>
+    <script src="CSSSelectorProfileObject.js"></script>
+    <script src="DebuggerSidebarPanel.js"></script>
+    <script src="BreakpointTreeElement.js"></script>
+    <script src="Breakpoint.js"></script>
+    <script src="DebuggerManager.js"></script>
+    <script src="SourceMapManager.js"></script>
+    <script src="Script.js"></script>
+    <script src="SourceMap.js"></script>
+    <script src="SourceMapResource.js"></script>
+    <script src="SourceCodePosition.js"></script>
+    <script src="SourceCodeLocation.js"></script>
+    <script src="SourceCodeTextRange.js"></script>
+    <script src="CallFrame.js"></script>
+    <script src="ScopeChainNode.js"></script>
+    <script src="CallFrameTreeElement.js"></script>
+    <script src="ScopeChainDetailsSidebarPanel.js"></script>
+    <script src="ScopeVariableTreeElement.js"></script>
+    <script src="ScriptContentView.js"></script>
+    <script src="ScriptTreeElement.js"></script>
+    <script src="FindBanner.js"></script>
+    <script src="Toolbar.js"></script>
+    <script src="ButtonToolbarItem.js"></script>
+    <script src="ActivateButtonToolbarItem.js"></script>
+    <script src="ControlToolbarItem.js"></script>
+    <script src="ToggleControlToolbarItem.js"></script>
+    <script src="Branch.js"></script>
+    <script src="Revision.js"></script>
+    <script src="SourceCodeRevision.js"></script>
+    <script src="BranchManager.js"></script>
+    <script src="DashboardView.js"></script>
+    <script src="DashboardManager.js"></script>
+    <script src="FormatterContentBuilder.js"></script>
+    <script src="CodeMirrorFormatters.js"></script>
+    <script src="Formatter.js"></script>
+    <script src="FormatterSourceMap.js"></script>
+    <script src="CodeMirrorCompletionController.js"></script>
+    <script src="CodeMirrorTokenTrackingController.js"></script>
+    <script src="CompletionSuggestionsView.js"></script>
+    <script src="ExecutionContext.js"></script>
+    <script src="ExecutionContextList.js"></script>
+    <script src="ConsolePrompt.js"></script>
+    <script src="MIMETypeUtilities.js"></script>
+    <script src="LoadLocalizedStrings.js"></script>
+    <script src="Main.js"></script>
+
+    <script>
+        WebInspector.loaded();
+    </script>
+</head>
+<body>
+<div id="docked-resizer"></div>
+<div id="toolbar"></div>
+<div id="main">
+    <div id="navigation-sidebar"></div>
+    <div id="content">
+        <div id="content-browser"></div>
+        <div id="split-content-browser" class="hidden"></div>
+        <div id="quick-console"></div>
+    </div>
+    <div id="details-sidebar"></div>
+</div>
+</body>
+</html>

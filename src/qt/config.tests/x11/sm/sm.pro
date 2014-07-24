@@ -1,4 +1,0 @@
-SOURCES += sm.cpp
-CONFIG += x11
-CONFIG -= qt
-LIBS += $$QMAKE_LIBS_X11SM

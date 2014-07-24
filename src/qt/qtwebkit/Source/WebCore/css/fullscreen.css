@@ -1,0 +1,56 @@
+:-webkit-full-screen {
+    background-color: white;
+    z-index: 2147483647 !important;
+}
+
+:root:-webkit-full-screen-document:not(:-webkit-full-screen), :root:-webkit-full-screen-ancestor {
+    overflow: hidden !important;
+}
+
+:-webkit-full-screen-ancestor:not(iframe) {
+    z-index: auto !important;
+    position: static !important;
+    opacity: 1 !important;
+    -webkit-transform: none !important;
+    -webkit-mask: none !important;
+    clip: none !important;
+    -webkit-filter: none !important;
+    -webkit-transition: none !important;
+    -webkit-box-reflect: none !important;
+    -webkit-perspective: none !important;
+    -webkit-transform-style: flat !important;
+}
+
+video:-webkit-full-screen, audio:-webkit-full-screen {
+    background-color: transparent !important;
+    position: static !important;
+    margin: 0 !important;
+    height: 100% !important;
+    width: 100% !important;
+    -webkit-flex: 1 !important;
+    display: block !important;
+    -webkit-transition: none !important;
+}
+
+:-webkit-full-screen video:hover {
+    -webkit-cursor-visibility:auto-hide;
+}
+
+img:-webkit-full-screen {
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+}
+
+iframe:-webkit-full-screen {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    position: fixed !important;
+    height: 100% !important;
+    width: 100% !important;
+    left: 0 !important;
+    top: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+}

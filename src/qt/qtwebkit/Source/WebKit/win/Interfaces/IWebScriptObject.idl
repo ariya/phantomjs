@@ -1,0 +1,137 @@
+/*
+ * Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+#ifndef DO_NO_IMPORTS
+import "oaidl.idl";
+import "ocidl.idl";
+#endif
+
+/*!
+    @class WebScriptObject
+    @discussion WebScriptObjects are used to wrap script objects passed from
+    script environments to Objective-C.  WebScriptObjects cannot be created
+    directly.  In normal uses of WebKit, you gain access to the script
+    environment using the "windowScriptObject" method on WebView.
+    
+    The following KVC methods are commonly used to access properties of the
+    WebScriptObject:
+    
+    - (void)setValue:(id)value forKey:(NSString *)key
+    - (id)valueForKey:(NSString *)key
+    
+    As it possible to remove attributes from web script objects the following
+    additional method augments the basic KVC methods:
+    
+    - (void)removeWebScriptKey:(NSString *)name;
+    
+    Also the sparse array access allowed in web script objects doesn't map well to NSArray, so
+    the following methods can be used to access index based properties:
+    
+    - (id)webScriptValueAtIndex:(unsigned int)index;
+    - (void)setWebScriptValueAtIndex:(unsigned int)index value:(id)value;
+
+    @interface WebScriptObject : NSObject
+*/
+[
+    object,
+    oleautomation,
+    uuid(7022340A-649C-43fc-9214-85CA7D3BE3C7),
+    pointer_default(unique)
+]
+interface IWebScriptObject : IUnknown
+{
+    /*!
+        @method throwException:
+        @discussion Throws an exception in the current script execution context.
+        @result Either NO if an exception could not be raised, YES otherwise.
+        + (BOOL)throwException:(NSString *)exceptionMessage;
+    */
+    HRESULT throwException([in] BSTR exceptionMessage, [out, retval] BOOL* result);
+
+    /*!
+        @method callWebScriptMethod:withArguments:
+        @param name The name of the method to call in the script environment.
+        @param args The arguments to pass to the script environment.
+        @discussion Calls the specified method in the script environment using the
+        specified arguments.
+        @result Returns the result of calling the script method.
+        - (id)callWebScriptMethod:(NSString *)name withArguments:(NSArray *)args;
+    */
+    HRESULT callWebScriptMethod([in] BSTR name, [in, size_is(cArgs)] const VARIANT args[], [in] int cArgs, [out, retval] VARIANT* result);
+
+    /*!
+        @method evaluateWebScript:
+        @param script The script to execute in the target script environment.
+        @discussion The script will be executed in the target script environment.  The format
+        of the script is dependent of the target script environment.
+        @result Returns the result of evaluating the script in the script environment.
+        - (id)evaluateWebScript:(NSString *)script;
+    */
+    HRESULT evaluateWebScript([in] BSTR script, [out, retval] VARIANT* result);
+
+    /*!
+        @method removeWebScriptKey:
+        @param name The name of the property to remove.
+        @discussion Removes the property from the object in the script environment.
+        - (void)removeWebScriptKey:(NSString *)name;
+    */
+    HRESULT removeWebScriptKey([in] BSTR name);
+
+    /*!
+        @method toString
+        @discussion Converts the target object to a string representation.  The coercion
+        of non string objects type is dependent on the script environment.
+        @result Returns the string representation of the object.
+        - (NSString *)stringRepresentation;
+    */
+    HRESULT stringRepresentation([out, retval] BSTR* stringRepresentation);
+
+    /*!
+        @method propertyAtIndex:
+        @param index The index of the property to return.  Index based access is dependent 
+        @discussion Gets the value of the property at the specified index.
+        @result The value of the property.
+        - (id)webScriptValueAtIndex:(unsigned int)index;
+    */
+    HRESULT webScriptValueAtIndex([in] unsigned int index, [out, retval] VARIANT* result);
+
+    /*!
+        @method setPropertyAtIndex:value:
+        @param index The index of the property to set.
+        @param value The value of the property to set.
+        @discussion Sets the property value at the specified index.
+        - (void)setWebScriptValueAtIndex:(unsigned int)index value:(id)value;
+    */
+    HRESULT setWebScriptValueAtIndex([in] unsigned int index, [in] VARIANT val);
+
+    /*!
+        @method setException:
+        @param description The description of the exception.
+        @discussion Raises an exception in the script environment in the context of the
+        current object.
+        - (void)setException: (NSString *)description;
+    */
+    HRESULT setException([in] BSTR description);
+}

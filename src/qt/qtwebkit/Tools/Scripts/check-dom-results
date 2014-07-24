@@ -1,0 +1,141 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2005 Apple Computer, Inc.  All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+# 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Script to check status of W3C DOM tests that are part of the WebKit tests.
+
+use strict;
+use FindBin;
+use Cwd;
+use lib $FindBin::Bin;
+use webkitdirs;
+
+chdirWebKit();
+
+my $verbose = $ARGV[0] && $ARGV[0] eq "-v";
+
+my $workingDir = getcwd();
+my $testDirectory = "$workingDir/LayoutTests";
+
+my @suites = ( {"name" => "DOM Level 1 Core   (html)", "directory" => "dom/html/level1/core"},
+               {"name" => "DOM Level 2 Core   (html)", "directory" => "dom/html/level2/core"},
+               {"name" => "DOM Level 2 Events (html)", "directory" => "dom/html/level2/events"},
+               {"name" => "DOM Level 2 HTML   (html)", "directory" => "dom/html/level2/html"},
+               {"name" => "DOM Level 1 Core   (xhtml)", "directory" => "dom/xhtml/level1/core"},
+               {"name" => "DOM Level 2 Core   (xhtml)", "directory" => "dom/xhtml/level2/core"},
+               {"name" => "DOM Level 2 Events (xhtml)", "directory" => "dom/xhtml/level2/events"},
+               {"name" => "DOM Level 2 HTML   (xhtml)", "directory" => "dom/xhtml/level2/html"},
+               {"name" => "DOM Level 3 Core   (xhtml)", "directory" => "dom/xhtml/level3/core"},
+               {"name" => "DOM Level 3 XPath  (svg)", "directory" => "dom/svg/level3/xpath"});
+
+my $totalCount = 0;
+my $totalSuccesses = 0;
+my $totalDisabled = 0;
+my $totalFailed = 0;
+
+foreach my $suite (@suites) {
+
+    my %suite = %$suite;
+    my $directory = $suite{"directory"};
+    my $name = $suite{"name"};
+    my @results = `find "${testDirectory}/${directory}" -name "*-expected.txt"`;
+    my @disabled = `find "${testDirectory}/${directory}" -name "*-disabled"`;
+
+    my @failures = ();
+    my $count = 0;
+
+    foreach my $result (@results) {
+        $count++;
+        my $success = 0;
+        open RESULT, "<$result";
+        while (<RESULT>) {
+            if (/Success/) {
+                $success = 1;
+                last;
+            }
+        }
+        close RESULT;
+        if (!$success) {
+            push @failures, $result;
+        }
+    }
+
+    my $disabledCount = (scalar @disabled);
+    my $failureCount = (scalar @failures);
+
+    $count += $disabledCount;
+
+    my $successCount = $count - $failureCount - $disabledCount;
+    my $percentage = (sprintf "%.1f", ($successCount * 100.0 / $count));
+    
+    if ($percentage == 100) {
+        print "${name}: all ${count} tests succeeded";
+    } else {
+        print "${name}: ${successCount} out of ${count} tests succeeded (${percentage}%)";
+    }
+    print " ($disabledCount disabled)" if $disabledCount;
+    print "\n";
+    if ($verbose) {
+        print "\n";
+        if (@disabled) {
+            print "    Disabled:\n";
+            
+            foreach my $failure (sort @disabled) {
+                $failure =~ s|.*/||;
+                $failure =~ s|-disabled||;
+                print "        ${directory}/${failure}";
+            }
+        }
+        if (@failures) {
+            print "    Failed:\n";
+            
+            foreach my $failure (sort @failures) {
+                $directory =~ m|^dom/(\w+)|;
+                my $extension = $1;
+                $failure =~ s|.*/||;
+                $failure =~ s|-expected\.txt|.${extension}|;
+                print "        ${directory}/${failure}";
+            }
+        }
+
+        print "\n";
+    }
+
+    $totalCount += $count;
+    $totalSuccesses += $successCount;
+    $totalDisabled += $disabledCount;
+    $totalFailed += $failureCount;
+}
+
+
+my $totalPercentage = (sprintf "%.1f", ($totalSuccesses * 100.0 / $totalCount));
+my $totalDisabledPercentage = (sprintf "%.1f", ($totalDisabled * 100.0 / $totalCount));
+my $totalFailedPercentage = (sprintf "%.1f", ($totalFailed * 100.0 / $totalCount));
+
+print "Total: ${totalSuccesses} out of ${totalCount} tests succeeded (${totalPercentage}%)\n";
+print "       ${totalDisabled} tests disabled (${totalDisabledPercentage}%)\n";
+print "       ${totalFailed} tests failed (${totalFailedPercentage}%)\n";

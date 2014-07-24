@@ -1,0 +1,66 @@
+# -------------------------------------------------------------------
+# Unix specific defaults
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+# Use SSE2 floating point math on 32 bit instead of the default
+# 387 to make layout test results same on 32 and on 64 bit builds.
+# See https://bugs.webkit.org/show_bug.cgi?id=52810#c39 for details.
+linux-g++*:isEqual(QT_ARCH,i386) {
+    !production_build {
+        QMAKE_CFLAGS += -march=pentium4 -msse2 -mfpmath=sse
+        QMAKE_CXXFLAGS += -march=pentium4 -msse2 -mfpmath=sse
+    }
+}
+
+*g++* {
+    # Use DWARF-4 optimally with GCC 4.8+, otherwise use STABS which uses much less memory.
+    greaterThan(QT_GCC_MAJOR_VERSION, 4)|greaterThan(QT_GCC_MINOR_VERSION, 7) {
+        QMAKE_CXXFLAGS_DEBUG += -fdebug-types-section
+        QMAKE_CXXFLAGS_RELEASE_WITH_DEBUGINFO += -fdebug-types-section
+        separate_debug_info: QMAKE_CXXFLAGS_RELEASE += -fdebug-types-section
+        QMAKE_LFLAGS += -fdebug-types-section
+    } else {
+        # If DWARF-2 is desired -feliminate-dwarf2-dups can be used with GCC 4.7,
+        # but it causes internal compiler errors in older versions of GCC.
+        QMAKE_CXXFLAGS_DEBUG -= -g
+        QMAKE_CXXFLAGS_DEBUG += -gstabs
+        QMAKE_CXXFLAGS_RELEASE_WITH_DEBUGINFO -= -g
+        QMAKE_CXXFLAGS_RELEASE_WITH_DEBUGINFO += -gstabs
+        separate_debug_info {
+            QMAKE_CXXFLAGS_RELEASE -= -g
+            QMAKE_CXXFLAGS_RELEASE += -gstabs
+        }
+    }
+}
+
+linux-*g++* {
+    !production_build {
+        # Treat warnings as errors on x86/Linux/GCC
+        isEqual(QT_ARCH,x86_64)|isEqual(QT_ARCH,i386): QMAKE_CXXFLAGS += -Werror
+    }
+}
+
+!c++11:!intel_icc {
+    # Don't warn about OVERRIDE and FINAL, since they are feature-checked anyways
+    clang {
+        QMAKE_CXXFLAGS += -Wno-c++11-extensions -Wno-c++0x-extensions
+        QMAKE_OBJECTIVE_CFLAGS += -Wno-c++11-extensions -Wno-c++0x-extensions
+    } else: gcc {
+        greaterThan(QT_GCC_MAJOR_VERSION, 4)|greaterThan(QT_GCC_MINOR_VERSION, 5) {
+            # We need to deactivate those warnings because some names conflicts with upcoming c++0x types (e.g.nullptr).
+            QMAKE_CXXFLAGS_WARN_ON += -Wno-c++0x-compat
+            QMAKE_CXXFLAGS += -Wno-c++0x-compat
+        }
+    }
+}
+
+contains(TEMPLATE, app): CONFIG += rpath
+
+CONFIG(debug, debug|release)|force_debug_info|separate_debug_info {
+    # Make ld not cache the symbol tables of input files in memory to avoid memory exhaustion during the linking phase.
+    !force_static_libs_as_shared:config_gnuld: QMAKE_LFLAGS += -Wl,--no-keep-memory
+}
+
+load(default_post)

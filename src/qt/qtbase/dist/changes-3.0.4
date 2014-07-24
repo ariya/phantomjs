@@ -1,0 +1,214 @@
+Qt 3.0.4 is a bugfix release. It maintains both forward and backward
+compatibility (source and binary) with Qt 3.0.3
+
+
+****************************************************************************
+*			    General					   *
+****************************************************************************
+
+- Qt 3.0.4 builds on VC++.NET.
+
+
+****************************************************************************
+*			   Library					   *
+****************************************************************************
+
+- QApplication
+	Send wheel events for blocked widgets to the focus widget instead.
+	Windows only: Fixed problems with Korean input methods. Reset
+	the mouse state even when we ignore the next button release.
+
+- QColor:
+	Fixed marking colors created with an invalid color string as
+	invalid.
+
+- QComboBox:
+	QComboBox's listbox now takes the combobox's palette.
+
+- QDataTable:
+	Fixed the scrollbar behaviour when browsing result sets from
+	clients that do not return a query size. Make the table
+	adopt the filter and sort settings from the cursor when
+	setSqlCursor() is called.
+	
+- QDateTimeEdit:
+	Update the date/time edit even if the new date/time is
+	invalid.
+
+- QDialog:
+	Respect the minimum and maximum size of the extension grow
+	width/height in showExtension( TRUE ). Don't delete the object
+	immediately for WDestructiveClose, instead use deleteLater()
+	to allow queued events to be processed.
+
+- QDir:
+	Fixed crash when calling entryList() for non-existing
+	directories.
+
+- QDnD:
+	Mac only: Prevent crash when dropping onto a transparent part
+	of a widget.
+
+- QDockWindow:
+	Accelerators of the mainwindow now continue to work if a floating
+	dockwindow becomes active.
+
+- QFileDialog:
+	Windows only: Fixed displaying shared Windows directories
+	(e.g. \\Machine\Folder). Worked around a problem which made
+	QFileDialog hang.
+
+- QFontDataBase:
+	Enumerate all fonts correctly on Windows; also made it faster.
+
+- QGridLayout:
+	Do not crash when a widget inserted with addMultiCellWidget()
+	is deleted.
+
+- QHeader:
+	Fixed setOffset() for vertical headers.
+
+- QIconView:
+	Fixed when clicking and dragging from the edge of an icon, so
+	that the icon will drag immediately rather than when the mouse
+	next passes over it.
+
+- QKeyEvent:
+	Correctly deliver a KeyRelease event with isAutoRepeat
+	set to FALSE after releasing an auto-repeated key.
+
+- QLabel:
+	Fixed so that the label uses paletteForegroundColor() and not
+	the the colorgroup's 'text' color, when displaying richtext.
+
+- QListBox:
+	Performance improvements.
+
+- QListView:
+	When typing in a listview to search for an item, don't select
+	items in Extended selection mode. Speed improvements for
+	selectAll() or (un)selecting a large number of items (e.g by
+	pressing Shift+End) in big listviews (starting from 150.000
+	items).
+
+- QOCIDriver:
+	Allow access to tables not owned by the current user. Use
+	Oracle synonyms for table names. Tables can also be specified
+	as 'OWNER.TABLE'.
+
+- QPainter:
+	Don't delete the tabarray set in setTabArray() in the first
+	drawText() call.
+
+- QPopupMenu:
+	Fixed re-use of menus.
+
+- QPrintDialog:
+	Layout group boxes properly. Fixed function cast in NIS code
+	so that it works on all compiler-platform pairs. Allow NIS on
+	any Unix, not just Solaris.
+
+- QPrinter:
+	Windows only: Implemented printing of rotated pixmaps and
+	images.
+
+- QProcess:
+	Unix and Mac only: Make sure that the processExited() signal
+	is emitted only once for each process. This also fixes a crash
+	that occurred on very rare occasions.
+
+- QProgressBar:
+	Fixed crash bug when totalSteps() was 1. Fixed some painting
+	bugs.
+
+- QPSPrinter:
+	Improvements in printing Japanese. Big speed improvements.
+
+- QRichText:
+	Improved speed of loading plain text and rich text
+	documents. Fixed some internal links which didn't work
+	correctly. Fixed minimumWidth and usedWidth calculations for
+	table layouts of nested tables. Fixed <br> tags within list
+	items. Fixed some memory leaks and cleanup on exit. Now works
+	with fonts that specify sizes in pixels.
+
+- QScrollBar:
+	Release the control, when the scrollbar got hidden while a
+	control was pressed.
+
+- QSimpleRichText:
+	Make sure the painter's properties don't get changed in
+	setWidth().
+
+- QSpinBox:
+	Don't fire the autorepeat timer before valueChanged() is
+	completed, if the up or down button is pressed.
+
+- QSqlDriver:
+	Export DB driver classes under Windows if compiled into the
+	lib.
+
+- QSqlQuery:
+	Reset the last error before a new query is executed.
+
+- QTable:
+	If a row or column is hidden, setRowHeight() and
+	setColumnWidth() no longer cause an immediate resize; instead
+	they store the value for later use, i.e. for when the row or
+	column is shown. Fixed a problem which reset table header
+	sections after inserRows()/insertColumns() calls. showRow()
+	and showColumn() now do nothing if a row/column is already
+	visible. Windows only: Fixed the problem that combobox table
+	items never got smaller than a certain size.
+
+- QTextEdit:
+	Cleaner modified() and setModified() handling (doesn't rely on
+	internal signals anymore, so it is now safe to call
+	setModified() from a slot connected to textChanged()). Fixed
+	selecting text if a margin was set using setMargins(). Fixed
+	crash when calling removeSelectedText() with a selNum larger
+	than 0. Only auto-create a bullet list when typing - or * at
+	the beginning of a line if textFormat() is RichText, not
+	AutoFormat.
+
+- QTitleBar:
+	Don't paint all titlebars in a QWorkspace activated when a
+	dockwindow is the active window.
+
+- QToolBar:
+	Don't show the extension button when the extension menu would
+	not contain any items.
+
+- QUrlOperator
+	Fixed a crash.
+
+- QWaitCondition:
+	Fixed a problem with wait() using invalid timeout values.
+
+- QWorkspace:
+	Also show scrollbars (if enabled), when moving a document
+	window out of the workspace to the left at the top. Never show
+	scrollbars if a document window is maximized.
+
+
+
+****************************************************************************
+*			   Extensions					   *
+****************************************************************************
+
+****************************************************************************
+*			      Other					   *
+****************************************************************************
+
+Qt Config:
+	X11 only: The default X input methods are now configurable
+	through qtconfig.
+
+****************************************************************************
+*		    Qt/Embedded-specific changes		           *
+****************************************************************************
+
+****************************************************************************
+*		    Qt/Mac-specific changes		           	   *
+****************************************************************************
+

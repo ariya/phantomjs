@@ -1,0 +1,57 @@
+#
+#    Tested with TestCocoon 1.6.14
+#
+
+load(resolve_target)
+
+# Retrieve the target basename
+TARGET_BASENAME = $$basename(QMAKE_RESOLVED_TARGET)
+
+# Configure testcocoon for a full instrumentation - excluding the moc, ui and qrc files from the instrumentation
+# --cs-output defines the name to give to the execution report (.csexe).
+TESTCOCOON_COVERAGE_OPTIONS = \
+    --cs-qt4 \
+    --cs-exclude-file-regex=\'(^|[/\\\\])(qrc|moc)_.*\\.cpp\$\$\' \
+    --cs-exclude-file-regex=\'.*\\.moc\$\$\' \
+    --cs-exclude-file-regex=\'.*\\.g\$\$\' \
+    --cs-exclude-file-regex=\'.*\\.h\$\$\' \
+    --cs-output=\'$$TARGET_BASENAME\' # name of the csexe file (execution report)
+
+# The .csmes file should be placed alongside the .so or binary.
+# Unfortunately, testcocoon has no option to specify the output directory,
+# so we must move it into place if a custom destdir was used.
+# We don't move applications' csmes because some qt applications (tools, examples)
+# are using DESTDIR in some cases but always alongside target.path, so the binary
+# is built directly in target.path and there is no need to move the csmes.
+!isEmpty(DESTDIR):contains(TEMPLATE, lib) {
+    !isEmpty(QMAKE_POST_LINK):QMAKE_POST_LINK = $$escape_expand(\\n\\t)$$QMAKE_POST_LINK
+    QMAKE_POST_LINK = -$(MOVE) $${TARGET_BASENAME}.csmes $$shell_path($${QMAKE_RESOLVED_TARGET}.csmes)$$QMAKE_POST_LINK
+}
+
+QMAKE_CLEAN +=  *.csexe *.csmes
+
+# The compiler/linker is replaced by the coveragescanner which is named after the name of the
+# compiler/linker preceded by cs (ie gcc is replaced by csgcc).
+# Testcocoon options defined in TESTCOCOON_COVERAGE_OPTIONS are added as argument to the coveragescanner (ie csgcc).
+# In practice they are added as compiler/linker flags.
+
+*-g++* {
+    QMAKE_CXX ~= s/(\\S*g\\+\\+)/cs\\1/
+    QMAKE_CC ~= s/(\\S*gcc)/cs\\1/
+    QMAKE_LINK ~= s/(\\S*g\\+\\+|\\S*gcc)/cs\\1/
+    QMAKE_AR ~= s/(\\S*ar)/cs\\1/
+    QMAKE_AR += $$TESTCOCOON_COVERAGE_OPTIONS
+} else {
+    error("Non-gcc qmake specs not supported by TestCocoon integration yet")
+}
+
+QMAKE_CFLAGS += $$TESTCOCOON_COVERAGE_OPTIONS
+QMAKE_CXXFLAGS += $$TESTCOCOON_COVERAGE_OPTIONS
+QMAKE_LFLAGS += $$TESTCOCOON_COVERAGE_OPTIONS
+
+unix {
+    QMAKE_LFLAGS += --cs-libgen=-fPIC
+}
+
+unset(TARGET_BASENAME)
+unset(TESTCOCOON_COVERAGE_OPTIONS)

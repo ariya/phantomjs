@@ -1,0 +1,98 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \example componentset
+    \title QML Documentation Example
+
+    This example demonstrates one of the ways to document QML types.
+
+    In particular, there are sample types that are documented with QDoc
+    commands comments. There are documentation comments for the QML types
+    and their public interfaces. The types are grouped into a module, the
+    \l{UI Components} module.
+
+    The \l{componentset/uicomponents.qdoc.sample}{uicomponents.qdoc} file generates
+    the overview page for the \l{UI Components} module page.
+
+    The generated documentation is available in the \l{UI Components} module.
+
+    \section1 QML Class
+
+    The QML types use the \l{qmltype-command}{\\qmltype} to document the
+    type. In addition, they have the \l{inmodule-command}{\\inmodule}
+    command in order for QDoc to associate them to the \c UIComponents module.
+
+    QDoc uses the \l{brief-command}{\\brief} command to place a basic
+    description when listing the types.
+
+    \section1 Properties, Signals, Handlers, and Methods
+
+    The types have their properties, signals, handlers, and methods
+    defined in their respective QML files. QDoc associates the properties and
+    methods to the types, therefore, you only need to place the
+    documentation above the property, method, or signal.
+
+    To document the type of a \e {property alias}, you must use the
+    \l{qmlproperty-command}{\\qmlproperty} command to specify the data type.
+
+    \code
+        \qmlproperty int anAliasedProperty
+        An aliased property of type int.
+    \endcode
+
+    \section2 Internal Documentation
+
+    You may declare that a documentation is for internal use by placing the
+    \l{internal-command}{\\internal} command after the beginning QDoc comment
+    \begincomment. QDoc will prevent the internal documentation from appearing
+    in the public API.
+
+    If you wish to omit certain parts of the documentation, you may use the
+    \l{omit-command}{\\omit} and \l{omit-command}{\\endomit} command.
+
+    \section1 QML Types with C++ Implementation
+
+    This example only demonstrates the documentation for types in QML
+    files, but the regular \l{qml-documentation}{QML commands} may be placed
+    inside C++ classes to define the public API of the QML type.
+
+*/
+
+
+/*!
+    \qmlmodule UIComponents 1.0
+    \title UI Components
+    \brief Basic set of UI components
+
+    This is a listing of a list of UI components implemented by QML types. These
+
+    files are available for general import and they are based off the \l{Qt
+    Quick Code Samples}.
+
+    This module is part of the \l{componentset}{UIComponents} example.
+*/

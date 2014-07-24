@@ -1,0 +1,116 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+//![qmltype]
+    \qmltype TextEdit
+    \instantiates QQuickTextEdit
+    \inqmlmodule QtQuick 2
+    \ingroup qtquick-visual
+    \ingroup qtquick-input
+    \inherits Item
+    \brief Displays multiple lines of editable formatted text
+
+    The TextEdit item displays a block of editable, formatted text.
+
+    It can display both plain and rich text. For example:
+
+    \qml
+        TextEdit {
+            width: 240
+            text: "<b>Hello</b> <i>World!</i>"
+            font.family: "Helvetica"
+            font.pointSize: 20
+            color: "blue"
+            focus: true
+        }
+    \endqml
+
+    \image declarative-textedit.gif
+
+    ... omitted detailed description
+
+    \sa Text, TextInput, {examples/quick/text/textselection}{Text Selection example}
+//![qmltype]
+
+//![function]
+/*
+    \qmlmethod QtQuick2::ListModel::remove(int index, int count = 1)
+
+    Deletes the content at \a index from the model.
+
+    \sa clear()
+*/
+void QQuickListModel::remove(QQmlV8Function *args)
+//! [function]
+
+//! [return]
+/*
+    Returns \c true if a QScroller object was already created for \a target; \c false otherwise.
+
+    \sa scroller()
+*/
+bool QScroller::hasScroller(QObject *target)
+//! [return]
+
+//! [property]
+/*
+    \property QVariantAnimation::duration
+    \brief the duration of the animation
+
+    This property describes the duration in milliseconds of the
+    animation. The default duration is 250 milliseconds.
+
+    \sa QAbstractAnimation::duration()
+ */
+int QVariantAnimation::duration() const
+//! [property]
+
+//! [signals]
+/*
+    This signal is emitted when the user clicks the button. A click is defined
+    as a press followed by a release. The corresponding handler is
+    \c onClicked.
+*/
+signal clicked()
+//! [signals]
+
+//! [enums]
+/*!
+\qmlproperty enumeration QtQuick2::Text::font.weight
+
+Sets the font's weight.
+
+The weight can be one of:
+\list
+\li Font.Light
+\li Font.Normal - the default
+\li Font.DemiBold
+\li Font.Bold
+\li Font.Black
+\endlist
+*/
+//! [enums]

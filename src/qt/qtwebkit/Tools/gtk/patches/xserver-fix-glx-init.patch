@@ -1,0 +1,14 @@
+diff --git a/mi/miinitext.c b/mi/miinitext.c
+index 6ceae05..cda4e43 100644
+--- a/mi/miinitext.c
++++ b/mi/miinitext.c
+@@ -540,6 +540,9 @@ static ExtensionModule staticExtensions[] = {
+ #ifdef DAMAGE
+     {DamageExtensionInit, "DAMAGE", &noDamageExtension, NULL},
+ #endif
++#ifdef GLXEXT
++    {GlxExtensionInit, "GLX", &noGlxExtension, NULL},
++#endif
+     {NULL, NULL, NULL, NULL, NULL}
+ };
+ 

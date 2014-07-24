@@ -1,0 +1,8 @@
+# -------------------------------------------------------------------
+# This optional feature file adds rules that compile using Intel
+# compiler easier.
+#
+# See 'Tools/qmake/README' for an overview of the build system
+# -------------------------------------------------------------------
+
+QMAKE_CXXFLAGS += -wd68,161,175,177,239,411,654,864,873,1125,2089,2196

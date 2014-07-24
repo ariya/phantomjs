@@ -1,0 +1,6 @@
+Just type
+    nmake
+in this directory to generate the files from the idl files.
+The generated files will be put in
+..\generated\x86 and ..\generated\amd64
+

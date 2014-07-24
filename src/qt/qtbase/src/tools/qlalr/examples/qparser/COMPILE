@@ -1,0 +1,3 @@
+qlalr calc.g
+qmake
+make

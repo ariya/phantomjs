@@ -1,0 +1,127 @@
+body {
+  font-family: Verdana, Helvetica, sans-serif;
+  width: 600px;
+  padding: 0px;
+  color: #444;
+}
+h1 {
+  background-color: #EEE;
+  color: #444;
+  font-size: 14pt;
+  font-style: italic;
+  margin: 0px;
+  padding: 5px;
+}
+h2 {
+  background-color: #AAA;
+  color: white;
+  font-weight: bold;
+  font-size: 9pt;
+  margin: 0px;
+  padding: 5px;
+}
+ul {
+  margin: 0px;
+  padding: 0px;
+  list-style: none;
+}
+li {
+  padding: 5px;
+}
+table {
+  border-spacing: 0px;
+}
+th {
+  background-color: #AAA;
+  color: white;
+  padding: 5px;
+  width: 100px;
+  font-size: 9pt;
+}
+td {
+  text-align: center;
+}
+tr:hover, li:hover {
+  background-color: #EEE;
+}
+
+.status-group {
+  font-size: 90%;
+}
+
+.status-bug {
+  font-weight: bold;
+}
+
+.status-group ul {
+  font-size: 90%;
+}
+
+.status-group ul li {
+  padding: 2px 0 2px 7px;
+  overflow: hidden;
+}
+
+.status-group ul li:hover {
+  background: #ddd;
+}
+
+.status-date {
+  color: #AAA;
+  float: right;
+  font-size: 8pt;
+}
+
+.status-cell {
+  margin: 1px;
+  padding: 1px 2px;
+  font-size: 9pt;
+  border: 1px solid transparent;
+}
+.status-cell:hover {
+  border: 1px solid black;
+}
+.status-cell.pass {
+  background-color: #8FDF5F;
+  cursor: pointer;
+  /* border: 1px solid #4F8530; */
+}
+.status-cell.fail {
+  background-color: #E98080;
+  cursor: pointer;
+  /* border: 1px solid #A77272; */
+}
+.status-cell.pending {
+  background-color: #FFFC6C;
+  cursor: pointer;
+  /* border: 1px solid #C5C56D; */
+}
+.status-cell.error {
+  background-color: #E0B0FF;
+  cursor: pointer;
+  /* border: 1px solid #ACA0B3; */
+}
+.queue_bubble {
+    border: 1px solid black;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    padding: 5px;
+}
+.queue_name {
+    float:left;
+}
+.last_heard_from {
+    float: right;
+}
+.status_text {
+    clear: both;
+}
+.alive {
+    background-color: #8FDF5F;
+}
+.behind {
+    background-color: #FFFC6C;
+}
+.dead {
+    background-color: #E98080;
+}

@@ -1,0 +1,3 @@
+Qt modules need to drop a qmake file here to become part of the current
+Qt configuration. The file format is documented in
+http://wiki.qt-project.org/Creating_a_new_module_or_tool_for_Qt#The_qt_.3Cmodule.3E.pri_files

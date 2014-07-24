@@ -1,0 +1,15 @@
+application: webkit-queues
+version: 108593 # Bugzilla bug ID of last major change
+runtime: python
+api_version: 1
+
+builtins:
+- datastore_admin: on
+- remote_api: on
+
+handlers:
+- url: /stylesheets
+  static_dir: stylesheets
+
+- url: /.*
+  script: main.py

@@ -1,0 +1,133 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2007 Apple Inc. All rights reserved.
+# Copyright (C) 2007 Eric Seidel <eric@webkit.org>
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+# PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+# OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+
+use strict;
+use File::Spec;
+use FindBin;
+use Getopt::Long qw(:config pass_through);
+use lib $FindBin::Bin;
+use webkitdirs;
+use POSIX;
+
+# determine configuration, but default to "Release" instead of last-used configuration to match run-sunspider
+setConfiguration("Release");
+setConfiguration();
+my $configuration = configuration();
+
+my $root;
+my $showHelp = 0;
+my $suite = "";
+my $ubench = 0;
+my $v8 = 0;
+my $parseonly = 0;
+
+my $programName = basename($0);
+my $usage = <<EOF;
+Usage: $programName [options] FILE FILE
+  --help        Show this help message
+  --root        Path to root tools build
+  --suite           Select a specific benchmark suite. The default is sunspider-0.9.1
+  --ubench          Use microbenchmark suite instead of regular tests. Same as --suite=ubench
+  --v8-suite        Use the V8 benchmark suite. Same as --suite=v8-v4
+  --parse-only      Use the parse-only benchmark suite. Same as --suite=parse-only
+EOF
+
+GetOptions('root=s' => sub { my ($argName, $value) = @_; setConfigurationProductDir(Cwd::abs_path($value)); $root = $value; },
+           'suite=s' => \$suite,
+           'ubench' => \$ubench,
+           'v8' => \$v8,
+           'parse-only' => \$parseonly,
+           'help' => \$showHelp);
+
+if ($showHelp) {
+   print STDERR $usage;
+   exit 1;
+}
+
+sub buildJSC
+{
+    if (!defined($root)){
+        chdirWebKit();
+        my $buildResult = system currentPerlPath(), "Tools/Scripts/build-jsc", "--" . $configuration;
+        if ($buildResult) {
+            print STDERR "Compiling jsc failed!\n";
+            exit WEXITSTATUS($buildResult);
+        }
+    }
+}
+
+sub setupEnvironmentForExecution($)
+{
+    my ($productDir) = @_;
+    print "Starting sunspider-compare-results with DYLD_FRAMEWORK_PATH set to point to built JavaScriptCore in $productDir.\n";
+    $ENV{DYLD_FRAMEWORK_PATH} = $productDir;
+    # FIXME: Other platforms may wish to augment this method to use LD_LIBRARY_PATH, etc.
+}
+
+sub pathToBuiltJSC($)
+{
+    my ($productDir) = @_;
+    my $jscName = "jsc";
+    $jscName .= "_debug" if configurationForVisualStudio() eq "Debug_All";
+    return "$productDir/$jscName";
+}
+
+sub pathToSystemJSC()
+{
+    my $path = "/System/Library/Frameworks/JavaScriptCore.framework/Resources/jsc";
+    if (-f $path) {
+        return $path;
+    }
+    return undef;
+}
+
+sub pathToJSC()
+{
+    my $path = pathToSystemJSC();
+    return $path if defined $path;
+
+    buildJSC();
+
+    my $productDir = jscProductDir();
+
+    setupEnvironmentForExecution($productDir);
+    return pathToBuiltJSC($productDir);
+}
+
+my $jscPath = pathToJSC();
+chdirWebKit();
+chdir("PerformanceTests/SunSpider");
+
+my @args = ("--shell", $jscPath);
+# This code could be removed if we chose to pass extra args to sunspider instead of Xcode
+push @args, "--suite=${suite}" if $suite;
+push @args, "--ubench" if $ubench;
+push @args, "--v8" if $v8;
+push @args, "--parse-only" if $parseonly;
+
+@ARGV = map { File::Spec->rel2abs($_) } @ARGV;
+
+exec currentPerlPath(), "./sunspider-compare-results", @args, @ARGV;

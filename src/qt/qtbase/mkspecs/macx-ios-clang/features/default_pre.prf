@@ -1,0 +1,19 @@
+
+load(default_pre)
+
+# In case Qt was built for a specific SDK
+!iphonesimulator_and_iphoneos:contains(QMAKE_MAC_SDK, ^iphonesimulator.*): \
+    CONFIG += iphonesimulator
+
+# Check for supported Xcode versions
+lessThan(QMAKE_XCODE_VERSION, "4.3"): \
+    error("This mkspec requires Xcode 4.3 or later")
+
+iphonesimulator_and_iphoneos:iphonesimulator {
+    # For a iphonesimulator_and_iphoneos build all the config tests
+    # are based on the iPhoneOS ARM SDK, but we know that the simulator
+    # is i386 and that we support SSE/SSE2.
+    QT_ARCH = i386
+    QT_CPU_FEATURES.i386 = sse sse2
+    DEFINES += QT_COMPILER_SUPPORTS_SSE2
+}

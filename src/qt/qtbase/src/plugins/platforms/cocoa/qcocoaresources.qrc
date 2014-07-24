@@ -1,0 +1,17 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/qt-project.org/mac/cursors">
+<file>images/copyarrowcursor.png</file>
+<file>images/forbiddencursor.png</file>
+<file>images/spincursor.png</file>
+<file>images/waitcursor.png</file>
+<file>images/sizeallcursor.png</file>
+</qresource>
+<qresource prefix="/qt-project.org/mac/style">
+<file>images/leopard-unified-toolbar-on.png</file>
+</qresource>
+<qresource prefix="/qt-project.org/mac/">
+<file>qt_menu.nib/classes.nib</file>
+<file>qt_menu.nib/info.nib</file>
+<file>qt_menu.nib/keyedobjects.nib</file>
+</qresource>
+</RCC>

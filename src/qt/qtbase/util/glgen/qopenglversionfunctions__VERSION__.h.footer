@@ -1,0 +1,6 @@
+
+QT_END_NAMESPACE
+
+#endif // QT_NO_OPENGL && !QT_OPENGL_ES_2
+
+#endif

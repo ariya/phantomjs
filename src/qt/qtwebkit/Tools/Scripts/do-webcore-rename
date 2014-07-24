@@ -1,0 +1,245 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2006, 2007, 2008 Apple Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+# 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Script to do a rename in JavaScriptCore, WebCore, and WebKit.
+
+use strict;
+
+use File::Find;
+use FindBin;
+use Getopt::Long qw(:config pass_through);
+
+use lib $FindBin::Bin;
+use webkitdirs;
+use VCSUtils;
+
+setConfiguration();
+chdirWebKit();
+
+my $showHelp;
+my $verbose;
+
+my $programName = basename($0);
+my $usage = <<EOF;
+Usage: $programName [options]
+  -h|--help                       Show this help message
+  -v|--verbose                    More verbose output
+EOF
+
+my $getOptionsResult = GetOptions(
+    'help|h' => \$showHelp,
+    'verbose|v' => \$verbose,
+);
+
+if (!$getOptionsResult || $showHelp) {
+    print STDERR $usage;
+    exit 1;
+}
+
+my @directoriesToIgnoreList = (
+    "icu",
+);
+my %directoriesToIgnore = map { $_ => 1 } @directoriesToIgnoreList;
+
+# find all files we want to process
+
+my @paths;
+find(\&wanted, "Source/JavaScriptCore");
+find(\&wanted, "Source/WebCore");
+find(\&wanted, "Source/WebKit");
+find(\&wanted, "Source/WebKit2");
+find(\&wanted, "Tools/DumpRenderTree");
+
+sub wanted
+{
+    my $file = $_;
+
+    # Ignore excluded and hidden files/directories.
+    if ($directoriesToIgnore{$file} or $file =~ /^\../ or $file =~ /^ChangeLog/) {
+        print "Ignoring $File::Find::name\n" if $verbose;
+        $File::Find::prune = 1;
+        return;
+    }
+
+    return if -d $file;
+
+    push @paths, $File::Find::name;
+}
+
+# Setting isDOMTypeRename to 1 rather than 0 expands the regexps used
+# below to handle custom JavaScript bindings.
+my $isDOMTypeRename = 1;
+my %renames = (
+    # Renames go here in the form of:
+    "WaveTable" => "PeriodicWave",
+);
+
+my %renamesContemplatedForTheFuture = (
+    "HTMLPlugInImageElement" => "HTMLEmbeddedObjectElement",
+
+    "DOMObject" => "JSDOMObject",
+
+    "runtimeObjectGetter" => "pluginElementGetter",
+    "runtimeObjectPropertyGetter" => "pluginElementPropertyGetter",
+    "runtimeObjectCustomGetOwnPropertySlot" => "pluginElementCustomGetOwnPropertySlot",
+    "runtimeObjectCustomPut" => "pluginElementCustomPut",
+    "runtimeObjectImplementsCall" => "pluginElementImplementsCall",
+    "runtimeObjectCallAsFunction" => "pluginElementCallAsFunction",
+
+    "CLONE_CONTENTS" => "Clone",
+    "DELETE_CONTENTS" => "Delete",
+    "EXTRACT_CONTENTS" => "Extract",
+
+    "DateInstance" => "JSDate",
+    "ErrorInstance" => "JSError",
+
+    "KURL" => "URL",
+    "KURLCFNet" => "URLCF",
+    "KURLHash" => "URLHash",
+    "KURLMac" => "URLMac",
+    "KURL_h" => "URL_h",
+
+    "TreeShared" => "TreeRefCounted",
+
+    "StringImpl" => "SharedString",
+
+    "RenderView" => "RenderViewport",
+
+    "ObjcFallbackObjectImp" => "ObjCFallbackObject",
+    "RuntimeObjectImp" => "ForeignObject",
+
+    "runtime_array" => "BridgedArray",
+    "runtime_method" => "BridgedFunction",
+    "runtime_object" => "BridgedObject",
+    "objc_runtime" => "ObjCBridge",
+
+    "equalIgnoringCase" => "equalFoldingCase",
+
+    "FTPDirectoryTokenizer" => "FTPDirectoryDocumentBuilder",
+    "HTMLTokenizer" => "HTMLDocumentBuilder",
+    "ImageTokenizer" => "ImageDocumentBuilder",
+    "PluginTokenizer" => "PluginDocumentBuilder",
+    "TextTokenizer" => "TextDocumentBuilder",
+    "Tokenizer" => "DocumentBuilder",
+    "Tokenizer_h" => "DocumentBuilder_h",
+    "XMLTokenizer" => "XMLDocumentBuilder",
+    "isHTMLTokenizer" => "isHTMLDocumentBuilder",
+    "m_tokenizer" => "m_builder",
+    "createTokenizer" => "createBuilder",
+    "tokenizerProcessedData" => "documentBuilderProcessedData",
+
+    "WTF_UNICODE_H" => "Unicode_h",
+    "WTF_UNICODE_ICU_H" => "UnicodeICU_h",
+    "WTF_UNICODE_QT4_H" => "UnicodeQt4_h",
+    "UnicodeIcu" => "UnicodeICU",
+
+    "m_invertibleCTM" => "m_transformIsInvertible",
+
+    "NativeFunctionWrapper_h" => "JSHostFunction_h",
+    "NativeFunctionWrapper" => "JSHostFunction",
+    "nativeFunctionThunk" => "hostFunctionThunk",
+    "nativeFunction" => "hostFunction",
+    "NativeFunction" => "HostFunction",
+);
+
+# Sort the keys of the renames hash in order of decreasing length. This
+# handles the case where some of the renames are substrings of others;
+# i.e., "Foo" => "Bar" and "FooBuffer" => "BarBuffer".
+my @sortedRenameKeys = sort { length($b) - length($a) } keys %renames;
+
+# rename files
+
+sub renameFile
+{
+    my $file = shift;
+
+    if ($isDOMTypeRename) {
+        # Find the longest key in %renames which matches this more permissive regexp.
+        # (The old regexp would match ".../Foo.cpp" but not ".../JSFooCustom.cpp".)
+        # This handles renaming of custom JavaScript bindings even when some of the
+        # renames are substrings of others. The only reason we don't do this all the
+        # time is to avoid accidental file renamings for short, non-DOM renames.
+        for my $key (@sortedRenameKeys) {
+            my $newFile = "";
+            $newFile = "$1$renames{$2}$3" if $file =~ /^(.*\/\w*)($key)(\w*\.\w+)$/;
+            if ($newFile ne "") {
+                return $newFile;
+            }
+        }
+    } else {
+       $file = "$1$renames{$2}$3" if $file =~ /^(.*\/)(\w+)(\.\w+)$/ && $renames{$2};
+    }
+    return $file;
+}
+
+my %newFile;
+for my $file (sort @paths) {
+    my $f = renameFile($file);
+    if ($f ne $file) {
+        $newFile{$file} = $f;
+    }
+}
+
+for my $file (sort @paths) {
+    if ($newFile{$file}) {
+        my $newFile = $newFile{$file};
+        print "Renaming $file to $newFile\n";
+        scmMoveOrRenameFile($file, $newFile);
+    }
+}
+
+# change all file contents
+
+for my $file (sort @paths) {
+    $file = $newFile{$file} if $newFile{$file};
+    my $contents;
+    {
+        local $/;
+        open FILE, $file or die "Failed to open $file";
+        $contents = <FILE>;
+        close FILE;
+    }
+    my $newContents = $contents;
+
+    if ($isDOMTypeRename) {
+        for my $from (@sortedRenameKeys) {
+            # Handle JavaScript custom bindings.
+            $newContents =~ s/\b(JS|V8|to|)$from/$1$renames{$from}/g;
+        }
+    } else {
+        for my $from (@sortedRenameKeys) {
+            $newContents =~ s/\b$from(?!["\w])/$renames{$from}/g; # this " unconfuses Xcode syntax highlighting
+        }
+    }
+
+    if ($newContents ne $contents) {
+        open FILE, ">", $file or die "Failed to open $file";
+        print FILE $newContents;
+        close FILE;
+    }
+}

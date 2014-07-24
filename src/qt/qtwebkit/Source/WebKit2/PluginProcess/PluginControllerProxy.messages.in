@@ -1,0 +1,131 @@
+# Copyright (C) 2010 Apple Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE INC. AND ITS CONTRIBUTORS ``AS IS'' AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE INC. OR ITS CONTRIBUTORS BE LIABLE FOR
+# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#if ENABLE(PLUGIN_PROCESS)
+
+messages -> PluginControllerProxy LegacyReceiver {
+    # Sent when the plug-in geometry changes.
+    GeometryDidChange(WebCore::IntSize pluginSize, WebCore::IntRect clipRect, WebCore::AffineTransform pluginToRootViewTransform, float scaleFactor, WebKit::ShareableBitmap::Handle backingStoreHandle)
+
+    # Sent when a frame has finished loading.
+    FrameDidFinishLoading(uint64_t requestID)
+
+    # Sent when a frame dfailed to load.
+    FrameDidFail(uint64_t requestID, bool wasCancelled)
+
+    # Sent when JavaScript that the plug-in asked to be evaluated has been evaluated.
+    DidEvaluateJavaScript(uint64_t requestID, WTF::String result)
+
+    # Sent when the plug-in receives a response for a stream.
+    StreamDidReceiveResponse(uint64_t streamID, WTF::String responseURLString, uint32_t streamLength, uint32_t lastModifiedTime, WTF::String mimeType, WTF::String headers)
+
+    # Sent when the plug-in receives data for a stream.
+    StreamDidReceiveData(uint64_t streamID, CoreIPC::DataReference data)
+
+    # Sent when a plug-in stream has finishes loading.
+    StreamDidFinishLoading(uint64_t streamID)
+
+    # Sent when a plug-in stream has failed to load.
+    StreamDidFail(uint64_t streamID, bool wasCancelled)
+
+    # Sent when the plug-in receives a response for the manual stream.
+    ManualStreamDidReceiveResponse(WTF::String responseURLString, uint32_t streamLength, uint32_t lastModifiedTime, WTF::String mimeType, WTF::String headers)
+
+    # Sent when the plug-in receives data for the manual stream.
+    ManualStreamDidReceiveData(CoreIPC::DataReference data)
+
+    # Sent when the plug-in manual stream has finishes loading.
+    ManualStreamDidFinishLoading()
+
+    # Sent when the plug-in manual stream has failed to load.
+    ManualStreamDidFail(bool wasCancelled)
+
+    # Sent when a mouse event (that isn't a mouse enter/leave event or a wheel event) should be processed.
+    HandleMouseEvent(WebKit::WebMouseEvent mouseEvent) -> (bool handled) Delayed
+    
+    # Sent when a mouse wheel event should be processed.
+    HandleWheelEvent(WebKit::WebWheelEvent wheelEvent) -> (bool handled)
+
+    # Sent when a mouse enter event should be processed.
+    HandleMouseEnterEvent(WebKit::WebMouseEvent mouseEvent) -> (bool handled)
+    
+    # Sent when a mouse leave event should be processed.
+    HandleMouseLeaveEvent(WebKit::WebMouseEvent mouseEvent) -> (bool handled)
+
+    # Sent when a keyboard should be processed.
+    HandleKeyboardEvent(WebKit::WebKeyboardEvent keyboardEvent) -> (bool handled)
+    
+    # Sent when an editing command should be processed.
+    HandleEditingCommand(WTF::String commandName, WTF::String argument) -> (bool handled);
+    
+    # Return whether or not a plugin wants to enable the given editing command.
+    IsEditingCommandEnabled(WTF::String commandName) -> (bool enabled);
+    
+    # Return whether or not a plugin wants to handle page scale factor itself.
+    HandlesPageScaleFactor() -> (bool enabled);
+
+    # Sent when the plug-in focus changes.
+    SetFocus(bool isFocused)
+
+    # Sent when the update requested by Update has been painted.
+    DidUpdate()
+
+    # Paint the entire plug-in.
+    PaintEntirePlugin() -> ()
+
+    # Get a reference to the plug-in's scriptable NPObject.
+    GetPluginScriptableNPObject() -> (uint64_t pluginScriptableNPObjectID)
+
+#if PLATFORM(MAC)
+    # Send the complex text input to the plug-in.
+    SendComplexTextInput(WTF::String textInput)
+
+    # Sent when the containing NSWindow's focus changes
+    WindowFocusChanged(bool hasFocus)
+
+    # Sent when the containing NSWindow or NSView frame changes
+    WindowAndViewFramesChanged(WebCore::IntRect windowFrameInScreenCoordinates, WebCore::IntRect viewFrameInWindowCoordinates)
+
+    # Sent when the containing NSWindow's visibility changes
+    WindowVisibilityChanged(bool isVisible)
+
+    # Sent when the containing window's layer hosting mode changes
+    SetLayerHostingMode(uint32_t layerHostingMode)
+#endif
+
+    # Does the plugin support snapshotting?
+    SupportsSnapshotting() -> (bool isSupported)
+
+    # Return a snapshot of the plugin.
+    Snapshot() -> (WebKit::ShareableBitmap::Handle backingStoreHandle)
+
+    # Sent when storage blocking policy changes
+    StorageBlockingStateChanged(bool storageBlockingEnabled)
+
+    # Sent when private browsing is enabled or disabled
+    PrivateBrowsingStateChanged(bool isPrivateBrowsingEnabled)
+
+    # Gets the string representating the form value of the plug-in
+    GetFormValue() -> (bool returnValue, WTF::String formValue)
+}
+
+#endif

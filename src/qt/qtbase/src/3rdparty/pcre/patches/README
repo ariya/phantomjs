@@ -1,0 +1,3 @@
+These patches are landed in upstream PCRE (they're marked with
+their SVN revision number). When upgrading PCRE remember check
+if the version you're upgrading to already contains them or not.

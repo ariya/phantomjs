@@ -1,0 +1,92 @@
+#!/usr/bin/perl
+
+# Copyright (C) 2006 Eric Seidel (eric@webkit.org)
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer. 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution. 
+# 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission. 
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Script to run the WebKit Open Source Project page load tests (PLTs).
+
+# Run all the tests passed in on the command line.
+
+use strict;
+use warnings;
+
+use File::Basename;
+use File::Spec;
+use FindBin;
+use Getopt::Long;
+
+use lib $FindBin::Bin;
+use webkitdirs;
+
+# Argument handling
+my $testName = 'svg';
+my $showHelp = 0;
+
+my $usage =
+    "Usage: " . basename($0) . "[options] testName\n" .
+    "  --help                  Show this help message\n";
+
+my $getOptionsResult = GetOptions('help' => \$showHelp);
+
+if (!$getOptionsResult || $showHelp) {
+    print STDERR $usage;
+    exit 1;
+}
+
+$testName = shift @ARGV if (@ARGV);
+
+my $safariExecutablePath = safariPath();
+my $safariResourcePath = File::Spec->catdir(dirname(dirname($safariExecutablePath)), "Resources");
+
+# Check to see that all the frameworks are built.
+checkFrameworks();
+
+chdirWebKit();
+
+if ($testName eq 'svg') {
+    my $suiteFile = "PerformanceTests/PageLoad/$testName/$testName.pltsuite";
+    my $webkitPath = sourceDir();
+    `cat "$suiteFile" | perl -pe 's|WEBKIT_PATH|$webkitPath|' > $safariResourcePath/$testName.pltsuite`
+}
+
+die "Please copy ${testName}.pltsuite to ${safariResourcePath}/${testName}.pltsuite"
+    if (! -f "${safariResourcePath}/${testName}.pltsuite");
+
+setConfiguration();
+
+my $productDir = productDir();
+
+# Set up DYLD_FRAMEWORK_PATH to point to the product directory.
+print "Starting Safari with DYLD_FRAMEWORK_PATH set to point to built WebKit in $productDir.\n";
+$ENV{DYLD_FRAMEWORK_PATH} = $productDir;
+$ENV{WEBKIT_UNSET_DYLD_FRAMEWORK_PATH} = "YES";
+
+my @testCommands = ('activate');
+# Autovicki would clear history, we skip that here as this is likely an active user account
+@testCommands = (@testCommands, ("run $testName", 'emptyCache', 'wait 30'));
+@testCommands = (@testCommands, (("run $testName", 'wait 10') x 3));
+my $testCommandsString = join('; ', @testCommands);
+exec $safariExecutablePath, '--test-commands', $testCommandsString or die;

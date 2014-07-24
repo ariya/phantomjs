@@ -1,0 +1,950 @@
+# Generic entry format
+#Feature: UPPERCASENAME (for the #define)
+#Description: One sentence description of what this does.
+#Section: Categorization
+#Requires: UPPERCASENAME...
+#Name: CamelCaseName (often a class name)
+#SeeAlso: UPPERCASENAME... (currently unused)
+
+# Kernel
+
+Feature: PROPERTIES
+Description: Supports scripting Qt-based applications.
+Section: Kernel
+Requires:
+Name: Properties
+
+Feature: TEXTHTMLPARSER
+Description: Parser for HTML
+Section: Kernel
+Requires:
+Name: HtmlParser
+
+Feature: TEXTODFWRITER
+Description: Provides an ODF writer
+Section: Kernel
+Requires: XMLSTREAMWRITER
+Name: OdfWriter
+
+Feature: CSSPARSER
+Description: Parser for Style Sheets
+Section: Kernel
+Requires:
+Name: CssParser
+
+Feature: REGULAREXPRESSION
+Description: Perl-compatible regular expression APIs
+Section: Kernel
+Requires:
+Name: QRegularExpression
+
+Feature: CONCURRENT
+Description: Provides a high-level multi-threaded APIs
+Section: Kernel
+Requires:
+Name: QtConcurrent
+
+Feature: DRAGANDDROP
+Description: Supports the drag and drop mechansim.
+Section: Kernel
+Requires: IMAGEFORMAT_XPM
+Name: Drag and drop
+
+Feature: SESSIONMANAGER
+Description: Supports session management.
+Section: Kernel
+Requires:
+Name: Session Manager
+
+Feature: SHORTCUT
+Description: Supports keyboard accelerators and shortcuts.
+Section: Kernel
+Requires:
+Name: QShortcut
+
+Feature: ACTION
+Description: Supports widget actions.
+Section: Kernel
+Requires:
+Name: QAction
+
+Feature: CURSOR
+Description: Supports mouse cursors.
+Section: Kernel
+Requires:
+Name: QCursor
+
+Feature: CLIPBOARD
+Description: Supports cut and paste operations.
+Section: Kernel
+Requires:
+Name: QClipboard
+
+Feature: WHEELEVENT
+Description: Supports wheel events.
+Section: Kernel
+Requires:
+Name: QWheelEvent
+
+Feature: TABLETEVENT
+Description: Supports tablet events.
+Section: Kernel
+Requires:
+Name: QTabletEvent
+
+Feature: EFFECTS
+Description: Supports special widget effects (e.g. fading and scrolling).
+Section: Kernel
+Requires:
+Name: Effects
+
+Feature: SHAREDMEMORY
+Description: Provides access to a shared memory segment.
+Section: Kernel
+Requires:
+Name: QSharedMemory
+
+Feature: SYSTEMSEMAPHORE
+Description: Provides a general counting system semaphore.
+Section: Kernel
+Requires:
+Name: QSystemSemaphore
+
+Feature: XMLSTREAM
+Description: Provides a simple streaming API for XML.
+Section: Kernel
+Requires:
+Name: XML Streaming APIs
+
+Feature: XMLSTREAMREADER
+Description: Provides a well-formed XML parser with a simple streaming API.
+Section: Kernel
+Requires: XMLSTREAM
+Name: QXmlStreamReader
+
+Feature: XMLSTREAMWRITER
+Description: Provides a XML writer with a simple streaming API.
+Section: Kernel
+Requires: XMLSTREAM
+Name: QXmlStreamWriter
+
+Feature: IM
+Description: Inputmethods with QInputContext
+Section: Kernel
+Requires: LIBRARY
+Name: QInputContext
+
+# Data structures
+
+Feature: TEXTDATE
+Description: Supports month and day names in dates.
+Section: Data structures
+Requires:
+Name: Text Date
+
+Feature: DATESTRING
+Description: Supports convertion between dates and strings.
+Section: Data structures
+Requires: TEXTDATE
+Name: QDate/QTime/QDateTime
+
+# File I/O
+
+Feature: PROCESS
+Description: Supports external process invocation.
+Section: File I/O
+Requires:
+Name: QProcess
+
+Feature: TEMPORARYFILE
+Description: Provides an I/O device that operates on temporary files.
+Section: File I/O
+Requires:
+Name: QTemporaryFile
+
+Feature: LIBRARY
+Description: Supports a shared library wrapper.
+Section: File I/O
+Requires:
+Name: QLibrary
+
+Feature: SETTINGS
+Description: Supports persistent application settings.
+Section: File I/O
+Requires:
+Name: QSettings
+
+Feature: DOM
+Description: Supports the Document Object Model.
+Section: File I/O
+Requires:
+Name: Document Object Model
+
+Feature: FILESYSTEMMODEL
+Description: Provides a data model for the local filesystem.
+Section: File I/O
+Requires:
+Name: QFileSystemModel
+
+Feature: FILESYSTEMWATCHER
+Description: Provides an interface for monitoring files and directories for modications.
+Section: File I/O
+Requires:
+Name: QFileSystemWatcher
+
+Feature: FILESYSTEMITERATOR
+Description: Provides fast file-system iteration.
+Section: File I/O
+Requires:
+Name: QFileSystemIterator
+
+# Widgets
+
+Feature: TREEWIDGET
+Description: Supports views using tree models.
+Section: Widgets
+Requires: TREEVIEW
+Name: QTreeWidget
+
+Feature: LISTWIDGET
+Description: Supports item-based list widgets.
+Section: Widgets
+Requires: LISTVIEW
+Name: QListWidget
+
+Feature: TABLEWIDGET
+Description: Supports item-based table views.
+Section: Widgets
+Requires: TABLEVIEW
+Name: QTableWidget
+
+Feature: DATETIMEEDIT
+Description: Supports editing dates and times.
+Section: Widgets
+Requires: CALENDARWIDGET DATESTRING
+Name: QDateTimeEdit
+
+Feature: STACKEDWIDGET
+Description: Supports stacked widgets.
+Section: Widgets
+Requires:
+Name: QStackedWidget
+
+Feature: TEXTBROWSER
+Description: Supports HTML document browsing.
+Section: Widgets
+Requires: TEXTEDIT
+Name: QTextBrowser
+
+Feature: SPLASHSCREEN
+Description: Supports splash screens that can be shown during application startup.
+Section: Widgets
+Requires:
+Name: Splash screen widget
+
+Feature: SPLITTER
+Description: Supports user controlled splitter widgets.
+Section: Widgets
+Requires: RUBBERBAND
+Name: QSplitter
+
+Feature: LCDNUMBER
+Description: Supports LCD-like digits.
+Section: Widgets
+Requires:
+Name: QLCDNumber
+
+Feature: MENU
+Description: Supports popup-menus.
+Section: Widgets
+Requires: ACTION
+Name: QMenu
+
+Feature: LINEEDIT
+Description: Supports single-line edits.
+Section: Widgets
+Requires:
+Name: QLineEdit
+
+Feature: SPINBOX
+Description: Supports spin boxes handling integers and discrete sets of values.
+Section: Widgets
+Requires: SPINWIDGET LINEEDIT VALIDATOR
+Name: QSpinBox
+
+Feature: TABBAR
+Description: Supports tab bars, e.g. for use in tabbed dialogs.
+Section: Widgets
+Requires: TOOLBUTTON
+Name: QTabBar
+
+Feature: TABWIDGET
+Description: Supports stacking tabbed widgets.
+Section: Widgets
+Requires: TABBAR STACKEDWIDGET
+Name: QTabWidget
+
+Feature: COMBOBOX
+Description: Supports comboboxes presenting a list of options to the user.
+Section: Widgets
+Requires: LINEEDIT STANDARDITEMMODEL LISTVIEW
+Name: QComboBox
+
+Feature: FONTCOMBOBOX
+Description: Supports a combobox that lets the user select a font family.
+Section: Widgets
+Requires: COMBOBOX STRINGLISTMODEL
+Name: QFontComboBox
+
+Feature: TOOLBUTTON
+Description: Supports quick-access buttons to commands and options.
+Section: Widgets
+Requires: ACTION
+Name: QToolButton
+
+Feature: TOOLBAR
+Description: Supports movable panels containing a set of controls.
+Section: Widgets
+Requires: MAINWINDOW
+Name: QToolBar
+
+Feature: TOOLBOX
+Description: Supports columns of tabbed widget items.
+Section: Widgets
+Requires: TOOLBUTTON SCROLLAREA
+Name: QToolBox
+
+Feature: GROUPBOX
+Description: Supports group box frames.
+Section: Widgets
+Requires:
+Name: QGroupBox
+
+Feature: BUTTONGROUP
+Description: Supports organizing groups of button widgets.
+Section: Widgets
+Requires: GROUPBOX
+Name: QButtonGroup
+
+Feature: MAINWINDOW
+Description: Supports main application windows.
+Section: Widgets
+Requires: MENU RESIZEHANDLER TOOLBUTTON
+Name: QMainWindow
+
+Feature: DOCKWIDGET
+Description: Supports docking widgets inside a QMainWindow or floated as a top-level window on the desktop.
+Section: Widgets
+Requires: RUBBERBAND MAINWINDOW
+Name: QDockwidget
+
+Feature: MDIAREA
+Description: Provides an area in which MDI windows are displayed.
+Section: Widgets
+Requires: SCROLLAREA
+Name: QMdiArea
+
+Feature: RESIZEHANDLER
+Description: Supports an internal resize handler.
+Section: Widgets
+Requires:
+Name: Resize Handler
+
+Feature: STATUSBAR
+Description: Supports presentation of status information.
+Section: Widgets
+Requires:
+Name: QStatusBar
+
+Feature: MENUBAR
+Description: Supports pull-down menu items.
+Section: Widgets
+Requires: MENU TOOLBUTTON
+Name: QMenuBar
+
+Feature: CONTEXTMENU
+Description: Supports pop-up menus on right mouse click
+Section: Widgets
+Requires: MENU
+Name: Context menu
+
+Feature: PROGRESSBAR
+Description: Supports presentation of operation progress.
+Section: Widgets
+Requires:
+Name: QProgressBar
+
+Feature: SLIDER
+Description: Supports sliders controlling a bounded value.
+Section: Widgets
+Requires:
+Name: QSlider
+
+Feature: SCROLLBAR
+Description: Supports scrollbars allowing the user access parts of a document that is larger than the widget used to display it.
+Section: Widgets
+Requires: SLIDER
+Name: QScrollBar
+
+Feature: DIAL
+Description: Supports rounded range control, e.g. like a speedometer.
+Section: Widgets
+Requires: SLIDER
+Name: QDial
+
+Feature: SCROLLAREA
+Description: Supports scrolling views onto widgets.
+Section: Widgets
+Requires: SCROLLBAR
+Name: QScrollArea
+
+Feature: GRAPHICSVIEW
+Description: Supports the graphicsview classes.
+Section: Widgets
+Requires: SCROLLAREA
+Name: QGraphicsView
+
+Feature: GRAPHICSEFFECT
+Description: Supports the graphicseffect classes.
+Section: Widgets
+Requires: GRAPHICSVIEW
+Name: QGraphicsEffect
+
+Feature: SPINWIDGET
+Description: Supports spinbox control widgets.
+Section: Widgets
+Requires:
+Name: Spin Widget
+
+Feature: TEXTEDIT
+Description: Supports rich text editing.
+Section: Widgets
+Requires: SCROLLAREA PROPERTIES
+Name: QTextEdit
+
+Feature: SYNTAXHIGHLIGHTER
+Description: Supports custom syntax highlighting.
+Section: Widgets
+Requires: TEXTEDIT
+Name: QSyntaxHighlighter
+
+Feature: RUBBERBAND
+Description: Supports using rubberbands to indicate selections and boundaries.
+Section: Widgets
+Requires:
+Name: QRubberBand
+
+Feature: TOOLTIP
+Description: Supports presentation of tooltips.
+Section: Widgets
+Requires:
+Name: QToolTip
+
+Feature: STATUSTIP
+Description: Supports status tip functionality and events.
+Section: Widgets
+Requires:
+Name: Status Tip
+
+Feature: WHATSTHIS
+Description: Supports displaying "What's this" help.
+Section: Widgets
+Requires: TOOLBUTTON
+Name: QWhatsThis
+
+Feature: VALIDATOR
+Description: Supports validation of input text.
+Section: Widgets
+Requires:
+Name: QValidator
+
+Feature: SIZEGRIP
+Description: Supports corner-grips for resizing a top-level windows.
+Section: Widgets
+Requires:
+Name: QSizeGrip
+
+Feature: CALENDARWIDGET
+Description: Provides a monthly based calendar widget allowing the user to select a date.
+Section: Widgets
+Requires: TABLEVIEW MENU TEXTDATE SPINBOX TOOLBUTTON
+Name: QCalendarWidget
+
+Feature: PRINTPREVIEWWIDGET
+Description: Provides a widget for previewing page layouts for printer output.
+Section: Widgets
+Requires: GRAPHICSVIEW PRINTER MAINWINDOW
+Name: QPrintPreviewWidget
+
+Feature: KEYSEQUENCEEDIT
+Description: Provides a widget for editing QKeySequences
+Section: Widgets
+Requires: LINEEDIT SHORTCUT
+Name: QKeySequenceEdit
+
+# Dialogs
+
+Feature: MESSAGEBOX
+Description: Supports message boxes displaying
+informative messages and simple questions.
+Section: Dialogs
+Requires:
+Name: QMessageBox
+
+Feature: COLORDIALOG
+Description: Supports a dialog widget for specifying colors.
+Section: Dialogs
+Requires: SPINBOX
+Name: QColorDialog
+
+Feature: FILEDIALOG
+Description: Supports a dialog widget for selecting files or directories.
+Section: Dialogs
+Requires: DIRMODEL TREEVIEW COMBOBOX TOOLBUTTON BUTTONGROUP TOOLTIP SPLITTER STACKEDWIDGET PROXYMODEL
+Name: QFileDialog
+
+Feature: FONTDIALOG
+Description: Supports a dialog widget for selecting fonts.
+Section: Dialogs
+Requires: STRINGLISTMODEL COMBOBOX VALIDATOR GROUPBOX
+Name: QFontDialog
+
+Feature: PRINTDIALOG
+Description: Supports a dialog widget for specifying printer configuration.
+Section: Dialogs
+Requires: PRINTER COMBOBOX BUTTONGROUP SPINBOX TREEVIEW TABWIDGET
+Name: QPrintDialog
+
+Feature: PRINTPREVIEWDIALOG
+Description: Provides a dialog for previewing and configuring page layouts for printer output.
+Section: Dialogs
+Requires: PRINTPREVIEWWIDGET PRINTDIALOG TOOLBAR
+Name: QPrintPreviewDialog
+
+Feature: PROGRESSDIALOG
+Description: Supports feedback on the progress of a slow operation.
+Section: Dialogs
+Requires: PROGRESSBAR
+Name: QProgressDialog
+
+Feature: INPUTDIALOG
+Description: Supports a simple convenience dialog to get a single value from the user.
+Section: Dialogs
+Requires: COMBOBOX SPINBOX STACKEDWIDGET
+Name: QInputDialog
+
+Feature: ERRORMESSAGE
+Description: Supports an error message display dialog.
+Section: Dialogs
+Requires: TEXTEDIT
+Name: QErrorMessage
+
+Feature: WIZARD
+Description: Provides a framework for wizards.
+Section: Dialogs
+Requires: PROPERTIES
+Name: QWizard
+
+# ItemViews
+
+Feature: ITEMVIEWS
+Description: Supports the model/view architecture managing the relationship between data and the way it is presented to the user.
+Section: ItemViews
+Requires: RUBBERBAND SCROLLAREA
+Name: The Model/View Framework
+
+Feature: DIRMODEL
+Description: Supports a data model for the local filesystem.
+Section: ItemViews
+Requires: ITEMVIEWS FILESYSTEMMODEL
+Name: QDirModel
+
+Feature: STANDARDITEMMODEL
+Description: Supports a generic model for storing custom data.
+Section: ItemViews
+Requires: ITEMVIEWS
+Name: QStandardItemModel
+
+Feature: PROXYMODEL
+Description: Supports processing of data passed between another model and a view.
+Section: ItemViews
+Requires: ITEMVIEWS
+Name: QAbstractProxyModel
+
+Feature: SORTFILTERPROXYMODEL
+Description: Supports sorting and filtering of data passed between another model and a view.
+Section: ItemViews
+Requires: PROXYMODEL
+Name: QSortFilterProxyModel
+
+Feature: IDENTITYPROXYMODEL
+Description: Supports proxying a source model unmodified.
+Section: ItemViews
+Requires: PROXYMODEL
+Name: QIdentityProxyModel
+
+Feature: STRINGLISTMODEL
+Description: Supports a model that supplies strings to views.
+Section: ItemViews
+Requires: ITEMVIEWS
+Name: QStringListModel
+
+Feature: LISTVIEW
+Description: Supports a list or icon view onto a model.
+Section: ItemViews
+Requires: ITEMVIEWS
+Name: QListView
+
+Feature: TABLEVIEW
+Description: Supports a default model/view implementation of a table view.
+Section: ItemViews
+Requires: ITEMVIEWS
+Name: QTableView
+
+Feature: TREEVIEW
+Description: Supports a default model/view implementation of a tree view.
+Section: ItemViews
+Requires: ITEMVIEWS
+Name: QTreeView
+
+Feature: DATAWIDGETMAPPER
+Description: Provides mapping between a section of a data model to widgets.
+Section: ItemViews
+Requires: ITEMVIEWS PROPERTIES
+Name: QDataWidgetMapper
+
+Feature: COLUMNVIEW
+Description: Provides a model/view implementation of a column view.
+Section: ItemViews
+Requires: LISTVIEW
+Name: QColumnView
+
+# Styles
+
+Feature: STYLE_WINDOWS
+Description: Supports a Microsoft Windows-like look and feel.
+Section: Styles
+Requires:
+Name: QWindowsStyle
+
+Feature: STYLE_FUSION
+Description: Supports a modern platform independent widget style.
+Section: Styles
+Requires: IMAGEFORMAT_XPM
+Name: QFusionStyle
+
+Feature: STYLE_WINDOWSXP
+Description: Supports a Microsoft WindowsXP-like look and feel.
+Section: Styles
+Requires: STYLE_WINDOWS
+Name: QWindowsXPStyle
+
+Feature: STYLE_WINDOWSVISTA
+Description: Supports a Microsoft WindowsVista-like look and feel.
+Section: Styles
+Requires: STYLE_WINDOWSXP
+Name: QWindowsVistaStyle
+
+Feature: STYLE_WINDOWSCE
+Description: WindowsCE look and feel
+Section: Styles
+Requires: STYLE_WINDOWS IMAGEFORMAT_XPM
+Name: QWindowsCEStyle
+
+Feature: STYLE_WINDOWSMOBILE
+Description: WindowsMobile look and feel
+Section: Styles
+Requires: STYLE_WINDOWS IMAGEFORMAT_XPM
+Name: QWindowsMobileStyle
+
+Feature: STYLE_STYLESHEET
+Description:
+Section: Styles
+Requires: STYLE_WINDOWS PROPERTIES CSSPARSER
+Name: QStyleSheetStyle
+
+# Images
+
+Feature: IMAGEFORMATPLUGIN
+Description: Supports writing an image format plugin.
+Section: Images
+Requires: LIBRARY
+Name: QImageIOPlugin
+
+Feature: MOVIE
+Description: Supports animated images.
+Section: Images
+Requires:
+Name: QMovie
+
+Feature: IMAGEFORMAT_BMP
+Description: Supports Microsoft's Bitmap image file format.
+Section: Images
+Requires:
+Name: BMP Image Format
+
+Feature: IMAGEFORMAT_PPM
+Description: Supports the Portable Pixmap image file format.
+Section: Images
+Requires:
+Name: PPM Image Format
+
+Feature: IMAGEFORMAT_XBM
+Description: Supports the X11 Bitmap image file format.
+Section: Images
+Requires:
+Name: XBM Image Format
+
+Feature: IMAGEFORMAT_XPM
+Description: Supports the X11 Pixmap image file format.
+Section: Images
+Requires:
+Name: XPM Image Format
+
+Feature: IMAGEFORMAT_PNG
+Description: Supports the Portable Network Graphics image file format.
+Section: Images
+Requires:
+Name: PNG Image Format
+
+Feature: IMAGEFORMAT_JPEG
+Description: Supports the Joint Photographic Experts Group image file format.
+Section: Images
+Requires:
+Name: JPEG Image Format
+
+Feature: IMAGE_HEURISTIC_MASK
+Description: Supports creating a 1-bpp heuristic mask for images.
+Section: Images
+Requires:
+Name: QImage::createHeuristicMask()
+
+Feature: IMAGE_TEXT
+Description: Supports image file text strings.
+Section: Images
+Requires:
+Name: Image Text
+
+# Painting
+
+Feature: PICTURE
+Description: Supports recording and replaying QPainter commands.
+Section: Painting
+Requires:
+Name: QPicture
+
+Feature: COLORNAMES
+Description: Supports color names such as "red", used by QColor and by some HTML documents.
+Section: Painting
+Requires:
+Name: Color Names
+
+Feature: PDF
+Description: Supports pdf format
+Section: Painting
+Requires: TEMPORARYFILE
+Name: QPdf
+
+Feature: PRINTER
+Description: Supports printing
+Section: Painting
+Requires: PICTURE TEMPORARYFILE PDF
+Name: QPrinter
+
+Feature: CUPS
+Description Supports the Common UNIX Printing System
+Section: Painting
+Requires: PRINTER LIBRARY
+Name: Common UNIX Printing System
+
+Feature: PAINT_DEBUG
+Description: Debug painting with the environment variables QT_FLUSH_UPDATE and QT_FLUSH_PAINT
+Section: Painting
+Requires:
+Name: Painting Debug Utilities
+
+# Fonts
+
+Feature: FREETYPE
+Description: Supports the FreeType 2 font engine (and its supported font formats).
+Section: Fonts
+Requires:
+Name: Freetype Font Engine
+
+# Internationalization
+
+Feature: TRANSLATION
+Description: Supports translations using QObject::tr().
+Section: Internationalization
+Requires:
+Name: Translation
+
+Feature: TEXTCODEC
+Description: Supports conversions between text encodings.
+Section: Internationalization
+Requires:
+Name: QTextCodec
+
+Feature: CODECS
+Description: Supports non-unicode text conversions.
+Section: Internationalization
+Requires: TEXTCODEC
+Name: Codecs
+
+Feature: BIG_CODECS
+Description: Supports big codecs, e.g. CJK.
+Section: Internationalization
+Requires: TEXTCODEC
+Name: Big Codecs
+
+Feature: ICONV
+Description: Supports conversions between text encodings using iconv.
+Section: Internationalization
+Requires: TEXTCODEC
+Name: iconv
+
+# Networking
+
+Feature: FTP
+Description: Supports FTP file access.
+Section: Networking
+Requires: TEXTDATE
+Name: File Transfer Protocol
+
+Feature: HTTP
+Description: Supports HTTP file access.
+Section: Networking
+Requires:
+Name: Hyper Text Transfer Protocol
+
+Feature: UDPSOCKET
+Description: Supports User Datagram Protocol sockets.
+Section: Networking
+Requires:
+Name: QUdpSocket
+
+Feature: NETWORKPROXY
+Description: Supports configuring network layer proxy support to the Qt network classes.
+Section: Networking
+Requires:
+Name: QNetworkProxy
+
+Feature: SOCKS5
+Description: Supports SOCKS v5 network proxy.
+Section: Networking
+Requires: NETWORKPROXY
+Name: SOCKS5
+
+Feature: NETWORKINTERFACE
+Description: Supports listing the host's IP addresses and network interfaces
+Section: Networking
+Requires:
+Name: QNetworkInterface
+
+Feature: NETWORKDISKCACHE
+Description: Supports a disk cache for network resources
+Section: Networking
+Requires: TEMPORARYFILE
+Name: QNetworkDiskCache
+
+Feature: BEARERMANAGEMENT
+Description: Provides bearer management support
+Section: Networking
+Requires: LIBRARY NETWORKINTERFACE PROPERTIES
+Name: Bearer Management
+
+Feature: LOCALSERVER
+Description: Supports a local socket based server
+Section: Networking
+Requires: TEMPORARYFILE
+Name: QLocalServer
+
+# Utilities
+
+Feature: COMPLETER
+Description: Provides completions based on an item model.
+Section: Utilities
+Requires: PROXYMODEL
+Name: QCompleter
+
+Feature: FSCOMPLETER
+Description: Provides completions based on an item model.
+Section: Utilities
+Requires: FILESYSTEMMODEL COMPLETER
+Name: QCompleter
+
+Feature: DESKTOPSERVICES
+Description: Provides methods for accessing common desktop services.
+Section: Utilities
+Requires:
+Name: QDesktopServices
+
+Feature: SYSTEMTRAYICON
+Description: Provides an icon for an application in the system tray.
+Section: Utilities
+Requires:
+Name: QSystemTrayIcon
+
+Feature: UNDOCOMMAND
+Description: Applies (redo or) undo of a single change in a document.
+Section: Utilities
+Requires:
+Name: QUndoCommand
+
+Feature: UNDOSTACK
+Description: Provides the ability to (redo or) undo a list of changes in a document.
+Section: Utilities
+Requires: UNDOCOMMAND
+Name: QUndoStack
+
+Feature: UNDOGROUP
+Description:
+Section: Utilities
+Requires: UNDOSTACK
+Name: QUndoGroup
+
+Feature: UNDOVIEW
+Description: A widget which shows the contents of an undo stack.
+Section: Utilities
+Requires: UNDOSTACK LISTVIEW
+Name: QUndoView
+
+Feature: ACCESSIBILITY
+Description: Provides accessibility support.
+Section: Utilities
+Requires: PROPERTIES MENUBAR
+Name: Accessibility
+
+Feature: ANIMATION
+Description: Provides a framework for animations.
+Section: Utilities
+Requires: PROPERTIES
+Name: Animation
+
+Feature: STATEMACHINE
+Description: Provides hierarchical finite state machines.
+Section: Utilities
+Requires: PROPERTIES
+Name: State machine
+
+Feature: GESTURES
+Description: Provides a framework for gestures.
+Section: Utilities
+Requires:
+Name: Gesture
+
+# D-Bus
+
+Feature: DBUS
+Description: Provides classes for D-Bus.
+Section: D-Bus
+Requires: PROPERTIES XMLSTREAMREADER
+Name: Qt D-Bus module
+
+# XML Patterns
+
+Feature: XMLSCHEMA
+Description: Provides XML schema validation.
+Section: Xml Patterns
+Requires:
+Name: XML Schema APIs

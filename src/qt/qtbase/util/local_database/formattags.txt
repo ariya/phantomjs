@@ -1,0 +1,23 @@
+d
+dd
+ddd
+dddd
+M
+MM
+MMM
+MMMM
+yy
+yyyy
+h the hour without a leading zero (0 to 23 or 1 to 12 if AM/PM display)
+hh the hour with a leading zero (00 to 23 or 01 to 12 if AM/PM display)
+H the hour without a leading zero (0 to 23, even with AM/PM display)
+HH the hour with a leading zero (00 to 23, even with AM/PM display)
+m
+mm
+s
+ss
+z the milliseconds without leading zeroes (0 to 999)
+zzz the milliseconds with leading zeroes (000 to 999)
+AP or A interpret as an AM/PM time. AP must be either "AM" or "PM"
+ap or a Interpret as an AM/PM time. ap must be either "am" or "pm"
+t time zone

@@ -1,0 +1,74 @@
+Here is a list of (major) changes in Qt from 0.92 to 0.93.
+
+Bug-fixes, optimizations and much improved documentation, of course.
+
+There are not many changes in the API interface.
+Here's a list of the most important changes.
+
+
+QApplication:
+-------
+  setCursor(), restoreCursor() now uses a stack of cursors.
+  quit() is now a slot.
+  exit() replaces the old static quit() function.
+
+
+QColor:
+-------
+  New constructor that makes you set an RGB or HSV color directly,
+    like this: QColor(320, 255, 240, QColor::Hsv)
+
+
+QObject:
+--------
+  Has now a timerEvent(), which was moved from QWidget.
+  Compatible with old code.
+
+
+QPainter:
+---------
+  GC caching (internal optimization) makes drawing very fast.
+
+  drawShade* obsolete, moved to qdrawutl.h and renamed to qDrawShade*
+    - These are now global functions that take QPainter * and QColorGroup
+    - Added qDrawWinPanel and qDrawWinButton for Windows 95 look
+    - Added qDrawPlainRect
+
+
+QPixmap:
+-------
+  New fill() function that fills the pixmap with the background color
+    OR background pixmap of a widget.
+
+
+QRect:
+------
+  fixup() renamed to normalize(), returns a new QRect.
+
+
+QWidget:
+-------
+  New function setCaption(), setIcon() and setIconText(), moved from QWindow.
+
+
+New classes:
+------------
+  QSocketNotifier, makes it possible to write async socket code.
+
+
+New global functions:
+---------------------
+  qInstallMsgHandler() and qRound(), in qglobal.h.
+
+
+moc:
+----
+  Supports templates.
+
+
+Documentation:
+--------------
+  A tutorial.
+  Template classes (QArray, QList etc.) are documented.
+  Many more links in the examples.
+  Postscript documentation (around 400 pages).

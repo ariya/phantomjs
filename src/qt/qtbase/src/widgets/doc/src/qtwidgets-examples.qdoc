@@ -1,0 +1,168 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \title Qt Widgets Examples
+    \brief Lots of examples of how to use different kinds of widgets.
+    \ingroup all-examples
+    \group examples-widgets
+
+    \image widget-examples.png
+
+    Qt comes with a large range of standard widgets that users of modern
+    applications have come to expect.
+
+    You can also develop your own custom widgets and controls, and use them
+    alongside standard widgets.
+
+    It is even possible to provide custom styles and themes for widgets that can
+    be used to change the appearance of standard widgets and appropriately
+    written custom widgets.
+
+*/
+
+/*!
+    \ingroup all-examples
+    \title Painting Examples
+    \brief How to use the Qt painting system.
+    \group examples-painting
+
+    \image painting-examples.png
+
+    Qt's painting system is able to render vector graphics, images,
+    and outline font-based text with sub-pixel accuracy using
+    anti-aliasing to improve rendering quality.
+
+    These examples show the most common techniques that are used when painting
+    with Qt, from basic concepts such as drawing simple primitives to the use of
+    transformations.
+
+*/
+
+/*!
+    \ingroup all-examples
+    \title Rich Text Examples
+    \brief Using the document-oriented rich text engine.
+    \group examples-richtext
+
+    \image richtext-examples.png
+
+    Qt provides powerful document-oriented rich text engine that supports Unicode
+    and right-to-left scripts. Documents can be manipulated using a cursor-based
+    API, and their contents can be imported and exported as both HTML and in a
+    custom XML format.
+
+ */
+
+/*!
+    \ingroup all-examples
+    \title Desktop Examples
+    \brief Integrating your Qt application with your favorite desktop.
+    \group examples-desktop
+
+    \image desktop-examples.png
+
+    Qt provides features to enable applications to integrate with the user's
+    preferred desktop environment.
+
+    Features such as system tray icons, access to the desktop widget, and
+    support for desktop services can be used to improve the appearance of
+    applications and take advantage of underlying desktop facilities.
+
+*/
+
+/*!
+    \group examples-dialogs
+    \ingroup all-examples
+    \title Dialog Examples
+    \brief Using Qt's standard dialogs and building and using custom dialogs.
+
+    \image dialog-examples.png
+
+    Qt includes standard dialogs for many common operations, such as file
+    selection, printing, and color selection.
+
+    Custom dialogs can also be created for specialized modal or modeless
+    interactions with users.
+*/
+
+/*!
+    \ingroup all-examples
+    \title Item Views Examples
+    \brief Using the model/view framework.
+    \group examples-itemviews
+
+    \image itemviews-examples.png
+
+    Qt provides a lot of capabalities to display pre- and user-defined item models
+    in different ways.
+    The separation of functionality introduced by the model/view architecture gives
+    developers greater flexibility to customize the presentation of items.
+
+*/
+
+/*!
+    \ingroup all-examples
+    \target Graphicsview Examples
+    \title Graphics View Examples
+    \brief Using the Graphics View framework.
+    \page examples-graphicsview.html
+
+    \image graphicsview-examples.png
+
+    Qt provides powerful graphics engine that supports easy visualization of items, with
+    support for rotation and zooming.
+    Additionally it provides an event propagation architecture for interaction.
+
+    These examples demonstrate the fundamental aspects of canvas programming with Qt.
+
+    \annotatedlist{examples-graphicsview}
+
+    These examples show the use of graphics widgets and layouts.
+
+    \annotatedlist{examples-graphicsview-layout}
+
+    Some examples demonstrate the use of graphics effects with canvas items.
+
+    \annotatedlist{examples-graphicsview-graphicseffects}
+*/
+
+/*!
+    \group examples-mainwindow
+    \ingroup all-examples
+    \title Main Window Examples
+    \brief Building applications around a main window.
+
+    \image mainwindow-examples.png
+
+    All the standard features of application main windows are provided by Qt.
+
+    Main windows can have pull down menus, tool bars, and dock windows. These
+    separate forms of user input are unified in an integrated action system that
+    also supports keyboard shortcuts and accelerator keys in menu items.
+
+*/
