@@ -60,24 +60,11 @@
 #include <iostream>
 #include <string>
 
-#include "common/using_std_string.h"
 #include "google_breakpad/common/breakpad_types.h"
 
 #ifdef BP_LOGGING_INCLUDE
 #include BP_LOGGING_INCLUDE
 #endif  // BP_LOGGING_INCLUDE
-
-#ifndef THIRD_PARTY_BREAKPAD_GOOGLE_GLUE_LOGGING_H_
-namespace base_logging {
-
-// The open-source copy of logging.h has diverged from Google's internal copy
-// (temporarily, at least).  To support the transition to structured logging
-// a definition for base_logging::LogMessage is needed, which is a ostream-
-// like object for streaming arguments to construct a log message.
-typedef std::ostream LogMessage;
-
-}  // namespace base_logging
-#endif  // THIRD_PARTY_BREAKPAD_GOOGLE_GLUE_LOGGING_H_
 
 namespace google_breakpad {
 
@@ -127,18 +114,18 @@ class LogMessageVoidify {
 
   // This has to be an operator with a precedence lower than << but higher
   // than ?:
-  void operator&(base_logging::LogMessage &) {}
+  void operator&(std::ostream &) {}
 };
 
 // Returns number formatted as a hexadecimal string, such as "0x7b".
-string HexString(uint32_t number);
-string HexString(uint64_t number);
-string HexString(int number);
+std::string HexString(u_int32_t number);
+std::string HexString(u_int64_t number);
+std::string HexString(int number);
 
 // Returns the error code as set in the global errno variable, and sets
 // error_string, a required argument, to a string describing that error
 // code.
-int ErrnoString(string *error_string);
+int ErrnoString(std::string *error_string);
 
 }  // namespace google_breakpad
 
@@ -146,20 +133,8 @@ int ErrnoString(string *error_string);
 #define BPLOG_INIT(pargc, pargv)
 #endif  // BPLOG_INIT
 
-#define BPLOG_LAZY_STREAM(stream, condition) \
-    !(condition) ? (void) 0 : \
-                   google_breakpad::LogMessageVoidify() & (BPLOG_ ## stream)
-
-#ifndef BPLOG_MINIMUM_SEVERITY
-#define BPLOG_MINIMUM_SEVERITY SEVERITY_INFO
-#endif
-
-#define BPLOG_LOG_IS_ON(severity) \
-    ((google_breakpad::LogStream::SEVERITY_ ## severity) >= \
-     (google_breakpad::LogStream::BPLOG_MINIMUM_SEVERITY))
-
 #ifndef BPLOG
-#define BPLOG(severity) BPLOG_LAZY_STREAM(severity, BPLOG_LOG_IS_ON(severity))
+#define BPLOG(severity) BPLOG_ ## severity
 #endif  // BPLOG
 
 #ifndef BPLOG_INFO
@@ -181,6 +156,7 @@ int ErrnoString(string *error_string);
 #endif  // BPLOG_ERROR
 
 #define BPLOG_IF(severity, condition) \
-    BPLOG_LAZY_STREAM(severity, ((condition) && BPLOG_LOG_IS_ON(severity)))
+    !(condition) ? (void) 0 : \
+                   google_breakpad::LogMessageVoidify() & BPLOG(severity)
 
 #endif  // PROCESSOR_LOGGING_H__

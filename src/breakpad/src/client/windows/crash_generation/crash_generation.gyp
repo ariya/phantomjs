@@ -1,4 +1,5 @@
-# Copyright 2010 Google Inc. All rights reserved.
+# Copyright (c) 2010, Google Inc.
+# All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
@@ -28,12 +29,12 @@
 
 {
   'includes': [
-    '../../../build/common.gypi',
+    '../build/common.gypi',
   ],
   'targets': [
     {
       'target_name': 'crash_generation_server',
-      'type': 'static_library',
+      'type': '<(library)',
       'sources': [
         'client_info.cc',
         'crash_generation_server.cc',
@@ -49,7 +50,7 @@
     },
     {
       'target_name': 'crash_generation_client',
-      'type': 'static_library',
+      'type': '<(library)',
       'include_dirs': [
         '<(DEPTH)',
       ],

@@ -35,9 +35,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "common/scoped_ptr.h"
+#include "client/linux/minidump_writer/minidump_extension_linux.h"
 #include "google_breakpad/processor/minidump.h"
 #include "processor/logging.h"
+#include "processor/scoped_ptr.h"
 
 namespace {
 
@@ -53,10 +54,10 @@ using google_breakpad::MinidumpMiscInfo;
 using google_breakpad::MinidumpBreakpadInfo;
 
 static void DumpRawStream(Minidump *minidump,
-                          uint32_t stream_type,
+                          u_int32_t stream_type,
                           const char *stream_name,
                           int *errors) {
-  uint32_t length = 0;
+  u_int32_t length = 0;
   if (!minidump->SeekToStreamType(stream_type, &length)) {
     return;
   }
@@ -78,7 +79,7 @@ static void DumpRawStream(Minidump *minidump,
     size_t remaining = length - current_offset;
     // Printf requires an int and direct casting from size_t results
     // in compatibility warnings.
-    uint32_t int_remaining = remaining;
+    u_int32_t int_remaining = remaining;
     printf("%.*s", int_remaining, &contents[current_offset]);
     char *next_null = reinterpret_cast<char *>(
         memchr(&contents[current_offset], 0, remaining));

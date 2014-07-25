@@ -112,7 +112,7 @@ public SourceLineResolverBase::PublicSymbol {
 
 class FastSourceLineResolver::Module: public SourceLineResolverBase::Module {
  public:
-  explicit Module(const string &name) : name_(name), is_corrupt_(false) { }
+  explicit Module(const string &name) : name_(name) { }
   virtual ~Module() { }
 
   // Looks up the given relative address, and fills the StackFrame struct
@@ -120,12 +120,7 @@ class FastSourceLineResolver::Module: public SourceLineResolverBase::Module {
   virtual void LookupAddress(StackFrame *frame) const;
 
   // Loads a map from the given buffer in char* type.
-  virtual bool LoadMapFromMemory(char *memory_buffer,
-                                 size_t memory_buffer_size);
-
-  // Tells whether the loaded symbol data is corrupt.  Return value is
-  // undefined, if the symbol data hasn't been loaded yet.
-  virtual bool IsCorrupt() const { return is_corrupt_; }
+  virtual bool LoadMapFromMemory(char *memory_buffer);
 
   // If Windows stack walking information is available covering ADDRESS,
   // return a WindowsFrameInfo structure describing it. If the information
@@ -152,7 +147,6 @@ class FastSourceLineResolver::Module: public SourceLineResolverBase::Module {
   StaticMap<int, char> files_;
   StaticRangeMap<MemAddr, Function> functions_;
   StaticAddressMap<MemAddr, PublicSymbol> public_symbols_;
-  bool is_corrupt_;
 
   // Each element in the array is a ContainedRangeMap for a type
   // listed in WindowsFrameInfoTypes. These are split by type because

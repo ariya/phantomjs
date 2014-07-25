@@ -39,9 +39,6 @@
 #include <string.h>
 #include <time.h>
 
-#include <string>
-
-#include "common/using_std_string.h"
 #include "processor/logging.h"
 #include "processor/pathname_stripper.h"
 
@@ -83,25 +80,25 @@ LogStream::~LogStream() {
   stream_ << std::endl;
 }
 
-string HexString(uint32_t number) {
+std::string HexString(u_int32_t number) {
   char buffer[11];
   snprintf(buffer, sizeof(buffer), "0x%x", number);
-  return string(buffer);
+  return std::string(buffer);
 }
 
-string HexString(uint64_t number) {
+std::string HexString(u_int64_t number) {
   char buffer[19];
   snprintf(buffer, sizeof(buffer), "0x%" PRIx64, number);
-  return string(buffer);
+  return std::string(buffer);
 }
 
-string HexString(int number) {
+std::string HexString(int number) {
   char buffer[19];
   snprintf(buffer, sizeof(buffer), "0x%x", number);
-  return string(buffer);
+  return std::string(buffer);
 }
 
-int ErrnoString(string *error_string) {
+int ErrnoString(std::string *error_string) {
   assert(error_string);
 
   // strerror isn't necessarily thread-safe.  strerror_r would be preferrable,

@@ -157,12 +157,10 @@
 #define COMMON_DWARF_DWARF2DIEHANDLER_H__
 
 #include <stack>
-#include <string>
 
 #include "common/dwarf/types.h"
 #include "common/dwarf/dwarf2enums.h"
 #include "common/dwarf/dwarf2reader.h"
-#include "common/using_std_string.h"
 
 namespace dwarf2reader {
 
@@ -210,7 +208,7 @@ class DIEHandler {
                                       uint64 len) { }
   virtual void ProcessAttributeString(enum DwarfAttribute attr,
                                       enum DwarfForm form,
-                                      const string& data) { }
+                                      const std::string& data) { }
   virtual void ProcessAttributeSignature(enum DwarfAttribute attr,
                                          enum DwarfForm form,
                                          uint64 signture) { }
@@ -239,10 +237,12 @@ class DIEHandler {
   // that child DIE (and all its descendants).
   //
   // OFFSET is the offset of the child; TAG indicates what kind of DIE
-  // it is.
+  // it is; and ATTRS is the list of attributes the DIE will have, and
+  // their forms (their values are not provided).
   //
   // The default definition skips all children.
-  virtual DIEHandler *FindChildHandler(uint64 offset, enum DwarfTag tag) {
+  virtual DIEHandler *FindChildHandler(uint64 offset, enum DwarfTag tag,
+                                       const AttributeList &attrs) {
     return NULL;
   }
 
@@ -278,7 +278,8 @@ class RootDIEHandler: public DIEHandler {
   // unit.
   //
   // The default definition elects to visit the root DIE.
-  virtual bool StartRootDIE(uint64 offset, enum DwarfTag tag) { return true; }
+  virtual bool StartRootDIE(uint64 offset, enum DwarfTag tag,
+                            const AttributeList& attrs) { return true; }
 };
 
 class DIEDispatcher: public Dwarf2Handler {
@@ -293,7 +294,8 @@ class DIEDispatcher: public Dwarf2Handler {
   bool StartCompilationUnit(uint64 offset, uint8 address_size,
                             uint8 offset_size, uint64 cu_length,
                             uint8 dwarf_version);
-  bool StartDIE(uint64 offset, enum DwarfTag tag);
+  bool StartDIE(uint64 offset, enum DwarfTag tag,
+                const AttributeList &attrs);
   void ProcessAttributeUnsigned(uint64 offset,
                                 enum DwarfAttribute attr,
                                 enum DwarfForm form,
@@ -314,7 +316,7 @@ class DIEDispatcher: public Dwarf2Handler {
   void ProcessAttributeString(uint64 offset,
                               enum DwarfAttribute attr,
                               enum DwarfForm form,
-                              const string &data);
+                              const std::string &data);
   void ProcessAttributeSignature(uint64 offset,
                                  enum DwarfAttribute attr,
                                  enum DwarfForm form,

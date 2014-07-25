@@ -43,23 +43,24 @@
 namespace google_breakpad {
 
 
-StackwalkerSPARC::StackwalkerSPARC(const SystemInfo* system_info,
-                                   const MDRawContextSPARC* context,
-                                   MemoryRegion* memory,
-                                   const CodeModules* modules,
-                                   StackFrameSymbolizer* resolver_helper)
-    : Stackwalker(system_info, memory, modules, resolver_helper),
+StackwalkerSPARC::StackwalkerSPARC(const SystemInfo *system_info,
+                                   const MDRawContextSPARC *context,
+                                   MemoryRegion *memory,
+                                   const CodeModules *modules,
+                                   SymbolSupplier *supplier,
+                                   SourceLineResolverInterface *resolver)
+    : Stackwalker(system_info, memory, modules, supplier, resolver),
       context_(context) {
 }
 
 
 StackFrame* StackwalkerSPARC::GetContextFrame() {
-  if (!context_) {
-    BPLOG(ERROR) << "Can't get context frame without context";
+  if (!context_ || !memory_) {
+    BPLOG(ERROR) << "Can't get context frame without context or memory";
     return NULL;
   }
 
-  StackFrameSPARC* frame = new StackFrameSPARC();
+  StackFrameSPARC *frame = new StackFrameSPARC();
 
   // The instruction pointer is stored directly in a register, so pull it
   // straight out of the CPU context structure.
@@ -72,14 +73,13 @@ StackFrame* StackwalkerSPARC::GetContextFrame() {
 }
 
 
-StackFrame* StackwalkerSPARC::GetCallerFrame(const CallStack* stack,
-                                             bool stack_scan_allowed) {
+StackFrame* StackwalkerSPARC::GetCallerFrame(const CallStack *stack) {
   if (!memory_ || !stack) {
     BPLOG(ERROR) << "Can't get caller frame without memory or stack";
     return NULL;
   }
 
-  StackFrameSPARC* last_frame = static_cast<StackFrameSPARC*>(
+  StackFrameSPARC *last_frame = static_cast<StackFrameSPARC*>(
       stack->frames()->back());
 
   // new: caller
@@ -87,38 +87,38 @@ StackFrame* StackwalkerSPARC::GetCallerFrame(const CallStack* stack,
   // %fp, %i6 and g_r[30] is the same, see minidump_format.h
   // %sp, %o6 and g_r[14] is the same, see minidump_format.h
   // %sp_new = %fp_old
-  // %fp_new = *(%fp_old + 32 + 32 - 8), where the callee's %i6
+  // %fp_new = *(%fp_old + 32 + 32 - 8), where the callee's %i6 
   // %pc_new = *(%fp_old + 32 + 32 - 4) + 8
   // which is callee's %i7 plus 8
 
   // A caller frame must reside higher in memory than its callee frames.
   // Anything else is an error, or an indication that we've reached the
   // end of the stack.
-  uint64_t stack_pointer = last_frame->context.g_r[30];
+  u_int64_t stack_pointer = last_frame->context.g_r[30];
   if (stack_pointer <= last_frame->context.g_r[14]) {
     return NULL;
   }
 
-  uint32_t instruction;
+  u_int32_t instruction;
   if (!memory_->GetMemoryAtAddress(stack_pointer + 60,
                      &instruction) || instruction <= 1) {
     return NULL;
   }
 
-  uint32_t stack_base;
+  u_int32_t stack_base;
   if (!memory_->GetMemoryAtAddress(stack_pointer + 56,
                      &stack_base) || stack_base <= 1) {
     return NULL;
   }
 
-  StackFrameSPARC* frame = new StackFrameSPARC();
+  StackFrameSPARC *frame = new StackFrameSPARC();
 
   frame->context = last_frame->context;
   frame->context.g_r[14] = stack_pointer;
   frame->context.g_r[30] = stack_base;
-
+  
   // frame->context.pc is the return address, which is 2 instruction
-  // past the branch that caused us to arrive at the callee, which are
+  // past the branch that caused us to arrive at the callee, which are 
   // a CALL instruction then a NOP instruction.
   // frame_ppc->instruction to 8 less than that.  Since all sparc
   // instructions are 4 bytes wide, this is the address of the branch
@@ -131,7 +131,7 @@ StackFrame* StackwalkerSPARC::GetCallerFrame(const CallStack* stack,
                             StackFrameSPARC::CONTEXT_VALID_SP |
                             StackFrameSPARC::CONTEXT_VALID_FP;
   frame->trust = StackFrame::FRAME_TRUST_FP;
-
+                            
   return frame;
 }
 

@@ -75,8 +75,8 @@ class MinidumpMemoryRange : public MemoryRange {
     std::string str;
     const MDString* md_str = GetData<MDString>(sub_offset);
     if (md_str) {
-      const uint16_t* buffer = &md_str->buffer[0];
-      for (uint32_t i = 0; i < md_str->length && buffer[i]; ++i) {
+      const u_int16_t* buffer = &md_str->buffer[0];
+      for (u_int32_t i = 0; i < md_str->length && buffer[i]; ++i) {
         str.push_back(buffer[i]);
       }
     }

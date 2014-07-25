@@ -33,7 +33,8 @@
 #include <string>
 
 #include "common/linux/libcurl_wrapper.h"
-#include "common/using_std_string.h"
+
+using std::string;
 
 namespace google_breakpad {
 LibcurlWrapper::LibcurlWrapper()
@@ -57,10 +58,8 @@ LibcurlWrapper::LibcurlWrapper()
   return;
 }
 
-LibcurlWrapper::~LibcurlWrapper() {}
-
-bool LibcurlWrapper::SetProxy(const string& proxy_host,
-                              const string& proxy_userpwd) {
+bool LibcurlWrapper::SetProxy(const std::string& proxy_host,
+                              const std::string& proxy_userpwd) {
   if (!init_ok_) {
     return false;
   }
@@ -81,8 +80,8 @@ bool LibcurlWrapper::SetProxy(const string& proxy_host,
   return true;
 }
 
-bool LibcurlWrapper::AddFile(const string& upload_file_path,
-                             const string& basename) {
+bool LibcurlWrapper::AddFile(const std::string& upload_file_path,
+                             const std::string& basename) {
   if (!init_ok_) {
     return false;
   }
@@ -102,17 +101,17 @@ static size_t WriteCallback(void *ptr, size_t size,
   if (!userp)
     return 0;
 
-  string *response = reinterpret_cast<string *>(userp);
+  std::string *response = reinterpret_cast<std::string *>(userp);
   size_t real_size = size * nmemb;
   response->append(reinterpret_cast<char *>(ptr), real_size);
   return real_size;
 }
 
-bool LibcurlWrapper::SendRequest(const string& url,
-                                 const std::map<string, string>& parameters,
-                                 string* server_response) {
+bool LibcurlWrapper::SendRequest(const std::string& url,
+                                 const std::map<std::string, std::string>& parameters,
+                                 std::string* server_response) {
   (*easy_setopt_)(curl_, CURLOPT_URL, url.c_str());
-  std::map<string, string>::const_iterator iter = parameters.begin();
+  std::map<std::string, std::string>::const_iterator iter = parameters.begin();
   for (; iter != parameters.end(); ++iter)
     (*formadd_)(&formpost_, &lastptr_,
                 CURLFORM_COPYNAME, iter->first.c_str(),

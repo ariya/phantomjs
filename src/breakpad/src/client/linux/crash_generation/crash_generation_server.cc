@@ -81,7 +81,7 @@ GetInodeForProcPath(ino_t* inode_out, const char* path)
   assert(path);
 
   char buf[PATH_MAX];
-  if (!google_breakpad::SafeReadLink(path, buf)) {
+  if (!SafeReadLink(path, buf)) {
     return false;
   }
 
@@ -90,7 +90,7 @@ GetInodeForProcPath(ino_t* inode_out, const char* path)
   }
 
   char* endptr;
-  const uint64_t inode_ul =
+  const u_int64_t inode_ul =
       strtoull(buf + sizeof(kSocketLinkPrefix) - 1, &endptr, 10);
   if (*endptr != ']')
     return false;
@@ -170,7 +170,7 @@ CrashGenerationServer::CrashGenerationServer(
   OnClientExitingCallback exit_callback,
   void* exit_context,
   bool generate_dumps,
-  const string* dump_path) :
+  const std::string* dump_path) :
     server_fd_(listen_fd),
     dump_callback_(dump_callback),
     dump_context_(dump_context),
@@ -349,7 +349,7 @@ CrashGenerationServer::ClientEvent(short revents)
         // A nasty process could try and send us too many descriptors and
         // force a leak.
         for (unsigned i = 0; i < num_fds; ++i)
-          close(reinterpret_cast<int*>(CMSG_DATA(hdr))[i]);
+          HANDLE_EINTR(close(reinterpret_cast<int*>(CMSG_DATA(hdr))[i]));
         return true;
       } else {
         signal_fd = reinterpret_cast<int*>(CMSG_DATA(hdr))[0];
@@ -363,7 +363,7 @@ CrashGenerationServer::ClientEvent(short revents)
 
   if (crashing_pid == -1 || signal_fd == -1) {
     if (signal_fd)
-      close(signal_fd);
+      HANDLE_EINTR(close(signal_fd));
     return true;
   }
 
@@ -375,28 +375,31 @@ CrashGenerationServer::ClientEvent(short revents)
 
   ino_t inode_number;
   if (!GetInodeForFileDescriptor(&inode_number, signal_fd)) {
-    close(signal_fd);
+    HANDLE_EINTR(close(signal_fd));
     return true;
   }
 
   if (!FindProcessHoldingSocket(&crashing_pid, inode_number - 1)) {
-    close(signal_fd);
+    HANDLE_EINTR(close(signal_fd));
     return true;
   }
 
-  string minidump_filename;
+  std::string minidump_filename;
   if (!MakeMinidumpFilename(minidump_filename))
     return true;
 
   if (!google_breakpad::WriteMinidump(minidump_filename.c_str(),
                                       crashing_pid, crash_context,
                                       kCrashContextSize)) {
-    close(signal_fd);
+    HANDLE_EINTR(close(signal_fd));
     return true;
   }
 
   if (dump_callback_) {
-    ClientInfo info(crashing_pid, this);
+    ClientInfo info;
+
+    info.crash_server_ = this;
+    info.pid_ = crashing_pid;
 
     dump_callback_(dump_context_, &info, &minidump_filename);
   }
@@ -410,7 +413,7 @@ CrashGenerationServer::ClientEvent(short revents)
   msg.msg_iovlen = 1;
 
   HANDLE_EINTR(sendmsg(signal_fd, &msg, MSG_DONTWAIT | MSG_NOSIGNAL));
-  close(signal_fd);
+  HANDLE_EINTR(close(signal_fd));
 
   return true;
 }
@@ -437,7 +440,7 @@ CrashGenerationServer::ControlEvent(short revents)
 }
 
 bool
-CrashGenerationServer::MakeMinidumpFilename(string& outFilename)
+CrashGenerationServer::MakeMinidumpFilename(std::string& outFilename)
 {
   GUID guid;
   char guidString[kGUIDStringLength+1];

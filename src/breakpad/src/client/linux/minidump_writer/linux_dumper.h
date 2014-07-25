@@ -42,7 +42,9 @@
 #include <linux/limits.h>
 #include <stdint.h>
 #include <sys/types.h>
+#if !defined(__ANDROID__)
 #include <sys/user.h>
+#endif
 
 #include "common/memory.h"
 #include "google_breakpad/common/minidump_format.h"
@@ -54,14 +56,27 @@ typedef typeof(((struct user*) 0)->u_debugreg[0]) debugreg_t;
 #endif
 
 // Typedef for our parsing of the auxv variables in /proc/pid/auxv.
-#if defined(__i386) || defined(__ARM_EABI__) || defined(__mips__)
+#if defined(__i386) || defined(__ARM_EABI__)
+#if !defined(__ANDROID__)
 typedef Elf32_auxv_t elf_aux_entry;
-#elif defined(__x86_64) || defined(__aarch64__)
+#else
+// Android is missing this structure definition
+typedef struct
+{
+  uint32_t a_type;              /* Entry type */
+  union
+    {
+      uint32_t a_val;           /* Integer value */
+    } a_un;
+} elf_aux_entry;
+
+#if !defined(AT_SYSINFO_EHDR)
+#define AT_SYSINFO_EHDR 33
+#endif
+#endif  // __ANDROID__
+#elif defined(__x86_64)
 typedef Elf64_auxv_t elf_aux_entry;
 #endif
-
-typedef typeof(((elf_aux_entry*) 0)->a_un.a_val) elf_aux_val_t;
-
 // When we find the VDSO mapping in the process's address space, this
 // is the name we use for it when writing it to the minidump.
 // This should always be less than NAME_MAX!
@@ -72,7 +87,10 @@ struct ThreadInfo {
   pid_t tgid;   // thread group id
   pid_t ppid;   // parent process
 
-  uintptr_t stack_pointer;  // thread stack pointer
+  // Even on platforms where the stack grows down, the following will point to
+  // the smallest address in the stack.
+  const void* stack;  // pointer to the stack area
+  size_t stack_len;  // length of the stack to copy
 
 
 #if defined(__i386) || defined(__x86_64)
@@ -86,18 +104,12 @@ struct ThreadInfo {
 
 #elif defined(__ARM_EABI__)
   // Mimicking how strace does this(see syscall.c, search for GETREGS)
+#if defined(__ANDROID__)
+  struct pt_regs regs;
+#else
   struct user_regs regs;
   struct user_fpregs fpregs;
-#elif defined(__aarch64__)
-  // Use the structures defined in <asm/ptrace.h>
-  struct user_pt_regs regs;
-  struct user_fpsimd_state fpregs;
-#elif defined(__mips__)
-  user_regs_struct regs;
-  user_fpregs_struct fpregs;
-  uint32_t hi[3];
-  uint32_t lo[3];
-  uint32_t dsp_control;
+#endif  // __ANDROID__
 #endif
 };
 
@@ -134,7 +146,6 @@ class LinuxDumper {
   const wasteful_vector<pid_t> &threads() { return threads_; }
   const wasteful_vector<MappingInfo*> &mappings() { return mappings_; }
   const MappingInfo* FindMapping(const void* address) const;
-  const wasteful_vector<elf_aux_val_t>& auxv() { return auxv_; }
 
   // Find a block of memory to take as the stack given the top of stack pointer.
   //   stack: (output) the lowest address in the memory area
@@ -162,6 +173,15 @@ class LinuxDumper {
                                    unsigned int mapping_id,
                                    uint8_t identifier[sizeof(MDGUID)]);
 
+  // Utility method to find the location of where the kernel has
+  // mapped linux-gate.so in memory(shows up in /proc/pid/maps as
+  // [vdso], but we can't guarantee that it's the only virtual dynamic
+  // shared object.  Parsing the auxilary vector for AT_SYSINFO_EHDR
+  // is the safest way to go.)
+  void* FindBeginningOfLinuxGateSharedLibrary(pid_t pid) const;
+  // Utility method to find the entry point location.
+  void* FindEntryPoint(pid_t pid) const;
+
   uintptr_t crash_address() const { return crash_address_; }
   void set_crash_address(uintptr_t crash_address) {
     crash_address_ = crash_address;
@@ -174,8 +194,6 @@ class LinuxDumper {
   void set_crash_thread(pid_t crash_thread) { crash_thread_ = crash_thread; }
 
  protected:
-  bool ReadAuxv();
-
   virtual bool EnumerateMappings();
 
   virtual bool EnumerateThreads() = 0;
@@ -210,9 +228,6 @@ class LinuxDumper {
 
   // Info from /proc/<pid>/maps.
   wasteful_vector<MappingInfo*> mappings_;
-
-  // Info from /proc/<pid>/auxv
-  wasteful_vector<elf_aux_val_t> auxv_;
 };
 
 }  // namespace google_breakpad

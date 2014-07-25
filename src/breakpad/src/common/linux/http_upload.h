@@ -37,10 +37,9 @@
 #include <map>
 #include <string>
 
-#include "common/using_std_string.h"
-
 namespace google_breakpad {
 
+using std::string;
 using std::map;
 
 class HTTPUpload {

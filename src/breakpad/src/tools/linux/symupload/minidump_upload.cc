@@ -41,29 +41,28 @@
 #include <string>
 
 #include "common/linux/http_upload.h"
-#include "common/using_std_string.h"
 
 using google_breakpad::HTTPUpload;
 
 struct Options {
-  string minidumpPath;
-  string uploadURLStr;
-  string product;
-  string version;
-  string proxy;
-  string proxy_user_pwd;
+  std::string minidumpPath;
+  std::string uploadURLStr;
+  std::string product;
+  std::string version;
+  std::string proxy;
+  std::string proxy_user_pwd;
   bool success;
 };
 
 //=============================================================================
 static void Start(Options *options) {
-  std::map<string, string> parameters;
+  std::map<std::string, std::string> parameters;
   // Add parameters
   parameters["prod"] = options->product;
   parameters["ver"] = options->version;
 
   // Send it
-  string response, error;
+  std::string response, error;
   bool success = HTTPUpload::SendRequest(options->uploadURLStr,
                                          parameters,
                                          options->minidumpPath,
@@ -79,9 +78,9 @@ static void Start(Options *options) {
     printf("Successfully sent the minidump file.\n");
   } else {
     printf("Failed to send minidump: %s\n", error.c_str());
+    printf("Response:\n");
+    printf("%s\n", response.c_str());
   }
-  printf("Response:\n");
-  printf("%s\n", response.c_str());
   options->success = success;
 }
 
@@ -107,7 +106,7 @@ Usage(int argc, const char *argv[]) {
 static void
 SetupOptions(int argc, const char *argv[], Options *options) {
   extern int optind;
-  int ch;
+  char ch;
 
   while ((ch = getopt(argc, (char * const *)argv, "p:u:v:x:h?")) != -1) {
     switch (ch) {
@@ -125,9 +124,8 @@ SetupOptions(int argc, const char *argv[], Options *options) {
         break;
 
       default:
-        fprintf(stderr, "Invalid option '%c'\n", ch);
         Usage(argc, argv);
-        exit(1);
+        exit(0);
         break;
     }
   }
@@ -143,7 +141,7 @@ SetupOptions(int argc, const char *argv[], Options *options) {
 }
 
 //=============================================================================
-int main(int argc, const char* argv[]) {
+int main (int argc, const char * argv[]) {
   Options options;
   SetupOptions(argc, argv, &options);
   Start(&options);

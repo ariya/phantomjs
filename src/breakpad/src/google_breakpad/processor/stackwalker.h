@@ -43,22 +43,21 @@
 
 #include <set>
 #include <string>
-#include <vector>
-
-#include "common/using_std_string.h"
 #include "google_breakpad/common/breakpad_types.h"
 #include "google_breakpad/processor/code_modules.h"
 #include "google_breakpad/processor/memory_region.h"
-#include "google_breakpad/processor/stack_frame_symbolizer.h"
 
 namespace google_breakpad {
 
 class CallStack;
 class MinidumpContext;
-class StackFrameSymbolizer;
+class SourceLineResolverInterface;
+struct StackFrame;
+class SymbolSupplier;
+struct SystemInfo;
 
 using std::set;
-using std::vector;
+
 
 class Stackwalker {
  public:
@@ -68,53 +67,36 @@ class Stackwalker {
   // GetCallerFrame.  The frames are further processed to fill all available
   // data.  Returns true if the stackwalk completed, or false if it was
   // interrupted by SymbolSupplier::GetSymbolFile().
-  // Upon return, |modules_without_symbols| will be populated with pointers to
-  // the code modules (CodeModule*) that DON'T have symbols.
-  // |modules_with_corrupt_symbols| will be populated with pointers to the
-  // modules which have corrupt symbols.  |modules_without_symbols| and
-  // |modules_with_corrupt_symbols| DO NOT take ownership of the code modules.
-  // The lifetime of these code modules is the same as the lifetime of the
-  // CodeModules passed to the StackWalker constructor (which currently
-  // happens to be the lifetime of the Breakpad's ProcessingState object).
-  // There is a check for duplicate modules so no duplicates are expected.
-  bool Walk(CallStack* stack,
-            vector<const CodeModule*>* modules_without_symbols,
-            vector<const CodeModule*>* modules_with_corrupt_symbols);
+  bool Walk(CallStack *stack);
 
   // Returns a new concrete subclass suitable for the CPU that a stack was
   // generated on, according to the CPU type indicated by the context
   // argument.  If no suitable concrete subclass exists, returns NULL.
-  static Stackwalker* StackwalkerForCPU(
-     const SystemInfo* system_info,
-     MinidumpContext* context,
-     MemoryRegion* memory,
-     const CodeModules* modules,
-     StackFrameSymbolizer* resolver_helper);
+  static Stackwalker* StackwalkerForCPU(const SystemInfo *system_info,
+                                        MinidumpContext *context,
+                                        MemoryRegion *memory,
+                                        const CodeModules *modules,
+                                        SymbolSupplier *supplier,
+                                        SourceLineResolverInterface *resolver);
 
-  static void set_max_frames(uint32_t max_frames) {
-    max_frames_ = max_frames;
-    max_frames_set_ = true;
-  }
-  static uint32_t max_frames() { return max_frames_; }
-
-  static void set_max_frames_scanned(uint32_t max_frames_scanned) {
-    max_frames_scanned_ = max_frames_scanned;
-  }
+  static void set_max_frames(u_int32_t max_frames) { max_frames_ = max_frames; }
+  static u_int32_t max_frames() { return max_frames_; }
 
  protected:
   // system_info identifies the operating system, NULL or empty if unknown.
   // memory identifies a MemoryRegion that provides the stack memory
   // for the stack to walk.  modules, if non-NULL, is a CodeModules
   // object that is used to look up which code module each stack frame is
-  // associated with.  frame_symbolizer is a StackFrameSymbolizer object that
-  // encapsulates the logic of how source line resolver interacts with symbol
-  // supplier to symbolize stack frame and look up caller frame information
-  // (see stack_frame_symbolizer.h).
-  // frame_symbolizer MUST NOT be NULL (asserted).
-  Stackwalker(const SystemInfo* system_info,
-              MemoryRegion* memory,
-              const CodeModules* modules,
-              StackFrameSymbolizer* frame_symbolizer);
+  // associated with.  supplier is an optional caller-supplied SymbolSupplier
+  // implementation.  If supplier is NULL, source line info will not be
+  // resolved.  resolver is an instance of SourceLineResolverInterface
+  // (see source_line_resolver_interface.h and basic_source_line_resolver.h).
+  // If resolver is NULL, source line info will not be resolved.
+  Stackwalker(const SystemInfo *system_info,
+              MemoryRegion *memory,
+              const CodeModules *modules,
+              SymbolSupplier *supplier,
+              SourceLineResolverInterface *resolver);
 
   // This can be used to filter out potential return addresses when
   // the stack walker resorts to stack scanning.
@@ -124,25 +106,15 @@ class Stackwalker {
   // * This address is within a loaded module for which we have symbols,
   //   and falls inside a function in that module.
   // Returns false otherwise.
-  bool InstructionAddressSeemsValid(uint64_t address);
-
-  // The default number of words to search through on the stack
-  // for a return address.
-  static const int kRASearchWords;
+  bool InstructionAddressSeemsValid(u_int64_t address);
 
   template<typename InstructionType>
   bool ScanForReturnAddress(InstructionType location_start,
-                            InstructionType* location_found,
-                            InstructionType* ip_found,
-                            bool is_context_frame) {
-    // When searching for the caller of the context frame,
-    // allow the scanner to look farther down the stack.
-    const int search_words = is_context_frame ?
-      kRASearchWords * 4 :
-      kRASearchWords;
-
+                            InstructionType *location_found,
+                            InstructionType *ip_found) {
+    const int kRASearchWords = 30;
     return ScanForReturnAddress(location_start, location_found, ip_found,
-                                search_words);
+                                kRASearchWords);
   }
 
   // Scan the stack starting at location_start, looking for an address
@@ -156,8 +128,8 @@ class Stackwalker {
   // location in memory.
   template<typename InstructionType>
   bool ScanForReturnAddress(InstructionType location_start,
-                            InstructionType* location_found,
-                            InstructionType* ip_found,
+                            InstructionType *location_found,
+                            InstructionType *ip_found,
                             int searchwords) {
     for (InstructionType location = location_start;
          location <= location_start + searchwords * sizeof(InstructionType);
@@ -168,6 +140,7 @@ class Stackwalker {
 
       if (modules_ && modules_->GetModuleForAddress(ip) &&
           InstructionAddressSeemsValid(ip)) {
+
         *ip_found = ip;
         *location_found = location;
         return true;
@@ -179,19 +152,19 @@ class Stackwalker {
 
   // Information about the system that produced the minidump.  Subclasses
   // and the SymbolSupplier may find this information useful.
-  const SystemInfo* system_info_;
+  const SystemInfo *system_info_;
 
   // The stack memory to walk.  Subclasses will require this region to
   // get information from the stack.
-  MemoryRegion* memory_;
+  MemoryRegion *memory_;
 
   // A list of modules, for populating each StackFrame's module information.
   // This field is optional and may be NULL.
-  const CodeModules* modules_;
+  const CodeModules *modules_;
 
  protected:
-  // The StackFrameSymbolizer implementation.
-  StackFrameSymbolizer* frame_symbolizer_;
+  // The SourceLineResolver implementation.
+  SourceLineResolverInterface *resolver_;
 
  private:
   // Obtains the context frame, the innermost called procedure in a stack
@@ -207,27 +180,22 @@ class Stackwalker {
   // return NULL on failure or when there are no more caller frames (when
   // the end of the stack has been reached).  GetCallerFrame allocates a new
   // StackFrame (or StackFrame subclass), ownership of which is taken by
-  // the caller.  |stack_scan_allowed| controls whether stack scanning is
-  // an allowable frame-recovery method, since it is desirable to be able to
-  // disable stack scanning in performance-critical use cases.
-  virtual StackFrame* GetCallerFrame(const CallStack* stack,
-                                     bool stack_scan_allowed) = 0;
+  // the caller.
+  virtual StackFrame* GetCallerFrame(const CallStack *stack) = 0;
+
+  // The optional SymbolSupplier for resolving source line info.
+  SymbolSupplier *supplier_;
+
+  // A list of modules that we haven't found symbols for.  We track
+  // this in order to avoid repeatedly looking them up again within
+  // one minidump.
+  set<std::string> no_symbol_modules_;
 
   // The maximum number of frames Stackwalker will walk through.
   // This defaults to 1024 to prevent infinite loops.
-  static uint32_t max_frames_;
-
-  // Keep track of whether max_frames_ has been set by the user, since
-  // it affects whether or not an error message is printed in the case
-  // where an unwind got stopped by the limit.
-  static bool max_frames_set_;
-
-  // The maximum number of stack-scanned and otherwise untrustworthy
-  // frames allowed.  Stack-scanning can be expensive, so the option to
-  // disable or limit it is helpful in cases where unwind performance is
-  // important.  This defaults to 1024, the same as max_frames_.
-  static uint32_t max_frames_scanned_;
+  static u_int32_t max_frames_;
 };
+
 
 }  // namespace google_breakpad
 

@@ -31,7 +31,7 @@
 
 #import <Foundation/Foundation.h>
 
-#include "common/simple_string_dictionary.h"
+#import "common/mac/SimpleStringDictionary.h"
 
 namespace google_breakpad {
 

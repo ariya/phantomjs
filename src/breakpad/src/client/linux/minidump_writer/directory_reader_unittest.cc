@@ -35,7 +35,6 @@
 #include <sys/types.h>
 
 #include "client/linux/minidump_writer/directory_reader.h"
-#include "common/using_std_string.h"
 #include "breakpad_googletest_includes.h"
 
 using namespace google_breakpad;
@@ -45,7 +44,7 @@ typedef testing::Test DirectoryReaderTest;
 }
 
 TEST(DirectoryReaderTest, CompareResults) {
-  std::set<string> dent_set;
+  std::set<std::string> dent_set;
 
   DIR *const dir = opendir("/proc/self");
   ASSERT_TRUE(dir != NULL);

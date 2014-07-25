@@ -32,18 +32,15 @@
 
 #include <TargetConditionals.h>
 
-// On iOS 5 and higher, mach/mach_vm.h is not supported. Use the corresponding
-// vm_map functions instead.
+// On iOS 5, mach/mach_vm.h is not supported anymore. As the architecture is 32
+// bits, we can use the simple vm_ functions instead of the mach_vm_ ones.
 #if TARGET_OS_IPHONE
 #include <mach/vm_map.h>
 #define mach_vm_address_t vm_address_t
 #define mach_vm_deallocate vm_deallocate
 #define mach_vm_read vm_read
-#if defined(__LP64__)
-#define mach_vm_region_recurse vm_region_recurse_64
-#else
+#define mach_vm_region vm_region
 #define mach_vm_region_recurse vm_region_recurse
-#endif
 #define mach_vm_size_t vm_size_t
 #else
 #include <mach/mach_vm.h>

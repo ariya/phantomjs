@@ -35,12 +35,11 @@
 
 #include <string>
 
-#include "breakpad_googletest_includes.h"
-#include "client/windows/crash_generation/crash_generation_server.h"
-#include "client/windows/handler/exception_handler.h"
-#include "client/windows/unittests/exception_handler_test.h"
-#include "common/windows/string_utils-inl.h"
-#include "google_breakpad/processor/minidump.h"
+#include "../../../breakpad_googletest_includes.h"
+#include "../../../../common/windows/string_utils-inl.h"
+#include "../crash_generation/crash_generation_server.h"
+#include "../handler/exception_handler.h"
+#include "../../../../google_breakpad/processor/minidump.h"
 
 namespace {
 
@@ -54,11 +53,6 @@ const char kFailureIndicator[] = "failure";
 // Utility function to test for a path's existence.
 BOOL DoesPathExist(const TCHAR *path_name);
 
-enum OutOfProcGuarantee {
-  OUT_OF_PROC_GUARANTEED,
-  OUT_OF_PROC_BEST_EFFORT,
-};
-
 class ExceptionHandlerDeathTest : public ::testing::Test {
  protected:
   // Member variable for each test that they can use
@@ -67,7 +61,7 @@ class ExceptionHandlerDeathTest : public ::testing::Test {
   // Actually constructs a temp path name.
   virtual void SetUp();
   // A helper method that tests can use to crash.
-  void DoCrashAccessViolation(const OutOfProcGuarantee out_of_proc_guarantee);
+  void DoCrashAccessViolation();
   void DoCrashPureVirtualCall();
 };
 
@@ -124,19 +118,13 @@ TEST_F(ExceptionHandlerDeathTest, InProcTest) {
   // the semantics of the exception handler being inherited/not
   // inherited across CreateProcess().
   ASSERT_TRUE(DoesPathExist(temp_path_));
-  scoped_ptr<google_breakpad::ExceptionHandler> exc(
-      new google_breakpad::ExceptionHandler(
-          temp_path_,
-          NULL,
-          &MinidumpWrittenCallback,
-          NULL,
-          google_breakpad::ExceptionHandler::HANDLER_ALL));
-
-  // Disable GTest SEH handler
-  testing::DisableExceptionHandlerInScope disable_exception_handler;
-
+  google_breakpad::ExceptionHandler *exc =
+    new google_breakpad::ExceptionHandler(
+    temp_path_, NULL, &MinidumpWrittenCallback, NULL,
+    google_breakpad::ExceptionHandler::HANDLER_ALL);
   int *i = NULL;
   ASSERT_DEATH((*i)++, kSuccessIndicator);
+  delete exc;
 }
 
 static bool gDumpCallbackCalled = false;
@@ -147,39 +135,12 @@ void clientDumpCallback(void *dump_context,
   gDumpCallbackCalled = true;
 }
 
-void ExceptionHandlerDeathTest::DoCrashAccessViolation(
-    const OutOfProcGuarantee out_of_proc_guarantee) {
-  scoped_ptr<google_breakpad::ExceptionHandler> exc;
-
-  if (out_of_proc_guarantee == OUT_OF_PROC_GUARANTEED) {
-    google_breakpad::CrashGenerationClient *client =
-        new google_breakpad::CrashGenerationClient(kPipeName,
-                                                   MiniDumpNormal,
-                                                   NULL);  // custom_info
-    ASSERT_TRUE(client->Register());
-    exc.reset(new google_breakpad::ExceptionHandler(
-        temp_path_,
-        NULL,   // filter
-        NULL,   // callback
-        NULL,   // callback_context
-        google_breakpad::ExceptionHandler::HANDLER_ALL,
-        client));
-  } else {
-    ASSERT_TRUE(out_of_proc_guarantee == OUT_OF_PROC_BEST_EFFORT);
-    exc.reset(new google_breakpad::ExceptionHandler(
-        temp_path_,
-        NULL,   // filter
-        NULL,   // callback
-        NULL,   // callback_context
-        google_breakpad::ExceptionHandler::HANDLER_ALL,
-        MiniDumpNormal,
-        kPipeName,
-        NULL));  // custom_info
-  }
-
-  // Disable GTest SEH handler
-  testing::DisableExceptionHandlerInScope disable_exception_handler;
-
+void ExceptionHandlerDeathTest::DoCrashAccessViolation() {
+  google_breakpad::ExceptionHandler *exc =
+    new google_breakpad::ExceptionHandler(
+    temp_path_, NULL, NULL, NULL,
+    google_breakpad::ExceptionHandler::HANDLER_ALL, MiniDumpNormal, kPipeName,
+    NULL);
   // Although this is executing in the child process of the death test,
   // if it's not true we'll still get an error rather than the crash
   // being expected.
@@ -200,38 +161,15 @@ TEST_F(ExceptionHandlerDeathTest, OutOfProcTest) {
   ASSERT_TRUE(DoesPathExist(temp_path_));
   std::wstring dump_path(temp_path_);
   google_breakpad::CrashGenerationServer server(
-      kPipeName, NULL, NULL, NULL, &clientDumpCallback, NULL, NULL, NULL, NULL,
-      NULL, true, &dump_path);
+    kPipeName, NULL, NULL, NULL, &clientDumpCallback, NULL, NULL, NULL, NULL,
+    NULL, true, &dump_path);
 
   // This HAS to be EXPECT_, because when this test case is executed in the
   // child process, the server registration will fail due to the named pipe
   // being the same.
   EXPECT_TRUE(server.Start());
-  gDumpCallbackCalled = false;
-  ASSERT_DEATH(this->DoCrashAccessViolation(OUT_OF_PROC_BEST_EFFORT), "");
-  EXPECT_TRUE(gDumpCallbackCalled);
-}
-
-TEST_F(ExceptionHandlerDeathTest, OutOfProcGuaranteedTest) {
-  // This is similar to the previous test (OutOfProcTest).  The only difference
-  // is that in this test, the crash generation client is created and registered
-  // with the crash generation server outside of the ExceptionHandler
-  // constructor which allows breakpad users to opt out of the default
-  // in-process dump generation when the registration with the crash generation
-  // server fails.
-
-  ASSERT_TRUE(DoesPathExist(temp_path_));
-  std::wstring dump_path(temp_path_);
-  google_breakpad::CrashGenerationServer server(
-      kPipeName, NULL, NULL, NULL, &clientDumpCallback, NULL, NULL, NULL, NULL,
-      NULL, true, &dump_path);
-
-  // This HAS to be EXPECT_, because when this test case is executed in the
-  // child process, the server registration will fail due to the named pipe
-  // being the same.
-  EXPECT_TRUE(server.Start());
-  gDumpCallbackCalled = false;
-  ASSERT_DEATH(this->DoCrashAccessViolation(OUT_OF_PROC_GUARANTEED), "");
+  EXPECT_FALSE(gDumpCallbackCalled);
+  ASSERT_DEATH(this->DoCrashAccessViolation(), "");
   EXPECT_TRUE(gDumpCallbackCalled);
 }
 
@@ -302,28 +240,20 @@ wstring find_minidump_in_directory(const wstring &directory) {
       filename = directory + L"\\" + find_data.cFileName;
       break;
     }
-  } while (FindNextFile(find_handle, &find_data));
+  } while(FindNextFile(find_handle, &find_data));
   FindClose(find_handle);
   return filename;
 }
 
-#ifndef ADDRESS_SANITIZER
-
 TEST_F(ExceptionHandlerDeathTest, InstructionPointerMemory) {
   ASSERT_TRUE(DoesPathExist(temp_path_));
-  scoped_ptr<google_breakpad::ExceptionHandler> exc(
+  google_breakpad::ExceptionHandler *exc =
       new google_breakpad::ExceptionHandler(
-          temp_path_,
-          NULL,
-          NULL,
-          NULL,
-          google_breakpad::ExceptionHandler::HANDLER_ALL));
-
-  // Disable GTest SEH handler
-  testing::DisableExceptionHandlerInScope disable_exception_handler;
+          temp_path_, NULL, NULL, NULL,
+          google_breakpad::ExceptionHandler::HANDLER_ALL);
 
   // Get some executable memory.
-  const uint32_t kMemorySize = 256;  // bytes
+  const u_int32_t kMemorySize = 256;  // bytes
   const int kOffset = kMemorySize / 2;
   // This crashes with SIGILL on x86/x86-64/arm.
   const unsigned char instructions[] = { 0xff, 0xff, 0xff, 0xff };
@@ -338,7 +268,7 @@ TEST_F(ExceptionHandlerDeathTest, InstructionPointerMemory) {
   // minidump should contain 128 bytes on either side of the
   // instruction pointer.
   memcpy(memory + kOffset, instructions, sizeof(instructions));
-
+  
   // Now execute the instructions, which should crash.
   typedef void (*void_function)(void);
   void_function memory_function =
@@ -372,25 +302,36 @@ TEST_F(ExceptionHandlerDeathTest, InstructionPointerMemory) {
     MinidumpContext* context = exception->GetContext();
     ASSERT_TRUE(context);
 
-    uint64_t instruction_pointer;
-    ASSERT_TRUE(context->GetInstructionPointer(&instruction_pointer));
+    u_int64_t instruction_pointer;
+    switch (context->GetContextCPU()) {
+    case MD_CONTEXT_X86:
+      instruction_pointer = context->GetContextX86()->eip;
+      break;
+    case MD_CONTEXT_AMD64:
+      instruction_pointer = context->GetContextAMD64()->rip;
+      break;
+    default:
+      FAIL() << "Unknown context CPU: " << context->GetContextCPU();
+      break;
+    }
 
     MinidumpMemoryRegion* region =
         memory_list->GetMemoryRegionForAddress(instruction_pointer);
     ASSERT_TRUE(region);
 
     EXPECT_EQ(kMemorySize, region->GetSize());
-    const uint8_t* bytes = region->GetMemory();
+    const u_int8_t* bytes = region->GetMemory();
     ASSERT_TRUE(bytes);
 
-    uint8_t prefix_bytes[kOffset];
-    uint8_t suffix_bytes[kMemorySize - kOffset - sizeof(instructions)];
+    u_int8_t prefix_bytes[kOffset];
+    u_int8_t suffix_bytes[kMemorySize - kOffset - sizeof(instructions)];
     memset(prefix_bytes, 0, sizeof(prefix_bytes));
     memset(suffix_bytes, 0, sizeof(suffix_bytes));
-    EXPECT_EQ(0, memcmp(bytes, prefix_bytes, sizeof(prefix_bytes)));
-    EXPECT_EQ(0, memcmp(bytes + kOffset, instructions, sizeof(instructions)));
-    EXPECT_EQ(0, memcmp(bytes + kOffset + sizeof(instructions),
-                        suffix_bytes, sizeof(suffix_bytes)));
+    EXPECT_TRUE(memcmp(bytes, prefix_bytes, sizeof(prefix_bytes)) == 0);
+    EXPECT_TRUE(memcmp(bytes + kOffset, instructions,
+                       sizeof(instructions)) == 0);
+    EXPECT_TRUE(memcmp(bytes + kOffset + sizeof(instructions),
+                       suffix_bytes, sizeof(suffix_bytes)) == 0);
   }
 
   DeleteFileW(minidump_filename_wide.c_str());
@@ -398,21 +339,15 @@ TEST_F(ExceptionHandlerDeathTest, InstructionPointerMemory) {
 
 TEST_F(ExceptionHandlerDeathTest, InstructionPointerMemoryMinBound) {
   ASSERT_TRUE(DoesPathExist(temp_path_));
-  scoped_ptr<google_breakpad::ExceptionHandler> exc(
+  google_breakpad::ExceptionHandler *exc =
       new google_breakpad::ExceptionHandler(
-          temp_path_,
-          NULL,
-          NULL,
-          NULL,
-          google_breakpad::ExceptionHandler::HANDLER_ALL));
-
-  // Disable GTest SEH handler
-  testing::DisableExceptionHandlerInScope disable_exception_handler;
+          temp_path_, NULL, NULL, NULL,
+          google_breakpad::ExceptionHandler::HANDLER_ALL);
 
   SYSTEM_INFO sSysInfo;         // Useful information about the system
   GetSystemInfo(&sSysInfo);     // Initialize the structure.
 
-  const uint32_t kMemorySize = 256;  // bytes
+  const u_int32_t kMemorySize = 256;  // bytes
   const DWORD kPageSize = sSysInfo.dwPageSize;
   const int kOffset = 0;
   // This crashes with SIGILL on x86/x86-64/arm.
@@ -433,7 +368,7 @@ TEST_F(ExceptionHandlerDeathTest, InstructionPointerMemoryMinBound) {
   // minidump should contain 128 bytes on either side of the
   // instruction pointer.
   memcpy(memory + kOffset, instructions, sizeof(instructions));
-
+  
   // Now execute the instructions, which should crash.
   typedef void (*void_function)(void);
   void_function memory_function =
@@ -467,18 +402,28 @@ TEST_F(ExceptionHandlerDeathTest, InstructionPointerMemoryMinBound) {
     MinidumpContext* context = exception->GetContext();
     ASSERT_TRUE(context);
 
-    uint64_t instruction_pointer;
-    ASSERT_TRUE(context->GetInstructionPointer(&instruction_pointer));
+    u_int64_t instruction_pointer;
+    switch (context->GetContextCPU()) {
+    case MD_CONTEXT_X86:
+      instruction_pointer = context->GetContextX86()->eip;
+      break;
+    case MD_CONTEXT_AMD64:
+      instruction_pointer = context->GetContextAMD64()->rip;
+      break;
+    default:
+      FAIL() << "Unknown context CPU: " << context->GetContextCPU();
+      break;
+    }
 
     MinidumpMemoryRegion* region =
         memory_list->GetMemoryRegionForAddress(instruction_pointer);
     ASSERT_TRUE(region);
 
     EXPECT_EQ(kMemorySize / 2, region->GetSize());
-    const uint8_t* bytes = region->GetMemory();
+    const u_int8_t* bytes = region->GetMemory();
     ASSERT_TRUE(bytes);
 
-    uint8_t suffix_bytes[kMemorySize / 2 - sizeof(instructions)];
+    u_int8_t suffix_bytes[kMemorySize / 2 - sizeof(instructions)];
     memset(suffix_bytes, 0, sizeof(suffix_bytes));
     EXPECT_TRUE(memcmp(bytes + kOffset,
                        instructions, sizeof(instructions)) == 0);
@@ -491,16 +436,10 @@ TEST_F(ExceptionHandlerDeathTest, InstructionPointerMemoryMinBound) {
 
 TEST_F(ExceptionHandlerDeathTest, InstructionPointerMemoryMaxBound) {
   ASSERT_TRUE(DoesPathExist(temp_path_));
-  scoped_ptr<google_breakpad::ExceptionHandler> exc(
+  google_breakpad::ExceptionHandler *exc =
       new google_breakpad::ExceptionHandler(
-          temp_path_,
-          NULL,
-          NULL,
-          NULL,
-          google_breakpad::ExceptionHandler::HANDLER_ALL));
-
-  // Disable GTest SEH handler
-  testing::DisableExceptionHandlerInScope disable_exception_handler;
+          temp_path_, NULL, NULL, NULL,
+          google_breakpad::ExceptionHandler::HANDLER_ALL);
 
   SYSTEM_INFO sSysInfo;         // Useful information about the system
   GetSystemInfo(&sSysInfo);     // Initialize the structure.
@@ -521,7 +460,7 @@ TEST_F(ExceptionHandlerDeathTest, InstructionPointerMemoryMaxBound) {
 
   // Write some instructions that will crash.
   memcpy(memory + kOffset, instructions, sizeof(instructions));
-
+  
   // Now execute the instructions, which should crash.
   typedef void (*void_function)(void);
   void_function memory_function =
@@ -555,8 +494,18 @@ TEST_F(ExceptionHandlerDeathTest, InstructionPointerMemoryMaxBound) {
     MinidumpContext* context = exception->GetContext();
     ASSERT_TRUE(context);
 
-    uint64_t instruction_pointer;
-    ASSERT_TRUE(context->GetInstructionPointer(&instruction_pointer));
+    u_int64_t instruction_pointer;
+    switch (context->GetContextCPU()) {
+    case MD_CONTEXT_X86:
+      instruction_pointer = context->GetContextX86()->eip;
+      break;
+    case MD_CONTEXT_AMD64:
+      instruction_pointer = context->GetContextAMD64()->rip;
+      break;
+    default:
+      FAIL() << "Unknown context CPU: " << context->GetContextCPU();
+      break;
+    }
 
     MinidumpMemoryRegion* region =
         memory_list->GetMemoryRegionForAddress(instruction_pointer);
@@ -564,19 +513,17 @@ TEST_F(ExceptionHandlerDeathTest, InstructionPointerMemoryMaxBound) {
 
     const size_t kPrefixSize = 128;  // bytes
     EXPECT_EQ(kPrefixSize + sizeof(instructions), region->GetSize());
-    const uint8_t* bytes = region->GetMemory();
+    const u_int8_t* bytes = region->GetMemory();
     ASSERT_TRUE(bytes);
 
-    uint8_t prefix_bytes[kPrefixSize];
+    u_int8_t prefix_bytes[kPrefixSize];
     memset(prefix_bytes, 0, sizeof(prefix_bytes));
-    EXPECT_EQ(0, memcmp(bytes, prefix_bytes, sizeof(prefix_bytes)));
-    EXPECT_EQ(0, memcmp(bytes + kPrefixSize,
-                        instructions, sizeof(instructions)));
+    EXPECT_TRUE(memcmp(bytes, prefix_bytes, sizeof(prefix_bytes)) == 0);
+    EXPECT_TRUE(memcmp(bytes + kPrefixSize,
+                       instructions, sizeof(instructions)) == 0);
   }
 
   DeleteFileW(minidump_filename_wide.c_str());
 }
-
-#endif  // !ADDRESS_SANITIZER
 
 }  // namespace

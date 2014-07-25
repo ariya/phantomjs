@@ -126,12 +126,12 @@ class StaticMap {
   const char* raw_data_;
 
   // Number of nodes in the static map.
-  int32_t num_nodes_;
+  u_int32_t num_nodes_;
 
   // Array of offset addresses for stored values.
   // For example:
   // address_of_i-th_node_value = raw_data_ + offsets_[i]
-  const uint32_t* offsets_;
+  const u_int32_t* offsets_;
 
   // keys_[i] = key of i_th node
   const Key* keys_;

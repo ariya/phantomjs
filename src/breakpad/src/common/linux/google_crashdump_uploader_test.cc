@@ -29,12 +29,9 @@
 
 // Unit test for crash dump uploader.
 
-#include <string>
-
 #include "common/linux/google_crashdump_uploader.h"
 #include "common/linux/libcurl_wrapper.h"
 #include "breakpad_googletest_includes.h"
-#include "common/using_std_string.h"
 
 namespace google_breakpad {
 
@@ -44,14 +41,14 @@ using ::testing::_;
 class MockLibcurlWrapper : public LibcurlWrapper {
  public:
   MOCK_METHOD0(Init, bool());
-  MOCK_METHOD2(SetProxy, bool(const string& proxy_host,
-                              const string& proxy_userpwd));
-  MOCK_METHOD2(AddFile, bool(const string& upload_file_path,
-                             const string& basename));
+  MOCK_METHOD2(SetProxy, bool(const std::string& proxy_host,
+                              const std::string& proxy_userpwd));
+  MOCK_METHOD2(AddFile, bool(const std::string& upload_file_path,
+                             const std::string& basename));
   MOCK_METHOD3(SendRequest,
-               bool(const string& url,
-                    const std::map<string, string>& parameters,
-                    string* server_response));
+               bool(const std::string& url,
+                    const std::map<std::string, std::string>& parameters,
+                    std::string* server_response));
 };
 
 class GoogleCrashdumpUploaderTest : public ::testing::Test {

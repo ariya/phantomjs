@@ -33,7 +33,6 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
 #include "common/linux/eintr_wrapper.h"
@@ -51,7 +50,7 @@ bool CopyFile(const char* from_path, const char* to_path) {
   int outfile = HANDLE_EINTR(creat(to_path, 0666));
   if (outfile < 0) {
     perror("creat");
-    if (IGNORE_EINTR(close(infile)) < 0) {
+    if (HANDLE_EINTR(close(infile)) < 0) {
       perror("close");
     }
     return false;
@@ -84,11 +83,11 @@ bool CopyFile(const char* from_path, const char* to_path) {
     } while (bytes_written_per_read < bytes_read);
   }
 
-  if (IGNORE_EINTR(close(infile)) == -1) {
+  if (HANDLE_EINTR(close(infile)) == -1) {
     perror("close");
     result = false;
   }
-  if (IGNORE_EINTR(close(outfile)) == -1) {
+  if (HANDLE_EINTR(close(outfile)) == -1) {
     perror("close");
     result = false;
   }
@@ -112,7 +111,7 @@ bool ReadFile(const char* path, void* buffer, ssize_t* buffer_size) {
       ok = false;
     }
   }
-  if (IGNORE_EINTR(close(fd)) == -1) {
+  if (HANDLE_EINTR(close(fd)) == -1) {
     perror("close");
     ok = false;
   }
@@ -143,7 +142,7 @@ bool WriteFile(const char* path, const void* buffer, size_t buffer_size) {
       bytes_written_total += bytes_written_partial;
     }
   }
-  if (IGNORE_EINTR(close(fd)) == -1) {
+  if (HANDLE_EINTR(close(fd)) == -1) {
     perror("close");
     ok = false;
   }

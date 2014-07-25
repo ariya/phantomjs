@@ -29,30 +29,22 @@
 
 #include "client/ios/handler/ios_exception_minidump_generator.h"
 
-#include <pthread.h>
-
-#include "google_breakpad/common/minidump_cpu_arm.h"
-#include "google_breakpad/common/minidump_cpu_arm64.h"
 #include "google_breakpad/common/minidump_exception_mac.h"
 #include "client/minidump_file_writer-inl.h"
-#include "common/scoped_ptr.h"
-
-#if defined(HAS_ARM_SUPPORT) && defined(HAS_ARM64_SUPPORT)
-#error "This file should be compiled for only one architecture at a time"
-#endif
+#include "processor/scoped_ptr.h"
 
 namespace {
 
+const uint32_t kExpectedFinalFp = 4;
+const uint32_t kExpectedFinalSp = 0;
 const int kExceptionType = EXC_SOFTWARE;
 const int kExceptionCode = MD_EXCEPTION_CODE_MAC_NS_EXCEPTION;
 
-#if defined(HAS_ARM_SUPPORT) || defined(HAS_ARM64_SUPPORT)
-const uintptr_t kExpectedFinalFp = sizeof(uintptr_t);
-const uintptr_t kExpectedFinalSp = 0;
-
-// Append the given value to the sp position of the stack represented
+#ifdef HAS_ARM_SUPPORT
+// Append the given 4 bytes value to the sp position of the stack represented
 // by memory.
-void AppendToMemory(uint8_t *memory, uintptr_t sp, uintptr_t data) {
+void AppendToMemory(uint8_t *memory, uint32_t sp, uint32_t data) {
+  assert(sizeof(data) == 4);
   memcpy(memory + sp, &data, sizeof(data));
 }
 #endif
@@ -78,18 +70,6 @@ IosExceptionMinidumpGenerator::~IosExceptionMinidumpGenerator() {
 bool IosExceptionMinidumpGenerator::WriteCrashingContext(
     MDLocationDescriptor *register_location) {
 #ifdef HAS_ARM_SUPPORT
-  return WriteCrashingContextARM(register_location);
-#elif defined(HAS_ARM64_SUPPORT)
-  return WriteCrashingContextARM64(register_location);
-#else
-  assert(false);
-  return false;
-#endif
-}
-
-#ifdef HAS_ARM_SUPPORT
-bool IosExceptionMinidumpGenerator::WriteCrashingContextARM(
-    MDLocationDescriptor *register_location) {
   TypedMDRVA<MDRawContextARM> context(&writer_);
   if (!context.Allocate())
     return false;
@@ -97,43 +77,25 @@ bool IosExceptionMinidumpGenerator::WriteCrashingContextARM(
   MDRawContextARM *context_ptr = context.get();
   memset(context_ptr, 0, sizeof(MDRawContextARM));
   context_ptr->context_flags = MD_CONTEXT_ARM_FULL;
-  context_ptr->iregs[MD_CONTEXT_ARM_REG_IOS_FP] = kExpectedFinalFp;  // FP
-  context_ptr->iregs[MD_CONTEXT_ARM_REG_SP] = kExpectedFinalSp;      // SP
-  context_ptr->iregs[MD_CONTEXT_ARM_REG_LR] = GetLRFromException();  // LR
-  context_ptr->iregs[MD_CONTEXT_ARM_REG_PC] = GetPCFromException();  // PC
+  context_ptr->iregs[7] = kExpectedFinalFp;  // FP
+  context_ptr->iregs[13] = kExpectedFinalSp;  // SP
+  uint32_t pc = GetPCFromException();
+  context_ptr->iregs[14] = pc;  // LR
+  context_ptr->iregs[15] = pc;  // PC
   return true;
-}
+#else
+  assert(false);
+  return false;
 #endif
-
-#ifdef HAS_ARM64_SUPPORT
-bool IosExceptionMinidumpGenerator::WriteCrashingContextARM64(
-    MDLocationDescriptor *register_location) {
-  TypedMDRVA<MDRawContextARM64> context(&writer_);
-  if (!context.Allocate())
-    return false;
-  *register_location = context.location();
-  MDRawContextARM64 *context_ptr = context.get();
-  memset(context_ptr, 0, sizeof(*context_ptr));
-  context_ptr->context_flags = MD_CONTEXT_ARM64_FULL;
-  context_ptr->iregs[MD_CONTEXT_ARM64_REG_FP] = kExpectedFinalFp;      // FP
-  context_ptr->iregs[MD_CONTEXT_ARM64_REG_SP] = kExpectedFinalSp;      // SP
-  context_ptr->iregs[MD_CONTEXT_ARM64_REG_LR] = GetLRFromException();  // LR
-  context_ptr->iregs[MD_CONTEXT_ARM64_REG_PC] = GetPCFromException();  // PC
-  return true;
 }
-#endif
 
-uintptr_t IosExceptionMinidumpGenerator::GetPCFromException() {
+uint32_t IosExceptionMinidumpGenerator::GetPCFromException() {
   return [[return_addresses_ objectAtIndex:0] unsignedIntegerValue];
-}
-
-uintptr_t IosExceptionMinidumpGenerator::GetLRFromException() {
-  return [[return_addresses_ objectAtIndex:1] unsignedIntegerValue];
 }
 
 bool IosExceptionMinidumpGenerator::WriteExceptionStream(
     MDRawDirectory *exception_stream) {
-#if defined(HAS_ARM_SUPPORT) || defined(HAS_ARM64_SUPPORT)
+#ifdef HAS_ARM_SUPPORT
   TypedMDRVA<MDRawExceptionStream> exception(&writer_);
 
   if (!exception.Allocate())
@@ -161,38 +123,34 @@ bool IosExceptionMinidumpGenerator::WriteExceptionStream(
 
 bool IosExceptionMinidumpGenerator::WriteThreadStream(mach_port_t thread_id,
                                                       MDRawThread *thread) {
-#if defined(HAS_ARM_SUPPORT) || defined(HAS_ARM64_SUPPORT)
+#ifdef HAS_ARM_SUPPORT
   if (pthread_mach_thread_np(pthread_self()) != thread_id)
     return MinidumpGenerator::WriteThreadStream(thread_id, thread);
 
   size_t frame_count = [return_addresses_ count];
-  if (frame_count == 0)
-    return false;
   UntypedMDRVA memory(&writer_);
-  size_t pointer_size = sizeof(uintptr_t);
-  size_t frame_record_size = 2 * pointer_size;
-  size_t stack_size = frame_record_size * (frame_count - 1) + pointer_size;
-  if (!memory.Allocate(stack_size))
+  size_t size = 8 * (frame_count - 1) + 4;
+  if (!memory.Allocate(size))
     return false;
-  scoped_array<uint8_t> stack_memory(new uint8_t[stack_size]);
-  uintptr_t sp = stack_size - pointer_size;
-  uintptr_t fp = 0;
-  uintptr_t lr = 0;
-  for (size_t current_frame = frame_count - 1;
-       current_frame > 0;
+  scoped_array<uint8_t> stack_memory(new uint8_t[size]);
+  uint32_t sp = size - 4;
+  uint32_t fp = 0;
+  uint32_t lr = [[return_addresses_ lastObject] unsignedIntegerValue];
+  for (int current_frame = frame_count - 2;
+       current_frame >= 0;
        --current_frame) {
-    AppendToMemory(stack_memory.get(), sp, lr);
-    sp -= pointer_size;
     AppendToMemory(stack_memory.get(), sp, fp);
+    sp -= 4;
     fp = sp;
-    sp -= pointer_size;
+    AppendToMemory(stack_memory.get(), sp, lr);
+    sp -= 4;
     lr = [[return_addresses_ objectAtIndex:current_frame] unsignedIntegerValue];
   }
-  if (!memory.Copy(stack_memory.get(), stack_size))
+  if (!memory.Copy(stack_memory.get(), size))
     return false;
   assert(sp == kExpectedFinalSp);
   assert(fp == kExpectedFinalFp);
-  assert(lr == GetLRFromException());
+  assert(lr == GetPCFromException());
   thread->stack.start_of_memory_range = sp;
   thread->stack.memory = memory.location();
   memory_blocks_.push_back(thread->stack);

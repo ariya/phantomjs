@@ -29,8 +29,6 @@
 
 #include "client/mac/crash_generation/crash_generation_server.h"
 
-#include <pthread.h>
-
 #include "client/mac/crash_generation/client_info.h"
 #include "client/mac/handler/minidump_generator.h"
 #include "common/mac/scoped_task_suspend-inl.h"
@@ -39,8 +37,6 @@ namespace google_breakpad {
 
 CrashGenerationServer::CrashGenerationServer(
     const char *mach_port_name,
-    FilterCallback filter,
-    void *filter_context,
     OnClientDumpRequestCallback dump_callback,
     void *dump_context,
     OnClientExitingCallback exit_callback,
@@ -48,8 +44,6 @@ CrashGenerationServer::CrashGenerationServer(
     bool generate_dumps,
     const std::string &dump_path)
     : dump_callback_(dump_callback),
-      filter_(filter),
-      filter_context_(filter_context),
       dump_context_(dump_context),
       exit_callback_(exit_callback),
       exit_context_(exit_context),
@@ -116,7 +110,7 @@ bool CrashGenerationServer::WaitForOneMessage() {
 
         bool result;
         std::string dump_path;
-        if (generate_dumps_ && (!filter_ || filter_(filter_context_))) {
+        if (generate_dumps_) {
           ScopedTaskSuspend suspend(remote_task);
 
           MinidumpGenerator generator(remote_task, handler_thread);

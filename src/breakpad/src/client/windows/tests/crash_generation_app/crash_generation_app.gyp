@@ -1,4 +1,5 @@
-# Copyright 2010 Google Inc. All rights reserved.
+# Copyright (c) 2010, Google Inc.
+# All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
@@ -28,7 +29,7 @@
 
 {
   'includes': [
-    '../../../../build/common.gypi',
+    '../../build/common.gypi',
   ],
   'targets': [
     {
@@ -43,9 +44,6 @@
         'crash_generation_app.rc',
         'resource.h',
         'small.ico',
-      ],
-      'libraries': [
-        'user32.lib',
       ],
       'dependencies': [
         '../../breakpad_client.gyp:common',

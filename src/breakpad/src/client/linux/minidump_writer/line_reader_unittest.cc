@@ -33,41 +33,48 @@
 
 #include "client/linux/minidump_writer/line_reader.h"
 #include "breakpad_googletest_includes.h"
-#include "common/linux/tests/auto_testfile.h"
+#include "common/linux/eintr_wrapper.h"
 
 using namespace google_breakpad;
 
+#if !defined(__ANDROID__)
+#define TEMPDIR "/tmp"
+#else
+#define TEMPDIR "/data/local/tmp"
+#endif
+
+static int TemporaryFile() {
+  static const char templ[] = TEMPDIR "/line-reader-unittest-XXXXXX";
+  char templ_copy[sizeof(templ)];
+  memcpy(templ_copy, templ, sizeof(templ));
+  const int fd = mkstemp(templ_copy);
+  if (fd >= 0)
+    unlink(templ_copy);
+
+  return fd;
+}
+
 namespace {
-
 typedef testing::Test LineReaderTest;
-
-class ScopedTestFile : public AutoTestFile {
-public:
-  explicit ScopedTestFile(const char* text)
-    : AutoTestFile("line_reader", text) {
-  }
-
-  ScopedTestFile(const char* text, size_t text_len)
-    : AutoTestFile("line_reader", text, text_len) {
-  }
-};
-
 }
 
 TEST(LineReaderTest, EmptyFile) {
-  ScopedTestFile file("");
-  ASSERT_TRUE(file.IsOk());
-  LineReader reader(file.GetFd());
+  const int fd = TemporaryFile();
+  LineReader reader(fd);
 
   const char *line;
   unsigned len;
   ASSERT_FALSE(reader.GetNextLine(&line, &len));
+
+  close(fd);
 }
 
 TEST(LineReaderTest, OneLineTerminated) {
-  ScopedTestFile file("a\n");
-  ASSERT_TRUE(file.IsOk());
-  LineReader reader(file.GetFd());
+  const int fd = TemporaryFile();
+  const int r = HANDLE_EINTR(write(fd, "a\n", 2));
+  ASSERT_EQ(2, r);
+  lseek(fd, 0, SEEK_SET);
+  LineReader reader(fd);
 
   const char *line;
   unsigned int len;
@@ -78,12 +85,16 @@ TEST(LineReaderTest, OneLineTerminated) {
   reader.PopLine(len);
 
   ASSERT_FALSE(reader.GetNextLine(&line, &len));
+
+  close(fd);
 }
 
 TEST(LineReaderTest, OneLine) {
-  ScopedTestFile file("a");
-  ASSERT_TRUE(file.IsOk());
-  LineReader reader(file.GetFd());
+  const int fd = TemporaryFile();
+  const int r = HANDLE_EINTR(write(fd, "a", 1));
+  ASSERT_EQ(1, r);
+  lseek(fd, 0, SEEK_SET);
+  LineReader reader(fd);
 
   const char *line;
   unsigned len;
@@ -94,12 +105,16 @@ TEST(LineReaderTest, OneLine) {
   reader.PopLine(len);
 
   ASSERT_FALSE(reader.GetNextLine(&line, &len));
+
+  close(fd);
 }
 
 TEST(LineReaderTest, TwoLinesTerminated) {
-  ScopedTestFile file("a\nb\n");
-  ASSERT_TRUE(file.IsOk());
-  LineReader reader(file.GetFd());
+  const int fd = TemporaryFile();
+  const int r = HANDLE_EINTR(write(fd, "a\nb\n", 4));
+  ASSERT_EQ(4, r);
+  lseek(fd, 0, SEEK_SET);
+  LineReader reader(fd);
 
   const char *line;
   unsigned len;
@@ -116,12 +131,16 @@ TEST(LineReaderTest, TwoLinesTerminated) {
   reader.PopLine(len);
 
   ASSERT_FALSE(reader.GetNextLine(&line, &len));
+
+  close(fd);
 }
 
 TEST(LineReaderTest, TwoLines) {
-  ScopedTestFile file("a\nb");
-  ASSERT_TRUE(file.IsOk());
-  LineReader reader(file.GetFd());
+  const int fd = TemporaryFile();
+  const int r = HANDLE_EINTR(write(fd, "a\nb", 3));
+  ASSERT_EQ(3, r);
+  lseek(fd, 0, SEEK_SET);
+  LineReader reader(fd);
 
   const char *line;
   unsigned len;
@@ -138,14 +157,18 @@ TEST(LineReaderTest, TwoLines) {
   reader.PopLine(len);
 
   ASSERT_FALSE(reader.GetNextLine(&line, &len));
+
+  close(fd);
 }
 
 TEST(LineReaderTest, MaxLength) {
-  char l[LineReader::kMaxLineLen-1];
+  const int fd = TemporaryFile();
+  char l[LineReader::kMaxLineLen - 1];
   memset(l, 'a', sizeof(l));
-  ScopedTestFile file(l, sizeof(l));
-  ASSERT_TRUE(file.IsOk());
-  LineReader reader(file.GetFd());
+  const int r = HANDLE_EINTR(write(fd, l, sizeof(l)));
+  ASSERT_EQ(sizeof(l), r);
+  lseek(fd, 0, SEEK_SET);
+  LineReader reader(fd);
 
   const char *line;
   unsigned len;
@@ -153,17 +176,22 @@ TEST(LineReaderTest, MaxLength) {
   ASSERT_EQ(sizeof(l), len);
   ASSERT_TRUE(memcmp(l, line, sizeof(l)) == 0);
   ASSERT_EQ('\0', line[len]);
+
+  close(fd);
 }
 
 TEST(LineReaderTest, TooLong) {
-  // Note: this writes kMaxLineLen 'a' chars in the test file.
+  const int fd = TemporaryFile();
   char l[LineReader::kMaxLineLen];
   memset(l, 'a', sizeof(l));
-  ScopedTestFile file(l, sizeof(l));
-  ASSERT_TRUE(file.IsOk());
-  LineReader reader(file.GetFd());
+  const int r = HANDLE_EINTR(write(fd, l, sizeof(l)));
+  ASSERT_EQ(sizeof(l), r);
+  lseek(fd, 0, SEEK_SET);
+  LineReader reader(fd);
 
   const char *line;
   unsigned len;
   ASSERT_FALSE(reader.GetNextLine(&line, &len));
+
+  close(fd);
 }

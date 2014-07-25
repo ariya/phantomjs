@@ -74,11 +74,10 @@
 #include <string>
 #include <vector>
 
-#include "common/using_std_string.h"
-
 namespace google_breakpad {
 
 using std::map;
+using std::string;
 using std::vector;
 
 class MemoryRegion;

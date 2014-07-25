@@ -66,8 +66,7 @@ class OnDemandSymbolSupplier : public SymbolSupplier {
   virtual SymbolResult GetCStringSymbolData(const CodeModule *module,
                                             const SystemInfo *system_info,
                                             string *symbol_file,
-                                            char **symbol_data,
-                                            size_t *symbol_data_size);
+                                            char **symbol_data);
 
   // Delete the data buffer allocated for module in GetCStringSymbolData().
   virtual void FreeSymbolData(const CodeModule *module);

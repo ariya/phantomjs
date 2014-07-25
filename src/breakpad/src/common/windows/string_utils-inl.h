@@ -30,8 +30,8 @@
 // string_utils-inl.h: Safer string manipulation on Windows, supporting
 // pre-MSVC8 environments.
 
-#ifndef COMMON_WINDOWS_STRING_UTILS_INL_H_
-#define COMMON_WINDOWS_STRING_UTILS_INL_H_
+#ifndef COMMON_WINDOWS_STRING_UTILS_INL_H__
+#define COMMON_WINDOWS_STRING_UTILS_INL_H__
 
 #include <stdarg.h>
 #include <wchar.h>
@@ -139,4 +139,4 @@ inline void WindowsStringUtils::safe_wcsncpy(wchar_t *destination,
 
 }  // namespace google_breakpad
 
-#endif  // COMMON_WINDOWS_STRING_UTILS_INL_H_
+#endif  // COMMON_WINDOWS_STRING_UTILS_INL_H__

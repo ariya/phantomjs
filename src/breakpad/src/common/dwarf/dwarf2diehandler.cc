@@ -31,12 +31,9 @@
 // dwarf2diehandler.cc: Implement the dwarf2reader::DieDispatcher class.
 // See dwarf2diehandler.h for details.
 
-#include <assert.h>
-
-#include <string>
-
 #include "common/dwarf/dwarf2diehandler.h"
-#include "common/using_std_string.h"
+
+#include <assert.h>
 
 namespace dwarf2reader {
 
@@ -57,7 +54,8 @@ bool DIEDispatcher::StartCompilationUnit(uint64 offset, uint8 address_size,
                                              dwarf_version);
 }
 
-bool DIEDispatcher::StartDIE(uint64 offset, enum DwarfTag tag) {
+bool DIEDispatcher::StartDIE(uint64 offset, enum DwarfTag tag,
+                             const AttributeList& attrs) {
   // The stack entry for the parent of this DIE, if there is one.
   HandlerStack *parent = die_handlers_.empty() ? NULL : &die_handlers_.top();
 
@@ -81,7 +79,7 @@ bool DIEDispatcher::StartDIE(uint64 offset, enum DwarfTag tag) {
   if (parent) {
     if (parent->handler_)
       // Ask the parent to find a handler.
-      handler = parent->handler_->FindChildHandler(offset, tag);
+      handler = parent->handler_->FindChildHandler(offset, tag, attrs);
     else
       // No parent handler means we're not interested in any of our
       // children.
@@ -91,7 +89,7 @@ bool DIEDispatcher::StartDIE(uint64 offset, enum DwarfTag tag) {
     // decides whether to visit it, but the root DIE has no parent
     // handler, so we have a special method on the root DIE handler
     // itself to decide.
-    if (root_handler_->StartRootDIE(offset, tag))
+    if (root_handler_->StartRootDIE(offset, tag, attrs))
       handler = root_handler_;
     else
       handler = NULL;
@@ -178,7 +176,7 @@ void DIEDispatcher::ProcessAttributeBuffer(uint64 offset,
 void DIEDispatcher::ProcessAttributeString(uint64 offset,
                                            enum DwarfAttribute attr,
                                            enum DwarfForm form,
-                                           const string& data) {
+                                           const std::string& data) {
   HandlerStack &current = die_handlers_.top();
   // This had better be an attribute of the DIE we were meant to handle.
   assert(offset == current.offset_);

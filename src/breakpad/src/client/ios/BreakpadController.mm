@@ -36,7 +36,7 @@
 #include <unistd.h>
 #include <sys/sysctl.h>
 
-#include <common/scoped_ptr.h>
+#include <processor/scoped_ptr.h>
 
 #pragma mark -
 #pragma mark Private Methods
@@ -108,9 +108,11 @@ NSString* GetPlatform() {
   self = [super init];
   if (self) {
     queue_ = dispatch_queue_create("com.google.BreakpadQueue", NULL);
+    configuration_ = [[[NSBundle mainBundle] infoDictionary] mutableCopy];
     enableUploads_ = NO;
-    started_ = NO;
-    [self resetConfiguration];
+    NSString* uploadInterval =
+        [configuration_ valueForKey:@BREAKPAD_REPORT_INTERVAL];
+    [self setUploadInterval:[uploadInterval intValue]];
   }
   return self;
 }
@@ -120,16 +122,12 @@ NSString* GetPlatform() {
   assert(!breakpadRef_);
   dispatch_release(queue_);
   [configuration_ release];
-  [uploadTimeParameters_ release];
   [super dealloc];
 }
 
 #pragma mark -
 
 - (void)start:(BOOL)onCurrentThread {
-  if (started_)
-    return;
-  started_ = YES;
   void(^startBlock)() = ^{
       assert(!breakpadRef_);
       breakpadRef_ = BreakpadCreate(configuration_);
@@ -144,9 +142,6 @@ NSString* GetPlatform() {
 }
 
 - (void)stop {
-  if (!started_)
-    return;
-  started_ = NO;
   dispatch_sync(queue_, ^{
       if (breakpadRef_) {
         BreakpadRelease(breakpadRef_);
@@ -156,8 +151,6 @@ NSString* GetPlatform() {
 }
 
 - (void)setUploadingEnabled:(BOOL)enabled {
-  NSAssert(started_,
-      @"The controller must be started before setUploadingEnabled is called");
   dispatch_async(queue_, ^{
       if (enabled == enableUploads_)
         return;
@@ -176,8 +169,6 @@ NSString* GetPlatform() {
 }
 
 - (void)updateConfiguration:(NSDictionary*)configuration {
-  NSAssert(!started_,
-      @"The controller must not be started when updateConfiguration is called");
   [configuration_ addEntriesFromDictionary:configuration];
   NSString* uploadInterval =
       [configuration_ valueForKey:@BREAKPAD_REPORT_INTERVAL];
@@ -185,42 +176,18 @@ NSString* GetPlatform() {
     [self setUploadInterval:[uploadInterval intValue]];
 }
 
-- (void)resetConfiguration {
-  NSAssert(!started_,
-      @"The controller must not be started when resetConfiguration is called");
-  [configuration_ autorelease];
-  configuration_ = [[[NSBundle mainBundle] infoDictionary] mutableCopy];
-  NSString* uploadInterval =
-      [configuration_ valueForKey:@BREAKPAD_REPORT_INTERVAL];
-  [self setUploadInterval:[uploadInterval intValue]];
-  [self setParametersToAddAtUploadTime:nil];
-}
-
 - (void)setUploadingURL:(NSString*)url {
-  NSAssert(!started_,
-      @"The controller must not be started when setUploadingURL is called");
   [configuration_ setValue:url forKey:@BREAKPAD_URL];
 }
 
 - (void)setUploadInterval:(int)intervalInSeconds {
-  NSAssert(!started_,
-      @"The controller must not be started when setUploadInterval is called");
   [configuration_ removeObjectForKey:@BREAKPAD_REPORT_INTERVAL];
   uploadIntervalInSeconds_ = intervalInSeconds;
   if (uploadIntervalInSeconds_ < 0)
     uploadIntervalInSeconds_ = 0;
 }
 
-- (void)setParametersToAddAtUploadTime:(NSDictionary*)uploadTimeParameters {
-  NSAssert(!started_, @"The controller must not be started when "
-                      "setParametersToAddAtUploadTime is called");
-  [uploadTimeParameters_ autorelease];
-  uploadTimeParameters_ = [uploadTimeParameters copy];
-}
-
 - (void)addUploadParameter:(NSString*)value forKey:(NSString*)key {
-  NSAssert(started_,
-      @"The controller must be started before addUploadParameter is called");
   dispatch_async(queue_, ^{
       if (breakpadRef_)
         BreakpadAddUploadParameter(breakpadRef_, key, value);
@@ -228,8 +195,6 @@ NSString* GetPlatform() {
 }
 
 - (void)removeUploadParameterForKey:(NSString*)key {
-  NSAssert(started_, @"The controller must be started before "
-                     "removeUploadParameterForKey is called");
   dispatch_async(queue_, ^{
       if (breakpadRef_)
         BreakpadRemoveUploadParameter(breakpadRef_, key);
@@ -237,28 +202,11 @@ NSString* GetPlatform() {
 }
 
 - (void)withBreakpadRef:(void(^)(BreakpadRef))callback {
-  NSAssert(started_,
-      @"The controller must be started before withBreakpadRef is called");
   dispatch_async(queue_, ^{
       callback(breakpadRef_);
   });
 }
 
-- (void)hasReportToUpload:(void(^)(BOOL))callback {
-  NSAssert(started_, @"The controller must be started before "
-                     "hasReportToUpload is called");
-  dispatch_async(queue_, ^{
-      callback(breakpadRef_ && (BreakpadGetCrashReportCount(breakpadRef_) > 0));
-  });
-}
-
-- (void)getCrashReportCount:(void(^)(int))callback {
-  NSAssert(started_, @"The controller must be started before "
-                     "getCrashReportCount is called");
-  dispatch_async(queue_, ^{
-      callback(breakpadRef_ ? BreakpadGetCrashReportCount(breakpadRef_) : 0);
-  });
-}
 
 #pragma mark -
 
@@ -276,7 +224,7 @@ NSString* GetPlatform() {
 
   if (spanSeconds >= uploadIntervalInSeconds_)
     return 0;
-  return uploadIntervalInSeconds_ - static_cast<int>(spanSeconds);
+  return uploadIntervalInSeconds_ - spanSeconds;
 }
 
 - (void)reportWillBeSent {
@@ -288,7 +236,7 @@ NSString* GetPlatform() {
 
 - (void)sendStoredCrashReports {
   dispatch_async(queue_, ^{
-      if (BreakpadGetCrashReportCount(breakpadRef_) == 0)
+      if (!BreakpadHasCrashReportToUpload(breakpadRef_))
         return;
 
       int timeToWait = [self sendDelay];
@@ -300,23 +248,18 @@ NSString* GetPlatform() {
       // A report can be sent now.
       if (timeToWait == 0) {
         [self reportWillBeSent];
-        BreakpadUploadNextReportWithParameters(breakpadRef_,
-                                               uploadTimeParameters_);
+        BreakpadUploadNextReport(breakpadRef_);
 
         // If more reports must be sent, make sure this method is called again.
-        if (BreakpadGetCrashReportCount(breakpadRef_) > 0)
+        if (BreakpadHasCrashReportToUpload(breakpadRef_))
           timeToWait = uploadIntervalInSeconds_;
       }
 
       // A report must be sent later.
-      if (timeToWait > 0) {
-        // performSelector: doesn't work on queue_
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self performSelector:@selector(sendStoredCrashReports)
-                       withObject:nil
-                       afterDelay:timeToWait];
-        });
-     }
+      if (timeToWait > 0)
+        [self performSelector:@selector(sendStoredCrashReports)
+                   withObject:nil
+                   afterDelay:timeToWait];
   });
 }
 

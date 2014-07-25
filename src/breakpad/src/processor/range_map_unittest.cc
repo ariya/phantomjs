@@ -37,9 +37,10 @@
 
 #include "processor/range_map-inl.h"
 
-#include "common/scoped_ptr.h"
 #include "processor/linked_ptr.h"
 #include "processor/logging.h"
+#include "processor/scoped_ptr.h"
+
 
 namespace {
 

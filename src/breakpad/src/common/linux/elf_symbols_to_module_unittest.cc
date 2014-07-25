@@ -42,7 +42,6 @@
 #include "common/linux/synth_elf.h"
 #include "common/module.h"
 #include "common/test_assembler.h"
-#include "common/using_std_string.h"
 
 using google_breakpad::Module;
 using google_breakpad::synth_elf::StringTable;
@@ -53,6 +52,7 @@ using google_breakpad::test_assembler::Label;
 using google_breakpad::test_assembler::Section;
 using ::testing::Test;
 using ::testing::TestWithParam;
+using std::string;
 using std::vector;
 
 class ELFSymbolsToModuleTestFixture {

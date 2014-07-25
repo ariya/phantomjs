@@ -88,7 +88,6 @@
 #include <string>
 #include <vector>
 
-#include "common/using_std_string.h"
 #include "google_breakpad/common/minidump_format.h"
 #include "google_breakpad/processor/code_module.h"
 #include "google_breakpad/processor/code_modules.h"
@@ -99,6 +98,7 @@ namespace google_breakpad {
 
 
 using std::map;
+using std::string;
 using std::vector;
 
 
@@ -154,7 +154,7 @@ class MinidumpStream : public MinidumpObject {
   // the MDRawDirectory record or other identifying record.  A class
   // that implements MinidumpStream can compare expected_size to a
   // known size as an integrity check.
-  virtual bool Read(uint32_t expected_size) = 0;
+  virtual bool Read(u_int32_t expected_size) = 0;
 };
 
 
@@ -176,53 +176,27 @@ class MinidumpContext : public MinidumpStream {
   // identifying the CPU type that the context was collected from.  The
   // returned value will identify the CPU only, and will have any other
   // MD_CONTEXT_* bits masked out.  Returns 0 on failure.
-  uint32_t GetContextCPU() const;
-
-  // A convenience method to get the instruction pointer out of the
-  // MDRawContext, since it varies per-CPU architecture.
-  bool GetInstructionPointer(uint64_t* ip) const;
+  u_int32_t GetContextCPU() const;
 
   // Returns raw CPU-specific context data for the named CPU type.  If the
   // context data does not match the CPU type or does not exist, returns
   // NULL.
   const MDRawContextAMD64* GetContextAMD64() const;
   const MDRawContextARM*   GetContextARM() const;
-  const MDRawContextARM64* GetContextARM64() const;
-  const MDRawContextMIPS*  GetContextMIPS() const;
   const MDRawContextPPC*   GetContextPPC() const;
-  const MDRawContextPPC64* GetContextPPC64() const;
   const MDRawContextSPARC* GetContextSPARC() const;
   const MDRawContextX86*   GetContextX86() const;
-
+ 
   // Print a human-readable representation of the object to stdout.
   void Print();
-
- protected:
-  explicit MinidumpContext(Minidump* minidump);
-
-  // The CPU-specific context structure.
-  union {
-    MDRawContextBase*  base;
-    MDRawContextX86*   x86;
-    MDRawContextPPC*   ppc;
-    MDRawContextPPC64* ppc64;
-    MDRawContextAMD64* amd64;
-    // on Solaris SPARC, sparc is defined as a numeric constant,
-    // so variables can NOT be named as sparc
-    MDRawContextSPARC* ctx_sparc;
-    MDRawContextARM*   arm;
-    MDRawContextARM64* arm64;
-    MDRawContextMIPS*  ctx_mips;
-  } context_;
-
-  // Store this separately because of the weirdo AMD64 context
-  uint32_t context_flags_;
 
  private:
   friend class MinidumpThread;
   friend class MinidumpException;
 
-  bool Read(uint32_t expected_size);
+  explicit MinidumpContext(Minidump* minidump);
+
+  bool Read(u_int32_t expected_size);
 
   // Free the CPU-specific context structure.
   void FreeContext();
@@ -232,7 +206,22 @@ class MinidumpContext : public MinidumpStream {
   // CPU type in context_cpu_type.  Returns false if the CPU type does not
   // match.  Returns true if the CPU type matches or if the minidump does
   // not contain a system info stream.
-  bool CheckAgainstSystemInfo(uint32_t context_cpu_type);
+  bool CheckAgainstSystemInfo(u_int32_t context_cpu_type);
+
+  // Store this separately because of the weirdo AMD64 context
+  u_int32_t context_flags_;
+
+  // The CPU-specific context structure.
+  union {
+    MDRawContextBase*  base;
+    MDRawContextX86*   x86;
+    MDRawContextPPC*   ppc;
+    MDRawContextAMD64* amd64;
+    // on Solaris SPARC, sparc is defined as a numeric constant,
+    // so variables can NOT be named as sparc
+    MDRawContextSPARC* ctx_sparc;
+    MDRawContextARM*   arm;
+  } context_;
 };
 
 
@@ -249,57 +238,56 @@ class MinidumpMemoryRegion : public MinidumpObject,
  public:
   virtual ~MinidumpMemoryRegion();
 
-  static void set_max_bytes(uint32_t max_bytes) { max_bytes_ = max_bytes; }
-  static uint32_t max_bytes() { return max_bytes_; }
+  static void set_max_bytes(u_int32_t max_bytes) { max_bytes_ = max_bytes; }
+  static u_int32_t max_bytes() { return max_bytes_; }
 
   // Returns a pointer to the base of the memory region.  Returns the
   // cached value if available, otherwise, reads the minidump file and
   // caches the memory region.
-  const uint8_t* GetMemory() const;
+  const u_int8_t* GetMemory() const;
 
   // The address of the base of the memory region.
-  uint64_t GetBase() const;
+  u_int64_t GetBase() const;
 
   // The size, in bytes, of the memory region.
-  uint32_t GetSize() const;
+  u_int32_t GetSize() const;
 
   // Frees the cached memory region, if cached.
   void FreeMemory();
 
   // Obtains the value of memory at the pointer specified by address.
-  bool GetMemoryAtAddress(uint64_t address, uint8_t*  value) const;
-  bool GetMemoryAtAddress(uint64_t address, uint16_t* value) const;
-  bool GetMemoryAtAddress(uint64_t address, uint32_t* value) const;
-  bool GetMemoryAtAddress(uint64_t address, uint64_t* value) const;
+  bool GetMemoryAtAddress(u_int64_t address, u_int8_t*  value) const;
+  bool GetMemoryAtAddress(u_int64_t address, u_int16_t* value) const;
+  bool GetMemoryAtAddress(u_int64_t address, u_int32_t* value) const;
+  bool GetMemoryAtAddress(u_int64_t address, u_int64_t* value) const;
 
   // Print a human-readable representation of the object to stdout.
   void Print();
 
- protected:
-  explicit MinidumpMemoryRegion(Minidump* minidump);
-
  private:
   friend class MinidumpThread;
   friend class MinidumpMemoryList;
+
+  explicit MinidumpMemoryRegion(Minidump* minidump);
 
   // Identify the base address and size of the memory region, and the
   // location it may be found in the minidump file.
   void SetDescriptor(MDMemoryDescriptor* descriptor);
 
   // Implementation for GetMemoryAtAddress
-  template<typename T> bool GetMemoryAtAddressInternal(uint64_t address,
+  template<typename T> bool GetMemoryAtAddressInternal(u_int64_t address,
                                                        T*        value) const;
 
   // The largest memory region that will be read from a minidump.  The
   // default is 1MB.
-  static uint32_t max_bytes_;
+  static u_int32_t max_bytes_;
 
   // Base address and size of the memory region, and its position in the
   // minidump file.
   MDMemoryDescriptor* descriptor_;
 
   // Cached memory.
-  mutable vector<uint8_t>* memory_;
+  mutable vector<u_int8_t>* memory_;
 };
 
 
@@ -308,39 +296,28 @@ class MinidumpMemoryRegion : public MinidumpObject,
 // the thread that caused an exception, the context carried by
 // MinidumpException is probably desired instead of the CPU context
 // provided here.
-// Note that a MinidumpThread may be valid() even if it does not
-// contain a memory region or context.
 class MinidumpThread : public MinidumpObject {
  public:
   virtual ~MinidumpThread();
 
   const MDRawThread* thread() const { return valid_ ? &thread_ : NULL; }
-  // GetMemory may return NULL even if the MinidumpThread is valid,
-  // if the thread memory cannot be read.
-  virtual MinidumpMemoryRegion* GetMemory();
-  // GetContext may return NULL even if the MinidumpThread is valid.
-  virtual MinidumpContext* GetContext();
+  MinidumpMemoryRegion* GetMemory();
+  MinidumpContext* GetContext();
 
   // The thread ID is used to determine if a thread is the exception thread,
   // so a special getter is provided to retrieve this data from the
   // MDRawThread structure.  Returns false if the thread ID cannot be
   // determined.
-  virtual bool GetThreadID(uint32_t *thread_id) const;
+  bool GetThreadID(u_int32_t *thread_id) const;
 
   // Print a human-readable representation of the object to stdout.
   void Print();
 
-  // Returns the start address of the thread stack memory region.  Returns 0 if
-  // MinidumpThread is invalid.  Note that this method can be called even when
-  // the thread memory cannot be read and GetMemory returns NULL.
-  virtual uint64_t GetStartOfStackMemoryRange() const;
-
- protected:
-  explicit MinidumpThread(Minidump* minidump);
-
  private:
   // These objects are managed by MinidumpThreadList.
   friend class MinidumpThreadList;
+
+  explicit MinidumpThread(Minidump* minidump);
 
   // This works like MinidumpStream::Read, but is driven by
   // MinidumpThreadList.  No size checking is done, because
@@ -359,47 +336,46 @@ class MinidumpThreadList : public MinidumpStream {
  public:
   virtual ~MinidumpThreadList();
 
-  static void set_max_threads(uint32_t max_threads) {
+  static void set_max_threads(u_int32_t max_threads) {
     max_threads_ = max_threads;
   }
-  static uint32_t max_threads() { return max_threads_; }
+  static u_int32_t max_threads() { return max_threads_; }
 
-  virtual unsigned int thread_count() const {
+  unsigned int thread_count() const {
     return valid_ ? thread_count_ : 0;
   }
 
   // Sequential access to threads.
-  virtual MinidumpThread* GetThreadAtIndex(unsigned int index) const;
+  MinidumpThread* GetThreadAtIndex(unsigned int index) const;
 
   // Random access to threads.
-  MinidumpThread* GetThreadByID(uint32_t thread_id);
+  MinidumpThread* GetThreadByID(u_int32_t thread_id);
 
   // Print a human-readable representation of the object to stdout.
   void Print();
 
- protected:
-  explicit MinidumpThreadList(Minidump* aMinidump);
-
  private:
   friend class Minidump;
 
-  typedef map<uint32_t, MinidumpThread*> IDToThreadMap;
+  typedef map<u_int32_t, MinidumpThread*> IDToThreadMap;
   typedef vector<MinidumpThread> MinidumpThreads;
 
-  static const uint32_t kStreamType = MD_THREAD_LIST_STREAM;
+  static const u_int32_t kStreamType = MD_THREAD_LIST_STREAM;
 
-  bool Read(uint32_t aExpectedSize);
+  explicit MinidumpThreadList(Minidump* aMinidump);
+
+  bool Read(u_int32_t aExpectedSize);
 
   // The largest number of threads that will be read from a minidump.  The
   // default is 256.
-  static uint32_t max_threads_;
+  static u_int32_t max_threads_;
 
   // Access to threads using the thread ID as the key.
   IDToThreadMap    id_to_thread_map_;
 
   // The list of threads.
   MinidumpThreads* threads_;
-  uint32_t        thread_count_;
+  u_int32_t        thread_count_;
 };
 
 
@@ -412,23 +388,23 @@ class MinidumpModule : public MinidumpObject,
  public:
   virtual ~MinidumpModule();
 
-  static void set_max_cv_bytes(uint32_t max_cv_bytes) {
+  static void set_max_cv_bytes(u_int32_t max_cv_bytes) {
     max_cv_bytes_ = max_cv_bytes;
   }
-  static uint32_t max_cv_bytes() { return max_cv_bytes_; }
+  static u_int32_t max_cv_bytes() { return max_cv_bytes_; }
 
-  static void set_max_misc_bytes(uint32_t max_misc_bytes) {
+  static void set_max_misc_bytes(u_int32_t max_misc_bytes) {
     max_misc_bytes_ = max_misc_bytes;
   }
-  static uint32_t max_misc_bytes() { return max_misc_bytes_; }
+  static u_int32_t max_misc_bytes() { return max_misc_bytes_; }
 
   const MDRawModule* module() const { return valid_ ? &module_ : NULL; }
 
   // CodeModule implementation
-  virtual uint64_t base_address() const {
-    return valid_ ? module_.base_of_image : static_cast<uint64_t>(-1);
+  virtual u_int64_t base_address() const {
+    return valid_ ? module_.base_of_image : static_cast<u_int64_t>(-1);
   }
-  virtual uint64_t size() const { return valid_ ? module_.size_of_image : 0; }
+  virtual u_int64_t size() const { return valid_ ? module_.size_of_image : 0; }
   virtual string code_file() const;
   virtual string code_identifier() const;
   virtual string debug_file() const;
@@ -437,7 +413,7 @@ class MinidumpModule : public MinidumpObject,
   virtual const CodeModule* Copy() const;
 
   // The CodeView record, which contains information to locate the module's
-  // debugging information (pdb).  This is returned as uint8_t* because
+  // debugging information (pdb).  This is returned as u_int8_t* because
   // the data can be of types MDCVInfoPDB20* or MDCVInfoPDB70*, or it may be
   // of a type unknown to Breakpad, in which case the raw data will still be
   // returned but no byte-swapping will have been performed.  Check the
@@ -446,14 +422,14 @@ class MinidumpModule : public MinidumpObject,
   // MDCVInfoPDB70 by default.  Returns a pointer to the CodeView record on
   // success, and NULL on failure.  On success, the optional |size| argument
   // is set to the size of the CodeView record.
-  const uint8_t* GetCVRecord(uint32_t* size);
+  const u_int8_t* GetCVRecord(u_int32_t* size);
 
   // The miscellaneous debug record, which is obsolete.  Current toolchains
   // do not generate this type of debugging information (dbg), and this
   // field is not expected to be present.  Returns a pointer to the debugging
   // record on success, and NULL on failure.  On success, the optional |size|
   // argument is set to the size of the debugging record.
-  const MDImageDebugMisc* GetMiscRecord(uint32_t* size);
+  const MDImageDebugMisc* GetMiscRecord(u_int32_t* size);
 
   // Print a human-readable representation of the object to stdout.
   void Print();
@@ -480,13 +456,13 @@ class MinidumpModule : public MinidumpObject,
   // The largest number of bytes that will be read from a minidump for a
   // CodeView record or miscellaneous debugging record, respectively.  The
   // default for each is 1024.
-  static uint32_t max_cv_bytes_;
-  static uint32_t max_misc_bytes_;
+  static u_int32_t max_cv_bytes_;
+  static u_int32_t max_misc_bytes_;
 
   // True after a successful Read.  This is different from valid_, which is
   // not set true until ReadAuxiliaryData also completes successfully.
   // module_valid_ is only used by ReadAuxiliaryData and the functions it
-  // calls to determine whether the object is ready for auxiliary data to
+  // calls to determine whether the object is ready for auxiliary data to 
   // be read.
   bool              module_valid_;
 
@@ -501,20 +477,20 @@ class MinidumpModule : public MinidumpObject,
   const string*     name_;
 
   // Cached CodeView record - this is MDCVInfoPDB20 or (likely)
-  // MDCVInfoPDB70, or possibly something else entirely.  Stored as a uint8_t
+  // MDCVInfoPDB70, or possibly something else entirely.  Stored as a u_int8_t
   // because the structure contains a variable-sized string and its exact
   // size cannot be known until it is processed.
-  vector<uint8_t>* cv_record_;
+  vector<u_int8_t>* cv_record_;
 
   // If cv_record_ is present, cv_record_signature_ contains a copy of the
   // CodeView record's first four bytes, for ease of determinining the
   // type of structure that cv_record_ contains.
-  uint32_t cv_record_signature_;
+  u_int32_t cv_record_signature_;
 
-  // Cached MDImageDebugMisc (usually not present), stored as uint8_t
+  // Cached MDImageDebugMisc (usually not present), stored as u_int8_t
   // because the structure contains a variable-sized string and its exact
   // size cannot be known until it is processed.
-  vector<uint8_t>* misc_record_;
+  vector<u_int8_t>* misc_record_;
 };
 
 
@@ -527,16 +503,16 @@ class MinidumpModuleList : public MinidumpStream,
  public:
   virtual ~MinidumpModuleList();
 
-  static void set_max_modules(uint32_t max_modules) {
+  static void set_max_modules(u_int32_t max_modules) {
     max_modules_ = max_modules;
   }
-  static uint32_t max_modules() { return max_modules_; }
+  static u_int32_t max_modules() { return max_modules_; }
 
   // CodeModules implementation.
   virtual unsigned int module_count() const {
     return valid_ ? module_count_ : 0;
   }
-  virtual const MinidumpModule* GetModuleForAddress(uint64_t address) const;
+  virtual const MinidumpModule* GetModuleForAddress(u_int64_t address) const;
   virtual const MinidumpModule* GetMainModule() const;
   virtual const MinidumpModule* GetModuleAtSequence(
       unsigned int sequence) const;
@@ -546,27 +522,26 @@ class MinidumpModuleList : public MinidumpStream,
   // Print a human-readable representation of the object to stdout.
   void Print();
 
- protected:
-  explicit MinidumpModuleList(Minidump* minidump);
-
  private:
   friend class Minidump;
 
   typedef vector<MinidumpModule> MinidumpModules;
 
-  static const uint32_t kStreamType = MD_MODULE_LIST_STREAM;
+  static const u_int32_t kStreamType = MD_MODULE_LIST_STREAM;
 
-  bool Read(uint32_t expected_size);
+  explicit MinidumpModuleList(Minidump* minidump);
+
+  bool Read(u_int32_t expected_size);
 
   // The largest number of modules that will be read from a minidump.  The
   // default is 1024.
-  static uint32_t max_modules_;
+  static u_int32_t max_modules_;
 
   // Access to modules using addresses as the key.
-  RangeMap<uint64_t, unsigned int> *range_map_;
+  RangeMap<u_int64_t, unsigned int> *range_map_;
 
   MinidumpModules *modules_;
-  uint32_t module_count_;
+  u_int32_t module_count_;
 };
 
 
@@ -583,10 +558,10 @@ class MinidumpMemoryList : public MinidumpStream {
  public:
   virtual ~MinidumpMemoryList();
 
-  static void set_max_regions(uint32_t max_regions) {
+  static void set_max_regions(u_int32_t max_regions) {
     max_regions_ = max_regions;
   }
-  static uint32_t max_regions() { return max_regions_; }
+  static u_int32_t max_regions() { return max_regions_; }
 
   unsigned int region_count() const { return valid_ ? region_count_ : 0; }
 
@@ -595,30 +570,29 @@ class MinidumpMemoryList : public MinidumpStream {
 
   // Random access to memory regions.  Returns the region encompassing
   // the address identified by address.
-  virtual MinidumpMemoryRegion* GetMemoryRegionForAddress(uint64_t address);
+  MinidumpMemoryRegion* GetMemoryRegionForAddress(u_int64_t address);
 
   // Print a human-readable representation of the object to stdout.
   void Print();
 
  private:
   friend class Minidump;
-  friend class MockMinidumpMemoryList;
 
   typedef vector<MDMemoryDescriptor>   MemoryDescriptors;
   typedef vector<MinidumpMemoryRegion> MemoryRegions;
 
-  static const uint32_t kStreamType = MD_MEMORY_LIST_STREAM;
+  static const u_int32_t kStreamType = MD_MEMORY_LIST_STREAM;
 
   explicit MinidumpMemoryList(Minidump* minidump);
 
-  bool Read(uint32_t expected_size);
+  bool Read(u_int32_t expected_size);
 
   // The largest number of memory regions that will be read from a minidump.
   // The default is 256.
-  static uint32_t max_regions_;
+  static u_int32_t max_regions_;
 
   // Access to memory regions using addresses as the key.
-  RangeMap<uint64_t, unsigned int> *range_map_;
+  RangeMap<u_int64_t, unsigned int> *range_map_;
 
   // The list of descriptors.  This is maintained separately from the list
   // of regions, because MemoryRegion doesn't own its MemoryDescriptor, it
@@ -628,7 +602,7 @@ class MinidumpMemoryList : public MinidumpStream {
 
   // The list of regions.
   MemoryRegions *regions_;
-  uint32_t region_count_;
+  u_int32_t region_count_;
 };
 
 
@@ -650,7 +624,7 @@ class MinidumpException : public MinidumpStream {
   // so a special getter is provided to retrieve this data from the
   // MDRawExceptionStream structure.  Returns false if the thread ID cannot
   // be determined.
-  bool GetThreadID(uint32_t *thread_id) const;
+  bool GetThreadID(u_int32_t *thread_id) const;
 
   MinidumpContext* GetContext();
 
@@ -660,11 +634,11 @@ class MinidumpException : public MinidumpStream {
  private:
   friend class Minidump;
 
-  static const uint32_t kStreamType = MD_EXCEPTION_STREAM;
+  static const u_int32_t kStreamType = MD_EXCEPTION_STREAM;
 
   explicit MinidumpException(Minidump* minidump);
 
-  bool Read(uint32_t expected_size);
+  bool Read(u_int32_t expected_size);
 
   MDRawExceptionStream exception_;
   MinidumpContext*     context_;
@@ -698,11 +672,11 @@ class MinidumpAssertion : public MinidumpStream {
  private:
   friend class Minidump;
 
-  static const uint32_t kStreamType = MD_ASSERTION_INFO_STREAM;
+  static const u_int32_t kStreamType = MD_ASSERTION_INFO_STREAM;
 
   explicit MinidumpAssertion(Minidump* minidump);
 
-  bool Read(uint32_t expected_size);
+  bool Read(u_int32_t expected_size);
 
   MDRawAssertionInfo assertion_;
   string expression_;
@@ -744,20 +718,20 @@ class MinidumpSystemInfo : public MinidumpStream {
   // Print a human-readable representation of the object to stdout.
   void Print();
 
- protected:
+ private:
+  friend class Minidump;
+
+  static const u_int32_t kStreamType = MD_SYSTEM_INFO_STREAM;
+
   explicit MinidumpSystemInfo(Minidump* minidump);
+
+  bool Read(u_int32_t expected_size);
+
   MDRawSystemInfo system_info_;
 
   // Textual representation of the OS service pack, for minidumps produced
   // by MiniDumpWriteDump on Windows.
   const string* csd_version_;
-
- private:
-  friend class Minidump;
-
-  static const uint32_t kStreamType = MD_SYSTEM_INFO_STREAM;
-
-  bool Read(uint32_t expected_size);
 
   // A string identifying the CPU vendor, if known.
   const string* cpu_vendor_;
@@ -779,20 +753,13 @@ class MinidumpMiscInfo : public MinidumpStream {
  private:
   friend class Minidump;
 
-  static const uint32_t kStreamType = MD_MISC_INFO_STREAM;
+  static const u_int32_t kStreamType = MD_MISC_INFO_STREAM;
 
   explicit MinidumpMiscInfo(Minidump* minidump_);
 
-  bool Read(uint32_t expected_size_);
+  bool Read(u_int32_t expected_size_);
 
   MDRawMiscInfo misc_info_;
-
-  // Populated by Read.  Contains the converted strings from the corresponding
-  // UTF-16 fields in misc_info_
-  string standard_name_;
-  string daylight_name_;
-  string build_string_;
-  string dbg_bld_str_;
 };
 
 
@@ -809,8 +776,8 @@ class MinidumpBreakpadInfo : public MinidumpStream {
   // treatment, so special getters are provided to retrieve this data from
   // the MDRawBreakpadInfo structure.  The getters return false if the thread
   // IDs cannot be determined.
-  bool GetDumpThreadID(uint32_t *thread_id) const;
-  bool GetRequestingThreadID(uint32_t *thread_id) const;
+  bool GetDumpThreadID(u_int32_t *thread_id) const;
+  bool GetRequestingThreadID(u_int32_t *thread_id) const;
 
   // Print a human-readable representation of the object to stdout.
   void Print();
@@ -818,11 +785,11 @@ class MinidumpBreakpadInfo : public MinidumpStream {
  private:
   friend class Minidump;
 
-  static const uint32_t kStreamType = MD_BREAKPAD_INFO_STREAM;
+  static const u_int32_t kStreamType = MD_BREAKPAD_INFO_STREAM;
 
   explicit MinidumpBreakpadInfo(Minidump* minidump_);
 
-  bool Read(uint32_t expected_size_);
+  bool Read(u_int32_t expected_size_);
 
   MDRawBreakpadInfo breakpad_info_;
 };
@@ -835,10 +802,10 @@ class MinidumpMemoryInfo : public MinidumpObject {
   const MDRawMemoryInfo* info() const { return valid_ ? &memory_info_ : NULL; }
 
   // The address of the base of the memory region.
-  uint64_t GetBase() const { return valid_ ? memory_info_.base_address : 0; }
+  u_int64_t GetBase() const { return valid_ ? memory_info_.base_address : 0; }
 
   // The size, in bytes, of the memory region.
-  uint64_t GetSize() const { return valid_ ? memory_info_.region_size : 0; }
+  u_int32_t GetSize() const { return valid_ ? memory_info_.region_size : 0; }
 
   // Return true if the memory protection allows execution.
   bool IsExecutable() const;
@@ -873,7 +840,7 @@ class MinidumpMemoryInfoList : public MinidumpStream {
 
   unsigned int info_count() const { return valid_ ? info_count_ : 0; }
 
-  const MinidumpMemoryInfo* GetMemoryInfoForAddress(uint64_t address) const;
+  const MinidumpMemoryInfo* GetMemoryInfoForAddress(u_int64_t address) const;
   const MinidumpMemoryInfo* GetMemoryInfoAtIndex(unsigned int index) const;
 
   // Print a human-readable representation of the object to stdout.
@@ -884,17 +851,17 @@ class MinidumpMemoryInfoList : public MinidumpStream {
 
   typedef vector<MinidumpMemoryInfo> MinidumpMemoryInfos;
 
-  static const uint32_t kStreamType = MD_MEMORY_INFO_LIST_STREAM;
+  static const u_int32_t kStreamType = MD_MEMORY_INFO_LIST_STREAM;
 
   explicit MinidumpMemoryInfoList(Minidump* minidump);
 
-  bool Read(uint32_t expected_size);
+  bool Read(u_int32_t expected_size);
 
   // Access to memory info using addresses as the key.
-  RangeMap<uint64_t, unsigned int> *range_map_;
+  RangeMap<u_int64_t, unsigned int> *range_map_;
 
   MinidumpMemoryInfos* infos_;
-  uint32_t info_count_;
+  u_int32_t info_count_;
 };
 
 
@@ -915,27 +882,17 @@ class Minidump {
   virtual string path() const {
     return path_;
   }
-  static void set_max_streams(uint32_t max_streams) {
+  static void set_max_streams(u_int32_t max_streams) {
     max_streams_ = max_streams;
   }
-  static uint32_t max_streams() { return max_streams_; }
+  static u_int32_t max_streams() { return max_streams_; }
 
-  static void set_max_string_length(uint32_t max_string_length) {
+  static void set_max_string_length(u_int32_t max_string_length) {
     max_string_length_ = max_string_length;
   }
-  static uint32_t max_string_length() { return max_string_length_; }
+  static u_int32_t max_string_length() { return max_string_length_; }
 
   virtual const MDRawHeader* header() const { return valid_ ? &header_ : NULL; }
-
-  // Reads the CPU information from the system info stream and generates the
-  // appropriate CPU flags.  The returned context_cpu_flags are the same as
-  // if the CPU type bits were set in the context_flags of a context record.
-  // On success, context_cpu_flags will have the flags that identify the CPU.
-  // If a system info stream is missing, context_cpu_flags will be 0.
-  // Returns true if the current position in the stream was not changed.
-  // Returns false when the current location in the stream was changed and the
-  // attempt to restore the original position failed.
-  bool GetContextCPUFlagsFromSystemInfo(uint32_t* context_cpu_flags);
 
   // Reads the minidump file's header and top-level stream directory.
   // The minidump is expected to be positioned at the beginning of the
@@ -949,10 +906,10 @@ class Minidump {
   // parameter).
   virtual MinidumpThreadList* GetThreadList();
   MinidumpModuleList* GetModuleList();
-  virtual MinidumpMemoryList* GetMemoryList();
+  MinidumpMemoryList* GetMemoryList();
   MinidumpException* GetException();
   MinidumpAssertion* GetAssertion();
-  virtual MinidumpSystemInfo* GetSystemInfo();
+  MinidumpSystemInfo* GetSystemInfo();
   MinidumpMiscInfo* GetMiscInfo();
   MinidumpBreakpadInfo* GetBreakpadInfo();
   MinidumpMemoryInfoList* GetMemoryInfoList();
@@ -999,7 +956,7 @@ class Minidump {
   // possibility, and consider using GetDirectoryEntryAtIndex (possibly
   // with GetDirectoryEntryCount) if expecting multiple streams of the same
   // type in a single minidump file.
-  bool SeekToStreamType(uint32_t stream_type, uint32_t* stream_length);
+  bool SeekToStreamType(u_int32_t stream_type, u_int32_t* stream_length);
 
   bool swap() const { return valid_ ? swap_ : false; }
 
@@ -1022,7 +979,7 @@ class Minidump {
   };
 
   typedef vector<MDRawDirectory> MinidumpDirectoryEntries;
-  typedef map<uint32_t, MinidumpStreamInfo> MinidumpStreamMap;
+  typedef map<u_int32_t, MinidumpStreamInfo> MinidumpStreamMap;
 
   template<typename T> T* GetStream(T** stream);
 
@@ -1032,7 +989,7 @@ class Minidump {
   // The largest number of top-level streams that will be read from a minidump.
   // Note that streams are only read (and only consume memory) as needed,
   // when directed by the caller.  The default is 128.
-  static uint32_t max_streams_;
+  static u_int32_t max_streams_;
 
   // The maximum length of a UTF-16 string that will be read from a minidump
   // in 16-bit words.  The default is 1024.  UTF-16 strings are converted

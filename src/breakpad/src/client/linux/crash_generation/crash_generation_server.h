@@ -34,8 +34,6 @@
 
 #include <string>
 
-#include "common/using_std_string.h"
-
 namespace google_breakpad {
 
 class ClientInfo;
@@ -47,7 +45,7 @@ public:
   // be thread safe.
   typedef void (*OnClientDumpRequestCallback)(void* context,
                                               const ClientInfo* client_info,
-                                              const string* file_path);
+                                              const std::string* file_path);
 
   typedef void (*OnClientExitingCallback)(void* context,
                                           const ClientInfo* client_info);
@@ -71,7 +69,7 @@ public:
                         OnClientExitingCallback exit_callback,
                         void* exit_context,
                         bool generate_dumps,
-                        const string* dump_path);
+                        const std::string* dump_path);
 
   ~CrashGenerationServer();
 
@@ -102,7 +100,7 @@ private:
   bool ControlEvent(short revents);
 
   // Return a unique filename at which a minidump can be written
-  bool MakeMinidumpFilename(string& outFilename);
+  bool MakeMinidumpFilename(std::string& outFilename);
 
   // Trampoline to |Run()|
   static void* ThreadMain(void* arg);
@@ -117,7 +115,7 @@ private:
 
   bool generate_dumps_;
 
-  string dump_dir_;
+  std::string dump_dir_;
 
   bool started_;
 

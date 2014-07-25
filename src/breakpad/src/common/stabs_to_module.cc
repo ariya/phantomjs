@@ -39,9 +39,10 @@
 #include <algorithm>
 
 #include "common/stabs_to_module.h"
-#include "common/using_std_string.h"
 
 namespace google_breakpad {
+
+using std::string;
 
 // Demangle using abi call.
 // Older GCC may not support it.

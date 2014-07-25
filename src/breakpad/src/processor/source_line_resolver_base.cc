@@ -53,7 +53,6 @@ namespace google_breakpad {
 SourceLineResolverBase::SourceLineResolverBase(
     ModuleFactory *module_factory)
   : modules_(new ModuleMap),
-    corrupt_modules_(new ModuleSet),
     memory_buffers_(new MemoryMap),
     module_factory_(module_factory) {
 }
@@ -67,11 +66,6 @@ SourceLineResolverBase::~SourceLineResolverBase() {
   }
   // Delete the map of modules.
   delete modules_;
-  modules_ = NULL;
-
-  // Delete the set of corrupt modules.
-  delete corrupt_modules_;
-  corrupt_modules_ = NULL;
 
   MemoryMap::iterator iter = memory_buffers_->begin();
   for (; iter != memory_buffers_->end(); ++iter) {
@@ -79,16 +73,13 @@ SourceLineResolverBase::~SourceLineResolverBase() {
   }
   // Delete the map of memory buffers.
   delete memory_buffers_;
-  memory_buffers_ = NULL;
 
   delete module_factory_;
-  module_factory_ = NULL;
 }
 
-bool SourceLineResolverBase::ReadSymbolFile(const string &map_file,
-                                            char **symbol_data,
-                                            size_t *symbol_data_size) {
-  if (symbol_data == NULL || symbol_data_size == NULL) {
+bool SourceLineResolverBase::ReadSymbolFile(char **symbol_data,
+                                            const string &map_file) {
+  if (symbol_data == NULL) {
     BPLOG(ERROR) << "Could not Read file into Null memory pointer";
     return false;
   }
@@ -107,7 +98,6 @@ bool SourceLineResolverBase::ReadSymbolFile(const string &map_file,
 
   // Allocate memory for file contents, plus a null terminator
   // since we may use strtok() on the contents.
-  *symbol_data_size = file_size + 1;
   *symbol_data = new char[file_size + 1];
 
   if (*symbol_data == NULL) {
@@ -164,14 +154,12 @@ bool SourceLineResolverBase::LoadModule(const CodeModule *module,
               << " from " << map_file;
 
   char *memory_buffer;
-  size_t memory_buffer_size;
-  if (!ReadSymbolFile(map_file, &memory_buffer, &memory_buffer_size))
+  if (!ReadSymbolFile(&memory_buffer, map_file))
     return false;
 
   BPLOG(INFO) << "Read symbol file " << map_file << " succeeded";
 
-  bool load_result = LoadModuleUsingMemoryBuffer(module, memory_buffer,
-                                                 memory_buffer_size);
+  bool load_result = LoadModuleUsingMemoryBuffer(module, memory_buffer);
 
   if (load_result && !ShouldDeleteMemoryBufferAfterLoadModule()) {
     // memory_buffer has to stay alive as long as the module.
@@ -195,8 +183,7 @@ bool SourceLineResolverBase::LoadModuleUsingMapBuffer(
     return false;
   }
 
-  size_t memory_buffer_size = map_buffer.size() + 1;
-  char *memory_buffer = new char[memory_buffer_size];
+  char *memory_buffer = new char[map_buffer.size() + 1];
   if (memory_buffer == NULL) {
     BPLOG(ERROR) << "Could not allocate memory for " << module->code_file();
     return false;
@@ -206,8 +193,7 @@ bool SourceLineResolverBase::LoadModuleUsingMapBuffer(
   memcpy(memory_buffer, map_buffer.c_str(), map_buffer.size());
   memory_buffer[map_buffer.size()] = '\0';
 
-  bool load_result = LoadModuleUsingMemoryBuffer(module, memory_buffer,
-                                                 memory_buffer_size);
+  bool load_result = LoadModuleUsingMemoryBuffer(module, memory_buffer);
 
   if (load_result && !ShouldDeleteMemoryBufferAfterLoadModule()) {
     // memory_buffer has to stay alive as long as the module.
@@ -220,9 +206,7 @@ bool SourceLineResolverBase::LoadModuleUsingMapBuffer(
 }
 
 bool SourceLineResolverBase::LoadModuleUsingMemoryBuffer(
-    const CodeModule *module,
-    char *memory_buffer,
-    size_t memory_buffer_size) {
+    const CodeModule *module, char *memory_buffer) {
   if (!module)
     return false;
 
@@ -239,19 +223,12 @@ bool SourceLineResolverBase::LoadModuleUsingMemoryBuffer(
   Module *basic_module = module_factory_->CreateModule(module->code_file());
 
   // Ownership of memory is NOT transfered to Module::LoadMapFromMemory().
-  if (!basic_module->LoadMapFromMemory(memory_buffer, memory_buffer_size)) {
-    BPLOG(ERROR) << "Too many error while parsing symbol data for module "
-                 << module->code_file();
-    // Returning false from here would be an indication that the symbols for
-    // this module are missing which would be wrong.  Intentionally fall through
-    // and add the module to both the modules_ and the corrupt_modules_ lists.
-    assert(basic_module->IsCorrupt());
+  if (!basic_module->LoadMapFromMemory(memory_buffer)) {
+    delete basic_module;
+    return false;
   }
 
   modules_->insert(make_pair(module->code_file(), basic_module));
-  if (basic_module->IsCorrupt()) {
-    corrupt_modules_->insert(module->code_file());
-  }
   return true;
 }
 
@@ -267,7 +244,6 @@ void SourceLineResolverBase::UnloadModule(const CodeModule *code_module) {
   if (mod_iter != modules_->end()) {
     Module *symbol_module = mod_iter->second;
     delete symbol_module;
-    corrupt_modules_->erase(mod_iter->first);
     modules_->erase(mod_iter);
   }
 
@@ -287,12 +263,6 @@ bool SourceLineResolverBase::HasModule(const CodeModule *module) {
   if (!module)
     return false;
   return modules_->find(module->code_file()) != modules_->end();
-}
-
-bool SourceLineResolverBase::IsModuleCorrupt(const CodeModule *module) {
-  if (!module)
-    return false;
-  return corrupt_modules_->find(module->code_file()) != corrupt_modules_->end();
 }
 
 void SourceLineResolverBase::FillSourceLineInfo(StackFrame *frame) {

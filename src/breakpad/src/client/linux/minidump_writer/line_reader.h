@@ -34,7 +34,6 @@
 #include <assert.h>
 #include <string.h>
 
-#include "common/linux/linux_libc_support.h"
 #include "third_party/lss/linux_syscall_support.h"
 
 namespace google_breakpad {
@@ -115,7 +114,7 @@ class LineReader {
 
     assert(buf_used_ >= len + 1);
     buf_used_ -= len + 1;
-    my_memmove(buf_, buf_ + len + 1, buf_used_);
+    memmove(buf_, buf_ + len + 1, buf_used_);
   }
 
  private:

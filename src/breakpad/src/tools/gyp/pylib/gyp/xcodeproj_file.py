@@ -1,4 +1,6 @@
-# Copyright (c) 2012 Google Inc. All rights reserved.
+#!/usr/bin/python
+
+# Copyright (c) 2009 Google Inc. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -11,8 +13,8 @@ Xcode.app and observing the resultant changes in the associated project files.
 
 XCODE PROJECT FILES
 
-The generator targets the file format as written by Xcode 3.2 (specifically,
-3.2.6), but past experience has taught that the format has not changed
+The generator targets the file format as written by Xcode 3.1 (specifically,
+3.1.2), but past experience has taught that the format has not changed
 significantly in the past several years, and future versions of Xcode are able
 to read older project files.
 
@@ -169,7 +171,7 @@ _quoted = re.compile('___')
 
 # This pattern should match any character that needs to be escaped by
 # XCObject._EncodeString.  See that function.
-_escaped = re.compile('[\\\\"]|[\x00-\x1f]')
+_escaped = re.compile('[\\\\"]|[^ -~]')
 
 
 # Used by SourceTreeAndPathFromPath
@@ -254,7 +256,7 @@ class XCObject(object):
                 but in some cases an object's parent may wish to push a
                 hashable value into its child, and it can do so by appending
                 to _hashables.
-  Attributes:
+  Attribues:
     id: The object's identifier, a 24-character uppercase hexadecimal string.
         Usually, objects being created should not set id until the entire
         project file structure is built.  At that point, UpdateIDs() should
@@ -392,10 +394,7 @@ class XCObject(object):
 
     return hashables
 
-  def HashablesForChild(self):
-    return None
-
-  def ComputeIDs(self, recursive=True, overwrite=True, seed_hash=None):
+  def ComputeIDs(self, recursive=True, overwrite=True, hash=None):
     """Set "id" properties deterministically.
 
     An object's "id" property is set based on a hash of its class type and
@@ -422,10 +421,8 @@ class XCObject(object):
       hash.update(struct.pack('>i', len(data)))
       hash.update(data)
 
-    if seed_hash is None:
-      seed_hash = _new_sha1()
-
-    hash = seed_hash.copy()
+    if hash == None:
+      hash = _new_sha1()
 
     hashables = self.Hashables()
     assert len(hashables) > 0
@@ -433,19 +430,10 @@ class XCObject(object):
       _HashUpdate(hash, hashable)
 
     if recursive:
-      hashables_for_child = self.HashablesForChild()
-      if hashables_for_child is None:
-        child_hash = hash
-      else:
-        assert len(hashables_for_child) > 0
-        child_hash = seed_hash.copy()
-        for hashable in hashables_for_child:
-          _HashUpdate(child_hash, hashable)
-
       for child in self.Children():
-        child.ComputeIDs(recursive, overwrite, child_hash)
+        child.ComputeIDs(recursive, overwrite, hash.copy())
 
-    if overwrite or self.id is None:
+    if overwrite or self.id == None:
       # Xcode IDs are only 96 bits (24 hex characters), but a SHA-1 digest is
       # is 160 bits.  Instead of throwing out 64 bits of the digest, xor them
       # into the portion that gets used.
@@ -557,9 +545,9 @@ class XCObject(object):
     #    10 ^J NL  is encoded as "\n"
     #    13 ^M CR  is encoded as "\n" rendering it indistinguishable from
     #              10 ^J NL
-    # All other characters within the ASCII control character range (0 through
-    # 31 inclusive) are encoded as "\U001f" referring to the Unicode code point
-    # in hexadecimal.  For example, character 14 (^N SO) is encoded as "\U000e".
+    # All other nonprintable characters within the ASCII range (0 through 127
+    # inclusive) are encoded as "\U001f" referring to the Unicode code point in
+    # hexadecimal.  For example, character 14 (^N SO) is encoded as "\U000e".
     # Characters above the ASCII range are passed through to the output encoded
     # as UTF-8 without any escaping.  These mappings are contained in the
     # class' _encode_transforms list.
@@ -669,14 +657,6 @@ class XCObject(object):
     else:
       value_to_print = value
 
-    # PBXBuildFile's settings property is represented in the output as a dict,
-    # but a hack here has it represented as a string. Arrange to strip off the
-    # quotes so that it shows up in the output as expected.
-    if key == 'settings' and isinstance(self, PBXBuildFile):
-      strip_value_quotes = True
-    else:
-      strip_value_quotes = False
-
     # In another one-off, let's set flatten_list on buildSettings properties
     # of XCBuildConfiguration objects, because that's how Xcode treats them.
     if key == 'buildSettings' and isinstance(self, XCBuildConfiguration):
@@ -685,13 +665,9 @@ class XCObject(object):
       flatten_list = False
 
     try:
-      printable_key = self._XCPrintableValue(tabs, key, flatten_list)
-      printable_value = self._XCPrintableValue(tabs, value_to_print,
-                                               flatten_list)
-      if strip_value_quotes and len(printable_value) > 1 and \
-          printable_value[0] == '"' and printable_value[-1] == '"':
-        printable_value = printable_value[1:-1]
-      printable += printable_key + ' = ' + printable_value + ';' + after_kv
+      printable += self._XCPrintableValue(tabs, key, flatten_list) + ' = ' + \
+                   self._XCPrintableValue(tabs, value_to_print, flatten_list) + \
+                   ';' + after_kv
     except TypeError, e:
       gyp.common.ExceptionAppend(e,
                                  'while printing key "%s"' % key)
@@ -750,7 +726,7 @@ class XCObject(object):
     references added.
     """
 
-    if properties is None:
+    if properties == None:
       return
 
     for property, value in properties.iteritems():
@@ -889,7 +865,7 @@ class XCObject(object):
       # objects, lists, and dicts.
       self.UpdateProperties(defaults, do_copy=True)
 
-
+ 
 class XCHierarchicalElement(XCObject):
   """Abstract base for PBXGroup and PBXFileReference.  Not represented in a
   project file."""
@@ -932,7 +908,7 @@ class XCHierarchicalElement(XCObject):
         self._properties['sourceTree'] = source_tree
       if path != None:
         self._properties['path'] = path
-      if source_tree != None and path is None and \
+      if source_tree != None and path == None and \
          not 'name' in self._properties:
         # The path was of the form "$(SDKROOT)" with no path following it.
         # This object is now relative to that variable, so it has no path
@@ -1082,7 +1058,7 @@ class XCHierarchicalElement(XCObject):
     xche = self
     path = None
     while isinstance(xche, XCHierarchicalElement) and \
-          (path is None or \
+          (path == None or \
            (not path.startswith('/') and not path.startswith('$'))):
       this_path = xche.PathFromSourceTreeAndPath()
       if this_path != None and path != None:
@@ -1117,26 +1093,6 @@ class PBXGroup(XCHierarchicalElement):
     self._variant_children_by_name_and_path = {}
     for child in self._properties.get('children', []):
       self._AddChildToDicts(child)
-
-  def Hashables(self):
-    # super
-    hashables = XCHierarchicalElement.Hashables(self)
-
-    # It is not sufficient to just rely on name and parent to build a unique
-    # hashable : a node could have two child PBXGroup sharing a common name.
-    # To add entropy the hashable is enhanced with the names of all its
-    # children.
-    for child in self._properties.get('children', []):
-      child_name = child.Name()
-      if child_name != None:
-        hashables.append(child_name)
-
-    return hashables
-
-  def HashablesForChild(self):
-    # To avoid a circular reference the hashables used to compute a child id do
-    # not include the child names.
-    return XCHierarchicalElement.Hashables(self)
 
   def _AddChildToDicts(self, child):
     # Sets up this PBXGroup object's dicts to reference the child properly.
@@ -1233,9 +1189,11 @@ class PBXGroup(XCHierarchicalElement):
     is_dir = False
     if path.endswith('/'):
       is_dir = True
-    path = posixpath.normpath(path)
+    normpath = posixpath.normpath(path)
     if is_dir:
-      path = path + '/'
+      normpath = path + '/'
+    else:
+      normpath = path
 
     # Adding or getting a variant?  Variants are files inside directories
     # with an ".lproj" extension.  Xcode uses variants for localization.  For
@@ -1254,7 +1212,7 @@ class PBXGroup(XCHierarchicalElement):
       grandparent = None
 
     # Putting a directory inside a variant group is not currently supported.
-    assert not is_dir or variant_name is None
+    assert not is_dir or variant_name == None
 
     path_split = path.split(posixpath.sep)
     if len(path_split) == 1 or \
@@ -1262,9 +1220,9 @@ class PBXGroup(XCHierarchicalElement):
        not hierarchical:
       # The PBXFileReference or PBXVariantGroup will be added to or gotten from
       # this PBXGroup, no recursion necessary.
-      if variant_name is None:
+      if variant_name == None:
         # Add or get a PBXFileReference.
-        file_ref = self.GetChildByPath(path)
+        file_ref = self.GetChildByPath(normpath)
         if file_ref != None:
           assert file_ref.__class__ == PBXFileReference
         else:
@@ -1474,57 +1432,42 @@ class PBXFileReference(XCFileLikeElement, XCContainerPortal, XCRemoteObject):
       # TODO(mark): This is the replacement for a replacement for a quick hack.
       # It is no longer incredibly sucky, but this list needs to be extended.
       extension_map = {
-        'a':           'archive.ar',
-        'app':         'wrapper.application',
-        'bdic':        'file',
-        'bundle':      'wrapper.cfbundle',
-        'c':           'sourcecode.c.c',
-        'cc':          'sourcecode.cpp.cpp',
-        'cpp':         'sourcecode.cpp.cpp',
-        'css':         'text.css',
-        'cxx':         'sourcecode.cpp.cpp',
-        'dart':        'sourcecode',
-        'dylib':       'compiled.mach-o.dylib',
-        'framework':   'wrapper.framework',
-        'gyp':         'sourcecode',
-        'gypi':        'sourcecode',
-        'h':           'sourcecode.c.h',
-        'hxx':         'sourcecode.cpp.h',
-        'icns':        'image.icns',
-        'java':        'sourcecode.java',
-        'js':          'sourcecode.javascript',
-        'm':           'sourcecode.c.objc',
-        'mm':          'sourcecode.cpp.objcpp',
-        'nib':         'wrapper.nib',
-        'o':           'compiled.mach-o.objfile',
-        'pdf':         'image.pdf',
-        'pl':          'text.script.perl',
-        'plist':       'text.plist.xml',
-        'pm':          'text.script.perl',
-        'png':         'image.png',
-        'py':          'text.script.python',
-        'r':           'sourcecode.rez',
-        'rez':         'sourcecode.rez',
-        's':           'sourcecode.asm',
-        'storyboard':  'file.storyboard',
-        'strings':     'text.plist.strings',
-        'ttf':         'file',
-        'xcassets':    'folder.assetcatalog',
-        'xcconfig':    'text.xcconfig',
-        'xcdatamodel': 'wrapper.xcdatamodel',
-        'xib':         'file.xib',
-        'y':           'sourcecode.yacc',
-      }
-
-      prop_map = {
-        'dart':        'explicitFileType',
-        'gyp':         'explicitFileType',
-        'gypi':        'explicitFileType',
+        'a':         'archive.ar',
+        'app':       'wrapper.application',
+        'bdic':      'file',
+        'bundle':    'wrapper.cfbundle',
+        'c':         'sourcecode.c.c',
+        'cc':        'sourcecode.cpp.cpp',
+        'cpp':       'sourcecode.cpp.cpp',
+        'css':       'text.css',
+        'cxx':       'sourcecode.cpp.cpp',
+        'dylib':     'compiled.mach-o.dylib',
+        'framework': 'wrapper.framework',
+        'h':         'sourcecode.c.h',
+        'hxx':       'sourcecode.cpp.h',
+        'icns':      'image.icns',
+        'js':        'sourcecode.javascript',
+        'm':         'sourcecode.c.objc',
+        'mm':        'sourcecode.cpp.objcpp',
+        'nib':       'wrapper.nib',
+        'pdf':       'image.pdf',
+        'pl':        'text.script.perl',
+        'plist':     'text.plist.xml',
+        'pm':        'text.script.perl',
+        'png':       'image.png',
+        'py':        'text.script.python',
+        'r':         'sourcecode.rez',
+        'rez':       'sourcecode.rez',
+        's':         'sourcecode.asm',
+        'strings':   'text.plist.strings',
+        'ttf':       'file',
+        'xcconfig':  'text.xcconfig',
+        'xib':       'file.xib',
+        'y':         'sourcecode.yacc',
       }
 
       if is_dir:
         file_type = 'folder'
-        prop_name = 'lastKnownFileType'
       else:
         basename = posixpath.basename(self._properties['path'])
         (root, ext) = posixpath.splitext(basename)
@@ -1539,9 +1482,8 @@ class PBXFileReference(XCFileLikeElement, XCContainerPortal, XCRemoteObject):
         # for unrecognized files not containing text.  Xcode seems to choose
         # based on content.
         file_type = extension_map.get(ext, 'text')
-        prop_name = prop_map.get(ext, 'lastKnownFileType')
 
-      self._properties[prop_name] = file_type
+      self._properties['lastKnownFileType'] = file_type
 
 
 class PBXVariantGroup(PBXGroup, XCFileLikeElement):
@@ -1581,8 +1523,6 @@ class XCBuildConfiguration(XCObject):
     if key in self._properties['buildSettings']:
       del self._properties['buildSettings'][key]
 
-  def SetBaseConfiguration(self, value):
-    self._properties['baseConfigurationReference'] = value
 
 class XCConfigurationList(XCObject):
   # _configs is the default list of configurations.
@@ -1629,14 +1569,14 @@ class XCConfigurationList(XCObject):
     value = None
     for configuration in self._properties['buildConfigurations']:
       configuration_has = configuration.HasBuildSetting(key)
-      if has is None:
+      if has == None:
         has = configuration_has
       elif has != configuration_has:
         return -1
 
       if configuration_has:
         configuration_value = configuration.GetBuildSetting(key)
-        if value is None:
+        if value == None:
           value = configuration_value
         elif value != configuration_value:
           return -1
@@ -1659,7 +1599,7 @@ class XCConfigurationList(XCObject):
     value = None
     for configuration in self._properties['buildConfigurations']:
       configuration_value = configuration.GetBuildSetting(key)
-      if value is None:
+      if value == None:
         value = configuration_value
       else:
         if value != configuration_value:
@@ -1691,19 +1631,11 @@ class XCConfigurationList(XCObject):
     for configuration in self._properties['buildConfigurations']:
       configuration.DelBuildSetting(key)
 
-  def SetBaseConfiguration(self, value):
-    """Sets the build configuration in all child XCBuildConfiguration objects.
-    """
-
-    for configuration in self._properties['buildConfigurations']:
-      configuration.SetBaseConfiguration(value)
-
 
 class PBXBuildFile(XCObject):
   _schema = XCObject._schema.copy()
   _schema.update({
-    'fileRef':  [0, XCFileLikeElement, 0, 1],
-    'settings': [0, str,               0, 0],  # hack, it's a dict
+    'fileRef': [0, XCFileLikeElement, 0, 1],
   })
 
   # Weird output rules for PBXBuildFile.
@@ -1848,7 +1780,7 @@ class XCBuildPhase(XCObject):
     self.AppendProperty('files', pbxbuildfile)
     self._AddBuildFileToDicts(pbxbuildfile, path)
 
-  def AddFile(self, path, settings=None):
+  def AddFile(self, path):
     (file_group, hierarchical) = self.FileGroup(path)
     file_ref = file_group.AddOrGetFileByPath(path, hierarchical)
 
@@ -1861,10 +1793,7 @@ class XCBuildPhase(XCObject):
       self._AddBuildFileToDicts(pbxbuildfile, path)
     else:
       # Add a new PBXBuildFile to get file_ref into the phase.
-      if settings is None:
-        pbxbuildfile = PBXBuildFile({'fileRef': file_ref})
-      else:
-        pbxbuildfile = PBXBuildFile({'fileRef': file_ref, 'settings': settings})
+      pbxbuildfile = PBXBuildFile({'fileRef': file_ref})
       self.AppendBuildFile(pbxbuildfile, path)
 
 
@@ -1905,16 +1834,7 @@ class PBXFrameworksBuildPhase(XCBuildPhase):
     return 'Frameworks'
 
   def FileGroup(self, path):
-    (root, ext) = posixpath.splitext(path)
-    if ext != '':
-      ext = ext[1:].lower()
-    if ext == 'o':
-      # .o files are added to Xcode Frameworks phases, but conceptually aren't
-      # frameworks, they're more like sources or intermediates. Redirect them
-      # to show up in one of those other groups.
-      return self.PBXProjectAncestor().RootGroupForPath(path)
-    else:
-      return (self.PBXProjectAncestor().FrameworksGroup(), False)
+    return (self.PBXProjectAncestor().FrameworksGroup(), False)
 
 
 class PBXShellScriptBuildPhase(XCBuildPhase):
@@ -1987,7 +1907,7 @@ class PBXCopyFilesBuildPhase(XCBuildPhase):
 
       if path_tree in self.path_tree_to_subfolder:
         subfolder = self.path_tree_to_subfolder[path_tree]
-        if relative_path is None:
+        if relative_path == None:
           relative_path = ''
       else:
         # The path starts with an unrecognized Xcode variable
@@ -2140,7 +2060,7 @@ class XCTarget(XCRemoteObject):
   })
 
   def __init__(self, properties=None, id=None, parent=None,
-               force_outdir=None, force_prefix=None, force_extension=None):
+               force_extension=None):
     # super
     XCRemoteObject.__init__(self, properties, id, parent)
 
@@ -2163,7 +2083,8 @@ class XCTarget(XCRemoteObject):
     pbxproject = self.PBXProjectAncestor()
     other_pbxproject = other.PBXProjectAncestor()
     if pbxproject == other_pbxproject:
-      # Add a dependency to another target in the same project file.
+      # The easy case.  Add a dependency to another target in the same
+      # project file.
       container = PBXContainerItemProxy({'containerPortal':      pbxproject,
                                          'proxyType':            1,
                                          'remoteGlobalIDString': other,
@@ -2172,7 +2093,8 @@ class XCTarget(XCRemoteObject):
                                         'targetProxy': container})
       self.AppendProperty('dependencies', dependency)
     else:
-      # Add a dependency to a target in a different project file.
+      # The hard case.  Add a dependency to a target in a different project
+      # file.  Actually, this case isn't really so hard.
       other_project_ref = \
           pbxproject.AddOrGetProjectReference(other_pbxproject)[1]
       container = PBXContainerItemProxy({
@@ -2234,31 +2156,22 @@ class PBXNativeTarget(XCTarget):
     'productType':      [0, str,              0, 1],
   })
 
-  # Mapping from Xcode product-types to settings.  The settings are:
-  #  filetype : used for explicitFileType in the project file
-  #  prefix : the prefix for the file name
-  #  suffix : the suffix for the filen ame
   _product_filetypes = {
-    'com.apple.product-type.application':       ['wrapper.application',
-                                                 '', '.app'],
-    'com.apple.product-type.bundle':            ['wrapper.cfbundle',
-                                                 '', '.bundle'],
-    'com.apple.product-type.framework':         ['wrapper.framework',
-                                                 '', '.framework'],
-    'com.apple.product-type.library.dynamic':   ['compiled.mach-o.dylib',
-                                                 'lib', '.dylib'],
-    'com.apple.product-type.library.static':    ['archive.ar',
-                                                 'lib', '.a'],
-    'com.apple.product-type.tool':              ['compiled.mach-o.executable',
-                                                 '', ''],
-    'com.apple.product-type.bundle.unit-test':  ['wrapper.cfbundle',
-                                                 '', '.xctest'],
-    'com.googlecode.gyp.xcode.bundle':          ['compiled.mach-o.dylib',
-                                                 '', '.so'],
+    'com.apple.product-type.application':     ['wrapper.application',
+                                               '', '.app'],
+    'com.apple.product-type.bundle':          ['wrapper.cfbundle',
+                                               '', '.bundle'],
+    'com.apple.product-type.framework':       ['wrapper.framework',
+                                               '', '.framework'],
+    'com.apple.product-type.library.dynamic': ['compiled.mach-o.dylib',
+                                               'lib', '.dylib'],
+    'com.apple.product-type.library.static':  ['archive.ar', 'lib', '.a'],
+    'com.apple.product-type.tool':            ['compiled.mach-o.executable',
+                                               '', ''],
   }
 
   def __init__(self, properties=None, id=None, parent=None,
-               force_outdir=None, force_prefix=None, force_extension=None):
+               force_extension=None):
     # super
     XCTarget.__init__(self, properties, id, parent)
 
@@ -2274,92 +2187,19 @@ class PBXNativeTarget(XCTarget):
       if products_group != None:
         (filetype, prefix, suffix) = \
             self._product_filetypes[self._properties['productType']]
-        # Xcode does not have a distinct type for loadable modules that are
-        # pure BSD targets (not in a bundle wrapper). GYP allows such modules
-        # to be specified by setting a target type to loadable_module without
-        # having mac_bundle set. These are mapped to the pseudo-product type
-        # com.googlecode.gyp.xcode.bundle.
-        #
-        # By picking up this special type and converting it to a dynamic
-        # library (com.apple.product-type.library.dynamic) with fix-ups,
-        # single-file loadable modules can be produced.
-        #
-        # MACH_O_TYPE is changed to mh_bundle to produce the proper file type
-        # (as opposed to mh_dylib). In order for linking to succeed,
-        # DYLIB_CURRENT_VERSION and DYLIB_COMPATIBILITY_VERSION must be
-        # cleared. They are meaningless for type mh_bundle.
-        #
-        # Finally, the .so extension is forcibly applied over the default
-        # (.dylib), unless another forced extension is already selected.
-        # .dylib is plainly wrong, and .bundle is used by loadable_modules in
-        # bundle wrappers (com.apple.product-type.bundle). .so seems an odd
-        # choice because it's used as the extension on many other systems that
-        # don't distinguish between linkable shared libraries and non-linkable
-        # loadable modules, but there's precedent: Python loadable modules on
-        # Mac OS X use an .so extension.
-        if self._properties['productType'] == 'com.googlecode.gyp.xcode.bundle':
-          self._properties['productType'] = \
-              'com.apple.product-type.library.dynamic'
-          self.SetBuildSetting('MACH_O_TYPE', 'mh_bundle')
-          self.SetBuildSetting('DYLIB_CURRENT_VERSION', '')
-          self.SetBuildSetting('DYLIB_COMPATIBILITY_VERSION', '')
-          if force_extension is None:
-            force_extension = suffix[1:]
-
-        if self._properties['productType'] == \
-           'com.apple.product-type-bundle.unit.test':
-          if force_extension is None:
-            force_extension = suffix[1:]
 
         if force_extension is not None:
+          # Extension override.
+          suffix = '.' + force_extension
+
           # If it's a wrapper (bundle), set WRAPPER_EXTENSION.
           if filetype.startswith('wrapper.'):
             self.SetBuildSetting('WRAPPER_EXTENSION', force_extension)
-          else:
-            # Extension override.
-            suffix = '.' + force_extension
-            self.SetBuildSetting('EXECUTABLE_EXTENSION', force_extension)
-
-          if filetype.startswith('compiled.mach-o.executable'):
-            product_name = self._properties['productName']
-            product_name += suffix
-            suffix = ''
-            self.SetProperty('productName', product_name)
-            self.SetBuildSetting('PRODUCT_NAME', product_name)
-
-        # Xcode handles most prefixes based on the target type, however there
-        # are exceptions.  If a "BSD Dynamic Library" target is added in the
-        # Xcode UI, Xcode sets EXECUTABLE_PREFIX.  This check duplicates that
-        # behavior.
-        if force_prefix is not None:
-          prefix = force_prefix
-        if filetype.startswith('wrapper.'):
-          self.SetBuildSetting('WRAPPER_PREFIX', prefix)
-        else:
-          self.SetBuildSetting('EXECUTABLE_PREFIX', prefix)
-
-        if force_outdir is not None:
-          self.SetBuildSetting('TARGET_BUILD_DIR', force_outdir)
-
-        # TODO(tvl): Remove the below hack.
-        #    http://code.google.com/p/gyp/issues/detail?id=122
-
-        # Some targets include the prefix in the target_name.  These targets
-        # really should just add a product_name setting that doesn't include
-        # the prefix.  For example:
-        #  target_name = 'libevent', product_name = 'event'
-        # This check cleans up for them.
-        product_name = self._properties['productName']
-        prefix_len = len(prefix)
-        if prefix_len and (product_name[:prefix_len] == prefix):
-          product_name = product_name[prefix_len:]
-          self.SetProperty('productName', product_name)
-          self.SetBuildSetting('PRODUCT_NAME', product_name)
 
         ref_props = {
           'explicitFileType': filetype,
           'includeInIndex':   0,
-          'path':             prefix + product_name + suffix,
+          'path':             prefix + self._properties['productName'] + suffix,
           'sourceTree':       'BUILT_PRODUCTS_DIR',
         }
         file_ref = PBXFileReference(ref_props)
@@ -2378,35 +2218,14 @@ class PBXNativeTarget(XCTarget):
         # this function is intended as an aid to GetBuildPhaseByType.  Loop
         # over the entire list of phases and assert if more than one of the
         # desired type is found.
-        assert the_phase is None
+        assert the_phase == None
         the_phase = phase
 
     return the_phase
 
-  def HeadersPhase(self):
-    headers_phase = self.GetBuildPhaseByType(PBXHeadersBuildPhase)
-    if headers_phase is None:
-      headers_phase = PBXHeadersBuildPhase()
-
-      # The headers phase should come before the resources, sources, and
-      # frameworks phases, if any.
-      insert_at = len(self._properties['buildPhases'])
-      for index in xrange(0, len(self._properties['buildPhases'])):
-        phase = self._properties['buildPhases'][index]
-        if isinstance(phase, PBXResourcesBuildPhase) or \
-           isinstance(phase, PBXSourcesBuildPhase) or \
-           isinstance(phase, PBXFrameworksBuildPhase):
-          insert_at = index
-          break
-
-      self._properties['buildPhases'].insert(insert_at, headers_phase)
-      headers_phase.parent = self
-
-    return headers_phase
-
   def ResourcesPhase(self):
     resources_phase = self.GetBuildPhaseByType(PBXResourcesBuildPhase)
-    if resources_phase is None:
+    if resources_phase == None:
       resources_phase = PBXResourcesBuildPhase()
 
       # The resources phase should come before the sources and frameworks
@@ -2426,7 +2245,7 @@ class PBXNativeTarget(XCTarget):
 
   def SourcesPhase(self):
     sources_phase = self.GetBuildPhaseByType(PBXSourcesBuildPhase)
-    if sources_phase is None:
+    if sources_phase == None:
       sources_phase = PBXSourcesBuildPhase()
       self.AppendProperty('buildPhases', sources_phase)
 
@@ -2434,7 +2253,7 @@ class PBXNativeTarget(XCTarget):
 
   def FrameworksPhase(self):
     frameworks_phase = self.GetBuildPhaseByType(PBXFrameworksBuildPhase)
-    if frameworks_phase is None:
+    if frameworks_phase == None:
       frameworks_phase = PBXFrameworksBuildPhase()
       self.AppendProperty('buildPhases', frameworks_phase)
 
@@ -2493,7 +2312,7 @@ class PBXProject(XCContainerPortal):
     'attributes':             [0, dict,                0, 0],
     'buildConfigurationList': [0, XCConfigurationList, 1, 1,
                                XCConfigurationList()],
-    'compatibilityVersion':   [0, str,                 0, 1, 'Xcode 3.2'],
+    'compatibilityVersion':   [0, str,                 0, 1, 'Xcode 3.1'],
     'hasScannedForEncodings': [0, int,                 0, 1, 1],
     'mainGroup':              [0, PBXGroup,            1, 1, PBXGroup()],
     'projectDirPath':         [0, str,                 0, 1, ''],
@@ -2543,7 +2362,7 @@ class PBXProject(XCContainerPortal):
 
     main_group = self._properties['mainGroup']
     group = main_group.GetChildByName(name)
-    if group is None:
+    if group == None:
       group = PBXGroup({'name': name})
       main_group.AppendChild(group)
 
@@ -2720,11 +2539,10 @@ class PBXProject(XCContainerPortal):
       self._other_pbxprojects[other_pbxproject] = ref_dict
       self.AppendProperty('projectReferences', ref_dict)
 
-      # Xcode seems to sort this list case-insensitively
+      # Xcode seems to sort this list by the name of the linked project.
       self._properties['projectReferences'] = \
           sorted(self._properties['projectReferences'], cmp=lambda x,y:
-                 cmp(x['ProjectRef'].Name().lower(),
-                     y['ProjectRef'].Name().lower()))
+                 cmp(x['ProjectRef'].Name(), y['ProjectRef'].Name()))
     else:
       # The link already exists.  Pull out the relevnt data.
       project_ref_dict = self._other_pbxprojects[other_pbxproject]
@@ -2747,7 +2565,7 @@ class PBXProject(XCContainerPortal):
         continue
 
       other_fileref = target._properties['productReference']
-      if product_group.GetChildByRemoteObject(other_fileref) is None:
+      if product_group.GetChildByRemoteObject(other_fileref) == None:
         # Xcode sets remoteInfo to the name of the target and not the name
         # of its product, despite this proxy being a reference to the product.
         container_item = PBXContainerItemProxy({
@@ -2814,23 +2632,6 @@ class XCProjectFile(XCObject):
     'objectVersion':  [0, int,        0, 1, 45],
     'rootObject':     [0, PBXProject, 1, 1],
   })
-
-  def SetXcodeVersion(self, version):
-    version_to_object_version = {
-      '2.4': 45,
-      '3.0': 45,
-      '3.1': 45,
-      '3.2': 46,
-    }
-    if not version in version_to_object_version:
-      supported_str = ', '.join(sorted(version_to_object_version.keys()))
-      raise Exception(
-          'Unsupported Xcode version %s (supported: %s)' %
-          ( version, supported_str ) )
-    compatibility_version = 'Xcode %s' % version
-    self._properties['rootObject'].SetProperty('compatibilityVersion',
-                                               compatibility_version)
-    self.SetProperty('objectVersion', version_to_object_version[version]);
 
   def ComputeIDs(self, recursive=True, overwrite=True, hash=None):
     # Although XCProjectFile is implemented here as an XCObject, it's not a

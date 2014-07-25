@@ -38,14 +38,10 @@
 
 #include <sstream>
 
-#include "common/scoped_ptr.h"
 #include "processor/postfix_evaluator-inl.h"
+#include "processor/scoped_ptr.h"
 
 namespace google_breakpad {
-
-#ifdef _WIN32
-#define strtok_r strtok_s
-#endif
 
 template<typename V>
 bool CFIFrameInfo::FindCallerRegs(const RegisterValueMap<V> &registers,
@@ -92,14 +88,14 @@ bool CFIFrameInfo::FindCallerRegs(const RegisterValueMap<V> &registers,
 }
 
 // Explicit instantiations for 32-bit and 64-bit architectures.
-template bool CFIFrameInfo::FindCallerRegs<uint32_t>(
-    const RegisterValueMap<uint32_t> &registers,
+template bool CFIFrameInfo::FindCallerRegs<u_int32_t>(
+    const RegisterValueMap<u_int32_t> &registers,
     const MemoryRegion &memory,
-    RegisterValueMap<uint32_t> *caller_registers) const;
-template bool CFIFrameInfo::FindCallerRegs<uint64_t>(
-    const RegisterValueMap<uint64_t> &registers,
+    RegisterValueMap<u_int32_t> *caller_registers) const;
+template bool CFIFrameInfo::FindCallerRegs<u_int64_t>(
+    const RegisterValueMap<u_int64_t> &registers,
     const MemoryRegion &memory,
-    RegisterValueMap<uint64_t> *caller_registers) const;
+    RegisterValueMap<u_int64_t> *caller_registers) const;
 
 string CFIFrameInfo::Serialize() const {
   std::ostringstream stream;

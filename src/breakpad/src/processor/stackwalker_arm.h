@@ -54,12 +54,13 @@ class StackwalkerARM : public Stackwalker {
   // register state corresponding to the innermost called frame to be
   // included in the stack.  The other arguments are passed directly through
   // to the base Stackwalker constructor.
-  StackwalkerARM(const SystemInfo* system_info,
-                 const MDRawContextARM* context,
+  StackwalkerARM(const SystemInfo *system_info,
+                 const MDRawContextARM *context,
                  int fp_register,
-                 MemoryRegion* memory,
-                 const CodeModules* modules,
-                 StackFrameSymbolizer* frame_symbolizer);
+                 MemoryRegion *memory,
+                 const CodeModules *modules,
+                 SymbolSupplier *supplier,
+                 SourceLineResolverInterface *resolver);
 
   // Change the context validity mask of the frame returned by
   // GetContextFrame to VALID. This is only for use by unit tests; the
@@ -69,26 +70,25 @@ class StackwalkerARM : public Stackwalker {
  private:
   // Implementation of Stackwalker, using arm context and stack conventions.
   virtual StackFrame* GetContextFrame();
-  virtual StackFrame* GetCallerFrame(const CallStack* stack,
-                                     bool stack_scan_allowed);
+  virtual StackFrame* GetCallerFrame(const CallStack *stack);
 
   // Use cfi_frame_info (derived from STACK CFI records) to construct
   // the frame that called frames.back(). The caller takes ownership
   // of the returned frame. Return NULL on failure.
-  StackFrameARM* GetCallerByCFIFrameInfo(const vector<StackFrame*> &frames,
-                                         CFIFrameInfo* cfi_frame_info);
+  StackFrameARM *GetCallerByCFIFrameInfo(const vector<StackFrame *> &frames,
+                                         CFIFrameInfo *cfi_frame_info);
 
   // Use the frame pointer. The caller takes ownership of the returned frame.
   // Return NULL on failure.
-  StackFrameARM* GetCallerByFramePointer(const vector<StackFrame*> &frames);
+  StackFrameARM *GetCallerByFramePointer(const vector<StackFrame *> &frames);
 
   // Scan the stack for plausible return addresses. The caller takes ownership
   // of the returned frame. Return NULL on failure.
-  StackFrameARM* GetCallerByStackScan(const vector<StackFrame*> &frames);
+  StackFrameARM *GetCallerByStackScan(const vector<StackFrame *> &frames);
 
   // Stores the CPU context corresponding to the youngest stack frame, to
   // be returned by GetContextFrame.
-  const MDRawContextARM* context_;
+  const MDRawContextARM *context_;
 
   // The register to use a as frame pointer. The value is -1 if frame pointer
   // cannot be used.

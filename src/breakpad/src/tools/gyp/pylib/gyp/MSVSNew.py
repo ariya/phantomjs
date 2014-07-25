@@ -1,13 +1,14 @@
-# Copyright (c) 2012 Google Inc. All rights reserved.
+#!/usr/bin/python2.4
+
+# Copyright (c) 2009 Google Inc. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""New implementation of Visual Studio project generation."""
+"""New implementation of Visual Studio project generation for SCons."""
 
+import common
 import os
 import random
-
-import gyp.common
 
 # hashlib is supplied as of Python 2.5 as the replacement interface for md5
 # and other secure hashes.  In 2.6, md5 is deprecated.  Import hashlib if
@@ -59,13 +60,7 @@ def MakeGuid(name, seed='msvs_new'):
 #------------------------------------------------------------------------------
 
 
-class MSVSSolutionEntry(object):
-  def __cmp__(self, other):
-    # Sort by name then guid (so things are in order on vs2008).
-    return cmp((self.name, self.get_guid()), (other.name, other.get_guid()))
-
-
-class MSVSFolder(MSVSSolutionEntry):
+class MSVSFolder:
   """Folder in a Visual Studio project or solution."""
 
   def __init__(self, path, name = None, entries = None,
@@ -91,7 +86,7 @@ class MSVSFolder(MSVSSolutionEntry):
     self.guid = guid
 
     # Copy passed lists (or set to empty lists)
-    self.entries = sorted(list(entries or []))
+    self.entries = list(entries or [])
     self.items = list(items or [])
 
     self.entry_type_guid = ENTRY_TYPE_GUIDS['folder']
@@ -106,33 +101,31 @@ class MSVSFolder(MSVSSolutionEntry):
 #------------------------------------------------------------------------------
 
 
-class MSVSProject(MSVSSolutionEntry):
+class MSVSProject:
   """Visual Studio project."""
 
   def __init__(self, path, name = None, dependencies = None, guid = None,
-               spec = None, build_file = None, config_platform_overrides = None,
-               fixpath_prefix = None):
+               config_platform_overrides = None):
     """Initializes the project.
 
     Args:
-      path: Absolute path to the project file.
+      path: Relative path to project file.
       name: Name of project.  If None, the name will be the same as the base
           name of the project file.
       dependencies: List of other Project objects this project is dependent
           upon, if not None.
       guid: GUID to use for project, if not None.
-      spec: Dictionary specifying how to build this project.
-      build_file: Filename of the .gyp file that the vcproj file comes from.
       config_platform_overrides: optional dict of configuration platforms to
           used in place of the default for this target.
-      fixpath_prefix: the path used to adjust the behavior of _fixpath
     """
     self.path = path
     self.guid = guid
-    self.spec = spec
-    self.build_file = build_file
-    # Use project filename if name not specified
-    self.name = name or os.path.splitext(os.path.basename(path))[0]
+
+    if name:
+      self.name = name
+    else:
+      # Use project filename
+      self.name = os.path.splitext(os.path.basename(path))[0]
 
     # Copy passed lists (or set to empty lists)
     self.dependencies = list(dependencies or [])
@@ -143,11 +136,6 @@ class MSVSProject(MSVSSolutionEntry):
       self.config_platform_overrides = config_platform_overrides
     else:
       self.config_platform_overrides = {}
-    self.fixpath_prefix = fixpath_prefix
-    self.msbuild_toolset = None
-
-  def set_dependencies(self, dependencies):
-    self.dependencies = list(dependencies or [])
 
   def get_guid(self):
     if self.guid is None:
@@ -165,9 +153,6 @@ class MSVSProject(MSVSSolutionEntry):
       #    GUID from the files.
       self.guid = MakeGuid(self.name)
     return self.guid
-
-  def set_msbuild_toolset(self, msbuild_toolset):
-    self.msbuild_toolset = msbuild_toolset
 
 #------------------------------------------------------------------------------
 
@@ -213,29 +198,41 @@ class MSVSSolution:
     self.Write()
 
 
-  def Write(self, writer=gyp.common.WriteOnDiff):
+  def Write(self, writer=common.WriteOnDiff):
     """Writes the solution file to disk.
 
     Raises:
       IndexError: An entry appears multiple times.
     """
     # Walk the entry tree and collect all the folders and projects.
-    all_entries = set()
+    all_entries = []
     entries_to_check = self.entries[:]
     while entries_to_check:
+      # Pop from the beginning of the list to preserve the user's order.
       e = entries_to_check.pop(0)
 
-      # If this entry has been visited, nothing to do.
+      # A project or folder can only appear once in the solution's folder tree.
+      # This also protects from cycles.
       if e in all_entries:
+        #raise IndexError('Entry "%s" appears more than once in solution' %
+        #                 e.name)
         continue
 
-      all_entries.add(e)
+      all_entries.append(e)
 
       # If this is a folder, check its entries too.
       if isinstance(e, MSVSFolder):
         entries_to_check += e.entries
 
-    all_entries = sorted(all_entries)
+    # Sort by name then guid (so things are in order on vs2008).
+    def NameThenGuid(a, b):
+      if a.name < b.name: return -1
+      if a.name > b.name: return 1
+      if a.get_guid() < b.get_guid(): return -1
+      if a.get_guid() > b.get_guid(): return 1
+      return 0
+
+    all_entries = sorted(all_entries, NameThenGuid)
 
     # Open file and print header
     f = writer(self.path)
@@ -244,16 +241,11 @@ class MSVSSolution:
     f.write('# %s\r\n' % self.version.Description())
 
     # Project entries
-    sln_root = os.path.split(self.path)[0]
     for e in all_entries:
-      relative_path = gyp.common.RelativePath(e.path, sln_root)
-      # msbuild does not accept an empty folder_name.
-      # use '.' in case relative_path is empty.
-      folder_name = relative_path.replace('/', '\\') or '.'
       f.write('Project("%s") = "%s", "%s", "%s"\r\n' % (
           e.entry_type_guid,          # Entry type GUID
           e.name,                     # Folder name
-          folder_name,                # Folder name (again)
+          e.path.replace('/', '\\'),  # Folder name (again)
           e.get_guid(),               # Entry GUID
       ))
 
@@ -325,15 +317,14 @@ class MSVSSolution:
     f.write('\tEndGlobalSection\r\n')
 
     # Folder mappings
-    # Omit this section if there are no folders
-    if any([e.entries for e in all_entries if isinstance(e, MSVSFolder)]):
-      f.write('\tGlobalSection(NestedProjects) = preSolution\r\n')
-      for e in all_entries:
-        if not isinstance(e, MSVSFolder):
-          continue        # Does not apply to projects, only folders
-        for subentry in e.entries:
-          f.write('\t\t%s = %s\r\n' % (subentry.get_guid(), e.get_guid()))
-      f.write('\tEndGlobalSection\r\n')
+    # TODO(rspangler): Should omit this section if there are no folders
+    f.write('\tGlobalSection(NestedProjects) = preSolution\r\n')
+    for e in all_entries:
+      if not isinstance(e, MSVSFolder):
+        continue        # Does not apply to projects, only folders
+      for subentry in e.entries:
+        f.write('\t\t%s = %s\r\n' % (subentry.get_guid(), e.get_guid()))
+    f.write('\tEndGlobalSection\r\n')
 
     f.write('EndGlobal\r\n')
 

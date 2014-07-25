@@ -265,13 +265,11 @@ const int kEmailMaxLength = 64;
     }
   } else {
     // Create an alert panel to tell the user something happened
-    NSPanel* alert =
-        NSGetAlertPanel([self shortDialogMessage],
-                        @"%@",
-                        NSLocalizedString(@"sendReportButton", @""),
-                        NSLocalizedString(@"cancelButton", @""),
-                        nil,
-                        [self explanatoryDialogText]);
+    NSPanel* alert = NSGetAlertPanel([self shortDialogMessage],
+                                     [self explanatoryDialogText],
+                                     NSLocalizedString(@"sendReportButton", @""),
+                                     NSLocalizedString(@"cancelButton", @""),
+                                     nil);
 
     // Pop the alert with an automatic timeout, and wait for the response
     buttonPressed = [self runModalWindow:alert withTimeout:timeout];
@@ -555,13 +553,13 @@ doCommandBySelector:(SEL)commandSelector {
     displayName = [[uploader_ parameters] objectForKey:@BREAKPAD_PRODUCT];
 
   if ([self isOnDemand]) {
-    // Local variable to pacify clang's -Wformat-extra-args.
-    NSString* format = NSLocalizedString(@"noCrashDialogHeader", @"");
-    return [NSString stringWithFormat:format, displayName];
+    return [NSString
+             stringWithFormat:NSLocalizedString(@"noCrashDialogHeader", @""),
+             displayName];
   } else {
-    // Local variable to pacify clang's -Wformat-extra-args.
-    NSString* format = NSLocalizedString(@"crashDialogHeader", @"");
-    return [NSString stringWithFormat:format, displayName];
+    return [NSString 
+             stringWithFormat:NSLocalizedString(@"crashDialogHeader", @""),
+             displayName];
   }
 }
 
@@ -576,13 +574,13 @@ doCommandBySelector:(SEL)commandSelector {
     vendor = @"unknown vendor";
 
   if ([self isOnDemand]) {
-    // Local variable to pacify clang's -Wformat-extra-args.
-    NSString* format = NSLocalizedString(@"noCrashDialogMsg", @"");
-    return [NSString stringWithFormat:format, vendor, displayName];
+    return [NSString
+             stringWithFormat:NSLocalizedString(@"noCrashDialogMsg", @""),
+             vendor, displayName];
   } else {
-    // Local variable to pacify clang's -Wformat-extra-args.
-    NSString* format = NSLocalizedString(@"crashDialogMsg", @"");
-    return [NSString stringWithFormat:format, vendor];
+    return [NSString
+             stringWithFormat:NSLocalizedString(@"crashDialogMsg", @""),
+             vendor];
   }
 }
 
