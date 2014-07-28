@@ -47,12 +47,12 @@ describe("phantom global object", function() {
         expect(phantom.hasOwnProperty('version')).toBeTruthy();
     });
 
-    it("should return 1 as the major version", function() {
-        expect(phantom.version.major).toEqual(1);
+    it("should return 2 as the major version", function() {
+        expect(phantom.version.major).toEqual(2);
     });
 
-    it("should return 10 as the minor version", function() {
-        expect(phantom.version.minor).toEqual(10);
+    it("should return 0 as the minor version", function() {
+        expect(phantom.version.minor).toEqual(0);
     });
 
     it("should return 0 as the patch version", function() {
