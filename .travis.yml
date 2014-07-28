@@ -8,7 +8,7 @@ before_install:
   - sudo apt-get -fyq install   #< Fixes inconsistency of packages installed previously
 
 install:
-  - sudo apt-get -yq install build-essential chrpath libssl-dev libfontconfig1-dev  #< Build Dependencies
+  - sudo apt-get -yq install build-essential chrpath libssl-dev libfontconfig1-dev sqlite3 libsqlite3-dev ruby gperf bison flex libicu48 libicu-dev #< Build Dependencies
 
 before_script:
   - chmod +x ./build.sh
