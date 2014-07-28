@@ -1,4 +1,4 @@
-describe("WebPage CJK support", function () {
+xdescribe("WebPage CJK support", function () {
     var texts = [
         new Text("Shift_JIS", "g3SDQIOTg2eDgA==", "ファントム")
     ,   new Text("EUC-JP", "pdWloaXzpcil4A0K", "ファントム")

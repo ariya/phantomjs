@@ -95,13 +95,13 @@ describe("WebServer object", function() {
     });
     it("should be able to listen to some port", function() {
         //NOTE: this can fail if the port is already being listend on...
-        expect(server.listen("12345", checkRequest)).toEqual(true);
-        expect(server.port).toEqual("12345");
+        expect(server.listen("1337", checkRequest)).toEqual(true);
+        expect(server.port).toEqual("1337");
     });
 
     it("should handle requests", function() {
         var page = require('webpage').create();
-        var url = "http://localhost:12345/foo/bar.php?asdf=true";
+        var url = "http://localhost:1337/foo/bar.php?asdf=true";
         var handled = false;
         runs(function() {
             expect(handled).toEqual(false);
@@ -121,7 +121,7 @@ describe("WebServer object", function() {
 
     it("should handle post requests ('Content-Type' = 'application/x-www-form-urlencoded')", function() {
         var page = require('webpage').create();
-        var url = "http://localhost:12345/foo/bar.txt?asdf=true";
+        var url = "http://localhost:1337/foo/bar.txt?asdf=true";
         //note: sorted by key (map)
         expectedPostData = {'answer' : "42", 'universe' : "expanding"};
         var handled = false;
@@ -143,7 +143,7 @@ describe("WebServer object", function() {
 
     it("should handle post requests ('Content-Type' = 'ANY')", function() {
         var page = require('webpage').create();
-        var url = "http://localhost:12345/foo/bar.txt?asdf=true";
+        var url = "http://localhost:1337/foo/bar.txt?asdf=true";
         //note: sorted by key (map)
         expectedPostData = {'answer' : "42", 'universe' : "expanding"};
         var handled = false;
@@ -163,9 +163,9 @@ describe("WebServer object", function() {
         });
     });
 
-    it("should handle binary data", function() {
+    xit("should handle binary data", function() {
         var page = require('webpage').create();
-        var url = "http://localhost:12345/";
+        var url = "http://localhost:1337/";
         var fs = require('fs');
         expectedBinaryData = fs.read('phantomjs.png', 'b');
         var handled = false;
