@@ -40,8 +40,6 @@
 #define HTTP_HEADER_CONTENT_LENGTH      "content-length"
 #define HTTP_HEADER_CONTENT_TYPE        "content-type"
 
-#define COFFEE_SCRIPT_EXTENSION     ".coffee"
-
 #define JS_ELEMENT_CLICK "(function (el) { " \
         "var ev = document.createEvent('MouseEvents');" \
         "ev.initEvent(\"click\", true, true);" \

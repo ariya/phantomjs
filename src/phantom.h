@@ -33,7 +33,6 @@
 
 #include <QPointer>
 
-#include "csconverter.h"
 #include "filesystem.h"
 #include "encoding.h"
 #include "config.h"

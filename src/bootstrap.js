@@ -320,11 +320,6 @@ phantom.callback = function(callback) {
         cwd = fs.absolute(phantom.libraryPath);
         mainFilename = joinPath(cwd, basename(require('system').args[0]) || 'repl');
         mainModule._setFilename(mainFilename);
-
-        // include CoffeeScript which takes care of adding .coffee extension (only if not in Webdriver mode)
-        if (!phantom.webdriverMode) {
-            require('_coffee-script');
-        }
     }());
 }());
 

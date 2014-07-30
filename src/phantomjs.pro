@@ -10,7 +10,7 @@ RESOURCES = phantomjs.qrc \
 
 QTPLUGIN += qphantom
 
-HEADERS += csconverter.h \
+HEADERS += \
     phantom.h \
     callback.h \
     webpage.h \
@@ -33,7 +33,6 @@ SOURCES += phantom.cpp \
     webpage.cpp \
     webserver.cpp \
     main.cpp \
-    csconverter.cpp \
     utils.cpp \
     networkaccessmanager.cpp \
     cookiejar.cpp \

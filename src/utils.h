@@ -35,7 +35,6 @@
 #include <QtWebKitWidgets/QWebFrame>
 #include <QFile>
 
-#include "csconverter.h"
 #include "encoding.h"
 
 #ifdef Q_OS_WIN32
@@ -57,7 +56,6 @@ public:
 #else
     static bool exceptionHandler(const char* dump_path, const char* minidump_id, void* context, bool succeeded);
 #endif    
-    static QVariant coffee2js(const QString &script);
     static bool injectJsInFrame(const QString &jsFilePath, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
     static bool injectJsInFrame(const QString &jsFilePath, const QString &jsFileLanguage, const Encoding &jsFileEnc, const QString &libraryPath, QWebFrame *targetFrame, const bool startingScript = false);
     static QString readResourceFileUtf8(const QString &resourceFilePath);

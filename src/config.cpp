@@ -65,7 +65,7 @@ static const struct QCommandLineConfigEntry flags[] =
     { QCommandLine::Option, '\0', "proxy-auth", "Provides authentication information for the proxy, e.g. ''-proxy-auth=username:password'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "proxy-type", "Specifies the proxy type, 'http' (default), 'none' (disable completely), or 'socks5'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "script-encoding", "Sets the encoding used for the starting script, default is 'utf8'", QCommandLine::Optional },
-    { QCommandLine::Option, '\0', "script-language", "Sets the script language instead of detecting it: 'javascript', 'coffeescript'", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "script-language", "Sets the script language instead of detecting it: 'javascript'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "web-security", "Enables web security, 'true' (default) or 'false'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-protocol", "Sets the SSL protocol (supported protocols: 'SSLv3' (default), 'SSLv2', 'TLSv1', 'any')", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-certificates-path", "Sets the location for custom CA certificates (if none set, uses system default)", QCommandLine::Optional },
