@@ -463,8 +463,6 @@ void HB_HeuristicSetGlyphAttributes(HB_ShaperItem *item)
 
     // ### zeroWidth and justification are missing here!!!!!
 
-    assert(length <= item->num_glyphs);
-
 //     qDebug("QScriptEngine::heuristicSetGlyphAttributes, num_glyphs=%d", item->num_glyphs);
     HB_GlyphAttributes *attributes = item->attributes;
     unsigned short *logClusters = item->log_clusters;
