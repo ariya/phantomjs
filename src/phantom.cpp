@@ -501,8 +501,12 @@ void Phantom::doExit(int code)
     emit aboutToExit(code);
     m_terminated = true;
     m_returnValue = code;
-    foreach (QPointer<WebPage> page, m_pages)
-      page->deleteLater();
+    foreach (QPointer<WebPage> page, m_pages) {
+        // stop processing of JavaScript code by loading a blank page
+        page->mainFrame()->setUrl(QUrl(QStringLiteral("about://blank")));
+        // delay deletion into the event loop, direct deletion can trigger crashes
+        page->deleteLater();
+    }
     m_pages.clear();
     m_page = 0;
     QApplication::instance()->exit(code);
