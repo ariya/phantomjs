@@ -19,10 +19,6 @@ describe("require()", function() {
         require('system').platform.should.equal('phantomjs');
     });
 
-    it("loads CoffeeScript modules", function() {
-        require('./coffee_dummy').should.equal('require/coffee_dummy');
-    });
-
     it("doesn't expose CoffeeScript", function() {
         should.not.exist(window.CoffeeScript);
     });
