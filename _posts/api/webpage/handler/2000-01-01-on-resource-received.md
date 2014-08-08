@@ -7,7 +7,7 @@ permalink: api/webpage/handler/on-resource-received.html
 
 **Introduced:** PhantomJS 1.2
 
-This callback is invoked when the a resource requested by the page is received. The only argument to the callback is the `response` metadata object.
+This callback is invoked when a resource requested by the page is received. The only argument to the callback is the `response` metadata object.
 
 If the resource is large and sent by the server in multiple chunks, `onResourceReceived` will be invoked for every chunk received by PhantomJS.
 
