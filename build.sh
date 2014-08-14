@@ -54,8 +54,7 @@ until [ -z "$1" ]; do
             BUILD_CONFIRM=1
             shift;;
         "--silent")
-            SILENT='--silent'
-            QT_CFG+=" -silent"
+            SILENT=silent
             shift;;
         "--system-qtwebkit")
             QTWEBKIT=system
@@ -77,7 +76,7 @@ until [ -z "$1" ]; do
     esac
 done
 
-if [[ "$QTWEBKIT" = system ]] && [[ -n "$QT_CFG" ]] && [[ "$QT_CFG" != " -silent" ]]; then
+if [[ "$QTWEBKIT" = system ]] && [[ -n "$QT_CFG" ]]; then
     echo "$0: options --qt-config and --system-qtwebkit are mutually exclusive" >&2
     exit 1
 fi
@@ -105,13 +104,15 @@ EOF
     echo
 fi
 
-echo
-echo "Building PhantomJS. Please wait..."
-echo
-
 UNAME_SYSTEM=`(uname -s) 2>/dev/null`  || UNAME_SYSTEM=unknown
 UNAME_RELEASE=`(uname -r) 2>/dev/null` || UNAME_RELEASE=unknown
 UNAME_MACHINE=`(uname -m) 2>/dev/null` || UNAME_MACHINE=unknown
+
+MAKE_S=""
+if [[ "$SILENT" == "silent" ]]; then
+    MAKE_S="-s"
+    QT_CFG+=" -silent"
+fi
 
 echo "System architecture... ($UNAME_SYSTEM $UNAME_RELEASE $UNAME_MACHINE)"
 echo
@@ -119,11 +120,20 @@ echo
 if [[ "$QTWEBKIT" == "bundled" ]]; then
     export QMAKE=$PWD/src/qt/qtbase/bin/qmake
     export SQLITE3SRCDIR=$PWD/src/qt/qtbase/3rdparty/sqlite/
-    ( cd src/qt &&
-        ./preconfig.sh --jobs $COMPILE_JOBS --qt-config "$QT_CFG" $SILENT )
+
+    ( cd src/qt && ./preconfig.sh $QT_CFG )
+
+    echo
+    echo "Building Qt..."
+    echo
+    ( cd src/qt/qtbase && make -j$COMPILE_JOBS $MAKE_S )
+
+    echo
+    echo "Building QtWebkit..."
+    echo
     ( cd src/qt/qtwebkit &&
         $QMAKE $QMAKE_ARGS &&
-        make -j$COMPILE_JOBS )
+        make -j$COMPILE_JOBS $MAKE_S )
 else
     export QMAKE=qmake
     # some Linux distros (e.g. Debian) allow you to parallel-install
@@ -132,7 +142,8 @@ else
     export QT_SELECT=qt5
 fi
 
-echo "Building main PhantomJS application. Please wait..."
+echo
+echo "Building main PhantomJS application..."
 echo
 $QMAKE $QMAKE_ARGS
 make -j$COMPILE_JOBS
