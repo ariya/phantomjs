@@ -34,6 +34,7 @@ if [[ "$COMPILE_JOBS" -gt 8 ]]; then
 fi
 
 SILENT=''
+QTWEBKIT=bundled
 
 until [ -z "$1" ]; do
     case $1 in
@@ -56,6 +57,9 @@ until [ -z "$1" ]; do
             SILENT='--silent'
             QT_CFG+=" -silent"
             shift;;
+        "--system-qtwebkit")
+            QTWEBKIT=system
+            shift;;
         "--help")
             echo "Usage: $0 [--qt-config CONFIG] [--jobs NUM]"
             echo
@@ -63,6 +67,7 @@ until [ -z "$1" ]; do
             echo "  --qt-config CONFIG          Specify extra config options to be used when configuring Qt"
             echo "  --jobs NUM                  How many parallel compile jobs to use. Defaults to 4."
             echo "  --silent                    Produce less verbose output."
+            echo "  --system-qtwebkit           Use system-provided QtWebkit.  EXPERIMENTAL, build may not succeed."
             echo
             exit 0
             ;;
@@ -72,6 +77,10 @@ until [ -z "$1" ]; do
     esac
 done
 
+if [[ "$QTWEBKIT" = system ]] && [[ -n "$QT_CFG" ]] && [[ "$QT_CFG" != " -silent" ]]; then
+    echo "$0: options --qt-config and --system-qtwebkit are mutually exclusive" >&2
+    exit 1
+fi
 
 if [[ "$BUILD_CONFIRM" -eq 0 ]]; then
 cat << EOF
@@ -107,15 +116,23 @@ UNAME_MACHINE=`(uname -m) 2>/dev/null` || UNAME_MACHINE=unknown
 echo "System architecture... ($UNAME_SYSTEM $UNAME_RELEASE $UNAME_MACHINE)"
 echo
 
-echo "Building QtBase library. Please wait..."
-echo
-(cd src/qt && ./preconfig.sh --jobs $COMPILE_JOBS --qt-config "$QT_CFG" $SILENT) || (echo "Failed to compile QtBase"; exit 1)
-
-echo "Building QtWebKit library. Please wait..."
-echo
-export SQLITE3SRCDIR=$PWD/qtbase/3rdparty/sqlite/
-(cd src/qt/qtwebkit && ../qtbase/bin/qmake $QMAKE_ARGS && make -j$COMPILE_JOBS) || (echo "Failed to compile QtWebKit"; exit 1)
+if [[ "$QTWEBKIT" == "bundled" ]]; then
+    export QMAKE=$PWD/src/qt/qtbase/bin/qmake
+    export SQLITE3SRCDIR=$PWD/src/qt/qtbase/3rdparty/sqlite/
+    ( cd src/qt &&
+        ./preconfig.sh --jobs $COMPILE_JOBS --qt-config "$QT_CFG" $SILENT )
+    ( cd src/qt/qtwebkit &&
+        $QMAKE $QMAKE_ARGS &&
+        make -j$COMPILE_JOBS )
+else
+    export QMAKE=qmake
+    # some Linux distros (e.g. Debian) allow you to parallel-install
+    # Qt4 and Qt5, using this environment variable to declare which
+    # one you want
+    export QT_SELECT=qt5
+fi
 
 echo "Building main PhantomJS application. Please wait..."
 echo
-(src/qt/qtbase/bin/qmake $QMAKE_ARGS && make -j$COMPILE_JOBS) || (echo "Failed to compile PhantomJS"; exit 1)
+$QMAKE $QMAKE_ARGS
+make -j$COMPILE_JOBS
