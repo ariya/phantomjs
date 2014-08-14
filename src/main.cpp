@@ -50,10 +50,6 @@ using namespace google_breakpad;
 static google_breakpad::ExceptionHandler* eh;
 #endif
 
-#if QT_VERSION != QT_VERSION_CHECK(5, 3, 0)
-#error Something is wrong with the setup. Please report to the mailing list!
-#endif
-
 int main(int argc, char** argv)
 {
     // Setup Google Breakpad exception handler
