@@ -5,6 +5,8 @@ categories: api webpage webpage-property
 permalink: api/webpage/property/frames-name.html
 ---
 
+Returns array with frames names.
+
 ## Examples
 
 ```javascript
