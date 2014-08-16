@@ -57,3 +57,4 @@ Several page capture projects utilizing PhantomJS:
 * [shortcut.io](https://github.com/hukl/shortcut.io) uses PhantomJS to generate the screenshot of the bookmarked web sites.
 * [Slippy](https://github.com/Seldaek/slippy) uses PhantomJS to convert HTML presentations into PDFs that can be e.g. uploaded to SlideShare.
 * [Yeoman](http://github.com/yeoman/yeoman) is a robust and opinionated client-side stack, comprised of tools and frameworks that can help developers quickly build beautiful web applications. It uses PhantomJS (via Grunt) as a basis for headless tests.
+* [phantomjs-maven-plugin](https://github.com/klieber/phantomjs-maven-plugin) is a Maven plugin with the primary purpose of installing the PhantomJS binary and providing a property containing the location of the binary for use within a build. It also provides a goal for executing PhantomJS scripts.
