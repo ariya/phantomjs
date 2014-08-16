@@ -16,3 +16,25 @@ assert.equal(function(){}.length, 0);
 assert.equal(function(x){}.length, 1);
 assert.equal(function(x, y){}.length, 2);
 assert.equal(function(x, y){}.length, 2);
+
+var args, keys, str, enumerable;
+(function() {
+    args = arguments;
+    keys = Object.keys(arguments);
+    str = JSON.stringify(arguments);
+    enumerable = false;
+    for (var i in arguments) enumerable = true;
+})(14);
+
+assert.typeOf(args, 'object');
+assert.typeOf(args.length, 'number');
+assert.strictEqual(args.toString(), '[object Arguments]');
+assert.strictEqual(args.length, 1);
+assert.strictEqual(args[0], 14);
+
+assert.typeOf(keys.length, 'number');
+assert.strictEqual(keys.length, 1);
+assert.equal(keys[0], 0);
+
+assert.strictEqual(str, '{"0":14}');
+assert.isTrue(enumerable);
