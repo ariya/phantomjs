@@ -22,7 +22,7 @@ page.viewportSize = {
   height: 800
 };
 ```
-
+You must include height for this to work.
 
 
 
