@@ -114,8 +114,8 @@ echo
 echo "Building QtWebKit library. Please wait..."
 echo
 export SQLITE3SRCDIR=$PWD/qtbase/3rdparty/sqlite/
-(cd qtwebkit && ../qtbase/bin/qmake $QMAKE_ARGS && make -j$COMPILE_JOBS) || (echo "Failed to compile QtWebKit"; exit 1)
+(cd src/qt/qtwebkit && ../qtbase/bin/qmake $QMAKE_ARGS && make -j$COMPILE_JOBS) || (echo "Failed to compile QtWebKit"; exit 1)
 
 echo "Building main PhantomJS application. Please wait..."
 echo
-(cd ../../.. && src/qt/qtbase/bin/qmake $QMAKE_ARGS && make -j$COMPILE_JOBS) || (echo "Failed to compile PhantomJS"; exit 1)
+(src/qt/qtbase/bin/qmake $QMAKE_ARGS && make -j$COMPILE_JOBS) || (echo "Failed to compile PhantomJS"; exit 1)
