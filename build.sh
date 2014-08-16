@@ -107,14 +107,15 @@ UNAME_MACHINE=`(uname -m) 2>/dev/null` || UNAME_MACHINE=unknown
 echo "System architecture... ($UNAME_SYSTEM $UNAME_RELEASE $UNAME_MACHINE)"
 echo
 
-cd src/qt && ./preconfig.sh --jobs $COMPILE_JOBS --qt-config "$QT_CFG" $SILENT
+echo "Building QtBase library. Please wait..."
+echo
+(cd src/qt && ./preconfig.sh --jobs $COMPILE_JOBS --qt-config "$QT_CFG" $SILENT) || (echo "Failed to compile QtBase"; exit 1)
+
+echo "Building QtWebKit library. Please wait..."
+echo
 export SQLITE3SRCDIR=$PWD/qtbase/3rdparty/sqlite/
-cd qtwebkit
-../qtbase/bin/qmake $QMAKE_ARGS
-make -j$COMPILE_JOBS
-cd ../../..
+(cd qtwebkit && ../qtbase/bin/qmake $QMAKE_ARGS && make -j$COMPILE_JOBS) || (echo "Failed to compile QtWebKit"; exit 1)
 
 echo "Building main PhantomJS application. Please wait..."
 echo
-src/qt/qtbase/bin/qmake $QMAKE_ARGS
-make -j$COMPILE_JOBS
+(cd ../../.. && src/qt/qtbase/bin/qmake $QMAKE_ARGS && make -j$COMPILE_JOBS) || (echo "Failed to compile PhantomJS"; exit 1)
