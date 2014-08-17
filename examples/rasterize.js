@@ -2,6 +2,12 @@ var page = require('webpage').create(),
     system = require('system'),
     address, output, size;
 
+page.settings.resourceTimeout = 600000; // 10 minutes
+page.onResourceTimeout = function (e) {
+    console.log('\n' + e.errorCode + ': ' + e.errorString + ' ' + e.url);
+    phantom.exit(1);
+};
+
 if (system.args.length < 3 || system.args.length > 5) {
     console.log('Usage: rasterize.js URL filename [paperwidth*paperheight|paperformat] [zoom]');
     console.log('  paper (pdf output) examples: "5in*7.5in", "10cm*20cm", "A4", "Letter"');
@@ -36,13 +42,13 @@ if (system.args.length < 3 || system.args.length > 5) {
     }
     page.open(address, function (status) {
         if (status !== 'success') {
-            console.log('Unable to load the address!');
-            phantom.exit();
+            console.log('Unable to load the address: ' + address);
+            phantom.exit(1);
         } else {
             window.setTimeout(function () {
                 page.render(output);
-                phantom.exit();
-            }, 200);
+                phantom.exit(0);
+            }, 500);
         }
     });
 }
