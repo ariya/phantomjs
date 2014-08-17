@@ -356,7 +356,7 @@ void NetworkAccessManager::handleStarted()
     data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
     data["statusText"] = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
     data["contentType"] = reply->header(QNetworkRequest::ContentTypeHeader);
-    if(shouldCaptureResponse(reply->url().toString()) {
+    if(shouldCaptureResponse(reply->url().toString())) {
         data["body"] = reply->peek(reply->size()).toBase64().data();
     }
     data["bodySize"] = reply->size();
