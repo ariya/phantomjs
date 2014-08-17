@@ -38,6 +38,7 @@
 #include <QSet>
 #include <QSslConfiguration>
 #include <QTimer>
+#include <QStringList>
 
 class Config;
 class QNetworkDiskCache;
@@ -78,7 +79,10 @@ public:
     void setResourceTimeout(int resourceTimeout);
     void setCustomHeaders(const QVariantMap &headers);
     QVariantMap customHeaders() const;
-
+    
+    QStringList captureContent() const;
+    void setCaptureContent(const QStringList &patterns);
+    
     void setCookieJar(QNetworkCookieJar *cookieJar);
 
 protected:
@@ -106,11 +110,17 @@ private slots:
     void handleTimeout();
 
 private:
+    
+    bool shouldCaptureResponse(const QString& url);
+    void compileCaptureContentPatterns();
+    
     QHash<QNetworkReply*, int> m_ids;
     QSet<QNetworkReply*> m_started;
     int m_idCounter;
     QNetworkDiskCache* m_networkDiskCache;
     QVariantMap m_customHeaders;
+    QStringList m_captureContentPatterns;
+    QList<QRegExp> m_compiledCaptureContentPatterns;
     QSslConfiguration m_sslConfiguration;
 };
 
