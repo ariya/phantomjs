@@ -125,7 +125,7 @@ echo
 
 if [[ "$QTCORE" == "bundled" ]]; then
     export QMAKE=$PWD/src/qt/qtbase/bin/qmake
-    export SQLITE3SRCDIR=$PWD/src/qt/qtbase/3rdparty/sqlite/
+    export SQLITE3SRCDIR=$PWD/src/qt/qtbase/src/3rdparty/sqlite/
     ( cd src/qt && ./preconfig.sh $QT_CFG )
 
     echo
