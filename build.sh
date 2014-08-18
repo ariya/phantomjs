@@ -71,16 +71,30 @@ until [ -z "$1" ]; do
             QTWEBKIT=system
             shift;;
         "--help")
-            echo "Usage: $0 [--qt-config CONFIG] [--jobs NUM]"
-            echo
-            echo "  --confirm                   Silently confirm the build."
-            echo "  --qt-config CONFIG          Specify extra config options to be used when configuring Qt"
-            echo "  --jobs NUM                  How many parallel compile jobs to use. Defaults to 4."
-            echo "  --silent                    Produce less verbose output."
-            echo "  --system-qtdeps             Use system-provided libraries for all of Qt's dependencies (e.g. freetype, libpng).  EXPERIMENTAL."
-            echo "  --system-qt                 Use system-provided Qt core libraries. EXPERIMENTAL, build may not succeed.  Implies --system-qtdeps."
-            echo "  --system-qtwebkit           Use system-provided QtWebkit.  EXPERIMENTAL, build may not succeed.  Implies --system-qt."
-            echo
+            cat <<EOF
+Usage: $0 [--qt-config CONFIG] [--jobs NUM]
+
+  --confirm                   Do not prompt for confirmation of this
+                              very slow build process.
+  --silent                    Produce less verbose output.
+  --jobs NUM                  How many parallel compile jobs to use.
+                              Defaults to the number of CPU cores you have,
+                              with a maximum of 8.
+  --qt-config CONFIG          Specify extra config options to be used when
+                              configuring Qt.
+  --system-qtdeps             Use system-provided libraries for all of Qt's
+                              dependencies (e.g. freetype, libpng).
+                              EXPERIMENTAL.
+  --system-qt                 Use system-provided Qt core libraries.
+                              EXPERIMENTAL, build may not succeed.
+                              Implies --system-qtdeps.
+                              Mutually exclusive with --qt-config.
+  --system-qtwebkit           Use system-provided QtWebkit.
+                              EXPERIMENTAL, build may not succeed.
+                              Implies --system-qt and --system-qtdeps.
+                              Mutually exclusive with --qt-config.
+
+EOF
             exit 0
             ;;
         *)
@@ -100,9 +114,10 @@ cat << EOF
                WARNING
 ----------------------------------------
 
-Building PhantomJS from source takes a very long time, anywhere from 30 minutes
-to several hours (depending on the machine configuration). It is recommended to
-use the premade binary packages on supported operating systems.
+Building PhantomJS from source takes a very long time, anywhere from 30
+minutes to several hours (depending on the machine configuration).
+We recommend you use the premade binary packages on supported operating
+systems.
 
 For details, please go the the web site: http://phantomjs.org/download.html.
 
