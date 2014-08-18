@@ -34,6 +34,7 @@ if [[ "$COMPILE_JOBS" -gt 8 ]]; then
 fi
 
 SILENT=''
+QTDEPLIBS=bundled
 QTCORE=bundled
 QTWEBKIT=bundled
 
@@ -57,10 +58,15 @@ until [ -z "$1" ]; do
         "--silent")
             SILENT=silent
             shift;;
+        "--system-qtdeps")
+            QTDEPLIBS=system
+            shift;;
         "--system-qt")
+            QTDEPLIBS=system
             QTCORE=system
             shift;;
         "--system-qtwebkit")
+            QTDEPLIBS=system
             QTCORE=system
             QTWEBKIT=system
             shift;;
@@ -71,7 +77,8 @@ until [ -z "$1" ]; do
             echo "  --qt-config CONFIG          Specify extra config options to be used when configuring Qt"
             echo "  --jobs NUM                  How many parallel compile jobs to use. Defaults to 4."
             echo "  --silent                    Produce less verbose output."
-            echo "  --system-qt                 Use system-provided Qt core libraries. EXPERIMENTAL, build may not succeed."
+            echo "  --system-qtdeps             Use system-provided libraries for all of Qt's dependencies (e.g. freetype, libpng).  EXPERIMENTAL."
+            echo "  --system-qt                 Use system-provided Qt core libraries. EXPERIMENTAL, build may not succeed.  Implies --system-qtdeps."
             echo "  --system-qtwebkit           Use system-provided QtWebkit.  EXPERIMENTAL, build may not succeed.  Implies --system-qt."
             echo
             exit 0
@@ -125,8 +132,7 @@ echo
 
 if [[ "$QTCORE" == "bundled" ]]; then
     export QMAKE=$PWD/src/qt/qtbase/bin/qmake
-    export SQLITE3SRCDIR=$PWD/src/qt/qtbase/src/3rdparty/sqlite/
-    ( cd src/qt && ./preconfig.sh $QT_CFG )
+    ( cd src/qt && ./preconfig.sh $QTDEPLIBS $QT_CFG )
 
     echo
     echo "Building Qt..."
@@ -144,6 +150,9 @@ if [[ "$QTWEBKIT" == "bundled" ]]; then
     echo
     echo "Building QtWebkit..."
     echo
+    if [[ "$QTDEPLIBS" == "bundled" ]]; then
+        export SQLITE3SRCDIR=$PWD/src/qt/qtbase/src/3rdparty/sqlite/
+    fi
     ( cd src/qt/qtwebkit &&
         $QMAKE $QMAKE_ARGS &&
         make -j$COMPILE_JOBS $MAKE_S )
