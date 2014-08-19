@@ -49,7 +49,7 @@
 #elif defined(Q_OS_WIN)
 # include "qwindowsfontdatabase.h"
 #else
-# include <private/qfontconfigdatabase_p.h>
+# include <QtPlatformSupport/private/qgenericunixfontdatabase_p.h>
 #endif
 
 #if !defined(Q_OS_WIN)
@@ -106,7 +106,7 @@ QPlatformFontDatabase *PhantomIntegration::fontDatabase() const
 #elif defined(Q_OS_WIN)
         db = new QWindowsFontDatabase();
 #else
-        db = new QFontconfigDatabase();
+        db = new QGenericUnixFontDatabase();
 #endif
     }
     return db;

@@ -99,7 +99,8 @@ else
     QT_CFG+=' -system-sqlite -sql-sqlite'
     QT_CFG+=' -system-zlib'
 
-    # Fontconfig is reported to not work correctly on Darwin.
+    # Fontconfig is not required on Darwin (we use Core Text for
+    # font enumeration) and is reported to not work correctly.
     if [[ $OSTYPE != darwin* ]]; then
         QT_CFG+=' -fontconfig'
     fi
