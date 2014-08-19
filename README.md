@@ -1,6 +1,6 @@
 # [PhantomJS](http://phantomjs.org) - Scriptable Headless WebKit
 
-PhantomJS ([www.phantomjs.org](http://phantomjs.org)) is a headless WebKit scriptable with JavaScript or CoffeeScript. It is used by hundreds of [developers](https://github.com/ariya/phantomjs/wiki/Buzz) and dozens of [organizations](https://github.com/ariya/phantomjs/wiki/Users) for web-related development workflow.
+PhantomJS ([www.phantomjs.org](http://phantomjs.org)) is a headless WebKit scriptable with JavaScript or CoffeeScript. It is used by hundreds of [developers](http://phantomjs.org/buzz.html) and dozens of [organizations](http://phantomjs.org/users.html) for web-related development workflow.
 
 The latest [stable release](http://phantomjs.org/release-1.9.html) is version 1.9 (codenamed <a href="http://phantomjs.org/release-names.html">"Sakura"</a>). Follow the official Twitter stream [@PhantomJS](http://twitter.com/PhantomJS) to get the frequent development updates.
 
@@ -15,10 +15,10 @@ The latest [stable release](http://phantomjs.org/release-1.9.html) is version 1.
 
 ## Use Cases
 
-- **Headless web testing**. Lightning-fast testing without the browser is now possible! Various [test frameworks](https://github.com/ariya/phantomjs/wiki/Headless-Testing) such as Jasmine, Capybara, QUnit, Mocha, WebDriver, YUI Test, BusterJS, FuncUnit, Robot Framework, and many others are supported.
-- **Page automation**. [Access and manipulate](https://github.com/ariya/phantomjs/wiki/Page-Automation) web pages with the standard DOM API, or with usual libraries like jQuery.
-- **Screen capture**. Programmatically [capture web contents](https://github.com/ariya/phantomjs/wiki/Screen-Capture), including CSs, SVG and Canvas. Build server-side web graphics apps, from a screenshot service to a vector chart rasterizer.
-- **Network monitoring**. Automate performance analysis, track [page loading](https://github.com/ariya/phantomjs/wiki/Network-Monitoring) and export as standard HAR format.
+- **Headless web testing**. Lightning-fast testing without the browser is now possible! Various [test frameworks](http://phantomjs.org/headless-testing.html) such as Jasmine, Capybara, QUnit, Mocha, WebDriver, YUI Test, BusterJS, FuncUnit, Robot Framework, and many others are supported.
+- **Page automation**. [Access and manipulate](http://phantomjs.org/page-automation.html) web pages with the standard DOM API, or with usual libraries like jQuery.
+- **Screen capture**. Programmatically [capture web contents](http://phantomjs.org/screen-capture.html), including CSS, SVG and Canvas. Build server-side web graphics apps, from a screenshot service to a vector chart rasterizer.
+- **Network monitoring**. Automate performance analysis, track [page loading](http://phantomjs.org/network-monitoring.html) and export as standard HAR format.
 
 ## Features
 
@@ -38,12 +38,12 @@ PhantomJS needs not be used only as a stand-alone tool. Check also some excellen
 - [PhantomRobot](https://github.com/datakurre/phantomrobot) runs Robot Framework acceptance tests in the background via PhantomJS.
 - [Mocha-PhantomJS](https://github.com/metaskills/mocha-phantomjs) run Mocha tests using PhantomJS.
 
-and many others [related projects](https://github.com/ariya/phantomjs/wiki/Related-Projects).
+and many others [related projects](http://phantomjs.org/related-projects.html).
 
 ## Questions?
 
-- Explore the complete [documentation](https://github.com/ariya/phantomjs/wiki)
-- Read tons of [user articles](https://github.com/ariya/phantomjs/wiki/Buzz) on using PhantomJS.
+- Explore the complete [documentation](http://phantomjs.org/documentation/).
+- Read tons of [user articles](http://phantomjs.org/buzz.html) on using PhantomJS.
 - Join the [mailing-list](http://groups.google.com/group/phantomjs) and discuss with other PhantomJS fans.
 
 PhantomJS is free software/open source, and is distributed under the [BSD license](http://opensource.org/licenses/BSD-3-Clause). It contains third-party code, see the included `third-party.txt` file for the license information on third-party code.
