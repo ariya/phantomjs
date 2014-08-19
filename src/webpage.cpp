@@ -180,6 +180,13 @@ protected:
     bool acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request, QWebPage::NavigationType type) {
         bool isMainFrame = (frame == m_webPage->m_mainFrame);
 
+        QString frameName = "";
+
+        // only use frameName() on non-null frame
+        if (frame) {
+            frameName = frame->frameName();
+        }
+
         QString navigationType = "Undefined";
         switch (type) {
         case NavigationTypeLinkClicked:
@@ -207,7 +214,8 @@ protected:
                     request.url(),                   //< Requested URL
                     navigationType,                  //< Navigation Type
                     !isNavigationLocked,             //< Will navigate (not locked)?
-                    isMainFrame);                    //< Is main frame?
+                    isMainFrame,                     //< Is main frame?
+                    frameName);                      //< Frame that originated request
 
         return !isNavigationLocked;
     }
