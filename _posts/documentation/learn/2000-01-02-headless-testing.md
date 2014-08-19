@@ -21,17 +21,20 @@ The following table summarizes the list of various test frameworks and the corre
 | [FuncUnit](http://funcunit.com) | built-in|
 | [Hiro](http://hirojs.com) | built-in|
 | [Karma](http://karma-runner.github.com/) (née Testacular) | built-in |
-| [Jasmine](https://github.com/pivotal/jasmine) | [Chutzpah](http://chutzpah.codeplex.com), [grunt-jasmine-runner](https://github.com/jasmine-contrib/grunt-jasmine-runner), [guard-jasmine](https://github.com/netzpirat/guard-jasmine), [phantom-jasmine](https://github.com/jcarver989/phantom-jasmine)|
+| [Jasmine](https://github.com/pivotal/jasmine) | [Chutzpah](http://chutzpah.codeplex.com), [grunt-contrib-jasmine](https://github.com/gruntjs/grunt-contrib-jasmine), [guard-jasmine](https://github.com/netzpirat/guard-jasmine), [phantom-jasmine](https://github.com/jcarver989/phantom-jasmine)|
 | [JsTestDriver](http://code.google.com/p/js-test-driver/) | [js-test-driver-phantomjs](https://github.com/larrymyers/js-test-driver-phantomjs) |
 | [Laika](http://arunoda.github.io/laika/) | built-in |
 | [Preamble](http://jeffschwartz.github.io/preamble/)| built-in|
-| [QUnit](http://qunitjs.com) | [built-in](https://github.com/jquery/qunit/tree/master/addons/phantomjs), [Chutzpah](http://chutzpah.codeplex.com), [JS Test Runner](http://js-testrunner.codehaus.org), [Qlive](https://github.com/proxv/qlive), [QUnited](http://github.com/aaronroyer/qunited)|
+| [QUnit](http://qunitjs.com) | [qunit-phantomjs-runner](https://github.com/jonkemp/qunit-phantomjs-runner), [Chutzpah](http://chutzpah.codeplex.com), [JS Test Runner](http://js-testrunner.codehaus.org), [Qlive](https://github.com/proxv/qlive), [QUnited](http://github.com/aaronroyer/qunited)|
 | [Robot Framework](http://code.google.com/p/robotframework/) | [phantomrobot](https://github.com/datakurre/phantomrobot)|
 | [tapedeck](https://github.com/juliangruber/tapedeck) | built-in |
 | [Testem](https://github.com/airportyh/testem) | built-in |
+| [Venus.js](http://www.venusjs.org/) | built-in |
 | [WebDriver](http://dvcs.w3.org/hg/webdriver/raw-file/tip/webdriver-spec.html) | [GhostDriver](https://github.com/detro/ghostdriver)|
 | [wru](https://github.com/WebReflection/wru) | built-in|
 | [YUITest](http://yuilibrary.com/projects/yuitest) | [Grover](https://github.com/davglass/grover), [phantomjs-yuitest](https://github.com/metafeather/phantomjs-yuitest) |
+
+
 
 PhantomJS includes [run-qunit](https://github.com/ariya/phantomjs/blob/master/examples/run-qunit.js) and [run-jasmine](https://github.com/ariya/phantomjs/blob/master/examples/run-jasmine.js) in its `examples` subdirectory. However, these are for illustration purposes and lack important reporting features necessary for real-world uses!
 
@@ -49,4 +52,4 @@ Using PhantomJS with CI system such as **[Jenkins](http://jenkins-ci.org/)** or 
 
 Since PhantomJS is purely headless on Linux, the agent can run on an installation with any GUI. This means, a barebone Linux system without X11 is not a problem for PhantomJS. It makes it possible to spawn light build agents on Amazon EC2 or Heroku instances.
 
-**[Travis CI](http://about.travis-ci.org/)**, a popular hosted CI system, has built-in support for PhantomJS. See [its documentation](http://about.travis-ci.org/docs/user/gui-and-headless-browsers/) for details.
+**[Travis CI](http://about.travis-ci.org/)**, a popular hosted CI system, has built-in support for PhantomJS. See [its documentation](http://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-PhantomJS) for details.
