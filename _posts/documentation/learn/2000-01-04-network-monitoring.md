@@ -30,4 +30,4 @@ For more advanced network analysis, see projects like [Confess.js](https://githu
 
 The [integration](http://yslow.org/phantomjs/) of YSlow and PhantomJS is very useful for automated web performance. The report can be in TAP (Test Anything Protocol) and JUnit. Running YSlow with PhantomJS in a continuous integration system such as Jenkins is an easy DIY solution to performance monitoring:
 
-![YSlow and Jenkins](https://a248.e.akamai.net/camo.github.com/81a6855c69c5baeb8020e2873069d733543fda66/687474703a2f2f692e696d6775722e636f6d2f30766a7a512e706e67)
+![YSlow and Jenkins](http://i.imgur.com/PTD6j.png)
