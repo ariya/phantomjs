@@ -106,8 +106,8 @@ jasmineEnv.addReporter(new jasmine.ConsoleReporter(
     function (reporter) {
         phantom.exit(reporter.results().failedCount > 0 ? 1 : 0);
     },
-    // Colorized
-    true,
+    // Colorized (but disable colorized output on Windows by default)
+    sys.os.name == 'windows' ? false : true,
     // Verbosity
     verbose
 ));
