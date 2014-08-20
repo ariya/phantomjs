@@ -6,13 +6,6 @@ The latest [stable release](http://phantomjs.org/release-1.9.html) is version 1.
 
 **Note**: Please **do not** create a GitHub pull request **without** reading the [Contribution Guide](https://github.com/ariya/phantomjs/blob/master/CONTRIBUTING.md) first. Failure to do so may result in the rejection of the pull request.
 
-## Travis CI
-
-| Branch   | Build Status    |
-|:--------:|:---------------:|
-| `master` | [![Build Status](https://travis-ci.org/ariya/phantomjs.svg?branch=master)](https://travis-ci.org/ariya/phantomjs) |
-| `1.9`    | [![Build Status](https://travis-ci.org/ariya/phantomjs.svg?branch=1.9)](https://travis-ci.org/ariya/phantomjs) |
-
 ## Use Cases
 
 - **Headless web testing**. Lightning-fast testing without the browser is now possible! Various [test frameworks](http://phantomjs.org/headless-testing.html) such as Jasmine, Capybara, QUnit, Mocha, WebDriver, YUI Test, BusterJS, FuncUnit, Robot Framework, and many others are supported.
