@@ -35,10 +35,6 @@ QCommandLine - http://xf.iksaif.net/dev/qcommandline.html
 License: GNU Lesser General Public License (LGPL) version 2.1.
 Reference: http://dev.iksaif.net/projects/qcommandline/repository/revisions/master/entry/COPYING
 
-CoffeeScript - http://coffeescript.org/
-License: MIT.
-Reference: https://github.com/jashkenas/coffee-script/blob/master/README.
-
 GIFLIB - http://giflib.sourceforge.net/
 License: MIT
 Reference: http://giflib.cvs.sourceforge.net/viewvc/giflib/giflib/COPYING
