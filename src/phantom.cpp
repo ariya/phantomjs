@@ -493,8 +493,7 @@ void Phantom::clearCookies()
 // private:
 void Phantom::doExit(int code)
 {
-    if (m_config.debug())
-    {
+    if (m_config.debug()) {
         Utils::cleanupFromDebug();
     }
 
@@ -502,6 +501,9 @@ void Phantom::doExit(int code)
     m_terminated = true;
     m_returnValue = code;
     foreach (QPointer<WebPage> page, m_pages) {
+        if (!page)
+            continue;
+
         // stop processing of JavaScript code by loading a blank page
         page->mainFrame()->setUrl(QUrl(QStringLiteral("about:blank")));
         // delay deletion into the event loop, direct deletion can trigger crashes
