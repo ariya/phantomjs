@@ -38,6 +38,7 @@
 
 #include <QApplication>
 #include <QSslSocket>
+#include <QIcon>
 
 int main(int argc, char** argv)
 {

@@ -493,10 +493,6 @@ void Phantom::clearCookies()
 // private:
 void Phantom::doExit(int code)
 {
-    if (m_config.debug()) {
-        Utils::cleanupFromDebug();
-    }
-
     emit aboutToExit(code);
     m_terminated = true;
     m_returnValue = code;
