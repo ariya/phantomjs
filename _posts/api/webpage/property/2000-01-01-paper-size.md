@@ -17,9 +17,13 @@ If no `paperSize` is defined, the size is defined by the web page.
 
 Supported dimension units are: `'mm'`, `'cm'`, `'in'`, `'px'`. No unit means `'px'`.
 
-### Border
+### Margin
 
-Border is optional and defaults to `0`.
+(*Previously known as __Border__, which can still be used for compatibility purposes*)
+
+Margin is optional and defaults to `0`.  Can be provided as a single dimension or as an object containing one or more of the following properties: `'top'`, `'left'`, `'bottom'`, `'right'`.
+
+### Format
 
 Supported formats are: `'A3'`, `'A4'`, `'A5'`, `'Legal'`, `'Letter'`, `'Tabloid'`.
 
@@ -35,7 +39,7 @@ The given object should be in _either_ this format:
 {
   width: '200px',
   height: '300px',
-  border: '0px'
+  margin: '0px'
 }
 ```
 
@@ -45,7 +49,7 @@ or this format:
 {
   format: 'A4',
   orientation: 'portrait',
-  border: '1cm'
+  margin: '1cm'
 }
 ```
 
@@ -58,7 +62,9 @@ var page = webPage.create();
 page.paperSize = {
   width: '5in',
   height: '7in',
-  border: '20px'
+  margin: {
+    top: '50px',
+    left: '20px'
 };
 ```
 
