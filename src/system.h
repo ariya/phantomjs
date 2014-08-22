@@ -49,9 +49,9 @@ class System : public QObject
     Q_PROPERTY(QVariant env READ env)
     Q_PROPERTY(QVariant os READ os)
     Q_PROPERTY(bool isSSLSupported READ isSSLSupported)
-    Q_PROPERTY(QObject *stdout READ _stdout)
-    Q_PROPERTY(QObject *stderr READ _stderr)
-    Q_PROPERTY(QObject *stdin READ _stdin)
+    Q_PROPERTY(QObject *standardout READ _stdout)
+    Q_PROPERTY(QObject *standarderr READ _stderr)
+    Q_PROPERTY(QObject *standardin READ _stdin)
 
 public:
     explicit System(QObject *parent = 0);
