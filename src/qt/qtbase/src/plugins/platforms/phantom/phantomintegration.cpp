@@ -46,19 +46,11 @@
 
 #if defined(Q_OS_MAC)
 # include <QtPlatformSupport/private/qcoretextfontdatabase_p.h>
-#elif defined(Q_OS_WIN)
-# include "qwindowsfontdatabase.h"
 #else
 # include <QtPlatformSupport/private/qgenericunixfontdatabase_p.h>
 #endif
 
-#if !defined(Q_OS_WIN)
 #include <QtPlatformSupport/private/qgenericunixeventdispatcher_p.h>
-#elif defined(Q_OS_WINRT)
-#include <QtCore/private/qeventdispatcher_winrt_p.h>
-#else
-#include <QtCore/private/qeventdispatcher_win_p.h>
-#endif
 
 PhantomIntegration::PhantomIntegration()
 {
@@ -103,8 +95,6 @@ QPlatformFontDatabase *PhantomIntegration::fontDatabase() const
     if (!db) {
 #if defined(Q_OS_MAC)
         db = new QCoreTextFontDatabase();
-#elif defined(Q_OS_WIN)
-        db = new QWindowsFontDatabase();
 #else
         db = new QGenericUnixFontDatabase();
 #endif
@@ -114,13 +104,5 @@ QPlatformFontDatabase *PhantomIntegration::fontDatabase() const
 
 QAbstractEventDispatcher *PhantomIntegration::createEventDispatcher() const
 {
-#ifdef Q_OS_WIN
-#ifndef Q_OS_WINRT
-    return new QEventDispatcherWin32;
-#else // !Q_OS_WINRT
-    return new QEventDispatcherWinRT;
-#endif // Q_OS_WINRT
-#else
     return createUnixEventDispatcher();
-#endif
 }

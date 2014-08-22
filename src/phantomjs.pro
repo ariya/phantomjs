@@ -13,7 +13,9 @@ DESTDIR = ../bin
 RESOURCES = phantomjs.qrc \
     ghostdriver/ghostdriver.qrc
 
-QTPLUGIN += qphantom
+!winrt:!win32: {
+    QTPLUGIN += qphantom
+}
 
 HEADERS += \
     phantom.h \

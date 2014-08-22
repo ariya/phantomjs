@@ -8,8 +8,6 @@ load(qt_plugin)
 
 QT += core-private gui-private platformsupport-private
 
-win32: include(../windows/windows.pri)
-
 SOURCES =   main.cpp \
             phantomintegration.cpp \
             phantombackingstore.cpp
