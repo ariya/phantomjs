@@ -56,8 +56,6 @@
 #include <QImageWriter>
 #include <QUuid>
 
-#include <gifwriter.h>
-
 #include "phantom.h"
 #include "networkaccessmanager.h"
 #include "utils.h"
@@ -922,9 +920,6 @@ bool WebPage::render(const QString &fileName, const QVariantMap &option)
     else if (fileName.endsWith(".pdf", Qt::CaseInsensitive) ){
         format = "pdf";
     }
-    else if (fileName.endsWith(".gif", Qt::CaseInsensitive) ){
-        format = "gif";
-    }
 
     if( option.contains("quality") ){
         quality = option.value("quality").toInt();
@@ -933,10 +928,6 @@ bool WebPage::render(const QString &fileName, const QVariantMap &option)
     bool retval = true;
     if ( format == "pdf" ){
         retval = renderPdf(outFileName);
-    }
-    else if ( format == "gif" ) {
-        QImage rawPageRendering = renderImage();
-        retval = exportGif(rawPageRendering, outFileName);
     }
     else{
         QImage rawPageRendering = renderImage();

@@ -62,7 +62,6 @@ OTHER_FILES += \
     modules/cookiejar.js \
     repl.js
 
-include(gif/gif.pri)
 include(mongoose/mongoose.pri)
 include(linenoise/linenoise.pri)
 include(qcommandline/qcommandline.pri)

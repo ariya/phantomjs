@@ -2210,14 +2210,6 @@ xdescribe("WebPage render image", function(){
         render_test("pdf", { format: "pdf" });
     });
 
-    it("should render GIF file", function(){
-        render_test("gif");
-    });
-
-    it("should render GIF file with format option", function(){
-        render_test("gif", { format: "gif" });
-    });
-
     it("should render PNG file", function(){
         render_test("png");
     });
