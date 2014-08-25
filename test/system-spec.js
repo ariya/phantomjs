@@ -54,17 +54,17 @@ describe("System object", function() {
         expect(typeof system.isSSLSupported).toEqual('boolean');
     });
 
-    xit("should have stdout as object", function() {
+    it("should have stdout as object", function() {
         expect(typeof system.stdout).toEqual('object');
         expect(null == system.stdout).toBeFalsy();
     });
 
-    xit("should have stderr as object", function() {
+    it("should have stderr as object", function() {
         expect(typeof system.stderr).toEqual('object');
         expect(null == system.stderr).toBeFalsy();
     });
 
-    xit("should have stdin as object", function() {
+    it("should have stdin as object", function() {
         expect(typeof system.stdin).toEqual('object');
         expect(null == system.stdin).toBeFalsy();
     });
