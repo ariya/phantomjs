@@ -1177,7 +1177,7 @@ describe("WebPage object", function() {
 
     xit('should open url using secure connection', function() {
         var page = require('webpage').create();
-        var url = 'https://www.google.com/m';
+        var url = 'https://httpbin.org/';
 
         var loaded = false, handled = false;
 
@@ -1438,7 +1438,7 @@ describe("WebPage construction with options", function () {
         checkClipRect(new WebPage(opts), opts.clipRect);
     });
 
-    xdescribe("specifying onConsoleMessage", function() {
+    describe("specifying onConsoleMessage", function() {
         var message = false,
             opts = {
                 onConsoleMessage: function (msg) {
@@ -1452,7 +1452,7 @@ describe("WebPage construction with options", function () {
         });
     });
 
-    xdescribe("specifying onLoadStarted", function() {
+    describe("specifying onLoadStarted", function() {
         var started = false,
             opts = {
                 onLoadStarted: function (status) {
@@ -1474,7 +1474,7 @@ describe("WebPage construction with options", function () {
         });
     });
 
-    xdescribe("specifying onLoadFinished", function() {
+    describe("specifying onLoadFinished", function() {
         var finished = false,
             opts = {
                 onLoadFinished: function (status) {
@@ -1541,7 +1541,7 @@ describe("WebPage construction with options", function () {
     });
 });
 
-xdescribe("WebPage switch frame of execution (deprecated API)", function(){
+describe("WebPage switch frame of execution (deprecated API)", function(){
     var p = require("webpage").create();
 
     function pageTitle(page) {
@@ -1622,7 +1622,7 @@ xdescribe("WebPage switch frame of execution (deprecated API)", function(){
     });
 });
 
-xdescribe("WebPage switch frame of execution", function(){
+describe("WebPage switch frame of execution", function(){
     var p = require("webpage").create();
 
     function pageTitle(page) {
@@ -1743,7 +1743,7 @@ xdescribe("WebPage switch frame of execution", function(){
     });
 });
 
-xdescribe("WebPage opening and closing of windows/child-pages", function(){
+describe("WebPage opening and closing of windows/child-pages", function(){
     var p = require("webpage").create();
 
     it("should call 'onPageCreated' every time a call to 'window.open' is done", function(){
@@ -1797,7 +1797,7 @@ xdescribe("WebPage opening and closing of windows/child-pages", function(){
     });
 });
 
-xdescribe("WebPage timeout handling", function(){
+describe("WebPage timeout handling", function(){
     it("should call 'onResourceTimeout' on timeout", function(){
         var p = require("webpage").create(),
             spy;
@@ -1825,7 +1825,7 @@ xdescribe("WebPage timeout handling", function(){
     });
 });
 
-xdescribe("WebPage closing notification/alerting", function(){
+describe("WebPage closing notification/alerting", function(){
     it("should call 'onClosing' when 'page.close()' is called", function(){
         var p = require("webpage").create(),
             spy;
@@ -1873,7 +1873,7 @@ xdescribe("WebPage closing notification/alerting", function(){
     });
 });
 
-xdescribe("WebPage closing notification/alerting: closing propagation control", function(){
+describe("WebPage closing notification/alerting: closing propagation control", function(){
     it("should close all 4 pages if parent page is closed (default value for 'ownsPages')", function(){
         var p = require("webpage").create(),
             pages,
@@ -1947,8 +1947,8 @@ xdescribe("WebPage closing notification/alerting: closing propagation control", 
     });
 });
 
-xdescribe("WebPage 'onFilePicker'", function() {
-    it("should be able to set the file to upload when the File Picker is invoked (i.e. clicking on a 'input[type=file]')", function() {
+describe("WebPage 'onFilePicker'", function() {
+    xit("should be able to set the file to upload when the File Picker is invoked (i.e. clicking on a 'input[type=file]')", function() {
         var system = require('system'),
             fileToUpload = system.os.name === "windows" ? "C:\\Windows\\System32\\drivers\\etc\\hosts" : "/etc/hosts",
             server = require("webserver").create(),
@@ -2002,7 +2002,7 @@ xdescribe("WebPage 'onFilePicker'", function() {
     });
 });
 
-xdescribe('WebPage navigation events', function() {
+describe('WebPage navigation events', function() {
     it('should navigate to relative url using window.location', function () {
         var server = require("webserver").create();
         server.listen(12345, function(request, response) {
@@ -2046,7 +2046,7 @@ xdescribe('WebPage navigation events', function() {
 });
 
 
-xdescribe('WebPage repaint requests', function() {
+describe('WebPage repaint requests', function() {
     it('should report when a repaint is requested, together with the area being repainted', function () {
         var server = require("webserver").create();
         server.listen(12345, function(request, response) {
@@ -2076,7 +2076,7 @@ xdescribe('WebPage repaint requests', function() {
     });
 });
 
-xdescribe("WebPage loading/loadingProgress properties", function() {
+describe("WebPage loading/loadingProgress properties", function() {
     var p = require("webpage").create();
 
     it("should not be loading when page has just been created", function() {
@@ -2231,7 +2231,7 @@ xdescribe("WebPage render image", function(){
     });
 });
 
-xdescribe("WebPage network request headers handling", function() {
+describe("WebPage network request headers handling", function() {
     it("should add HTTP header to a network request", function() {
         var page = require("webpage").create();
         var server = require("webserver").create();
