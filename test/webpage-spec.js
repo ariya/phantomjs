@@ -357,7 +357,7 @@ describe("WebPage object", function() {
         });
     });
 
-    xit("should send proper key codes for text", function () {
+    it("should send proper key codes for text", function () {
         runs(function() {
             page.content = '<input type="text">';
             page.evaluate(function() {
@@ -1175,7 +1175,7 @@ describe("WebPage object", function() {
         });
     });
 
-    xit('should open url using secure connection', function() {
+    it('should open url using secure connection', function() {
         var page = require('webpage').create();
         var url = 'https://httpbin.org/';
 
@@ -1276,7 +1276,7 @@ describe("WebPage object", function() {
     });
 
 
-    xit('should able to abort a network request', function() {
+    it('should able to abort a network request', function() {
         var page = require('webpage').create();
         var url = 'http://phantomjs.org';
         var urlToBlockRexExp = /phantomjs-logo\.png$/i;
@@ -1330,7 +1330,7 @@ describe("WebPage object", function() {
         });
     });
 
-    xit('should change the url of the request', function() {
+    it('should change the url of the request', function() {
         var page = require('webpage').create();
         var url = 'http://phantomjs.org';
         var urlToChange = 'http://phantomjs.org/img/phantomjs-logo.png';
@@ -2139,7 +2139,7 @@ describe("WebPage loading/loadingProgress properties", function() {
     });
 });
 
-xdescribe("WebPage render image", function(){
+describe("WebPage render image", function(){
     var TEST_FILE_DIR = "webpage-spec-renders/";
 
     var p = require("webpage").create();
@@ -2202,19 +2202,19 @@ xdescribe("WebPage render image", function(){
         }, "page to be rendered", 3000);
     }
 
-    it("should render PDF file", function(){
+    xit("should render PDF file", function(){
         render_test("pdf");
     });
 
-    it("should render PDF file with format option", function(){
+    xit("should render PDF file with format option", function(){
         render_test("pdf", { format: "pdf" });
     });
 
-    it("should render PNG file", function(){
+    xit("should render PNG file", function(){
         render_test("png");
     });
 
-    it("should render PNG file with format option", function(){
+    xit("should render PNG file with format option", function(){
         render_test("png", { format: "png" });
     });
 
