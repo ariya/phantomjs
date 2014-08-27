@@ -43,11 +43,17 @@
 #define PHANTOMINTEGRATION_H
 
 #include <qpa/qplatformintegration.h>
+#include <qpa/qplatformnativeinterface.h>
 #include <qpa/qplatformscreen.h>
 
 #include <QPixmap>
 
 class QWindowSurface;
+
+class PhantomPlatformNativeInterface : public QPlatformNativeInterface
+{
+public:
+};
 
 class PhantomScreen : public QPlatformScreen
 {
@@ -71,6 +77,7 @@ class PhantomIntegration : public QPlatformIntegration
 {
 public:
     PhantomIntegration();
+    ~PhantomIntegration();
 
     bool hasCapability(QPlatformIntegration::Capability cap) const;
 
@@ -79,6 +86,10 @@ public:
     QAbstractEventDispatcher *createEventDispatcher() const;
 
     QPlatformFontDatabase *fontDatabase() const;
+    QPlatformNativeInterface *nativeInterface() const;
+
+private:
+    PhantomPlatformNativeInterface *m_phantomPlatformNativeInterface;
 };
 
 #endif // PHANTOMINTEGRATION_H

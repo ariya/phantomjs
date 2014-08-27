@@ -69,6 +69,13 @@ PhantomIntegration::PhantomIntegration()
     mPrimaryScreen->mFormat = QImage::Format_ARGB32_Premultiplied;
 
     screenAdded(mPrimaryScreen);
+
+    m_phantomPlatformNativeInterface = new PhantomPlatformNativeInterface();
+}
+
+PhantomIntegration::~PhantomIntegration()
+{
+    delete m_phantomPlatformNativeInterface;
 }
 
 bool PhantomIntegration::hasCapability(QPlatformIntegration::Capability cap) const
@@ -105,4 +112,9 @@ QPlatformFontDatabase *PhantomIntegration::fontDatabase() const
 QAbstractEventDispatcher *PhantomIntegration::createEventDispatcher() const
 {
     return createUnixEventDispatcher();
+}
+
+QPlatformNativeInterface *PhantomIntegration::nativeInterface() const
+{
+    return m_phantomPlatformNativeInterface;
 }
