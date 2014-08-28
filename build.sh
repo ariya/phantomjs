@@ -173,8 +173,22 @@ if [[ "$QTWEBKIT" == "bundled" ]]; then
     if grep -qEe '-qt-sql-sqlite\>' src/qt/qtbase/config.status; then
         export SQLITE3SRCDIR=$PWD/src/qt/qtbase/src/3rdparty/sqlite/
     fi
+
+    # By default, suppress video and audio-related features.
+    # They can be reactivated with e.g.
+    # --qmake-args WEBKIT_CONFIG+='use_gstreamer video'
+    WEBKIT_DISABLE=
+    WEBKIT_DISABLE+=' use_glib'
+    WEBKIT_DISABLE+=' use_gstreamer'
+    WEBKIT_DISABLE+=' use_gstreamer010'
+    WEBKIT_DISABLE+=' use_native_fullscreen_video'
+    WEBKIT_DISABLE+=' legacy_web_audio'
+    WEBKIT_DISABLE+=' web_audio'
+    WEBKIT_DISABLE+=' video'
+    WEBKIT_DISABLE+=' gamepad'
+
     ( cd src/qt/qtwebkit &&
-        $QMAKE $QMAKE_ARGS &&
+        $QMAKE "WEBKIT_CONFIG -= $WEBKIT_DISABLE" $QMAKE_ARGS &&
         make -j$COMPILE_JOBS $MAKE_S )
 fi
 
