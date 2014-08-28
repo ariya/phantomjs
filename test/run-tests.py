@@ -11,6 +11,10 @@ TIMEOUT = 35  # Maximum duration of PhantomJS execution (in seconds)
 
 TESTS = [
     'basics/exit.js',
+    'module/system/system.js',
+    'module/system/args.js',
+    'module/system/os.js',
+    'module/system/pid.js',
     'module/system/stdout.js',
     'module/system/stdin.js',
     'module/system/stderr.js',
