@@ -1803,6 +1803,20 @@ while [ "$#" -gt 0 ]; do
             UNKNOWN_OPT=yes
         fi
         ;;
+    pulseaudio)
+        if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+            CFG_PULSEAUDIO="$VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
+        ;;
+    alsa)
+        if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+            CFG_ALSA="$VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
+        ;;
     gtkstyle)
         if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
             CFG_QGTKSTYLE="$VAL"
@@ -2366,6 +2380,15 @@ Third Party Libraries:
 
     -no-glib ........... Do not compile Glib support.
  +  -glib .............. Compile Glib support.
+
+    -no-pulseaudio ..... Do not compile PulseAudio support.
+ +  -pulseaudio ........ Compile PulseAudio support.
+
+    -no-alsa ........... Do not compile ALSA support.
+ +  -alsa .............. Compile ALSA support.
+
+    -no-gtkstyle ....... Do not compile GTK theme support.
+ +  -gtkstyle .......... Compile GTK theme support.
 
 Additional options:
 
