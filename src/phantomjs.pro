@@ -19,10 +19,6 @@ win32 {
      qt/qtwebkit/Source/WebCore/generated/InspectorBackendCommands.qrc
 }
 
-!winrt:!win32: {
-    QTPLUGIN += qphantom
-}
-
 HEADERS += \
     phantom.h \
     callback.h \
