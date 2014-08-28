@@ -33,43 +33,43 @@ if [[ "$COMPILE_JOBS" -gt 8 ]]; then
    COMPILE_JOBS=8
 fi
 
-SILENT=''
-QTDEPLIBS=bundled
+SILENT=
+QT_CFG=
 QTCORE=bundled
 QTWEBKIT=bundled
 
-until [ -z "$1" ]; do
+until [[ -z "$1" ]]; do
     case $1 in
-        "--qt-config")
+        (--qt-config)
             shift
-            QT_CFG=" $1"
+            QT_CFG+=" $1"
             shift;;
-        "--qmake-args")
+        (--qmake-args)
             shift
             QMAKE_ARGS=$1
             shift;;
-        "--jobs")
+        (--jobs)
             shift
             COMPILE_JOBS=$1
             shift;;
-        "--confirm")
+        (--confirm)
             BUILD_CONFIRM=1
             shift;;
-        "--silent")
+        (--silent)
             SILENT=silent
             shift;;
-        "--system-qtdeps")
-            QTDEPLIBS=system
-            shift;;
-        "--system-qt")
-            QTDEPLIBS=system
+        (--qt=system)
             QTCORE=system
             shift;;
-        "--system-qtwebkit")
-            QTDEPLIBS=system
+        (--qtwebkit=system)
             QTCORE=system
             QTWEBKIT=system
             shift;;
+
+        (--*=system | --*=bundled)
+            QT_CFG+=" $1"
+            shift;;
+
         "--help")
             cat <<EOF
 Usage: $0 [--qt-config CONFIG] [--jobs NUM]
@@ -80,20 +80,25 @@ Usage: $0 [--qt-config CONFIG] [--jobs NUM]
   --jobs NUM                  How many parallel compile jobs to use.
                               Defaults to the number of CPU cores you have,
                               with a maximum of 8.
-  --qt-config CONFIG          Specify extra config options to be used when
-                              configuring Qt.
-  --system-qtdeps             Use system-provided libraries for all of Qt's
-                              dependencies (e.g. freetype, libpng).
-                              EXPERIMENTAL.
-  --system-qt                 Use system-provided Qt core libraries.
-                              EXPERIMENTAL, build may not succeed.
-                              Implies --system-qtdeps.
-                              Mutually exclusive with --qt-config.
-  --system-qtwebkit           Use system-provided QtWebkit.
-                              EXPERIMENTAL, build may not succeed.
-                              Implies --system-qt and --system-qtdeps.
-                              Mutually exclusive with --qt-config.
 
+  --qtdeps=system|bundled     Use system-provided | bundled libraries for
+                              all of Qt's dependencies.  EXPERIMENTAL.
+  --LIBRARY=system|bundled    Use system-provided | bundled LIBRARY.
+                              See src/qt/preconfig.sh for all possible
+                              LIBRARY values.  EXPERIMENTAL.
+  --qt-config OPTION          Specify extra config options to be used when
+                              configuring Qt.
+
+  --qt=system                 Use system-provided Qt core libraries.
+                              EXPERIMENTAL, build may not succeed.
+                              Mutually exclusive with --qt-config and all
+                              --LIBRARY= / --qtdeps= options.
+
+  --qtwebkit=system           Use system-provided QtWebkit.
+                              EXPERIMENTAL, build may not succeed.
+                              Implies --system-qt.
+                              Mutually exclusive with --qt-config and all
+                              --LIBRARY= / --qtdeps= options.
 EOF
             exit 0
             ;;
@@ -104,7 +109,7 @@ EOF
 done
 
 if [[ "$QTCORE" = system ]] && [[ -n "$QT_CFG" ]]; then
-    echo "$0: --qt-config and --system-qt(webkit) are mutually exclusive" >&2
+    echo "$0: --qt=system prevents fine-tuning the Qt configuration" >&2
     exit 1
 fi
 
@@ -139,7 +144,7 @@ UNAME_MACHINE=`(uname -m) 2>/dev/null` || UNAME_MACHINE=unknown
 MAKE_S=""
 if [[ "$SILENT" == "silent" ]]; then
     MAKE_S="-s"
-    QT_CFG+=" -silent"
+    QT_CFG+=" --silent"
 fi
 
 echo "System architecture... ($UNAME_SYSTEM $UNAME_RELEASE $UNAME_MACHINE)"
@@ -165,7 +170,7 @@ if [[ "$QTWEBKIT" == "bundled" ]]; then
     echo
     echo "Building QtWebkit..."
     echo
-    if [[ "$QTDEPLIBS" == "bundled" ]]; then
+    if grep -qEe '-qt-sql-sqlite\>' src/qt/qtbase/config.status; then
         export SQLITE3SRCDIR=$PWD/src/qt/qtbase/src/3rdparty/sqlite/
     fi
     ( cd src/qt/qtwebkit &&
