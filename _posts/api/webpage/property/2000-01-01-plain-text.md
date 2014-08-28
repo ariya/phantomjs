@@ -16,7 +16,11 @@ See also: `page.content` which returns the content with element tags.
 ```javascript
 var webPage = require('webpage');
 var page = webPage.create();
-// @TODO: Finish page.plainText example.
+
+page.open('http://phantomjs.org', function (status) {
+  console.log('Stripped down page text:\n' + page.plainText);
+  phantom.exit();
+});
 ```
 
 
