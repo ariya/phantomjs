@@ -132,7 +132,7 @@ static bool minidumpCallback(MDC_PATH_ARG dump_path,
     return succeeded;
 }
 
-static ExceptionHandler *initBreakpad()
+static google_breakpad::ExceptionHandler *initBreakpad()
 {
     // On all platforms, Breakpad can be disabled by setting the
     // environment variable PHANTOMJS_DISABLE_CRASH_DUMPS to any
@@ -155,7 +155,7 @@ static ExceptionHandler *initBreakpad()
         dumpPath = varbuf.constData();
 #endif
 
-    return new ExceptionHandler(dumpPath, NULL, minidumpCallback, NULL,
+    return new google_breakpad::ExceptionHandler(dumpPath, NULL, minidumpCallback, NULL,
                                 EHC_EXTRA_ARGS);
 }
 #else // no HAVE_BREAKPAD
