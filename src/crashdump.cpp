@@ -51,14 +51,18 @@
 #ifdef Q_OS_WIN32
 #include "client/windows/handler/exception_handler.h"
 #define HAVE_BREAKPAD
-#define EHC_EXTRA_ARGS ExceptionHandler::HANDLER_ALL
+#define EHC_EXTRA_ARGS BreakpadEH::HANDLER_ALL
 #define MDC_PATH_ARG   const wchar_t*
 #define MDC_EXTRA_ARGS void*, EXCEPTION_POINTERS*, MDRawAssertionInfo*
 #endif
 
 #ifdef HAVE_BREAKPAD
 
-using google_breakpad::ExceptionHandler;
+// This is not just 'using google_breakpad::ExceptionHandler' because
+// one of the headers included by exception_handler.h on MacOS defines
+// a typedef name 'ExceptionHandler' in the global namespace, and
+// (apparently) a using-directive doesn't completely mask that.
+typedef google_breakpad::ExceptionHandler BreakpadEH;
 
 #ifdef Q_OS_WIN32
 // qgetenv doesn't handle environment variables containing Unicode
@@ -132,7 +136,7 @@ static bool minidumpCallback(MDC_PATH_ARG dump_path,
     return succeeded;
 }
 
-static google_breakpad::ExceptionHandler *initBreakpad()
+static BreakpadEH *initBreakpad()
 {
     // On all platforms, Breakpad can be disabled by setting the
     // environment variable PHANTOMJS_DISABLE_CRASH_DUMPS to any
@@ -155,8 +159,8 @@ static google_breakpad::ExceptionHandler *initBreakpad()
         dumpPath = varbuf.constData();
 #endif
 
-    return new google_breakpad::ExceptionHandler(dumpPath, NULL, minidumpCallback, NULL,
-                                EHC_EXTRA_ARGS);
+    return new BreakpadEH(dumpPath, NULL, minidumpCallback, NULL,
+                          EHC_EXTRA_ARGS);
 }
 #else // no HAVE_BREAKPAD
 #define initBreakpad() NULL
