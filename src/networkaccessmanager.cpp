@@ -109,6 +109,21 @@ void JsNetworkRequest::changeUrl(const QString& address)
     }
 }
 
+struct ssl_protocol_option {
+  const char* name;
+  QSsl::SslProtocol proto;
+};
+const ssl_protocol_option ssl_protocol_options[] = {
+  { "default", QSsl::SecureProtocols },
+  { "tlsv1.2", QSsl::TlsV1_2 },
+  { "tlsv1.1", QSsl::TlsV1_1 },
+  { "tlsv1.0", QSsl::TlsV1_0 },
+  { "tlsv1",   QSsl::TlsV1_0 },
+  { "sslv3",   QSsl::SslV3 },
+  { "any",     QSsl::AnyProtocol },
+  { 0,         QSsl::UnknownProtocol }
+};
+
 // public:
 NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config)
     : QNetworkAccessManager(parent)
@@ -135,15 +150,19 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
             m_sslConfiguration.setPeerVerifyMode(QSslSocket::VerifyNone);
         }
 
-        // set the SSL protocol to SSLv3 by the default
-        m_sslConfiguration.setProtocol(QSsl::SslV3);
-
-        if (config->sslProtocol() == "sslv2") {
-            m_sslConfiguration.setProtocol(QSsl::SslV2);
-        } else if (config->sslProtocol() == "tlsv1") {
-            m_sslConfiguration.setProtocol(QSsl::TlsV1_0);
-        } else if (config->sslProtocol() == "any") {
-            m_sslConfiguration.setProtocol(QSsl::AnyProtocol);
+        bool setProtocol = false;
+        for (const ssl_protocol_option *proto_opt = ssl_protocol_options;
+             proto_opt->name;
+             proto_opt++) {
+            if (config->sslProtocol() == proto_opt->name) {
+                m_sslConfiguration.setProtocol(proto_opt->proto);
+                setProtocol = true;
+                break;
+            }
+        }
+        // FIXME: actually object to an invalid setting.
+        if (!setProtocol) {
+            m_sslConfiguration.setProtocol(QSsl::SecureProtocols);
         }
 
         if (!config->sslCertificatesPath().isEmpty()) {
