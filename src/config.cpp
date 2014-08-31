@@ -68,6 +68,7 @@ static const struct QCommandLineConfigEntry flags[] =
     { QCommandLine::Option, '\0', "script-language", "Sets the script language instead of detecting it: 'javascript'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "web-security", "Enables web security, 'true' (default) or 'false'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-protocol", "Selects a specific SSL protocol version to offer. Values (case insensitive): TLSv1.2, TLSv1.1, TLSv1.0, TLSv1 (same as v1.0), SSLv3, or ANY. Default is to offer all that Qt thinks are secure (SSLv3 and up). Not all values may be supported, depending on the system OpenSSL library.", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "ssl-ciphers", "Sets supported TLS/SSL ciphers. Argument is a colon-separated list of OpenSSL cipher names (macros like ALL, kRSA, etc. may not be used). Default matches modern browsers.", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ssl-certificates-path", "Sets the location for custom CA certificates (if none set, uses system default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "webdriver", "Starts in 'Remote WebDriver mode' (embedded GhostDriver): '[[<IP>:]<PORT>]' (default '127.0.0.1:8910') ", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "webdriver-logfile", "File where to write the WebDriver's Log (default 'none') (NOTE: needs '--webdriver') ", QCommandLine::Optional },
@@ -556,6 +557,25 @@ void Config::resetToDefaults()
     m_helpFlag = false;
     m_printDebugMessages = false;
     m_sslProtocol = "default";
+    // Default taken from Chromium 35.0.1916.153
+    m_sslCiphers = ("ECDHE-ECDSA-AES128-GCM-SHA256"
+                    ":ECDHE-RSA-AES128-GCM-SHA256"
+                    ":DHE-RSA-AES128-GCM-SHA256"
+                    ":ECDHE-ECDSA-AES256-SHA"
+                    ":ECDHE-ECDSA-AES128-SHA"
+                    ":ECDHE-RSA-AES128-SHA"
+                    ":ECDHE-RSA-AES256-SHA"
+                    ":ECDHE-ECDSA-RC4-SHA"
+                    ":ECDHE-RSA-RC4-SHA"
+                    ":DHE-RSA-AES128-SHA"
+                    ":DHE-DSS-AES128-SHA"
+                    ":DHE-RSA-AES256-SHA"
+                    ":AES128-GCM-SHA256"
+                    ":AES128-SHA"
+                    ":AES256-SHA"
+                    ":DES-CBC3-SHA"
+                    ":RC4-SHA"
+                    ":RC4-MD5");
     m_sslCertificatesPath.clear();
     m_webdriverIp = QString();
     m_webdriverPort = QString();
@@ -713,6 +733,9 @@ void Config::handleOption(const QString &option, const QVariant &value)
     if (option == "ssl-protocol") {
         setSslProtocol(value.toString());
     }
+    if (option == "ssl-ciphers") {
+        setSslCiphers(value.toString());
+    }
     if (option == "ssl-certificates-path") {
         setSslCertificatesPath(value.toString());
     }
@@ -753,6 +776,17 @@ QString Config::sslProtocol() const
 void Config::setSslProtocol(const QString& sslProtocolName)
 {
     m_sslProtocol = sslProtocolName.toLower();
+}
+
+QString Config::sslCiphers() const
+{
+    return m_sslCiphers;
+}
+
+void Config::setSslCiphers(const QString& sslCiphersName)
+{
+    // OpenSSL cipher strings are case sensitive.
+    m_sslCiphers = sslCiphersName;
 }
 
 QString Config::sslCertificatesPath() const

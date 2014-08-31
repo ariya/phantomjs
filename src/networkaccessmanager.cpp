@@ -36,6 +36,7 @@
 #include <QNetworkRequest>
 #include <QSslSocket>
 #include <QSslCertificate>
+#include <QSslCipher>
 #include <QRegExp>
 
 #include "phantom.h"
@@ -163,6 +164,21 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
         // FIXME: actually object to an invalid setting.
         if (!setProtocol) {
             m_sslConfiguration.setProtocol(QSsl::SecureProtocols);
+        }
+
+        // Essentially the same as what QSslSocket::setCiphers(QString) does.
+        // That overload isn't available on QSslConfiguration.
+        if (!config->sslCiphers().isEmpty()) {
+            QList<QSslCipher> cipherList;
+            foreach (const QString &cipherName,
+                     config->sslCiphers().split(QLatin1String(":"),
+                                                QString::SkipEmptyParts)) {
+                QSslCipher cipher(cipherName);
+                if (!cipher.isNull())
+                    cipherList << cipher;
+            }
+            if (!cipherList.isEmpty())
+                m_sslConfiguration.setCiphers(cipherList);
         }
 
         if (!config->sslCertificatesPath().isEmpty()) {
