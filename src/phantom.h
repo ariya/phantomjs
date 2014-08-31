@@ -47,7 +47,6 @@ class WebServer;
 class Phantom : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList args READ args)
     Q_PROPERTY(QVariantMap defaultPageSettings READ defaultPageSettings)
     Q_PROPERTY(QString libraryPath READ libraryPath WRITE setLibraryPath)
     Q_PROPERTY(QString outputEncoding READ outputEncoding WRITE setOutputEncoding)
@@ -66,8 +65,6 @@ private:
 public:
     static Phantom *instance();
     virtual ~Phantom();
-
-    QStringList args() const;
 
     QVariantMap defaultPageSettings() const;
 

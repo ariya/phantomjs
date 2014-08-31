@@ -158,11 +158,6 @@ Phantom::~Phantom()
     // Nothing to do: cleanup is handled by QObject relationships
 }
 
-QStringList Phantom::args() const
-{
-    return m_config.scriptArgs();
-}
-
 QVariantMap Phantom::defaultPageSettings() const
 {
     return m_defaultPageSettings;
