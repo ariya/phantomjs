@@ -15,18 +15,6 @@ describe("phantom global object", function() {
         expect(phantom.libraryPath.length).toNotEqual(0);
     });
 
-    it("should have scriptName property", function() {
-        expect(phantom.hasOwnProperty('scriptName')).toBeTruthy();
-    });
-
-    it("should have scriptName as a string", function() {
-        expect(typeof phantom.scriptName).toEqual('string');
-    });
-
-    it("should not have an empty scriptName", function() {
-        expect(phantom.scriptName.length).toNotEqual(0);
-    });
-
     it("should have outputEncoding property", function() {
         expect(phantom.hasOwnProperty('outputEncoding')).toBeTruthy();
     });

@@ -50,7 +50,6 @@ class Phantom : public QObject
     Q_PROPERTY(QVariantMap defaultPageSettings READ defaultPageSettings)
     Q_PROPERTY(QString libraryPath READ libraryPath WRITE setLibraryPath)
     Q_PROPERTY(QString outputEncoding READ outputEncoding WRITE setOutputEncoding)
-    Q_PROPERTY(QString scriptName READ scriptName)
     Q_PROPERTY(QVariantMap version READ version)
     Q_PROPERTY(QObject *page READ page)
     Q_PROPERTY(bool cookiesEnabled READ areCookiesEnabled WRITE setCookiesEnabled)
@@ -76,8 +75,6 @@ public:
 
     QString libraryPath() const;
     void setLibraryPath(const QString &libraryPath);
-
-    QString scriptName() const;
 
     QVariantMap version() const;
 

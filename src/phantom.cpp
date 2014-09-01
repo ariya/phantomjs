@@ -251,11 +251,6 @@ void Phantom::setLibraryPath(const QString &libraryPath)
     m_page->setLibraryPath(libraryPath);
 }
 
-QString Phantom::scriptName() const
-{
-    return QFileInfo(m_config.scriptFile()).fileName();
-}
-
 QVariantMap Phantom::version() const
 {
     QVariantMap result;
