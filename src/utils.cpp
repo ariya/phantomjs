@@ -133,7 +133,8 @@ bool injectJsInFrame(const QString& jsFilePath, const QString& jsFileLanguage, c
         return false;
     }
     // Execute JS code in the context of the document
-    targetFrame->evaluateJavaScript(scriptBody, QUrl::fromLocalFile(jsFileUrl));
+    const QUrl jsFileUrl = QUrl::fromLocalFile(QDir::currentPath()).resolved(jsFilePath);
+    targetFrame->evaluateJavaScript(scriptBody, jsFileUrl);
     return true;
 }
 
