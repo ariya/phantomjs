@@ -42,6 +42,7 @@ public:
     ~CrashHandler();
 
 private:
+    void (*old_terminate_handler)();
     google_breakpad::ExceptionHandler *eh;
 };
 

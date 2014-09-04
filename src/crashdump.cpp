@@ -34,6 +34,9 @@
 #include <QString>
 #include <QByteArray>
 
+#include <exception>
+#include <cstdlib>
+
 #ifdef Q_OS_LINUX
 #include "client/linux/handler/exception_handler.h"
 #define HAVE_BREAKPAD
@@ -166,11 +169,31 @@ static BreakpadEH *initBreakpad()
 #define initBreakpad() NULL
 #endif
 
+// Qt, QtWebkit, and PhantomJS mostly don't make use of C++ exceptions,
+// so in the rare cases where an exception does get thrown, it tends
+// to pass all the way up the stack and cause the C++ runtime to call
+// std::terminate().  The default std::terminate() handler in some
+// C++ runtimes tries to print details of the exception or maybe even
+// a stack trace.  Breakpad does a better job of this.
+//
+// Worse, if the exception is bad_alloc, thrown because we've run into
+// a system-imposed hard upper limit on memory allocation, a clever
+// terminate handler like that may itself perform more memory allocation,
+// which will throw another bad_alloc, and cause a recursive call to
+// terminate.  In some cases this may happen several times before the
+// process finally dies.
+//
+// Short-circuit all this mess by forcing the terminate handler to
+// be plain old std::abort, which will invoke Breakpad if it's active
+// and crash promptly if not.
+
 CrashHandler::CrashHandler()
-  : eh(initBreakpad())
+  : old_terminate_handler(std::set_terminate(std::abort)),
+    eh(initBreakpad())
 {}
 
 CrashHandler::~CrashHandler()
 {
   delete eh;
+  std::set_terminate(old_terminate_handler);
 }
