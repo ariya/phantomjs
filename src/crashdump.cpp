@@ -82,7 +82,7 @@ q_wgetenv(const wchar_t *varName)
     // We have to employ a scratch buffer.  Limiting the length to
     // INT_MAX / sizeof(wchar_t), above, ensures that the multiplication
     // here cannot overflow.
-    wchar_t *buffer = malloc(requiredSize * sizeof(wchar_t));
+    wchar_t *buffer = (wchar_t *)malloc(requiredSize * sizeof(wchar_t));
     if (!buffer)
         return QString();
 
