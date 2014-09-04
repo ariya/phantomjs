@@ -22,11 +22,11 @@ TESTS = [
     'module/system/stdout.js',
     'module/system/stdin.js',
     'module/system/stderr.js',
+    'standards/javascript/date.js',
     'standards/javascript/function.js',
     'regression/issue12482.js',
     'run-tests.js'
 ]
-
 
 def init():
     global base_path, phantomjs_exe, options
