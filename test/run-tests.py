@@ -25,6 +25,7 @@ TESTS = [
     'basics/stacktrace.js',
     'basics/version.js',
     'module/webpage/open.js',
+    'module/webpage/loading.js',
     'module/system/system.js',
     'module/system/args.js',
     'module/system/os.js',

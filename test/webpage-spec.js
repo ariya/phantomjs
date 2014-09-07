@@ -2076,69 +2076,6 @@ describe('WebPage repaint requests', function() {
     });
 });
 
-describe("WebPage loading/loadingProgress properties", function() {
-    var p = require("webpage").create();
-
-    it("should not be loading when page has just been created", function() {
-        expect(p.loading).toBeFalsy();
-        expect(p.loadingProgress).toEqual(0);
-    });
-
-    it("should be loading when 'page.open' is invoked", function() {
-        var s = require("webserver").create();
-
-        s.listen(12345, function(request, response) {
-            setTimeout(function() {
-                response.statusCode = 200;
-                response.write('<html><body>Loaded!</body></html>');
-                response.close();
-            }, 200);
-        });
-
-        runs(function() {
-            p.open("http://localhost:12345");
-            expect(p.loading).toBeTruthy();
-            expect(p.loadingProgress).toBeGreaterThan(0);
-        });
-
-        waits(500);
-
-        runs(function() {
-            s.close();
-        });
-    });
-
-    it("should be completed when page is fully loaded", function() {
-        var s = require("webserver").create();
-
-        s.listen(12345, function(request, response) {
-            setTimeout(function() {
-                response.statusCode = 200;
-                response.write('<html><body>Loaded!</body></html>');
-                response.close();
-            }, 500);
-        });
-
-        var loaded = false;
-
-        runs(function() {
-            p.open("http://localhost:12345", function () {
-                loaded = true;
-            });
-        });
-
-        waitsFor(function () {
-            return loaded;
-        }, 'Can not test loading progress' , 3000);
-
-        runs(function() {
-            expect(p.loading).toBeFalsy();
-            expect(p.loadingProgress).toEqual(100);
-            s.close();
-        });
-    });
-});
-
 describe("WebPage render image", function(){
     var TEST_FILE_DIR = "webpage-spec-renders/";
 
