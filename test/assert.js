@@ -1,6 +1,6 @@
 
 // After the given timeout (in seconds), the script automatically terminates.
-var timeout = 2;
+var timeout = 1;
 
 var total = 0;
 
