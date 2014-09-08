@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import inspect
+import json
 import optparse
 import os
 import posixpath
@@ -12,6 +13,7 @@ import sys
 import threading
 import time
 import urllib
+import urlparse
 
 TIMEOUT = 35  # Maximum duration of PhantomJS execution (in seconds)
 
@@ -26,6 +28,10 @@ TESTS = [
     'basics/version.js',
     'module/webpage/open.js',
     'module/webpage/loading.js',
+    'module/webpage/custom-headers.js',
+    'module/webpage/add-header.js',
+    'module/webpage/remove-header.js',
+    'module/webpage/modify-header.js',
     'module/system/system.js',
     'module/system/args.js',
     'module/system/os.js',
@@ -40,7 +46,32 @@ TESTS = [
 ]
 
 
-class FileHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+class FileHandler(SimpleHTTPServer.SimpleHTTPRequestHandler, object):
+
+    def do_GET(self):
+        url = urlparse.urlparse(self.path)
+        if url.path == '/echo':
+            headers = {}
+            for name, value in self.headers.items():
+                headers[name] = value.rstrip()
+            d = dict(
+                command=self.command,
+                version=self.protocol_version,
+                origin=self.client_address,
+                url=self.path,
+                path=url.path,
+                params=url.params,
+                query=url.query,
+                fragment=url.fragment,
+                headers=headers
+            )
+
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(d, indent=2) + '\r\n')
+        else:
+            super(FileHandler, self).do_GET()
 
     # silent, do not pollute stdout nor stderr.
     def log_message(self, format, *args):

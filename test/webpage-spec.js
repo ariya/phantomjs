@@ -183,11 +183,6 @@ describe("WebPage object", function() {
         expect(page.settings).toNotEqual({});
     });
 
-    expectHasProperty(page, 'customHeaders');
-    it("should have customHeaders as an empty object", function() {
-        expect(page.customHeaders).toEqual({});
-    });
-
     expectHasProperty(page, 'zoomFactor');
     it("should have zoomFactor of 1", function() {
         expect(page.zoomFactor).toEqual(1.0);
@@ -778,49 +773,6 @@ describe("WebPage object", function() {
             expect(error.toString()).toEqual("ReferenceError: Can't find variable: zomg");
             phantom.onError = phantom.defaultErrorHandler;
         });
-    });
-
-    it("should set custom headers properly", function() {
-        var server = require('webserver').create();
-        server.listen(12345, function(request, response) {
-            // echo received request headers in response body
-            response.write(JSON.stringify(request.headers));
-            response.close();
-        });
-
-        var url = "http://localhost:12345/foo/headers.txt?ab=cd";
-        var customHeaders = {
-            "Custom-Key" : "Custom-Value",
-            "User-Agent" : "Overriden-UA",
-            "Referer" : "Overriden-Referer"
-        };
-        page.customHeaders = customHeaders;
-
-        var handled = false;
-        runs(function() {
-            expect(handled).toEqual(false);
-            page.open(url, function (status) {
-                expect(status == 'success').toEqual(true);
-                handled = true;
-
-                var echoedHeaders = JSON.parse(page.plainText);
-                // console.log(JSON.stringify(echoedHeaders, null, 4));
-                // console.log(JSON.stringify(customHeaders, null, 4));
-
-                expect(echoedHeaders["Custom-Key"]).toEqual(customHeaders["Custom-Key"]);
-                expect(echoedHeaders["User-Agent"]).toEqual(customHeaders["User-Agent"]);
-                expect(echoedHeaders["Referer"]).toEqual(customHeaders["Referer"]);
-
-            });
-        });
-
-        waits(50);
-
-        runs(function() {
-            expect(handled).toEqual(true);
-            server.close();
-        });
-
     });
 
     it("should process request body properly for POST", function() {
@@ -2168,103 +2120,3 @@ describe("WebPage render image", function(){
     });
 });
 
-describe("WebPage network request headers handling", function() {
-    it("should add HTTP header to a network request", function() {
-        var page = require("webpage").create();
-        var server = require("webserver").create();
-        var isCustomHeaderPresented = false;
-
-        server.listen(12345, function(response) {
-            if (response.headers["CustomHeader"] && response.headers["CustomHeader"] === "CustomValue") {
-                isCustomHeaderPresented = true;
-            }
-        });
-
-        page.onResourceRequested = function(requestData, request) {
-            expect(typeof request.setHeader).toEqual("function");
-            request.setHeader("CustomHeader", "CustomValue");
-        };
-
-        runs(function() {
-            page.open("http://localhost:12345", function(status) {
-                expect(status).toEqual("success");
-            });
-        });
-
-        waitsFor(function() {
-            return isCustomHeaderPresented;
-        }, "isCustomHeaderPresented should be received", 3000);
-
-        runs(function() {
-            page.close();
-            server.close();
-        });
-    });
-
-    xit("should remove HTTP header from a network request", function() {
-        var page = require("webpage").create();
-        page.customHeaders = {"CustomHeader": "CustomValue"};
-
-        var server = require("webserver").create();
-        var handled = false;
-
-        server.listen(12345, function(request) {
-            if (request.headers["CustomHeader"] == null) {
-                handled = true;
-            }
-        });
-
-        page.onResourceRequested = function(requestData, request) {
-            expect(typeof request.setHeader).toEqual("function");
-            request.setHeader("CustomHeader", null);
-        };
-
-        runs(function() {
-            page.open("http://localhost:12345", function(status) {
-                expect(status).toEqual("success");
-            });
-        });
-
-        waits(3000);
-
-        runs(function() {
-            expect(handled).toBeTruthy();
-            page.close();
-            server.close();
-        });
-    });
-
-    xit("should set HTTP header value for a network request", function() {
-        var page = require("webpage").create();
-        page.customHeaders = {"CustomHeader": "CustomValue"};
-
-        var server = require("webserver").create();
-        var handled = false;
-
-        server.listen(12345, function(request) {
-            if (request.headers["CustomHeader"] &&
-                request.headers["CustomHeader"] === "ChangedCustomValue") {
-                handled = true;
-            }
-        });
-
-        page.onResourceRequested = function(requestData, request) {
-            expect(typeof request.setHeader).toEqual("function");
-            request.setHeader("CustomHeader", "ChangedCustomValue");
-        };
-
-        runs(function() {
-            page.open("http://localhost:12345", function(status) {
-                expect(status).toEqual("success");
-            });
-        });
-
-        waits(3000);
-
-        runs(function() {
-            expect(handled).toBeTruthy();
-            page.close();
-            server.close();
-        });
-    });
-});
