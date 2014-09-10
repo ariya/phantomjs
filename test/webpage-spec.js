@@ -1150,49 +1150,6 @@ describe("WebPage object", function() {
         });
     });
 
-    it('should handle resource request errors', function() {
-        var server = require('webserver').create();
-        var page = require('webpage').create();
-
-        server.listen(12345, function(request, response) {
-            if (request.url == '/notExistResource.png') {
-                response.statusCode = 404;
-                response.write('Not found!');
-                response.close();
-            } else {
-                response.statusCode = 200;
-                response.write('<html><body><img src="notExistResource.png"/></body></html>');
-                response.close();
-            }
-        });
-
-        var handled = false;
-
-        runs(function() {
-            page.onResourceError = function(errorData) {
-                expect(errorData['url']).toEqual('http://localhost:12345/notExistResource.png');
-                expect(errorData['errorCode']).toEqual(203);
-                expect(errorData['errorString']).toContain('notExistResource.png - server replied: Not Found');
-                expect(errorData['status']).toEqual(404);
-                expect(errorData['statusText']).toContain("Not Found");
-                handled = true;
-            };
-
-            page.open('http://localhost:12345', function(status) {
-                expect(status).toEqual('success');
-            });
-        });
-
-        waits(5000);
-
-        runs(function() {
-            expect(handled).toEqual(true);
-            page.close();
-            server.close();
-        });
-    });
-
-
     it("should change a url request with an encoded query string", function() {
         var page = new require('webpage').create();
 
