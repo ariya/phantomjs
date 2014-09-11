@@ -1185,37 +1185,6 @@ describe("WebPage object", function() {
     });
 
 
-    it('should able to abort a network request', function() {
-        var page = require('webpage').create();
-        var url = 'http://phantomjs.org';
-        var urlToBlockRexExp = /phantomjs-logo\.png$/i;
-
-        var handled = false;
-
-        page.onResourceRequested = function(requestData, request) {
-
-            if (urlToBlockRexExp.test(requestData['url'])) {
-                expect(typeof request).toEqual('object');
-                expect(typeof request.abort).toEqual('function');
-                request.abort();
-                handled = true;
-            }
-        };
-
-        runs(function() {
-            page.open(url, function(status) {
-                expect(status).toEqual('success');
-            });
-        });
-
-        waits(5000);
-
-        runs(function() {
-            page.close();
-            expect(handled).toBeTruthy();
-        });
-    });
-
     xit('should fail on secure connection to url with bad cert', function() {
         var page = require('webpage').create();
         var url = 'https://tv.eurosport.com/';
