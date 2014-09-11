@@ -33,6 +33,7 @@ TESTS = [
     'module/webpage/remove-header.js',
     'module/webpage/modify-header.js',
     'module/webpage/resource-request-error.js',
+    'module/webpage/resource-received-error.js',
     'module/system/system.js',
     'module/system/args.js',
     'module/system/os.js',
@@ -71,8 +72,16 @@ class FileHandler(SimpleHTTPServer.SimpleHTTPRequestHandler, object):
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps(d, indent=2) + '\r\n')
-        else:
-            super(FileHandler, self).do_GET()
+            return
+
+        if url.path == '/status':
+            self.send_response(int(url.query))
+            self.send_header('Content-Type', 'text/html')
+            self.end_headers()
+            self.wfile.write('Returning status ' + url.query + '\r\n')
+            return
+
+        super(FileHandler, self).do_GET()
 
     # silent, do not pollute stdout nor stderr.
     def log_message(self, format, *args):
