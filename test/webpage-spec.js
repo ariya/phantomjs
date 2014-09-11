@@ -1894,36 +1894,6 @@ describe('WebPage navigation events', function() {
 });
 
 
-describe('WebPage repaint requests', function() {
-    it('should report when a repaint is requested, together with the area being repainted', function () {
-        var server = require("webserver").create();
-        server.listen(12345, function(request, response) {
-            response.status = 200;
-            response.write("<html><body><p>some text some text some text</p></body></html>");
-            response.close();
-        });
-
-        var page = require("webpage").create();
-        var base = "http://localhost:12345/";
-        var isHandled = false;
-
-        runs(function() {
-            page.onRepaintRequested = function(x, y, width, height) {
-                isHandled = true;
-            };
-
-            page.open(base);
-        });
-
-        waits(3000);
-
-        runs(function() {
-            expect(isHandled).toEqual(true);
-            server.close();
-        });
-    });
-});
-
 describe("WebPage render image", function(){
     var TEST_FILE_DIR = "webpage-spec-renders/";
 

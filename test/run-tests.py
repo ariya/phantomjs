@@ -32,6 +32,7 @@ TESTS = [
     'module/webpage/add-header.js',
     'module/webpage/remove-header.js',
     'module/webpage/modify-header.js',
+    'module/webpage/repaint-requested.js',
     'module/webpage/abort-network-request.js',
     'module/webpage/resource-request-error.js',
     'module/webpage/resource-received-error.js',
