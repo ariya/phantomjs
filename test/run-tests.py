@@ -184,11 +184,13 @@ def init():
     www_path = os.path.join(base_path, 'www')
 
     parser = optparse.OptionParser(
-        usage='%prog [options]',
+        usage='%prog [options] [tests to run...]',
         description='Run PhantomJS tests.'
     )
     parser.add_option('--verbose', action='store_true', default=False, help='Show a verbose log')
     (options, args) = parser.parse_args(sys.argv[1:])
+
+    options.to_run = args
 
     if options.verbose:
         returncode, version = run_phantomjs('--version')
@@ -245,29 +247,44 @@ def run_test(script, name):
 def run_tests():
     setup_server()
     if not http_running:
-        return
+        return 1
 
     start = time.time()
     if options.verbose:
         print 'Starting the tests...'
-        print
 
     result = 0
+    any_executed = False
     for test_group in TESTS:
         test_group_name = os.path.dirname(test_group)
         test_glob = os.path.normpath(base_path + '/' + test_group)
 
         if options.verbose:
-            print 'Test group: %s...' % test_group_name
             print
+            print 'Test group: %s...' % test_group_name
 
         for test_script in glob.glob(test_glob):
             tname = test_group_name + '/' + os.path.basename(test_script)
+            if options.to_run:
+                for to_run in options.to_run:
+                    if to_run in tname:
+                        break
+                else:
+                    if options.verbose:
+                        print "%s: skipped" % tname
+                    continue
+
+            any_executed = True
             ret = run_test(test_script, tname)
             if ret != 0:
                 print 'The test %s FAILED' % tname
                 print
                 result = 1
+
+    if not any_executed:
+        result = 1
+        print
+        print 'ALL TESTS SKIPPED.'
 
     if result == 0:
         print
