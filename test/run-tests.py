@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
+import cStringIO as StringIO
 import glob
+import imp
 import json
 import optparse
 import os
@@ -8,6 +10,7 @@ import posixpath
 import SimpleHTTPServer
 import SocketServer
 import socket
+import string
 import subprocess
 import sys
 import threading
@@ -29,50 +32,68 @@ TESTS = [
     'run-tests.js'
 ]
 
+# This should be in the standard library somewhere, but as far as I
+# can tell, isn't.
+def import_file_as_module(path):
+    if 'test_www' not in sys.modules:
+        imp.load_source('test_www', www_path + '/__init__.py', StringIO())
+
+    tr = string.maketrans('-./%', '____')
+    modname = 'test_www.' + path.translate(tr)
+    try:
+        return sys.modules[modname]
+    except KeyError:
+        return imp.load_source(modname, path)
 
 class FileHandler(SimpleHTTPServer.SimpleHTTPRequestHandler, object):
 
-    def do_GET(self):
-        url = urlparse.urlparse(self.path)
-        if url.path == '/echo':
-            headers = {}
-            for name, value in self.headers.items():
-                headers[name] = value.rstrip()
-            d = dict(
-                command=self.command,
-                version=self.protocol_version,
-                origin=self.client_address,
-                url=self.path,
-                path=url.path,
-                params=url.params,
-                query=url.query,
-                fragment=url.fragment,
-                headers=headers
-            )
-
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(d, indent=2) + '\r\n')
-            return
-
-        if url.path == '/status':
-            self.send_response(int(url.query))
-            self.send_header('Content-Type', 'text/html')
-            self.end_headers()
-            self.wfile.write('Returning status ' + url.query + '\r\n')
-            return
-
-        super(FileHandler, self).do_GET()
+    def __init__(self, *args, **kwargs):
+        self._cached_untranslated_path = None
+        self._cached_translated_path = None
+        super(FileHandler, self).__init__(*args, **kwargs)
 
     # silent, do not pollute stdout nor stderr.
     def log_message(self, format, *args):
         return
 
+    # modified version allowing one to provide a .py file that will be
+    # interpreted to produce the response
+    def send_head(self):
+        path = self.translate_path(self.path)
+        py = path + '.py'
+        if not os.path.exists(path) and os.path.exists(py):
+            try:
+                mod = import_file_as_module(py)
+                return mod.handle_request(self)
+            except:
+                import cgitb
+                buf = StringIO.StringIO()
+                cgitb.Hook(file=buf).handle()
+                buf = buf.getvalue()
+
+                self.send_response(500, 'Internal Server Error')
+                self.send_header('Content-Type', 'text/html')
+                self.send_header('Content-Length', str(len(buf)))
+                self.end_headers()
+                return StringIO.StringIO(buf)
+
+        else:
+            return super(FileHandler, self).send_head()
+
     # modified version of SimpleHTTPRequestHandler's translate_path
     # to resolve the URL relative to the www/ directory
     # (e.g. /foo -> test/www/foo)
     def translate_path(self, path):
+
+        # Cache for efficiency, since our send_head calls this and
+        # then, in the normal case, the parent class's send_head
+        # immediately calls it again.
+        if (self._cached_translated_path is not None and
+            self._cached_untranslated_path == path):
+            return self._cached_translated_path
+
+        orig_path = path
+
         # Strip query string and/or fragment, if present.
         x = path.find('?')
         if x != -1: path = path[:x]
@@ -103,6 +124,9 @@ class FileHandler(SimpleHTTPServer.SimpleHTTPRequestHandler, object):
         if trailing_slash:
             # it must be a '/' even on Windows
             path += '/'
+
+        self._cached_untranslated_path = orig_path
+        self._cached_translated_path = path
         return path
 
 def run_httpd():
