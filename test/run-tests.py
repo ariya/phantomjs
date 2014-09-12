@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import inspect
+import glob
 import json
 import optparse
 import os
@@ -21,34 +22,11 @@ HTTP_PORT = 9180
 http_running = False
 
 TESTS = [
-    'basics/exit.js',
-    'basics/global.js',
-    'basics/onerror.js',
-    'basics/stacktrace.js',
-    'basics/version.js',
-    'module/webpage/open.js',
-    'module/webpage/loading.js',
-    'module/webpage/custom-headers.js',
-    'module/webpage/add-header.js',
-    'module/webpage/remove-header.js',
-    'module/webpage/modify-header.js',
-    'module/webpage/repaint-requested.js',
-    'module/webpage/change-request-url.js',
-    'module/webpage/change-request-encoded-url.js',
-    'module/webpage/abort-network-request.js',
-    'module/webpage/resource-request-error.js',
-    'module/webpage/resource-received-error.js',
-    'module/webpage/no-plugin.js',
-    'module/system/system.js',
-    'module/system/args.js',
-    'module/system/os.js',
-    'module/system/pid.js',
-    'module/system/stdout.js',
-    'module/system/stdin.js',
-    'module/system/stderr.js',
-    'standards/javascript/date.js',
-    'standards/javascript/function.js',
-    'regression/issue12482.js',
+    'basics/*.js',
+    'module/system/*.js',
+    'module/webpage/*.js',
+    'standards/javascript/*.js',
+    'regression/*.js',
     'run-tests.js'
 ]
 
@@ -205,19 +183,17 @@ def run_phantomjs(script, args=[]):
     return process.returncode, '\n'.join(output)
 
 
-def run_test(filename):
-    script = os.path.normpath(base_path + '/' + filename)
-
+def run_test(script, name):
     args = []
     if options.verbose:
         args.append('--verbose')
 
     result = 0
     if not os.path.isfile(script):
-        print 'Could not locate %s' % filename
+        print 'Could not locate %s' % name
         result = 1
     else:
-        print '%s:' % filename
+        print '%s:' % name
         returncode, output = run_phantomjs(script, args)
         if returncode != 0:
             if not options.verbose:
@@ -238,12 +214,21 @@ def run_tests():
         print
 
     result = 0
-    for test in TESTS:
-        ret = run_test(test)
-        if ret != 0:
-            print 'The test %s FAILED' % test
+    for test_group in TESTS:
+        test_group_name = os.path.dirname(test_group)
+        test_glob = os.path.normpath(base_path + '/' + test_group)
+
+        if options.verbose:
+            print 'Test group: %s...' % test_group_name
             print
-            result = 1
+
+        for test_script in glob.glob(test_glob):
+            tname = test_group_name + '/' + os.path.basename(test_script)
+            ret = run_test(test_script, tname)
+            if ret != 0:
+                print 'The test %s FAILED' % tname
+                print
+                result = 1
 
     if result == 0:
         print
