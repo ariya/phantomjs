@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import inspect
 import glob
 import json
 import optparse
@@ -74,23 +73,37 @@ class FileHandler(SimpleHTTPServer.SimpleHTTPRequestHandler, object):
     # to resolve the URL relative to the www/ directory
     # (e.g. /foo -> test/www/foo)
     def translate_path(self, path):
-        path = path.split('?', 1)[0]
-        path = path.split('#', 1)[0]
-        path = posixpath.normpath(urllib.unquote(path))
-        words = path.split('/')
-        words = filter(None, words)
+        # Strip query string and/or fragment, if present.
+        x = path.find('?')
+        if x != -1: path = path[:x]
+        x = path.find('#')
+        if x != -1: path = path[:x]
 
-        path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-        path += '/www'
+        # Ensure consistent encoding of special characters, then
+        # lowercase everything so that the tests behave consistently
+        # whether or not the local filesystem is case-sensitive.
+        path = urllib.quote(urllib.unquote(path)).lower()
 
-        for word in words:
-            drive, word = os.path.splitdrive(word)
-            head, word = os.path.split(word)
-            if word in (os.curdir, os.pardir):
-                continue
-            path = os.path.join(path, word)
+        # Prevent access to files outside www/.
+        # At this point we want specifically POSIX-like treatment of 'path'
+        # because it is still a URL component and not a filesystem path.
+        # SimpleHTTPRequestHandler.send_head() expects us to preserve the
+        # distinction between paths with and without a trailing slash, but
+        # posixpath.normpath() discards that distinction.
+        trailing_slash = path.endswith('/')
+        path = posixpath.normpath(path)
+        while path.startswith('/'):
+            path = path[1:]
+        while path.startswith('../'):
+            path = path[3:]
+
+        # Now resolve the normalized, clamped path relative to the www/
+        # directory, according to local OS conventions.
+        path = os.path.normpath(os.path.join(www_path, *path.split('/')))
+        if trailing_slash:
+            # it must be a '/' even on Windows
+            path += '/'
         return path
-
 
 def run_httpd():
     global http_running
@@ -136,13 +149,15 @@ def terminate_server():
 
 
 def init():
-    global base_path, phantomjs_exe, options
+    global base_path, www_path, phantomjs_exe, options
 
     base_path = os.path.dirname(os.path.abspath(__file__))
     phantomjs_exe = os.path.normpath(base_path + '/../bin/phantomjs')
     if not os.path.isfile(phantomjs_exe):
         print 'Could not locate ' + phantomjs_exe
         sys.exit(1)
+
+    www_path = os.path.join(base_path, 'www')
 
     parser = optparse.OptionParser(
         usage='%prog [options]',
