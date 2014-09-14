@@ -641,12 +641,6 @@ describe("WebPage object", function() {
         });
     });
 
-    it("should not load any NPAPI plugins (e.g. Flash)", function() {
-        runs(function() {
-            expect(page.evaluate(function () { return window.navigator.plugins.length; })).toEqual(0);
-        });
-    });
-
     it("reports unhandled errors", function() {
         var lastError = null;
 

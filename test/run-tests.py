@@ -38,6 +38,7 @@ TESTS = [
     'module/webpage/abort-network-request.js',
     'module/webpage/resource-request-error.js',
     'module/webpage/resource-received-error.js',
+    'module/webpage/no-plugin.js',
     'module/system/system.js',
     'module/system/args.js',
     'module/system/os.js',
