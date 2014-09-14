@@ -1150,41 +1150,6 @@ describe("WebPage object", function() {
         });
     });
 
-    it("should change a url request with an encoded query string", function() {
-        var page = new require('webpage').create();
-
-        var server = require('webserver').create();
-        server.listen(12345, function(request, response) {
-            // echo received request headers in response body
-            response.write(JSON.stringify(request.headers));
-            response.close();
-        });
-
-        var url = "http://localhost:12345/cdn-cgi/pe/bag?r%5B%5D=http%3A%2F%2Fwww.example.org%2Fcdn-cgi%2Fnexp%2Fabv%3D927102467%2Fapps%2Fabetterbrowser.js";
-
-        var handled = false;
-        runs(function() {
-            expect(handled).toEqual(false);
-
-            page.onResourceRequested = function(requestData, request) {
-                request.changeUrl(requestData.url);
-            };
-
-           page.onResourceReceived = function(data) {
-                if (data['stage'] === 'end') {
-                    expect(data.url).toEqual(url);
-                }
-           };
-
-           page.open(url, function (status) {
-                expect(status == 'success').toEqual(true);
-                handled = true;
-                server.close();
-            });
-        });
-    });
-
-
     xit('should fail on secure connection to url with bad cert', function() {
         var page = require('webpage').create();
         var url = 'https://tv.eurosport.com/';

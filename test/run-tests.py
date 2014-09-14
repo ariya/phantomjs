@@ -34,6 +34,7 @@ TESTS = [
     'module/webpage/modify-header.js',
     'module/webpage/repaint-requested.js',
     'module/webpage/change-request-url.js',
+    'module/webpage/change-request-encoded-url.js',
     'module/webpage/abort-network-request.js',
     'module/webpage/resource-request-error.js',
     'module/webpage/resource-received-error.js',
