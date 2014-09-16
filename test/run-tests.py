@@ -140,6 +140,12 @@ class FileHandler(SimpleHTTPServer.SimpleHTTPRequestHandler, object):
         self._cached_translated_path = path
         return path
 
+# This is how you are officially supposed to set SO_REUSEADDR per
+# https://docs.python.org/2/library/socketserver.html#SocketServer.BaseServer.allow_reuse_address
+
+class TCPServer(SocketServer.TCPServer):
+    allow_reuse_address = True
+
 def run_httpd():
     global http_running
     handler = FileHandler
@@ -151,12 +157,12 @@ def run_httpd():
         '.json': 'application/json'
     })
     try:
-        httpd = SocketServer.TCPServer(('', HTTP_PORT), handler)
+        httpd = TCPServer(('', HTTP_PORT), handler)
         while http_running:
             httpd.handle_request()
-    except socket.error:
+    except socket.error as e:
         print 'Fatal error: unable to launch a test server at port', HTTP_PORT
-        print 'Check that the port is not already used!'
+        print str(e)
         http_running = False
         sys.exit(1)
     return
