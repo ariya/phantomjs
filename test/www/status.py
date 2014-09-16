@@ -6,8 +6,8 @@ def handle_request(req):
 
     body = "<!doctype html><h1>Status: {}</h1>".format(url.query)
 
-    self.send_response(int(url.query))
-    self.send_header('Content-Type', 'text/html')
-    self.send_header('Content-Length', str(len(body)))
-    self.end_headers()
+    req.send_response(int(url.query))
+    req.send_header('Content-Type', 'text/html')
+    req.send_header('Content-Length', str(len(body)))
+    req.end_headers()
     return StringIO(body)

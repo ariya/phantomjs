@@ -3,7 +3,6 @@
 import cStringIO as StringIO
 import glob
 import imp
-import json
 import optparse
 import os
 import posixpath
@@ -16,7 +15,6 @@ import sys
 import threading
 import time
 import urllib
-import urlparse
 
 TIMEOUT = 35  # Maximum duration of PhantomJS execution (in seconds)
 
