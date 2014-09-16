@@ -33,8 +33,10 @@ TESTS = [
 # This should be in the standard library somewhere, but as far as I
 # can tell, isn't.
 def import_file_as_module(path):
+    # All Python response hooks, no matter how deep below www_path,
+    # are treated as direct children of the fake "test_www" package.
     if 'test_www' not in sys.modules:
-        imp.load_source('test_www', www_path + '/__init__.py', StringIO())
+        imp.load_source('test_www', www_path + '/__init__.py')
 
     tr = string.maketrans('-./%', '____')
     modname = 'test_www.' + path.translate(tr)
@@ -54,12 +56,23 @@ class FileHandler(SimpleHTTPServer.SimpleHTTPRequestHandler, object):
     def log_message(self, format, *args):
         return
 
-    # modified version allowing one to provide a .py file that will be
-    # interpreted to produce the response
+    # allow provision of a .py file that will be interpreted to
+    # produce the response.
     def send_head(self):
         path = self.translate_path(self.path)
+
+        # do not allow direct references to .py(c) files,
+        # or indirect references to __init__.py
+        if (path.endswith('.py') or path.endswith('.pyc') or
+            path.endswith('__init__')):
+            self.send_error(404, 'File not found')
+            return None
+
+        if os.path.exists(path):
+            return super(FileHandler, self).send_head()
+
         py = path + '.py'
-        if not os.path.exists(path) and os.path.exists(py):
+        if os.path.exists(py):
             try:
                 mod = import_file_as_module(py)
                 return mod.handle_request(self)
@@ -75,8 +88,8 @@ class FileHandler(SimpleHTTPServer.SimpleHTTPRequestHandler, object):
                 self.end_headers()
                 return StringIO.StringIO(buf)
 
-        else:
-            return super(FileHandler, self).send_head()
+        self.send_error(404, 'File not found')
+        return None
 
     # modified version of SimpleHTTPRequestHandler's translate_path
     # to resolve the URL relative to the www/ directory

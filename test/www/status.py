@@ -10,4 +10,4 @@ def handle_request(req):
     req.send_header('Content-Type', 'text/html')
     req.send_header('Content-Length', str(len(body)))
     req.end_headers()
-    return StringIO(body)
+    return StringIO.StringIO(body)
