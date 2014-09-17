@@ -1,3 +1,0 @@
-#
-# INTEGRITY RTOS architecture
-#

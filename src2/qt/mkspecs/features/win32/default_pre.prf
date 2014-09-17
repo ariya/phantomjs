@@ -1,3 +1,0 @@
-CONFIG = rtti_off exceptions_off stl_off incremental_off thread_off windows $$CONFIG
-load(default_pre)
-

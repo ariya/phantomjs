@@ -1,3 +1,0 @@
-#
-# S390 architecture
-#
