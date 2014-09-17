@@ -16,7 +16,7 @@ import threading
 import time
 import urllib
 
-TIMEOUT = 35  # Maximum duration of PhantomJS execution (in seconds)
+TIMEOUT = 10  # Maximum duration of PhantomJS execution (in seconds)
 
 HTTP_PORT = 9180
 http_running = False
