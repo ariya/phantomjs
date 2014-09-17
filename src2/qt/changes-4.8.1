@@ -1,0 +1,369 @@
+Qt 4.8.1 is the first patch release for Qt 4.8.x series. This document lists the 
+improvements it provides compared to 4.8.0 version. 
+
+For more details, refer to the documentation included in this distribution. The
+documentation is also available online:
+
+  http://qt-project.org/doc/qt-4.8/
+
+The Qt version 4.8 series is binary compatible with the 4.7.x series.
+Applications compiled for 4.7 will continue to run with 4.8.
+
+Some of the changes listed in this file include issue tracking numbers
+corresponding to tasks in the Qt Bug Tracker:
+
+  http://bugreports.qt-project.org
+
+Each of these identifiers can be entered in the bug tracker to obtain more
+information about a particular change.
+
+****************************************************************************
+*                           General                                        *
+****************************************************************************
+
+General Improvements
+--------------------
+- Various documentation fixes [QTBUG-18101, QTBUG-8673, QTBUG-14194, QTBUG-9109, 
+   QTBUG-9466, QTBUG-8323, QTBUG-7924, QTBUG-20355, QTBUG-19367, QTBUG-21295,
+   QTBUG-14554, QTBUG-8331, QTBUG-8329, QTBUG-8786, QTBUG-8787, QTBUG-12389,
+   QTBUG-16667, QTBUG-6151, QTBUG-8625, QTBUG-19808, QTBUG-12096, QTBUG-1231,
+   QTBUG-21073, QTBUG-8939, QTBUG-20399, QTBUG-20944, QTBUG-7542, QTBUG-22095,
+   QTBUG-11278, QTBUG-15653, QTBUG-13362, QTBUG-18356, QTBUG-18417, QTBUG-18664,
+   QTBUG-21562, QTBUG-22094, QTBUG-18741, QTBUG-15921, QTBUG-22172, QTBUG-15738,
+   QTBUG-21466]
+
+Third party components
+----------------------
+- Fix isolated Thai SARA AM handling (harfbuzz)
+- Fixes Javascript WTF to build with BB NDK (javascriptcore)
+- Fix height of some Thai characters (harfbuzz) [ou1cimx1#898104]
+- Harfbuzz-thai - fix to_tis620 function for latin characters
+- Harfbuzz-thai - When calling HB_OpenTypePosition we must set doLogClusters to true for thai
+- Harfbuzz-thai: Hide ZWJ and ZWNJ characters and show Inherited characters
+- Fix for Thai characters with a below mark [ou1cimx1#979179]
+- Harfbuzz-shaper - fix incorrect logClusters being set in HB_OpenTypePosition
+
+****************************************************************************
+*                          Library                                         *
+****************************************************************************
+
+QtCore
+------
+ - Fix a couple of edge cases for WildcardUnix matching [QTBUG-20897]
+ - Fix BC break with QAbstractFileEngine "mount points" [QTBUG-23688]
+ - Change QUrl::toLocalFile to return path for relative urls [QTBUG-19827]
+ - Fix progress bar values >100% when http upload is retried [QTBUG-23993]
+ - Fixes QIconvCodec::convertToUnicode()
+ - Make QString::latin1() re-entrant, the global QHash needs a mutex
+ - Changes in Symbian CleanupStack use to allow dodgy app start [ou1cimx1#960665]
+ - Fixed null pointer dereference in QUnifiedTimer
+ - Fixes a possible out-of-bound write in QByteArray
+ - Raise loopLevel for deleteLater in event filters
+ - Fixed compiler warning about unused variable with QT_NO_TEXTCODEC
+ - Initializes seqDumpPos on qiodevice.cpp
+ - QWindowsPipeWriter could terminate the process to early [QTBUG-4425]
+ - De-duplicate platform-dependent paths
+ - Add missing llvm-gcc-4.2 SSE 4.2 intrinsics
+
+QtGui
+-----
+ - Declarative: Unify output of warning messages in debug server [QTBUG-22860]
+ - Declarative: Use qDebug() for debugger status updates 
+ - [blitter] Fix memory leak in the blitter paintengine
+ - [blitter] Generate a new serial number when resizing the
+ - [blitter] Use QScopedPointer for the engine and blittable
+ - [blitter] Work on tst_QPixmap::clear()
+ - directfb: Backport the work from QtBase to Qt 4.8
+ - Fix Memoy leak relateded to contextmenu [QTBUG-22817]
+ - Handle closable tabs in QAccessibleTabBar
+ - Activate window when focus is set in QAccessibleWidget::doAction
+ - Send text selection changes for accessibility
+ - blitter: Use CapabilitiesToStateMask as a class member
+ - blitter: Kill the isBlitterLocked variable of the
+ - blitter: Move the definition out of the class declaration
+ - blitter: Move state updates into new methods
+ - blitter: Base QBlitterPaintEngine on QRasterPaintEngine
+ - blitter: Group code by functionality in header and cpp file
+ - blitter: Fix the 'solid' detection for the brush in case of fillRect
+ - Fixed QEventDispatcherQPA::processEvents()
+ - Fix crash in QTreeWidgetItem::sortChildren when adding new item [QTBUG-20345]
+ - Fixed crash in QDeclarativeGridView
+ - Fixed compiler warnings about unused q and d variables in declarative [QTBUG-22512]
+ - Add accessible role Terminal
+ - Add accessible role Desktop
+ - Check for the clipboard manager when looping due to app quiting
+ - QTextEdit cursor position fix when moving left/right with selection [QTBUG-22853]
+ - Fix pinch-zoom problem when application is deactivated [ou1cimx1#948030]
+ - Do not check isActiveWindow to determine if an accessible widget is focusable
+ - Use available geometry when maximized (qwidget_qpa.cpp)
+ - Fixed CustomDashLine drawing bug [QTBUG-23248]
+ - Ensure the header's context menu is in sync with the visible sections [QTBUG-23271]
+ - Update accessibility selections in QTextControl
+ - Fix QListView::scrollTo() when there are hidden rows [QTBUG-21115]
+ - QTextEngine - treat a fullstop (0x2E) as the same script as the preceeding 
+    text when dividing up strings
+ - Added QAccessibleGroupBox (a new accessible interface for QGroupBox)
+ - Fixed memory leak in QPA/Lighthouse event handling
+ - QDial: Fix crash when singleStep-property is 0 [QTBUG-23072]
+ - Build fix to raster window surface [QTBUG-23320]
+ - QPA: Don't force event handling every second. No need to wake up the CPU if we know that nothing happened.
+ - Fix submenu positioning [QTBUG-23568]
+ - Fix divide by zero when glyphWidth is 0 (QTextEngine)
+
+
+QtNetwork
+---------
+ - Fix null pointer dereference in NTLM authentication
+ - Fix NTLM authentication with email address [QTBUG-19894]
+ - Fix faulty logic in http connection pipelining
+ - Handle plain socket write errors in SSL
+ - Don't fetch credentials from cache following a failed proxy authentication [QTBUG-22875]
+ - Fix race in http connection channel
+ - Fix http authentication to a different realm on the same server
+ - Fix for assertion failure on QNetworkAccessAuthenticationManager
+ - Prevent data loss when an ssl socket is closed by remote [QTBUG-23607]
+ - Fix online status checking in generic bearer plugin [QTBUG-22873]
+ - Abort FTP download, not the whole application [QTBUG-22820]
+ - Fix incorrect use of QObject::disconnect in synchronous http request
+ - Fix handling of urls containing username/password in QNetworkAccessManager [QTBUG-18107]
+ - Remove unnecessary locking from QNetworkProxy constructor [QTBUG-13088]
+ - QNetwork: fix compilation with "-no-feature-bearermanagement" [QTBUG-23239]
+ - QSslCertificate - make lazy initialisation thread safe [QTBUG-20452]
+ - QNetwork: remove compile warning (QHttpNetworkConnectionChannel)
+
+QtOpenGL
+--------
+ - Using samples=0 to turn multisampling off [ou1cimx1#951223]
+ - Fixed crash in GL 2 paint engine on Intel Atom [QTBUG-22483]
+
+QtDBus
+------
+ - Remove implicit const char*->QString cast from QDBusServer's constructor [QTBUG-23398]
+ - Fix crash in QDBusDemarshaller basic string-like type extraction [QTBUG-22840]
+ - Fix crash in QDBusDemarshaller QStringList extraction [QTBUG-22840]
+ - Fix crashes and non-portable functionality in QDBusDemarshaller QByteArray extraction [QTBUG-22840]
+
+QtWebKit
+--------
+ - Updated WebKit to c1252be57a3f673277c732c0902568111b2f4964
+
+QtSql
+-----
+ - Handle the 'real' datatype correctly in the SQLite driver [QTBUG-16373]
+ - Ensure that QSqlDatabase::database() is still thread-safe [QTBUG-13423]
+
+QtTest
+------
+ - Doc: Add `-xunitxml' option to qtestlib documentation [QTBUG-14305]
+
+QtXml
+-----
+ - Fix memory leak in QDomDocument DTD notation declaration handler [QTBUG-22588]
+ - Fix memory leak in QDomDocument DTD entity declaration handler [QTBUG-22587]
+ - Fix memory leak in QDomDocument entity text expansion
+ - Fix access to uninitialized values in QtXmlPatterns
+
+
+****************************************************************************
+*                          Database Drivers                                *
+****************************************************************************
+
+
+****************************************************************************
+*                      Platform Specific Changes                           *
+****************************************************************************
+
+Qt for Linux/X11
+----------------
+ - Take into account shaping in findRealWindow
+ - Fix crash in qt_init when the XFIXES extension is not available
+ - Pass events to installed event dispatcher event filters 
+    before passing them to x11ProcessEvent()
+ - When doing mouse move compression, pass non-MotionNotify events 
+    to installed event dispatcher event filters
+ - Take into account input shaping in findRealWindow
+ - Fix signature of q_atomic_test_and_set_ptr [QTBUG-22479]
+
+Qt for Windows
+--------------
+ - Fix crash in positionInLigature [QTBUG-23104]
+ - Fix crash when creating a QScriptEngine in a native thread [QTBUG-22926]
+ - Windows: Add gcc 4.6 for cross building
+ - use "cp -R" instead of "cp -r" for *bsd compatibility
+ - Windows: Fix qt_ntfs_permission_lookup [QTBUG-247]
+ - Remove NTFS junction and mount point detection [QTBUG-20431]
+ - qfilesystemengine_win.cpp: compile with namespaced Qt
+ - Build fix to qapplication_win.cpp when QT_NO_GESTURES is used [QTBUG-22501]
+ - Fix a crash when changeEvent() is called and there is no container [QTBUG-23957]
+ - Windows configure: make -mp affect the Qt build itself [QTBUG-23929]
+ - Ensure that the type is not registered as a typedef (ActiveQt) [QTBUG-18555]
+ - Fix Windows timer performance regression
+ - Ensure the scrollers appears when there is too many menu items [QTBUG-23507]
+ - QElapsedTimer/Win: Fix 64-bit integer overflow [QTBUG-23150]
+ - Fix a crash in QSystemLocalePrivate::uiLanguages()
+ - Fix mouse wheel page-by-page scrolling on windows [QTBUG-11336]
+ - Fix potential race condition in data structure of adopted thread watcher
+ - Fix to exit of adopted thread watcher in Windows [QTBUG-23961]
+ - Make reference counting for QAxClientSite multi-processor safe
+ - Activate replacements when installing .pc files for win32
+ - Fixed Windows performance regression introduced by ac2818bef95f134 [QTBUG-24602]
+ - Prevent stack corruption when using OpenGL Core Profile on Windows
+ - Fix error handling in QHostInfo windows backend
+ - Windows - fix getsockopt calls for narrower than int options [QTBUG-23488]
+ - Fix window positioning regression from QTBUG-10589 fix [QTBUG-24071]
+
+
+Qt for Mac OS X
+---------------
+ - Backport writingSystems support code for Cocoa from Qt 5 [QTBUG-20996]
+ - Fix stretched font positions in Lion [QTBUG-22825]
+ - SSL: fix build with -openssl-linked for OpenSSL 0.9.8* [QTBUG-23132]
+ - qnetworkproxy_mac.cpp was not compiled in on Mac for the network module [QTBUG-23302]
+ - Fix using custom paper sizes on Mac [QTBUG-18723]
+ - Fix CJK punctuation input through input methods in OS X [QTBUG-23216]
+ - Fix cursor disappearance in QLineEdit on Mac when deleting all text [QTBUG-13169]
+ - Cleaning logClusters for line separator layout shortcut [QTBUG-23704]
+ - Fix set/paperSize(QPrinter::PaperSize) on Mac [QTBUG-20882]
+ - Add the possibility to patch additional executables
+ - Add support for XCode 4 into qmake [QTBUG-17247]
+ - Make QMacCocoaViewContainer work again. Non-native widgets are now the default, 
+     set WA_NativeWindow to get a native widget.
+ - Don't get stuck in a loop while trying to close the active popup widget [QTBUG-23448]
+ - Fix modal file dialog opening on Mac [QTBUG-21609]
+ - Fix QTreeView header re-ordering bug on Mac OS [QTBUG-14179]
+ - Fix crash when opening a file dialog in sandbox on Mac [QTBUG-21609]
+ - Fix incorrect state of show/hide menu items in Mac application menu [QTBUG-10705]
+ - Enable storage of global Qt settings in app-local settings file on Mac  pattern [QTBUG-16549]
+
+
+Qt for Symbian
+--------------
+ - Symbian: Fix language mappings for localize_deployment [ou1cimx1#947060]
+ - Symbian: improving diagnostics for QWaitCondition [ou1cimx1#946509 partial fix]
+ - Symbian: Fix double deletion of selected text when using predictive [ou1cimx1#938665]
+ - Symbian: Fix a case sensitivity issue with QMAKE_EXTRA_COMPILERS [ou1cimx1#951456]
+ - Symbian: Only localize the application .rss that needs it, not all .rss [ou1cimx1#947060]
+ - Fix window surface config on OpenGL graphics system [QTBUG-23082]
+ - Default to QDir::homePath() in Symbian native file dialogs [ou1cimx1#947939]
+ - Symbian: fix tst_QMenuBar::task256322_highlight() regression
+ - Symbian - Fix QFile::map with non page aligned offsets [ou1cimx#953054]
+ - Symbian: Fix to incorrect ApplicationActivate event in QtOpenGL [QTBUG-23195]
+ - Fix m_longTapDetector causing crash [QTBUG-23252]
+ - Symbian: Fix qscriptextensionplugin autotest [ou1cimx1#956851]
+ - Symbian: Fix qcssparser autotest [ou1cimx1#957049]
+ - Symbian: Fix SRCDIR usage in qlayout autotest [ou1cimx1#957098]
+ - Symbian: Fix exporting and importing of some functions for autotests [ou1cimx1#957184]
+ - QThreads on Symbian are named to allow them to be opened externally [ou1cimx1#959586]
+ - Symbian - fix lockup when a network session is opened from its error [ou1cimx1#960395]
+ - Recovering from draw failures after EGL surface creation failure [ou1cimx1#951921]
+ - Fix for player application exit crash
+ - Symbian: qmake: Fix emulator deployment destination [ou1cimx1#954237]
+ - Add a public API for releasing cached GPU resources on Symbian [ou1cimx1yyy964181]
+ - Symbian: fix qml file paths in building of demos
+ - Symbian: clean package definition file
+ - Catch exceptions inside QSymbianControl::Draw [ou1cimx1#952828]
+ - Symbian - add rom upgrade flag to Qt sis files
+ - Fix exception handling in Symbian event dispatcher [ou1cimx1#970701]
+ - Fix exception handling testing on Symbian [ou1cimx1#970701]
+ - Symbian: absent removed exports in Symbian def-files
+ - Qt demos and Qt examples config in Symbian package definition
+ - Symbian: clean deffiles for external projects using Qt infix
+ - Prevent crashing on Symbian in case EGL surface creation fails [ou1cimx1#969923]
+ - Fix for effects in Qt-applications startup [ou1cimx1#951526]
+ - Fix Qt to use font with simplified chinese characters as default if needed [ou1cimx1#915614]
+ - Symbian: Fix for blank window after taping Editing options
+ - Symbian building: enable symbian platform autodetection
+ - Avoiding early deleteLater in Symbian with better loopLevel tracking [ou1cimx1#947013]
+ - Symbian: Fix for VKB default language to English in RTL variant [ou1cimx1#961176]
+ - Checking for directory exists in failed QDir::mkpath on Symbian [ou1cimx1#974477]
+ - RR scheduler error handling for deleted active objects [ou1cimx1#979241]
+ - Allowing symbian cleanup code in thread started and finished slots [ou1cimx1#979704]
+ - Fix backspace on empty lines with custom QML editors [ou1cimx1#981078]
+ - Correcting fixed native orientation translation for touch points [ou1cimx1#982747]
+ - Don't allow app panic on QProcess destruction, kill or terminate [ou1cimx1#985227]
+
+ 
+Qt for Embedded Windows
+-----------------------
+ - Build fix for WINCE to qfsfileengine_win.cpp [QTBUG-22499]
+ - Fixed fileiterator issue for WEC7 [QTBUG-22503]
+ - Removed unnecesary dependency to winx.h from desktopservices for WinCE
+ - Build fix for WINCE to qlocale_tools.cpp [QTBUG-22500]
+ - Added mkspecs for WEC7 platform builder and armv4i HW
+ - Fixed sqlite for Windows CE [QTBUG-22508]
+ - Fix qsystemerror for WinCE [QTBUG-22498]
+ - Fixed qapplication_win.cpp build for WinCE
+ - libpng config for WEC7 [QTBUG-22506]
+ - Fix DEPLOYMENT_PLUGIN for graphicssystem plugins [QTBUG-23963]
+ - Fixed EGL build for WEC7 [QTBUG-22504]
+ - Fixed QFile::link behaviour for WinCE devices.
+ - Fixed compiler warning for libpng when compiling for WEC7 [QTBUG-22512]
+ - Fixed MSVC compiler warning for zlib when compiling on WEC7 [QTBUG-22512]
+ - Fixed libjpeg compiler warning about macro redefinition [QTBUG-22512]
+ - Disable qmlplugindump build for WinCE [QTBUG-22518]
+ - Enable basic gesture support for WEC7 [QTBUG-22517]
+ - Fixed qchar and qsvgrenderer autotest deployment for WinCE devices
+ - Reduces compiler warnings when compiling for WEC7 [QTBUG-22512]
+ - Fixed warning by MSVC about class/struct mismatch in MethodData
+    when compiling declarative module [QTBUG-22512]
+ - Fixed compiler warning about unused status argument [QTBUG-22512]
+ - Fixed DEBUG macro redefinition when compiling for WEC7 with MSVC [QTBUG-22512]
+ - Build fix for QtDeclarative in WindowsCE [QTBUG-22511]
+ - Fix 3 autotest build faulures for WinCE
+ - Fixed cetest build for Windows CE [QTBUG-22505]
+ - Fixed QtDeclarative autotest deployment for WinCE devices
+ - Fixes to JSCore for WinCE [QTBUG-22502]
+ - JSCore build fix for WEC7 [QTBUG-22497]
+ - Fixed qmldbg_inspector build for WEC7 [QTBUG-22510]
+ - Fixed CeTest remotelib build for WinCE 5
+ - Fixed zlib build for WEC7 [QTBUG-22507]
+ - Fix static build of Qt for WinCE and WEC7 [QTBUG-24500]
+
+ 
+Qt for RTOS
+-----------
+ - Fix bug in qatomic for INTEGRITY RTOS 
+ - INTEGRITY mkspecs update (QTBUG-24153)
+ - Add support for QNX iconv implementation
+ - Fixes QProcess on QNX
+ - realpath(X,0) IS supported on QNX
+ - As QNX in now a supported platform moved qws/qnx-* mkspec files away from unsupported folder
+ - Add mkspecs for Blackberry Playbook NDK 
+ - Adds QT_NO_QWS_INPUTMETHODS to blackberry qcc mkspecs
+ - Include blackberry QPA plugin when building for blackberry make spec
+ - Fixed handling of keyboard info messages
+ - Fixing z-ordering of windows
+ - React to changes of focus widget. Needed to automatically show/hide 
+    virtual keyboard when focus changes in or out of an input widget.
+ - Improving clipboard integration
+ - Renamed from blackberry-* to qnx-* in order to match he <platform>-<compiler> pattern
+
+
+****************************************************************************
+*                          Tools                                           *
+****************************************************************************
+
+qmake
+-  Escape path names in qmake-generated Makefiles [QTBUG-11776]
+-  Fix qmake evaluation of QMAKE_TARGET.arch on msvc2010 x86_64
+-  Create target pkgconfig dir in qmake generated Windows Makefiles
+-  escape *_script_file usages in MingwMakefileGenerator::writeObjectsPart [QTBUG-24595]
+- Visual Studio project generator
+      * qmake: fix /MP option for VS 2010 [QTBUG-23490]
+      * qmake: fix default value for C++ optimization in vcxproj files [QTBUG-23421]
+      * Ensure that the RC_FILE is correctly handled in a single configuration [QTBUG-22545]
+
+configure
+- Make configure not complain about missing perl for non-dev builds [QTBUG-5710]
+
+qtconfig
+- Add concurrent to QT_CONFIG
+
+qdoc3
+- Fix a bug where 'int'  is not printed in snippets
+- Add dita_docs target to generate DITA output
+- Add a default alt attribute to img tags
+- Also correctly apply stack size difference in MSVC2008
+- Removed unnecessary codeblock from cppcodeparser.cpp (segfault due to null-pointer reference) [QTBUG-24082]
+
+

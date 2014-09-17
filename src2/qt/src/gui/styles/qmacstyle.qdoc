@@ -1,0 +1,247 @@
+/****************************************************************************
+**
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+
+/*!
+    \class QMacStyle
+    \brief The QMacStyle class provides a Mac OS X style using the Apple Appearance Manager.
+
+    \ingroup appearance
+
+    This class is implemented as a wrapper to the HITheme
+    APIs, allowing applications to be styled according to the current
+    theme in use on Mac OS X. This is done by having primitives
+    in QStyle implemented in terms of what Mac OS X would normally theme.
+
+    \warning This style is only available on Mac OS X because it relies on the
+    HITheme APIs.
+
+    There are additional issues that should be taken
+    into consideration to make an application compatible with the
+    \link http://developer.apple.com/documentation/UserExperience/Conceptual/OSXHIGuidelines/index.html
+    Apple Human Interface Guidelines \endlink. Some of these issues are outlined
+    below.
+
+    \list
+
+    \i Layout - The restrictions on window layout are such that some
+    aspects of layout that are style-dependent cannot be achieved
+    using QLayout. Changes are being considered (and feedback would be
+    appreciated) to make layouts QStyle-able. Some of the restrictions
+    involve horizontal and vertical widget alignment and widget size
+    (covered below).
+
+    \i Widget size - Mac OS X allows widgets to have specific fixed sizes.  Qt
+    does not fully implement this behavior so as to maintain cross-platform
+    compatibility. As a result some widgets sizes may be inappropriate (and
+    subsequently not rendered correctly by the HITheme APIs).The
+    QWidget::sizeHint() will return the appropriate size for many
+    managed widgets (widgets enumerated in \l QStyle::ContentsType).
+
+    \i Effects - QMacStyle uses HITheme for performing most of the drawing, but
+    also uses emulation in a few cases where HITheme does not provide the
+    required functionality (for example, tab bars on Panther, the toolbar
+    separator, etc). We tried to make the emulation as close to the original as
+    possible. Please report any issues you see in effects or non-standard
+    widgets.
+
+    \endlist
+
+    There are other issues that need to be considered in the feel of
+    your application (including the general color scheme to match the
+    Aqua colors). The Guidelines mentioned above will remain current
+    with new advances and design suggestions for Mac OS X.
+
+    Note that the functions provided by QMacStyle are
+    reimplementations of QStyle functions; see QStyle for their
+    documentation.
+
+    \img qmacstyle.png
+    \sa QWindowsXPStyle, QWindowsStyle, QPlastiqueStyle, QCDEStyle, QMotifStyle
+*/
+
+
+/*!
+    \enum QMacStyle::WidgetSizePolicy
+
+    \value SizeSmall
+    \value SizeLarge
+    \value SizeMini
+    \value SizeDefault
+    \omitvalue SizeNone
+*/
+
+/*! \fn QMacStyle::QMacStyle()
+    Constructs a QMacStyle object.
+*/
+
+/*! \fn QMacStyle::~QMacStyle()
+    Destructs a QMacStyle object.
+*/
+
+/*! \fn void QMacStyle::polish(QPalette &pal)
+    \reimp 
+*/
+
+/*! \fn void QMacStyle::polish(QApplication *)
+    \reimp 
+*/
+
+/*! \fn void QMacStyle::unpolish(QApplication *)
+    \reimp 
+*/
+
+/*! \fn void QMacStyle::polish(QWidget* w)
+    \reimp 
+*/
+
+/*! \fn void QMacStyle::unpolish(QWidget* w)
+    \reimp 
+*/
+
+/*! \fn int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QWidget *widget) const
+    \reimp 
+*/
+
+/*! \fn QPalette QMacStyle::standardPalette() const
+    \reimp 
+*/
+
+/*! \fn int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w, QStyleHintReturn *hret) const
+    \reimp 
+*/
+
+/*! \fn QPixmap QMacStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixmap, const QStyleOption *opt) const
+    \reimp 
+*/
+
+/*! \fn QPixmap QMacStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt, const QWidget *widget) const
+    \reimp 
+*/
+
+/*!
+    \enum QMacStyle::FocusRectPolicy
+
+    This type is used to signify a widget's focus rectangle policy.
+
+    \value FocusEnabled  show a focus rectangle when the widget has focus.
+    \value FocusDisabled  never show a focus rectangle for the widget.
+    \value FocusDefault  show a focus rectangle when the widget has
+    focus and the widget is a QSpinWidget, QDateTimeEdit, QLineEdit,
+    QListBox, QListView, editable QTextEdit, or one of their
+    subclasses.
+*/
+
+/*! \fn void QMacStyle::setFocusRectPolicy(QWidget *w, FocusRectPolicy policy)
+    \obsolete
+    Sets the focus rectangle policy of \a w. The \a policy can be one of
+    \l{QMacStyle::FocusRectPolicy}.
+
+    This is now simply an interface to the Qt::WA_MacShowFocusRect attribute and the
+    FocusDefault value does nothing anymore. If you want to set a widget back
+    to its default value, you must save the old value of the attribute before
+    you change it.
+
+    \sa focusRectPolicy() QWidget::setAttribute()
+*/
+
+/*! \fn QMacStyle::FocusRectPolicy QMacStyle::focusRectPolicy(const QWidget *w)
+    \obsolete
+    Returns the focus rectangle policy for the widget \a w.
+
+    The focus rectangle policy can be one of \l{QMacStyle::FocusRectPolicy}.
+
+    In 4.3 and up this function will simply test for the
+    Qt::WA_MacShowFocusRect attribute and will never return
+    QMacStyle::FocusDefault.
+
+    \sa setFocusRectPolicy(), QWidget::testAttribute()
+*/
+
+/*! \fn void QMacStyle::setWidgetSizePolicy(const QWidget *widget, WidgetSizePolicy policy)
+
+    \obsolete
+
+    Call QWidget::setAttribute() with Qt::WA_MacMiniSize, Qt::WA_MacSmallSize,
+    or Qt::WA_MacNormalSize instead.
+*/
+
+/*! \fn QMacStyle::WidgetSizePolicy QMacStyle::widgetSizePolicy(const QWidget *widget)
+    \obsolete
+
+    Call QWidget::testAttribute() with Qt::WA_MacMiniSize, Qt::WA_MacSmallSize,
+    or Qt::WA_MacNormalSize instead.
+*/
+
+/*! \fn void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p, const QWidget *w) const
+
+    \reimp 
+*/
+
+/*! \fn void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter *p, const QWidget *w) const
+
+    \reimp 
+*/
+
+/*! \fn QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidget *widget) const
+
+    \reimp 
+*/
+
+/*! \fn void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p, const QWidget *widget) const
+    \reimp 
+*/
+
+/*! \fn QStyle::SubControl QMacStyle::hitTestComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, const QPoint &pt, const QWidget *widget) const
+    \reimp 
+*/
+
+/*! \fn QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt, SubControl sc, const QWidget *widget) const
+    \reimp 
+*/
+
+/*! \fn QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, const QSize &csz, const QWidget *widget) const
+    \reimp 
+*/
+
+/*! \fn void QMacStyle::drawItemText(QPainter *p, const QRect &r, int flags, const QPalette &pal, bool enabled, const QString &text, QPalette::ColorRole textRole) const
+    \reimp 
+*/
+
+/*! \fn bool QMacStyle::event(QEvent *e)
+    \reimp 
+*/
+
+/*! \fn QIcon QMacStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt, const QWidget *widget) const
+    \internal
+*/
+
+/*! \fn int QMacStyle::layoutSpacingImplementation(QSizePolicy::ControlType control1, QSizePolicy::ControlType control2, Qt::Orientation orientation, const QStyleOption *option, const QWidget *widget) const
+
+  \internal
+*/
+

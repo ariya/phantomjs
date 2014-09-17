@@ -1,0 +1,23 @@
+!CONFIG(separate_debug_info):CONFIG(debug, debug|release):!staticlib:!static:!contains(TEMPLATE, subdirs):!isEmpty(QMAKE_OBJCOPY) {
+
+    contains(TEMPLATE, "lib") {
+        QMAKE_GDB_INDEX = { test -z \"$(DESTDIR)\" || cd \"$(DESTDIR)\"; } &&
+        QMAKE_GDB_DIR = .
+    } else {
+        QMAKE_GDB_INDEX = { test -n \"$(DESTDIR)\" && DESTDIR=\"$(DESTDIR)\" || DESTDIR=.; } &&
+        QMAKE_GDB_DIR = \$\$DESTDIR
+    }
+
+    QMAKE_GDB_INDEX += \
+      test \$\$(gdb --version | sed -e \'s,[^0-9]\\+\\([0-9]\\)\\.\\([0-9]\\).*,\\1\\2,;q\') -gt 72 && \
+      gdb --nx --batch --quiet -ex \'set confirm off\' -ex \"save gdb-index $$QMAKE_GDB_DIR\" -ex quit \'$(TARGET)\'  && \
+      test -f $(TARGET).gdb-index && \
+      $$QMAKE_OBJCOPY --add-section \'.gdb_index=$(TARGET).gdb-index\' --set-section-flags \'.gdb_index=readonly\' \'$(TARGET)\' \'$(TARGET)\' && \
+      $$QMAKE_DEL_FILE $(TARGET).gdb-index || true
+
+    !isEmpty(QMAKE_POST_LINK):QMAKE_POST_LINK = $$escape_expand(\\n\\t)$$QMAKE_POST_LINK
+    QMAKE_POST_LINK = $$QMAKE_GDB_INDEX $$QMAKE_POST_LINK
+
+    silent:QMAKE_POST_LINK = @echo indexing $@ for gdb && $$QMAKE_POST_LINK
+}
+

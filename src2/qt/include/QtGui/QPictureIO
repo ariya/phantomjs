@@ -1,0 +1,1 @@
+#include "qpicture.h"

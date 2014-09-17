@@ -1,0 +1,64 @@
+
+Libpng 1.5.10 - March 29, 2012
+
+This is a public release of libpng, intended for use in production codes.
+
+Files available for download:
+
+Source files with LF line endings (for Unix/Linux) and with a
+"configure" script
+
+   libpng-1.5.10.tar.xz (LZMA-compressed, recommended)
+   libpng-1.5.10.tar.gz
+   libpng-1.5.10.tar.bz2
+
+Source files with CRLF line endings (for Windows), without the
+"configure" script
+
+   lpng1510.7z  (LZMA-compressed, recommended)
+   lpng1510.zip
+
+Other information:
+
+   libpng-1.5.10-README.txt
+   libpng-1.5.10-LICENSE.txt
+
+Changes since the last public release (1.5.9):
+
+  Removed two useless #ifdef directives from pngread.c and one from pngrutil.c
+  Always put the CMAKE_LIBRARY in "lib" (removed special WIN32 case).
+  Removed empty vstudio/pngstest directory (Clifford Yapp).
+  Eliminated redundant png_push_read_tEXt|zTXt|iTXt|unknown code from
+    pngpread.c and use the sequential png_handle_tEXt, etc., in pngrutil.c;
+    now that png_ptr->buffer is inaccessible to applications, the special
+    handling is no longer useful.
+  Fixed bug with png_handle_hIST with odd chunk length (Frank Busse).
+  Added PNG_SAFE_LIMITS feature to pnglibconf.dfa and code in pngconf.h
+    to reset the user limits to safe ones if PNG_SAFE_LIMITS is defined.
+    To enable, use "CPPFLAGS=-DPNG_SAFE_LIMITS_SUPPORTED" on the configure
+    command or put "#define PNG_SAFE_LIMITS_SUPPORTED" in pnglibconf.h.
+  Revised the SAFE_LIMITS feature to be the same as the feature in libpng16.
+  Added information about the new limits in the manual.
+  Updated Makefile.in
+  Removed unused "current_text" members of png_struct and the png_free()
+    of png_ptr->current_text from pngread.c
+  Fixed PNG_LIBPNG_BUILD_BASE_TYPE definition.
+  Fixed CMF optimization of non-IDAT compressed chunks, which was added at
+    libpng-1.5.4.  It sometimes produced too small of a window.
+  Reject all iCCP chunks after the first, even if the first one is invalid.
+  Added palette-index checking. Issue a png_benign_error() if an invalid
+    index is found.
+  Revised example.c to put text strings in a temporary character array
+    instead of directly assigning string constants to png_textp members.
+    This avoids compiler warnings when -Wwrite-strings is enabled.
+  Prevent PNG_EXPAND+PNG_SHIFT doing the shift twice.
+  Revised png_set_text_2() to avoid potential memory corruption (fixes
+    CVE-2011-3048).
+
+Send comments/corrections/commendations to png-mng-implement at lists.sf.net
+(subscription required; visit
+https://lists.sourceforge.net/lists/listinfo/png-mng-implement
+to subscribe)
+or to glennrp at users.sourceforge.net
+
+Glenn R-P

@@ -1,0 +1,32 @@
+<RCC>
+    <qresource prefix="/">
+        <file>remote_debugger_harness.html</file>
+        <file>phantomjs-icon.png</file>
+        <file>bootstrap.js</file>
+        <file>configurator.js</file>
+        <file>modules/webpage.js</file>
+        <file>modules/webserver.js</file>
+        <file>modules/fs.js</file>
+        <file>modules/system.js</file>
+        <file>modules/child_process.js</file>
+        <file>modules/_coffee-script.js</file>
+        <file>repl.js</file>
+
+        <file>coffee-script/package.json</file>
+        <file>coffee-script/lib/coffee-script/coffee-script.js</file>
+        <file>coffee-script/lib/coffee-script/optparse.js</file>
+        <file>coffee-script/lib/coffee-script/command.js</file>
+        <file>coffee-script/lib/coffee-script/scope.js</file>
+        <file>coffee-script/lib/coffee-script/parser.js</file>
+        <file>coffee-script/lib/coffee-script/browser.js</file>
+        <file>coffee-script/lib/coffee-script/nodes.js</file>
+        <file>coffee-script/lib/coffee-script/grammar.js</file>
+        <file>coffee-script/lib/coffee-script/lexer.js</file>
+        <file>coffee-script/lib/coffee-script/repl.js</file>
+        <file>coffee-script/lib/coffee-script/cake.js</file>
+        <file>coffee-script/lib/coffee-script/helpers.js</file>
+        <file>coffee-script/lib/coffee-script/rewriter.js</file>
+        <file>coffee-script/lib/coffee-script/index.js</file>
+        <file>coffee-script/extras/coffee-script.js</file>
+    </qresource>
+</RCC>

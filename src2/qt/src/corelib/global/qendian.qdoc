@@ -1,0 +1,154 @@
+/****************************************************************************
+**
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \headerfile <QtEndian>
+    \title Endian Conversion Functions
+    \ingroup funclists
+    \brief The <QtEndian> header provides functions to convert between
+    little and big endian representations of numbers.
+*/
+
+/*!
+    \fn T qFromBigEndian(const uchar *src)
+    \since 4.3
+    \relates <QtEndian>
+
+    Reads a big-endian number from memory location \a src and returns the number in the
+    host byte order representation.
+    On CPU architectures where the host byte order is little-endian (such as x86) this
+    will swap the byte order; otherwise it will just read from \a src.
+
+    \note Template type \c{T} can either be a qint16, qint32 or qint64. Other types of
+    integers, e.g., qlong, are not applicable.
+
+    There are no data alignment constraints for \a src.
+
+    \sa qFromLittleEndian()
+    \sa qToBigEndian()
+    \sa qToLittleEndian()
+*/
+/*!
+    \fn T qFromBigEndian(T src)
+    \since 4.3
+    \relates <QtEndian>
+    \overload
+
+    Converts \a src from big-endian byte order and returns the number in host byte order
+    representation of that number.
+    On CPU architectures where the host byte order is little-endian (such as x86) this
+    will return \a src with the byte order swapped; otherwise it will return \a src
+    unmodified.
+*/
+/*!
+    \fn T qFromLittleEndian(const uchar *src)
+    \since 4.3
+    \relates <QtEndian>
+
+    Reads a little-endian number from memory location \a src and returns the number in
+    the host byte order representation.
+    On CPU architectures where the host byte order is big-endian (such as PowerPC) this
+    will swap the byte order; otherwise it will just read from \a src.
+
+    \note Template type \c{T} can either be a qint16, qint32 or qint64. Other types of
+    integers, e.g., qlong, are not applicable.
+
+    There are no data alignment constraints for \a src.
+
+    \sa qFromBigEndian()
+    \sa qToBigEndian()
+    \sa qToLittleEndian()
+*/
+/*!
+    \fn T qFromLittleEndian(T src)
+    \since 4.3
+    \relates <QtEndian>
+    \overload
+
+    Converts \a src from little-endian byte order and returns the number in host byte
+    order representation of that number.
+    On CPU architectures where the host byte order is big-endian (such as PowerPC) this
+    will return \a src with the byte order swapped; otherwise it will return \a src
+    unmodified.
+*/
+/*!
+    \fn void qToBigEndian(T src, uchar *dest)
+    \since 4.3
+    \relates <QtEndian>
+
+    Writes the number \a src with template type \c{T} to the memory location at \a dest
+    in big-endian byte order.
+
+    Note that template type \c{T} can only be an integer data type (signed or unsigned).
+
+    There are no data alignment constraints for \a dest.
+
+    \sa qFromBigEndian()
+    \sa qFromLittleEndian()
+    \sa qToLittleEndian()
+*/
+/*!
+    \fn T qToBigEndian(T src)
+    \since 4.3
+    \relates <QtEndian>
+    \overload
+
+    Converts \a src from host byte order and returns the number in big-endian byte order
+    representation of that number.
+    On CPU architectures where the host byte order is little-endian (such as x86) this
+    will return \a src with the byte order swapped; otherwise it will return \a src
+    unmodified.
+*/
+/*!
+    \fn void qToLittleEndian(T src, uchar *dest)
+    \since 4.3
+    \relates <QtEndian>
+
+    Writes the number \a src with template type \c{T} to the memory location at \a dest
+    in little-endian byte order.
+
+    Note that template type \c{T} can only be an integer data type (signed or unsigned).
+
+    There are no data alignment constraints for \a dest.
+
+    \sa qFromBigEndian()
+    \sa qFromLittleEndian()
+    \sa qToBigEndian()
+*/
+/*!
+    \fn T qToLittleEndian(T src)
+    \since 4.3
+    \relates <QtEndian>
+    \overload
+
+    Converts \a src from host byte order and returns the number in little-endian byte
+    order representation of that number.
+    On CPU architectures where the host byte order is big-endian (such as PowerPC) this
+    will return \a src with the byte order swapped; otherwise it will return \a src
+    unmodified.
+*/
+

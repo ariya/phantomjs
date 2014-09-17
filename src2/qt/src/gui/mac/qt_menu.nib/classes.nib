@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IBClasses</key>
+	<array>
+		<dict>
+			<key>ACTIONS</key>
+			<dict>
+				<key>hide</key>
+				<string>id</string>
+				<key>hideOtherApplications</key>
+				<string>id</string>
+				<key>orderFrontStandardAboutPanel</key>
+				<string>id</string>
+				<key>qtDispatcherToQAction</key>
+				<string>id</string>
+				<key>terminate</key>
+				<string>id</string>
+				<key>unhideAllApplications</key>
+				<string>id</string>
+			</dict>
+			<key>CLASS</key>
+			<string>QCocoaMenuLoader</string>
+			<key>LANGUAGE</key>
+			<string>ObjC</string>
+			<key>OUTLETS</key>
+			<dict>
+				<key>aboutItem</key>
+				<string>NSMenuItem</string>
+				<key>aboutQtItem</key>
+				<string>NSMenuItem</string>
+				<key>appMenu</key>
+				<string>NSMenu</string>
+				<key>hideItem</key>
+				<string>NSMenuItem</string>
+				<key>preferencesItem</key>
+				<string>NSMenuItem</string>
+				<key>quitItem</key>
+				<string>NSMenuItem</string>
+				<key>theMenu</key>
+				<string>NSMenu</string>
+			</dict>
+			<key>SUPERCLASS</key>
+			<string>NSResponder</string>
+		</dict>
+		<dict>
+			<key>CLASS</key>
+			<string>FirstResponder</string>
+			<key>LANGUAGE</key>
+			<string>ObjC</string>
+			<key>SUPERCLASS</key>
+			<string>NSObject</string>
+		</dict>
+	</array>
+	<key>IBVersion</key>
+	<string>1</string>
+</dict>
+</plist>

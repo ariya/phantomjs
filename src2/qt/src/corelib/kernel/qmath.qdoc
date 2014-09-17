@@ -1,0 +1,155 @@
+/****************************************************************************
+**
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*! 
+    \headerfile <QtCore/qmath.h>
+    \title Math Functions
+    \ingroup funclists
+    \brief The <QtCore/qmath.h> header provides various math functions.
+    \pagekeywords math trigonometry qmath floor ceiling absolute sine cosine tangent inverse tan exponent power natural logarithm
+*/
+
+/*!
+    \fn int qCeil(qreal v)
+    Return the ceiling of the value \a v. 
+
+    The ceiling is the smallest integer that is not less than \a v.
+    For example, if \a v is 41.2, then the ceiling is 42.
+    
+    \relates <QtCore/qmath.h>
+    \sa qFloor()
+*/
+
+/*!
+    \fn int qFloor(qreal v)
+    Return the floor of the value \a v.
+
+    The floor is the largest integer that is not greater than \a v.
+    For example, if \a v is 41.2, then the floor is 41.
+
+    \relates <QtCore/qmath.h>
+    \sa qCeil()
+*/
+
+/*!
+    \fn qreal qFabs(qreal v)
+    Returns the absolute value of \a v as a qreal.
+*/
+
+/*!
+    \fn qreal qSin(qreal v)
+    Returns the sine of the angle \a v in radians.
+
+    \relates <QtCore/qmath.h>
+    \sa qCos(), qTan()
+*/
+
+/*!
+    \fn  qreal qCos(qreal v)
+    Returns the cosine of an angle \a v in radians.
+
+    \relates <QtCore/qmath.h>
+    \sa qSin(), qTan()
+*/
+
+/*!
+    \fn qreal qTan(qreal v)
+    Returns the tangent of an angle \a v in radians.
+
+    \relates <QtCore/qmath.h>
+    \sa qSin(), qCos()
+*/
+
+/*!
+    \fn qreal qAcos(qreal v)
+    Returns the arccosine of \a v as an angle in radians.
+    Arccosine is the inverse operation of cosine.
+
+    \relates <QtCore/qmath.h>
+    \sa qAtan(), qAsin(), qCos()
+*/
+
+/*!
+    \fn qreal qAsin(qreal v)
+    Returns the arcsine of \a v as an angle in radians.
+    Arcsine is the inverse operation of sine.
+
+    \relates <QtCore/qmath.h>
+    \sa qSin(), qAtan(), qAcos()
+*/
+
+/*!
+    \fn qreal qAtan(qreal v)
+    Returns the arctangent of \a v as an angle in radians.
+    Arctangent is the inverse operation of tangent.
+
+    \relates <QtCore/qmath.h>
+    \sa qTan(), qAcos(), qAsin()
+*/
+
+/*!
+    \fn qreal qAtan2(qreal x, qreal y)
+    Returns the arctangent of a point specified by the coordinates \a x and \a y.
+    This function will return the angle and its direction.
+
+    \relates <QtCore/qmath.h>
+    \sa qAtan()
+*/
+
+/*!
+    \fn qreal qSqrt(qreal v)
+    Returns the square root of \a v.
+    This function returns a NaN if \a v is a negative number.
+
+    \relates <QtCore/qmath.h>
+    \sa qPow()
+*/
+
+/*!
+    \fn qreal qLn(qreal v)
+    Returns the natural logarithm of \a v. Natural logarithm uses base e.
+
+    \relates <QtCore/qmath.h>
+    \sa qExp()
+*/
+
+/*!
+    \fn qreal qExp(qreal v)
+    Returns the exponential function of \c e to the power of \a v.
+
+    \relates <QtCore/qmath.h>
+    \sa qLn()
+*/
+
+/*!
+    \fn qreal qPow(qreal x, qreal y)
+    Returns the value of \a x raised to the power of \a y.
+    That is, \a x is the base and \a y is the exponent.
+
+    \relates <QtCore/qmath.h>
+    \sa qSqrt()
+*/

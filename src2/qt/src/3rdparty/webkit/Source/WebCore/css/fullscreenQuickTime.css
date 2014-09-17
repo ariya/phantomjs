@@ -1,0 +1,154 @@
+/*
+ * Copyright (C) 2011 Apple Inc.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+/* alternate media controls - Extend fullscreen.css */
+
+video:-webkit-full-screen::-webkit-media-controls-panel {
+    -webkit-box-align: start;
+    -webkit-box-pack: end;    
+    -webkit-appearance: none;
+
+    bottom: 50px;
+    left: 50%;
+    margin-left: -220px;
+    padding: 12px 0 0 10px;
+    width: 430px;
+    height: 48px;
+    
+    background-image: -webkit-gradient(
+        linear,
+        left top,
+        left bottom,
+        color-stop(0, rgba(30, 30, 30, .97)),
+        color-stop(0.333, rgba(45, 45, 45, .97)),
+        color-stop(0.35,  rgba(25, 25, 25, .97)),
+        color-stop(0.366, rgba(25, 25, 25, .97)),
+        color-stop(0.366, rgba(12, 12, 12, .97)),
+        color-stop(1, rgba(19, 19, 19, .97))
+    );
+
+    -webkit-box-shadow: 
+        inset 0 -1px 1px rgba(0, 0, 0, 0.5),
+        inset 0  1px 0 0px   rgba(255, 255, 255, 0.15),
+        inset 0 -1px 0 0px   rgba(202, 202, 202, 0.09),
+        0  0   0 1px rgba(0, 0, 0, 0.5);
+    -webkit-border-radius: 8px;
+}
+
+video:-webkit-full-screen::-webkit-media-controls-mute-button {
+    display: none;
+}
+
+video:-webkit-full-screen::-webkit-media-controls-volume-slider-container {
+    display: none;
+}
+
+video:-webkit-full-screen::-webkit-media-controls-volume-slider {
+    display: none;
+}
+
+video:-webkit-full-screen::-webkit-media-controls-volume-slider-mute-button {
+    display: none;
+}
+
+video:-webkit-full-screen::-webkit-media-controls-fullscreen-volume-min-button {
+    -webkit-appearance: media-mute-button;
+    display: block;
+    position: absolute;
+    left: 11px;
+    top: 15px;
+    width: 14px;
+    height: 12px;
+}
+
+video:-webkit-full-screen::-webkit-media-controls-fullscreen-volume-slider {
+    -webkit-appearance: media-slider;
+    display: block;
+    position: absolute;
+    left: 28px;
+    top: 15px;
+    height: 12px;
+    width: 50px;
+}
+
+video:-webkit-full-screen::-webkit-media-controls-fullscreen-volume-max-button {
+    -webkit-appearance: media-mute-button;
+    display: block;
+    position: absolute;
+    left: 84px;
+    top: 15px;
+    width: 14px;
+    height: 12px;
+}
+
+video:-webkit-full-screen::-webkit-media-controls-play-button {
+    position: absolute;
+    width: 22px;
+    height: 23px;
+    left: 209px;
+    top: 9px;
+}
+
+video:-webkit-full-screen::-webkit-media-controls-rewind-button {
+    position: absolute;
+    left: 162px;
+    top: 13px;
+    width: 18px;
+    height: 18px;
+}
+
+video:-webkit-full-screen::-webkit-media-controls-seek-back-button {
+    position: absolute;
+    display: -webkit-box;
+    width: 23px;
+    height: 16px;
+    left: 162px;
+    top: 13px;
+}
+
+video:-webkit-full-screen::-webkit-media-controls-seek-forward-button {
+    position: absolute;
+    display: -webkit-box;
+    width: 23px;
+    height: 16px;
+    left: 262px;
+    top: 13px;
+}
+
+video:-webkit-full-screen::-webkit-media-controls-timeline-container {
+    height: auto;
+    width: 420px;
+    position: absolute;
+    bottom: 9px;
+    left: 8px;
+    right: 8px;
+}
+
+video:-webkit-full-screen::-webkit-media-controls-status-display {
+    width: 420px;
+    position: absolute;
+    bottom: 9px;
+    left: 8px;
+    right: 8px;
+}

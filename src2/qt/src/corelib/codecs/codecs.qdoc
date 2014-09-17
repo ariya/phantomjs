@@ -1,0 +1,532 @@
+/****************************************************************************
+**
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \group codecs
+    \title Codecs
+    \ingroup groups
+    \brief Codec support in Qt.
+
+    These codecs provide facilities for conversion between Unicode and
+    specific text encodings.
+
+    \generatelist{related}
+*/
+
+/*!
+    \page codec-big5.html
+    \title Big5 Text Codec
+    \ingroup codecs
+
+    The Big5 codec provides conversion to and from the Big5 encoding.
+    The code was originally contributed by Ming-Che Chuang
+    \<mingche@cobra.ee.ntu.edu.tw\> for the Big-5+ encoding, and was
+    included in Qt with the author's permission, and the grateful
+    thanks of the Qt team. (Note: Ming-Che's code is QPL'd, as
+    per an mail to qt-info@nokia.com.)
+
+    However, since Big-5+ was never formally approved, and was never
+    used by anyone, the Taiwan Free Software community and the Li18nux
+    Big5 Standard Subgroup agree that the de-facto standard Big5-ETen
+    (zh_TW.Big5 or zh_TW.TW-Big5) be used instead.
+
+    The Big5 is currently implemented as a pure subset of the
+    Big5-HKSCS codec, so more fine-tuning is needed to make it
+    identical to the standard Big5 mapping as determined by
+    Li18nux-Big5.  See \l{http://www.autrijus.org/xml/} for the draft
+    Big5 (2002) standard.
+
+    James Su \<suzhe@turbolinux.com.cn\> \<suzhe@gnuchina.org\>
+    generated the Big5-HKSCS-to-Unicode tables with a very
+    space-efficient algorithm. He generously donated his code to glibc
+    in May 2002.  Subsequently, James has kindly allowed Anthony Fok
+    \<anthony@thizlinux.com\> \<foka@debian.org\> to adapt the code
+    for Qt.
+
+    \legalese
+    Copyright (C) 2000  Ming-Che Chuang \BR
+    Copyright (C) 2002  James Su, Turbolinux Inc. \BR
+    Copyright (C) 2002  Anthony Fok, ThizLinux Laboratory Ltd.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    \list 1
+    \o Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+    \o Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in the
+       documentation and/or other materials provided with the distribution.
+    \endlist
+
+    THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+    ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+    OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+    HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+    OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+    SUCH DAMAGE.
+    \endlegalese
+*/
+
+/*!
+    \page codec-big5hkscs.html
+    \title Big5-HKSCS Text Codec
+    \ingroup codecs
+
+    The Big5-HKSCS codec provides conversion to and from the
+    Big5-HKSCS encoding.
+
+    The codec grew out of the QBig5Codec originally contributed by
+    Ming-Che Chuang \<mingche@cobra.ee.ntu.edu.tw\>.  James Su
+    \<suzhe@turbolinux.com.cn\> \<suzhe@gnuchina.org\> and Anthony Fok
+    \<anthony@thizlinux.com\> \<foka@debian.org\> implemented HKSCS-1999
+    QBig5hkscsCodec for Qt-2.3.x, but it was too late in Qt development
+    schedule to be officially included in the Qt-2.3.x series.
+
+    Wu Yi \<wuyi@hancom.com\> ported the HKSCS-1999 QBig5hkscsCodec to
+    Qt-3.0.1 in March 2002.
+
+    With the advent of the new HKSCS-2001 standard, James Su
+    \<suzhe@turbolinux.com.cn\> \<suzhe@gnuchina.org\> generated the
+    Big5-HKSCS<->Unicode tables with a very space-efficient algorithm.
+    He generously donated his code to glibc in May 2002.  Subsequently,
+    James has generously allowed Anthony Fok to adapt the code for
+    Qt-3.0.5.
+
+    Currently, the Big5-HKSCS tables are generated from the following
+    sources, and with the Euro character added:
+    \list 1
+    \o \l{http://www.microsoft.com/typography/unicode/950.txt}
+    \o \l{http://www.info.gov.hk/digital21/chi/hkscs/download/big5-iso.txt}
+    \o \l{http://www.info.gov.hk/digital21/chi/hkscs/download/big5cmp.txt}
+    \endlist
+
+    There may be more fine-tuning to the QBig5hkscsCodec to maximize its
+    compatibility with the standard Big5 (2002) mapping as determined by
+    Li18nux Big5 Standard Subgroup.  See \l{http://www.autrijus.org/xml/}
+    for the various Big5 CharMapML tables.
+
+    \legalese
+    Copyright (C) 2000  Ming-Che Chuang \BR
+    Copyright (C) 2001, 2002  James Su, Turbolinux Inc. \BR
+    Copyright (C) 2002  WU Yi, HancomLinux Inc. \BR
+    Copyright (C) 2001, 2002  Anthony Fok, ThizLinux Laboratory Ltd.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    \list 1
+    \o Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+    \o Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in the
+       documentation and/or other materials provided with the distribution.
+    \endlist
+
+    THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+    ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+    OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+    HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+    OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+    SUCH DAMAGE.
+    \endlegalese
+*/
+
+/*!
+    \page codec-eucjp.html
+    \title EUC-JP Text Codec
+    \ingroup codecs
+
+    The EUC-JP codec provides conversion to and from EUC-JP, the main
+    legacy encoding for Unix machines in Japan.
+
+    The environment variable \c UNICODEMAP_JP can be used to
+    fine-tune the JIS, Shift-JIS, and EUC-JP codecs. The \l{ISO
+    2022-JP (JIS) Text Codec} documentation describes how to use this
+    variable.
+
+    Most of the code here was written by Serika Kurusugawa,
+    a.k.a. Junji Takagi, and is included in Qt with the author's
+    permission and the grateful thanks of the Qt team. Here is
+    the copyright statement for that code:
+
+    \legalese
+
+    Copyright (C) 1999 Serika Kurusugawa. All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    \list 1
+    \o Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+    \o Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in the
+       documentation and/or other materials provided with the distribution.
+    \endlist
+
+    THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS "AS IS".
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+    ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+    OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+    HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+    OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+    SUCH DAMAGE.
+    \endlegalese
+*/
+
+/*!
+    \page codec-euckr.html
+    \title EUC-KR Text Codec
+    \ingroup codecs
+
+    The EUC-KR codec provides conversion to and from EUC-KR, KR, the
+    main legacy encoding for Unix machines in Korea.
+
+    It was largely written by Mizi Research Inc. Here is the
+    copyright statement for the code as it was at the point of
+    contribution. The subsequent modifications are covered by
+    the usual copyright for Qt.
+
+    \legalese
+
+    Copyright (C) 1999-2000 Mizi Research Inc. All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    \list 1
+    \o Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+    \o Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in the
+       documentation and/or other materials provided with the distribution.
+    \endlist
+
+    THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+    ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+    OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+    HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+    OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+    SUCH DAMAGE.
+    \endlegalese
+*/
+
+/*!
+    \page codec-gbk.html
+    \title GBK Text Codec
+    \ingroup codecs
+
+    The GBK codec provides conversion to and from the Chinese
+    GB18030/GBK/GB2312 encoding.
+
+    GBK, formally the Chinese Internal Code Specification, is a commonly
+    used extension of GB 2312-80.  Microsoft Windows uses it under the
+    name codepage 936.
+
+    GBK has been superseded by the new Chinese national standard
+    GB 18030-2000, which added a 4-byte encoding while remaining
+    compatible with GB2312 and GBK.  The new GB 18030-2000 may be described
+    as a special encoding of Unicode 3.x and ISO-10646-1.
+
+    Special thanks to charset gurus Markus Scherer (IBM),
+    Dirk Meyer (Adobe Systems) and Ken Lunde (Adobe Systems) for publishing
+    an excellent GB 18030-2000 summary and specification on the Internet.
+    Some must-read documents are:
+
+    \list
+    \o \l{ftp://ftp.oreilly.com/pub/examples/nutshell/cjkv/pdf/GB18030_Summary.pdf}
+    \o \l{http://oss.software.ibm.com/cvs/icu/~checkout~/charset/source/gb18030/gb18030.html}
+    \o \l{http://oss.software.ibm.com/cvs/icu/~checkout~/charset/data/xml/gb-18030-2000.xml}
+    \endlist
+
+    The GBK codec was contributed to Qt by
+    Justin Yu \<justiny@turbolinux.com.cn\> and
+    Sean Chen \<seanc@turbolinux.com.cn\>.  They may also be reached at
+    Yu Mingjian \<yumj@sun.ihep.ac.cn\>, \<yumingjian@china.com\>
+    Chen Xiangyang \<chenxy@sun.ihep.ac.cn\>
+
+    The GB18030 codec Qt functions were contributed to Qt by
+    James Su \<suzhe@gnuchina.org\>, \<suzhe@turbolinux.com.cn\>
+    who pioneered much of GB18030 development on GNU/Linux systems.
+
+    The GB18030 codec was contributed to Qt by
+    Anthony Fok \<anthony@thizlinux.com\>, \<foka@debian.org\>
+    using a Perl script to generate C++ tables from gb-18030-2000.xml
+    while merging contributions from James Su, Justin Yu and Sean Chen.
+    A copy of the source Perl script is available at
+    \l{http://people.debian.org/~foka/gb18030/gen-qgb18030codec.pl}
+
+    The copyright notice for their code follows:
+
+    \legalese
+    Copyright (C) 2000 TurboLinux, Inc.  Written by Justin Yu and Sean Chen. \BR
+    Copyright (C) 2001, 2002 Turbolinux, Inc.  Written by James Su. \BR
+    Copyright (C) 2001, 2002 ThizLinux Laboratory Ltd.  Written by Anthony Fok.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    \list 1
+    \o Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+    \o Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in the
+       documentation and/or other materials provided with the distribution.
+    \endlist
+
+    THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+    ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+    OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+    HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+    OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+    SUCH DAMAGE.
+    \endlegalese
+*/
+
+/*!
+    \page codecs-jis.html
+    \title ISO 2022-JP (JIS) Text Codec
+    \ingroup codecs
+
+    The JIS codec provides conversion to and from ISO 2022-JP.
+
+    The environment variable \c UNICODEMAP_JP can be used to
+    fine-tune the JIS, Shift-JIS, and EUC-JP codecs. The mapping
+    names are as for the Japanese XML working group's \link
+    http://www.y-adagio.com/public/standards/tr_xml_jpf/toc.htm XML
+    Japanese Profile\endlink, because it names and explains all the
+    widely used mappings. Here are brief descriptions, written by
+    Serika Kurusugawa:
+
+    \list
+
+    \o "unicode-0.9" or "unicode-0201" for Unicode style. This assumes
+    JISX0201 for 0x00-0x7f. (0.9 is a table version of jisx02xx mapping
+    used for Unicode 1.1.)
+
+    \o "unicode-ascii" This assumes US-ASCII for 0x00-0x7f; some
+    chars (JISX0208 0x2140 and JISX0212 0x2237) are different from
+    Unicode 1.1 to avoid conflict.
+
+    \o "open-19970715-0201" ("open-0201" for convenience) or
+    "jisx0221-1995" for JISX0221-JISX0201 style. JIS X 0221 is JIS
+    version of Unicode, but a few chars (0x5c, 0x7e, 0x2140, 0x216f,
+    0x2131) are different from Unicode 1.1. This is used when 0x5c is
+    treated as YEN SIGN.
+
+    \o "open-19970715-ascii" ("open-ascii" for convenience) for
+    JISX0221-ASCII style. This is used when 0x5c is treated as REVERSE
+    SOLIDUS.
+
+    \o "open-19970715-ms" ("open-ms" for convenience) or "cp932" for
+    Microsoft Windows style. Windows Code Page 932. Some chars (0x2140,
+    0x2141, 0x2142, 0x215d, 0x2171, 0x2172) are different from Unicode
+    1.1.
+
+    \o "jdk1.1.7" for Sun's JDK style. Same as Unicode 1.1, except that
+    JIS 0x2140 is mapped to UFF3C. Either ASCII or JISX0201 can be used
+    for 0x00-0x7f.
+
+    \endlist
+
+    In addition, the extensions "nec-vdc", "ibm-vdc" and "udc" are
+    supported.
+
+    For example, if you want to use Unicode style conversion but with
+    NEC's extension, set \c UNICODEMAP_JP to \c {unicode-0.9,
+    nec-vdc}. (You will probably need to quote that in a shell
+    command.)
+
+    Most of the code here was written by Serika Kurusugawa,
+    a.k.a. Junji Takagi, and is included in Qt with the author's
+    permission and the grateful thanks of the Qt team. Here is
+    the copyright statement for that code:
+
+    \legalese
+
+    Copyright (C) 1999 Serika Kurusugawa. All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    \list 1
+    \o Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+    \o Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in the
+       documentation and/or other materials provided with the distribution.
+    \endlist
+
+    THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS "AS IS".
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+    ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+    OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+    HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+    OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+    SUCH DAMAGE.
+    \endlegalese
+*/
+
+/*!
+    \page codec-sjis.html
+    \title Shift-JIS Text Codec
+    \ingroup codecs
+
+    The Shift-JIS codec provides conversion to and from Shift-JIS, an
+    encoding of JIS X 0201 Latin, JIS X 0201 Kana and JIS X 0208.
+
+    The environment variable \c UNICODEMAP_JP can be used to
+    fine-tune the codec. The \l{ISO 2022-JP (JIS) Text Codec}
+    documentation describes how to use this variable.
+
+    Most of the code here was written by Serika Kurusugawa, a.k.a.
+    Junji Takagi, and is included in Qt with the author's permission
+    and the grateful thanks of the Qt team. Here is the
+    copyright statement for the code as it was at the point of
+    contribution. The subsequent modifications are covered by
+    the usual copyright for Qt.
+
+    \legalese
+
+    Copyright (C) 1999 Serika Kurusugawa. All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    \list 1
+    \o Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+    \o Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in the
+       documentation and/or other materials provided with the distribution.
+    \endlist
+
+    THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS "AS IS".
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+    ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+    OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+    HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+    OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+    SUCH DAMAGE.
+    \endlegalese
+*/
+
+/*!
+    \page codec-tscii.html
+    \title TSCII Text Codec
+    \ingroup codecs
+
+    The TSCII codec provides conversion to and from the Tamil TSCII
+    encoding.
+
+    TSCII, formally the Tamil Standard Code Information Interchange
+    specification, is a commonly used charset for Tamils. The
+    official page for the standard is at
+    \link http://www.tamil.net/tscii/ http://www.tamil.net/tscii/\endlink
+
+    This codec uses the mapping table found at
+    \link http://www.geocities.com/Athens/5180/tsciiset.html
+    http://www.geocities.com/Athens/5180/tsciiset.html\endlink.
+    Tamil uses composed Unicode which might cause some
+    problems if you are using Unicode fonts instead of TSCII fonts.
+
+    Most of the code was written by Hans Petter Bieker and is
+    included in Qt with the author's permission and the grateful
+    thanks of the Qt team. Here is the copyright statement for
+    the code as it was at the point of contribution. The
+    subsequent modifications are covered by the usual copyright for
+    Qt:
+
+    \legalese
+
+    Copyright (c) 2000 Hans Petter Bieker.  All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    \list 1
+    \o Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+    \o Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in the
+       documentation and/or other materials provided with the distribution.
+    \endlist
+
+    THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+    ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+    OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+    HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+    OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+    SUCH DAMAGE.
+    \endlegalese
+*/

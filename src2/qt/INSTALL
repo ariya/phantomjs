@@ -1,0 +1,14 @@
+        INSTALLING Qt Source Package Version 4.8.4.
+
+For full installation instructions for each supported platform, please
+see http://qt-project.org/doc/qt-4.8/installation.html, the file
+doc/html/installation.html in this package, or follow one of the following
+links:
+
+Embedded Linux:   http://qt-project.org/doc/qt-4.8/qt-embedded-install.html
+Mac OS X:         http://qt-project.org/doc/qt-4.8/install-mac.html
+Windows:          http://qt-project.org/doc/qt-4.8/install-win.html
+Windows CE:       http://qt-project.org/doc/qt-4.8/install-wince.html
+X11 Platforms:    http://qt-project.org/doc/qt-4.8/install-x11.html
+Symbian Platform: http://qt-project.org/doc/qt-4.8/install-symbian.html
+

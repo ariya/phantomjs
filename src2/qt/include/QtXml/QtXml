@@ -1,0 +1,7 @@
+#ifndef QT_QTXML_MODULE_H
+#define QT_QTXML_MODULE_H
+#include <QtCore/QtCore>
+#include "qxmlstream.h"
+#include "qxml.h"
+#include "qdom.h"
+#endif

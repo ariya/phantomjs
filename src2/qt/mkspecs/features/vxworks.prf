@@ -1,0 +1,64 @@
+# VxWorks Munching Feature
+# When compiling C++ sources on VxWorks in kernel mode, all .o files have to
+# be processed by the so-called 'munch' script which will generate
+# additional code for static c'tors and d'tors. The resulting .c file has to
+# be compiled in turn and linked to the executable.
+# This can only been done when linking applications, since the munch script
+# generates a .c file containing static symbols: linking a lib that was
+# already munched to a munched application would lead to duplicate symbols!
+
+isEmpty(VXWORKS_MUNCH_EXT):VXWORKS_MUNCH_EXT = vxm
+isEmpty(VXWORKS_MUNCH_TOOL):VXWORKS_MUNCH_TOOL = $(WIND_BASE)/host/resource/hutils/tcl/munch.tcl
+
+
+!exists($$VXWORKS_MUNCH_TOOL) {
+    error("Could not find VxWorks Munch tool: '$${VXWORKS_MUNCH_TOOL}'. Please set the environment variable WIND_BASE correctly.")
+}
+
+# The following scope is entered for any project that specifies 'shared' as well
+# as for any project specifying neither 'shared', nor 'lib', nor 'staticlib'.
+# This means that for a static build only the executable is munched, while for
+# a shared build, every lib, plugin and executable is munched separately.
+
+shared|!staticlib:!lib {
+    *-dcc {
+    VXWORKS_MUNCH_CMD =  targ=`basename $(TARGET)`; \
+                         ddump -Ng \"$(TARGET)\" | tclsh $$VXWORKS_MUNCH_TOOL -c $$VXWORKS_ARCH_MUNCH >\"$(OBJECTS_DIR)/\$\${targ}_ctdt.c\" && \
+                         $$QMAKE_CC -c $$QMAKE_CFLAGS \"$(OBJECTS_DIR)/\$\${targ}_ctdt.c\" -o \"$(OBJECTS_DIR)/\$\${targ}_ctdt.o\" && \
+                         $$QMAKE_LINK $$QMAKE_LFLAGS -X -r5 -r4 \"$(OBJECTS_DIR)/\$\${targ}_ctdt.o\" \"$(TARGET)\" -o \"$(TARGET).munched\" && \
+                         mv \"$(TARGET).munched\" \"$(TARGET)\" && \
+                         chmod +x \"$(TARGET)\"
+    }
+    *-g++ {
+    VXWORKS_MUNCH_CMD =  targ=`basename $(TARGET)`; \
+                         nm \"$(DESTDIR)$(TARGET)\" | tclsh $$VXWORKS_MUNCH_TOOL -c $$VXWORKS_ARCH_MUNCH >\"$(OBJECTS_DIR)/\$\${targ}_ctdt.c\" && \
+                         $$QMAKE_CC -c $$QMAKE_CFLAGS -fdollars-in-identifiers \"$(OBJECTS_DIR)/\$\${targ}_ctdt.c\" -o \"$(OBJECTS_DIR)/\$\${targ}_ctdt.o\" && \
+                         $$QMAKE_LINK $$QMAKE_LFLAGS -nostdlib -Wl,-X -T $(WIND_BASE)/target/h/tool/gnu/ldscripts/link.OUT \"$(OBJECTS_DIR)/\$\${targ}_ctdt.o\" \"$(DESTDIR)$(TARGET)\" -o \"$(DESTDIR)$(TARGET).munched\" && \
+                         mv \"$(DESTDIR)$(TARGET).munched\" \"$(DESTDIR)$(TARGET)\" && \
+                         chmod +x \"$(DESTDIR)$(TARGET)\"
+    }
+
+    # We need to create a dummy lib.a in case someone links against this lib.
+    # In VxWorks it's the responsibility of the run-time linker ld to resolve
+    # symbols, since there are no real shared libraries for the toolchain linker
+    # to link against.
+
+    shared:contains(TEMPLATE, lib) {
+        VXWORKS_MUNCH_CMD += "&&"
+        VXWORKS_MUNCH_CMD += (atarg=`basename $(TARGET) .so.$${VERSION}`.a ; touch \"$(DESTDIR)\$\${atarg}\")
+    }
+
+    !isEmpty(QMAKE_POST_LINK):QMAKE_POST_LINK = $$escape_expand(\\n\\t)$$QMAKE_POST_LINK
+    QMAKE_POST_LINK = $$VXWORKS_MUNCH_CMD$$QMAKE_POST_LINK
+    silent:QMAKE_POST_LINK = @echo creating $@.$$VXWORKS_MUNCH_EXT && $$QMAKE_POST_LINK
+
+    isEmpty(DESTDIR) {
+        target.targets += "`basename $(TARGET)`.$$VXWORKS_MUNCH_EXT"
+        QMAKE_DISTCLEAN += "`basename $(TARGET)`.$$VXWORKS_MUNCH_EXT"
+    } else {
+        target.targets += "$(DESTDIR)/`basename $(TARGET)`.$$VXWORKS_MUNCH_EXT"
+        QMAKE_DISTCLEAN += "$(DESTDIR)/`basename $(TARGET)`.$$VXWORKS_MUNCH_EXT"
+    }
+    *-g++:LIBS += -lgcc
+}
+

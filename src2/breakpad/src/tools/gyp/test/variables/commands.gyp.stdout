@@ -1,0 +1,252 @@
+GENERAL: running with these options:
+GENERAL:   msvs_version: None
+GENERAL:   suffix: ''
+GENERAL:   includes: None
+GENERAL:   use_environment: True
+GENERAL:   depth: '.'
+GENERAL:   generator_flags: []
+GENERAL:   generator_output: None
+GENERAL:   formats: ['gypd']
+GENERAL:   debug: ['variables', 'general']
+GENERAL:   check: None
+GENERAL:   defines: None
+GENERAL: cmdline_default_variables: {}
+GENERAL: generator_flags: {}
+VARIABLES: Expanding '0' to 0
+VARIABLES: Expanding '11 ' to '11 '
+VARIABLES: Expanding '+14' to '+14'
+VARIABLES: Expanding '-15' to -15
+VARIABLES: Expanding ' 10' to ' 10'
+VARIABLES: Matches: {'content': 'letters_list', 'is_array': '', 'type': '<', 'replace': '<(letters_list)'}
+VARIABLES: Expanding 'letters_list' to 'letters_list'
+VARIABLES: Found output 'ABCDEFG', recursing.
+VARIABLES: Expanding 'ABCDEFG' to 'ABCDEFG'
+VARIABLES: Expanding '<(letters_list)EFG' to 'ABCDEFG'
+VARIABLES: Expanding '012' to '012'
+VARIABLES: Matches: {'content': 'other_letters', 'is_array': '', 'type': '<', 'replace': '<(other_letters)'}
+VARIABLES: Expanding 'other_letters' to 'other_letters'
+VARIABLES: Found output '<(letters_list)EFGHIJK', recursing.
+VARIABLES: Matches: {'content': 'letters_list', 'is_array': '', 'type': '<', 'replace': '<(letters_list)'}
+VARIABLES: Expanding 'letters_list' to 'letters_list'
+VARIABLES: Found output 'ABCDEFGHIJK', recursing.
+VARIABLES: Expanding 'ABCDEFGHIJK' to 'ABCDEFGHIJK'
+VARIABLES: Expanding '<(letters_list)EFGHIJK' to 'ABCDEFGHIJK'
+VARIABLES: Expanding '<(other_letters)HIJK' to 'ABCDEFGHIJK'
+VARIABLES: Expanding 'XYZ' to 'XYZ'
+VARIABLES: Expanding 'ABCD' to 'ABCD'
+VARIABLES: Expanding '13.0' to '13.0'
+VARIABLES: Expanding 'import math; print math.pi' to 'import math; print math.pi'
+VARIABLES: Matches: {'content': 'included_variable', 'is_array': '', 'type': '<', 'replace': '<(included_variable)'}
+VARIABLES: Expanding 'included_variable' to 'included_variable'
+VARIABLES: Found output 'XYZ', recursing.
+VARIABLES: Expanding 'XYZ' to 'XYZ'
+VARIABLES: Expanding '<(included_variable)' to 'XYZ'
+VARIABLES: Expanding '6' to 6
+VARIABLES: Matches: {'content': 'included_variable', 'is_array': '', 'type': '<', 'replace': '<(included_variable)'}
+VARIABLES: Expanding 'included_variable' to 'included_variable'
+VARIABLES: Found output 'XYZ', recursing.
+VARIABLES: Expanding 'XYZ' to 'XYZ'
+VARIABLES: Expanding '<(included_variable)' to 'XYZ'
+VARIABLES: Matches: {'content': 'third_letters', 'is_array': '', 'type': '<', 'replace': '<(third_letters)'}
+VARIABLES: Expanding 'third_letters' to 'third_letters'
+VARIABLES: Found output '<(other_letters)HIJK', recursing.
+VARIABLES: Matches: {'content': 'other_letters', 'is_array': '', 'type': '<', 'replace': '<(other_letters)'}
+VARIABLES: Expanding 'other_letters' to 'other_letters'
+VARIABLES: Found output '<(letters_list)EFGHIJK', recursing.
+VARIABLES: Matches: {'content': 'letters_list', 'is_array': '', 'type': '<', 'replace': '<(letters_list)'}
+VARIABLES: Expanding 'letters_list' to 'letters_list'
+VARIABLES: Found output 'ABCDEFGHIJK', recursing.
+VARIABLES: Expanding 'ABCDEFGHIJK' to 'ABCDEFGHIJK'
+VARIABLES: Expanding '<(letters_list)EFGHIJK' to 'ABCDEFGHIJK'
+VARIABLES: Expanding '<(other_letters)HIJK' to 'ABCDEFGHIJK'
+VARIABLES: Expanding '<(third_letters)' to 'ABCDEFGHIJK'
+VARIABLES: Expanding '8' to 8
+VARIABLES: Expanding '.' to '.'
+VARIABLES: Expanding 'letters_' to 'letters_'
+VARIABLES: Matches: {'content': '<!(python -c "print \'letters_list\'"', 'is_array': '', 'type': '<', 'replace': '<(<!(python -c "print \'letters_list\'")'}
+VARIABLES: Matches: {'content': 'python -c "print \'letters_list\'"', 'is_array': '', 'type': '<!', 'replace': '<!(python -c "print \'letters_list\'")'}
+VARIABLES: Expanding 'python -c "print \'letters_list\'"' to 'python -c "print \'letters_list\'"'
+VARIABLES: Executing command 'python -c "print 'letters_list'"' in directory 'None'
+VARIABLES: Found output 'letters_list', recursing.
+VARIABLES: Expanding 'letters_list' to 'letters_list'
+VARIABLES: Expanding '<!(python -c "print \'letters_list\'")' to 'letters_list'
+VARIABLES: Found output 'ABCD', recursing.
+VARIABLES: Expanding 'ABCD' to 'ABCD'
+VARIABLES: Expanding '<(<!(python -c "print \'letters_list\'"))' to 'ABCD'
+VARIABLES: Matches: {'content': 'check_int', 'is_array': '', 'type': '<', 'replace': '<(check_int)'}
+VARIABLES: Expanding 'check_int' to 'check_int'
+VARIABLES: Found output '5', recursing.
+VARIABLES: Expanding '5' to 5
+VARIABLES: Expanding '<(check_int)' to 5
+VARIABLES: Expanding 'list' to 'list'
+VARIABLES: Matches: {'content': '"python", "-c", "<(pi', 'is_array': '[', 'type': '<!', 'replace': '<!(["python", "-c", "<(pi)'}
+VARIABLES: Matches: {'content': 'pi', 'is_array': '', 'type': '<', 'replace': '<(pi)'}
+VARIABLES: Expanding 'pi' to 'pi'
+VARIABLES: Found output '["python", "-c", "import math; print math.pi"]', recursing.
+VARIABLES: Expanding '["python", "-c", "import math; print math.pi"]' to '["python", "-c", "import math; print math.pi"]'
+VARIABLES: Expanding '["python", "-c", "<(pi)"]' to '["python", "-c", "import math; print math.pi"]'
+VARIABLES: Executing command '['python', '-c', 'import math; print math.pi']' in directory 'None'
+VARIABLES: Found output '3.14159265359', recursing.
+VARIABLES: Expanding '3.14159265359' to '3.14159265359'
+VARIABLES: Expanding '<!(["python", "-c", "<(pi)"])' to '3.14159265359'
+VARIABLES: Matches: {'content': 'python -c "print \'<(letters_list', 'is_array': '', 'type': '<!', 'replace': '<!(python -c "print \'<(letters_list)'}
+VARIABLES: Matches: {'content': 'letters_list', 'is_array': '', 'type': '<', 'replace': '<(letters_list)'}
+VARIABLES: Expanding 'letters_list' to 'letters_list'
+VARIABLES: Found output 'python -c "print \'ABCD\'"', recursing.
+VARIABLES: Expanding 'python -c "print \'ABCD\'"' to 'python -c "print \'ABCD\'"'
+VARIABLES: Expanding 'python -c "print \'<(letters_list)\'"' to 'python -c "print \'ABCD\'"'
+VARIABLES: Executing command 'python -c "print 'ABCD'"' in directory 'None'
+VARIABLES: Found output 'ABCD', recursing.
+VARIABLES: Expanding 'ABCD' to 'ABCD'
+VARIABLES: Expanding '<!(python -c "print \'<(letters_list)\'")' to 'ABCD'
+VARIABLES: Matches: {'content': 'letters_list', 'is_array': '', 'type': '<', 'replace': '<(letters_list)'}
+VARIABLES: Expanding 'letters_list' to 'letters_list'
+VARIABLES: Matches: {'content': 'python -c "print \'<!(python -c "<(pi', 'is_array': '', 'type': '<!', 'replace': '<!(python -c "print \'<!(python -c "<(pi)'}
+VARIABLES: Matches: {'content': 'python -c "<(pi', 'is_array': '', 'type': '<!', 'replace': '<!(python -c "<(pi)'}
+VARIABLES: Matches: {'content': 'pi', 'is_array': '', 'type': '<', 'replace': '<(pi)'}
+VARIABLES: Expanding 'pi' to 'pi'
+VARIABLES: Found output 'python -c "import math; print math.pi"', recursing.
+VARIABLES: Expanding 'python -c "import math; print math.pi"' to 'python -c "import math; print math.pi"'
+VARIABLES: Expanding 'python -c "<(pi)"' to 'python -c "import math; print math.pi"'
+VARIABLES: Executing command 'python -c "import math; print math.pi"' in directory 'None'
+VARIABLES: Found output 'python -c "print \'3.14159265359 ABCD\'"', recursing.
+VARIABLES: Expanding 'python -c "print \'3.14159265359 ABCD\'"' to 'python -c "print \'3.14159265359 ABCD\'"'
+VARIABLES: Expanding 'python -c "print \'<!(python -c "<(pi)") ABCD\'"' to 'python -c "print \'3.14159265359 ABCD\'"'
+VARIABLES: Executing command 'python -c "print '3.14159265359 ABCD'"' in directory 'None'
+VARIABLES: Found output '3.14159265359 ABCD', recursing.
+VARIABLES: Expanding '3.14159265359 ABCD' to '3.14159265359 ABCD'
+VARIABLES: Expanding '<!(python -c "print \'<!(python -c "<(pi)") <(letters_list)\'")' to '3.14159265359 ABCD'
+VARIABLES: Matches: {'content': 'check_str_int', 'is_array': '', 'type': '<', 'replace': '<(check_str_int)'}
+VARIABLES: Expanding 'check_str_int' to 'check_str_int'
+VARIABLES: Found output '6', recursing.
+VARIABLES: Expanding '6' to 6
+VARIABLES: Expanding '<(check_str_int)' to 6
+VARIABLES: Matches: {'content': 'check_int', 'is_array': '', 'type': '<', 'replace': '<(check_int)'}
+VARIABLES: Expanding 'check_int' to 'check_int'
+VARIABLES: Found output '5blah', recursing.
+VARIABLES: Expanding '5blah' to '5blah'
+VARIABLES: Expanding '<(check_int)blah' to '5blah'
+VARIABLES: Matches: {'content': 'not_int_4', 'is_array': '', 'type': '<', 'replace': '<(not_int_4)'}
+VARIABLES: Expanding 'not_int_4' to 'not_int_4'
+VARIABLES: Found output '13.0', recursing.
+VARIABLES: Expanding '13.0' to '13.0'
+VARIABLES: Expanding '<(not_int_4)' to '13.0'
+VARIABLES: Matches: {'content': 'not_int_3', 'is_array': '', 'type': '<', 'replace': '<(not_int_3)'}
+VARIABLES: Expanding 'not_int_3' to 'not_int_3'
+VARIABLES: Found output '012', recursing.
+VARIABLES: Expanding '012' to '012'
+VARIABLES: Expanding '<(not_int_3)' to '012'
+VARIABLES: Matches: {'content': 'negative_int', 'is_array': '', 'type': '<', 'replace': '<(negative_int)'}
+VARIABLES: Expanding 'negative_int' to 'negative_int'
+VARIABLES: Found output '-15', recursing.
+VARIABLES: Expanding '-15' to -15
+VARIABLES: Expanding '<(negative_int)' to -15
+VARIABLES: Matches: {'content': 'not_int_5', 'is_array': '', 'type': '<', 'replace': '<(not_int_5)'}
+VARIABLES: Expanding 'not_int_5' to 'not_int_5'
+VARIABLES: Found output '+14', recursing.
+VARIABLES: Expanding '+14' to '+14'
+VARIABLES: Expanding '<(not_int_5)' to '+14'
+VARIABLES: Matches: {'content': 'check_list_int', 'is_array': '', 'type': '<', 'replace': '<(check_list_int)'}
+VARIABLES: Expanding 'check_list_int' to 'check_list_int'
+VARIABLES: Found output '7 8 9', recursing.
+VARIABLES: Expanding '7 8 9' to '7 8 9'
+VARIABLES: Expanding '<(check_list_int)' to '7 8 9'
+VARIABLES: Matches: {'content': 'not_int_2', 'is_array': '', 'type': '<', 'replace': '<(not_int_2)'}
+VARIABLES: Expanding 'not_int_2' to 'not_int_2'
+VARIABLES: Found output '11 ', recursing.
+VARIABLES: Expanding '11 ' to '11 '
+VARIABLES: Expanding '<(not_int_2)' to '11 '
+VARIABLES: Matches: {'content': 'not_int_1', 'is_array': '', 'type': '<', 'replace': '<(not_int_1)'}
+VARIABLES: Expanding 'not_int_1' to 'not_int_1'
+VARIABLES: Found output ' 10', recursing.
+VARIABLES: Expanding ' 10' to ' 10'
+VARIABLES: Expanding '<(not_int_1)' to ' 10'
+VARIABLES: Matches: {'content': 'zero_int', 'is_array': '', 'type': '<', 'replace': '<(zero_int)'}
+VARIABLES: Expanding 'zero_int' to 'zero_int'
+VARIABLES: Found output '0', recursing.
+VARIABLES: Expanding '0' to 0
+VARIABLES: Expanding '<(zero_int)' to 0
+VARIABLES: Matches: {'content': 'check_list_int', 'is_array': '', 'type': '<@', 'replace': '<@(check_list_int)'}
+VARIABLES: Expanding 'check_list_int' to 'check_list_int'
+VARIABLES: Found output [7, 8, 9], recursing.
+VARIABLES: Expanding 7 to 7
+VARIABLES: Expanding 8 to 8
+VARIABLES: Expanding 9 to 9
+VARIABLES: Expanding '<@(check_list_int)' to [7, 8, 9]
+VARIABLES: Expanding 'foo' to 'foo'
+VARIABLES: Expanding 'target' to 'target'
+VARIABLES: Expanding 'none' to 'none'
+VARIABLES: Matches: {'content': 'var6', 'is_array': '', 'type': '<', 'replace': '<(var6)'}
+VARIABLES: Expanding 'var6' to 'var6'
+VARIABLES: Matches: {'content': 'echo <(var5', 'is_array': '', 'type': '<!', 'replace': '<!(echo <(var5)'}
+VARIABLES: Matches: {'content': 'var5', 'is_array': '', 'type': '<', 'replace': '<(var5)'}
+VARIABLES: Expanding 'var5' to 'var5'
+VARIABLES: Found output 'echo letters_list', recursing.
+VARIABLES: Expanding 'echo letters_list' to 'echo letters_list'
+VARIABLES: Expanding 'echo <(var5)list' to 'echo letters_list'
+VARIABLES: Executing command 'echo letters_list' in directory 'None'
+VARIABLES: Found output 'letters_list', recursing.
+VARIABLES: Expanding 'letters_list' to 'letters_list'
+VARIABLES: Expanding '<!(echo <(var5)<(var6))' to 'letters_list'
+VARIABLES: Expanding 'test_action' to 'test_action'
+VARIABLES: Expanding 'echo' to 'echo'
+VARIABLES: Matches: {'content': '_inputs', 'is_array': '', 'type': '<', 'replace': '<(_inputs)'}
+VARIABLES: Expanding '_inputs' to '_inputs'
+VARIABLES: Matches: {'content': 'var2', 'is_array': '', 'type': '<', 'replace': '<(var2)'}
+VARIABLES: Expanding 'var2' to 'var2'
+VARIABLES: Found output '3.14159265359 ABCD', recursing.
+VARIABLES: Expanding '3.14159265359 ABCD' to '3.14159265359 ABCD'
+VARIABLES: Expanding '<(var2)' to '3.14159265359 ABCD'
+VARIABLES: Found output '"3.14159265359 ABCD"', recursing.
+VARIABLES: Expanding '"3.14159265359 ABCD"' to '"3.14159265359 ABCD"'
+VARIABLES: Expanding '<(_inputs)' to '"3.14159265359 ABCD"'
+VARIABLES: Matches: {'content': '_outputs', 'is_array': '', 'type': '<', 'replace': '<(_outputs)'}
+VARIABLES: Expanding '_outputs' to '_outputs'
+VARIABLES: Matches: {'content': 'var4', 'is_array': '', 'type': '<', 'replace': '<(var4)'}
+VARIABLES: Expanding 'var4' to 'var4'
+VARIABLES: Found output 'ABCD', recursing.
+VARIABLES: Expanding 'ABCD' to 'ABCD'
+VARIABLES: Expanding '<(var4)' to 'ABCD'
+VARIABLES: Matches: {'content': 'var7', 'is_array': '', 'type': '<', 'replace': '<(var7)'}
+VARIABLES: Expanding 'var7' to 'var7'
+VARIABLES: Found output 'letters_list', recursing.
+VARIABLES: Expanding 'letters_list' to 'letters_list'
+VARIABLES: Expanding '<(var7)' to 'letters_list'
+VARIABLES: Found output 'ABCD letters_list', recursing.
+VARIABLES: Expanding 'ABCD letters_list' to 'ABCD letters_list'
+VARIABLES: Expanding '<(_outputs)' to 'ABCD letters_list'
+VARIABLES: Expanding '3.14159265359 ABCD' to '3.14159265359 ABCD'
+VARIABLES: Expanding 'ABCD' to 'ABCD'
+VARIABLES: Expanding 'letters_list' to 'letters_list'
+VARIABLES: Expanding 'dummy' to 'dummy'
+VARIABLES: Expanding 'target' to 'target'
+VARIABLES: Expanding 'none' to 'none'
+VARIABLES: Expanding 'commands.gyp' to 'commands.gyp'
+VARIABLES: Expanding 'commands.gypi' to 'commands.gypi'
+VARIABLES: Expanding 'dummy' to 'dummy'
+VARIABLES: Expanding 'target' to 'target'
+VARIABLES: Expanding 'none' to 'none'
+VARIABLES: Expanding 'letters_' to 'letters_'
+VARIABLES: Expanding 'ABCD' to 'ABCD'
+VARIABLES: Expanding 'list' to 'list'
+VARIABLES: Expanding '3.14159265359' to '3.14159265359'
+VARIABLES: Expanding 'ABCD' to 'ABCD'
+VARIABLES: Expanding '3.14159265359 ABCD' to '3.14159265359 ABCD'
+VARIABLES: Expanding '5blah' to '5blah'
+VARIABLES: Expanding '13.0' to '13.0'
+VARIABLES: Expanding '012' to '012'
+VARIABLES: Expanding '+14' to '+14'
+VARIABLES: Expanding '7 8 9' to '7 8 9'
+VARIABLES: Expanding '11 ' to '11 '
+VARIABLES: Expanding ' 10' to ' 10'
+VARIABLES: Expanding 'foo' to 'foo'
+VARIABLES: Expanding 'target' to 'target'
+VARIABLES: Expanding 'none' to 'none'
+VARIABLES: Expanding 'letters_list' to 'letters_list'
+VARIABLES: Expanding 'test_action' to 'test_action'
+VARIABLES: Expanding 'echo' to 'echo'
+VARIABLES: Expanding '"3.14159265359 ABCD"' to '"3.14159265359 ABCD"'
+VARIABLES: Expanding 'ABCD letters_list' to 'ABCD letters_list'
+VARIABLES: Expanding '3.14159265359 ABCD' to '3.14159265359 ABCD'
+VARIABLES: Expanding 'ABCD' to 'ABCD'
+VARIABLES: Expanding 'letters_list' to 'letters_list'

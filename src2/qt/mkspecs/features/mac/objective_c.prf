@@ -1,0 +1,23 @@
+
+for(source, SOURCES) {
+    contains(source,.*\\.mm?$) {
+        warning(Objective-C source \'$$source\' found in SOURCES but should be in OBJECTIVE_SOURCES)
+        SOURCES -= $$source
+        OBJECTIVE_SOURCES += $$source
+    }
+}
+
+isEmpty(QMAKE_OBJECTIVE_CC):QMAKE_OBJECTIVE_CC = $$QMAKE_CC
+
+OBJECTIVE_C_OBJECTS_DIR = $$OBJECTS_DIR
+isEmpty(OBJECTIVE_C_OBJECTS_DIR):OBJECTIVE_C_OBJECTS_DIR = .
+isEmpty(QMAKE_EXT_OBJECTIVE_C):QMAKE_EXT_OBJECTIVE_C = .mm .m
+
+objective_c.dependency_type = TYPE_C
+objective_c.variables = QMAKE_OBJECTIVE_CFLAGS
+objective_c.commands = $$QMAKE_OBJECTIVE_CC -c $(QMAKE_COMP_QMAKE_OBJECTIVE_CFLAGS) $(DEFINES) $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+objective_c.output = $$OBJECTIVE_C_OBJECTS_DIR/${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+objective_c.input = OBJECTIVE_SOURCES
+objective_c.name = Compile ${QMAKE_FILE_IN}
+silent:objective_c.commands = @echo objective-c ${QMAKE_FILE_IN} && $$objective_c.commands
+QMAKE_EXTRA_COMPILERS += objective_c

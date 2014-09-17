@@ -1,0 +1,42 @@
+#
+# Yacc extra-compiler for handling files specified in the YACCSOURCES variable
+#
+
+{
+    yacc_decl.name = Yacc header
+    yacc_decl.input = YACCSOURCES
+    yacc_decl.variable_out = GENERATED_FILES
+
+
+    isEmpty(QMAKE_YACCFLAGS_MANGLE) {
+        QMAKE_YACCFLAGS_MANGLE = -p ${QMAKE_FILE_BASE}
+        QMAKE_YACC_HEADER      = y.tab.h
+        QMAKE_YACC_SOURCE      = y.tab.c
+    } else {
+        QMAKE_YACCFLAGS_MANGLE ~= s/\\$base/${QMAKE_FILE_BASE}/g #backwards compat
+        QMAKE_YACC_HEADER      ~= s/\\$base/${QMAKE_FILE_BASE}/g
+        QMAKE_YACC_SOURCE      ~= s/\\$base/${QMAKE_FILE_BASE}/g
+    }
+    QMAKE_YACCDECLFLAGS = $$QMAKE_YACCFLAGS
+    !yacc_no_name_mangle:QMAKE_YACCDECLFLAGS += $$QMAKE_YACCFLAGS_MANGLE
+
+    yacc_decl.commands = \
+        $$QMAKE_YACC $$QMAKE_YACCDECLFLAGS ${QMAKE_FILE_IN}$$escape_expand(\\n\\t) \
+        $$QMAKE_DEL_FILE $${QMAKE_CPP_MOD_MOC}${QMAKE_FILE_BASE}_yacc$${first(QMAKE_EXT_H)} $${QMAKE_CPP_MOD_MOC}${QMAKE_FILE_BASE}_yacc$${first(QMAKE_EXT_CPP)}$$escape_expand(\\n\\t) \
+        $$QMAKE_MOVE $${QMAKE_YACC_HEADER} $${QMAKE_CPP_MOD_MOC}${QMAKE_FILE_BASE}_yacc$${first(QMAKE_EXT_H)}$$escape_expand(\\n\\t) \
+        $$QMAKE_MOVE $${QMAKE_YACC_SOURCE} $${QMAKE_CPP_MOD_MOC}${QMAKE_FILE_BASE}_yacc$${first(QMAKE_EXT_CPP)}$$escape_expand(\\n\\t)
+    yacc_decl.output = $${QMAKE_CPP_MOD_MOC}${QMAKE_FILE_BASE}_yacc$${first(QMAKE_EXT_H)}
+
+    silent:yacc_decl.commands = @echo Yacc ${QMAKE_FILE_IN} && $$yacc_decl.commands
+    QMAKE_EXTRA_COMPILERS += yacc_decl
+}
+
+{
+    yacc_impl.name = source for ${QMAKE_FILE_IN}
+    yacc_impl.input = YACCSOURCES
+    yacc_impl.variable_out = GENERATED_SOURCES
+    yacc_impl.commands = $$escape_expand(\\n)        # We don't want any commands where, but if command is empty no rules are created
+    yacc_impl.depends = $${QMAKE_CPP_MOD_MOC}${QMAKE_FILE_BASE}_yacc$${first(QMAKE_EXT_H)}    # Make sure we depend on the step above
+    yacc_impl.output = $${QMAKE_CPP_MOD_MOC}${QMAKE_FILE_BASE}_yacc$${first(QMAKE_EXT_CPP)}   # Faked output from this step, output really created in step above
+    QMAKE_EXTRA_COMPILERS += yacc_impl
+}

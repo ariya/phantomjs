@@ -1,0 +1,1 @@
+#include "qcoreapplication.h"

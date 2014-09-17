@@ -1,0 +1,7 @@
+2014-01-04 16:44:10
+
+commit 491a60b0adf78e6d7a4eff980de81bb3eb8c764d (HEAD, refs/remotes/origin/master, refs/remotes/origin/HEAD, refs/heads/master)
+Author: Ivan De Marino <detronizator@gmail.com>
+Date:   Thu Jan 2 23:02:21 2014 +0000
+
+    Updated CHANGELOG to mention upgraded Atoms in 1.1.0

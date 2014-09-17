@@ -1,0 +1,58 @@
+/****************************************************************************
+**
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+#ifdef QT3_SUPPORT
+/*!
+    \fn QPrinter *QPrintDialog::printer() const
+
+    Returns a pointer to the printer this dialog configures, or 0 if
+    this dialog does not operate on any printer.
+
+    This function is available for Unix platforms only.
+*/
+
+/*!
+    \fn void QPrintDialog::setPrinter(QPrinter *printer, bool pickupSettings)
+
+    Sets this dialog to configure printer \a printer, or no printer if \a printer
+    is null. If \a pickupSettings is true, the dialog reads most of
+    its settings from \a printer. If \a pickupSettings is false (the
+    default) the dialog keeps its old settings.
+
+    This function is available for Unix platforms only.
+*/
+
+/*!
+    \fn void QPrintDialog::addButton(QPushButton *button)
+
+    Adds the \a button to the layout of the print dialog. The added
+    buttons are arranged from the left to the right below the
+    last groupbox of the printdialog.
+
+    This function is available for Unix platforms only.
+*/
+#endif

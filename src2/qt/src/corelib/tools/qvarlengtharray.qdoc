@@ -1,0 +1,561 @@
+/****************************************************************************
+**
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \class QVarLengthArray
+    \brief The QVarLengthArray class provides a low-level variable-length array.
+
+    \ingroup tools
+    \reentrant
+
+    The C++ language doesn't support variable-length arrays on the stack.
+    For example, the following code won't compile:
+
+    \snippet doc/src/snippets/code/doc_src_qvarlengtharray.cpp 0
+
+    The alternative is to allocate the array on the heap (with
+    \c{new}):
+
+    \snippet doc/src/snippets/code/doc_src_qvarlengtharray.cpp 1
+
+    However, if myfunc() is called very frequently from the
+    application's inner loop, heap allocation can be a major source
+    of slowdown.
+
+    QVarLengthArray is an attempt to work around this gap in the C++
+    language. It allocates a certain number of elements on the stack,
+    and if you resize the array to a larger size, it automatically
+    uses the heap instead. Stack allocation has the advantage that
+    it is much faster than heap allocation.
+
+    Example:
+    \snippet doc/src/snippets/code/doc_src_qvarlengtharray.cpp 2
+
+    In the example above, QVarLengthArray will preallocate 1024
+    elements on the stack and use them unless \c{n + 1} is greater
+    than 1024. If you omit the second template argument,
+    QVarLengthArray's default of 256 is used.
+
+    QVarLengthArray's value type must be an \l{assignable data type}.
+    This covers most data types that are commonly used, but the
+    compiler won't let you, for example, store a QWidget as a value;
+    instead, store a QWidget *.
+
+    QVarLengthArray, like QVector, provides a resizable array data
+    structure. The main differences between the two classes are:
+
+    \list
+    \o QVarLengthArray's API is much more low-level. It provides no
+       iterators and lacks much of QVector's functionality.
+
+    \o QVarLengthArray doesn't initialize the memory if the value is
+       a basic type. (QVector always does.)
+
+    \o QVector uses \l{implicit sharing} as a memory optimization.
+       QVarLengthArray doesn't provide that feature; however, it
+       usually produces slightly better performance due to reduced
+       overhead, especially in tight loops.
+    \endlist
+
+    In summary, QVarLengthArray is a low-level optimization class
+    that only makes sense in very specific cases. It is used a few
+    places inside Qt and was added to Qt's public API for the
+    convenience of advanced users.
+
+    \sa QVector, QList, QLinkedList
+*/
+
+/*! \fn QVarLengthArray::QVarLengthArray(int size)
+
+    Constructs an array with an initial size of \a size elements.
+
+    If the value type is a primitive type (e.g., char, int, float) or
+    a pointer type (e.g., QWidget *), the elements are not
+    initialized. For other types, the elements are initialized with a
+    \l{default-constructed value}.
+*/
+
+/*! \fn QVarLengthArray::~QVarLengthArray()
+
+    Destroys the array.
+*/
+
+/*! \fn int QVarLengthArray::size() const
+
+    Returns the number of elements in the array.
+
+    \sa isEmpty(), resize()
+*/
+
+/*! \fn int QVarLengthArray::count() const
+
+    Same as size().
+
+    \sa isEmpty(), resize()
+*/
+
+/*! \fn bool QVarLengthArray::isEmpty() const
+
+    Returns true if the array has size 0; otherwise returns false.
+
+    \sa size(), resize()
+*/
+
+/*! \fn void QVarLengthArray::clear()
+
+    Removes all the elements from the array.
+
+    Same as resize(0).
+*/
+
+/*! \fn void QVarLengthArray::resize(int size)
+
+    Sets the size of the array to \a size. If \a size is greater than
+    the current size, elements are added to the end. If \a size is
+    less than the current size, elements are removed from the end.
+
+    If the value type is a primitive type (e.g., char, int, float) or
+    a pointer type (e.g., QWidget *), new elements are not
+    initialized. For other types, the elements are initialized with a
+    \l{default-constructed value}.
+
+    \sa size()
+*/
+
+/*! \fn int QVarLengthArray::capacity() const
+
+    Returns the maximum number of elements that can be stored in the
+    array without forcing a reallocation.
+
+    The sole purpose of this function is to provide a means of fine
+    tuning QVarLengthArray's memory usage. In general, you will rarely ever
+    need to call this function. If you want to know how many items are
+    in the array, call size().
+
+    \sa reserve()
+*/
+
+/*! \fn void QVarLengthArray::reserve(int size)
+
+    Attempts to allocate memory for at least \a size elements. If you
+    know in advance how large the array can get, you can call this
+    function and if you call resize() often, you are likely to get
+    better performance. If \a size is an underestimate, the worst
+    that will happen is that the QVarLengthArray will be a bit
+    slower.
+
+    The sole purpose of this function is to provide a means of fine
+    tuning QVarLengthArray's memory usage. In general, you will
+    rarely ever need to call this function. If you want to change the
+    size of the array, call resize().
+
+    \sa capacity()
+*/
+
+/*! \fn T &QVarLengthArray::operator[](int i)
+
+    Returns a reference to the item at index position \a i.
+
+    \a i must be a valid index position in the array (i.e., 0 <= \a i
+    < size()).
+
+    \sa data(), at()
+*/
+
+/*! \fn const T &QVarLengthArray::operator[](int i) const
+
+    \overload
+*/
+
+
+/*!
+    \fn void QVarLengthArray::append(const T &t)
+
+    Appends item \a t to the array, extending the array if necessary.
+
+    \sa removeLast()
+*/
+
+
+/*!
+    \fn inline void QVarLengthArray::removeLast()
+    \since 4.5
+
+    Decreases the size of the array by one.  The allocated size is not changed.
+
+    \sa append()
+*/
+
+/*!
+    \fn void QVarLengthArray::append(const T *buf, int size)
+
+    Appends \a size amount of items referenced by \a buf to this array.
+*/
+
+
+/*! \fn T *QVarLengthArray::data()
+
+    Returns a pointer to the data stored in the array. The pointer can
+    be used to access and modify the items in the array.
+
+    Example:
+    \snippet doc/src/snippets/code/doc_src_qvarlengtharray.cpp 3
+
+    The pointer remains valid as long as the array isn't reallocated.
+
+    This function is mostly useful to pass an array to a function
+    that accepts a plain C++ array.
+
+    \sa constData(), operator[]()
+*/
+
+/*! \fn const T *QVarLengthArray::data() const
+
+    \overload
+*/
+
+/*! \fn const T *QVarLengthArray::constData() const
+
+    Returns a const pointer to the data stored in the array. The
+    pointer can be used to access the items in the array. The
+    pointer remains valid as long as the array isn't reallocated.
+
+    This function is mostly useful to pass an array to a function
+    that accepts a plain C++ array.
+
+    \sa data(), operator[]()
+*/
+
+/*! \fn QVarLengthArray<T, Prealloc> &QVarLengthArray::operator=(const QVarLengthArray<T, Prealloc> &other)
+    Assigns \a other to this array and returns a reference to this array.
+ */
+
+/*! \fn QVarLengthArray::QVarLengthArray(const QVarLengthArray<T, Prealloc> &other)
+    Constructs a copy of \a other.
+ */
+
+/*! \fn const T &QVarLengthArray::at(int i) const
+
+    Returns a reference to the item at index position \a i.
+
+    \a i must be a valid index position in the array (i.e., 0 <= \a i
+    < size()).
+
+    \sa value(), operator[]()
+*/
+
+/*! \fn T QVarLengthArray::value(int i) const
+
+    Returns the value at index position \a i.
+
+    If the index \a i is out of bounds, the function returns
+    a \l{default-constructed value}. If you are certain that
+    \a i is within bounds, you can use at() instead, which is slightly
+    faster.
+
+    \sa at(), operator[]()
+*/
+
+/*! \fn T QVarLengthArray::value(int i, const T &defaultValue) const
+
+    \overload
+
+    If the index \a i is out of bounds, the function returns
+    \a defaultValue.
+*/
+
+/*!
+    \typedef QVarLengthArray::size_type
+    \since 4.7
+
+    Typedef for int. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QVarLengthArray::value_type
+    \since 4.7
+
+    Typedef for T. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QVarLengthArray::difference_type
+    \since 4.7
+
+    Typedef for ptrdiff_t. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QVarLengthArray::pointer
+    \since 4.7
+
+    Typedef for T *. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QVarLengthArray::const_pointer
+    \since 4.7
+
+    Typedef for const T *. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QVarLengthArray::reference
+    \since 4.7
+
+    Typedef for T &. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QVarLengthArray::const_reference
+    \since 4.7
+
+    Typedef for const T &. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QVarLengthArray::const_iterator
+    \since 4.7
+
+    Typedef for const T *. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QVarLengthArray::iterator
+    \since 4.7
+
+    Typedef for T *. Provided for STL compatibility.
+*/
+
+/*! \fn void QVarLengthArray::prepend(const T &value)
+
+    \since 4.8
+    Inserts \a value at the beginning of the array.
+
+
+    This is the same as vector.insert(0, \a value).
+
+    For large arrays, this operation can be slow (\l{linear time}),
+    because it requires moving all the items in the vector by one
+    position further in memory. If you want a container class that
+    provides a fast prepend() function, use QList or QLinkedList
+    instead.
+
+    \sa append(), insert()
+*/
+
+/*! \fn void QVarLengthArray::replace(int i, const T &value)
+
+    \since 4.8
+    Replaces the item at index position \a i with \a value.
+
+    \a i must be a valid index position in the array (i.e., 0 <= \a
+    i < size()).
+
+    \sa operator[](), remove()
+*/
+
+/*! \fn void QVarLengthArray::remove(int i)
+
+    \overload
+    \since 4.8
+
+    Removes the element at index position \a i.
+
+    \sa insert(), replace()
+*/
+
+/*! \fn void QVarLengthArray::remove(int i, int count)
+
+    \overload
+    \since 4.8
+
+    Removes \a count elements from the middle of the array, starting at
+    index position \a i.
+
+    \sa insert(), replace()
+*/
+
+/*! \fn QVarLengthArray::iterator QVarLengthArray::begin()
+    \since 4.8
+
+    Returns an \l{STL-style iterator} pointing to the first item in
+    the array.
+
+    \sa constBegin(), end()
+*/
+
+/*! \fn QVarLengthArray::const_iterator QVarLengthArray::begin() const
+    \since 4.8
+    \overload
+*/
+
+/*! \fn QVarLengthArray::const_iterator QVarLengthArray::constBegin() const
+    \since 4.8
+
+    Returns a const \l{STL-style iterator} pointing to the first item
+    in the array.
+
+    \sa begin(), constEnd()
+*/
+
+/*! \fn QVarLengthArray::iterator QVarLengthArray::end()
+    \since 4.8
+
+    Returns an \l{STL-style iterator} pointing to the imaginary item
+    after the last item in the array.
+
+    \sa begin(), constEnd()
+*/
+
+/*! \fn QVarLengthArray::const_iterator QVarLengthArray::end() const
+    \since 4.8
+
+    \overload
+*/
+
+/*! \fn QVarLengthArray::const_iterator QVarLengthArray::constEnd() const
+    \since 4.8
+
+    Returns a const \l{STL-style iterator} pointing to the imaginary
+    item after the last item in the array.
+
+    \sa constBegin(), end()
+*/
+
+/*! \fn QVarLengthArray::iterator QVarLengthArray::erase(iterator pos)
+    \since 4.8
+
+    Removes the item pointed to by the iterator \a pos from the
+    vector, and returns an iterator to the next item in the vector
+    (which may be end()).
+
+    \sa insert(), remove()
+*/
+
+/*! \fn QVarLengthArray::iterator QVarLengthArray::erase(iterator begin, iterator end)
+
+    \overload
+    \since 4.8
+
+    Removes all the items from \a begin up to (but not including) \a
+    end. Returns an iterator to the same item that \a end referred to
+    before the call.
+*/
+
+/*! \fn void QVarLengthArray::insert(int i, const T &value)
+    \since 4.8
+
+    Inserts \a value at index position \a i in the array. If \a i is
+    0, the value is prepended to the vector. If \a i is size(), the
+    value is appended to the vector.
+
+    For large arrays, this operation can be slow (\l{linear time}),
+    because it requires moving all the items at indexes \a i and
+    above by one position further in memory. If you want a container
+    class that provides a fast insert() function, use QLinkedList
+    instead.
+
+    \sa remove()
+*/
+
+/*! \fn void QVarLengthArray::insert(int i, int count, const T &value)
+
+    \overload
+    \since 4.8
+
+    Inserts \a count copies of \a value at index position \a i in the
+    vector.
+*/
+
+/*! \fn QVarLengthArray::iterator QVarLengthArray::insert(iterator before, const T &value)
+
+    \overload
+    \since 4.8
+
+    Inserts \a value in front of the item pointed to by the iterator
+    \a before. Returns an iterator pointing at the inserted item.
+*/
+
+/*! \fn QVarLengthArray::iterator QVarLengthArray::insert(iterator before, int count, const T &value)
+
+    \since 4.8
+    Inserts \a count copies of \a value in front of the item pointed to
+    by the iterator \a before. Returns an iterator pointing at the
+    first of the inserted items.
+*/
+
+
+
+/*! \fn bool operator==(const QVarLengthArray<T, Prealloc1> &left, const QVarLengthArray<T, Prealloc2> &right)
+
+    \relates QVarLengthArray
+    \since 4.8
+    Returns true if the two arrays, specified by \a left and \a right, are equal.
+
+    Two arrays are considered equal if they contain the same values
+    in the same order.
+
+    This function requires the value type to have an implementation
+    of \c operator==().
+
+    \sa operator!=()
+*/
+
+/*! \fn bool operator!=(const QVarLengthArray<T, Prealloc1> &left, const QVarLengthArray<T, Prealloc2> &right)
+
+    \relates QVarLengthArray
+    \since 4.8
+    Returns true if the two arrays, specified by \a left and \a right, are \e not equal.
+
+    Two arrays are considered equal if they contain the same values
+    in the same order.
+
+    This function requires the value type to have an implementation
+    of \c operator==().
+
+    \sa operator==()
+*/
+
+/*! \fn QVarLengthArray &QVarLengthArray::operator<<(const T &value)
+
+    \since 4.8
+    Appends \a value to the array and returns a reference to this
+    vector.
+
+    \sa append(), operator+=()
+*/
+
+/*! \fn QVarLengthArray &QVarLengthArray::operator+=(const T &value)
+
+    \since 4.8
+    Appends \a value to the array and returns a reference to this
+    vector.
+
+    \sa append(), operator<<()
+*/
+

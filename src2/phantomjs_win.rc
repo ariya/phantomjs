@@ -1,0 +1,27 @@
+IDI_ICON1               ICON    DISCARDABLE     "phantomjs_win.ico"
+
+#include <windows.h>
+#include "consts.h"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     PHANTOMJS_VERSION_MAJOR,PHANTOMJS_VERSION_MINOR,PHANTOMJS_VERSION_PATCH
+PRODUCTVERSION  PHANTOMJS_VERSION_MAJOR,PHANTOMJS_VERSION_MINOR,PHANTOMJS_VERSION_PATCH
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "FileDescription",    "PhantomJS is a headless WebKit with JavaScript API"
+            VALUE "FileVersion",        PHANTOMJS_VERSION_STRING            
+            VALUE "LegalCopyright",     "Copyright (C) Ariya Hidayat 2012"
+            VALUE "OriginalFilename",   "phantomjs.exe"
+            VALUE "ProductName",        "PhantomJS"
+            VALUE "ProductVersion",     PHANTOMJS_VERSION_STRING
+        END
+    END
+
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END

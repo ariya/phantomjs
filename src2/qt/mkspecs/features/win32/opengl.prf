@@ -1,0 +1,11 @@
+# WinCE does not have a platform directory for .prf files, and the
+# win32 directory is searched for .prfs by qmake on WinCE. Ideally
+# there should be a features/wince/opengl.prf which contains the wince
+# block below.
+
+wince* {
+    include(../unix/opengl.prf)
+} else {
+    QMAKE_LIBS += $$QMAKE_LIBS_OPENGL
+    QMAKE_LFLAGS += $$QMAKE_LFLAGS_OPENGL
+}

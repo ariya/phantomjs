@@ -1,0 +1,4 @@
+
+CONFIG += console
+
+qtAddLibrary(QtTest)

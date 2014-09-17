@@ -1,0 +1,227 @@
+CONFIG *= moc thread
+
+#handle defines
+win32 {
+   qt_static:DEFINES += QT_NODLL
+   !contains(DEFINES, QT_NODLL) {
+      QT_ENV_DLL = $$(QT_DLL)
+      QT_ENV_NO_DLL = $$(QT_NODLL)
+      isEmpty(QT_ENV_NO_DLL) {
+          shared|!isEmpty(QT_ENV_DLL):DEFINES += QT_DLL
+      }
+      contains(DEFINES, QT_MAKEDLL)|contains(DEFINES, QT_DLL):QMAKE_QT_DLL = 1
+   }
+}
+CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG
+no_keywords:DEFINES += QT_NO_KEYWORDS
+plugin { #Qt plugins
+   static:DEFINES += QT_STATICPLUGIN
+   DEFINES += QT_PLUGIN
+
+   # Triggers both on Qt being configured with -arch boundschecker,
+   # and if you qmake CONFIG+=boundchecker on your plugin project
+   boundschecker|contains(QT_CONFIG,boundschecker) {
+      # This option is added for plugins when Qt is configured for Boundschecker,
+      # since we want Boundschecker to not instrument the qt_plugin_query_verification_data
+      # function, as we call that function without the plugin's dependent DLLs, thus
+      # Boundscheckers instrumentation will fail. The function only returns a const char *,
+      # so no instrumentation is really needed on that function anyways.
+      QMAKE_CFLAGS += /nmignore:*:qt_plugin_query_verification_data
+      QMAKE_CXXFLAGS += /nmignore:*:qt_plugin_query_verification_data
+   }
+}
+
+#handle includes
+INCLUDEPATH = $$QMAKE_INCDIR_QT $$INCLUDEPATH #prepending prevents us from picking up "stale" includes
+win32:INCLUDEPATH += $$QMAKE_INCDIR_QT/ActiveQt
+
+# As order does matter for static libs, we reorder the QT variable here
+TMPLIBS = declarative webkit phonon multimedia dbus testlib script scripttools svg qt3support sql xmlpatterns xml egl opengl openvg gui network core meegographicssystemhelper
+for(QTLIB, $$list($$TMPLIBS)) {
+   contains(QT, $$QTLIB): QT_ORDERED += $$QTLIB
+}
+
+QT_UNKNOWN = $$QT
+QT_UNKNOWN -= $$QT_ORDERED
+QT = $$QT_ORDERED
+for(QTLIB, $$list($$QT_UNKNOWN)) {
+   !contains(TMPLIBS, $$QTLIB):message("Warning: unknown QT: $$QTLIB")
+}
+
+QT_PLUGIN_VERIFY = QTPLUGIN DEPLOYMENT_PLUGIN
+for(QT_CURRENT_VERIFY, $$list($$QT_PLUGIN_VERIFY)) {
+    for(QTPLUG, $$list($$lower($$unique($$QT_CURRENT_VERIFY)))) {
+       qplugin_style =
+       !qt_debug:!qt_release {
+          CONFIG(debug, debug|release):qplugin_style = debug
+          else:qplugin_style = release
+       } else:CONFIG(qt_debug, qt_debug|qt_release) {
+          qplugin_style = debug
+       } else {
+          qplugin_style = release
+       }
+
+       # Check if the plugin is known to Qt. We can use this to determine
+       # the plugin path. Unknown plugins must rely on the default link path.
+       ACCESSIBLEPLUGINS = qtaccessiblewidgets qtaccessiblecompatwidgets
+       BEARERPLUGINS = qgenericbearer qnativewifibearer
+       CODECPLUGINS = qcncodecs qjpcodecs qkrcodecs qtwcodecs
+       DECORATIONPLUGINS = qdecorationdefault qdecorationstyled qdecorationwindows
+       GFXDRIVERPLUGINS = qgfxvnc qscreenvfb qgfxtransformed qgfxshadowfb qgfxpvregl qscreenlinuxfb qeglnullws qdirectfbscreen qahiscreen
+       GRAPHICSSYSTEMPLUGINS = qmeegographicssystem qglgraphicssystem qvggraphicssystem qshivavggraphicssystem
+       IMAGEPLUGINS = qgif qico qmng qjpeg qsvg qtiff
+       INPUTPLUGINS = qimsw-multi
+       KBDDRIVERPLUGINS = qlinuxinputkbddriver
+       MOUSEDRIVERPLUGINS = qtslibmousehandler qpcmousedriver qlinuxtpmousedriver
+       SQLPLUGINS = qsqldb2 qsqloci qsqltds qsqlodbc qsqlpsql qsqlibase qsqlmysql qsqlite2 qsqlite
+       PHONONPLUGINS = phonon_waveout phonon_ds9 phonon_gstreamer phonon_qt7 phonon_mmf
+
+       ALLQTPLUGINS = $$ACCESSIBLEPLUGINS $$BEARERPLUGINS $$CODECPLUGINS $$DECORATIONPLUGINS $$GFXDRIVERPLUGINS $$GRAPHICSSYSTEMPLUGINS $$IMAGEPLUGINS $$INPUTPLUGINS $$KBDDRIVERPLUGINS $$MOUSEDRIVERPLUGINS $$SQLPLUGINS $$PHONONPLUGINS
+
+       QT_PLUGINPATH =
+       contains(ALLQTPLUGINS, $$QTPLUG) {
+           # Determine the plugin path
+           contains(ACCESSIBLEPLUGINS, $$QTPLUG): QT_PLUGINPATH = accessible
+           contains(BEARERPLUGINS, $$QTPLUG): QT_PLUGINPATH = bearer
+           contains(CODECPLUGINS, $$QTPLUG): QT_PLUGINPATH = codecs
+           contains(DECORATIONPLUGINS, $$QTPLUG): QT_PLUGINPATH = decorations
+           contains(GFXDRIVERPLUGINS, $$QTPLUG): QT_PLUGINPATH = gfxdrivers
+           contains(GRAPHICSSYSTEMPLUGINS, $$QTPLUG): QT_PLUGINPATH = graphicssystems
+           contains(IMAGEPLUGINS, $$QTPLUG): QT_PLUGINPATH = imageformats
+           contains(INPUTPLUGINS, $$QTPLUG): QT_PLUGINPATH = inputmethods
+           contains(KBDDRIVERPLUGINS, $$QTPLUG): QT_PLUGINPATH = kbddrivers
+           contains(MOUSEDRIVERPLUGINS, $$QTPLUG): QT_PLUGINPATH = mousedrivers
+           contains(SQLPLUGINS, $$QTPLUG):  QT_PLUGINPATH = sqldrivers
+           contains(PHONONPLUGINS, $$QTPLUG): QT_PLUGINPATH = phonon_backend
+        }
+
+        # Generate the plugin linker line
+        target_qt:isEqual(TARGET, QTPLUG) {
+            warning($$TARGET cannot have a QTPLUGIN of $$QTPLUG)
+        } else {
+            QT_LINKAGE = -l$${QTPLUG}
+            win32 {
+               CONFIG(debug, debug|release):QT_LINKAGE = -l$${QTPLUG}d
+            } else:mac {
+               isEqual(qplugin_style, debug):QT_LINKAGE = -l$${QTPLUG}_debug
+            }
+        }
+
+        # Only link against plugin in static builds
+        isEqual(QT_CURRENT_VERIFY, QTPLUGIN): {
+            !isEmpty(QT_PLUGINPATH): LIBS *= -L$$[QT_INSTALL_PLUGINS]/$$QT_PLUGINPATH
+                LIBS += $$QT_LINKAGE
+            # if the plugin is linked statically there is no need to deploy it
+            DEPLOYMENT_PLUGIN -= $$QT_CURRENT_VERIFY
+        }
+        isEqual(QT_CURRENT_VERIFY, DEPLOYMENT_PLUGIN):shared:wince*: {
+            QT_ITEM =
+            CONFIG(debug, debug|release): QT_ITEM = $${QTPLUG}d4.dll
+            else: QT_ITEM = $${QTPLUG}4.dll
+
+            eval(qt_additional_plugin_$${QTPLUG}.files = $$[QT_INSTALL_PLUGINS]/$${QT_PLUGINPATH}/$${QT_ITEM})
+            eval(qt_additional_plugin_$${QTPLUG}.path = $${QT_PLUGINPATH})
+
+            DEPLOYMENT *= qt_additional_plugin_$${QTPLUG}
+        }
+        isEqual(QT_CURRENT_VERIFY, DEPLOYMENT_PLUGIN):shared:symbian: {
+            QT_ITEM = $${QTPLUG}.dll
+
+            eval(qt_additional_plugin_$${QTPLUG}.files = $${QT_ITEM})
+            eval(qt_additional_plugin_$${QTPLUG}.path = $${QT_PLUGINPATH})
+
+            DEPLOYMENT *= qt_additional_plugin_$${QTPLUG}
+        }
+    }
+}
+#specific module settings
+!isEmpty(QT_BUILD_TREE):QMAKE_LIBDIR = $$QT_BUILD_TREE/lib $$QMAKE_LIBDIR #as above, prepending prevents us from picking up "stale" libs
+QMAKE_LIBDIR += $$QMAKE_LIBDIR_QT
+for(QTLIB, $$list($$lower($$unique(QT)))) {
+   unset(qlib_style)
+   !qt_debug:!qt_release {
+      CONFIG(debug, debug|release):qlib_style = debug
+      else:qlib_style = release
+   } else:CONFIG(qt_debug, qt_debug|qt_release) {
+      qlib_style = debug
+   } else {
+      qlib_style = release
+   }
+
+   unset(qlib)
+   isEqual(QTLIB, gui):qlib = QtGui
+   else:isEqual(QTLIB, network):qlib = QtNetwork
+   else:isEqual(QTLIB, xml):qlib = QtXml
+   else:isEqual(QTLIB, xmlpatterns):qlib = QtXmlPatterns
+   else:isEqual(QTLIB, opengl):qlib = QtOpenGL
+   else:isEqual(QTLIB, openvg):qlib = QtOpenVG
+   else:isEqual(QTLIB, sql):qlib = QtSql
+   else:isEqual(QTLIB, core):qlib = QtCore
+   else:isEqual(QTLIB, canvas):qlib = QtCanvas
+   else:isEqual(QTLIB, qt3support):qlib = Qt3Support
+   else:isEqual(QTLIB, svg):qlib = QtSvg
+   else:isEqual(QTLIB, script):qlib = QtScript
+   else:isEqual(QTLIB, scripttools):qlib = QtScriptTools
+   else:isEqual(QTLIB, testlib):qlib = QtTest
+   else:isEqual(QTLIB, dbus):qlib = QtDBus
+   else:isEqual(QTLIB, phonon) {
+       qlib = phonon
+       INCLUDEPATH += $$QMAKE_INCDIR_QT/phonon_compat
+
+       # The Helix backend requires this. Since we can't let a plugin set it,
+       # we bump the values for all Symbian Phonon plugins.
+       symbian:isEmpty(TARGET.EPOCHEAPSIZE):TARGET.EPOCHEAPSIZE = 0x040000 0x1600000
+
+   } else:isEqual(QTLIB, webkit) {
+       qlib = QtWebKit
+       aix-xlc {
+           # Flags recommended by IBM when using WebKit
+	   QMAKE_LFLAGS -= -bmaxdata:0x80000000
+	   QMAKE_LFLAGS += -bmaxdata:0xD0000000/dsa
+       }
+   } else:isEqual(QTLIB, declarative):qlib = QtDeclarative
+   else:isEqual(QTLIB, multimedia):qlib = QtMultimedia
+   else:isEqual(QTLIB, meegographicssystemhelper):qlib = QtMeeGoGraphicsSystemHelper
+   else:message("Unknown QT: $$QTLIB"):qlib =
+   !isEmpty(qlib) {
+      target_qt:isEqual(TARGET, qlib) {
+         warning($$TARGET cannot have a QT of $$QTLIB)
+      } else {
+         DEFINES *= $$upper(QT_$${QTLIB}_LIB)
+	 isEqual(QTLIB, opengl):CONFIG += opengl
+	 isEqual(QTLIB, openvg):CONFIG += openvg
+	 isEqual(QTLIB, qt3support):DEFINES *= QT3_SUPPORT
+         isEqual(QTLIB, testlib):CONFIG += console
+         isEqual(QTLIB, dbus):CONFIG += dbusadaptors dbusinterfaces
+
+     qtAddLibrary($$qlib)
+      }
+   }
+}
+
+qt_compat {
+   !qt_compat_no_warning:QTDIR_build:warning(***USE of COMPAT inside of QTDIR!**) #just for us
+   INCLUDEPATH *= $$QMAKE_INCDIR_QT/Qt
+   DEFINES *= QT_COMPAT
+}
+
+wince*:static:gui {
+   QTLIB += qmenu_wce.res
+}
+
+!isEmpty(QT_NAMESPACE):DEFINES *= QT_NAMESPACE=$$QT_NAMESPACE
+mac {
+    !isEmpty(QT_NAMESPACE_MAC_CRC):DEFINES *= QT_NAMESPACE_MAC_CRC=$$QT_NAMESPACE_MAC_CRC
+}
+
+#SIMD defines:
+mmx:DEFINES += QT_HAVE_MMX
+3dnow:DEFINES += QT_HAVE_3DNOW
+sse:DEFINES += QT_HAVE_SSE QT_HAVE_MMXEXT
+sse2:DEFINES += QT_HAVE_SSE2
+sse3:DEFINES += QT_HAVE_SSE3
+ssse3:DEFINES += QT_HAVE_SSSE3
+sse4_1:DEFINES += QT_HAVE_SSE4_1
+sse4_2:DEFINES += QT_HAVE_SSE4_2
+avx:DEFINES += QT_HAVE_AVX
+iwmmxt:DEFINES += QT_HAVE_IWMMXT

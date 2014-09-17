@@ -1,0 +1,237 @@
+Qt 4.8.2 is a bug-fix release. It maintains both forward and backward
+compatibility (source and binary) with Qt 4.8.0. For more details,
+refer to the online documentation included in this distribution. The
+documentation is also available online:
+
+http://qt-project.org/doc/4.8
+
+
+The Qt version 4.8 series is binary compatible with the 4.7.x series.
+Applications compiled for 4.7 will continue to run with 4.8.
+
+Some of the changes listed in this file include issue tracking numbers
+corresponding to tasks in the Qt Bug Tracker or the Merge Request queue
+of the public source repository.
+
+Qt Bug Tracker: http://bugreports.qt-project.org
+Merge Request: http://codereview.qt-project.org
+
+****************************************************************************
+* General *
+****************************************************************************
+
+General Improvements
+--------------------
+- Webkit version updated to 2.2.2 including a Denial of Service fix on Windows
+
+****************************************************************************
+* Library *
+****************************************************************************
+
+QtGui
+-----
+ - Hang on to the correct screen index in QWidget
+ - Removed invalid assert in BMP loader code [QTBUG-24505]
+ - Fixed compiler warnings about unused q and d pointers (QTableView & QTextControlPrivate)
+ - Fix bug showing folder icons for files
+ - The scaling should not effect the width of a cosmetic pen [QTBUG-25006]
+ - Fix QListWidget scrolling with keys when there are hidden items [QTBUG-21804]
+ - Made qt_accStripAmp handle "&&" (qaccessiblewidget.cpp)
+ - Plug memory leak when gestures are grabbed but never triggered [QTBUG-25011]
+ - Disconnect slots from the old sourcemodel in QIdentityProxyModel
+ - Use QPointer to store accessible object (Widgets\Itemviews)
+ - Fixes a regression; missing cursor blink when input mask is set [QTBUG-7174]
+ - Do not send QEvent::AccessibilityPrepare [QTBUG-25240]
+ - Accessibility: send cursor move updates (qplaintextedit.cpp)
+ - Fix memory leak when drawing text in non-common script (qtextengine.cpp)
+ - Fixed crash in QImage in out of memory condition
+ - Only send progress bar updates when visible
+ - Use parentheses in statement with && and ||
+ - Accessible interface for QPlainTextEdit
+ - Fix crashes in QAccessibleTree::navigate
+ - Fix out of bounds use of QVector API [QTBUG-24965, QTBUG-25140]
+ - widgets/qpa: Fix painting to a fully transparent top level widget [QTBUG-24526]
+ - Add out-of-memory checks to QImage [ou1cimx1#994957]
+
+QtNetwork
+---------
+ - Make sure QGlobalNetworkProxy is created for QNetworkProxy
+ - Fix bug in qsslsocket peek() [QTBUG-18498]
+ - Fix performance problem with NTLM auth in http POST (ou1cimx1#985786)
+ - Try to read the last CRLF when chunked encoding is used [QTBUG-19480, QTBUG-20924]
+ - Call wait() after calling quit() so that it can gracefully finish [QTBUG-24594]
+ - Close the channel if bytesAvailable and nothing piplined [QTBUG-24875]
+ - Fix build with QT_NO_WARNING_OUTPUT [QTBUG-25308]
+ - Moved qmljs_debug_arguments to QCoreApplication
+ - QHttpNetworkConnectionChannel: Warn if bytesAvailable and no reply [QTBUG-9315]
+ - Improved detection of libcrypto and libssl [QTBUG-25398]
+
+QtCore
+------
+ - Fixes mismatching delete operator (QWindowsLocalCodec)
+ - Support changing locales at runtime in QPA plugins
+ - Optimise QFile::seek that doesn't move the file pointer
+ - Fix q_atomic_decrement for 64-bit Solaris [QTBUG-24470]
+ - Fixes potential memory leak in qtextcodec.cpp
+ - TGA imageformat: fix broken canRead plugin function [QTBUG-24201]
+ - Fix IPv6 address returned from QUrl::host
+
+QtDBus
+------
+ - Finish cleaning up com.trolltech -> org.qtproject in QtDBus [QTBUG-23274]
+ - Update com.trolltech -> org.qtproject in the bootstrapped tools [QTBUG-23274]
+ - Fix annotation processing for qtTypeName
+
+QtWebKit
+--------
+ - Updated WebKit to 2.2.2
+
+QtSql
+-----
+ - Improve type detection for query results [QTBUG-22038]
+ - Fix for memory leak in 64 bit ODBC driver's call to SQLGetStmtAttr() [QTBUG-25256]
+ - QSqlQueryModel::fetchMore() documentation fix
+
+Declarative
+-----------
+ - Fix QDeclarativeItem::hasActiveFocus() [QTBUG-24681]
+ - Doc Fix- a QML MouseArea Elelment can accept 5 buttons
+
+OpenVG
+------
+ - Off-by-one-line error in QVGPaintEngine::drawImage
+
+3rdParty
+--------
+- Harfbuzz GPOS hinting- do not consider a subtable to be invalid if it is just empty
+- Harfbuzz-thai - fix buffer overflow when setting item attributes
+- Fixed MSVC2011 build (changes in JavaScriptCore & CLucene)
+- Upgrading libpng: Adding clean copy of libpng 1.5.10
+- Upgrading libpng: Patches to libpng 1.5.10 for Qt usage
+- gcc 4.7.0 compatibility fix for javascript
+- Reduce virtual address space use by JavaScriptCore on Symbian [ou1cimx1#993804]
+
+****************************************************************************
+* Platform Specific Changes *
+****************************************************************************
+
+Qt for Linux/X11
+----------------
+ - Fix compiling qvfb on Linux/X11 [QTBUG-19804]
+ - Use value of LANG if LC_TIME is empty [QTBUG-24912]
+ - Find libssl on linux using paths of loaded libraries [QTBUG-24694]
+ - Fix handling for key repeat events in the QPA linux input plugin
+ - Do not redefine QT_SOCKLEN_T in freebsd-g++'s mkspec
+ - Remove the freebsd-g++34 mkspec
+ - Do not define QT_AOUT_UNDERSCORE in freebsd-g++'s mkspec
+ - mkspecs: Sync freebsd-g++40 and freebsd-g++
+ - mkspecs: Rename freebsd-g++40 to freebsd-g++46
+ - directfb: Use QPlatformPixmap::fromFile for Qt resources
+
+Qt for Windows
+--------------
+ - Windows - fix QWindowsSystemProxy global static race [QTBUG-15765]
+ - Windows - fix proxy types for manually specified proxies [QTBUG-10502]
+ - Windows - handle proxy autoconfiguration resulting in no proxy
+ - Windows - fall back on static proxy config if autoproxy fails [QTBUG-10428]
+ - Fix a number of bugs with windows system proxies
+ - Windows - handle both auto detect proxy settings together [QTBUG-13957, QTBUG-10238]
+ - Widget created with type to Qt::ToolTip should have a drop shadow [QTBUG-13276]
+ - Windows - "bypass proxy for local..." also affects IP addresses
+
+Qt for Mac OS X
+---------------
+ - Fixed a possible crash in Qt Cocoa [QTBUG-24334]
+ - Ensure that the IME composition is handled correctly on Mac [QTBUG-25107]
+ - Fix initial size of QMainWindow with unified title and toolbar on Mac [QTBUG-24423]
+ - Fixes crashes and memory leak in QMacPixmapData [QTBUG-24709, QTBUG-24710, QTBUG-24711]
+ - Update QSettings and Mac OS X documentation with App Store information [QTBUG-16549]
+
+Qt for Solaris
+--------------
+ - Fix q_atomic_decrement for 64-bit Solaris [QTBUG-24470]
+
+Qt for Symbian
+--------------
+ - Crash in Symbian text codec creation without CleanupStack
+ - Removing Symbian fast allocator implementation
+ - Symbian: drop OpenGL ES in non-supported hardware [ou1cimx1#987609]
+ - Give QThread threads better names on Symbian [QTBUG-24950]
+ - Fix window focusing problem in Symbian [ou1cimx1#989756]
+ - Symbian: avoid crash when inline editing is canceled [ou1cimx1#983695]
+ - Add new QSysInfo::symbianVersion() enums
+ - Symbian: absent changed exports in symbian def-files
+ - Fix QThread start failure due to bad thread name on Symbian [ou1cimx1#996187]
+ - Symbian: fix symbian deffiles
+
+Qt for Embedded Windows
+----------------------- 
+ - WEC7 build fix - use ptrdiff_t from std namespace [QTBUG-22502]
+ - Fix corelib build for WEC7
+ - Fixed networkproxy build under WinCE
+
+Qt for RTOS
+-----------
+ - Fixes codecs.pri to reflect new QNX mkspec name
+ - Fix platforms.pro to match new qnx mkspec name
+ - Use QSocketNotifier instead of sleeping in an endless loop
+ - BlackBerry Plugin: support 8 mouse buttons, instead of just 3 (QTBUG-24682)
+ - mkspecs: don't forget to add 'qnx' when building for x86
+ - Fixed wrong iconv_open call under QNX
+ - Silence warnings about va_list mangling for QNX toolchain
+ - Use main thread event loop for navigator event processing (Blackberry)
+ - Make QNX virtual keyboard handling main event loop driven
+ - Blackberry mkspecs (BlackBerry-only devices)
+ - Fix scopes on iconv related pro/pri files (QNX-based platforms)
+ - Support QDesktopServices on BlackBerry platforms
+ - Move handling of rotation changes from event handler to screen (BlackBerry)
+ - Fix clang warning (qdirectpainter_qws.h)
+ - Fix signed/unsigned warnings (QWS)
+ - Fix compilation when QT_NO_CURSOR is defined
+ - QWS: Add support for HomeLocation and TempLocation
+ - Enable stack smashing protection on Blackberry platforms
+ - Refactor navigator event handling (BlackBerry)
+ - Do not force OpenGL sample buffers on in the qnx qpa plugin
+ - Integrate Blackberry Platform Services (BPS) with Qt event loop
+ 
+****************************************************************************
+* Tools *
+****************************************************************************
+
+qmake
+ - Backported linux-g++-maemo mkspec changes from Qt5
+ - Disable the use of sed on native MingGW
+ - qmake: fix default value for C++ optimization in vcxproj files [QTBUG-23421]
+ - qmake vcxproj generator: properly escape XML attributes [QTBUG-24954]
+ - qmake vc(x)project generator: fix VC++ Express detection [QTBUG-24956]
+ - qmake vcproj generator: unused variable removed (msvc_objectmodel.cpp)
+ - qmake: QMakeProject::intValue added
+ - qmake vcxproj generator: fix handling of /MANIFEST:NO linker option [QTBUG-23513]
+ - qmake/Win: fix incomplete generated version resource [QTBUG-23218]
+ - qmake vc(x)proj generator: don't create bogus directories [QTBUG-22788]
+ - fix static library names when generating .pc files for pkgconfig
+
+configure
+ - Handle -sysroot option in configure script
+ - Remove bizarre magic from precompiled header (configure_pch.h)
+ - Add missing errno.h include (environment.cpp)
+ - Build with QT_NO_GEOM_VARIANT
+ - Properly enable stl via qmake instead of hacking compiler flags
+ - Remove pointless include paths
+ - Compile without rtti
+ - Rebuild configure
+ - Revamp reading of bootstrap variables
+
+uic3
+  - Fix symbol visibility warnings when building uic3 [QTBUG-23035]
+
+qdoc3
+ - Update the footer for qdoc output for qt-project
+ - Fix generating the qdoc3 manual in 4.8
+ - Update the links in the titlebar of Online HTML template
+ - QDoc: Remove the text around previous and next page links
+ - docs: fix conflicting resource file names
+ - Add icons for previous and next page
+ - qdoc: Disambiguate prev and next links in html source
+ - doc: use hooks introduced to qdoc for correct prev/next disambiguation
+ - docs: more tweaks to offline style

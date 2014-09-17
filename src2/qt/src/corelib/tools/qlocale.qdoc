@@ -1,0 +1,911 @@
+/****************************************************************************
+**
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \class QLocale
+    \brief The QLocale class converts between numbers and their
+    string representations in various languages.
+
+    \reentrant
+    \ingroup i18n
+    \ingroup string-processing
+    \ingroup shared
+
+
+    QLocale is initialized with a language/country pair in its
+    constructor and offers number-to-string and string-to-number
+    conversion functions similar to those in QString.
+
+    Example:
+
+    \snippet doc/src/snippets/code/src_corelib_tools_qlocale.cpp 0
+
+    QLocale supports the concept of a default locale, which is
+    determined from the system's locale settings at application
+    startup. The default locale can be changed by calling the
+    static member setDefault(). Setting the default locale has the
+    following effects:
+
+    \list
+    \i If a QLocale object is constructed with the default constructor,
+       it will use the default locale's settings.
+    \i QString::toInt(), QString::toDouble(), etc., interpret the
+       string according to the default locale. If this fails, it
+       falls back on the "C" locale.
+    \i QString::arg() uses the default locale to format a number when
+       its position specifier in the format string contains an 'L',
+       e.g. "%L1".
+    \endlist
+
+    The following example illustrates how to use QLocale directly:
+
+    \snippet doc/src/snippets/code/src_corelib_tools_qlocale.cpp 1
+
+    When a language/country pair is specified in the constructor, one
+    of three things can happen:
+
+    \list
+    \i If the language/country pair is found in the database, it is used.
+    \i If the language is found but the country is not, or if the country
+       is \c AnyCountry, the language is used with the most
+       appropriate available country (for example, Germany for German),
+    \i If neither the language nor the country are found, QLocale
+       defaults to the default locale (see setDefault()).
+    \endlist
+
+    Use language() and country() to determine the actual language and
+    country values used.
+
+    An alternative method for constructing a QLocale object is by
+    specifying the locale name.
+
+    \snippet doc/src/snippets/code/src_corelib_tools_qlocale.cpp 2
+
+    This constructor converts the locale name to a language/country
+    pair; it does not use the system locale database.
+
+    \note For the current keyboard input locale take a look at
+    QApplication::keyboardInputLocale().
+
+    QLocale's data is based on Common Locale Data Repository v2.0.
+
+    The double-to-string and string-to-double conversion functions are
+    covered by the following licenses:
+
+    \legalese
+    Copyright (c) 1991 by AT&T.
+
+    Permission to use, copy, modify, and distribute this software for any
+    purpose without fee is hereby granted, provided that this entire notice
+    is included in all copies of any software which is or includes a copy
+    or modification of this software and in all copies of the supporting
+    documentation for such software.
+
+    THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
+    WARRANTY.  IN PARTICULAR, NEITHER THE AUTHOR NOR AT&T MAKES ANY
+    REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
+    OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
+
+    This product includes software developed by the University of
+    California, Berkeley and its contributors.
+
+    \sa QString::arg(), QString::toInt(), QString::toDouble(),
+    QApplication::keyboardInputLocale()
+*/
+
+/*!
+    \enum QLocale::Language
+
+    This enumerated type is used to specify a language.
+
+    \value AnyLanguage
+    \value C The "C" locale is identical in behavior to English/UnitedStates.
+    \value Abkhazian
+    \value Afan
+    \value Afar
+    \value Afrikaans
+    \value Albanian
+    \value Amharic
+    \value Arabic
+    \value Armenian
+    \value Assamese
+    \value Aymara
+    \value Azerbaijani
+    \value Bashkir
+    \value Basque
+    \value Bengali
+    \value Bhutani
+    \value Bihari
+    \value Bislama
+    \value Bosnian
+    \value Breton
+    \value Bulgarian
+    \value Burmese
+    \value Byelorussian
+    \value Cambodian
+    \value Catalan
+    \value Chinese
+    \value Cornish
+    \value Corsican
+    \value Croatian
+    \value Czech
+    \value Danish
+    \value Divehi
+    \value Dutch
+    \value English
+    \value Esperanto
+    \value Estonian
+    \value Faroese
+    \value FijiLanguage
+    \value Finnish
+    \value French
+    \value Frisian
+    \value Gaelic
+    \value Galician
+    \value Georgian
+    \value German
+    \value Greek
+    \value Greenlandic
+    \value Guarani
+    \value Gujarati
+    \value Hausa
+    \value Hebrew
+    \value Hindi
+    \value Hungarian
+    \value Icelandic
+    \value Indonesian
+    \value Interlingua
+    \value Interlingue
+    \value Inuktitut
+    \value Inupiak
+    \value Irish
+    \value Italian
+    \value Japanese
+    \value Javanese
+    \value Kannada
+    \value Kashmiri
+    \value Kazakh
+    \value Kinyarwanda
+    \value Kirghiz
+    \value Korean
+    \value Kurdish
+    \value Kurundi
+    \value Laothian
+    \value Latin
+    \value Latvian
+    \value Lingala
+    \value Lithuanian
+    \value Macedonian
+    \value Malagasy
+    \value Malay
+    \value Malayalam
+    \value Maltese
+    \value Manx
+    \value Maori
+    \value Marathi
+    \value Moldavian
+    \value Mongolian
+    \value NauruLanguage
+    \value Nepali
+    \value Norwegian
+    \value NorwegianBokmal
+    \value Nynorsk Obsolete, please use NorwegianNynorsk
+    \value NorwegianNynorsk
+    \value Occitan
+    \value Oriya
+    \value Pashto
+    \value Persian
+    \value Polish
+    \value Portuguese
+    \value Punjabi
+    \value Quechua
+    \value RhaetoRomance
+    \value Romanian
+    \value Russian
+    \value Samoan
+    \value Sangho
+    \value Sanskrit
+    \value Serbian
+    \value SerboCroatian
+    \value Sesotho
+    \value Setswana
+    \value Shona
+    \value Sindhi
+    \value Singhalese
+    \value Siswati
+    \value Slovak
+    \value Slovenian
+    \value Somali
+    \value Spanish
+    \value Sundanese
+    \value Swahili
+    \value Swedish
+    \value Tagalog
+    \value Tajik
+    \value Tamil
+    \value Tatar
+    \value Telugu
+    \value Thai
+    \value Tibetan
+    \value Tigrinya
+    \value TongaLanguage
+    \value Tsonga
+    \value Turkish
+    \value Turkmen
+    \value Twi
+    \value Uigur
+    \value Ukrainian
+    \value Urdu
+    \value Uzbek
+    \value Vietnamese
+    \value Volapuk
+    \value Welsh
+    \value Wolof
+    \value Xhosa
+    \value Yiddish
+    \value Yoruba
+    \value Zhuang
+    \value Zulu
+    \value Bosnian
+    \value Divehi
+    \value Manx
+    \value Cornish
+    \value Akan
+    \value Konkani
+    \value Ga
+    \value Igbo
+    \value Kamba
+    \value Syriac
+    \value Blin
+    \value Geez
+    \value Koro
+    \value Sidamo
+    \value Atsam
+    \value Tigre
+    \value Jju
+    \value Friulian
+    \value Venda
+    \value Ewe
+    \value Walamo
+    \value Hawaiian
+    \value Tyap
+    \value Chewa
+    \value Filipino
+    \value SwissGerman
+    \value SichuanYi
+    \value Kpelle
+    \value LowGerman
+    \value SouthNdebele
+    \value NorthernSotho
+    \value NorthernSami
+    \value Taroko
+    \value Gusii
+    \value Taita
+    \value Fulah
+    \value Kikuyu
+    \value Samburu
+    \value Sena
+    \value NorthNdebele
+    \value Rombo
+    \value Tachelhit
+    \value Kabyle
+    \value Nyankole
+    \value Bena
+    \value Vunjo
+    \value Bambara
+    \value Embu
+    \value Cherokee
+    \value Morisyen
+    \value Makonde
+    \value Langi
+    \value Ganda
+    \value Bemba
+    \value Kabuverdianu
+    \value Meru
+    \value Kalenjin
+    \value Nama
+    \value Machame
+    \value Colognian
+    \value Masai
+    \value Soga
+    \value Luyia
+    \value Asu
+    \value Teso
+    \value Saho
+    \value KoyraChiini
+    \value Rwa
+    \value Luo
+    \value Chiga
+    \value CentralMoroccoTamazight
+    \value KoyraboroSenni
+    \value Shambala
+    \omitvalue LastLanguage
+
+    \sa language(), languageToString()
+*/
+
+/*!
+    \enum QLocale::Country
+
+    This enumerated type is used to specify a country.
+
+    \value AnyCountry
+    \value Afghanistan
+    \value Albania
+    \value Algeria
+    \value AmericanSamoa
+    \value Andorra
+    \value Angola
+    \value Anguilla
+    \value Antarctica
+    \value AntiguaAndBarbuda
+    \value Argentina
+    \value Armenia
+    \value Aruba
+    \value Australia
+    \value Austria
+    \value Azerbaijan
+    \value Bahamas
+    \value Bahrain
+    \value Bangladesh
+    \value Barbados
+    \value Belarus
+    \value Belgium
+    \value Belize
+    \value Benin
+    \value Bermuda
+    \value Bhutan
+    \value Bolivia
+    \value BosniaAndHerzegowina
+    \value Botswana
+    \value BouvetIsland
+    \value Brazil
+    \value BritishIndianOceanTerritory
+    \value BruneiDarussalam
+    \value Bulgaria
+    \value BurkinaFaso
+    \value Burundi
+    \value Cambodia
+    \value Cameroon
+    \value Canada
+    \value CapeVerde
+    \value CaymanIslands
+    \value CentralAfricanRepublic
+    \value Chad
+    \value Chile
+    \value China
+    \value ChristmasIsland
+    \value CocosIslands
+    \value Colombia
+    \value Comoros
+    \value DemocraticRepublicOfCongo
+    \value PeoplesRepublicOfCongo
+    \value CookIslands
+    \value CostaRica
+    \value IvoryCoast
+    \value Croatia
+    \value Cuba
+    \value Cyprus
+    \value CzechRepublic
+    \value Denmark
+    \value Djibouti
+    \value Dominica
+    \value DominicanRepublic
+    \value EastTimor
+    \value Ecuador
+    \value Egypt
+    \value ElSalvador
+    \value EquatorialGuinea
+    \value Eritrea
+    \value Estonia
+    \value Ethiopia
+    \value FalklandIslands
+    \value FaroeIslands
+    \value FijiCountry
+    \value Finland
+    \value France
+    \value MetropolitanFrance
+    \value FrenchGuiana
+    \value FrenchPolynesia
+    \value FrenchSouthernTerritories
+    \value Gabon
+    \value Gambia
+    \value Georgia
+    \value Germany
+    \value Ghana
+    \value Gibraltar
+    \value Greece
+    \value Greenland
+    \value Grenada
+    \value Guadeloupe
+    \value Guam
+    \value Guatemala
+    \value Guinea
+    \value GuineaBissau
+    \value Guyana
+    \value Haiti
+    \value HeardAndMcDonaldIslands
+    \value Honduras
+    \value HongKong
+    \value Hungary
+    \value Iceland
+    \value India
+    \value Indonesia
+    \value Iran
+    \value Iraq
+    \value Ireland
+    \value Israel
+    \value Italy
+    \value Jamaica
+    \value Japan
+    \value Jordan
+    \value Kazakhstan
+    \value Kenya
+    \value Kiribati
+    \value DemocraticRepublicOfKorea
+    \value RepublicOfKorea
+    \value Kuwait
+    \value Kyrgyzstan
+    \value Lao
+    \value Latvia
+    \value Lebanon
+    \value Lesotho
+    \value Liberia
+    \value LibyanArabJamahiriya
+    \value Liechtenstein
+    \value Lithuania
+    \value Luxembourg
+    \value Macau
+    \value Macedonia
+    \value Madagascar
+    \value Malawi
+    \value Malaysia
+    \value Maldives
+    \value Mali
+    \value Malta
+    \value MarshallIslands
+    \value Martinique
+    \value Mauritania
+    \value Mauritius
+    \value Mayotte
+    \value Mexico
+    \value Micronesia
+    \value Moldova
+    \value Monaco
+    \value Mongolia
+    \value Montserrat
+    \value Morocco
+    \value Mozambique
+    \value Myanmar
+    \value Namibia
+    \value NauruCountry
+    \value Nepal
+    \value Netherlands
+    \value NetherlandsAntilles
+    \value NewCaledonia
+    \value NewZealand
+    \value Nicaragua
+    \value Niger
+    \value Nigeria
+    \value Niue
+    \value NorfolkIsland
+    \value NorthernMarianaIslands
+    \value Norway
+    \value Oman
+    \value Pakistan
+    \value Palau
+    \value PalestinianTerritory
+    \value Panama
+    \value PapuaNewGuinea
+    \value Paraguay
+    \value Peru
+    \value Philippines
+    \value Pitcairn
+    \value Poland
+    \value Portugal
+    \value PuertoRico
+    \value Qatar
+    \value Reunion
+    \value Romania
+    \value RussianFederation
+    \value Rwanda
+    \value SaintKittsAndNevis
+    \value StLucia
+    \value StVincentAndTheGrenadines
+    \value Samoa
+    \value SanMarino
+    \value SaoTomeAndPrincipe
+    \value SaudiArabia
+    \value Senegal
+    \value SerbiaAndMontenegro
+    \value Seychelles
+    \value SierraLeone
+    \value Singapore
+    \value Slovakia
+    \value Slovenia
+    \value SolomonIslands
+    \value Somalia
+    \value SouthAfrica
+    \value SouthGeorgiaAndTheSouthSandwichIslands
+    \value Spain
+    \value SriLanka
+    \value StHelena
+    \value StPierreAndMiquelon
+    \value Sudan
+    \value Suriname
+    \value SvalbardAndJanMayenIslands
+    \value Swaziland
+    \value Sweden
+    \value Switzerland
+    \value SyrianArabRepublic
+    \value Taiwan
+    \value Tajikistan
+    \value Tanzania
+    \value Thailand
+    \value Togo
+    \value Tokelau
+    \value TongaCountry
+    \value TrinidadAndTobago
+    \value Tunisia
+    \value Turkey
+    \value Turkmenistan
+    \value TurksAndCaicosIslands
+    \value Tuvalu
+    \value Uganda
+    \value Ukraine
+    \value UnitedArabEmirates
+    \value UnitedKingdom
+    \value UnitedStates
+    \value UnitedStatesMinorOutlyingIslands
+    \value Uruguay
+    \value Uzbekistan
+    \value Vanuatu
+    \value VaticanCityState
+    \value Venezuela
+    \value VietNam
+    \value BritishVirginIslands
+    \value USVirginIslands
+    \value WallisAndFutunaIslands
+    \value WesternSahara
+    \value Yemen
+    \value Yugoslavia
+    \value Zambia
+    \value Zimbabwe
+    \value Montenegro
+    \value Serbia
+    \value SaintBarthelemy
+    \value SaintMartin
+    \value LatinAmericaAndTheCaribbean
+    \omitvalue LastCountry
+
+    \sa country(), countryToString()
+*/
+
+/*!
+    \enum QLocale::Script
+    \since 4.8
+
+    This enumerated type is used to specify a script.
+
+    \value AnyScript
+    \value ArabicScript
+    \value CyrillicScript
+    \value DeseretScript
+    \value GurmukhiScript
+    \value SimplifiedHanScript same as SimplifiedChineseScript
+    \value SimplifiedChineseScript same as SimplifiedHanScript
+    \value TraditionalHanScript same as TraditionalChineseScript
+    \value TraditionalChineseScript same as TraditionalHanScript
+    \value LatinScript
+    \value MongolianScript
+    \value TifinaghScript
+    \omitvalue LastScript
+
+    \sa script(), scriptToString(), languageToString()
+*/
+
+/*!
+    \enum QLocale::FormatType
+
+    This enum describes the types of format that can be used when
+    converting QDate and QTime objects to strings.
+
+    \value LongFormat The long version of day and month names; for
+    example, returning "January" as a month name.
+
+    \value ShortFormat The short version of day and month names; for
+    example, returning "Jan" as a month name.
+
+    \value NarrowFormat A special version of day and month names for
+    use when space is limited; for example, returning "J" as a month
+    name. Note that the narrow format might contain the same text for
+    different months and days or it can even be an empty string if the
+    locale doesn't support narrow names, so you should avoid using it
+    for date formatting. Also, for the system locale this format is
+    the same as ShortFormat.
+*/
+
+/*!
+    \enum QLocale::NumberOption
+
+    This enum defines a set of options for number-to-string and string-to-number
+    conversions. They can be retrieved with numberOptions() and set with
+    setNumberOptions().
+
+    \value OmitGroupSeparator If this option is set, the number-to-string functions
+            will not insert group separators in their return values. The default
+            is to insert group separators.
+    \value RejectGroupSeparator If this option is set, the string-to-number functions
+            will fail if they encounter group separators in their input. The default
+            is to accept numbers containing correctly placed group separators.
+
+    \sa setNumberOptions() numberOptions()
+*/
+
+/*!
+    \enum QLocale::MeasurementSystem
+
+    This enum defines which units are used for measurement.
+
+    \value MetricSystem This value indicates metric units, such as meters,
+            centimeters and millimeters.
+    \value ImperialSystem This value indicates imperial units, such as inches and
+            miles. There are several distinct imperial systems in the world; this
+            value stands for the official United States imperial units.
+
+    \since 4.4
+*/
+
+
+/*!
+    \fn bool QLocale::operator==(const QLocale &other) const
+
+    Returns true if the QLocale object is the same as the \a other
+    locale specified; otherwise returns false.
+*/
+
+/*!
+    \fn bool QLocale::operator!=(const QLocale &other) const
+
+    Returns true if the QLocale object is not the same as the \a other
+    locale specified; otherwise returns false.
+*/
+
+/*!
+    \enum QLocale::QuotationStyle
+
+    This enum defines a set of possible styles for locale specific quotation.
+
+    \value StandardQuotation If this option is set, the standard quotation marks
+            will be used to quote strings.
+    \value AlternateQuotation If this option is set, the alternate quotation marks
+            will be used to quote strings.
+
+    \since 4.8
+
+    \sa quoteString()
+*/
+
+/*!
+    \class QSystemLocale
+    \brief The QSystemLocale class can be used to finetune the system locale
+    of the user.
+    \since 4.2
+
+    \ingroup i18n
+
+    \warning This class is only useful in very rare cases. Usually QLocale offers
+    all the functionality required for application development.
+
+    QSystemLocale allows to override the values provided by the system
+    locale (QLocale::system()).
+
+    \sa QLocale
+*/
+
+/*!
+  \enum QSystemLocale::QueryType
+
+  Specifies the type of information queried by query(). For each value
+  the type of information to return from the query() method is listed.
+
+  \value LanguageId a uint specifying the language.
+  \value ScriptId a uint specifying the script.
+  \value CountryId a uint specifying the country.
+  \value DecimalPoint a QString specifying the decimal point.
+  \value GroupSeparator a QString specifying the group separator.
+  \value ZeroDigit a QString specifying the zero digit.
+  \value NegativeSign a QString specifying the minus sign.
+  \value PositiveSign a QString specifying the plus sign.
+  \value DateFormatLong a QString specifying the long date format
+  \value DateFormatShort a QString specifying the short date format
+  \value TimeFormatLong a QString specifying the long time format
+  \value TimeFormatShort a QString specifying the short time format
+  \value DayNameLong a QString specifying the name of a weekday. the in variant contains an integer between 1 and 7 (Monday - Sunday)
+  \value DayNameShort a QString specifying the short name of a weekday. the in variant contains an integer between 1 and 7 (Monday - Sunday)
+  \value MonthNameLong a QString specifying the name of a month. the in variant contains an integer between 1 and 12
+  \value MonthNameShort a QString specifying the short name of a month. the in variant contains an integer between 1 and 12
+  \value DateToStringLong converts the QDate stored in the in variant to a QString using the long date format
+  \value DateToStringShort converts the QDate stored in the in variant to a QString using the short date format
+  \value TimeToStringLong converts the QTime stored in the in variant to a QString using the long time format
+  \value TimeToStringShort converts the QTime stored in the in variant to a QString using the short time format
+  \value DateTimeFormatLong a QString specifying the long date time format
+  \value DateTimeFormatShort a QString specifying the short date time format
+  \value DateTimeToStringLong converts the QDateTime in the in variant to a QString using the long datetime format
+  \value DateTimeToStringShort converts the QDateTime in the in variant to a QString using the short datetime format
+  \value MeasurementSystem a QLocale::MeasurementSystem enum specifying the measurement system
+  \value AMText a string that represents the system AM designator associated with a 12-hour clock.
+  \value PMText a string that represents the system PM designator associated with a 12-hour clock.
+  \value FirstDayOfWeek a Qt::DayOfWeek enum specifiying the first day of the week
+  \value CurrencySymbol a string that represents a currency in a format QLocale::CurrencyFormat.
+  \value CurrencyToString a localized string representation of a number with a currency symbol. Converts a QSystemLocale::CurrencyToStringArgument stored in the in variant to a QString.
+  \value UILanguages a list of strings representing locale names that could be used for UI translation.
+  \value StringToStandardQuotation a QString containing a quoted version of the string ref stored in the in variant using standard quotes.
+  \value StringToAlternateQuotation a QString containing a quoted version of the string ref stored in the in variant using alternate quotes.
+  \value Weekdays a QList<Qt::DayOfWeek> specifying the regular weekdays
+  \value LocaleChanged this type is queried whenever the system locale is changed.
+  \value ListToSeparatedString a string that represents a join of a given QStringList with a locale-defined separator.
+  \value NativeLanguageName a string that represents the name of the native language.
+  \value NativeCountryName a string that represents the name of the native country.
+*/
+
+/*!
+    \fn QLocale QSystemLocale::fallbackLocale() const
+
+    \since 4.6
+    Returns the fallback locale obtained from the system.
+*/
+
+/*!
+    \fn QVariant QSystemLocale::query(QueryType type, QVariant in = QVariant()) const
+
+    Generic query method for locale data. Provides indirection.
+    Denotes the \a type of the query
+    with \a in as input data depending on the query.
+
+    \sa QSystemLocale::QueryType
+*/
+
+/*!
+    \class QSystemLocale::CurrencyToStringArgument
+
+    A helper class that provides arguments for the QSystemLocale::query()
+    function with query type QSystemLocale::CurrencyToString.
+
+    \sa QSystemLocale::QueryType
+    \since 4.8
+*/
+
+/*!
+    \fn QSystemLocale::CurrencyToStringArgument::CurrencyToStringArgument()
+    \internal
+*/
+/*!
+    \fn QSystemLocale::CurrencyToStringArgument::CurrencyToStringArgument(const QVariant &v, const QString &s)
+    \internal
+*/
+/*!
+    \variable QSystemLocale::CurrencyToStringArgument::value
+
+    An input value that should be converted to its string representation.
+    Contains one of QVariant::LongLong, QVariant::ULongLong or QVariant::Double
+    types.
+*/
+/*!
+    \variable QSystemLocale::CurrencyToStringArgument::symbol
+
+    An optional argument containing a currency symbol to be used in the
+    currency string.
+*/
+
+
+/*!
+\fn QString QLocale::toString(short i) const
+
+\overload
+
+\sa toShort()
+*/
+
+/*!
+\fn QString QLocale::toString(ushort i) const
+
+\overload
+
+\sa toUShort()
+*/
+
+/*!
+\fn QString QLocale::toString(int i) const
+
+\overload
+
+\sa toInt()
+*/
+
+/*!
+\fn QString QLocale::toString(uint i) const
+
+\overload
+
+\sa toUInt()
+*/
+
+/*
+\fn QString QLocale::toString(long i) const
+
+\overload
+
+\sa  toLong()
+*/
+
+/*
+\fn QString QLocale::toString(ulong i) const
+
+\overload
+
+\sa toULong()
+*/
+
+/*!
+\fn QString QLocale::toString(float i, char f = 'g', int prec = 6) const
+
+\overload
+
+\a f and \a prec have the same meaning as in QString::number(double, char, int).
+
+\sa toDouble()
+*/
+
+/*!
+    \fn QString QLocale::toCurrencyString(short value, const QString &symbol) const
+    \since 4.8
+    \overload
+*/
+
+/*!
+    \fn QString QLocale::toCurrencyString(ushort value, const QString &symbol) const
+    \since 4.8
+    \overload
+*/
+
+/*!
+    \fn QString QLocale::toCurrencyString(int value, const QString &symbol) const
+    \since 4.8
+    \overload
+*/
+
+/*!
+    \fn QString QLocale::toCurrencyString(uint value, const QString &symbol) const
+    \since 4.8
+    \overload
+*/
+/*!
+    \fn QString QLocale::toCurrencyString(float value, const QString &symbol) const
+    \since 4.8
+    \overload
+*/

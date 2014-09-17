@@ -1,0 +1,637 @@
+/****************************************************************************
+**
+** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file.  Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: http://www.gnu.org/copyleft/fdl.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \headerfile <QtAlgorithms>
+    \title Generic Algorithms
+    \ingroup funclists
+
+    \brief The <QtAlgorithms> header includes the generic, template-based algorithms.
+
+    Qt provides a number of global template functions in \c
+    <QtAlgorithms> that work on containers and perform well-know
+    algorithms. You can use these algorithms with any \l {container
+    class} that provides STL-style iterators, including Qt's QList,
+    QLinkedList, QVector, QMap, and QHash classes.
+
+    These functions have taken their inspiration from similar
+    functions available in the STL \c <algorithm> header. Most of them
+    have a direct STL equivalent; for example, qCopyBackward() is the
+    same as STL's copy_backward() algorithm.
+
+    If STL is available on all your target platforms, you can use the
+    STL algorithms instead of their Qt counterparts. One reason why
+    you might want to use the STL algorithms is that STL provides
+    dozens and dozens of algorithms, whereas Qt only provides the most
+    important ones, making no attempt to duplicate functionality that
+    is already provided by the C++ standard.
+
+    Most algorithms take \l {STL-style iterators} as parameters. The
+    algorithms are generic in the sense that they aren't bound to a
+    specific iterator class; you can use them with any iterators that
+    meet a certain set of requirements.
+
+    Let's take the qFill() algorithm as an example. Unlike QVector,
+    QList has no fill() function that can be used to fill a list with
+    a particular value. If you need that functionality, you can use
+    qFill():
+
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 0
+
+    qFill() takes a begin iterator, an end iterator, and a value.
+    In the example above, we pass \c list.begin() and \c list.end()
+    as the begin and end iterators, but this doesn't have to be
+    the case:
+
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 1
+
+    Different algorithms can have different requirements for the
+    iterators they accept. For example, qFill() accepts two 
+    \l {forward iterators}. The iterator types required are specified
+    for each algorithm. If an iterator of the wrong type is passed (for
+    example, if QList::ConstIterator is passed as an \l {output
+    iterator}), you will always get a compiler error, although not
+    necessarily a very informative one.
+
+    Some algorithms have special requirements on the value type
+    stored in the containers. For example, qEqual() requires that the
+    value type supports operator==(), which it uses to compare items.
+    Similarly, qDeleteAll() requires that the value type is a
+    non-const pointer type (for example, QWidget *). The value type
+    requirements are specified for each algorithm, and the compiler
+    will produce an error if a requirement isn't met.
+
+    \target binaryFind example
+
+    The generic algorithms can be used on other container classes
+    than those provided by Qt and STL. The syntax of STL-style
+    iterators is modeled after C++ pointers, so it's possible to use
+    plain arrays as containers and plain pointers as iterators. A
+    common idiom is to use qBinaryFind() together with two static
+    arrays: one that contains a list of keys, and another that
+    contains a list of associated values. For example, the following
+    code will look up an HTML entity (e.g., \c &amp;) in the \c
+    name_table array and return the corresponding Unicode value from
+    the \c value_table if the entity is recognized:
+
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 2
+
+    This kind of code is for advanced users only; for most
+    applications, a QMap- or QHash-based approach would work just as
+    well:
+
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 3
+
+    \section1 Types of Iterators
+
+    The algorithms have certain requirements on the iterator types
+    they accept, and these are specified individually for each
+    function. The compiler will produce an error if a requirement
+    isn't met.
+
+    \section2 Input Iterators
+
+    An \e{input iterator} is an iterator that can be used for reading
+    data sequentially from a container. It must provide the following
+    operators: \c{==} and \c{!=} for comparing two iterators, unary
+    \c{*} for retrieving the value stored in the item, and prefix
+    \c{++} for advancing to the next item.
+
+    The Qt containers' iterator types (const and non-const) are all
+    input iterators.
+
+    \section2 Output Iterators
+
+    An \e{output iterator} is an iterator that can be used for
+    writing data sequentially to a container or to some output
+    stream. It must provide the following operators: unary \c{*} for
+    writing a value (i.e., \c{*it = val}) and prefix \c{++} for
+    advancing to the next item.
+
+    The Qt containers' non-const iterator types are all output
+    iterators.
+
+    \section2 Forward Iterators
+
+    A \e{forward iterator} is an iterator that meets the requirements
+    of both input iterators and output iterators.
+
+    The Qt containers' non-const iterator types are all forward
+    iterators.
+
+    \section2 Bidirectional Iterators
+
+    A \e{bidirectional iterator} is an iterator that meets the
+    requirements of forward iterators but that in addition supports
+    prefix \c{--} for iterating backward.
+
+    The Qt containers' non-const iterator types are all bidirectional
+    iterators.
+
+    \section2 Random Access Iterators
+
+    The last category, \e{random access iterators}, is the most
+    powerful type of iterator. It supports all the requirements of a
+    bidirectional iterator, and supports the following operations:
+
+    \table
+    \row \i \c{i += n} \i advances iterator \c i by \c n positions
+    \row \i \c{i -= n} \i moves iterator \c i back by \c n positions
+    \row \i \c{i + n} or \c{n + i} \i returns the iterator for the item \c
+       n positions ahead of iterator \c i
+    \row \i \c{i - n} \i returns the iterator for the item \c n positions behind of iterator \c i
+    \row \i \c{i - j} \i returns the number of items between iterators \c i and \c j
+    \row \i \c{i[n]} \i same as \c{*(i + n)}
+    \row \i \c{i < j} \i returns true if iterator \c j comes after iterator \c i
+    \endtable
+
+    QList and QVector's non-const iterator types are random access iterators.
+
+    \sa {container classes}, <QtGlobal>
+*/
+
+/*! \fn OutputIterator qCopy(InputIterator begin1, InputIterator end1, OutputIterator begin2)
+    \relates <QtAlgorithms>
+
+    Copies the items from range [\a begin1, \a end1) to range [\a
+    begin2, ...), in the order in which they appear.
+
+    The item at position \a begin1 is assigned to that at position \a
+    begin2; the item at position \a begin1 + 1 is assigned to that at
+    position \a begin2 + 1; and so on.
+
+    Example:
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 4
+
+    \sa qCopyBackward(), {input iterators}, {output iterators}
+*/
+
+/*! \fn BiIterator2 qCopyBackward(BiIterator1 begin1, BiIterator1 end1, BiIterator2 end2)
+    \relates <QtAlgorithms>
+
+    Copies the items from range [\a begin1, \a end1) to range [...,
+    \a end2).
+
+    The item at position \a end1 - 1 is assigned to that at position
+    \a end2 - 1; the item at position \a end1 - 2 is assigned to that
+    at position \a end2 - 2; and so on.
+
+    Example:
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 5
+
+    \sa qCopy(), {bidirectional iterators}
+*/
+
+/*! \fn bool qEqual(InputIterator1 begin1, InputIterator1 end1, InputIterator2 begin2)
+    \relates <QtAlgorithms>
+
+    Compares the items in the range [\a begin1, \a end1) with the
+    items in the range [\a begin2, ...). Returns true if all the
+    items compare equal; otherwise returns false.
+
+    Example:
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 6
+
+    This function requires the item type (in the example above,
+    QString) to implement \c operator==().
+
+    \sa {input iterators}
+*/
+
+/*! \fn void qFill(ForwardIterator begin, ForwardIterator end, const T &value)
+    \relates <QtAlgorithms>
+
+    Fills the range [\a begin, \a end) with \a value.
+
+    Example:
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 7
+
+    \sa qCopy(), {forward iterators}
+*/
+
+/*! \fn void qFill(Container &container, const T &value)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    This is the same as qFill(\a{container}.begin(), \a{container}.end(), \a value);
+*/
+
+/*! \fn InputIterator qFind(InputIterator begin, InputIterator end, const T &value)
+    \relates <QtAlgorithms>
+
+    Returns an iterator to the first occurrence of \a value in a
+    container in the range [\a begin, \a end). Returns \a end if \a
+    value isn't found.
+
+    Example:
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 8
+
+    This function requires the item type (in the example above,
+    QString) to implement \c operator==().
+
+    If the items in the range are in ascending order, you can get
+    faster results by using qLowerBound() or qBinaryFind() instead of
+    qFind().
+
+    \sa qBinaryFind(), {input iterators}
+*/
+
+/*! \fn void qFind(const Container &container, const T &value)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    This is the same as qFind(\a{container}.constBegin(), \a{container}.constEnd(), value);
+*/
+
+/*! \fn void qCount(InputIterator begin, InputIterator end, const T &value, Size &n)
+    \relates <QtAlgorithms>
+
+    Returns the number of occurrences of \a value in the range [\a begin, \a end),
+    which is returned in \a n. \a n is never initialized, the count is added to \a n.
+    It is the caller's responsibility to initialize \a n.
+
+    Example:
+
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 9
+
+    This function requires the item type (in the example above,
+    \c int) to implement \c operator==().
+
+    \sa {input iterators}
+*/
+
+/*! \fn void qCount(const Container &container, const T &value, Size &n)
+\relates <QtAlgorithms>
+
+\overload
+
+Instead of operating on iterators, as in the other overload, this function
+operates on the specified \a container to obtain the number of instances
+of \a value in the variable passed as a reference in argument \a n.
+*/
+
+/*! \fn void qSwap(T &var1, T &var2)
+    \relates <QtAlgorithms>
+
+    Exchanges the values of variables \a var1 and \a var2.
+
+    Example:
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 10
+*/
+
+/*! \fn void qSort(RandomAccessIterator begin, RandomAccessIterator end)
+    \relates <QtAlgorithms>
+
+    Sorts the items in range [\a begin, \a end) in ascending order
+    using the quicksort algorithm.
+
+    Example:
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 11
+
+    The sort algorithm is efficient on large data sets. It operates
+    in \l {linear-logarithmic time}, O(\e{n} log \e{n}).
+
+    This function requires the item type (in the example above,
+    \c{int}) to implement \c operator<().
+
+    If neither of the two items is "less than" the other, the items are
+    taken to be equal. It is then undefined which one of the two
+    items will appear before the other after the sort.
+
+    \sa qStableSort(), {random access iterators}
+*/
+
+/*! \fn void qSort(RandomAccessIterator begin, RandomAccessIterator end, LessThan lessThan)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    Uses the \a lessThan function instead of \c operator<() to
+    compare the items.
+
+    For example, here's how to sort the strings in a QStringList
+    in case-insensitive alphabetical order:
+
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 12
+
+    To sort values in reverse order, pass
+    \l{qGreater()}{qGreater<T>()} as the \a lessThan parameter. For
+    example:
+
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 13
+
+    If neither of the two items is "less than" the other, the items are
+    taken to be equal. It is then undefined which one of the two
+    items will appear before the other after the sort.
+
+    An alternative to using qSort() is to put the items to sort in a
+    QMap, using the sort key as the QMap key. This is often more
+    convenient than defining a \a lessThan function. For example, the
+    following code shows how to sort a list of strings case
+    insensitively using QMap:
+
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 14
+
+    \sa QMap
+*/
+
+/*! \fn void qSort(Container &container)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    This is the same as qSort(\a{container}.begin(), \a{container}.end());
+*/
+
+/*! 
+    \fn void qStableSort(RandomAccessIterator begin, RandomAccessIterator end)
+    \relates <QtAlgorithms>
+
+    Sorts the items in range [\a begin, \a end) in ascending order
+    using a stable sorting algorithm.
+
+    If neither of the two items is "less than" the other, the items are
+    taken to be equal. The item that appeared before the other in the
+    original container will still appear first after the sort. This
+    property is often useful when sorting user-visible data.
+
+    Example:
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 15
+
+    The sort algorithm is efficient on large data sets. It operates
+    in \l {linear-logarithmic time}, O(\e{n} log \e{n}).
+
+    This function requires the item type (in the example above,
+    \c{int}) to implement \c operator<().
+
+    \sa qSort(), {random access iterators}
+*/
+
+/*! 
+    \fn void qStableSort(RandomAccessIterator begin, RandomAccessIterator end, LessThan lessThan)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    Uses the \a lessThan function instead of \c operator<() to
+    compare the items.
+
+    For example, here's how to sort the strings in a QStringList
+    in case-insensitive alphabetical order:
+
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 16
+    
+    Note that earlier versions of Qt allowed using a lessThan function that took its
+    arguments by non-const reference. From 4.3 and on this is no longer possible,
+    the arguments has to be passed by const reference or value.
+
+    To sort values in reverse order, pass
+    \l{qGreater()}{qGreater<T>()} as the \a lessThan parameter. For
+    example:
+
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 17
+
+    If neither of the two items is "less than" the other, the items are
+    taken to be equal. The item that appeared before the other in the
+    original container will still appear first after the sort. This
+    property is often useful when sorting user-visible data.
+*/
+
+/*! 
+    \fn void qStableSort(Container &container)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    This is the same as qStableSort(\a{container}.begin(), \a{container}.end());
+*/
+
+/*! \fn RandomAccessIterator qLowerBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
+    \relates <QtAlgorithms>
+
+    Performs a binary search of the range [\a begin, \a end) and
+    returns the position of the first ocurrence of \a value. If no
+    such item is found, returns the position where it should be
+    inserted.
+
+    The items in the range [\a begin, \e end) must be sorted in
+    ascending order; see qSort().
+
+    Example:
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 18
+
+    This function requires the item type (in the example above,
+    \c{int}) to implement \c operator<().
+
+    qLowerBound() can be used in conjunction with qUpperBound() to
+    iterate over all occurrences of the same value:
+
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 19
+
+    \sa qUpperBound(), qBinaryFind()
+*/
+
+/*!
+    \fn RandomAccessIterator qLowerBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value, LessThan lessThan)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    Uses the \a lessThan function instead of \c operator<() to
+    compare the items.
+
+    Note that the items in the range must be sorted according to the order
+    specified by the \a lessThan object.
+*/
+
+/*! 
+    \fn void qLowerBound(const Container &container, const T &value)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    For read-only iteration over containers, this function is broadly equivalent to
+    qLowerBound(\a{container}.begin(), \a{container}.end(), value). However, since it
+    returns a const iterator, you cannot use it to modify the container; for example,
+    to insert items.
+*/
+
+/*! \fn RandomAccessIterator qUpperBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
+    \relates <QtAlgorithms>
+
+    Performs a binary search of the range [\a begin, \a end) and
+    returns the position of the one-past-the-last occurrence of \a
+    value. If no such item is found, returns the position where the
+    item should be inserted.
+
+    The items in the range [\a begin, \e end) must be sorted in
+    ascending order; see qSort().
+
+    Example:
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 20
+
+    This function requires the item type (in the example above,
+    \c{int}) to implement \c operator<().
+
+    qUpperBound() can be used in conjunction with qLowerBound() to
+    iterate over all occurrences of the same value:
+
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 21
+
+    \sa qLowerBound(), qBinaryFind()
+*/
+
+/*!
+    \fn RandomAccessIterator qUpperBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value, LessThan lessThan)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    Uses the \a lessThan function instead of \c operator<() to
+    compare the items.
+
+    Note that the items in the range must be sorted according to the order
+    specified by the \a lessThan object.
+*/
+
+/*! 
+    \fn void qUpperBound(const Container &container, const T &value)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    This is the same as qUpperBound(\a{container}.begin(), \a{container}.end(), value);
+*/
+
+
+/*! \fn RandomAccessIterator qBinaryFind(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
+    \relates <QtAlgorithms>
+
+    Performs a binary search of the range [\a begin, \a end) and
+    returns the position of an occurrence of \a value. If there are
+    no occurrences of \a value, returns \a end.
+
+    The items in the range [\a begin, \a end) must be sorted in
+    ascending order; see qSort().
+
+    If there are many occurrences of the same value, any one of them
+    could be returned. Use qLowerBound() or qUpperBound() if you need
+    finer control.
+
+    Example:
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 22
+
+    This function requires the item type (in the example above,
+    QString) to implement \c operator<().
+
+    See the \l{<QtAlgorithms>#binaryFind example}{detailed
+    description} for an example usage.
+
+    \sa qLowerBound(), qUpperBound(), {random access iterators}
+*/
+
+/*! \fn RandomAccessIterator qBinaryFind(RandomAccessIterator begin, RandomAccessIterator end, const T &value, LessThan lessThan)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    Uses the \a lessThan function instead of \c operator<() to
+    compare the items.
+
+    Note that the items in the range must be sorted according to the order
+    specified by the \a lessThan object.
+*/
+
+/*! 
+    \fn void qBinaryFind(const Container &container, const T &value)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    This is the same as qBinaryFind(\a{container}.begin(), \a{container}.end(), value);
+*/
+
+
+/*! 
+    \fn void qDeleteAll(ForwardIterator begin, ForwardIterator end)
+    \relates <QtAlgorithms>
+
+    Deletes all the items in the range [\a begin, \a end) using the
+    C++ \c delete operator. The item type must be a pointer type (for
+    example, \c{QWidget *}).
+
+    Example:
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 23
+
+    Notice that qDeleteAll() doesn't remove the items from the
+    container; it merely calls \c delete on them. In the example
+    above, we call clear() on the container to remove the items.
+
+    This function can also be used to delete items stored in
+    associative containers, such as QMap and QHash. Only the objects
+    stored in each container will be deleted by this function; objects
+    used as keys will not be deleted.
+
+    \sa {forward iterators}
+*/
+
+/*! 
+    \fn void qDeleteAll(const Container &c)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    This is the same as qDeleteAll(\a{c}.begin(), \a{c}.end()).
+*/
+
+/*! \fn LessThan qLess()
+    \relates <QtAlgorithms>
+
+    Returns a functional object, or functor, that can be passed to qSort()
+    or qStableSort().
+
+    Example:
+
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 24
+
+    \sa {qGreater()}{qGreater<T>()}
+*/
+
+/*! \fn LessThan qGreater()
+    \relates <QtAlgorithms>
+
+    Returns a functional object, or functor, that can be passed to qSort()
+    or qStableSort().
+
+    Example:
+
+    \snippet doc/src/snippets/code/doc_src_qalgorithms.cpp 25
+
+    \sa {qLess()}{qLess<T>()}
+*/
