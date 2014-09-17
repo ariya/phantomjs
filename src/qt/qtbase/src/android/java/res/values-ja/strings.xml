@@ -1,6 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="ministro_not_found_msg">Ministroサービスが見つかりません。\nアプリケーションが起動できません。</string>
-    <string name="ministro_needed_msg">このアプリケーションにはMinistroサービスが必要です。 インストールしてもよろしいですか？</string>
-    <string name="fatal_error_msg">アプリケーションで致命的なエラーが発生したため続行できません。</string>
-</resources>

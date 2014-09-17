@@ -1,9 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>resources/input_types.html</file>
-        <file>resources/pointing_right.html</file>
-        <file>resources/pointing_up.html</file>
-        <file>resources/greendiv.html</file>
-        <file>resources/scrolltest_page.html</file>
-    </qresource>
-</RCC>

@@ -1,6 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="ministro_not_found_msg">Layanan Ministro tidak bisa ditemukan.\nAplikasi tidak bisa dimulai.</string>
-    <string name="ministro_needed_msg">Aplikasi ini membutuhkan layanan Ministro. Apakah Anda ingin menginstalnya?</string>
-    <string name="fatal_error_msg">Aplikasi Anda mengalami kesalahan fatal dan tidak dapat melanjutkan.</string>
-</resources>

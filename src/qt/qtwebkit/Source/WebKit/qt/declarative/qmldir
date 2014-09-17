@@ -1,5 +1,0 @@
-module QtWebKit
-plugin qmlwebkitplugin
-classname WebKitQmlPlugin
-typeinfo plugins.qmltypes
-

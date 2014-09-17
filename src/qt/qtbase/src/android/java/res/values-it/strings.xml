@@ -1,6 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="ministro_not_found_msg">Servizio Ministro inesistente. Impossibile eseguire \nl\'applicazione.</string>
-    <string name="ministro_needed_msg">Questa applicazione richiede il servizio Ministro.Installarlo?</string>
-    <string name="fatal_error_msg">L\'applicazione ha provocato un errore grave e non puo\' continuare.</string>
-</resources>

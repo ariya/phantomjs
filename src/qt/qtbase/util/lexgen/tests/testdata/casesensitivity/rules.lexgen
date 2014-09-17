@@ -1,7 +1,0 @@
-[Options]
-case-insensitive
-[Tokens]
-TOK_AB = ab
-TOK_CD = cd
-TOK_EFG = [e-g]{3}
-TOK_HI = [hi]{2}

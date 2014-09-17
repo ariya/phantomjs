@@ -1,6 +1,0 @@
-﻿<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="ministro_not_found_msg">سرویس Ministro را پیدا نمی‌کند. برنامه نمی‌تواند آغاز شود.</string>
-    <string name="ministro_needed_msg">این نرم‌افزار به سرویس Ministro احتیاج دارد. آیا دوست دارید آن را نصب کنید؟</string>
-    <string name="fatal_error_msg">خطایی اساسی در برنامه‌تان رخ داد و اجرای برنامه نمی‌تواند ادامه یابد.</string>
-</resources>

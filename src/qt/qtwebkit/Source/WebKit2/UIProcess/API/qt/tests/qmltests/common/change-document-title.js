@@ -1,1 +1,0 @@
-document.title = "New title";

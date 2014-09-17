@@ -5,7 +5,7 @@ if(!equals(QT_MAJOR_VERSION, 5)|!equals(QT_MINOR_VERSION, 3)) {
 
 TEMPLATE = app
 TARGET = phantomjs
-QT += network webkitwidgets
+QT += network webkitwidgets printsupport
 CONFIG += console
 
 DESTDIR = ../bin
