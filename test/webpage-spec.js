@@ -1290,18 +1290,6 @@ describe("WebPage construction with options", function () {
         });
     });
 
-    describe("specifying userAgent", function () {
-        var opts = {
-            settings: {
-                userAgent: "PHANTOMJS-TEST-USER-AGENT"
-            }
-        };
-        var page = new WebPage(opts);
-        it("should have userAgent as '"+opts.settings.userAgent+"'",function () {
-            expect(page.settings.userAgent).toEqual(opts.settings.userAgent);
-        });
-    });
-
     describe("specifying viewportSize", function () {
         var opts = {
             viewportSize: {
