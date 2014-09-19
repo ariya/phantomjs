@@ -1,5 +1,4 @@
 function checkClipRect(page, clipRect) {
-    expectHasProperty(page, 'clipRect');
     it("should have clipRect with height "+clipRect.height, function () {
         expect(page.clipRect.height).toEqual(clipRect.height);
     });
@@ -15,7 +14,6 @@ function checkClipRect(page, clipRect) {
 }
 
 function checkScrollPosition(page, scrollPosition) {
-    expectHasProperty(page, 'scrollPosition');
     it("should have scrollPosition with left "+scrollPosition.left, function () {
         expect(page.scrollPosition.left).toEqual(scrollPosition.left);
     });
@@ -25,7 +23,6 @@ function checkScrollPosition(page, scrollPosition) {
 }
 
 function checkViewportSize(page, viewportSize) {
-    expectHasProperty(page, 'viewportSize');
     it("should have viewportSize with height "+viewportSize.height, function () {
         expect(page.viewportSize.height).toEqual(viewportSize.height);
     });
@@ -159,68 +156,26 @@ describe("WebPage object", function() {
 
     checkClipRect(page, {height:0,left:0,top:0,width:0});
 
-    expectHasPropertyString(page, 'content');
-    expectHasPropertyString(page, 'plainText');
-
-    expectHasPropertyString(page, 'libraryPath');
-    expectHasPropertyString(page, 'offlineStoragePath');
-    expectHasProperty(page, 'offlineStorageQuota');
-
     it("should have objectName as 'WebPage'", function() {
         expect(page.objectName).toEqual('WebPage');
     });
 
-    expectHasProperty(page, 'paperSize');
     it("should have paperSize as an empty object", function() {
         expect(page.paperSize).toEqual({});
     });
 
     checkScrollPosition(page, {left:0,top:0});
 
-    expectHasProperty(page, 'settings');
     it("should have non-empty settings", function() {
         expect(page.settings).toNotEqual(null);
         expect(page.settings).toNotEqual({});
     });
 
-    expectHasProperty(page, 'zoomFactor');
     it("should have zoomFactor of 1", function() {
         expect(page.zoomFactor).toEqual(1.0);
     });
 
-    expectHasProperty(page, 'event');
-    expectHasProperty(page, 'cookies');
-
     checkViewportSize(page, {height:300,width:400});
-
-    expectHasFunction(page, 'deleteLater');
-    expectHasFunction(page, 'destroyed');
-    expectHasFunction(page, 'evaluate');
-    expectHasFunction(page, 'initialized');
-    expectHasFunction(page, 'injectJs');
-    expectHasFunction(page, 'javaScriptAlertSent');
-    expectHasFunction(page, 'javaScriptConsoleMessageSent');
-    expectHasFunction(page, 'loadFinished');
-    expectHasFunction(page, 'loadStarted');
-    expectHasFunction(page, 'openUrl');
-    expectHasFunction(page, 'release');
-    expectHasFunction(page, 'close');
-    expectHasFunction(page, 'render');
-    expectHasFunction(page, 'resourceReceived');
-    expectHasFunction(page, 'resourceRequested');
-    expectHasFunction(page, 'resourceError');
-    expectHasFunction(page, 'uploadFile');
-    expectHasFunction(page, 'sendEvent');
-    expectHasFunction(page, 'childFramesCount');
-    expectHasFunction(page, 'childFramesName');
-    expectHasFunction(page, 'switchToChildFrame');
-    expectHasFunction(page, 'switchToMainFrame');
-    expectHasFunction(page, 'switchToParentFrame');
-    expectHasFunction(page, 'currentFrameName');
-    expectHasFunction(page, 'addCookie');
-    expectHasFunction(page, 'deleteCookie');
-    expectHasFunction(page, 'clearCookies');
-    expectHasFunction(page, 'setContent');
 
     it("should set content and location", function() {
         runs(function() {

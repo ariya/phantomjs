@@ -1,0 +1,27 @@
+var assert = require('../../assert');
+var webpage = require('webpage');
+var page = webpage.create();
+
+assert.typeOf(page.canGoForward, 'boolean');
+assert.typeOf(page.canGoBack, 'boolean');
+assert.typeOf(page.clipRect, 'object');
+assert.typeOf(page.content, 'string');
+assert.typeOf(page.cookieJar, 'object');
+assert.typeOf(page.cookies, 'object');
+assert.typeOf(page.customHeaders, 'object');
+assert.typeOf(page.event, 'object');
+assert.typeOf(page.libraryPath, 'string');
+assert.typeOf(page.loading, 'boolean');
+assert.typeOf(page.loadingProgress, 'number');
+assert.typeOf(page.navigationLocked, 'boolean');
+assert.typeOf(page.offlineStoragePath, 'string');
+assert.typeOf(page.offlineStorageQuota, 'number');
+assert.typeOf(page.paperSize, 'object');
+assert.typeOf(page.plainText, 'string');
+assert.typeOf(page.scrollPosition, 'object');
+assert.typeOf(page.settings, 'object');
+assert.typeOf(page.title, 'string');
+assert.typeOf(page.url, 'string');
+assert.typeOf(page.viewportSize, 'object');
+assert.typeOf(page.windowName, 'string');
+assert.typeOf(page.zoomFactor, 'number');
