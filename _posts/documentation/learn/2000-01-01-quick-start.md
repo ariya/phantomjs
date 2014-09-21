@@ -20,7 +20,7 @@ phantom.exit();
 
 Save it as `hello.js` and then run it from the command line, not the REPL.
 
-REPL is a simple, interactive computer programming environment. Read about REPL in the docs [Here](https://github.com/ariya/phantomjs/wiki/REPL). Again, REPL is the executable phantomjs.exe not the command line.
+REPL is a simple, interactive computer programming environment. Read about REPL in the docs [Here]({{ site.url }}/repl.html). Again, REPL is the executable phantomjs.exe not the command line.
 
 From the command prompt type:
 
