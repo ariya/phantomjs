@@ -7,7 +7,7 @@ permalink: network-monitoring.html
 
 Because PhantomJS permits the inspection of network traffic, it is suitable to build various analysis on the network behavior and performance.
 
-All the resource requests and responses can be sniffed using `onResourceRequested` and `onResourceReceived`. A very simple to log every request and response is illustrated in the example script [netlog.js](https://github.com/ariya/phantomjs/blob/master/examples/netlog.js):
+All the resource requests and responses can be sniffed using `onResourceRequested` and `onResourceReceived`. A very simple example to log every request and response is illustrated in the script [netlog.js](https://github.com/ariya/phantomjs/blob/master/examples/netlog.js):
 
 ```javascript
 var page = require('webpage').create();
