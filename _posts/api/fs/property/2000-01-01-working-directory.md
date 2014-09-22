@@ -10,10 +10,10 @@ permalink: api/fs/property/working-directory.html
 ```javascript
 var fs = require('fs');
 // @TODO: Finish fs.workingDirectory example.
+console.log(fs.workingDirectory);// return "F:/liu/study/phantomjs/examples"(the directory the file exsit)
+
+
 ```
-
-
-
 
 
 
