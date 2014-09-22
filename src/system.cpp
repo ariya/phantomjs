@@ -38,6 +38,20 @@
 #include "../env.h"
 #include "terminal.h"
 
+#if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
+#include <sys/utsname.h>
+QString getOSRelease()
+{
+    QString release;
+    struct utsname un;
+    if (uname(&un) != -1) {
+        release = QString::fromLatin1(un.release);
+    }
+
+    return release;
+}
+#endif
+
 System::System(QObject *parent) :
     QObject(parent)
   , m_stdout((File *)NULL)
@@ -94,6 +108,7 @@ System::System(QObject *parent) :
     }
 #elif defined(Q_OS_MAC)
     m_os.insert("name", "mac");
+    m_os.insert("release", getOSRelease());
     switch (QSysInfo::MacintoshVersion) {
     case QSysInfo::MV_10_3:
         m_os.insert("version", "10.3 (Panther)");
@@ -120,6 +135,7 @@ System::System(QObject *parent) :
 #elif defined(Q_OS_LINUX)
     m_os.insert("name", "linux");
     m_os.insert("version", "unknown");
+    m_os.insert("release", getOSRelease());
 #else
     m_os.insert("name", "unknown");
     m_os.insert("version", "unknown");
