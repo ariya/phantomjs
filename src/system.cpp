@@ -108,7 +108,16 @@ System::System(QObject *parent) :
     }
 #elif defined(Q_OS_MAC)
     m_os.insert("name", "mac");
-    m_os.insert("release", getOSRelease());
+
+    QString osRelease = getOSRelease();
+    m_os.insert("release", osRelease);
+
+    int kernelVersionMajor = 0;
+    QStringList releaseParts = osRelease.split('.');
+    if (releaseParts.length() == 3) {
+        kernelVersionMajor = releaseParts[0].toInt();
+    }
+
     switch (QSysInfo::MacintoshVersion) {
     case QSysInfo::MV_10_3:
         m_os.insert("version", "10.3 (Panther)");
@@ -132,7 +141,17 @@ System::System(QObject *parent) :
         m_os.insert("version", "10.9 (Mavericks)");
         break;
     default:
-        m_os.insert("version", "unknown");
+        // Deduce OS X version from the kernel version.
+        // This is only used for version not yet recognized by Qt
+        // (there is no associated QSysInfo::MV_ enum).
+        switch (kernelVersionMajor) {
+        case 14:
+            m_os.insert("version", "10.10 (Yosemite)");
+            break;
+        default:
+            m_os.insert("version", "unknown");
+            break;
+        }
         break;
     }
 #elif defined(Q_OS_LINUX)
