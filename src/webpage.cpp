@@ -586,6 +586,10 @@ void WebPage::applySettings(const QVariantMap &def)
     opt->setAttribute(QWebSettings::JavascriptCanOpenWindows, def[PAGE_SETTINGS_JS_CAN_OPEN_WINDOWS].toBool());
     opt->setAttribute(QWebSettings::JavascriptCanCloseWindows, def[PAGE_SETTINGS_JS_CAN_CLOSE_WINDOWS].toBool());
 
+    if (def[PAGE_SETTINGS_CLEAR_MEMORY_CACHES].toBool()) {
+        QWebSettings::clearMemoryCaches();
+    }
+
     if (def.contains(PAGE_SETTINGS_USER_AGENT))
         m_customWebPage->m_userAgent = def[PAGE_SETTINGS_USER_AGENT].toString();
 
