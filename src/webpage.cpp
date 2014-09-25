@@ -1630,4 +1630,9 @@ void WebPage::stopJavaScript()
     m_shouldInterruptJs = true;
 }
 
+void WebPage::clearMemoryCache()
+{
+    QWebSettings::clearMemoryCaches();
+}
+
 #include "webpage.moc"

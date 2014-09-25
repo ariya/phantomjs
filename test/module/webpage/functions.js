@@ -4,6 +4,7 @@ var page = webpage.create();
 
 assert.typeOf(page.childFramesCount, 'function');
 assert.typeOf(page.childFramesName, 'function');
+assert.typeOf(page.clearMemoryCache, 'function');
 assert.typeOf(page.close, 'function');
 assert.typeOf(page.currentFrameName, 'function');
 assert.typeOf(page.deleteLater, 'function');

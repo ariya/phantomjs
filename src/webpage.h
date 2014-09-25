@@ -481,6 +481,8 @@ public slots:
 
     void stopJavaScript();
 
+    void clearMemoryCache();
+
 signals:
     void initialized();
     void loadStarted();
