@@ -580,22 +580,6 @@ describe("WebPage object", function() {
         });
     });
 
-    it("should support console.log with multiple arguments", function() {
-        var message;
-        runs(function() {
-            page.onConsoleMessage = function (msg) {
-                message = msg;
-            };
-        });
-
-        waits(50);
-
-        runs(function() {
-            page.evaluate(function () { console.log('answer', 42); });
-            expect(message).toEqual("answer 42");
-        });
-    });
-
     it("reports unhandled errors", function() {
         var lastError = null;
 

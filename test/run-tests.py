@@ -26,6 +26,7 @@ TESTS = [
     'module/system/*.js',
     'module/webpage/*.js',
     'standards/javascript/*.js',
+    'standards/console/*.js',
     'regression/*.js',
     'run-tests.js'
 ]
