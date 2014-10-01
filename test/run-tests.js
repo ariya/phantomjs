@@ -69,7 +69,6 @@ phantom.injectJs("./fs-spec-02.js"); //< Filesystem Specs 02 (Attributes)
 phantom.injectJs("./fs-spec-03.js"); //< Filesystem Specs 03 (Paths)
 phantom.injectJs("./fs-spec-04.js"); //< Filesystem Specs 04 (Tests)
 phantom.injectJs("./webkit-spec.js");
-phantom.injectJs("./cookiejar-spec.js");
 phantom.injectJs("./webpage-spec.js");
 require("./module_spec.js");
 require("./require/require_spec.js");

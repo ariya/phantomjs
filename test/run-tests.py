@@ -25,6 +25,7 @@ TESTS = [
     'basics/*.js',
     'module/system/*.js',
     'module/webpage/*.js',
+    'module/cookiejar/*.js',
     'standards/javascript/*.js',
     'standards/console/*.js',
     'regression/*.js',
