@@ -4,6 +4,8 @@ PhantomJS ([www.phantomjs.org](http://phantomjs.org)) is a headless WebKit scrip
 
 The latest [stable release](http://phantomjs.org/release-1.9.html) is version 1.9 (codenamed <a href="http://phantomjs.org/release-names.html">"Sakura"</a>). Follow the official Twitter stream [@PhantomJS](http://twitter.com/PhantomJS) to get the frequent development updates.
 
+The next major version, PhantomJS 2, is a significant upgrade. It is still in [heavy development](https://github.com/ariya/phantomjs/wiki/PhantomJS-2). There is **no timeline** for the release yet, please monitor the [mailing-list](https://groups.google.com/forum/#!forum/phantomjs) for the progress.
+
 **Note**: Please **do not** create a GitHub pull request **without** reading the [Contribution Guide](https://github.com/ariya/phantomjs/blob/master/CONTRIBUTING.md) first. Failure to do so may result in the rejection of the pull request.
 
 ## Use Cases
