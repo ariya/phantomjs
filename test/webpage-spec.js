@@ -177,22 +177,6 @@ describe("WebPage object", function() {
 
     checkViewportSize(page, {height:300,width:400});
 
-    it("should set content and location", function() {
-        runs(function() {
-            var expectedContent = "<html><body><div>Test div</div></body></html>";
-            var expectedLocation = "http://www.phantomjs.org/";
-            page.setContent(expectedContent, expectedLocation);
-            var actualLocation = page.evaluate(function(){
-                return window.location.href;
-            });
-            var actualContent = page.evaluate(function(){
-                return document.documentElement.textContent;
-            });
-            expect(expectedLocation).toEqual(actualLocation);
-            expect(expectedContent).toContain("Test div");
-        });
-    });
-
     it("should handle keydown event", function() {
         runs(function() {
             page.evaluate(function() {
