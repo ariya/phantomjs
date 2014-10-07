@@ -44,6 +44,7 @@ Several page capture projects utilizing PhantomJS:
    * [screenshot](https://github.com/jegade/Screenshot) (Dancer)
    * [screenshot-webservice](https://github.com/gre/screenshot-webservice) (Play2)
    * [pyshotx](https://github.com/nacholibre/pyshotx) a screenshot server using multiple phantomJS processes and queues (Gevent, Redis)
+   * [htmlshots](https://github.com/templateria/htmlshots) a screenshot server based on the WebServer module that accepts both URLs and HTML file uploads 
  * **API**
    * Node.js:
      * [node-webshot](https://github.com/brenden/node-webshot)
