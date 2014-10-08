@@ -171,10 +171,6 @@ describe("WebPage object", function() {
         expect(page.settings).toNotEqual({});
     });
 
-    it("should have zoomFactor of 1", function() {
-        expect(page.zoomFactor).toEqual(1.0);
-    });
-
     checkViewportSize(page, {height:300,width:400});
 
     it("should handle keydown event", function() {
