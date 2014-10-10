@@ -173,71 +173,6 @@ describe("WebPage object", function() {
 
     checkViewportSize(page, {height:300,width:400});
 
-    it("should handle mousedown event", function() {
-        runs(function() {
-            page.evaluate(function() {
-                window.addEventListener('mousedown', function(event) {
-                    window.loggedEvent = window.loggedEvent || {};
-                    window.loggedEvent.mousedown = event;
-                }, false);
-            });
-            page.sendEvent('mousedown', 42, 217);
-        });
-
-        runs(function() {
-            var event = page.evaluate(function() {
-                return window.loggedEvent.mousedown;
-            });
-            expect(event.clientX).toEqual(42);
-            expect(event.clientY).toEqual(217);
-        });
-    });
-
-    it("should handle mouseup event", function() {
-        runs(function() {
-            page.evaluate(function() {
-                window.addEventListener('mouseup', function(event) {
-                    window.loggedEvent = window.loggedEvent || {};
-                    window.loggedEvent.mouseup = event;
-                }, false);
-            });
-            page.sendEvent('mouseup', 14, 3);
-        });
-
-        waits(50);
-
-        runs(function() {
-            var event = page.evaluate(function() {
-                return window.loggedEvent.mouseup;
-            });
-            expect(event.clientX).toEqual(14);
-            expect(event.clientY).toEqual(3);
-        });
-    });
-
-    it("should handle mousemove event", function() {
-        runs(function() {
-            page.evaluate(function() {
-                window.addEventListener('mousemove', function(event) {
-                    window.loggedEvent = window.loggedEvent || {};
-                    window.loggedEvent.mousemove = event;
-                }, false);
-            });
-            page.sendEvent('mousemove', 14, 7);
-        });
-
-        waits(50);
-
-        runs(function() {
-            var event = page.evaluate(function() {
-                return window.loggedEvent.mousemove;
-            });
-            expect(event.clientX).toEqual(14);
-            expect(event.clientY).toEqual(7);
-        });
-    });
-
-
     it("should handle click event", function() {
         runs(function() {
             page.evaluate(function() {
@@ -284,48 +219,6 @@ describe("WebPage object", function() {
                 return document.querySelector('input').value;
             });
             expect(text).toEqual("doubleclicked");
-        });
-    });
-
-    it("should handle mousedown with modifier keys", function() {
-        runs(function() {
-            page.evaluate(function() {
-                window.addEventListener('mousedown', function(event) {
-                    window.loggedEvent = window.loggedEvent || {};
-                    window.loggedEvent.mousedown = event;
-                }, false);
-            });
-            page.sendEvent('mousedown', 100, 100, 'left', page.event.modifier.shift);
-        });
-
-        waits(50);
-
-        runs(function() {
-            var event = page.evaluate(function() {
-                return window.loggedEvent.mousedown;
-            });
-            expect(event.shiftKey).toEqual(true);
-        });
-    });
-
-    it("should handle mouseup with modifier keys", function() {
-        runs(function() {
-            page.evaluate(function() {
-                window.addEventListener('mouseup', function(event) {
-                    window.loggedEvent = window.loggedEvent || {};
-                    window.loggedEvent.mouseup = event;
-                }, false);
-            });
-            page.sendEvent('mouseup', 100, 100, 'left', page.event.modifier.shift);
-        });
-
-        waits(50);
-
-        runs(function() {
-            var event = page.evaluate(function() {
-                return window.loggedEvent.mouseup;
-            });
-            expect(event.shiftKey).toEqual(true);
         });
     });
 
