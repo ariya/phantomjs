@@ -115,7 +115,7 @@ struct ssl_protocol_option {
   QSsl::SslProtocol proto;
 };
 const ssl_protocol_option ssl_protocol_options[] = {
-  { "default", QSsl::SecureProtocols },
+  { "default", QSsl::TlsV1_0 },
   { "tlsv1.2", QSsl::TlsV1_2 },
   { "tlsv1.1", QSsl::TlsV1_1 },
   { "tlsv1.0", QSsl::TlsV1_0 },
