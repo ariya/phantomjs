@@ -87,6 +87,8 @@ Several page capture projects utilizing PhantomJS:
 
  * [PhantomFlow](https://github.com/Huddle/PhantomFlow) provides a syntax for describing user flows as tests which can then be visualized as an interactive tree graph. Built on CasperJS, integrates with PhantomCSS and uses D3.js for visualization.
 
+ * [phantomjs-installer](https://github.com/jakoch/phantomjs-installer) provides a PHP [Composer](http://getcomposer.org/) package which installs the PhantomJS binary (Linux, Windows, Mac) into the /bin folder of your project.
+
  * [phantomjs-maven-plugin](https://github.com/klieber/phantomjs-maven-plugin) is a Maven plugin with the primary purpose of installing the PhantomJS binary and providing a property containing the location of the binary for use within a build. It also provides a goal for executing PhantomJS scripts.
 
  * ["phantomjs"](https://github.com/Obvious/phantomjs) is a Node.js module to download/install PhantomJS and provide its executable path (and that's all). Used by Grunt in [grunt-lib-phantomjs](https://github.com/gruntjs/grunt-lib-phantomjs) for higher-level use in [grunt-contrib-qunit](https://github.com/gruntjs/grunt-contrib-qunit), etc.
