@@ -1182,6 +1182,8 @@ bool qSharedBuild()
     \value MV_10_6     Mac OS X 10.6
     \value MV_10_7     Mac OS X 10.7
     \value MV_10_8     Mac OS X 10.8
+    \value MV_10_9     Mac OS X 10.9
+    \value MV_10_10    Mac OS X 10.10
     \value MV_Unknown  An unknown and currently unsupported platform
 
     \value MV_CHEETAH  Apple codename for MV_10_0
@@ -1193,6 +1195,8 @@ bool qSharedBuild()
     \value MV_SNOWLEOPARD  Apple codename for MV_10_6
     \value MV_LION     Apple codename for MV_10_7
     \value MV_MOUNTAINLION Apple codename for MV_10_8
+    \value MV_MAVERICKS    Apple codename for MV_10_9
+    \value MV_YOSEMITE     Apple codename for MV_10_10
 
     \sa WinVersion, SymbianVersion
 */
@@ -1670,8 +1674,9 @@ static QSysInfo::MacVersion macVersion()
 {
 #if !defined(Q_OS_IOS)
     SInt32 gestalt_version;
-    if (Gestalt(gestaltSystemVersion, &gestalt_version) == noErr) {
-        return QSysInfo::MacVersion(((gestalt_version & 0x00F0) >> 4) + 2);
+    if (Gestalt(gestaltSystemVersionMinor, &gestalt_version) == noErr) {
+        // add 2 because OS X 10.0 is 0x02 in the enum
+        return QSysInfo::MacVersion(gestalt_version + 2);
     }
 #endif
     return QSysInfo::MV_Unknown;

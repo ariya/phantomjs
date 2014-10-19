@@ -143,7 +143,7 @@ QT_END_NAMESPACE
 {
     // This function is called from the quit item in the menubar when this window
     // is in the first responder chain (see also qtDispatcherToQAction above)
-    [NSApp terminate:sender];
+    [[NSApplication sharedApplication] terminate:sender];
 }
 
 - (void)setLevel:(NSInteger)windowLevel
@@ -364,7 +364,7 @@ QT_END_NAMESPACE
 
     if ([sender draggingSource] != nil) {
         // modifier flags might have changed, update it here since we don't send any input events.
-        QApplicationPrivate::modifier_buttons = qt_cocoaModifiers2QtModifiers([[NSApp currentEvent] modifierFlags]);
+        QApplicationPrivate::modifier_buttons = qt_cocoaModifiers2QtModifiers([[[NSApplication sharedApplication] currentEvent] modifierFlags]);
         modifiers = QApplication::keyboardModifiers();
     } else {
         // when the source is from another application the above technique will not work.
@@ -456,7 +456,7 @@ QT_END_NAMESPACE
 
     // Update modifiers:
     if ([sender draggingSource] != nil) {
-        QApplicationPrivate::modifier_buttons = qt_cocoaModifiers2QtModifiers([[NSApp currentEvent] modifierFlags]);
+        QApplicationPrivate::modifier_buttons = qt_cocoaModifiers2QtModifiers([[[NSApplication sharedApplication] currentEvent] modifierFlags]);
         modifiers = QApplication::keyboardModifiers();
     } else {
         modifiers = qt_cocoaDragOperation2QtModifiers(nsActions);

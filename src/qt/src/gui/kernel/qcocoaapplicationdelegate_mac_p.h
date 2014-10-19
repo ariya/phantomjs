@@ -113,7 +113,7 @@ QT_FORWARD_DECLARE_CLASS(QApplicationPrivate);
     QApplicationPrivate *qtPrivate;
     NSMenu *dockMenu;
     QT_MANGLE_NAMESPACE(QCocoaMenuLoader) *qtMenuLoader;
-    NSObject <NSApplicationDelegate> *reflectionDelegate;
+    id <NSApplicationDelegate> reflectionDelegate;
     bool inLaunch;
 }
 + (QT_MANGLE_NAMESPACE(QCocoaApplicationDelegate)*)sharedDelegate;
@@ -122,7 +122,7 @@ QT_FORWARD_DECLARE_CLASS(QApplicationPrivate);
 - (QApplicationPrivate *)qAppPrivate;
 - (void)setMenuLoader:(QT_MANGLE_NAMESPACE(QCocoaMenuLoader)*)menuLoader;
 - (QT_MANGLE_NAMESPACE(QCocoaMenuLoader) *)menuLoader;
-- (void)setReflectionDelegate:(NSObject <NSApplicationDelegate> *)oldDelegate;
+- (void)setReflectionDelegate:(id <NSApplicationDelegate>)oldDelegate;
 - (void)getUrl:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent;
 @end
 #endif

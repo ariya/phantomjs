@@ -179,7 +179,7 @@ static void cancelAllMenuTracking()
 {
 #ifdef QT_MAC_USE_COCOA
     QMacCocoaAutoReleasePool pool;
-    NSMenu *mainMenu = [NSApp mainMenu];
+    NSMenu *mainMenu = [[NSApplication sharedApplication] mainMenu];
     [mainMenu cancelTracking];
     for (NSMenuItem *item in [mainMenu itemArray]) {
         if ([item submenu]) {
@@ -633,7 +633,7 @@ static inline void syncMenuBarItemsVisiblity(const QMenuBarPrivate::QMacMenuBarP
 
 static inline QT_MANGLE_NAMESPACE(QCocoaMenuLoader) *getMenuLoader()
 {
-    return [NSApp QT_MANGLE_NAMESPACE(qt_qcocoamenuLoader)];
+    return [[NSApplication sharedApplication] QT_MANGLE_NAMESPACE(qt_qcocoamenuLoader)];
 }
 
 static NSMenuItem *createNSMenuItem(const QString &title)
@@ -2033,7 +2033,7 @@ void qt_mac_clear_menubar()
     QT_MANGLE_NAMESPACE(QCocoaMenuLoader) *loader = getMenuLoader();
     NSMenu *menu = [loader menu];
     [loader ensureAppMenuInMenu:menu];
-    [NSApp setMainMenu:menu];
+    [[NSApplication sharedApplication] setMainMenu:menu];
     const bool modal = qt_mac_should_disable_menu(0);
     if (qt_mac_current_menubar.qmenubar || modal != qt_mac_current_menubar.modal)
         qt_mac_set_modal_state(menu, modal);
@@ -2100,7 +2100,7 @@ bool QMenuBarPrivate::macUpdateMenuBarImmediatly()
 #else
             QT_MANGLE_NAMESPACE(QCocoaMenuLoader) *loader = getMenuLoader();
             [loader ensureAppMenuInMenu:menu];
-            [NSApp setMainMenu:menu];
+            [[NSApplication sharedApplication] setMainMenu:menu];
             syncMenuBarItemsVisiblity(mb->d_func()->mac_menubar);
 
             if (OSMenuRef tmpMerge = QMenuPrivate::mergeMenuHash.value(menu)) {
@@ -2140,7 +2140,7 @@ bool QMenuBarPrivate::macUpdateMenuBarImmediatly()
 #else
                 QT_MANGLE_NAMESPACE(QCocoaMenuLoader) *loader = getMenuLoader();
                 [loader ensureAppMenuInMenu:menu];
-                [NSApp setMainMenu:menu];
+                [[NSApplication sharedApplication] setMainMenu:menu];
                 syncMenuBarItemsVisiblity(qt_mac_current_menubar.qmenubar->d_func()->mac_menubar);
 #endif
                 qt_mac_set_modal_state(menu, modal);

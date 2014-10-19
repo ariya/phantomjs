@@ -122,7 +122,7 @@ static void cleanupCocoaApplicationDelegate()
     [dockMenu release];
     [qtMenuLoader release];
     if (reflectionDelegate) {
-        [NSApp setDelegate:reflectionDelegate];
+        [[NSApplication sharedApplication] setDelegate:reflectionDelegate];
         [reflectionDelegate release];
     }
     [super dealloc];
@@ -183,7 +183,7 @@ static void cleanupCocoaApplicationDelegate()
     return [[qtMenuLoader retain] autorelease];
 }
 
-// This function will only be called when NSApp is actually running. Before
+// This function will only be called when NSApplication is actually running. Before
 // that, the kAEQuitApplication Apple event will be sent to
 // QApplicationPrivate::globalAppleEventProcessor in qapplication_mac.mm
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender
@@ -249,7 +249,7 @@ static void cleanupCocoaApplicationDelegate()
         && [reflectionDelegate respondsToSelector:
                             @selector(applicationShouldTerminateAfterLastWindowClosed:)])
         return [reflectionDelegate applicationShouldTerminateAfterLastWindowClosed:sender];
-    return NO; // Someday qApp->quitOnLastWindowClosed(); when QApp and NSApp work closer together.
+    return NO; // Someday qApp->quitOnLastWindowClosed(); when qApp and NSApplication work closer together.
 }
 
 
@@ -295,7 +295,7 @@ static void cleanupCocoaApplicationDelegate()
     QDesktopWidgetImplementation::instance()->onResize();
 }
 
-- (void)setReflectionDelegate:(NSObject <NSApplicationDelegate> *)oldDelegate
+- (void)setReflectionDelegate:(id <NSApplicationDelegate>)oldDelegate
 {
     [oldDelegate retain];
     [reflectionDelegate release];
@@ -342,12 +342,12 @@ static void cleanupCocoaApplicationDelegate()
 {
     Q_UNUSED(event);
     Q_UNUSED(replyEvent);
-    [NSApp terminate:self];
+    [[NSApplication sharedApplication] terminate:self];
 }
 
 - (void)qtDispatcherToQAction:(id)sender
 {
-    [[NSApp QT_MANGLE_NAMESPACE(qt_qcocoamenuLoader)] qtDispatcherToQAction:sender];
+    [[[NSApplication sharedApplication] QT_MANGLE_NAMESPACE(qt_qcocoamenuLoader)] qtDispatcherToQAction:sender];
 }
 
 @end

@@ -147,7 +147,7 @@ QT_USE_NAMESPACE
     if ([event type] == NSApplicationDefined) {
         switch ([event subtype]) {
             case QtCocoaEventSubTypePostMessage:
-                [NSApp QT_MANGLE_NAMESPACE(qt_sendPostedMessage):event];
+                [[NSApplication sharedApplication] QT_MANGLE_NAMESPACE(qt_sendPostedMessage):event];
                 return true;
             default:
                 break;
@@ -174,7 +174,7 @@ QT_USE_NAMESPACE
     // be called instead of sendEvent if redirection occurs.
     // 'self' will then be an instance of NSApplication
     // (and not QNSApplication)
-    if (![NSApp QT_MANGLE_NAMESPACE(qt_filterEvent):event])
+    if (![[NSApplication sharedApplication] QT_MANGLE_NAMESPACE(qt_filterEvent):event])
         [self QT_MANGLE_NAMESPACE(qt_sendEvent_original):event];
 }
 
@@ -182,7 +182,7 @@ QT_USE_NAMESPACE
 {
     // This method will be called if
     // no redirection occurs
-    if (![NSApp QT_MANGLE_NAMESPACE(qt_filterEvent):event])
+    if (![[NSApplication sharedApplication] QT_MANGLE_NAMESPACE(qt_filterEvent):event])
         [super sendEvent:event];
 }
 
@@ -194,7 +194,7 @@ QT_USE_NAMESPACE
     // visible on screen. Note: If Qt is used as a plugin, Qt will not use a 
     // native menu bar. Hence, we will also not need to do any redirection etc. as 
     // we do with sendEvent.
-    [[NSApp QT_MANGLE_NAMESPACE(qt_qcocoamenuLoader)] qtDispatcherToQAction:sender];
+    [[[NSApplication sharedApplication] QT_MANGLE_NAMESPACE(qt_qcocoamenuLoader)] qtDispatcherToQAction:sender];
 }
 
 @end
@@ -203,7 +203,7 @@ QT_BEGIN_NAMESPACE
 
 void qt_redirectNSApplicationSendEvent()
 {
-    if ([NSApp isMemberOfClass:[QNSApplication class]]) {
+    if ([[NSApplication sharedApplication] isMemberOfClass:[QT_MANGLE_NAMESPACE(QNSApplication) class]]) {
         // No need to change implementation since Qt
         // already controls a subclass of NSApplication
         return;

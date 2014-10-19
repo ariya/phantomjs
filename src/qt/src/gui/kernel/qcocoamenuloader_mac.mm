@@ -92,8 +92,8 @@ QT_USE_NAMESPACE
     // 'Quit' item. When changing menu bar (e.g when switching between
     // windows with different menu bars), we never recreate this menu, but
     // instead pull it out the current menu bar and place into the new one:
-    NSMenu *mainMenu = [NSApp mainMenu];
-    if ([NSApp mainMenu] == menu)
+    NSMenu *mainMenu = [[NSApplication sharedApplication] mainMenu];
+    if ([[NSApplication sharedApplication] mainMenu] == menu)
         return; // nothing to do (menu is the current menu bar)!
 
 #ifndef QT_NAMESPACE
@@ -201,27 +201,27 @@ QT_USE_NAMESPACE
 
 - (void)terminate:(id)sender
 {
-    [NSApp terminate:sender];
+    [[NSApplication sharedApplication] terminate:sender];
 }
 
 - (void)orderFrontStandardAboutPanel:(id)sender
 {
-    [NSApp orderFrontStandardAboutPanel:sender];
+    [[NSApplication sharedApplication] orderFrontStandardAboutPanel:sender];
 }
 
 - (void)hideOtherApplications:(id)sender
 {
-    [NSApp hideOtherApplications:sender];
+    [[NSApplication sharedApplication] hideOtherApplications:sender];
 }
 
 - (void)unhideAllApplications:(id)sender
 {
-    [NSApp unhideAllApplications:sender];
+    [[NSApplication sharedApplication] unhideAllApplications:sender];
 }
 
 - (void)hide:(id)sender
 {
-    [NSApp hide:sender];
+    [[NSApplication sharedApplication] hide:sender];
 }
 
 - (void)qtUpdateMenubar
@@ -258,7 +258,7 @@ QT_USE_NAMESPACE
 
  - (void)orderFrontCharacterPalette:(id)sender
  {
-     [NSApp orderFrontCharacterPalette:sender];
+     [[NSApplication sharedApplication] orderFrontCharacterPalette:sender];
  }
 
 - (BOOL)validateMenuItem:(NSMenuItem*)menuItem
@@ -266,7 +266,7 @@ QT_USE_NAMESPACE
     if ([menuItem action] == @selector(hide:)
         || [menuItem action] == @selector(hideOtherApplications:)
         || [menuItem action] == @selector(unhideAllApplications:)) {
-        return [NSApp validateMenuItem:menuItem];
+        return [[NSApplication sharedApplication] validateMenuItem:menuItem];
     } else {
         return [menuItem isEnabled];
     }

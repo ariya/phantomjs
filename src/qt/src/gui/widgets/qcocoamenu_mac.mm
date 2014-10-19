@@ -202,7 +202,7 @@ QT_USE_NAMESPACE
      static SEL selForOFCP = NSSelectorFromString(@"orderFrontCharacterPalette:");
      if (index == -1 && selForOFCP == actionSelector) {
          // Check if the 'orderFrontCharacterPalette' SEL exists for QCocoaMenuLoader object
-         QT_MANGLE_NAMESPACE(QCocoaMenuLoader) *loader = [NSApp QT_MANGLE_NAMESPACE(qt_qcocoamenuLoader)];
+         QT_MANGLE_NAMESPACE(QCocoaMenuLoader) *loader = [[NSApplication sharedApplication] QT_MANGLE_NAMESPACE(qt_qcocoamenuLoader)];
          return [super indexOfItemWithTarget:loader andAction:actionSelector];
      }
      return index;

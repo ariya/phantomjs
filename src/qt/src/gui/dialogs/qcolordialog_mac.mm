@@ -313,7 +313,7 @@ QT_USE_NAMESPACE
         // It's important that the modal event loop is stopped before
         // we accept/reject QColorDialog, since QColorDialog has its
         // own event loop that needs to be stopped last. 
-        [NSApp stopModalWithCode:code];
+        [[NSApplication sharedApplication] stopModalWithCode:code];
     } else {
         // Since we are not in a modal event loop, we can safely close
         // down QColorDialog
@@ -345,7 +345,7 @@ QT_USE_NAMESPACE
     while (!modalEnded) {
 #ifndef QT_NO_EXCEPTIONS
         @try {
-            [NSApp runModalForWindow:mColorPanel];
+            [[NSApplication sharedApplication] runModalForWindow:mColorPanel];
             modalEnded = true;
         } @catch (NSException *) {
             // For some reason, NSColorPanel throws an exception when
@@ -353,7 +353,7 @@ QT_USE_NAMESPACE
             // palette (tab three).
         }
 #else
-        [NSApp runModalForWindow:mColorPanel];
+        [[NSApplication sharedApplication] runModalForWindow:mColorPanel];
         modalEnded = true;
 #endif
     }
@@ -464,10 +464,10 @@ void QColorDialogPrivate::mac_nativeDialogModalHelp()
     // Do a queued meta-call to open the native modal dialog so it opens after the new
     // event loop has started to execute (in QDialog::exec). Using a timer rather than
     // a queued meta call is intentional to ensure that the call is only delivered when
-    // [NSApp run] runs (timers are handeled special in cocoa). If NSApp is not
+    // [NSApplication run] runs (timers are handeled special in cocoa). If NSApplication is not
     // running (which is the case if e.g a top-most QEventLoop has been
     // interrupted, and the second-most event loop has not yet been reactivated (regardless
-    // if [NSApp run] is still on the stack)), showing a native modal dialog will fail.
+    // if [NSApplication run] is still on the stack)), showing a native modal dialog will fail.
     if (delegate){
         Q_Q(QColorDialog);
         QTimer::singleShot(1, q, SLOT(_q_macRunNativeAppModalPanel()));
