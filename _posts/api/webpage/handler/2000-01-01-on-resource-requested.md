@@ -20,11 +20,12 @@ The `requestData` metadata object contains these properties:
 The `networkRequest` object contains these functions:
 
 * `abort()`        : aborts the current network request. Aborting the current network request will invoke `onResourceError` callback.
-* `changeUrl(url)` : changes the current URL of the network request.
+* `changeUrl(newUrl)` : changes the current URL of the network request. By calling `networkRequest.changeUrl(newUrl)`, we can change the request url to the new url. This is an excellent and only way to provide alternative implementation of a remote resource. (see Example-2)
 * `setHeader(key, value)`
 
 ## Examples
 
+### Example-1
 ```javascript
 var webPage = require('webpage');
 var page = webPage.create();
@@ -34,6 +35,25 @@ page.onResourceRequested = function(requestData, networkRequest) {
 };
 ```
 
+### Example-2
+
+Provide an alternative implementation of a remote javascript.
+
+```javascript
+var webPage = require('webpage');
+var page = webPage.create();
+
+page.onResourceRequested = function(requestData, networkRequest) {
+  var match = requestData.url.match(/wordfamily.js/g);
+  if (match != null) {
+    console.log('Request (#' + requestData.id + '): ' + JSON.stringify(requestData));
+    
+    // newWordFamily.js is an alternative implementation of wordFamily.js
+    // and is available in local path
+    networkRequest.changeUrl('newWordFamily.js'); 
+  }
+};
+```
 
 
 
