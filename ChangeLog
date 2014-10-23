@@ -5,6 +5,8 @@ Please see also http://phantomjs.org/releases.html.
       * Change default SSL protocol to TLSv1 to address POODLE (issue 12655)
         To use the old default protocol of SSLv3 which is vulnerable to POODLE
         add the --ssl-protocol=SSLv3 flag. Reference: http://poodlebleed.com/
+      * Fixed building on OS X 10.10 Yosemite (issue 12622)
+      * Backported crash fix when exit (issue 11642, 12431)
 
 2014-01-25: Version 1.9.7
 
