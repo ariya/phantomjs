@@ -196,7 +196,6 @@ bool Phantom::execute()
     if (m_config.isWebdriverMode()) {                                   // Remote WebDriver mode requested
         qDebug() << "Phantom - execute: Starting Remote WebDriver mode";
 
-        Terminal::instance()->cout("PhantomJS is launching GhostDriver...");
         if (!Utils::injectJsInFrame(":/ghostdriver/main.js", QString(), m_scriptFileEnc, QDir::currentPath(), m_page->mainFrame(), true)) {
             m_returnValue = -1;
             return false;
