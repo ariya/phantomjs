@@ -12,9 +12,10 @@ if (!Date.prototype.toISOString) {
     }
 }
 
-function createHAR(address, title, startTime, resources)
+function createHAR(address, title, startTime, resources, endTime, dom_element_count)
 {
     var entries = [];
+    var bodySize = 0;
 
     resources.forEach(function (resource) {
         var request = resource.request,
@@ -24,15 +25,16 @@ function createHAR(address, title, startTime, resources)
         if (!request || !startReply || !endReply) {
             return;
         }
+        bodySize = bodySize + startReply.bodySize;
 
         // Exclude Data URI from HAR file because
         // they aren't included in specification
         if (request.url.match(/(^data:image\/.*)/i)) {
             return;
-	}
+        }
 
         entries.push({
-            startedDateTime: request.time.toISOString(),
+            startedDateTime: startReply.time.toISOString(),
             time: endReply.time - request.time,
             request: {
                 method: request.method,
@@ -82,8 +84,14 @@ function createHAR(address, title, startTime, resources)
             },
             pages: [{
                 startedDateTime: startTime.toISOString(),
+                endedDateTime: page.endTime.toISOString(),
                 id: address,
+                size: bodySize,
+                resourcesCount: resources.length,
+                domElementsCount: dom_element_count,
                 title: title,
+                jscheck: page.jscheck,
+                jscheckout: page.jscheckout,
                 pageTimings: {
                     onLoad: page.endTime - page.startTime
                 }
@@ -93,15 +101,19 @@ function createHAR(address, title, startTime, resources)
     };
 }
 
-var page = require('webpage').create(),
-    system = require('system');
+var page = new WebPage(), output;
+page.viewportSize = { width: 1600, height: 1200 };
 
-if (system.args.length === 1) {
-    console.log('Usage: netsniff.js <some URL>');
+if (phantom.args.length === 0) {
+    console.log('Usage: netsniff.js <some URL> <HEADERS>');
     phantom.exit(1);
 } else {
 
-    page.address = system.args[1];
+    page.address = phantom.args[0];
+    if (phantom.args[1]) {
+    	page.customHeaders = JSON.parse(phantom.args[1]);
+    }
+    page.settings.userAgent = 'hggh PhantomJS Webspeed Test';
     page.resources = [];
 
     page.onLoadStarted = function () {
@@ -125,19 +137,37 @@ if (system.args.length === 1) {
         }
     };
 
-    page.open(page.address, function (status) {
+    page.onError = function(msg, trace) {
+        var msgStack = ['ERROR: ' + msg];
+        if (trace && trace.length) {
+            msgStack.push('TRACE:');
+            trace.forEach(function(t) {
+                msgStack.push(' -> ' + t.file + ': ' + t.line + (t.function ? ' (in function "' + t.function + '")' : ''));
+            });
+        }
+    };
+
+    page.onLoadFinished = function (status) {
         var har;
         if (status !== 'success') {
-            console.log('FAIL to load the address');
+            console.log(
+                "Error opening url \"" + page.reason_url
+                + "\": " + page.reason
+            );
             phantom.exit(1);
         } else {
             page.endTime = new Date();
             page.title = page.evaluate(function () {
                 return document.title;
             });
-            har = createHAR(page.address, page.title, page.startTime, page.resources);
+            var dom_element_count = page.evaluate(function (s) {
+                return document.getElementsByTagName('*').length;
+            });
+            page.jscheckout = page.evaluate(function (){return eval(arguments[0]);},page.jscheck);
+            har = createHAR(page.address, page.title, page.startTime, page.resources, page.EndTime, dom_element_count);
             console.log(JSON.stringify(har, undefined, 4));
             phantom.exit();
         }
-    });
+    };
+    page.open(page.address);
 }
