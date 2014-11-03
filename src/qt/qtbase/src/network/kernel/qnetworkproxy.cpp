@@ -326,12 +326,14 @@ QList<QNetworkProxy> QGlobalNetworkProxy::proxyForQuery(const QNetworkProxyQuery
     // don't look for proxies for a local connection
     QHostAddress parsed;
     QString hostname = query.url().host();
-    if (hostname == QLatin1String("localhost")
-        || hostname.startsWith(QLatin1String("localhost."))
-        || (parsed.setAddress(hostname)
-            && (parsed.isLoopback()))) {
-        result << QNetworkProxy(QNetworkProxy::NoProxy);
-        return result;
+    if (!applicationLevelProxy->useProxyForLocalhost()) {
+      if (hostname == QLatin1String("localhost")
+          || hostname.startsWith(QLatin1String("localhost."))
+          || (parsed.setAddress(hostname)
+              && (parsed.isLoopback()))) {
+          result << QNetworkProxy(QNetworkProxy::NoProxy);
+          return result;
+      }
     }
 
     if (!applicationLevelProxyFactory) {
@@ -454,7 +456,7 @@ template<> void QSharedDataPointer<QNetworkProxyPrivate>::detach()
     \sa setType(), setApplicationProxy()
 */
 QNetworkProxy::QNetworkProxy()
-    : d(0)
+  : d(0), m_useProxyForLocalhost(false)
 {
     // make sure we have QGlobalNetworkProxy singleton created, otherwise
     // you don't have any socket engine handler created when directly setting
@@ -471,8 +473,8 @@ QNetworkProxy::QNetworkProxy()
     \sa capabilities()
 */
 QNetworkProxy::QNetworkProxy(ProxyType type, const QString &hostName, quint16 port,
-                  const QString &user, const QString &password)
-    : d(new QNetworkProxyPrivate(type, hostName, port, user, password))
+                             const QString &user, const QString &password, const bool useProxyForLocalhost)
+  : d(new QNetworkProxyPrivate(type, hostName, port, user, password)), m_useProxyForLocalhost(useProxyForLocalhost)
 {
     // make sure we have QGlobalNetworkProxy singleton created, otherwise
     // you don't have any socket engine handler created when directly setting
@@ -618,6 +620,11 @@ bool QNetworkProxy::isCachingProxy() const
 bool QNetworkProxy::isTransparentProxy() const
 {
     return capabilities() & TunnelingCapability;
+}
+
+bool QNetworkProxy::useProxyForLocalhost() const
+{
+  return m_useProxyForLocalhost;
 }
 
 /*!

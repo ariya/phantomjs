@@ -145,7 +145,7 @@ public:
 
     QNetworkProxy();
     QNetworkProxy(ProxyType type, const QString &hostName = QString(), quint16 port = 0,
-                  const QString &user = QString(), const QString &password = QString());
+                  const QString &user = QString(), const QString &password = QString(), const bool useProxyForLocalhost = false);
     QNetworkProxy(const QNetworkProxy &other);
     QNetworkProxy &operator=(const QNetworkProxy &other);
     ~QNetworkProxy();
@@ -163,6 +163,7 @@ public:
     Capabilities capabilities() const;
     bool isCachingProxy() const;
     bool isTransparentProxy() const;
+    bool useProxyForLocalhost() const;
 
     void setUser(const QString &userName);
     QString user() const;
@@ -191,6 +192,7 @@ public:
 
 private:
     QSharedDataPointer<QNetworkProxyPrivate> d;
+    bool m_useProxyForLocalhost;
 };
 
 Q_DECLARE_SHARED(QNetworkProxy)
