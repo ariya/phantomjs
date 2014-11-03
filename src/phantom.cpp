@@ -411,10 +411,10 @@ void Phantom::setProxy(const QString& ip, const qint64& port, const QString& pro
         }
         // Checking for passed proxy user and password
         if (!user.isEmpty() && !password.isEmpty()) {
-            QNetworkProxy proxy(networkProxyType, ip, port, user, password);
+            QNetworkProxy proxy(networkProxyType, ip, port, user, password, m_config.useProxyForLocalhost());
             QNetworkProxy::setApplicationProxy(proxy);
         } else {
-            QNetworkProxy proxy(networkProxyType, ip, port);
+          QNetworkProxy proxy(networkProxyType, ip, port, QString(), QString(), m_config.useProxyForLocalhost());
             QNetworkProxy::setApplicationProxy(proxy);
         }
     }

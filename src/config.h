@@ -50,6 +50,7 @@ class Config: public QObject
     Q_PROPERTY(QString outputEncoding READ outputEncoding WRITE setOutputEncoding)
     Q_PROPERTY(QString proxyType READ proxyType WRITE setProxyType)
     Q_PROPERTY(QString proxy READ proxy WRITE setProxy)
+    Q_PROPERTY(bool useProxyForLocalhost READ useProxyForLocalhost WRITE setUseProxyForLocalhost)
     Q_PROPERTY(QString proxyAuth READ proxyAuth WRITE setProxyAuth)
     Q_PROPERTY(QString scriptEncoding READ scriptEncoding WRITE setScriptEncoding)
     Q_PROPERTY(bool webSecurityEnabled READ webSecurityEnabled WRITE setWebSecurityEnabled)
@@ -123,6 +124,9 @@ public:
     void setProxy(const QString& value);
     QString proxyHost() const;
     int proxyPort() const;
+
+    bool useProxyForLocalhost() const;
+    void setUseProxyForLocalhost(const bool &value);
 
     QString proxyAuth() const;
     void setProxyAuth(const QString& value);
@@ -232,6 +236,7 @@ private:
     QString m_outputEncoding;
     QString m_proxyType;
     QString m_proxyHost;
+    bool m_useProxyForLocalhost;
     int m_proxyPort;
     QString m_proxyAuthUser;
     QString m_proxyAuthPass;
