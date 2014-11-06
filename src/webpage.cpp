@@ -934,7 +934,7 @@ bool WebPage::render(const QString &fileName, const QVariantMap &option)
 
         const char *f = 0; // 0 is QImage#save default
         if( format != "" ){
-            f = format.toUtf8().constData();
+            f = format.toLocal8Bit().constData();
         }
 
         retval = rawPageRendering.save(outFileName, f, quality);
