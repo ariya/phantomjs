@@ -71,6 +71,7 @@ page.open(address, function(status) {
     console.log('FAIL to load the address');
   } else {
     t = Date.now() - t;
+    console.log('Loading ' + system.args[1]);
     console.log('Loading time ' + t + ' msec');
   }
   phantom.exit();
@@ -101,6 +102,7 @@ page.open(url, function(status) {
     return document.title;
   });
   console.log('Page title is ' + title);
+  phantom.exit();
 });
 ```
 
@@ -115,6 +117,7 @@ page.open(url, function(status) {
   page.evaluate(function() {
     console.log(document.title);
   });
+  phantom.exit();
 });
 ```
 
