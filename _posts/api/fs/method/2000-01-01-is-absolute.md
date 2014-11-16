@@ -9,7 +9,15 @@ permalink: api/fs/method/is-absolute.html
 
 ```javascript
 var fs = require('fs');
-// @TODO: Finish fs.isAbsolute example.
+var path = '/Full/Path/To/test.txt';
+
+// isAbsolute(path) returns true if the specified path is an absolute path.
+if (fs.isAbsolute(path))
+  console.log('"'+path+'" is an absolute path.');
+else
+  console.log('"'+path+'" is NOT an absolute path.');
+
+phantom.exit();
 ```
 
 
