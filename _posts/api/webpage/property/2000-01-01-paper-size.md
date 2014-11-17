@@ -65,6 +65,7 @@ page.paperSize = {
   margin: {
     top: '50px',
     left: '20px'
+  }
 };
 ```
 
