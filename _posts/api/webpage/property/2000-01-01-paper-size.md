@@ -31,6 +31,20 @@ Supported formats are: `'A3'`, `'A4'`, `'A5'`, `'Legal'`, `'Letter'`, `'Tabloid'
 
 Orientation (`'portrait'`, `'landscape'`) is optional and defaults to `'portrait'`.
 
+### Headers and Footers
+
+A repeating page header and footer can also be added via the header and footer property. These can be provided as an object that contains a `height` and a `contents` property. The contents property must be set as a phantom.callback object. 
+
+```javascript
+header: {
+  height: "1.2cm",
+  contents: phantom.callback(function(pageNum, numPages) {
+    return "<h1>Header <span style='float:right'>" + pageNum + " / " + numPages + "</span></h1>";
+  })
+}
+```
+
+
 ## Acceptable Objects
 
 The given object should be in _either_ this format:
@@ -66,6 +80,29 @@ page.paperSize = {
     top: '50px',
     left: '20px'
 };
+```
+
+A repeating page `header` and `footer` can also be added via this property, as in [this example](https://github.com/ariya/phantomjs/blob/master/examples/printheaderfooter.js):
+```javascript
+var webPage = require('webpage');
+var page = webPage.create();
+
+page.paperSize = {
+  width: '8.5in',
+  height: '11in',
+  header: {
+    height: "1cm",
+    contents: phantom.callback(function(pageNum, numPages) {
+      return "<h1>Header <span style='float:right'>" + pageNum + " / " + numPages + "</span></h1>";
+    })
+  },
+  footer: {
+    height: "1cm",
+    contents: phantom.callback(function(pageNum, numPages) {
+      return "<h1>Footer <span style='float:right'>" + pageNum + " / " + numPages + "</span></h1>";
+    })
+  }
+}
 ```
 
 
