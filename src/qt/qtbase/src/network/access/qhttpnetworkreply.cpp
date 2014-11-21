@@ -496,7 +496,26 @@ bool QHttpNetworkReplyPrivate::parseStatus(const QByteArray &status)
 
     bool ok;
     statusCode = code.toInt(&ok);
-    reasonPhrase = QString::fromLatin1(status.constData() + j + 1);
+
+    // RFC 2616 specifies that the reason-phrase "MAY contain
+    // characters from character sets other than ISO-8859-1 only when
+    // encoded according to the rules of RFC 2047".
+    //
+    // RFC 7230 obsoletes the reason-phrase entirely (§3.1.2) and
+    // declares that non-ASCII characters headers in headers are to be
+    // treated as opaque (§3.2.4).
+    //
+    // In practice, reason-phrases are still a thing, and when they
+    // contain non-ASCII characters they're more likely to be encoded
+    // in UTF-8 than anything else nowadays.  Therefore, attempt to
+    // interpret as UTF-8 first, falling back to Latin1 if that fails.
+    QTextCodec::ConverterState state;
+    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
+    reasonPhrase = codec->toUnicode(status.constData() + (j + 1),
+                                    status.size() - (j + 1),
+                                    &state);
+    if (state.invalidChars > 0)
+      reasonPhrase = QString::fromLatin1(status.constData() + (j + 1));
 
     return ok && uint(majorVersion) <= 9 && uint(minorVersion) <= 9;
 }
