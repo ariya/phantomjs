@@ -6,6 +6,7 @@ import imp
 import optparse
 import os
 import posixpath
+import shlex
 import SimpleHTTPServer
 import SocketServer
 import socket
@@ -216,10 +217,12 @@ def init():
         print 'Checking PhantomJS version %s' % version
 
 
-def run_phantomjs(script, args=[]):
+def run_phantomjs(script, script_args=[], pjs_args=[]):
     output = []
-    command = [phantomjs_exe, script]
-    command.extend(args)
+    command = [phantomjs_exe]
+    command.extend(pjs_args)
+    command.append(script)
+    command.extend(script_args)
     process = subprocess.Popen(command, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 
     def runner():
@@ -244,23 +247,34 @@ def run_phantomjs(script, args=[]):
 
 
 def run_test(script, name):
-    args = []
+    script_args = []
+    pjs_args = []
     if options.verbose:
-        args.append('--verbose')
+        script_args.append('--verbose')
 
-    result = 0
-    if not os.path.isfile(script):
-        print 'Could not locate %s' % name
-        result = 1
-    else:
-        print '%s:' % name
-        returncode, output = run_phantomjs(script, args)
-        if returncode != 0:
-            if not options.verbose:
-                print '%s' % output
-            result = 1
+    try:
+        with open(script, "rt") as s:
+            p_prefix = "// phantomjs: "
+            s_prefix = "// script: "
+            for line in s:
+                if line.startswith(p_prefix):
+                    pjs_args.extend(shlex.split(line[len(p_prefix):]))
+                if line.startswith(s_prefix):
+                    script_args.extend(shlex.split(line[len(s_prefix):]))
+                if not line.startswith("//"):
+                    break
+    except OSError as e:
+        print '%s: %s: %s' % (name, e.filename, e.strerror)
+        return 1
 
-    return result
+    print '%s:' % name
+    returncode, output = run_phantomjs(script, script_args, pjs_args)
+    if returncode != 0:
+        if not options.verbose:
+            print '%s' % output
+        return 1
+
+    return 0
 
 
 def run_tests():

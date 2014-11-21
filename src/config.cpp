@@ -56,6 +56,7 @@ static const struct QCommandLineConfigEntry flags[] =
     { QCommandLine::Option, '\0', "load-images", "Loads all inlined images: 'true' (default) or 'false'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "local-storage-path", "Specifies the location for offline local storage", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "local-storage-quota", "Sets the maximum size of the offline local storage (in KB)", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "local-url-access", "Allows use of 'file:///' URLs: 'true' (default) or 'false'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "local-to-remote-url-access", "Allows local content to access remote URL: 'true' or 'false' (default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "max-disk-cache-size", "Limits the size of the disk cache (in KB)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "output-encoding", "Sets the encoding for the terminal output, default is 'utf8'", QCommandLine::Optional },
@@ -247,6 +248,16 @@ bool Config::ignoreSslErrors() const
 void Config::setIgnoreSslErrors(const bool value)
 {
     m_ignoreSslErrors = value;
+}
+
+bool Config::localUrlAccessEnabled() const
+{
+    return m_localUrlAccessEnabled;
+}
+
+void Config::setLocalUrlAccessEnabled(const bool value)
+{
+    m_localUrlAccessEnabled = value;
 }
 
 bool Config::localToRemoteUrlAccessEnabled() const
@@ -535,6 +546,7 @@ void Config::resetToDefaults()
     m_diskCacheEnabled = false;
     m_maxDiskCacheSize = -1;
     m_ignoreSslErrors = false;
+    m_localUrlAccessEnabled = true;
     m_localToRemoteUrlAccessEnabled = false;
     m_outputEncoding = "UTF-8";
     m_proxyType = "http";
@@ -643,6 +655,7 @@ void Config::handleOption(const QString &option, const QVariant &value)
     booleanFlags << "disk-cache";
     booleanFlags << "ignore-ssl-errors";
     booleanFlags << "load-images";
+    booleanFlags << "local-url-access";
     booleanFlags << "local-to-remote-url-access";
     booleanFlags << "remote-debugger-autorun";
     booleanFlags << "web-security";
@@ -684,6 +697,10 @@ void Config::handleOption(const QString &option, const QVariant &value)
 
     if (option == "local-storage-quota") {
         setOfflineStorageDefaultQuota(value.toInt());
+    }
+
+    if (option == "local-url-access") {
+        setLocalUrlAccessEnabled(boolValue);
     }
 
     if (option == "local-to-remote-url-access") {

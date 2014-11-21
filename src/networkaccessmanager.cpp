@@ -73,6 +73,30 @@ static const char *toString(QNetworkAccessManager::Operation op)
     return str;
 }
 
+// Stub QNetworkReply used when file:/// URLs are disabled.
+// Somewhat cargo-culted from QDisabledNetworkReply.
+
+NoFileAccessReply::NoFileAccessReply(QObject *parent, const QNetworkRequest &req, const QNetworkAccessManager::Operation op)
+    : QNetworkReply(parent)
+{
+    setRequest(req);
+    setUrl(req.url());
+    setOperation(op);
+
+    qRegisterMetaType<QNetworkReply::NetworkError>();
+    QString msg = (QCoreApplication::translate("QNetworkReply", "Protocol \"%1\" is unknown")
+                   .arg(req.url().scheme()));
+    setError(ProtocolUnknownError, msg);
+
+    QMetaObject::invokeMethod(this, "error", Qt::QueuedConnection,
+                              Q_ARG(QNetworkReply::NetworkError, ProtocolUnknownError));
+    QMetaObject::invokeMethod(this, "finished", Qt::QueuedConnection);
+}
+
+// The destructor must be out-of-line in order to trigger generation of the vtable.
+NoFileAccessReply::~NoFileAccessReply() {}
+
+
 TimeoutTimer::TimeoutTimer(QObject* parent)
     : QTimer(parent)
 {
@@ -129,6 +153,7 @@ const ssl_protocol_option ssl_protocol_options[] = {
 NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config)
     : QNetworkAccessManager(parent)
     , m_ignoreSslErrors(config->ignoreSslErrors())
+    , m_localUrlAccessEnabled(config->localUrlAccessEnabled())
     , m_authAttempts(0)
     , m_maxAuthAttempts(3)
     , m_resourceTimeout(0)
@@ -238,10 +263,12 @@ void NetworkAccessManager::setCookieJar(QNetworkCookieJar *cookieJar)
 QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkRequest & request, QIODevice * outgoingData)
 {
     QNetworkRequest req(request);
+    QString scheme = req.url().scheme().toLower();
+    bool isLocalFile = req.url().isLocalFile();
 
     if (!QSslSocket::supportsSsl()) {
-        if (req.url().scheme().toLower() == QLatin1String("https"))
-            qWarning() << "Request using https scheme without SSL support";
+      if (scheme == QLatin1String("https"))
+        qWarning() << "Request using https scheme without SSL support";
     } else {
         req.setSslConfiguration(m_sslConfiguration);
     }
@@ -288,8 +315,15 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     JsNetworkRequest jsNetworkRequest(&req, this);
     emit resourceRequested(data, &jsNetworkRequest);
 
-    // Pass duty to the superclass - Nothing special to do here (yet?)
-    QNetworkReply *reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
+    // Pass duty to the superclass - special case: file:/// may be disabled.
+    // This conditional must match QNetworkAccessManager's own idea of what a
+    // local file URL is.
+    QNetworkReply *reply;
+    if (!m_localUrlAccessEnabled && (isLocalFile || scheme == QLatin1String("qrc"))) {
+      reply = new NoFileAccessReply(this, req, op);
+    } else {
+      reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
+    }
 
     // reparent jsNetworkRequest to make sure that it will be destroyed with QNetworkReply
     jsNetworkRequest.setParent(reply);
