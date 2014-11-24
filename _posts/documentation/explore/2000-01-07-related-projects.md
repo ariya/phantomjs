@@ -38,6 +38,7 @@ Several page capture projects utilizing PhantomJS:
    * [pageres](https://github.com/sindresorhus/pageres) - get screenshots of website(s) in few different resolutions to make sure they are responsive (Node.js) 
    * [phantomjs-screenshots](https://github.com/hggh/phantomjs-screenshots), a system for running screenshot tasks defined in JSON format (Node.js)
  * **web-service**
+   * [manet](https://github.com/vbauer/manet) (Node.js)
    * [screenshot-app](https://github.com/visionmedia/screenshot-app) (Node.js)
    * [screenshot-as-a-service](https://github.com/fzaninotto/screenshot-as-a-service) (Node.js)
    * [screenshot-service](https://github.com/arunkjn/screenshot-service) a pure phantomJS project to capture screenshot of any page with various configuration options
