@@ -464,13 +464,13 @@ describe("WebPage object", function() {
             page.openUrl(url, openOptions, {});
         });
 
-        waits(50);
+        waitsFor(function() {
+            return handled;
+        }, "can't process POST body in 1s", 1000);
 
         runs(function() {
-            expect(handled).toEqual(true);
             server.close();
         });
-
     });
 
     it("should include post data to request object", function() {
