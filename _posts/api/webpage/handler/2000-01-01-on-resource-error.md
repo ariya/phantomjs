@@ -13,7 +13,7 @@ The `resourceError` metadata object contains these properties:
 
 * `id`          : the number of the request
 * `url`         : the resource url
-* `errorCode`   : the error code
+* `errorCode`   : the [error code](http://qt-project.org/doc/qt-4.8/qnetworkreply.html#NetworkError-enum)
 * `errorString` : the error description
 
 ## Examples
