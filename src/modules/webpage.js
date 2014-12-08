@@ -371,7 +371,7 @@ function decorateNewPage(opts, page) {
             case "object":      //< for type "object"
             case "array":       //< for type "array"
             case "date":        //< for type "date"
-                str += "JSON.parse(" + JSON.stringify(JSON.stringify(arg)) + "),"
+                str += JSON.stringify(arg) + ","
                 break;
             case "string":      //< for type "string"
                 str += quoteString(arg) + ',';
