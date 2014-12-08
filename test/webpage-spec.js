@@ -1,103 +1,5 @@
-function checkClipRect(page, clipRect) {
-    it("should have clipRect with height "+clipRect.height, function () {
-        expect(page.clipRect.height).toEqual(clipRect.height);
-    });
-    it("should have clipRect with left "+clipRect.left, function () {
-        expect(page.clipRect.left).toEqual(clipRect.left);
-    });
-    it("should have clipRect with top "+clipRect.top, function () {
-        expect(page.clipRect.top).toEqual(clipRect.top);
-    });
-    it("should have clipRect with width "+clipRect.width, function () {
-        expect(page.clipRect.width).toEqual(clipRect.width);
-    });
-}
-
-function checkScrollPosition(page, scrollPosition) {
-    it("should have scrollPosition with left "+scrollPosition.left, function () {
-        expect(page.scrollPosition.left).toEqual(scrollPosition.left);
-    });
-    it("should have scrollPosition with top "+scrollPosition.top, function () {
-        expect(page.scrollPosition.top).toEqual(scrollPosition.top);
-    });
-}
-
-function checkViewportSize(page, viewportSize) {
-    it("should have viewportSize with height "+viewportSize.height, function () {
-        expect(page.viewportSize.height).toEqual(viewportSize.height);
-    });
-    it("should have viewportSize with width "+viewportSize.width, function () {
-        expect(page.viewportSize.width).toEqual(viewportSize.width);
-    });
-}
-
-function checkPageCallback(page) {
-    it("should pass variables from/to window.callPhantom/page.onCallback", function() {
-        var msgA = "a",
-            msgB = "b",
-            result,
-            expected = msgA + msgB;
-        page.onCallback = function(a, b) {
-            return a + b;
-        };
-        result = page.evaluate(function(a, b) {
-            return callPhantom(a, b);
-        }, msgA, msgB);
-
-        expect(result).toEqual(expected);
-    });
-}
-
-function checkPageConfirm(page) {
-    it("should pass result from/to window.confirm/page.onConfirm", function() {
-        var msg = "message body",
-            result,
-            expected = true;
-        page.onConfirm = function(msg) {
-            return true;
-        };
-        result = page.evaluate(function(m) {
-            return window.confirm(m);
-        }, msg);
-
-        expect(result).toEqual(expected);
-    });
-}
-
-function checkPagePrompt(page) {
-    it("should pass result from/to window.prompt/page.onPrompt", function() {
-        var msg = "message",
-            value = "value",
-            result,
-            expected = "extra-value";
-        page.onPrompt = function(msg, value) {
-            return "extra-"+value;
-        };
-        result = page.evaluate(function(m, v) {
-            return window.prompt(m, v);
-        }, msg, value);
-
-        expect(result).toEqual(expected);
-    });
-}
-
-describe("WebPage constructor", function() {
-    it("should exist in window", function() {
-        expect(window.hasOwnProperty('WebPage')).toBeTruthy();
-    });
-
-    it("should be a function", function() {
-        expect(typeof window.WebPage).toEqual('function');
-    });
-});
-
 describe("WebPage object", function() {
     var page = new WebPage();
-
-    it("should be creatable", function() {
-        expect(typeof page).toEqual('object');
-        expect(page).toNotEqual(null);
-    });
 
     it("should be able to get any signal handler that are currently set on it", function() {
         page.onInitialized = undefined;
@@ -149,29 +51,6 @@ describe("WebPage object", function() {
         page.onError = undefined;
         expect(page.onError).toBeUndefined();
     });
-
-    checkPageCallback(page);
-    checkPageConfirm(page);
-    checkPagePrompt(page);
-
-    checkClipRect(page, {height:0,left:0,top:0,width:0});
-
-    it("should have objectName as 'WebPage'", function() {
-        expect(page.objectName).toEqual('WebPage');
-    });
-
-    it("should have paperSize as an empty object", function() {
-        expect(page.paperSize).toEqual({});
-    });
-
-    checkScrollPosition(page, {left:0,top:0});
-
-    it("should have non-empty settings", function() {
-        expect(page.settings).toNotEqual(null);
-        expect(page.settings).toNotEqual({});
-    });
-
-    checkViewportSize(page, {height:300,width:400});
 
     it("should handle click event", function() {
         runs(function() {
@@ -859,18 +738,6 @@ describe("WebPage construction with options", function () {
         expect(page).toNotEqual(null);
     });
 
-    describe("specifying clipRect", function() {
-        var opts = {
-            clipRect: {
-                height: 100,
-                left: 10,
-                top: 20,
-                width: 200
-            }
-        };
-        checkClipRect(new WebPage(opts), opts.clipRect);
-    });
-
     describe("specifying onConsoleMessage", function() {
         var message = false,
             opts = {
@@ -929,16 +796,6 @@ describe("WebPage construction with options", function () {
         });
     });
 
-    describe("specifying scrollPosition", function () {
-        var opts = {
-            scrollPosition: {
-                left: 1,
-                top: 2
-            }
-        };
-        checkScrollPosition(new WebPage(opts), opts.scrollPosition);
-    });
-
     describe("specifying timeout", function () {
         var opts = {
             settings: {
@@ -949,16 +806,6 @@ describe("WebPage construction with options", function () {
         it("should have timeout as "+opts.settings.timeout,function () {
             expect(page.settings.timeout).toEqual(opts.settings.timeout);
         });
-    });
-
-    describe("specifying viewportSize", function () {
-        var opts = {
-            viewportSize: {
-                height: 100,
-                width: 200
-            }
-        };
-        checkViewportSize(new WebPage(opts), opts.viewportSize);
     });
 });
 
@@ -1558,4 +1405,3 @@ describe("WebPage render image", function(){
         p.close();
     });
 });
-
