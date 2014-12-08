@@ -10,5 +10,4 @@ var result = page.evaluate(function(obj) {
     return obj.value * obj.value;
 }, { value: 4 });
 
-// FAIL
-// assert.equal(result, 16);
+assert.equal(result, 16);
