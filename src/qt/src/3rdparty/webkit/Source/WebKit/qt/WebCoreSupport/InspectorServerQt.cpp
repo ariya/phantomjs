@@ -87,6 +87,7 @@ void InspectorServerQt::listen(quint16 port)
         return;
 
     m_tcpServer = new QTcpServer();
+    m_tcpServer->setProxy(QNetworkProxy::NoProxy);
     m_tcpServer->listen(QHostAddress::Any, port);
     connect(m_tcpServer, SIGNAL(newConnection()), SLOT(newConnection()));
 }
