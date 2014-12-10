@@ -371,7 +371,7 @@ function decorateNewPage(opts, page) {
             case "object":      //< for type "object"
             case "array":       //< for type "array"
             case "date":        //< for type "date"
-                str += "JSON.parse(" + JSON.stringify(JSON.stringify(arg)) + "),"
+                str += "(JSON && JSON.parse && JSON.parse(" + JSON.stringify(JSON.stringify(arg)) + ")) || (window.a5acac1b6a88f6285e95c36834052c1f = document.createElement('iframe'), document.body.appendChild(window.a5acac1b6a88f6285e95c36834052c1f), window.a5acac1b6a88f6285e95c36834052c1f.contentWindow.JSON.parse(" + JSON.stringify(JSON.stringify(arg)) + ")),"
                 break;
             case "string":      //< for type "string"
                 str += quoteString(arg) + ',';
