@@ -84,6 +84,7 @@ page.paperSize = {
 ```
 
 A repeating page `header` and `footer` can also be added via this property, as in [this example](https://github.com/ariya/phantomjs/blob/master/examples/printheaderfooter.js):
+
 ```javascript
 var webPage = require('webpage');
 var page = webPage.create();
