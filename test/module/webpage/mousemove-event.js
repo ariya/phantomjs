@@ -1,7 +1,5 @@
 var assert = require('../../assert');
-var webpage = require('webpage');
-
-var page = webpage.create();
+var page = require('webpage').create();
 
 page.evaluate(function() {
     window.addEventListener('mousemove', function(event) {

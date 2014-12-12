@@ -90,6 +90,32 @@ function typeOf(object, expected) {
     ++total;
 }
 
+function waitFor(condition, callback, options) {
+    callback = callback || function() {};
+    options = options || {};
+    var poolMs = options.poolMs || 10;
+    var timeoutMs = options.timeoutMs || 1000;
+    var cutoffMs = timeoutMs + new Date().getTime();
+
+    var waitForInternal = function () {
+        if (condition()) {
+            ++total;
+            callback();
+        } else {
+            var now = new Date().getTime();
+            if (now < cutoffMs) {
+                window.setTimeout(waitForInternal, poolMs);
+            } else {
+                console.error("Timeout while waiting for ''",
+                    condition.toString(), "'");
+                showError();
+            }
+        }
+    }
+
+    waitForInternal();
+}
+
 exports.timeout = timeout;
 exports.isTrue = isTrue;
 exports.equal = equal;
@@ -97,3 +123,4 @@ exports.jsonEqual = jsonEqual;
 exports.notEqual = notEqual;
 exports.strictEqual = strictEqual;
 exports.typeOf = typeOf;
+exports.waitFor = waitFor;
