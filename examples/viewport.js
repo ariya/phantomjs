@@ -2,7 +2,7 @@ var page = require('webpage').create(),
 	address, output, size;
 
 if (phantom.args.length < 4 || phantom.args.length > 5) {
-    console.log('Usage: rasterize.js URL filename sizeX sizeY');
+    console.log('Usage: viewport.js URL filename sizeX sizeY');
     phantom.exit();
 } else {
     address = phantom.args[0];
