@@ -8,7 +8,7 @@ if (phantom.args.length < 3 || phantom.args.length > 4) {
     address = phantom.args[0];
     output = phantom.args[1];
     pixelRatio = phantom.args[2];
-    page.viewportSize = { width: (1280*pixelRatio), height: (800*pixelRatio) };
+    page.viewportSize = { width: (1440*pixelRatio), height: (900*pixelRatio) };
     page.open(address, function (status) {
         if (status !== 'success') {
             console.log('Unable to load the address!');
