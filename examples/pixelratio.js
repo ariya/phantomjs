@@ -44,6 +44,12 @@ page.open(address, function (status) {
             console.log('Setting window.devicePixelRatio to ' + r);
             window.devicePixelRatio = r;
             window.onload = false;
+            window.innerWidth = (width/r);
+            window.innerHeight = (height/r);
+            document.documentElement.offsetWidth = (document.documentElement.offsetWidth/r);
+            document.documentElement.offsetHeight = (document.documentElement.offsetHeight/r);
+            document.documentElement.clientWidth = (document.documentElement.clientWidth/r);
+            document.documentElement.clientHeight = (document.documentElement.clientHeight/r);
             screen.width = width;
             screen.height = height;
             document.body.style.webkitTransform = "scale(" + r + ")";
