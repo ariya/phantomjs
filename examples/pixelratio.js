@@ -1,5 +1,5 @@
 var page = require('webpage').create(),
-	address, output, pixelRatio;
+	address, output, pixelRatio, width, height;
 
 if (phantom.args.length < 3 || phantom.args.length > 4) {
     console.log('Usage: pixelratio.js URL filename pixelRatio');
@@ -30,17 +30,22 @@ page.onResourceRequested = function(requestData, networkRequest) {
     }
 };
 
-page.viewportSize = { width: (1440*pixelRatio), height: (900*pixelRatio) };
+width = (1440*pixelRatio);
+height = (900*pixelRatio);
+
+page.viewportSize = { width: width, height: height };
 page.open(address, function (status) {
     if (status !== 'success') {
         console.log('Unable to load the address!');
         phantom.exit();
     } else {
         // Manipulate the DOM
-        page.evaluate(function (r, urls) {
+        page.evaluate(function (r, urls, width, height) {
             console.log('Setting window.devicePixelRatio to ' + r);
             window.devicePixelRatio = r;
             window.onload = false;
+            screen.width = width;
+            screen.height = height;
             document.body.style.webkitTransform = "scale(" + r + ")";
             document.body.style.webkitTransformOrigin = "0% 0%";
             document.body.style.width = (100 / r) + "%";
@@ -75,7 +80,7 @@ page.open(address, function (status) {
                     clearInterval(_phantomIntVal);
                 }
             }, 100);
-        }, pixelRatio, resources);
+        }, pixelRatio, resources, width, height);
 
         // Make the screenshot
         window.setTimeout(function () {
