@@ -18,9 +18,9 @@ page.onConsoleMessage = function(msg) {
 // Here we block the first (few) requests until we have set the correct window variables
 var resources = [];
 page.onResourceRequested = function(requestData, networkRequest) {
-    if(blockJs === true && (requestData.url.match(/.js/g) !== null || requestData.url.match(/\/js/g) !== null)) {
+    if(blockJs === true && (requestData.url.match(/\.js/g) !== null || requestData.url.match(/\/js\//g) !== null)) {
         if(requestData.url.match(/_phantomLoadMe/g) === null) {
-            console.log('Blocked too soon request to ', requestData['url']);
+            console.log('Temporarily blocking too soon request to ', requestData['url']);
             resources.push(requestData['url']);
             networkRequest.abort();
         }
@@ -34,6 +34,7 @@ width = (1440*pixelRatio);
 height = (900*pixelRatio);
 
 page.viewportSize = { width: width, height: height };
+page.settings.localToRemoteUrlAccessEnabled = true;
 page.open(address, function (status) {
     if (status !== 'success') {
         console.log('Unable to load the address!');
@@ -57,11 +58,22 @@ page.open(address, function (status) {
             document.body.style.width = (100 / r) + "%";
 
             // Now that we've set our window, let's get those scripts again
-            var _phantomScripts = document.getElementsByTagName("head")[0].querySelector("script");
+            var _phantomReexecute = [];
+            var _phantomScripts = document.getElementsByTagName("script");
+            _phantomScripts = Array.prototype.slice.call(_phantomScripts);
             if(_phantomScripts.length > 0) {
                 _phantomScripts.forEach(function(v) {
-                    v.remove();
+                    if('src' in v && v.src !== "") {
+                        urls.push(v.src);
+                    }
+                    else {
+                        _phantomReexecute.push({'script': v.innerHTML});
+                    }
                 });
+            }
+            var _phantomAll = document.getElementsByTagName("script");
+            for (_phantomIndex = _phantomAll.length - 1; _phantomIndex >= 0; _phantomIndex--) {
+                _phantomAll[_phantomIndex].parentNode.removeChild(_phantomAll[_phantomIndex]);
             }
             if(urls.length > 0) {
                 var _phantomHead = document.getElementsByTagName("head")[0];
@@ -70,6 +82,14 @@ page.open(address, function (status) {
                     _phantomScript.type = "text/javascript";
                     _phantomScript.src = u + '?_phantomLoadMe';
                     _phantomHead.appendChild(_phantomScript);
+                });
+            }
+            if(_phantomReexecute.length > 0) {
+                var _phantomBody = document.getElementsByTagName("body")[0];
+                _phantomReexecute.forEach(function(s) {
+                    var _phantomScript = document.createElement("script");
+                    _phantomScript.type = "text/javascript";
+                    _phantomScript.innerHTML = s.script;
                 });
             }
 
@@ -92,7 +112,7 @@ page.open(address, function (status) {
         window.setTimeout(function () {
             page.render(output);
             phantom.exit();
-        }, 1500);
+        }, 2500);
     }
 });
 
