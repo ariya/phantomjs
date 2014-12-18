@@ -1280,6 +1280,15 @@ void WebPage::_uploadFile(const QString &selector, const QStringList &fileNames)
     el.evaluateJavaScript(JS_ELEMENT_CLICK);
 }
 
+void WebPage::setDevicePixelRatio(float ratio) {
+    m_customWebPage->setDevicePixelRatio(ratio);
+}
+
+float WebPage::devicePixelRatio() const
+{
+    return m_customWebPage->devicePixelRatio();
+}
+
 bool WebPage::injectJs(const QString &jsFilePath) {
     return Utils::injectJsInFrame(jsFilePath, m_libraryPath, m_currentFrame);
 }

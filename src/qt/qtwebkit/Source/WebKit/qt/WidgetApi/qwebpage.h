@@ -305,6 +305,8 @@ public:
     virtual void triggerAction(WebAction action, bool checked = false);
 
     QSize viewportSize() const;
+    void setDevicePixelRatio(float ratio);
+    float devicePixelRatio() const;
     void setViewportSize(const QSize &size) const;
     ViewportAttributes viewportAttributesForSize(const QSize& availableSize) const;
 
