@@ -89,6 +89,7 @@ public:
         WV_WINDOWS7 = 0x0090,
         WV_WINDOWS8 = 0x00a0,
         WV_WINDOWS8_1 = 0x00b0,
+        WV_WINDOWS10 = 0x00c0,
         WV_NT_based = 0x00f0,
 
         /* version numbers */
@@ -100,6 +101,7 @@ public:
         WV_6_1      = WV_WINDOWS7,
         WV_6_2      = WV_WINDOWS8,
         WV_6_3      = WV_WINDOWS8_1,
+        WV_10_0     = WV_WINDOWS10,
 
         WV_CE       = 0x0100,
         WV_CENET    = 0x0200,

@@ -1068,6 +1068,7 @@ bool qSharedBuild() Q_DECL_NOTHROW
     \value WV_WINDOWS7 Windows 7, Windows Server 2008 R2 (operating system version 6.1)
     \value WV_WINDOWS8 Windows 8 (operating system version 6.2)
     \value WV_WINDOWS8_1 Windows 8.1 (operating system version 6.3), introduced in Qt 5.2
+    \value WV_WINDOWS10 Windows 10 (operating system version 10.0), introduced in Qt 5.5
 
     Alternatively, you may use the following macros which correspond directly to the Windows operating system version number:
 
@@ -1079,6 +1080,7 @@ bool qSharedBuild() Q_DECL_NOTHROW
     \value WV_6_1   Operating system version 6.1, corresponds to Windows 7 and Windows Server 2008 R2
     \value WV_6_2   Operating system version 6.2, corresponds to Windows 8
     \value WV_6_3   Operating system version 6.3, corresponds to Windows 8.1, introduced in Qt 5.2
+    \value WV_10_0  Operating system version 10.0, corresponds to Windows 10, introduced in Qt 5.5
 
     CE-based versions:
 
@@ -2024,6 +2026,8 @@ QSysInfo::WinVersion QSysInfo::windowsVersion()
             winver = QSysInfo::WV_WINDOWS8;
         } else if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 3) {
             winver = QSysInfo::WV_WINDOWS8_1;
+        } else if (osver.dwMajorVersion == 10 && osver.dwMinorVersion == 0) {
+            winver = QSysInfo::WV_WINDOWS10;
         } else {
             qWarning("Qt: Untested Windows version %d.%d detected!",
                      int(osver.dwMajorVersion), int(osver.dwMinorVersion));
