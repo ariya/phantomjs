@@ -187,8 +187,12 @@ if [[ "$QTWEBKIT" == "bundled" ]]; then
     WEBKIT_DISABLE+=' video'
     WEBKIT_DISABLE+=' gamepad'
 
+    # Use zlib for WOFF support
+    WEBKIT_ENABLE=
+    WEBKIT_ENABLE+=' use_zlib'
+
     ( cd src/qt/qtwebkit &&
-        $QMAKE "WEBKIT_CONFIG -= $WEBKIT_DISABLE" $QMAKE_ARGS &&
+        $QMAKE "WEBKIT_CONFIG -= $WEBKIT_DISABLE" "WEBKIT_CONFIG += $WEBKIT_ENABLE" $QMAKE_ARGS &&
         make -j$COMPILE_JOBS $MAKE_S )
 fi
 
