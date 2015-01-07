@@ -65,6 +65,7 @@ static const struct QCommandLineConfigEntry flags[] =
     { QCommandLine::Option, '\0', "proxy", "Sets the proxy server, e.g. '--proxy=http://proxy.company.com:8080'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "proxy-auth", "Provides authentication information for the proxy, e.g. ''-proxy-auth=username:password'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "proxy-type", "Specifies the proxy type, 'http' (default), 'none' (disable completely), or 'socks5'", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "no-proxy", "Specifies the proxy exceptions, '127.0.0.1, localhost' (default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "script-encoding", "Sets the encoding used for the starting script, default is 'utf8'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "script-language", "Sets the script language instead of detecting it: 'javascript'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "web-security", "Enables web security, 'true' (default) or 'false'", QCommandLine::Optional },
@@ -348,6 +349,11 @@ int Config::proxyPort() const
     return m_proxyPort;
 }
 
+QString Config::proxyExceptions() const
+{
+    return m_proxyExceptions;
+}
+
 QStringList Config::scriptArgs() const
 {
     return m_scriptArgs;
@@ -554,6 +560,7 @@ void Config::resetToDefaults()
     m_proxyPort = 1080;
     m_proxyAuthUser.clear();
     m_proxyAuthPass.clear();
+    m_proxyExceptions.clear();
     m_scriptArgs.clear();
     m_scriptEncoding = "UTF-8";
     m_scriptLanguage.clear();
@@ -614,6 +621,11 @@ void Config::setProxyHost(const QString &value)
 void Config::setProxyPort(const int value)
 {
     m_proxyPort = value;
+}
+
+void Config::setProxyExceptions(const QString &value)
+{
+    m_proxyExceptions = value;
 }
 
 bool Config::helpFlag() const
@@ -734,6 +746,10 @@ void Config::handleOption(const QString &option, const QVariant &value)
 
     if (option == "proxy-auth") {
         setProxyAuth(value.toString());
+    }
+
+    if (option == "no-proxy") {
+	setProxyExceptions(value.toString());
     }
 
     if (option == "script-encoding") {
