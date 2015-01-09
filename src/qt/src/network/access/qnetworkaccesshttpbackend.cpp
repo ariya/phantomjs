@@ -59,6 +59,7 @@
 #ifndef QT_NO_HTTP
 
 #include <string.h>             // for strchr
+#include <unistd.h>				// for usleep & useconds_t
 
 Q_DECLARE_METATYPE(QSharedPointer<char>)
 
@@ -358,9 +359,12 @@ static QHttpNetworkRequest::Priority convert(const QNetworkRequest::Priority& pr
     }
 }
 
+#define ASYNC_HTTP_POST_THREAD_MAX_START_TIME_USEC 1000000 // 1 second
 void QNetworkAccessHttpBackend::postRequest()
 {
     QThread *thread = 0;
+    useconds_t sleep_step = 20;
+    useconds_t slept = 0;
     if (isSynchronous()) {
         // A synchronous HTTP request uses its own thread
         thread = new QThread();
@@ -372,6 +376,7 @@ void QNetworkAccessHttpBackend::postRequest()
         manager->httpThread = new QThread();
         QObject::connect(manager->httpThread, SIGNAL(finished()), manager->httpThread, SLOT(deleteLater()));
         manager->httpThread->start();
+
 #ifndef QT_NO_NETWORKPROXY
         qRegisterMetaType<QNetworkProxy>("QNetworkProxy");
 #endif
@@ -389,6 +394,11 @@ void QNetworkAccessHttpBackend::postRequest()
         // Asynchronous request, thread already exists
         thread = manager->httpThread;
     }
+    do {
+        usleep(sleep_step);
+        slept += sleep_step;
+    }
+    while (slept < ASYNC_HTTP_POST_THREAD_MAX_START_TIME_USEC && !thread->isRunning());
 
     QUrl url = request().url();
     httpRequest.setUrl(url);
