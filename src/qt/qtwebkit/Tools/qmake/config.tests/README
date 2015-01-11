@@ -1,0 +1,4 @@
+This directory is used for configure-style checks that are run by
+syncqt during processing of configure.pro in the parent directory.
+
+Note: This feature is available in Qt 5 only.
