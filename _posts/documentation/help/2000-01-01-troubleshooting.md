@@ -29,7 +29,7 @@ page.onResourceRequested = function (request) {
 
 Transport Layer Security (TLS) and Secure Sockets Layer (SSL) are necessary to access encrypted data, for example when connecting to a server using HTTPS. Thus, if PhantomJS works well with HTTP but it shows some problem when using HTTPS, the first useful thing to check it whether the SSL libraries, usually OpenSSL, have been installed properly.
 
-On Windows, the default proxy setting may cause a massive network latency (see Known Issues in the release note). The workaround is to disable proxy completely, e.g. by launching PhantomJS with `----proxy-type=none` command-line argument.
+On Windows, the default proxy setting may cause a massive network latency (see Known Issues in the release note). The workaround is to disable proxy completely, e.g. by launching PhantomJS with `--proxy-type=none` command-line argument.
 
 ### SELinux
 
@@ -45,8 +45,8 @@ page.onError = function (msg, trace) {
     console.log(msg);
     trace.forEach(function(item) {
         console.log('  ', item.file, ':', item.line);
-    })
-}
+    });
+};
 ```
 
 Now if the page opens a site with some JavaScript exceptions, a detailed information (including the stack trace) will be printed out.
