@@ -30,7 +30,7 @@ namespace WebCore {
 
 static bool isDefinite(ProcessingUserGestureState state)
 {
-    return state == DefinitelyProcessingUserGesture || state == DefinitelyNotProcessingUserGesture;
+    return true;//state == DefinitelyProcessingUserGesture || state == DefinitelyNotProcessingUserGesture;
 }
 
 ProcessingUserGestureState UserGestureIndicator::s_state = DefinitelyNotProcessingUserGesture;
