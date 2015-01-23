@@ -64,7 +64,8 @@ ghostdriver.Session = function(desiredCapabilities) {
         "nativeEvents" : true,              //< TODO Only some commands are Native Events currently
         "proxy" : {                         //< TODO Support more proxy options - PhantomJS does allow setting from command line
             "proxyType" : "direct"
-        }
+        },
+        "webSecurityEnabled" : true
     },
     _negotiatedCapabilities = {
         "browserName"               : _defaultCapabilities.browserName,
@@ -88,7 +89,10 @@ ghostdriver.Session = function(desiredCapabilities) {
         "nativeEvents"              : _defaultCapabilities.nativeEvents,
         "proxy"                     : typeof(desiredCapabilities.proxy) === "undefined" ?
             _defaultCapabilities.proxy :
-            desiredCapabilities.proxy
+            desiredCapabilities.proxy,
+         "webSecurityEnabled"       : typeof(desiredCapabilities.webSecurityEnabled) === "undefined" ?
+            _defaultCapabilities.webSecurityEnabled :
+            desiredCapabilities.webSecurityEnabled
     },
     // NOTE: This value is needed for Timeouts Upper-bound limit.
     // "setTimeout/setInterval" accept only 32 bit integers, even though Number are all Doubles (go figure!)
