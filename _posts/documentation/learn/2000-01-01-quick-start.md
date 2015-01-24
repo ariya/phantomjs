@@ -94,7 +94,7 @@ It outputs something like:
 
 ## Code Evaluation
 
-To evaluate JavaScript or CoffeeScript code in the context of the web page, use `evaluate()` function. The execution is "sandboxed", there is no way for the code to access any JavaScript objects and variables outside its own page context. An object can be returned from `evaluate()`, however it is limited to simple objects and can't contain functions or closures.
+To evaluate JavaScript code in the context of the web page, use `evaluate()` function. The execution is "sandboxed", there is no way for the code to access any JavaScript objects and variables outside its own page context. An object can be returned from `evaluate()`, however it is limited to simple objects and can't contain functions or closures.
 
 Here is an example to show the title of a web page:
 

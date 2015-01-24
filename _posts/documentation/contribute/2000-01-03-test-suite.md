@@ -18,9 +18,7 @@ As of now, the tests are still very basic. The coverage of the tests will be exp
 
 ## Manual Tests
 
-Note 1: in all the subsequent test, run also the corresponding CoffeeScript version whenever available.
-
-Note 2: tests marked with + (plus) requires an Internet connection.
+Note 1: tests marked with + (plus) requires an Internet connection.
 
 ### A. Basic sanity checks
 
