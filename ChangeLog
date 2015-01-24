@@ -1,10 +1,11 @@
 Please see also http://phantomjs.org/releases.html.
 
-Some future version:
+2015-01-23: Version 2.0.0
 
     New features
 
-      * Added POST data in the resource request (issue 10158)
+      * Switched to Qt 5 and updated WebKit (issue 10448)
+      * Implemented clearing of memory cache (issue 10357)
       * Added support for HTTP header change for every request (issue 11299)
 
     Improvements
@@ -12,6 +13,8 @@ Some future version:
       * Fixed rendering of CJK text by always linking the codecs (issue 10249)
       * Ensured onResourceReceived is still fired on an error (issue 11163)
       * Fixed possible crash in handling network requests (issue 11252)
+      * Removed hardcoded GhostDriver launching message (issue 12681)
+      * Allowed disk cache more than 2 GB (issue 12303)
 
     Examples
 
