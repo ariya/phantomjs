@@ -11,7 +11,9 @@ CONFIG += console
 DESTDIR = ../bin
 
 RESOURCES = phantomjs.qrc \
-    ghostdriver/ghostdriver.qrc
+    ghostdriver/ghostdriver.qrc \
+    qt/qtwebkit/Source/WebCore/inspector/front-end/WebKit.qrc \
+    qt/qtwebkit/Source/WebCore/generated/InspectorBackendCommands.qrc
 
 !winrt:!win32: {
     QTPLUGIN += qphantom
