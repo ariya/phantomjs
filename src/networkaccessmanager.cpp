@@ -218,6 +218,40 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
     connect(this, SIGNAL(finished(QNetworkReply*)), SLOT(handleFinished(QNetworkReply*)));
 }
 
+QStringList NetworkAccessManager::captureContent() const
+{
+    return m_captureContentPatterns;
+}
+
+void NetworkAccessManager::setCaptureContent(const QStringList &patterns)
+{
+    m_captureContentPatterns = patterns;
+
+    compileCaptureContentPatterns();
+}
+
+void NetworkAccessManager::compileCaptureContentPatterns()
+{
+    for(QStringList::const_iterator it = m_captureContentPatterns.constBegin();
+        it != m_captureContentPatterns.constEnd(); ++it) {
+
+        m_compiledCaptureContentPatterns.append(QRegExp(*it, Qt::CaseInsensitive));
+    }
+}
+
+bool NetworkAccessManager::shouldCaptureResponse(const QString& url)
+{
+    for(QList<QRegExp>::const_iterator it = m_compiledCaptureContentPatterns.constBegin();
+        it != m_compiledCaptureContentPatterns.constEnd(); ++it) {
+
+        if(-1 != it->indexIn(url)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void NetworkAccessManager::setUserName(const QString &userName)
 {
     m_userName = userName;
@@ -391,6 +425,9 @@ void NetworkAccessManager::handleStarted()
     data["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
     data["statusText"] = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
     data["contentType"] = reply->header(QNetworkRequest::ContentTypeHeader);
+    if(shouldCaptureResponse(reply->url().toString())) {
+        data["body"] = reply->peek(reply->size()).toBase64().data();
+    }
     data["bodySize"] = reply->size();
     data["redirectURL"] = reply->header(QNetworkRequest::LocationHeader);
     data["headers"] = headers;
