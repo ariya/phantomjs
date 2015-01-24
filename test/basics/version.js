@@ -9,4 +9,4 @@ assert.typeOf(phantom.version.patch, 'number');
 
 assert.equal(phantom.version.major, 2);
 assert.equal(phantom.version.minor, 0);
-assert.equal(phantom.version.patch, 0);
+assert.equal(phantom.version.patch, 1);
