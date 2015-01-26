@@ -44,7 +44,7 @@ The following script demonstrates the simplest use of page object. It loads exam
 
 ```javascript
 var page = require('webpage').create();
-page.open('http://example.com', function() {
+page.open('http://example.com', function(status) {
   console.log("Status: " + status);
   if(status === "success") {
     page.render('example.png');
