@@ -242,7 +242,7 @@ public slots:
     void close();
 
     QVariant evaluateJavaScript(const QString &code);
-    bool render(const QString &fileName, const QVariantMap &map = QVariantMap());
+    bool render(const QString &fileName, const QVariantMap &map = QVariantMap(), const QVariantMap &info = QVariantMap());
     /**
      * Render the page as base-64 encoded string.
      * Default image format is "png".
