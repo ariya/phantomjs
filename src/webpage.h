@@ -526,6 +526,7 @@ private slots:
     void updateLoadingProgress(int progress);
     void handleRepaintRequested(const QRect& dirtyRect);
     void handleUrlChanged(const QUrl& url);
+    void handleCurrentFrameDestroyed();
 
 private:
     QImage renderImage();
