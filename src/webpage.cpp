@@ -357,7 +357,6 @@ WebPage::WebPage(QObject *parent, const QUrl &baseUrl)
     // (no parameter == main frame) but we make sure to do the setup only once.
     //
     // @see WebPage::setupFrame(QWebFrame *) for details.
-    connect(m_mainFrame, SIGNAL(loadStarted()), this, SLOT(switchToMainFrame()), Qt::QueuedConnection);
     connect(m_mainFrame, SIGNAL(loadFinished(bool)), this, SLOT(setupFrame()), Qt::QueuedConnection);
     connect(m_customWebPage, SIGNAL(frameCreated(QWebFrame*)), this, SLOT(setupFrame(QWebFrame*)), Qt::DirectConnection);
     connect(m_mainFrame, SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(setupFrame()));
@@ -1522,8 +1521,15 @@ QStringList WebPage::childFramesName() const //< deprecated
 void WebPage::changeCurrentFrame(QWebFrame * const frame)
 {
     if (frame != m_currentFrame) {
-        qDebug() << "WebPage - changeCurrentFrame" << "from" << (m_currentFrame == NULL ? "Undefined" : m_currentFrame->frameName()) << "to" << frame->frameName();
-        m_currentFrame = frame;
+        qDebug() << "WebPage - changeCurrentFrame" << "from" << m_currentFrame->frameName() << "to" << frame->frameName();
+        QWebFrame * targetFrame = m_currentFrame;
+        while ((targetFrame = targetFrame->parentFrame()) != NULL) {
+            disconnect(targetFrame, SIGNAL(loadStarted()), this, SLOT(switchToMainFrame()));
+        }
+        m_currentFrame = targetFrame = frame;
+        while ((targetFrame = targetFrame->parentFrame()) != NULL) {
+            connect(targetFrame, SIGNAL(loadStarted()), this, SLOT(switchToMainFrame()), Qt::QueuedConnection);
+        }
     }
 }
 
