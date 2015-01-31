@@ -40,7 +40,7 @@ It is **very important** to call `phantom.exit` at some point in the script, oth
 
 A web page can be loaded, analyzed, and rendered by creating a web page object.
 
-The following script demonstrates the simplest use of page object. It loads example.com and then saves it as an image, `example.png` in the same the script was run in.
+The following script demonstrates the simplest use of page object. It loads example.com and then saves it as an image, `example.png` in the same directory the script was run in.
 
 ```javascript
 var page = require('webpage').create();
