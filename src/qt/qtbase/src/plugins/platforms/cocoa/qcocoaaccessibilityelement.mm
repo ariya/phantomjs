@@ -355,7 +355,7 @@
 - (BOOL)accessibilityIsAttributeSettable:(NSString *)attribute {
     QAccessibleInterface *iface = QAccessible::accessibleInterface(axid);
     if (!iface)
-        return nil;
+        return NO;
 
     if ([attribute isEqualToString:NSAccessibilityFocusedAttribute]) {
         return iface->state().focusable ? YES : NO;
