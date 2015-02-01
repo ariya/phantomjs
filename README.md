@@ -2,9 +2,7 @@
 
 PhantomJS ([www.phantomjs.org](http://phantomjs.org)) is a headless WebKit scriptable with JavaScript. It is used by hundreds of [developers](http://phantomjs.org/buzz.html) and dozens of [organizations](http://phantomjs.org/users.html) for web-related development workflow.
 
-The latest [stable release](http://phantomjs.org/release-1.9.html) is version 1.9 (codenamed <a href="http://phantomjs.org/release-names.html">"Sakura"</a>). Follow the official Twitter stream [@PhantomJS](http://twitter.com/PhantomJS) to get the frequent development updates.
-
-The next major version, PhantomJS 2, is a significant upgrade. It is still in [heavy development](https://github.com/ariya/phantomjs/wiki/PhantomJS-2). There is **no timeline** for the release yet, please monitor the [mailing-list](https://groups.google.com/forum/#!forum/phantomjs) for the progress.
+The latest [stable release](http://phantomjs.org/release-2.0.html) is version 2.0.
 
 **Note**: Please **do not** create a GitHub pull request **without** reading the [Contribution Guide](https://github.com/ariya/phantomjs/blob/master/CONTRIBUTING.md) first. Failure to do so may result in the rejection of the pull request.
 
@@ -43,5 +41,6 @@ and many others [related projects](http://phantomjs.org/related-projects.html).
 
 PhantomJS is free software/open source, and is distributed under the [BSD license](http://opensource.org/licenses/BSD-3-Clause). It contains third-party code, see the included `third-party.txt` file for the license information on third-party code.
 
-PhantomJS is created and maintained by [Ariya Hidayat](http://ariya.ofilabs.com/about) (Twitter: [@ariyahidayat](http://twitter.com/ariyahidayat)), with the help of [many contributors](https://github.com/ariya/phantomjs/contributors).
+PhantomJS is created and maintained by [Ariya Hidayat](http://ariya.ofilabs.com/about) (Twitter: [@ariyahidayat](http://twitter.com/ariyahidayat)), with the help of [many contributors](https://github.com/ariya/phantomjs/contributors). Follow the official Twitter stream [@PhantomJS](http://twitter.com/PhantomJS) to get the frequent development updates.
+
 
