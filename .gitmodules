@@ -1,0 +1,6 @@
+[submodule "src/qt/qtbase"]
+	path = src/qt/qtbase
+	url = https://github.com/KDAB/qtbase.git
+[submodule "src/qt/qtwebkit"]
+	path = src/qt/qtwebkit
+	url = https://github.com/KDAB/qtwebkit.git

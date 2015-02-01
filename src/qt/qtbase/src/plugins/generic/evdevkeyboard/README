@@ -1,7 +1,0 @@
-On development machines it might be useful to add the input devices
-to a group that your development user is part of. I.e. add:
-KERNEL=="event*", SUBSYSTEM=="input", MODE="0640", GROUP="users"
-
-to a file such as:
-/etc/udev/rules.d/10-local.rules
-

@@ -1,1 +1,0 @@
-#import <JavaScriptCore/Protect.h>

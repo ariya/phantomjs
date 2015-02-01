@@ -1,8 +1,0 @@
-
-#else
-
-// No backends for OpenGL ES 2
-
-#endif // !QT_OPENGL_ES_2
-
-QT_END_NAMESPACE

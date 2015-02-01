@@ -1,9 +1,0 @@
-[Options]
-case-insensitive
-classname = TestScanner
-
-[Tokens]
-TOK_C = [abcd]
-TOK_B = [bc]
-TOK_A = a
-
