@@ -67,27 +67,26 @@ To set breakpoints, look for your script in the drop-down in the Scripts tab; it
 
 After setting breakpoints (or if you are using <code>debugger</code> instead), to run your script, simply enter the ```__run()``` command in the Web Inspector Console. Alternatively, use `--remote-debugger-autorun=yes` command-line argument to have your script launched immediately.
 
-To debug inside a target web page requires two inspectors and a multi-step process using a function like this:
+To debug inside a target web page requires two inspectors and a multi-step process using code like this:
 
 ```javascript
-function debugPage() {
-  console.log("Refresh a second debugger-port page and open a second webkit inspector for the target page.");
-  console.log("Letting this page continue will then trigger a break in the target page.");
-  debugger; // pause here in first web browser tab for steps 5 & 6
-  page.evaluateAsync(function() {
-    debugger; // step 7 will wait here in the second web browser tab
-  });
-}
+// ... do some stuff that gives you access to a "page" instance ...
+console.log("Refresh a second debugger-port page and open a second webkit inspector for the target page.");
+console.log("Letting this page continue will then trigger a break in the target page.");
+debugger; // pause here in first web browser tab on step 5
+page.evaluateAsync(function() {
+    debugger; // step 9 will wait here in the second web browser tab
+});
 ```
-
-1. start on command line with remote-debugger-port option.
-1. navigate to debugging port in web browser
-1. get first web inspector for phantom context
-1. from the web browser console execute ```__run()```, which will hit first debugger point
-1. navigate to debugging port (<tt>http://127.0.0.1:9000</tt> if you use 9000 and everything is on the same machine) in a second web browser tab
-1. get second web inspector (for page context)
-1. return to the first web inspector tab and click continue on debugger
-1. navigate back to second tab and you should find debugger waiting
+1. Instrument your PhantomJS script with two `debugger;` lines as in the example above.
+1. Start PhantomJS on the command line with the `--remote-debugger-port=9000` option.
+1. Open http://127.0.0.1:9000/ in a Webkit-based web browser.
+1. There should be a bulleted list with a single link. Click on it to open a web inspector that operates in the *PhantomJS* context. (Sometimes the link is invisible because it contains no text; if you see nothing, navigate directly to http://127.0.0.1:9000//webkit/inspector/inspector.html?page=1.)
+1. Change to the Console section of the inspector and execute the statement `__run()`. This should cause the script to run until your first `debugger;` statement.
+1. Open a new browser tab and return to the debugging portal at http://127.0.0.1:9000. There should now be a second entry in the bulleted list.
+1. Click on this entry to open a new debugger that operates in the context of *your page* inside PhantomJS.
+1. Return to the first web inspector tab and click the "Continue" button in the debugger.
+1. In the second tab, you should now find the JS debugger paused at the second `debugger;` statement. You can now debug your page's JS using the full capabilities of the Webkit inspector.
 
 
 ### Interactive Mode (REPL)
