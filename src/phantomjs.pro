@@ -15,6 +15,13 @@ RESOURCES = phantomjs.qrc \
     qt/qtwebkit/Source/WebCore/inspector/front-end/WebKit.qrc \
     qt/qtwebkit/Source/WebCore/generated/InspectorBackendCommands.qrc
 
+# Include resources for Windows only. Linux and OS X already have them.
+# for more info see file: src\qt\qtwebkit\Source\WebCore\Target.pri:17
+!winrt:win32: {
+    RESOURCES += qt/qtwebkit/Source/WebCore/inspector/front-end/WebKit.qrc \
+                 qt/qtwebkit/Source/WebCore/generated/InspectorBackendCommands.qrc
+}
+
 !winrt:!win32: {
     QTPLUGIN += qphantom
 }
