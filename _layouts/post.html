@@ -24,8 +24,12 @@ layout: document
 
       <div class="grid_3 pull_9">
 
-        {% if page.categories contains 'api' %}
-          {% include nav-api.html %}
+        {% if page.categories contains 'api_v1' %}
+          {% include nav-api-v1.html %}
+        {% endif %}
+
+        {% if page.categories contains 'api_v2' %}
+          {% include nav-api-v2.html %}
         {% endif %}
 
         {% if page.categories contains 'docs' %}

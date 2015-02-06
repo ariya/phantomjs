@@ -2,7 +2,7 @@
 layout: post
 title: Command Line Interface
 categories: docs docs-learn
-permalink: api/command-line.html
+permalink: api/v1/command-line.html
 ---
 
 _**As the codebase is updated, we hope to keep these documents updated as well. Unless otherwise stated, this documentation currently applies to the latest PhantomJS release:** PhantomJS 1.8.0_
