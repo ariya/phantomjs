@@ -160,7 +160,7 @@ fi
 
 # Explicitly compile with support for OpenSSL enabled, so the build
 # will fail if headers are missing.
-QT_CFG+=' -openssl -openssl-linked'
+QT_CFG+=' -openssl'
 
 # ICU support in QtBase is reported to be unnecessary for Darwin.
 if [[ $OSTYPE != darwin* ]]; then
