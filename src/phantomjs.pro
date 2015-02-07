@@ -12,8 +12,6 @@ DESTDIR = ../bin
 
 RESOURCES = phantomjs.qrc \
     ghostdriver/ghostdriver.qrc \
-    qt/qtwebkit/Source/WebCore/inspector/front-end/WebKit.qrc \
-    qt/qtwebkit/Source/WebCore/generated/InspectorBackendCommands.qrc
 
 # Include resources for Windows only. Linux and OS X already have them.
 # for more info see file: src\qt\qtwebkit\Source\WebCore\Target.pri:17
