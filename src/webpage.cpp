@@ -1037,7 +1037,7 @@ QImage WebPage::renderImage()
 #endif
 
     QImage buffer(frameRect.size(), format);
-    buffer.fill(Qt::transparent);
+    buffer.fill(QColor(255, 255, 255, 255));
 
     QPainter painter;
 
@@ -1051,7 +1051,7 @@ QImage WebPage::renderImage()
         for (int y = 0; y < vtiles; ++y) {
 
             QImage tileBuffer(tileSize, tileSize, format);
-            tileBuffer.fill(Qt::transparent);
+            tileBuffer.fill(QColor(255, 255, 255, 255));
 
             // Render the web page onto the small tile first
             painter.begin(&tileBuffer);
