@@ -35,8 +35,7 @@
 #include <QStringList>
 #include <QNetworkProxy>
 #include <QVariant>
-
-class QCommandLine;
+#include <QCommandLineParser>
 
 class Config: public QObject
 {
@@ -184,20 +183,20 @@ public:
     void setWebdriverSeleniumGridHub(const QString& hubUrl);
     QString webdriverSeleniumGridHub() const;
 
-public slots:
-    void handleSwitch(const QString &sw);
-    void handleOption(const QString &option, const QVariant &value);
-    void handleParam(const QString& param, const QVariant &value);
-    void handleError(const QString &error);
-
 private:
+	void handleSwitches();
+	void handleOptions();
+	void handleParams();
+	void handleError(const QString &error);
+
     void resetToDefaults();
     void setProxyHost(const QString &value);
     void setProxyPort(const int value);
     void setAuthUser(const QString &value);
     void setAuthPass(const QString &value);
+	bool readBooleanValue(const QString &option, const QString &value) const;
 
-    QCommandLine *m_cmdLine;
+    QCommandLineParser m_parser;
     bool m_autoLoadImages;
     QString m_cookiesFile;
     QString m_offlineStoragePath;

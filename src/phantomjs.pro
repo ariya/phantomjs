@@ -66,7 +66,6 @@ OTHER_FILES += \
 
 include(mongoose/mongoose.pri)
 include(linenoise/linenoise.pri)
-include(qcommandline/qcommandline.pri)
 
 linux*|mac|openbsd* {
     INCLUDEPATH += breakpad/src
