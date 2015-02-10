@@ -5,6 +5,10 @@ categories: api fs fs-method
 permalink: api/fs/method/is-absolute.html
 ---
 
+'isAbsolute(string)' (BOOL)
+
+This will return true if the file path is absolute, otherwise it will return false if the path is relative.
+
 ## Examples
 
 ```javascript
