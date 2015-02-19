@@ -1116,3 +1116,57 @@ describe("WebPage render image", function(){
         p.close();
     });
 });
+
+
+describe("WebPage renderBase64 image", function(){
+    var TEST_FILE_DIR = "webpage-spec-renders/";
+
+    var p = require("webpage").create();
+
+    p.paperSize = { width: '300px', height: '300px', border: '0px' };
+    p.clipRect = { top: 0, left: 0, width: 300, height: 300};
+    p.viewportSize = { width: 300, height: 300};
+
+    function render_test(format, quality) {
+        var rendered = false;
+        p.open(TEST_FILE_DIR + "index.html", function() {
+            var content, expect_content;
+            try {
+
+                var TEST_FILE = TEST_FILE_DIR + 'test-' + format + (quality ? '-' + quality : '') + '.txt';
+                var expect_content = p.renderBase64(format, quality);
+                var content = fs.read(TEST_FILE, "b");
+
+            } catch (e) {
+                jasmine.fail(e);
+            }
+
+            expect(content).toEqual(expect_content);
+            rendered = true;
+        });
+
+        waitsFor(function() {
+            return rendered;
+        }, "page to be rendered", 3000);
+    }
+
+    it("should render base64 PNG string", function(){
+        render_test("png");
+    });
+
+    it("should render base64 JPG string", function(){
+        render_test("jpg");
+    });
+
+    it("should render base64 PNG string with quality 50", function(){
+        render_test("jpg", 50);
+    });
+
+    it("should render base64 PNG string with quality 100", function(){
+        render_test("jpg", 100);
+    });
+
+    runs(function() {
+        p.close();
+    });
+});

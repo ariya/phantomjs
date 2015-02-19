@@ -979,7 +979,7 @@ bool WebPage::render(const QString &fileName, const QVariantMap &option)
     return retval;
 }
 
-QString WebPage::renderBase64(const QByteArray &format)
+QString WebPage::renderBase64(const QByteArray &format, const int quality)
 {
     QByteArray nformat = format.toLower();
 
@@ -993,7 +993,7 @@ QString WebPage::renderBase64(const QByteArray &format)
         buffer.open(QIODevice::WriteOnly);
 
         // Writing image to the buffer, using PNG encoding
-        rawPageRendering.save(&buffer, nformat);
+        rawPageRendering.save(&buffer, nformat, quality);
 
         return bytes.toBase64();
     }
