@@ -132,7 +132,7 @@ LinuxDumper::ElfFileIdentifierForMapping(const MappingInfo& mapping,
 }
 
 void*
-LinuxDumper::FindBeginningOfLinuxGateSharedLibrary(pid_t pid) const {
+LinuxDumper::Find(pid_t pid, bool pointExpr) const {
   char auxv_path[NAME_MAX];
   if (!BuildProcPath(auxv_path, pid, "auxv"))
     return NULL;
@@ -145,12 +145,13 @@ LinuxDumper::FindBeginningOfLinuxGateSharedLibrary(pid_t pid) const {
     return NULL;
   }
 
+  // Find the AT_ENTRY entry
   elf_aux_entry one_aux_entry;
   while (sys_read(fd,
                   &one_aux_entry,
                   sizeof(elf_aux_entry)) == sizeof(elf_aux_entry) &&
          one_aux_entry.a_type != AT_NULL) {
-    if (one_aux_entry.a_type == AT_SYSINFO_EHDR) {
+    if (pointExpr) {
       close(fd);
       return reinterpret_cast<void*>(one_aux_entry.a_un.a_val);
     }
@@ -160,29 +161,13 @@ LinuxDumper::FindBeginningOfLinuxGateSharedLibrary(pid_t pid) const {
 }
 
 void*
+LinuxDumper::FindBeginningOfLinuxGateSharedLibrary(pid_t pid) const {
+  return LinuxDumper::Find(pid, (one_aux_entry.a_type == AT_SYSINFO_EHDR));
+}
+
+void*
 LinuxDumper::FindEntryPoint(pid_t pid) const {
-  char auxv_path[NAME_MAX];
-  if (!BuildProcPath(auxv_path, pid, "auxv"))
-    return NULL;
-
-  int fd = sys_open(auxv_path, O_RDONLY, 0);
-  if (fd < 0) {
-    return NULL;
-  }
-
-  // Find the AT_ENTRY entry
-  elf_aux_entry one_aux_entry;
-  while (sys_read(fd,
-                  &one_aux_entry,
-                  sizeof(elf_aux_entry)) == sizeof(elf_aux_entry) &&
-         one_aux_entry.a_type != AT_NULL) {
-    if (one_aux_entry.a_type == AT_ENTRY) {
-      close(fd);
-      return reinterpret_cast<void*>(one_aux_entry.a_un.a_val);
-    }
-  }
-  close(fd);
-  return NULL;
+  return LinuxDumper::Find(pid, (one_aux_entry.a_type == AT_ENTRY));
 }
 
 bool LinuxDumper::EnumerateMappings() {
