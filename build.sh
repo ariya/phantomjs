@@ -19,7 +19,7 @@ elif [[ $OSTYPE = darwin* ]]; then
    # We only support modern Mac machines, they are at least using
    # hyperthreaded dual-core CPU.
    COMPILE_JOBS=4
-elif [[ $OSTYPE == freebsd* ]]; then
+elif [[ $OSTYPE == freebsd* ]] || [[ $OSTYPE == openbsd* ]]; then
    COMPILE_JOBS=`sysctl -n hw.ncpu`
 else
    CPU_CORES=`grep -c ^processor /proc/cpuinfo`
