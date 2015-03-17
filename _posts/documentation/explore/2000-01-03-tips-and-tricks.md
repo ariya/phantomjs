@@ -19,13 +19,14 @@ page.evaluate(function() {
 
 Make sure this is executed before calling render() function of the web page.
 
-### Using calc() from CSS3
+### Use `-webkit-calc()` instead of `calc()`
 
-The version of Webkit used by PhantomJS does not support the CSS3 `calc()` feature. It is good practice to set a fallback for clients that do not support it. Your end users might not support it either!
+The version of WebKit used by PhantomJS supports CSS3 `calc()` if you add the `-webkit` prefix:
 
 ```scss
 iframe {
   height: 100%;
-  height: calc(100% - 48px); /* 48px = banner height */
+  height: calc(100% - 48px); /* Will not work */
+  height: -webkit-calc(100% - 48px); /* Works */
 }
 ```
