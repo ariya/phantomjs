@@ -17,7 +17,7 @@ The following table summarizes the list of various test frameworks and the corre
 |:-----------|:------------|
 | [Buster.JS](http://busterjs.org)| built-in|
 | [Capybara](http://jnicklas.github.com/capybara) |[Poltergeist](https://github.com/jonleighton/poltergeist), [Terminus](http://terminus.jcoglan.com)
-| [Mocha](http://visionmedia.github.com/mocha) | [Chutzpah](https://github.com/mmanela/chutzpah), [mocha-phantomjs](http://metaskills.net/mocha-phantomjs) |
+| [Mocha](http://mochajs.org) | [Chutzpah](https://github.com/mmanela/chutzpah), [mocha-phantomjs](http://metaskills.net/mocha-phantomjs) |
 | [FuncUnit](http://funcunit.com) | built-in|
 | [Hiro](http://hirojs.com) | built-in|
 | [Karma](http://karma-runner.github.com/) (née Testacular) | built-in |
