@@ -19,6 +19,8 @@ The following projects are based on PhantomJS. They provide extra functionalitie
 
  * [Lotte](https://github.com/StanAngeloff/lotte) adds jQuery-like methods, chaining, and more assertion logic.
 
+ * [PhearJS](http://phear.io/) a supervisor and API for PhantomJS written in NodeJS.
+
  * [Poltergeist](https://github.com/jonleighton/poltergeist) is a driver for [Capybara](https://github.com/jnicklas/capybara) so you can run your Capybara tests using PhantomJS.
 
  * [pjscrape](https://github.com/nrabinowitz/pjscrape) combines PhantomJS with jQuery as a command-line scraping tool.
