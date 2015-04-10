@@ -25,6 +25,7 @@ The following table summarizes the list of various test frameworks and the corre
 | [JsTestDriver](http://code.google.com/p/js-test-driver/) | [js-test-driver-phantomjs](https://github.com/larrymyers/js-test-driver-phantomjs) |
 | [Laika](http://arunoda.github.io/laika/) | built-in |
 | [Preamble](http://jeffschwartz.github.io/preamble/)| built-in|
+| [phantom-assert](https://bitbucket.org/eradman/phantom-assert)| built-in|
 | [QUnit](http://qunitjs.com) | [qunit-phantomjs-runner](https://github.com/jonkemp/qunit-phantomjs-runner), [Chutzpah](http://chutzpah.codeplex.com), [JS Test Runner](http://js-testrunner.codehaus.org), [Qlive](https://github.com/proxv/qlive), [QUnited](http://github.com/aaronroyer/qunited)|
 | [Robot Framework](http://code.google.com/p/robotframework/) | [phantomrobot](https://github.com/datakurre/phantomrobot)|
 | [tapedeck](https://github.com/juliangruber/tapedeck) | built-in |
