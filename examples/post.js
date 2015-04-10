@@ -1,5 +1,6 @@
 // Example using HTTP POST operation
 
+"use strict";
 var page = require('webpage').create(),
     server = 'http://posttestserver.com/post.php?dump',
     data = 'universe=expanding&answer=42';

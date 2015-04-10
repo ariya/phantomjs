@@ -1,5 +1,6 @@
 // Detect if a web page sniffs the user agent or not.
 
+"use strict";
 var page = require('webpage').create(),
     system = require('system'),
     sniffed,
